@@ -52,6 +52,7 @@ Detailed configuration depends on the xref:pipeline/pipeline-run-configurations/
 * *xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]*
 * *xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Hop local pipeline engine]*
 * *xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop remote pipeline engine]*
+* *xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[Hop load-balancing pipeline engine]*
 |===
 
 == Samples

@@ -40,6 +40,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -61,6 +63,7 @@ import org.w3c.dom.Node;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.LOOKUP})
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class CombinationLookupMeta
     extends BaseTransformMeta<CombinationLookup, CombinationLookupData> {
 
@@ -114,6 +117,15 @@ public class CombinationLookupMeta
       injectionKeyDescription = "CombinationLookup.Injection.HASH_FIELD")
   private String hashField;
 
+  /**
+   * Optional input field that already contains the hash. Empty means this transform calculates it.
+   */
+  @HopMetadataProperty(
+      key = "hashfield_stream",
+      injectionKey = "HASH_FIELD_IN_STREAM",
+      injectionKeyDescription = "CombinationLookup.Injection.HASH_FIELD_IN_STREAM")
+  private String hashFieldInStream;
+
   /** Commit size for insert / update */
   @HopMetadataProperty(
       key = "commit",
@@ -143,16 +155,6 @@ public class CombinationLookupMeta
 
   public CombinationLookupMeta() {
     this.fields = new CFields();
-  }
-
-  public CombinationLookupMeta(CombinationLookupMeta m) {
-    fields = new CFields();
-  }
-
-  @Override
-  public Object clone() {
-    CombinationLookupMeta retval = (CombinationLookupMeta) super.clone();
-    return retval;
   }
 
   @Override
@@ -332,6 +334,7 @@ public class CombinationLookupMeta
                     transformMeta);
           }
           remarks.add(cr);
+          checkHashField(remarks, variables, transformMeta, prev);
         } else {
           errorMessage =
               BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.CouldNotReadFields")
@@ -420,6 +423,42 @@ public class CombinationLookupMeta
     }
   }
 
+  void checkHashField(
+      List<ICheckResult> remarks,
+      IVariables variables,
+      TransformMeta transformMeta,
+      IRowMeta prev) {
+    if (!useHash || Utils.isEmpty(variables.resolve(hashFieldInStream))) {
+      return;
+    }
+    String hashName = variables.resolve(hashFieldInStream);
+    IValueMeta hashValue = prev.searchValueMeta(hashName);
+    CheckResult cr;
+    if (hashValue == null) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.HashFieldNotFound", hashName),
+              transformMeta);
+    } else if (hashValue.getType() != IValueMeta.TYPE_INTEGER) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.HashFieldNotInteger", hashName),
+              transformMeta);
+    } else {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "CombinationLookupMeta.CheckResult.HashFieldFound", hashName),
+              transformMeta);
+    }
+    remarks.add(cr);
+  }
+
   @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
@@ -428,8 +467,7 @@ public class CombinationLookupMeta
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connectionName, variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
 
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
@@ -680,8 +718,10 @@ public class CombinationLookupMeta
       IRowMeta info,
       IHopMetadataProvider metadataProvider) {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connectionName, variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta == null || prev == null) {
+      return;
+    }
 
     // The keys are read-only...
     for (int i = 0; i < fields.getKeyFields().size(); i++) {

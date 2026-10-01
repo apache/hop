@@ -18,6 +18,7 @@ under the License.
 [[DataflowPipeline]]
 :imagesdir: ../../../assets/images
 :description: This page explains how to use the Google Dataflow pipeline templates
+:page-marketplace: hop-engines-beam
 
 = Google Dataflow Pipeline (Template)
 

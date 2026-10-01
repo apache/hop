@@ -1,0 +1,92 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Spark file output writes a Spark Dataset as CSV, Parquet, JSON, ORC or text files on the native Spark pipeline engine. The path is a Spark/Hadoop URI, not a Hop VFS path.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-engines-spark
+
+= image:transforms/icons/spark-file-output.svg[Spark file output transform Icon, role="image-doc-icon"] Spark file output
+
+== Description
+
+*Spark file output* writes the incoming `Dataset` with `df.write.format(...).save(path)` on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+It is the bulk output of the native Spark engine: Spark writes one part file per partition in parallel on the executors, so use it instead of the classic Text File Output or Parquet File Output transforms for large or partitioned writes.
+
+This transform is **not** available on the local Hop engine or on the Beam engines.
+It is a leaf: the write is executed as a Spark action when the engine materialises the pipeline, and no rows are passed on.
+
+The path is a Spark/Hadoop `FileSystem` URI that must be writable from every executor, **not** a Hop VFS path: a local directory on `local[*]`, `hdfs://…` or `s3a://…` on a cluster.
+Spark always writes a **directory** of part files at that location, never a single file with that name; see <<single-file>> below.
+See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems] for the scheme mapping and for the *Path scheme map* on the run configuration.
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|Spark path / directory (Hadoop URI)
+|Output directory or prefix. Supports variables. Avoid `${PROJECT_HOME}` when running with a Spark project package: that variable points at the extracted definition files, not at a data location. Use a data variable such as `HOP_DATA` or `OUTPUT_ROOT`, or an explicit `s3a://` / `hdfs://` URI. Can be left empty for a path-less sink such as `jdbc`, which is addressed entirely through *Extra options*.
+
+|Format
+|`csv` (default), `parquet`, `json`, `orc` or `text`. Any other Spark data source name is passed to `df.write.format()` as is, for example `jdbc`.
+
+|Save mode
+|What to do when the target already exists: `Overwrite` (default), `Append`, `Ignore` (silently do nothing) or `ErrorIfExists`.
+
+|Write header
+|CSV and text only. Write the column names as the first line of every part file.
+
+|Separator
+|CSV and text only. Field separator, default `,`. Supports variables.
+
+|Quote character
+|CSV and text only. Default `"`. Supports variables.
+
+|Partition by columns
+|Comma-separated list of columns to partition the output by. Spark creates one sub-directory per distinct value (`column=value/…`) and drops the column from the files themselves.
+
+|Coalesce partitions
+|Reduce the number of partitions, and therefore of part files, before writing. Supports variables. `1` produces a single part file at the cost of moving all data through one task; leave empty to keep Spark's partitioning.
+
+|Extra options
+|Additional Spark write options as `key=value` lines, one per line. They are applied before the options above, so a key you set here wins over the dialog fields (for example `compression=gzip`, `dateFormat`, `timestampFormat`, `nullValue`, or `url`, `dbtable`, `user` and `password` for a `jdbc` sink).
+|===
+
+The output fields are the input fields: this transform does not change the row layout.
+
+[[single-file]]
+== Getting a single file
+
+Spark writes `part-00000-…` files into the directory you give, together with a `_SUCCESS` marker.
+To get one data file, set *Coalesce partitions* to `1`; the file still lives inside the output directory and keeps its Spark-generated name.
+If you need an exact file name, rename or copy it in a following workflow action.
+
+== Metadata injection
+
+All options support xref:pipeline/metadata-injection.adoc[metadata injection].
+
+== Related pages
+
+* xref:pipeline/transforms/spark-file-input.adoc[Spark file input]
+* xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on the native Spark engine]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output] for Delta Lake and Apache Iceberg tables
+* xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]

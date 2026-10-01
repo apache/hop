@@ -37,12 +37,14 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -77,7 +79,7 @@ public class PipelineDialog extends Dialog {
   private CTabItem wParamTab;
   private CTabItem wMonitorTab;
 
-  private Text wPipelineName;
+  private TextVar wPipelineName;
   private Button wNameFilenameSync;
   private Text wPipelineFilename;
 
@@ -96,6 +98,10 @@ public class PipelineDialog extends Dialog {
 
   private Text wModUser;
   private Text wModDate;
+
+  private Text wCreatedHopVersion;
+
+  private Text wModifiedHopVersion;
 
   private TableView wParamFields;
 
@@ -233,7 +239,15 @@ public class PipelineDialog extends Dialog {
     wPipelineTab.setFont(GuiResource.getInstance().getFontDefault());
     wPipelineTab.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineTab.Label"));
 
-    Composite wPipelineComp = new Composite(wTabFolder, SWT.NONE);
+    // The field list is taller than the dialog once it's resized down, so the tab scrolls
+    // rather than silently cutting off whatever no longer fits.
+    //
+    ScrolledComposite wPipelineSc = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wPipelineSc);
+    wPipelineSc.setExpandHorizontal(true);
+    wPipelineSc.setExpandVertical(true);
+
+    Composite wPipelineComp = new Composite(wPipelineSc, SWT.NONE);
     PropsUi.setLook(wPipelineComp);
 
     FormLayout workflowLayout = new FormLayout();
@@ -251,7 +265,9 @@ public class PipelineDialog extends Dialog {
     fdlPipelineName.right = new FormAttachment(middle, -margin);
     fdlPipelineName.top = new FormAttachment(0, margin);
     wlPipelineName.setLayoutData(fdlPipelineName);
-    wPipelineName = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPipelineName =
+        new TextVar(variables, wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_PIPELINE);
     PropsUi.setLook(wPipelineName);
     wPipelineName.addModifyListener(lsMod);
     FormData fdPipelineName = new FormData();
@@ -343,7 +359,7 @@ public class PipelineDialog extends Dialog {
     fdExtendedDescription.left = new FormAttachment(middle, 0);
     fdExtendedDescription.top = new FormAttachment(wPipelineDescription, margin);
     fdExtendedDescription.right = new FormAttachment(100, 0);
-    fdExtendedDescription.bottom = new FormAttachment(50, -margin);
+    fdExtendedDescription.height = (int) (120 * PropsUi.getNativeZoomFactor());
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
     // Pipeline Status
@@ -426,6 +442,25 @@ public class PipelineDialog extends Dialog {
     fdCreateDate.right = new FormAttachment(100, 0);
     wCreateDate.setLayoutData(fdCreateDate);
 
+    // Created with Hop version:
+    Label wlCreatedHopVersion = new Label(wPipelineComp, SWT.RIGHT);
+    wlCreatedHopVersion.setText(
+        BaseMessages.getString(PKG, "PipelineDialog.CreatedHopVersion.Label"));
+    PropsUi.setLook(wlCreatedHopVersion);
+    FormData fdlCreatedHopVersion = new FormData();
+    fdlCreatedHopVersion.left = new FormAttachment(0, 0);
+    fdlCreatedHopVersion.right = new FormAttachment(middle, -margin);
+    fdlCreatedHopVersion.top = new FormAttachment(wCreateDate, margin);
+    wlCreatedHopVersion.setLayoutData(fdlCreatedHopVersion);
+    wCreatedHopVersion = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCreatedHopVersion);
+    wCreatedHopVersion.setEditable(false);
+    FormData fdCreatedHopVersion = new FormData();
+    fdCreatedHopVersion.left = new FormAttachment(middle, 0);
+    fdCreatedHopVersion.top = new FormAttachment(wCreateDate, margin);
+    fdCreatedHopVersion.right = new FormAttachment(100, 0);
+    wCreatedHopVersion.setLayoutData(fdCreatedHopVersion);
+
     // Modified User:
     Label wlModUser = new Label(wPipelineComp, SWT.RIGHT);
     wlModUser.setText(BaseMessages.getString(PKG, "PipelineDialog.LastModifiedUser.Label"));
@@ -433,7 +468,7 @@ public class PipelineDialog extends Dialog {
     FormData fdlModUser = new FormData();
     fdlModUser.left = new FormAttachment(0, 0);
     fdlModUser.right = new FormAttachment(middle, -margin);
-    fdlModUser.top = new FormAttachment(wCreateDate, margin);
+    fdlModUser.top = new FormAttachment(wCreatedHopVersion, margin);
     wlModUser.setLayoutData(fdlModUser);
     wModUser = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wModUser);
@@ -441,7 +476,7 @@ public class PipelineDialog extends Dialog {
     wModUser.addModifyListener(lsMod);
     FormData fdModUser = new FormData();
     fdModUser.left = new FormAttachment(middle, 0);
-    fdModUser.top = new FormAttachment(wCreateDate, margin);
+    fdModUser.top = new FormAttachment(wCreatedHopVersion, margin);
     fdModUser.right = new FormAttachment(100, 0);
     wModUser.setLayoutData(fdModUser);
 
@@ -464,15 +499,29 @@ public class PipelineDialog extends Dialog {
     fdModDate.right = new FormAttachment(100, 0);
     wModDate.setLayoutData(fdModDate);
 
-    FormData fdPipelineComp = new FormData();
-    fdPipelineComp.left = new FormAttachment(0, 0);
-    fdPipelineComp.top = new FormAttachment(0, 0);
-    fdPipelineComp.right = new FormAttachment(100, 0);
-    fdPipelineComp.bottom = new FormAttachment(100, 0);
-    wPipelineComp.setLayoutData(fdPipelineComp);
+    // Last modified with Hop version:
+    Label wlModifiedHopVersion = new Label(wPipelineComp, SWT.RIGHT);
+    wlModifiedHopVersion.setText(
+        BaseMessages.getString(PKG, "PipelineDialog.ModifiedHopVersion.Label"));
+    PropsUi.setLook(wlModifiedHopVersion);
+    FormData fdlModifiedHopVersion = new FormData();
+    fdlModifiedHopVersion.left = new FormAttachment(0, 0);
+    fdlModifiedHopVersion.right = new FormAttachment(middle, -margin);
+    fdlModifiedHopVersion.top = new FormAttachment(wModDate, margin);
+    wlModifiedHopVersion.setLayoutData(fdlModifiedHopVersion);
+    wModifiedHopVersion = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wModifiedHopVersion);
+    wModifiedHopVersion.setEditable(false);
+    FormData fdModifiedHopVersion = new FormData();
+    fdModifiedHopVersion.left = new FormAttachment(middle, 0);
+    fdModifiedHopVersion.top = new FormAttachment(wModDate, margin);
+    fdModifiedHopVersion.right = new FormAttachment(100, 0);
+    wModifiedHopVersion.setLayoutData(fdModifiedHopVersion);
 
-    wPipelineComp.layout();
-    wPipelineTab.setControl(wPipelineComp);
+    wPipelineComp.layout(true, true);
+    wPipelineSc.setContent(wPipelineComp);
+    wPipelineSc.setMinSize(wPipelineComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+    wPipelineTab.setControl(wPipelineSc);
 
     // ///////////////////////////////////////////////////////////
     // / END OF PIPELINE TAB
@@ -524,6 +573,7 @@ public class PipelineDialog extends Dialog {
             BaseMessages.getString(PKG, "PipelineDialog.ColumnInfo.Parameter.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     colinf[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "PipelineDialog.ColumnInfo.Default.Label"),
@@ -695,6 +745,9 @@ public class PipelineDialog extends Dialog {
     if (pipelineMeta.getModifiedDate() != null) {
       wModDate.setText(pipelineMeta.getModifiedDate().toString());
     }
+
+    wCreatedHopVersion.setText(Const.NVL(pipelineMeta.getCreatedHopVersion(), ""));
+    wModifiedHopVersion.setText(Const.NVL(pipelineMeta.getModifiedHopVersion(), ""));
 
     // The named parameters
     String[] parameters = pipelineMeta.listParameters();

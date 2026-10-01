@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "embedding",
+          "data_set_field": "embedding"
+        }
+      ],
+      "field_order": [
+        "embedding"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-vector-lazy-conversion"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0116-vector-lazy-conversion UNIT",
+  "description": "A lazily converted String field converts to Vector and back through Select Values",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0116-vector-lazy-conversion.hpl",
+  "test_type": "UNIT_TEST"
+}

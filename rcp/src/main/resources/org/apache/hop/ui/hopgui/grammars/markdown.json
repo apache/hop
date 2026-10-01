@@ -1,0 +1,178 @@
+{
+	"information_for_contributors": [
+		"This grammar was written for Apache Hop, it is not converted from an existing TextMate bundle.",
+		"It is intentionally basic: headings, emphasis, code, links, lists, quotes, tables and separators.",
+		"Fenced code blocks are not highlighted with the grammar of the embedded language."
+	],
+	"name": "Markdown",
+	"scopeName": "text.html.markdown",
+	"fileTypes": ["md", "markdown"],
+	"patterns": [
+		{ "include": "#fenced_code_block" },
+		{ "include": "#html_comment" },
+		{ "include": "#heading" },
+		{ "include": "#setext_heading" },
+		{ "include": "#separator" },
+		{ "include": "#blockquote" },
+		{ "include": "#task_list_item" },
+		{ "include": "#list_item" },
+		{ "include": "#table_delimiter_row" },
+		{ "include": "#link_definition" },
+		{ "include": "#inline" }
+	],
+	"repository": {
+		"fenced_code_block": {
+			"name": "markup.fenced_code.block.markdown",
+			"begin": "^[ ]{0,3}(`{3,}|~{3,})[ \\t]*([a-zA-Z0-9_+#.-]*)[ \\t]*$",
+			"beginCaptures": {
+				"1": { "name": "punctuation.definition.fenced_code.markdown" },
+				"2": { "name": "fenced_code.block.language.markdown" }
+			},
+			"end": "^[ ]{0,3}(\\1)[ \\t]*$",
+			"endCaptures": {
+				"1": { "name": "punctuation.definition.fenced_code.markdown" }
+			}
+		},
+		"html_comment": {
+			"name": "comment.block.html.markdown",
+			"begin": "<!--",
+			"end": "-->"
+		},
+		"heading": {
+			"name": "markup.heading.markdown",
+			"match": "^[ ]{0,3}(#{1,6})[ \\t]+(.*?)[ \\t]*(#*)[ \\t]*$",
+			"captures": {
+				"1": { "name": "punctuation.definition.heading.markdown" },
+				"3": { "name": "punctuation.definition.heading.markdown" }
+			}
+		},
+		"setext_heading": {
+			"name": "markup.heading.setext.markdown",
+			"match": "^[ ]{0,3}=+[ \\t]*$"
+		},
+		"separator": {
+			"name": "meta.separator.markdown",
+			"match": "^[ ]{0,3}((-[ \\t]*){3,}|(\\*[ \\t]*){3,}|(_[ \\t]*){3,})$"
+		},
+		"blockquote": {
+			"name": "markup.quote.markdown",
+			"match": "^[ ]{0,3}(>[ \\t]?)(.*)$",
+			"captures": {
+				"1": { "name": "punctuation.definition.quote.begin.markdown" },
+				"2": { "patterns": [{ "include": "#inline" }] }
+			}
+		},
+		"task_list_item": {
+			"match": "^[ \\t]*([*+-])[ \\t]+(\\[[ xX]\\])[ \\t]+",
+			"captures": {
+				"1": { "name": "punctuation.definition.list.begin.markdown" },
+				"2": { "name": "constant.language.markdown" }
+			}
+		},
+		"list_item": {
+			"match": "^[ \\t]*([*+-]|[0-9]{1,9}[.)])[ \\t]+",
+			"captures": {
+				"1": { "name": "punctuation.definition.list.begin.markdown" }
+			}
+		},
+		"table_delimiter_row": {
+			"name": "punctuation.definition.table.markdown",
+			"match": "^[ \\t]*\\|?([ \\t]*:?-+:?[ \\t]*\\|)+[ \\t]*:?-*:?[ \\t]*$"
+		},
+		"link_definition": {
+			"match": "^[ ]{0,3}(\\[)([^\\]]+)(\\]:)[ \\t]*(\\S+)",
+			"captures": {
+				"1": { "name": "punctuation.definition.link.markdown" },
+				"2": { "name": "string.other.link.title.markdown" },
+				"3": { "name": "punctuation.definition.link.markdown" },
+				"4": { "name": "markup.underline.link.markdown" }
+			}
+		},
+		"inline": {
+			"patterns": [
+				{ "include": "#escape" },
+				{ "include": "#raw" },
+				{ "include": "#image" },
+				{ "include": "#link" },
+				{ "include": "#autolink" },
+				{ "include": "#bare_link" },
+				{ "include": "#bold_italic" },
+				{ "include": "#bold" },
+				{ "include": "#italic_asterisk" },
+				{ "include": "#italic_underscore" },
+				{ "include": "#strikethrough" },
+				{ "include": "#html_tag" }
+			]
+		},
+		"escape": {
+			"name": "constant.character.escape.markdown",
+			"match": "\\\\[\\\\`*_{}\\[\\]()#+\\-.!>~|]"
+		},
+		"raw": {
+			"name": "markup.inline.raw.string.markdown",
+			"match": "(`+)([^`]*)(\\1)",
+			"captures": {
+				"1": { "name": "punctuation.definition.raw.markdown" },
+				"3": { "name": "punctuation.definition.raw.markdown" }
+			}
+		},
+		"image": {
+			"match": "(!\\[)([^\\]]*)(\\])(\\()([^)]*)(\\))",
+			"captures": {
+				"1": { "name": "punctuation.definition.link.markdown" },
+				"2": { "name": "string.other.link.description.markdown" },
+				"3": { "name": "punctuation.definition.link.markdown" },
+				"4": { "name": "punctuation.definition.link.markdown" },
+				"5": { "name": "markup.underline.link.markdown" },
+				"6": { "name": "punctuation.definition.link.markdown" }
+			}
+		},
+		"link": {
+			"match": "(\\[)([^\\]]*)(\\])(\\()([^)]*)(\\))",
+			"captures": {
+				"1": { "name": "punctuation.definition.link.markdown" },
+				"2": { "name": "string.other.link.title.markdown" },
+				"3": { "name": "punctuation.definition.link.markdown" },
+				"4": { "name": "punctuation.definition.link.markdown" },
+				"5": { "name": "markup.underline.link.markdown" },
+				"6": { "name": "punctuation.definition.link.markdown" }
+			}
+		},
+		"autolink": {
+			"match": "(<)((?:https?|ftp|mailto):[^>\\s]+)(>)",
+			"captures": {
+				"1": { "name": "punctuation.definition.link.markdown" },
+				"2": { "name": "markup.underline.link.markdown" },
+				"3": { "name": "punctuation.definition.link.markdown" }
+			}
+		},
+		"bare_link": {
+			"name": "markup.underline.link.markdown",
+			"match": "\\b(?:https?|ftp)://[^\\s<>()\\[\\]\"']+"
+		},
+		"bold_italic": {
+			"name": "markup.bold.italic.markdown",
+			"match": "(\\*\\*\\*|___)(?=\\S)(.*?\\S)\\1"
+		},
+		"bold": {
+			"name": "markup.bold.markdown",
+			"match": "(\\*\\*|__)(?=\\S)(.*?\\S)\\1"
+		},
+		"italic_asterisk": {
+			"name": "markup.italic.markdown",
+			"match": "(\\*)(?=[^\\s*])([^*]*[^\\s*])\\1"
+		},
+		"italic_underscore": {
+			"name": "markup.italic.markdown",
+			"match": "(?<![\\w\\\\_])(_)(?=[^\\s_])([^_]*[^\\s_])\\1(?!\\w)"
+		},
+		"strikethrough": {
+			"name": "markup.strikethrough.markdown",
+			"match": "(~~)(?=\\S)(.*?\\S)\\1"
+		},
+		"html_tag": {
+			"name": "meta.tag.markdown",
+			"match": "</?[a-zA-Z][a-zA-Z0-9-]*(?:\\s[^<>]*)?/?>"
+		}
+	}
+}

@@ -90,24 +90,24 @@ public class WorkflowLoggingExtensionPoint
 
       workflow.addWorkflowFinishedListener(
           workflowMetaIWorkflowEngine -> {
-            logEndOfWorkflow(log, session, connection, workflow);
+            try {
+              logEndOfWorkflow(log, session, connection, workflow);
 
-            // If there are no other parents, we now have the complete log channel hierarchy
-            //
-            if (workflow.getParentWorkflow() == null && workflow.getParentPipeline() == null) {
-              String logChannelId = workflow.getLogChannelId();
-              List<LoggingHierarchy> loggingHierarchy =
-                  LoggingCore.getLoggingHierarchy(logChannelId);
-              logHierarchy(log, session, connection, loggingHierarchy, logChannelId);
-            }
-
-            // Let's not forget to close the session and driver...
-            //
-            if (session != null) {
-              session.close();
-            }
-            if (driver != null) {
-              driver.close();
+              // If there are no other parents, we now have the complete log channel hierarchy
+              //
+              if (workflow.getParentWorkflow() == null && workflow.getParentPipeline() == null) {
+                String logChannelId = workflow.getLogChannelId();
+                List<LoggingHierarchy> loggingHierarchy =
+                    LoggingCore.getLoggingHierarchy(logChannelId);
+                logHierarchy(log, session, connection, loggingHierarchy, logChannelId);
+              }
+            } finally {
+              if (session != null) {
+                session.close();
+              }
+              if (driver != null) {
+                driver.close();
+              }
             }
           });
 

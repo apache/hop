@@ -32,6 +32,8 @@ import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.markdown.NoteLinkHit;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
@@ -42,6 +44,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -68,6 +71,13 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   protected Rectangle resizeArea;
   protected Resize resize;
   protected HopToolTip toolTip;
+
+  /**
+   * How long a notice such as "Selection cleared" stays up. On the desktop the next mouse move
+   * hides it anyway; Hop Web does not forward mouse moves, so the timer is what takes it down.
+   */
+  protected static final int TRANSIENT_TOOLTIP_MILLIS = 1500;
+
   protected String mouseOverName;
 
   /** Hovered Markdown note hyperlink (for underline emphasis and hand cursor). */
@@ -146,6 +156,61 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     redraw();
   }
 
+  /**
+   * "Use menus instead of the context dialog": the actions of a transform, action, hop or note are
+   * shown in a pop-up menu. A click on the empty canvas keeps the context dialog while the design
+   * palette is hidden, because that is where new transforms and actions are searched for; with the
+   * palette shown the empty canvas gets a menu too.
+   *
+   * @param emptyCanvas true when the click was on the empty canvas (pipeline/workflow context)
+   * @return true when a pop-up menu should be shown instead of the context dialog
+   */
+  protected boolean useContextMenu(boolean emptyCanvas) {
+    if (!PropsUi.getInstance().useMenusInsteadOfContextDialog()) {
+      return false;
+    }
+    return !emptyCanvas || GraphPalette.isVisible();
+  }
+
+  /**
+   * Whether this kind of canvas tooltip is shown: the general tooltip option on the General tab
+   * must be on, and so must the kind's own checkbox in the Look &amp; Feel options. The general
+   * option is checked here rather than in {@link PropsUi#isCanvasToolTipShown(CanvasToolTip)},
+   * since the Look &amp; Feel checkboxes read that one and would otherwise save every kind as off.
+   */
+  protected boolean isToolTipShown(CanvasToolTip toolTip) {
+    PropsUi props = hopGui.getProps();
+    return props.showToolTips() && props.isCanvasToolTipShown(toolTip);
+  }
+
+  /**
+   * Whether any of the tooltips an area can put up is still on. The icon of a transform or action
+   * carries either a deprecation warning or a description, so it stays hoverable as long as one of
+   * the two is on; the branch that builds the text checks the exact one.
+   */
+  protected boolean isAreaToolTipShown(AreaOwner areaOwner) {
+    if (areaOwner == null || areaOwner.getAreaType() == null) {
+      return false;
+    }
+    for (CanvasToolTip toolTip : CanvasToolTip.forAreaType(areaOwner.getAreaType())) {
+      if (isToolTipShown(toolTip)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * The hide for a mouse move: takes down the tooltip of whatever was under the pointer, but not a
+   * notice such as "Selection cleared". That one is not tied to the pointer and stays until its
+   * timer fires or something else is shown or hidden.
+   */
+  protected void hideHoverToolTip() {
+    if (!toolTip.isNotice()) {
+      toolTip.setVisible(false);
+    }
+  }
+
   protected void showToolTip(org.eclipse.swt.graphics.Point location) {
     org.eclipse.swt.graphics.Point p = canvas.toDisplay(location);
 
@@ -153,7 +218,34 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     toolTip.setVisible(true);
   }
 
+  /**
+   * On the pipeline and workflow canvas the arrow keys move the selected transforms, actions and
+   * notes. Only when nothing is selected they pan the view.
+   */
+  @Override
+  protected boolean moveSelectionWithArrowKey(int dx, int dy, boolean largeStep) {
+    int step = Math.max(1, PropsUi.getInstance().getCanvasGridSize());
+    if (largeStep) {
+      step *= LARGE_STEP_FACTOR;
+    }
+    return nudgeSelectedElements(dx * step, dy * step);
+  }
+
+  /**
+   * Move the selected elements on the canvas over the given distance, as one undo action.
+   *
+   * @param dx the horizontal distance in graph coordinates
+   * @param dy the vertical distance in graph coordinates
+   * @return true if elements were selected and moved, false if there was nothing to move
+   */
+  protected abstract boolean nudgeSelectedElements(int dx, int dy);
+
   public abstract SnapAllignDistribute createSnapAlignDistribute();
+
+  /** Record an undo snapshot before a structural change. Overridden by pipeline/workflow graphs. */
+  protected void markUndoPoint() {
+    // no-op for graphs that do not implement snapshot undo
+  }
 
   @Override
   public void snapToGrid() {
@@ -161,26 +253,31 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   }
 
   private void snapToGrid(int size) {
+    markUndoPoint();
     createSnapAlignDistribute().snapToGrid(size);
     setChanged();
   }
 
   public void alignLeft() {
+    markUndoPoint();
     createSnapAlignDistribute().allignleft();
     setChanged();
   }
 
   public void alignRight() {
+    markUndoPoint();
     createSnapAlignDistribute().allignright();
     setChanged();
   }
 
   public void alignTop() {
+    markUndoPoint();
     createSnapAlignDistribute().alligntop();
     setChanged();
   }
 
   public void alignBottom() {
+    markUndoPoint();
     createSnapAlignDistribute().allignbottom();
     setChanged();
   }
@@ -188,12 +285,14 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
+    markUndoPoint();
     createSnapAlignDistribute().distributehorizontal();
     setChanged();
   }
 
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
+    markUndoPoint();
     createSnapAlignDistribute().distributevertical();
     setChanged();
   }
@@ -239,7 +338,18 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
    * @param noteMeta the metadata of the note to be resized
    * @param real the current position of the mouse used for calculating the resize dimensions
    */
+  /**
+   * Whether the current session may mutate canvas content (move/delete/create hops, notes, …).
+   * Silent check for drag/mousemove paths — use {@code HopSecurityUi.check} for deliberate actions.
+   */
+  protected boolean canEditGraph() {
+    return HopSecurity.allows(Permission.FILE_EDIT);
+  }
+
   protected void resizeNote(NotePadMeta noteMeta, Point real) {
+    if (!canEditGraph() || noteMeta == null || resize == null || resizeArea == null) {
+      return;
+    }
     switch (resize) {
       case EAST -> {
         int width = real.x - resizeArea.x;

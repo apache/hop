@@ -33,6 +33,8 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypeMapper;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -70,6 +72,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     documentationUrl = "/metadata-types/rdbms-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION,
     supportsGlobalReplace = true)
+@org.apache.hop.core.naming.NamingSchemeKind("hop-metadata")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class;
 
@@ -229,6 +232,23 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     if (plugin == null) {
       plugin = registry.findPluginWithName(DatabasePluginType.class, databaseTypeDesc);
     }
+    if (plugin == null && databaseTypeDesc != null) {
+      for (IPlugin p : registry.getPlugins(DatabasePluginType.class)) {
+        for (String id : p.getIds()) {
+          if (id.equalsIgnoreCase(databaseTypeDesc)) {
+            plugin = p;
+            break;
+          }
+        }
+        if (plugin != null) {
+          break;
+        }
+        if (p.getName() != null && p.getName().equalsIgnoreCase(databaseTypeDesc)) {
+          plugin = p;
+          break;
+        }
+      }
+    }
 
     if (plugin == null) {
       throw new HopDatabaseException(
@@ -320,14 +340,44 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return The plugin ID of the database interface
    */
   public String getPluginId() {
-    return iDatabase.getPluginId();
+    if (iDatabase == null) {
+      return null;
+    }
+    String id = iDatabase.getPluginId();
+    if (Utils.isEmpty(id)) {
+      String name = iDatabase.getPluginName();
+      if (!Utils.isEmpty(name)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithName(DatabasePluginType.class, name);
+        if (plugin != null) {
+          id = plugin.getIds()[0];
+          iDatabase.setPluginId(id);
+        }
+      }
+    }
+    return id;
   }
 
   /**
    * @return The name of the database plugin type
    */
   public String getPluginName() {
-    return iDatabase.getPluginName();
+    if (iDatabase == null) {
+      return null;
+    }
+    String name = iDatabase.getPluginName();
+    if (Utils.isEmpty(name)) {
+      String id = iDatabase.getPluginId();
+      if (!Utils.isEmpty(id)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().findPluginWithId(DatabasePluginType.class, id);
+        if (plugin != null) {
+          name = plugin.getName();
+          iDatabase.setPluginName(name);
+        }
+      }
+    }
+    return name;
   }
 
   /*
@@ -1094,13 +1144,15 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   private String quoteSchema(String schemaName) {
-    if (supportsCatalogs()) {
-      int separatorIndex = schemaName.indexOf('.');
-      if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
-        String catalogName = schemaName.substring(0, separatorIndex);
-        String schemaPart = schemaName.substring(separatorIndex + 1);
-        return quoteField(catalogName) + "." + quoteField(schemaPart);
-      }
+    // A composite "catalog.schema" is split whenever the caller passed one, including on dialects
+    // that return supportsCatalogs() == false (jTDS SQL Server, Access, Gupta, Iris). That flag is
+    // a browsing hint and must not collapse mydb.dbo into the unresolvable identifier [mydb.dbo].
+    // A schema whose name itself contains a literal dot is vanishingly rare next to catalog.schema.
+    int separatorIndex = schemaName.indexOf('.');
+    if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
+      String catalogName = schemaName.substring(0, separatorIndex);
+      String schemaPart = schemaName.substring(separatorIndex + 1);
+      return quoteField(catalogName) + "." + quoteField(schemaPart);
     }
     return quoteField(schemaName);
   }
@@ -1117,7 +1169,12 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getFieldDefinition(IValueMeta v, String tk, String pk, boolean useAutoIncrement) {
-    return getFieldDefinition(v, tk, pk, useAutoIncrement, true, true);
+    return getFieldDefinition(null, v, tk, pk, useAutoIncrement, true, true);
+  }
+
+  public String getFieldDefinition(
+      IVariables variables, IValueMeta v, String tk, String pk, boolean useAutoIncrement) {
+    return getFieldDefinition(variables, v, tk, pk, useAutoIncrement, true, true);
   }
 
   public String getFieldDefinition(
@@ -1127,18 +1184,40 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       boolean useAutoIncrement,
       boolean addFieldname,
       boolean addCr) {
+    return getFieldDefinition(null, v, tk, pk, useAutoIncrement, addFieldname, addCr);
+  }
 
-    String definition =
-        v.getDatabaseColumnTypeDefinition(iDatabase, tk, pk, useAutoIncrement, addFieldname, addCr);
-    if (!Utils.isEmpty(definition)) {
-      return definition;
-    }
+  /**
+   * Describe a value as a column in this database.
+   *
+   * @param variables the variables to resolve with. Type rules are handed these, so a rule can read
+   *     a variable or reach the metadata provider through them. May be null, in which case a rule
+   *     that needs either simply does not fire.
+   */
+  public String getFieldDefinition(
+      IVariables variables,
+      IValueMeta v,
+      String tk,
+      String pk,
+      boolean useAutoIncrement,
+      boolean addFieldname,
+      boolean addCr) {
 
-    return iDatabase.getFieldDefinition(v, tk, pk, useAutoIncrement, addFieldname, addCr);
+    // Ask the dialect first. A database knows how it spells its own types; a value type only
+    // knows what it is. Until a dialect declares a write rule this changes nothing, because the
+    // rule lists are empty.
+    ColumnContext context =
+        new ColumnContext(
+            ColumnContext.Purpose.CREATE, tk, pk, useAutoIncrement, addFieldname, addCr);
+    return DatabaseTypeMapper.getColumnDefinition(variables, iDatabase, v, context);
   }
 
   public String getLimitClause(int nrRows) {
     return iDatabase.getLimitClause(nrRows);
+  }
+
+  public String getLimitClausePrefix(int nrRows) {
+    return iDatabase.getLimitClausePrefix(nrRows);
   }
 
   /**
@@ -1148,6 +1227,24 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    */
   public String getSqlQueryFields(String tableName) {
     return iDatabase.getSqlQueryFields(tableName);
+  }
+
+  /**
+   * @param schemaName schema or catalog, or {@code null}
+   * @param viewName view name
+   * @return catalog SQL for the view definition, or {@code null}
+   */
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    return iDatabase.getSqlViewDefinition(schemaName, viewName);
+  }
+
+  /**
+   * @param schemaName schema or catalog, or {@code null}
+   * @param objectName table or view name
+   * @return catalog SQL for {@code CREATE TABLE}/{@code CREATE VIEW}, or {@code null}
+   */
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    return iDatabase.getSqlObjectDdl(schemaName, objectName);
   }
 
   public String getAddColumnStatement(
@@ -1862,7 +1959,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   /**
    * @return true if the database JDBC driver supports getBlob on the resultset. If not we must use
    *     getBytes() to get the data.
+   * @deprecated See {@link IDatabase#isSupportsGetBlob()}.
    */
+  @Deprecated(since = "2.20")
   public boolean supportsGetBlob() {
     return iDatabase.isSupportsGetBlob();
   }
@@ -2252,6 +2351,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.generateColumnAlias(columnIndex, suggestedName);
   }
 
+  /**
+   * @deprecated Dialects now describe their own column types through {@link
+   *     IDatabase#getTypeRules()}, which core matches by dialect plugin type and class hierarchy
+   *     rather * than by vendor name. This flag is still honoured for dialects that have not
+   *     migrated, so * existing implementations keep working, and will be removed once the
+   *     migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isMySqlVariant() {
     return iDatabase.isMySqlVariant();
   }

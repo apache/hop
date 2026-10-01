@@ -56,6 +56,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -109,6 +110,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   protected Button wStopWhenIdle;
   protected Label wlMaxIdleTimeMs;
   protected TextVar wMaxIdleTimeMs;
+  protected Label wlMaxConsumeDurationMs;
+  protected TextVar wMaxConsumeDurationMs;
 
   protected CTabFolder wTabFolder;
   protected CTabItem wSetupTab;
@@ -197,11 +200,20 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
               true);
         });
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbFilename, -margin);
+    fdOpen.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wFilename);
+    wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(wlFilename, margin);
-    fdFilename.right = new FormAttachment(wbFilename, -PropsUi.getMargin());
+    fdFilename.right = new FormAttachment(wbOpen, -PropsUi.getMargin());
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
 
@@ -261,6 +273,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     createAdditionalTabs();
 
     getData();
+    meta.setChanged(changed);
     wTabFolder.setSelection(0);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -304,6 +317,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     m.setBatchDuration(wBatchDuration.getText());
     m.setStopWhenIdle(wStopWhenIdle.getSelection());
     m.setMaxIdleTimeMs(wMaxIdleTimeMs.getText());
+    m.setMaxConsumeDurationMs(wMaxConsumeDurationMs.getText());
     m.setSubTransform(wSubTransform.getText());
     setTopicsFromTable();
 
@@ -334,7 +348,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     wOffsetGroup.setLayout(flOffsetGroup);
 
     FormData fdOffsetGroup = new FormData();
-    fdOffsetGroup.top = new FormAttachment(wMaxIdleTimeMs, 15);
+    fdOffsetGroup.top = new FormAttachment(wMaxConsumeDurationMs, 15);
     fdOffsetGroup.left = new FormAttachment(0, 0);
     fdOffsetGroup.right = new FormAttachment(100, 0);
     wOffsetGroup.setLayoutData(fdOffsetGroup);
@@ -650,6 +664,27 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     fdMaxIdleTimeMs.top = new FormAttachment(wlMaxIdleTimeMs, 0, SWT.CENTER);
     wMaxIdleTimeMs.setLayoutData(fdMaxIdleTimeMs);
 
+    wlMaxConsumeDurationMs = new Label(wBatchComp, SWT.RIGHT);
+    PropsUi.setLook(wlMaxConsumeDurationMs);
+    wlMaxConsumeDurationMs.setText(
+        BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MaxConsumeDurationMs"));
+    FormData fdlMaxConsumeDurationMs = new FormData();
+    fdlMaxConsumeDurationMs.left = new FormAttachment(0, 0);
+    fdlMaxConsumeDurationMs.top = new FormAttachment(wMaxIdleTimeMs, margin);
+    fdlMaxConsumeDurationMs.right = new FormAttachment(middle, -margin);
+    wlMaxConsumeDurationMs.setLayoutData(fdlMaxConsumeDurationMs);
+
+    wMaxConsumeDurationMs = new TextVar(variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wMaxConsumeDurationMs);
+    wMaxConsumeDurationMs.setToolTipText(
+        BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MaxConsumeDurationMs.Tooltip"));
+    wMaxConsumeDurationMs.addModifyListener(lsMod);
+    FormData fdMaxConsumeDurationMs = new FormData();
+    fdMaxConsumeDurationMs.left = new FormAttachment(wlMaxConsumeDurationMs, margin);
+    fdMaxConsumeDurationMs.right = new FormAttachment(100, 0);
+    fdMaxConsumeDurationMs.top = new FormAttachment(wlMaxConsumeDurationMs, 0, SWT.CENTER);
+    wMaxConsumeDurationMs.setLayoutData(fdMaxConsumeDurationMs);
+
     wBatchComp.layout();
     wBatchTab.setControl(wBatchComp);
   }
@@ -865,6 +900,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     wBatchDuration.setText(Const.NVL(meta.getBatchDuration(), ""));
     wStopWhenIdle.setSelection(meta.isStopWhenIdle());
     wMaxIdleTimeMs.setText(Const.NVL(meta.getMaxIdleTimeMs(), "500"));
+    wMaxConsumeDurationMs.setText(Const.NVL(meta.getMaxConsumeDurationMs(), "0"));
 
     wbAutoCommit.setSelection(meta.isAutoCommit());
     wbManualCommit.setSelection(!meta.isAutoCommit());
@@ -950,6 +986,19 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
         .toArray();
   }
 
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wFilename.getText(),
+        ReferencedFileOpener.isDialogModified(
+            meta.hasChanged(), wFilename.getText(), meta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? meta.getFilename() : null;
+        });
+  }
+
   protected void createNewKafkaPipeline() {
     PipelineMeta kafkaPipelineMeta = createSubPipelineMeta();
 
@@ -996,7 +1045,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   }
 
   private PipelineMeta loadKafkaPipelineMeta() throws HopException {
-    KafkaConsumerInputMeta copyMeta = meta.clone();
+    KafkaConsumerInputMeta copyMeta = (KafkaConsumerInputMeta) meta.clone();
     updateMeta(copyMeta);
     return TransformWithMappingMeta.loadMappingMeta(copyMeta, getMetadataProvider(), variables);
   }

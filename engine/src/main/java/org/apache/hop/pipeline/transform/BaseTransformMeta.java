@@ -47,9 +47,12 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.security.IDialogEditable;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.util.HopMetadataCopyUtil;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -70,7 +73,7 @@ import org.w3c.dom.Node;
  * BaseTransformMeta by adding fields for the output file name, compression, file format, etc...
  */
 public class BaseTransformMeta<Main extends ITransform, Data extends ITransformData>
-    implements ITransformMeta, Cloneable {
+    implements ITransformMeta, Cloneable, IDialogEditable {
 
   /**
    * Prevents infinite recursion when {@link #loadXml(Node, IHopMetadataProvider)} calls {@code
@@ -95,6 +98,16 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   public BaseTransformMeta() {
     changed = false;
+  }
+
+  /**
+   * Transform settings dialogs require {@link Permission#FILE_EDIT}. Inherited by all transforms
+   * that extend this base so {@code BaseDialog.defaultShellHandling} can open them read-only when
+   * the current user lacks that permission.
+   */
+  @Override
+  public Permission requiredEditPermission() {
+    return Permission.FILE_EDIT;
   }
 
   @Override
@@ -213,6 +226,13 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       } finally {
         lock.readLock().unlock();
       }
+
+      // Object.clone() is shallow, so every list, map and nested value object is still shared with
+      // the original. Deep-copy the state that gets persisted so the copy can be used as an
+      // independent snapshot, for change detection and for undo. Fixes issue #8022.
+      //
+      HopMetadataCopyUtil.copyMetadataProperties(this, retval);
+
       return retval;
     } catch (CloneNotSupportedException e) {
       return null;
@@ -770,7 +790,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
     lock.readLock().lock();
     try {
       if ((ioMetaVar == null) && (createIfAbsent)) {
-        ioMeta = new TransformIOMeta(true, true, true, false, false, false);
+        boolean consumes = consumesMainInput();
+        ioMeta = new TransformIOMeta(consumes, true, consumes, false, false, false);
         lock.readLock().unlock();
         lock.writeLock().lock();
         try {

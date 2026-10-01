@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -274,6 +275,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.NewName"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    ciReturn[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     ciReturn[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.Default"),

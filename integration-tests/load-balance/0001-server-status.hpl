@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0001-server-status</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Read finished pipeline and workflow counts from both Hop Servers</description>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Servers</from>
+      <to>Get Server Status</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get Server Status</from>
+      <to>Server A?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Server A?</from>
+      <to>Set server A</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Server A?</from>
+      <to>Server B?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Server B?</from>
+      <to>Set server B</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Servers</name>
+    <type>DataGrid</type>
+    <fields>
+      <field>
+        <name>serverName</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>hop-server-a</item>
+      </line>
+      <line>
+        <item>hop-server-b</item>
+      </line>
+    </data>
+    <distribute>N</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <name>Get Server Status</name>
+    <type>GetServerStatus</type>
+    <description/>
+    <distribute>N</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <server_field>serverName</server_field>
+    <error_message_field>errorMessage</error_message_field>
+    <status_description_field/>
+    <server_load_field/>
+    <active_pipelines_field>activePipelines</active_pipelines_field>
+    <finished_pipelines_field>finishedPipelines</finished_pipelines_field>
+    <active_workflows_field>activeWorkflows</active_workflows_field>
+    <finished_workflows_field>finishedWorkflows</finished_workflows_field>
+    <available_field>available</available_field>
+    <response_ns_field/>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Server A?</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Set server A</send_true_to>
+    <send_false_to>Server B?</send_false_to>
+    <compare>
+      <condition>
+        <function>=</function>
+        <leftvalue>serverName</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <name>constant</name>
+          <text>hop-server-a</text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Set server A</name>
+    <type>SetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <field_name>finishedPipelines</field_name>
+        <variable_name>SERVER_A_PIPELINES</variable_name>
+        <variable_type>PARENT_WORKFLOW</variable_type>
+        <default_value>0</default_value>
+      </field>
+      <field>
+        <field_name>finishedWorkflows</field_name>
+        <variable_name>SERVER_A_WORKFLOWS</variable_name>
+        <variable_type>PARENT_WORKFLOW</variable_type>
+        <default_value>0</default_value>
+      </field>
+    </fields>
+    <use_formatting>Y</use_formatting>
+    <attributes/>
+    <GUI>
+      <xloc>688</xloc>
+      <yloc>32</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Server B?</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Set server B</send_true_to>
+    <compare>
+      <condition>
+        <function>=</function>
+        <leftvalue>serverName</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <name>constant</name>
+          <text>hop-server-b</text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Set server B</name>
+    <type>SetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <field_name>finishedPipelines</field_name>
+        <variable_name>SERVER_B_PIPELINES</variable_name>
+        <variable_type>PARENT_WORKFLOW</variable_type>
+        <default_value>0</default_value>
+      </field>
+      <field>
+        <field_name>finishedWorkflows</field_name>
+        <variable_name>SERVER_B_WORKFLOWS</variable_name>
+        <variable_type>PARENT_WORKFLOW</variable_type>
+        <default_value>0</default_value>
+      </field>
+    </fields>
+    <use_formatting>Y</use_formatting>
+    <attributes/>
+    <GUI>
+      <xloc>688</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -166,11 +166,6 @@ public class UniqueRowsMeta extends BaseTransformMeta<UniqueRows, UniqueRowsData
   }
 
   @Override
-  public Object clone() {
-    return new UniqueRowsMeta(this);
-  }
-
-  @Override
   public void setDefault() {
     countRows = false;
     countField = "";

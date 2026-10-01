@@ -17,33 +17,16 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Read database impact information from pipelines.
-:openvar: ${
-:closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/database.svg[Database impact input Icon, role="image-doc-icon"] Database impact input
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Database impact input transform allows gives you the impact of a pipeline on a database.
 It explains which transforms read, write, update or delete information, in which table, the SQL used, and so on.
 
 IMPORTANT: This transform supports error handling.  You can add an error handling hop to a transform to be informed of the pipelines that throw an error when calculating the database impact. See also: xref:pipeline/errorhandling.adoc[Pipeline error handling].
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 
@@ -59,7 +42,7 @@ This name has to be unique in a single pipeline.
 
 |===
 
-TIP: You can use a xref:pipeline/transforms/getfilenames.adoc[Get File Names] transform as input.  To search for your project pipelines specify folder `{openvar}PROJECT_HOME{closevar}` with wildcard `.*\.hpl$`.
+TIP: You can use a xref:pipeline/transforms/getfilenames.adoc[Get File Names] transform as input.  To search for your project pipelines specify folder `+${PROJECT_HOME}+` with wildcard `.*\.hpl$`.
 
 == Output fields
 

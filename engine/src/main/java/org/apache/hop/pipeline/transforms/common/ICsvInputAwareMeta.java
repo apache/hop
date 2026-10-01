@@ -66,6 +66,15 @@ public interface ICsvInputAwareMeta<T extends ITextFileInputField> {
 
   boolean hasHeader();
 
+  /**
+   * When true, a blank line is not one of the rows used to guess field types. Text file input
+   * follows its "No empty lines" option. Blank lines must not use up the sample size: a DOS file
+   * read as Unix yields an empty line after every row, and counting those would hide the data.
+   */
+  default boolean skipEmptyLines() {
+    return false;
+  }
+
   int getNrHeaderLines();
 
   ICsvInputAwareMeta clone();

@@ -46,11 +46,12 @@ import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
  * <p>An empty stored value means "no filter" — the palette behaves exactly as it did before this
  * feature was introduced, preserving the new-user experience.
  *
- * <p>The Hop engines — local "Local", remote "Remote" and the local single-threaded "LocalSingle" —
- * are grouped under a single {@link #HOP_ENGINE_GROUP_ID Hop} entry: from a user's perspective they
- * are the same engine surface (same plugin compatibility, same transform palette) and splitting
- * them in the combo adds noise. A plugin is shown when <em>any</em> engine in the group accepts it,
- * hidden only when <em>every</em> member of the group says UNSUPPORTED.
+ * <p>The Hop engines — local "Local", remote "Remote", load-balancing "LoadBalancing" and the local
+ * single-threaded "LocalSingle" — are grouped under a single {@link #HOP_ENGINE_GROUP_ID Hop}
+ * entry: from a user's perspective they are the same engine surface (same plugin compatibility,
+ * same transform palette) and splitting them in the combo adds noise. A plugin is shown when
+ * <em>any</em> engine in the group accepts it, hidden only when <em>every</em> member of the group
+ * says UNSUPPORTED.
  */
 public final class PaletteEngineFilter {
 
@@ -74,14 +75,15 @@ public final class PaletteEngineFilter {
 
   /**
    * Pipeline engine plugin ids collapsed into the {@link #HOP_ENGINE_GROUP_ID Hop} group. The local
-   * single-threaded engine ("LocalSingle") supports the same transforms as the local and remote
-   * engines, so it shares their combo entry instead of getting one of its own.
+   * single-threaded and load-balancing engines support the same transforms as the local and remote
+   * engines, so they share their combo entry instead of getting one of their own.
    */
   private static final List<String> HOP_PIPELINE_ENGINE_IDS =
-      List.of("Local", "Remote", "LocalSingle");
+      List.of("Local", "Remote", "LoadBalancing", "LocalSingle");
 
   /** Workflow counterpart — there is no single-threaded workflow engine. */
-  private static final List<String> HOP_WORKFLOW_ENGINE_IDS = List.of("Local", "Remote");
+  private static final List<String> HOP_WORKFLOW_ENGINE_IDS =
+      List.of("Local", "Remote", "LoadBalancing");
 
   private final String engineId;
 

@@ -78,11 +78,22 @@ public class HopServerServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+    if (hopServerPluginRegistry == null) {
+      sendSafeError(
+          resp,
+          HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+          "Hop Server servlet is not initialized.");
+      return;
+    }
     String servletPath = req.getPathInfo();
+    if (servletPath == null || servletPath.isEmpty()) {
+      sendSafeError(resp, HttpServletResponse.SC_NOT_FOUND, "Not found.");
+      return;
+    }
     if (servletPath.endsWith("/")) {
       servletPath = servletPath.substring(0, servletPath.length() - 1);
     }
-    IHopServerPlugin plugin = hopServerPluginRegistry.get(servletPath);
+    IHopServerPlugin plugin = findPlugin(servletPath);
     if (plugin != null) {
       try {
         plugin.doGet(req, resp);
@@ -99,6 +110,29 @@ public class HopServerServlet extends HttpServlet {
       }
       sendSafeError(resp, HttpServletResponse.SC_NOT_FOUND, "Not found.");
     }
+  }
+
+  /**
+   * Exact key, then longest registered prefix, matching {@code HopServerEndpointPermissionMapper}
+   * so {@code /sourceModelData/models} reaches the plugin mounted at {@code /sourceModelData}.
+   */
+  IHopServerPlugin findPlugin(String servletPath) {
+    IHopServerPlugin exact = hopServerPluginRegistry.get(servletPath);
+    if (exact != null) {
+      return exact;
+    }
+    IHopServerPlugin best = null;
+    int bestLen = -1;
+    for (var entry : hopServerPluginRegistry.entrySet()) {
+      String key = entry.getKey();
+      if (key != null
+          && (servletPath.equals(key) || servletPath.startsWith(key + "/"))
+          && key.length() > bestLen) {
+        best = entry.getValue();
+        bestLen = key.length();
+      }
+    }
+    return best;
   }
 
   private String getServletKey(IHopServerPlugin servlet) {
@@ -169,8 +203,9 @@ public class HopServerServlet extends HttpServlet {
           @Override
           public void pluginRemoved(Object serviceObject) {
             try {
-              String key = getServletKey(loadServlet((IPlugin) serviceObject));
-              hopServerPluginRegistry.remove(key);
+              IHopServerPlugin plugin = loadServlet((IPlugin) serviceObject);
+              hopServerPluginRegistry.remove(getServletKey(plugin));
+              HopServerPluginPermissions.unregister(plugin);
             } catch (HopPluginException e) {
               log.logError(MessageFormat.format("Unable to load plugin: {0}", serviceObject), e);
             }
@@ -194,5 +229,6 @@ public class HopServerServlet extends HttpServlet {
     hopServerPluginRegistry.put(getServletKey(servlet), servlet);
     servlet.setup(pipelineMap, workflowMap);
     servlet.setJettyMode(false);
+    HopServerPluginPermissions.register(servlet, log);
   }
 }

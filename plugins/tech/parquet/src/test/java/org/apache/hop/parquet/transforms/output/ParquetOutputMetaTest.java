@@ -53,6 +53,12 @@ class ParquetOutputMetaTest {
     assertFalse(meta.isFilenameIncludingDateTime());
     assertTrue(meta.isFilenameCompressionBeforeExtension());
     assertTrue(meta.getFields().isEmpty());
+    assertTrue(meta.getPartitionFields().isEmpty());
+    assertFalse(meta.isPartitioning());
+    assertEquals(ParquetWriteMode.Append, meta.getWriteMode());
+    assertEquals("10", meta.getMaxOpenPartitions());
+    assertEquals("Parquet 2.0", meta.getVersionDescription());
+    assertEquals(ParquetWriteMode.Append.getDescription(), meta.getWriteModeDescription());
   }
 
   @Test
@@ -64,7 +70,11 @@ class ParquetOutputMetaTest {
     original.setFilenameCompressionBeforeExtension(true);
     original.setCompressionCodec(CompressionCodecName.SNAPPY);
     original.setVersion(ParquetVersion.Version1);
-    original.setFields(List.of(new ParquetField("id", "id_out")));
+    ParquetField id = new ParquetField("id", "id_out");
+    id.setParquetType("Date");
+    id.setPrecision("10");
+    id.setScale("2");
+    original.setFields(List.of(id));
 
     ParquetOutputMeta copy = new ParquetOutputMeta(original);
     assertEquals("/tmp/output", copy.getFilenameBase());
@@ -75,6 +85,13 @@ class ParquetOutputMetaTest {
     assertEquals(ParquetVersion.Version1, copy.getVersion());
     assertEquals(1, copy.getFields().size());
     assertEquals("id", copy.getFields().get(0).getSourceFieldName());
+    assertEquals("Date", copy.getFields().get(0).getParquetType());
+    assertEquals("10", copy.getFields().get(0).getPrecision());
+    assertEquals("2", copy.getFields().get(0).getScale());
+    copy.getFields().get(0).setSourceFieldName("changed");
+    copy.getFields().get(0).setParquetType("UTF8");
+    assertEquals("id", original.getFields().get(0).getSourceFieldName());
+    assertEquals("Date", original.getFields().get(0).getParquetType());
   }
 
   @Test
@@ -96,8 +113,15 @@ class ParquetOutputMetaTest {
     meta.setRowGroupSize("1024");
     meta.setDataPageSize("512");
     meta.setDictionaryPageSize("256");
-    meta.getFields().add(new ParquetField("id", "id"));
+    ParquetField id = new ParquetField("id", "id");
+    id.setParquetType("Decimal");
+    id.setPrecision("10");
+    id.setScale("2");
+    meta.getFields().add(id);
     meta.getFields().add(new ParquetField("name", "name"));
+    meta.getPartitionFields().add(new ParquetPartitionField("region"));
+    meta.setWriteMode(ParquetWriteMode.OverwritePartitions);
+    meta.setMaxOpenPartitions("4");
 
     String xml =
         XmlHandler.openTag(TransformMeta.XML_TAG)
@@ -142,6 +166,19 @@ class ParquetOutputMetaTest {
       assertEquals(
           expected.getFields().get(i).getTargetFieldName(),
           actual.getFields().get(i).getTargetFieldName());
+      assertEquals(
+          expected.getFields().get(i).getParquetType(), actual.getFields().get(i).getParquetType());
+      assertEquals(
+          expected.getFields().get(i).getPrecision(), actual.getFields().get(i).getPrecision());
+      assertEquals(expected.getFields().get(i).getScale(), actual.getFields().get(i).getScale());
     }
+    assertEquals(expected.getPartitionFields().size(), actual.getPartitionFields().size());
+    for (int i = 0; i < expected.getPartitionFields().size(); i++) {
+      assertEquals(
+          expected.getPartitionFields().get(i).getName(),
+          actual.getPartitionFields().get(i).getName());
+    }
+    assertEquals(expected.getWriteMode(), actual.getWriteMode());
+    assertEquals(expected.getMaxOpenPartitions(), actual.getMaxOpenPartitions());
   }
 }

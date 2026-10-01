@@ -64,6 +64,16 @@ public class DataStreamInputMeta extends BaseTransformMeta<DataStreamInput, Data
   private String dataStreamName;
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,

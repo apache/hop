@@ -24,9 +24,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -41,7 +43,7 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
 
   private static final Class<?> PKG = WebDavConnectionEditor.class;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private TextVar wRootUrl;
   private TextVar wUsername;
@@ -70,7 +72,9 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -228,6 +232,11 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
   @Override
   public void save() throws HopException {
     super.save();
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

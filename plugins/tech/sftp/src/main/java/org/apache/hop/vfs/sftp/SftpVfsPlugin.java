@@ -28,10 +28,16 @@ import org.apache.hop.core.vfs.plugin.VfsPlugin;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.SftpFileProvider;
 
 /**
- * Registers every named SFTP connection in the metadata under its own scheme. The plain {@code
- * sftp://} scheme is registered by Hop itself and stays as it is.
+ * Registers the plain {@code sftp://} scheme, plus every named SFTP connection in the metadata
+ * under its own scheme.
+ *
+ * <p>Both are served by {@link org.apache.hop.vfs.sftp.provider}, Hop's fork of the Commons VFS
+ * SFTP provider - see that package for why the fork exists. It lives here rather than in Hop core
+ * so that all the SFTP code stays in one place, which means {@code sftp://} is available wherever
+ * this plugin is installed.
  */
 @VfsPlugin(
     type = "sftp-connection",
@@ -41,21 +47,28 @@ public class SftpVfsPlugin implements IVfs {
 
   @Override
   public String[] getUrlSchemes() {
-    // No fixed scheme: the schemes are the names of the connections in the metadata.
-    return new String[] {};
+    return new String[] {"sftp"};
   }
 
   @Override
   public FileProvider getProvider() {
-    return null;
+    return new SftpFileProvider();
   }
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<SftpConnection> connections =
           metadataProvider.getSerializer(SftpConnection.class).loadAll();
       for (SftpConnection connection : connections) {

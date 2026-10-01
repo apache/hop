@@ -1,0 +1,197 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Loading, dynamically constructing, executing workflows programmatically with the Hop SDK, and evaluating task execution results.
+[[Sdk-Workflows]]
+= Workflows API
+
+Workflows coordinate high-level sequential and parallel tasks: checking prerequisites, executing pipelines, transferring files, managing errors, and sending alerts.
+With the Hop SDK, you can load workflows from `.hwf` files, build workflow topologies dynamically in memory, execute them synchronously or asynchronously, and inspect execution outcomes.
+
+== Loading Workflow Metadata
+
+Workflow metadata defines the actions, hops, execution conditions, and parameters.
+You can load workflow metadata from a file path or an arbitrary `InputStream`.
+
+=== Loading from a File
+
+[source,java]
+----
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.workflow.WorkflowMeta;
+
+IVariables variables = Variables.getADefaultVariableSpace();
+
+// Path can be a local filesystem path or any HopVFS scheme (s3://, etc.)
+String filename = "/path/to/my-workflow.hwf";
+
+WorkflowMeta workflowMeta = new WorkflowMeta(
+    variables,
+    filename,
+    metadataProvider // IHopMetadataProvider (e.g., JsonMetadataProvider)
+);
+----
+
+=== Loading from an InputStream
+
+[source,java]
+----
+try (InputStream inputStream = HopVfs.getInputStream("gs://bucket/workflows/nightly.hwf", variables)) {
+  WorkflowMeta workflowMeta = new WorkflowMeta(
+      inputStream,
+      metadataProvider,
+      variables
+  );
+}
+----
+
+== Constructing Workflows Programmatically
+
+You can assemble a complete workflow using the Java API:
+
+[source,java]
+----
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
+import org.apache.hop.workflow.actions.start.ActionStart;
+
+WorkflowMeta workflowMeta = new WorkflowMeta();
+workflowMeta.setName("DynamicWorkflow");
+
+// 1. Add the START action (entry point)
+ActionStart actionStart = new ActionStart("Start");
+ActionMeta startMeta = new ActionMeta(actionStart);
+startMeta.setLocation(100, 100);
+workflowMeta.addAction(startMeta);
+
+// 2. Add a subsequent task (e.g. Dummy action)
+ActionDummy actionDummy = new ActionDummy("Complete");
+ActionMeta dummyMeta = new ActionMeta(actionDummy);
+dummyMeta.setLocation(300, 100);
+workflowMeta.addAction(dummyMeta);
+
+// 3. Connect actions with a workflow hop
+WorkflowHopMeta hop = new WorkflowHopMeta(startMeta, dummyMeta);
+// Hop condition: unconditional (true), or conditional based on evaluation success
+hop.setUnconditional(true);
+workflowMeta.addWorkflowHop(hop);
+----
+
+=== Hop Evaluation Modes
+
+A `WorkflowHopMeta` between action A and action B can behave in one of three ways:
+
+* **Unconditional**: Action B executes regardless of whether Action A succeeded or failed:
++
+[source,java]
+----
+hop.setUnconditional(true);
+----
+* **On Success (Conditional)**: Action B executes only if Action A returned a successful result (`result.getResult() == true`):
++
+[source,java]
+----
+hop.setUnconditional(false);
+hop.setEvaluation(true);
+----
+* **On Failure (Conditional)**: Action B executes only if Action A failed (`result.getResult() == false`):
++
+[source,java]
+----
+hop.setUnconditional(false);
+hop.setEvaluation(false);
+----
+
+== Executing Workflows
+
+Workflows are executed by an `IWorkflowEngine`.
+Like pipeline engines, workflow engines are created via the `WorkflowEngineFactory` using a named **Workflow Run Configuration**:
+
+[source,java]
+----
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
+
+// The factory parent is an ILoggingObject. LogChannel implements ILogChannel only.
+ILoggingObject loggingObject = new LoggingObject("WorkflowRunner");
+
+// Create the workflow engine using the "local" run configuration
+IWorkflowEngine<WorkflowMeta> workflowEngine = WorkflowEngineFactory.createWorkflowEngine(
+    variables,
+    "local",           // Name of the Workflow Run Configuration metadata
+    metadataProvider,  // Metadata provider containing the configuration
+    workflowMeta,
+    loggingObject      // Parent logging object
+);
+
+// Execute the workflow synchronously
+Result result = workflowEngine.startExecution();
+
+// Inspect outcome
+if (result.getResult() && result.getNrErrors() == 0) {
+  System.out.println("Workflow succeeded!");
+} else {
+  System.err.println("Workflow failed with " + result.getNrErrors() + " errors.");
+}
+----
+
+== Passing Parameters and Variables
+
+You can pass execution variables and parameters directly to the workflow engine before starting execution:
+
+[source,java]
+----
+// Inject runtime variables
+workflowEngine.setVariable("CUSTOMER_ID", "10492");
+workflowEngine.setVariable("EXECUTION_DATE", "2026-09-27");
+
+// If workflow parameters are declared on WorkflowMeta:
+workflowEngine.setParameterValue("ENVIRONMENT", "PRODUCTION");
+
+// Start execution
+Result result = workflowEngine.startExecution();
+----
+
+== Asynchronous Execution & Interruption
+
+If you prefer non-blocking execution or need to monitor the workflow asynchronously:
+
+[source,java]
+----
+// Start workflow in background thread
+workflowEngine.fireWorkflowStartedListeners();
+Thread runner = new Thread(() -> {
+  try {
+    Result res = workflowEngine.startExecution();
+  } catch (Exception e) {
+    workflowEngine.getLogChannel().logError("Workflow error", e);
+  }
+});
+runner.start();
+
+// Check if running
+if (workflowEngine.isActive()) {
+  // To stop the workflow gracefully:
+  workflowEngine.stopExecution();
+}
+----

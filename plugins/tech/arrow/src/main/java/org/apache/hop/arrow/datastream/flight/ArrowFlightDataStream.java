@@ -18,11 +18,13 @@
 
 package org.apache.hop.arrow.datastream.flight;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.arrow.flight.AsyncPutListener;
+import org.apache.arrow.flight.CallOption;
 import org.apache.arrow.flight.FlightClient;
 import org.apache.arrow.flight.FlightClient.ClientStreamListener;
 import org.apache.arrow.flight.FlightDescriptor;
@@ -33,12 +35,15 @@ import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.VectorSchemaRoot;
 import org.apache.arrow.vector.types.pojo.Schema;
 import org.apache.hop.arrow.datastream.shared.ArrowBaseDataStream;
+import org.apache.hop.arrow.flight.ArrowFlightSecurity;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.datastream.metadata.DataStreamMeta;
 import org.apache.hop.datastream.plugin.DataStreamPlugin;
@@ -105,12 +110,77 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
   @HopMetadataProperty(key = "port")
   protected String port;
 
+  @GuiWidgetElement(
+      order = "20500-arrow-flight-data-stream-tls",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ArrowFlightDataStream.Tls.Label",
+      toolTip = "i18n::ArrowFlightDataStream.Tls.Tooltip")
+  @HopMetadataProperty(key = "tls")
+  protected boolean tls;
+
+  @GuiWidgetElement(
+      order = "20600-arrow-flight-data-stream-verify-server",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ArrowFlightDataStream.VerifyServer.Label",
+      toolTip = "i18n::ArrowFlightDataStream.VerifyServer.Tooltip")
+  @HopMetadataProperty(key = "verifyServer", defaultBoolean = true)
+  protected boolean verifyServer;
+
+  @GuiWidgetElement(
+      order = "20700-arrow-flight-data-stream-trusted-certificates",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FILENAME,
+      label = "i18n::ArrowFlightDataStream.TrustedCertificates.Label",
+      toolTip = "i18n::ArrowFlightDataStream.TrustedCertificates.Tooltip")
+  @HopMetadataProperty(key = "trustedCertificatesFile")
+  protected String trustedCertificatesFile;
+
+  @GuiWidgetElement(
+      order = "20800-arrow-flight-data-stream-client-certificate",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FILENAME,
+      label = "i18n::ArrowFlightDataStream.ClientCertificate.Label",
+      toolTip = "i18n::ArrowFlightDataStream.ClientCertificate.Tooltip")
+  @HopMetadataProperty(key = "clientCertificateFile")
+  protected String clientCertificateFile;
+
+  @GuiWidgetElement(
+      order = "20900-arrow-flight-data-stream-client-key",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FILENAME,
+      label = "i18n::ArrowFlightDataStream.ClientKey.Label",
+      toolTip = "i18n::ArrowFlightDataStream.ClientKey.Tooltip")
+  @HopMetadataProperty(key = "clientKeyFile")
+  protected String clientKeyFile;
+
+  @GuiWidgetElement(
+      order = "21000-arrow-flight-data-stream-username",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::ArrowFlightDataStream.Username.Label",
+      toolTip = "i18n::ArrowFlightDataStream.Username.Tooltip")
+  @HopMetadataProperty(key = "username")
+  protected String username;
+
+  @GuiWidgetElement(
+      order = "21100-arrow-flight-data-stream-password",
+      parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      password = true,
+      label = "i18n::ArrowFlightDataStream.Password.Label",
+      toolTip = "i18n::ArrowFlightDataStream.Password.Tooltip")
+  @HopMetadataProperty(key = "password", password = true)
+  protected String password;
+
   private int realBufferSize;
   private int realBatchSize;
   private String realHostname;
   private int realPort;
   private SchemaDefinition schemaDefinition;
   private FlightClient flightClient;
+  private CallOption[] callOptions;
   private ClientStreamListener clientStreamListener;
   private FlightInfo readFlightInfo;
   private FlightStream readFlightStream;
@@ -129,6 +199,8 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
     batchSize = "10000";
     hostname = "localhost";
     port = "33333";
+    verifyServer = true;
+    callOptions = new CallOption[0];
   }
 
   @SuppressWarnings("CopyConstructorMissesField")
@@ -137,6 +209,15 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
     this.bufferSize = s.bufferSize;
     this.batchSize = s.batchSize;
     this.schemaDefinitionName = s.schemaDefinitionName;
+    this.hostname = s.hostname;
+    this.port = s.port;
+    this.tls = s.tls;
+    this.verifyServer = s.verifyServer;
+    this.trustedCertificatesFile = s.trustedCertificatesFile;
+    this.clientCertificateFile = s.clientCertificateFile;
+    this.clientKeyFile = s.clientKeyFile;
+    this.username = s.username;
+    this.password = s.password;
   }
 
   @Override
@@ -192,15 +273,58 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
         flightClient.startPut(
             FlightDescriptor.path(dataStreamMeta.getName()),
             vectorSchemaRoot,
-            new AsyncPutListener());
+            new AsyncPutListener(),
+            callOptions);
   }
 
   private void buildFlightClient() throws HopException {
     try {
       // Get a flight client going.
       //
-      Location location = Location.forGrpcInsecure(realHostname, realPort);
-      flightClient = FlightClient.builder(rootAllocator, location).build();
+      Location location =
+          tls
+              ? Location.forGrpcTls(realHostname, realPort)
+              : Location.forGrpcInsecure(realHostname, realPort);
+      FlightClient.Builder builder = FlightClient.builder(rootAllocator, location);
+
+      if (tls) {
+        builder.verifyServer(verifyServer);
+
+        String realTrustedCertificates = variables.resolve(trustedCertificatesFile);
+        if (!Utils.isEmpty(realTrustedCertificates)) {
+          builder.trustedCertificates(
+              new ByteArrayInputStream(ArrowFlightSecurity.readPemFile(realTrustedCertificates)));
+        }
+
+        String realClientCertificate = variables.resolve(clientCertificateFile);
+        String realClientKey = variables.resolve(clientKeyFile);
+        if (!Utils.isEmpty(realClientCertificate) || !Utils.isEmpty(realClientKey)) {
+          if (Utils.isEmpty(realClientCertificate) || Utils.isEmpty(realClientKey)) {
+            throw new HopException(
+                "Please specify both a client certificate and a client key to connect to the Flight server with mutual TLS.");
+          }
+          builder.clientCertificate(
+              new ByteArrayInputStream(ArrowFlightSecurity.readPemFile(realClientCertificate)),
+              new ByteArrayInputStream(ArrowFlightSecurity.readPemFile(realClientKey)));
+        }
+      }
+
+      flightClient = builder.build();
+
+      // Authenticate if the server asks us to. We get a bearer token back which we then pass
+      // along with every call we make.
+      //
+      String realUsername = variables.resolve(username);
+      if (!Utils.isEmpty(realUsername)) {
+        String realPassword = Encr.decryptPasswordOptionallyEncrypted(variables.resolve(password));
+        callOptions =
+            flightClient
+                .authenticateBasicToken(realUsername, Const.NVL(realPassword, ""))
+                .map(option -> new CallOption[] {option})
+                .orElseGet(() -> new CallOption[0]);
+      } else {
+        callOptions = new CallOption[0];
+      }
     } catch (Exception e) {
       throw new HopException(
           "Error connecting to Flight server " + realHostname + ":" + realPort, e);
@@ -296,12 +420,14 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
 
   private void initializeStreamReading() throws HopException {
     buildFlightClient();
-    readFlightInfo = flightClient.getInfo(FlightDescriptor.path(dataStreamMeta.getName()));
+    readFlightInfo =
+        flightClient.getInfo(FlightDescriptor.path(dataStreamMeta.getName()), callOptions);
     if (readFlightInfo.getEndpoints().isEmpty()) {
       throw new HopException(
           "No endpoint tickets found in flight server matching " + dataStreamMeta.getName());
     }
-    readFlightStream = flightClient.getStream(readFlightInfo.getEndpoints().get(0).getTicket());
+    readFlightStream =
+        flightClient.getStream(readFlightInfo.getEndpoints().get(0).getTicket(), callOptions);
     readVectorSchemaRoot = readFlightStream.getRoot();
     readSchema = readVectorSchemaRoot.getSchema();
     this.rowMeta = buildRowMeta(readSchema);

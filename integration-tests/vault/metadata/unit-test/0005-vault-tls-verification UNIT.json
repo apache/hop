@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "trusted-ca",
+          "data_set_field": "trusted-ca"
+        },
+        {
+          "transform_field": "untrusted-ca",
+          "data_set_field": "untrusted-ca"
+        },
+        {
+          "transform_field": "verification-off",
+          "data_set_field": "verification-off"
+        }
+      ],
+      "field_order": [
+        "trusted-ca",
+        "untrusted-ca",
+        "verification-off"
+      ],
+      "data_set_name": "0005-golden-tls-verification",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-vault-tls-verification UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0005-vault-tls-verification.hpl"
+}

@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -47,12 +48,18 @@ import org.eclipse.swt.widgets.Shell;
 public class GuiMenuWidgets extends BaseGuiWidgets {
 
   private Map<String, MenuItem> menuItemMap;
+  private Map<String, MenuItem> menuSeparatorMap;
+  private Map<String, Menu> menuParentMap;
+  private Map<String, GuiMenuItem> menuDefinitionMap;
   private Map<String, KeyboardShortcut> shortcutMap;
   private Map<String, Boolean> menuEnabledMap;
 
   public GuiMenuWidgets() {
     super(UUID.randomUUID().toString());
     this.menuItemMap = new HashMap<>();
+    this.menuSeparatorMap = new HashMap<>();
+    this.menuParentMap = new HashMap<>();
+    this.menuDefinitionMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
     this.menuEnabledMap = new HashMap<>();
   }
@@ -150,40 +157,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         GuiRegistry.getInstance().findChildGuiMenuItems(root, guiMenuItem.getId());
 
     if (children.isEmpty()) {
-
-      if (guiMenuItem.isAddingSeparator()) {
-        new MenuItem(parentMenu, SWT.SEPARATOR);
-      }
-
-      menuItem = new MenuItem(parentMenu, SWT.PUSH);
-      initMenuItem(menuItem, guiMenuItem);
-
-      // Call the method to which the GuiWidgetElement annotation belongs.
-      //
-      menuItem.addListener(
-          SWT.Selection,
-          e -> {
-            try {
-              executeMenuItem(guiMenuItem, instanceId);
-            } catch (Exception ex) {
-              Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
-              String msg = cause.getMessage();
-              if (msg == null || msg.isEmpty()) {
-                msg = cause.getClass().getSimpleName();
-              }
-              LogChannel.UI.logError(
-                  "Unable to call method "
-                      + guiMenuItem.getListenerMethod()
-                      + " in singleton "
-                      + guiMenuItem.getListenerClassName()
-                      + " : "
-                      + msg,
-                  ex);
-            }
-          });
-
-      menuItemMap.put(guiMenuItem.getId(), menuItem);
-      menuEnabledMap.put(guiMenuItem.getId(), true);
+      addLeafMenuWidget(parentMenu, guiMenuItem, parentMenu.getItemCount());
 
     } else {
       // We have a bunch of children, so we want to create a new drop-down menu in the parent menu
@@ -209,6 +183,48 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         addMenuWidgets(root, shell, menu, child);
       }
     }
+  }
+
+  private void addLeafMenuWidget(
+      Menu parentMenu, GuiMenuItem guiMenuItem, int requestedInsertionIndex) {
+    int insertionIndex = Math.max(0, Math.min(requestedInsertionIndex, parentMenu.getItemCount()));
+    if (guiMenuItem.isAddingSeparator()) {
+      MenuItem separator = new MenuItem(parentMenu, SWT.SEPARATOR, insertionIndex++);
+      menuSeparatorMap.put(guiMenuItem.getId(), separator);
+    }
+
+    MenuItem menuItem = new MenuItem(parentMenu, SWT.PUSH, insertionIndex);
+    initMenuItem(menuItem, guiMenuItem);
+    menuItem.setEnabled(menuEnabledMap.getOrDefault(guiMenuItem.getId(), true));
+
+    // Call the method to which the GuiWidgetElement annotation belongs.
+    //
+    menuItem.addListener(
+        SWT.Selection,
+        e -> {
+          try {
+            executeMenuItem(guiMenuItem, instanceId);
+          } catch (Exception ex) {
+            Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+            String msg = cause.getMessage();
+            if (msg == null || msg.isEmpty()) {
+              msg = cause.getClass().getSimpleName();
+            }
+            LogChannel.UI.logError(
+                "Unable to call method "
+                    + guiMenuItem.getListenerMethod()
+                    + " in singleton "
+                    + guiMenuItem.getListenerClassName()
+                    + " : "
+                    + msg,
+                ex);
+          }
+        });
+
+    menuItemMap.put(guiMenuItem.getId(), menuItem);
+    menuParentMap.put(guiMenuItem.getId(), parentMenu);
+    menuDefinitionMap.put(guiMenuItem.getId(), guiMenuItem);
+    menuEnabledMap.putIfAbsent(guiMenuItem.getId(), true);
   }
 
   public static void executeMenuItem(GuiMenuItem guiMenuItem, String instanceId) throws Exception {
@@ -297,6 +313,74 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     return menuItemMap.get(id);
   }
 
+  /** Find the menu item with the given ID and remove it together with its owned separator. */
+  public void removeMenuItem(String id) {
+    menuEnabledMap.put(id, false);
+    disposeMenuItem(id);
+  }
+
+  private void disposeMenuItem(String id) {
+    MenuItem menuItem = menuItemMap.remove(id);
+    MenuItem separator = menuSeparatorMap.remove(id);
+    if (separator != null && !separator.isDisposed()) {
+      separator.dispose();
+    }
+    if (menuItem != null && !menuItem.isDisposed()) {
+      menuItem.dispose();
+    }
+  }
+
+  /**
+   * Show or hide a leaf menu item. RAP's SWT MenuItem does not expose setVisible, so hidden items
+   * are disposed and recreated from their registered definition when they become available again.
+   *
+   * @param id the menu item ID
+   * @param visible whether the item should be present in the menu
+   */
+  public void setMenuItemVisible(String id, boolean visible) {
+    MenuItem menuItem = menuItemMap.get(id);
+    if (!visible) {
+      disposeMenuItem(id);
+      return;
+    }
+    if (menuItem != null && !menuItem.isDisposed()) {
+      return;
+    }
+
+    GuiMenuItem definition = menuDefinitionMap.get(id);
+    Menu parentMenu = menuParentMap.get(id);
+    if (definition == null || parentMenu == null || parentMenu.isDisposed()) {
+      return;
+    }
+    addLeafMenuWidget(parentMenu, definition, findInsertionIndex(parentMenu, definition));
+  }
+
+  private int findInsertionIndex(Menu parentMenu, GuiMenuItem definition) {
+    GuiMenuItem nextDefinition = null;
+    MenuItem nextMenuItem = null;
+    for (Map.Entry<String, MenuItem> entry : menuItemMap.entrySet()) {
+      MenuItem candidate = entry.getValue();
+      GuiMenuItem candidateDefinition = menuDefinitionMap.get(entry.getKey());
+      if (candidate == null
+          || candidate.isDisposed()
+          || candidate.getParent() != parentMenu
+          || candidateDefinition == null
+          || candidateDefinition.compareTo(definition) <= 0) {
+        continue;
+      }
+      if (nextDefinition == null || candidateDefinition.compareTo(nextDefinition) < 0) {
+        nextDefinition = candidateDefinition;
+        nextMenuItem = candidate;
+      }
+    }
+    if (nextMenuItem == null) {
+      return parentMenu.getItemCount();
+    }
+    MenuItem separator = menuSeparatorMap.get(nextDefinition.getId());
+    return parentMenu.indexOf(
+        separator != null && !separator.isDisposed() ? separator : nextMenuItem);
+  }
+
   public KeyboardShortcut findKeyboardShortcut(String id) {
     return shortcutMap.get(id);
   }
@@ -364,7 +448,8 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     MenuItem menuItem = menuItemMap.get(id);
     boolean hasCapability =
         handler != null ? handler.hasCapability(permission) : fileType.hasCapability(permission);
-    boolean enable = hasCapability && active;
+    // File-type capability AND runtime state AND session RBAC (Hop Web roles)
+    boolean enable = hasCapability && active && HopSecurity.allowsCapability(permission);
     if (menuItem != null && !menuItem.isDisposed() && enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
     }

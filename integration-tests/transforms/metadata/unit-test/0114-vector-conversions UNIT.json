@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "embedding",
+          "data_set_field": "embedding"
+        }
+      ],
+      "field_order": [
+        "embedding"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-vector-conversions"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0114-vector-conversions UNIT",
+  "description": "Verifies a vector round trips losslessly through String to Vector to String, and that integer components are normalised to float form",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0114-vector-conversions.hpl",
+  "test_type": "UNIT_TEST"
+}

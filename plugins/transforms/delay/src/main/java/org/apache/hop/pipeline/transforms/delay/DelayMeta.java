@@ -78,11 +78,6 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
     super(); // allocate BaseTransformMeta
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   public void setTimeoutField(String timeoutField) {
     this.timeoutField = Utils.isEmpty(timeoutField) ? null : timeoutField;
   }

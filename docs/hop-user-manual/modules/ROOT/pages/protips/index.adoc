@@ -38,8 +38,16 @@ include::../snippets/variables/hop-windows-shell-encoding.adoc[]
 
 == Keyboard Shortcuts and Mouse actions
 
+CTRL-SHIFT-N::
+On a name field (transform/action name, field-name cell, table name, file name, metadata name, or F2 rename), apply a xref:metadata-types/naming-scheme.adoc[Naming Scheme] of the matching type. Click the tiny *N* next to the field to open the scheme instead.
+
 CTRL-K::
 In any table view in a Hop dialog, select one or more lines and use `CTRL-K` to remove all lines but your selection
+
+Table views::
+On a wide preview (or any other table grid), use the view icon on the table toolbar to define a named subset and order of columns.
+Views are stored per project and matched by column name, so you can reuse them the next time you inspect similar data.
+See xref:pipeline/run-preview-debug-pipeline.adoc#table-views[Table views].
 
 CTRL-SHIFT-Click::
 Hover your mouse pointer over any pipeline action in a workflow, pipeline or workflow executor transform etc and use `CTRL-SHIFT-Click` to open that item in a new tab.
@@ -55,6 +63,10 @@ In a pipeline, hover over any transform and hit `SPACE` to show the list of outp
 Action or transform hover + `Z`::
 Hover your mouse pointer over any pipeline action in a workflow, pipeline or workflow executor transform etc and hit the `Z` key to open that item in a new tab.
 The same behavior can be triggered by hovering over an item and hitting the use `CTRL-SHIFT-Click` key combination.
+
+Action or transform hover + `X`::
+While a pipeline or workflow is running, hover over an icon that can drill down (Pipeline Executor, Workflow Executor, Mapping, ETL Metadata Injection, a Pipeline or Workflow action, and so on) and press `X` to open the child execution.
+`Alt`-click (Option-click on macOS) does the same. With no run active, `Alt`-click on a pipeline transform still opens error handling when that transform supports it.
 
 == Projects and Environments
 

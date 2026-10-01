@@ -55,7 +55,8 @@ import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
     description = "i18n::Rest.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::RestMeta.keyword",
-    documentationUrl = "/pipeline/transforms/rest.html")
+    documentationUrl = "/pipeline/transforms/rest.html",
+    classLoaderGroup = "rest")
 public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private static final Class<?> PKG = RestMeta.class;
 
@@ -300,13 +301,6 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   }
 
   @Override
-  public Object clone() {
-    RestMeta retval = (RestMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     headerFields = new ArrayList<>();
     parameterFields = new ArrayList<>();
@@ -463,7 +457,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       } else {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.MethodFieldOk"),
                 transformMeta);
       }

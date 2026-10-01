@@ -181,7 +181,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private static final String TAB_KEY_DELIMITER = "\t";
   public static final String SNAP_ID_EIL_REFRESH = "EILRefresh";
 
-  @Getter private static ExecutionPerspective instance;
+  private static ExecutionPerspective instance;
 
   private boolean onlyShowingParents = true;
   private boolean onlyShowingFailed;
@@ -225,6 +225,24 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   public ExecutionPerspective() {
     instance = this;
+  }
+
+  public static ExecutionPerspective getInstance() {
+    try {
+      ExecutionPerspective fromGui = HopGui.findSessionPerspective(ExecutionPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    // Fallback for tests and the disabled-perspective case (constructed, never initialized).
+    // Hop Web project activation can reach us before loadPerspectives() has run, or when this
+    // perspective is excluded; callers must not NPE on a null singleton (issue #8477).
+    if (instance == null) {
+      new ExecutionPerspective();
+    }
+    return instance;
   }
 
   /**
@@ -488,16 +506,31 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void addViewer(IExecutionViewer viewer) {
-    // Create tab item
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
+
+    // Data is set before any call that can throw. A tab left without data makes the next
+    // double-click crash in setActiveViewer (issue #8601).
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setFont(GuiResource.getInstance().getFontDefault());
-    tabItem.setText(viewer.getName());
-    tabItem.setImage(viewer.getTitleImage());
-    tabItem.setToolTipText(viewer.getTitleToolTip());
-
-    tabItem.setControl(viewer.getControl());
-    tabItem.setData(viewer);
+    boolean ok = false;
+    try {
+      tabItem.setData(viewer);
+      tabItem.setFont(GuiResource.getInstance().getFontDefault());
+      tabItem.setText(Const.NVL(viewer.getName(), ""));
+      tabItem.setImage(viewer.getTitleImage());
+      tabItem.setToolTipText(viewer.getTitleToolTip());
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        tabItem.setControl(control);
+      }
+      ok = true;
+    } finally {
+      if (!ok) {
+        discardViewerTab(tabItem, viewer);
+      }
+    }
 
     viewers.add(viewer);
 
@@ -514,6 +547,32 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     viewer.setFocus();
 
     viewer.refresh();
+  }
+
+  /**
+   * Drop a tab that never became a usable viewer. The viewer composite is a child of the folder
+   * even when it was not attached to the tab, so it is disposed too.
+   */
+  private void discardViewerTab(CTabItem tabItem, IExecutionViewer viewer) {
+    if (tabItem != null && !tabItem.isDisposed()) {
+      try {
+        tabItem.setControl(null);
+      } catch (RuntimeException e) {
+        // Detach is best-effort; the tab is about to be disposed.
+      }
+      tabItem.dispose();
+    }
+    if (viewer == null) {
+      return;
+    }
+    try {
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        control.dispose();
+      }
+    } catch (RuntimeException e) {
+      // The viewer is already unusable; the open fails with the original exception.
+    }
   }
 
   /**
@@ -535,22 +594,33 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void setActiveViewer(IExecutionViewer viewer) {
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
     for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(viewer)) {
+      if (item == null || item.isDisposed()) {
+        continue;
+      }
+      // Compare from the viewer. A tab with no data must not throw (issue #8601).
+      //
+      if (viewer.equals(item.getData())) {
         tabFolder.setSelection(item);
         tabFolder.showItem(item);
-
         viewer.setFocus();
       }
     }
   }
 
   public IExecutionViewer getActiveViewer() {
-    if (tabFolder.getSelectionIndex() < 0) {
+    if (tabFolder == null || tabFolder.isDisposed() || tabFolder.getSelectionIndex() < 0) {
       return null;
     }
 
-    return (IExecutionViewer) tabFolder.getSelection().getData();
+    Object data = tabFolder.getSelection().getData();
+    if (data instanceof IExecutionViewer viewer) {
+      return viewer;
+    }
+    return null;
   }
 
   protected void onTabClose(CTabFolderEvent event) {
@@ -1139,14 +1209,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       Execution execution,
       ExecutionState state) {
     try {
-      executionItem.setImage(GuiResource.getInstance().getImagePipeline());
-
       String label = execution.getName();
       label += " - " + START_DATE_FORMAT.format(execution.getExecutionStartDate());
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      decorateItemWithState(executionItem, location, state);
+      decorateItemWithState(executionItem, location, execution, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing pipeline execution information tree item", e);
@@ -1159,8 +1227,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       Execution execution,
       ExecutionState state) {
     try {
-      executionItem.setImage(GuiResource.getInstance().getImageWorkflow());
-
       String label = execution.getName();
       label +=
           " - "
@@ -1168,7 +1234,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      decorateItemWithState(executionItem, location, state);
+      decorateItemWithState(executionItem, location, execution, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing workflow execution information tree item", e);
@@ -1176,15 +1242,36 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   private static void decorateItemWithState(
-      TreeItem executionItem, ExecutionInfoLocation location, ExecutionState state) {
+      TreeItem executionItem,
+      ExecutionInfoLocation location,
+      Execution execution,
+      ExecutionState state) {
     long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+    ExecutionStatusIcon statusIcon = ExecutionStatusIcon.from(state, loggingInterval);
+    executionItem.setImage(statusIcon.toImage(execution.getExecutionType()));
 
+    if (state == null) {
+      return;
+    }
     if (state.isFailed()) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
     } else if (state.isStale(loggingInterval)) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightGray());
     } else if (state.isRunning()) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightBlueMuted());
+    }
+  }
+
+  /** Refresh the tab image after a viewer reloads execution state (failed / stalled / default). */
+  public void updateViewerTabImage(IExecutionViewer viewer) {
+    if (tabFolder == null || tabFolder.isDisposed() || viewer == null) {
+      return;
+    }
+    for (CTabItem item : tabFolder.getItems()) {
+      if (viewer.equals(item.getData()) && !item.isDisposed()) {
+        item.setImage(viewer.getTitleImage());
+        return;
+      }
     }
   }
 
@@ -1519,9 +1606,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    IExecutionViewer viewer = (IExecutionViewer) tabItem.getData();
-
-    boolean isRemoved = viewers.remove(viewer);
+    if (tabItem == null || tabItem.isDisposed()) {
+      return;
+    }
+    Object data = tabItem.getData();
+    boolean isRemoved = data instanceof IExecutionViewer viewer && viewers.remove(viewer);
     tabItem.dispose();
 
     if (isRemoved) {

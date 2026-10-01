@@ -18,8 +18,11 @@
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import lombok.experimental.UtilityClass;
 import org.apache.hop.core.util.Utils;
 
+@UtilityClass
 public class LetterPairSimilarity {
 
   /*
@@ -64,9 +67,7 @@ public class LetterPairSimilarity {
     for (String word : words) {
       // Find the pairs of characters
       String[] pairsInWord = letterPairs(word);
-      for (String s : pairsInWord) {
-        allPairs.add(s);
-      }
+      Collections.addAll(allPairs, pairsInWord);
     }
     return allPairs;
   }
@@ -74,7 +75,7 @@ public class LetterPairSimilarity {
   /**
    * @return lexical similarity value in the range [0,1]
    */
-  public static double getSimiliarity(String str1, String str2) {
+  public static double getSimilarity(String str1, String str2) {
     if (Utils.isEmpty(str1) && Utils.isEmpty(str2)) {
       return 1.0;
     }

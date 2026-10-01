@@ -1,0 +1,335 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How to add a diagram exporter plugin: the annotation, the subject it draws, the format it writes, and how the Hop GUI and hop export discover it.
+[[PluginTypes-DiagramExporters]]
+= Diagram exporters
+
+A diagram exporter turns a *subject* (a pipeline, a workflow, or any other object that has a graph) into a *format* (SVG, Mermaid, PlantUML, Draw.io, PDF, …) and writes the result through Apache VFS.
+
+Hop ships exporters for pipelines and workflows to SVG and Mermaid.
+Everything else — a data model canvas, an architecture map, PlantUML, Draw.io — is a plugin of this type.
+
+The shared mechanics — discovery, annotation attributes, classloading, how a plugin gets into the distribution — are on the xref:plugin-types/index.adoc[plugin types overview].
+
+Annotation:: `@DiagramExporter`
+Implement:: `IDiagramExporter<T>`, in practice by extending `BaseDiagramExporter<T>`
+Plugin type:: `DiagramExporterPluginType`, id `DIAGRAM_EXPORTER`
+Examples:: `engine/src/main/java/org/apache/hop/diagram/exporter`
+
+Users hit exporters from two places:
+
+* Hop GUI, *File → Export diagram*, which opens `DiagramExportDialog` for the active editor.
+* `hop export` (and the `hop-export` wrapper scripts), which exports one file or a whole folder.
+
+== Subjects, formats and context
+
+Three things are kept separate on purpose:
+
+Subject::
+What is being drawn.
+Pipelines (`PipelineMeta`) and workflows (`WorkflowMeta`) are built in.
+A plugin can export any other object: the active editor's `IHopFileTypeHandler.getSubject()` is what the GUI passes in.
+
+Format::
+The target representation.
+`DiagramExportFormat` knows `SVG`, `MERMAID`, `PDF`, `PLANTUML` and `DRAWIO`.
+`DiagramExportFormat.parse("PLANTUML")` (or `of(...)`) is enough for a format the enum does not list.
+
+Context::
+Where the export is running: GUI, CLI, batch, web or tests.
+`IExportContext` gives you variables, the metadata provider, a log channel, and the `ExportEnvironment`.
+
+`DiagramExportService` is the facade both the GUI and the CLI use: it finds exporters for a subject, picks one by format id or file extension, and calls `export(...)`.
+
+== Writing an exporter
+
+One class per subject-and-format pair.
+Annotate it, extend `BaseDiagramExporter<T>`, implement `export`.
+
+[source,java]
+----
+@DiagramExporter(
+    id = "pipeline-plantuml",
+    name = "Pipeline PlantUML Exporter",
+    description = "Exports a pipeline diagram to PlantUML",
+    format = "PLANTUML",
+    fileExtension = "puml",
+    fileFilterNames = {"PlantUML diagrams (*.puml)"},
+    supportedSubjectTypes = {PipelineMeta.class})
+public class PipelinePlantUmlDiagramExporter extends BaseDiagramExporter<PipelineMeta> {
+
+  @Override
+  public DiagramExportResult export(
+      PipelineMeta pipelineMeta, DiagramExportOptions options, IExportContext context)
+      throws HopException {
+    if (pipelineMeta == null) {
+      throw new HopException("PipelineMeta is null");
+    }
+
+    String plantUml = render(pipelineMeta, options);
+
+    if (options != null && options.getTargetFilename() != null) {
+      writeToTarget(options.getTargetFilename(), plantUml, context);
+    }
+
+    return DiagramExportResult.success(
+        options != null ? options.getTargetFilename() : null, plantUml, "text/plain");
+  }
+}
+----
+
+Copy the built-in `PipelineSvgDiagramExporter` / `PipelineMermaidDiagramExporter` (and the workflow pair) rather than inventing a new shape.
+
+=== The annotation
+
+|===
+|Attribute |Meaning
+
+|`id`
+|Unique among diagram exporters.
+Permanent: it is what `--list-exporters` prints and what a plugin looks up.
+
+|`name` / `description`
+|Shown in the GUI format list (via the format name) and in `hop export --list-exporters`.
+
+|`format`
+|Format id, matched case-insensitively by `DiagramExportService.findExporter(...)`.
+Use `SVG`, `MERMAID`, `PDF`, `PLANTUML`, `DRAWIO`, or any other token `DiagramExportFormat.parse(...)` can keep.
+
+|`fileExtension`
+|Default extension *without* a dot (`puml`, `mmd`, `svg`).
+The GUI rewrites the target filename when the user changes format, and the CLI derives an output name from it.
+
+|`fileFilterNames`
+|Labels for the save dialog (`PlantUML diagrams (*.puml)`).
+Optional; the dialog falls back to the format name.
+
+|`supportedSubjectTypes`
+|The Java types this exporter accepts.
+`BaseDiagramExporter.supportsSubject(...)` returns true when the runtime object is an instance of one of them.
+|===
+
+`BaseDiagramExporter` reads the annotation in its constructor and fills `id`, `name`, `format`, `fileExtension` and `supportedSubjectTypes`.
+You do not re-implement those getters unless you have a reason.
+
+=== `export`
+
+Return a `DiagramExportResult`.
+Always put the bytes or text on the result, even when you also write a file: Hop Web downloads `result.getBytes()`, and tests assert on `result.getContent()`.
+
+[cols="2,4", options="header"]
+|===
+|Factory |When
+
+|`DiagramExportResult.success(filename, content, mimeType)`
+|Text formats (Mermaid, PlantUML, SVG XML).
+Also fills `bytes` from the string.
+
+|`DiagramExportResult.success(filename, bytes, mimeType)`
+|Binary formats (PDF).
+Also fills `content` from the bytes as UTF-8, which is only meaningful for text.
+
+|`DiagramExportResult.error(message, exception)`
+|The export failed.
+The GUI shows this in an error dialog; the CLI throws.
+|===
+
+Write files with `writeToTarget(...)` from the base class.
+It resolves the filename through the context's variables and opens the stream with `HopVfs.getOutputStream(...)`.
+Do not use `java.io.File`.
+
+Honour the options you understand:
+
+`targetFilename`:: where to write; may be `null` when the caller only wants the bytes (Hop Web).
+`magnification`:: scale for SVG and similar vector output.
+`includeNotes`:: whether canvas notes belong in the diagram.
+`direction` / `theme` / `extraOptions`:: optional; Mermaid uses `direction` (`LR` / `TD`).
+Put plugin-specific keys in `extraOptions` rather than subclassing the options bean unless you have to.
+
+=== Classloading
+
+`IDiagramExporter`, `DiagramExportFormat` and the rest of the API live in `hop-core` (`org.apache.hop.core.diagram`).
+Plugin classloaders load `org.apache.hop.core.*` parent-first, so the `IDiagramExporter` your plugin implements is the same class the GUI and CLI already have.
+
+Do *not* ship `hop-core` (or Jackson, or SLF4J) inside the plugin zip.
+See xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading].
+
+== Custom subjects
+
+Exporting a pipeline or workflow is the built-in case.
+Exporting something else is two extra steps: the editor has to hand the object over, and `hop export` has to be able to load it from a file.
+
+=== The GUI: `getSubject()`
+
+`HopGuiFileDelegate.exportDiagram()` asks the active `IHopFileTypeHandler` for `getSubject()`.
+If that returns your model object, and your exporter's `supportedSubjectTypes` includes that class, the dialog lists your formats.
+
+A custom file type that returns `null` from `getSubject()`, or that returns a wrapper the exporter does not recognise, is invisible to *File → Export diagram*.
+
+The dialog itself is a `@GuiPlugin` options bean (`DiagramExportDialogModel`) built with `GuiCompositeWidgets`.
+It shows format, target file, magnification and include-notes for every exporter.
+It does not currently instantiate `getOptionsClass()`; keep extra settings in `DiagramExportOptions.extraOptions` or accept the shared fields.
+
+Hop Web still downloads SVG for the active pipeline or workflow rather than opening the dialog.
+A web-only exporter that only produces PlantUML will not be offered there yet.
+
+=== The CLI: a subject loader
+
+`hop export -f` and batch export do not know your file format.
+They ask `DiagramExportService.findSubjectLoader(filename)` for an `IDiagramSubjectLoader` that claims the path, then call `loadSubject(...)`.
+
+Loaders are *not* annotation-discovered.
+Register one after the environment is up, typically from `HopEnvironmentAfterInit`:
+
+[source,java]
+----
+@ExtensionPoint(
+    id = "RegisterArchitectureMapLoader",
+    extensionPointId = "HopEnvironmentAfterInit",
+    description = "Register the architecture-map diagram subject loader")
+public class RegisterArchitectureMapLoader implements IExtensionPoint<PluginRegistry> {
+
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, PluginRegistry registry) {
+    DiagramExportService.getInstance().registerSubjectLoader(new ArchitectureMapSubjectLoader());
+  }
+}
+----
+
+The loader itself is small:
+
+[source,java]
+----
+public class ArchitectureMapSubjectLoader implements IDiagramSubjectLoader {
+
+  @Override
+  public boolean supportsFile(String filename) {
+    return filename != null && filename.toLowerCase().endsWith(".amap");
+  }
+
+  @Override
+  public Object loadSubject(
+      String filename, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException {
+    return new ArchitectureMapMeta(filename, metadataProvider, variables);
+  }
+}
+----
+
+Match on the filename or URI, not on a `java.io.File`.
+The CLI walks VFS folders, so `supportsFile` must accept a `file://` URI as well as a plain path.
+
+Built-in loaders: `PipelineDiagramSubjectLoader` (`.hpl`) and `WorkflowDiagramSubjectLoader` (`.hwf`), registered from `HopEnvironment.init()`.
+
+== How the GUI and CLI pick an exporter
+
+`DiagramExportService.findExportersForSubject(subject)` keeps every plugin (and any statically registered exporter) whose `supportsSubject` is true.
+The dialog lists unique format *names* from that list.
+
+`findExporter(subject, formatId)` matches, in order:
+
+. `exporter.getFormat().getId()` (for example `MERMAID`)
+. `exporter.getFileExtension()` (for example `mmd`)
+
+So `--format mermaid`, `--format MERMAID` and an output file ending in `.mmd` all select the same plugin.
+If nothing matches, the service falls back to the first exporter that supports the subject.
+
+`registerStaticExporter(...)` exists for tests and for code that is not a plugin.
+Production exporters should be `@DiagramExporter` classes so Jandex finds them.
+
+== `hop export`
+
+The command is a `@HopCommand(id = "export")` (`DiagramExportCommand` in `engine`).
+It also has wrapper scripts `hop-export` / `hop-export.bat` in the assembly.
+
+[source,bash]
+----
+# One file
+hop export -f pipelines/process-orders.hpl --format mermaid -o diagrams/process-orders.mmd
+
+# A folder
+hop export -s pipelines/ -t diagrams/ --format svg --recursive
+
+# What is installed
+hop export --list-exporters
+----
+
+Useful flags: `-f` / `--file`, `-o` / `--output-file`, `--format`, `-s` / `--source-folder`, `-t` / `--target-folder`, `-r` / `--recursive`, `-m` / `--magnification`, `-in` / `--include-notes`.
+
+Project and environment options (`-j`, `-e`) are mixed in from `@ConfigPlugin` beans with `category = ConfigPlugin.CATEGORY_EXPORT`.
+The projects plugin already contributes `ProjectsExportOptionPlugin` on that category.
+Add your own mixin the same way if the exporter needs project-scoped configuration; see xref:plugin-types/metadata-configuration.adoc[Metadata and configuration].
+
+== Built-in exporters
+
+[cols="2,2,1,1,3", options="header"]
+|===
+|Id |Subject |Format |Extension |Notes
+
+|`pipeline-svg`
+|`PipelineMeta`
+|SVG
+|`svg`
+|Delegates to `PipelineSvgPainter`. Honour `magnification`.
+
+|`pipeline-mermaid`
+|`PipelineMeta`
+|MERMAID
+|`mmd`
+|`flowchart` with transform hops; optional notes.
+Honour `includeNotes` and `direction`.
+
+|`workflow-svg`
+|`WorkflowMeta`
+|SVG
+|`svg`
+|Delegates to `WorkflowSvgPainter`.
+
+|`workflow-mermaid`
+|`WorkflowMeta`
+|MERMAID
+|`mmd`
+|`flowchart` with success / failure / unconditional hops.
+|===
+
+PDF, PlantUML and Draw.io are recognised format ids.
+Hop does not ship exporters for them; that is what this plugin type is for.
+
+== Things that are easy to get wrong
+
+* Forgetting `supportedSubjectTypes`.
+`supportsSubject` then returns false for everything and the exporter never appears.
+
+* Returning a wrapper from `IHopFileTypeHandler.getSubject()` that is not the type you declared.
+The GUI looks at the runtime object, not at the file extension.
+
+* Writing with `java.io.File` instead of `writeToTarget` / `HopVfs`.
+CLI batch export and Hop Web both pass VFS URIs.
+
+* Shipping a second `hop-core` in the plugin zip.
+You will get a `ClassCastException` on `IDiagramExporter` the first time the GUI tries to load you.
+
+* Skipping `META-INF/jandex.idx`.
+No index, no plugin — same as every other type.
+
+* Registering a subject loader too early, or not at all.
+Without a loader, `hop export -f your-file.ext` fails with "No subject loader available" even though the GUI export works.
+
+* Putting GUI-only code (SWT) on the exporter class.
+The CLI loads the same class.
+Keep painters that need SWT behind an engine helper the way `PipelineSvgPainter` already does, or keep the exporter in a module that both GUI and CLI already have on the classpath (`hop-engine` for the built-ins).

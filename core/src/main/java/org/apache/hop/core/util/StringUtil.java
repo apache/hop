@@ -33,6 +33,8 @@ import org.apache.hop.core.row.IRowMeta;
 /** A collection of utilities to manipulate strings. */
 public class StringUtil {
 
+  // Only used to generate test data, never for anything security related
+  @SuppressWarnings("java:S2245")
   private static final Random random = new Random();
 
   public static final String UNIX_OPEN = "${";
@@ -405,7 +407,7 @@ public class StringUtil {
     }
 
     for (int i = 0; i < length; i++) {
-      int c = 'a' + random.nextInt() * 26;
+      int c = 'a' + random.nextInt(26);
       buffer.append((char) c);
     }
     if (!Utils.isEmpty(postfix)) {
@@ -577,6 +579,24 @@ public class StringUtil {
     return variable.startsWith(UNIX_OPEN) && variable.endsWith(UNIX_CLOSE)
         || variable.startsWith(WINDOWS_OPEN) && variable.endsWith(WINDOWS_CLOSE)
         || variable.startsWith(HEX_OPEN) && variable.endsWith(HEX_CLOSE);
+  }
+
+  /**
+   * Whether {@code value} still contains a Hop variable delimiter after substitution. Used to skip
+   * design-time checks that cannot be decided when a name or URL still holds {@code ${...}}, {@code
+   * %%...%%}, {@code $[...]} or {@code #{...}}.
+   *
+   * @param value the string to inspect, may be null
+   * @return true when a variable token is still present
+   */
+  public static boolean containsVariableToken(String value) {
+    if (value == null) {
+      return false;
+    }
+    return value.contains(UNIX_OPEN)
+        || value.contains(WINDOWS_OPEN)
+        || value.contains(HEX_OPEN)
+        || value.contains(RESOLVER_OPEN);
   }
 
   /**

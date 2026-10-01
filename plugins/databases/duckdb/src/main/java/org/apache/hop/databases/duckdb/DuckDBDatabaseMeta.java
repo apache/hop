@@ -17,12 +17,19 @@
 
 package org.apache.hop.databases.duckdb;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.JdbcDateValues;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,9 +38,40 @@ import org.apache.hop.core.row.IValueMeta;
     type = "DuckDB",
     typeDescription = "DuckDB",
     image = "duckdb.svg",
-    documentationUrl = "/database/databases/duckdb.html")
+    documentationUrl = "/database/databases/duckdb.html",
+    classLoaderGroup = "duckdb-db")
 @GuiPlugin(id = "GUI-DuckDBDatabaseMeta")
 public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** DuckDB limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // A column that carries only a time cannot be read as a timestamp on DuckDB.
+          .bind(IValueMeta.TYPE_DATE, DuckDbTimeValues::isTimeColumn, DuckDbTimeValues.BINDING)
+          // As of DuckDB JDBC 0.10.0 the Calendar overloads of setDate and setTimestamp are not
+          // implemented, so a configured time zone cannot be passed to the driver.
+          .bind(IValueMeta.TYPE_DATE, JdbcDateValues.WITHOUT_CALENDAR_OVERLOADS)
+          // Both are DuckDB types of their own.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          // DuckDB has no type called VECTOR; an embedding is a float array, fixed size when the
+          // dimension is known and a plain list when it is not. Both take the canonical text form
+          // of a vector as it stands, so no binding is needed.
+          .write(IValueMeta.TYPE_VECTOR)
+          .as(v -> v.getLength() > 0 ? "FLOAT[" + v.getLength() + "]" : "FLOAT[]")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   @Override
   public String getCreateTableStatement() {
@@ -57,8 +95,6 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
     if (addFieldName) {
       retval += fieldname + " ";
-    } else {
-      retval += fieldname + " TYPE ";
     }
 
     int type = v.getType();
@@ -177,7 +213,8 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   @Override
@@ -188,10 +225,17 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       boolean useAutoIncrement,
       String pk,
       boolean semicolon) {
+    // The column name and the TYPE keyword belong to the ALTER syntax, not to the column
+    // definition. Asking for a definition without a field name has to return the type on its own,
+    // the way it does for every other dialect. See issue #3738, which was fixed the other way
+    // around, inside getFieldDefinition.
     return "ALTER TABLE "
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, false, false);
+        + v.getName()
+        + " TYPE "
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, false, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override
@@ -200,13 +244,105 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  public String getSqlListOfSchemas() {
+    return "SELECT CONCAT(catalog_name, '.', schema_name) AS name FROM information_schema.schemata"
+        + " ORDER BY catalog_name, schema_name";
+  }
+
+  @Override
   public String[] getTableTypes() {
-    return new String[] {"BASE TABLE", "LOCAL TEMPORARY"};
+    return new String[] {"TABLE", "BASE TABLE", "LOCAL TEMPORARY"};
   }
 
   @Override
   public void addDefaultOptions() {
     setSupportsBooleanDataType(true);
     setSupportsTimestampDataType(true);
+  }
+
+  @Override
+  public boolean isSupportsSequences() {
+    return true;
+  }
+
+  @Override
+  public boolean isSupportsSequenceNoMaxValueOption() {
+    return true;
+  }
+
+  /** DuckDB's parser only knows the two word form; the default NOMAXVALUE is a syntax error. */
+  @Override
+  public String getSequenceNoMaxValueOption() {
+    return "NO MAXVALUE";
+  }
+
+  /** Sequences live in the duckdb_sequences() catalog function; information_schema has no view. */
+  @Override
+  public String getSqlListOfSequences() {
+    return "SELECT sequence_name FROM duckdb_sequences() ORDER BY schema_name, sequence_name";
+  }
+
+  @Override
+  public String getSqlNextSequenceValue(String sequenceName) {
+    return "SELECT nextval('" + sequenceName + "')";
+  }
+
+  @Override
+  public String getSqlCurrentSequenceValue(String sequenceName) {
+    return "SELECT currval('" + sequenceName + "')";
+  }
+
+  @Override
+  public String getSqlSequenceExists(String sequenceName) {
+    // The name arrives the way getQuotedSchemaTableCombination built it, so it can carry a schema
+    // and, since a DuckDB schema is listed as catalog.schema, a catalog before that.
+    List<String> parts = splitQualifiedName(sequenceName);
+    StringBuilder sql =
+        new StringBuilder("SELECT sequence_name FROM duckdb_sequences() WHERE ")
+            // Identifiers are case-insensitive in DuckDB, quoted ones included.
+            .append("lower(sequence_name) = ")
+            .append(quoteSqlString(lower(parts.getLast())));
+    if (parts.size() > 1) {
+      sql.append(" AND lower(schema_name) = ")
+          .append(quoteSqlString(lower(parts.get(parts.size() - 2))));
+    }
+    if (parts.size() > 2) {
+      sql.append(" AND lower(database_name) = ")
+          .append(quoteSqlString(lower(parts.get(parts.size() - 3))));
+    }
+    return sql.toString();
+  }
+
+  /**
+   * Splits a qualified name into its parts, on the dots outside a quoted identifier, and gives
+   * every part back the way the catalog holds it: unquoted.
+   */
+  private static List<String> splitQualifiedName(String name) {
+    List<String> parts = new ArrayList<>();
+    StringBuilder part = new StringBuilder();
+    boolean quoted = false;
+    for (int i = 0; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if (c == '"') {
+        // Two quotes within a quoted identifier stand for one quote in the name itself.
+        if (quoted && i + 1 < name.length() && name.charAt(i + 1) == '"') {
+          part.append('"');
+          i++;
+        } else {
+          quoted = !quoted;
+        }
+      } else if (c == '.' && !quoted) {
+        parts.add(part.toString().trim());
+        part.setLength(0);
+      } else {
+        part.append(c);
+      }
+    }
+    parts.add(part.toString().trim());
+    return parts;
+  }
+
+  private static String lower(String identifier) {
+    return identifier.toLowerCase(Locale.ROOT);
   }
 }

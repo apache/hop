@@ -24,6 +24,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -74,6 +75,7 @@ public class SelectFolderDialog extends Dialog {
 
     // Tree
     wTree = new HopTree(shell, SWT.SINGLE | SWT.BORDER);
+    FolderTreeIcons.install(wTree);
     PropsUi.setLook(wTree);
     // Double click in tree: select the value
     wTree.addListener(SWT.DefaultSelection, e -> ok());

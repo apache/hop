@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Install optional Hop plugins from Apache Repository / Maven Central
-:openvar: ${
-:closevar: }
 
 :TOC:
 
@@ -28,7 +26,7 @@ Some Hop plugins are optional: they are not bundled in the default client zip so
 
 The default hop-client zip is intentionally smaller: we made large plugins optional since version 2.19.0. To install
 *all* marketplace-optional plugins that used to ship in the download (before version 2.19),
-use the generated environment file at the installation root:
+use the generated install spec at the installation root:
 
 [source,bash]
 ----
@@ -130,7 +128,7 @@ image::marketplace/marketplace-welcome-dialog.png[Marketplace welcome dialog,75%
 The main *Plugin Marketplace* dialog has three tabs:
 
 * *Plugins* — browse, search, install, and uninstall optional plugins
-* *Environment* — edit `hop-env.yaml` / JSON environments and validate or apply them
+* *Install spec* — edit a Hop install spec (`hop-env.yaml` / JSON) and validate or apply it
 * *Repositories* — configure Maven repositories (same settings as the CLI / hop-config)
 
 After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
@@ -149,21 +147,35 @@ Use this tab to work with the local optional-plugin catalog:
 ** *Not installed* — not found under `plugins/`
 * *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)
 * Several plugins can be selected at once with ctrl-click, shift-click, or ctrl-A, and installed or uninstalled in one go. Installs run one after another behind a single progress dialog; a plugin that fails does not stop the others and every failure is reported together at the end.
+* On *Hop Web* with authentication enabled, *Install*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 
-=== Environment tab
+=== Install spec tab
 
-image::marketplace/marketplace-dialog-environment.png[Marketplace dialog Environment tab,75%,align="left"]
+image::marketplace/marketplace-dialog-environment.png[Marketplace dialog Install spec tab,75%,align="left"]
 
-This tab embeds the full environment editor (no separate “Edit…” window). It is the GUI equivalent of `hop marketplace validate` / `apply` and of editing `hop-env.yaml` by hand.
+This tab is the editor for a *Hop install spec*: a YAML/JSON file that declares which marketplace plugins and jars *this Hop installation* should have. It is not a project lifecycle environment (dev/test/production).
+
+It is the GUI equivalent of `hop marketplace validate` / `apply`. Double-click `hop-env.yaml` in the Explorer perspective to open the same form editor. *Edit YAML in Explorer* opens the file as plain YAML for hand edits; *Reload* reads it back after you save there.
+
+Happy path:
+
+. *New*
+. Add plugins (*From catalog…*)
+. *Save As…* `+${PROJECT_HOME}/hop-env.yaml+` (default folder is the active project home)
+. *Validate*, then *Apply*, then restart Hop
+
+`full-client-env.yaml` at the install root is a generated list of every optional plugin. A banner says so; use *Apply* to restore the fat client, or *Save As* into a project for a custom set.
 
 ==== File toolbar
 
-* *New* — empty environment specification
-* *Open…* — open a `hop-env.yaml` / `.yml` / `.json` file
+* *New* — empty install spec
+* *Open…* — open a `hop-env.yaml` / `.yml` / `.json` file (Hop VFS, project variables allowed)
 * *Save* / *Save As…* — write YAML or JSON (by extension)
-* Filename *combo* — current path plus recently used environment files (remembered via the Hop audit list for this namespace). Selecting an entry loads that file.
+* *Edit YAML in Explorer* — open the current file in the Explorer perspective as YAML
+* *Reload* — re-read the file from disk
+* Filename *combo* — current path plus recently used install spec files (remembered via the Hop audit list for this namespace). Selecting an entry loads that file; a path that does not exist yet is kept so *Save* can create it.
 * On open, Hop prefers the last file you edited in this dialog; otherwise it may pre-select `full-client-env.yaml` at the install root when that file exists.
 
 ==== Nested editor tabs
@@ -187,7 +199,7 @@ This tab embeds the full environment editor (no separate “Edit…” window). 
 
 ==== Validate and Apply
 
-At the bottom of the Environment tab:
+At the bottom of the Install spec tab:
 
 * *Validate* — compare the local install to the saved environment file without downloading.
 * *Apply* — install missing plugins and dependencies declared in the file.
@@ -203,18 +215,36 @@ image::marketplace/marketplace-environment-drift.png[Marketplace environment dri
 
 image::marketplace/marketplace-dialog-repositories.png[Marketplace dialog Repositories tab,75%,align="left"]
 
-Configure the global marketplace repository list (stored under `marketplace` in `${HOP_CONFIG_FOLDER}/hop-config.json` — the same config the CLI uses):
+Configure the global marketplace repository list (stored under `marketplace` in `+${HOP_CONFIG_FOLDER}/hop-config.json+` — the same config the CLI uses):
 
 * Table columns: *Primary*, *Enabled*, *Id*, *Name*, *URL*, *Auth*
 * *Add* / *Edit* / *Remove* — maintain repository entries
 * *Set primary* — install tries this repository first
 * *Up* / *Down* — order fallbacks after the primary
 * *Reset defaults* — Apache Repository (primary) + Maven Central
-* *Save* — write hop-config (required to keep changes)
+* *Import…* / *Export…* — read or write a shareable `hop-marketplace-repo.yaml` definition on disk
+* *Import from URL…* — download a definition published at an https address (see <<marketplace-import-from-url>>)
+* *Save* — write hop-config (required to keep Add / Edit / Remove changes; the two import buttons save on their own)
 
 Add or edit a repository with id, name, URL, optional credentials, and primary/enabled flags:
 
 image::marketplace/marketplace-dialog-repository-editor.png[Add or edit marketplace repository,60%,align="left"]
+
+[[marketplace-import-from-url]]
+=== Import from URL
+
+*Import from URL…* adds a repository from a definition published on the web, so a marketplace operator can hand out one link instead of a file and a set of instructions.
+
+Because the address is typically pasted from an email, a chat message or a web page, the import is deliberately narrow:
+
+* *https only.* The definition names the hosts that plugin code is later downloaded from, so it must not be modifiable in transit. For a host without TLS, download the file and import it from disk.
+* *The download is anonymous.* No credentials are sent, so an address that turns out to be hostile cannot collect the `HOP_MARKETPLACE_*` credentials that apply to every repository. This means the definition itself has to be publicly readable; the artifacts it points at do not.
+* *Credentials in the file are ignored.* A definition fetched over the network describes *where* a repository is, never *who* connects to it. Add the username and password on the repository entry afterwards, or set `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`.
+* *Nothing is added until you confirm.* Hop shows the id, name, URL, download template, catalog URL and plugin count first. Adding a repository means trusting it as a source of code, so check that the addresses are ones you expect.
+
+One field is not merely descriptive: a definition that sets `primary: true` becomes the primary repository on import and demotes the current one, so every install tries it first. If that repository is private and the credentials are not set yet, installs that used to work will fail until they are. Check that field before importing a definition you did not write, and use *Set primary* to put the order back.
+
+Importing the same file *from disk* keeps any credentials it contains. That is what makes an administrator-provisioned definition work for an internal rollout: the file was placed there deliberately, where a URL is only ever a pointer.
 
 === Projects lifecycle environments
 
@@ -224,16 +254,18 @@ image::marketplace/marketplace-lifecycle-enviromnent-enforce-configuration.png[L
 
 Typical options:
 
-* *Environment file* — path to a `hop-env.yaml` (variables allowed, for example under the project home)
+* *Install spec file* — path to a `hop-env.yaml` (variables allowed, for example under the project home). This is a Hop install spec, not a lifecycle environment config file.
 * *On enable* — `off` (no check), `warn` (log or dialog on drift), or `enforce` (fail enabling the environment if the install does not match)
 * *Strict* — treat extra marketplace plugins as drift
 * *Auto-apply missing plugins on enable* — optional; off by default (use only on controlled machines)
 
 If *On enable* is unset, purpose-based defaults apply: *Production* → enforce, *Testing* / *Acceptance* → warn, *Development* / CI-style purposes → off.
 
-This complements hop-env `enforceOnRun` (checked at hop-run) and the Environment tab *Validate* / *Apply* actions (manual checks from the marketplace dialog).
+This complements hop-env `enforceOnRun` (checked at hop-run) and the Install spec tab *Validate* / *Apply* actions (manual checks from the marketplace dialog).
 
-== Declarative environments (`hop-env.yaml`)
+Do not confuse this file with a *project lifecycle environment* (dev/test/production variables) or with the `hop-env.sh` / `hop-env.cmd` launcher script written by hop-setup.
+
+== Hop install spec (`hop-env.yaml`)
 
 For CI/CD, Docker, and reproducible servers you can declare the required plugins (and optional jars) in a file, commit it to Git, and apply it without using the GUI.
 
@@ -244,7 +276,7 @@ Supported file names / formats:
 
 === `hop marketplace apply`
 
-Installs missing plugins and dependencies declared in the environment file. Already-satisfied plugins are skipped.
+Installs missing plugins and dependencies declared in the install spec file. Already-satisfied plugins are skipped.
 
 [cols="1,3"]
 |===
@@ -279,14 +311,14 @@ Always restart Hop after a successful apply when new plugins were installed.
 
 === `hop marketplace validate`
 
-Compares the local install to the environment file *without* downloading or installing anything. Useful in CI as a pre-flight check.
+Compares the local install to the install spec file *without* downloading or installing anything. Useful in CI as a pre-flight check.
 
 [cols="1,3"]
 |===
 | Option | Description
 
 | `-f`, `--file`
-| Path to the environment file. If omitted, Hop discovers a file (see <<hop-env-discovery>>).
+| Path to the install spec file. If omitted, Hop discovers a file (see <<hop-env-discovery>>).
 
 | `--strict`
 | Also fail when *extra* marketplace-installed plugins (receipts under `plugins/.marketplace/`) are present that are not listed in the file. Without `--strict`, extras are ignored.
@@ -294,7 +326,7 @@ Compares the local install to the environment file *without* downloading or inst
 
 Exit codes:
 
-* *0* — environment matches (prints `OK: environment matches …`)
+* *0* — install spec matches (prints `OK: install spec matches …`)
 * *non-zero* — drift detected or error (prints a drift report and suggests `hop marketplace apply -f …`)
 
 What counts as drift (always hard-fail):
@@ -327,7 +359,7 @@ Enable enforcement either:
 If a hop-env file is present but `enforceOnRun` is false and the property is unset, hop-run only logs that the file was found and skips the check.
 
 [[hop-env-discovery]]
-=== How the environment file is discovered
+=== How the install spec file is discovered
 
 Used by `validate` (when `-f` is omitted) and by hop-run:
 
@@ -403,7 +435,7 @@ dependencies:
 
 | `repositories`
 | No
-| List of Maven base URLs used when *applying* this file. Order: first = primary, rest = fallbacks. Each item: `id`, `url`, optional `username` / `password`.
+| List of Maven base URLs used when *applying* this file. Order: first = primary, rest = fallbacks. Each item: `id`, `url`, optional `username` / `password`. A repository here only inherits configured credentials when it points at a repository manager that is already configured — see <<marketplace-spec-repository-credentials>>.
 
 | `plugins`
 | No
@@ -459,6 +491,50 @@ Use the repository-scoped variables when more than one private repository is con
 
 Username and password are resolved separately, so the two can come from different sources: a repository entry that sets only `username` is combined with `HOP_MARKETPLACE_PASSWORD` from the environment. Such a mixed pair counts as deliberately configured — the anonymous retry described below applies only when the repository entry supplies neither field.
 
+[[marketplace-spec-repository-credentials]]
+=== Repositories declared by an install spec
+
+An install spec carried by a project can declare its own `repositories`. Because that URL comes from the project rather than from the operator, the configured credentials are only reused for it when the project points at the *same* repository manager they belong to — the same scheme, host and port as a repository in `hop-config`. The path may differ, so a second repository on the same Nexus or Artifactory keeps working.
+
+A spec repository on any other host gets only what the spec itself declares. Neither the `username` / `password` stored on a configured repository nor the global `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD` pair is sent to it, so enabling a project cannot make Hop hand the operator's repository credentials to an address of the project's choosing. The log says so at basic level when credentials are withheld this way.
+
+To give such a repository credentials, set `username` / `password` on its entry in the spec (prefer a variable over a literal secret), or set the repository-scoped `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD` variables for the `id` the spec uses — those name one repository, so they still apply.
+
+=== Authentication type
+
+`authType` on a repository chooses how those credentials are sent:
+
+[options="header"]
+|===
+|Value|What is sent|Use for
+|`auto` (default)|Basic when a username and a password both resolve, nothing otherwise|Nexus, Forgejo, anonymous public repositories
+|`none`|Nothing, ever|A public repository that must ignore globally configured credentials
+|`basic`|`Authorization: Basic`|Any repository manager that accepts a username and password
+|`token`|`Authorization: Bearer`|Repositories issuing standalone access tokens, such as JFrog Artifactory
+|===
+
+`auto` reproduces the behaviour of releases before `authType` existed, and it never selects `token`: `HOP_MARKETPLACE_PASSWORD` is offered to every repository including public ones, so a lone password is not read as a bearer token. Token authentication is opt-in.
+
+`none` is not the same as leaving the credentials empty. The global variables reach every repository, and a public one such as Maven Central answers `401` for credentials it does not know rather than ignoring them; `authType: none` opts a repository out of them entirely.
+
+With `token`, the `password` field holds the token and `username` is unused. The token reads from `HOP_MARKETPLACE_<ID>_TOKEN` as well as `HOP_MARKETPLACE_<ID>_PASSWORD` — the same secret under a name that reads better. There is no global `HOP_MARKETPLACE_TOKEN`: a token belongs to one repository.
+
+[source,json]
+----
+{ "id": "artifactory", "url": "https://acme.jfrog.io/artifactory/hop-plugins/", "authType": "token", "password": "${ARTIFACTORY_TOKEN}" }
+----
+
+From the command line:
+
+[source,bash]
+----
+./hop marketplace repo add --id artifactory \
+  --url https://acme.jfrog.io/artifactory/hop-plugins/ \
+  --auth-type token --password '${ARTIFACTORY_TOKEN}'
+----
+
+When a request comes back `401` or `403`, the error names the type that was used and, if nothing was sent, why not — an `authType` whose credentials do not resolve reports that instead of silently falling back to anonymous.
+
 === How stored passwords are protected
 
 A `password` on a repository entry is written to `hop-config.json` — and to exported repository definitions and environment files — obfuscated with Hop's two-way password encoder, the same `Encrypted 2be98afc…` form used for Hop server and database passwords. Configurations written by older versions are read as-is and re-encoded the next time they are saved.
@@ -491,10 +567,40 @@ Installing works against any Maven repository, because downloads use plain Maven
 |Value|Endpoint used|Repository manager
 |`auto` (default)|detected from the URL|any of the below
 |`nexus`|`/service/rest/v1/search`|Sonatype Nexus 3
-|`forgejo`|`/api/v1/packages/{owner}`|Forgejo, Gitea
+|`forgejo`|`+/api/v1/packages/{owner}+`|Forgejo, Gitea
+|`jfrog`|`/api/search/aql` or `/api/storage`|JFrog Artifactory
 |===
 
-`auto` selects `forgejo` for URLs containing `/api/packages/` (for example `https://forge.example.org/api/packages/acme/maven`) and `nexus` otherwise. On Forgejo, packages are named `groupId:artifactId` and each candidate version is checked for a plugin zip, so plain library jars are not listed as installable.
+`auto` reads the URL: `/api/packages/` selects `forgejo` (for example `https://forge.example.org/api/packages/acme/maven`), `/artifactory/` selects `jfrog` (for example `https://acme.jfrog.io/artifactory/hop-plugins/`), and anything else falls back to `nexus`. Set `browserType` explicitly when the URL does not identify the product — an Artifactory behind a custom context path, for instance.
+
+On Forgejo, packages are named `groupId:artifactId` and each candidate version is checked for a plugin zip, so plain library jars are not listed as installable.
+
+==== Browsing JFrog Artifactory
+
+Artifactory has two usable listing APIs and Hop picks between them:
+
+* When credentials resolve, it uses *AQL* (`POST /api/search/aql`), which finds every plugin zip in the repository in one request. AQL requires an authenticated user, so it is not attempted anonymously.
+* Otherwise — and whenever AQL is refused, for a token without that permission or an instance where it is disabled — it *walks the repository* with `+GET /api/storage/{repo}/{path}+`, one request per folder, stopping at each folder that holds a zip. This works for any user with read access, anonymous included.
+
+The File List API (`?list&deep=1`) would be a better fit than either, but it is an Artifactory Pro feature and is not used.
+
+Both work against a virtual repository as well as a local one. AQL searches only the first five remote repositories aggregated by a virtual repository, so if plugins are published to a local repository — the usual arrangement — point `url` at that one rather than at a virtual repository in front of it.
+
+Both paths are bounded, and both say so in the log rather than quietly returning a short list: the AQL search stops at 1000 artifacts, and the walk at a fixed number of requests so that a large shared repository does not turn one refresh into thousands of them. Set `groupIdFilter` to the groupId your plugins are published under: on the walk it becomes the starting folder rather than a filter applied afterwards, which is what keeps browsing cheap.
+
+[source,json]
+----
+{
+  "id": "artifactory",
+  "url": "https://acme.jfrog.io/artifactory/hop-plugins/",
+  "browse": true,
+  "groupIdFilter": "com.acme.hop",
+  "authType": "token",
+  "password": "${ARTIFACTORY_TOKEN}"
+}
+----
+
+Installing needs none of this: Artifactory serves plain Maven layout, so downloads and SNAPSHOT resolution work against it without any browse API at all.
 
 For a repository manager with no supported search API, publish a catalog YAML and set `catalogUrl` on the repository instead — discovery then reads that file and never calls a registry API. The catalog is fetched with the repository's Basic credentials when they are configured, so it can live in a private repository.
 
@@ -505,7 +611,7 @@ Plugin zips do not have to be served from a Maven repository at all. Set `urlTem
 urlTemplate: https://forge.example.org/acme/dist/releases/download/v${version}/${artifactId}-${version}.zip
 ----
 
-Supported placeholders are `${groupId}`, `${groupPath}` (groupId with dots replaced by slashes), `${artifactId}` and `${version}`; an unrecognised placeholder is reported as an error instead of producing a confusing 404. When `urlTemplate` is set, the repository `url` is not used for plugin downloads.
+Supported placeholders are `+${groupId}+`, `+${groupPath}+` (groupId with dots replaced by slashes), `+${artifactId}+` and `+${version}+`; an unrecognised placeholder is reported as an error instead of producing a confusing 404. When `urlTemplate` is set, the repository `url` is not used for plugin downloads.
 
 Such a host serves no Maven metadata, so versions must be exact: combine `urlTemplate` with a `catalogUrl` that pins each version. SNAPSHOT resolution does not apply, and live browsing cannot list release assets.
 

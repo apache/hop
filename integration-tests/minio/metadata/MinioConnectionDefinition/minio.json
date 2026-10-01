@@ -5,7 +5,7 @@
   "accessKey": "${MINIO_ACCESS_KEY}",
   "partSize": "${MINIO_PART_SIZE}",
   "name": "minio",
-  "description": "The S3 endpoint on a local Minio container for testing",
+  "description": "The S3 endpoint on a local SeaweedFS container for testing",
   "endPointPort": "${MINIO_ENDPOINT_PORT}",
   "endPointSecure": false,
   "region": "${MINIO_REGION}"

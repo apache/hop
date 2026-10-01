@@ -35,6 +35,8 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.TransformSourceGui;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 
 public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
@@ -75,6 +77,13 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
       for (GuiAction pluginAction : pluginActions) {
         actions.add(lambdaBuilder.createLambda(pluginAction, this, pipelineGraph));
       }
+    }
+
+    // While the palette tree is shown it is the place to pick new transforms: leave the creation
+    // entries out so a click on empty canvas only offers the pipeline actions (issue #8443).
+    //
+    if (GraphPalette.isVisible()) {
+      return actions;
     }
 
     // Also add all the transform creation actions, optionally filtered by the user-selected
@@ -120,6 +129,7 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
         LogChannel.UI.logError("Unable to get classloader for transform plugin " + pluginId, e);
       }
       createTransformAction.getKeywords().add(transformPlugin.getCategory());
+      TransformSourceGui.labelCreateAction(createTransformAction, transformPlugin);
       actions.add(createTransformAction);
 
       // Duplicate under Favorites when the user marked this transform as favorite (issue #3526)

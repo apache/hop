@@ -32,7 +32,7 @@ public class ToolbarFacadeImpl extends ToolbarFacade {
     Composite composite = new Composite(parent, SWT.NONE);
     RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
     rowLayout.wrap = true;
-    rowLayout.spacing = 4;
+    rowLayout.spacing = 1;
     rowLayout.marginWidth = 0;
     rowLayout.marginHeight = 0;
     rowLayout.center = true;

@@ -43,10 +43,18 @@ public class S3VfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
       IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+          executionMetadata != null
+              ? executionMetadata
+              : HopMetadataUtil.getStandardHopMetadataProvider(variables);
       List<S3Meta> s3MetaList = metadataProvider.getSerializer(S3Meta.class).loadAll();
       for (S3Meta s3Meta : s3MetaList) {
         providers.put(s3Meta.getName(), new S3FileProvider(variables, s3Meta));

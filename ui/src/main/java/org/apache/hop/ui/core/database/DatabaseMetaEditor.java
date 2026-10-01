@@ -60,9 +60,11 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchViews;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -79,7 +81,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.jspecify.annotations.Nullable;
@@ -95,7 +96,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private CTabFolder wTabFolder;
 
   private Composite wGeneralComp;
-  private Text wName;
+  private TextVar wName;
   private Combo wConnectionType;
   private Label wDriverInfo;
   private Button wbDownloadDriver;
@@ -215,7 +216,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlName.left = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
 
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);
@@ -446,6 +449,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
 
     addCompositeWidgetsUsernamePassword();
+    addDefaultPortButton();
 
     // manual URL field - only create if not excluded
     //
@@ -525,6 +529,41 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         : Optional.empty();
   }
 
+  private void addDefaultPortButton() {
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (portControl == null
+        || portControl.isDisposed()
+        || !(portControl.getLayoutData() instanceof FormData fdPort)
+        || getMetadata().getIDatabase().getDefaultDatabasePort() <= 0) {
+      return;
+    }
+
+    Button wbDefaultPort = new Button(portControl.getParent(), SWT.PUSH);
+    wbDefaultPort.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.DefaultPort"));
+    PropsUi.setLook(wbDefaultPort);
+    FormData fdDefaultPort = new FormData();
+    fdDefaultPort.right = new FormAttachment(100, 0);
+    fdDefaultPort.top = new FormAttachment(portControl, 0, SWT.CENTER);
+    wbDefaultPort.setLayoutData(fdDefaultPort);
+    fdPort.right = new FormAttachment(wbDefaultPort, -PropsUi.getMargin());
+
+    // The action widget of the port row, so that hiding or collapsing the row takes it along
+    guiCompositeWidgets.getActionWidgetsMap().put(BaseDatabaseMeta.ELEMENT_ID_PORT, wbDefaultPort);
+
+    wbDefaultPort.addListener(SWT.Selection, event -> setDefaultPort());
+  }
+
+  private void setDefaultPort() {
+    int defaultPort = getMetadata().getIDatabase().getDefaultDatabasePort();
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (defaultPort <= 0 || portControl == null || portControl.isDisposed()) {
+      return;
+    }
+    if (portControl instanceof TextVar portVar) {
+      portVar.setText(Integer.toString(defaultPort));
+    }
+  }
+
   private void addCompositeWidgetsUsernamePassword() {
     // Add username and password to the mix so folks can enable/disable those
     //
@@ -553,12 +592,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     DatabaseMeta databaseMeta = this.getMetadata();
 
+    String newTypeName = wConnectionType.getText();
+    String oldTypeName = databaseMeta.getPluginName();
+    if (Utils.isEmpty(newTypeName) || newTypeName.equalsIgnoreCase(oldTypeName)) {
+      busyChangingConnectionType.set(false);
+      return;
+    }
+
     // Keep track of the old database type since this changes when getting the content
     //
     Class<? extends IDatabase> oldClass = databaseMeta.getIDatabase().getClass();
-    String oldTypeName = databaseMeta.getPluginName();
-    String newTypeName = wConnectionType.getText();
-    wConnectionType.setText(databaseMeta.getPluginName());
+    wConnectionType.setText(Const.NVL(oldTypeName, newTypeName));
 
     // Capture any information on the widgets
     //
@@ -575,7 +619,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // Get possible information from the metadata map (from previous work)
     //
-    databaseMeta.setIDatabase(metaMap.get(databaseMeta.getIDatabase().getClass()));
+    IDatabase enteredDatabase = databaseMeta.getIDatabase();
+    IDatabase savedDatabase = metaMap.get(enteredDatabase.getClass());
+    if (savedDatabase != null) {
+      databaseMeta.setIDatabase(savedDatabase);
+      copyEnteredFields(enteredDatabase, savedDatabase);
+    }
 
     // Remove existing children
     //
@@ -594,6 +643,10 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null);
     guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
     addCompositeWidgetsUsernamePassword();
+    addDefaultPortButton();
+    if (savedDatabase != null) {
+      copyEnteredPort(enteredDatabase, savedDatabase);
+    }
 
     // Put the data back
     //
@@ -602,6 +655,31 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wGeneralComp.layout(true, true);
 
     busyChangingConnectionType.set(false);
+  }
+
+  private void copyEnteredFields(IDatabase entered, IDatabase target) {
+    target.setAccessType(entered.getAccessType());
+    target.setHostname(entered.getHostname());
+    target.setDatabaseName(entered.getDatabaseName());
+    target.setUsername(entered.getUsername());
+    target.setPassword(entered.getPassword());
+    target.setServername(entered.getServername());
+    target.setDataTablespace(entered.getDataTablespace());
+    target.setIndexTablespace(entered.getIndexTablespace());
+  }
+
+  // Only a type that shows the port field can take the entered port: the ones that hide it build
+  // their URL from the default and leave no way to correct a copied value. An empty port falls
+  // back to the new default rather than to the cached one, which the user may have cleared.
+  private void copyEnteredPort(IDatabase entered, IDatabase target) {
+    Control portControl = guiCompositeWidgets.getWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (portControl != null && StringUtils.isNotEmpty(entered.getPort())) {
+      target.setPort(entered.getPort());
+    } else if (target.getDefaultDatabasePort() > 0) {
+      target.setPort(Integer.toString(target.getDefaultDatabasePort()));
+    } else {
+      target.setPort("");
+    }
   }
 
   private void addAdvancedTab() {
@@ -1089,6 +1167,13 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     //
     guiCompositeWidgets.enableWidgets(
         getMetadata().getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl);
+
+    // enableWidgets() covers labels and widgets, not action controls
+    Control defaultPortButton =
+        guiCompositeWidgets.getActionWidgetsMap().get(BaseDatabaseMeta.ELEMENT_ID_PORT);
+    if (defaultPortButton != null && !defaultPortButton.isDisposed()) {
+      defaultPortButton.setEnabled(!manualUrl);
+    }
   }
 
   private void test() {
@@ -1099,29 +1184,53 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   }
 
   private void explore() {
-    if (!getMetadata().isExploringDisabled()) {
-      DatabaseMeta meta = new DatabaseMeta();
-      getWidgetsContent(meta);
-      try {
-        DatabaseExplorerDialog dialog =
-            new DatabaseExplorerDialog(
-                getShell(),
-                SWT.NONE,
-                manager.getVariables(),
-                meta,
-                manager.getSerializer().loadAll(),
-                true,
-                true);
-        dialog.open();
-      } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error exploring database", e);
-      }
-    } else {
-      MessageBox mb = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.title"));
-      mb.setMessage(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.description"));
-      mb.open();
+    if (!canExploreDatabase()) {
+      return;
     }
+    DatabaseMeta meta = new DatabaseMeta();
+    getWidgetsContent(meta);
+    try {
+      DatabaseExplorerDialog dialog =
+          new DatabaseExplorerDialog(
+              getShell(),
+              SWT.NONE,
+              manager.getVariables(),
+              meta,
+              manager.getSerializer().loadAll(),
+              true,
+              true);
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error exploring database", e);
+    }
+  }
+
+  private void openInDatabase() {
+    if (!canExploreDatabase()) {
+      return;
+    }
+    DatabaseMeta meta = new DatabaseMeta();
+    getWidgetsContent(meta);
+    if (StringUtils.isBlank(meta.getName())) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
+      box.setText(BaseMessages.getString(PKG, "DatabaseDialog.OpenInDatabase.NameRequired.Title"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "DatabaseDialog.OpenInDatabase.NameRequired.Message"));
+      box.open();
+      return;
+    }
+    DatabaseWorkbenchViews.openInDatabase(hopGui, meta, "");
+  }
+
+  private boolean canExploreDatabase() {
+    if (!getMetadata().isExploringDisabled()) {
+      return true;
+    }
+    MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
+    mb.setText(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.title"));
+    mb.setMessage(BaseMessages.getString(PKG, "DatabaseDialog.Exploring.Disabled.description"));
+    mb.open();
+    return false;
   }
 
   private void onHelpDatabaseType() {
@@ -1141,7 +1250,29 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     DatabaseMeta databaseMeta = this.getMetadata();
 
     wName.setText(Const.NVL(databaseMeta.getName(), ""));
-    wConnectionType.setText(Const.NVL(databaseMeta.getPluginName(), ""));
+    String connectionType = Const.NVL(databaseMeta.getPluginName(), "");
+    if (Utils.isEmpty(connectionType) && !Utils.isEmpty(databaseMeta.getPluginId())) {
+      IPlugin plugin =
+          PluginRegistry.getInstance()
+              .findPluginWithId(DatabasePluginType.class, databaseMeta.getPluginId());
+      if (plugin != null) {
+        connectionType = plugin.getName();
+      }
+    }
+    wConnectionType.setText(connectionType);
+    int typeIndex = Const.indexOfString(connectionType, wConnectionType.getItems());
+    if (typeIndex < 0) {
+      String[] items = wConnectionType.getItems();
+      for (int i = 0; i < items.length; i++) {
+        if (items[i].equalsIgnoreCase(connectionType)) {
+          typeIndex = i;
+          break;
+        }
+      }
+    }
+    if (typeIndex >= 0) {
+      wConnectionType.select(typeIndex);
+    }
 
     if (wUsername != null) {
       wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));
@@ -1477,11 +1608,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wExplore.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.Explore"));
     wExplore.addListener(SWT.Selection, e -> explore());
 
+    Button wOpenInDatabase = new Button(parent, SWT.PUSH);
+    wOpenInDatabase.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.OpenInDatabase"));
+    wOpenInDatabase.setToolTipText(
+        BaseMessages.getString(PKG, "DatabaseDialog.button.OpenInDatabase.Tooltip"));
+    wOpenInDatabase.addListener(SWT.Selection, e -> openInDatabase());
+
     Button wTest = new Button(parent, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
     wTest.addListener(SWT.Selection, e -> test());
 
-    return new Button[] {wGenerateVariables, wExplore, wTest};
+    return new Button[] {wGenerateVariables, wExplore, wOpenInDatabase, wTest};
   }
 
   /**

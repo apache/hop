@@ -16,8 +16,6 @@ under the License.
 ////
 [[PipelineVariableResolver]]
 :imagesdir: ../assets/images
-:openvar: #{
-:closevar: }
 :description: This describes the usage of a pipeline to resolve variable expressions
 
 == Functionality
@@ -38,7 +36,7 @@ IMPORTANT: Only the first output row in the pipeline is considered.
 
 The variable expression is (as always) in the following format:
 
-`{openvar}name:variable:field{closevar}`
+`+#{name:variable:field}+`
 
 * name: the name of the variable resolver metadata element to use
 * variable: the variable value to set in the variable specified in the metadata (see above)
@@ -75,9 +73,9 @@ image::metadata-types/variable-resolver/pipeline-variable-resolver-conf.png[]
 
 Here are some examples of expressions and the results they give back:
 
-* `{openvar}conf:db1:username{closevar}` : user1
-* `{openvar}conf:db2:db{closevar}` : db2
-* `{openvar}conf:db3:port{closevar}` : port3
+* `+#{conf:db1:username}+` : user1
+* `+#{conf:db2:db}+` : db2
+* `+#{conf:db3:port}+` : port3
 
 This gives you a lot of flexibility.
 

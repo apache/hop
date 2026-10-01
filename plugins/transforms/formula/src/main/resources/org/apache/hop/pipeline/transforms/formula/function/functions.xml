@@ -658,8 +658,8 @@
     <description>Construct date from year, month, and day of month.</description>
     <syntax>DATE( Integer Year , Integer Month , Integer Day )</syntax>
     <returns>Date</returns>
-    <constraints>1 &lt;= Month &lt;= 12, 1 &lt;= Day &lt;= 31</constraints>
-    <semantics>This computes the date's serial number given Year, Month, and Day. Fractional values are truncated. The value of the serial number depends on the current epoch. Note that some applications may not handle correctly dates before 1904; in particular, many spreadsheets incorrectly claim that 1900 is a leap year (it was not; there was no 1900-02-29).</semantics>
+    <constraints>1 &lt;= Month &lt;= 12, 1 &lt;= Day &lt;= 31, Year &gt;= 1900</constraints>
+    <semantics>This computes the date's serial number given Year, Month, and Day. Fractional values are truncated. The value of the serial number depends on the current epoch. Note that some applications may not handle correctly dates before 1904; in particular, many spreadsheets incorrectly claim that 1900 is a leap year (it was not; there was no 1900-02-29). A Year between 0 and 1899 is interpreted as an offset from 1900, so DATE(1800,1,1) returns 3700-01-01 and DATE(50,1,1) returns 1950-01-01. Dates before 1899-12-31 can not be represented.</semantics>
     <examples>
       <example><expression>DATE(2005,1,31)=[.C7]</expression> <result>True</result> <level>1</level> <comment>Simple date value.</comment></example>
       <example><expression>DATE(2005,12,31)-DATE(1904,1,1)</expression> <result>37255</result> <level>1</level> <comment>Date differences are computed correctly.</comment></example>

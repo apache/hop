@@ -29,7 +29,9 @@ public final class MarketplaceAttributes {
   /** IAttributes group for marketplace settings. */
   public static final String GROUP = "marketplace";
 
-  /** Path to hop-env.yaml / full-client-env.yaml (may contain variables). */
+  /**
+   * Path to the Hop install spec file (hop-env.yaml / full-client-env.yaml; may contain variables).
+   */
   public static final String KEY_ENV_FILE = "envFile";
 
   /**
@@ -38,7 +40,7 @@ public final class MarketplaceAttributes {
    */
   public static final String KEY_ON_ENABLE = "onEnable";
 
-  /** When true, extra marketplace plugins (receipts not in env file) count as drift. */
+  /** When true, extra marketplace plugins (receipts not in the install spec) count as drift. */
   public static final String KEY_STRICT = "strict";
 
   /** When true, apply missing installs on enable (default false). */

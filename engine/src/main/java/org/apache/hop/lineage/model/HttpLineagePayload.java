@@ -19,6 +19,7 @@ package org.apache.hop.lineage.model;
 
 import java.util.Objects;
 import lombok.Getter;
+import org.apache.hop.core.util.CredentialRedactor;
 
 /** HTTP client or server observation. */
 @Getter
@@ -46,13 +47,14 @@ public final class HttpLineagePayload implements LineagePayload {
       String message) {
     this.direction = Objects.requireNonNull(direction, "direction");
     this.method = method;
-    this.url = url;
+    // Lineage events leave the process, to DataHub, OpenLineage and the like: no credentials.
+    this.url = CredentialRedactor.redact(url);
     this.statusCode = statusCode;
     this.requestBytes = requestBytes;
     this.responseBytes = responseBytes;
     this.durationMillis = durationMillis;
     this.success = success;
-    this.message = message;
+    this.message = CredentialRedactor.redact(message);
   }
 
   @Override

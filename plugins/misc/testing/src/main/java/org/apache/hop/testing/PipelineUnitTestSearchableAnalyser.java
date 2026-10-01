@@ -47,13 +47,7 @@ public class PipelineUnitTestSearchableAnalyser
 
     matchProperty(searchable, results, searchQuery, "name", unitTest.getName(), null);
     matchProperty(searchable, results, searchQuery, "description", unitTest.getDescription(), null);
-    matchProperty(
-        searchable,
-        results,
-        searchQuery,
-        "type",
-        unitTest.getType() != null ? unitTest.getType().name() : null,
-        null);
+    matchProperty(searchable, results, searchQuery, "type", unitTest.getType(), null);
     matchProperty(
         searchable,
         results,

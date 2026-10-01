@@ -19,6 +19,7 @@ package org.apache.hop.mail.workflow.actions.getpop;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IIntCodeConverter;
 
 /** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnectionMeta {
@@ -130,69 +131,48 @@ public class MailConnectionMeta {
     return valueIMAPListCode[i];
   }
 
-  public static int getConditionByCode(String tt) {
-    if (tt == null) {
+  /**
+   * Resolve a persisted code. Accepts the historical string codes ({@code ignore}, {@code
+   * imaplistunread}, {@code nothing}, …) and integer indexes written by Hop 2.19 before converters
+   * were added.
+   */
+  static int parseCodeOrInt(String value, String[] codes) {
+    if (StringUtils.isBlank(value)) {
       return 0;
     }
-
-    for (int i = 0; i < conditionDateCode.length; i++) {
-      if (conditionDateCode[i].equalsIgnoreCase(tt)) {
+    String trimmed = value.trim();
+    for (int i = 0; i < codes.length; i++) {
+      if (codes[i].equalsIgnoreCase(trimmed)) {
         return i;
       }
     }
+    if (StringUtils.isNumeric(trimmed)) {
+      int parsed = Integer.parseInt(trimmed);
+      if (parsed >= 0 && parsed < codes.length) {
+        return parsed;
+      }
+    }
     return 0;
+  }
+
+  public static int getConditionByCode(String tt) {
+    return parseCodeOrInt(tt, conditionDateCode);
   }
 
   public static int getActionTypeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < actionTypeCode.length; i++) {
-      if (actionTypeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
+    return parseCodeOrInt(tt, actionTypeCode);
   }
 
   public static int getAfterGetIMAPByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < afterGetIMAPCode.length; i++) {
-      if (afterGetIMAPCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
+    return parseCodeOrInt(tt, afterGetIMAPCode);
   }
 
   public static int getValueImapListByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < valueIMAPListCode.length; i++) {
-      if (valueIMAPListCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
+    return parseCodeOrInt(tt, valueIMAPListCode);
   }
 
   public static int getValueListImapListByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < valueIMAPListCode.length; i++) {
-      if (valueIMAPListCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
+    return getValueImapListByCode(tt);
   }
 
   public static String getActionTypeCode(int i) {
@@ -306,27 +286,66 @@ public class MailConnectionMeta {
   }
 
   public static int getConditionDateByCode(String tt) {
-    if (tt == null) {
-      return 0;
+    return getConditionByCode(tt);
+  }
+
+  public static final class ActionTypeConverter implements IIntCodeConverter {
+    @Override
+    public String getCode(int type) {
+      return getActionTypeCode(type);
     }
 
-    for (int i = 0; i < conditionDateCode.length; i++) {
-      if (conditionDateCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
+    @Override
+    public int getType(String code) {
+      return getActionTypeByCode(code);
     }
-    return 0;
+  }
+
+  public static final class ConditionDateConverter implements IIntCodeConverter {
+    @Override
+    public String getCode(int type) {
+      return getConditionDateCode(type);
+    }
+
+    @Override
+    public int getType(String code) {
+      return getConditionDateByCode(code);
+    }
+  }
+
+  public static final class ValueImapListConverter implements IIntCodeConverter {
+    @Override
+    public String getCode(int type) {
+      return getValueImapListCode(type);
+    }
+
+    @Override
+    public int getType(String code) {
+      return getValueImapListByCode(code);
+    }
+  }
+
+  public static final class AfterGetImapConverter implements IIntCodeConverter {
+    @Override
+    public String getCode(int type) {
+      return getAfterGetIMAPCode(type);
+    }
+
+    @Override
+    public int getType(String code) {
+      return getAfterGetIMAPByCode(code);
+    }
   }
 
   public static int getProtocolFromString(String protocolCode, int defaultProtocol) {
     if (protocolCode == null) {
       return defaultProtocol;
     }
-    if (protocolCode.toUpperCase().equals(PROTOCOL_STRING_IMAP)) {
+    if (protocolCode.equalsIgnoreCase(PROTOCOL_STRING_IMAP)) {
       return PROTOCOL_IMAP;
-    } else if (protocolCode.toUpperCase().equals(PROTOCOL_STRING_POP3)) {
+    } else if (protocolCode.equalsIgnoreCase(PROTOCOL_STRING_POP3)) {
       return PROTOCOL_POP3;
-    } else if (protocolCode.toUpperCase().equals(PROTOCOL_STRING_MBOX)) {
+    } else if (protocolCode.equalsIgnoreCase(PROTOCOL_STRING_MBOX)) {
       return PROTOCOL_MBOX;
     }
     return defaultProtocol;

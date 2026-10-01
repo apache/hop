@@ -34,6 +34,7 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.workflow.WorkflowMeta;
 
 public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGuiContextHandler {
@@ -75,6 +76,13 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
       for (GuiAction pluginAction : pluginActions) {
         guiActions.add(lambdaBuilder.createLambda(pluginAction, this, workflowGraph));
       }
+    }
+
+    // While the palette tree is shown it is the place to pick new actions: leave the creation
+    // entries out so a click on empty canvas only offers the workflow actions (issue #8443).
+    //
+    if (GraphPalette.isVisible()) {
+      return guiActions;
     }
 
     // Also add all the entry creation actions, optionally filtered by the user-selected

@@ -1,0 +1,123 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Plugin Catalog transform reads the live Hop plugin registry and emits the installed transforms, actions and metadata types as rows.
+
+= image:transforms/icons/plugincatalog.svg[Plugin Catalog transform Icon, role="image-doc-icon"] Plugin Catalog
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Plugin Catalog transform reads the live Hop plugin registry and emits one row per installed plugin: transforms, workflow actions and metadata types.
+
+For each plugin it also reflects over the plugin's metadata class and reports the `@HopMetadataProperty` fields it accepts, so the catalog describes not just which plugins are installed but which properties each one exposes.
+
+Because the catalog comes from the registry of the running Hop installation rather than from a static list, it always matches the version in use and includes any third-party or Marketplace plugins that are installed.
+
+This is a source transform: it generates rows and does not read an input stream.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
+
+The catalog answers questions about what a given Hop installation actually contains, for example:
+
+* generating or checking documentation against the plugins that really ship
+* auditing which plugins are installed across environments
+* supplying an AI assistant with real plugin ids and property names instead of guessed ones
+* building migration or refactoring tooling that needs to resolve property names
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|Include transforms|Emit an entry for every registered pipeline transform plugin.
+|Include actions|Emit an entry for every registered workflow action plugin.
+|Include metadata types|Emit an entry for every registered Hop metadata type, such as relational database connections or run configurations.
+|Detail level|`PER_PLUGIN` emits one row per plugin with the properties as a JSON column. `PER_PROPERTY` emits one row per property, repeating the plugin columns.
+|===
+
+== Output fields
+
+Every row carries these plugin-level fields:
+
+[options="header"]
+|===
+|Field |Type |Description
+
+|`plugin_id`|String|Plugin id, for example `TextFileInput2` or `ABORT`.
+|`plugin_type`|String|`transform`, `action` or `metadata`.
+|`name`|String|Display name, resolved against the Hop locale in use.
+|`description`|String|Description, resolved against the Hop locale in use.
+|`category`|String|Category, resolved against the Hop locale in use.
+|`keywords`|String|Comma-separated keywords, resolved against the Hop locale in use.
+|`class_name`|String|Fully qualified metadata or implementation class.
+|`english_aliases`|String|Comma-separated English name, category and keyword aliases, independent of the locale in use.
+|`locale`|String|BCP-47 tag of the locale the resolved labels above came from.
+|===
+
+`PER_PLUGIN` adds one field:
+
+[options="header"]
+|===
+|Field |Type |Description
+
+|`metadata_fields`|String|JSON array of `{field, xml_key, java_type, password, group, group_key}` objects, one per property.
+|===
+
+`PER_PROPERTY` instead adds one row per property, with:
+
+[options="header"]
+|===
+|Field |Type |Description
+
+|`property_field`|String|Java field name on the metadata class.
+|`property_xml_key`|String|Key the property is serialised under in `.hpl` and `.hwf` files.
+|`property_java_type`|String|Simple Java type name of the field.
+|`property_password`|Boolean|`true` when the property is marked as a password and should be redacted.
+|`property_group`|String|Name of the containing property group for a nested property, empty for top-level properties. This is *nesting*, not the serialization wrapper.
+|`property_group_key`|String|The `groupKey` wrapper element a list or map is serialized under, for example `fields` in `<fields><field>…`. Empty when the property has no wrapper.
+|===
+
+A plugin with no properties still produces one row, with the property fields empty.
+
+== Notes
+
+`name`, `description`, `category` and `keywords` are resolved by the plugin registry against the locale Hop is running in. When the output is stored or indexed, use `english_aliases` for lookups that must not depend on the locale, and `locale` to record which locale the labels came from.
+
+Property reflection descends one level into complex property groups, which covers the tabular property groups plugins use. Deeper nesting is not reported. Group classes are recognised by carrying `@HopMetadataProperty` fields, whatever package they are declared in, so third-party and Marketplace plugins are described the same way as the ones shipped with Hop.
+
+Properties marked `isExcludedFromSerialization` are left out, since they never reach a `.hpl` or `.hwf` file.
+
+Plugins whose metadata class cannot be loaded are logged at detailed logging level and skipped rather than failing the pipeline, so a single broken plugin does not stop the catalog.

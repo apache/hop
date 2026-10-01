@@ -20,11 +20,13 @@
     <folder>../../transforms/constant</folder>
     <folder>../../transforms/filterrows</folder>
     <folder>../../transforms/groupby</folder>
+    <folder>../../transforms/joinrows</folder>
     <folder>../../transforms/memgroupby</folder>
     <folder>../../transforms/mergejoin</folder>
     <folder>../../transforms/sort</folder>
     <folder>../../transforms/streamlookup</folder>
     <folder>../../transforms/switchcase</folder>
     <folder>../../transforms/uniquerows</folder>
+    <folder>../../transforms/uniquerowsbyhashset</folder>
     <folder>../../transforms/rowgenerator</folder>
 </dependencies>

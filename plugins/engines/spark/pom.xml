@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-engines</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-engines-spark</artifactId>
@@ -48,6 +48,13 @@
             <dependency>
                 <groupId>org.apache.hop</groupId>
                 <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs-jdbc</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -89,6 +96,10 @@
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.jersey.containers</groupId>
+                    <artifactId>jersey-container-servlet-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -196,6 +207,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Real backing database for the jdbc write tests (issue #8138). H2 ignores unknown
+             connection properties, so the tests assert what Spark hands the driver rather than
+             relying on a driver being strict enough to complain. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Filter Rows for target-stream unit tests -->
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -203,10 +222,16 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Hard-banned transform meta for annotation lockstep tests only -->
+        <!-- Hard-banned transform metas for annotation lockstep tests only -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-groupby</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-joinrows</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -221,6 +246,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-uniquerowsbyhashset</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

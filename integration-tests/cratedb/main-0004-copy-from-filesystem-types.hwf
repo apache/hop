@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0004-copy-from-filesystem-types</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/08/25 09:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/08/25 09:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>96</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Create types table</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>DROP TABLE IF EXISTS doc.types_test;
+CREATE TABLE doc.types_test
+(
+  id BIGINT
+, ratio DOUBLE PRECISION
+, name VARCHAR(4000)
+, when_ts TIMESTAMP
+);</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0004-copy-from-filesystem-types</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0004-copy-from-filesystem-types.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Refresh types table</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>REFRESH TABLE doc.types_test;</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>2 rows loaded</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>2</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT id FROM doc.types_test</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1040</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>numbers survived the round trip</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>0</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT id FROM doc.types_test WHERE NOT COALESCE((id = 1 AND ratio = 1.5) OR (id = 2 AND ratio = -0.25), FALSE)</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1280</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>commas and quotes kept in the text column</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>0</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT id FROM doc.types_test WHERE id = 1 AND name IS DISTINCT FROM 'Acme, "The Best" Inc.'</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1520</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>timestamps kept their milliseconds</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>0</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT id FROM doc.types_test WHERE id = 1 AND when_ts IS DISTINCT FROM '2026-08-24T15:30:45.123'::timestamp</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1760</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Create types table</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Create types table</from>
+      <to>0004-copy-from-filesystem-types</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0004-copy-from-filesystem-types</from>
+      <to>Refresh types table</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Refresh types table</from>
+      <to>2 rows loaded</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>2 rows loaded</from>
+      <to>numbers survived the round trip</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>numbers survived the round trip</from>
+      <to>commas and quotes kept in the text column</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>commas and quotes kept in the text column</from>
+      <to>timestamps kept their milliseconds</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

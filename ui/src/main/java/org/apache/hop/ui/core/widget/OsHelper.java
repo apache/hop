@@ -98,6 +98,8 @@ public class OsHelper {
     return true;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public static void initOsHandlers(Display display) {
 
     // handle OpenDocument

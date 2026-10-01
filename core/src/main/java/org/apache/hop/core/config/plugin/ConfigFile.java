@@ -20,13 +20,13 @@ package org.apache.hop.core.config.plugin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.ConfigFileSerializer;
 import org.apache.hop.core.config.ConfigNoFileSerializer;
@@ -36,11 +36,27 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.vfs.HopVfs;
 
 public abstract class ConfigFile implements IConfigFile {
 
   public static final String HOP_VARIABLES_KEY = "variables";
   public static final String HOP_CONFIG_KEY = "config";
+
+  /**
+   * Held while the configuration is written, and by the callers that change what is written.
+   *
+   * <p>Hop Web serves many people from one JVM and they share this configuration: two of them
+   * closing a dialog at the same moment had both writing the file at once, which failed the save
+   * outright and reported it to whoever happened to be second. Shared by every configuration file
+   * because there are only a handful of them and they are written rarely.
+   *
+   * <p>It does not cover a caller that changes the map it got from {@link #getConfigMap()} without
+   * asking for it: {@link #getDescribedVariables()} is one, and it deliberately stays out because
+   * it runs for every log message. What it does cover is the writing itself, which is where the
+   * damage was.
+   */
+  protected static final Object CONFIG_LOCK = new Object();
 
   @Getter
   @Setter
@@ -48,6 +64,13 @@ public abstract class ConfigFile implements IConfigFile {
   protected Map<String, Object> configMap;
 
   @Getter @Setter @JsonIgnore protected IHopConfigSerializer serializer;
+  @Setter @JsonIgnore protected boolean inMemory;
+
+  public boolean isInMemory() {
+    return inMemory
+        || "Y".equalsIgnoreCase(System.getProperty(Const.HOP_CONFIG_IN_MEMORY, "N"))
+        || "true".equalsIgnoreCase(System.getProperty(Const.HOP_CONFIG_IN_MEMORY, "false"));
+  }
 
   public ConfigFile() {
     configMap = new HashMap<>();
@@ -56,7 +79,14 @@ public abstract class ConfigFile implements IConfigFile {
 
   public void readFromFile() throws HopException {
     try {
-      if (new File(getConfigFilename()).exists()) {
+      boolean inMemoryMode = isInMemory();
+      boolean exists;
+      try (FileObject configFile = HopVfs.getFileObject(getConfigFilename())) {
+        exists = configFile.exists();
+      }
+      if (inMemoryMode) {
+        this.serializer = new ConfigNoFileSerializer();
+      } else if (exists) {
         // Let's write to the file
         //
         this.serializer = new ConfigFileSerializer();
@@ -74,17 +104,26 @@ public abstract class ConfigFile implements IConfigFile {
           this.serializer = new ConfigNoFileSerializer();
         }
       }
-      configMap = serializer.readFromFile(getConfigFilename());
+      if (inMemoryMode && exists) {
+        configMap = new ConfigFileSerializer().readFromFile(getConfigFilename());
+      } else {
+        configMap = serializer.readFromFile(getConfigFilename());
+      }
     } catch (Exception e) {
       throw new HopException("Unable to read config file '" + getConfigFilename() + "'", e);
     }
   }
 
   public void saveToFile() throws HopException {
-    try {
-      serializer.writeToFile(getConfigFilename(), configMap);
-    } catch (Exception e) {
-      throw new HopException("Error saving configuration file '" + getConfigFilename() + "'", e);
+    if (isInMemory()) {
+      return;
+    }
+    synchronized (CONFIG_LOCK) {
+      try {
+        serializer.writeToFile(getConfigFilename(), configMap);
+      } catch (Exception e) {
+        throw new HopException("Error saving configuration file '" + getConfigFilename() + "'", e);
+      }
     }
   }
 

@@ -53,7 +53,6 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
@@ -65,6 +64,7 @@ import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.JdbcDateValues;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
@@ -125,7 +125,7 @@ public class ValueMetaBase implements IValueMeta {
           EnvUtil.getSystemProperty(Const.HOP_DEFAULT_DATE_FORMAT), "yyyy/MM/dd HH:mm:ss.SSS");
   public static final String DEFAULT_TIMESTAMP_PARSE_MASK =
       Const.NVL(
-          EnvUtil.getSystemProperty(Const.HOP_DEFAULT_DATE_FORMAT),
+          EnvUtil.getSystemProperty(Const.HOP_DEFAULT_TIMESTAMP_FORMAT),
           "yyyy/MM/dd HH:mm:ss.SSSSSSSSS");
   // endregion
 
@@ -1226,29 +1226,82 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     try {
-      DecimalFormat format = getDecimalFormat(false);
-      Number number;
-      if (lenientStringToNumber) {
-        number = format.parse(string);
-      } else {
-        ParsePosition parsePosition = new ParsePosition(0);
-        number = format.parse(string, parsePosition);
-
-        if (parsePosition.getIndex() < string.length()) {
-          throw new HopValueException(
-              this
-                  + CONST_STRING_TO_NUMBER
-                  + (parsePosition.getIndex() + 1)
-                  + MSG_FOR_VALUE
-                  + string
-                  + "]");
-        }
-      }
-
-      return number.doubleValue();
+      return parseStringAsNumber(string, getDecimalFormat(false)).doubleValue();
     } catch (Exception e) {
       throw new HopValueException(this + " : couldn't convert String to number ", e);
     }
+  }
+
+  /**
+   * Parses {@code string} with {@code format}.
+   *
+   * <p>{@link DecimalFormat} accepts only its locale negative prefix. JSON, data grids and
+   * calculator constants use an ASCII hyphen-minus ({@code '-'}), while some locales use {@code
+   * U+2212} or a bidi mark in front of the sign. When parsing rejects the first character, a
+   * leading ASCII or Unicode minus is rewritten to that prefix and parsing is tried once more.
+   */
+  private Number parseStringAsNumber(String string, DecimalFormat format)
+      throws HopValueException, ParseException {
+    if (lenientStringToNumber) {
+      try {
+        return format.parse(string);
+      } catch (ParseException first) {
+        String adapted = alignLeadingMinus(string, format);
+        if (adapted.equals(string)) {
+          throw first;
+        }
+        return format.parse(adapted);
+      }
+    }
+
+    ParsePosition parsePosition = new ParsePosition(0);
+    Number number = format.parse(string, parsePosition);
+    if (number != null && parsePosition.getIndex() >= string.length()) {
+      return number;
+    }
+    if (parsePosition.getIndex() == 0) {
+      String adapted = alignLeadingMinus(string, format);
+      if (!adapted.equals(string)) {
+        ParsePosition retry = new ParsePosition(0);
+        Number retried = format.parse(adapted, retry);
+        if (retried != null && retry.getIndex() >= adapted.length()) {
+          return retried;
+        }
+      }
+    }
+    throw new HopValueException(
+        this
+            + CONST_STRING_TO_NUMBER
+            + (parsePosition.getIndex() + 1)
+            + MSG_FOR_VALUE
+            + string
+            + "]");
+  }
+
+  /**
+   * Rewrites a leading ASCII hyphen-minus or Unicode minus ({@code U+2212}) to {@code format}'s
+   * negative prefix when they differ. Leading whitespace is left in place.
+   */
+  static String alignLeadingMinus(String string, DecimalFormat format) {
+    if (string == null || string.isEmpty() || format == null) {
+      return string;
+    }
+    String prefix = format.getNegativePrefix();
+    if (prefix == null || prefix.isEmpty()) {
+      return string;
+    }
+    int start = 0;
+    while (start < string.length() && Character.isWhitespace(string.charAt(start))) {
+      start++;
+    }
+    if (start >= string.length() || string.startsWith(prefix, start)) {
+      return string;
+    }
+    char sign = string.charAt(start);
+    if (sign != '-' && sign != '\u2212') {
+      return string;
+    }
+    return string.substring(0, start) + prefix + string.substring(start + 1);
   }
 
   public String convertJsonToString(JsonNode jsonNode) throws HopValueException {
@@ -1588,24 +1641,7 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     try {
-      Number number;
-      if (lenientStringToNumber) {
-        number = getDecimalFormat(false).parse(string).longValue();
-      } else {
-        ParsePosition parsePosition = new ParsePosition(0);
-        number = getDecimalFormat(false).parse(string, parsePosition);
-
-        if (parsePosition.getIndex() < string.length()) {
-          throw new HopValueException(
-              this
-                  + CONST_STRING_TO_NUMBER
-                  + (parsePosition.getIndex() + 1)
-                  + MSG_FOR_VALUE
-                  + string
-                  + "]");
-        }
-      }
-      return number.longValue();
+      return parseStringAsNumber(string, getDecimalFormat(false)).longValue();
     } catch (Exception e) {
       throw new HopValueException(this + " : couldn't convert String to Integer", e);
     }
@@ -1657,24 +1693,7 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     try {
-      DecimalFormat format = getDecimalFormat(bigNumberFormatting);
-      Number number;
-      if (lenientStringToNumber) {
-        number = format.parse(string);
-      } else {
-        ParsePosition parsePosition = new ParsePosition(0);
-        number = format.parse(string, parsePosition);
-
-        if (parsePosition.getIndex() < string.length()) {
-          throw new HopValueException(
-              this
-                  + CONST_STRING_TO_NUMBER
-                  + (parsePosition.getIndex() + 1)
-                  + MSG_FOR_VALUE
-                  + string
-                  + "]");
-        }
-      }
+      Number number = parseStringAsNumber(string, getDecimalFormat(bigNumberFormatting));
 
       // Cannot simply cast a number to a BigDecimal,
       //            If the Number is not a BigDecimal.
@@ -1698,10 +1717,44 @@ public class ValueMetaBase implements IValueMeta {
 
   // BOOLEAN + STRING
 
+  /**
+   * A Boolean format mask holds the text for true and the text for false, separated by a single
+   * slash, for example {@code true/false}, {@code Y/N} or {@code 1/0}. Spaces around either text
+   * are not part of it: {@code Ja / Nein} is {@code Ja} and {@code Nein}.
+   *
+   * <p>A mask with no slash, or with more than one (a date mask like {@code yyyy/MM/dd}), is not a
+   * Boolean mask. Neither is one with an empty side, or with the same text on both sides ignoring
+   * case: reading ignores case, so {@code Yes/yes} could not tell the two apart.
+   *
+   * @param mask the conversion mask
+   * @return the text for true and the text for false, or null when the mask is not a Boolean mask
+   */
+  static String[] getBooleanMaskTexts(String mask) {
+    if (mask == null) {
+      return null;
+    }
+    int slash = mask.indexOf('/');
+    if (slash < 0 || mask.indexOf('/', slash + 1) >= 0) {
+      return null;
+    }
+    String trueText = mask.substring(0, slash).trim();
+    String falseText = mask.substring(slash + 1).trim();
+    if (trueText.isEmpty() || falseText.isEmpty() || trueText.equalsIgnoreCase(falseText)) {
+      return null;
+    }
+    return new String[] {trueText, falseText};
+  }
+
   protected String convertBooleanToString(Boolean bool) {
     if (bool == null) {
       return null;
     }
+    String[] texts = getBooleanMaskTexts(conversionMask);
+    if (texts != null) {
+      return bool ? texts[0] : texts[1];
+    }
+    // Without a mask the length decides, a legacy rule kept for compatibility
+    //
     if (length >= 3) {
       return bool ? "true" : CONST_FALSE;
     } else {
@@ -1718,6 +1771,38 @@ public class ValueMetaBase implements IValueMeta {
         || "TRUE".equalsIgnoreCase(string)
         || "YES".equalsIgnoreCase(string)
         || "1".equals(string);
+  }
+
+  /**
+   * Converts a String to a Boolean, first matching the true and false text of a Boolean conversion
+   * mask (ignoring case and surrounding spaces). Text that matches neither falls back to {@link
+   * #convertStringToBoolean(String)}.
+   *
+   * <p>The mask is this value's own or, when that is not a Boolean mask, the one of its conversion
+   * metadata: converting typed text to a Boolean value goes through a String value whose conversion
+   * metadata is the Boolean, the way a date pattern is found for dates.
+   *
+   * @param string the string to convert
+   * @return the Boolean, or null for an empty string
+   */
+  protected Boolean convertMaskedStringToBoolean(String string) {
+    if (Utils.isEmpty(string)) {
+      return null;
+    }
+    String[] texts = getBooleanMaskTexts(conversionMask);
+    if (texts == null && conversionMetadata != null) {
+      texts = getBooleanMaskTexts(conversionMetadata.getConversionMask());
+    }
+    if (texts != null) {
+      String text = string.trim();
+      if (text.equalsIgnoreCase(texts[0])) {
+        return true;
+      }
+      if (text.equalsIgnoreCase(texts[1])) {
+        return false;
+      }
+    }
+    return convertStringToBoolean(string);
   }
 
   // BOOLEAN + NUMBER
@@ -2703,12 +2788,12 @@ public class ValueMetaBase implements IValueMeta {
         };
       case TYPE_STRING:
         return switch (storageType) {
-          case STORAGE_TYPE_NORMAL -> convertStringToBoolean(trim((String) object));
+          case STORAGE_TYPE_NORMAL -> convertMaskedStringToBoolean(trim((String) object));
           case STORAGE_TYPE_BINARY_STRING ->
-              convertStringToBoolean(
+              convertMaskedStringToBoolean(
                   trim((String) convertBinaryStringToNativeType((byte[]) object)));
           case STORAGE_TYPE_INDEXED ->
-              convertStringToBoolean(trim((String) index[(Integer) object]));
+              convertMaskedStringToBoolean(trim((String) index[(Integer) object]));
           default ->
               throw new HopValueException(
                   this
@@ -4733,6 +4818,17 @@ public class ValueMetaBase implements IValueMeta {
                 (getConversionMask() != null
                         && getConversionMask().equals(storageMetadata.getConversionMask()))
                     || (getConversionMask() == null && storageMetadata.getConversionMask() == null);
+          } else if (isBoolean()) {
+            // The Boolean mask decides the text, and without one the length does (Y/N or
+            // true/false). The stored bytes can only be written as they are if both agree.
+            //
+            String[] texts = getBooleanMaskTexts(getConversionMask());
+            String[] storageTexts = getBooleanMaskTexts(storageMetadata.getConversionMask());
+            if (texts == null && storageTexts == null) {
+              identicalFormat = getLength() == storageMetadata.getLength();
+            } else {
+              identicalFormat = Arrays.equals(texts, storageTexts);
+            }
           } else if (isNumeric()) {
             // Check the lengths first
             //
@@ -5117,6 +5213,13 @@ public class ValueMetaBase implements IValueMeta {
     this.ignoreWhitespace = ignoreWhitespace;
   }
 
+  /**
+   * @deprecated Superseded by {@link org.apache.hop.core.database.types.StandardJdbcTypeMapper},
+   *     which carries the single copy of these rules. This is one of three implementations that had
+   *     drifted apart; callers will be migrated to the mapper and this method removed in a later
+   *     release.
+   */
+  @Deprecated(since = "2.20")
   @Override
   public IValueMeta getValueFromSqlType(
       IVariables variables,
@@ -5141,6 +5244,10 @@ public class ValueMetaBase implements IValueMeta {
         // This JDBC Driver doesn't support the isSigned method
         // nothing more we can do here by catch the exception.
       }
+      // This whole mapping is superseded by StandardJdbcTypeMapper together with the rules each
+      // dialect declares; the vendor checks below name where each branch went. It is kept,
+      // unwired and unchanged, as the record of what Hop did before those rules existed, and
+      // JdbcTypeMappingCharacterizationTest compares the replacement against it.
       switch (type) {
         case Types.CHAR, Types.VARCHAR, Types.NVARCHAR, Types.LONGVARCHAR:
           // Character Large Object
@@ -5205,6 +5312,8 @@ public class ValueMetaBase implements IValueMeta {
             }
 
             // If we're dealing with PostgreSQL and double precision types
+            // Superseded by PostgreSqlDatabaseMeta, which declares this reading of a double
+            // precision column.
             if (databaseMeta.getIDatabase().isPostgresVariant()
                 && type == Types.DOUBLE
                 && precision >= 16
@@ -5215,6 +5324,8 @@ public class ValueMetaBase implements IValueMeta {
 
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
+            // Superseded by ColumnTypeRules.OVERSCALED_APPROXIMATE_AS_UNSIZED_NUMBER, which
+            // MySqlDatabaseMeta declares.
             if (databaseMeta.getIDatabase().isMySqlVariant() && precision >= length) {
               precision = -1;
               length = -1;
@@ -5240,6 +5351,8 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
 
+          // Superseded by PostgreSqlDatabaseMeta, which declares this reading of an
+          // undefined numeric.
           if (databaseMeta.getIDatabase().isPostgresVariant()
               && type == Types.NUMERIC
               && length == 0
@@ -5250,6 +5363,8 @@ public class ValueMetaBase implements IValueMeta {
             precision = -1;
           }
 
+          // Superseded by OracleDatabaseMeta, which declares both readings and asks its own
+          // strict big number option rather than the interface every dialect implements.
           if (databaseMeta.getIDatabase().isOracleVariant()) {
             if (precision == 0 && length == 38) {
               valtype =
@@ -5278,6 +5393,7 @@ public class ValueMetaBase implements IValueMeta {
         case Types.DATE, Types.TIME:
           valtype = IValueMeta.TYPE_DATE;
           //
+          // Superseded by ColumnTypeRules.YEAR_AS_INTEGER, which MySqlDatabaseMeta declares.
           if (databaseMeta.getIDatabase().isMySqlVariant()) {
             String property =
                 databaseMeta.getConnectionProperties(variables).getProperty("yearIsDateType");
@@ -5290,6 +5406,7 @@ public class ValueMetaBase implements IValueMeta {
               length = 4;
             }
           }
+          // Superseded by TeradataDatabaseMeta, which declares the precision of one marker.
           if (databaseMeta.getIDatabase().isTeradataVariant()) {
             precision = 1;
           }
@@ -5306,16 +5423,19 @@ public class ValueMetaBase implements IValueMeta {
               && (2 * rm.getPrecision(index)) == rm.getColumnDisplaySize(index)) {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = rm.getPrecision(index);
+            // Superseded by OracleDatabaseMeta, which declares RAW and LONG RAW as strings.
           } else if ((databaseMeta.getIDatabase().isOracleVariant())
               && (type == Types.VARBINARY || type == Types.LONGVARBINARY)) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = IValueMeta.TYPE_STRING;
             length = rm.getColumnDisplaySize(index);
+            // Superseded by ColumnTypeRules.UNSIZED_VARIABLE_BINARY.
           } else if (databaseMeta.isMySqlVariant()
               && (type == Types.VARBINARY || type == Types.LONGVARBINARY)) {
             // don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT)
+            // Superseded by SqliteDatabaseMeta, which declares binary as text.
           } else if (databaseMeta.getIDatabase().isSqliteVariant()) {
             valtype = IValueMeta.TYPE_STRING;
           } else {
@@ -5401,6 +5521,12 @@ public class ValueMetaBase implements IValueMeta {
     v.setOriginalSigned(originalSigned);
   }
 
+  /**
+   * @deprecated Superseded by {@link org.apache.hop.core.database.types.StandardJdbcTypeMapper}.
+   *     This mapping had no callers left in Hop and had drifted from the one the engine actually
+   *     uses; use the mapper instead.
+   */
+  @Deprecated(since = "2.20")
   @Override
   public IValueMeta getMetadataPreview(
       IVariables variables, DatabaseMeta databaseMeta, ResultSet rs) throws HopDatabaseException {
@@ -5420,6 +5546,10 @@ public class ValueMetaBase implements IValueMeta {
       int valtype = IValueMeta.TYPE_NONE;
       boolean isClob = false;
 
+      // This whole mapping is superseded by StandardJdbcTypeMapper together with the rules each
+      // dialect declares; the vendor checks below name where each branch went. It is kept,
+      // unwired and unchanged, as the record of what Hop did before those rules existed, and
+      // JdbcTypeMappingCharacterizationTest compares the replacement against it.
       switch (originalColumnType) {
         case Types.CHAR, Types.VARCHAR, Types.NVARCHAR, Types.LONGVARCHAR:
           // Character Large Object
@@ -5479,6 +5609,8 @@ public class ValueMetaBase implements IValueMeta {
             }
 
             // If we're dealing with PostgreSQL and double precision types
+            // Superseded by PostgreSqlDatabaseMeta, which declares this reading of a double
+            // precision column.
             if (databaseMeta.getIDatabase().isPostgresVariant()
                 && originalColumnType == Types.DOUBLE
                 && precision >= 16
@@ -5489,6 +5621,8 @@ public class ValueMetaBase implements IValueMeta {
 
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
+            // Superseded by ColumnTypeRules.OVERSCALED_APPROXIMATE_AS_UNSIZED_NUMBER, which
+            // MySqlDatabaseMeta declares.
             if (databaseMeta.isMySqlVariant()) {
               if (precision >= length) {
                 precision = -1;
@@ -5520,6 +5654,8 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
 
+          // Superseded by PostgreSqlDatabaseMeta, which declares this reading of an
+          // undefined numeric.
           if (databaseMeta.getIDatabase().isPostgresVariant()
               && originalColumnType == Types.NUMERIC
               && length == 0
@@ -5530,6 +5666,8 @@ public class ValueMetaBase implements IValueMeta {
             precision = -1;
           }
 
+          // Superseded by OracleDatabaseMeta, which declares both readings and asks its own
+          // strict big number option rather than the interface every dialect implements.
           if (databaseMeta.getIDatabase().isOracleVariant()) {
             if (precision == 0 && length == 38) {
               valtype =
@@ -5558,6 +5696,7 @@ public class ValueMetaBase implements IValueMeta {
         case Types.TIME, Types.DATE:
           valtype = IValueMeta.TYPE_DATE;
           //
+          // Superseded by ColumnTypeRules.YEAR_AS_INTEGER, which MySqlDatabaseMeta declares.
           if (databaseMeta.isMySqlVariant()) {
             String property =
                 databaseMeta.getConnectionProperties(variables).getProperty("yearIsDateType");
@@ -5570,6 +5709,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             }
           }
+          // Superseded by TeradataDatabaseMeta, which declares the precision of one marker.
           if (databaseMeta.getIDatabase().isTeradataVariant()) {
             precision = 1;
           }
@@ -5583,24 +5723,28 @@ public class ValueMetaBase implements IValueMeta {
           valtype = IValueMeta.TYPE_BINARY;
 
           IDatabase db = databaseMeta.getIDatabase();
+          // isOracle is never read: the check below derives it again. Dead with this copy.
           boolean isOracle = db.isOracleVariant();
 
           if (databaseMeta.isDisplaySizeTwiceThePrecision()
               && (2 * originalPrecision) == originalColumnDisplaySize) {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = originalPrecision;
+            // Superseded by OracleDatabaseMeta, which declares RAW and LONG RAW as strings.
           } else if ((databaseMeta.getIDatabase().isOracleVariant())
               && (originalColumnType == Types.VARBINARY
                   || originalColumnType == Types.LONGVARBINARY)) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = IValueMeta.TYPE_STRING;
             length = originalColumnDisplaySize;
+            // Superseded by ColumnTypeRules.UNSIZED_VARIABLE_BINARY.
           } else if (databaseMeta.isMySqlVariant()
               && (originalColumnType == Types.VARBINARY
                   || originalColumnType == Types.LONGVARBINARY)) {
             // don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT)
+            // Superseded by SqliteDatabaseMeta, which declares binary as text.
           } else if (databaseMeta.getIDatabase().isSqliteVariant()) {
             valtype = IValueMeta.TYPE_STRING;
           } else {
@@ -5671,26 +5815,13 @@ public class ValueMetaBase implements IValueMeta {
           }
           break;
         case IValueMeta.TYPE_BINARY:
-          if (iDatabase.isSupportsGetBlob()) {
-            Blob blob = resultSet.getBlob(index + 1);
-            if (blob != null) {
-              data = blob.getBytes(1L, (int) blob.length());
-            } else {
-              data = null;
-            }
-          } else {
-            data = resultSet.getBytes(index + 1);
-          }
+          data = getBinaryFromResultSet(resultSet, index + 1);
           break;
 
         case IValueMeta.TYPE_DATE:
           if (getPrecision() != 1 && iDatabase.isSupportsTimeStampToDateConversion()) {
             data = resultSet.getTimestamp(index + 1);
             break; // Timestamp extends java.util.Date
-          } else if (iDatabase.isNetezzaVariant()) {
-            // workaround for IBM Netezza jdbc 'special' implementation
-            data = getNetezzaDateValueWorkaround(iDatabase, resultSet, index + 1);
-            break;
           } else {
             data = resultSet.getDate(index + 1);
             break;
@@ -5709,16 +5840,38 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  private Object getNetezzaDateValueWorkaround(IDatabase iDatabase, ResultSet resultSet, int index)
-      throws SQLException {
-    Object data = null;
-    int type = resultSet.getMetaData().getColumnType(index);
-    if (type == Types.TIME) {
-      data = resultSet.getTime(index);
-    } else {
-      data = resultSet.getDate(index);
+  /**
+   * Reads a binary column the way the JDBC specification defines it.
+   *
+   * <p>Hop has one binary value type, so BINARY, VARBINARY, LONGVARBINARY and BLOB all arrive here
+   * as {@link IValueMeta#TYPE_BINARY} and the JDBC type they came from is the only thing left that
+   * says how to fetch them. The specification maps BLOB to {@code java.sql.Blob} and the other
+   * three to {@code byte[]}, so asking for a Blob is right for exactly one of the four.
+   *
+   * <p>This used to be decided by {@code isSupportsGetBlob()}, a per-connection flag, which meant a
+   * VARBINARY column was fetched as a Blob on every dialect that did not opt out. Drivers that
+   * follow the specification refuse that conversion outright: SAP HANA answers "Cannot convert SQL
+   * type VARBINARY to Java type java.sql.Blob" (issue #8207). A driver that really cannot serve a
+   * Blob says so with a value binding of its own, which is consulted before this method is ever
+   * reached. No dialect Hop ships needs one: DB2, the one dialect that recorded a reason for the
+   * flag, was looking at this same defect, and a current DB2 driver serves a real BLOB column
+   * without complaint.
+   *
+   * <p>An unknown original type means the value metadata did not come from a result set, so there
+   * is nothing to say the column is a BLOB, and {@code getBytes()} is the wider of the two getters.
+   *
+   * @param resultSet the result set to read from
+   * @param index the 1-based column index
+   */
+  private byte[] getBinaryFromResultSet(ResultSet resultSet, int index) throws SQLException {
+    if (getOriginalColumnType() != Types.BLOB) {
+      return resultSet.getBytes(index);
     }
-    return data;
+    Blob blob = resultSet.getBlob(index);
+    if (blob == null) {
+      return null;
+    }
+    return blob.getBytes(1L, (int) blob.length());
   }
 
   @Override
@@ -5791,70 +5944,8 @@ public class ValueMetaBase implements IValueMeta {
           }
           break;
         case IValueMeta.TYPE_DATE:
-          if (!isNull(data)) {
-            // Environment variable to disable timezone setting for the database updates
-            // When it is set, timezone will not be taken into account and the value will be
-            // converted
-            // into the local java timezone
-            if (getPrecision() == 1 || !databaseMeta.supportsTimeStampToDateConversion()) {
-              // Convert to DATE!
-              long dat = getInteger(data); // converts using Date.getTime()
-              java.sql.Date ddate = new java.sql.Date(dat);
-              if (databaseMeta.getIDatabase().isDuckDbVariant()) {
-                // As of DuckDB JDBC 0.10.0
-                // setDate(int parameterIndex, Date x, Calendar cal)
-                // is not yet implemented
-                preparedStatement.setDate(index, ddate);
-              } else {
-                if (this.getDateFormatTimeZone() == null) {
-                  preparedStatement.setDate(index, ddate);
-                } else {
-                  preparedStatement.setDate(
-                      index, ddate, Calendar.getInstance(this.getDateFormatTimeZone()));
-                }
-              }
-            } else {
-              if (data instanceof Timestamp timestamp) {
-                // Preserve ns precision!
-                //
-                if (databaseMeta.getIDatabase().isDuckDbVariant()) {
-                  // As of DuckDB JDBC 0.10.0
-                  // setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
-                  // is not yet implemented
-                  preparedStatement.setTimestamp(index, timestamp);
-                } else {
-                  if (this.getDateFormatTimeZone() == null) {
-                    preparedStatement.setTimestamp(index, timestamp);
-                  } else {
-                    preparedStatement.setTimestamp(
-                        index, timestamp, Calendar.getInstance(this.getDateFormatTimeZone()));
-                  }
-                }
-              } else {
-                long dat = getInteger(data); // converts using Date.getTime()
-                Timestamp sdate = new Timestamp(dat);
-                if (databaseMeta.getIDatabase().isDuckDbVariant()) {
-                  // As of DuckDB JDBC 0.10.0
-                  // setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
-                  // is not yet implemented
-                  preparedStatement.setTimestamp(index, sdate);
-                } else {
-                  if (this.getDateFormatTimeZone() == null) {
-                    preparedStatement.setTimestamp(index, sdate);
-                  } else {
-                    preparedStatement.setTimestamp(
-                        index, sdate, Calendar.getInstance(this.getDateFormatTimeZone()));
-                  }
-                }
-              }
-            }
-          } else {
-            if (getPrecision() == 1 || !databaseMeta.supportsTimeStampToDateConversion()) {
-              preparedStatement.setNull(index, Types.DATE);
-            } else {
-              preparedStatement.setNull(index, Types.TIMESTAMP);
-            }
-          }
+          JdbcDateValues.write(
+              databaseMeta.getIDatabase(), this, preparedStatement, index, data, true);
           break;
         case IValueMeta.TYPE_BOOLEAN:
           if (databaseMeta.supportsBooleanDataType()) {

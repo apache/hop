@@ -36,7 +36,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "avro_input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-file-input.html",
-    keywords = "i18n::AvroFileInputMeta.keyword")
+    keywords = "i18n::AvroFileInputMeta.keyword",
+    excludedEngines = {"SparkPipelineEngine"})
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFileInputData> {
 
@@ -51,17 +52,6 @@ public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFile
 
   public AvroFileInputMeta() {
     outputFieldName = "avro";
-  }
-
-  public AvroFileInputMeta(AvroFileInputMeta m) {
-    this.outputFieldName = m.outputFieldName;
-    this.dataFilenameField = m.dataFilenameField;
-    this.rowsLimit = m.rowsLimit;
-  }
-
-  @Override
-  public AvroFileInputMeta clone() {
-    return new AvroFileInputMeta(this);
   }
 
   @Override

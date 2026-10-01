@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-xsd-validator-xxe.csv",
+  "name": "golden-xsd-validator-xxe",
+  "description": "Expected XSD Validator results for the external entity (XXE) cases of issue #8367",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "case"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "result"
+    }
+  ],
+  "folder_name": ""
+}

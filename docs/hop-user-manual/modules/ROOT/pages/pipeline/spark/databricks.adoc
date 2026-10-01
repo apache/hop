@@ -48,11 +48,11 @@ When mode is **Deploy & run**, the Job Run action:
 
 . Uploads artifacts to a workspace path (UC Volume or classic DBFS). Names are chosen so concurrent deploys and library refreshes stay correct:
   * fat jar → **content-addressed** `hop-native-<sha12>.jar` (first 12 hex chars of the local jar’s SHA-256) plus a matching `.sha256` sidecar — skip upload when that remote path already matches size + sidecar (see <<faq-skip-jar-upload>> and <<lesson-fat-jar-library-uri>>)
-  * pipeline → `pipeline-{stem}.hpl` (simple mode; may be omitted when a package-relative path is used)
-  * exported Hop metadata → `metadata-{stem}.json` (simple mode; embedded in the package when package mode is on)
-  * optional Spark project package → `hop-spark-package-{stem}.zip` (nested Simple Mapping / Pipeline Executor)
-  * optional environment config → `env-config-{stem}.json` (MainSpark `--HopConfigFile`)
-  * `{stem}` = sanitized pipeline file basename without extension (e.g. `hello-mapping-databricks`)
+  * pipeline → `+pipeline-{stem}.hpl+` (simple mode; may be omitted when a package-relative path is used)
+  * exported Hop metadata → `+metadata-{stem}.json+` (simple mode; embedded in the package when package mode is on)
+  * optional Spark project package → `+hop-spark-package-{stem}.zip+` (nested Simple Mapping / Pipeline Executor)
+  * optional environment config → `+env-config-{stem}.json+` (MainSpark `--HopConfigFile`)
+  * `+{stem}+` = sanitized pipeline file basename without extension (e.g. `hello-mapping-databricks`)
 . Creates or updates a Databricks **Jobs** definition with a `spark_jar_task`:
   * main class: `org.apache.hop.spark.run.MainSpark`
   * parameters: classic positional `pipeline`, `metadata`, `runConfig` — or named `--Hop*` args when a project package and/or env file is present
@@ -165,7 +165,7 @@ image::pipeline/spark/databricks-workspace-catalog-jars-volume.png[Databricks Ca
 |Path prefix |API |Notes
 
 |`/Volumes/…` or `/Workspace/…`
-|**Files API** — `PUT /api/2.0/fs/files{path}?overwrite=true` with `Content-Type: application/octet-stream`
+|**Files API** — `+PUT /api/2.0/fs/files{path}?overwrite=true+` with `Content-Type: application/octet-stream`
 |Required for UC Volumes. Single streaming PUT (up to ~5 GiB). Parent folders/volume must exist and be writable by the PAT.
 
 |Classic `dbfs:/FileStore/…` (or other non-Volume paths)
@@ -213,7 +213,7 @@ This is for **execution metadata** only (logs, metrics, sample rows), not for bu
 |Named scheme (e.g. `db-volume`) + optional root path under a Volume
 
 |xref:metadata-types/execution-information-location.adoc[Execution Information Location] (**Caching File**)
-|Root folder = `{scheme}:///executions` (or another folder under the VFS root)
+|Root folder = `+{scheme}:///executions+` (or another folder under the VFS root)
 
 |xref:metadata-types/pipeline-run-config.adoc[Pipeline run configuration] (**Native Spark**)
 |**Execution information location** = the Caching File location; optional **execution data profile** for sample rows
@@ -226,7 +226,7 @@ This is for **execution metadata** only (logs, metrics, sample rows), not for bu
 
 Create a Jobs/PAT connection. Prefer variables so the same metadata works on the laptop and on the cluster after Deploy & run ships the environment config.
 
-.Databricks Connection: workspace host and PAT via `${DATABRICKS_HOST}` / encrypted token variable
+.Databricks Connection: workspace host and PAT via `+${DATABRICKS_HOST}+` / encrypted token variable
 image::pipeline/spark/databricks-connection.png[Databricks Connection metadata editor with variable-based host and personal access token,width=85%]
 
 ==== 2. Environment configuration file
@@ -311,7 +311,7 @@ Spark pipeline finished, result row count=…
 Registered … transform sample set(s) from Spark executors
 ----
 
-JSON files on the Volume look like `{execution-id}.json` under the mapped folder (e.g. `/Volumes/…/testing/executions/`).
+JSON files on the Volume look like `+{execution-id}.json+` under the mapped folder (e.g. `/Volumes/…/testing/executions/`).
 
 ==== Tips and limits
 
@@ -430,7 +430,7 @@ Plan timeouts accordingly:
 . Wait until **Running**.
 . Copy **Cluster ID**.
 . Set **Cluster / compute** to that id (not `new_cluster` / not `serverless`).
-. Leave job id empty on first create; after success, store `${DatabricksJobId}` if you enable **Update existing job**.
+. Leave job id empty on first create; after success, store `+${DatabricksJobId}+` if you enable **Update existing job**.
 
 If you see:
 
@@ -626,7 +626,7 @@ During `HopEnvironment.init`, Hop registers VFS plugins. The **Google Storage** 
 
 . Create a **Native Spark** pipeline run configuration in project metadata (name is exported into `metadata.json`). Deploy & run passes that name as the third MainSpark argument.
 . Point Deploy & run at:
-  * fat jar path (variables OK, e.g. `${PROJECT_HOME}/work/….jar`)
+  * fat jar path (variables OK, e.g. `+${PROJECT_HOME}/work/….jar+`)
   * pipeline `.hpl`
   * that run configuration name
   * upload base under a Volume

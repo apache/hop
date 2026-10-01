@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Transform name",
+          "data_set_field": "Transform name"
+        },
+        {
+          "transform_field": "Transform id",
+          "data_set_field": "Transform id"
+        },
+        {
+          "transform_field": "Lines written",
+          "data_set_field": "Lines written"
+        }
+      ],
+      "field_order": [
+        "Transform name"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-output-transform-metrics"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0110-output-transform-metrics UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0110-output-transform-metrics.hpl",
+  "test_type": "UNIT_TEST"
+}

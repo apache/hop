@@ -26,14 +26,15 @@ ARG HOP_GID=501
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+# Writable by the hop user without a bind mount (per-user data under users/<name>/)
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 # specify the hop log level
 ENV HOP_LOG_LEVEL="Basic"
 # any JRE settings you want to pass on
 # The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
 # this removed the need to calculate the necessary heap Xmx
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
 # path to jdbc drivers
@@ -67,11 +68,17 @@ ENV CATALINA_OPTS='${HOP_OPTIONS} \
   -DHOP_GUI_ZOOM_FACTOR="${HOP_GUI_ZOOM_FACTOR}"'
 
 # Create Hop user
-RUN groupadd -r hop -g ${HOP_GID} \
+# fonts-noto-cjk: the canvas is painted server-side; without a CJK font the JVM measures
+# Chinese/Japanese/Korean names as missing-glyph boxes and lays them out too narrow (#8528)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
-    && mkdir "${HOP_AUDIT_FOLDER}"
+    && mkdir -p "${HOP_AUDIT_FOLDER}" \
+    && chown hop:hop "${HOP_AUDIT_FOLDER}"
 
 # Copy resources
 # lib/core includes Beam SDKs when the Beam marketplace plugin is installed into the client
@@ -84,6 +91,8 @@ COPY ./assemblies/client/target/hop/lib/core "${CATALINA_HOME}"/webapps/ROOT/WEB
 COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/
+# Tomcat configuration with response compression (see the comments in the file)
+COPY ./docker/resources/server.xml "${CATALINA_HOME}"/conf/server.xml
 
 # Desktop (RCP) UI fragment must not ship in Hop Web. Client lib/core is shared with the
 # desktop assembly and includes hop-ui-rcp; loading its GuiPlugins (e.g. ContentEditorWidget)

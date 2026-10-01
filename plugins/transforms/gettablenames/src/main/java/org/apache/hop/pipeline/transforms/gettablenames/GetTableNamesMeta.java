@@ -32,6 +32,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,7 +56,8 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTIONNAME",
-      injectionKeyDescription = "GetTableNames.Injection.CONNECTION_NAME")
+      injectionKeyDescription = "GetTableNames.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
@@ -147,30 +149,6 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
     super();
   }
 
-  public GetTableNamesMeta(GetTableNamesMeta m) {
-    this();
-    this.connection = m.connection;
-    this.schemaName = m.schemaName;
-    this.tableNameFieldName = m.tableNameFieldName;
-    this.sqlCreationFieldName = m.sqlCreationFieldName;
-    this.objectTypeFieldName = m.objectTypeFieldName;
-    this.isSystemObjectFieldName = m.isSystemObjectFieldName;
-    this.includeCatalog = m.includeCatalog;
-    this.includeSchema = m.includeSchema;
-    this.includeTable = m.includeTable;
-    this.includeView = m.includeView;
-    this.includeProcedure = m.includeProcedure;
-    this.includeSynonym = m.includeSynonym;
-    this.addSchemaInOutput = m.addSchemaInOutput;
-    this.dynamicSchema = m.dynamicSchema;
-    this.schemaNameField = m.schemaNameField;
-  }
-
-  @Override
-  public GetTableNamesMeta clone() {
-    return new GetTableNamesMeta(this);
-  }
-
   @Override
   public void setDefault() {
     connection = null;
@@ -188,6 +166,21 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
     isSystemObjectFieldName = "isSystem";
     dynamicSchema = false;
     schemaNameField = null;
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isDynamicSchema();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isDynamicSchema();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetTableNamesDialog.DynamicSchema.Label");
   }
 
   @Override
@@ -281,22 +274,13 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta));
     }
 
-    // See if we have input streams leading to this transform!
-    if (input.length > 0 && !isDynamicSchema()) {
-      cr =
+    if (isDynamicSchema() && input.length <= 0) {
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.NoInputReceived"),
-              transformMeta);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                  PKG, "GetTableNamesMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
-              transformMeta);
+              BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta));
     }
-    remarks.add(cr);
   }
 
   @Override

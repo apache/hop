@@ -22,6 +22,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.LineageTransformSchemaEmitter;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
@@ -31,16 +32,23 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
     id = "LineageHubTransformFinishXp",
     extensionPointId = "TransformFinished",
     description =
-        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a transform has finished executing")
+        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a transform has finished executing, "
+            + "plus the relational table access the transform declares on its metadata")
 public class LineageHubTransformFinishXp implements IExtensionPoint<TransformMetaDataCombi> {
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, TransformMetaDataCombi combi) throws HopException {
-    RunLifecyclePhase phase =
-        LineageRunLifecycleEmitter.transformFailed(combi)
-            ? RunLifecyclePhase.FAILED
-            : RunLifecyclePhase.FINISHED;
+    boolean failed = LineageRunLifecycleEmitter.transformFailed(combi);
+    RunLifecyclePhase phase = failed ? RunLifecyclePhase.FAILED : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitTransform(combi, phase, null);
     LineageTransformSchemaEmitter.emitTransformBoundarySchemas(combi);
+
+    // Relational lineage is derived from what the transform declares on its metadata rather than
+    // emitted by the transform itself, so every transform annotated @RelationalLineage is covered
+    // without needing its own emission code. Done at finish, where the row shape is populated and
+    // the outcome is known.
+    if (combi != null && combi.transform != null) {
+      LineageRelationalIoEmitter.emitDeclaredRelationalIo(combi.transform, !failed);
+    }
   }
 }

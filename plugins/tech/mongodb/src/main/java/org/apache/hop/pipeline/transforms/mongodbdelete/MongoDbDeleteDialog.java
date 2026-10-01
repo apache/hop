@@ -48,7 +48,9 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.bson.Document;
 import org.eclipse.swt.SWT;
@@ -340,7 +342,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     // get fields but
     wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
@@ -413,7 +415,8 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
         new StyledTextComp(
             variables,
             wFieldsComp,
-            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_JSON);
     PropsUi.setLook(wstJsonQueryView, Props.WIDGET_STYLE_FIXED);
     wstJsonQueryView.addModifyListener(lsMod);
 

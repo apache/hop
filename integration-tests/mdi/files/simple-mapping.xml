@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<transform>
+    <filename>child-mapping.hpl</filename>
+    <runConfiguration>local</runConfiguration>
+    <mappings>
+        <input>
+            <mapping>
+                <input_transform>Reader</input_transform>
+                <output_transform>Mapping input</output_transform>
+                <description>Input path</description>
+                <main_path>Y</main_path>
+                <rename_on_output>Y</rename_on_output>
+                <connector>
+                    <parent>firstName</parent>
+                    <child>fname</child>
+                </connector>
+                <connector>
+                    <parent>lastName</parent>
+                    <child>lname</child>
+                </connector>
+            </mapping>
+        </input>
+        <output>
+            <mapping>
+                <input_transform>Mapping output</input_transform>
+                <output_transform>Writer</output_transform>
+                <description>Output path</description>
+                <main_path>N</main_path>
+                <rename_on_output>N</rename_on_output>
+                <connector>
+                    <parent>fullName</parent>
+                    <child>name</child>
+                </connector>
+            </mapping>
+        </output>
+        <parameters>
+            <inherit_all_vars>N</inherit_all_vars>
+            <variablemapping>
+                <variable>LIMIT</variable>
+                <input>100</input>
+            </variablemapping>
+            <variablemapping>
+                <variable>ENV</variable>
+                <input>dev</input>
+            </variablemapping>
+        </parameters>
+    </mappings>
+</transform>

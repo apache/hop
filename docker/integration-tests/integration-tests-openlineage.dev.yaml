@@ -1,0 +1,54 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Developer-only override for manual exploration. NOT used by CI.
+#
+# Pins the Marquez API/admin ports and adds the graphical Marquez web UI, so you can
+# browse the lineage graph from the host while a pipeline emits lineage.
+#
+# Usage (brings up only Marquez + its UI, no Hop test container):
+#   cd docker/integration-tests
+#   docker compose -f integration-tests-openlineage.yaml \
+#                  -f integration-tests-openlineage.dev.yaml up marquez marquez-web
+#
+# Then open:
+#   - Marquez web UI : http://localhost:3000
+#   - Marquez API    : http://localhost:5050/api/v1/namespaces
+#
+# The API host ports are 5050/5051 (not 5000/5001) because macOS reserves port 5000 for
+# AirPlay Receiver. The web UI reaches the API over the internal compose network, so this
+# only affects direct curl access from the host.
+
+services:
+  marquez:
+    ports:
+      - "5050:5000"
+      - "5051:5001"
+
+  marquez-web:
+    image: marquezproject/marquez-web:latest
+    # marquez-web only publishes a linux/amd64 image (see the API service note).
+    platform: linux/amd64
+    environment:
+      - MARQUEZ_HOST=marquez
+      - MARQUEZ_PORT=5000
+      - WEB_PORT=3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      marquez:
+        condition: service_healthy

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -552,36 +553,88 @@ public class SynchronizeAfterMerge
     }
   }
 
-  private void processBatchException(
+  /**
+   * Route every row of a failed batch to the regular output or to the error stream.
+   *
+   * <p>Drivers do not agree on what {@link java.sql.BatchUpdateException#getUpdateCounts()} holds
+   * after a failure. Some report one count per row, marking the failures in place. Some stop at the
+   * first failure, so the array is <em>shorter</em> than the batch: the row at {@code
+   * updateCounts.length} is the one that failed and the rows behind it were never sent at all
+   * (Oracle and Derby; a failure on the first row gives a zero-length array, not a null one). Some
+   * report nothing usable.
+   *
+   * <p>Whatever comes back, every buffered row has to leave here on one of the two streams. Walking
+   * only the counts array and then clearing the buffer is what used to make rows disappear without
+   * an error row or a log line - see <a href="https://github.com/apache/hop/issues/5758">issue
+   * 5758</a>, which reported it against Table Output.
+   *
+   * <p>Unlike Table Output, this transform does not re-drive the rows the database never attempted.
+   * It buffers rows for its insert, update and delete statements in one interleaved list, so a
+   * buffer position does not identify which statement the row belongs to and the values to re-bind
+   * cannot be worked out. Those rows are reported as rejects instead, which keeps them out of the
+   * silent-loss category but does mean this transform writes fewer rows than Table Output would for
+   * the same input on a driver that abandons the rest of the batch.
+   *
+   * <p>Package-private so the accounting can be exercised directly against each driver shape,
+   * without a database.
+   */
+  void processBatchException(
       String errorMessage, int[] updateCounts, List<Exception> exceptionsList) throws HopException {
-    // There was an error with the commit
-    // We should put all the failing rows out there...
+
+    List<Exception> exceptions = exceptionsList == null ? List.of() : exceptionsList;
+    int bufferSize = data.batchBuffer.size();
+
+    // More counts than rows means the counts belong to a different batch than the one buffered, so
+    // no row can be matched to a count. Reporting the wrong rows on the wrong stream would be worse
+    // than failing here, where the mismatch is still visible.
     //
-    if (updateCounts != null) {
-      int errNr = 0;
-      for (int i = 0; i < updateCounts.length; i++) {
-        Object[] row = data.batchBuffer.get(i);
-        if (updateCounts[i] > 0) {
-          // send the error forward
-          putRow(data.outputRowMeta, row);
-          incrementLinesOutput();
-        } else {
-          String exMessage = errorMessage;
-          if (errNr < exceptionsList.size()) {
-            SQLException se = (SQLException) exceptionsList.get(errNr);
-            errNr++;
-            exMessage = se.toString();
-          }
-          putError(data.outputRowMeta, row, 1L, exMessage, null, "SUYNC002");
+    if (updateCounts != null && updateCounts.length > bufferSize) {
+      throw new HopException(
+          "Unable to attribute batch errors to rows: the database returned "
+              + updateCounts.length
+              + " update counts for a batch of "
+              + bufferSize
+              + " buffered rows.");
+    }
+
+    int counted = updateCounts == null ? 0 : updateCounts.length;
+    int errNr = 0;
+
+    for (int i = 0; i < counted; i++) {
+      Object[] row = data.batchBuffer.get(i);
+      if (updateCounts[i] != Statement.EXECUTE_FAILED) {
+        // Anything that isn't EXECUTE_FAILED is a success. That includes SUCCESS_NO_INFO, and it
+        // includes a count of zero: this transform issues updates and deletes, and a statement that
+        // matched no rows still ran.
+        //
+        putRow(data.outputRowMeta, row);
+        incrementLinesOutput();
+      } else {
+        String exMessage = errorMessage;
+        if (errNr < exceptions.size()) {
+          exMessage = exceptions.get(errNr).toString();
+          errNr++;
         }
+        putError(data.outputRowMeta, row, 1L, exMessage, null, "SUYNC002");
       }
-    } else {
-      // If we don't have update counts, it probably means the DB doesn't support it.
-      // In this case we don't have a choice but to consider all inserted rows to be error rows.
-      //
-      for (int i = 0; i < data.batchBuffer.size(); i++) {
-        Object[] row = data.batchBuffer.get(i);
-        putError(data.outputRowMeta, row, 1L, errorMessage, null, "SUYNC003");
+    }
+
+    // Whatever the driver did not account for. With a short array the first of these is the row it
+    // actually refused, so it keeps the database's own message; the rest were never attempted.
+    //
+    for (int i = counted; i < bufferSize; i++) {
+      Object[] row = data.batchBuffer.get(i);
+      if (i == counted && updateCounts != null) {
+        putError(data.outputRowMeta, row, 1L, errorMessage, null, "SUYNC002");
+      } else {
+        putError(
+            data.outputRowMeta,
+            row,
+            1L,
+            BaseMessages.getString(
+                PKG, "SynchronizeAfterMerge.Error.RowNotAttempted", Const.NVL(errorMessage, "")),
+            null,
+            "SUYNC003");
       }
     }
 
@@ -1030,10 +1083,74 @@ public class SynchronizeAfterMerge
     return databaseMeta;
   }
 
+  /**
+   * A single-threaded (streaming) pipeline never sends the end-of-input signal that {@link
+   * #processRow()} flushes on; it calls this after every batch of rows instead. Commit what is
+   * pending now, so it does not sit uncommitted - and, on databases like Oracle, locked - until the
+   * stream ends. See <a href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   */
+  @Override
+  public void batchComplete() throws HopException {
+    if (data.db == null || data.db.getConnection() == null) {
+      return;
+    }
+    try {
+      emptyBatchBuffer(false);
+    } catch (HopDatabaseBatchException be) {
+      // The statements stay open for the next batch, so drop what failed before going on. The rest
+      // is the recovery a failure in the middle of the stream gets.
+      for (PreparedStatement statement : data.preparedStatements.values()) {
+        data.db.clearBatch(statement);
+      }
+      if (getTransformMeta().isDoingErrorHandling()) {
+        data.db.commit(true);
+        processBatchException(be.toString(), be.getUpdateCounts(), be.getExceptionsList());
+      } else {
+        data.db.rollback();
+        throw new HopException(
+            BaseMessages.getString(PKG, "SynchronizeAfterMerge.Error.UpdatingBatch"), be);
+      }
+    } catch (SQLException e) {
+      throw new HopDatabaseException("Unexpected error committing the database connection.", e);
+    }
+  }
+
+  /**
+   * The end-of-input path in {@link #processRow()} has normally flushed and disconnected by now. It
+   * is skipped when the transform is stopped or fails in the middle of a row, and a single-threaded
+   * (streaming) pipeline never sends end-of-input at all. In both cases the connection stayed open,
+   * and with it the uncommitted transaction and every row lock it holds. See <a
+   * href="https://github.com/apache/hop/issues/8288">issue 8288</a>.
+   *
+   * <p>A graceful stop leaves {@code getErrors() == 0}, so the pending batch is committed rather
+   * than rolled back - deliberately, and in line with Table Output, Update and Delete: this
+   * transform already commits every {@code commitSize} rows, so committing the final partial batch
+   * on a stop keeps the same all-or-a-multiple-of-commitSize contract. Only a real error rolls
+   * back. Note that {@link #emptyBatchBuffer(boolean)} still calls {@code putRow} for the committed
+   * rows; on a stop {@code putRow} is a no-op (nothing reads downstream anyway), while the rows are
+   * safely in the table - the same behaviour Table Output has.
+   */
+  @Override
+  public void dispose() {
+    if (data.db != null) {
+      if (data.db.getConnection() != null) {
+        if (getErrors() > 0) {
+          // The transform failed: nothing that is still pending may reach the table.
+          rollback();
+          data.db.disconnect();
+        } else {
+          finishTransform();
+        }
+      }
+      data.db = null;
+    }
+    super.dispose();
+  }
+
   private void finishTransform() {
     if (data.db != null && data.db.getConnection() != null) {
       try {
-        finishTransformEmptyBatchBuffer();
+        emptyBatchBuffer(true);
       } catch (HopDatabaseBatchException be) {
         finishTransformErrorHandling(be);
       } catch (Exception dbe) {
@@ -1045,11 +1162,7 @@ public class SynchronizeAfterMerge
         setOutputDone();
 
         if (getErrors() > 0) {
-          try {
-            data.db.rollback();
-          } catch (HopDatabaseException e) {
-            logError("Unexpected error rolling back the database connection.", e);
-          }
+          rollback();
         }
 
         data.db.disconnect();
@@ -1057,7 +1170,21 @@ public class SynchronizeAfterMerge
     }
   }
 
-  private void finishTransformEmptyBatchBuffer()
+  private void rollback() {
+    try {
+      data.db.rollback();
+    } catch (HopDatabaseException e) {
+      logError("Unexpected error rolling back the database connection.", e);
+    }
+  }
+
+  /**
+   * Execute and commit the pending batch of every prepared statement and pass the buffered rows on.
+   *
+   * @param closeStatements true at the end of the transform; false between the batches of a
+   *     single-threaded pipeline, where the statements are reused.
+   */
+  private void emptyBatchBuffer(boolean closeStatements)
       throws SQLException, HopDatabaseException, HopTransformException, HopValueException {
     if (!data.db.getConnection().isClosed()) {
       for (String schemaTable : data.preparedStatements.keySet()) {
@@ -1068,9 +1195,17 @@ public class SynchronizeAfterMerge
           batchCounter = 0;
         }
 
-        PreparedStatement insertStatement = data.preparedStatements.get(schemaTable);
+        // Between batches there is nothing to commit for a statement that took no rows this batch.
+        // Skip it; at final completion we still fall through so emptyAndCommit closes the
+        // statement.
+        if (!closeStatements && batchCounter == 0) {
+          continue;
+        }
 
-        data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter);
+        PreparedStatement statement = data.preparedStatements.get(schemaTable);
+
+        data.db.emptyAndCommit(statement, data.batchMode, batchCounter, closeStatements);
+        data.commitCounterMap.put(schemaTable, 0);
       }
       for (int i = 0; i < data.batchBuffer.size(); i++) {
         Object[] row = data.batchBuffer.get(i);

@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -62,7 +63,7 @@ import org.eclipse.swt.widgets.Text;
 public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   private static final Class<?> PKG = PipelineUnitTestEditor.class;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Combo wTestType;
   private Text wPipelineFilename;
@@ -150,7 +151,9 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(0, margin);
@@ -195,7 +198,9 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdTestType.left = new FormAttachment(middle, 0);
     fdTestType.right = new FormAttachment(100, 0);
     wTestType.setLayoutData(fdTestType);
-    wTestType.setItems(DataSetConst.getTestTypeDescriptions());
+    wTestType.setItems(DataSetConst.getTestTypeDescriptions(metadataProvider));
+    wTestType.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineUnitTestDialog.TestType.Tooltip"));
     lastControl = wTestType;
 
     // The filename of the pipeline to test

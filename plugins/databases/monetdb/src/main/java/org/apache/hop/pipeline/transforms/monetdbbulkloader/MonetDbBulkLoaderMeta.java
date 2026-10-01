@@ -37,6 +37,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databases.monetdb.MonetDBDatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -58,6 +60,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class MonetDbBulkLoaderMeta
     extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
@@ -68,10 +71,16 @@ public class MonetDbBulkLoaderMeta
   @Getter
   @Setter
   public static class MonetDbField {
-    @HopMetadataProperty(key = "stream_name", injectionKey = "TARGETFIELDS")
+    @HopMetadataProperty(
+        key = "stream_name",
+        injectionKey = "TARGETFIELDS",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
     private String fieldTable;
 
-    @HopMetadataProperty(key = "field_name", injectionKey = "SOURCEFIELDS")
+    @HopMetadataProperty(
+        key = "field_name",
+        injectionKey = "SOURCEFIELDS",
+        hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
     private String fieldStream;
 
     @HopMetadataProperty(key = "field_format_ok", injectionKey = "FIELDFORMATOK")
@@ -94,11 +103,17 @@ public class MonetDbBulkLoaderMeta
   private String dbConnectionName;
 
   /** what's the schema for the target? */
-  @HopMetadataProperty(key = "schema", injectionKey = "SCHEMANAME")
+  @HopMetadataProperty(
+      key = "schema",
+      injectionKey = "SCHEMANAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** what's the table for the target? */
-  @HopMetadataProperty(key = "table", injectionKey = "SCHEMANAME")
+  @HopMetadataProperty(
+      key = "table",
+      injectionKey = "SCHEMANAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   /** Path to the log file */
@@ -134,7 +149,10 @@ public class MonetDbBulkLoaderMeta
   private String encoding;
 
   /** Truncate table? */
-  @HopMetadataProperty(key = "truncate", injectionKey = "TRUNCATE")
+  @HopMetadataProperty(
+      key = "truncate",
+      injectionKey = "TRUNCATE",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private boolean truncate = false;
 
   /** Fully Quote SQL used in the transform? */

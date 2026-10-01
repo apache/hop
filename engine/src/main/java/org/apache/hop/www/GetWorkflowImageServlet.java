@@ -102,7 +102,9 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
           out.write(svgStream.toByteArray());
         }
       }
-    } catch (Exception e) {
+    } catch (Exception | Error e) {
+      // A GUI plugin painting on the canvas without SWT natives available throws SWTError, which
+      // extends Error directly: catching Exception alone let it escape as a raw Jetty 500 page.
       logError("Error building SVG image of workflow", e);
       sendSafeError(
           response,

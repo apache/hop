@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -365,10 +366,37 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   protected void openDialog() {
-    // Set the focus on the OK button
+    // setDefaultButton makes Enter launch, but Space only activates the focused control.
     shell.setDefaultButton(wOk);
+    focusLaunchButtonWhenActivated(shell, wOk);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+  }
+
+  /**
+   * Give {@code launch} keyboard focus after the shell is activated. A single asyncExec queued
+   * before {@code shell.open()} loses to SWT's initial focus (first child) and to a TableView cell
+   * editor queued from {@code clearAll()}. Space then types into that control instead of Launch.
+   */
+  static void focusLaunchButtonWhenActivated(Shell shell, Button launch) {
+    if (shell == null || shell.isDisposed() || launch == null) {
+      return;
+    }
+    Runnable focusLaunch =
+        () -> {
+          if (!launch.isDisposed()) {
+            launch.setFocus();
+          }
+        };
+    Listener[] holder = new Listener[1];
+    holder[0] =
+        event -> {
+          shell.removeListener(SWT.Activate, holder[0]);
+          shell.getDisplay().asyncExec(focusLaunch);
+        };
+    shell.addListener(SWT.Activate, holder[0]);
+    // Hop Web may not fire Activate the same way; still try after the current event burst.
+    shell.getDisplay().asyncExec(focusLaunch);
   }
 
   protected abstract void optionsSectionControls();

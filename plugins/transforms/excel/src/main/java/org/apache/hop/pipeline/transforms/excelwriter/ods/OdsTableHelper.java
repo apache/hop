@@ -141,6 +141,9 @@ final class OdsTableHelper {
     if (Utils.isEmpty(password)) {
       return;
     }
+    // Safe: table protection is an editing lock honoured by the office application, not a
+    // security control, and SHA-1 is the default ODF digest for its protection key
+    @SuppressWarnings("java:S4790")
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
     digest.update(password.getBytes(StandardCharsets.UTF_8));
     element.setTableProtectionKeyAttribute(Base64.getEncoder().encodeToString(digest.digest()));

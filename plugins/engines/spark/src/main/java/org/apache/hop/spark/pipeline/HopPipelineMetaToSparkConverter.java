@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
+import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
@@ -52,6 +53,7 @@ import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMemoryGroupByHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMergeJoinHandler;
 import org.apache.hop.spark.pipeline.handler.SparkSortRowsHandler;
+import org.apache.hop.spark.pipeline.handler.SparkSqlHandler;
 import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsHandler;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
@@ -80,7 +82,8 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID,
-          SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID);
+          SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID,
+          SparkConst.SPARK_SQL_PLUGIN_ID);
 
   /**
    * Plugin ids that must not run as partition-local Hop mini-pipelines. Keep in lockstep with
@@ -89,7 +92,11 @@ public class HopPipelineMetaToSparkConverter {
   public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
       Map.of(
           SparkConst.GROUP_BY_PLUGIN_ID,
-          "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on Local/Beam.");
+          "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on the Local engine.",
+          SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
+          "Unique Rows By Hashset is not supported on the native Spark engine. Every partition would keep its own hash set, so duplicates spread over different partitions would survive. Use Unique Rows (native Spark distinct) or Memory Group By instead.",
+          SparkConst.JOIN_ROWS_PLUGIN_ID,
+          "Join Rows is not supported on the native Spark engine. A cartesian product needs every row of every input in one place, but every partition would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use Merge Join on that field instead.");
 
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;
@@ -170,6 +177,7 @@ public class HopPipelineMetaToSparkConverter {
         SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID, new SparkLakeTableMergeHandler());
     transformHandlers.put(
         SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID, new SparkLakeTableMaintenanceHandler());
+    transformHandlers.put(SparkConst.SPARK_SQL_PLUGIN_ID, new SparkSqlHandler());
   }
 
   public void validatePipeline() throws HopException {
@@ -363,9 +371,10 @@ public class HopPipelineMetaToSparkConverter {
 
   /**
    * Prefer a target-stream Dataset when {@code previous} routed to {@code current} (Filter/Switch);
-   * otherwise use the previous transform's main Dataset.
+   * otherwise use the previous transform's main Dataset. Public so native handlers that resolve
+   * their own named inputs (Spark SQL) reuse the same target-stream rules as the converter.
    */
-  static Dataset<Row> lookupPreviousDataset(
+  public static Dataset<Row> lookupPreviousDataset(
       Map<String, Dataset<Row>> transformDatasetMap,
       TransformMeta previous,
       TransformMeta current,
@@ -484,6 +493,15 @@ public class HopPipelineMetaToSparkConverter {
     for (ISparkPipelineTransformHandler handler : transformHandlers.values()) {
       if (handler instanceof SparkBaseTransformHandler baseHandler) {
         baseHandler.setMetricsAccumulator(metricsAccumulator);
+      }
+    }
+  }
+
+  /** Driver-side listener that attributes Spark's own SQL metrics to native handler stages. */
+  public void setMetricsListener(SparkNativeMetricsListener metricsListener) {
+    for (ISparkPipelineTransformHandler handler : transformHandlers.values()) {
+      if (handler instanceof SparkBaseTransformHandler baseHandler) {
+        baseHandler.setMetricsListener(metricsListener);
       }
     }
   }

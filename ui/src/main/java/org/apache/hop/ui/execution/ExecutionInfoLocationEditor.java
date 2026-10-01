@@ -29,6 +29,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -37,6 +38,8 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -63,7 +66,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
   private ExecutionInfoLocation executionInfoLocation;
   private ExecutionInfoLocation workingLocation;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Text wDataLoggingDelay;
   private Text wDataLoggingInterval;
@@ -106,6 +109,12 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
 
         location.setPluginId(plugin.getIds()[0]);
         location.setPluginName(plugin.getName());
+        if (location instanceof BaseCachingExecutionInfoLocation cachingLocation) {
+          // Fresh plugin instances are the new-location path. A loaded location replaces this
+          // object in the map, so an omitted maxCacheAge on disk stays at one day.
+          cachingLocation.setMaxCacheAge(
+              BaseCachingExecutionInfoLocation.NEW_LOCATION_MAX_CACHE_AGE);
+        }
 
         metaMap.put(plugin.getName(), location);
       } catch (Exception e) {
@@ -151,7 +160,9 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
-    wName = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);

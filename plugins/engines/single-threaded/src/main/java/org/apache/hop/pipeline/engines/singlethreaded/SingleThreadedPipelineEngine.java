@@ -66,10 +66,13 @@ public class SingleThreadedPipelineEngine extends Pipeline
     return new PipelineEngineCapabilities(true, true, true, true);
   }
 
+  /**
+   * This engine drives every transform from a single thread. Reported here rather than written into
+   * the pipeline metadata: the .hpl being executed says nothing about the engine it runs on.
+   */
   @Override
-  public void prepareExecution() throws HopException {
-    pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
-    super.prepareExecution();
+  public PipelineMeta.PipelineType getPipelineType() {
+    return PipelineMeta.PipelineType.SingleThreaded;
   }
 
   @Override

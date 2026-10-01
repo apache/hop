@@ -157,6 +157,20 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
                     + "Also ensure your identity has proper permissions (e.g., 'Storage Blob Data Contributor' role) on the storage account.",
                 e);
           }
+        } else if ("SAS Token".equals(authType)) {
+          // Use a shared access signature, which is scoped and time limited
+          if (StringUtils.isEmpty(azureMetadataType.getSasToken())) {
+            throw new FileSystemException(
+                "Azure configuration \""
+                    + azureMetadataType.getName()
+                    + "\" is missing a SAS token");
+          }
+
+          String sasToken =
+              Encr.decryptPasswordOptionallyEncrypted(
+                  variables.resolve(azureMetadataType.getSasToken()));
+
+          serviceClient = clientBuilder.sasToken(sasToken).buildClient();
         } else {
           // Use Key-based authentication
           if (StringUtils.isEmpty(azureMetadataType.getStorageAccountKey())) {

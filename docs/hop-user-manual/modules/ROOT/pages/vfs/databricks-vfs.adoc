@@ -18,6 +18,7 @@ under the License.
 :documentationPath: /vfs/
 :language: en_US
 :description: Hop VFS for Databricks Unity Catalog Volumes and Workspace files via the Files API
+:page-marketplace: hop-tech-databricks
 
 = Databricks Volumes / Workspace VFS
 
@@ -95,7 +96,7 @@ See xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
   ** **Name** = URI scheme (for example `db-volume`)
   ** **Databricks Connection** = the Jobs connection from step 1
   ** **Root path** = `/Volumes/catalog/schema/volume` (or a folder under a volume)
-. In Hop file dialogs or transforms, enter `{name}:///subdir/…` relative to that root.
+. In Hop file dialogs or transforms, enter `+{name}:///subdir/…+` relative to that root.
 
 If root path is left empty, every URI must include the full `/Volumes/…` or `/Workspace/…` path.
 

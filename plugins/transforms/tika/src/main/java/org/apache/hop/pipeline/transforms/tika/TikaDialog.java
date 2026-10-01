@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.tika;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -32,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -42,6 +41,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -263,7 +263,9 @@ public class TikaDialog extends BaseTransformDialog {
     fdbaFilename.top = new FormAttachment(wOutputField, margin);
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -761,16 +763,8 @@ public class TikaDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
       String encoding = wEncoding.getText();
-      wEncoding.removeAll();
-      ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset value : values) {
-        Charset charSet = (Charset) value;
-        wEncoding.add(charSet.displayName());
-      }
-
-      if (!StringUtils.isEmpty(encoding)) {
-        wEncoding.setText(encoding);
-      }
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

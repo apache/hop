@@ -26,11 +26,15 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.workflow.actions.missing.MissingActionDialog;
@@ -99,7 +103,7 @@ public class HopGuiWorkflowActionDelegate {
 
         if (openIt) {
           IActionDialog d = getActionDialog(action, workflowMeta);
-          if (d != null && d.open() != null) {
+          if (d != null && BaseDialog.withDialogSubject(action, d::open) != null) {
             ActionMeta actionMeta = new ActionMeta();
             actionMeta.setAction(action);
             if (location == null) {
@@ -288,25 +292,27 @@ public class HopGuiWorkflowActionDelegate {
         return;
       }
 
-      ActionMeta before = (ActionMeta) action.cloneDeep();
+      byte[] beforeSnapshot = workflowGraph.captureUndoSnapshot();
+      boolean alreadyChanged = action.hasChanged();
+      ActionMeta before = action.clone();
 
       IAction jei = action.getAction();
 
       dialog = getActionDialog(jei, workflowMeta);
       if (dialog != null) {
         dialogs.put(action.getName(), dialog);
-        if (dialog.open() != null) {
+        // Subject stack covers legacy action dialogs that never set BaseDialog.DIALOG_SUBJECT
+        if (BaseDialog.withDialogSubject(jei, dialog::open) != null) {
           // First see if the name changed.
           // If so, we need to verify that the name is not already used in the workflow.
           //
           workflowMeta.renameActionIfNameCollides(action);
-
-          ActionMeta after = action.clone();
-          hopGui.undoDelegate.addUndoChange(
-              workflowMeta,
-              new ActionMeta[] {before},
-              new ActionMeta[] {after},
-              new int[] {workflowMeta.indexOfAction(action)});
+          workflowGraph.commitDialogUndo(beforeSnapshot);
+          if (hasActionMetaChanged(before, action)) {
+            action.setChanged();
+          } else {
+            action.setChanged(alreadyChanged);
+          }
         }
         workflowGraph.updateGui();
       } else {
@@ -328,6 +334,9 @@ public class HopGuiWorkflowActionDelegate {
   }
 
   public void deleteActions(WorkflowMeta workflow, List<ActionMeta> actions) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
 
     // Hops belonging to the deleting actions are placed in a single transaction and removed.
     List<WorkflowHopMeta> workflowHops = new ArrayList<>();
@@ -336,7 +345,7 @@ public class HopGuiWorkflowActionDelegate {
     for (int i = workflow.nrWorkflowHops() - 1; i >= 0; i--) {
       WorkflowHopMeta hi = workflow.getWorkflowHop(i);
       for (int j = 0; j < actions.size() && hopIndex < hopIndexes.length; j++) {
-        if (hi.getFromAction().equals(actions.get(j)) || hi.getToAction().equals(actions.get(j))) {
+        if (actions.get(j).equals(hi.getFromAction()) || actions.get(j).equals(hi.getToAction())) {
           int idx = workflow.indexOfWorkflowHop(hi);
           workflowHops.add((WorkflowHopMeta) hi.clone());
           hopIndexes[hopIndex] = idx;
@@ -366,7 +375,7 @@ public class HopGuiWorkflowActionDelegate {
   public void deleteAction(WorkflowMeta workflowMeta, ActionMeta action) {
     for (int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i--) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop(i);
-      if (hi.getFromAction().equals(action) || hi.getToAction().equals(action)) {
+      if (action.equals(hi.getFromAction()) || action.equals(hi.getToAction())) {
         int idx = workflowMeta.indexOfWorkflowHop(hi);
         hopGui.undoDelegate.addUndoDelete(
             workflowMeta, new WorkflowHopMeta[] {(WorkflowHopMeta) hi.clone()}, new int[] {idx});
@@ -402,5 +411,14 @@ public class HopGuiWorkflowActionDelegate {
     workflowMeta.addAction(copyOfAction);
 
     workflowGraph.updateGui();
+  }
+
+  /**
+   * Returns {@code true} if two action snapshots differ in persisted configuration. String {@code
+   * null} and {@code ""} are treated as the same so a dialog OK that only round-trips widget text
+   * does not mark the workflow dirty. An extra empty table row is still a change.
+   */
+  private static boolean hasActionMetaChanged(ActionMeta before, ActionMeta after) {
+    return !DialogOkContent.same(before, after);
   }
 }

@@ -8,6 +8,18 @@
       "name" : "HOP_LICENSE_HEADER_FILE",
       "value" : "${PROJECT_HOME}/../asf-header.txt",
       "description" : "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    }, {
+      "name" : "GIT_IT_OWNER",
+      "value" : "apache",
+      "description" : "owner of the public repository the Git Input tests read"
+    }, {
+      "name" : "GIT_IT_REPO",
+      "value" : "hop",
+      "description" : "public repository the Git Input tests read"
+    }, {
+      "name" : "GIT_IT_TAG",
+      "value" : "hop-2.9.0",
+      "description" : "released tag the Git Input commit test pins to; a tag is immutable, so the expected commits never change"
     } ]
   }
 }

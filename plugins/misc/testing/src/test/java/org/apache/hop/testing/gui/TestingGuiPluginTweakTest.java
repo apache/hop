@@ -18,21 +18,26 @@
 package org.apache.hop.testing.gui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mockStatic;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestTweak;
+import org.eclipse.swt.widgets.Display;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 /**
- * Unit tests for multi-transform unit-test tweak application (issue #2742). Covers pure helpers in
- * {@link TestingGuiPlugin} that do not require a HopGui instance.
+ * Unit tests for multi-transform unit-test tweak application (issues #2742 and #5371). Covers pure
+ * helpers in {@link TestingGuiPlugin} that do not require a HopGui instance.
  */
 class TestingGuiPluginTweakTest {
 
@@ -77,6 +82,46 @@ class TestingGuiPluginTweakTest {
     assertTrue(targets.isEmpty());
   }
 
+  /**
+   * getCurrentUnitTest must not touch SWT from a non-UI thread (issue #7896). Unit tests have no
+   * Display, so Display.getCurrent() is null and the method returns null without throwing.
+   */
+  @Test
+  void getCurrentUnitTestReturnsNullOffUiThread() {
+    assertNull(TestingGuiPlugin.getCurrentUnitTest(new PipelineMeta()));
+    assertNull(TestingGuiPlugin.getStateMap(new PipelineMeta()));
+  }
+
+  /**
+   * In Hop Web the guard itself used to be the failure (issue #8248): background work carries a RAP
+   * session over to the thread that runs it, and once that session has been destroyed RWT throws
+   * from {@code Display.getCurrent()} rather than answering "no display". The exception escaped
+   * into GetFields, which logged "Error calling extension point 'GetFieldsExtension'" for every
+   * transform. A thread whose session is gone is a thread with no unit test.
+   */
+  @Test
+  void getCurrentUnitTestReturnsNullWhenTheSessionIsGone() {
+    String runtime = System.getProperty(Const.HOP_PLATFORM_RUNTIME);
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
+    try (MockedStatic<Display> display = mockStatic(Display.class)) {
+      display
+          .when(Display::getCurrent)
+          .thenThrow(
+              new NullPointerException(
+                  "Cannot invoke \"org.eclipse.rap.rwt.service.UISession.getAttribute(String)\""
+                      + " because \"uiSession\" is null"));
+
+      assertNull(TestingGuiPlugin.getCurrentUnitTest(new PipelineMeta()));
+      assertNull(TestingGuiPlugin.getStateMap(new PipelineMeta()));
+    } finally {
+      if (runtime == null) {
+        System.clearProperty(Const.HOP_PLATFORM_RUNTIME);
+      } else {
+        System.setProperty(Const.HOP_PLATFORM_RUNTIME, runtime);
+      }
+    }
+  }
+
   @Test
   void applyTweakEnableAddsBypass() {
     PipelineUnitTest unitTest = new PipelineUnitTest();
@@ -115,6 +160,64 @@ class TestingGuiPluginTweakTest {
     assertNull(unitTest.findTweak("A"));
     assertNull(unitTest.findTweak("B"));
     assertTrue(unitTest.getTweaks().isEmpty());
+  }
+
+  @Test
+  void singleTweakActionHiddenWhenSeveralTransformsAreSelected() {
+    PipelineUnitTestTweak bypass = new PipelineUnitTestTweak(PipelineTweak.BYPASS_TRANSFORM, "A");
+
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, null, PipelineTweak.REMOVE_TRANSFORM, true, 2));
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, bypass, PipelineTweak.BYPASS_TRANSFORM, false, 3));
+    assertTrue(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, null, PipelineTweak.REMOVE_TRANSFORM, true, 1));
+    assertTrue(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, bypass, PipelineTweak.BYPASS_TRANSFORM, false, 1));
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, bypass, PipelineTweak.REMOVE_TRANSFORM, false, 1));
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            false, null, PipelineTweak.BYPASS_TRANSFORM, true, 1));
+  }
+
+  @Test
+  void bulkTweakActionsShownOnlyForAnActiveTestAndAMultiSelection() {
+    assertTrue(TestingGuiPlugin.showBulkUnitTestTweak(true, 2));
+    assertFalse(TestingGuiPlugin.showBulkUnitTestTweak(true, 1));
+    assertFalse(TestingGuiPlugin.showBulkUnitTestTweak(true, 0));
+    assertFalse(TestingGuiPlugin.showBulkUnitTestTweak(false, 4));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM));
+    assertFalse(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM));
+  }
+
+  @Test
+  void selectedTransformCountIgnoresUnselectedTransforms() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(transform("A", true));
+    pipelineMeta.addTransform(transform("B", true));
+    pipelineMeta.addTransform(transform("C", false));
+
+    assertEquals(2, TestingGuiPlugin.selectedTransformCount(pipelineMeta));
+    assertEquals(0, TestingGuiPlugin.selectedTransformCount(null));
   }
 
   @Test

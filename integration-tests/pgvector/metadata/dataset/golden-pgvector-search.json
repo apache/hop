@@ -1,0 +1,31 @@
+{
+  "base_filename": "golden-pgvector-search.csv",
+  "name": "golden-pgvector-search",
+  "description": "Nearest stored chunk for the query embedding [1,0,0] under cosine distance. The score is deliberately not compared: it is a floating point distance.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "match_document_id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "match_chunk_index",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "match_content",
+      "field_format": ""
+    }
+  ]
+}

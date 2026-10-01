@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../../assets/images/
 :page-pagination:
 :description: Databricks job wait — poll a job run until it completes.
+:page-marketplace: hop-tech-databricks
 
 = Databricks job wait
 
@@ -28,9 +29,9 @@ There is no dedicated “wait” endpoint on Databricks: this action repeatedly 
 
 == Typical pattern
 
-. Job Run with **Fire and forget** → sets `${DatabricksRunId}`
+. Job Run with **Fire and forget** → sets `+${DatabricksRunId}+`
 . Other workflow actions (notifications, parallel prep, …)
-. **Job Wait** with Run ID `${DatabricksRunId}` → success/failure hops
+. **Job Wait** with Run ID `+${DatabricksRunId}+` → success/failure hops
 
 For “submit and block on this step,” use Job Run’s built-in **Wait for completion** instead.
 
@@ -44,7 +45,7 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 |xref:metadata-types/databricks-connection.adoc[Databricks Connection] (PAT)
 
 |Run ID
-|Numeric run id; default `${DatabricksRunId}`
+|Numeric run id; default `+${DatabricksRunId}+`
 
 |Timeout (seconds)
 |Maximum wait; `0` = no timeout

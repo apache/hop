@@ -35,6 +35,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -129,6 +130,9 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       return;
     }
 
+    IVariables requestVars = copyServletVariables();
+    String resolvedWorkflowPath = requestVars.resolve(workflowOption);
+
     try {
       // Get metadata provider from server config
       IHopMetadataProvider metadataProvider = getServerConfig().getMetadataProvider();
@@ -136,12 +140,11 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
         throw new HopException("Metadata provider is not available");
       }
 
-      // Resolve variables in the workflow path (e.g., ${PROJECT_HOME})
-      String resolvedWorkflowPath = variables.resolve(workflowOption);
-
-      // Load workflow from file
+      // Load workflow from file. Path is resolved against a per-request copy of the server
+      // variables so ${PROJECT_HOME} (and environment config vars) work, and query parameters
+      // cannot leak into the server-wide space. See issue #8284.
       WorkflowMeta workflowMeta =
-          new WorkflowMeta(variables, resolvedWorkflowPath, metadataProvider);
+          new WorkflowMeta(requestVars, resolvedWorkflowPath, metadataProvider);
 
       // Set the servlet parameters as variables/parameters in the workflow
       String[] parameters = workflowMeta.listParameters();
@@ -155,7 +158,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
           // If it's a workflow parameter, it will be set later via setParameterValue
           // Otherwise, set as variable
           if (Const.indexOfString(parameter, parameters) < 0) {
-            variables.setVariable(parameter, values[0]);
+            requestVars.setVariable(parameter, values[0]);
           }
         }
       }
@@ -202,8 +205,8 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       // Create the workflow engine using the run configuration from execution configuration
       IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
-              variables,
-              variables.resolve(workflowExecutionConfiguration.getRunConfiguration()),
+              requestVars,
+              requestVars.resolve(workflowExecutionConfiguration.getRunConfiguration()),
               metadataProvider,
               workflowMeta,
               servletLoggingObject);
@@ -254,7 +257,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
         String safeWorkflowOption =
             workflowOption != null ? Encode.forHtml(workflowOption) : "null";
         String safeResolved =
-            workflowOption != null ? Encode.forHtml(variables.resolve(workflowOption)) : "null";
+            resolvedWorkflowPath != null ? Encode.forHtml(resolvedWorkflowPath) : "null";
         WebResult notFound =
             new WebResult(
                 WebResult.STRING_ERROR,

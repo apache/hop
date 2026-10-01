@@ -89,6 +89,9 @@ pipeline {
             tools{
                 jdk 'jdk_17_latest'
             }
+            environment {
+                SONAR_USER_HOME = "${env.WORKSPACE}/.sonar"
+            }
             steps {
                 echo 'Checking Code Quality on SonarCloud'
                 withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {

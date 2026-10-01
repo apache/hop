@@ -28,7 +28,9 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -166,13 +168,13 @@ public class NotePadDialog extends Dialog {
     // Help (Markdown notes) — bottom-left, same placement as transform/action dialogs
     Button wHelp = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wHelp);
-    wHelp.setImage(GuiResource.getInstance().getImageHelp());
     wHelp.setText(BaseMessages.getString(PKG, "NotePadDialog.Help.Button"));
     wHelp.setToolTipText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Help.Tooltip"));
     FormData fdHelp = new FormData();
     fdHelp.left = new FormAttachment(0, 0);
     fdHelp.bottom = new FormAttachment(100, 0);
     wHelp.setLayoutData(fdHelp);
+    HelpUtils.applyHelpButtonImage(wHelp);
     wHelp.addListener(SWT.Selection, e -> MarkdownNoteHelp.show(shell));
 
     wNoteFolder = new CTabFolder(shell, SWT.BORDER);
@@ -274,8 +276,8 @@ public class NotePadDialog extends Dialog {
         new StyledTextComp(
             variables,
             wNoteContentComp,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_TEXT);
     wDesc.setText("");
     // Standard widget look (theme-aware). Do not paint note fill/font colors into the editor —
     // those are canvas-only and break dark mode. Use a fixed-width font for Markdown source.

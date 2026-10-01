@@ -17,27 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Azure Event Hubs writer transform allows you to write messages (events) to Event Hubs on the Microsoft Azure cloud platform.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/azure.svg[Azure Event Hubs writer Icon, role="image-doc-icon"] Azure Event Hubs writer
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Azure Event Hubs writer transform allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

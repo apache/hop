@@ -247,7 +247,9 @@ class PipelineExecutorTest {
     executor.passParametersToPipeline(Collections.singletonList(""));
 
     assertEquals("default2", child.getVariable("TEST3_PARAMETER2"));
-    assertNull(executor.getVariable("TEST3_PARAMETER2"));
+    // An empty field cell makes the transform itself declare the variable as empty, which is
+    // where the sticky "B2" used to come back from.
+    assertEquals("", executor.getVariable("TEST3_PARAMETER2"));
   }
 
   @Test

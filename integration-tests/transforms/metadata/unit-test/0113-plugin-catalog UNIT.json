@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "plugin_id",
+          "data_set_field": "plugin_id"
+        },
+        {
+          "transform_field": "plugin_type",
+          "data_set_field": "plugin_type"
+        },
+        {
+          "transform_field": "property_xml_key",
+          "data_set_field": "property_xml_key"
+        },
+        {
+          "transform_field": "property_java_type",
+          "data_set_field": "property_java_type"
+        }
+      ],
+      "field_order": [
+        "plugin_id",
+        "plugin_type",
+        "property_xml_key",
+        "property_java_type"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-plugin-catalog"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0113-plugin-catalog UNIT",
+  "description": "Verifies Plugin Catalog reads the live plugin registry, resolves the metadata class and reflects its @HopMetadataProperty fields, using the transform's own registration as the fixture so other plugins cannot affect the result",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0113-plugin-catalog.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -115,6 +118,14 @@ class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  @Test
+  void generateRowsDoesNotConsumeMainInput() {
+    RowGeneratorMeta meta = new RowGeneratorMeta();
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+    assertFalse(meta.getTransformIOMeta().isInputAcceptor());
   }
 
   public class GeneratorFieldInputFieldLoadSaveValidator

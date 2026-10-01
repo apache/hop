@@ -93,6 +93,16 @@ public @interface HopMetadataProperty {
   String injectionKeyDescription() default "";
 
   /**
+   * Optional prefix applied to descendant injection keys and injection group keys. Use this when
+   * the same nested type is referenced more than once (for example input and output mappings) so
+   * that metadata injection keys stay unique. Does not affect serialization {@link #key()} / {@link
+   * #groupKey()}. Default empty: current behavior.
+   *
+   * @return the prefix for descendant injection keys, or empty
+   */
+  String injectionKeyPrefix() default "";
+
+  /**
    * @return The metadata group key to which this property belongs. Don't specify any key if you
    *     want this to be the same as key();
    */
@@ -158,6 +168,13 @@ public @interface HopMetadataProperty {
    * @return the type of metadata this property represents.
    */
   HopMetadataPropertyType hopMetadataPropertyType() default HopMetadataPropertyType.NONE;
+
+  /**
+   * Optional naming-scheme type code for this String field ({@code hop-field}, {@code
+   * hop-transform}, {@code dv-hub}, …). Empty means the field is not a name to validate. Does not
+   * replace {@link #hopMetadataPropertyType()}.
+   */
+  String namingSchemeType() default "";
 
   /**
    * When serializing common objects sometimes we don't want to serialize every field. In this

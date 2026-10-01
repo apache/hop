@@ -53,15 +53,6 @@ public class BlockUntilTransformsFinishMeta
   }
 
   @Override
-  public BlockUntilTransformsFinishMeta clone() {
-    BlockUntilTransformsFinishMeta meta = new BlockUntilTransformsFinishMeta();
-    for (BlockingTransform blockingTransform : blockingTransforms) {
-      meta.blockingTransforms.add(new BlockingTransform(blockingTransform));
-    }
-    return meta;
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,

@@ -28,7 +28,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,13 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   @Setter @Getter protected Class<T> managedClass;
   @Setter @Getter protected String description;
 
+  /**
+   * Folders named after the {@link org.apache.hop.metadata.api.HopMetadata#legacyKeys()} of the
+   * managed class. Objects are still read from these folders, but they are always saved in the base
+   * folder.
+   */
+  @Setter @Getter protected List<String> legacyFolders;
+
   protected JsonMetadataParser<T> parser;
   protected IVariables variables;
 
@@ -67,7 +76,24 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
       Class<T> managedClass,
       IVariables variables,
       String description) {
+    this(
+        metadataProvider,
+        baseFolder,
+        Collections.emptyList(),
+        managedClass,
+        variables,
+        description);
+  }
+
+  public JsonMetadataSerializer(
+      IHopMetadataProvider metadataProvider,
+      String baseFolder,
+      List<String> legacyFolders,
+      Class<T> managedClass,
+      IVariables variables,
+      String description) {
     this.metadataProvider = metadataProvider;
+    this.legacyFolders = legacyFolders == null ? Collections.emptyList() : legacyFolders;
     this.baseFolder = baseFolder;
     this.managedClass = managedClass;
     this.parser = new JsonMetadataParser<>(managedClass, metadataProvider);
@@ -78,10 +104,6 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   @Override
   public List<T> loadAll() throws HopException {
     List<T> list = new ArrayList<>();
-    validateBaseFolder(false);
-    if (!baseFolderExists) {
-      return list;
-    }
     List<String> names = listObjectNames();
     Collections.sort(names);
     for (String name : names) {
@@ -120,11 +142,10 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     if (name == null) {
       throw new HopException("Error: you need to specify the name of the metadata object to load");
     }
-    if (!exists(name)) {
+    String filename = findFilename(name);
+    if (filename == null) {
       return null;
     }
-
-    String filename = calculateFilename(name);
 
     try {
       // Load the JSON in a streaming fashion so we can parse the properties one by one...
@@ -235,18 +256,86 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
       throw new HopException(
           "Unable to save object '" + t.getName() + "' to JSON file '" + filename + "'", e);
     }
+
+    // The object now lives in the base folder: a copy in a legacy folder is outdated.
+    //
+    removeLegacyCopies(t.getName());
   }
 
+  /** Removes the files of an object from the legacy folders, moving it to the base folder. */
+  private void removeLegacyCopies(String name) throws HopException {
+    for (String legacyFolder : legacyFolders) {
+      // On a case-insensitive file system a key which only changed case is the same folder: we
+      // would delete the file we just saved.
+      if (legacyFolder.equalsIgnoreCase(baseFolder)) {
+        continue;
+      }
+      String legacyFilename = calculateFilename(legacyFolder, name);
+      try {
+        if (HopVfs.fileExists(legacyFilename)) {
+          HopVfs.getFileObject(legacyFilename).delete();
+          if (HopLogStore.isInitialized()) {
+            LogChannel.GENERAL.logBasic(
+                "Metadata object '"
+                    + name
+                    + "' was moved from legacy folder '"
+                    + legacyFolder
+                    + "' to folder '"
+                    + baseFolder
+                    + "'");
+          }
+        }
+      } catch (Exception e) {
+        throw new HopException(
+            "Error removing the legacy copy of metadata object '"
+                + name
+                + "' in file '"
+                + legacyFilename
+                + "'",
+            e);
+      }
+    }
+  }
+
+  /**
+   * @param name the name of the metadata object
+   * @return the file in the base folder where the object is saved
+   */
   public String calculateFilename(String name) {
-    return baseFolder + "/" + name + ".json";
+    return calculateFilename(baseFolder, name);
+  }
+
+  private static String calculateFilename(String folder, String name) {
+    return folder + "/" + name + ".json";
+  }
+
+  /**
+   * Finds the file which holds an existing object: in the base folder or, failing that, in one of
+   * the legacy folders.
+   *
+   * @param name the name of the metadata object
+   * @return the file of the object or null if it doesn't exist
+   * @throws HopException in case of a file system error
+   */
+  public String findFilename(String name) throws HopException {
+    validateBaseFolder(false);
+    if (baseFolderExists) {
+      String filename = calculateFilename(name);
+      if (HopVfs.fileExists(filename)) {
+        return filename;
+      }
+    }
+    for (String legacyFolder : legacyFolders) {
+      String filename = calculateFilename(legacyFolder, name);
+      if (HopVfs.fileExists(filename)) {
+        return filename;
+      }
+    }
+    return null;
   }
 
   @Override
   public T delete(String name) throws HopException {
-    // Make sure the base folder exists
-    //
-    validateBaseFolder(true);
-
     if (name == null) {
       throw new HopException(
           "Error: you need to specify the name of the metadata object to delete");
@@ -255,53 +344,69 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
       throw new HopException("Error: Object '" + name + "' doesn't exist");
     }
     T t = load(name);
-    String filename = calculateFilename(name);
-    try {
-      boolean deleted = HopVfs.getFileObject(filename).delete();
-      if (!deleted) {
-        throw new HopException(
-            "Error: Object '" + name + "' could not be deleted, filename : " + filename);
+
+    // The object can have been saved in the base folder while an older copy is still sitting in a
+    // legacy folder: remove them all or the old copy would come back. The legacy copies go first
+    // and the base folder file last: if a delete fails halfway, the file that is left is the one
+    // load() reads, never a stale legacy copy in its place.
+    //
+    List<String> folders = new ArrayList<>(legacyFolders);
+    folders.add(baseFolder);
+    for (String folder : folders) {
+      String filename = calculateFilename(folder, name);
+      if (!HopVfs.fileExists(filename)) {
+        continue;
       }
-    } catch (FileSystemException e) {
-      throw new HopException("Error deleting Object '" + name + "' with filename : " + filename);
+      try (FileObject file = HopVfs.getFileObject(filename)) {
+        if (!file.delete()) {
+          throw new HopException(
+              "Error: Object '" + name + "' could not be deleted, filename : " + filename);
+        }
+      } catch (FileSystemException e) {
+        throw new HopException(
+            "Error deleting Object '" + name + "' with filename : " + filename, e);
+      }
     }
     return t;
   }
 
   @Override
   public List<String> listObjectNames() throws HopException {
-    List<String> names = new ArrayList<>();
+    // An object in the base folder and a legacy folder is listed once.
+    //
+    Set<String> names = new LinkedHashSet<>();
 
-    // Read-only access doesn't require a folder
+    // Read-only access doesn't require a folder.  If there is none, we simply don't have objects
+    // of the given type: this is not an error.
+    //
     validateBaseFolder(false);
-    if (!baseFolderExists) {
-      // This is not an error.  We simply don't have objects of the given type.
-      //
-      return names;
+    if (baseFolderExists) {
+      addObjectNames(baseFolder, names);
     }
+    for (String legacyFolder : legacyFolders) {
+      if (HopVfs.fileExists(legacyFolder)) {
+        addObjectNames(legacyFolder, names);
+      }
+    }
+    return new ArrayList<>(names);
+  }
 
-    FileObject folder = HopVfs.getFileObject(baseFolder);
-
+  private static void addObjectNames(String folderName, Set<String> names) throws HopException {
     try {
+      FileObject folder = HopVfs.getFileObject(folderName);
       List<FileObject> jsonFiles = HopVfs.findFiles(folder, "json", false);
       for (FileObject jsonFile : jsonFiles) {
         String baseName = jsonFile.getName().getBaseName();
         names.add(baseName.replaceAll("\\.json$", ""));
       }
-      return names;
     } catch (Exception e) {
-      throw new HopException("Error searching for JSON files", e);
+      throw new HopException("Error searching for JSON files in folder '" + folderName + "'", e);
     }
   }
 
   @Override
   public boolean exists(String name) throws HopException {
-    // Read-only access doesn't require a folder
-    validateBaseFolder(false);
-    if (!baseFolderExists) {
-      return false;
-    }
-    return HopVfs.fileExists(calculateFilename(name));
+    return findFilename(name) != null;
   }
 
   /**
@@ -314,12 +419,11 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     if (name == null) {
       throw new HopException("Error: you need to specify the name of the metadata object to load");
     }
-    validateBaseFolder(false);
-    if (!baseFolderExists || !exists(name)) {
+    String filename = findFilename(name);
+    if (filename == null) {
       throw new HopException("Object '" + name + "' does not exist");
     }
 
-    String filename = calculateFilename(name);
     try (InputStream fileInputStream = HopVfs.getInputStream(filename)) {
       JsonFactory jsonFactory = new JsonFactory();
       try (com.fasterxml.jackson.core.JsonParser jsonParser =

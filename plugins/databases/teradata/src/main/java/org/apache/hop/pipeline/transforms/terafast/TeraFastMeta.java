@@ -52,7 +52,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::TeraFastMeta.keyword",
     documentationUrl = "/pipeline/transforms/terafast.html",
-    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT},
+    classLoaderGroup = "teradata-db")
 @Getter
 @Setter
 public class TeraFastMeta extends BaseTransformMeta<ITransform, ITransformData> {
@@ -279,15 +280,5 @@ public class TeraFastMeta extends BaseTransformMeta<ITransform, ITransformData> 
       return fields;
     }
     return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see BaseTransformMeta#clone()
-   */
-  @Override
-  public Object clone() {
-    return super.clone();
   }
 }

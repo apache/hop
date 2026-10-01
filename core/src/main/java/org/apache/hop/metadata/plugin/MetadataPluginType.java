@@ -104,6 +104,6 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> {
 
   @Override
   protected String extractClassLoaderGroup(HopMetadata annotation) {
-    return null;
+    return annotation.classLoaderGroup();
   }
 }

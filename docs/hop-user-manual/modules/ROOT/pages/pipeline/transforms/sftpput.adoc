@@ -17,31 +17,16 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The SFTP Put transform uploads a file, or the content of a field, to an SFTP server for every row it receives.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/sftpput.svg[SFTP Put transform Icon, role="image-doc-icon"] SFTP Put
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The SFTP Put transform uploads a file, or the content of a field, to an SFTP server.
 It does so once per incoming row, so the file to upload, the folder to upload it to and the name it gets on the server all come from fields.
 
 Where that server is and how to log in to it comes from an xref:metadata-types/sftp-connection.adoc[SFTP Connection] in your project metadata, not from the transform itself.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 

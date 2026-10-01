@@ -39,7 +39,7 @@ import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.marketplace.resolve.MavenRepositoryClient;
 
-/** Applies or validates a {@link HopEnvironmentSpec} against a Hop installation. */
+/** Applies or validates a {@link HopInstallSpec} against a Hop installation. */
 public class EnvironmentApplier {
 
   private final ILogChannel log;
@@ -52,11 +52,11 @@ public class EnvironmentApplier {
     this.baseConfig = baseConfig;
   }
 
-  public EnvironmentDrift validate(HopEnvironmentSpec env) throws HopException {
+  public EnvironmentDrift validate(HopInstallSpec env) throws HopException {
     EnvironmentDrift drift = new EnvironmentDrift();
     String defaultVersion = resolveEnvVersion(env);
 
-    for (HopEnvironmentSpec.PluginRef ref : nullSafe(env.getPlugins())) {
+    for (HopInstallSpec.PluginRef ref : nullSafe(env.getPlugins())) {
       if (StringUtils.isBlank(ref.getArtifactId())) {
         continue;
       }
@@ -78,7 +78,7 @@ public class EnvironmentApplier {
       }
     }
 
-    for (HopEnvironmentSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
+    for (HopInstallSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
       if (StringUtils.isAnyBlank(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())) {
         continue;
       }
@@ -99,9 +99,9 @@ public class EnvironmentApplier {
   }
 
   /**
-   * Install missing plugins/deps; optionally prune marketplace plugins not listed in the env file.
+   * Install missing plugins/deps; optionally prune marketplace plugins not listed in the spec file.
    */
-  public void apply(HopEnvironmentSpec env, boolean prune) throws HopException {
+  public void apply(HopInstallSpec env, boolean prune) throws HopException {
     apply(env, prune, IInstallListener.NONE);
   }
 
@@ -109,7 +109,7 @@ public class EnvironmentApplier {
    * @param listener receives per-artifact and byte-level progress across the whole batch, and can
    *     cancel between chunks. Pass {@link IInstallListener#NONE} for headless callers.
    */
-  public void apply(HopEnvironmentSpec env, boolean prune, IInstallListener listener)
+  public void apply(HopInstallSpec env, boolean prune, IInstallListener listener)
       throws HopException {
     IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
     MarketplaceConfig config = configFromEnv(env);
@@ -124,13 +124,13 @@ public class EnvironmentApplier {
     int itemIndex = 0;
 
     Set<String> desiredArtifacts = new HashSet<>();
-    for (HopEnvironmentSpec.PluginRef ref : nullSafe(env.getPlugins())) {
+    for (HopInstallSpec.PluginRef ref : nullSafe(env.getPlugins())) {
       if (StringUtils.isBlank(ref.getArtifactId())) {
         itemIndex++;
         continue;
       }
       if (progress.isCancelled()) {
-        throw new HopException("Applying the environment was cancelled");
+        throw new HopException("Applying the install spec was cancelled");
       }
       progress.item(ref.getArtifactId(), itemIndex++, totalItems);
       desiredArtifacts.add(ref.getArtifactId());
@@ -147,20 +147,20 @@ public class EnvironmentApplier {
       boolean needsInstall = (!onDisk && receipt == null) || versionMismatch;
       if (needsInstall) {
         MavenCoordinates coords = new MavenCoordinates(groupId, ref.getArtifactId(), version);
-        log.logBasic("Applying environment: installing " + coords.gav());
+        log.logBasic("Applying install spec: installing " + coords.gav());
         installer.install(coords, true, null, null, progress);
       } else {
-        log.logBasic("Applying environment: " + ref.getArtifactId() + " already satisfied");
+        log.logBasic("Applying install spec: " + ref.getArtifactId() + " already satisfied");
       }
     }
 
-    for (HopEnvironmentSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
+    for (HopInstallSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
       if (StringUtils.isAnyBlank(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())) {
         itemIndex++;
         continue;
       }
       if (progress.isCancelled()) {
-        throw new HopException("Applying the environment was cancelled");
+        throw new HopException("Applying the install spec was cancelled");
       }
       progress.item(dep.getArtifactId(), itemIndex++, totalItems);
       String target = StringUtils.defaultIfBlank(dep.getTarget(), "lib/jdbc");
@@ -211,7 +211,7 @@ public class EnvironmentApplier {
         String name = file.getFileName().toString();
         String artifactId = name.substring(0, name.length() - ".json".length());
         if (!desiredArtifacts.contains(artifactId)) {
-          log.logBasic("Pruning marketplace plugin not in env file: " + artifactId);
+          log.logBasic("Pruning marketplace plugin not in install spec: " + artifactId);
           uninstaller.uninstall(artifactId);
         }
       }
@@ -220,7 +220,8 @@ public class EnvironmentApplier {
     }
   }
 
-  private MarketplaceConfig configFromEnv(HopEnvironmentSpec env) {
+  /** Package-private so the credential scoping below can be asserted without a live install. */
+  MarketplaceConfig configFromEnv(HopInstallSpec env) {
     MarketplaceConfig config = new MarketplaceConfig();
     config.setEnabled(baseConfig.isEnabled());
     config.setGroupId(baseConfig.getGroupId());
@@ -229,24 +230,11 @@ public class EnvironmentApplier {
             ? env.getHopVersion()
             : MarketplaceCommand.resolveDefaultVersion(baseConfig));
     config.getRepositories().clear();
-    MarketplaceRepository baseRepo = baseConfig.primaryRepository();
     if (env.getRepositories() != null && !env.getRepositories().isEmpty()) {
       boolean first = true;
-      for (HopEnvironmentSpec.RepositoryRef ref : env.getRepositories()) {
+      for (HopInstallSpec.RepositoryRef ref : env.getRepositories()) {
         if (StringUtils.isNotBlank(ref.getUrl())) {
-          MarketplaceRepository repo =
-              new MarketplaceRepository(
-                  StringUtils.defaultIfBlank(ref.getId(), "env"),
-                  ref.getUrl(),
-                  StringUtils.isNotBlank(ref.getUsername())
-                      ? ref.getUsername()
-                      : baseRepo.getUsername(),
-                  StringUtils.isNotBlank(ref.getPassword())
-                      ? ref.getPassword()
-                      : baseRepo.getPassword());
-          repo.setPrimary(first);
-          repo.setEnabled(true);
-          config.getRepositories().add(repo);
+          config.getRepositories().add(repositoryFromRef(ref, first));
           first = false;
         }
       }
@@ -261,7 +249,61 @@ public class EnvironmentApplier {
     return config;
   }
 
-  private String resolveEnvVersion(HopEnvironmentSpec env) {
+  /**
+   * Turn a repository the install spec declares into a marketplace repository. The URL is the
+   * project's, so the configured credentials are only reused when the project points at the same
+   * repository they belong to — same scheme, host and port. A project naming a host the operator
+   * never configured gets what the project itself declared, or nothing.
+   */
+  private MarketplaceRepository repositoryFromRef(HopInstallSpec.RepositoryRef ref, boolean first) {
+    MarketplaceRepository source = configuredCredentialSource(ref.getUrl());
+    MarketplaceRepository repo =
+        new MarketplaceRepository(
+            StringUtils.defaultIfBlank(ref.getId(), "spec"),
+            ref.getUrl(),
+            StringUtils.isNotBlank(ref.getUsername())
+                ? ref.getUsername()
+                : (source == null ? null : source.getUsername()),
+            StringUtils.isNotBlank(ref.getPassword())
+                ? ref.getPassword()
+                : (source == null ? null : source.getPassword()));
+    if (source == null) {
+      // The global HOP_MARKETPLACE_USERNAME / _PASSWORD pair belongs to the operator's own
+      // repositories for the same reason; the repository-scoped variables stay available so a
+      // project repository can still be given credentials without putting them in the spec file.
+      repo.setGlobalEnvironmentCredentials(false);
+    }
+    repo.setPrimary(first);
+    repo.setEnabled(true);
+    return repo;
+  }
+
+  /**
+   * The configured repository whose credentials may be reused for {@code url}, or null when none of
+   * them belongs to that origin. Install order, so the primary wins a tie.
+   */
+  private MarketplaceRepository configuredCredentialSource(String url) {
+    boolean anyStoredCredentials = false;
+    for (MarketplaceRepository repo : baseConfig.orderedRepositories()) {
+      if (StringUtils.isAllBlank(repo.getUsername(), repo.getPassword())) {
+        continue;
+      }
+      anyStoredCredentials = true;
+      if (repo.sameOriginAs(url)) {
+        return repo;
+      }
+    }
+    if (anyStoredCredentials) {
+      log.logBasic(
+          "Install spec repository "
+              + url
+              + " is not a configured marketplace repository: the configured credentials are not"
+              + " sent to it");
+    }
+    return null;
+  }
+
+  private String resolveEnvVersion(HopInstallSpec env) {
     if (StringUtils.isNotBlank(env.getHopVersion())) {
       return env.getHopVersion();
     }

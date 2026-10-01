@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>0005-imported-workflow-runs-without-source-run-configurations</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>A PDI job whose entries name no run configuration is imported and then actually runs</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/26 16:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/26 16:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Import and run the workflow</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>set -e
+SRC="${PROJECT_HOME}/subject/pdi-without-run-configuration"
+OUT="${PROJECT_HOME}/output/0005-local-fallback"
+LOG="${PROJECT_HOME}/output/0005-local-fallback.log"
+
+rm -rf "$OUT" "$LOG"
+mkdir -p "$OUT"
+
+# No --pipeline-run-configuration / --workflow-run-configuration: there is nothing in the source
+# to fall back on either, so the importer has to write the 'local' run configuration every Hop
+# project is created with. An empty one leaves the actions unable to run.
+sh hop-import.sh -i "$SRC" -o "$OUT"
+
+test "$(grep -c '&lt;run_configuration&gt;local&lt;/run_configuration&gt;' "$OUT/parent.hwf")" = 3
+
+# One of the three source entries already had an empty run_configuration element. Filling it must
+# not leave a second one behind.
+test "$(grep -c '&lt;run_configuration&gt;' "$OUT/parent.hwf")" = 3
+
+# The symptom from issue #3814: running the imported workflow aborted on every Pipeline and
+# Workflow action. Run it for real and require both actions to execute.
+if ! sh hop-run.sh -j 'default' -r 'local' -f "$OUT/parent.hwf" -l Basic &gt; "$LOG" 2&gt;&amp;1; then
+  echo "The imported workflow failed to run:"
+  cat "$LOG"
+  exit 1
+fi
+if grep -q 'need to specify a .* run configuration' "$LOG"; then
+  echo "An action of the imported workflow has no run configuration:"
+  cat "$LOG"
+  exit 1
+fi
+grep -q 'Run the child transformation' "$LOG"
+grep -q 'Run the nested job' "$LOG"
+grep -q 'Run the child transformation again' "$LOG"</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Failure: the imported workflow could not run</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Failure: the imported workflow could not run</message>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Import and run the workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Import and run the workflow</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Import and run the workflow</from>
+      <to>Failure: the imported workflow could not run</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorred>15</backgroundcolorred>
+      <bordercolorblue>250</bordercolorblue>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorred>200</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>250</fontcolorblue>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorred>200</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>148</height>
+      <xloc>80</xloc>
+      <yloc>256</yloc>
+      <note>This is issue #3814 end to end. The PDI job has three entries that name no run
+configuration - two with no run_configuration element at all, one with an empty element - and
+hop-import is run without defaults.
+
+There is nothing to carry over, so the importer writes the 'local' run configuration that every
+Hop project ships with. The test then runs the imported workflow with hop-run and requires all
+three actions to execute. Before the fix they aborted with
+"You need to specify a workflow run configuration to execute this workflow",
+and the only way out was to open every action in the Hop GUI and press OK.
+
+An entry that already names a run configuration keeps that name instead: see
+main-0001-import-preserves-run-configurations.</note>
+      <width>620</width>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

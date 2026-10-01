@@ -20,6 +20,7 @@ package org.apache.hop.core.vfs.plugin;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 public interface IVfs {
   /**
@@ -47,4 +48,22 @@ public interface IVfs {
    * @return a provider per named connection, empty or null if there are none
    */
   Map<String, FileProvider> getProviders(IVariables variables);
+
+  /**
+   * The providers of the named connections in {@code metadataProvider}, keyed by connection name.
+   *
+   * <p>An execution does not always run against the metadata the variables point at: a pipeline
+   * exported to a Hop Server carries its own, bundled in the export. Implement this method to read
+   * the connections from the metadata handed in; the default keeps the old behaviour of deriving
+   * the metadata from the variables, so a plugin that does not implement it still works.
+   *
+   * @param variables the variables the connections resolve their settings with
+   * @param metadataProvider the metadata holding the connections, or null to derive it from the
+   *     variables
+   * @return a provider per named connection, empty or null if there are none
+   */
+  default Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider metadataProvider) {
+    return getProviders(variables);
+  }
 }

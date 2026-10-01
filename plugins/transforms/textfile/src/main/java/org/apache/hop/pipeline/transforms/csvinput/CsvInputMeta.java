@@ -174,6 +174,15 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       injectionKeyDescription = "CsvInputMeta.Injection.IGNORE_FIELDS")
   public boolean ignoreFields;
 
+  /**
+   * Optional Naming Scheme applied to discovered field names when using Get Fields. Empty means
+   * auto-apply only when a unique matching scheme exists.
+   */
+  @HopMetadataProperty(
+      key = "namingScheme",
+      hopMetadataPropertyType = HopMetadataPropertyType.NAMING_SCHEME)
+  private String namingScheme;
+
   @HopMetadataProperty(
       key = "field",
       groupKey = "fields",
@@ -192,29 +201,19 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     this.bufferSize = "50000";
   }
 
-  public CsvInputMeta(CsvInputMeta m) {
-    this();
-    this.addResult = m.addResult;
-    this.bufferSize = m.bufferSize;
-    this.delimiter = m.delimiter;
-    this.enclosure = m.enclosure;
-    this.encoding = m.encoding;
-    this.filename = m.filename;
-    this.filenameField = m.filenameField;
-    this.headerPresent = m.headerPresent;
-    this.ignoreFields = m.ignoreFields;
-    this.includingFilename = m.includingFilename;
-    this.lazyConversionActive = m.lazyConversionActive;
-    this.newlinePossibleInFields = m.newlinePossibleInFields;
-    this.rowNumField = m.rowNumField;
-    this.runningInParallel = m.runningInParallel;
-    this.schemaDefinition = m.schemaDefinition;
-    m.inputFields.forEach(field -> this.inputFields.add(new CsvInputField(field)));
+  @Override
+  public boolean consumesMainInput() {
+    return !Utils.isEmpty(getFilenameField());
   }
 
   @Override
-  public CsvInputMeta clone() {
-    return new CsvInputMeta(this);
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "CsvInputDialog.FilenameField.Label");
   }
 
   public void getFields(
@@ -330,6 +329,15 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     }
   }
 
+  /**
+   * {@link org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta} declares a covariant
+   * clone(), so this override is required even though it only delegates.
+   */
+  @Override
+  public CsvInputMeta clone() {
+    return (CsvInputMeta) super.clone();
+  }
+
   @Override
   public BaseFileErrorHandling getErrorHandling() {
     return null;
@@ -381,41 +389,110 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    CheckResult cr;
+    // Same split as the dialog and CsvInput.init(): a previous hop means the filename comes from a
+    // field, otherwise a static filename is used.
+    if (input != null && input.length > 0) {
+      checkFilenameFromField(remarks, transformMeta, prev, variables);
+    } else {
+      checkStaticFilename(remarks, transformMeta, prev, variables);
+    }
+  }
+
+  private void checkFilenameFromField(
+      List<ICheckResult> remarks,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      IVariables variables) {
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_OK,
+            BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.TransformRecevingData2"),
+            transformMeta));
+
     if (prev == null || prev.isEmpty()) {
-      cr =
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.NotReceivingFields"),
+              transformMeta));
+      return;
+    }
+
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_OK,
+            BaseMessages.getString(
+                PKG, "CsvInputMeta.CheckResult.TransformRecevingData", prev.size() + ""),
+            transformMeta));
+    remarks.add(checkFilenameField(transformMeta, prev, variables));
+  }
+
+  private CheckResult checkFilenameField(
+      TransformMeta transformMeta, IRowMeta prev, IVariables variables) {
+    if (Utils.isEmpty(filenameField)) {
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameFieldMissing"),
+          transformMeta);
+    }
+
+    String resolvedField = variables != null ? variables.resolve(filenameField) : filenameField;
+    if (prev.indexOfValue(resolvedField) < 0) {
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(
+              PKG, "CsvInputMeta.CheckResult.FilenameFieldNotFound", resolvedField),
+          transformMeta);
+    }
+
+    return new CheckResult(
+        ICheckResult.TYPE_RESULT_OK,
+        BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameFieldOk", resolvedField),
+        transformMeta);
+  }
+
+  private void checkStaticFilename(
+      List<ICheckResult> remarks,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      IVariables variables) {
+    if (prev == null || prev.isEmpty()) {
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.NotReceivingFields"),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     } else {
-      cr =
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "CsvInputMeta.CheckResult.TransformRecevingData", prev.size() + ""),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     }
 
-    // See if we have input streams leading to this transform!
-    if (input.length > 0) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.TransformRecevingData2"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                  PKG, "CsvInputMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
-              transformMeta);
-      remarks.add(cr);
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_OK,
+            BaseMessages.getString(
+                PKG, "CsvInputMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
+            transformMeta));
+    remarks.add(checkStaticFilenameSpecified(transformMeta, variables));
+  }
+
+  private CheckResult checkStaticFilenameSpecified(
+      TransformMeta transformMeta, IVariables variables) {
+    String resolvedFilename = variables != null ? variables.resolve(filename) : filename;
+    if (Utils.isEmpty(resolvedFilename)) {
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameMissing"),
+          transformMeta);
     }
+    return new CheckResult(
+        ICheckResult.TYPE_RESULT_OK,
+        BaseMessages.getString(PKG, "CsvInputMeta.CheckResult.FilenameOk"),
+        transformMeta);
   }
 
   @Override

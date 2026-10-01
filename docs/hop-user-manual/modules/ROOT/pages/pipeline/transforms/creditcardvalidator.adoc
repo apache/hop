@@ -17,31 +17,16 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Credit Card Validator transform will help you check the validity of a credit card number and the credit card vendor.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/creditcardvalidator.svg[Credit card validator transform Icon, role="image-doc-icon"] Credit card validator
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Credit Card Validator transform will help you check the following:
 
 * The validity of a credit card number. This uses a LUHN10 (MOD-10) algorithm.
 * The credit card vendor that handles the number: VISA, MasterCard, Diners Club, EnRoute, American Express (AMEX),...
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 

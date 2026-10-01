@@ -14,64 +14,107 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Welcome to the Hop project! The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*! When it comes down to it the codebase is fairly simple in structure. Let's go over the main modules in the source code:
-
+:description: A tour of the Hop codebase: what the modules are, what lives in each of them, and where to look first.
 [[GettingStarted-GettingStarted]]
-= Getting Started
+= The Hop codebase
 
 Welcome to the Hop project!
-The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*!
+The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*.
 
-When it comes down to it the codebase is fairly simple in structure.
+When it comes down to it the structure is fairly simple.
+Three modules carry almost all of the framework — `core`, `engine` and `ui` — and everything else is either a plugin, a packaging concern, or a different front end onto the same three.
 
-Let's go over the main modules in the source code:
+== The Maven reactor
+
+[cols="1,3", options="header"]
+|===
+|Module |What it is
+
+|`core`
+|The essentials needed to bootstrap Hop.
+
+|`engine`
+|Pipelines, workflows, and the tools that run them.
+
+|`ui`
+|The Hop GUI.
+
+|`rcp`
+|The desktop fragment of the GUI: SWT-only pieces that cannot run in a browser.
+
+|`rap`
+|The Hop Web fragment of the GUI, on Eclipse RAP instead of SWT.
+
+|`rest`
+|A REST API in front of the engine.
+
+|`plugins`
+|Everything optional: transforms, actions, databases, engines, technology integrations.
+
+|`lib`, `lib-jdbc`, `lib-p2`
+|Dependency aggregators (`pom` packaging only, no code): shared third-party versions, the JDBC drivers, and the Eclipse p2 artifacts that are not on Maven Central.
+
+|`assemblies`
+|Turns all of the above into the client, server and web distributions.
+|===
+
+Also in the repository, outside the reactor: `integration-tests` and `web-tests` (see xref:integration-testing.adoc[Integration tests]), `docker` and `helm` for container images, `tools` for build and release helper scripts, and `docs` for the three manuals.
 
 == Core
 
-Like the name suggests this module contains the essentials to bootstrap Hop.
-It has the following types of things on board:
+Like the name suggests, this module contains the essentials to bootstrap Hop:
 
-- Tools: *hop-encrypt*
 - The plugin registry which keeps track of all the plugins: *PluginRegistry*
 - Core data types: *IValueMeta, ValueMetaString, ...*
 - Rows of data: *IRowMeta, RowMeta*
-- Logging: *HopLogStore, ILogChannel,...*
-- Generic relational database handling: *Database, IDatabaseMeta, ...*
+- Logging: *HopLogStore, ILogChannel, ...*
+- Generic relational database handling: *Database, IDatabase, DatabaseMeta, ...*
+- The metadata API and its serializers: *IHopMetadata, IHopMetadataProvider, HopMetadataProperty, ...*
+- Virtual file system access: *HopVfs*
 - Internationalization a.k.a. i18n to translate stuff: *BaseMessages*
 - Password obfuscation and encryption: *Encr*
 - Other utility classes like: *Const*
-- Plugin types: *LoggingPluginType, ValueMetaPluginType, DatabasePluginType, ExtensionPointPluginType, TwoWayPasswordEncoderPluginType*
-- Bootstrap everything in core with : *HopClientEnvironment.init()*
+- Bootstrap everything in core with: *HopClientEnvironment.init()*
+
+`HopClientEnvironment.init()` registers the eight core plugin types: logging, value types, databases, database type rules, extension points, password encoders, variable resolvers and VFS.
 
 == Engine
 
-This module contains the actual framework to handle pipelines and workflows.
+This module contains the actual framework to handle pipelines and workflows:
 
-- Tools: *hop-server, hop-run*
-- Pipelines : *IPipelineMeta, Pipeline, IPipelineEngine, ...*
-- Workflows : *IWorkflowMeta, Workflow, ...*
+- The `hop` command line and its sub-commands: *hop run, hop server, hop conf, hop search, hop encrypt, hop import*
+- Pipelines: *PipelineMeta, Pipeline, IPipelineEngine, ...*
+- Workflows: *WorkflowMeta, Workflow, IWorkflowEngine, ...*
 - Web server: *HopServer, StartPipelineServlet, ...*
-- Auditing: *AuditManager, AuditEvent, ...*
-- Other stuff worth mentioning: partitioning, lineage, ...
-- Plugin types: *RowDistributionPluginType, TransformPluginType, TransformDialogFragmentType, PartitionerPluginType, JobEntryPluginType,JobEntryDialogFragmentType, LogTablePluginType, LifecyclePluginType, HopLifecyclePluginType, HopServerPluginType, CompressionPluginType, AuthenticationProviderPluginType, AuthenticationConsumerPluginType, PipelineEnginePluginType*
-- Bootstrap everything in engine with : *HopEnvironment.init()*
+- Execution information, auditing and lineage: *IExecutionInfoLocation, AuditManager, LineageHub, ...*
+- Other stuff worth mentioning: partitioning, data streams, ...
+- Bootstrap everything in engine with: *HopEnvironment.init()*
 
-== UI
+`HopEnvironment.init()` registers everything in `HopClientEnvironment.init()` plus the engine-side plugin types: transforms, actions, pipeline and workflow engines, metadata, server servlets, compression, partitioners, configuration options, `hop` commands, execution information locations and samplers, and lineage sinks.
 
-This module obviously contains everything related to the Hop GUI
+== UI, RCP and RAP
+
+`ui` contains everything related to the Hop GUI:
 
 - Tools: *hop-gui, hop-translate*
 - Hop GUI: *HopGui, HopDataOrchestrationPerspective, HopPipelineFileType, ...*
 - The rest is mostly a collection of re-usable dialogs and widgets
 
-== Metadata
+`HopGuiEnvironment.init()` adds the four GUI plugin types: GUI plugins, perspectives, file types and searchable analysers.
 
-This module contains the core metadata serialization API for every shared object in Hop
+The same GUI runs on the desktop and in a browser, so it is split: `rcp` holds the desktop-only pieces and `rap` the Hop Web ones.
+Anything you write in `ui` has to work in both — see xref:hopweb/hopweb-antipatterns.adoc[Hop Web antipatterns].
 
 == Plugins
 
-The plugins module contains all the functionality in Hop which is not absolutely strictly essential.
-This means that you will find a lot of transforms and actions in this module.
-You can use this collection as a series of examples on how to build plugins for Hop.
+The `plugins` module contains all the functionality in Hop which is not absolutely strictly essential.
+This means you will find a lot of transforms and actions there, along with database dialects, VFS providers, engines and technology integrations.
 
+It is also the best collection of examples: whatever you are trying to build, something in `plugins` already does something close to it.
+See xref:plugin-development.adoc[How plugins work] and the xref:plugin-types/index.adoc[plugin type catalogue].
 
+== Where to go next
+
+* xref:setup-dev-environment.adoc[Setting up your development environment]
+* xref:build-and-test.adoc[Building and testing]
+* xref:architecture/execution-model.adoc[How a pipeline and a workflow run]

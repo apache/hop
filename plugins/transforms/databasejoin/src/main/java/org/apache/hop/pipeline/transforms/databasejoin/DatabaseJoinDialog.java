@@ -17,17 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -42,6 +47,8 @@ import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -69,21 +76,27 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
   private TextComposite wSql;
 
+  private TextVar wSqlFromFile;
+
   private Text wLimit;
 
   private Button wOuter;
 
   private TableView wParam;
+  private TableView wResolvedParam;
 
   private Button wUseVars;
 
   private final DatabaseJoinMeta input;
 
   private Label wlPosition;
+  private Label wlParam;
 
   private ColumnInfo[] ciKey;
+  private ColumnInfo[] ciResolvedParam;
 
   private final List<String> inputFields = new ArrayList<>();
+  private IRowMeta sourceFieldsMeta;
 
   private Button wCache;
 
@@ -110,7 +123,12 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
     // Connection line
     wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
-    wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
+    wConnection.addListener(
+        SWT.Selection,
+        e -> {
+          getSqlReservedWords();
+          refreshResolvedParametersPanel();
+        });
 
     // ICache?
     Label wlCache = new Label(shell, SWT.RIGHT);
@@ -156,24 +174,79 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     fdCacheSize.top = new FormAttachment(wCache, margin);
     wCacheSize.setLayoutData(fdCacheSize);
 
+    // Load SQL from file
+    Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
+    wlSqlFromFile.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.LoadSqlFromFile"));
+    PropsUi.setLook(wlSqlFromFile);
+    FormData fdlSqlFromFile = new FormData();
+    fdlSqlFromFile.left = new FormAttachment(0, 0);
+    fdlSqlFromFile.right = new FormAttachment(middle, -margin);
+    fdlSqlFromFile.top = new FormAttachment(wCacheSize, margin);
+    wlSqlFromFile.setLayoutData(fdlSqlFromFile);
+    Button wbSqlFromFile = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wbSqlFromFile);
+    wbSqlFromFile.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Browse"));
+    FormData fdbSqlFromFile = new FormData();
+    fdbSqlFromFile.right = new FormAttachment(100, 0);
+    fdbSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wbSqlFromFile.setLayoutData(fdbSqlFromFile);
+
+    wSqlFromFile = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSqlFromFile);
+    wSqlFromFile.addModifyListener(lsMod);
+    FormData fdSqlFromFile = new FormData();
+    fdSqlFromFile.left = new FormAttachment(middle, 0);
+    fdSqlFromFile.right = new FormAttachment(wbSqlFromFile, -margin);
+    fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wSqlFromFile.setLayoutData(fdSqlFromFile);
+    wbSqlFromFile.addListener(
+        SWT.Selection,
+        e -> {
+          String path =
+              BaseDialog.presentFileDialog(
+                  shell,
+                  wSqlFromFile,
+                  variables,
+                  new String[] {"*.sql", "*"},
+                  new String[] {
+                    BaseMessages.getString(PKG, "DatabaseJoinDialog.SqlFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  },
+                  false);
+          if (path != null) {
+            loadSqlFromFileAndSetReadOnly();
+          }
+        });
+
     // SQL editor...
     Label wlSql = new Label(shell, SWT.NONE);
     wlSql.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.SQL.Label"));
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wCacheSize, margin);
+    fdlSql.top = new FormAttachment(wbSqlFromFile, margin);
     wlSql.setLayoutData(fdlSql);
 
     wSql =
         EnvironmentUtils.getInstance().isWeb()
             ? new StyledTextComp(
-                variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+                variables,
+                shell,
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+                TextComposite.STYLE_TYPE_SQL)
             : new SQLStyledTextComp(
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wSql.addLineStyleListener(getSqlReservedWords());
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
+    wSql.addModifyListener(e -> refreshResolvedParametersPanel());
+    wSqlFromFile.addModifyListener(
+        e -> {
+          if (Utils.isEmpty(wSqlFromFile.getText())) {
+            wSql.setEditable(true);
+            refreshResolvedParametersPanel();
+          }
+        });
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
@@ -233,6 +306,53 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     fdlPosition.right = new FormAttachment(100, 0);
     wlPosition.setLayoutData(fdlPosition);
 
+    Label wlResolvedParam = new Label(shell, SWT.NONE);
+    wlResolvedParam.setText(
+        BaseMessages.getString(PKG, "DatabaseJoinDialog.ResolvedParameters.Label"));
+    PropsUi.setLook(wlResolvedParam);
+    FormData fdlResolvedParam = new FormData();
+    fdlResolvedParam.left = new FormAttachment(0, 0);
+    fdlResolvedParam.top = new FormAttachment(wlPosition, margin);
+    wlResolvedParam.setLayoutData(fdlResolvedParam);
+
+    ciResolvedParam = new ColumnInfo[3];
+    ciResolvedParam[0] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "DatabaseJoinDialog.ColumnInfo.ResolvedPlaceholder"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false);
+    ciResolvedParam[1] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "DatabaseJoinDialog.ColumnInfo.ResolvedInputField"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false);
+    ciResolvedParam[2] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "DatabaseJoinDialog.ColumnInfo.ResolvedType"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false);
+
+    wResolvedParam =
+        new TableView(
+            variables,
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+            ciResolvedParam,
+            1,
+            true,
+            e -> {},
+            props,
+            true,
+            null,
+            false,
+            false);
+    FormData fdResolvedParam = new FormData();
+    fdResolvedParam.left = new FormAttachment(0, 0);
+    fdResolvedParam.top = new FormAttachment(wlResolvedParam, margin);
+    fdResolvedParam.right = new FormAttachment(100, 0);
+    fdResolvedParam.height = (int) (90 * props.getZoomFactor());
+    wResolvedParam.setLayoutData(fdResolvedParam);
+
     // Limit the number of lines returns
     Label wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Limit.Label"));
@@ -240,7 +360,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.right = new FormAttachment(middle, -margin);
-    fdlLimit.top = new FormAttachment(wlPosition, margin);
+    fdlLimit.top = new FormAttachment(wResolvedParam, margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLimit);
@@ -248,7 +368,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.right = new FormAttachment(100, 0);
-    fdLimit.top = new FormAttachment(wlPosition, margin);
+    fdLimit.top = new FormAttachment(wResolvedParam, margin);
     wLimit.setLayoutData(fdLimit);
 
     // Outer join?
@@ -303,7 +423,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
     // THE BUTTONS
     // The parameters
-    Label wlParam = new Label(shell, SWT.NONE);
+    wlParam = new Label(shell, SWT.NONE);
     wlParam.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Param.Label"));
     PropsUi.setLook(wlParam);
     FormData fdlParam = new FormData();
@@ -327,6 +447,12 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             ValueMetaFactory.getValueMetaNames());
 
+    ModifyListener lsParamMod =
+        e -> {
+          input.setChanged();
+          refreshResolvedParametersPanel();
+        };
+
     wParam =
         new TableView(
             variables,
@@ -334,7 +460,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
             nrKeyRows,
-            lsMod,
+            lsParamMod,
             props);
 
     FormData fdParam = new FormData();
@@ -355,16 +481,20 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
               IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
               // Remember these fields...
+              sourceFieldsMeta = row;
               for (int i = 0; i < row.size(); i++) {
                 inputFields.add(row.getValueMeta(i).getName());
               }
               setComboBoxes();
+              if (!shell.isDisposed()) {
+                shell.getDisplay().asyncExec(() -> refreshResolvedParametersPanel());
+              }
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     focusTransformName();
@@ -385,6 +515,9 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
+      return List.of();
+    }
     return Arrays.stream(databaseMeta.getReservedWords()).toList();
   }
 
@@ -408,6 +541,138 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
             PKG, "DatabaseJoinDialog.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
+  private DatabaseJoinMeta.SqlParameterSpec parseCurrentSqlParameterSpec() {
+    String sourceSql = wSql == null ? null : wSql.getText();
+    return DatabaseJoinMeta.parseSqlParameterSpec(
+        sourceSql,
+        DatabaseJoinMeta.supportsBracketQuotedIdentifiers(
+            pipelineMeta.findDatabase(wConnection.getText(), variables)));
+  }
+
+  private List<ParameterField> getDeclaredParametersFromGrid() {
+    List<ParameterField> parameters = new ArrayList<>();
+    if (wParam == null) {
+      return parameters;
+    }
+
+    int nrparam = wParam.nrNonEmpty();
+    for (int i = 0; i < nrparam; i++) {
+      TableItem item = wParam.getNonEmpty(i);
+      ParameterField field = new ParameterField();
+      field.setName(item.getText(1));
+      field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(2)));
+      parameters.add(field);
+    }
+    return parameters;
+  }
+
+  private void refreshResolvedParametersPanel() {
+    if (wResolvedParam == null || wResolvedParam.isDisposed()) {
+      return;
+    }
+
+    DatabaseJoinMeta.SqlParameterSpec parameterSpec = parseCurrentSqlParameterSpec();
+    List<ParameterField> declaredParameters = getDeclaredParametersFromGrid();
+    Map<String, String> declaredTypesByName = new LinkedHashMap<>();
+    for (ParameterField parameter : declaredParameters) {
+      if (!Utils.isEmpty(parameter.getName())) {
+        declaredTypesByName.put(parameter.getName(), parameter.getType());
+      }
+    }
+
+    wResolvedParam.table.removeAll();
+    int positionalIndex = 0;
+    for (String parameterReference : parameterSpec.getParameterReferences()) {
+      boolean positional = parameterReference == null;
+      String placeholder = positional ? "?" : "?{" + parameterReference + "}";
+
+      String inputFieldName = parameterReference;
+      String declaredType = positional ? null : declaredTypesByName.get(parameterReference);
+      if (positional) {
+        if (positionalIndex < declaredParameters.size()) {
+          ParameterField declared = declaredParameters.get(positionalIndex);
+          inputFieldName = declared.getName();
+          declaredType = declared.getType();
+        } else {
+          inputFieldName = null;
+        }
+        positionalIndex++;
+      }
+
+      boolean foundInInput =
+          !Utils.isEmpty(inputFieldName)
+              && ((sourceFieldsMeta != null && sourceFieldsMeta.indexOfValue(inputFieldName) >= 0)
+                  || inputFields.contains(inputFieldName));
+
+      String inputFieldDisplay;
+      if (Utils.isEmpty(inputFieldName)) {
+        inputFieldDisplay =
+            BaseMessages.getString(PKG, "DatabaseJoinDialog.ResolvedParameters.Unmapped");
+      } else if (foundInInput) {
+        inputFieldDisplay = inputFieldName;
+      } else {
+        inputFieldDisplay =
+            inputFieldName
+                + " ("
+                + BaseMessages.getString(PKG, "DatabaseJoinDialog.ResolvedParameters.NotFound")
+                + ")";
+      }
+
+      String typeDisplay = declaredType;
+      if (foundInInput && sourceFieldsMeta != null) {
+        int sourceIndex = sourceFieldsMeta.indexOfValue(inputFieldName);
+        if (sourceIndex >= 0) {
+          typeDisplay =
+              ValueMetaFactory.getValueMetaName(
+                  sourceFieldsMeta.getValueMeta(sourceIndex).getType());
+        }
+      }
+      if (typeDisplay == null) {
+        typeDisplay = "";
+      }
+
+      wResolvedParam.add(placeholder, inputFieldDisplay, typeDisplay);
+    }
+
+    if (wResolvedParam.table.getItemCount() == 0) {
+      new TableItem(wResolvedParam.table, SWT.NONE);
+    }
+    wResolvedParam.setRowNums();
+    wResolvedParam.optWidth(true);
+
+    boolean hasPositionalParameters = parameterSpec.getPositionalParameterCount() > 0;
+    if (wParam != null && !wParam.isDisposed()) {
+      wParam.setEnabled(hasPositionalParameters);
+    }
+    if (wlParam != null && !wlParam.isDisposed()) {
+      wlParam.setEnabled(hasPositionalParameters);
+    }
+  }
+
+  private void loadSqlFromFileAndSetReadOnly() {
+    String path = variables.resolve(wSqlFromFile.getText());
+    if (Utils.isEmpty(path)) {
+      wSql.setEditable(true);
+      return;
+    }
+    try {
+      String content = HopVfs.getTextFileContent(path, StandardCharsets.UTF_8);
+      wSql.setText(content);
+      wSql.setEditable(false);
+      refreshResolvedParametersPanel();
+    } catch (HopFileException e) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+      mb.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.InvalidConnection.DialogTitle"));
+      mb.setMessage(
+          BaseMessages.getString(PKG, "DatabaseJoinDialog.CouldNotLoadSqlFromFile", path)
+              + Const.CR
+              + e.getMessage());
+      mb.open();
+      wSql.setEditable(true);
+      refreshResolvedParametersPanel();
+    }
+  }
+
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.GettingKeyInfo"));
@@ -418,6 +683,12 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     wCacheSize.setText("" + input.getCacheSize());
 
     wSql.setText(Const.NVL(input.getSql(), ""));
+    wSqlFromFile.setText(Const.NVL(input.getSqlFromFile(), ""));
+    if (!Utils.isEmpty(wSqlFromFile.getText())) {
+      loadSqlFromFileAndSetReadOnly();
+    } else {
+      wSql.setEditable(true);
+    }
     wLimit.setText("" + input.getRowLimit());
     wOuter.setSelection(input.isOuterJoin());
     wUseVars.setSelection(input.isReplaceVariables());
@@ -434,6 +705,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
     wParam.setRowNums();
     wParam.optWidth(true);
+    refreshResolvedParametersPanel();
 
     enableFields();
   }
@@ -449,28 +721,19 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
       return;
     }
 
-    int nrparam = wParam.nrNonEmpty();
-
     input.setConnection(wConnection.getText());
     input.setCached(wCache.getSelection());
     input.setCacheSize(Const.toInt(wCacheSize.getText(), 0));
     input.setRowLimit(Const.toIntExpanded(wLimit.getText(), 0));
     input.setSql(wSql.getText());
+    input.setSqlFromFile(wSqlFromFile.getText());
     input.setOuterJoin(wOuter.getSelection());
     input.setReplaceVariables(wUseVars.getSelection());
+    List<ParameterField> parameters = getDeclaredParametersFromGrid();
     logDebug(
         BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.ParametersFound")
-            + nrparam
+            + parameters.size()
             + " parameters");
-
-    List<ParameterField> parameters = new ArrayList<>();
-    for (int i = 0; i < nrparam; i++) {
-      TableItem item = wParam.getNonEmpty(i);
-      ParameterField field = new ParameterField();
-      field.setName(item.getText(1));
-      field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(2)));
-      parameters.add(field);
-    }
     input.setParameters(parameters);
 
     transformName = wTransformName.getText(); // return value

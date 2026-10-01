@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/avro/
 :language: en_US
 :description: This page describes how Hop supports the Avro data type.
+:page-marketplace: hop-tech-avro
 
 = Avro
 

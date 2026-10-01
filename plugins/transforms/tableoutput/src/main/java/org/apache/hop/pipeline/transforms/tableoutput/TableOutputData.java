@@ -23,8 +23,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -55,7 +57,26 @@ public class TableOutputData extends BaseTransformData implements ITransformData
 
   public int indexOfTableNameField;
 
+  /**
+   * Distinct table names seen in the per-row dynamic-table-name mode, emitted as lineage on
+   * dispose. Only populated when lineage is enabled, and capped — see {@code
+   * TableOutput.recordDynamicLineageTarget}.
+   */
+  public Set<String> dynamicTablesWritten = new LinkedHashSet<>();
+
+  /** Whether the lineage target set hit its cap, so the warning is logged only once. */
+  public boolean dynamicLineageTruncated;
+
   public List<Object[]> batchBuffer;
+
+  /**
+   * The values bound to the prepared statement for each row in {@link #batchBuffer}, in the same
+   * order. It is not the same array: with "specify database fields" the bound row is a projection
+   * of the stream row, and with the table name in a field it is a copy with that column removed. A
+   * batch that has to be re-driven after a failure needs the values that were actually bound.
+   */
+  public List<Object[]> batchBindBuffer;
+
   public boolean sendToErrorRow;
   public IRowMeta outputRowMeta;
   public IRowMeta insertRowMeta;
@@ -82,6 +103,7 @@ public class TableOutputData extends BaseTransformData implements ITransformData
     indexOfTableNameField = -1;
 
     batchBuffer = new ArrayList<>();
+    batchBindBuffer = new ArrayList<>();
     commitCounterMap = new HashMap<>();
 
     releaseSavepoint = true;

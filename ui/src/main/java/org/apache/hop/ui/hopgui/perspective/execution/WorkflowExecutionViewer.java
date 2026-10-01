@@ -333,17 +333,26 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       if (childIds != null) {
         for (String id : childIds) {
           ExecutionData actionData = iLocation.getExecutionData(execution.getId(), id);
+          // A child id without sample data is normal while an action is still starting. Skipping
+          // it keeps the workflow info tab on screen instead of failing the whole refresh.
+          //
+          if (actionData == null) {
+            LogChannel.UI.logDebug("No execution data yet for action id '" + id + "'");
+            continue;
+          }
 
           ExecutionDataSetMeta dataSetMeta = actionData.getDataSetMeta();
-          if (dataSetMeta != null) {
-            String actionName = dataSetMeta.getName();
-
-            // Add this one under that name
-            //
-            List<ExecutionData> executionDataList =
-                actionExecutions.computeIfAbsent(actionName, k -> new ArrayList<>());
-            executionDataList.add(actionData);
+          if (dataSetMeta == null || dataSetMeta.getName() == null) {
+            LogChannel.UI.logDebug("Execution data for action id '" + id + "' has no action name");
+            continue;
           }
+          String actionName = dataSetMeta.getName();
+
+          // Add this one under that name
+          //
+          List<ExecutionData> executionDataList =
+              actionExecutions.computeIfAbsent(actionName, k -> new ArrayList<>());
+          executionDataList.add(actionData);
         }
       }
     } catch (Exception e) {
@@ -441,6 +450,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
                   null,
                   props);
 
+          // Data rows, not configuration: draw long / multi-line values shortened. The value
+          // itself stays on the item, out of the cell, so the row keeps to a single line.
+          dataView.setShortenDisplayedValues(true);
+
           for (int r = 0; r < rowBuffer.size(); r++) {
             Object[] row = rowBuffer.getBuffer().get(r);
             TableItem item = dataView.table.getItem(r);
@@ -450,7 +463,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
               if (value == null) {
                 value = "";
               }
-              item.setText(c + 1, value);
+              dataView.setCellValue(item, c + 1, value);
             }
           }
           dataView.optWidth(true);
@@ -528,7 +541,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   @Override
   public Image getTitleImage() {
-    return GuiResource.getInstance().getImageWorkflow();
+    return ExecutionStatusIcon.imageFor(ExecutionType.Workflow, executionState, loggingInterval());
   }
 
   @Override
@@ -685,6 +698,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
         viewPort = workflowPainter.getViewPort();
         graphPort = workflowPainter.getGraphPort();
+        canvas.setData("viewPort", viewPort);
+        canvas.setData("graphPort", graphPort);
       } catch (Exception e) {
         new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error drawing workflow image", e);
       }
@@ -710,6 +725,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public void refresh() {
     refreshStatus();
     refreshActionData();
+    perspective.updateViewerTabImage(this);
     redraw();
   }
 
@@ -805,7 +821,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   @Override
   public String getActiveId() {
-    if (selectedAction != null) {
+    if (selectedAction != null && selectedExecutionData != null) {
       if (selectedExecutionData.getOwnerId() == null) {
         return selectedExecutionData.getParentId();
       } else {
@@ -823,7 +839,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     lastClick = new Point(real.x, real.y);
     boolean control = (event.stateMask & SWT.MOD1) != 0;
 
-    if (setupDragView(event.button, control, new Point(event.x, event.y))) {
+    Point clickScreen = new Point(event.x, event.y);
+    if (setupDragViewPort(clickScreen)) {
+      return;
+    }
+
+    if (setupDragView(event.button, control, clickScreen)) {
       return;
     }
 

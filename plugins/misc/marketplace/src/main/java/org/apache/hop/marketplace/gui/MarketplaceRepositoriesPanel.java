@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
@@ -30,6 +31,7 @@ import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.config.MarketplaceRepositoryDefinition;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -65,6 +67,7 @@ public class MarketplaceRepositoriesPanel {
   private MarketplaceConfig config;
   private final Shell shell;
   private final TableView wTable;
+  private final Button[] actionButtons;
   private boolean dirty;
 
   /**
@@ -102,6 +105,8 @@ public class MarketplaceRepositoriesPanel {
     wExport.addListener(SWT.Selection, e -> exportDefinition());
     Button wImport = createRightButton(parent, "ManageRepositoriesDialog.Button.Import");
     wImport.addListener(SWT.Selection, e -> importDefinition());
+    Button wImportUrl = createRightButton(parent, "ManageRepositoriesDialog.Button.ImportUrl");
+    wImportUrl.addListener(SWT.Selection, e -> importDefinitionFromUrl());
     Button wRemove = createRightButton(parent, "ManageRepositoriesDialog.Button.Remove");
     wRemove.addListener(SWT.Selection, e -> removeSelected());
     Button wEdit = createRightButton(parent, "ManageRepositoriesDialog.Button.Edit");
@@ -109,10 +114,12 @@ public class MarketplaceRepositoriesPanel {
     Button wAdd = createRightButton(parent, "ManageRepositoriesDialog.Button.Add");
     wAdd.addListener(SWT.Selection, e -> addRepository());
 
-    Button[] rightButtons = {
-      wAdd, wEdit, wRemove, wImport, wExport, wPrimary, wUp, wDown, wReset, wSave
-    };
-    layoutRightButtons(rightButtons, wlHelp);
+    this.actionButtons =
+        new Button[] {
+          wAdd, wEdit, wRemove, wImport, wImportUrl, wExport, wPrimary, wUp, wDown, wReset, wSave
+        };
+    layoutRightButtons(actionButtons, wlHelp);
+    applyManagePermissions();
 
     ColumnInfo[] columns = {
       new ColumnInfo(
@@ -205,7 +212,26 @@ public class MarketplaceRepositoriesPanel {
     return dirty;
   }
 
+  private void applyManagePermissions() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    String tip =
+        canManage
+            ? null
+            : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin");
+    for (Button b : actionButtons) {
+      if (b != null && !b.isDisposed()) {
+        b.setEnabled(canManage);
+        if (tip != null) {
+          b.setToolTipText(tip);
+        }
+      }
+    }
+  }
+
   public boolean saveChanges(boolean showSuccessDialog) {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return false;
+    }
     try {
       config.ensureValidPrimary();
       config.save();
@@ -258,11 +284,22 @@ public class MarketplaceRepositoriesPanel {
       item.setText(4, Const.NVL(repo.getId(), ""));
       item.setText(5, Const.NVL(repo.displayName(), ""));
       item.setText(6, Const.NVL(repo.getUrl(), ""));
-      item.setText(
-          7, repo.hasCredentials() || StringUtils.isNotBlank(repo.getUsername()) ? "Y" : "");
+      item.setText(7, authColumn(repo));
       item.setData(repo);
     }
     wTable.optimizeTableView();
+  }
+
+  /**
+   * Authentication shown in the list: the scheme that will actually be used, or nothing when the
+   * repository is contacted anonymously. A configured username with no password still shows, since
+   * that is a half-finished entry worth noticing rather than a deliberate anonymous one.
+   */
+  private static String authColumn(MarketplaceRepository repo) {
+    if (repo.hasCredentials()) {
+      return repo.effectiveAuthType();
+    }
+    return StringUtils.isNotBlank(repo.getUsername()) ? MarketplaceRepository.AUTH_BASIC : "";
   }
 
   private MarketplaceRepository selected() {
@@ -274,6 +311,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void addRepository() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = new MarketplaceRepository();
     repo.setId("");
     repo.setName("");
@@ -296,6 +336,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void editSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       return;
@@ -420,12 +463,38 @@ public class MarketplaceRepositoriesPanel {
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
 
+    Label wlAuthType = new Label(general, SWT.RIGHT);
+    PropsUi.setLook(wlAuthType);
+    wlAuthType.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.AuthType"));
+    FormData fdlAuthType = new FormData();
+    fdlAuthType.left = new FormAttachment(0, 0);
+    fdlAuthType.top = new FormAttachment(wUrl, margin);
+    fdlAuthType.right = new FormAttachment(middle, -margin);
+    wlAuthType.setLayoutData(fdlAuthType);
+    Combo wAuthType = new Combo(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wAuthType);
+    String authTypeTooltip =
+        BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.AuthType.Tooltip");
+    wlAuthType.setToolTipText(authTypeTooltip);
+    wAuthType.setToolTipText(authTypeTooltip);
+    wAuthType.setItems(
+        MarketplaceRepository.AUTH_AUTO,
+        MarketplaceRepository.AUTH_NONE,
+        MarketplaceRepository.AUTH_BASIC,
+        MarketplaceRepository.AUTH_TOKEN);
+    wAuthType.setText(Const.NVL(repo.getAuthType(), MarketplaceRepository.AUTH_AUTO).toLowerCase());
+    FormData fdAuthType = new FormData();
+    fdAuthType.left = new FormAttachment(middle, margin);
+    fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
+    fdAuthType.right = new FormAttachment(100, 0);
+    wAuthType.setLayoutData(fdAuthType);
+
     Label wlUser = new Label(general, SWT.RIGHT);
     PropsUi.setLook(wlUser);
     wlUser.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Username"));
     FormData fdlUser = new FormData();
     fdlUser.left = new FormAttachment(0, 0);
-    fdlUser.top = new FormAttachment(wUrl, margin);
+    fdlUser.top = new FormAttachment(wAuthType, margin);
     fdlUser.right = new FormAttachment(middle, -margin);
     wlUser.setLayoutData(fdlUser);
     Text wUser = new Text(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -538,7 +607,8 @@ public class MarketplaceRepositoriesPanel {
     wBrowserType.setItems(
         MarketplaceRepository.BROWSER_AUTO,
         MarketplaceRepository.BROWSER_NEXUS,
-        MarketplaceRepository.BROWSER_FORGEJO);
+        MarketplaceRepository.BROWSER_FORGEJO,
+        MarketplaceRepository.BROWSER_JFROG);
     wBrowserType.setText(
         Const.NVL(repo.getBrowserType(), MarketplaceRepository.BROWSER_AUTO).toLowerCase());
     FormData fdBrowserType = new FormData();
@@ -741,6 +811,9 @@ public class MarketplaceRepositoriesPanel {
           repo.setBrowserType(
               StringUtils.defaultIfBlank(
                   wBrowserType.getText().trim(), MarketplaceRepository.BROWSER_AUTO));
+          repo.setAuthType(
+              StringUtils.defaultIfBlank(
+                  wAuthType.getText().trim(), MarketplaceRepository.AUTH_AUTO));
           repo.setSearchQuery(StringUtils.trimToNull(wSearch.getText()));
           repo.setGroupIdFilter(StringUtils.trimToNull(wGroup.getText()));
           repo.setIncludeSnapshots(wSnapshots.getSelection());
@@ -798,6 +871,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void removeSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       return;
@@ -816,6 +892,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void importDefinition() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     try {
       String path =
           BaseDialog.presentFileDialog(
@@ -830,17 +909,7 @@ public class MarketplaceRepositoriesPanel {
       if (StringUtils.isBlank(path)) {
         return;
       }
-      MarketplaceRepository imported = MarketplaceRepositoryDefinition.load(Path.of(path.trim()));
-      MarketplaceRepositoryDefinition.applyToConfig(config, imported, false);
-      markDirty();
-      refreshTable();
-      selectRepoId(imported.getId());
-      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Import.Done.Header"));
-      box.setMessage(
-          BaseMessages.getString(
-              PKG, "ManageRepositoriesDialog.Import.Done.Message", imported.getId()));
-      box.open();
+      applyImported(MarketplaceRepositoryDefinition.load(Path.of(path.trim())));
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -850,7 +919,129 @@ public class MarketplaceRepositoriesPanel {
     }
   }
 
+  /**
+   * Import a definition published at a URL. The download is anonymous and any credentials in the
+   * file are dropped, so what arrives describes only where a repository is. Because the definition
+   * decides which hosts plugin code is later downloaded from, it is shown for confirmation before
+   * anything is added.
+   */
+  private void importDefinitionFromUrl() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
+    try {
+      String url =
+          new EnterStringDialog(
+                  shell,
+                  "",
+                  BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Header"),
+                  BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Message"))
+              .open();
+      if (StringUtils.isBlank(url)) {
+        return;
+      }
+      MarketplaceRepository imported = MarketplaceRepositoryDefinition.loadFromPublicUrl(url);
+      switch (confirmImport(imported, url.trim())) {
+        case CANCEL:
+          return;
+        case AS_FALLBACK:
+          // Take the repository, leave the install order alone.
+          imported.setPrimary(false);
+          break;
+        case IMPORT:
+          break;
+      }
+      applyImported(imported);
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Error"),
+          e);
+    }
+  }
+
+  private enum ImportChoice {
+    IMPORT,
+    AS_FALLBACK,
+    CANCEL
+  }
+
+  /**
+   * Show what a downloaded definition would add, and let the user back out.
+   *
+   * <p>A definition that claims {@code primary: true} does more than add a repository: it decides
+   * which repository every install tries first. That gets its own warning and a third option, so
+   * the repository can be taken without handing over the install order.
+   */
+  private ImportChoice confirmImport(MarketplaceRepository imported, String url) {
+    String details =
+        BaseMessages.getString(
+            PKG,
+            "ManageRepositoriesDialog.ImportUrl.Confirm.Message",
+            url,
+            Const.NVL(imported.getId(), "-"),
+            Const.NVL(imported.getName(), "-"),
+            Const.NVL(imported.getUrl(), "-"),
+            Const.NVL(imported.getUrlTemplate(), "-"),
+            Const.NVL(imported.getCatalogUrl(), "-"),
+            Integer.toString(imported.getPlugins() == null ? 0 : imported.getPlugins().size()));
+
+    MarketplaceRepositoryDefinition.ImportRisk risk =
+        MarketplaceRepositoryDefinition.assess(config, imported);
+    if (risk.noPublicFallback()) {
+      details +=
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.NoFallback.Message");
+    }
+
+    if (!risk.takesOverPrimary()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_QUESTION);
+      box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Confirm.Header"));
+      box.setMessage(details);
+      return box.open() == SWT.OK ? ImportChoice.IMPORT : ImportChoice.CANCEL;
+    }
+
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Primary.Header"));
+    box.setMessage(
+        details
+            + BaseMessages.getString(
+                PKG,
+                "ManageRepositoriesDialog.ImportUrl.Primary.Message",
+                imported.displayName(),
+                Const.NVL(risk.currentPrimaryName(), "-")));
+    int answer = box.open();
+    if (answer == SWT.YES) {
+      return ImportChoice.IMPORT;
+    }
+    return answer == SWT.NO ? ImportChoice.AS_FALLBACK : ImportChoice.CANCEL;
+  }
+
+  /**
+   * Add the imported repository and write it out. Importing is a deliberate one-off action rather
+   * than an edit in progress, and the CLI equivalent saves too, so leaving it pending only invites
+   * the question of where Save is. A failed write keeps the panel dirty and reports itself.
+   */
+  private void applyImported(MarketplaceRepository imported) throws HopException {
+    MarketplaceRepositoryDefinition.applyToConfig(config, imported, false);
+    markDirty();
+    refreshTable();
+    selectRepoId(imported.getId());
+    if (!saveChanges(false)) {
+      return;
+    }
+    MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+    box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Import.Done.Header"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "ManageRepositoriesDialog.Import.Done.Message", imported.getId()));
+    box.open();
+  }
+
   private void exportDefinition() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
@@ -895,6 +1086,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void setPrimarySelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       return;
@@ -914,6 +1108,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void moveSelected(int delta) {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null || config.getRepositories() == null) {
       return;
@@ -932,6 +1129,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void resetDefaults() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MessageBox confirm = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
     confirm.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Reset.Header"));
     confirm.setMessage(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Reset.Message"));

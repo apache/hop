@@ -111,3 +111,24 @@ Use this when the file is awkward to distribute -- a container image or a Hop Se
 
 Either way, an Autonomous Database wallet is an auto-login (`cwallet.sso`) one, so the connection needs `oraclepki.jar` beside the driver.
 See the note in <<_tls_tcps_connections,TLS (TCPS) connections>> above; `hop driver install oracle` takes care of it.
+
+== National character and LOB columns
+
+Oracle keeps two sets of string types.
+`VARCHAR2`, `CHAR` and `CLOB` store text in the database character set; `NVARCHAR2`, `NCHAR` and `NCLOB` store it in the national character set, which is where text goes that the database character set cannot represent.
+
+The JDBC driver treats the two differently, and a value written to a national column the way a `VARCHAR2` is written comes back wrong -- usually as question marks or replacement characters, because the driver converted it to the database character set on the way in.
+Hop writes each of these columns with the JDBC call the driver expects for it, so a transform such as xref:pipeline/transforms/tableoutput.adoc[Table Output] needs nothing configured for national text to survive the round trip.
+
+Hop learns the column type from the prepared statement itself: the Oracle JDBC driver describes the target columns of an `INSERT` or `UPDATE` once, when the statement is first written to, so this costs one round trip per prepared statement rather than per row.
+A driver too old to describe its bind parameters, or a statement it cannot parse, falls back to the plain `VARCHAR2` call Hop always used.
+
+TIP: A connection-level alternative is the driver property `oracle.jdbc.defaultNChar=true`, which makes the driver bind every string as national text. It is not needed with Hop, and it has a cost: Oracle then converts `VARCHAR2` columns in `WHERE` clauses to compare them, which can stop indexes on those columns being used.
+
+=== Values longer than the column
+
+Hop writes the value it has, whatever the column is: `CLOB` and `NCLOB` are streamed whole however long they are, and a string bound to a `VARCHAR2(n)` or `NVARCHAR2(n)` is passed to Oracle at its full length.
+
+Fitting it is Oracle's decision, not Hop's.
+A value too wide for its column fails the row with `ORA-12899: value too large for column`, which is what you want to see: the alternative is a pipeline that finishes green having quietly dropped the overflow.
+Give the column the width the data needs, or use a LOB type, and handle the error rows the way you would any other rejected row.

@@ -115,16 +115,15 @@ public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> {
       }
 
       // add file locked
-      putRow(
-          data.outputRowMeta,
-          RowDataUtil.addValueData(r, data.NrPrevFields, fileLocked)); // copy row to output
+      Object[] outputRow = RowDataUtil.addValueData(r, data.NrPrevFields, fileLocked);
+      putRow(data.outputRowMeta, outputRow); // copy row to output
 
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
                 "FileLocked.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRow)));
       }
     } catch (Exception e) {
       boolean sendToErrorRow = false;

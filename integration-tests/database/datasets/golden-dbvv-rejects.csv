@@ -1,0 +1,8 @@
+id,nr_errors,error_codes,error_fields,error_descriptions
+2,1,DBV002,name,"column 'name': string length 13 exceeds varchar(10); value='too-long-name'"
+3,1,DBV004,amount,"column 'amount': numeric overflow for numeric(5,2); value='1234.5'"
+4,1,DBV001,qty,"column 'qty': null is not allowed"
+5,1,DBV007,uid,"column 'uid': invalid UUID; value='not-a-uuid'"
+6,1,DBV008,payload,"column 'payload': invalid JSON; value='{'"
+7,1,DBV006,qty,"column 'qty': integer 2147483648 is outside int4 range [-2147483648, 2147483647]; value='2147483648'"
+8,2,DBV002; DBV007,name; uid,"column 'name': string length 13 exceeds varchar(10); value='too-long-name'; column 'uid': invalid UUID; value='not-a-uuid'"

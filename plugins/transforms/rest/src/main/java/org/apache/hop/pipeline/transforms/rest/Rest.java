@@ -68,7 +68,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -77,6 +76,7 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.CredentialRedactor;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -275,45 +275,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    * and the base is ignored.
    */
   protected static String resolveAgainstBase(String base, String value) {
-    String url = NVL(value, "");
-    if (Utils.isEmpty(base) || hasScheme(url)) {
-      return url;
-    }
-    if (url.isEmpty()) {
-      return base;
-    }
-    boolean baseEndsWithSlash = base.endsWith("/");
-    boolean valueStartsWithSlash = url.startsWith("/");
-    if (baseEndsWithSlash && valueStartsWithSlash) {
-      return base + url.substring(1);
-    }
-    if (!baseEndsWithSlash && !valueStartsWithSlash) {
-      return base + "/" + url;
-    }
-    return base + url;
-  }
-
-  /**
-   * True when the value is an absolute URL rather than a path to hang off the base URL. The scheme
-   * has to be followed by {@code ://}: requiring only a colon would read {@code localhost:8080/x}
-   * as scheme {@code localhost} instead of a host and port.
-   */
-  private static boolean hasScheme(String url) {
-    int separator = url.indexOf("://");
-    if (separator <= 0) {
-      return false;
-    }
-    // A scheme is ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ).
-    if (!Character.isLetter(url.charAt(0))) {
-      return false;
-    }
-    for (int i = 1; i < separator; i++) {
-      char c = url.charAt(i);
-      if (!Character.isLetterOrDigit(c) && c != '+' && c != '-' && c != '.') {
-        return false;
-      }
-    }
-    return true;
+    return RestConnection.resolveAgainstBase(base, value);
   }
 
   /**
@@ -321,13 +283,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    * header values are logged at debug level.
    */
   private static String maskHeaderValue(String name, String value) {
-    if (name != null
-        && ("Authorization".equalsIgnoreCase(name)
-            || "Proxy-Authorization".equalsIgnoreCase(name)
-            || "Cookie".equalsIgnoreCase(name))) {
-      return "********";
-    }
-    return value;
+    return CredentialRedactor.redactValue(name, value);
   }
 
   /**
@@ -361,7 +317,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (connection != null) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "Rest.Log.UsingConnection", meta.getConnectionName(), NVL(baseUrl, "")));
+                  PKG,
+                  "Rest.Log.UsingConnection",
+                  meta.getConnectionName(),
+                  CredentialRedactor.redact(NVL(baseUrl, ""))));
         } else {
           logDetailed(BaseMessages.getString(PKG, "Rest.Log.NoConnection"));
         }
@@ -458,7 +417,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         } else {
           entity = NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
           if (isDebug()) {
-            logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entity));
+            logDebug(
+                BaseMessages.getString(
+                    PKG, "Rest.Log.BodyValue", CredentialRedactor.redact(String.valueOf(entity))));
           }
         }
       }
@@ -476,7 +437,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
               PagingBodyMerge.merge(
                   NVL((String) entity, ""), pagingBodyParams, contentTypeForMerge);
           if (isDebug()) {
-            logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entity));
+            logDebug(
+                BaseMessages.getString(
+                    PKG, "Rest.Log.BodyValue", CredentialRedactor.redact(String.valueOf(entity))));
           }
         }
       }
@@ -510,11 +473,17 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       int status = response.status();
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Rest.Log.ResponseCode", status));
-        logDetailed(BaseMessages.getString(PKG, "Rest.Log.ResponseTime", responseTime, requestUri));
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "Rest.Log.ResponseTime", responseTime, CredentialRedactor.redact(requestUri)));
         if (status >= 400) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "Rest.Log.ResponseError", data.method, requestUri, status));
+                  PKG,
+                  "Rest.Log.ResponseError",
+                  data.method,
+                  CredentialRedactor.redact(requestUri),
+                  status));
         }
       }
 
@@ -537,7 +506,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       String body = new String(response.body(), resolveCharset(response.contentType()));
       if (isRowLevel()) {
-        logRowlevel(BaseMessages.getString(PKG, "Rest.Log.ResponseBody", body));
+        logRowlevel(
+            BaseMessages.getString(PKG, "Rest.Log.ResponseBody", CredentialRedactor.redact(body)));
       }
 
       emitHttpLineage(httpLineageT0, httpVolIn0, httpVolOut0, status, true, null);
@@ -587,7 +557,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (isDebug()) {
           logDebug(
               BaseMessages.getString(
-                  PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value));
+                  PKG,
+                  "Rest.Log.matrixParameterValue",
+                  data.matrixParamNames[i],
+                  CredentialRedactor.redactValue(data.matrixParamNames[i], value)));
         }
         matrix
             .append(';')
@@ -611,7 +584,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           if (isDebug()) {
             logDebug(
                 BaseMessages.getString(
-                    PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value));
+                    PKG,
+                    "Rest.Log.queryParameterValue",
+                    data.paramNames[i],
+                    CredentialRedactor.redactValue(data.paramNames[i], value)));
           }
           builder.addParameter(data.paramNames[i], value);
         }
@@ -971,7 +947,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (usesLinkStylePaging(pagingType) && uriOv != null) {
         String nextKey = normalizeUrlForPagingDedup(uriOv);
         if (linkPagingFetchedUrls.contains(nextKey)) {
-          logBasic(BaseMessages.getString(PKG, "Rest.Log.LinkPaginationStoppedRepeatedUrl", uriOv));
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "Rest.Log.LinkPaginationStoppedRepeatedUrl",
+                  CredentialRedactor.redact(uriOv)));
           break;
         }
       }
@@ -983,7 +963,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       RestExchangeResult ex = invokeRestExchange(rowData, uriOv, pageQs, pageBody, pageHeaders);
       logBasic(
           BaseMessages.getString(
-              PKG, "Rest.Log.PaginationFetchedPage", loopIdx + 1, NVL(ex.requestUrl, "")));
+              PKG,
+              "Rest.Log.PaginationFetchedPage",
+              loopIdx + 1,
+              CredentialRedactor.redact(NVL(ex.requestUrl, ""))));
       if (firstExchange == null) {
         firstExchange = ex;
       }
@@ -992,7 +975,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (!linkPagingFetchedUrls.add(fetchedKey)) {
           logBasic(
               BaseMessages.getString(
-                  PKG, "Rest.Log.LinkPaginationStoppedRepeatedUrl", NVL(ex.requestUrl, "")));
+                  PKG,
+                  "Rest.Log.LinkPaginationStoppedRepeatedUrl",
+                  CredentialRedactor.redact(NVL(ex.requestUrl, ""))));
           break;
         }
       }
@@ -1631,6 +1616,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     long expDelay = delay * (1L << attempt);
     long capped = Math.min(expDelay, maxDelay);
 
+    // Safe: retry jitter only spreads out load, it does not need to be unpredictable
+    @SuppressWarnings("java:S2245")
     long jitter = ThreadLocalRandom.current().nextLong(delay);
     return capped / 2 + jitter;
   }
@@ -1658,11 +1645,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       if (RestMeta.isActiveBody(data.method)) {
         ContentType type = contentType != null ? ContentType.parse(contentType) : data.mediaType;
-        trackRequestBytes(body, resolveCharset(type));
-        request.setEntity(
-            body instanceof byte[] bytes
-                ? new ByteArrayEntity(bytes, type)
-                : new StringEntity((String) body, type));
+        Charset charset = resolveCharset(type);
+        trackRequestBytes(body, charset);
+        byte[] payload = body instanceof byte[] bytes ? bytes : ((String) body).getBytes(charset);
+        request.setEntity(new ByteArrayEntity(payload, type));
       }
 
       if (isDetailed()) {
@@ -1710,16 +1696,21 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   private String describeRequest(HttpUriRequestBase request, Object body) {
     StringBuilder text = new StringBuilder(256);
     text.append(BaseMessages.getString(PKG, "Rest.Log.FullRequest")).append(Const.CR);
-    text.append(request.getMethod()).append(' ').append(request.getRequestUri()).append(Const.CR);
+    text.append(request.getMethod())
+        .append(' ')
+        .append(CredentialRedactor.redact(request.getRequestUri()))
+        .append(Const.CR);
 
-    // Host and Content-Type never appear in getHeaders(): the client derives the first from the
-    // route and the second from the entity, both at send time. Leaving them out would make this a
-    // misleading picture of the request rather than a faithful one.
+    // Host is filled in from the route at send time, so it is not in getHeaders() yet.
+    // Content-Type is already on the request when the row set it. Otherwise it lives on
+    // the entity and is copied at send time. Print the one that will go out, once.
     if (request.getAuthority() != null) {
       text.append("Host: ").append(request.getAuthority().toString()).append(Const.CR);
     }
     HttpEntity requestEntity = request.getEntity();
-    if (requestEntity != null && requestEntity.getContentType() != null) {
+    if (!request.containsHeader("Content-Type")
+        && requestEntity != null
+        && requestEntity.getContentType() != null) {
       text.append("Content-Type: ").append(requestEntity.getContentType()).append(Const.CR);
     }
 
@@ -1736,7 +1727,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         // Binary bodies are not text and must not be decoded just to be logged (issue #3746).
         text.append(BaseMessages.getString(PKG, "Rest.Log.FullRequest.BinaryBody", bytes.length));
       } else {
-        String text0 = String.valueOf(body);
+        String text0 = CredentialRedactor.redact(String.valueOf(body));
         if (text0.length() > MAX_LOGGED_BODY_CHARS) {
           text.append(text0, 0, MAX_LOGGED_BODY_CHARS)
               .append(
@@ -2162,13 +2153,17 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;
+      // Whatever went wrong may quote the URL, or a header or body it was sent with. The error
+      // row travels on to wherever the error hop leads, so it gets the same treatment as the log.
       if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
-        errorMessage = e.toString();
+        errorMessage = CredentialRedactor.redact(e.toString());
       } else {
-        logError(BaseMessages.getString(PKG, "Rest.ErrorInTransformRunning") + e.getMessage());
+        logError(
+            BaseMessages.getString(PKG, "Rest.ErrorInTransformRunning")
+                + CredentialRedactor.redact(e.getMessage()));
         setErrors(1);
-        logError(Const.getStackTracker(e));
+        logError(CredentialRedactor.redact(Const.getStackTracker(e)));
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
@@ -2203,14 +2198,20 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         try {
           this.connection =
               metadataProvider.getSerializer(RestConnection.class).load(data.connectionName);
-          if (this.connection != null) {
-            this.connection.setVariables(this);
+          if (this.connection == null) {
+            throw new HopRuntimeException(
+                "REST connection " + data.connectionName + " could not be found");
           }
+          this.connection.setVariables(this);
           baseUrl = resolve(connection.getBaseUrl());
 
+        } catch (HopRuntimeException e) {
+          throw e;
         } catch (Exception e) {
+          // Keep the cause: a class loader split between the metadata plugin and this transform
+          // surfaces here as a ClassCastException, which is not a missing connection at all.
           throw new HopRuntimeException(
-              "REST connection " + meta.getConnectionName() + " could not be found");
+              "REST connection " + data.connectionName + " could not be loaded", e);
         }
       }
 
@@ -2254,12 +2255,21 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       data.trustStoreFile = resolve(meta.getTrustStoreFile());
-      data.trustStorePassword = resolve(meta.getTrustStorePassword());
+      // Decrypt the resolved trust store password like every other password field in Hop
+      // (see RestConnection.java, OracleDatabaseMeta.java, LdapSslProtocol.java, and the
+      // httpPassword branch a dozen lines above). Without this, an encrypted value that
+      // reaches the field through a variable is passed to the trust store loader verbatim
+      // and the SSL context cannot be built. See Apache Hop #8054.
+      data.trustStorePassword =
+          Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getTrustStorePassword()));
 
       String applicationType = NVL(meta.getApplicationType(), "");
       switch (applicationType) {
         case RestMeta.APPLICATION_TYPE_XML -> data.mediaType = ContentType.APPLICATION_XML;
-        case RestMeta.APPLICATION_TYPE_JSON -> data.mediaType = ContentType.APPLICATION_JSON;
+          // Issue #8507: ContentType.APPLICATION_JSON has charset=UTF-8, which gateways such as
+          // Omie reject. JSON is defined as UTF-8 (RFC 8259), so omit the charset parameter.
+        case RestMeta.APPLICATION_TYPE_JSON ->
+            data.mediaType = ContentType.create("application/json");
         case RestMeta.APPLICATION_TYPE_OCTET_STREAM ->
             data.mediaType = ContentType.APPLICATION_OCTET_STREAM;
         case RestMeta.APPLICATION_TYPE_XHTML -> data.mediaType = ContentType.APPLICATION_XHTML_XML;

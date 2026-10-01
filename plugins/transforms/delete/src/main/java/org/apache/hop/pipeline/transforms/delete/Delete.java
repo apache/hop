@@ -106,6 +106,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
           databaseMeta.getQuotedSchemaTableCombination(
               this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
 
+      // Lineage: the table is affected, but a delete produces no columns — so no column schema.
       // lookup the values!
       if (isDetailed()) {
         logDetailed(

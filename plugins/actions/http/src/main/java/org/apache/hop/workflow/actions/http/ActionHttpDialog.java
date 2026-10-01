@@ -25,11 +25,15 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -39,14 +43,17 @@ import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -106,6 +113,8 @@ public class ActionHttpDialog extends ActionDialog {
 
   private Button wbUploadFile;
 
+  private MetaSelectionLine<RestConnection> wConnection;
+
   private TextVar wUserName;
 
   private TextVar wPassword;
@@ -114,11 +123,17 @@ public class ActionHttpDialog extends ActionDialog {
 
   private TextVar wProxyPort;
 
+  private TextVar wProxyUserName;
+
+  private TextVar wProxyPassword;
+
   private TextVar wNonProxyHosts;
 
   private TableView wHeaders;
 
   private Button wAddFilenameToResult;
+
+  private TextVar wReplyVariable;
 
   private ActionHttp action;
 
@@ -151,16 +166,9 @@ public class ActionHttpDialog extends ActionDialog {
     // START OF GENERAL TAB ///
     // ////////////////////////
 
-    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
-    wGeneralTab.setText(BaseMessages.getString(PKG, "ActionHTTP.Tab.General.Label"));
-    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wGeneralComp);
-    FormLayout generalLayout = new FormLayout();
-    generalLayout.marginWidth = 3;
-    generalLayout.marginHeight = 3;
-    wGeneralComp.setLayout(generalLayout);
+    Composite wGeneralComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.General.Label");
 
+    setupConnectionLine(margin, wGeneralComp);
     setupUrlLine(lsMod, middle, margin, wGeneralComp);
     setupIgnoreSslLine(middle, margin, wGeneralComp);
     setupRunEveryRwoLine(middle, margin, wGeneralComp);
@@ -168,91 +176,114 @@ public class ActionHttpDialog extends ActionDialog {
     setupUploadFileLine(lsMod, middle, margin, wGeneralComp);
     setupDestFileLine(lsMod, middle, margin, wGeneralComp);
 
-    // ////////////////////////
-    // START OF AuthenticationGROUP///
-    // /
-    Group wAuthentication = setupAuthGroup(wGeneralComp);
-
-    setupUsernameLine(lsMod, middle, margin, wAuthentication);
-    setupPasswordLine(lsMod, middle, margin, wAuthentication);
-    setupProxyServerLine(lsMod, middle, margin, wAuthentication);
-    setupProxyPortLine(lsMod, middle, margin, wAuthentication);
-    setupIgnoreHostLine(lsMod, middle, margin, wAuthentication);
-
-    FormData fdAuthentication = new FormData();
-    fdAuthentication.left = new FormAttachment(0, margin);
-    fdAuthentication.top = new FormAttachment(wFieldTarget, margin);
-    fdAuthentication.right = new FormAttachment(100, -margin);
-    wAuthentication.setLayoutData(fdAuthentication);
-    // ///////////////////////////////////////////////////////////
-    // / END OF AuthenticationGROUP GROUP
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////
-    // START OF UpLoadFileGROUP///
-    // /
-    Group wUpLoadFile = setupUploadFileGroup(wGeneralComp);
-
-    setupUploadFileLine(lsMod, middle, margin, wAuthentication, wUpLoadFile);
-
-    FormData fdUpLoadFile = new FormData();
-    fdUpLoadFile.left = new FormAttachment(0, margin);
-    fdUpLoadFile.top = new FormAttachment(wAuthentication, margin);
-    fdUpLoadFile.right = new FormAttachment(100, -margin);
-    wUpLoadFile.setLayoutData(fdUpLoadFile);
-    // ///////////////////////////////////////////////////////////
-    // / END OF UpLoadFileGROUP GROUP
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////
-    // START OF TargetFileGroupGROUP///
-    // /
-    Group wTargetFileGroup = setupWebServerReplyGroup(wGeneralComp);
-
-    setupTargetFileLine(lsMod, middle, margin, wTargetFileGroup);
-    setupAppendFileLine(middle, margin, wTargetFileGroup);
-    setupAddDateTimeLine(middle, margin, wTargetFileGroup);
-    setupTargetExtensionLine(lsMod, middle, margin, wTargetFileGroup);
-    setupAddFilenameLine(middle, margin, wTargetFileGroup);
-
-    FormData fdTargetFileGroup = new FormData();
-    fdTargetFileGroup.left = new FormAttachment(0, margin);
-    fdTargetFileGroup.top = new FormAttachment(wUpLoadFile, margin);
-    fdTargetFileGroup.right = new FormAttachment(100, -margin);
-    wTargetFileGroup.setLayoutData(fdTargetFileGroup);
-    // ///////////////////////////////////////////////////////////
-    // / END OF TargetFileGroupGROUP GROUP
-    // ///////////////////////////////////////////////////////////
-
-    FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, margin);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(100, 0);
-    wGeneralComp.setLayoutData(fdGeneralComp);
-
-    wGeneralComp.layout();
-    wGeneralTab.setControl(wGeneralComp);
+    finishScrolledTab(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
     // ///////////////////////////////////////////////////////////
 
     // ////////////////////////
+    // START OF AUTHENTICATION TAB ///
+    // ////////////////////////
+
+    Composite wAuthComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.Authentication.Label");
+    Group wAuthentication = setupAuthGroup(wAuthComp);
+
+    setupUsernameLine(lsMod, middle, margin, wAuthentication);
+    setupPasswordLine(lsMod, middle, margin, wAuthentication);
+
+    FormData fdAuthentication = new FormData();
+    fdAuthentication.left = new FormAttachment(0, margin);
+    fdAuthentication.top = new FormAttachment(0, margin);
+    fdAuthentication.right = new FormAttachment(100, -margin);
+    wAuthentication.setLayoutData(fdAuthentication);
+
+    finishScrolledTab(wAuthComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF AUTHENTICATION TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
+    // START OF PROXY TAB ///
+    // ////////////////////////
+
+    // The proxy has a tab of its own rather than sharing the authentication one: its credentials
+    // belong to the proxy, not to the web server, and the two are never interchangeable.
+    Composite wProxyComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.Proxy.Label");
+    Group wProxy = setupProxyGroup(wProxyComp);
+
+    setupProxyServerLine(lsMod, middle, margin, wProxy);
+    setupProxyPortLine(lsMod, middle, margin, wProxy);
+    setupProxyUsernameLine(lsMod, middle, margin, wProxy);
+    setupProxyPasswordLine(lsMod, middle, margin, wProxy);
+    setupIgnoreHostLine(lsMod, middle, margin, wProxy);
+
+    FormData fdProxy = new FormData();
+    fdProxy.left = new FormAttachment(0, margin);
+    fdProxy.top = new FormAttachment(0, margin);
+    fdProxy.right = new FormAttachment(100, -margin);
+    wProxy.setLayoutData(fdProxy);
+
+    finishScrolledTab(wProxyComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF PROXY TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
+    // START OF UPLOAD TAB ///
+    // ////////////////////////
+
+    Composite wUploadComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.Upload.Label");
+    Group wUpLoadFile = setupUploadFileGroup(wUploadComp);
+
+    setupUploadFileLine(lsMod, middle, margin, wUpLoadFile);
+
+    FormData fdUpLoadFile = new FormData();
+    fdUpLoadFile.left = new FormAttachment(0, margin);
+    fdUpLoadFile.top = new FormAttachment(0, margin);
+    fdUpLoadFile.right = new FormAttachment(100, -margin);
+    wUpLoadFile.setLayoutData(fdUpLoadFile);
+
+    finishScrolledTab(wUploadComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF UPLOAD TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
+    // START OF REPLY TAB ///
+    // ////////////////////////
+
+    Composite wReplyComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.Reply.Label");
+    Group wTargetFileGroup = setupWebServerReplyGroup(wReplyComp);
+
+    setupTargetFileLine(lsMod, middle, margin, wTargetFileGroup);
+    setupAppendFileLine(middle, margin, wTargetFileGroup);
+    setupAddDateTimeLine(middle, margin, wTargetFileGroup);
+    setupTargetExtensionLine(lsMod, middle, margin, wTargetFileGroup);
+    setupAddFilenameLine(middle, margin, wTargetFileGroup);
+    setupReplyVariableLine(lsMod, middle, margin, wTargetFileGroup);
+
+    FormData fdTargetFileGroup = new FormData();
+    fdTargetFileGroup.left = new FormAttachment(0, margin);
+    fdTargetFileGroup.top = new FormAttachment(0, margin);
+    fdTargetFileGroup.right = new FormAttachment(100, -margin);
+    wTargetFileGroup.setLayoutData(fdTargetFileGroup);
+
+    finishScrolledTab(wReplyComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF REPLY TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////
     // START OF Headers TAB ///
     // ////////////////////////
 
-    CTabItem wHeadersTab = new CTabItem(wTabFolder, SWT.NONE);
-    wHeadersTab.setFont(GuiResource.getInstance().getFontDefault());
-    wHeadersTab.setText(BaseMessages.getString(PKG, "ActionHTTP.Tab.Headers.Label"));
-    Composite wHeadersComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wHeadersComp);
-    FormLayout headersLayout = new FormLayout();
-    headersLayout.marginWidth = 3;
-    headersLayout.marginHeight = 3;
-    wHeadersComp.setLayout(headersLayout);
-
-    setupHeaderTable(lsMod, margin, wHeadersTab, wHeadersComp);
+    Composite wHeadersComp = addScrolledTab(wTabFolder, "ActionHTTP.Tab.Headers.Label");
+    setupHeaderTable(lsMod, margin, wHeadersComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Headers TAB
@@ -273,8 +304,35 @@ public class ActionHttpDialog extends ActionDialog {
     return action;
   }
 
-  private void setupHeaderTable(
-      ModifyListener lsMod, int margin, CTabItem wHeadersTab, Composite wHeadersComp) {
+  private Composite addScrolledTab(CTabFolder wTabFolder, String labelKey) {
+    CTabItem tab = new CTabItem(wTabFolder, SWT.NONE);
+    tab.setFont(GuiResource.getInstance().getFontDefault());
+    tab.setText(BaseMessages.getString(PKG, labelKey));
+
+    ScrolledComposite scrolled = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolled);
+    scrolled.setExpandHorizontal(true);
+    scrolled.setExpandVertical(true);
+
+    Composite composite = new Composite(scrolled, SWT.NONE);
+    PropsUi.setLook(composite);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = 3;
+    layout.marginHeight = 3;
+    composite.setLayout(layout);
+
+    scrolled.setContent(composite);
+    tab.setControl(scrolled);
+    return composite;
+  }
+
+  private void finishScrolledTab(Composite composite) {
+    composite.layout(true, true);
+    Point size = composite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+    ((ScrolledComposite) composite.getParent()).setMinSize(size);
+  }
+
+  private void setupHeaderTable(ModifyListener lsMod, int margin, Composite wHeadersComp) {
     int rows =
         action.getHeaders() == null
             ? 1
@@ -312,15 +370,8 @@ public class ActionHttpDialog extends ActionDialog {
     fdHeaders.bottom = new FormAttachment(100, -margin);
     wHeaders.setLayoutData(fdHeaders);
 
-    FormData fdHeadersComp = new FormData();
-    fdHeadersComp.left = new FormAttachment(0, 0);
-    fdHeadersComp.top = new FormAttachment(0, 0);
-    fdHeadersComp.right = new FormAttachment(100, 0);
-    fdHeadersComp.bottom = new FormAttachment(100, 0);
-    wHeadersComp.setLayoutData(fdHeadersComp);
-
-    wHeadersComp.layout();
-    wHeadersTab.setControl(wHeadersComp);
+    // The table fills the tab; keep a minimum size so the tab can still scroll on small screens.
+    ((ScrolledComposite) wHeadersComp.getParent()).setMinSize(300, 200);
   }
 
   private void setupAddFilenameLine(int middle, int margin, Group wTargetFileGroup) {
@@ -343,6 +394,27 @@ public class ActionHttpDialog extends ActionDialog {
     fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);
     fdAddFilenameToResult.right = new FormAttachment(100, 0);
     wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
+  }
+
+  private void setupReplyVariableLine(
+      ModifyListener lsMod, int middle, int margin, Group wTargetFileGroup) {
+    Label wlReplyVariable = new Label(wTargetFileGroup, SWT.RIGHT);
+    wlReplyVariable.setText(BaseMessages.getString(PKG, "ActionHTTP.ReplyVariable.Label"));
+    PropsUi.setLook(wlReplyVariable);
+    FormData fdlReplyVariable = new FormData();
+    fdlReplyVariable.left = new FormAttachment(0, 0);
+    fdlReplyVariable.top = new FormAttachment(wAddFilenameToResult, margin);
+    fdlReplyVariable.right = new FormAttachment(middle, -margin);
+    wlReplyVariable.setLayoutData(fdlReplyVariable);
+    wReplyVariable = new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wReplyVariable);
+    wReplyVariable.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ReplyVariable.Tooltip"));
+    wReplyVariable.addModifyListener(lsMod);
+    FormData fdReplyVariable = new FormData();
+    fdReplyVariable.left = new FormAttachment(middle, 0);
+    fdReplyVariable.top = new FormAttachment(wlReplyVariable, 0, SWT.CENTER);
+    fdReplyVariable.right = new FormAttachment(100, 0);
+    wReplyVariable.setLayoutData(fdReplyVariable);
   }
 
   private void setupTargetExtensionLine(
@@ -423,7 +495,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlTargetFile);
     FormData fdlTargetFile = new FormData();
     fdlTargetFile.left = new FormAttachment(0, 0);
-    fdlTargetFile.top = new FormAttachment(wUploadFile, margin);
+    fdlTargetFile.top = new FormAttachment(0, margin);
     fdlTargetFile.right = new FormAttachment(middle, -margin);
     wlTargetFile.setLayoutData(fdlTargetFile);
 
@@ -432,16 +504,18 @@ public class ActionHttpDialog extends ActionDialog {
     wbTargetFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTargetFile = new FormData();
     fdbTargetFile.right = new FormAttachment(100, 0);
-    fdbTargetFile.top = new FormAttachment(wUploadFile, margin);
+    fdbTargetFile.top = new FormAttachment(0, margin);
     wbTargetFile.setLayoutData(fdbTargetFile);
 
-    wTargetFile = new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTargetFile =
+        new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wTargetFile);
     wTargetFile.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.TargetFile.Tooltip"));
     wTargetFile.addModifyListener(lsMod);
     FormData fdTargetFile = new FormData();
     fdTargetFile.left = new FormAttachment(middle, 0);
-    fdTargetFile.top = new FormAttachment(wUploadFile, margin);
+    fdTargetFile.top = new FormAttachment(0, margin);
     fdTargetFile.right = new FormAttachment(wbTargetFile, -margin);
     wTargetFile.setLayoutData(fdTargetFile);
 
@@ -465,14 +539,14 @@ public class ActionHttpDialog extends ActionDialog {
   }
 
   private void setupUploadFileLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication, Group wUpLoadFile) {
+      ModifyListener lsMod, int middle, int margin, Group wUpLoadFile) {
     // UploadFile line
     wlUploadFile = new Label(wUpLoadFile, SWT.RIGHT);
     wlUploadFile.setText(BaseMessages.getString(PKG, "ActionHTTP.UploadFile.Label"));
     PropsUi.setLook(wlUploadFile);
     FormData fdlUploadFile = new FormData();
     fdlUploadFile.left = new FormAttachment(0, 0);
-    fdlUploadFile.top = new FormAttachment(wAuthentication, margin);
+    fdlUploadFile.top = new FormAttachment(0, margin);
     fdlUploadFile.right = new FormAttachment(middle, -margin);
     wlUploadFile.setLayoutData(fdlUploadFile);
 
@@ -481,7 +555,7 @@ public class ActionHttpDialog extends ActionDialog {
     wbUploadFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbUploadFile = new FormData();
     fdbUploadFile.right = new FormAttachment(100, 0);
-    fdbUploadFile.top = new FormAttachment(wAuthentication, margin);
+    fdbUploadFile.top = new FormAttachment(0, margin);
     wbUploadFile.setLayoutData(fdbUploadFile);
 
     wUploadFile = new TextVar(variables, wUpLoadFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -490,7 +564,7 @@ public class ActionHttpDialog extends ActionDialog {
     wUploadFile.addModifyListener(lsMod);
     FormData fdUploadFile = new FormData();
     fdUploadFile.left = new FormAttachment(middle, 0);
-    fdUploadFile.top = new FormAttachment(wAuthentication, margin);
+    fdUploadFile.top = new FormAttachment(0, margin);
     fdUploadFile.right = new FormAttachment(wbUploadFile, -margin);
     wUploadFile.setLayoutData(fdUploadFile);
 
@@ -517,33 +591,73 @@ public class ActionHttpDialog extends ActionDialog {
     return wUpLoadFile;
   }
 
-  private void setupIgnoreHostLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyUsernameLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
+    // Proxy user name line
+    Label wlProxyUserName = new Label(wProxy, SWT.RIGHT);
+    wlProxyUserName.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyUser.Label"));
+    PropsUi.setLook(wlProxyUserName);
+    FormData fdlProxyUserName = new FormData();
+    fdlProxyUserName.left = new FormAttachment(0, 0);
+    fdlProxyUserName.top = new FormAttachment(wProxyPort, margin);
+    fdlProxyUserName.right = new FormAttachment(middle, -margin);
+    wlProxyUserName.setLayoutData(fdlProxyUserName);
+    wProxyUserName = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProxyUserName);
+    wProxyUserName.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyUser.Tooltip"));
+    wProxyUserName.addModifyListener(lsMod);
+    FormData fdProxyUserName = new FormData();
+    fdProxyUserName.left = new FormAttachment(middle, 0);
+    fdProxyUserName.top = new FormAttachment(wProxyPort, margin);
+    fdProxyUserName.right = new FormAttachment(100, 0);
+    wProxyUserName.setLayoutData(fdProxyUserName);
+  }
+
+  private void setupProxyPasswordLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
+    // Proxy password line
+    Label wlProxyPassword = new Label(wProxy, SWT.RIGHT);
+    wlProxyPassword.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPassword.Label"));
+    PropsUi.setLook(wlProxyPassword);
+    FormData fdlProxyPassword = new FormData();
+    fdlProxyPassword.left = new FormAttachment(0, 0);
+    fdlProxyPassword.top = new FormAttachment(wProxyUserName, margin);
+    fdlProxyPassword.right = new FormAttachment(middle, -margin);
+    wlProxyPassword.setLayoutData(fdlProxyPassword);
+    wProxyPassword = new PasswordTextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProxyPassword);
+    wProxyPassword.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPassword.Tooltip"));
+    wProxyPassword.addModifyListener(lsMod);
+    FormData fdProxyPassword = new FormData();
+    fdProxyPassword.left = new FormAttachment(middle, 0);
+    fdProxyPassword.top = new FormAttachment(wProxyUserName, margin);
+    fdProxyPassword.right = new FormAttachment(100, 0);
+    wProxyPassword.setLayoutData(fdProxyPassword);
+  }
+
+  private void setupIgnoreHostLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
     // IgnoreHosts line
-    Label wlNonProxyHosts = new Label(wAuthentication, SWT.RIGHT);
+    Label wlNonProxyHosts = new Label(wProxy, SWT.RIGHT);
     wlNonProxyHosts.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyIgnoreRegexp.Label"));
     PropsUi.setLook(wlNonProxyHosts);
     FormData fdlNonProxyHosts = new FormData();
     fdlNonProxyHosts.left = new FormAttachment(0, 0);
-    fdlNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
+    fdlNonProxyHosts.top = new FormAttachment(wProxyPassword, margin);
     fdlNonProxyHosts.right = new FormAttachment(middle, -margin);
     wlNonProxyHosts.setLayoutData(fdlNonProxyHosts);
-    wNonProxyHosts = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNonProxyHosts = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wNonProxyHosts);
     wNonProxyHosts.setToolTipText(
         BaseMessages.getString(PKG, "ActionHTTP.ProxyIgnoreRegexp.Tooltip"));
     wNonProxyHosts.addModifyListener(lsMod);
     FormData fdNonProxyHosts = new FormData();
     fdNonProxyHosts.left = new FormAttachment(middle, 0);
-    fdNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
+    fdNonProxyHosts.top = new FormAttachment(wProxyPassword, margin);
     fdNonProxyHosts.right = new FormAttachment(100, 0);
     wNonProxyHosts.setLayoutData(fdNonProxyHosts);
   }
 
-  private void setupProxyPortLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyPortLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
     // ProxyPort line
-    Label wlProxyPort = new Label(wAuthentication, SWT.RIGHT);
+    Label wlProxyPort = new Label(wProxy, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPort.Label"));
     PropsUi.setLook(wlProxyPort);
     FormData fdlProxyPort = new FormData();
@@ -551,7 +665,7 @@ public class ActionHttpDialog extends ActionDialog {
     fdlProxyPort.top = new FormAttachment(wProxyServer, margin);
     fdlProxyPort.right = new FormAttachment(middle, -margin);
     wlProxyPort.setLayoutData(fdlProxyPort);
-    wProxyPort = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyPort = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProxyPort);
     wProxyPort.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPort.Tooltip"));
     wProxyPort.addModifyListener(lsMod);
@@ -562,24 +676,23 @@ public class ActionHttpDialog extends ActionDialog {
     wProxyPort.setLayoutData(fdProxyPort);
   }
 
-  private void setupProxyServerLine(
-      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyServerLine(ModifyListener lsMod, int middle, int margin, Group wProxy) {
     // ProxyServer line
-    Label wlProxyServer = new Label(wAuthentication, SWT.RIGHT);
+    Label wlProxyServer = new Label(wProxy, SWT.RIGHT);
     wlProxyServer.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyHost.Label"));
     PropsUi.setLook(wlProxyServer);
     FormData fdlProxyServer = new FormData();
     fdlProxyServer.left = new FormAttachment(0, 0);
-    fdlProxyServer.top = new FormAttachment(wPassword, 3 * margin);
+    fdlProxyServer.top = new FormAttachment(0, margin);
     fdlProxyServer.right = new FormAttachment(middle, -margin);
     wlProxyServer.setLayoutData(fdlProxyServer);
-    wProxyServer = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyServer = new TextVar(variables, wProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProxyServer);
     wProxyServer.setToolTipText(BaseMessages.getString(PKG, "ActionHTTP.ProxyHost.Tooltip"));
     wProxyServer.addModifyListener(lsMod);
     FormData fdProxyServer = new FormData();
     fdProxyServer.left = new FormAttachment(middle, 0);
-    fdProxyServer.top = new FormAttachment(wPassword, 3 * margin);
+    fdProxyServer.top = new FormAttachment(0, margin);
     fdProxyServer.right = new FormAttachment(100, 0);
     wProxyServer.setLayoutData(fdProxyServer);
   }
@@ -614,7 +727,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlUserName);
     FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment(0, 0);
-    fdlUserName.top = new FormAttachment(wFieldTarget, margin);
+    fdlUserName.top = new FormAttachment(0, margin);
     fdlUserName.right = new FormAttachment(middle, -margin);
     wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar(variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -623,7 +736,7 @@ public class ActionHttpDialog extends ActionDialog {
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(middle, 0);
-    fdUserName.top = new FormAttachment(wFieldTarget, margin);
+    fdUserName.top = new FormAttachment(0, margin);
     fdUserName.right = new FormAttachment(100, 0);
     wUserName.setLayoutData(fdUserName);
   }
@@ -638,6 +751,80 @@ public class ActionHttpDialog extends ActionDialog {
     authenticationgroupLayout.marginHeight = 10;
     wAuthentication.setLayout(authenticationgroupLayout);
     return wAuthentication;
+  }
+
+  private void setupConnectionLine(int margin, Composite wGeneralComp) {
+    wConnection =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            RestConnection.class,
+            wGeneralComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionHTTP.Connection.Label"),
+            BaseMessages.getString(PKG, "ActionHTTP.Connection.Tooltip"));
+    PropsUi.setLook(wConnection);
+    FormData fdConnection = new FormData();
+    fdConnection.left = new FormAttachment(0, 0);
+    fdConnection.top = new FormAttachment(0, margin);
+    fdConnection.right = new FormAttachment(100, 0);
+    wConnection.setLayoutData(fdConnection);
+    wConnection.addListener(
+        SWT.Selection,
+        e -> {
+          action.setChanged();
+          activateConnectionSupersededFields();
+        });
+    wConnection.addModifyListener(
+        e -> {
+          action.setChanged();
+          activateConnectionSupersededFields();
+        });
+    try {
+      wConnection.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          BaseMessages.getString(PKG, "ActionHTTP.Error.ListingConnections"),
+          e);
+    }
+  }
+
+  /**
+   * A selected REST connection supplies the whole client, so the action's own authentication and
+   * proxy fields stop being read. Grey them out rather than leave them looking as though they still
+   * do something. The values are kept: deselecting the connection brings them back.
+   */
+  private void activateConnectionSupersededFields() {
+    boolean editable = Utils.isEmpty(wConnection.getText());
+    for (Control control :
+        new Control[] {
+          wUserName,
+          wPassword,
+          wProxyServer,
+          wProxyPort,
+          wProxyUserName,
+          wProxyPassword,
+          wNonProxyHosts,
+          wIgnoreSsl
+        }) {
+      if (control != null && !control.isDisposed()) {
+        control.setEnabled(editable);
+      }
+    }
+  }
+
+  private Group setupProxyGroup(Composite wProxyComp) {
+    Group wProxy = new Group(wProxyComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wProxy);
+    wProxy.setText(BaseMessages.getString(PKG, "ActionHTTP.Proxy.Group.Label"));
+
+    FormLayout proxyGroupLayout = new FormLayout();
+    proxyGroupLayout.marginWidth = 10;
+    proxyGroupLayout.marginHeight = 10;
+    wProxy.setLayout(proxyGroupLayout);
+    return wProxy;
   }
 
   private void setupDestFileLine(
@@ -769,7 +956,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
-    fdlURL.top = new FormAttachment(0, margin);
+    fdlURL.top = new FormAttachment(wConnection, margin);
     fdlURL.right = new FormAttachment(middle, -margin);
     wlURL.setLayoutData(fdlURL);
     wURL =
@@ -782,7 +969,7 @@ public class ActionHttpDialog extends ActionDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
-    fdURL.top = new FormAttachment(0, margin);
+    fdURL.top = new FormAttachment(wConnection, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
   }
@@ -820,6 +1007,8 @@ public class ActionHttpDialog extends ActionDialog {
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
 
+    wConnection.setText(Const.NVL(action.getConnectionName(), ""));
+
     wURL.setText(Const.NVL(action.getUrl(), ""));
     wRunEveryRow.setSelection(action.isRunForEveryRow());
     wIgnoreSsl.setSelection(action.isIgnoreSsl());
@@ -841,6 +1030,8 @@ public class ActionHttpDialog extends ActionDialog {
 
     wProxyServer.setText(Const.NVL(action.getProxyHostname(), ""));
     wProxyPort.setText(Const.NVL(action.getProxyPort(), ""));
+    wProxyUserName.setText(Const.NVL(action.getProxyUsername(), ""));
+    wProxyPassword.setText(Const.NVL(action.getProxyPassword(), ""));
     wNonProxyHosts.setText(Const.NVL(action.getNonProxyHosts(), ""));
     if (action.getHeaders() != null) {
       String[] headerNames = new String[action.getHeaders().size()];
@@ -867,7 +1058,9 @@ public class ActionHttpDialog extends ActionDialog {
     }
 
     wAddFilenameToResult.setSelection(action.isAddFilenameToResult());
+    wReplyVariable.setText(Const.NVL(action.getReplyVariableName(), ""));
     setFlags();
+    activateConnectionSupersededFields();
   }
 
   private void cancel() {
@@ -885,6 +1078,7 @@ public class ActionHttpDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
+    action.setConnectionName(wConnection.getText());
     action.setUrl(wURL.getText());
     action.setRunForEveryRow(wRunEveryRow.getSelection());
     action.setIgnoreSsl(wIgnoreSsl.getSelection());
@@ -896,6 +1090,8 @@ public class ActionHttpDialog extends ActionDialog {
     action.setPassword(wPassword.getText());
     action.setProxyHostname(wProxyServer.getText());
     action.setProxyPort(wProxyPort.getText());
+    action.setProxyUsername(wProxyUserName.getText());
+    action.setProxyPassword(wProxyPassword.getText());
     action.setNonProxyHosts(wNonProxyHosts.getText());
 
     action.setUploadFilename(wUploadFile.getText());
@@ -905,6 +1101,7 @@ public class ActionHttpDialog extends ActionDialog {
     action.setDateTimeAdded(wRunEveryRow.getSelection() ? false : wDateTimeAdded.getSelection());
     action.setTargetFilenameExtension(wRunEveryRow.getSelection() ? "" : wTargetExt.getText());
     action.setAddFilenameToResult(wAddFilenameToResult.getSelection());
+    action.setReplyVariableName(wReplyVariable.getText());
     List<ActionHttp.Header> headers = new ArrayList<>();
     for (int i = 0; i < wHeaders.nrNonEmpty(); i++) {
       String varname = wHeaders.getNonEmpty(i).getText(1);

@@ -17,15 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The JSON Normalize Input transform.
-:openvar: ${
-:closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 
 = image:transforms/icons/JsonNormalizeInput.svg[JSON Normalize Input transform Icon, role="image-doc-icon"] JSON Normalize Input
-
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 
 == Description
 The JSON Normalize Input transform is similar to xref:pipeline/transforms/jsoninput.adoc[JSON Input] for sourcing data (file, URL, or a field from a previous transform), but it is built for *tabular* extraction from JSON documents:
@@ -73,22 +68,9 @@ Sample pipelines and data ship with the JSON transforms plugin under `plugins/tr
 * `transforms/json-normalize-orders.hpl` with `data/json-normalize-orders.json` — nested `orders` array.
 * `transforms/json-normalize-root-array.hpl` with `data/json-normalize-events.json` — root-level array.
 * `transforms/json-normalize-complex-transactions.hpl` with `data/json-normalize-complex-transactions.json` — larger file with many columns and rows.
-* `transforms/json-normalize-hop-config-layers.hpl` reads `{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json` — wide row from the root object (arrays as JSON text), then parallel branches that normalize `variables`, lifecycle environments, and project configurations from those strings. Point `HOP_CONFIG_FOLDER` at your real Hop config folder, or use the fixture under `integration-tests/json/resources/hop-config-layers-it/` to try the shape offline.
+* `transforms/json-normalize-hop-config-layers.hpl` reads `+${HOP_CONFIG_FOLDER}/hop-config.json+` — wide row from the root object (arrays as JSON text), then parallel branches that normalize `variables`, lifecycle environments, and project configurations from those strings. Point `HOP_CONFIG_FOLDER` at your real Hop config folder, or use the fixture under `integration-tests/json/resources/hop-config-layers-it/` to try the shape offline.
 
-Pipeline unit tests in `integration-tests/json/` (`0008`–`0011`) exercise these scenarios in CI, including `0011-json-normalize-hop-config-layers.hpl` for `{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json` with parallel branches.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
+Pipeline unit tests in `integration-tests/json/` (`0008`–`0011`) exercise these scenarios in CI, including `0011-json-normalize-hop-config-layers.hpl` for `+${HOP_CONFIG_FOLDER}/hop-config.json+` with parallel branches.
 
 == Options
 
@@ -121,7 +103,7 @@ The table has the following columns:
 |Path|Flattened key for the value *within each record*, after nested objects are merged into dotted (or custom-separated) paths. This is *not* a JsonPath into the whole document—that is what **Record JsonPath** on the Content tab is for. Examples: `orderId`, `customer.name`. The value must match a key produced for that row by flattening (unless **Ignore missing field paths** is enabled, in which case a missing key yields null). Wildcards, filters, and regex are not used in this column—only the path string for the flattened field.
 |Type|Data type of the input field.
 |Format|An optional mask for converting the format of the original field.
-See Common Formats for information on common valid date and numeric formats you can use in this transform.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|Length of the field.
 |Precision|Number of floating point digits for number-type fields.
 |Currency|Currency symbol ($ or €, for example).
@@ -144,7 +126,8 @@ Click *Select fields from snippet* and paste JSON text—typically *one represen
 
 *Dates and timestamps*
 
-For Hop types of *Date* and *Timestamp*, use the *Format* column to specify the incoming format. For example, for Date: `yyyy-MM-dd`. You can select a format from the dropdown or enter format text directly. Hop uses https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat,window=_blank] (Java 8).
+For Hop types of *Date* and *Timestamp*, use the *Format* column to specify the incoming format. For example, for Date: `yyyy-MM-dd`. You can select a format from the dropdown or enter format text directly.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 
 *Examples of Timestamp formats:*
 

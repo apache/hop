@@ -31,6 +31,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
 import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -233,6 +234,11 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
 
     // ...repopulate the field values in the correct order, keeping track of new incoming fields
     final List<String> newFieldNames = repopulateFields(meta, fieldValues, reloadAllFields);
+    // removeAll/removeEmptyRows leave one blank row. Drop it so it is not a field, including when
+    // the scan fails and getData never runs.
+    getFieldsTable().removeEmptyRows();
+    getFieldsTable().setRowNums();
+    getFieldsTable().optWidth(true);
 
     populateMeta(meta);
     final String message = loadFieldsImpl(meta, samples);
@@ -240,10 +246,32 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
       if (reloadAllFields) {
         getFieldsTable().removeAll();
       }
-      // OK, what's the result of our search?
+      // Copy the sampled type, mask, length and precision onto the grid. Without this the
+      // table stays on the header names written above.
       getData(meta, false, reloadAllFields, newFieldNames);
+      // removeAll leaves one blank placeholder above the sampled rows.
+      getFieldsTable().removeEmptyRows();
+      getFieldsTable().setRowNums();
+      getFieldsTable().optWidth(true);
+    } else {
+      getFieldsTable().removeEmptyRows();
+      getFieldsTable().setRowNums();
+      getFieldsTable().optWidth(true);
     }
+    NamingSchemeColumnApplierRegistry.getInstance()
+        .applyAnnotatedColumns(
+            getFieldsTable(),
+            getPipelineMeta() != null ? getPipelineMeta().getMetadataProvider() : null,
+            getNamingSchemeName());
     return message;
+  }
+
+  /**
+   * Optional Naming Scheme metadata name used when Get Fields auto-applies. Default: none (unique
+   * matching scheme or General fallback).
+   */
+  default String getNamingSchemeName() {
+    return null;
   }
 
   default TableItem getTableItem(final String fieldName) {

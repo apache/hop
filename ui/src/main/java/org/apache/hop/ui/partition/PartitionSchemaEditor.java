@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -38,7 +39,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * Dialog that allows you to edit the settings of the partition schema
@@ -49,7 +49,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
   private static final Class<?> PKG = PartitionSchemaEditor.class;
 
   // Name
-  private Text wName;
+  private TextVar wName;
 
   // Dynamic definition?
   private Button wDynamic;
@@ -96,7 +96,9 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdlName.left = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
 
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);

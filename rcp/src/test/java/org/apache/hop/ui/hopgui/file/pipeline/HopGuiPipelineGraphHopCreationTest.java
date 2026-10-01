@@ -24,18 +24,27 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.hopgui.file.GraphCanvasTestBase;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
@@ -63,8 +72,10 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
 
   private static final String SOURCE_TRANSFORM = "Query Delete";
   private static final String TARGET_TRANSFORM = "Write to log";
+  private static final String OTHER_INPUT_TRANSFORM = "Second input";
   private static final Point SOURCE_LOCATION = new Point(60, 60);
   private static final Point TARGET_LOCATION = new Point(280, 60);
+  private static final Point OTHER_INPUT_LOCATION = new Point(500, 60);
 
   @BeforeAll
   static void registerGuiPlugins() throws HopException {
@@ -436,6 +447,92 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
         });
   }
 
+  // ------------------------------------------------- target reading another row layout already
+
+  /**
+   * The target already reads from a transform that sends a different row layout, so completing the
+   * hop runs the layout check, which reports the mismatch and offers to merge the streams. Those
+   * two are the whole story: the click drew a hop, so the context dialog of the transform it landed
+   * on must not appear on top of them.
+   *
+   * <p>The check runs from the mouseDown that completes the hop, and its dialogs run their own
+   * event loop - which is what dispatches the release of that same click, long before mouseDown is
+   * done with it. Getting that release ignored is the point here.
+   */
+  @Test
+  void createHopActionThenClickingATargetMixingRowLayoutsOnlyRunsTheLayoutCheck() {
+    onCanvas(
+        HopGuiPipelineGraphHopCreationTest::buildPipelineMixingRowLayouts,
+        (bot, graph, pipelineMeta, spots) -> {
+          TransformMeta source = pipelineMeta.findTransform(SOURCE_TRANSFORM);
+          TransformMeta target = pipelineMeta.findTransform(TARGET_TRANSFORM);
+
+          clickTransformAndPickCreateHop(graph, spots, source);
+
+          fire(spots.canvas, SWT.MouseMove, spots.scale, spots.target, 0, SWT.NONE);
+          List<String> popups =
+              clickAndCatchDialogs(bot, spots.canvas, spots.scale, spots.target, 1, SWT.NONE);
+
+          assertAll(
+              () -> assertHopExists(pipelineMeta, source, target),
+              () -> assertOnlyTheLayoutCheckDialogs(popups),
+              () -> assertNoFailures(),
+              () -> assertCanvasIsIdle(graph));
+        });
+  }
+
+  @Test
+  void shiftClickingATargetMixingRowLayoutsOnlyRunsTheLayoutCheck() {
+    onCanvas(
+        HopGuiPipelineGraphHopCreationTest::buildPipelineMixingRowLayouts,
+        (bot, graph, pipelineMeta, spots) -> {
+          TransformMeta source = pipelineMeta.findTransform(SOURCE_TRANSFORM);
+          TransformMeta target = pipelineMeta.findTransform(TARGET_TRANSFORM);
+
+          fire(spots.canvas, SWT.MouseDown, spots.scale, spots.source, 1, SWT.SHIFT);
+          fire(spots.canvas, SWT.MouseUp, spots.scale, spots.source, 1, SWT.SHIFT | SWT.BUTTON1);
+          fire(spots.canvas, SWT.MouseMove, spots.scale, spots.target, 0, SWT.SHIFT);
+          List<String> popups =
+              clickAndCatchDialogs(bot, spots.canvas, spots.scale, spots.target, 1, SWT.SHIFT);
+
+          assertAll(
+              () -> assertHopExists(pipelineMeta, source, target),
+              () -> assertOnlyTheLayoutCheckDialogs(popups),
+              () -> assertNoFailures(),
+              () -> assertCanvasIsIdle(graph));
+        });
+  }
+
+  @Test
+  void shiftDraggingOntoATargetMixingRowLayoutsOnlyRunsTheLayoutCheck() {
+    onCanvas(
+        HopGuiPipelineGraphHopCreationTest::buildPipelineMixingRowLayouts,
+        (bot, graph, pipelineMeta, spots) -> {
+          TransformMeta source = pipelineMeta.findTransform(SOURCE_TRANSFORM);
+          TransformMeta target = pipelineMeta.findTransform(TARGET_TRANSFORM);
+
+          fire(spots.canvas, SWT.MouseDown, spots.scale, spots.source, 1, SWT.SHIFT);
+          fire(
+              spots.canvas,
+              SWT.MouseMove,
+              spots.scale,
+              midpoint(spots.source, spots.target),
+              0,
+              SWT.SHIFT | SWT.BUTTON1);
+          fire(spots.canvas, SWT.MouseMove, spots.scale, spots.target, 0, SWT.SHIFT | SWT.BUTTON1);
+          Set<Shell> before = openShells();
+          fireAsync(
+              spots.canvas, SWT.MouseUp, spots.scale, spots.target, 1, SWT.SHIFT | SWT.BUTTON1);
+          List<String> popups = catchDialogs(bot, before);
+
+          assertAll(
+              () -> assertHopExists(pipelineMeta, source, target),
+              () -> assertOnlyTheLayoutCheckDialogs(popups),
+              () -> assertNoFailures(),
+              () -> assertCanvasIsIdle(graph));
+        });
+  }
+
   // ------------------------------------------------------------------ gesture building blocks
 
   /**
@@ -501,6 +598,20 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
     assertNull(dialogTitle, "no dialog may open here, but one did");
   }
 
+  /**
+   * Mixing row layouts is worth reporting, and a Dummy target is worth an offer to replace it with
+   * a Stream Schema Merge. Those two are all: the click completed a hop, so it may not also be read
+   * as a plain click on the transform and open the context dialog on top of them.
+   */
+  private void assertOnlyTheLayoutCheckDialogs(List<String> dialogTitles) {
+    assertEquals(
+        List.of(
+            BaseMessages.getString(HopGui.class, "HopGui.LayoutCheck.Dialog.MismatchTitle"),
+            BaseMessages.getString(HopGui.class, "HopGui.LayoutCheck.Dialog.ReplaceDummyTitle")),
+        dialogTitles,
+        "the layout check is all this gesture may report");
+  }
+
   private void assertNoFailures() {
     assertTrue(swallowed.isEmpty(), "the canvas must not throw, but got " + swallowed);
   }
@@ -548,6 +659,10 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
   }
 
   private void onCanvas(CanvasTest test) {
+    onCanvas(HopGuiPipelineGraphHopCreationTest::buildPipeline, test);
+  }
+
+  private void onCanvas(Supplier<PipelineMeta> scene, CanvasTest test) {
     AtomicReference<HopGuiPipelineGraph> graphRef = new AtomicReference<>();
     AtomicReference<PipelineMeta> metaRef = new AtomicReference<>();
 
@@ -558,7 +673,7 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
           // Keep the single click on the canvas synchronous and deterministic.
           PropsUi.getInstance().setUseDoubleClickOnCanvas(false);
 
-          PipelineMeta pipelineMeta = buildPipeline();
+          PipelineMeta pipelineMeta = scene.get();
           metaRef.set(pipelineMeta);
           graphRef.set(
               new HopGuiPipelineGraph(
@@ -619,9 +734,55 @@ class HopGuiPipelineGraphHopCreationTest extends GraphCanvasTestBase {
     return pipelineMeta;
   }
 
+  /**
+   * The same two transforms, plus a third one that already feeds the target - and sends a different
+   * row layout than the source does. Drawing the second hop into the target is what makes the row
+   * layout check report a mismatch.
+   *
+   * <p>The target is a {@code Dummy}, exactly as in the report, so the layout check also offers to
+   * replace it with a Stream Schema Merge. The tests decline that offer.
+   */
+  private static PipelineMeta buildPipelineMixingRowLayouts() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("hop-creation-mixed-layouts");
+
+    TransformMeta source = fieldTransform(SOURCE_TRANSFORM, SOURCE_LOCATION, "one");
+    TransformMeta other = fieldTransform(OTHER_INPUT_TRANSFORM, OTHER_INPUT_LOCATION, "one", "two");
+    TransformMeta target = transform(TARGET_TRANSFORM, TARGET_LOCATION);
+    pipelineMeta.addTransform(source);
+    pipelineMeta.addTransform(other);
+    pipelineMeta.addTransform(target);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(other, target));
+    return pipelineMeta;
+  }
+
   private static TransformMeta transform(String name, Point location) {
     TransformMeta transformMeta =
         new TransformMeta("Dummy", name, new BaseTransformMeta<ITransform, ITransformData>());
+    transformMeta.setLocation(location.x, location.y);
+    return transformMeta;
+  }
+
+  /** A transform putting the given fields on the stream, so that two of them can disagree. */
+  private static TransformMeta fieldTransform(String name, Point location, String... fields) {
+    TransformMeta transformMeta =
+        new TransformMeta(
+            "Dummy",
+            name,
+            new BaseTransformMeta<ITransform, ITransformData>() {
+              @Override
+              public void getFields(
+                  IRowMeta inputRowMeta,
+                  String transformName,
+                  IRowMeta[] info,
+                  TransformMeta nextTransform,
+                  IVariables variables,
+                  IHopMetadataProvider metadataProvider) {
+                for (String field : fields) {
+                  inputRowMeta.addValueMeta(new ValueMetaString(field));
+                }
+              }
+            });
     transformMeta.setLocation(location.x, location.y);
     return transformMeta;
   }

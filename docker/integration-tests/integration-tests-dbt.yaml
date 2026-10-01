@@ -1,0 +1,113 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+
+# dbt Core is a Python program and is not part of the Hop image, so the runner installs it before
+# the tests start. The versions are pinned on purpose: an unpinned "pip install dbt-postgres"
+# resolves dbt-core to whatever is newest, which has already meant pulling a beta dependency that
+# builds by downloading a wheel at install time. A red nightly should mean Hop broke, not that
+# dbt's dependency tree moved.
+services:
+  integration_test_dbt:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      marquez:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    links:
+      - marquez
+      - postgres
+    environment:
+      # The Hop side of the lineage graph: the workflow run the dbt run has to attach to.
+      - HOP_LINEAGE_ENABLED=Y
+      - HOP_LINEAGE_SINK_IDS=openlineage
+      - HOP_LINEAGE_OPENLINEAGE_URL=http://marquez:5000/api/v1/lineage
+      - HOP_LINEAGE_OPENLINEAGE_NAMESPACE=hop
+      # The dbt action reads these two and hands them to dbt-ol, so both halves report into the
+      # same collector and namespace.
+      - HOP_LINEAGE_OPENLINEAGE_OVERFLOW_POLICY=BLOCK
+      - HOP_LINEAGE_OPENLINEAGE_ENQUEUE_TIMEOUT_MS=60000
+    command:
+      - bash
+      - -c
+      - >-
+        pip3 install --user --quiet dbt-core==1.9.4 dbt-postgres==1.9.0 openlineage-dbt==1.52.0 &&
+        export PATH=$$HOME/.local/bin:$$PATH &&
+        dbt --version &&
+        /files/scripts/run-tests.sh ${PROJECT_NAME}
+
+  # "Warehouse" Postgres: Hop loads a table into it, dbt reads that table and writes its models
+  # back. Its host:port ("postgres":5432) is what the warehouse dataset namespace is keyed on
+  # (postgres://postgres:5432) on both sides of the graph, so it must match run-tests.sh's
+  # POSTGRES_HOST default. The schema is created by the workflows themselves.
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=hop_user
+      - POSTGRES_PASSWORD=hop_password
+      - POSTGRES_DB=hop_database
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U hop_user -d hop_database" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  marquez-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=marquez
+      - POSTGRES_PASSWORD=marquez
+      - POSTGRES_DB=marquez
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U marquez -d marquez" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  marquez:
+    image: marquezproject/marquez:latest
+    # Marquez only publishes a linux/amd64 image; pin it so the platform is explicit
+    # (runs under emulation on arm64 hosts such as Apple Silicon).
+    platform: linux/amd64
+    ports:
+      - "5000"
+      - "5001"
+    environment:
+      - MARQUEZ_PORT=5000
+      - MARQUEZ_ADMIN_PORT=5001
+      - POSTGRES_HOST=marquez-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=marquez
+      - POSTGRES_USER=marquez
+      - POSTGRES_PASSWORD=marquez
+      # Marquez enables an OpenSearch-backed search by default; disable it so no
+      # extra search backend is required for the lineage integration test.
+      - SEARCH_ENABLED=false
+    depends_on:
+      marquez-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:5001/healthcheck || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s

@@ -18,7 +18,6 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import java.lang.reflect.InvocationTargetException;
-import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -77,32 +76,8 @@ public class GetQueryFieldsProgressDialog {
 
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-
-      // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run =
-          () -> {
-            IProgressMonitor monitor = pmd.getProgressMonitor();
-            while (pmd.getShell() == null
-                || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-              try {
-                Thread.sleep(250);
-              } catch (InterruptedException e) {
-                // Ignore
-              }
-            }
-
-            if (monitor.isCanceled()) { // Disconnect and see what happens!
-
-              try {
-                db.cancelQuery();
-              } catch (Exception e) {
-                // Ignore
-              }
-            }
-          };
-      // Dump the cancel looker in the background!
-      new Thread(run).start();
-
+      DatabaseProgressCancelWatcher.startIfDesktop(
+          pmd, () -> db, "Hop-DB-QueryFields-CancelWatcher");
       pmd.run(true, op);
     } catch (InvocationTargetException | InterruptedException e) {
       showErrorDialog(e);

@@ -31,6 +31,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -80,6 +81,13 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
     }
 
     return resultRow;
+  }
+
+  /** Reflect the rows the statements read and affected in the transform's own counters. */
+  private void addResultToStats(Result result) {
+    setLinesInput(getLinesInput() + result.getNrLinesRead());
+    setLinesOutput(getLinesOutput() + result.getNrLinesOutput());
+    setLinesUpdated(getLinesUpdated() + result.getNrLinesUpdated() + result.getNrLinesDeleted());
   }
 
   @Override
@@ -201,6 +209,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
       } else {
         data.result = data.db.execStatements(sql, data.paramsMeta, paramsData);
       }
+      addResultToStats(data.result);
 
       RowMetaAndData add =
           getResultRow(
@@ -293,10 +302,11 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
           logDetailed(BaseMessages.getString(PKG, "ExecSql.Log.ConnectedToDB"));
         }
 
+        String sqlToUse = meta.getEffectiveSql(this);
         if (meta.isReplaceVariables()) {
-          data.sql = resolve(meta.getSql());
+          data.sql = resolve(sqlToUse);
         } else {
-          data.sql = meta.getSql();
+          data.sql = sqlToUse;
         }
         // If the SQL needs to be executed once, this is a starting transform
         // somewhere.
@@ -306,9 +316,14 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
           } else {
             data.result = data.db.execStatements(data.sql);
           }
+          addResultToStats(data.result);
           if (!data.db.isAutoCommit()) {
             data.db.commit();
           }
+          // Lineage: source/target tables (and column lineage) are recovered by parsing the SQL in
+          // the sink, which the engine cannot do without a SQL grammar.
+          LineageRelationalIoEmitter.emitTransformRelationalExec(
+              this, data.db.getDatabaseMeta(), data.sql, null, null, true, null);
         }
         return true;
       } catch (HopException e) {

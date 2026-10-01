@@ -55,6 +55,8 @@ import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.TableViewColumnViewDialog;
+import org.apache.hop.ui.core.dialog.TableViewFindDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
@@ -115,6 +117,17 @@ public class TableView extends Composite {
   private static final int EXTRA_COLUMN_WIDTH_MARGIN =
       Const.toInt(HopConfig.readStringVariable(Const.HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN, ""), 0);
 
+  /**
+   * Key of the {@link TableItem} data holding a row's values as {@code [full][displayed]}, both
+   * indexed by column. See {@link #setCellValue(TableItem, int, String)}.
+   */
+  private static final String CELL_VALUES_KEY = "TableView.CellValues";
+
+  /** Index of the complete value, and of the shortened text put in the cell, in that data. */
+  private static final int FULL = 0;
+
+  private static final int DISPLAYED = 1;
+
   /** Default minimum height hint in pixels for all TableView instances. */
   public static final int HEIGHT_HINT_PX = 200;
 
@@ -151,6 +164,7 @@ public class TableView extends Composite {
       "tableview-toolbar-10320-filtered-selection";
   public static final String ID_TOOLBAR_NAVIGATE_TO_COLUMN =
       "tableview-toolbar-10330-navigate-to-column";
+  public static final String ID_TOOLBAR_TABLE_VIEWS = "tableview-toolbar-10340-table-views";
   public static final String ID_TOOLBAR_COPY_SELECTED = "tableview-toolbar-10400-copy-selected";
   public static final String ID_TOOLBAR_PASTE_TO_TABLE = "tableview-toolbar-10410-paste-to-table";
   public static final String ID_TOOLBAR_CUT_SELECTED = "tableview-toolbar-10420-cut-selected";
@@ -168,6 +182,22 @@ public class TableView extends Composite {
   private final Composite composite;
   private final ColumnInfo[] columns;
   @Getter @Setter private boolean readonly;
+
+  /**
+   * Draw long / multi-line text cells shortened and single-lined (see {@link
+   * #formatCellValueForDisplay(String)}). Off by default: it was added to keep the data-heavy grids
+   * responsive — the row preview and the data grids — and elsewhere it only changes how a
+   * configuration value looks. Switch it on per grid with {@link
+   * #setShortenDisplayedValues(boolean)}.
+   */
+  private boolean shortenDisplayedValues;
+
+  /** Layout of the table itself, kept so the web footnote can be inserted underneath it later. */
+  private FormData fdTable;
+
+  /** Hop Web only, and only for grids that shorten values: see {@link #addWebNewlineHint()}. */
+  private Label webNewlineHint;
+
   private int buttonRowNr;
   private int buttonColNr;
   private String buttonContent;
@@ -235,6 +265,15 @@ public class TableView extends Composite {
   private boolean addIndexColumn = true;
   private final Color nullTextColor;
   private final List<String> removeToolItems;
+  private final Set<Integer> hiddenDataColumns = new HashSet<>();
+  private int[] rememberedWidths;
+
+  /**
+   * Last width we asked each native column to take during {@link #optWidth}. Win32/DPI often
+   * returns a slightly different {@code getWidth()} than the value passed to {@code setWidth}, so
+   * grow-only mode uses this to avoid applying the same target again every refresh.
+   */
+  private int[] lastOptWidthApplied;
 
   /**
    * Create a table to add to a dialog
@@ -521,7 +560,7 @@ public class TableView extends Composite {
     PropsUi.setLook(table);
     table.setLinesVisible(true);
 
-    FormData fdTable = new FormData();
+    fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
     fdTable.right = new FormAttachment(100, 0);
     fdTable.width = WIDTH_HINT_PX;
@@ -532,21 +571,6 @@ public class TableView extends Composite {
     }
     fdTable.bottom = new FormAttachment(100, 0);
     table.setLayoutData(fdTable);
-
-    // Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
-    // which we use on the desktop). Add a footnote pointing users to the editor for the full value.
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      Label webNewlineHint = new Label(this, SWT.LEFT);
-      PropsUi.setLook(webNewlineHint);
-      webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
-      FormData fdHint = new FormData();
-      fdHint.left = new FormAttachment(0, 0);
-      fdHint.right = new FormAttachment(100, 0);
-      fdHint.bottom = new FormAttachment(100, 0);
-      webNewlineHint.setLayoutData(fdHint);
-      // The table now stops just above the footnote.
-      fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
-    }
 
     tableColumn = new TableColumn[columns.length + 1];
     tableColumn[0] = new TableColumn(table, SWT.RIGHT);
@@ -577,6 +601,9 @@ public class TableView extends Composite {
         tableColumn[i + 1].setAlignment(SWT.RIGHT);
       }
       tableColumn[i + 1].pack();
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        tableColumn[i + 1].setMoveable(true);
+      }
     }
 
     table.setHeaderVisible(true);
@@ -735,24 +762,17 @@ public class TableView extends Composite {
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_SELECTION, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FILTERED_SELECTION, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_NAVIGATE_TO_COLUMN, columns.length > 0);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_TABLE_VIEWS, columns.length > 0);
   }
 
   private MouseListener createTableMouseListener() {
     return new MouseAdapter() {
       @Override
       public void mouseDown(MouseEvent event) {
-        if (activeTableItem != null
-            && !activeTableItem.isDisposed()
-            && editor != null
-            && editor.getEditor() != null
-            && !editor.getEditor().isDisposed()
-            && activeTableColumn > 0) {
-          if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT) {
-            applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-          } else if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_CCOMBO) {
-            applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
-          }
-        }
+        // Commit whatever cell is being edited before the click moves the active cell somewhere
+        // else: an editor left open here would be applied to the cell we are about to move to.
+        applyAllChanges();
+
         boolean rightClick = event.button == 3;
         if (event.button == 1 || rightClick) {
           boolean shift = (event.stateMask & SWT.SHIFT) != 0;
@@ -821,10 +841,19 @@ public class TableView extends Composite {
         && editor.getEditor() != null
         && !editor.getEditor().isDisposed()
         && activeTableColumn > 0) {
-      if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT) {
-        applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-      } else if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_CCOMBO) {
-        applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
+      // Mirror the editors edit() opens: a format column is edited with a combo and a text-button
+      // column with a text field, just like the plain combo and text columns, so they have to be
+      // committed (and disposed) the same way. Leaving one open makes the next commit read that
+      // stale editor and write its text into another cell.
+      switch (columns[activeTableColumn - 1].getType()) {
+        case ColumnInfo.COLUMN_TYPE_TEXT, ColumnInfo.COLUMN_TYPE_TEXT_BUTTON:
+          applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
+          break;
+        case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
+          applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
+          break;
+        default:
+          break;
       }
     }
   }
@@ -840,12 +869,16 @@ public class TableView extends Composite {
       }
       final int rowNr = table.indexOf(row);
       final int colNr = activeTableColumn;
+      if (isColumnReadOnly(colNr)) {
+        // Nothing is typed into a view-only editor, so there is nothing to write back.
+        return;
+      }
       final String value = getTextWidgetValue(colNr);
 
       final String[] fBeforeEdit = beforeEdit;
       String[] afterEdit = getItemText(row);
       checkChanged(new String[][] {fBeforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
-      row.setText(colNr, value);
+      setCellValue(row, colNr, value);
     };
   }
 
@@ -853,6 +886,11 @@ public class TableView extends Composite {
     return new KeyAdapter() {
       @Override
       public void keyPressed(KeyEvent e) {
+        if (isFindShortcut(e)) {
+          e.doit = false;
+          findValue();
+          return;
+        }
         if (activeTableItem == null) {
           return;
         }
@@ -868,6 +906,14 @@ public class TableView extends Composite {
         }
         previousShift = shift;
         boolean ctrl = ((e.stateMask & SWT.MOD1) != 0);
+
+        // Naming-scheme shortcut on the focused cell (when not already editing).
+        if (!readonly) {
+          applyNamingShortcutToActiveCell(e);
+          if (!e.doit) {
+            return;
+          }
+        }
 
         // Move rows up or down shortcuts...
         if (!readonly && e.keyCode == SWT.ARROW_DOWN && ctrl) {
@@ -1135,6 +1181,11 @@ public class TableView extends Composite {
     return new KeyAdapter() {
       @Override
       public void keyPressed(KeyEvent e) {
+        if (isFindShortcut(e)) {
+          e.doit = false;
+          findValue();
+          return;
+        }
         boolean right = false;
         boolean left = false;
 
@@ -1226,8 +1277,8 @@ public class TableView extends Composite {
       }
       int colNr = activeTableColumn;
       int rowNr = table.indexOf(row);
-      boolean usingVariables = columns[colNr - 1].isUsingVariables();
-      if (usingVariables) {
+      boolean usingComposite = usesCompositeEditor(colNr);
+      if (usingComposite) {
         row.setText(colNr, comboVar.getText());
       } else {
         row.setText(colNr, combo.getText());
@@ -1251,8 +1302,8 @@ public class TableView extends Composite {
 
         if (colNr > 0) {
           try {
-            boolean usingVariables = columns[colNr - 1].isUsingVariables();
-            if (usingVariables) {
+            boolean usingComposite = usesCompositeEditor(colNr);
+            if (usingComposite) {
               row.setText(colNr, comboVar.getText());
             } else {
               row.setText(colNr, combo.getText());
@@ -1293,6 +1344,12 @@ public class TableView extends Composite {
         final int rowNr = table.indexOf(row);
         final Control ftext = text;
         final Composite fholder = inlineEditorHolder;
+
+        // The editor on a read-only cell is a viewer: it just goes away, it never writes back.
+        if (isColumnReadOnly(colNr)) {
+          disposeInlineEditor(ftext, fholder);
+          return;
+        }
 
         final String[] fBeforeEdit = beforeEdit;
 
@@ -1446,11 +1503,26 @@ public class TableView extends Composite {
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN)) {
-      MenuItem miNavigateToColumn = new MenuItem(mRow, SWT.NONE);
-      miNavigateToColumn.setText(
+      MenuItem miFindValue = new MenuItem(mRow, SWT.NONE);
+      miFindValue.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.FindValue")));
+      miFindValue.addListener(SWT.Selection, e -> findValue());
+
+      MenuItem miFindColumn = new MenuItem(mRow, SWT.NONE);
+      miFindColumn.setText(
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.NavigateToColumn")));
-      miNavigateToColumn.addListener(SWT.Selection, e -> navigateToColumn());
+      miFindColumn.addListener(SWT.Selection, e -> navigateToColumn());
+    }
+
+    if (!removeToolItems.contains(ID_TOOLBAR_TABLE_VIEWS)) {
+      MenuItem miTableViews = new MenuItem(mRow, SWT.NONE);
+      miTableViews.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.TableViews")));
+      miTableViews.setImage(GuiResource.getInstance().getImageView());
+      miTableViews.addListener(SWT.Selection, e -> editTableViews());
+      new MenuItem(mRow, SWT.SEPARATOR);
+    } else if (!removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN)) {
       new MenuItem(mRow, SWT.SEPARATOR);
     }
 
@@ -1525,6 +1597,7 @@ public class TableView extends Composite {
     }
 
     table.setMenu(mRow);
+    addHeaderContextMenu(mRow);
   }
 
   protected void addToolbar() {
@@ -1550,6 +1623,11 @@ public class TableView extends Composite {
   }
 
   private void comboKeyPressed(KeyEvent e) {
+    if (isFindShortcut(e)) {
+      e.doit = false;
+      findValue();
+      return;
+    }
 
     // "ENTER": close the text editor and copy the data over
     //
@@ -1606,7 +1684,7 @@ public class TableView extends Composite {
         activeTableItem.setText(activeTableColumn, beforeEdit[activeTableColumn - 1]);
       }
       ColumnInfo columnInfo = columns[activeTableColumn - 1];
-      if (columnInfo.isUsingVariables()) {
+      if (usesCompositeEditor(columnInfo)) {
         comboVar.setVisible(false);
       } else {
         combo.setVisible(false);
@@ -1629,8 +1707,7 @@ public class TableView extends Composite {
   }
 
   protected String getTextWidgetValue(int colNr) {
-    boolean b = columns[colNr - 1].isUsingVariables();
-    if (b) {
+    if (usesCompositeEditor(colNr)) {
       return ((TextVar) text).getText();
     } else {
       return ((Text) text).getText();
@@ -1639,8 +1716,7 @@ public class TableView extends Composite {
 
   protected int getTextWidgetCaretPosition(int colNr) {
     if (colNr >= 0) {
-      boolean b = columns[colNr - 1].isUsingVariables();
-      if (b) {
+      if (usesCompositeEditor(colNr)) {
         return ((TextVar) text).getTextWidget().getCaretPosition();
       } else {
         return ((Text) text).getCaretPosition();
@@ -1648,6 +1724,59 @@ public class TableView extends Composite {
     } else {
       return -1;
     }
+  }
+
+  /**
+   * True when the column is edited with TextVar/ComboVar: variables, naming schemes, or both.
+   *
+   * @param colNr TableItem column index (1 = first ColumnInfo)
+   * @return true if the inline editor is a composite widget
+   */
+  private boolean usesCompositeEditor(int colNr) {
+    if (colNr < 1 || colNr - 1 >= columns.length) {
+      return false;
+    }
+    return usesCompositeEditor(columns[colNr - 1]);
+  }
+
+  private boolean usesCompositeEditor(ColumnInfo columnInfo) {
+    return columnInfo != null
+        && (columnInfo.isUsingVariables()
+            || StringUtils.isNotEmpty(columnInfo.getNamingSchemeType()));
+  }
+
+  private void applyNamingShortcutToActiveCell(KeyEvent e) {
+    if (activeTableItem == null
+        || activeTableItem.isDisposed()
+        || activeTableColumn < 1
+        || activeTableColumn - 1 >= columns.length) {
+      return;
+    }
+    ColumnInfo col = columns[activeTableColumn - 1];
+    if (StringUtils.isEmpty(col.getNamingSchemeType())) {
+      return;
+    }
+    final TableItem item = activeTableItem;
+    final int colNr = activeTableColumn;
+    final int rowNr = table.indexOf(item);
+    if (rowNr < 0) {
+      return;
+    }
+    TextWidgetShortcutContext ctx =
+        TextWidgetShortcutContext.builder()
+            .control(table)
+            .variables(variables)
+            .getText(() -> item.isDisposed() ? "" : item.getText(colNr))
+            .setText(
+                value -> {
+                  if (!item.isDisposed() && !value.equals(item.getText(colNr))) {
+                    applyColumnValues(colNr, new int[] {rowNr}, new String[] {value});
+                  }
+                })
+            .namingSchemeType(col.getNamingSchemeType())
+            .variablesEnabled(col.isUsingVariables())
+            .build();
+    TextWidgetShortcutKeyAdapter.dispatch(e, ctx);
   }
 
   public void sortTable(int colNr) {
@@ -1711,13 +1840,29 @@ public class TableView extends Composite {
       final IRowMeta sourceRowMeta = buildTableSourceRowMeta(rowMeta, conversionRowMeta);
       List<Object[]> v = getTableItemsAsRows(items, sourceRowMeta);
 
+      // Keep TableItem#getData() across the rebuild so callers that tag their rows can still map a
+      // visual row back to their own data after the user sorts a column.
+      final Object[] preservedData = new Object[items.length];
+      final String[][][] preservedCellValues = new String[items.length][][];
+      for (int i = 0; i < items.length; i++) {
+        preservedData[i] = items[i].getData();
+        // A sort rebuilds every item from its text, so the values kept aside by setCellValue have
+        // to travel with the row or the grid would be left holding only the shortened text.
+        preservedCellValues[i] = (String[][]) items[i].getData(CELL_VALUES_KEY);
+      }
+
       final int[] sortIndex = new int[] {sortField + 2};
 
-      // Sort the vector!
-      v.sort(
-          (r1, r2) -> {
+      // Sort indices so each row stays paired with its preserved widget data.
+      Integer[] order = new Integer[v.size()];
+      for (int i = 0; i < order.length; i++) {
+        order[i] = i;
+      }
+      Arrays.sort(
+          order,
+          (i1, i2) -> {
             try {
-              return conversionRowMeta.compare(r1, r2, sortIndex);
+              return conversionRowMeta.compare(v.get(i1), v.get(i2), sortIndex);
             } catch (HopValueException e) {
               throw new HopRuntimeException("Error comparing rows", e);
             }
@@ -1727,7 +1872,8 @@ public class TableView extends Composite {
       table.removeAll();
 
       // Refill the table
-      for (Object[] r : v) {
+      for (int origIdx : order) {
+        Object[] r = v.get(origIdx);
         TableItem item = new TableItem(table, SWT.NONE);
 
         String colorName = (String) r[0];
@@ -1753,6 +1899,13 @@ public class TableView extends Composite {
           if (string != null) {
             item.setText(j - 2, string);
           }
+        }
+
+        if (preservedData[origIdx] != null) {
+          item.setData(preservedData[origIdx]);
+        }
+        if (preservedCellValues[origIdx] != null) {
+          item.setData(CELL_VALUES_KEY, preservedCellValues[origIdx]);
         }
       }
       table.setSortColumn(table.getColumn(this.sortField));
@@ -1876,6 +2029,14 @@ public class TableView extends Composite {
     disposeInlineEditor(text, inlineEditorHolder);
   }
 
+  /** True when the given (1-based) table column is read-only, so its editor is view-only. */
+  private boolean isColumnReadOnly(int colNr) {
+    return colNr > 0
+        && colNr - 1 < columns.length
+        && columns[colNr - 1] != null
+        && columns[colNr - 1].isReadOnly();
+  }
+
   /** Variant for call sites that captured the editor and its holder before going asynchronous. */
   @SuppressWarnings("javabugs:S2259") // the holder is created before it is deferred for disposal
   private void disposeInlineEditor(Control editorControl, Composite holder) {
@@ -1908,9 +2069,15 @@ public class TableView extends Composite {
     if (text == null || text.isDisposed()) {
       return;
     }
+    // The editor on a read-only cell is a viewer: take it down again without touching the value.
+    if (isColumnReadOnly(colNr)) {
+      disposeInlineEditor();
+      table.setFocus();
+      return;
+    }
     String textData = getTextWidgetValue(colNr);
 
-    row.setText(colNr, textData);
+    setCellValue(row, colNr, textData);
     disposeInlineEditor();
     table.setFocus();
 
@@ -1946,7 +2113,7 @@ public class TableView extends Composite {
 
   private void applyComboChange(TableItem row, int rowNr, int colNr) {
     String textData;
-    boolean usingVariables = columns[colNr - 1].isUsingVariables();
+    boolean usingVariables = usesCompositeEditor(colNr);
     if (usingVariables) {
       if (comboVar == null) {
         return;
@@ -2004,11 +2171,12 @@ public class TableView extends Composite {
 
   /**
    * Open the multi-line editor on the cell currently being edited, carrying over whatever stands in
-   * the inline editor. Silently does nothing for cells that have no pop-out (combo, button,
-   * password, read-only or disabled), so it is safe to wire to a key stroke that is not cell-aware.
+   * the inline editor. On a read-only column it opens as a value viewer. Silently does nothing for
+   * cells that have no pop-out (combo, button, password or disabled), so it is safe to wire to a
+   * key stroke that is not cell-aware.
    */
   private void expandActiveCell() {
-    if (readonly || !table.isEnabled() || !isEnabled() || columns.length == 0) {
+    if (!table.isEnabled() || !isEnabled() || columns.length == 0) {
       return;
     }
     if (activeTableItem == null || activeTableItem.isDisposed()) {
@@ -2023,7 +2191,6 @@ public class TableView extends Composite {
     if (colinfo == null
         || (colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT
             && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
-        || colinfo.isReadOnly()
         || colinfo.isPasswordField()) {
       return;
     }
@@ -2046,6 +2213,9 @@ public class TableView extends Composite {
       multilineShell.setFocus();
       return;
     }
+    // On a read-only column the pop-out is a value viewer: same box, but it can't be typed in and
+    // it never writes back to the cell.
+    final boolean viewOnly = colinfo.isReadOnly();
     // If an inline editor is already open on this cell, carry over its current (possibly edited)
     // text; otherwise start from the stored cell value. Read it before disposing the inline editor.
     String seed;
@@ -2053,22 +2223,28 @@ public class TableView extends Composite {
       seed = getTextWidgetValue(colNr);
       disposeInlineEditor();
     } else {
-      seed = row.getText(colNr);
+      seed = getCellValue(row, colNr);
     }
 
     setPosition(rowNr, colNr);
     table.setSelection(new TableItem[] {row});
 
-    beforeEdit = getItemText(row);
-    // An edit is already in progress when the carried-over text differs from the stored value.
-    fieldChanged = !seed.equals(row.getText(colNr));
+    if (!viewOnly) {
+      beforeEdit = getItemText(row);
+      // An edit is already in progress when the carried-over text differs from the stored value.
+      fieldChanged = !seed.equals(getCellValue(row, colNr));
+    }
 
     Rectangle cellBounds = row.getBounds(colNr);
     Point location = table.toDisplay(cellBounds.x, cellBounds.y);
 
     // Resizable (but title-less) floating shell so the user can drag its edges to make a long value
-    // bigger, matching the read-only value viewer.
-    final Shell popup = new Shell(getShell(), SWT.RESIZE);
+    // bigger, matching the read-only value viewer. SWT.RESIZE on its own is only title-less on
+    // macOS: it is part of SWT.SHELL_TRIM, so GTK leaves the window decorated and the window
+    // manager puts a full title bar with minimize and maximize on a pop-out that has no use for
+    // either. Adding SWT.ON_TOP makes a child shell a GTK popup window, which SWT undecorates,
+    // and keeps the drag-to-resize border by way of SWT's own custom resize.
+    final Shell popup = new Shell(getShell(), SWT.ON_TOP | SWT.RESIZE);
     multilineShell = popup;
     popup.addListener(
         SWT.Dispose,
@@ -2079,20 +2255,47 @@ public class TableView extends Composite {
         });
     popup.setLayout(new FillLayout());
 
-    final Text multi = new Text(popup, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER);
+    final Text multi =
+        new Text(
+            popup,
+            SWT.MULTI
+                | SWT.WRAP
+                | SWT.V_SCROLL
+                | SWT.BORDER
+                | (viewOnly ? SWT.READ_ONLY : SWT.NONE));
     PropsUi.setLook(multi);
     // Enter closing the editor is surprising in a multi-line box, so spell the keys out.
-    multi.setToolTipText(BaseMessages.getString(PKG, "TableView.tooltip.MultilineEditorKeys"));
+    multi.setToolTipText(
+        BaseMessages.getString(
+            PKG,
+            viewOnly
+                ? "TableView.tooltip.MultilineViewerKeys"
+                : "TableView.tooltip.MultilineEditorKeys"));
     // Seed with the platform delimiter so line breaks render (Windows needs \r\n).
     multi.setText(toPlatformLineBreaks(seed));
 
     // Track changes for undo + modified notifications, exactly like the inline editors do.
-    multi.addModifyListener(lsUndo);
-    if (lsMod != null) {
-      multi.addModifyListener(lsMod);
+    if (!viewOnly) {
+      multi.addModifyListener(lsUndo);
+      if (lsMod != null) {
+        multi.addModifyListener(lsMod);
+      }
+      if (colinfo.isUsingVariables()) {
+        multi.addKeyListener(new ControlSpaceKeyAdapter(variables, multi));
+      }
     }
-    if (colinfo.isUsingVariables()) {
-      multi.addKeyListener(new ControlSpaceKeyAdapter(variables, multi));
+    if (StringUtils.isNotEmpty(colinfo.getNamingSchemeType())) {
+      multi.addKeyListener(
+          new TextWidgetShortcutKeyAdapter(
+              () ->
+                  TextWidgetShortcutContext.builder()
+                      .control(multi)
+                      .variables(variables)
+                      .getText(multi::getText)
+                      .setText(multi::setText)
+                      .namingSchemeType(colinfo.getNamingSchemeType())
+                      .variablesEnabled(colinfo.isUsingVariables())
+                      .build()));
     }
 
     popup.setSize(Math.max(cellBounds.width, 400), 200);
@@ -2111,8 +2314,12 @@ public class TableView extends Composite {
           if (!table.isDisposed()) {
             table.setFocus();
           }
-          if (!newValue.equals(row.getText(colNr))) {
-            row.setText(colNr, newValue);
+          if (viewOnly) {
+            // A value viewer only closes: nothing to store, nothing changed.
+            return;
+          }
+          if (!newValue.equals(getCellValue(row, colNr))) {
+            setCellValue(row, colNr, newValue);
           }
           String[] afterEdit = getItemText(row);
           checkChanged(new String[][] {beforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
@@ -2164,6 +2371,50 @@ public class TableView extends Composite {
               multi.setSelection(multi.getText().length());
               popup.addListener(SWT.Deactivate, e -> commit.run());
             });
+  }
+
+  /**
+   * Shorten long / multi-line text cells for display in this grid: the cell is drawn cut to {@link
+   * PropsUi#getMaxPreviewCellLength()} characters and on a single line, while the stored value —
+   * what is copied, exported and saved — stays complete.
+   *
+   * <p>Off by default. Switch it on for grids that show data rather than configuration (the row
+   * preview, the data grids), where values are long, numerous, or multi-line and drawing them in
+   * full costs real time.
+   */
+  public void setShortenDisplayedValues(boolean shortenDisplayedValues) {
+    this.shortenDisplayedValues = shortenDisplayedValues;
+    if (shortenDisplayedValues) {
+      addWebNewlineHint();
+    }
+    if (table != null && !table.isDisposed()) {
+      table.redraw();
+    }
+  }
+
+  public boolean isShortenDisplayedValues() {
+    return shortenDisplayedValues;
+  }
+
+  /**
+   * Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
+   * which we use on the desktop). Add a footnote pointing users to the editor for the full value.
+   */
+  private void addWebNewlineHint() {
+    if (webNewlineHint != null || !EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    webNewlineHint = new Label(this, SWT.LEFT);
+    PropsUi.setLook(webNewlineHint);
+    webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
+    FormData fdHint = new FormData();
+    fdHint.left = new FormAttachment(0, 0);
+    fdHint.right = new FormAttachment(100, 0);
+    fdHint.bottom = new FormAttachment(100, 0);
+    webNewlineHint.setLayoutData(fdHint);
+    // The table now stops just above the footnote.
+    fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
+    layout(true, true);
   }
 
   /**
@@ -2242,12 +2493,69 @@ public class TableView extends Composite {
   }
 
   /**
+   * Fill a data-grid cell: the untruncated value is kept on the item and the cell itself only gets
+   * the shortened, single-line text.
+   *
+   * <p>Native tables take their geometry from the text a cell holds, and not every platform stops
+   * at the first line: GTK measures every row from its cell renderers, so a stored line break makes
+   * the whole row grow to as many lines as the value has (macOS keeps a uniform row height, which
+   * is why this stays invisible there). Drawing the value shortened is therefore not enough — the
+   * text we do not want drawn must not be in the cell to begin with.
+   *
+   * <p>Use it for the grids that show data rather than configuration. Everything in this widget
+   * that needs the real value reads it with {@link #getCellValue(TableItem, int)}; a grid that
+   * hands its rows out to a caller has to do the same.
+   */
+  public void setCellValue(TableItem item, int colNr, String value) {
+    if (!shortenDisplayedValues) {
+      item.setText(colNr, value);
+      return;
+    }
+    String[][] cells = (String[][]) item.getData(CELL_VALUES_KEY);
+    if (cells == null) {
+      int columnCount = table.getColumnCount();
+      cells = new String[][] {new String[columnCount], new String[columnCount]};
+      item.setData(CELL_VALUES_KEY, cells);
+    }
+    String display = formatCellValueForDisplay(value);
+    display = display == null ? "" : display;
+    if (colNr < cells[FULL].length) {
+      cells[FULL][colNr] = value;
+      cells[DISPLAYED][colNr] = display;
+    }
+    item.setText(colNr, display);
+  }
+
+  /**
+   * The complete value of a cell: the one kept aside by {@link #setCellValue(TableItem, int,
+   * String)}, or the cell text itself for the grids that hold their values in full.
+   *
+   * <p>The value is only used while the cell still shows the text it was derived from. Anything
+   * that writes the cell some other way therefore takes over cleanly: the worst a write path that
+   * does not know about this can cause is a value drawn in full again, never a stale one saved.
+   */
+  public static String getCellValue(TableItem item, int colNr) {
+    String[][] cells = (String[][]) item.getData(CELL_VALUES_KEY);
+    if (cells != null
+        && colNr < cells[FULL].length
+        && cells[FULL][colNr] != null
+        && cells[DISPLAYED][colNr].equals(item.getText(colNr))) {
+      return cells[FULL][colNr];
+    }
+    return item.getText(colNr);
+  }
+
+  /**
    * The shortened display string for a text cell whose stored value is longer / multi-line, or null
-   * when the cell should be drawn natively (non-text column, or nothing to shorten). Used by the
-   * desktop owner-draw so {@link TableItem#getText(int)} keeps returning the full, saved value.
+   * when the cell should be drawn natively (nothing to shorten, or the cell already holds the
+   * shortened text because the grid stores its values with {@link #setCellValue(TableItem, int,
+   * String)}).
    */
   private String customCellText(TableItem item, int columnIndex) {
-    if (item == null || columnIndex < 1 || columnIndex - 1 >= columns.length) {
+    if (!shortenDisplayedValues
+        || item == null
+        || columnIndex < 1
+        || columnIndex - 1 >= columns.length) {
       return null;
     }
     ColumnInfo colinfo = columns[columnIndex - 1];
@@ -2256,9 +2564,8 @@ public class TableView extends Composite {
             && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)) {
       return null;
     }
-    String full = item.getText(columnIndex);
-    String display = formatCellValueForDisplay(full);
-    return display != null && !display.equals(full) ? display : null;
+    String display = formatCellValueForDisplay(getCellValue(item, columnIndex));
+    return display != null && !display.equals(item.getText(columnIndex)) ? display : null;
   }
 
   private void eraseCell(Event event) {
@@ -2384,8 +2691,21 @@ public class TableView extends Composite {
     if (id == SWT.YES) {
       table.removeAll();
       new TableItem(table, SWT.NONE);
-      if (!readonly) {
-        composite.getDisplay().asyncExec(() -> edit(0, 1));
+      // Only start editing when the user cleared an already-visible grid. Programmatic refill
+      // before a dialog is opened (run options Parameters/Variables) must not grab focus.
+      Shell parentShell = composite.getShell();
+      if (!readonly
+          && parentShell != null
+          && !parentShell.isDisposed()
+          && parentShell.isVisible()) {
+        composite
+            .getDisplay()
+            .asyncExec(
+                () -> {
+                  if (!table.isDisposed() && table.getItemCount() > 0) {
+                    edit(0, 1);
+                  }
+                });
       }
       this.setModified(); // timh
     }
@@ -2620,11 +2940,11 @@ public class TableView extends Composite {
         if (c > 1) {
           selection.append(CLIPBOARD_DELIMITER);
         }
-        String value = ti.getText(c);
+        String value = getCellValue(ti, c);
         if (StringUtils.isNotEmpty(value)) {
           Color textColor = ti.getForeground(c);
           if (!nullTextColor.equals(textColor) || !"<null>".equals(value)) {
-            selection.append(ti.getText(c));
+            selection.append(value);
           }
         }
       }
@@ -2941,7 +3261,7 @@ public class TableView extends Composite {
 
     String[] retval = new String[table.getColumnCount() - 1];
     for (int i = 0; i < retval.length; i++) {
-      retval[i] = row.getText(i + 1);
+      retval[i] = getCellValue(row, i + 1);
     }
 
     return retval;
@@ -2959,7 +3279,12 @@ public class TableView extends Composite {
 
     ColumnInfo colinfo = columns[colNr - 1];
 
-    if (colinfo.isReadOnly()) {
+    // A read-only cell can't be edited, but its value still has to be readable and selectable: it
+    // is drawn shortened and single-lined, so without an editor there is no way to see the rest of
+    // it. Give it the same inline editor (and expand icon), only view-only. Columns that hand their
+    // click to a selection adapter keep doing nothing, as before.
+    final boolean viewOnly = colinfo.isReadOnly();
+    if (viewOnly && colinfo.getSelectionAdapter() != null) {
       return;
     }
 
@@ -2987,18 +3312,20 @@ public class TableView extends Composite {
     // edit values that contain a line break in the multi-line pop-out editor instead.
     if ((colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT
             || colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
-        && indexOfLineBreak(row.getText(colNr)) >= 0) {
+        && indexOfLineBreak(getCellValue(row, colNr)) >= 0) {
       editMultiline(row, rowNr, colNr, colinfo);
       return;
     }
 
-    String content = row.getText(colNr) + (extra != 0 ? "" + extra : "");
+    String content = getCellValue(row, colNr) + (!viewOnly && extra != 0 ? "" + extra : "");
     String tooltip = columns[colNr - 1].getToolTip();
 
-    final boolean useVariables = columns[colNr - 1].isUsingVariables();
+    final boolean useVariables = !viewOnly && columns[colNr - 1].isUsingVariables();
+    final boolean useCompositeEditor = !viewOnly && usesCompositeEditor(columns[colNr - 1]);
     final boolean passwordField = columns[colNr - 1].isPasswordField();
 
-    final ModifyListener modifyListener = me -> setColumnWidthBasedOnTextField(colNr, useVariables);
+    final ModifyListener modifyListener =
+        me -> setColumnWidthBasedOnTextField(colNr, useCompositeEditor);
 
     // Text cells get an "expand" icon on the right edge of the inline editor which opens the
     // multi-line pop-out. Holding both needs a wrapper composite around the editor, so only create
@@ -3021,7 +3348,7 @@ public class TableView extends Composite {
       editorParent = table;
     }
 
-    if (useVariables) {
+    if (useCompositeEditor) {
       IGetCaretPosition getCaretPositionInterface =
           () -> ((TextVar) text).getTextWidget().getCaretPosition();
 
@@ -3063,6 +3390,10 @@ public class TableView extends Composite {
       }
 
       text = textWidget;
+      textWidget.setVariablesEnabled(useVariables);
+      if (StringUtils.isNotEmpty(columns[colNr - 1].getNamingSchemeType()) && !passwordField) {
+        textWidget.enableNamingSchemes(columns[colNr - 1].getNamingSchemeType());
+      }
       textWidget.setText(content);
       if (lsMod != null) {
         textWidget.addModifyListener(lsMod);
@@ -3083,17 +3414,23 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     } else {
-      Text textWidget = new Text(editorParent, SWT.NONE);
+      Text textWidget = new Text(editorParent, viewOnly ? SWT.READ_ONLY : SWT.NONE);
       text = textWidget;
       textWidget.setText(content);
-      if (lsMod != null) {
-        textWidget.addModifyListener(lsMod);
+      // A view-only editor never changes anything, so it takes no modify/undo listeners.
+      if (!viewOnly) {
+        if (lsMod != null) {
+          textWidget.addModifyListener(lsMod);
+        }
+        textWidget.addModifyListener(lsUndo);
+        // Make the column larger so we can still see the string we're entering...
+        textWidget.addModifyListener(modifyListener);
       }
-      textWidget.addModifyListener(lsUndo);
       textWidget.setSelection(content.length());
+      if (viewOnly) {
+        forwardRowActivation(textWidget);
+      }
       textWidget.addKeyListener(lsKeyText);
-      // Make the column larger so we can still see the string we're entering...
-      textWidget.addModifyListener(modifyListener);
       if (selectText) {
         textWidget.selectAll();
       }
@@ -3128,6 +3465,33 @@ public class TableView extends Composite {
   }
 
   /**
+   * A view-only editor covers the cell, so the table itself never sees the second click of a
+   * double-click, nor the Enter key, that would otherwise fire {@link SWT#DefaultSelection} and
+   * activate the row. Pass those on, so dialogs that pick a row that way (e.g. SelectRowDialog)
+   * keep working on a read-only grid. Deferred, because the editor's own handling of the key takes
+   * it down first.
+   */
+  private void forwardRowActivation(Text textWidget) {
+    Listener activateRow =
+        e ->
+            getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!table.isDisposed()) {
+                        table.notifyListeners(SWT.DefaultSelection, new Event());
+                      }
+                    });
+    textWidget.addListener(SWT.MouseDoubleClick, activateRow);
+    textWidget.addListener(
+        SWT.KeyDown,
+        e -> {
+          if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+            activateRow.handleEvent(e);
+          }
+        });
+  }
+
+  /**
    * Put a small "expand" icon on the right edge of the inline editor which opens the value in the
    * floating multi-line editor. It is a {@link Label} rather than a {@link Button} on purpose: a
    * label does not take focus, so clicking it does not fire the editor's focus-lost handler (which
@@ -3138,7 +3502,12 @@ public class TableView extends Composite {
     Label expandLabel = new Label(holder, SWT.NONE);
     PropsUi.setLook(expandLabel);
     expandLabel.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    expandLabel.setToolTipText(BaseMessages.getString(PKG, "TableView.tooltip.ExpandValue"));
+    expandLabel.setToolTipText(
+        BaseMessages.getString(
+            PKG,
+            colinfo.isReadOnly()
+                ? "TableView.tooltip.ViewValue"
+                : "TableView.tooltip.ExpandValue"));
 
     // The holder sits on top of the table cell, so without a background of its own the cell's own
     // text shows through around the icon. Take the editor's background so the two read as one field
@@ -3226,6 +3595,7 @@ public class TableView extends Composite {
         case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER ->
             Const.getNumberFormats();
         case IValueMeta.TYPE_STRING -> Const.getConversionFormats();
+        case IValueMeta.TYPE_BOOLEAN -> Const.getBooleanFormats();
         default -> new String[0];
       };
     }
@@ -3254,7 +3624,8 @@ public class TableView extends Composite {
     }
 
     final boolean useVariables = columnInfo.isUsingVariables();
-    if (useVariables) {
+    final boolean useCompositeEditor = usesCompositeEditor(columnInfo);
+    if (useCompositeEditor) {
       IGetCaretPosition getCaretPositionInterface = () -> 0;
 
       // Widget will be disposed when we get here
@@ -3288,6 +3659,10 @@ public class TableView extends Composite {
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       comboVar.addModifyListener(lsModCombo);
       comboVar.addFocusListener(lsFocusCombo);
+      comboVar.setVariablesEnabled(useVariables);
+      if (StringUtils.isNotEmpty(columnInfo.getNamingSchemeType())) {
+        comboVar.enableNamingSchemes(columnInfo.getNamingSchemeType());
+      }
       comboVar.setText(item.getText(colNr));
       comboVar.getCComboWidget().setVisibleItemCount(Math.min(opt.length, 15));
 
@@ -3420,6 +3795,21 @@ public class TableView extends Composite {
   }
 
   public void optWidth(boolean header, int nrLines) {
+    optWidth(header, nrLines, false);
+  }
+
+  /**
+   * Size columns to their content.
+   *
+   * @param header include header text in the packed size
+   * @param nrLines max rows to measure, or {@code <= 0} for all rows
+   * @param growOnly when true, never shrink a column and never touch columns with an explicit
+   *     {@link ColumnInfo} width (user-sized). Used by live grids that refresh often.
+   */
+  public void optWidth(boolean header, int nrLines, boolean growOnly) {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
 
     int extraForMargin;
     if (Const.isWindows()) {
@@ -3429,108 +3819,130 @@ public class TableView extends Composite {
     }
     extraForMargin += EXTRA_COLUMN_WIDTH_MARGIN;
 
-    for (int c = 0; c < table.getColumnCount(); c++) {
-      TableColumn tc = table.getColumn(c);
-      int max = 0;
-      if (header) {
-        max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
-        if (tc.getImage() != null) {
-          max += tc.getImage().getBounds().width;
+    boolean widthChanged = false;
+    table.setRedraw(false);
+    try {
+      for (int c = 0; c < table.getColumnCount(); c++) {
+        TableColumn tc = table.getColumn(c);
+        if (c > 0 && hiddenDataColumns.contains(c - 1)) {
+          if (tc.getWidth() != 0) {
+            tc.setWidth(0);
+            rememberAppliedColumnWidth(c, 0);
+            widthChanged = true;
+          }
+          continue;
         }
+        int max = 0;
+        if (header) {
+          max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
+          if (tc.getImage() != null) {
+            max += tc.getImage().getBounds().width;
+          }
 
-        // Check if the column has a sorted mark set. In that case, we need the
-        // header to be a bit wider...
-        //
-        if (c == sortField && sortable) {
-          max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
-        }
-      }
-      Set<String> columnStrings = new HashSet<>();
-
-      boolean haveToGetTexts = false;
-      if (c > 0) {
-        final ColumnInfo column = columns[c - 1];
-        if (column != null) {
-          switch (column.getType()) {
-            case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
-              haveToGetTexts = true;
-              break;
-            case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
-              haveToGetTexts = true;
-              if (column.getComboValues() != null) {
-                for (String comboValue : columns[c - 1].getComboValues()) {
-                  columnStrings.add(comboValue);
-                }
-              }
-              break;
-            case ColumnInfo.COLUMN_TYPE_BUTTON:
-              columnStrings.add(column.getButtonText());
-              break;
-            default:
-              break;
+          // Check if the column has a sorted mark set. In that case, we need the
+          // header to be a bit wider...
+          //
+          if (c == sortField && sortable) {
+            max += ConstUi.SMALL_ICON_SIZE + extraForMargin;
           }
         }
-      } else {
-        haveToGetTexts = true;
-      }
+        Set<String> columnStrings = new HashSet<>();
 
-      if (haveToGetTexts) {
-        for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
-          TableItem ti = table.getItem(r);
-          if (ti != null) {
-            columnStrings.add(ti.getText(c));
-          }
-        }
-      }
-
-      for (String str : columnStrings) {
-        int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
-        if (len > max) {
-          max = len;
-        }
-      }
-
-      try {
-        max += extraForMargin;
+        boolean haveToGetTexts = false;
         if (c > 0) {
-          max += extraForMargin; // margins on both sides of the column
-        }
-        if (Const.isWindows() || Const.isLinux()) {
-          max += extraForMargin;
-        }
-
-        // The line number column
-        //
-        if (c == 0) {
-          if (tc.getWidth() != max) {
-            tc.setWidth(max);
+          final ColumnInfo column = columns[c - 1];
+          if (column != null) {
+            switch (column.getType()) {
+              case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
+                haveToGetTexts = true;
+                break;
+              case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
+                haveToGetTexts = true;
+                if (column.getComboValues() != null) {
+                  for (String comboValue : columns[c - 1].getComboValues()) {
+                    columnStrings.add(comboValue);
+                  }
+                }
+                break;
+              case ColumnInfo.COLUMN_TYPE_BUTTON:
+                columnStrings.add(column.getButtonText());
+                break;
+              default:
+                break;
+            }
           }
         } else {
-          int desiredWidth = columns[c - 1].getWidth();
-          if (desiredWidth > 0) {
-            if (tc.getWidth() != desiredWidth) {
-              tc.setWidth(desiredWidth);
-            }
-          } else {
-            if (tc.getWidth() != max) {
-              tc.setWidth(max);
+          haveToGetTexts = true;
+        }
+
+        if (haveToGetTexts) {
+          for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
+            TableItem ti = table.getItem(r);
+            if (ti != null) {
+              // Size on what is actually drawn: a long or multi-line value is shown shortened, so
+              // measuring the full value would stretch the column for text nobody sees.
+              String display = customCellText(ti, c);
+              columnStrings.add(display != null ? display : ti.getText(c));
             }
           }
         }
 
-        if (tc.getWidth() != max) {
-          if (c > 0 && columns[c - 1].getWidth() > 0) {
-            tc.setWidth(columns[c - 1].getWidth());
-          } else {
-            tc.setWidth(max);
+        for (String str : columnStrings) {
+          int len = TextSizeUtilFacade.textExtent(str == null ? "" : str).x;
+          if (len > max) {
+            max = len;
           }
         }
-      } catch (Exception e) {
-        // Ignore errors
-        LogChannel.UI.logError("error in TableView", e);
+
+        try {
+          max += extraForMargin;
+          if (c > 0) {
+            max += extraForMargin; // margins on both sides of the column
+          }
+          if (Const.isWindows() || Const.isLinux()) {
+            max += extraForMargin;
+          }
+
+          int desiredWidth = preferredColumnWidth(c);
+          int target;
+          if (c == 0) {
+            // Line-number column: always pack unless the caller marked a preferred width.
+            target = desiredWidth > 0 ? desiredWidth : max;
+          } else if (desiredWidth > 0) {
+            target = desiredWidth;
+          } else {
+            target = max;
+          }
+
+          if (growOnly) {
+            if (desiredWidth > 0) {
+              continue;
+            }
+            int baseline = Math.max(tc.getWidth(), lastAppliedColumnWidth(c));
+            if (max <= baseline) {
+              continue;
+            }
+            target = max;
+          }
+
+          if (tc.getWidth() != target) {
+            tc.setWidth(target);
+            rememberAppliedColumnWidth(c, target);
+            widthChanged = true;
+          } else {
+            rememberAppliedColumnWidth(c, target);
+          }
+        } catch (Exception e) {
+          // Ignore errors
+          LogChannel.UI.logError("error in TableView", e);
+        }
+      }
+    } finally {
+      if (!table.isDisposed()) {
+        table.setRedraw(true);
       }
     }
-    if (table.isListening(SWT.Resize)) {
+    if (widthChanged && table.isListening(SWT.Resize)) {
       Event resizeEvent = new Event();
       resizeEvent.widget = table;
       resizeEvent.type = SWT.Resize;
@@ -3539,6 +3951,60 @@ public class TableView extends Composite {
       table.notifyListeners(SWT.Resize, resizeEvent);
     }
     unEdit();
+  }
+
+  /**
+   * Records a preferred width for a table column ({@code 0} is the "#" index column). Later {@link
+   * #optWidth} calls honor this instead of packing, and grow-only mode will not change it.
+   *
+   * @param tableColumnIndex native table column index
+   * @param width pixel width
+   */
+  public void setPreferredColumnWidth(int tableColumnIndex, int width) {
+    if (tableColumnIndex == 0) {
+      if (numberColumn != null) {
+        numberColumn.setWidth(width);
+      }
+      return;
+    }
+    int dataIndex = tableColumnIndex - 1;
+    if (dataIndex >= 0 && dataIndex < columns.length) {
+      columns[dataIndex].setWidth(width);
+    }
+  }
+
+  private int preferredColumnWidth(int tableColumnIndex) {
+    if (tableColumnIndex == 0) {
+      return numberColumn != null ? numberColumn.getWidth() : -1;
+    }
+    int dataIndex = tableColumnIndex - 1;
+    if (dataIndex >= 0 && dataIndex < columns.length && columns[dataIndex] != null) {
+      return columns[dataIndex].getWidth();
+    }
+    return -1;
+  }
+
+  private int lastAppliedColumnWidth(int tableColumnIndex) {
+    if (lastOptWidthApplied == null || tableColumnIndex >= lastOptWidthApplied.length) {
+      return -1;
+    }
+    return lastOptWidthApplied[tableColumnIndex];
+  }
+
+  private void rememberAppliedColumnWidth(int tableColumnIndex, int width) {
+    int count = table.getColumnCount();
+    if (lastOptWidthApplied == null || lastOptWidthApplied.length != count) {
+      int[] next = new int[count];
+      Arrays.fill(next, -1);
+      if (lastOptWidthApplied != null) {
+        System.arraycopy(
+            lastOptWidthApplied, 0, next, 0, Math.min(lastOptWidthApplied.length, count));
+      }
+      lastOptWidthApplied = next;
+    }
+    if (tableColumnIndex >= 0 && tableColumnIndex < lastOptWidthApplied.length) {
+      lastOptWidthApplied[tableColumnIndex] = width;
+    }
   }
 
   public void optimizeTableView() {
@@ -4083,15 +4549,62 @@ public class TableView extends Composite {
     }
   }
 
-  /**
-   * Open a searchable column picker and scroll the table horizontally so the chosen column is
-   * visible. Useful for wide tables (preview grids, field mapping dialogs, etc.).
-   */
+  /** Popup under the search toolbar button: find a value, or jump to a column. */
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_NAVIGATE_TO_COLUMN,
       image = "ui/images/search.svg",
-      toolTip = "i18n::TableView.ToolBarWidget.NavigateToColumn.ToolTip")
+      toolTip = "i18n::TableView.ToolBarWidget.Find.ToolTip")
+  public void showFindMenu() {
+    if (columns.length == 0 || isDisposed() || findRemoved()) {
+      return;
+    }
+    Menu menu = new Menu(getShell(), SWT.POP_UP);
+    MenuItem findValueItem = new MenuItem(menu, SWT.NONE);
+    findValueItem.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.FindValue")));
+    findValueItem.addListener(SWT.Selection, e -> findValue());
+
+    MenuItem findColumnItem = new MenuItem(menu, SWT.NONE);
+    findColumnItem.setText(
+        OsHelper.customizeMenuitemText(
+            BaseMessages.getString(PKG, "TableView.menu.NavigateToColumn")));
+    findColumnItem.addListener(SWT.Selection, e -> navigateToColumn());
+
+    menu.addListener(
+        SWT.Hide,
+        e ->
+            menu.getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!menu.isDisposed()) {
+                        menu.dispose();
+                      }
+                    }));
+    menu.setLocation(getDisplay().getCursorLocation());
+    menu.setVisible(true);
+  }
+
+  private boolean isFindShortcut(KeyEvent e) {
+    return e.keyCode == 'f' && (e.stateMask & SWT.MOD1) != 0;
+  }
+
+  private boolean findRemoved() {
+    return removeToolItems != null && removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN);
+  }
+
+  /** Open the find-value dialog. Ctrl/Cmd-F and the toolbar menu both land here. */
+  public void findValue() {
+    if (columns.length == 0 || isDisposed() || findRemoved()) {
+      return;
+    }
+    new TableViewFindDialog(getShell(), this).open();
+  }
+
+  /**
+   * Open a searchable column picker and scroll the table horizontally so the chosen column is
+   * visible. Useful for wide tables (preview grids, field mapping dialogs, etc.).
+   */
   public void navigateToColumn() {
     if (columns.length == 0) {
       return;
@@ -4119,11 +4632,378 @@ public class TableView extends Composite {
     }
 
     // tableColumn[0] is the row-number (#) column; data columns start at index 1.
+    if (hiddenDataColumns.contains(index)) {
+      showDataColumn(index);
+    }
     TableColumn tableCol = tableColumn[index + 1];
     if (tableCol != null && !tableCol.isDisposed()) {
       table.showColumn(tableCol);
       activeTableColumn = index + 1;
     }
+  }
+
+  /**
+   * Full cell text, visual column order, and the active cell. Commits an open editor first so a
+   * value still being typed is part of the scan.
+   */
+  public TableViewFind.Grid captureFindGrid() {
+    if (table == null || table.isDisposed() || columns == null) {
+      return null;
+    }
+    applyAllChanges();
+    if (table.isDisposed()) {
+      return null;
+    }
+    int cols = columns.length;
+    int rowCount = table.getItemCount();
+    String[][] values = new String[rowCount][cols];
+    for (int row = 0; row < rowCount; row++) {
+      TableItem item = table.getItem(row);
+      for (int column = 0; column < cols; column++) {
+        String value = getCellValue(item, column + 1);
+        values[row][column] = value == null ? "" : value;
+      }
+    }
+    String[] names = new String[cols];
+    for (int column = 0; column < cols; column++) {
+      names[column] = Const.NVL(columns[column].getName(), "");
+    }
+    int activeRow = 0;
+    if (activeTableRow >= 0 && activeTableRow < rowCount) {
+      activeRow = activeTableRow;
+    }
+    int activeDataColumn = -1;
+    if (activeTableColumn >= 1 && activeTableColumn <= cols) {
+      activeDataColumn = activeTableColumn - 1;
+    }
+    return new TableViewFind.Grid(
+        values, visualDataColumnIndexes(), names, activeRow, activeDataColumn);
+  }
+
+  /**
+   * Show {@code row} and {@code dataColumn}. An editable text cell is opened with its text
+   * selected. A read-only table or column is only scrolled into view. A column click handler and a
+   * value that contains a line break are not opened either: both go through {@link #edit(int,
+   * int)}, which would pop a dialog or the multi-line editor on top of Find.
+   */
+  public void revealFoundCell(int row, int dataColumn) {
+    if (table == null || table.isDisposed() || columns == null) {
+      return;
+    }
+    if (row < 0 || row >= table.getItemCount() || dataColumn < 0 || dataColumn >= columns.length) {
+      return;
+    }
+    if (hiddenDataColumns.contains(dataColumn)) {
+      showDataColumn(dataColumn);
+    }
+    int tableColumnIndex = dataColumn + 1;
+    if (tableColumn != null && tableColumnIndex < tableColumn.length) {
+      TableColumn tableCol = tableColumn[tableColumnIndex];
+      if (tableCol != null && !tableCol.isDisposed()) {
+        table.showColumn(tableCol);
+      }
+    }
+    TableItem item = table.getItem(row);
+    table.showItem(item);
+    table.setSelection(row);
+    setPosition(row, tableColumnIndex);
+    // setPosition already recorded the cell. edit() is a click: it fires a selection adapter and
+    // opens the multi-line pop-out, so those cells are only shown.
+    ColumnInfo colinfo = columns[dataColumn];
+    if (colinfo != null
+        && !readonly
+        && !colinfo.isReadOnly()
+        && colinfo.getSelectionAdapter() == null
+        && indexOfLineBreak(Const.NVL(getCellValue(item, tableColumnIndex), "")) < 0) {
+      edit(row, tableColumnIndex);
+    }
+  }
+
+  private int[] visualDataColumnIndexes() {
+    int[] order = getColumnOrderSafe();
+    int[] data = new int[columns.length];
+    int count = 0;
+    for (int tableIndex : order) {
+      if (tableIndex >= 1 && tableIndex <= columns.length) {
+        data[count++] = tableIndex - 1;
+      }
+    }
+    if (count == data.length) {
+      return data;
+    }
+    return Arrays.copyOf(data, count);
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_TABLE_VIEWS,
+      image = "ui/images/view.svg",
+      toolTip = "i18n::TableView.ToolBarWidget.TableViews.ToolTip")
+  public void editTableViews() {
+    if (columns.length == 0) {
+      return;
+    }
+    new TableViewColumnViewDialog(getShell(), this).open();
+  }
+
+  /**
+   * Hide and reorder data columns so that only {@code columnNames} stay visible, in that order.
+   * Matching is by column name. Cell data is left in place.
+   *
+   * @return {@code true} if at least one column matched
+   */
+  public boolean applyColumnView(List<String> columnNames) {
+    if (table == null || table.isDisposed() || columns.length == 0) {
+      return false;
+    }
+    String[] available = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      available[i] = Const.NVL(columns[i].getName(), "");
+    }
+    List<Integer> visible = TableViewColumnViews.resolveColumnIndices(available, columnNames);
+    if (visible.isEmpty()) {
+      return false;
+    }
+    ensureRememberedWidths();
+    hiddenDataColumns.clear();
+    Set<Integer> visibleSet = new HashSet<>(visible);
+    for (int i = 0; i < columns.length; i++) {
+      if (!visibleSet.contains(i)) {
+        hiddenDataColumns.add(i);
+      }
+    }
+    applyHiddenAndOrder(visible);
+    return true;
+  }
+
+  /** Restore every data column to its original order and remembered width. */
+  public void resetColumnView() {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    hiddenDataColumns.clear();
+    for (int i = 1; i < tableColumn.length; i++) {
+      TableColumn tc = tableColumn[i];
+      if (tc == null || tc.isDisposed()) {
+        continue;
+      }
+      tc.setResizable(true);
+      int restore = rememberedWidths != null ? rememberedWidths[i] : 0;
+      if (restore > 0) {
+        tc.setWidth(restore);
+      } else if (tc.getWidth() <= 0) {
+        tc.pack();
+      }
+    }
+    setColumnOrderSafe(naturalColumnOrder());
+  }
+
+  /**
+   * Visible data-column names in current visual order (the # column is omitted). Hidden columns
+   * (width 0) are skipped.
+   */
+  public List<String> getVisibleColumnNamesInOrder() {
+    List<String> names = new ArrayList<>();
+    if (table == null || table.isDisposed()) {
+      return names;
+    }
+    for (int tableIdx : getColumnOrderSafe()) {
+      if (tableIdx <= 0 || tableIdx > columns.length) {
+        continue;
+      }
+      int dataIdx = tableIdx - 1;
+      if (hiddenDataColumns.contains(dataIdx)) {
+        continue;
+      }
+      TableColumn tc = tableColumn[tableIdx];
+      if (tc == null || tc.isDisposed() || tc.getWidth() <= 0) {
+        continue;
+      }
+      names.add(Const.NVL(columns[dataIdx].getName(), ""));
+    }
+    return names;
+  }
+
+  public void hideDataColumn(int dataIndex) {
+    if (dataIndex < 0 || dataIndex >= columns.length) {
+      return;
+    }
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    ensureRememberedWidths();
+    rememberWidth(dataIndex + 1);
+    hiddenDataColumns.add(dataIndex);
+    TableColumn tc = tableColumn[dataIndex + 1];
+    if (tc != null && !tc.isDisposed()) {
+      tc.setWidth(0);
+      tc.setResizable(false);
+    }
+  }
+
+  private void showDataColumn(int dataIndex) {
+    if (dataIndex < 0 || dataIndex >= columns.length) {
+      return;
+    }
+    hiddenDataColumns.remove(dataIndex);
+    TableColumn tc = tableColumn[dataIndex + 1];
+    if (tc == null || tc.isDisposed()) {
+      return;
+    }
+    tc.setResizable(true);
+    int restore = rememberedWidths != null ? rememberedWidths[dataIndex + 1] : 0;
+    if (restore > 0) {
+      tc.setWidth(restore);
+    } else if (tc.getWidth() <= 0) {
+      tc.pack();
+    }
+  }
+
+  private void applyHiddenAndOrder(List<Integer> visibleDataIndices) {
+    for (int i = 0; i < columns.length; i++) {
+      TableColumn tc = tableColumn[i + 1];
+      if (tc == null || tc.isDisposed()) {
+        continue;
+      }
+      if (hiddenDataColumns.contains(i)) {
+        rememberWidth(i + 1);
+        tc.setWidth(0);
+        tc.setResizable(false);
+      } else {
+        tc.setResizable(true);
+        if (tc.getWidth() <= 0) {
+          int restore = rememberedWidths != null ? rememberedWidths[i + 1] : 0;
+          tc.setWidth(restore > 0 ? restore : 50);
+        }
+      }
+    }
+
+    int[] order = new int[tableColumn.length];
+    int pos = 0;
+    order[pos++] = 0;
+    for (int dataIdx : visibleDataIndices) {
+      order[pos++] = dataIdx + 1;
+    }
+    for (int i = 0; i < columns.length; i++) {
+      if (hiddenDataColumns.contains(i)) {
+        order[pos++] = i + 1;
+      }
+    }
+    setColumnOrderSafe(order);
+  }
+
+  private void ensureRememberedWidths() {
+    if (rememberedWidths != null && rememberedWidths.length == tableColumn.length) {
+      return;
+    }
+    rememberedWidths = new int[tableColumn.length];
+    for (int i = 0; i < tableColumn.length; i++) {
+      if (tableColumn[i] != null && !tableColumn[i].isDisposed()) {
+        rememberedWidths[i] = tableColumn[i].getWidth();
+      }
+    }
+  }
+
+  private void rememberWidth(int tableColIndex) {
+    ensureRememberedWidths();
+    TableColumn tc = tableColumn[tableColIndex];
+    if (tc == null || tc.isDisposed()) {
+      return;
+    }
+    int width = tc.getWidth();
+    if (width > 0) {
+      rememberedWidths[tableColIndex] = width;
+    }
+  }
+
+  private int[] naturalColumnOrder() {
+    int[] order = new int[tableColumn.length];
+    for (int i = 0; i < order.length; i++) {
+      order[i] = i;
+    }
+    return order;
+  }
+
+  private int[] getColumnOrderSafe() {
+    try {
+      int[] order = table.getColumnOrder();
+      if (order != null && order.length == tableColumn.length) {
+        return order;
+      }
+    } catch (Exception e) {
+      // RAP / some SWT ports do not implement column order
+    }
+    return naturalColumnOrder();
+  }
+
+  private void setColumnOrderSafe(int[] order) {
+    try {
+      table.setColumnOrder(order);
+    } catch (Exception e) {
+      // RAP / some SWT ports do not implement column order
+    }
+  }
+
+  private void addHeaderContextMenu(Menu rowMenu) {
+    Menu headerMenu = new Menu(table);
+
+    MenuItem miHide = new MenuItem(headerMenu, SWT.NONE);
+    miHide.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.HideColumn")));
+    final int[] headerDataColumn = {-1};
+    miHide.addListener(
+        SWT.Selection,
+        e -> {
+          if (headerDataColumn[0] >= 0) {
+            hideDataColumn(headerDataColumn[0]);
+          }
+        });
+
+    MenuItem miShowAll = new MenuItem(headerMenu, SWT.NONE);
+    miShowAll.setText(
+        OsHelper.customizeMenuitemText(
+            BaseMessages.getString(PKG, "TableView.menu.ShowAllColumns")));
+    miShowAll.addListener(SWT.Selection, e -> resetColumnView());
+
+    if (!removeToolItems.contains(ID_TOOLBAR_TABLE_VIEWS)) {
+      new MenuItem(headerMenu, SWT.SEPARATOR);
+      MenuItem miTableViews = new MenuItem(headerMenu, SWT.NONE);
+      miTableViews.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.TableViews")));
+      miTableViews.setImage(GuiResource.getInstance().getImageView());
+      miTableViews.addListener(SWT.Selection, e -> editTableViews());
+    }
+
+    table.addListener(
+        SWT.MenuDetect,
+        event -> {
+          Point pt = table.toControl(event.x, event.y);
+          boolean onHeader = pt.y >= 0 && pt.y < table.getHeaderHeight();
+          if (onHeader) {
+            headerDataColumn[0] = findDataColumnAtX(pt.x);
+            miHide.setEnabled(headerDataColumn[0] >= 0);
+            table.setMenu(headerMenu);
+          } else {
+            table.setMenu(rowMenu);
+          }
+        });
+  }
+
+  private int findDataColumnAtX(int x) {
+    int pos = 0;
+    ScrollBar hBar = table.getHorizontalBar();
+    if (hBar != null && !hBar.isDisposed()) {
+      pos -= hBar.getSelection();
+    }
+    for (int tableIdx : getColumnOrderSafe()) {
+      TableColumn tc = table.getColumn(tableIdx);
+      int width = tc.getWidth();
+      if (x >= pos && x < pos + width) {
+        return tableIdx == 0 ? -1 : tableIdx - 1;
+      }
+      pos += width;
+    }
+    return -1;
   }
 
   public IRowMeta getRowWithoutValues() {
@@ -4208,7 +5088,7 @@ public class TableView extends Composite {
     String[] retval = new String[table.getItemCount()];
     for (int i = 0; i < retval.length; i++) {
       TableItem item = table.getItem(i);
-      retval[i] = item.getText(colNr + 1);
+      retval[i] = getCellValue(item, colNr + 1);
     }
     return retval;
   }
@@ -4227,6 +5107,59 @@ public class TableView extends Composite {
   public void setText(String text, int colNr, int rowNr) {
     TableItem item = table.getItem(rowNr);
     item.setText(colNr, text);
+  }
+
+  /**
+   * Replace cell values in one column for the given rows and record a single undo step.
+   *
+   * <p>{@code colNr} is the {@link TableItem} column index (1 = first {@link ColumnInfo}; 0 is the
+   * leading row-number column).
+   *
+   * @param colNr table item column index
+   * @param rowIndices absolute row indices into {@link #table}
+   * @param newValues new cell values, same length as {@code rowIndices}
+   */
+  public void applyColumnValues(int colNr, int[] rowIndices, String[] newValues) {
+    if (readonly || rowIndices == null || newValues == null || rowIndices.length == 0) {
+      return;
+    }
+    if (rowIndices.length != newValues.length) {
+      throw new IllegalArgumentException(
+          "rowIndices and newValues must have the same length ("
+              + rowIndices.length
+              + " vs "
+              + newValues.length
+              + ")");
+    }
+    if (colNr < 1 || colNr >= table.getColumnCount()) {
+      return;
+    }
+
+    applyAllChanges();
+
+    int size = rowIndices.length;
+    String[][] before = new String[size][];
+    String[][] after = new String[size][];
+    int[] index = new int[size];
+
+    for (int i = 0; i < size; i++) {
+      int rowNr = rowIndices[i];
+      if (rowNr < 0 || rowNr >= table.getItemCount()) {
+        continue;
+      }
+      TableItem item = table.getItem(rowNr);
+      index[i] = rowNr;
+      before[i] = getItemText(item);
+      item.setText(colNr, Const.NVL(newValues[i], ""));
+      after[i] = getItemText(item);
+    }
+
+    if (undoEnabled) {
+      ChangeAction ta = new ChangeAction();
+      ta.setChanged(before, after, index);
+      addUndo(ta);
+    }
+    setModified();
   }
 
   /**

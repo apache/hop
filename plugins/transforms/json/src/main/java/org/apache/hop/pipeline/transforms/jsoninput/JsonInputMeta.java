@@ -220,34 +220,6 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
     valueField = "";
   }
 
-  public JsonInputMeta(JsonInputMeta m) {
-    this();
-    this.addResultFile = m.addResultFile;
-    this.defaultPathLeafToNull = m.defaultPathLeafToNull;
-    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    this.filenameField = m.filenameField;
-    this.ignoringMissingPath = m.ignoringMissingPath;
-    this.includeFilename = m.includeFilename;
-    this.includeRowNumber = m.includeRowNumber;
-    this.inFields = m.inFields;
-    this.sourceAFile = m.sourceAFile;
-    this.ignoringEmptyFile = m.ignoringEmptyFile;
-    this.readUrl = m.readUrl;
-    this.removeSourceField = m.removeSourceField;
-    this.rowLimit = m.rowLimit;
-    this.rowNumberField = m.rowNumberField;
-    this.valueField = m.valueField;
-    this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
-    this.fileInput = new BaseFileInput(m.fileInput);
-    m.inputFields.forEach(f -> inputFields.add(new JsonInputField(f)));
-    syncFieldSourceFlags();
-  }
-
-  @Override
-  public JsonInputMeta clone() {
-    return new JsonInputMeta(this);
-  }
-
   /**
    * @return Returns the shortFileFieldName.
    */
@@ -385,6 +357,22 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
   public void setInFields(boolean inFields) {
     this.inFields = inFields;
     fileInput.setAcceptingFilenames(inFields);
+    resetTransformIoMeta();
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isInFields();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isInFields();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "JsonInputDialog.wlSourceStreamField.Label");
   }
 
   public boolean includeFilename() {
@@ -499,23 +487,13 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (!isInFields()) {
-      // See if we get input...
-      if (input.length <= 0) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInputExpected"),
-                transformMeta);
-        remarks.add(cr);
-      } else {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInput"),
-                transformMeta);
-        remarks.add(cr);
-      }
+    if (isInFields() && input.length <= 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta);
+      remarks.add(cr);
     }
 
     if (getInputFields().isEmpty()) {

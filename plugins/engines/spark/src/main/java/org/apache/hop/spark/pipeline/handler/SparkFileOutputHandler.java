@@ -90,7 +90,9 @@ public class SparkFileOutputHandler extends SparkBaseTransformHandler {
     }
     String resolved = variables.resolve(meta.getFilePath());
     String path = SparkPathDialect.toSparkUri(resolved, runConfiguration);
-    if (StringUtils.isEmpty(path)) {
+    // A pathless sink such as jdbc is addressed entirely through its options, so requiring a file
+    // path would only force the user to invent one that is then ignored (issue #8138).
+    if (StringUtils.isEmpty(path) && !SparkFileIoSupport.isPathless(meta.getFileFormat())) {
       throw new HopException(
           "Spark File Output '" + transformMeta.getName() + "' has no file path configured");
     }

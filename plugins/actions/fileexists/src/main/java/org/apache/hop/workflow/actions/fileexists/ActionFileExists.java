@@ -68,16 +68,6 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  public ActionFileExists(ActionFileExists meta) {
-    super(meta.getName(), meta.getDescription(), meta.getPluginId());
-    this.filename = meta.filename;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionFileExists(this);
-  }
-
   public void setFilename(String filename) {
     this.filename = filename;
   }

@@ -207,6 +207,8 @@ public class EditRowsDialog {
             null,
             props);
     wFields.setShowingBlueNullValues(true);
+    // Data rows, not configuration: draw long / multi-line values shortened.
+    wFields.setShortenDisplayedValues(true);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -277,7 +279,7 @@ public class EditRowsDialog {
       }
 
       if (show != null) {
-        item.setText(c + 1, show);
+        wFields.setCellValue(item, c + 1, show);
         item.setForeground(c + 1, GuiResource.getInstance().getColorBlack());
       } else {
         // Set null value
@@ -301,7 +303,8 @@ public class EditRowsDialog {
         if (isDisplayingNullValue(item, colnr)) {
           row[i] = null; // <null> value
         } else {
-          String string = item.getText(colnr);
+          // The cell is drawn shortened; the value itself comes back out of the grid.
+          String string = TableView.getCellValue(item, colnr);
           if (stringValueMeta.isNull(string)) {
             string = null;
           }

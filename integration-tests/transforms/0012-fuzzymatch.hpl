@@ -106,6 +106,8 @@ limitations under the License.
     <outputvaluefield>measure value</outputvaluefield>
     <caseSensitive>N</caseSensitive>
     <closervalue>Y</closervalue>
+    <matchMode>closest</matchMode>
+    <maxMatches>10</maxMatches>
     <minimalValue>0</minimalValue>
     <maximalValue>1</maximalValue>
     <separator>,</separator>

@@ -36,6 +36,8 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -55,6 +57,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "vertica5",
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class VerticaBulkLoaderMeta
     extends BaseTransformMeta<VerticaBulkLoader, VerticaBulkLoaderData> {
   private static final Class<?> PKG = VerticaBulkLoaderMeta.class;
@@ -145,25 +148,10 @@ public class VerticaBulkLoaderMeta
     this.fields = fields;
   }
 
-  @HopMetadataProperty(
-      groupKey = "fields",
-      key = "field",
-      injectionGroupKey = "FIELDS",
-      injectionGroupDescription = "VerticaBulkLoader.Injection.FIELDS",
-      injectionKey = "FIELDDATABASE",
-      injectionKeyDescription = "VerticaBulkLoader.Injection.FIELDDATABASE")
-  /** Fields in the table to insert */
-  private String[] fieldDatabase;
-
   public VerticaBulkLoaderMeta() {
     super(); // allocate BaseTransformMeta
 
     fields = new ArrayList<>();
-  }
-
-  @Override
-  public Object clone() {
-    return super.clone();
   }
 
   /**
@@ -430,10 +418,10 @@ public class VerticaBulkLoaderMeta
                     }
                   } else {
                     // Specifying the column names explicitly
-                    for (int i = 0; i < getFieldDatabase().length; i++) {
-                      int idx = r.indexOfValue(getFieldDatabase()[i]);
+                    for (VerticaBulkLoaderField vbf : fields) {
+                      int idx = r.indexOfValue(vbf.getFieldDatabase());
                       if (idx < 0) {
-                        error_message += "\t\t" + getFieldDatabase()[i] + Const.CR;
+                        error_message += "\t\t" + vbf.getFieldDatabase() + Const.CR;
                         error_found = true;
                       }
                     }
@@ -462,7 +450,7 @@ public class VerticaBulkLoaderMeta
                   error_message = "";
                   if (!specifyFields()) {
                     // Starting from table fields in r...
-                    for (int i = 0; i < getFieldDatabase().length; i++) {
+                    for (int i = 0; i < r.size(); i++) {
                       IValueMeta rv = r.getValueMeta(i);
                       int idx = prev.indexOfValue(rv.getName());
                       if (idx < 0) {
@@ -733,20 +721,6 @@ public class VerticaBulkLoaderMeta
       throw new HopException(
           BaseMessages.getString(PKG, "VerticaBulkLoaderMeta.Exception.ConnectionNotDefined"));
     }
-  }
-
-  /**
-   * @return Fields containing the fieldnames in the database insert.
-   */
-  public String[] getFieldDatabase() {
-    return fieldDatabase;
-  }
-
-  /**
-   * @param fieldDatabase The fields containing the names of the fields to insert.
-   */
-  public void setFieldDatabase(String[] fieldDatabase) {
-    this.fieldDatabase = fieldDatabase;
   }
 
   /**

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0005-special-data-types</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>UUID, Internet Address and JSON values, and nulls of all three, written to Oracle. Oracle has no UUID and no address type, so those land in VARCHAR2; JSON has a native type since 21c and is written to both that and a VARCHAR2.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/08/20 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/08/20 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Init tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DECLARE
+  table_missing EXCEPTION;
+  PRAGMA EXCEPTION_INIT(table_missing, -942);
+BEGIN
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE HOP_SPECIAL_TYPES_SOURCE';
+  EXCEPTION
+    WHEN table_missing THEN NULL;
+  END;
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE HOP_SPECIAL_TYPES_TARGET';
+  EXCEPTION
+    WHEN table_missing THEN NULL;
+  END;
+
+  EXECUTE IMMEDIATE 'CREATE TABLE HOP_SPECIAL_TYPES_SOURCE (
+    ID        NUMBER(10),
+    UUID_TEXT VARCHAR2(36),
+    INET_TEXT VARCHAR2(45),
+    JSON_TEXT VARCHAR2(200))';
+
+  EXECUTE IMMEDIATE 'CREATE TABLE HOP_SPECIAL_TYPES_TARGET (
+    ID           NUMBER(10),
+    UUID_VALUE   VARCHAR2(36),
+    INET_VALUE   VARCHAR2(45),
+    PAYLOAD      JSON,
+    PAYLOAD_TEXT VARCHAR2(200))';
+
+  EXECUTE IMMEDIATE 'INSERT INTO HOP_SPECIAL_TYPES_SOURCE
+    VALUES (1, ''123e4567-e89b-12d3-a456-426655440000'', ''10.0.0.1'', ''{"name": "Goku", "power": 9500}'')';
+  EXECUTE IMMEDIATE 'INSERT INTO HOP_SPECIAL_TYPES_SOURCE VALUES (2, NULL, NULL, NULL)';
+  COMMIT;
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0005-special-types-write.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0005-special-types-write.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>432</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check what was stored</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DECLARE
+  found NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO found FROM HOP_SPECIAL_TYPES_TARGET;
+  IF found &lt;&gt; 2 THEN
+    RAISE_APPLICATION_ERROR(-20010, 'expected 2 rows but found ' || found);
+  END IF;
+
+  SELECT COUNT(*) INTO found
+  FROM HOP_SPECIAL_TYPES_TARGET
+  WHERE ID = 1
+    AND UUID_VALUE = '123e4567-e89b-12d3-a456-426655440000'
+    AND INET_VALUE = '10.0.0.1'
+    AND JSON_VALUE(PAYLOAD, '$.name') = 'Goku'
+    AND JSON_VALUE(PAYLOAD, '$.power' RETURNING NUMBER) = 9500
+    AND JSON_VALUE(PAYLOAD_TEXT, '$.name') = 'Goku';
+  IF found &lt;&gt; 1 THEN
+    RAISE_APPLICATION_ERROR(-20011, 'the UUID, address or JSON value did not survive the write');
+  END IF;
+
+  SELECT COUNT(*) INTO found
+  FROM HOP_SPECIAL_TYPES_TARGET
+  WHERE ID = 2
+    AND UUID_VALUE IS NULL
+    AND INET_VALUE IS NULL
+    AND PAYLOAD IS NULL
+    AND PAYLOAD_TEXT IS NULL;
+  IF found &lt;&gt; 1 THEN
+    RAISE_APPLICATION_ERROR(-20012, 'the row of nulls did not survive the write');
+  END IF;
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Init tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Init tables</from>
+      <to>0005-special-types-write.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0005-special-types-write.hpl</from>
+      <to>check what was stored</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

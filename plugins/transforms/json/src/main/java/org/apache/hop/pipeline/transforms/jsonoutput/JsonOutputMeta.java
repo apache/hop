@@ -132,25 +132,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     doNotOpenNewFileInit = true;
   }
 
-  public JsonOutputMeta(JsonOutputMeta m) {
-    this();
-    this.addToResult = m.addToResult;
-    this.createParentFolder = m.createParentFolder;
-    this.doNotOpenNewFileInit = m.doNotOpenNewFileInit;
-    this.encoding = m.encoding;
-    this.fileAppended = m.fileAppended;
-    this.jsonBloc = m.jsonBloc;
-    this.nrRowsInBloc = m.nrRowsInBloc;
-    this.operationType = m.operationType;
-    this.outputValue = m.outputValue;
-    m.outputFields.forEach(f -> outputFields.add(new JsonOutputField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new JsonOutputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

@@ -55,11 +55,18 @@ public class DatabricksVfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
+    return getProviders(variables, null);
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(
+      IVariables variables, IHopMetadataProvider executionMetadata) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
-      // Prefer the active runtime metadata (GUI project / MainSpark export). Standard folders
-      // alone are empty on Databricks (no hop-config metadata tree).
-      IHopMetadataProvider metadataProvider = HopMetadataInstance.getMetadataProvider();
+      IHopMetadataProvider metadataProvider = executionMetadata;
+      if (metadataProvider == null) {
+        metadataProvider = HopMetadataInstance.getMetadataProvider();
+      }
       if (metadataProvider == null) {
         metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
       }

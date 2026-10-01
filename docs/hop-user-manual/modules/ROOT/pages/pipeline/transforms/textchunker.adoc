@@ -1,0 +1,108 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Split text into chunks for embedding and retrieval, without breaking words or sentences.
+
+= image:transforms/icons/chunker.svg[Text chunker transform Icon, role="image-doc-icon"] Text chunker
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Text chunker transform splits a text field into smaller chunks and emits one output row per chunk, carrying the fields of the input row along with each.
+
+Chunking is the first step of a retrieval pipeline: an embedding model has a bounded context, and retrieval works better on passages than on whole documents. A typical pipeline is Text chunker, then an embedding transform, then a vector store.
+
+The transform has no dependency on an AI provider or a model. It is plain text processing and can be used on its own wherever a large document needs to be broken into passages.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Chunking strategies
+
+[options="header"]
+|===
+|Strategy |Behaviour
+
+|Character
+|Split on a fixed character count, backing off to the nearest word boundary so words are not cut in half. Overlap carries the tail of each chunk into the next, which keeps a sentence that straddles a boundary retrievable from both sides.
+
+|Paragraph
+|Split on paragraph breaks, packing whole paragraphs up to the chunk size. A paragraph longer than the chunk size falls back to character splitting.
+
+|Structure
+|Parse the document into a heading tree and emit one chunk per section, prefixing each with a breadcrumb of its heading path so an isolated chunk still says where it came from. A section larger than the chunk size falls back to character splitting within that section.
+|===
+
+=== Structure parsers
+
+The Structure strategy selects a parser from the content type:
+
+[options="header"]
+|===
+|Content type |Parsed structure
+
+|Auto|Infer from the content type field, or from the text itself.
+|Plain|Blank-line separated blocks.
+|Markdown|`#` heading levels.
+|AsciiDoc|`=` heading levels.
+|Pipeline|A Hop pipeline (`.hpl`): one section per transform, plus the hops between them.
+|Workflow|A Hop workflow (`.hwf`): one section per action, plus the hops between them.
+|Metadata|A Hop metadata JSON document: an overview plus one section per entry.
+|===
+
+The Hop-native parsers make a pipeline, a workflow or a metadata file retrievable per transform, action or entry rather than as one opaque blob.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|Input field|Field holding the text to split.
+|Source document ID field|Optional field holding the identifier of the source document. When empty, a row counter is used.
+|Output chunk field|Output field that receives the chunk text.
+|Chunking strategy|Character, Paragraph or Structure, as described above.
+|Content type|Document format used by the Structure strategy.
+|Content type field|Optional field naming the content type per row, for a stream that mixes formats.
+|Chunk size|Maximum chunk size in characters. For Paragraph and Structure this is a ceiling that triggers the character fallback.
+|Chunk overlap|Characters carried from the end of one chunk into the start of the next. Character strategy only.
+|Include metadata|Add the chunk metadata fields below to the output.
+|Chunk index field|Output field for the position of the chunk within its document.
+|Chunk start position field|Output field for the character offset of the chunk in the source text.
+|Document ID field|Output field for the document identifier.
+|Total chunks field|Output field for the number of chunks the document produced.
+|===
+
+== Notes
+
+Chunk overlap applies to the Character strategy. The Paragraph and Structure strategies split on natural boundaries, where an overlap would duplicate whole paragraphs or sections between neighbouring chunks.
+
+Keep *Include metadata* enabled when the chunks are going into a vector store: the document ID and chunk index are what let a later search merge neighbouring chunks back into a passage, and re-index a single document without touching the rest.

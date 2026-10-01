@@ -31,12 +31,12 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -60,14 +60,14 @@ public class ResourceUtil {
    * @param resourceExportInterface the interface to serialize
    * @param variables the variables to use for variable replacement
    * @param metadataProvider The metadata for which we want to include the metadata.json file
-   * @param executionConfiguration The XML interface to inject into the resulting ZIP archive
-   *     (optional, can be null)
+   * @param executionConfiguration The execution configuration to inject into the resulting ZIP
+   *     archive (optional, can be null). The generated named-resource folder variables are added to
+   *     its variables map, so they travel with the archive to the remote server.
    * @param injectFilename The name of the file for the XML to inject in the ZIP archive (optional,
    *     can be null)
    * @param sourceResourceFolderMapping The source folder to use as a reference for named resources,
    *     typically something like ${PROJECT}
    * @param targetResourceFolderMapping the target folder of named resources to translate to.
-   * @param variablesMap The variables map of the execution configuration
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP
    *     archive.
    * @throws HopException in case anything goes wrong during serialization
@@ -77,11 +77,10 @@ public class ResourceUtil {
       IResourceExport resourceExportInterface,
       IVariables variables,
       IHopMetadataProvider metadataProvider,
-      IXml executionConfiguration,
+      IExecutionConfiguration executionConfiguration,
       String injectFilename,
       String sourceResourceFolderMapping,
-      String targetResourceFolderMapping,
-      Map<String, String> variablesMap)
+      String targetResourceFolderMapping)
       throws HopException {
 
     ZipOutputStream out = null;
@@ -119,12 +118,18 @@ public class ResourceUtil {
         // configuration. Otherwise the rewritten filenames (${DATA_PATH_1}/file.txt) stay
         // unresolved on the remote server (see #7209).
         //
-        assignNamedResourceDirectoryVariables(
-            variables,
-            namingInterface.getDirectoryMap(),
-            sourceResourceFolderMapping,
-            targetResourceFolderMapping,
-            variablesMap);
+        // The values go straight into the configuration that is serialized into the archive below.
+        // Writing them into any other map leaves the archive without them, which is how the remote
+        // pipeline engine lost them again (see #8234).
+        //
+        if (executionConfiguration != null) {
+          assignNamedResourceDirectoryVariables(
+              variables,
+              namingInterface.getDirectoryMap(),
+              sourceResourceFolderMapping,
+              targetResourceFolderMapping,
+              executionConfiguration.getVariablesMap());
+        }
 
         // In case we want to add an extra pay-load to the exported ZIP file.
         // We add an extra file definition which gets picked up below and zipped up.

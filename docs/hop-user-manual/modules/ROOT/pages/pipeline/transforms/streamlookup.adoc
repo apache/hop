@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Stream Lookup transform type allows you to look up data using information coming from other transforms in the pipeline.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/streamlookup.svg[Stream Lookup transform Icon, role="image-doc-icon"] Stream Lookup
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Stream Lookup transform type allows you to look up data using information coming from other transforms in the pipeline.
@@ -30,19 +28,6 @@ The Stream Lookup transform type allows you to look up data using information co
 The data coming from the Source transform is first read into memory and is then used to look up data from the main stream.
 
 TIP: Since this transform loads the lookup data into memory, it can be an extremely fast way to look up data. However, the entire lookup data set needs to fit in your available memory.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 

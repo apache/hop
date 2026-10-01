@@ -80,21 +80,6 @@ public class PGPEncryptStreamMeta
     this.resultFieldName = "result";
   }
 
-  public PGPEncryptStreamMeta(PGPEncryptStreamMeta m) {
-    this();
-    this.gpgLocation = m.gpgLocation;
-    this.keyName = m.keyName;
-    this.keyNameFieldName = m.keyNameFieldName;
-    this.keyNameInField = m.keyNameInField;
-    this.resultFieldName = m.resultFieldName;
-    this.streamField = m.streamField;
-  }
-
-  @Override
-  public Object clone() {
-    return new PGPEncryptStreamMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

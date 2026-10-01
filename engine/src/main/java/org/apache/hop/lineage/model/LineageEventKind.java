@@ -24,5 +24,7 @@ public enum LineageEventKind {
   TRANSFORM_SCHEMA,
   FILE_IO,
   /** HTTP client traffic from transforms/actions (payload: {@link HttpLineagePayload}). */
-  HTTP_IO
+  HTTP_IO,
+  /** Relational/JDBC table read or write (payload: {@link RelationalIoLineagePayload}). */
+  RELATIONAL_IO
 }

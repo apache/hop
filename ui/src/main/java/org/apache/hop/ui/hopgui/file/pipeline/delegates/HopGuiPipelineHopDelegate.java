@@ -27,6 +27,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -41,6 +42,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelineHopDialog;
@@ -125,6 +127,24 @@ public class HopGuiPipelineHopDelegate {
       mb.setMessage(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesLoop.Message"));
       mb.setText(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesLoop.Title"));
       mb.open();
+      ok = false;
+    }
+
+    if (ok && pipelineMeta.isDisallowedMainInputHop(newHop)) {
+      MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Dialog.TransformDoesNotAcceptInput.Message",
+              newHop.getToTransform().getName()));
+      mb.setText(
+          BaseMessages.getString(PKG, "PipelineGraph.Dialog.TransformDoesNotAcceptInput.Title"));
+      mb.open();
+      ok = false;
+    }
+
+    if (ok && pipelineMeta.isMultipleCopiesTargetHop(newHop, pipelineGraph.getVariables())) {
+      pipelineGraph.showMultipleCopiesNotAllowedDialog();
       ok = false;
     }
 
@@ -219,6 +239,9 @@ public class HopGuiPipelineHopDelegate {
   }
 
   public void delHop(PipelineMeta pipelineMeta, PipelineHopMeta pipelineHopMeta) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
     int index = pipelineMeta.indexOfPipelineHop(pipelineHopMeta);
 
     hopGui.undoDelegate.addUndoDelete(

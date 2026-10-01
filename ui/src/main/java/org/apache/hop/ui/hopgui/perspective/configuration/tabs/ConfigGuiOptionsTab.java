@@ -18,6 +18,9 @@
 
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
@@ -36,8 +39,10 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -64,7 +69,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.FontDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -83,19 +90,13 @@ public class ConfigGuiOptionsTab {
   private Composite lookComp;
   private ScrolledComposite lookScrolledComposite;
 
-  private FontData defaultFontData;
-  private Font defaultFont;
   private FontData fixedFontData;
   private Font fixedFont;
   private FontData graphFontData;
   private Font graphFont;
-  private FontData noteFontData;
-  private Font noteFont;
 
-  private Canvas wDefaultCanvas;
   private Canvas wFixedCanvas;
   private Canvas wGraphCanvas;
-  private Canvas wNoteCanvas;
 
   private Text wIconSize;
   private Text wLineWidth;
@@ -111,15 +112,21 @@ public class ConfigGuiOptionsTab {
   private Button wShowCanvasGrid;
   private Button wHideViewport;
   private Button wUseDoubleClick;
+  private Button wUseRightClickForContextDialog;
+  private Button wUseMenusInsteadOfContextDialog;
+  private Button wDialogsOnAnyScreen;
   private Button wDrawBorderAroundCanvasNames;
   private Button wEnableInfiniteMove;
   private Button wDisableZoomScrolling;
   private Button wMetricsOnTransforms;
+  private final Map<CanvasToolTip, Button> wCanvasToolTips = new EnumMap<>(CanvasToolTip.class);
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
+  private Button wShowTextCompositeToolbar;
   private Text wMaxPreviewCellLength;
   private Button wShowPreviewLineBreaks;
   private Button wMetricsPanelShowUnits;
+  private Button wMetricsPanelDynamicColumnResize;
   private Button wMetricsPanelShowInput;
   private Button wMetricsPanelShowRead;
   private Button wMetricsPanelShowOutput;
@@ -166,18 +173,12 @@ public class ConfigGuiOptionsTab {
       PropsUi props = PropsUi.getInstance();
 
       // Reload all values from PropsUi
-      defaultFontData = props.getDefaultFont();
       fixedFontData = props.getFixedFont();
       graphFontData = props.getGraphFont();
-      noteFontData = props.getNoteFont();
 
       // Recreate fonts
       Shell shell = wIconSize.getShell();
       Display display = shell.getDisplay();
-      if (defaultFont != null && !defaultFont.isDisposed()) {
-        defaultFont.dispose();
-      }
-      defaultFont = new Font(display, defaultFontData);
       if (fixedFont != null && !fixedFont.isDisposed()) {
         fixedFont.dispose();
       }
@@ -186,16 +187,10 @@ public class ConfigGuiOptionsTab {
         graphFont.dispose();
       }
       graphFont = new Font(display, graphFontData);
-      if (noteFont != null && !noteFont.isDisposed()) {
-        noteFont.dispose();
-      }
-      noteFont = new Font(display, noteFontData);
 
       // Redraw canvases
-      wDefaultCanvas.redraw();
       wFixedCanvas.redraw();
       wGraphCanvas.redraw();
-      wNoteCanvas.redraw();
 
       // Reload text fields and checkboxes
       wIconSize.setText(Integer.toString(props.getIconSize()));
@@ -217,10 +212,20 @@ public class ConfigGuiOptionsTab {
 
       wHideViewport.setSelection(!props.isHideViewportEnabled()); // Inverted logic
       wUseDoubleClick.setSelection(props.useDoubleClick());
+      wUseRightClickForContextDialog.setSelection(props.useRightClickForContextDialog());
+      wUseMenusInsteadOfContextDialog.setSelection(props.useMenusInsteadOfContextDialog());
+      if (wDialogsOnAnyScreen != null) {
+        wDialogsOnAnyScreen.setSelection(props.isDialogsOnAnyScreenEnabled());
+      }
       wDrawBorderAroundCanvasNames.setSelection(props.isBorderDrawnAroundCanvasNames());
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
+      wCanvasToolTips.forEach(
+          (toolTip, button) -> button.setSelection(props.isCanvasToolTipShown(toolTip)));
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
+      if (wShowTextCompositeToolbar != null && !wShowTextCompositeToolbar.isDisposed()) {
+        wShowTextCompositeToolbar.setSelection(props.isShowTextCompositeToolbar());
+      }
       if (wMaxPreviewCellLength != null && !wMaxPreviewCellLength.isDisposed()) {
         wMaxPreviewCellLength.setText(Integer.toString(props.getMaxPreviewCellLength()));
       }
@@ -229,6 +234,10 @@ public class ConfigGuiOptionsTab {
       }
       if (wMetricsPanelShowUnits != null && !wMetricsPanelShowUnits.isDisposed()) {
         wMetricsPanelShowUnits.setSelection(props.isMetricsPanelShowUnits());
+        if (wMetricsPanelDynamicColumnResize != null
+            && !wMetricsPanelDynamicColumnResize.isDisposed()) {
+          wMetricsPanelDynamicColumnResize.setSelection(props.isMetricsPanelDynamicColumnResize());
+        }
         wMetricsPanelShowInput.setSelection(props.isMetricsPanelShowInput());
         wMetricsPanelShowRead.setSelection(props.isMetricsPanelShowRead());
         wMetricsPanelShowOutput.setSelection(props.isMetricsPanelShowOutput());
@@ -308,8 +317,6 @@ public class ConfigGuiOptionsTab {
     Shell shell = wTabFolder.getShell();
     PropsUi props = PropsUi.getInstance();
     int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
-    int h = (int) (40 * props.getZoomFactor());
 
     CTabItem wLookTab = new CTabItem(wTabFolder, SWT.NONE);
     wLookTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -328,14 +335,10 @@ public class ConfigGuiOptionsTab {
     wLookComp.setLayout(lookLayout);
 
     // Initialize fonts
-    defaultFontData = props.getDefaultFont();
-    defaultFont = new Font(shell.getDisplay(), defaultFontData);
     fixedFontData = props.getFixedFont();
     fixedFont = new Font(shell.getDisplay(), fixedFontData);
     graphFontData = props.getGraphFont();
     graphFont = new Font(shell.getDisplay(), graphFontData);
-    noteFontData = props.getNoteFont();
-    noteFont = new Font(shell.getDisplay(), noteFontData);
 
     // Track the last control for vertical positioning
     Control lastControl = null;
@@ -533,7 +536,7 @@ public class ConfigGuiOptionsTab {
     appearanceExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -544,7 +547,7 @@ public class ConfigGuiOptionsTab {
     appearanceExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -554,6 +557,26 @@ public class ConfigGuiOptionsTab {
                     }));
 
     lastControl = appearanceExpandBar;
+
+    // macOS section: only there, since it only concerns how macOS attaches dialogs to windows.
+    if (OsHelper.isMac()) {
+      lastControl =
+          addSection(
+              wLookComp,
+              sLookComp,
+              lastControl,
+              margin,
+              "EnterOptionsDialog.Section.MacOs",
+              content ->
+                  wDialogsOnAnyScreen =
+                      createCheckbox(
+                          content,
+                          "EnterOptionsDialog.DialogsOnAnyScreen.Label",
+                          "EnterOptionsDialog.DialogsOnAnyScreen.ToolTip",
+                          props.isDialogsOnAnyScreenEnabled(),
+                          null,
+                          margin));
+    }
 
     // Fonts section - using ExpandBar
     ExpandBar fontsExpandBar = new ExpandBar(wLookComp, SWT.NONE);
@@ -575,19 +598,6 @@ public class ConfigGuiOptionsTab {
 
     // Fonts inside the expandable content
     Control lastFontControl = null;
-
-    // Default font
-    Control[] defaultFontControls =
-        createFontPicker(
-            fontsContent, "EnterOptionsDialog.DefaultFont.Label", shell, lastFontControl, margin);
-    wDefaultCanvas = (Canvas) defaultFontControls[0];
-    wDefaultCanvas.addPaintListener(this::paintDefaultFont);
-    wDefaultCanvas.addListener(SWT.MouseDown, e -> editDefaultFont(shell));
-    Button wbDefaultFont = (Button) defaultFontControls[1];
-    wbDefaultFont.addListener(SWT.Selection, e -> editDefaultFont(shell));
-    Button wdDefaultFont = (Button) defaultFontControls[2];
-    wdDefaultFont.addListener(SWT.Selection, e -> resetDefaultFont(shell));
-    lastFontControl = wDefaultCanvas;
 
     // Fixed width font
     Control[] fixedFontControls =
@@ -617,19 +627,6 @@ public class ConfigGuiOptionsTab {
     wbGraphFont.addListener(SWT.Selection, e -> editGraphFont(shell));
     Button wdGraphFont = (Button) graphFontControls[2];
     wdGraphFont.addListener(SWT.Selection, e -> resetGraphFont(shell, props));
-    lastFontControl = wGraphCanvas;
-
-    // Note font
-    Control[] noteFontControls =
-        createFontPicker(
-            fontsContent, "EnterOptionsDialog.NoteFont.Label", shell, lastFontControl, margin);
-    wNoteCanvas = (Canvas) noteFontControls[0];
-    wNoteCanvas.addPaintListener(this::paintNoteFont);
-    wNoteCanvas.addListener(SWT.MouseDown, e -> editNoteFont(shell));
-    Button wbNoteFont = (Button) noteFontControls[1];
-    wbNoteFont.addListener(SWT.Selection, e -> editNoteFont(shell));
-    Button wdNoteFont = (Button) noteFontControls[2];
-    wdNoteFont.addListener(SWT.Selection, e -> resetNoteFont(e, props, shell.getDisplay()));
 
     // Create the fonts expand item
     ExpandItem fontsItem = new ExpandItem(fontsExpandBar, SWT.NONE);
@@ -642,7 +639,7 @@ public class ConfigGuiOptionsTab {
     fontsExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -653,7 +650,7 @@ public class ConfigGuiOptionsTab {
     fontsExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -741,6 +738,28 @@ public class ConfigGuiOptionsTab {
             margin);
     lastCanvasControl = wUseDoubleClick;
 
+    // Use right click for the context dialog
+    wUseRightClickForContextDialog =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.UseRightClickForContextDialog.Label",
+            "EnterOptionsDialog.UseRightClickForContextDialog.ToolTip",
+            props.useRightClickForContextDialog(),
+            lastCanvasControl,
+            margin);
+    lastCanvasControl = wUseRightClickForContextDialog;
+
+    // Use menus instead of the context dialog
+    wUseMenusInsteadOfContextDialog =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.UseMenusInsteadOfContextDialog.Label",
+            "EnterOptionsDialog.UseMenusInsteadOfContextDialog.ToolTip",
+            props.useMenusInsteadOfContextDialog(),
+            lastCanvasControl,
+            margin);
+    lastCanvasControl = wUseMenusInsteadOfContextDialog;
+
     // Draw border around canvas names
     wDrawBorderAroundCanvasNames =
         createCheckbox(
@@ -783,6 +802,10 @@ public class ConfigGuiOptionsTab {
             props.isShowingMetricsAboveRunningTransforms(),
             lastCanvasControl,
             margin);
+    lastCanvasControl = wMetricsOnTransforms;
+
+    // The tooltips of the canvas, one checkbox per kind, in a group of their own
+    createCanvasToolTipsGroup(canvasContent, lastCanvasControl, margin);
 
     // Create the expand item
     ExpandItem canvasItem = new ExpandItem(canvasExpandBar, SWT.NONE);
@@ -796,7 +819,7 @@ public class ConfigGuiOptionsTab {
     canvasExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -807,7 +830,7 @@ public class ConfigGuiOptionsTab {
     canvasExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -922,7 +945,7 @@ public class ConfigGuiOptionsTab {
     autoLayoutExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -933,7 +956,7 @@ public class ConfigGuiOptionsTab {
     autoLayoutExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -974,6 +997,16 @@ public class ConfigGuiOptionsTab {
             margin);
     lastTablesControl = wShowTableViewToolbar;
 
+    wShowTextCompositeToolbar =
+        createCheckbox(
+            tablesContent,
+            "EnterOptionsDialog.ShowTextCompositeToolbar.Label",
+            "EnterOptionsDialog.ShowTextCompositeToolbar.ToolTip",
+            props.isShowTextCompositeToolbar(),
+            lastTablesControl,
+            margin);
+    lastTablesControl = wShowTextCompositeToolbar;
+
     // Maximum number of characters shown in a preview grid cell before it is truncated.
     Control[] maxPreviewCellLengthControls =
         createTextField(
@@ -1010,7 +1043,7 @@ public class ConfigGuiOptionsTab {
     tablesExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -1021,7 +1054,7 @@ public class ConfigGuiOptionsTab {
     tablesExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -1059,6 +1092,16 @@ public class ConfigGuiOptionsTab {
             lastMetricsPanelControl,
             margin);
     lastMetricsPanelControl = wMetricsPanelShowUnits;
+
+    wMetricsPanelDynamicColumnResize =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.DynamicColumnResize.Label",
+            "EnterOptionsDialog.MetricsPanel.DynamicColumnResize.ToolTip",
+            props.isMetricsPanelDynamicColumnResize(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelDynamicColumnResize;
 
     wMetricsPanelShowInput =
         createCheckbox(
@@ -1164,7 +1207,7 @@ public class ConfigGuiOptionsTab {
     metricsPanelExpandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -1175,7 +1218,7 @@ public class ConfigGuiOptionsTab {
     metricsPanelExpandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
@@ -1206,36 +1249,6 @@ public class ConfigGuiOptionsTab {
 
     // Reset initialization flag so saveValues can work normally
     isInitializing = false;
-  }
-
-  private void paintNoteFont(PaintEvent pe) {
-    pe.gc.setFont(noteFont);
-    Rectangle max = wNoteCanvas.getBounds();
-    String name = noteFontData.getName() + " - " + noteFontData.getHeight();
-    Point size = pe.gc.textExtent(name);
-
-    pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
-  }
-
-  private void resetNoteFont(Event e, PropsUi props, Display display) {
-    noteFontData = props.getDefaultFontData();
-    noteFont.dispose();
-    noteFont = new Font(display, noteFontData);
-    wNoteCanvas.redraw();
-    saveValues();
-  }
-
-  private void editNoteFont(Shell shell) {
-    FontDialog fd = new FontDialog(shell);
-    fd.setFontList(new FontData[] {noteFontData});
-    FontData newfd = fd.open();
-    if (newfd != null) {
-      noteFontData = newfd;
-      noteFont.dispose();
-      noteFont = new Font(shell.getDisplay(), noteFontData);
-      wNoteCanvas.redraw();
-      saveValues();
-    }
   }
 
   private void drawGraphFont(PaintEvent pe) {
@@ -1303,40 +1316,6 @@ public class ConfigGuiOptionsTab {
     pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
   }
 
-  private void resetDefaultFont(Shell shell) {
-    defaultFontData =
-        new FontData(
-            PropsUi.getInstance().getFixedFont().getName(),
-            PropsUi.getInstance().getFixedFont().getHeight(),
-            PropsUi.getInstance().getFixedFont().getStyle());
-    defaultFont.dispose();
-    defaultFont = new Font(shell.getDisplay(), defaultFontData);
-    wDefaultCanvas.redraw();
-    saveValues();
-  }
-
-  private void paintDefaultFont(PaintEvent pe) {
-    pe.gc.setFont(defaultFont);
-    Rectangle max = wDefaultCanvas.getBounds();
-    String name = defaultFontData.getName() + " - " + defaultFontData.getHeight();
-    Point size = pe.gc.textExtent(name);
-
-    pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
-  }
-
-  private void editDefaultFont(Shell shell) {
-    FontDialog fd = new FontDialog(shell);
-    fd.setFontList(new FontData[] {defaultFontData});
-    FontData newfd = fd.open();
-    if (newfd != null) {
-      defaultFontData = newfd;
-      defaultFont.dispose();
-      defaultFont = new Font(shell.getDisplay(), defaultFontData);
-      wDefaultCanvas.redraw();
-      saveValues();
-    }
-  }
-
   /**
    * Setting the layout of a <i>Reset</i> option button. Either a button image is set - if existing
    * - or a text.
@@ -1389,10 +1368,8 @@ public class ConfigGuiOptionsTab {
 
     PropsUi props = PropsUi.getInstance();
 
-    props.setDefaultFont(defaultFontData);
     props.setFixedFont(fixedFontData);
     props.setGraphFont(graphFontData);
-    props.setNoteFont(noteFontData);
     props.setIconSize(Const.toInt(wIconSize.getText(), props.getIconSize()));
     props.setLineWidth(Const.toInt(wLineWidth.getText(), props.getLineWidth()));
     props.setMiddlePct(Const.toInt(wMiddlePct.getText(), props.getMiddlePct()));
@@ -1415,10 +1392,17 @@ public class ConfigGuiOptionsTab {
     props.setHideViewportEnabled(
         !wHideViewport.getSelection()); // Inverted: checkbox is "show", property is "hide"
     props.setUseDoubleClickOnCanvas(wUseDoubleClick.getSelection());
+    props.setUseRightClickForContextDialog(wUseRightClickForContextDialog.getSelection());
+    props.setUseMenusInsteadOfContextDialog(wUseMenusInsteadOfContextDialog.getSelection());
+    if (wDialogsOnAnyScreen != null) {
+      props.setDialogsOnAnyScreenEnabled(wDialogsOnAnyScreen.getSelection());
+    }
     props.setDrawBorderAroundCanvasNames(wDrawBorderAroundCanvasNames.getSelection());
     props.setInfiniteCanvasMoveEnabled(wEnableInfiniteMove.getSelection());
     props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
     props.setShowingMetricsAboveRunningTransforms(wMetricsOnTransforms.getSelection());
+    wCanvasToolTips.forEach(
+        (toolTip, button) -> props.setCanvasToolTipShown(toolTip, button.getSelection()));
     // On macOS (and other non-Windows), dark mode follows system; persist system theme, not
     // checkbox. In Web environment, isSystemDarkTheme() is not available.
     boolean previousDarkMode = props.isDarkMode();
@@ -1431,10 +1415,17 @@ public class ConfigGuiOptionsTab {
     props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
+    if (wShowTextCompositeToolbar != null && !wShowTextCompositeToolbar.isDisposed()) {
+      props.setShowTextCompositeToolbar(wShowTextCompositeToolbar.getSelection());
+    }
     props.setMaxPreviewCellLength(
         Const.toInt(wMaxPreviewCellLength.getText(), props.getMaxPreviewCellLength()));
     props.setShowPreviewLineBreaksAsSymbols(wShowPreviewLineBreaks.getSelection());
     props.setMetricsPanelShowUnits(wMetricsPanelShowUnits.getSelection());
+    if (wMetricsPanelDynamicColumnResize != null
+        && !wMetricsPanelDynamicColumnResize.isDisposed()) {
+      props.setMetricsPanelDynamicColumnResize(wMetricsPanelDynamicColumnResize.getSelection());
+    }
     props.setMetricsPanelShowInput(wMetricsPanelShowInput.getSelection());
     props.setMetricsPanelShowRead(wMetricsPanelShowRead.getSelection());
     props.setMetricsPanelShowOutput(wMetricsPanelShowOutput.getSelection());
@@ -1680,6 +1671,92 @@ public class ConfigGuiOptionsTab {
    * @param margin The margin to use
    * @return The created Button (checkbox)
    */
+  /**
+   * Adds an expandable section to the Look &amp; Feel tab below {@code above}: an ExpandBar with
+   * one expanded item whose content {@code build} fills, and the expand/collapse listeners that
+   * hand the reclaimed space back to the scrolled tab.
+   */
+  private ExpandBar addSection(
+      Composite wLookComp,
+      ScrolledComposite sLookComp,
+      Control above,
+      int margin,
+      String titleKey,
+      Consumer<Composite> build) {
+    ExpandBar expandBar = new ExpandBar(wLookComp, SWT.NONE);
+    PropsUi.setLook(expandBar);
+    FormData fdExpandBar = new FormData();
+    fdExpandBar.left = new FormAttachment(0, 0);
+    fdExpandBar.right = new FormAttachment(100, 0);
+    fdExpandBar.top = new FormAttachment(above, 2 * margin);
+    expandBar.setLayoutData(fdExpandBar);
+
+    Composite content = new Composite(expandBar, SWT.NONE);
+    PropsUi.setLook(content);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    content.setLayout(layout);
+    build.accept(content);
+
+    ExpandItem item = new ExpandItem(expandBar, SWT.NONE);
+    item.setText(BaseMessages.getString(PKG, titleKey));
+    item.setControl(content);
+    item.setHeight(content.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+    item.setExpanded(true);
+
+    Listener relayout =
+        e ->
+            Display.getCurrent()
+                .asyncExec(
+                    () -> {
+                      if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
+                        wLookComp.layout();
+                        sLookComp.setMinHeight(wLookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    });
+    expandBar.addListener(SWT.Expand, relayout);
+    expandBar.addListener(SWT.Collapse, relayout);
+    return expandBar;
+  }
+
+  /**
+   * A titled group below {@code above} with one checkbox per kind of canvas tooltip. A {@link
+   * Group} inside the ExpandBar content works on the desktop and in Hop Web alike, and keeps the
+   * eight checkboxes apart from the other canvas options.
+   */
+  private void createCanvasToolTipsGroup(Composite parent, Control above, int margin) {
+    PropsUi props = PropsUi.getInstance();
+
+    Group group = new Group(parent, SWT.NONE);
+    PropsUi.setLook(group);
+    group.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.CanvasToolTips.Label"));
+    group.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.CanvasToolTips.ToolTip"));
+    FormLayout groupLayout = new FormLayout();
+    groupLayout.marginWidth = PropsUi.getFormMargin();
+    groupLayout.marginHeight = PropsUi.getFormMargin();
+    group.setLayout(groupLayout);
+    FormData fdGroup = new FormData();
+    fdGroup.left = new FormAttachment(0, 0);
+    fdGroup.right = new FormAttachment(100, 0);
+    fdGroup.top = new FormAttachment(above, 2 * margin);
+    group.setLayoutData(fdGroup);
+
+    Control last = null;
+    for (CanvasToolTip toolTip : CanvasToolTip.values()) {
+      Button button =
+          createCheckbox(
+              group,
+              toolTip.getLabelKey(),
+              toolTip.getToolTipKey(),
+              props.isCanvasToolTipShown(toolTip),
+              last,
+              margin);
+      wCanvasToolTips.put(toolTip, button);
+      last = button;
+    }
+  }
+
   private Button createCheckbox(
       Composite parent,
       String labelKey,

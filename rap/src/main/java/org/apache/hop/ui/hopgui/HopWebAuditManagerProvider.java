@@ -18,7 +18,6 @@ package org.apache.hop.ui.hopgui;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.IAuditManager;
 import org.apache.hop.history.IAuditManagerProvider;
@@ -28,7 +27,9 @@ import org.eclipse.rap.rwt.service.UISession;
 
 /**
  * Provides a per-user audit manager in Hop Web when the user is authenticated. Audit data (open
- * tabs, history, etc.) is stored under {@code HOP_AUDIT_FOLDER/users/<username>/}.
+ * tabs, history, etc.) is stored under {@code <auditRoot>/users/<username>/}, where the audit root
+ * is a writable folder (default {@code /tmp/hop-web-audit} in Docker, or {@code
+ * java.io.tmpdir/hop-web-audit} as fallback).
  */
 public class HopWebAuditManagerProvider implements IAuditManagerProvider {
 
@@ -72,8 +73,8 @@ public class HopWebAuditManagerProvider implements IAuditManagerProvider {
         LogChannel.UI.logBasic("Hop Web audit: username empty after sanitize, using default audit");
         return null;
       }
-      String userAuditRoot =
-          Const.HOP_AUDIT_FOLDER + Const.FILE_SEPARATOR + "users" + Const.FILE_SEPARATOR + username;
+      // Writable root under HOP_AUDIT_FOLDER or java.io.tmpdir/hop-web-audit
+      String userAuditRoot = HopWebAuditPaths.getUserAuditRoot(username);
       manager = new LocalAuditManager(userAuditRoot);
       session.setAttribute(SESSION_ATTR_AUDIT_MANAGER, manager);
       LogChannel.UI.logBasic(

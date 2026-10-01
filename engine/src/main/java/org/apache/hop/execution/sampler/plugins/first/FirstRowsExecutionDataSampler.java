@@ -79,7 +79,7 @@ public class FirstRowsExecutionDataSampler
       if (rows.isEmpty()) {
         samplerStore.setRowMeta(rowMeta);
       }
-      rows.add(rowMeta.cloneRow(row));
+      rows.add(getSampledValueLimits().copyRow(rowMeta, row));
     }
   }
 }

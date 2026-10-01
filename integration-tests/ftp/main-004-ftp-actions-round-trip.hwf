@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-004-ftp-actions-round-trip</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Puts a file with one action, gets it back with another and deletes it with a third, all three on the same named connection.</description>
+  <extended_description/>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/08/11 09:00:00.000</created_date>
+  <modified_date>2026/08/11 09:00:00.000</modified_date>
+  <workflow_version/>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <foldername>ftp-test:///004-round-trip</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <name>Create the working folder</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <xloc>190</xloc>
+      <yloc>50</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/output/004-download</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <name>Empty the download folder</name>
+      <description>So the test tells us something when it runs a second time.</description>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <xloc>400</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <foldername>${PROJECT_HOME}/output/004-download</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <name>Create the download folder</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <xloc>608</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <connection>ftp-test</connection>
+      <servername/>
+      <serverport/>
+      <username/>
+      <password>Encrypted </password>
+      <remoteDirectory>004-round-trip</remoteDirectory>
+      <localDirectory>${PROJECT_HOME}/files</localDirectory>
+      <wildcard>.*\.txt</wildcard>
+      <binary>Y</binary>
+      <timeout>0</timeout>
+      <remove>N</remove>
+      <only_new>N</only_new>
+      <active>N</active>
+      <control_encoding>ISO-8859-1</control_encoding>
+      <proxy_host/>
+      <proxy_port/>
+      <proxy_username/>
+      <proxy_password>Encrypted </proxy_password>
+      <socksproxy_host/>
+      <socksproxy_port>1080</socksproxy_port>
+      <socksproxy_username/>
+      <socksproxy_password>Encrypted </socksproxy_password>
+      <name>Put the file</name>
+      <description>Uploads through the named connection, so none of the server settings are here.</description>
+      <type>FTP_PUT</type>
+      <attributes/>
+      <xloc>768</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <connection>ftp-test</connection>
+      <servername/>
+      <username/>
+      <password>Encrypted </password>
+      <ftpdirectory>004-round-trip</ftpdirectory>
+      <targetdirectory>${PROJECT_HOME}/output/004-download</targetdirectory>
+      <wildcard>.*\.txt</wildcard>
+      <binary>Y</binary>
+      <timeout>0</timeout>
+      <remove>N</remove>
+      <only_new>N</only_new>
+      <active>N</active>
+      <control_encoding>ISO-8859-1</control_encoding>
+      <movefiles>N</movefiles>
+      <movetodirectory/>
+      <adddate>N</adddate>
+      <addtime>N</addtime>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <isaddresult>Y</isaddresult>
+      <createmovefolder>N</createmovefolder>
+      <port/>
+      <proxy_host/>
+      <proxy_port/>
+      <proxy_username/>
+      <proxy_password>Encrypted </proxy_password>
+      <socksproxy_host/>
+      <socksproxy_port>1080</socksproxy_port>
+      <socksproxy_username/>
+      <socksproxy_password>Encrypted </socksproxy_password>
+      <ifFileExists>ifFileExistsFail</ifFileExists>
+      <nr_limit>10</nr_limit>
+      <success_condition>success_if_no_errors</success_condition>
+      <name>Get the file back</name>
+      <description>Downloads what the put action just uploaded.</description>
+      <type>FTP</type>
+      <attributes/>
+      <xloc>912</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/output/004-download/test.txt</filename>
+      <name>The file came back</name>
+      <description/>
+      <type>FILE_EXISTS</type>
+      <attributes/>
+      <xloc>1056</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename1>${PROJECT_HOME}/files/test.txt</filename1>
+      <filename2>${PROJECT_HOME}/output/004-download/test.txt</filename2>
+      <add_filename_result>N</add_filename_result>
+      <name>What came back is what went up</name>
+      <description>Compares the downloaded file with the one that was uploaded.</description>
+      <type>FILE_COMPARE</type>
+      <attributes/>
+      <xloc>1248</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <connection>ftp-test</connection>
+      <sftp_connection/>
+      <servername/>
+      <port/>
+      <username/>
+      <password>Encrypted </password>
+      <ftpdirectory>004-round-trip</ftpdirectory>
+      <wildcard>.*\.txt</wildcard>
+      <timeout>0</timeout>
+      <active>N</active>
+      <publicpublickey>N</publicpublickey>
+      <keyfilename/>
+      <keyfilepass>Encrypted </keyfilepass>
+      <useproxy>N</useproxy>
+      <proxy_host/>
+      <proxy_port/>
+      <proxy_username/>
+      <proxy_password>Encrypted </proxy_password>
+      <socksproxy_host/>
+      <socksproxy_port>1080</socksproxy_port>
+      <socksproxy_username/>
+      <socksproxy_password>Encrypted </socksproxy_password>
+      <protocol>FTP</protocol>
+      <nr_limit_success>10</nr_limit_success>
+      <success_condition>success_is_all_files_downloaded</success_condition>
+      <copyprevious>N</copyprevious>
+      <name>Delete it from the server</name>
+      <description/>
+      <type>FTP_DELETE</type>
+      <attributes/>
+      <xloc>1456</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <xloc>1600</xloc>
+      <yloc>48</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Create the working folder</from>
+      <to>Empty the download folder</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Empty the download folder</from>
+      <to>Create the download folder</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Create the download folder</from>
+      <to>Put the file</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Put the file</from>
+      <to>Get the file back</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get the file back</from>
+      <to>The file came back</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>The file came back</from>
+      <to>What came back is what went up</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>What came back is what went up</from>
+      <to>Delete it from the server</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Delete it from the server</from>
+      <to>Success</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>Create the working folder</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads/>
+  <attributes/>
+</workflow>

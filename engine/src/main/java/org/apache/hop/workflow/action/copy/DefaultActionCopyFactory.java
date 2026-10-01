@@ -202,11 +202,14 @@ public class DefaultActionCopyFactory implements IActionCopyFactory {
         copy.setParentWorkflowMeta(source.getParentWorkflowMeta());
       }
 
-      // Apply changed state based on context - this fixes the race condition
-      if (context.isPreserveChangedState()) {
-        // This will call setChanged() which sets the changed state on the underlying action
+      // Apply changed state based on context. Copying location uses setters that flip
+      // wrapperChanged, so a snapshot of an unchanged action must be cleared when the source is
+      // clean. Always marking the copy changed made dialog OK-without-edits look like a real edit.
+      if (context.isPreserveChangedState() && source.hasChanged()) {
         copy.setChanged();
         log.logRowlevel("Set changed state on copied ActionMeta");
+      } else {
+        copy.setChanged(false);
       }
 
       log.logRowlevel("Successfully copied ActionMeta");

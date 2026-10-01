@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.Getter;
@@ -65,16 +64,6 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
 
   public ActionFilesExist() {
     this("");
-  }
-
-  public ActionFilesExist(ActionFilesExist other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.fileItems = new ArrayList<>(other.fileItems);
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionFilesExist(this);
   }
 
   @Override

@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -37,11 +38,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.ResultFile;
@@ -61,6 +64,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -114,6 +118,33 @@ class BaseTransformTest {
                 mockHelper.pipeline)
             .getLogLevel();
     assertNull(logLevel);
+  }
+
+  /**
+   * A nested execution (Pipeline/Workflow Executor) passes the calling transform's variables down
+   * to the child pipeline, so the parent variable space can carry another transform's
+   * Internal.Transform.* values. Initializing from that space must not overwrite ours.
+   */
+  @Test
+  void testInitializeFromKeepsOwnInternalTransformVariables() {
+    BaseTransform<ITransformMeta, ITransformData> baseTransform =
+        new BaseTransform<>(
+            mockHelper.transformMeta,
+            mockHelper.iTransformMeta,
+            mockHelper.iTransformData,
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline);
+
+    IVariables parent = new Variables();
+    parent.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, "some other transform");
+    parent.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, "7");
+
+    baseTransform.initializeFrom(parent);
+
+    assertEquals(
+        "BASE TRANSFORM", baseTransform.getVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME));
+    assertEquals("0", baseTransform.getVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR));
   }
 
   @Test
@@ -333,6 +364,56 @@ class BaseTransformTest {
 
     verify(base).stopAll();
     assertTrue(base.getErrors() > 0);
+    // the rejected row went nowhere, so this one really is an error: it has to stay visible
+    verify(mockHelper.iLogChannel).logError(anyString());
+  }
+
+  /**
+   * A row that reaches the error handling hop was handled, not lost, and its description travels
+   * with it as a field on the error stream. Logging that description wrote one line to the log for
+   * every rejected row of a pipeline that was doing exactly what it was built to do (issue #8125),
+   * so the engine writes nothing here at any level.
+   */
+  @Test
+  void putErrorLogsNothingWhenTheRowReachesTheErrorHop() throws HopException {
+    TransformMeta targetMeta = mock(TransformMeta.class);
+    when(targetMeta.getName()).thenReturn("Error handler");
+    TransformErrorMeta errorMeta = new TransformErrorMeta(mockHelper.transformMeta, targetMeta);
+    errorMeta.setEnabled(true);
+    errorMeta.setErrorDescriptionsValueName("errorDescription");
+    when(mockHelper.transformMeta.getTransformErrorMeta()).thenReturn(errorMeta);
+    when(mockHelper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+
+    BaseTransform<ITransformMeta, ITransformData> base =
+        spy(
+            new BaseTransform<>(
+                mockHelper.transformMeta,
+                mockHelper.iTransformMeta,
+                mockHelper.iTransformData,
+                0,
+                mockHelper.pipelineMeta,
+                mockHelper.pipeline));
+
+    IRowSet errorRowSet = new QueueRowSet();
+    errorRowSet.setThreadNameFromToCopy("BASE TRANSFORM", 0, "Error handler", 0);
+    base.setOutputRowSets(new ArrayList<>(List.of(errorRowSet)));
+    base.identifyErrorOutput();
+
+    IRowMeta iRowMeta = new RowMeta();
+    iRowMeta.addValueMeta(new ValueMetaString("name"));
+    base.putError(iRowMeta, new Object[] {"Bob"}, 1L, "No lookup found", null, "DBL001");
+
+    // the error row still carries the description down the error hop
+    Object[] rejected = errorRowSet.getRow();
+    assertNotNull(rejected);
+    assertEquals("No lookup found", rejected[1]);
+    assertEquals(1L, base.getLinesRejected());
+
+    // ... and the pipeline neither fails nor writes a log line over it, at any level
+    assertEquals(0L, base.getErrors());
+    verify(base, never()).stopAll();
+    verify(mockHelper.iLogChannel, never()).logError(anyString());
+    verify(mockHelper.iLogChannel, never()).logDebug(anyString());
   }
 
   @Test

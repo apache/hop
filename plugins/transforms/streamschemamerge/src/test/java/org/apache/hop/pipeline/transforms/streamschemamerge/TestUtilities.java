@@ -371,7 +371,6 @@ public class TestUtilities {
 
   public static Pipeline loadAndRunPipeline(String path, Object... parameters) throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setPipelineType(PipelineMeta.PipelineType.Normal);
 
     Pipeline trans = new LocalPipelineEngine(pipelineMeta);
     if (parameters != null) {

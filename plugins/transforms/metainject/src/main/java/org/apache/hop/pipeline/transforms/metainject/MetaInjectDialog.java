@@ -59,6 +59,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -132,6 +133,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
   //
   private Button wNoExecution;
 
+  private TableView wParameters;
+
+  private Button wInheritAll;
+
   // allow to run execution if previous stream data are empty
   //
   private Button wAllowEmptyStreamOnExecution;
@@ -197,12 +202,21 @@ public class MetaInjectDialog extends BaseTransformDialog {
     fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
     wbBrowse.setLayoutData(fdBrowse);
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
+    fdOpen.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(0, 0);
     fdTransformation.top = new FormAttachment(wlPath, 5);
-    fdTransformation.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
+    fdTransformation.right = new FormAttachment(wbOpen, -PropsUi.getMargin());
     wPath.setLayoutData(fdTransformation);
     wPath.addFocusListener(
         new FocusAdapter() {
@@ -252,6 +266,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
     addInjectTab();
     addOptionsTab();
+    addParametersTab();
 
     getData();
     metaInjectMeta.setChanged(changed);
@@ -538,6 +553,119 @@ public class MetaInjectDialog extends BaseTransformDialog {
     // ///////////////////////////////////////////////////////////
   }
 
+  private void addParametersTab() {
+    CTabItem wParametersTab = new CTabItem(wTabFolder, SWT.NONE);
+    wParametersTab.setFont(GuiResource.getInstance().getFontDefault());
+    wParametersTab.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Parameters.Title"));
+    wParametersTab.setToolTipText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.Parameters.Tooltip"));
+
+    Composite wParametersComposite = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wParametersComposite);
+
+    FormLayout parameterTabLayout = new FormLayout();
+    parameterTabLayout.marginWidth = 15;
+    parameterTabLayout.marginHeight = 15;
+    wParametersComposite.setLayout(parameterTabLayout);
+
+    wInheritAll = new Button(wParametersComposite, SWT.CHECK);
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
+    PropsUi.setLook(wInheritAll);
+    FormData fdInheritAll = new FormData();
+    fdInheritAll.bottom = new FormAttachment(100, 0);
+    fdInheritAll.left = new FormAttachment(0, 0);
+    fdInheritAll.right = new FormAttachment(100, -30);
+    wInheritAll.setLayoutData(fdInheritAll);
+    wInheritAll.addListener(SWT.Selection, e -> metaInjectMeta.setChanged());
+
+    Button wGetParameters = new Button(wParametersComposite, SWT.PUSH);
+    wGetParameters.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Parameters.GetButton"));
+    PropsUi.setLook(wGetParameters);
+    FormData fdGetParameters = new FormData();
+    fdGetParameters.bottom = new FormAttachment(wInheritAll, -10);
+    fdGetParameters.right = new FormAttachment(100, 0);
+    wGetParameters.setLayoutData(fdGetParameters);
+    wGetParameters.addListener(SWT.Selection, e -> getParametersFromTemplate());
+
+    ColumnInfo[] parameterColumns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MetaInjectDialog.Parameters.column.Parameter"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MetaInjectDialog.Parameters.column.Value"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+        };
+    parameterColumns[1].setUsingVariables(true);
+
+    wParameters =
+        new TableView(
+            variables,
+            wParametersComposite,
+            SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
+            parameterColumns,
+            metaInjectMeta.getParameters() == null ? 0 : metaInjectMeta.getParameters().size(),
+            false,
+            lsMod,
+            props,
+            false);
+    PropsUi.setLook(wParameters);
+    FormData fdParameters = new FormData();
+    fdParameters.left = new FormAttachment(0, 0);
+    fdParameters.right = new FormAttachment(100, 0);
+    fdParameters.top = new FormAttachment(0, 0);
+    fdParameters.bottom = new FormAttachment(wGetParameters, -10);
+    wParameters.setLayoutData(fdParameters);
+    wParameters.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 50, 50));
+
+    FormData fdParametersComposite = new FormData();
+    fdParametersComposite.left = new FormAttachment(0, 0);
+    fdParametersComposite.top = new FormAttachment(0, 0);
+    fdParametersComposite.right = new FormAttachment(100, 0);
+    fdParametersComposite.bottom = new FormAttachment(100, 0);
+    wParametersComposite.setLayoutData(fdParametersComposite);
+
+    wParametersComposite.layout();
+    wParametersTab.setControl(wParametersComposite);
+  }
+
+  /** Fill the grid with the parameters the template pipeline declares, keeping edited values. */
+  private void getParametersFromTemplate() {
+    try {
+      if (!loadPipeline()) {
+        return;
+      }
+      Map<String, String> existing = new HashMap<>();
+      for (int i = 0; i < wParameters.nrNonEmpty(); i++) {
+        TableItem item = wParameters.getNonEmpty(i);
+        existing.put(item.getText(1), item.getText(2));
+      }
+      wParameters.removeAll();
+      String[] parameterNames = injectPipelineMeta.listParameters();
+      Arrays.sort(parameterNames);
+      for (String parameterName : parameterNames) {
+        TableItem item = new TableItem(wParameters.table, SWT.NONE);
+        item.setText(1, parameterName);
+        item.setText(2, Const.NVL(existing.get(parameterName), ""));
+      }
+      wParameters.removeEmptyRows();
+      wParameters.setRowNums();
+      wParameters.optWidth(true);
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingPipeline.DialogTitle"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingPipeline.DialogMessage"),
+          e);
+    }
+  }
+
   private void addInjectTab() {
     // ////////////////////////
     // START OF INJECT TAB ///
@@ -741,6 +869,19 @@ public class MetaInjectDialog extends BaseTransformDialog {
     }
   }
 
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            metaInjectMeta.hasChanged(), wPath.getText(), metaInjectMeta.getTemplateFileName()),
+        () -> {
+          ok();
+          return isDisposed() ? metaInjectMeta.getTemplateFileName() : null;
+        });
+  }
+
   private void selectFileTrans() {
     try {
       HopPipelineFileType<PipelineMeta> fileType =
@@ -825,6 +966,18 @@ public class MetaInjectDialog extends BaseTransformDialog {
       }
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting pipeline run configurations", e);
+    }
+
+    wInheritAll.setSelection(metaInjectMeta.isInheritingAllVariables());
+    if (metaInjectMeta.getParameters() != null) {
+      int parameterRow = 0;
+      for (MetaInjectParameter parameter : metaInjectMeta.getParameters()) {
+        TableItem item = wParameters.table.getItem(parameterRow++);
+        item.setText(1, Const.NVL(parameter.getVariable(), ""));
+        item.setText(2, Const.NVL(parameter.getInput(), ""));
+      }
+      wParameters.setRowNums();
+      wParameters.optWidth(true);
     }
 
     wSourceTransform.setText(Const.NVL(metaInjectMeta.getSourceTransformName(), ""));
@@ -1090,6 +1243,13 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
     meta.setStreamSourceTransformName(wStreamingSourceTransform.getText());
     meta.setStreamTargetTransformName(wStreamingTargetTransform.getText());
+
+    meta.setInheritingAllVariables(wInheritAll.getSelection());
+    meta.setParameters(new ArrayList<>());
+    for (int i = 0; i < wParameters.nrNonEmpty(); i++) {
+      TableItem item = wParameters.getNonEmpty(i);
+      meta.getParameters().add(new MetaInjectParameter(item.getText(1), item.getText(2)));
+    }
 
     meta.getMappings().clear();
     meta.getMappings().addAll(targetMappings);

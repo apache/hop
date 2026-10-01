@@ -35,6 +35,8 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -42,6 +44,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
@@ -60,12 +63,14 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
   private ExecutionDataProfile executionDataProfile;
   private ExecutionDataProfile workingProfile;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private org.eclipse.swt.widgets.List wSamplers;
 
+  private Composite editorComposite;
   private Composite wPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
+  private GuiCompositeWidgets limitsWidgets;
 
   private Map<String, IExecutionDataSampler> metaMap;
 
@@ -84,6 +89,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
 
   @Override
   public void createControl(Composite parent) {
+    this.editorComposite = parent;
     PropsUi props = PropsUi.getInstance();
 
     // Create a tabbed interface instead of the confusing left-hand side options
@@ -104,7 +110,9 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -130,6 +138,18 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     fdDescription.right = new FormAttachment(100, 0);
     wDescription.setLayoutData(fdDescription);
     lastControl = wDescription;
+
+    limitsWidgets = new GuiCompositeWidgets(manager.getVariables());
+    limitsWidgets.createCompositeWidgets(
+        workingProfile,
+        null,
+        parent,
+        ExecutionDataProfile.GUI_PLUGIN_LIMITS_PARENT_ID,
+        wDescription);
+    Control limitsGroup = findGroup(parent);
+    if (limitsGroup != null) {
+      lastControl = limitsGroup;
+    }
 
     Label wlSamplers = new Label(parent, SWT.LEFT);
     PropsUi.setLook(wlSamplers);
@@ -198,6 +218,25 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     wName.addListener(SWT.Modify, modifyListener);
     wDescription.addListener(SWT.Modify, modifyListener);
     wSamplers.addListener(SWT.Selection, e -> addSamplerPluginWidgets());
+    limitsWidgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            setChanged();
+          }
+        });
+  }
+
+  /** The limits group is created on the editor composite, so the sampler list can sit under it. */
+  private static Control findGroup(Composite parent) {
+    Control group = null;
+    for (Control child : parent.getChildren()) {
+      if (child instanceof Group) {
+        group = child;
+      }
+    }
+    return group;
   }
 
   private IExecutionDataSampler previousSampler;
@@ -267,6 +306,8 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
 
     wName.setText(Const.NVL(workingProfile.getName(), ""));
     wDescription.setText(Const.NVL(workingProfile.getDescription(), ""));
+    limitsWidgets.setWidgetsContents(
+        workingProfile, editorComposite, ExecutionDataProfile.GUI_PLUGIN_LIMITS_PARENT_ID);
 
     // Add all the sampler plugins in the profile
     //
@@ -290,6 +331,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
 
     profile.setName(wName.getText());
     profile.setDescription(wDescription.getText());
+    limitsWidgets.getWidgetsContents(profile, ExecutionDataProfile.GUI_PLUGIN_LIMITS_PARENT_ID);
 
     savePreviousSampler();
 

@@ -21,6 +21,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transforms.janino.function.RowAccess;
 import org.codehaus.janino.ExpressionEvaluator;
 
 @SuppressWarnings("java:S1104")
@@ -40,6 +41,9 @@ public class JaninoData extends BaseTransformData implements ITransformData {
 
   public ExpressionEvaluator[] expressionEvaluators;
   public List<List<Integer>> argumentIndexes;
+
+  /** Reads the current row by field name, null when a field of the stream is called "row". */
+  public RowAccess rowAccess;
 
   public JaninoData() {
     super();

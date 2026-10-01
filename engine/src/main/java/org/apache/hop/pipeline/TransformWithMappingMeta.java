@@ -22,18 +22,14 @@ import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRE
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -186,57 +182,34 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       String[] mappingVariables,
       String[] inputFields,
       boolean isPassingAllParameters) {
-    Map<String, String> parameters = new HashMap<>();
-    Set<String> subPipelineParameters = new HashSet<>(Arrays.asList(listParameters));
-
+    // Kept for plugins that call this directly. All executors share one implementation so a
+    // sub-pipeline and a sub-workflow resolve their parameters identically.
+    //
+    // This signature has no way to say "the row names a parameter but configures no value", so a
+    // blank value is read as exactly that and left to the option and the child's own default.
+    //
+    List<String> names = new ArrayList<>();
+    List<String> values = new ArrayList<>();
     if (mappingVariables != null) {
       for (int i = 0; i < mappingVariables.length; i++) {
-        String mappingVariable = mappingVariables[i];
-        parameters.put(mappingVariable, parent.resolve(inputFields[i]));
-        // If inputField value is not empty then create it in variables of transform(Parent)
-        if (!Utils.isEmpty(Const.trim(parent.resolve(inputFields[i])))) {
-          parent.setVariable(mappingVariable, parent.resolve(inputFields[i]));
+        String value = inputFields == null || i >= inputFields.length ? null : inputFields[i];
+        if (Utils.isEmpty(Const.trim(value))) {
+          continue;
         }
+        names.add(mappingVariables[i]);
+        values.add(value);
       }
     }
 
-    for (String variableName : parent.getVariableNames()) {
-      // When the child parameter does exist in the parent parameters, overwrite the child parameter
-      // by the
-      // parent parameter.
-      if (parameters.containsKey(variableName)) {
-        parameters.put(variableName, parent.getVariable(variableName));
-        // added  isPassingAllParameters check since we don't need to overwrite the child value if
-        // the
-        // isPassingAllParameters is not checked
-      } else if (ArrayUtils.contains(listParameters, variableName) && isPassingAllParameters) {
-        // there is a definition only in Pipeline properties - params tab
-        parameters.put(variableName, parent.getVariable(variableName));
-      }
-    }
-
-    for (Map.Entry<String, String> entry : parameters.entrySet()) {
-      String key = entry.getKey();
-      String value = Const.NVL(entry.getValue(), "");
-      if (subPipelineParameters.contains(key)) {
-        try {
-          childNamedParams.setParameterValue(key, Const.NVL(entry.getValue(), ""));
-        } catch (UnknownParamException e) {
-          // this is explicitly checked for up front
-        }
-      } else {
-        try {
-          childNamedParams.addParameterDefinition(key, "", "");
-          childNamedParams.setParameterValue(key, value);
-        } catch (DuplicateParamException | UnknownParamException e) {
-          // this was explicitly checked before
-        }
-
-        childVariableSpace.setVariable(key, value);
-      }
-    }
-
-    childNamedParams.activateParameters(childVariableSpace);
+    SubExecutionParameters.activate(
+        childVariableSpace,
+        childNamedParams,
+        parent,
+        listParameters,
+        names.toArray(new String[0]),
+        values.toArray(new String[0]),
+        isPassingAllParameters,
+        true);
   }
 
   /**

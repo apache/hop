@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.LogConsoleFacade;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextVar;
@@ -127,14 +128,18 @@ public class HopGuiPipelineLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    // Use StyledTextComp for web (uses Text widget), StyledTextVar for desktop (uses StyledText
-    // for highlighting)
+    // Hop Web: an incremental console (a Text would be re-sent in full on every appended line);
+    // desktop: StyledText for highlighting.
     if (EnvironmentUtils.getInstance().isWeb()) {
-      pipelineLogText =
-          new StyledTextComp(
-              pipelineGraph.getVariables(),
-              pipelineLogComposite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+      pipelineLogText = LogConsoleFacade.create(pipelineLogComposite, SWT.BORDER);
+      if (pipelineLogText == null) {
+        pipelineLogText =
+            new StyledTextComp(
+                pipelineGraph.getVariables(),
+                pipelineLogComposite,
+                SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+                TextComposite.STYLE_TYPE_LOG);
+      }
     } else {
       pipelineLogText =
           new StyledTextVar(
@@ -142,7 +147,8 @@ public class HopGuiPipelineLogDelegate {
               pipelineLogComposite,
               SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
               false,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_LOG);
       // Error highlighting is applied directly in HopGuiLogBrowser when adding lines
     }
     PropsUi.setLook(pipelineLogText);

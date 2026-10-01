@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +27,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -37,11 +34,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
-import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Category;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Snippet;
@@ -58,11 +53,14 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.JavaStyledTextComp;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -150,8 +148,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   private enum TabAddActions {
     ADD_COPY,
     ADD_BLANK,
-    ADD_DEFAULT
+    ADD_DEFAULT,
+    ADD_SAMPLE
   }
+
+  /** Marks a tab that only shows a code snippet for reference, not a class of this transform. */
+  private static final String SAMPLE_TAB = "sampleTab";
 
   private String strActiveScript;
 
@@ -279,6 +281,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     // Tree View Test
     wTree = new HopTree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(wTree);
     PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
@@ -451,21 +454,21 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     itemWaitFieldsIn.setText(
         BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsIn.setForeground(guiResource.getColorDirectory());
-    itemInput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemInput, true);
 
     // Display waiting message for info
     TreeItem itemWaitFieldsInfo = new TreeItem(itemInfo, SWT.NULL);
     itemWaitFieldsInfo.setText(
         BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsInfo.setForeground(guiResource.getColorDirectory());
-    itemInfo.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemInfo, true);
 
     // Display waiting message for output
     TreeItem itemWaitFieldsOut = new TreeItem(itemOutput, SWT.NULL);
     itemWaitFieldsOut.setText(
         BaseMessages.getString(PKG, CONST_USER_DEFINED_JAVA_CLASS_DIALOG_GETTING_FIELDS_LABEL));
     itemWaitFieldsOut.setForeground(guiResource.getColorDirectory());
-    itemOutput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemOutput, true);
 
     //
     // Search the fields in the background
@@ -487,7 +490,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     addRenameToTreeScriptItems();
     input.setChanged(changed);
@@ -583,6 +586,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(
@@ -819,12 +823,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
   }
 
-  private void addCtab(String tabName, String tabCode, TabAddActions tabType) {
+  private CTabItem addCtab(String tabName, String tabCode, TabAddActions tabType) {
     CTabItem item = new CTabItem(folder, SWT.CLOSE);
     item.setFont(GuiResource.getInstance().getFontDefault());
 
     switch (tabType) {
-      case ADD_DEFAULT:
+      case ADD_DEFAULT, ADD_SAMPLE:
         item.setText(tabName);
         break;
       default:
@@ -838,7 +842,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_JAVA);
     } else {
       wScript =
           new JavaStyledTextComp(
@@ -870,8 +875,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     item.setImage(imageInactiveScript);
     item.setControl(wScript);
 
-    // Adding new Item to Tree
-    modifyTabTree(item, TabActions.ADD_ITEM);
+    if (tabType == TabAddActions.ADD_SAMPLE) {
+      // A sample is shown for reference only. It is not a class of this transform, so it doesn't
+      // belong in the classes tree and it must not end up in the definitions to compile.
+      item.setData(SAMPLE_TAB, Boolean.TRUE);
+      wScript.setEditable(false);
+    } else {
+      // Adding new Item to Tree
+      modifyTabTree(item, TabActions.ADD_ITEM);
+    }
+    return item;
+  }
+
+  private boolean isSampleTab(CTabItem cTab) {
+    return Boolean.TRUE.equals(cTab.getData(SAMPLE_TAB));
   }
 
   private void modifyTabTree(CTabItem ctabitem, TabActions action) {
@@ -1009,6 +1026,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public void getData() {
     int i = 0;
     for (FieldInfo fi : input.getFields()) {
@@ -1167,7 +1186,10 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
     meta.replaceFields(newFields);
 
-    CTabItem[] cTabs = folder.getItems();
+    CTabItem[] cTabs =
+        Arrays.stream(folder.getItems())
+            .filter(cTab -> !isSampleTab(cTab))
+            .toArray(CTabItem[]::new);
     if (cTabs.length > 0) {
       for (CTabItem cTab : cTabs) {
         JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
@@ -1279,7 +1301,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private boolean test() {
-    PluginRegistry registry = PluginRegistry.getInstance();
     String scriptTransformName = wTransformName.getText();
 
     if (!checkForTransformClass()) {
@@ -1314,8 +1335,10 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         return false;
       }
 
-      // What fields are coming into the transform?
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName).clone();
+      // What fields are coming into the transform over the main input?
+      IRowMeta rowMeta =
+          UserDefinedJavaClassTestPipeline.getMainInputFields(
+              variables, pipelineMeta, transformName, udjcMeta);
       if (rowMeta != null) {
         // Create a new RowGenerator transform to generate rows for the test
         // data...
@@ -1323,101 +1346,21 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         // Otherwise he/she has to key in the same test data all the
         // time
         if (genMeta == null) {
-          genMeta = new RowGeneratorMeta();
-          genMeta.setRowLimit("10");
-          for (int i = 0; i < rowMeta.size(); i++) {
-            IValueMeta valueMeta = rowMeta.getValueMeta(i);
-            if (valueMeta.isStorageBinaryString()) {
-              valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-            }
-            GeneratorField field = new GeneratorField();
-            field.setName(valueMeta.getName());
-            field.setType(valueMeta.getTypeDesc());
-            field.setLength(valueMeta.getLength());
-            field.setPrecision(valueMeta.getPrecision());
-            field.setCurrency(valueMeta.getCurrencySymbol());
-            field.setDecimal(valueMeta.getDecimalSymbol());
-            field.setGroup(valueMeta.getGroupingSymbol());
-
-            String string = null;
-            switch (valueMeta.getType()) {
-              case IValueMeta.TYPE_DATE:
-                field.setFormat("yyyy/MM/dd HH:mm:ss");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(new Date());
-                break;
-              case IValueMeta.TYPE_STRING:
-                string = "test value test value";
-                break;
-              case IValueMeta.TYPE_INTEGER:
-                field.setFormat("#");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(0L);
-                break;
-              case IValueMeta.TYPE_NUMBER:
-                field.setFormat("#.#");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(0.0D);
-                break;
-              case IValueMeta.TYPE_BIGNUMBER:
-                field.setFormat("#.#");
-                valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(BigDecimal.ZERO);
-                break;
-              case IValueMeta.TYPE_BOOLEAN:
-                string = valueMeta.getString(Boolean.TRUE);
-                break;
-              case IValueMeta.TYPE_BINARY:
-                string =
-                    valueMeta.getString(
-                        new byte[] {
-                          65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
-                        });
-                break;
-              default:
-                break;
-            }
-
-            field.setValue(string);
-            genMeta.getFields().add(field);
-          }
+          genMeta = UserDefinedJavaClassTestPipeline.createTestDataGenerator(rowMeta);
         }
-        TransformMeta genTransform =
-            new TransformMeta(
-                registry.getPluginId(TransformPluginType.class, genMeta),
-                "## TEST DATA ##",
-                genMeta);
-        genTransform.setLocation(50, 50);
+        scriptTransformName = Const.NVL(scriptTransformName, "## SCRIPT ##");
+        PipelineMeta testPipelineMeta =
+            UserDefinedJavaClassTestPipeline.build(
+                variables, pipelineMeta, scriptTransformName, udjcMeta, genMeta);
+        testPipelineMeta.setName(wTransformName.getText() + " - PREVIEW");
 
-        TransformMeta scriptTransform =
-            new TransformMeta(
-                registry.getPluginId(TransformPluginType.class, udjcMeta),
-                Const.NVL(scriptTransformName, "## SCRIPT ##"),
-                udjcMeta);
-        scriptTransformName = scriptTransform.getName();
-        scriptTransform.setLocation(150, 50);
-
-        // Create a hop between both transforms...
-        //
-        PipelineHopMeta hop = new PipelineHopMeta(genTransform, scriptTransform);
-
-        // Generate a new test pipeline...
-        //
-        PipelineMeta pipelineMeta = new PipelineMeta();
-        pipelineMeta.setName(wTransformName.getText() + " - PREVIEW");
-        pipelineMeta.addTransform(genTransform);
-        pipelineMeta.addTransform(scriptTransform);
-        pipelineMeta.addPipelineHop(hop);
-
-        // OK, now we ask the user to edit this dialog...
-        //
         // Now run this pipeline and grab the results...
         //
         PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
                 shell,
                 variables,
-                pipelineMeta,
+                testPipelineMeta,
                 new String[] {
                   scriptTransformName,
                 },
@@ -1513,10 +1456,19 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private void populateFieldsTree() {
+    // Looking the fields up takes a while, and the dialog may well be gone by now.
+    if (shell.isDisposed()) {
+      return;
+    }
     shell
         .getDisplay()
         .syncExec(
             () -> {
+              if (itemInput.isDisposed()) {
+                // Closed while we were waiting our turn on the UI thread. syncExec hands what
+                // this throws back to the lookup thread, where nothing catches it.
+                return;
+              }
               itemInput.removeAll();
               itemInfo.removeAll();
               itemOutput.removeAll();
@@ -1706,9 +1658,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
           if (getCTabPosition(sampleTabName) == -1) {
             addCtab(
-                sampleTabName,
-                snippitsHelper.getSample(snippitFullName),
-                TabAddActions.ADD_DEFAULT);
+                sampleTabName, snippitsHelper.getSample(snippitFullName), TabAddActions.ADD_SAMPLE);
           }
 
           if (getCTabPosition(sampleTabName) != -1) {

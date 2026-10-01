@@ -31,9 +31,11 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.apache.hop.vfs.sftp.SftpConnections;
 import org.apache.hop.vfs.sftp.client.SftpClient;
 import org.eclipse.swt.SWT;
@@ -57,7 +59,7 @@ public class SftpConnectionEditor extends MetadataEditor<SftpConnection> {
   private final int middle;
   private final int margin;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
 
   private TextVar wServerName;
@@ -98,7 +100,9 @@ public class SftpConnectionEditor extends MetadataEditor<SftpConnection> {
   public void createControl(Composite parent) {
     IVariables variables = manager.getVariables();
 
-    wName = addTextLine(parent, null, "SftpConnectionEditor.Name.Label");
+    wName =
+        addTextVarLine(variables, parent, null, "SftpConnectionEditor.Name.Label")
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     wDescription = addTextLine(parent, wName, "SftpConnectionEditor.Description.Label");
 
     Button wTest = new Button(parent, SWT.PUSH);
@@ -486,6 +490,11 @@ public class SftpConnectionEditor extends MetadataEditor<SftpConnection> {
     // The name of a connection is a VFS scheme: re-register the providers so the new or changed
     // connection is picked up right away.
     //
-    HopVfs.reset();
+    HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

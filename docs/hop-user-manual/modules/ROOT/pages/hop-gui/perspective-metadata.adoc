@@ -32,11 +32,12 @@ The Metadata perspective is where you manage the different xref:metadata-types/i
 
 This perspective has a tree on the left-hand side where the metadata types are shown as top level with elements below it:
 
-image::hop-gui/perspective-data-orchestration-left-hand-tree.png[The left-hand tree of the data orchestration perspective]
+image::hop-gui/perspective-metadata-left-hand-tree.png[The metadata types tree on the left of the Metadata perspective]
 
 === Managing elements
 
 You can right-click on any element to edit, rename, duplicate or delete an element.  You can also use this menu to create new elements.
+Duplicating an element that is stored in a parent project asks which metadata folder should receive the copy. The active project is selected by default, so the copy is not written next to the original and shared with every project that inherits it.
 To create a new element you can also double-click on the element type itself.
 You can also use the toolbar icons in the toolbar located right above the metadata tree.
 

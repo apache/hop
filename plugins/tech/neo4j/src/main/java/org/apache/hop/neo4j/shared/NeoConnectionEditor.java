@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -48,7 +49,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** Dialog that allows you to edit the settings of a Neo4j connection */
 public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
@@ -58,7 +58,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
   // Connection properties
   //
-  private Text wName;
+  private TextVar wName;
   private Label wlAutomatic;
   private CheckBoxVar wAutomatic;
   private TextVar wProtocol;
@@ -115,7 +115,9 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);

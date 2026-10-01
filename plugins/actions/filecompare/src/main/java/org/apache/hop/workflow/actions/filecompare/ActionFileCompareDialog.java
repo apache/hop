@@ -23,6 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -87,7 +88,9 @@ public class ActionFileCompareDialog extends ActionDialog {
     fdbFilename1.right = new FormAttachment(100, -margin);
     fdbFilename1.top = new FormAttachment(wlFilename1, 0, SWT.CENTER);
     wbFilename1.setLayoutData(fdbFilename1);
-    wFilename1 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename1 =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename1);
     wFilename1.addModifyListener(lsMod);
     FormData fdFilename1 = new FormData();
@@ -122,7 +125,9 @@ public class ActionFileCompareDialog extends ActionDialog {
     fdbFilename2.right = new FormAttachment(100, -margin);
     fdbFilename2.top = new FormAttachment(wlFilename2, 0, SWT.CENTER);
     wbFilename2.setLayoutData(fdbFilename2);
-    wFilename2 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename2 =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename2);
     wFilename2.addModifyListener(lsMod);
     FormData fdFilename2 = new FormData();

@@ -163,6 +163,18 @@ class StringUtilTest {
   }
 
   @Test
+  void testContainsVariableToken() {
+    assertTrue(StringUtil.containsVariableToken("${CONNECTION}"));
+    assertTrue(StringUtil.containsVariableToken("db_${ENV}"));
+    assertTrue(StringUtil.containsVariableToken("%%WINDOWS%%"));
+    assertTrue(StringUtil.containsVariableToken("$[hex]"));
+    assertTrue(StringUtil.containsVariableToken("#{resolver}"));
+    assertFalse(StringUtil.containsVariableToken("sales-db"));
+    assertFalse(StringUtil.containsVariableToken(null));
+    assertFalse(StringUtil.containsVariableToken(""));
+  }
+
+  @Test
   void testSafeToLowerCase() {
     assertNull(StringUtil.safeToLowerCase(null));
     assertEquals("", StringUtil.safeToLowerCase(""));

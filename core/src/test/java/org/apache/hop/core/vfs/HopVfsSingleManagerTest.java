@@ -43,6 +43,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -61,6 +62,18 @@ class HopVfsSingleManagerTest {
 
   private IPlugin registeredPlugin;
 
+  /**
+   * Clear static HopVfs state before each method. Other core VFS tests (for example {@link
+   * HopVfsTest#testStartsWithScheme()}) can leave {@code bootstrapVariables} set via {@code
+   * startsWithScheme(name, variables)} / {@code getFileSystemManager(variables)}. Without this,
+   * {@link #noMetadataLookupBeforeVariablesArrive} sees a false positive: named providers are
+   * looked up even though this test never bootstrapped a project.
+   */
+  @BeforeEach
+  void setUp() {
+    clearHopVfsState();
+  }
+
   @AfterEach
   void tearDown() {
     if (registeredPlugin != null) {
@@ -69,6 +82,10 @@ class HopVfsSingleManagerTest {
     }
     // Drop the manager built with the test providers, and the variables it was built with, so
     // other tests start clean.
+    clearHopVfsState();
+  }
+
+  private static void clearHopVfsState() {
     HopVfs.setBootstrapVariables(null);
     HopVfs.reset();
   }

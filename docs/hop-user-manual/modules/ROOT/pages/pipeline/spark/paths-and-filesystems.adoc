@@ -17,6 +17,7 @@ under the License.
 [[NativeSparkPathsAndFilesystems]]
 :imagesdir: ../../../assets/images
 :description: Hop VFS URIs versus Spark/Hadoop FileSystem URIs when using the native Spark pipeline engine.
+:page-marketplace: hop-engines-spark
 
 = Paths and file systems on native Spark
 

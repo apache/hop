@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "grp",
+          "data_set_field": "grp"
+        },
+        {
+          "transform_field": "sum_amount",
+          "data_set_field": "sum_amount"
+        },
+        {
+          "transform_field": "cnt",
+          "data_set_field": "cnt"
+        }
+      ],
+      "field_order": [
+        "grp"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "golden-groupby-ignore-aggregate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-groupby-ignore-aggregate UNIT",
+  "description": "Group By ignores rows where the configured boolean field is true",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-groupby-ignore-aggregate.hpl",
+  "test_type": "UNIT_TEST"
+}

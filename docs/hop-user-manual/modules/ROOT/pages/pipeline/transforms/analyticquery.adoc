@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/analyticquery.svg[Analytic Query Icon, role="image-doc-icon"] Analytic Query
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
@@ -31,18 +29,6 @@ Examples of common use cases are:
 
 * Calculate the "time between orders" by ordering rows by order date, and LAGing 1 row back to get previous order time.
 * Calculate the "duration" of a web page view by LEADing 1 row ahead and determining how many seconds the user was on this page.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

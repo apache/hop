@@ -157,13 +157,18 @@ public class InputsReader implements Iterable<InputStream> {
           }
         }
         try {
+          JsonInputData jsonData = data instanceof JsonInputData jd ? jd : null;
+          if (jsonData != null) {
+            jsonData.skipEmptyFile = false;
+          }
           data.file = inner.next();
           data.currentFileIndex++;
           if (transform.onNewFile(data.file)) {
             return HopVfs.getInputStream(data.file);
           }
-          if (data instanceof JsonInputData jsonData && jsonData.skipEmptyFile) {
-            jsonData.skipEmptyFile = false;
+          if (jsonData != null && jsonData.skipEmptyFile) {
+            // Empty file, ignored: move on to the next one. When there is none left we return null
+            // with the flag still set, telling the transform not to write a row for it.
             continue;
           }
           return null;

@@ -20,24 +20,19 @@ package org.apache.hop.ui.hopgui.delegates;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextMenu;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -64,33 +59,47 @@ public class HopGuiContextDelegate {
     Shell shell = hopGui.getShell();
     Menu menu = new Menu(shell, SWT.POP_UP);
 
+    boolean canCreateFiles =
+        org.apache.hop.core.security.HopSecurity.allows(
+            org.apache.hop.core.security.Permission.FILE_CREATE);
+    boolean canCreateMetadata =
+        org.apache.hop.core.security.HopSecurity.allows(
+            org.apache.hop.core.security.Permission.METADATA_WRITE);
+
     // 1) Global file types at the top (pipeline, workflow, markdown, ...).
     //
-    List<GuiAction> fileActions = new ArrayList<>();
-    for (IHopFileType fileType : HopFileTypeRegistry.getInstance().getFileTypes()) {
-      for (IGuiContextHandler handler : fileType.getContextHandlers()) {
-        fileActions.addAll(
-            GuiContextUtil.getInstance()
-                .filterActions(handler.getSupportedActions(), GuiActionType.Create));
+    if (canCreateFiles) {
+      List<GuiAction> fileActions = new ArrayList<>();
+      for (IHopFileType fileType : HopFileTypeRegistry.getInstance().getFileTypes()) {
+        for (IGuiContextHandler handler : fileType.getContextHandlers()) {
+          fileActions.addAll(
+              GuiContextUtil.getInstance()
+                  .filterActions(handler.getSupportedActions(), GuiActionType.Create));
+        }
       }
-    }
-    fileActions.sort(
-        Comparator.comparing((GuiAction a) -> Const.NVL(a.getCategoryOrder(), "9999"))
-            .thenComparing(a -> Const.NVL(a.getName(), a.getId())));
-    for (GuiAction action : fileActions) {
-      addActionMenuItem(menu, action, shell);
+      fileActions.sort(
+          Comparator.comparing((GuiAction a) -> Const.NVL(a.getCategoryOrder(), "9999"))
+              .thenComparing(a -> Const.NVL(a.getName(), a.getId())));
+      for (GuiAction action : fileActions) {
+        GuiContextMenu.addActionMenuItem(menu, action, shell);
+      }
     }
 
     // 2) All metadata types, grouped/ordered exactly like the metadata perspective's "new" button.
     //
     boolean hasFileItems = menu.getItemCount() > 0;
-    if (hasFileItems) {
-      new MenuItem(menu, SWT.SEPARATOR);
+    int metadataItems = 0;
+    boolean separatorAdded = false;
+    if (canCreateMetadata) {
+      if (hasFileItems) {
+        new MenuItem(menu, SWT.SEPARATOR);
+        separatorAdded = true;
+      }
+      MetadataPerspective perspective = HopGui.getMetadataPerspective();
+      metadataItems = perspective != null ? perspective.addNewMetadataTypeMenuItems(menu) : 0;
     }
-    MetadataPerspective perspective = HopGui.getMetadataPerspective();
-    int metadataItems = perspective != null ? perspective.addNewMetadataTypeMenuItems(menu) : 0;
     // Drop a dangling separator when there were no metadata types to add.
-    if (metadataItems == 0 && hasFileItems) {
+    if (metadataItems == 0 && separatorAdded && menu.getItemCount() > 0) {
       menu.getItem(menu.getItemCount() - 1).dispose();
     }
 
@@ -121,53 +130,6 @@ public class HopGuiContextDelegate {
     menu.addListener(SWT.Hide, event -> menu.getDisplay().asyncExec(menu::dispose));
 
     menu.setVisible(true);
-  }
-
-  /** Adds a single push menu item for a {@link GuiAction} (icon, label and its action lambda). */
-  private void addActionMenuItem(Menu menu, GuiAction action, Shell shell) {
-    MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-    menuItem.setText(Const.NVL(action.getName(), action.getId()));
-
-    // Load the action image (SVG) when there is one.
-    //
-    if (StringUtils.isNotEmpty(action.getImage())) {
-      try {
-        ClassLoader classLoader = action.getClassLoader();
-        if (classLoader == null) {
-          classLoader = getClass().getClassLoader();
-        }
-        Image image =
-            GuiResource.getInstance()
-                .getImage(
-                    action.getImage(),
-                    classLoader,
-                    ConstUi.SMALL_ICON_SIZE,
-                    ConstUi.SMALL_ICON_SIZE);
-        menuItem.setImage(image);
-      } catch (Exception e) {
-        // Ignore image loading errors, the menu item text is enough.
-      }
-    }
-
-    menuItem.addListener(
-        SWT.Selection,
-        event -> {
-          boolean shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
-          boolean ctrlClicked = (event.stateMask & SWT.CONTROL) != 0;
-          // Defer execution until the menu is fully closed.
-          //
-          hopGui
-              .getDisplay()
-              .asyncExec(
-                  () -> {
-                    try {
-                      IGuiActionLambda<?> actionLambda = action.getActionLambda();
-                      actionLambda.executeAction(shiftClicked, ctrlClicked);
-                    } catch (Exception e) {
-                      new ErrorDialog(shell, "Error", "An error occurred executing action", e);
-                    }
-                  });
-        });
   }
 
   /** Edit a metadata object... */

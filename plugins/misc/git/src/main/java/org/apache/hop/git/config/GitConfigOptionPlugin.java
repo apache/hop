@@ -41,7 +41,9 @@ import picocli.CommandLine;
 
 @ConfigPlugin(
     id = "GitConfigOptionPlugin",
-    description = "Configuration options for the git GUI plugin")
+    description = "Configuration options for the git GUI plugin",
+    configKey = GitConfig.HOP_CONFIG_GIT_CONFIG_KEY,
+    configClass = GitConfig.class)
 @GuiPlugin(
     description = "i18n::GitConfig.Tab.Name" // label in options dialog
     )
@@ -61,17 +63,19 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       id = WIDGET_ID_GIT_ENABLE,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::GitConfig.EnableGitPlugin.Message")
+      label = "i18n::GitConfig.EnableGitPlugin.Message",
+      toolTip = "i18n::GitConfig.EnableGitPlugin.Tooltip")
   @CommandLine.Option(
       names = {"--git-gui-enabled"},
       description = "Enable or disable the git GUI plugin")
-  private Boolean gitEnabled;
+  private Boolean enabled;
 
   @GuiWidgetElement(
       id = WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::GitConfig.SearchParentFolders.Message")
+      label = "i18n::GitConfig.SearchParentFolders.Message",
+      toolTip = "i18n::GitConfig.SearchParentFolders.Tooltip")
   @CommandLine.Option(
       names = {"--git-gui-search-parent-folders"},
       description = "The git GUI searches the parent folders for a repository")
@@ -99,7 +103,7 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
   public static GitConfigOptionPlugin getInstance() {
     GitConfigOptionPlugin instance = new GitConfigOptionPlugin();
     GitConfig config = GitConfigSingleton.getConfig();
-    instance.gitEnabled = config.isEnabled();
+    instance.enabled = config.isEnabled();
     instance.searchingParentFolders = config.isSearchingParentFolders();
     instance.fetchAutomatic = config.isFetchAutomatic();
     instance.ignoringPositionInDiff = config.isIgnoringPositionInDiff();
@@ -113,9 +117,9 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
     GitConfig config = GitConfigSingleton.getConfig();
     try {
       boolean changed = false;
-      if (gitEnabled != null) {
-        config.setEnabled(gitEnabled);
-        if (gitEnabled) {
+      if (enabled != null) {
+        config.setEnabled(enabled);
+        if (enabled) {
           log.logBasic("Enabled the git GUI plugin");
         } else {
           log.logBasic("Disabled the git GUI plugin");
@@ -179,8 +183,8 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       Control control = compositeWidgets.getWidgetsMap().get(widgetId);
       switch (widgetId) {
         case WIDGET_ID_GIT_ENABLE:
-          gitEnabled = ((Button) control).getSelection();
-          GitConfigSingleton.getConfig().setEnabled(gitEnabled);
+          enabled = ((Button) control).getSelection();
+          GitConfigSingleton.getConfig().setEnabled(enabled);
           break;
         case WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS:
           searchingParentFolders = ((Button) control).getSelection();

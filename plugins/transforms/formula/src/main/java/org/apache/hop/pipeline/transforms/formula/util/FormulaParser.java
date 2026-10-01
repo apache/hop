@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.formula.util;
 
 import static org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtractor.getFormulaFieldList;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -26,14 +27,18 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.formula.Formula;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
 import org.apache.hop.pipeline.transforms.formula.FormulaPoi;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 
 public class FormulaParser {
+  private static final Class<?> PKG = Formula.class; // for i18n purposes
 
   private FormulaMetaFunction formulaMetaFunction;
   private IRowMeta rowMeta;
@@ -116,7 +121,9 @@ public class FormulaParser {
         } else if (fieldMeta.isBigNumber()) {
           cell.setCellValue(rowMeta.getNumber(dataRow, fieldPosition));
         } else if (fieldMeta.isDate()) {
-          cell.setCellValue(rowMeta.getDate(dataRow, fieldPosition));
+          Date date = rowMeta.getDate(dataRow, fieldPosition);
+          checkSupportedDate(fieldMeta, date);
+          cell.setCellValue(date);
         } else if (fieldMeta.isInteger()) {
           cell.setCellValue(rowMeta.getInteger(dataRow, fieldPosition));
         } else if (fieldMeta.isNumber()) {
@@ -144,5 +151,27 @@ public class FormulaParser {
     }
 
     return evaluator.evaluator().evaluate(formulaCell);
+  }
+
+  /**
+   * Formulas are evaluated as Excel date serial numbers, which start at 1899-12-31 (serial 0). POI
+   * silently maps anything older to the same BAD_DATE sentinel (-1), so every earlier date would
+   * collapse to one value and come out of the transform blank or, after date arithmetic, plain
+   * wrong. Report it instead of losing the value without a trace.
+   *
+   * @param fieldMeta the metadata of the date field being written to a cell
+   * @param date the value to write, may be null
+   * @throws HopValueException when the date can not be represented as an Excel date serial number
+   */
+  private void checkSupportedDate(IValueMeta fieldMeta, Date date) throws HopValueException {
+    if (date == null || DateUtil.getExcelDate(date) >= 0) {
+      return;
+    }
+    throw new HopValueException(
+        BaseMessages.getString(
+            PKG,
+            "Formula.Exception.DateBeforeExcelEpoch",
+            fieldMeta.getName(),
+            fieldMeta.getString(date)));
   }
 }

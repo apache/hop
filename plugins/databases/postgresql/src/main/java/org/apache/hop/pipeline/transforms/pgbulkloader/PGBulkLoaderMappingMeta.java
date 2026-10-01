@@ -34,7 +34,8 @@ public class PGBulkLoaderMappingMeta {
   /** Field name in the stream */
   @HopMetadataProperty(
       key = "field_name",
-      injectionKeyDescription = "PGBulkLoader.Injection.FieldName.Label")
+      injectionKeyDescription = "PGBulkLoader.Injection.FieldName.Label",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String fieldStream;
 
   /** boolean indicating if field needs to be updated */

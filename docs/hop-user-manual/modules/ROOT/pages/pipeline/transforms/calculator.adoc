@@ -17,12 +17,9 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Calculator transform provides you with predefined functions that can be executed on input field values.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/calculator.svg[Calculator transform Icon, role="image-doc-icon"] Calculator
-
-[%noheader,cols="3a,1a",role="table-no-borders" ]
-|===
-|
 
 == Description
 
@@ -34,20 +31,6 @@ You can choose to remove fields (with the `Remove` option) from the result (outp
 This is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
 
 TIP: The execution speed of the Calculator is far better than the speed provided by custom scripts (JavaScript).
-
-| == Supported Engines
-
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-
-|===
 
 == Options
 
@@ -61,11 +44,13 @@ TIP: The execution speed of the Calculator is far better than the speed provided
 |Field C|The third field to use in the calculation.
 |Value Type|The data type to use for the result of this calculation.
 |Length|The length to set for the result of this calculation.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Precision|The precision to set for the result of this calculation.
 |Remove|A boolean flag to set. Set to `Y` for temporary fields that are only required for intermediate calculations and don't need to be included in the output.
 |Conversion mask|Conversion mask to apply to date or numeric fields.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Decimal symbol|The decimal symbol to set in the output field.
-|Grouping symbol|The grouping symbol to set in the output field.
+|Grouping symbol|The thousands grouping symbol to set in the output field, not a row group.
 |Currency symbol|The currency symbol to set in the output field.
 |===
 
@@ -93,8 +78,10 @@ Beware: If A is an Integer and B a Number, it will automatically convert B to an
 The result is rounded to an Integer by adding 1/2, taking the floor of the result, and casting the result to type int.
 In other words, the result is equal to the value of the expression: floor (a + 0.5).
 In case you need the rounding method "Round half to even", use the following method ROUND( A, B ) with no decimals (B=0).
-|ROUND( A, B )|ROUND_2|Round A to the nearest even number with B decimals.
-The used rounding method is "Round half to even", it is also called unbiased rounding, convergent rounding, statistician's rounding, Dutch rounding, Gaussian rounding, odd-even rounding, bankers' rounding or broken rounding, and is widely used in bookkeeping.
+|ROUND( A, B )|ROUND_2|Round A to the nearest number with B decimals.
+By default, the "Round half ceiling" method is used : when the digit to be rounded falls exactly halfway between two values, rounding always occurs towards the higher value.
+This behavior can be changed with -DROUND_2_MODE=ROUND_HALF_EVEN parameter, which allows switching to "round half to even" rounding. 
+This method is also called unbiased rounding, convergent rounding, statistician's rounding, Dutch rounding, Gaussian rounding, odd-even rounding, bankers' rounding or broken rounding, and is widely used in bookkeeping.
 This is the default rounding mode used in IEEE 754 computing functions and operators.
 In Germany it is often called "Mathematisches Runden".
 |STDROUND( A )|ROUND_STD_1|Round A to the nearest integer.
@@ -199,6 +186,13 @@ TIP: Only integer values for B are supported. If you need non-integer calculatio
 |Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string. Supports both padded or non-padded input.
 |First day of month (A) date|FIRST_DAY_OF_MONTH|Set the day of field (A) to 1.
 |Last day of month (A) date|LAST_DAY_OF_MONTH|Set the day of field (A) to the last day of the given month.
+|Date A to JDE Julian (CYYDDD)|DATE_TO_JDE_JULIAN a|Convert date A to a JD Edwards Julian date stored as CYYDDD. +
+
+C is the century relative to 1900 (0 = 1900-1999, 1 = 2000-2099), YY is the two-digit year, and DDD is the day of the year (001-366). +
+January 1, 1995 becomes `95001`. January 1, 2009 becomes `109001`. Years before 1900 are not supported.
+|JDE Julian A (CYYDDD) to Date|JDE_JULIAN_TO_DATE a|Convert a JD Edwards Julian date in field A to a Date. +
+
+Field A can be an Integer, Number or String in CYYDDD format. Five-digit values such as `95001` are treated as 1 January 1995.
 |Encode a URL|URL_ENCODE|Encode a URL to have browser/webservice save url calls.
 |Decode a URL|URL_DECODE|Decode a URL.
 |===

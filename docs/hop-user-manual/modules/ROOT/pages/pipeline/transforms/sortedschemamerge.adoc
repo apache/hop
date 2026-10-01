@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Sorted schema merge transform merges pre-sorted input streams with different schemas into one sorted stream with a unified sparse row layout.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/sortedschemamerge.svg[Sorted schema merge transform Icon, role="image-doc-icon"] Sorted schema merge
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Sorted schema merge transform combines the behavior of xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge] and xref:pipeline/transforms/streamschemamerge.adoc[Stream schema merge]:
@@ -34,19 +32,6 @@ The Sorted schema merge transform combines the behavior of xref:pipeline/transfo
 A typical use case is combining data from multiple Data Vault satellites that share business keys and load timestamps, then using xref:pipeline/transforms/repeatfields.adoc[Repeat fields] to fill previously known attribute values when building an SCD2 table.
 
 IMPORTANT: Each input stream must already be sorted on the configured sort keys (for example with `ORDER BY` in xref:pipeline/transforms/tableinput.adoc[Table Input], or with xref:pipeline/transforms/sort.adoc[Sort Rows]). This transform does *not* re-sort within each stream; it only merges already-sorted streams.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:cross.svg[Not Supported, 24]
-!Beam Flink! image:cross.svg[Not Supported, 24]
-!Beam Dataflow! image:cross.svg[Not Supported, 24]
-!===
-|===
 
 == Options
 

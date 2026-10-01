@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -183,10 +184,17 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     // if the file does not exist, just send an empty row
     try {
       if (!HopVfs.fileExists(fileName, variables)) {
+        logBasic(BaseMessages.getString(PKG, "FileMetadata.Log.FileNotFound", fileName));
         putRow(data.outputRowMeta, outputRow);
         return;
       }
-    } catch (HopFileException e) {
+      // an archive URI without a file name after "!/" resolves to the archive root, which is a
+      // folder and cannot be read
+      if (HopVfs.getFileObject(fileName, variables).isFolder()) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "FileMetadata.Exception.NotAFile", fileName));
+      }
+    } catch (HopFileException | FileSystemException e) {
       throw new HopTransformException(e.getMessage(), e);
     }
 

@@ -28,13 +28,15 @@ This page covers everything you need to know to install and run Apache Hop on yo
 
 Hop is designed to be as flexible and lightweight as possible, and is intended to blend in with your architecture, not the other way around. This makes the basic installation process extremely easy, but there's a lot of configuration that can be applied to make Hop behave exactly the way you want it to.
 
-TIP: Take a look at the xref:tech-manual::docker-container.adoc[Docker] page for instructions to run Hop in containers and Kubernetes environments.
+TIP: Take a look at the xref:docker-container.adoc[Docker] page for `apache/hop` (hop-run and Hop Server), and xref:hop-web-docker.adoc[Hop Web in Docker] for persisting projects and config across image upgrades.
 
 == System Requirements
 
 Hop's limited footprint should allow it to run on any modern physical or virtual machine.
 
 For the default Hop distribution, a minimum of 1 CPU/core and 4GB RAM should do, even though you can tweak Hop to run on machines with even less memory.
+
+xref:sizing.adoc[Sizing Apache Hop] splits that floor into three cases: a stripped `hop-run` on a small device, a workstation for Hop Gui, and batch runs on Spark or Beam.
 
 Hop Runs on the following operating systems:
 
@@ -88,7 +90,9 @@ Apache Hop's installation and configuration are fully self-contained by default.
 
 With the system or environment variables below, you can make your Hop configuration independent of the installed Hop versions. This lets you switch between Hop versions or installations, while keeping your projects and environment lists, last opened files and other settings.
 
-TIP: if you set the environment variables below after you've been using Apache Hop for a while, you can move the contents of your `hop/config/` folder to your new `HOP_CONFIG_FOLDER` location
+The easiest way is xref:hop-tools/hop-setup.adoc[hop setup]: *Tools → Configure Hop environment...* in Hop Gui, or `./hop setup apply --defaults` from the install directory. Restart Hop afterwards.
+
+TIP: if you set the environment variables below after you've been using Apache Hop for a while, you can move the contents of your `hop/config/` folder to your new `HOP_CONFIG_FOLDER` location. `hop setup apply --defaults --copy-existing` does that copy when the new folder is empty.
 
 === Create environment variables in Windows
 
@@ -130,10 +134,12 @@ With the environment variables described in the previous section, all you need t
 
 TIP: Apache Hop releases are tested for smooth upgrades. You can replace your existing installation when a new version is released. If you want to keep multiple Apache Hop versions around, consider renaming your unzipped `hop` folder to `hop-version-number`, e.g. `hop-2.5.0`, `hop-2.60` etc.
 
+TIP: For Hop Web in Docker, persist `HOP_CONFIG_FOLDER` and project homes on volumes and replace the image. See xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
+
 
 == Additional configuration
 
-=== JVM memory settings
+=== JVM memory settings [[JvmMemorySettings]]
 
 By default, Hop only sets a maximum for the JVM Heap size Hop can allocate.
 

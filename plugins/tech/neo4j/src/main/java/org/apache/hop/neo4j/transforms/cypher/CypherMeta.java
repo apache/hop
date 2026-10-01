@@ -137,29 +137,6 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     returnValues = new ArrayList<>();
   }
 
-  public CypherMeta(CypherMeta m) {
-    this();
-    this.connectionName = m.connectionName;
-    this.cypher = m.cypher;
-    this.batchSize = m.batchSize;
-    this.readOnly = m.readOnly;
-    this.retryingOnDisconnect = m.retryingOnDisconnect;
-    this.nrRetriesOnError = m.nrRetriesOnError;
-    this.cypherFromField = m.cypherFromField;
-    this.cypherField = m.cypherField;
-    this.usingUnwind = m.usingUnwind;
-    this.unwindMapName = m.unwindMapName;
-    this.returningGraph = m.returningGraph;
-    this.returnGraphField = m.returnGraphField;
-    m.parameterMappings.forEach(p -> this.parameterMappings.add(new ParameterMapping(p)));
-    m.returnValues.forEach(v -> this.returnValues.add(new ReturnValue(v)));
-  }
-
-  @Override
-  public CypherMeta clone() {
-    return new CypherMeta(this);
-  }
-
   @Override
   public void setDefault() {
     retryingOnDisconnect = true;

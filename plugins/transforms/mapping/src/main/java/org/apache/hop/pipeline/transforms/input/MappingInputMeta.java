@@ -60,18 +60,6 @@ public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInp
     this.fields = new ArrayList<>();
   }
 
-  public MappingInputMeta(MappingInputMeta m) {
-    this();
-    for (InputField field : m.fields) {
-      fields.add(new InputField(field));
-    }
-  }
-
-  @Override
-  public MappingInputMeta clone() {
-    return new MappingInputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     // Do nothing

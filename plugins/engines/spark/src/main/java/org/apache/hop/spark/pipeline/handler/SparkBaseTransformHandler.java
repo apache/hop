@@ -24,6 +24,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.SparkNativeMetrics;
+import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
 import org.apache.spark.sql.Dataset;
@@ -33,6 +34,7 @@ import org.w3c.dom.Node;
 public abstract class SparkBaseTransformHandler implements ISparkPipelineTransformHandler {
 
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkNativeMetricsListener metricsListener;
 
   public void setMetricsAccumulator(SparkTransformMetricsAccumulator metricsAccumulator) {
     this.metricsAccumulator = metricsAccumulator;
@@ -40,6 +42,10 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
 
   protected SparkTransformMetricsAccumulator getMetricsAccumulator() {
     return metricsAccumulator;
+  }
+
+  public void setMetricsListener(SparkNativeMetricsListener metricsListener) {
+    this.metricsListener = metricsListener;
   }
 
   /**
@@ -51,7 +57,7 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
     if (dataset == null || transformMeta == null) {
       return dataset;
     }
-    return SparkNativeMetrics.track(dataset, transformMeta.getName(), metricsAccumulator, role);
+    return SparkNativeMetrics.track(dataset, transformMeta.getName(), metricsListener, role);
   }
 
   @Override

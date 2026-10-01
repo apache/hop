@@ -20,6 +20,7 @@ package org.apache.hop.core;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Transform;
 
 public class SwtUniversalImageBitmap extends SwtUniversalImage {
@@ -51,6 +52,17 @@ public class SwtUniversalImageBitmap extends SwtUniversalImage {
 
   @Override
   protected Image renderRotated(Device device, int width, int height, double angleRadians) {
+    if (angleRadians == 0d && zoomFactor == 1d) {
+      return createDpiAwareImage(
+          device,
+          width * 2,
+          height * 2,
+          (w, h) -> {
+            ImageData src = getImageDataAtZoom(bitmap, 100);
+            return src.scaledTo(w, h);
+          });
+    }
+
     Image result = new Image(device, width * 2, height * 2);
 
     GC gc = new GC(result);

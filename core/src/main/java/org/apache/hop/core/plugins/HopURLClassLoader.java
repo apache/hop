@@ -108,10 +108,37 @@ public class HopURLClassLoader extends URLClassLoader {
     return clz;
   }
 
+  /**
+   * Packages a plugin must share with the core classloader so objects can cross the boundary (Hop
+   * core types, the Jackson streaming/databind API, SLF4J). Jackson *modules* are deliberately not
+   * listed: plugins bring their own — e.g. jackson-module-scala is compiled per Scala version, so
+   * the Beam engine (Scala 2.12) and the native Spark engine (Scala 2.13) each need the copy in
+   * their own lib, and a parent-first lookup of the wrong one fails at runtime with "no Creators"
+   * when Spark deserializes its own Scala classes.
+   */
+  private static final String[] SYSTEM_PARENT_FIRST_PACKAGES = {
+    "org.apache.hop.core.",
+    "com.fasterxml.jackson.core.",
+    "com.fasterxml.jackson.databind.",
+    "com.fasterxml.jackson.annotation.",
+    "org.slf4j."
+  };
+
+  protected boolean isParentFirst(String name) {
+    if (name != null) {
+      for (String pkg : SYSTEM_PARENT_FIRST_PACKAGES) {
+        if (name.startsWith(pkg)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   protected Class<?> loadClassFromParent(String name, boolean resolve)
       throws ClassNotFoundException {
     Class<?> clz;
-    if ((clz = getParent().loadClass(name)) != null) {
+    if (getParent() != null && (clz = getParent().loadClass(name)) != null) {
       if (resolve) {
         resolveClass(clz);
       }
@@ -123,6 +150,13 @@ public class HopURLClassLoader extends URLClassLoader {
   @Override
   protected synchronized Class<?> loadClass(String name, boolean resolve)
       throws ClassNotFoundException {
+    if (isParentFirst(name)) {
+      try {
+        return loadClassFromParent(name, resolve);
+      } catch (ClassNotFoundException | NoClassDefFoundError e) {
+        // Fall back to loading from this classloader
+      }
+    }
     try {
       return loadClassFromThisLoader(name, resolve);
     } catch (ClassNotFoundException | NoClassDefFoundError | SecurityException exception) {

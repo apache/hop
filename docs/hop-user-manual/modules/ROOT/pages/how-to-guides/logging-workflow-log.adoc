@@ -18,8 +18,6 @@ under the License.
 :imagesdir: ../../assets/images
 :description: This guide provides an overview of how to use the full power of Apache Hop to work with workflow logging data
 
-:openvar: ${
-:closevar: }
 
 
 = Workflow Log
@@ -46,7 +44,7 @@ image:how-to-guides/logging-workflow-log/workflow-logging-config.jpg[configure w
 
 * Name: the name of the metadata object (workflows-logging).
 * Enabled: (checked).
-* Pipeline executed to capture logging: select or create the pipeline to process the logging information for this Pipeline Log ({openvar}PROJECT_HOME{closevar}/hop/logging/workflows-logging.hpl).
+* Pipeline executed to capture logging: select or create the pipeline to process the logging information for this Pipeline Log (+${PROJECT_HOME}/hop/logging/workflows-logging.hpl+).
 
 TIP: You should select or create the pipeline to be used for logging the activity.
 

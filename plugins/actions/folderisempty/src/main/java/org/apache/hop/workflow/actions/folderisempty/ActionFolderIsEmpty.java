@@ -84,19 +84,6 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     this("");
   }
 
-  public ActionFolderIsEmpty(ActionFolderIsEmpty meta) {
-    super(meta.getName(), meta.getDescription(), meta.getPluginId());
-    this.folderName = meta.folderName;
-    this.includeSubFolders = meta.includeSubFolders;
-    this.specifyWildcard = meta.specifyWildcard;
-    this.wildcard = meta.wildcard;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionFolderIsEmpty(this);
-  }
-
   public void setSpecifyWildcard(boolean specifyWildcard) {
     this.specifyWildcard = specifyWildcard;
   }
@@ -290,7 +277,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
+      return info.getDepth() == 0 || isIncludeSubFolders();
     }
   }
 

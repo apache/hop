@@ -412,6 +412,17 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
       Config config = configBuilder.build();
 
+      if (uris.isEmpty()) {
+        throw new HopConfigException("No Neo4j URIs configured for connection " + name);
+      }
+      if (uris.size() > 1) {
+        log.logDetailed(
+            "Neo4j Java Driver 6 accepts a single URI; using "
+                + uris.get(0)
+                + " and ignoring "
+                + (uris.size() - 1)
+                + " additional server(s). Use the neo4j:// scheme for cluster routing.");
+      }
       Driver driver;
       // In Neo4j 5.x, routingDriver() was removed. Use driver() with neo4j:// URI scheme for
       // routing

@@ -55,7 +55,7 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 ./hop marketplace query datavault --include-gav
 ./hop marketplace query --csv > plugins.csv
 
-# Declarative environment (CI/CD / Docker)
+# Declarative install spec (CI/CD / Docker)
 ./hop marketplace apply -f hop-env.yaml
 ./hop marketplace apply -f hop-env.yaml --prune
 ./hop marketplace validate -f hop-env.yaml
@@ -199,6 +199,14 @@ combined with `HOP_MARKETPLACE_PASSWORD` from the environment. A mixed pair
 counts as deliberate — the anonymous retry below applies only when the entry
 supplies neither field.
 
+Repositories declared by a hop-env install spec are scoped: because the URL
+comes from the project, the configured credentials are only reused when the
+spec points at the same scheme, host and port as a repository in
+`hop-config.json` (the path may differ). A spec repository on any other host
+gets only what the spec declares — neither a stored `username` / `password` nor
+the global `HOP_MARKETPLACE_*` pair reaches it. Give it credentials with its own
+entry fields or the scoped `HOP_MARKETPLACE_<ID>_*` variables.
+
 A `password` on a repository entry is stored obfuscated (`Encrypted 2be98afc…`,
 Hop's two-way password encoder) in `hop-config.json`, in exported repository
 definitions and in environment files. Older clear-text configurations are read
@@ -248,6 +256,27 @@ Three steps:
 ./hop marketplace install datavault                      # resolves hop-datavault + version from repo
 # or explicit: ./hop marketplace install org.apache.hop:hop-datavault:0.4.0-SNAPSHOT
 ```
+
+In the GUI, **Import from URL…** on the Repositories tab does the same from a
+published link. That path is narrower than a file or the CLI import, because
+the address is usually pasted from somewhere else:
+
+- **https only** — the definition names the hosts plugin code comes from, so it
+  must not be rewritable in transit
+- **anonymous download** — no credentials are sent, so a hostile address cannot
+  collect the global `HOP_MARKETPLACE_*` pair. The definition must be publicly
+  readable; the artifacts it points at need not be
+- **credentials in the file are ignored** — set them on the repository entry
+  afterwards, or via `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`
+- **confirmation first** — id, URL, download template, catalog URL and plugin
+  count are shown before anything is added
+
+A definition that sets `primary: true` becomes the primary repository on import,
+which means every install tries it first. Check that field before importing a
+definition you did not write.
+
+Importing the same file **from disk** keeps its credentials, so an
+administrator can still provision one for an internal rollout.
 
 
 **How listing works**

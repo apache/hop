@@ -16,12 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.javafilter;
 
-import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.codehaus.janino.ExpressionEvaluator;
 
 @SuppressWarnings("java:S1104")
 public class JavaFilterData extends BaseTransformData implements ITransformData {
@@ -38,14 +36,12 @@ public class JavaFilterData extends BaseTransformData implements ITransformData 
   public int[] returnType;
   public int[] replaceIndex;
 
-  public ExpressionEvaluator expressionEvaluator;
-  public List<Integer> argumentIndexes;
+  public JavaFilterCondition condition;
   public String trueTransformName;
   public String falseTransformName;
   public boolean chosesTargetTransforms;
   public IRowSet trueRowSet;
   public IRowSet falseRowSet;
-  public Object[] argumentData;
 
   public JavaFilterData() {
     super();

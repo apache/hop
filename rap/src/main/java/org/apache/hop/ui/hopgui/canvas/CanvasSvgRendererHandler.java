@@ -4,7 +4,7 @@
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,14 +24,24 @@ import org.eclipse.rap.rwt.remote.Connection;
 import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Widget;
 
-/** Pushes SVG render metadata to the Hop Web canvas client. */
-public class CanvasSvgRendererHandler extends Widget {
+/**
+ * Pushes SVG render metadata to the Hop Web canvas client. One {@code hop.CanvasSvgRenderer} remote
+ * object is created per canvas so dialogs and editor tabs can keep independent overlays.
+ */
+public final class CanvasSvgRendererHandler {
 
-  public CanvasSvgRendererHandler(Composite parent) {
-    super(parent, 0);
+  private CanvasSvgRendererHandler() {}
+
+  public static void ensureRemote(Canvas canvas) {
+    if (canvas == null || canvas.isDisposed()) {
+      return;
+    }
+    String canvasId = WidgetUtil.getId(canvas);
+    CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
+    if (registry.getSvgRendererRemote(canvasId) == null) {
+      createRemoteObject(registry, canvasId);
+    }
   }
 
   public static void notifyCanvasReady(Canvas canvas, long revision) {
@@ -39,23 +49,40 @@ public class CanvasSvgRendererHandler extends Widget {
       return;
     }
     CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
-    registry.setActiveCanvas(canvas);
-    RemoteObject remoteObject = registry.getSvgRendererRemote();
+    String canvasId = WidgetUtil.getId(canvas);
+    RemoteObject remoteObject = registry.getSvgRendererRemote(canvasId);
     if (remoteObject == null) {
-      remoteObject = createRemoteObject(registry, canvas);
+      remoteObject = createRemoteObject(registry, canvasId);
     }
     if (remoteObject != null) {
-      updateRemoteObject(remoteObject, canvas, revision);
+      updateRemoteObject(remoteObject, revision);
     }
   }
 
-  private static RemoteObject createRemoteObject(CanvasGraphRegistry registry, Canvas canvas) {
+  public static void unregister(Canvas canvas) {
+    if (canvas == null) {
+      return;
+    }
+    try {
+      CanvasGraphRegistry.getInstance().unregister(WidgetUtil.getId(canvas));
+    } catch (Exception e) {
+      LogChannel.UI.logDebug(
+          "Failed to unregister Canvas SVG renderer RemoteObject: " + e.getMessage());
+    }
+  }
+
+  private static RemoteObject createRemoteObject(CanvasGraphRegistry registry, String canvasId) {
     try {
       Connection connection = RWT.getUISession().getConnection();
       RemoteObject remoteObject = connection.createRemoteObject("hop.CanvasSvgRenderer");
       remoteObject.set("self", remoteObject.getId());
-      registry.setSvgRendererRemote(remoteObject);
-      updateRemoteObject(remoteObject, canvas, 0);
+      remoteObject.set("sessionUuid", CanvasSvgFacade.getSessionUuid());
+      remoteObject.set("canvasId", canvasId);
+      remoteObject.set("renderRevision", 0L);
+      remoteObject.set(
+          "serviceHandlerUrl",
+          RWT.getServiceManager().getServiceHandlerUrl(CanvasRenderServiceHandler.SERVICE_ID));
+      registry.putSvgRendererRemote(canvasId, remoteObject);
       remoteObject.call("attachListener", null);
       return remoteObject;
     } catch (Exception e) {
@@ -64,9 +91,8 @@ public class CanvasSvgRendererHandler extends Widget {
     }
   }
 
-  private static void updateRemoteObject(RemoteObject remoteObject, Canvas canvas, long revision) {
+  private static void updateRemoteObject(RemoteObject remoteObject, long revision) {
     remoteObject.set("sessionUuid", CanvasSvgFacade.getSessionUuid());
-    remoteObject.set("canvasId", WidgetUtil.getId(canvas));
     remoteObject.set("renderRevision", revision);
     remoteObject.set(
         "serviceHandlerUrl",

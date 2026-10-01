@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hop.mail.workflow.actions.getpop;
 
 import java.util.Arrays;
@@ -55,8 +54,7 @@ class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTestSupport
         "protocol",
         "attachmentFolder",
         "attachmentWildcard",
-        //        "valueIMAPList",
-        "firstMails",
+        "valueIMAPList",
         "imapFolder",
         "senderSearch",
         "notTermSenderSearch",
@@ -66,11 +64,11 @@ class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTestSupport
         "notTermSubjectSearch",
         "bodySearch",
         "notTermBodySearch",
-        //        "conditionReceivedDate",
+        "conditionReceivedDate",
         "notTermReceivedDateSearch",
         "receivedDate1",
         "receivedDate2",
-        //        "actionType",
+        "actionType",
         "moveToIMAPFolder",
         "createMoveToFolder",
         "createLocalFolder",
@@ -83,17 +81,15 @@ class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTestSupport
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    //    validators.put(
-    //        "valueIMAPList", new
-    // IntLoadSaveValidator(MailConnectionMeta.valueIMAPListCode.length));
-    //    validators.put(
-    //        "conditionReceivedDate",
-    //        new IntLoadSaveValidator(MailConnectionMeta.conditionDateCode.length));
-    //    validators.put(
-    //        "actionType", new IntLoadSaveValidator(MailConnectionMeta.actionTypeCode.length));
+    validators.put(
+        "valueIMAPList", new IntLoadSaveValidator(MailConnectionMeta.valueIMAPListCode.length));
+    validators.put(
+        "conditionReceivedDate",
+        new IntLoadSaveValidator(MailConnectionMeta.conditionDateCode.length));
+    validators.put(
+        "actionType", new IntLoadSaveValidator(MailConnectionMeta.actionTypeCode.length));
     validators.put(
         "afterGetIMAP", new IntLoadSaveValidator(MailConnectionMeta.afterGetIMAPCode.length));
-
     return validators;
   }
 }

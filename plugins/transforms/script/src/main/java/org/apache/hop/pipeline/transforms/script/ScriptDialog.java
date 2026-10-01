@@ -36,11 +36,13 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.ScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -221,6 +223,7 @@ public class ScriptDialog extends BaseTransformDialog {
 
     // Tree View Test
     wTree = new HopTree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    FolderTreeIcons.install(wTree);
     PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
@@ -308,6 +311,8 @@ public class ScriptDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.ReturnValue"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             YES_NO_COMBO);
+    scriptResultColumn.setToolTip(
+        BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.ReturnValue.Tooltip"));
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -337,6 +342,12 @@ public class ScriptDialog extends BaseTransformDialog {
               YES_NO_COMBO),
           scriptResultColumn,
         };
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Filename.Tooltip"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.RenameTo.Tooltip"));
+    colinf[2].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Type.Tooltip"));
+    colinf[3].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Length.Tooltip"));
+    colinf[4].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Precision.Tooltip"));
+    colinf[5].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Replace.Tooltip"));
 
     wFields =
         new TableView(
@@ -415,13 +426,13 @@ public class ScriptDialog extends BaseTransformDialog {
     TreeItem itemWaitFieldsIn = new TreeItem(itemInput, SWT.NULL);
     itemWaitFieldsIn.setText(BaseMessages.getString(PKG, "ScriptDialog.GettingFields.Label"));
     itemWaitFieldsIn.setForeground(GuiResource.getInstance().getColorDirectory());
-    itemInput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemInput, true);
 
     // Display waiting message for output
     TreeItem itemWaitFieldsOut = new TreeItem(itemOutput, SWT.NULL);
     itemWaitFieldsOut.setText(BaseMessages.getString(PKG, "ScriptDialog.GettingFields.Label"));
     itemWaitFieldsOut.setForeground(GuiResource.getInstance().getColorDirectory());
-    itemOutput.setExpanded(true);
+    FolderTreeIcons.setExpanded(itemOutput, true);
 
     //
     // Search the fields in the background
@@ -444,7 +455,7 @@ public class ScriptDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     addRenameToTreeScriptItems();
     input.setChanged(changed);
@@ -513,7 +524,8 @@ public class ScriptDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_SCRIPT);
     } else {
       wScript =
           new ScriptStyledTextComp(

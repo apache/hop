@@ -113,7 +113,8 @@ class SalesforceInsertMetaTest {
     //    meta.setUpdateLookup(new String[] {"SalesforceField"});
     //    meta.setUpdateStream(new String[] {"StreamField"});
     //    meta.setUseExternalId(new Boolean[] {false});
-    meta.check(remarks, null, null, null, null, null, null, null, null);
+    meta.check(
+        remarks, null, null, null, new String[] {"previousTransform"}, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
       if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {

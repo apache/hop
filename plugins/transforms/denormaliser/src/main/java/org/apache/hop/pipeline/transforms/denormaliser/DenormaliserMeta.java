@@ -69,22 +69,6 @@ public class DenormaliserMeta extends BaseTransformMeta<Denormaliser, Denormalis
     denormaliserTargetFields = new ArrayList<>();
   }
 
-  public DenormaliserMeta(DenormaliserMeta m) {
-    this();
-    this.keyField = m.keyField;
-    for (DenormaliserGroupField groupField : m.groupFields) {
-      this.groupFields.add(new DenormaliserGroupField(groupField));
-    }
-    for (DenormaliserTargetField targetField : m.denormaliserTargetFields) {
-      this.denormaliserTargetFields.add(new DenormaliserTargetField(targetField));
-    }
-  }
-
-  @Override
-  public DenormaliserMeta clone() {
-    return new DenormaliserMeta(this);
-  }
-
   /**
    * @return Returns the keyField.
    */

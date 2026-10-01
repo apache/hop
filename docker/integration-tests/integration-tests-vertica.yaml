@@ -15,6 +15,16 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Vertica tests.
+#
+# vertica/vertica-ce, the image these tests used to run against, has been withdrawn from Docker
+# Hub. opentext/vertica-k8s is what OpenText still publishes, but it is built for the VerticaDB
+# Kubernetes operator: no entry point, no admintools, and no database of its own. The entry point
+# script below does the three things the operator would otherwise do. See it for the details.
+#
+# The version is pinned rather than tracking latest for two reasons: the Community Edition licence
+# these tests rely on was dropped in Vertica 26.1, and the -multiarch tags run natively on both
+# arm64 and amd64 where the old image was amd64 only.
 services:
   integration_test_vertica:
     extends:
@@ -22,12 +32,32 @@ services:
       service: integration_test
     environment:
       - HOP_DRIVERS_DOWNLOAD=vertica
+    depends_on:
+      vertica:
+        condition: service_healthy
     links:
       - vertica
 
   vertica:
-    image: vertica/vertica-ce:latest
-    hostname: vertica 
+    image: opentext/vertica-k8s:25.4.0-0-multiarch
+    hostname: vertica
+    # The image runs as the unprivileged "daemon" user and carries no passwd entry for the account
+    # that owns /opt/vertica. The entry point needs root to create it before dropping down to it.
+    user: root
+    entrypoint: /vertica-entrypoint.sh
+    volumes:
+      - ./resource/vertica/vertica-entrypoint.sh:/vertica-entrypoint.sh:ro
     ports:
       - "5433"
-      - "5444"
+    healthcheck:
+      # Creating the database takes appreciably longer than opening the port, so ready means
+      # "answers a query".
+      test:
+        [
+          "CMD-SHELL",
+          'su dbadmin -c "/opt/vertica/bin/vsql -U dbadmin -d vmart -tAc \"SELECT 1\"" || exit 1',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s

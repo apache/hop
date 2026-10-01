@@ -83,8 +83,10 @@ import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.server.IRemoteCapableRunConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.www.HopServerAdmission;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
@@ -113,7 +115,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected PipelineMeta subject;
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;
-  protected RemotePipelineRunConfiguration remotePipelineRunConfiguration;
+  protected IRemoteCapableRunConfiguration remotePipelineRunConfiguration;
   protected boolean preparing;
   protected boolean readyToStart;
   protected boolean running;
@@ -128,6 +130,15 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected ILoggingObject loggingObject;
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
+
+  /**
+   * The Result the server reported when the pipeline finished: the result files and result rows the
+   * transforms produced over there. The periodic status polls leave those out (a result row set can
+   * be large), so they are fetched once, on the poll that sees the pipeline finish, and folded into
+   * {@link #getResult()}. Without it a parent workflow only ever saw the metrics of a remote
+   * pipeline and lost the files it added to the result, see issue #4826.
+   */
+  protected volatile Result remoteResult;
 
   protected RemoteHopServer hopServer;
 
@@ -172,6 +183,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected long serverPollDelay;
   protected long serverPollInterval;
 
+  /** Set by a load-balancing engine after it picks a server; otherwise the config name is used. */
+  protected String selectedHopServerName;
+
+  /** Optional server-side admission cap sent as {@code max_concurrent} on register. */
+  protected int admissionMaxConcurrent;
+
   public RemotePipelineEngine() {
     super();
     logChannel = LogChannel.GENERAL;
@@ -208,14 +225,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    * @param runConfiguration the remote run configuration to start from
    * @throws HopException when the chain leads back to a run configuration it already passed
    */
-  private void validateRunConfigurationChain(PipelineRunConfiguration runConfiguration)
+  protected void validateRunConfigurationChain(PipelineRunConfiguration runConfiguration)
       throws HopException {
     List<String> chain = new ArrayList<>();
     chain.add(runConfiguration.getName());
 
     PipelineRunConfiguration current = runConfiguration;
     while (current != null
-        && current.getEngineRunConfiguration() instanceof RemotePipelineRunConfiguration remote) {
+        && current.getEngineRunConfiguration() instanceof IRemoteCapableRunConfiguration remote) {
       String linkedName = resolve(remote.getRunConfigurationName());
       if (StringUtils.isEmpty(linkedName)) {
         // Reported for the run configuration this engine was asked to run with.
@@ -237,17 +254,17 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override
   public void prepareExecution() throws HopException {
+    remoteResult = null;
     try {
       IPipelineEngineRunConfiguration engineRunConfiguration =
           pipelineRunConfiguration.getEngineRunConfiguration();
-      if (!(engineRunConfiguration instanceof RemotePipelineRunConfiguration)) {
+      if (!(engineRunConfiguration instanceof IRemoteCapableRunConfiguration remoteCapable)) {
         throw new HopException(
             "The remote pipeline engine expects a remote pipeline configuration");
       }
-      remotePipelineRunConfiguration =
-          (RemotePipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
+      remotePipelineRunConfiguration = remoteCapable;
 
-      String hopServerName = resolve(remotePipelineRunConfiguration.getHopServerName());
+      String hopServerName = resolveTargetHopServerName();
       if (StringUtils.isEmpty(hopServerName)) {
         throw new HopException("No remote Hop server was specified to run the pipeline on");
       }
@@ -303,6 +320,16 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     } catch (Exception e) {
       throw new HopException("Error preparing remote pipeline", e);
     }
+  }
+
+  protected String resolveTargetHopServerName() {
+    if (StringUtils.isNotEmpty(selectedHopServerName)) {
+      return resolve(selectedHopServerName);
+    }
+    if (remotePipelineRunConfiguration == null) {
+      return null;
+    }
+    return resolve(remotePipelineRunConfiguration.getHopServerName());
   }
 
   /**
@@ -373,8 +400,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   clonedConfiguration,
                   CONFIGURATION_IN_EXPORT_FILENAME,
                   remotePipelineRunConfiguration.getNamedResourcesSourceFolder(),
-                  remotePipelineRunConfiguration.getNamedResourcesTargetFolder(),
-                  executionConfiguration.getVariablesMap());
+                  remotePipelineRunConfiguration.getNamedResourcesTargetFolder());
 
           // Send the zip file over to the hop server...
           //
@@ -383,7 +409,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   this,
                   topLevelResource.getArchiveName(),
                   RegisterPackageServlet.TYPE_PIPELINE,
-                  topLevelResource.getBaseResourceName());
+                  topLevelResource.getBaseResourceName(),
+                  admissionMaxConcurrent);
           WebResult webResult = WebResult.fromXmlString(result);
           if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
             String message = cleanupMessage(webResult.getMessage());
@@ -406,7 +433,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                     pipelineMeta, executionConfiguration, serializableMetadataProvider)
                 .getXml(this);
         String reply =
-            hopServer.sendXml(this, xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y");
+            hopServer.sendXml(
+                this,
+                xml,
+                RegisterPipelineServlet.CONTEXT_PATH
+                    + "/?xml=Y"
+                    + HopServerAdmission.querySuffix(admissionMaxConcurrent));
         WebResult webResult = WebResult.fromXmlString(reply);
         if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
           String message = cleanupMessage(webResult.getMessage());
@@ -543,7 +575,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
   }
 
-  private synchronized void getPipelineStatus() throws HopRuntimeException {
+  synchronized void getPipelineStatus() throws HopRuntimeException {
     try {
       HopServerPipelineStatus pipelineStatus =
           hopServer.requestPipelineStatus(this, subject.getName(), containerId, lastLogLineNr);
@@ -608,6 +640,13 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
           engineMetrics.getComponents().add(component);
         }
 
+        // Fetch the files and rows before finished is raised: a parent waiting in
+        // waitUntilFinished() reads getResult() the moment it sees that flag.
+        //
+        if (pipelineStatus.isFinished() && remoteResult == null) {
+          remoteResult = requestRemoteResult(pipelineStatus.getLastLoggingLineNr());
+        }
+
         statusDescription = pipelineStatus.getStatusDescription();
         running = pipelineStatus.isRunning();
         finished = pipelineStatus.isFinished();
@@ -647,6 +686,31 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
               + containerId
               + "'",
           e);
+    }
+  }
+
+  /**
+   * Ask the server for the complete Result of the finished pipeline. The status polls ask for the
+   * basic variant, which carries the metrics only; this second request asks for the result files
+   * and result rows as well. A failure here is logged rather than thrown: the pipeline did finish,
+   * and raising the error from the polling timer would leave the parent waiting forever.
+   */
+  private Result requestRemoteResult(int fromLogLineNr) {
+    try {
+      HopServerPipelineStatus fullStatus =
+          hopServer.requestPipelineStatus(
+              this, subject.getName(), containerId, fromLogLineNr, true);
+      Result result = fullStatus.getResult();
+      return result == null ? new Result() : result;
+    } catch (Exception e) {
+      logChannel.logError(
+          "Unable to retrieve the result files and rows of pipeline '"
+              + subject.getName()
+              + "' from hop server '"
+              + hopServer.getName()
+              + "', the parent will not see them",
+          e);
+      return new Result();
     }
   }
 
@@ -842,6 +906,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
     result.setStopped(isStopped());
     result.setLogChannelId(getLogChannelId());
+
+    // The result files and rows only exist on the server; they arrive with the final status.
+    //
+    Result remote = remoteResult;
+    if (remote != null) {
+      result.getResultFiles().putAll(remote.getResultFiles());
+      result.setRows(remote.getRows());
+    }
 
     return result;
   }

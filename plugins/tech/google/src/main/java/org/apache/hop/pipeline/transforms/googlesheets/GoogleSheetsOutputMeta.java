@@ -110,21 +110,6 @@ public class GoogleSheetsOutputMeta
   }
 
   @Override
-  public Object clone() {
-    GoogleSheetsOutputMeta retval = (GoogleSheetsOutputMeta) super.clone();
-    retval.setJsonCredentialPath(this.jsonCredentialPath);
-    retval.setSpreadsheetKey(this.spreadsheetKey);
-    retval.setWorksheetId(this.worksheetId);
-    retval.setCreate(this.create);
-    retval.setAppend(this.append);
-    retval.setShareEmail(this.shareEmail);
-    retval.setShareDomain(this.shareDomain);
-    retval.setRetryAttempts(this.retryAttempts);
-    retval.setRetryDelayMs(this.retryDelayMs);
-    return retval;
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,

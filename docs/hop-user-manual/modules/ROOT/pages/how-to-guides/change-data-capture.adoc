@@ -1,0 +1,91 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ChangeDataCapture]]
+:imagesdir: ../../assets/images
+:description: Choose among the three Change Data Capture approaches Apache Hop supports: log sniffing, filtered selection, and snapshot comparison.
+
+= Change Data Capture
+
+Apache Hop can load a data warehouse or another target from *changes* in a source, not only from full extracts. That is Change Data Capture (CDC): detect inserts, updates and deletes, then apply only those rows downstream.
+
+Hop does not ship a single “CDC transform”. There is also no built-in Debezium or GoldenGate connector. CDC in Hop is a *choice of approach*, depending on what the source can already tell you:
+
+* a change log produced by another product
+* a column that only moves forward (a timestamp or an increasing ID)
+* nothing but two full snapshots you can compare
+
+The chat-level picture of “a queue plus a schedule that reads deltas” is only one of those three. The pages below treat each pattern separately.
+
+== The three approaches
+
+[cols="1,2,2,1,1,2",options="header"]
+|===
+|Approach
+|Source of truth
+|Typical Hop entry point
+|Detects deletes?
+|Latency
+|Cost
+
+|xref:how-to-guides/cdc-log-sniffing.adoc[Log sniffing]
+|Redo / WAL / trail consumed by Debezium, Oracle GoldenGate, and similar tools
+|xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer], xref:pipeline/transforms/jms-consumer.adoc[JMS consumer], or xref:pipeline/transforms/tableinput.adoc[Table Input]
+|Yes, when the log emits delete (or tombstone) events
+|Near real-time, or a scheduled drain of the topic
+|Whatever the log product costs to run; Hop only consumes the events
+
+|xref:how-to-guides/cdc-filtered-selection.adoc[Filtered selection]
+|A monotonic timestamp or an always-increasing ID
+|A watermark you wrote on the last *successful* run, then Table Input with a `WHERE` clause
+|Only if the source marks deletes (a flag or a delete table)
+|The batch interval of the workflow
+|One cheap range query
+
+|xref:how-to-guides/cdc-snapshot-comparison.adoc[Comparing snapshots]
+|Two full extracts, sorted on a key
+|xref:pipeline/transforms/mergerows.adoc[Merge Rows (diff)], or a stored hash key (MD5 / SHA)
+|Yes
+|Batch, after both extracts are available
+|Read (and usually sort) both full sets
+|===
+
+== How to choose
+
+Use *log sniffing* when a CDC product already writes change events to Kafka, JMS, files, or a staging table. Hop’s job is to parse those records and apply them. Hop is not a log miner.
+
+Use *filtered selection* when every insert or update you care about touches a timestamp or an always-increasing ID, *and* you can answer “what is the last time this workflow or pipeline ran successfully?”. The simplest answer is to write that watermark yourself at the end of the success path. xref:pipeline/transforms/execinfo.adoc[Execution information] can look the same fact up from Hop’s own execution store.
+
+Use *snapshot comparison* when there is no change log and no reliable watermark: daily files, legacy systems, or “today’s extract versus yesterday”. xref:pipeline/transforms/mergerows.adoc[Merge Rows (diff)] compares two sorted streams of millions of rows in one pass and flags each row as `new`, `changed`, `identical`, or `deleted`.
+
+== Applying the changes
+
+All three approaches end the same way: you have rows that should be inserted, updated, or deleted on a target. Common apply transforms are:
+
+* xref:pipeline/transforms/insertupdate.adoc[Insert / Update] for upserts when deletes are out of scope
+* xref:pipeline/transforms/delete.adoc[Delete] when you have keys that disappeared
+* xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize after merge] when Merge Rows already produced an `identical` / `changed` / `new` / `deleted` flag
+* xref:pipeline/transforms/dimensionlookup.adoc[Dimension lookup/update] when the *target* is a slowly changing dimension
+
+NOTE: Slowly changing dimensions are a *target* pattern. They do not detect source changes. Pair them with one of the three CDC approaches above.
+
+== Further reading
+
+* xref:how-to-guides/cdc-log-sniffing.adoc[CDC: log sniffing]
+* xref:how-to-guides/cdc-filtered-selection.adoc[CDC: filtered selection]
+* xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots]
+* xref:how-to-guides/joins-lookups.adoc[Joins and lookups] — Merge Rows (diff) in the broader join landscape
+* xref:metadata-types/execution-information-location.adoc[Execution Information Location]

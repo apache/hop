@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0009-national-character-types</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Text written into Oracle's national character types: NVARCHAR2, NCHAR and NCLOB, next to the VARCHAR2 and CLOB that take the same values. Writing a national column through setString loses whatever the database character set cannot represent, and a batch mixing a short value with one longer than a VARCHAR2 used to raise ORA-01461. Note that this only fails on a database whose character set is not Unicode: against the AL32UTF8 of the suite's own container setString converts losslessly and the test passes either way, so here it guards against regression rather than reproducing the fault. The reproduction is main-0010-national-character-repro, which drives the same two pipelines at the non-Unicode database; the tables, the values and the checks are deliberately identical, so a change to either workflow belongs in both.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/17 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/17 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write through the Unicode connection</name>
+      <description>Set explicitly rather than left to the default, so that this workflow is unaffected by 0010 having run before it in the same JVM.</description>
+      <type>SET_VARIABLES</type>
+      <attributes/>
+      <replacevars>Y</replacevars>
+      <filename/>
+      <file_variable_type>JVM</file_variable_type>
+      <fields>
+        <field>
+          <variable_name>ORACLE_CONNECTION</variable_name>
+          <variable_value>oracle-service-name</variable_value>
+          <variable_type>ROOT_WORKFLOW</variable_type>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>128</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Init tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DECLARE
+  table_missing EXCEPTION;
+  PRAGMA EXCEPTION_INIT(table_missing, -942);
+  -- Written as escapes rather than literal characters so that nothing here depends on the
+  -- client's NLS settings: UNISTR builds the same seven characters whatever the JDBC layer does.
+  japanese NVARCHAR2(20) := UNISTR('\65E5\672C\8A9E\30C6\30AD\30B9\30C8');
+  long_text NCLOB;
+  short_text NCLOB;
+BEGIN
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE HOP_NCHAR_SOURCE';
+  EXCEPTION
+    WHEN table_missing THEN NULL;
+  END;
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE HOP_NCHAR_TARGET';
+  EXCEPTION
+    WHEN table_missing THEN NULL;
+  END;
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE HOP_NCHAR_NARROW';
+  EXCEPTION
+    WHEN table_missing THEN NULL;
+  END;
+
+  EXECUTE IMMEDIATE 'CREATE TABLE HOP_NCHAR_SOURCE (
+    ID            NUMBER(10),
+    ASCII_TEXT    VARCHAR2(50),
+    NATIONAL_TEXT NVARCHAR2(50),
+    LONG_NATIONAL NCLOB)';
+
+  EXECUTE IMMEDIATE 'CREATE TABLE HOP_NCHAR_NARROW (
+    ID          NUMBER(10),
+    NARROW_TEXT VARCHAR2(50))';
+
+  EXECUTE IMMEDIATE 'CREATE TABLE HOP_NCHAR_TARGET (
+    ID             NUMBER(10),
+    VARCHAR_VALUE  VARCHAR2(50),
+    NVARCHAR_VALUE NVARCHAR2(50),
+    NCHAR_VALUE    NCHAR(20),
+    NCLOB_VALUE    NCLOB,
+    CLOB_VALUE     CLOB,
+    NCLOB_SHORT    NCLOB)';
+
+  -- 114688 characters (7 doubled 14 times). Past the 4000 a VARCHAR2 holds, and past the ~32k a
+  -- JDBC setString will carry, so the value can only arrive if it is written as a stream. The
+  -- batch then holds this and a short value together, which is the ORA-01461 mix.
+  long_text := TO_NCLOB(japanese);
+  FOR i IN 1..14 LOOP
+    long_text := long_text || long_text;
+  END LOOP;
+
+  short_text := TO_NCLOB(japanese);
+
+  -- The tables were made with EXECUTE IMMEDIATE, so they do not exist yet as far as this block's
+  -- compiler is concerned. The inserts have to be dynamic too, with the text bound rather than
+  -- written into the statement.
+  EXECUTE IMMEDIATE 'INSERT INTO HOP_NCHAR_SOURCE VALUES (1, ''ascii row one'', :1, :2)'
+    USING japanese, long_text;
+  EXECUTE IMMEDIATE 'INSERT INTO HOP_NCHAR_SOURCE VALUES (2, NULL, NULL, NULL)';
+  EXECUTE IMMEDIATE 'INSERT INTO HOP_NCHAR_SOURCE VALUES (3, ''ascii row three'', :1, :2)'
+    USING japanese, short_text;
+  COMMIT;
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0009-national-character-write.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0009-national-character-write.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>432</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0009b-oversize-write.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0009b-oversize-write.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>560</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check what was stored</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DECLARE
+  found NUMBER;
+  japanese NVARCHAR2(20) := UNISTR('\65E5\672C\8A9E\30C6\30AD\30B9\30C8');
+  stored_length NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO found FROM HOP_NCHAR_TARGET;
+  IF found &lt;&gt; 3 THEN
+    RAISE_APPLICATION_ERROR(-20090, 'expected 3 rows but found ' || found);
+  END IF;
+
+  -- The national columns have to come back as the characters that went in. Reading them back
+  -- through setString would have left replacement characters or question marks behind.
+  SELECT COUNT(*) INTO found
+  FROM HOP_NCHAR_TARGET
+  WHERE ID = 1
+    AND VARCHAR_VALUE = 'ascii row one'
+    AND NVARCHAR_VALUE = japanese
+    AND TRIM(NCHAR_VALUE) = japanese
+    AND TO_NCHAR(NCLOB_SHORT) = japanese;
+  IF found &lt;&gt; 1 THEN
+    RAISE_APPLICATION_ERROR(-20091,
+      'the NVARCHAR2, NCHAR or short NCLOB value did not survive the write');
+  END IF;
+
+  -- The long value is the ORA-01461 case. It must arrive whole: a silent truncation to 4000
+  -- would still leave a row behind, so the length is checked rather than the row count.
+  SELECT LENGTH(NCLOB_VALUE) INTO stored_length FROM HOP_NCHAR_TARGET WHERE ID = 1;
+  IF stored_length &lt;&gt; 114688 THEN
+    RAISE_APPLICATION_ERROR(-20092,
+      'the NCLOB value should be 114688 characters but is ' || stored_length);
+  END IF;
+
+  SELECT LENGTH(CLOB_VALUE) INTO stored_length FROM HOP_NCHAR_TARGET WHERE ID = 1;
+  IF stored_length &lt;&gt; 114688 THEN
+    RAISE_APPLICATION_ERROR(-20093,
+      'the CLOB value should be 114688 characters but is ' || stored_length);
+  END IF;
+
+  SELECT COUNT(*) INTO found
+  FROM HOP_NCHAR_TARGET
+  WHERE ID = 1
+    AND DBMS_LOB.INSTR(NCLOB_VALUE, japanese) = 1
+    AND DBMS_LOB.INSTR(CLOB_VALUE, TO_CHAR(japanese)) = 1;
+  IF found &lt;&gt; 1 THEN
+    RAISE_APPLICATION_ERROR(-20094, 'the long LOB values do not start with the text written');
+  END IF;
+
+  SELECT COUNT(*) INTO found
+  FROM HOP_NCHAR_TARGET
+  WHERE ID = 2
+    AND VARCHAR_VALUE IS NULL
+    AND NVARCHAR_VALUE IS NULL
+    AND NCHAR_VALUE IS NULL
+    AND NCLOB_VALUE IS NULL
+    AND CLOB_VALUE IS NULL
+    AND NCLOB_SHORT IS NULL;
+  IF found &lt;&gt; 1 THEN
+    RAISE_APPLICATION_ERROR(-20095, 'the row of nulls did not survive the write');
+  END IF;
+
+  -- Row 3 shares the batch with row 1's long value. If the short rows come back wrong the
+  -- binding leaked the previous row's form of use or length.
+  SELECT COUNT(*) INTO found
+  FROM HOP_NCHAR_TARGET
+  WHERE ID = 3
+    AND VARCHAR_VALUE = 'ascii row three'
+    AND NVARCHAR_VALUE = japanese
+    AND TO_NCHAR(NCLOB_VALUE) = japanese;
+  IF found &lt;&gt; 1 THEN
+    RAISE_APPLICATION_ERROR(-20096,
+      'the short row sharing a batch with the long one did not survive the write');
+  END IF;
+
+  -- A 7000 character value bound to a VARCHAR2(50). Oracle has to refuse it: Hop passes the value
+  -- at its full length rather than cutting it to the column, so the row is rejected and the
+  -- failure is visible. A row here with a 50 character value would mean the overflow was dropped.
+  SELECT COUNT(*) INTO found FROM HOP_NCHAR_NARROW WHERE ID = 1;
+  IF found &lt;&gt; 0 THEN
+    SELECT LENGTH(NARROW_TEXT) INTO stored_length FROM HOP_NCHAR_NARROW WHERE ID = 1;
+    RAISE_APPLICATION_ERROR(-20097,
+      'the oversized value should have been refused but was stored, cut to '
+        || stored_length || ' characters');
+  END IF;
+
+  -- The rows that do fit still have to land, so that the rejection above is the column being too
+  -- narrow and not the whole write failing.
+  SELECT COUNT(*) INTO found FROM HOP_NCHAR_NARROW WHERE ID IN (2, 3);
+  IF found &lt;&gt; 2 THEN
+    RAISE_APPLICATION_ERROR(-20098,
+      'the rows that fit the narrow column should still be written, found ' || found);
+  END IF;
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Write through the Unicode connection</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Write through the Unicode connection</from>
+      <to>Init tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Init tables</from>
+      <to>0009-national-character-write.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009-national-character-write.hpl</from>
+      <to>0009b-oversize-write.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009b-oversize-write.hpl</from>
+      <to>check what was stored</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

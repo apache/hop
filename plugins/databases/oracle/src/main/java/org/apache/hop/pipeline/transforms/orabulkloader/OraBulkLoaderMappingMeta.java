@@ -19,19 +19,22 @@ package org.apache.hop.pipeline.transforms.orabulkloader;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class OraBulkLoaderMappingMeta {
 
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(
       key = "stream_name",
-      injectionKeyDescription = "OraBulkLoader.Injection.Mapping.StreamName")
+      injectionKeyDescription = "OraBulkLoader.Injection.Mapping.StreamName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String fieldTable;
 
   /** Field name in the stream */
   @HopMetadataProperty(
       key = "field_name",
-      injectionKeyDescription = "OraBulkLoader.Injection.Mapping.FieldName")
+      injectionKeyDescription = "OraBulkLoader.Injection.Mapping.FieldName",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String fieldStream;
 
   /** boolean indicating if field needs to be updated */

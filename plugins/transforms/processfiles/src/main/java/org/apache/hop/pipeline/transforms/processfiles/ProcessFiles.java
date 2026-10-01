@@ -406,7 +406,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       if (isDataVolumeMetricEnabled()) {
         movedBytes = safeContentSize(data.sourceFile);
       }
-      data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename, variables));
+      HopVfs.moveFile(data.sourceFile, HopVfs.getFileObject(targetFilename, variables));
       if (movedBytes > 0) {
         dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + movedBytes;
         dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + movedBytes;

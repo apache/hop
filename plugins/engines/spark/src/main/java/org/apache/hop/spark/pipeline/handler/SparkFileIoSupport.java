@@ -19,6 +19,7 @@ package org.apache.hop.spark.pipeline.handler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -33,6 +34,20 @@ import org.apache.spark.sql.SaveMode;
 public final class SparkFileIoSupport {
 
   private SparkFileIoSupport() {}
+
+  /**
+   * Formats whose sink is not addressed by a path. Spark's {@code DataFrameWriter.save(String)}
+   * stores its argument as the {@code path} option before saving, and the JDBC provider forwards
+   * every option it does not recognise to the driver as a connection property. Drivers that
+   * validate connection properties (Teradata) then reject {@code path} outright, while Postgres and
+   * MySQL silently ignore it — which is why this only surfaces on some databases (issue #8138).
+   */
+  private static final Set<String> PATHLESS_FORMATS = Set.of("jdbc");
+
+  /** Whether writing this format should omit the path rather than pass it to Spark as an option. */
+  public static boolean isPathless(String format) {
+    return format != null && PATHLESS_FORMATS.contains(normalizeFormat(format));
+  }
 
   public static String normalizeFormat(String format) {
     if (StringUtils.isEmpty(format)) {
@@ -94,9 +109,19 @@ public final class SparkFileIoSupport {
     if (partitionColumns != null && partitionColumns.length > 0) {
       writer = writer.partitionBy(partitionColumns);
     }
+    boolean pathless = isPathless(format);
     try {
-      writer.save(path);
+      if (pathless) {
+        // Passing the path here would land in the writer options and reach the JDBC driver as a
+        // connection property (issue #8138).
+        writer.save();
+      } else {
+        writer.save(path);
+      }
     } catch (Exception e) {
+      if (pathless) {
+        throw new HopException("Error writing Spark Dataset as " + format, e);
+      }
       throw new HopException(
           SparkPathDialect.withPathHint(
               "Error writing Spark Dataset to '" + path + "' as " + format, path),

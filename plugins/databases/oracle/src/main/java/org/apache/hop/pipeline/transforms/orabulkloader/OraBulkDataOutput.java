@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -96,6 +97,15 @@ public class OraBulkDataOutput {
 
   Writer getOutput() {
     return output;
+  }
+
+  @VisibleForTesting
+  void initForTest(Writer writer, String enclosure, int[] fieldNumbers) {
+    this.output = writer;
+    this.enclosure = enclosure;
+    this.fieldNumbers = fieldNumbers;
+    this.outbuf = new StringBuilder();
+    this.first = false;
   }
 
   private String createEscapedString(String orig, String enclosure) {
@@ -207,10 +217,11 @@ public class OraBulkDataOutput {
             break;
           case IValueMeta.TYPE_BINARY:
             byte[] byt = rowMeta.getBinary(row, number);
-            outbuf.append("<startlob>");
-            // TODO REVIEW - implicit .toString
-            outbuf.append(byt);
-            outbuf.append("<endlob>");
+            outbuf.append(enclosure);
+            if (byt != null) {
+              outbuf.append(Hex.encodeHexString(byt));
+            }
+            outbuf.append(enclosure);
             break;
           case IValueMeta.TYPE_TIMESTAMP:
             Timestamp timestamp = (Timestamp) rowMeta.getDate(row, number);

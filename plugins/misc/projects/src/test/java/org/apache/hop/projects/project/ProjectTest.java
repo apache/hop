@@ -19,6 +19,7 @@ package org.apache.hop.projects.project;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -30,6 +31,9 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -110,6 +114,84 @@ public class ProjectTest {
     } finally {
       tempFile.delete();
     }
+  }
+
+  @Test
+  public void testProjectIdRoundTripAndOmittedWhenEmpty() throws Exception {
+    File tempFile = Files.createTempFile("project-config-id", ".json").toFile();
+    tempFile.deleteOnExit();
+    try {
+      Project project = new Project(tempFile.getAbsolutePath());
+      project.saveToFile();
+      String json = Files.readString(tempFile.toPath(), StandardCharsets.UTF_8);
+      assertFalse(json.contains("projectId"));
+
+      Project readProject = new Project(tempFile.getAbsolutePath());
+      readProject.readFromFile();
+      assertNull(readProject.getProjectId());
+
+      project.setProjectId("sales");
+      project.saveToFile();
+      readProject.readFromFile();
+      assertEquals("sales", readProject.getProjectId());
+      assertTrue(Files.readString(tempFile.toPath(), StandardCharsets.UTF_8).contains("sales"));
+    } finally {
+      tempFile.delete();
+    }
+  }
+
+  @Test
+  public void testLegacyConfigWithoutProjectIdLeavesVariableEmpty() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-id-legacy");
+    Path home = tempRoot.resolve("child");
+    Files.createDirectories(home);
+    writeMinimalConfig(home, null);
+
+    ProjectConfig projectConfig =
+        new ProjectConfig("sales", home.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    registerProject(projectConfig);
+
+    Project project = projectConfig.loadProject(new Variables());
+    assertNull(project.getProjectId());
+
+    IVariables variables = new Variables();
+    variables.setVariable(Defaults.VARIABLE_HOP_PROJECT_ID, "stale");
+    project.modifyVariables(variables, projectConfig, new ArrayList<>(), null);
+    assertEquals("", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_ID));
+  }
+
+  @Test
+  public void testProjectIdVariableDoesNotInheritFromParent() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-id-parent");
+    Path parentHome = tempRoot.resolve("parent");
+    Path childHome = tempRoot.resolve("child");
+    Files.createDirectories(parentHome);
+    Files.createDirectories(childHome);
+    writeMinimalConfig(parentHome, null);
+    writeMinimalConfig(childHome, "parent-proj");
+
+    ProjectConfig parentConfig =
+        new ProjectConfig(
+            "parent-proj", parentHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    ProjectConfig childConfig =
+        new ProjectConfig(
+            "child-proj", childHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    registerProject(parentConfig);
+    registerProject(childConfig);
+
+    Project parent = parentConfig.loadProject(new Variables());
+    parent.setProjectId("parent-proj");
+    parent.saveToFile();
+
+    Project child = childConfig.loadProject(new Variables());
+    assertNull(child.getProjectId());
+    IVariables variables = new Variables();
+    child.modifyVariables(variables, childConfig, new ArrayList<>(), null);
+    assertEquals("", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_ID));
+
+    child.setProjectId("child-proj");
+    child.modifyVariables(variables, childConfig, new ArrayList<>(), null);
+    assertEquals("child-proj", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_ID));
   }
 
   @Test
@@ -198,6 +280,68 @@ public class ProjectTest {
         parentHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME));
     assertEquals("child-proj", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
     assertEquals(childHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+  }
+
+  @Test
+  public void testProjectVariableResolvesEnvironmentConfigurationFilePath() throws Exception {
+    HopLogStore.init();
+    tempRoot = Files.createTempDirectory("hop-project-environment-variable");
+    Path projectHome = tempRoot.resolve("project");
+    Path configFolder = projectHome.resolve("config");
+    Files.createDirectories(configFolder);
+
+    Path environmentFile = configFolder.resolve("environment.json");
+    DescribedVariablesConfigFile configFile =
+        new DescribedVariablesConfigFile(environmentFile.toString());
+    configFile.setDescribedVariable(new DescribedVariable("ENVIRONMENT_VALUE", "loaded", ""));
+    configFile.saveToFile();
+
+    ProjectConfig projectConfig =
+        new ProjectConfig(
+            "project", projectHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    Project project = new Project();
+    project
+        .getDescribedVariables()
+        .add(
+            new DescribedVariable(
+                "CONFIG_HOME", "${" + ProjectsUtil.VARIABLE_PROJECT_HOME + "}/config", ""));
+
+    IVariables variables = new Variables();
+    project.modifyVariables(
+        variables, projectConfig, java.util.List.of("${CONFIG_HOME}/environment.json"), "dev");
+
+    assertEquals("loaded", variables.getVariable("ENVIRONMENT_VALUE"));
+  }
+
+  @Test
+  public void testParentProjectFoldersSerialization() throws Exception {
+    File tempFile = Files.createTempFile("project-config-parent-folders", ".json").toFile();
+    tempFile.deleteOnExit();
+
+    try {
+      Project project = new Project(tempFile.getAbsolutePath());
+      ParentProjectFolder folder = new ParentProjectFolder();
+      folder.setFolder("templates");
+      folder.setCopyOnce(true);
+      folder.setCopyOnEnable(true);
+      folder.setOverwrite(false);
+      folder.setExclusionWildcard(".*\\.tmp");
+      project.getParentProjectFolders().add(folder);
+      project.saveToFile();
+
+      Project readProject = new Project(tempFile.getAbsolutePath());
+      readProject.readFromFile();
+
+      assertEquals(1, readProject.getParentProjectFolders().size());
+      ParentProjectFolder read = readProject.getParentProjectFolders().get(0);
+      assertEquals("templates", read.getFolder());
+      assertTrue(read.isCopyOnce());
+      assertTrue(read.isCopyOnEnable());
+      assertFalse(read.isOverwrite());
+      assertEquals(".*\\.tmp", read.getExclusionWildcard());
+    } finally {
+      tempFile.delete();
+    }
   }
 
   @Test

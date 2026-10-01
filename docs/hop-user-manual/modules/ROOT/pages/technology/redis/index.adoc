@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/redis/
 :language: en_US
 :description: Apache Hop supports Redis through a connection metadata type and input/output transforms.
+:page-marketplace: hop-tech-redis
 
 = Redis Technology
 

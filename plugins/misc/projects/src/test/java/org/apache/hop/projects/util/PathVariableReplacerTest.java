@@ -128,6 +128,7 @@ class PathVariableReplacerTest {
   @Test
   void ignoresNonPathManagedNames() {
     assertFalse(PathVariableReplacer.isCandidateVariableName(Defaults.VARIABLE_HOP_PROJECT_NAME));
+    assertFalse(PathVariableReplacer.isCandidateVariableName(Defaults.VARIABLE_HOP_PROJECT_ID));
     assertFalse(
         PathVariableReplacer.isCandidateVariableName(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME));
     assertFalse(
@@ -148,6 +149,9 @@ class PathVariableReplacerTest {
     assertTrue(PathVariableReplacer.isCandidatePathValue("/tmp/source"));
     assertTrue(PathVariableReplacer.isCandidatePathValue("file:///tmp/source"));
     assertTrue(PathVariableReplacer.isCandidatePathValue("C:\\data\\files"));
+    assertTrue(PathVariableReplacer.isCandidatePathValue("~"));
+    assertTrue(PathVariableReplacer.isCandidatePathValue("~/projects/demo"));
+    assertTrue(PathVariableReplacer.isCandidatePathValue("~\\projects\\demo"));
   }
 
   @Test
@@ -167,5 +171,15 @@ class PathVariableReplacerTest {
     assertEquals(
         "${SOURCE_FILES}/input/data.csv",
         PathVariableReplacer.replacePathWithVariable(variables, selected));
+  }
+
+  @Test
+  void replacesTildePathRootWithVariable() {
+    Path userHome = Path.of(System.getProperty("user.home"));
+    Path userProj = userHome.resolve("test-proj-hop-replacer");
+    variables.setVariable("USER_PROJ", "~/test-proj-hop-replacer");
+    String selected = userProj.resolve("data.csv").toString();
+    assertEquals(
+        "${USER_PROJ}/data.csv", PathVariableReplacer.replacePathWithVariable(variables, selected));
   }
 }

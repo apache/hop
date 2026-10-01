@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -88,6 +89,7 @@ public class SystemDataDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "SystemDataDialog.NameColumn.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    viewColumns[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     viewColumns[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SystemDataDialog.TypeColumn.Column"),

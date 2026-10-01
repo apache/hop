@@ -1,3 +1,11 @@
 {
-  "variables" : [ ]
+  "variables" : [ {
+    "name" : "NFS",
+    "value" : "${PROJECT_HOME}/output-0015",
+    "description" : "Stands in for the shared storage root of issue #8234. Together with ${REP} it builds the output path of 0015-write-exported-pipeline, so that pipeline reaches the file through combined environment variables rather than a single one."
+  }, {
+    "name" : "REP",
+    "value" : "extraction",
+    "description" : "Sub folder under ${NFS}, see issue #8234."
+  } ]
 }

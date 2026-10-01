@@ -144,39 +144,13 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     this("");
   }
 
-  public ActionCopyFiles(ActionCopyFiles other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.copyEmptyFolders = other.copyEmptyFolders;
-    this.argFromPrevious = other.argFromPrevious;
-    this.overwriteFiles = other.overwriteFiles;
-    this.includeSubFolders = other.includeSubFolders;
-    this.removeSourceFiles = other.removeSourceFiles;
-    this.addResultFilenames = other.addResultFilenames;
-    this.destinationIsAFile = other.destinationIsAFile;
-    this.createDestinationFolder = other.createDestinationFolder;
-    this.fileRows = new ArrayList<>();
-    if (other.fileRows != null) {
-      for (CopyFilesItem row : other.fileRows) {
-        this.fileRows.add(
-            new CopyFilesItem(
-                row.getSourceFileFolder(), row.getDestinationFileFolder(), row.getWildcard()));
-      }
-    }
-  }
-
   @Override
   public Object clone() {
     ActionCopyFiles copy = (ActionCopyFiles) super.clone();
+    // Bookkeeping for a single execution, not part of the action's configuration, so it is not
+    // carried over to the copy.
     copy.listFilesRemove = new HashSet<>();
     copy.listAddResult = new HashSet<>();
-    copy.fileRows = new ArrayList<>();
-    if (fileRows != null) {
-      for (CopyFilesItem row : fileRows) {
-        copy.fileRows.add(
-            new CopyFilesItem(
-                row.getSourceFileFolder(), row.getDestinationFileFolder(), row.getWildcard()));
-      }
-    }
     return copy;
   }
 

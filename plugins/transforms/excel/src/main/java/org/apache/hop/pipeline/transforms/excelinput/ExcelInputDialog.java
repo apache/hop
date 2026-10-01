@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -53,6 +52,7 @@ import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonLi
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterListDialog;
@@ -65,6 +65,8 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -416,6 +418,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
             false);
     colinfo[0].setUsingVariables(true);
+    colinfo[0].setNamingSchemeType(NamingSchemeTypes.FILE);
     colinfo[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     colinfo[1] =
         new ColumnInfo(
@@ -857,6 +860,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT)
         };
 
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[5].setToolTip(BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Tooltip"));
 
     wFields =
@@ -1798,6 +1802,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
       wFields.removeEmptyRows();
       wFields.setRowNums();
       wFields.optWidth(true);
+      NamingSchemeColumnApplierRegistry.getInstance()
+          .applyAnnotatedColumns(wFields, metadataProvider, null);
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
       mb.setMessage(
@@ -1936,19 +1942,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

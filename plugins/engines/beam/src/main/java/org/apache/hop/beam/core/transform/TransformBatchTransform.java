@@ -376,7 +376,6 @@ public class TransformBatchTransform extends TransformTransform {
           //
           pipelineMeta = new PipelineMeta();
           pipelineMeta.setName(transformName);
-          pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
           pipelineMeta.setMetadataProvider(metadataProvider);
 
           // When the first row ends up in the buffer we start the timer.
@@ -493,6 +492,7 @@ public class TransformBatchTransform extends TransformTransform {
           pipeline =
               new LocalPipelineEngine(
                   pipelineMeta, variables, new LoggingObject("apache-beam-transform"));
+          pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
           pipeline.setLogLevel(
               context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
@@ -529,8 +529,9 @@ public class TransformBatchTransform extends TransformTransform {
             rowListener =
                 new RowAdapter() {
                   @Override
-                  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
-                    resultRows.add(row);
+                  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
+                      throws HopTransformException {
+                    resultRows.add(HopBeamUtil.toNormalStorage(rowMeta, row));
                   }
                 };
             transformCombi.transform.addRowListener(rowListener);
@@ -566,7 +567,7 @@ public class TransformBatchTransform extends TransformTransform {
                       throws HopTransformException {
                     // We send the target row to a specific list...
                     //
-                    targetResultRows.add(row);
+                    targetResultRows.add(HopBeamUtil.toNormalStorage(rowMeta, row));
                   }
                 });
           }

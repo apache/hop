@@ -17,28 +17,14 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add XML transform allows you to encode the content of a number of fields in a row in XML. This XML is added to the row in the form of a String field.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/add_xml.svg[Add XML Icon, role="image-doc-icon"] Add XML
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Add XML transform allows you to encode the content of a number of fields in a row in XML.
 This XML is added to the row in the form of a String field.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -56,6 +42,25 @@ This XML is added to the row in the form of a String field.
 This is often used to limit the size of the target XML.
 |===
 
+=== Namespaces
+
+Namespaces are declared like any other value: add a field in the Fields tab, mark it as an
+attribute and give it the element name of the declaration. Because the value comes from the row,
+different rows can use different namespace URIs.
+
+* To put the root element in a default namespace, use the element name `xmlns`. A root element
+`catalog` with a field `xmlns` holding `https://hop.apache.org` generates
+`<catalog xmlns="https://hop.apache.org">`. Child elements without a prefix are in that namespace
+too.
+* To bind the root element to a prefix, name the root XML element `prefix:element` and declare the
+matching `xmlns:prefix` field. A root element `cat:catalog` with a field `xmlns:cat` generates
+`<cat:catalog xmlns:cat="https://hop.apache.org">`. Unprefixed child elements are then *not* in
+that namespace; give them the prefix in their element name if they should be.
+* Any further declarations, e.g. `xmlns:xsi`, can be added as attribute fields in the same way.
+
+A prefixed root XML element without a matching `xmlns:prefix` field is an error: XML cannot use a
+prefix that is not bound to a namespace URI.
+
 === Fields Tab
 
 The Fields tab is where you configure the output fields and their formats.
@@ -67,7 +72,8 @@ The table below describes each of the available properties for a field.
 |Fieldname|Name of the field
 |Element name|The name of the element in the XML file to use
 |Type|Type of the field can be either String, Date, or Number
-|Format|Select the date or number format to apply to the values in the field
+|Format|Select the date or number format to apply to the values in the field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|Output string is padded to this length if it is specified
 |Precision|The number of decimal places used to display floating point numbers.
 |Currency|Symbol used to represent currencies like $10,000.00 or E5.000,00

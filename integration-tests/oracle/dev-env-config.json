@@ -49,6 +49,21 @@
       "name": "ORACLE_SYSTEM_PASSWORD",
       "value": "HopIntegrationTest_1",
       "description": "ORACLE_PWD of the test container, throwaway"
+    },
+    {
+      "name": "ORACLE_CONNECTION",
+      "value": "oracle-service-name",
+      "description": "Connection the national character pipelines write through, so the same pipelines can run against the Unicode and the non-Unicode database"
+    },
+    {
+      "name": "ORACLE_NCHAR_HOST",
+      "value": "oracle-nchar",
+      "description": "Host of the WE8MSWIN1252 container started by integration-tests-oracle.yaml"
+    },
+    {
+      "name": "ORACLE_NCHAR_SERVICE",
+      "value": "FREEPDB1",
+      "description": "Service name of its pluggable database"
     }
   ]
 }

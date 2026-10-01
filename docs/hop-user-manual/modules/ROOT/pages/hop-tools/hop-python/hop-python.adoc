@@ -18,6 +18,7 @@ under the License.
 :description: Program Hop pipelines and workflows in Python
 
 :TOC:
+:page-marketplace: hop-misc-py4j
 
 = Hop Python
 

@@ -1,0 +1,42 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+// Generated from the @ConfigPlugin and @GuiWidgetElement annotations.
+// Edit those, not this file.
+
+These options are stored under `pass:c[gitConfig]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Enable the git GUI plugin]
+|pass:c[Switches the git plugin on or off. With it off the git perspective and the git decorations in the file explorer are hidden, and no repository is opened.]
+|`pass:c[true]`
+
+|pass:c[Search parent folders for git repository]
+|pass:c[Look in parent folders for the git repository rather than only in the project folder. Needed where the project sits in a subfolder of a larger repository.]
+|`pass:c[false]`
+
+|pass:c[Fetch remote changes automatically]
+|pass:c[Enables background fetching of remote updates every 20 minutes.]
+|`pass:c[false]`
+
+|pass:c[Ignore position in the visual diff]
+|pass:c[Do not mark a transform or action as changed when it was only moved.]
+|`pass:c[true]`
+
+|===

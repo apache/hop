@@ -206,6 +206,35 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         }
       }
 
+      data.aggregateIgnoredFieldIndex = -1;
+      if (meta.isAggregateIgnored()) {
+        if (Utils.isEmpty(meta.getAggregateIgnoredField())) {
+          logError(BaseMessages.getString(PKG, "GroupBy.Log.AggregateIgnoredFieldMissing"));
+          setErrors(1);
+          stopAll();
+          return false;
+        }
+        String ignoreField = resolve(meta.getAggregateIgnoredField());
+        data.aggregateIgnoredFieldIndex = data.inputRowMeta.indexOfValue(ignoreField);
+        if (data.aggregateIgnoredFieldIndex < 0) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "GroupBy.Log.AggregateIgnoredFieldCouldNotFound", ignoreField));
+          setErrors(1);
+          stopAll();
+          return false;
+        }
+        IValueMeta ignoreMeta = data.inputRowMeta.getValueMeta(data.aggregateIgnoredFieldIndex);
+        if (!ignoreMeta.isBoolean()) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "GroupBy.Log.AggregateIgnoredFieldNotBoolean", ignoreField));
+          setErrors(1);
+          stopAll();
+          return false;
+        }
+      }
+
       // Create a metadata value for the counter Integers
       //
       data.valueMetaInteger = new ValueMetaInteger("count");
@@ -242,7 +271,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
       data.previous = data.inputRowMeta.cloneRow(r); // copy the row to previous
     } else {
-      calcAggregate(data.previous);
+      if (!isRowAggregateIgnored(data.previous)) {
+        calcAggregate(data.previous);
+      }
 
       if (meta.isPassAllRows()) {
         addToBuffer(data.previous);
@@ -302,7 +333,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       // ALL ROWS
 
       if (data.previous != null) {
-        calcAggregate(data.previous);
+        if (!isRowAggregateIgnored(data.previous)) {
+          calcAggregate(data.previous);
+        }
         addToBuffer(data.previous);
       }
       data.groupResult = getAggregateResult();
@@ -334,7 +367,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
       // Don't forget the last set of rows...
       if (data.previous != null) {
-        calcAggregate(data.previous);
+        if (!isRowAggregateIgnored(data.previous)) {
+          calcAggregate(data.previous);
+        }
       }
       Object[] result = buildResult(data.previous);
       if (result != null) {
@@ -344,6 +379,12 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
   }
 
   private void addCumulativeSums(Object[] row) throws HopValueException {
+    if (isRowAggregateIgnored(row)) {
+      for (int i = 0; i < data.cumulativeSumSourceIndexes.size(); i++) {
+        row[data.cumulativeSumTargetIndexes.get(i)] = data.previousSums[i];
+      }
+      return;
+    }
 
     // We need to adjust this row with cumulative averages?
     //
@@ -377,6 +418,25 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
   }
 
   private void addCumulativeAverages(Object[] row) throws HopValueException {
+    if (isRowAggregateIgnored(row)) {
+      for (int i = 0; i < data.cumulativeAvgSourceIndexes.size(); i++) {
+        int targetIndex = data.cumulativeAvgTargetIndexes.get(i);
+        IValueMeta targetMeta = data.outputRowMeta.getValueMeta(targetIndex);
+        Object sum = data.previousAvgSum[i];
+        if (sum == null || data.previousAvgCount[i] == 0L) {
+          row[targetIndex] = null;
+        } else if (data.inputRowMeta
+            .getValueMeta(data.cumulativeAvgSourceIndexes.get(i))
+            .isInteger()) {
+          row[targetIndex] = ((Long) sum).doubleValue() / data.previousAvgCount[i];
+        } else {
+          row[targetIndex] =
+              ValueDataUtil.divide(
+                  targetMeta, sum, data.valueMetaInteger, data.previousAvgCount[i]);
+        }
+      }
+      return;
+    }
 
     // We need to adjust this row with cumulative sums
     //
@@ -442,6 +502,20 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       int windowSize = data.movingAvgWidths.get(i);
       int aggIndex = data.movingAvgIndexes.get(i);
 
+      if (isRowAggregateIgnored(row)) {
+        java.util.ArrayDeque<Double> window = data.movingAvgWindows[aggIndex];
+        if (window != null && window.size() == windowSize) {
+          double sum = 0.0;
+          for (double val : window) {
+            sum += val;
+          }
+          row[targetIndex] = sum / windowSize;
+        } else {
+          row[targetIndex] = null;
+        }
+        continue;
+      }
+
       Object sourceValue = row[sourceIndex];
       IValueMeta sourceMeta = data.inputRowMeta.getValueMeta(sourceIndex);
 
@@ -469,6 +543,18 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
   // Is the row r of the same group as previous?
   boolean sameGroup(Object[] previous, Object[] r) throws HopValueException {
     return data.inputRowMeta.compare(previous, r, data.groupnrs) == 0;
+  }
+
+  /**
+   * Returns true when the row should be excluded from aggregation because {@code ignore_aggregate}
+   * is enabled and the configured boolean field is true.
+   */
+  boolean isRowAggregateIgnored(Object[] row) throws HopValueException {
+    if (data.aggregateIgnoredFieldIndex < 0 || row == null) {
+      return false;
+    }
+    Boolean ignore = data.inputRowMeta.getBoolean(row, data.aggregateIgnoredFieldIndex);
+    return ignore != null && ignore;
   }
 
   /**
@@ -593,10 +679,13 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           }
           break;
         case Aggregation.TYPE_GROUP_FIRST_INCL_NULL:
-          // This is on purpose. The calculation of the
-          // first field is done when setting up a new group
-          // This is just the field of the first row
-          // if (linesWritten==0) value.setValue(subj)
+          // First non-ignored row of the group, including a null subject value.
+          if (data.firstInclNullSet == null || !data.firstInclNullSet[i]) {
+            data.agg[i] = subj;
+            if (data.firstInclNullSet != null) {
+              data.firstInclNullSet[i] = true;
+            }
+          }
           break;
         case Aggregation.TYPE_GROUP_LAST_INCL_NULL:
           data.agg[i] = subj;
@@ -661,6 +750,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
     data.agg = new Object[data.subjectnrs.length];
     data.mean = new double[data.subjectnrs.length]; // sets all doubles to 0.0
     data.aggMeta = new RowMeta();
+    data.firstInclNullSet = new boolean[data.subjectnrs.length];
+
+    boolean seedFromRow = r != null && !isRowAggregateIgnored(r);
 
     for (int i = 0; i < data.subjectnrs.length; i++) {
       Aggregation aggregation = meta.getAggregations().get(i);
@@ -708,7 +800,12 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             Aggregation.TYPE_GROUP_MAX:
           vMeta = subjMeta.clone();
           vMeta.setName(fieldName);
-          v = r == null ? null : r[data.subjectnrs[i]];
+          // Do not seed from an ignored row; leave null so calcAggregate initializes
+          // from the first non-ignored row of the group.
+          v = seedFromRow ? r[data.subjectnrs[i]] : null;
+          if (aggType == Aggregation.TYPE_GROUP_FIRST_INCL_NULL) {
+            data.firstInclNullSet[i] = seedFromRow;
+          }
           break;
         case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF, Aggregation.TYPE_GROUP_CONCAT_COMMA:
           vMeta = new ValueMetaString(fieldName);

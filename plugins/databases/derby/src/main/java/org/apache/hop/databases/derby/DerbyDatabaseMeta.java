@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -31,9 +32,17 @@ import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
     type = "DERBY",
     typeDescription = "Apache Derby",
-    documentationUrl = "/database/databases/derby.html")
+    documentationUrl = "/database/databases/derby.html",
+    classLoaderGroup = "derby-db")
 @GuiPlugin(id = "GUI-DerbyDatabaseMeta")
 public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** Derby limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " FETCH FIRST " + nrRows + " ROWS ONLY";
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -132,7 +141,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -152,7 +161,8 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ALTER "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override
@@ -242,11 +252,6 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int getDefaultDatabasePort() {
     return 1527;
-  }
-
-  @Override
-  public boolean isSupportsGetBlob() {
-    return false;
   }
 
   @Override

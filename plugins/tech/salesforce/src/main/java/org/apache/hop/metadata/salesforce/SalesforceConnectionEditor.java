@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -59,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
 public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnection> {
   private static final Class<?> PKG = SalesforceConnectionEditor.class;
 
-  private Text wName;
+  private TextVar wName;
 
   // Authentication Type
   private Label wlAuthType;
@@ -124,7 +125,9 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);

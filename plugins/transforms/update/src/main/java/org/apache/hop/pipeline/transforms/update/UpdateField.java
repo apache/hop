@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.update;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class UpdateField {
 
@@ -26,14 +27,16 @@ public class UpdateField {
   @HopMetadataProperty(
       key = "name",
       injectionKeyDescription = "UpdateMeta.Injection.UpdateLookup",
-      injectionKey = "UPDATE_LOOKUP")
+      injectionKey = "UPDATE_LOOKUP",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String updateLookup;
 
   /** Stream name to update value with */
   @HopMetadataProperty(
       key = "rename",
       injectionKeyDescription = "UpdateMeta.Injection.UpdateStream",
-      injectionKey = "UPDATE_STREAM")
+      injectionKey = "UPDATE_STREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String updateStream;
 
   public UpdateField() {}

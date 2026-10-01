@@ -76,17 +76,6 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     ioMappings = new IOMappings();
   }
 
-  public SimpleMappingMeta(SimpleMappingMeta m) {
-    super(m);
-    this.runConfigurationName = m.runConfigurationName;
-    this.ioMappings = new IOMappings(m.ioMappings);
-  }
-
-  @Override
-  public SimpleMappingMeta clone() {
-    return new SimpleMappingMeta(this);
-  }
-
   @Override
   public void setDefault() {
     MappingIODefinition inputDefinition = new MappingIODefinition(null, null);

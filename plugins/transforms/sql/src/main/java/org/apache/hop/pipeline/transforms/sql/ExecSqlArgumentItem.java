@@ -1,5 +1,3 @@
-package org.apache.hop.pipeline.transforms.sql;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,9 +15,15 @@ package org.apache.hop.pipeline.transforms.sql;
  * limitations under the License.
  */
 
+package org.apache.hop.pipeline.transforms.sql;
+
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class ExecSqlArgumentItem {
 
   @HopMetadataProperty(
@@ -33,20 +37,16 @@ public class ExecSqlArgumentItem {
     this.name = name;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ExecSqlArgumentItem that = (ExecSqlArgumentItem) o;
-    return name.equals(that.name);
+    return Objects.equals(name, that.name);
   }
 
   @Override

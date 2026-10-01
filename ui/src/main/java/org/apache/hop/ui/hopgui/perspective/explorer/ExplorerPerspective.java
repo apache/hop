@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +60,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.SearchMatcher;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
@@ -91,6 +94,10 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -106,6 +113,7 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
@@ -120,6 +128,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.raw.RawExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
@@ -127,6 +136,7 @@ import org.apache.hop.ui.hopgui.search.ReferenceSearchResults;
 import org.apache.hop.ui.hopgui.shared.CanvasSvgHelper;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -150,7 +160,6 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -169,7 +178,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.swt.widgets.Widget;
 
 @HopPerspectivePlugin(
     id = "100-HopExplorerPerspective",
@@ -205,6 +213,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-Toolbar-10400-Show-hidden";
   public static final String TOOLBAR_ITEM_SELECT_OPENED_FILE =
       "ExplorerPerspective-Toolbar-10500-Select-opened-file";
+  public static final String CONTEXT_MENU_CREATE_PIPELINE =
+      "ExplorerPerspective-ContextMenu-10010-CreatePipeline";
+  public static final String CONTEXT_MENU_CREATE_WORKFLOW =
+      "ExplorerPerspective-ContextMenu-10020-CreateWorkflow";
+  public static final String CONTEXT_MENU_CREATE_FILE =
+      "ExplorerPerspective-ContextMenu-10030-CreateFile";
   public static final String CONTEXT_MENU_CREATE_FOLDER =
       "ExplorerPerspective-ContextMenu-10050-CreateFolder";
   public static final String CONTEXT_MENU_EXPAND_ALL =
@@ -227,6 +241,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10402-FindReferences";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
+
+  /** Maximum number of paths listed in the delete confirmation dialog. */
+  private static final int MAX_LISTED_DELETE_PATHS = 20;
+
   private static final String TREE_WIDTH_AUDIT_TYPE = "explorer-perspective-tree-width";
   private static final String EXPLORER_AUDIT_TYPE = "explorer-perspective-state";
 
@@ -290,7 +308,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private final List<TabItemHandler> items;
   private boolean showingHiddenFiles;
 
-  private CTabItem splitMenuTargetTab;
   private boolean fileExplorerPanelVisible = true;
   @Getter private String rootFolder;
   @Getter private String rootName;
@@ -348,11 +365,23 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   public static ExplorerPerspective getInstance() {
-    // There can be only one
+    ExplorerPerspective fromGui = sessionPerspectiveOrNull();
+    if (fromGui != null) {
+      return fromGui;
+    }
+    // Fallback for tests and the disabled-perspective case (constructed, never initialized).
     if (instance == null) {
       new ExplorerPerspective();
     }
     return instance;
+  }
+
+  private static ExplorerPerspective sessionPerspectiveOrNull() {
+    try {
+      return HopGui.findSessionPerspective(ExplorerPerspective.class);
+    } catch (Throwable e) {
+      return null;
+    }
   }
 
   @Override
@@ -470,8 +499,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               Control c = focusControl;
               while (c != null) {
                 Object data = c.getData(KEY_TAB_FOLDER);
-                if (data instanceof CTabFolder && isEditorTabFolder((Control) data)) {
-                  CTabFolder folder = (CTabFolder) data;
+                if (data instanceof CTabFolder folder && isEditorTabFolder((Control) data)) {
                   for (CTabItem item : folder.getItems()) {
                     if (item.getControl() == c) {
                       if (activeTabFolder != folder || folder.getSelection() != item) {
@@ -507,6 +535,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
     }
     // Keep as last in the list...
+    fileTypes.add(new RawExplorerFileType());
     fileTypes.add(new GenericFileType());
     indexFileTypes();
   }
@@ -721,6 +750,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     // Lazy loading...
     //
     tree.addListener(SWT.Expand, this::lazyLoadFolderOnExpand);
+    FolderTreeIcons.install(tree);
 
     // Create context menu...
     //
@@ -754,6 +784,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           if (openInExplorerItem != null) {
             openInExplorerItem.setEnabled(tif != null && HopVfs.isLocalFileSystem(tif.path));
           }
+          MenuItem openInVfsExplorerItem =
+              menuWidgets.findMenuItem(VfsFileExplorerViews.CONTEXT_MENU_OPEN_LOCATION);
+          if (openInVfsExplorerItem != null) {
+            openInVfsExplorerItem.setEnabled(selection.length == 1 && tif != null);
+          }
 
           MenuItem renameItem = menuWidgets.findMenuItem(CONTEXT_MENU_RENAME);
           if (renameItem != null) {
@@ -762,12 +797,23 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           MenuItem deleteItem = menuWidgets.findMenuItem(CONTEXT_MENU_DELETE);
           if (deleteItem != null) {
-            deleteItem.setEnabled(selection.length == 1);
+            deleteItem.setEnabled(selection.length >= 1);
           }
 
-          MenuItem createFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_CREATE_FOLDER);
-          if (createFolderItem != null) {
-            createFolderItem.setEnabled(selection.length == 1);
+          // Creating anything only makes sense inside a folder.
+          //
+          boolean folderSelected = selection.length == 1 && tif != null && tif.folder;
+          for (String createMenuId :
+              new String[] {
+                CONTEXT_MENU_CREATE_PIPELINE,
+                CONTEXT_MENU_CREATE_WORKFLOW,
+                CONTEXT_MENU_CREATE_FILE,
+                CONTEXT_MENU_CREATE_FOLDER
+              }) {
+            MenuItem createItem = menuWidgets.findMenuItem(createMenuId);
+            if (createItem != null) {
+              createItem.setEnabled(folderSelected);
+            }
           }
 
           MenuItem refreshFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_REFRESH_FOLDER);
@@ -962,7 +1008,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           @Override
           public void dragOver(final DropTargetEvent event) {
+            // No tree item under the cursor (empty area / between items). Reject so RAP/Hop Web
+            // does not attempt an invalid drop that can NPE and kill the session (#7933).
             if (event.item == null) {
+              event.detail = DND.DROP_NONE;
+              event.feedback = DND.FEEDBACK_NONE;
               return;
             }
 
@@ -979,10 +1029,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                   // For internal drag check hierarchies
                   if (dragFile != null) {
                     FileObject sourceFile = HopVfs.getFileObject(dragFile);
+                    FileObject sourceParent = sourceFile.getParent();
 
-                    // Avoid copy or move to itself, it's parent or for folder it's descendant
+                    // Avoid copy or move to itself, its parent or for folder its descendant
                     if (sourceFile.equals(targetFile)
-                        || sourceFile.getParent().equals(targetFile)
+                        || (sourceParent != null && sourceParent.equals(targetFile))
                         || sourceFile.getName().isDescendent(targetFile.getName())) {
                       event.detail = DND.DROP_NONE;
                     }
@@ -994,52 +1045,77 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                 event.detail = DND.DROP_NONE;
                 event.feedback = DND.FEEDBACK_NONE;
               }
+            } else {
+              event.detail = DND.DROP_NONE;
+              event.feedback = DND.FEEDBACK_NONE;
             }
           }
 
           @Override
           public void drop(final DropTargetEvent event) {
-            if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
-              Widget item = event.item;
-              if (item.getData() instanceof TreeItemFolder targetItem) {
-                List<String> errors = new ArrayList<>();
-
-                for (String path : (String[]) event.data) {
-                  try {
-                    FileObject sourceFile = HopVfs.getFileObject(path);
-                    FileObject targetFile =
-                        HopVfs.getFileObject(
-                            targetItem.path
-                                + Const.FILE_SEPARATOR
-                                + sourceFile.getName().getBaseName());
-
-                    if (event.detail == DND.DROP_COPY) {
-                      // Copy file and folder and all its descendants
-                      // No need to update tab item handler because all files are new
-                      targetFile.copyFrom(sourceFile, Selectors.SELECT_ALL);
-                    } else if (event.detail == DND.DROP_MOVE) {
-                      // Move file or folder and all its descendants and update tab item handlers
-                      moveFile(sourceFile, targetFile);
-                    }
-                  } catch (Exception e) {
-                    errors.add(path);
-                  }
-                }
-
-                // Report errors
-                if (!errors.isEmpty()) {
-
-                  String paths = String.join("\n", errors);
-
-                  MessageBox messageBox =
-                      new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
-                  messageBox.setText("Drag and drop");
-                  messageBox.setMessage("Unable to copy/move file(s):\n\n" + paths);
-                  messageBox.open();
-                }
-
-                refresh();
+            // Guard every precondition: uncaught exceptions in RAP DND listeners can tear down
+            // the Hop Web UI session (see #7933).
+            try {
+              if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)
+                  || event.item == null
+                  || event.data == null
+                  || !(event.data instanceof String[] paths)) {
+                event.detail = DND.DROP_NONE;
+                return;
               }
+
+              Object itemData = event.item.getData();
+              if (!(itemData instanceof TreeItemFolder targetItem) || !targetItem.folder) {
+                event.detail = DND.DROP_NONE;
+                return;
+              }
+
+              List<String> errors = new ArrayList<>();
+
+              for (String path : paths) {
+                if (Utils.isEmpty(path)) {
+                  continue;
+                }
+                try {
+                  FileObject sourceFile = HopVfs.getFileObject(path);
+                  FileObject targetFile =
+                      HopVfs.getFileObject(
+                          targetItem.path
+                              + Const.FILE_SEPARATOR
+                              + sourceFile.getName().getBaseName());
+
+                  if (event.detail == DND.DROP_COPY) {
+                    // Copy file and folder and all its descendants
+                    // No need to update tab item handler because all files are new
+                    targetFile.copyFrom(sourceFile, Selectors.SELECT_ALL);
+                  } else if (event.detail == DND.DROP_MOVE) {
+                    // Move file or folder and all its descendants and update tab item handlers
+                    moveFile(sourceFile, targetFile);
+                  }
+                } catch (Exception e) {
+                  errors.add(path);
+                }
+              }
+
+              // Report errors
+              if (!errors.isEmpty()) {
+                String errorPaths = String.join("\n", errors);
+
+                MessageBox messageBox =
+                    new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
+                messageBox.setText("Drag and drop");
+                messageBox.setMessage("Unable to copy/move file(s):\n\n" + errorPaths);
+                messageBox.open();
+              }
+
+              refresh();
+            } catch (Exception e) {
+              event.detail = DND.DROP_NONE;
+              new ErrorDialog(
+                  HopGui.getInstance().getShell(),
+                  "Drag and drop",
+                  "Unexpected error during file drag and drop",
+                  e);
             }
           }
         });
@@ -1122,9 +1198,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (tif.folder) {
         if (!item.getExpanded()) {
           lazyLoadFolderOnExpand(event);
-          item.setExpanded(true);
+          FolderTreeIcons.setExpanded(item, true);
         } else {
-          item.setExpanded(false);
+          FolderTreeIcons.setExpanded(item, false);
         }
         TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, item.getExpanded());
       } else {
@@ -1144,7 +1220,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           if (expanded) {
             ensureFolderLoaded(item);
           }
-          item.setExpanded(expanded);
+          FolderTreeIcons.setExpanded(item, expanded);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expanded);
         } else {
           IHopFileTypeHandler handler =
@@ -1164,72 +1240,82 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
-  private void deleteFile(final TreeItem treeItem) {
+  private void deleteFiles(final TreeItem[] treeItems) {
     try {
-      TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
-      if (tif == null || tif.fileType == null) {
+      // Items nested inside another selected folder are deleted along with that folder, so drop
+      // them from the list. Otherwise we'd try to delete and dispose them a second time.
+      //
+      List<TreeItem> items = new ArrayList<>();
+      List<FileObject> fileObjects = new ArrayList<>();
+      for (TreeItem treeItem : removeNestedSelection(treeItems)) {
+        TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
+        if (tif == null || tif.fileType == null) {
+          continue;
+        }
+        items.add(treeItem);
+        fileObjects.add(HopVfs.getFileObject(tif.path));
+      }
+      if (fileObjects.isEmpty()) {
         return;
       }
-      FileObject fileObject = HopVfs.getFileObject(tif.path);
 
-      // For pipeline/workflow files check if any other files or metadata objects still
-      // reference them before showing the standard confirmation box.
-      if (!fileObject.isFolder()) {
-        String path = HopVfs.getFilename(fileObject);
-        if (path.endsWith(".hpl") || path.endsWith(".hwf")) {
-          boolean confirmed =
-              confirmDeleteWithReferenceCheck(List.of(path), fileObject.getName().getBaseName());
-          if (!confirmed) {
-            return;
-          }
-          // User confirmed via the reference dialog — proceed directly to deletion.
-          List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
-          fileObject.deleteAll();
-          removeTreeItemAfterDelete(treeItem, filenames);
-          return;
-        }
-      } else {
-        // For folders: collect all .hpl/.hwf files and check for references collectively.
-        List<String> pipelineWorkflowFiles = new ArrayList<>();
-        for (String filename : getRecursiveFilenames(fileObject, new ArrayList<>())) {
+      // Collect everything which is about to disappear. The pipelines and workflows in there are
+      // checked for references collectively, for the complete selection at once.
+      //
+      List<List<String>> filenamesPerItem = new ArrayList<>();
+      List<String> pipelineWorkflowFiles = new ArrayList<>();
+      List<String> paths = new ArrayList<>();
+      for (FileObject fileObject : fileObjects) {
+        List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
+        filenamesPerItem.add(filenames);
+        for (String filename : filenames) {
           if (filename.endsWith(".hpl") || filename.endsWith(".hwf")) {
             pipelineWorkflowFiles.add(filename);
           }
         }
-        if (!pipelineWorkflowFiles.isEmpty()) {
-          String folderName = fileObject.getName().getBaseName();
-          boolean confirmed = confirmDeleteWithReferenceCheck(pipelineWorkflowFiles, folderName);
-          if (!confirmed) {
-            return;
-          }
-          // User confirmed — proceed directly to deletion.
-          List<String> allFilenames = getRecursiveFilenames(fileObject, new ArrayList<>());
-          fileObject.deleteAll();
-          removeTreeItemAfterDelete(treeItem, allFilenames);
-          return;
-        }
+        paths.add(HopVfs.getFilename(fileObject));
+      }
+      boolean singleFolder = fileObjects.size() == 1 && fileObjects.get(0).isFolder();
+
+      boolean confirmed;
+      if (pipelineWorkflowFiles.isEmpty()) {
+        confirmed = showDeleteConfirmation(paths, singleFolder);
+      } else {
+        String displayName =
+            fileObjects.size() == 1
+                ? fileObjects.get(0).getName().getBaseName()
+                : BaseMessages.getString(
+                    PKG, "ExplorerPerspective.DeleteFiles.Selection", fileObjects.size());
+        confirmed =
+            confirmDeleteWithReferenceCheck(
+                pipelineWorkflowFiles,
+                displayName,
+                () -> showDeleteConfirmation(paths, singleFolder));
+      }
+      if (!confirmed) {
+        return;
       }
 
-      // No pipeline/workflow files involved — use the standard confirmation box.
-      String header =
-          fileObject.isFolder()
-              ? BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header")
-              : BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
-      String message =
-          fileObject.isFolder()
-              ? BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message")
-              : BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+      if (fileObjects.size() == 1) {
+        if (fileObjects.get(0).deleteAll() > 0) {
+          removeTreeItemAfterDelete(items.get(0), filenamesPerItem.get(0));
+        }
+        return;
+      }
 
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-      box.setText(header);
-      box.setMessage(message + Const.CR + Const.CR + HopVfs.getFilename(fileObject));
-
-      if ((box.open() & SWT.YES) != 0) {
-        List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
-        if (fileObject.deleteAll() > 0) {
-          removeTreeItemAfterDelete(treeItem, filenames);
+      // Refreshing the tree per item would dispose the tree items still queued up here, so for a
+      // multiple selection everything is deleted first and the tree is refreshed once afterwards.
+      //
+      List<String> deletedFilenames = new ArrayList<>();
+      for (int i = 0; i < fileObjects.size(); i++) {
+        if (fileObjects.get(i).deleteAll() > 0) {
+          updateLastSelectedFolderAfterDelete(items.get(i));
+          deletedFilenames.addAll(filenamesPerItem.get(i));
         }
       }
+      closeTabsForFilenames(deletedFilenames);
+      refresh();
+      updateSelection();
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
@@ -1239,14 +1325,74 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
+  /** Removes the tree items which have another item of the same selection as an ancestor. */
+  private static List<TreeItem> removeNestedSelection(TreeItem[] treeItems) {
+    List<TreeItem> selection = Arrays.asList(treeItems);
+    List<TreeItem> topLevel = new ArrayList<>();
+    for (TreeItem treeItem : treeItems) {
+      boolean nested = false;
+      for (TreeItem parent = treeItem.getParentItem();
+          parent != null;
+          parent = parent.getParentItem()) {
+        if (selection.contains(parent)) {
+          nested = true;
+          break;
+        }
+      }
+      if (!nested) {
+        topLevel.add(treeItem);
+      }
+    }
+    return topLevel;
+  }
+
+  /** The plain "are you sure?" confirmation, listing the files and folders about to be deleted. */
+  private boolean showDeleteConfirmation(List<String> paths, boolean singleFolder) {
+    String header;
+    String message;
+    if (paths.size() > 1) {
+      header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFiles.Confirmation.Header");
+      message =
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.DeleteFiles.Confirmation.Message", paths.size());
+    } else if (singleFolder) {
+      header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header");
+      message =
+          BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message");
+    } else {
+      header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
+      message = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+    }
+
+    StringBuilder listedPaths = new StringBuilder();
+    for (int i = 0; i < paths.size(); i++) {
+      if (i >= MAX_LISTED_DELETE_PATHS) {
+        listedPaths
+            .append(Const.CR)
+            .append(
+                BaseMessages.getString(
+                    PKG,
+                    "ExplorerPerspective.DeleteFiles.Confirmation.More",
+                    paths.size() - MAX_LISTED_DELETE_PATHS));
+        break;
+      }
+      listedPaths.append(Const.CR).append(paths.get(i));
+    }
+
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText(header);
+    box.setMessage(message + Const.CR + listedPaths);
+    return (box.open() & SWT.YES) != 0;
+  }
+
   /**
    * Replaces the resolved {@code projectHome} prefix in {@code path} with {@code ${PROJECT_HOME}}
    * so displayed paths are project-relative and shorter.
    */
   private static String toDisplayPath(String path, String projectHome) {
     if (!StringUtils.isEmpty(projectHome) && path.startsWith(projectHome)) {
-      String rel = path.substring(projectHome.length());
-      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
+      String rel = path.substring(projectHome.length()).replace(File.separatorChar, '/');
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : '/' + rel);
     }
     return path;
   }
@@ -1257,6 +1403,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * shows the standard Yes/No confirmation. Returns {@code true} if the user confirmed deletion.
    */
   public boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
+      throws HopException {
+    return confirmDeleteWithReferenceCheck(filePaths, displayName, null);
+  }
+
+  /**
+   * Same as {@link #confirmDeleteWithReferenceCheck(List, String)} but with a custom confirmation
+   * for the case where no references are found. Pass {@code null} for the standard one.
+   */
+  private boolean confirmDeleteWithReferenceCheck(
+      List<String> filePaths, String displayName, BooleanSupplier plainConfirmation)
       throws HopException {
     String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
     List<String> searchRoots =
@@ -1305,6 +1461,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
 
     // No references — use the standard confirmation box.
+    if (plainConfirmation != null) {
+      return plainConfirmation.getAsBoolean();
+    }
     String header =
         BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
     String message =
@@ -1429,6 +1588,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
+      NamingSchemeWidgetSupport.attachShortcut(
+          text,
+          hopGui.getVariables(),
+          tif.folder ? NamingSchemeTypes.FOLDER : NamingSchemeTypes.FILE);
       text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,
@@ -1506,7 +1669,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
 
       // Rename the folder
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update all opened impacted file type handlers
       for (String filename : filenames) {
@@ -1539,7 +1702,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       String newPath = sourceExists ? pathFromTarget : pathFromSource;
 
       // Rename the file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update opened file type handler (use old path to find the handler)
       TabItemHandler handler = findTabItemHandler(oldPath);
@@ -1575,7 +1738,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
 
       // Move file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update all opened impacted file type handlers
       for (String filename : filenames) {
@@ -1605,7 +1768,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       String newPath = sourceExists ? pathFromTarget : pathFromSource;
 
       // Move file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update opened file type handler
       TabItemHandler handler = findTabItemHandler(oldPath);
@@ -1847,7 +2010,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @SuppressWarnings("javabugs:S2259") // callers always pass an open file type handler
   protected void changeFilename(IHopFileTypeHandler fileTypeHandler, String newFilename) {
     String oldFilename = fileTypeHandler.getFilename();
-    hopGui.fileRefreshDelegate.remove(oldFilename);
+    hopGui.fileRefreshDelegate.remove(oldFilename, fileTypeHandler);
     fileTypeHandler.setFilename(newFilename);
     hopGui.fileRefreshDelegate.register(newFilename, fileTypeHandler);
   }
@@ -1995,56 +2158,133 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       folder.setTabHeight(Math.max(height, folder.getTabHeight()));
     }
 
-    new TabCloseHandler(this, folder);
+    TabCloseHandler tabCloseHandler = new TabCloseHandler(this, folder);
     new TabItemReorder(this, folder);
+    addTabSplitMenuItems(folder, tabCloseHandler);
+    return folder;
+  }
 
-    // Split ("Move to Right") and detach ("Move to New Window") depend on native drag and floating
-    // windows, which don't work under RAP, so they are desktop-only (see also the drag-to-split
-    // guard in TabItemReorder and the isWeb() overlay gating).
+  /**
+   * The tab popup is owned by {@link TabCloseHandler} and is not attached to the folder. Hop Web
+   * layout restore can run before that menu exists (issue #8477).
+   */
+  static boolean isUsableTabMenu(Menu menu) {
+    return menu != null && !menu.isDisposed();
+  }
+
+  private void addTabSplitMenuItems(CTabFolder folder, TabCloseHandler tabCloseHandler) {
+    Menu menu = tabCloseHandler.getMenu();
+    if (!isUsableTabMenu(menu)) {
+      return;
+    }
+
+    // Split ("Move to Right") works in both desktop and web since it operates within the docked
+    // editor layout. Detach ("Move to New Window") depends on floating windows, which don't work
+    // under RAP, so it is desktop-only.
+    new MenuItem(menu, SWT.SEPARATOR);
+    MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
+    miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+
+    MenuItem miSplitDown = new MenuItem(menu, SWT.NONE);
+    miSplitDown.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveDown"));
+
+    new MenuItem(menu, SWT.SEPARATOR);
+
+    MenuItem miJoinLeft = new MenuItem(menu, SWT.NONE);
+    miJoinLeft.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinLeft"));
+
+    MenuItem miJoinAbove = new MenuItem(menu, SWT.NONE);
+    miJoinAbove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinAbove"));
+
+    final MenuItem miDetach;
     if (!EnvironmentUtils.getInstance().isWeb()) {
-      Menu menu = folder.getMenu();
       new MenuItem(menu, SWT.SEPARATOR);
-      MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
-      miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-
-      folder.addListener(
-          SWT.MenuDetect,
-          event -> {
-            Point pt = folder.toControl(folder.getDisplay().getCursorLocation());
-            splitMenuTargetTab = folder.getItem(new Point(pt.x, pt.y));
-          });
-
-      MenuItem miDetach = new MenuItem(menu, SWT.NONE);
+      miDetach = new MenuItem(menu, SWT.NONE);
       miDetach.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToNewWindow"));
-
-      menu.addListener(
-          SWT.Show,
-          e -> {
-            miSplitMove.setText(
-                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-            // Splitting only makes sense if the folder keeps at least one tab behind.
-            miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
-            miDetach.setEnabled(splitMenuTargetTab != null);
-          });
-
-      miSplitMove.addListener(
-          SWT.Selection,
-          e -> {
-            if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
-              splitOrMoveTab(splitMenuTargetTab);
-            }
-          });
-
       miDetach.addListener(
           SWT.Selection,
           e -> {
-            if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
-              detachTabToWindow(splitMenuTargetTab);
+            CTabItem targetTab = tabCloseHandler.getSelectedItem();
+            if (targetTab != null && !targetTab.isDisposed()) {
+              detachTabToWindow(targetTab);
             }
           });
+    } else {
+      miDetach = null;
     }
 
-    return folder;
+    menu.addListener(
+        SWT.Show,
+        e -> {
+          miSplitMove.setText(
+              BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+          miSplitDown.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveDown"));
+          miJoinLeft.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinLeft"));
+          miJoinAbove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.JoinAbove"));
+
+          // The close handler sets this before it shows the menu, so it is current for this click.
+          CTabItem targetTab = tabCloseHandler.getSelectedItem();
+
+          // Splitting creates a new pane, requiring at least one tab to stay behind.
+          boolean canSplit = targetTab != null && folder.getItemCount() > 1;
+          miSplitMove.setEnabled(canSplit);
+          miSplitDown.setEnabled(canSplit);
+
+          // Joining moves the tab into an existing adjacent pane.
+          CTabFolder leftFolder = findFolderToLeft(folder);
+          miJoinLeft.setEnabled(
+              targetTab != null && leftFolder != null && !leftFolder.isDisposed());
+
+          CTabFolder aboveFolder = findFolderAbove(folder);
+          miJoinAbove.setEnabled(
+              targetTab != null && aboveFolder != null && !aboveFolder.isDisposed());
+
+          if (miDetach != null) {
+            miDetach.setEnabled(targetTab != null);
+          }
+        });
+
+    miSplitMove.addListener(
+        SWT.Selection,
+        e -> {
+          CTabItem targetTab = tabCloseHandler.getSelectedItem();
+          if (targetTab != null && !targetTab.isDisposed()) {
+            splitAndMoveTab(targetTab, SWT.HORIZONTAL, true);
+          }
+        });
+
+    miSplitDown.addListener(
+        SWT.Selection,
+        e -> {
+          CTabItem targetTab = tabCloseHandler.getSelectedItem();
+          if (targetTab != null && !targetTab.isDisposed()) {
+            splitAndMoveTab(targetTab, SWT.VERTICAL, true);
+          }
+        });
+
+    miJoinLeft.addListener(
+        SWT.Selection,
+        e -> {
+          CTabItem targetTab = tabCloseHandler.getSelectedItem();
+          if (targetTab != null && !targetTab.isDisposed()) {
+            CTabFolder leftFolder = findFolderToLeft(folder);
+            if (leftFolder != null && !leftFolder.isDisposed()) {
+              joinTabToFolder(targetTab, leftFolder);
+            }
+          }
+        });
+
+    miJoinAbove.addListener(
+        SWT.Selection,
+        e -> {
+          CTabItem targetTab = tabCloseHandler.getSelectedItem();
+          if (targetTab != null && !targetTab.isDisposed()) {
+            CTabFolder aboveFolder = findFolderAbove(folder);
+            if (aboveFolder != null && !aboveFolder.isDisposed()) {
+              joinTabToFolder(targetTab, aboveFolder);
+            }
+          }
+        });
   }
 
   private CTabFolder getTargetTabFolder() {
@@ -2215,14 +2455,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     IHopFileTypeHandler fileTypeHandler = (IHopFileTypeHandler) tabItem.getData();
-    boolean isRemoved = false;
+    // A tab without a handler is broken: nothing can veto its close.
+    boolean isRemoved = true;
     if (fileTypeHandler != null) {
+      // This is where the user gets asked to save the file. Answering Cancel means: keep the file
+      // open, so never dispose the tab afterwards (issue #8079).
       isRemoved = remove(fileTypeHandler);
     }
-    // If remove failed (e.g. null/broken handler) or tab is still there, close it directly
-    if (!tabItem.isDisposed()) {
+    // The close wasn't vetoed but the tab is still there: the handler wasn't registered in this
+    // perspective (a broken tab). Dispose it directly so the user can still close it.
+    if (isRemoved && !tabItem.isDisposed()) {
       removeHandlerAndDisposeTab(tabItem);
-      isRemoved = true;
     }
     // Skip during bulk close (project/environment switch): writeLastOpenFiles was already called
     // before closeAllFiles; writing here would persist an empty open-files list (issue #7692).
@@ -2248,7 +2491,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       items.remove(toRemove);
       IHopFileTypeHandler fileTypeHandler = toRemove.getTypeHandler();
       if (fileTypeHandler != null && fileTypeHandler.getFilename() != null) {
-        hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename());
+        hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename(), fileTypeHandler);
       }
     }
     tabItem.dispose();
@@ -2272,7 +2515,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     IHopFileTypeHandler fileTypeHandler = item.getTypeHandler();
     if (fileTypeHandler != null && fileTypeHandler.getFilename() != null) {
-      hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename());
+      hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename(), fileTypeHandler);
     }
 
     if (!hopGui.fileDelegate.isClosing()) {
@@ -2583,11 +2826,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /** Select the corresponding file in the left-hand tree */
-  private void selectInTree(String filename) {
+  public void selectInTree(String filename) {
     selectInTree(filename, true);
   }
 
-  private void selectInTree(String filename, boolean automatic) {
+  public void selectInTree(String filename, boolean automatic) {
     if (automatic) {
       Boolean activeFileSelection =
           ExplorerPerspectiveConfigSingleton.getConfig().getActiveFileSelection();
@@ -2638,7 +2881,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     if (tif != null && tif.folder && isDescendant(tif.path, filename)) {
       ensureFolderLoaded(item);
-      item.setExpanded(true);
+      FolderTreeIcons.setExpanded(item, true);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
       for (TreeItem child : item.getItems()) {
         if (selectInTree(child, filename)) {
@@ -2769,6 +3012,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                   false,
                   false);
           if (EnvironmentUtils.getInstance().isWeb()) {
+            // openFile / link navigation often uses setActiveFileTypeHandler without a full
+            // CTabFolder Selection cycle that paints; rebind the SVG canvas client here.
+            notifyZoomHandlerForActiveTab();
             updateWebUrlForActiveTab();
           }
           return;
@@ -3015,6 +3261,94 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
+  /**
+   * Find the adjacent leaf tab folder immediately to the left of {@code folder} in the docked
+   * layout tree, or {@code null} if none exists.
+   */
+  private CTabFolder findFolderToLeft(CTabFolder folder) {
+    if (folder == null || folder.isDisposed() || !isDockedTabFolder(folder)) {
+      return null;
+    }
+    Control current = folder;
+    while (current != null && current.getParent() instanceof SashForm parentSash) {
+      if (parentSash.getOrientation() == SWT.HORIZONTAL) {
+        List<Control> children = nodeChildren(parentSash);
+        int idx = children.indexOf(current);
+        if (idx > 0) {
+          CTabFolder target = findRightmostLeaf(children.get(idx - 1));
+          if (target != null && !target.isDisposed()) {
+            return target;
+          }
+        }
+      }
+      current = parentSash;
+    }
+    return null;
+  }
+
+  /**
+   * Find the adjacent leaf tab folder immediately above {@code folder} in the docked layout tree,
+   * or {@code null} if none exists.
+   */
+  private CTabFolder findFolderAbove(CTabFolder folder) {
+    if (folder == null || folder.isDisposed() || !isDockedTabFolder(folder)) {
+      return null;
+    }
+    Control current = folder;
+    while (current != null && current.getParent() instanceof SashForm parentSash) {
+      if (parentSash.getOrientation() == SWT.VERTICAL) {
+        List<Control> children = nodeChildren(parentSash);
+        int idx = children.indexOf(current);
+        if (idx > 0) {
+          CTabFolder target = findBottommostLeaf(children.get(idx - 1));
+          if (target != null && !target.isDisposed()) {
+            return target;
+          }
+        }
+      }
+      current = parentSash;
+    }
+    return null;
+  }
+
+  private CTabFolder findRightmostLeaf(Control node) {
+    if (node == null || node.isDisposed()) {
+      return null;
+    }
+    if (node instanceof CTabFolder folder) {
+      return folder;
+    }
+    if (node instanceof SashForm sash) {
+      List<Control> children = nodeChildren(sash);
+      for (int i = children.size() - 1; i >= 0; i--) {
+        CTabFolder leaf = findRightmostLeaf(children.get(i));
+        if (leaf != null && !leaf.isDisposed()) {
+          return leaf;
+        }
+      }
+    }
+    return null;
+  }
+
+  private CTabFolder findBottommostLeaf(Control node) {
+    if (node == null || node.isDisposed()) {
+      return null;
+    }
+    if (node instanceof CTabFolder folder) {
+      return folder;
+    }
+    if (node instanceof SashForm sash) {
+      List<Control> children = nodeChildren(sash);
+      for (int i = children.size() - 1; i >= 0; i--) {
+        CTabFolder leaf = findBottommostLeaf(children.get(i));
+        if (leaf != null && !leaf.isDisposed()) {
+          return leaf;
+        }
+      }
+    }
+    return null;
+  }
+
   @GuiMenuElement(
       root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
@@ -3066,6 +3400,209 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
+  /**
+   * The path of the selected folder, or null when the selection is not a single folder or the user
+   * has no write permission.
+   */
+  private String getSelectedFolderPath() {
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return null;
+    }
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length != 1) {
+      return null;
+    }
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif == null || !tif.folder) {
+      return null;
+    }
+    return tif.path;
+  }
+
+  private boolean refuseExistingFile(String path) {
+    try {
+      if (ExplorerCreateUtils.fileExists(path)) {
+        MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+        box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.FileExists.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "ExplorerPerspective.Error.FileExists.Message", path));
+        box.open();
+        return true;
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", path),
+          e);
+      return true;
+    }
+    return false;
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_PIPELINE,
+      label = "i18n::ExplorerPerspective.Menu.CreatePipeline",
+      image = "ui/images/pipeline.svg")
+  public void createPipeline() {
+    String folder = getSelectedFolderPath();
+    if (folder == null) {
+      return;
+    }
+    EnterStringDialog dialog =
+        new EnterStringDialog(
+            getShell(),
+            "",
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreatePipeline.Header"),
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreatePipeline.Message", folder));
+    String typedName = dialog.open();
+    if (typedName == null) {
+      return;
+    }
+    if (!ExplorerCreateUtils.isSimpleFileName(typedName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    String fileName =
+        ExplorerCreateUtils.applyExtension(typedName, pipelineFileType.getDefaultFileExtension());
+    String filename = ExplorerCreateUtils.childPath(folder, fileName);
+    if (!ExplorerCreateUtils.resolvesInsideFolder(folder, filename)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    if (refuseExistingFile(filename)) {
+      return;
+    }
+    try {
+      PipelineMeta pipelineMeta = new PipelineMeta();
+      pipelineMeta.setName(ExplorerCreateUtils.baseName(fileName));
+      pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
+      pipelineMeta.setFilename(filename);
+      IHopFileTypeHandler handler = addPipeline(pipelineMeta);
+      handler.save();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          e);
+    }
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_WORKFLOW,
+      label = "i18n::ExplorerPerspective.Menu.CreateWorkflow",
+      image = "ui/images/workflow.svg")
+  public void createWorkflow() {
+    String folder = getSelectedFolderPath();
+    if (folder == null) {
+      return;
+    }
+    EnterStringDialog dialog =
+        new EnterStringDialog(
+            getShell(),
+            "",
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreateWorkflow.Header"),
+            BaseMessages.getString(PKG, "ExplorerPerspective.CreateWorkflow.Message", folder));
+    String typedName = dialog.open();
+    if (typedName == null) {
+      return;
+    }
+    if (!ExplorerCreateUtils.isSimpleFileName(typedName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    String fileName =
+        ExplorerCreateUtils.applyExtension(typedName, workflowFileType.getDefaultFileExtension());
+    String filename = ExplorerCreateUtils.childPath(folder, fileName);
+    if (!ExplorerCreateUtils.resolvesInsideFolder(folder, filename)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+      box.open();
+      return;
+    }
+    if (refuseExistingFile(filename)) {
+      return;
+    }
+    try {
+      WorkflowMeta workflowMeta = new WorkflowMeta();
+      workflowMeta.setName(ExplorerCreateUtils.baseName(fileName));
+      workflowMeta.setMetadataProvider(hopGui.getMetadataProvider());
+      workflowMeta.setFilename(filename);
+      IHopFileTypeHandler handler = addWorkflow(workflowMeta);
+      handler.save();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          e);
+    }
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_CREATE_FILE,
+      label = "i18n::ExplorerPerspective.Menu.CreateFile",
+      image = "ui/images/new.svg")
+  public void createFile() {
+    String folder = getSelectedFolderPath();
+    if (folder == null) {
+      return;
+    }
+    List<IHopFileType> creatable = ExplorerCreateUtils.creatableFileTypes(fileTypes);
+    if (creatable.isEmpty()) {
+      return;
+    }
+    CreateFileDialog dialog = new CreateFileDialog(getShell(), folder, creatable);
+    String filename = dialog.open();
+    if (Utils.isEmpty(filename)) {
+      return;
+    }
+    if (refuseExistingFile(filename)) {
+      return;
+    }
+    try {
+      ExplorerCreateUtils.createEmptyFile(filename);
+      refresh();
+      IHopFileTypeHandler handler =
+          dialog.getSelectedFileType().openFile(hopGui, filename, hopGui.getVariables());
+      if (handler != null) {
+        handler.updateGui();
+        hopGui.auditDelegate.writeLastOpenFiles();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          e);
+    }
+  }
+
   @GuiMenuElement(
       root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
@@ -3078,6 +3615,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       toolTip = "i18n::ExplorerPerspective.ToolbarElement.CreateFolder.Tooltip",
       image = "ui/images/folder-add.svg")
   public void createFolder() {
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return;
+    }
 
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length != 1) {
@@ -3103,6 +3643,27 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       newPath += folder;
       try {
         FileObject newFolder = HopVfs.getFileObject(newPath);
+        if (newFolder.exists()) {
+          // createFolder() silently does nothing for an existing folder and fails for an existing
+          // file, so tell the user rather than leaving them guessing.
+          //
+          MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+          box.setText(
+              BaseMessages.getString(PKG, "ExplorerPerspective.CreateFolder.AlreadyExists.Header"));
+          box.setMessage(
+              BaseMessages.getString(
+                  PKG,
+                  newFolder.isFolder()
+                      ? "ExplorerPerspective.CreateFolder.AlreadyExists.Message"
+                      : "ExplorerPerspective.CreateFolder.FileAlreadyExists.Message",
+                  folder,
+                  tif.path));
+          box.open();
+
+          // Select the existing folder so it's clear where it is.
+          selectInTree(newPath, false);
+          return;
+        }
         newFolder.createFolder();
 
         refresh();
@@ -3213,7 +3774,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       // which showed blank rows. Load real children first.
       ensureFolderLoaded(item);
     }
-    item.setExpanded(expand);
+    FolderTreeIcons.setExpanded(item, expand);
     TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expand);
 
     for (TreeItem childItem : item.getItems()) {
@@ -3242,15 +3803,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
     // Shortcut only fires when focus is in file explorer.
-    // Deleting is deliberately limited to a single file: the confirmation (and the reference
-    // check behind it) is written for one file at a time.
     //
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return;
+    }
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length != 1) {
+    if (selection == null || selection.length == 0) {
       return;
     }
 
-    deleteFile(selection[0]);
+    deleteFiles(selection);
   }
 
   @GuiMenuElement(
@@ -3268,6 +3830,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiKeyboardShortcut(key = SWT.F2)
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void renameFile() {
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return;
+    }
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length != 1) {
       return;
@@ -3517,7 +4082,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         setTreeItemData(rootItem, rootNode.getPath(), rootNode.getName(), fileType, 0, true, true);
 
         renderFilteredChildren(rootItem, rootNode, 0);
-        rootItem.setExpanded(true);
+        FolderTreeIcons.setExpanded(rootItem, true);
         TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
       } finally {
         tree.setRedraw(true);
@@ -3662,7 +4227,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (child.isFolder()) {
         renderFilteredChildren(childItem, child, depth + 1);
         if (childItem.getItemCount() > 0) {
-          childItem.setExpanded(true);
+          FolderTreeIcons.setExpanded(childItem, true);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, true);
         }
       }
@@ -3759,7 +4324,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     String[] treePath = ConstUi.getTreeStrings(folderItem);
     boolean wasExpanded = folderItem.getExpanded();
     if (wasExpanded) {
-      folderItem.setExpanded(false);
+      FolderTreeIcons.setExpanded(folderItem, false);
       // Collapse listener clears TreeMemory; put the remembered expand state back.
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, treePath, true);
     }
@@ -3883,39 +4448,66 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         listener.beforeRefresh();
       }
 
-      tree.setRedraw(false);
-      tree.removeAll();
-
-      // Add the root element...
-      //
-      TreeItem rootItem = new TreeItem(tree, SWT.NONE);
-      rootItem.setText(Const.NVL(rootName, ""));
-      IHopFileType fileType = getFileType(rootFolder, true);
-      setItemImage(rootItem, fileType);
-      callPaintListeners(tree, rootItem, rootFolder, rootName);
-      setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
-
-      // Paint the top level folder only
-      //
-      refreshFolder(rootItem, rootFolder, 0);
-
-      // Always expand root item when filtering
-      if (!Utils.isEmpty(filterText)) {
-        rootItem.setExpanded(true);
-        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
-      } else {
-        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
-
-        // When not filtering, use tree memory (but don't call it here as it will be called later)
-        // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
-        if (treeStateBeforeFilter == null) {
-          // Only restore from memory if we're not about to restore from saved state
-          rootItem.setExpanded(true);
-          restoreTreeItemExpandedFromMemory(rootItem);
+      // Preserve currently expanded items and selection before destroying tree items
+      List<String> selectedPaths = new ArrayList<>();
+      if (tree != null && !tree.isDisposed()) {
+        for (TreeItem selected : tree.getSelection()) {
+          TreeItemFolder tif = (TreeItemFolder) selected.getData();
+          if (tif != null && tif.path != null) {
+            selectedPaths.add(tif.path);
+          }
+        }
+        for (TreeItem item : tree.getItems()) {
+          rememberTreeExpandedState(item);
         }
       }
 
-      tree.setRedraw(true);
+      tree.setRedraw(false);
+      try {
+        tree.removeAll();
+
+        // Add the root element...
+        //
+        TreeItem rootItem = new TreeItem(tree, SWT.NONE);
+        rootItem.setText(Const.NVL(rootName, ""));
+        IHopFileType fileType = getFileType(rootFolder, true);
+        setItemImage(rootItem, fileType);
+        callPaintListeners(tree, rootItem, rootFolder, rootName);
+        setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
+
+        // Paint the top level folder only
+        //
+        refreshFolder(rootItem, rootFolder, 0);
+
+        // Always expand root item when filtering
+        if (!Utils.isEmpty(filterText)) {
+          FolderTreeIcons.setExpanded(rootItem, true);
+          TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+        } else {
+          TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+
+          // When not filtering, use tree memory (but don't call it here as it will be called later)
+          // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
+          if (treeStateBeforeFilter == null) {
+            // Only restore from memory if we're not about to restore from saved state
+            FolderTreeIcons.setExpanded(rootItem, true);
+            restoreTreeItemExpandedFromMemory(rootItem);
+          }
+        }
+
+        // Restore selection of previously selected items
+        for (String selectedPath : selectedPaths) {
+          selectInTree(selectedPath, false);
+        }
+        if (selectedPaths.isEmpty()) {
+          IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
+          if (activeHandler != null && !Utils.isEmpty(activeHandler.getFilename())) {
+            selectInTree(activeHandler.getFilename(), true);
+          }
+        }
+      } finally {
+        tree.setRedraw(true);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -3924,6 +4516,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           e);
     }
     updateSelection();
+  }
+
+  private void rememberTreeExpandedState(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+    if (item.getExpanded()) {
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
+    }
+    for (TreeItem child : item.getItems()) {
+      rememberTreeExpandedState(child);
+    }
   }
 
   @GuiToolbarElement(
@@ -3958,6 +4562,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   private void setItemImage(TreeItem treeItem, IHopFileType fileType) {
+    if (fileType instanceof FolderFileType) {
+      // Shared closed-folder image: FolderTreeIcons swaps it for the open one on expand.
+      treeItem.setImage(GuiResource.getInstance().getImageFolder());
+      return;
+    }
     Image image = typeImageMap.get(fileType.getName());
     if (image != null) {
       treeItem.setImage(image);
@@ -3984,21 +4593,22 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return folderFileType != null ? folderFileType : new FolderFileType();
     }
 
+    // Exact base-name types first (hop-env.yaml, Dockerfile, .gitignore, …) so a specialized
+    // handler can win over a generic extension such as *.yaml.
+    String baseName = HopFileTypeBase.extractBaseName(path);
+    if (!Utils.isEmpty(baseName)) {
+      IHopFileType byName = fileTypeByBaseName.get(baseName);
+      if (byName != null) {
+        return byName;
+      }
+    }
+
     // Fast path: extension map (most project files)
     String extension = HopFileTypeBase.extractExtension(path);
     if (!Utils.isEmpty(extension)) {
       IHopFileType byExt = fileTypeByExtension.get(extension);
       if (byExt != null) {
         return byExt;
-      }
-    }
-
-    // Exact base-name types (Dockerfile, .gitignore, config, ...)
-    String baseName = HopFileTypeBase.extractBaseName(path);
-    if (!Utils.isEmpty(baseName)) {
-      IHopFileType byName = fileTypeByBaseName.get(baseName);
-      if (byName != null) {
-        return byName;
       }
     }
 
@@ -4202,7 +4812,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (expanded) {
         ensureFolderLoaded(item);
       }
-      item.setExpanded(expanded);
+      FolderTreeIcons.setExpanded(item, expanded);
     }
 
     for (TreeItem child : item.getItems()) {
@@ -4225,7 +4835,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         ensureFolderLoaded(item);
       }
 
-      item.setExpanded(wasExpanded);
+      FolderTreeIcons.setExpanded(item, wasExpanded);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, wasExpanded);
     }
 
@@ -4426,7 +5036,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     if (tif != null && tif.folder && isDescendant(tif.path, path)) {
       ensureFolderLoaded(item);
-      item.setExpanded(true);
+      FolderTreeIcons.setExpanded(item, true);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
       for (TreeItem child : item.getItems()) {
         TreeItem found = locateTreeItem(child, path);
@@ -4469,16 +5079,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;
     boolean openSupported = tif != null && (tif.folder || tif.fileType.supportsOpening());
+    boolean canWrite = HopSecurity.allows(Permission.EXPLORER_WRITE);
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, isFolderSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, isFolderSelected && canWrite);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, openSupported);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null && canWrite);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null && canWrite);
 
-    menuWidgets.enableMenuItem(CONTEXT_MENU_CREATE_FOLDER, isFolderSelected);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_CREATE_FOLDER, isFolderSelected && canWrite);
     menuWidgets.enableMenuItem(CONTEXT_MENU_OPEN, openSupported);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_DELETE, tif != null);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_RENAME, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_DELETE, tif != null && canWrite);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_RENAME, tif != null && canWrite);
     menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_NAME, tif != null);
     menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_PATH, tif != null);
 
@@ -4626,7 +5237,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
-    activeHandler.updateGui();
+    // Under Hop Web, CTabItem.setControl can fire focus/selection before tab data is set
+    // (plugin file openers, first tab, etc.). Avoid NPE during that race.
+    if (activeHandler != null) {
+      activeHandler.updateGui();
+    }
   }
 
   /** Notify the zoom handler when tab is switched (for web/RAP) */
@@ -4649,7 +5264,44 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         CanvasZoomHelper.notifyCanvasReady(zoomHandler);
       }
       CanvasSvgHelper.notifyCanvasReady(workflowGraph.getCanvas());
+    } else if (activeHandler instanceof HopGuiAbstractGraph abstractGraph) {
+      // Plugin model graphs (Data Vault, Business Vault, dimensional, source model, …)
+      // each have their own Hop Web SVG renderer and zoom remotes; refresh on tab switch.
+      Object zoomHandler = getModelGraphZoomHandler(abstractGraph);
+      if (zoomHandler != null) {
+        CanvasZoomHelper.notifyCanvasReady(zoomHandler);
+      }
+      CanvasSvgHelper.notifyCanvasReady(abstractGraph.getCanvas());
+      if (!abstractGraph.isDisposed()) {
+        abstractGraph.redraw();
+      }
     }
+  }
+
+  /**
+   * Model graphs store the RAP zoom handler as a private/protected field (or getter). Resolve via
+   * reflection so Explorer does not depend on hop-datavault types.
+   */
+  private static Object getModelGraphZoomHandler(HopGuiAbstractGraph graph) {
+    if (graph == null) {
+      return null;
+    }
+    try {
+      return graph.getClass().getMethod("getCanvasZoomHandler").invoke(graph);
+    } catch (ReflectiveOperationException ignored) {
+      // fall through
+    }
+    Class<?> type = graph.getClass();
+    while (type != null && type != Object.class) {
+      try {
+        var field = type.getDeclaredField("canvasZoomHandler");
+        field.setAccessible(true);
+        return field.get(graph);
+      } catch (ReflectiveOperationException ignored) {
+        type = type.getSuperclass();
+      }
+    }
+    return null;
   }
 
   /**
@@ -4722,23 +5374,44 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Split the tab's folder to the right and move the tab into the new pane. */
   private void splitOrMoveTab(CTabItem tab) {
-    CTabFolder sourceFolder = tab.getParent();
+    splitAndMoveTab(tab, SWT.HORIZONTAL, true);
+  }
 
-    CTabFolder targetFolder = splitFolder(sourceFolder, SWT.HORIZONTAL, true);
+  private void splitAndMoveTab(CTabItem tab, int orientation, boolean after) {
+    if (tab == null || tab.isDisposed()) {
+      return;
+    }
+    CTabFolder sourceFolder = tab.getParent();
+    CTabFolder targetFolder = splitFolder(sourceFolder, orientation, after);
+    joinTabToFolder(tab, targetFolder);
+  }
+
+  private void joinTabToFolder(CTabItem tab, CTabFolder targetFolder) {
+    if (tab == null || tab.isDisposed() || targetFolder == null || targetFolder.isDisposed()) {
+      return;
+    }
+    CTabFolder sourceFolder = tab.getParent();
 
     moveTabToFolder(tab, targetFolder);
     targetFolder.setSelection(targetFolder.getItemCount() - 1);
     activeTabFolder = targetFolder;
 
-    // If the source pane emptied out (shouldn't normally happen, the menu requires >1 tab),
-    // collapse.
-    collapseFolder(sourceFolder);
+    reclaimFolder(sourceFolder);
 
-    // Match what addPipeline/addWorkflow do after setSelection: give focus to the moved tab's
-    // control and refresh the GUI so toolbar/menu state is up to date.
+    if (sourceFolder != null && !sourceFolder.isDisposed()) {
+      sourceFolder.layout(true, true);
+    }
+    if (!targetFolder.isDisposed()) {
+      targetFolder.layout(true, true);
+    }
+
     CTabItem sel = targetFolder.getSelection();
     if (sel != null && sel.getControl() != null && !sel.getControl().isDisposed()) {
       sel.getControl().setFocus();
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      notifyZoomHandlerForActiveTab();
+      updateWebUrlForActiveTab();
     }
     updateGui();
   }
@@ -4746,7 +5419,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public void onTabMovedBetweenFolders(CTabFolder sourceFolder, CTabFolder targetFolder) {
     activeTabFolder = targetFolder;
-    reclaimFolder(sourceFolder);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // A drop that empties the source pane wants to collapse it, but we are still inside the drop
+      // handler of the target pane's drag-and-drop request. Disposing the source pane (and with it
+      // its drag source) now makes RAP render a disposed widget at the end of that same request -
+      // "Widget is disposed". Collapse it on the next tick, once the drop request is done. The
+      // desktop disposes in place: native DnD does not revisit the source pane after the drop.
+      CTabFolder folderToReclaim = sourceFolder;
+      hopGui.getDisplay().asyncExec(() -> reclaimFolder(folderToReclaim));
+      notifyZoomHandlerForActiveTab();
+      updateWebUrlForActiveTab();
+    } else {
+      reclaimFolder(sourceFolder);
+    }
   }
 
   @Override
@@ -4754,6 +5439,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (isEditorTabFolder(folder)) {
       activeTabFolder = folder;
     }
+  }
+
+  private CTabItem draggedTabItem;
+
+  @Override
+  public void setDraggedTabItem(CTabItem tabItem) {
+    this.draggedTabItem = tabItem;
+  }
+
+  @Override
+  public CTabItem getDraggedTabItem() {
+    return draggedTabItem;
   }
 
   @Override
@@ -4824,7 +5521,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     List<CTabFolder> docked = getDockedTabFolders();
-    CTabFolder target = docked.isEmpty() ? null : docked.get(0);
+    CTabFolder target = docked.isEmpty() ? null : docked.getFirst();
     if (target != null) {
       for (CTabItem item : detached.getItems()) {
         moveTabToFolder(item, target);
@@ -4844,7 +5541,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     detachedFolders.remove(folder);
     if (activeTabFolder == folder) {
       List<CTabFolder> docked = getDockedTabFolders();
-      activeTabFolder = docked.isEmpty() ? null : docked.get(0);
+      activeTabFolder = docked.isEmpty() ? null : docked.getFirst();
     }
     Shell shell = folder.getShell();
     if (shell != null && !shell.isDisposed()) {
@@ -4992,7 +5689,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     root.setLayoutData(new FormDataBuilder().fullSize().result());
     editorRoot = root;
     List<CTabFolder> leaves = getDockedTabFolders();
-    activeTabFolder = leaves.isEmpty() ? null : leaves.get(0);
+    activeTabFolder = leaves.isEmpty() ? null : leaves.getFirst();
     tabFolderWrapper.layout(true, true);
   }
 

@@ -163,19 +163,6 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     jsScripts.add(script);
   }
 
-  public ScriptValuesMeta(ScriptValuesMeta m) {
-    this();
-    this.optimizationLevel = m.optimizationLevel;
-    this.languageVersion = m.languageVersion;
-    m.jsScripts.forEach(s -> this.jsScripts.add(new ScriptValuesScript(s)));
-    m.scriptFields.forEach(f -> scriptFields.add(new ScriptField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new ScriptValuesMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,
@@ -291,10 +278,12 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     String strActiveEndScript = "";
 
     // Building the Scripts
+    boolean transformScriptFound = false;
     if (!jsScripts.isEmpty()) {
       for (ScriptValuesScript jsScript : jsScripts) {
         if (jsScript.isTransformScript()) {
           strActiveScript = jsScript.getScript();
+          transformScriptFound = true;
         } else if (jsScript.isStartScript()) {
           strActiveStartScriptName = jsScript.getName();
           strActiveStartScript = jsScript.getScript();
@@ -303,6 +292,17 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
           strActiveEndScript = jsScript.getScript();
         }
       }
+    }
+
+    // A transform script is what gets executed for every row. Without one the transform quietly
+    // does nothing at all, so report it here instead of letting it slip through unnoticed.
+    //
+    if (!transformScriptFound) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ScriptValuesMetaMod.CheckResult.NoTransformScript"),
+              transformMeta));
     }
 
     if (prev != null && !strActiveScript.isEmpty()) {

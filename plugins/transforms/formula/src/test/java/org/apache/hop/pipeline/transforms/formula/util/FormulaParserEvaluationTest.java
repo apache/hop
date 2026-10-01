@@ -19,18 +19,26 @@ package org.apache.hop.pipeline.transforms.formula.util;
 
 import static org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtractor.getFormulaFieldList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
 import org.apache.hop.pipeline.transforms.formula.FormulaPoi;
@@ -114,6 +122,57 @@ class FormulaParserEvaluationTest {
 
     assertEquals(CellType.BOOLEAN, result.getCellType());
     assertTrue(result.getBooleanValue());
+  }
+
+  @Test
+  void dateFieldOnTheExcelEpochIsEvaluated() throws Exception {
+    // 1899-12-31 is the oldest representable date: it is Excel date serial number 0.
+    CellValue result =
+        evaluate(List.of(field(new ValueMetaDate("start"), date(1899, 12, 31))), "[start]", false);
+
+    assertEquals(CellType.NUMERIC, result.getCellType());
+    assertEquals(0.0, result.getNumberValue());
+  }
+
+  @Test
+  void dateFieldBeforeTheExcelEpochIsRejected() {
+    HopValueException e =
+        assertThrows(
+            HopValueException.class,
+            () ->
+                evaluate(
+                    List.of(field(new ValueMetaDate("start"), date(1800, 1, 1))),
+                    "IF(1=2, DATE(2000,1,1), [start])",
+                    false));
+
+    assertTrue(e.getMessage().contains("start"), e.getMessage());
+    assertTrue(e.getMessage().contains("1899-12-31"), e.getMessage());
+  }
+
+  @Test
+  void timestampFieldBeforeTheExcelEpochIsRejected() {
+    Timestamp timestamp = new Timestamp(date(1750, 6, 15).getTime());
+
+    HopValueException e =
+        assertThrows(
+            HopValueException.class,
+            () ->
+                evaluate(
+                    List.of(field(new ValueMetaTimestamp("start"), timestamp)),
+                    "[start] + 1",
+                    false));
+
+    assertTrue(e.getMessage().contains("start"), e.getMessage());
+  }
+
+  @Test
+  void nullDateFieldIsNotRejected() throws Exception {
+    CellValue result =
+        evaluate(
+            List.of(field(new ValueMetaDate("start"), null)), "IF(ISBLANK([start]), 1, 0)", false);
+
+    assertEquals(CellType.NUMERIC, result.getCellType());
+    assertEquals(1.0, result.getNumberValue());
   }
 
   @Test
@@ -202,6 +261,12 @@ class FormulaParserEvaluationTest {
 
   private static FieldBinding field(IValueMeta meta, Object value) {
     return new FieldBinding(meta, value);
+  }
+
+  /** POI converts dates in the default time zone, so build them in the default zone as well. */
+  private static Date date(int year, int month, int day) {
+    return Date.from(
+        LocalDate.of(year, month, day).atStartOfDay(ZoneId.systemDefault()).toInstant());
   }
 
   private record FieldBinding(IValueMeta meta, Object value) {}

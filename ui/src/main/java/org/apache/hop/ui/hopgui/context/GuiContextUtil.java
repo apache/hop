@@ -27,6 +27,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.security.ActionPermissionMapper;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -67,11 +68,38 @@ public class GuiContextUtil {
   public final List<GuiAction> filterActions(List<GuiAction> guiActions, GuiActionType actionType) {
     List<GuiAction> filtered = new ArrayList<>();
     for (GuiAction guiAction : guiActions) {
-      if (guiAction.getType().equals(actionType)) {
+      if (guiAction.getType().equals(actionType) && isActionAllowed(guiAction)) {
         filtered.add(guiAction);
       }
     }
     return filtered;
+  }
+
+  /**
+   * Drop actions the current session is not allowed to perform (Hop Web RBAC). Unrestricted
+   * sessions keep every action.
+   *
+   * @param actions actions to filter
+   * @return new list containing only allowed actions
+   */
+  public final List<GuiAction> filterAllowedActions(List<GuiAction> actions) {
+    if (actions == null || actions.isEmpty()) {
+      return actions == null ? new ArrayList<>() : actions;
+    }
+    List<GuiAction> filtered = new ArrayList<>(actions.size());
+    for (GuiAction action : actions) {
+      if (isActionAllowed(action)) {
+        filtered.add(action);
+      }
+    }
+    return filtered;
+  }
+
+  private static boolean isActionAllowed(GuiAction action) {
+    if (action == null) {
+      return true;
+    }
+    return ActionPermissionMapper.allowsGuiAction(action);
   }
 
   /**
@@ -146,7 +174,7 @@ public class GuiContextUtil {
    */
   public synchronized boolean handleActionSelection(
       Shell parent, String message, Point clickLocation, IGuiContextHandler contextHandler) {
-    List<GuiAction> actions = contextHandler.getSupportedActions();
+    List<GuiAction> actions = filterAllowedActions(contextHandler.getSupportedActions());
     if (actions.isEmpty()) {
       return false;
     }
@@ -170,7 +198,7 @@ public class GuiContextUtil {
                 clickLocation,
                 actions,
                 contextHandler.getContextId(),
-                contextHandler::getSupportedActions);
+                () -> filterAllowedActions(contextHandler.getSupportedActions()));
         shellDialogMap.put(parent.getText(), contextDialog);
         GuiAction selectedAction = contextDialog.open();
         shellDialogMap.remove(parent.getText());

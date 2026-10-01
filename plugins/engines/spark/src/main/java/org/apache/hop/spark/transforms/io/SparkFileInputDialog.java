@@ -95,15 +95,14 @@ public class SparkFileInputDialog extends BaseTransformDialog {
     fdlTransformName.top = new FormAttachment(0, margin);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    createTransformNameControl(shell, fdTransformName);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
     Control last = wTransformName;
 
     wFilePath = labeledTextVar(lsMod, middle, margin, last, "SparkFileInputDialog.FilePath");

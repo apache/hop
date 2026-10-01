@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -84,6 +86,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
+import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
@@ -173,11 +176,16 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private Dataset<Row> resultDataset;
   private Thread sparkThread;
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkNativeMetricsListener metricsListener;
   private SparkExecutionDataAccumulator sampleDataAccumulator;
   private Timer metricsRefreshTimer;
 
   /** Execution information location from the run configuration (optional). */
   private ExecutionInfoLocation executionInfoLocation;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   private Timer executionInfoTimer;
   private volatile boolean executionInfoClosed;
@@ -296,6 +304,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       metricsAccumulator = new SparkTransformMetricsAccumulator();
       sparkSession.sparkContext().register(metricsAccumulator, "hop-transform-metrics");
       converter.setMetricsAccumulator(metricsAccumulator);
+      // Native Dataset stages: Spark's own SQL metrics → same accumulator, via a listener
+      metricsListener = new SparkNativeMetricsListener(metricsAccumulator);
+      metricsListener.addTo(sparkSession.sparkContext());
+      converter.setMetricsListener(metricsListener);
       sampleDataAccumulator = new SparkExecutionDataAccumulator();
       sparkSession.sparkContext().register(sampleDataAccumulator, "hop-execution-sample-data");
       converter.setSampleDataAccumulator(sampleDataAccumulator);
@@ -350,6 +362,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   }
                   ExecutorUtil.cleanup(metricsRefreshTimer);
                   try {
+                    if (metricsListener != null && sparkSession != null) {
+                      // Drain the listener bus so the last task events are in the accumulator
+                      metricsListener.flush(sparkSession.sparkContext(), 5000L);
+                    }
                     populateEngineMetrics();
                   } catch (Exception emEx) {
                     logChannel.logError("Error populating final engine metrics", emEx);
@@ -604,11 +620,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               updatePipelineState(iLocation);
             } catch (Exception e) {
               if (logChannel != null) {
-                logChannel.logBasic(
+                logChannel.logError(
                     "Warning: unable to register execution info at location "
                         + executionInfoLocation.getName()
-                        + " (non-fatal): "
-                        + e.getMessage());
+                        + " (non-fatal)",
+                    e);
               }
             }
           }
@@ -617,12 +633,24 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         interval);
   }
 
+  /**
+   * Lines written since the previous tick. A full snapshot ({@code -1}) would be appended on top of
+   * the lines already stored.
+   */
+  private ExecutionState capturePipelineExecutionState() {
+    ExecutionState executionState =
+        ExecutionStateBuilder.fromExecutor(this, executionInfoLastLogLineNr.get()).build();
+    if (executionState.getLastLogLineNr() != null) {
+      executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
+    }
+    return executionState;
+  }
+
   protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
     // Register sample rows collected on executors before updating parent/transform state
     registerSampleDataFromExecutors(iLocation);
 
-    ExecutionState executionState =
-        ExecutionStateBuilder.fromExecutor(SparkPipelineEngine.this, -1).build();
+    ExecutionState executionState = capturePipelineExecutionState();
     iLocation.updateExecutionState(executionState);
 
     // Transform Execution + state nodes under the parent pipeline (Beam does the same from workers;
@@ -779,8 +807,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       // Final sample flush from executors (after jobs complete, accumulator is fully merged)
       registerSampleDataFromExecutors(iLocation);
 
-      ExecutionState executionState =
-          ExecutionStateBuilder.fromExecutor(SparkPipelineEngine.this, -1).build();
+      ExecutionState executionState = capturePipelineExecutionState();
       iLocation.updateExecutionState(executionState);
 
       for (IEngineComponent component : getComponents()) {
@@ -1207,6 +1234,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   public void cleanup() {
     ExecutorUtil.cleanup(metricsRefreshTimer);
     ExecutorUtil.cleanup(executionInfoTimer);
+    if (sparkSession != null && metricsListener != null) {
+      // Shared / nested sessions keep running: never leave a stale listener behind
+      metricsListener.removeFrom(sparkSession.sparkContext());
+      metricsListener = null;
+    }
     if (sparkSession != null) {
       try {
         // Only stop sessions this engine created. Nested Pipeline Executor children and

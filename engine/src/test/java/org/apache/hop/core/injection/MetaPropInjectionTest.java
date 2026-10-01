@@ -28,6 +28,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.injection.bean.BeanLevelInfo;
+import org.apache.hop.core.injection.metadata.PrefixedTwinParent;
 import org.apache.hop.core.injection.metadata.PropBeanChild;
 import org.apache.hop.core.injection.metadata.PropBeanGrandChild;
 import org.apache.hop.core.injection.metadata.PropBeanListChild;
@@ -236,5 +237,45 @@ class MetaPropInjectionTest {
     assertEquals(new PropBeanListChild("f1_1", "f2_1"), parent.getChildren().get(0));
     assertEquals(new PropBeanListChild("f1_2", "f2_2"), parent.getChildren().get(1));
     assertEquals(new PropBeanListChild("f1_3", "f2_3"), parent.getChildren().get(2));
+  }
+
+  @Test
+  void injectionKeyPrefixCreatesUniqueKeysAndInjectsIndependently() throws Exception {
+    BeanInjectionInfo<PrefixedTwinParent> info = new BeanInjectionInfo<>(PrefixedTwinParent.class);
+
+    assertNotNull(info.getProperties().get("LEFT_NAME"));
+    assertNotNull(info.getProperties().get("RIGHT_NAME"));
+    assertNotNull(info.getProperties().get("LEFT_VALUE"));
+    assertNotNull(info.getProperties().get("RIGHT_VALUE"));
+    assertNull(info.getProperties().get("NAME"));
+    assertEquals("LEFT_ITEMS", info.getProperties().get("LEFT_VALUE").getGroupKey());
+    assertEquals("RIGHT_ITEMS", info.getProperties().get("RIGHT_VALUE").getGroupKey());
+
+    PrefixedTwinParent parent = new PrefixedTwinParent();
+    BeanInjector<PrefixedTwinParent> injector =
+        new BeanInjector<>(info, new MemoryMetadataProvider());
+
+    IRowMeta nameMeta = new RowMetaBuilder().addString("name").build();
+    injector.setProperty(
+        parent, "LEFT_NAME", List.of(new RowMetaAndData(nameMeta, "west")), "name");
+    injector.setProperty(
+        parent, "RIGHT_NAME", List.of(new RowMetaAndData(nameMeta, "east")), "name");
+
+    IRowMeta valueMeta = new RowMetaBuilder().addString("value").build();
+    injector.setProperty(
+        parent,
+        "LEFT_VALUE",
+        List.of(new RowMetaAndData(valueMeta, "l1"), new RowMetaAndData(valueMeta, "l2")),
+        "value");
+    injector.setProperty(
+        parent, "RIGHT_VALUE", List.of(new RowMetaAndData(valueMeta, "r1")), "value");
+
+    assertEquals("west", parent.getLeft().getName());
+    assertEquals("east", parent.getRight().getName());
+    assertEquals(2, parent.getLeft().getItems().size());
+    assertEquals("l1", parent.getLeft().getItems().get(0).getValue());
+    assertEquals("l2", parent.getLeft().getItems().get(1).getValue());
+    assertEquals(1, parent.getRight().getItems().size());
+    assertEquals("r1", parent.getRight().getItems().get(0).getValue());
   }
 }

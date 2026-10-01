@@ -75,6 +75,16 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String name,

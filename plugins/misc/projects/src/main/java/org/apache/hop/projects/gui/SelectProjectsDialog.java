@@ -34,6 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.security.ProjectsAccessControl;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -269,6 +270,10 @@ public class SelectProjectsDialog extends Dialog {
 
     wTable.table.removeAll();
     for (ProjectConfig projectConfig : projects) {
+      // Hide projects the current user is not allowed to open (Hop Web access control)
+      if (!ProjectsAccessControl.isProjectAllowed(projectConfig.getProjectName())) {
+        continue;
+      }
       if (!projectConfig.matchesFilter(filter)) {
         continue;
       }
@@ -345,8 +350,12 @@ public class SelectProjectsDialog extends Dialog {
     ProjectConfigDialog editDialog = new ProjectConfigDialog(shell, projectConfig, variables);
     if (editDialog.open()) {
       try {
-        config.updateProjectConfig(editDialog.getOriginalName(), projectConfig);
-        ProjectsConfigSingleton.saveConfig();
+        ProjectsUtil.saveProjectConfig(
+            editDialog.getOriginalName(),
+            projectConfig,
+            variables,
+            LogChannel.UI,
+            ProjectsConfigSingleton::saveConfig);
         refreshTable();
         selectProjectByName(projectConfig.getProjectName());
         updateButtons();

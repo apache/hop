@@ -67,17 +67,6 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction, ILega
     this("", "");
   }
 
-  public ActionAbort(ActionAbort other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.messageAbort = other.messageAbort;
-    this.messageLogLevel = other.messageLogLevel;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionAbort(this);
-  }
-
   /**
    * Backward compatible code.
    *

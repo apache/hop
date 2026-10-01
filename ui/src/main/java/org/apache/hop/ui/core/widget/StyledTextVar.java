@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
@@ -38,8 +39,8 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -58,12 +59,26 @@ public class StyledTextVar extends TextComposite {
 
   private boolean fullSelection = false;
 
+  /** True while undo or redo writes the text back, so that write is not stored as a new edit. */
+  private boolean applyingHistory;
+
   public StyledTextVar(IVariables variables, Composite parent, int style) {
-    this(variables, parent, style, true, false);
+    this(variables, parent, style, true, false, true, STYLE_TYPE_GENERIC);
+  }
+
+  /** Construct with a semantic {@code styleType} (applied before the toolbar is built). */
+  public StyledTextVar(IVariables variables, Composite parent, int style, String styleType) {
+    this(variables, parent, style, true, false, true, styleType);
   }
 
   public StyledTextVar(IVariables variables, Composite parent, int style, boolean varsSensitive) {
-    this(variables, parent, style, varsSensitive, false);
+    this(variables, parent, style, varsSensitive, false, true, STYLE_TYPE_GENERIC);
+  }
+
+  /** Construct with vars sensitivity and a semantic {@code styleType}. */
+  public StyledTextVar(
+      IVariables variables, Composite parent, int style, boolean varsSensitive, String styleType) {
+    this(variables, parent, style, varsSensitive, false, true, styleType);
   }
 
   public StyledTextVar(
@@ -72,22 +87,69 @@ public class StyledTextVar extends TextComposite {
       int style,
       boolean varsSensitive,
       boolean variableIconOnTop) {
+    this(variables, parent, style, varsSensitive, variableIconOnTop, true, STYLE_TYPE_GENERIC);
+  }
 
-    super(parent, SWT.NONE);
+  public StyledTextVar(
+      IVariables variables,
+      Composite parent,
+      int style,
+      boolean varsSensitive,
+      boolean variableIconOnTop,
+      String styleType) {
+    this(variables, parent, style, varsSensitive, variableIconOnTop, true, styleType);
+  }
+
+  public StyledTextVar(
+      IVariables variables,
+      Composite parent,
+      int style,
+      boolean varsSensitive,
+      boolean variableIconOnTop,
+      boolean toolbarEnabled) {
+    this(
+        variables,
+        parent,
+        style,
+        varsSensitive,
+        variableIconOnTop,
+        toolbarEnabled,
+        STYLE_TYPE_GENERIC);
+  }
+
+  public StyledTextVar(
+      IVariables variables,
+      Composite parent,
+      int style,
+      boolean varsSensitive,
+      boolean variableIconOnTop,
+      boolean toolbarEnabled,
+      String styleType) {
+
+    super(parent, SWT.NONE, toolbarEnabled, styleType);
 
     undoStack = new LinkedList<>();
     redoStack = new LinkedList<>();
 
     wText = new StyledText(this, style);
+    // This control handles Ctrl/Cmd+Z and Ctrl/Cmd+Y. The graph must not take those chords.
+    wText.setData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY, Boolean.TRUE);
     wPopupMenu = new Menu(parent.getShell(), SWT.POP_UP);
-    this.setLayout(new FormLayout());
 
     buildingStyledTextMenu(wPopupMenu);
 
     addUndoRedoSupport();
 
+    Control top = getTopControl();
+
     // Default layout without variables
-    wText.setLayoutData(new FormDataBuilder().top().left().right(100, 0).bottom(100, 0).result());
+    wText.setLayoutData(
+        new FormDataBuilder()
+            .top(top != null ? new FormAttachment(top, 0) : new FormAttachment(0, 0))
+            .left()
+            .right(100, 0)
+            .bottom(100, 0)
+            .result());
 
     // Special layout for variables decorator
     if (varsSensitive) {
@@ -97,7 +159,12 @@ public class StyledTextVar extends TextComposite {
         PropsUi.setLook(wIcon);
         wIcon.setToolTipText(BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         wIcon.setImage(GuiResource.getInstance().getImageVariableMini());
-        wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        if (top != null) {
+          wIcon.setLayoutData(
+              new FormDataBuilder().top(new FormAttachment(top, 0)).right(100, 0).result());
+        } else {
+          wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        }
         wText.setLayoutData(
             new FormDataBuilder()
                 .top(new FormAttachment(wIcon, 0, 0))
@@ -111,10 +178,15 @@ public class StyledTextVar extends TextComposite {
         controlDecoration.setToolTipText(
             BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         PropsUi.setLook(controlDecoration);
-        controlDecoration.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        if (top != null) {
+          controlDecoration.setLayoutData(
+              new FormDataBuilder().top(new FormAttachment(top, 0)).right(100, 0).result());
+        } else {
+          controlDecoration.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        }
         wText.setLayoutData(
             new FormDataBuilder()
-                .top()
+                .top(top != null ? new FormAttachment(top, 0) : new FormAttachment(0, 0))
                 .left()
                 .right(new FormAttachment(controlDecoration, 0, 0))
                 .bottom(100, 0)
@@ -261,8 +333,12 @@ public class StyledTextVar extends TextComposite {
   @Override
   public void setEnabled(boolean enabled) {
     wText.setEnabled(enabled);
+    if (getToolbar() != null && !getToolbar().isDisposed()) {
+      getToolbar().setEnabled(enabled);
+    }
     // StyledText component does not get the "disabled" look, so it needs to be applied explicitly
-    if (Display.getDefault() != null) {
+    Display display = wText.getDisplay();
+    if (display != null && !display.isDisposed()) {
       wText.setBackground(
           enabled
               ? GuiResource.getInstance().getColorWhite()
@@ -271,13 +347,27 @@ public class StyledTextVar extends TextComposite {
   }
 
   @Override
+  protected boolean canUndo() {
+    return !undoStack.isEmpty();
+  }
+
+  @Override
+  protected boolean canRedo() {
+    return !redoStack.isEmpty();
+  }
+
+  @Override
   public void cut() {
-    wText.cut();
+    if (!TextLineClipboard.copyOrCutCurrentLine(wText, true)) {
+      wText.cut();
+    }
   }
 
   @Override
   public void copy() {
-    wText.copy();
+    if (!TextLineClipboard.copyOrCutCurrentLine(wText, false)) {
+      wText.copy();
+    }
   }
 
   @Override
@@ -313,6 +403,10 @@ public class StyledTextVar extends TextComposite {
 
     wText.addExtendedModifyListener(
         event -> {
+          if (applyingHistory) {
+            fullSelection = false;
+            return;
+          }
           int eventLength = event.length;
           int eventStartPostition = event.start;
 
@@ -321,7 +415,10 @@ public class StyledTextVar extends TextComposite {
           String oldText = "";
           int eventType = -1;
 
-          if ((event.length != newText.length()) || (fullSelection)) {
+          // Whole-document setText() (load) has empty replacedText and is skipped. Replacing the
+          // current selection — including Format SQL after select-all — must still be undoable.
+          boolean wholeDocument = event.length == newText.length();
+          if (!wholeDocument || fullSelection || !Utils.isEmpty(repText)) {
             if (!Utils.isEmpty(repText)) {
               oldText =
                   newText.substring(0, event.start)
@@ -343,6 +440,8 @@ public class StyledTextVar extends TextComposite {
               if (undoStack.size() == MAX_STACK_SIZE) {
                 undoStack.remove(undoStack.size() - 1);
               }
+              // A new edit invalidates anything that could be redone.
+              redoStack.clear();
               undoStack.add(0, urs);
             }
           }
@@ -352,7 +451,11 @@ public class StyledTextVar extends TextComposite {
 
   @Override
   protected void undo() {
-    if (!undoStack.isEmpty()) {
+    if (undoStack.isEmpty()) {
+      return;
+    }
+    applyingHistory = true;
+    try {
       UndoRedoStack undo = undoStack.remove(0);
       if (redoStack.size() == MAX_STACK_SIZE) {
         redoStack.remove(redoStack.size() - 1);
@@ -376,12 +479,18 @@ public class StyledTextVar extends TextComposite {
         }
       }
       redoStack.add(0, redo);
+    } finally {
+      applyingHistory = false;
     }
   }
 
   @Override
   protected void redo() {
-    if (!redoStack.isEmpty()) {
+    if (redoStack.isEmpty()) {
+      return;
+    }
+    applyingHistory = true;
+    try {
       UndoRedoStack redo = redoStack.remove(0);
       if (undoStack.size() == MAX_STACK_SIZE) {
         undoStack.remove(undoStack.size() - 1);
@@ -405,6 +514,8 @@ public class StyledTextVar extends TextComposite {
         }
       }
       undoStack.add(0, undo);
+    } finally {
+      applyingHistory = false;
     }
   }
 }

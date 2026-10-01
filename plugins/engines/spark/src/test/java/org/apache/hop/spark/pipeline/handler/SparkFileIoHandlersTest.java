@@ -34,6 +34,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
@@ -98,10 +99,14 @@ class SparkFileIoHandlersTest {
 
     SparkTransformMetricsAccumulator metrics = new SparkTransformMetricsAccumulator();
     spark.sparkContext().register(metrics, "file-io-metrics");
+    // Native handlers anchor observe() nodes; the listener turns Spark's task metrics into slices
+    SparkNativeMetricsListener metricsListener = new SparkNativeMetricsListener(metrics);
+    metricsListener.addTo(spark.sparkContext());
 
     Map<String, Dataset<Row>> map = new HashMap<>();
     SparkFileInputHandler inputHandler = new SparkFileInputHandler();
     inputHandler.setMetricsAccumulator(metrics);
+    inputHandler.setMetricsListener(metricsListener);
     inputHandler.handleTransform(
         LogChannel.GENERAL,
         new Variables(),
@@ -121,6 +126,7 @@ class SparkFileIoHandlersTest {
     assertEquals(3, read.count());
     assertEquals(2, read.columns().length);
 
+    metricsListener.flush(spark.sparkContext(), 10_000L);
     long inputRows =
         metrics.value().values().stream()
             .filter(s -> "read".equals(s.getTransformName()))
@@ -142,6 +148,7 @@ class SparkFileIoHandlersTest {
 
     SparkFileOutputHandler outputHandler = new SparkFileOutputHandler();
     outputHandler.setMetricsAccumulator(metrics);
+    outputHandler.setMetricsListener(metricsListener);
     outputHandler.handleTransform(
         LogChannel.GENERAL,
         new Variables(),
@@ -161,6 +168,7 @@ class SparkFileIoHandlersTest {
     assertEquals(0, map.get("write").count());
     assertTrue(Files.exists(outDir));
 
+    metricsListener.flush(spark.sparkContext(), 10_000L);
     long outputRows =
         metrics.value().values().stream()
             .filter(s -> "write".equals(s.getTransformName()))

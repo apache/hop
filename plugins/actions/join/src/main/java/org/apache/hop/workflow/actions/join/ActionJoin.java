@@ -17,15 +17,21 @@
 
 package org.apache.hop.workflow.actions.join;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.apache.commons.lang3.ThreadUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -56,11 +62,6 @@ public class ActionJoin extends ActionBase {
     super(other.getName(), other.getDescription(), other.getPluginId());
   }
 
-  @Override
-  public Object clone() {
-    return new ActionJoin(this);
-  }
-
   /**
    * Execute this action and return the result. In this case it means, just set the result boolean
    * in the Result class.
@@ -71,39 +72,46 @@ public class ActionJoin extends ActionBase {
   @Override
   public Result execute(Result result, int nr) {
     try {
-
       // Find previous actions to join
       List<ActionMeta> prevActions = getPreviousAction(this, new ArrayList<>(), false);
 
-      var workflowTracker = this.parentWorkflow.getWorkflowTracker();
       while (!parentWorkflow.isStopped()) {
-        Thread.sleep(500L);
+        ThreadUtils.sleep(Duration.ofMillis(500L));
         boolean completed = true;
         boolean success = true;
         int errors = 0;
 
-        // Checks if all previous actions have completed successfully
+        // Checks if all previous actions have completed, or can never run
         for (ActionMeta actionMeta : prevActions) {
-          var tracker = workflowTracker.findWorkflowTracker(actionMeta);
-          if (tracker != null) {
-            Result actionResult = tracker.getActionResult().getResult();
-            if (actionResult == null) {
-              completed = false;
-            } else if (!actionResult.isResult()) {
+          Result actionResult = getFinishedActionResult(actionMeta);
+          if (actionResult != null) {
+            if (!actionResult.isResult()) {
               WorkflowHopMeta hopMeta = findWorkflowHop(actionMeta);
               // If one previous action has failure and the hop is true evaluation, repeat failure
               // to the join action
-              if (!hopMeta.isUnconditional() && hopMeta.isEvaluation()) {
+              if (hopMeta != null && !hopMeta.isUnconditional() && hopMeta.isEvaluation()) {
                 success = false;
                 errors++;
               }
+            }
+          } else if (willNeverExecute(actionMeta, new HashSet<>())) {
+            // Predecessor was skipped because an upstream hop was not followed (for example a
+            // failed action with only a success hop toward this branch). Do not wait forever.
+            if (isUnreachableBecauseOfFailure(actionMeta, new HashSet<>())) {
+              success = false;
+              errors++;
+            }
+            if (isBasic()) {
+              logBasic(
+                  BaseMessages.getString(
+                      PKG, "ActionJoin.Log.PredecessorUnreachable", actionMeta.getName()));
             }
           } else {
             completed = false;
           }
         }
 
-        // If all previous actions have a result
+        // If all previous actions have a result or can never execute
         if (completed) {
           result.setResult(success);
           result.setNrErrors(errors);
@@ -111,6 +119,10 @@ public class ActionJoin extends ActionBase {
         }
       }
     } catch (Exception e) {
+      if (e instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
+
       result.setNrErrors(1);
       result.setResult(false);
       logError(BaseMessages.getString(PKG, "ActionJoin.Error.CouldNotExecute") + e);
@@ -173,6 +185,119 @@ public class ActionJoin extends ActionBase {
       }
     }
     return null;
+  }
+
+  /**
+   * Result of a finished action, or {@code null} if it has not started or is still running. Matches
+   * {@link org.apache.hop.workflow.Workflow} hop following: a tracker with a null result is the
+   * "started" marker, not a completed execution.
+   */
+  private Result getFinishedActionResult(ActionMeta actionMeta) {
+    WorkflowTracker<?> tracker =
+        parentWorkflow.getWorkflowTracker().findWorkflowTracker(actionMeta);
+    if (tracker == null) {
+      return null;
+    }
+
+    ActionResult actionResult = tracker.getActionResult();
+    if (actionResult == null) {
+      return null;
+    }
+    return actionResult.getResult();
+  }
+
+  /**
+   * Same condition as {@link org.apache.hop.workflow.Workflow} when deciding whether to execute the
+   * next action after {@code fromAction} finished with {@code fromResult}.
+   */
+  private static boolean isHopFollowed(
+      WorkflowHopMeta hop, ActionMeta fromAction, Result fromResult) {
+    return hop.isUnconditional()
+        || (fromAction.isEvaluation() && hop.isEvaluation() == fromResult.isResult());
+  }
+
+  /**
+   * True when {@code actionMeta} has not started and every enabled incoming hop is dead: the
+   * previous action finished without following the hop, or that previous action itself will never
+   * execute. Conservatively returns false if a predecessor is still running or is about to start.
+   */
+  private boolean willNeverExecute(ActionMeta actionMeta, Set<ActionMeta> visiting) {
+    if (getFinishedActionResult(actionMeta) != null) {
+      return false;
+    }
+    if (parentWorkflow.getWorkflowTracker().findWorkflowTracker(actionMeta) != null
+        || actionMeta.isStart()) {
+      return false;
+    }
+    if (!visiting.add(actionMeta)) {
+      return false;
+    }
+
+    List<WorkflowHopMeta> incoming = findIncomingHops(actionMeta);
+    if (incoming.isEmpty()) {
+      return true;
+    }
+
+    for (WorkflowHopMeta hop : incoming) {
+      ActionMeta fromAction = hop.getFromAction();
+      if (fromAction == null) {
+        continue;
+      }
+
+      Result fromResult = getFinishedActionResult(fromAction);
+      if (fromResult != null) {
+        if (isHopFollowed(hop, fromAction, fromResult)) {
+          return false;
+        }
+      } else if (!willNeverExecute(fromAction, visiting)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * True when the action is unreachable because a success hop was not followed after a failure.
+   * False when it is unreachable because a failure hop was not followed after a success, so Join
+   * should not fail.
+   */
+  private boolean isUnreachableBecauseOfFailure(ActionMeta actionMeta, Set<ActionMeta> visiting) {
+    if (!visiting.add(actionMeta)) {
+      return false;
+    }
+    for (WorkflowHopMeta hop : findIncomingHops(actionMeta)) {
+      ActionMeta fromAction = hop.getFromAction();
+      if (fromAction == null) {
+        continue;
+      }
+      Result fromResult = getFinishedActionResult(fromAction);
+      if (fromResult != null) {
+        if (!isHopFollowed(hop, fromAction, fromResult)
+            && !fromResult.isResult()
+            && !hop.isUnconditional()
+            && hop.isEvaluation()) {
+          return true;
+        }
+      } else if (willNeverExecute(fromAction, new HashSet<>())
+          && isUnreachableBecauseOfFailure(fromAction, visiting)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<WorkflowHopMeta> findIncomingHops(ActionMeta toAction) {
+    List<WorkflowHopMeta> incoming = new ArrayList<>();
+    if (parentWorkflowMeta == null) {
+      return incoming;
+    }
+
+    for (WorkflowHopMeta hop : parentWorkflowMeta.getWorkflowHops()) {
+      if (hop.isEnabled() && hop.getToAction() != null && hop.getToAction().equals(toAction)) {
+        incoming.add(hop);
+      }
+    }
+    return incoming;
   }
 
   /** Find previous actions */

@@ -19,6 +19,8 @@ package org.apache.hop.core.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -39,6 +41,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner;
 import org.apache.hc.client5.http.protocol.RedirectStrategy;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
@@ -59,6 +62,10 @@ import org.apache.hop.core.logging.ILogChannel;
  * org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager Connection pool} of 200
  * connections. Maximum connections per one route is 100. Provides inner builder class for creating
  * {@link org.apache.hc.client5.http.classic.HttpClient HttpClients}.
+ *
+ * <p>Clients are built with {@code setConnectionManagerShared(true)} so that closing one client
+ * (transform dispose, dialog preview, try-with-resources) does not shut this process-wide pool down
+ * for every other caller. See <a href="https://github.com/apache/hop/issues/8160">HOP-8160</a>.
  */
 public class HttpClientManager {
   private static final int CONNECTIONS_PER_ROUTE = 100;
@@ -81,7 +88,10 @@ public class HttpClientManager {
   }
 
   public CloseableHttpClient createDefaultClient() {
-    return HttpClients.custom().setConnectionManager(manager).build();
+    return HttpClients.custom()
+        .setConnectionManager(manager)
+        .setConnectionManagerShared(true)
+        .build();
   }
 
   public HttpClientBuilderFacade createBuilder() {
@@ -94,6 +104,8 @@ public class HttpClientManager {
     private int connectionTimeout;
     private int socketTimeout;
     private HttpHost proxy;
+    private String nonProxyHosts;
+    private boolean systemProxy;
     private boolean ignoreSsl;
 
     public HttpClientBuilderFacade setConnectionTimeout(int connectionTimeout) {
@@ -106,14 +118,20 @@ public class HttpClientManager {
       return this;
     }
 
+    /**
+     * Adds credentials for one authentication scope. Call it more than once to serve several scopes
+     * from the same client -- a target server and a proxy, say, each keeping its own credentials
+     * rather than one pair being offered to whichever of them asks first.
+     */
     public HttpClientBuilderFacade setCredentials(
         String user, String password, AuthScope authScope) {
-      BasicCredentialsProvider provider = new BasicCredentialsProvider();
+      if (provider == null) {
+        provider = new BasicCredentialsProvider();
+      }
       char[] passwordChars = password != null ? password.toCharArray() : new char[0];
       UsernamePasswordCredentials credentials =
           new UsernamePasswordCredentials(user, passwordChars);
       provider.setCredentials(authScope, credentials);
-      this.provider = provider;
       return this;
     }
 
@@ -128,6 +146,26 @@ public class HttpClientManager {
 
     public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort, String scheme) {
       this.proxy = new HttpHost(scheme, proxyHost, proxyPort);
+      return this;
+    }
+
+    /**
+     * Target hosts that bypass the proxy, in JDK {@code http.nonProxyHosts} syntax. Only has an
+     * effect together with a proxy.
+     */
+    public HttpClientBuilderFacade setNonProxyHosts(String nonProxyHosts) {
+      this.nonProxyHosts = nonProxyHosts;
+      return this;
+    }
+
+    /**
+     * Without a proxy of its own, route through the JVM's {@link ProxySelector}: the {@code
+     * http.proxyHost} / {@code http.nonProxyHosts} system properties or {@code
+     * java.net.useSystemProxies}, as {@link java.net.URLConnection} does. Off by default, in which
+     * case a client without a proxy connects directly. A proxy set with {@code setProxy} wins.
+     */
+    public HttpClientBuilderFacade useSystemProxy(boolean systemProxy) {
+      this.systemProxy = systemProxy;
       return this;
     }
 
@@ -162,11 +200,14 @@ public class HttpClientManager {
           new BasicHttpClientConnectionManager(socketFactoryRegistry);
 
       httpClientBuilder.setConnectionManager(connectionManager);
+      // This manager is per-client, so the client should close it.
+      httpClientBuilder.setConnectionManagerShared(false);
     }
 
     public CloseableHttpClient build() {
       HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
       httpClientBuilder.setConnectionManager(manager);
+      httpClientBuilder.setConnectionManagerShared(true);
 
       RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
       if (socketTimeout > 0) {
@@ -175,10 +216,16 @@ public class HttpClientManager {
       if (connectionTimeout > 0) {
         requestConfigBuilder.setConnectTimeout(Timeout.ofMilliseconds(connectionTimeout));
       }
-      if (proxy != null) {
-        requestConfigBuilder.setProxy(proxy);
-      }
       httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
+
+      if (proxy != null) {
+        // A route planner rather than RequestConfig.setProxy(): a proxy set on the request config
+        // is returned for every target, so a bypass list could never be honoured.
+        httpClientBuilder.setRoutePlanner(new ProxyRoutePlanner(proxy, nonProxyHosts));
+      } else if (systemProxy) {
+        httpClientBuilder.setRoutePlanner(
+            new SystemDefaultRoutePlanner(ProxySelector.getDefault()));
+      }
 
       if (provider != null) {
         httpClientBuilder.setDefaultCredentialsProvider(provider);
@@ -192,6 +239,49 @@ public class HttpClientManager {
 
       return httpClientBuilder.build();
     }
+  }
+
+  /**
+   * Creates an {@link HttpHost} for the origin of the given URI.
+   *
+   * <p>{@link HttpHost#create(URI)} reads {@link URI#getHost()}, which is {@code null} whenever the
+   * authority is registry-based rather than server-based -- in practice because the host name
+   * contains an underscore. Such names are not strictly legal in DNS, but they are common on
+   * internal networks and resolve perfectly well, and for those URIs {@code getPort()} and {@code
+   * getUserInfo()} are unavailable too. So parse the authority instead of letting {@code
+   * HttpHost.create} fail with a NullPointerException.
+   */
+  public static HttpHost createHttpHost(URI uri) {
+    if (uri.getHost() != null) {
+      return new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
+    }
+
+    String authority = uri.getAuthority();
+    if (authority == null) {
+      throw new IllegalArgumentException("The URI does not specify a host: " + uri);
+    }
+
+    // Userinfo is not part of the origin, so drop it.
+    int at = authority.lastIndexOf('@');
+    String hostAndPort = at < 0 ? authority : authority.substring(at + 1);
+
+    String host = hostAndPort;
+    int port = -1;
+    int colon = hostAndPort.lastIndexOf(':');
+    // A colon inside an IPv6 literal is not a port separator.
+    if (colon > -1 && hostAndPort.indexOf(']') < colon) {
+      host = hostAndPort.substring(0, colon);
+      String portText = hostAndPort.substring(colon + 1);
+      if (!portText.isEmpty()) {
+        try {
+          port = Integer.parseInt(portText);
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("The URI does not specify a valid port: " + uri, e);
+        }
+      }
+    }
+
+    return new HttpHost(uri.getScheme(), host, port);
   }
 
   public static SSLContext getSslContextWithTrustStoreFile(

@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Blocking transform blocks all output until the very last row is received from the previous transform.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/blockingtransform.svg[Blocking transform Icon, role="image-doc-icon"] Blocking transform
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Blocking transform blocks all output until the very last row is received from the previous transform.
@@ -31,19 +29,6 @@ NOTE: the transform blocks until it gets the last row. It does *not* block until
 
 At that point, the last row is sent to the next transform or the complete input is sent off to the next transform.
 Use the Blocking transform for triggering plugins, stored procedures, Java scripts, ... or for synchronization purposes.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:cross.svg[Not Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 

@@ -103,7 +103,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
             BaseMessages.getString(
                 PKG,
                 "TableExists.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRowData)));
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {

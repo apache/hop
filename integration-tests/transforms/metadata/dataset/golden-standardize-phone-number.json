@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-standardize-phone-number.csv",
+  "name": "golden-standardize-phone-number",
+  "description": "Expected output for 0099-standardize-phone-number-edge-cases",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "CASE"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "E164_OUT"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "TYPE"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "VALID"
+    }
+  ],
+  "folder_name": ""
+}

@@ -19,8 +19,11 @@ package org.apache.hop.pipeline.transforms.filterrows;
 
 import static org.apache.hop.core.Condition.Function.EQUAL;
 import static org.apache.hop.core.Condition.Function.REGEXP;
+import static org.apache.hop.core.Condition.Function.SMALLER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -113,6 +116,123 @@ class FilterRowsTest {
     rowMeta.addValueMeta(new ValueMetaString("code"));
     assertTrue(runtimeCondition.evaluate(rowMeta, new Object[] {"Alice", "A-123"}));
     assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {"Alice", "B-123"}));
+  }
+
+  /**
+   * Regression for #7734: after init(), the engine must keep evaluating a private clone of the
+   * condition. Mutating shared transform metadata (as the GUI does when OK is pressed on a running
+   * pipeline) must not change routing for the active execution.
+   */
+  @Test
+  void runtimeConditionIsIsolatedFromMetadataMutationAfterInit() throws Exception {
+    Condition metadataCondition =
+        new Condition("name", EQUAL, null, new ValueMetaAndData("constant", "Alice"));
+    FilterRows transform = createTransform(metadataCondition);
+    FilterRowsMeta meta = transform.getMeta();
+
+    assertTrue(transform.init());
+    Condition runtimeCondition = transform.getData().condition;
+    assertNotNull(runtimeCondition);
+    assertNotSame(meta.getCondition(), runtimeCondition);
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    Object[] aliceRow = new Object[] {"Alice"};
+    Object[] bobRow = new Object[] {"Bob"};
+
+    assertTrue(runtimeCondition.evaluate(rowMeta, aliceRow));
+    assertFalse(runtimeCondition.evaluate(rowMeta, bobRow));
+
+    // Simulate a GUI edit while the pipeline is still running: replace the meta condition.
+    Condition editedCondition =
+        new Condition("name", EQUAL, null, new ValueMetaAndData("constant", "Bob"));
+    meta.setCondition(editedCondition);
+
+    assertNotSame(meta.getCondition(), runtimeCondition);
+    assertTrue(
+        runtimeCondition.evaluate(rowMeta, aliceRow),
+        "Runtime condition must keep the rule captured at init()");
+    assertFalse(runtimeCondition.evaluate(rowMeta, bobRow));
+    assertFalse(
+        meta.getCondition().evaluate(rowMeta, aliceRow),
+        "Metadata condition really changed to the edited rule");
+    assertTrue(meta.getCondition().evaluate(rowMeta, bobRow));
+  }
+
+  /**
+   * Same isolation guarantee for nested conditions: editing a child on the meta condition after
+   * init must not affect the runtime clone.
+   */
+  @Test
+  void nestedRuntimeConditionIsIsolatedFromMetadataMutationAfterInit() throws Exception {
+    Condition nameCondition =
+        new Condition("name", EQUAL, null, new ValueMetaAndData("constant", "Alice"));
+    Condition codeCondition =
+        new Condition("code", EQUAL, null, new ValueMetaAndData("constant", "A-1"));
+    Condition metadataCondition = new Condition();
+    metadataCondition.addCondition(nameCondition);
+    metadataCondition.addCondition(codeCondition);
+
+    FilterRows transform = createTransform(metadataCondition);
+    FilterRowsMeta meta = transform.getMeta();
+
+    assertTrue(transform.init());
+    Condition runtimeCondition = transform.getData().condition;
+    assertNotNull(runtimeCondition);
+    assertNotSame(meta.getCondition(), runtimeCondition);
+    assertNotSame(meta.getCondition().getCondition(0), runtimeCondition.getCondition(0));
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    rowMeta.addValueMeta(new ValueMetaString("code"));
+    Object[] matchingRow = new Object[] {"Alice", "A-1"};
+
+    assertTrue(runtimeCondition.evaluate(rowMeta, matchingRow));
+
+    // Mutate nested meta condition in place (also possible via shared Condition graphs).
+    meta.getCondition().getCondition(0).getRightValue().setText("Bob");
+    meta.getCondition().getCondition(0).clearFieldPositions();
+
+    assertTrue(
+        runtimeCondition.evaluate(rowMeta, matchingRow),
+        "Nested runtime condition must not observe meta mutations after init()");
+    assertEquals("Alice", runtimeCondition.getCondition(0).getRightValueString());
+    assertEquals("Bob", meta.getCondition().getCondition(0).getRightValueString());
+    assertFalse(meta.getCondition().evaluate(rowMeta, matchingRow));
+  }
+
+  /**
+   * Regression for #3051: a Date constant whose stored text is Hop's compatible format while the
+   * mask is the user format must still evaluate after init() clones and caches the condition.
+   */
+  @Test
+  void dateConstantWithLegacyCompatibleTextEvaluatesAfterInit() throws Exception {
+    Condition.CValue constant = new Condition.CValue();
+    constant.setName("constant");
+    constant.setType("Date");
+    constant.setText("2022/01/01 00:00:00.000");
+    constant.setMask("yyyy-MM-dd");
+    constant.setNullValue(false);
+    constant.setLength(-1);
+    constant.setPrecision(-1);
+
+    Condition metadataCondition = new Condition();
+    metadataCondition.setLeftValueName("value");
+    metadataCondition.setFunction(SMALLER);
+    metadataCondition.setRightValue(constant);
+
+    FilterRows transform = createTransform(metadataCondition);
+    assertTrue(transform.init());
+    Condition runtimeCondition = transform.getData().condition;
+
+    SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd");
+    iso.setLenient(false);
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaDate("value"));
+
+    assertTrue(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2021-12-31")}));
+    assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2022-01-01")}));
+    assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2022-01-02")}));
   }
 
   private static Stream<Arguments> variableValueTypes() throws Exception {

@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -654,7 +655,9 @@ public class ActionMoveFilesDialog extends ActionDialog {
     fdbDestinationFolder.top = new FormAttachment(wDestinationFile, 0);
     wbDestinationFolder.setLayoutData(fdbDestinationFolder);
 
-    wDestinationFolder = new TextVar(variables, wMoveToGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDestinationFolder =
+        new TextVar(variables, wMoveToGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FOLDER);
     PropsUi.setLook(wDestinationFolder);
     wDestinationFolder.addModifyListener(lsMod);
     FormData fdDestinationFolder = new FormData();

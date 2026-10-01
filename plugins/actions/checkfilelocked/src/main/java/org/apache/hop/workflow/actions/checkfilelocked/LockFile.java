@@ -52,6 +52,8 @@ public class LockFile {
       if (file.exists()) {
         dummyfile = HopVfs.getFileObject(filename, variables);
         // move file to itself!
+        // Not HopVfs.moveFile(): here the failing rename is the answer we came for, and its
+        // fallback would copy this file onto itself and then delete it.
         file.moveTo(dummyfile);
       }
     } catch (Exception e) {

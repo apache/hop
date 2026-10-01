@@ -87,11 +87,6 @@ public class BinaryFileOutputMeta
   }
 
   @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  @Override
   public void setDefault() {
     binaryField = null;
     filenameField = null;

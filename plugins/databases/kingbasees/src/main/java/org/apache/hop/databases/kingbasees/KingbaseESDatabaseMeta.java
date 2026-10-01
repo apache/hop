@@ -17,11 +17,15 @@
 
 package org.apache.hop.databases.kingbasees;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.ColumnTypeRules;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -29,9 +33,16 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "KINGBASEES",
     typeDescription = "KingbaseES",
-    documentationUrl = "/database/databases/kingbasees.html")
+    documentationUrl = "/database/databases/kingbasees.html",
+    classLoaderGroup = "kingbasees-db")
 @GuiPlugin(id = "GUI-KingbaseDatabaseMeta")
 public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** An integer with no declared length is a Long, not a floating point column. Issue #4174. */
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return List.of(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG);
+  }
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
@@ -173,7 +184,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -214,7 +225,8 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         CONST_ALTER_TABLE
             + tableName
             + " ADD COLUMN "
-            + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+            + getColumnDefinition(
+                v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
     return retval;
   }
 

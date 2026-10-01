@@ -366,7 +366,7 @@ class UserDefinedJavaClassMetaTest {
   void clone_copiesJavaTargetVersion() {
     UserDefinedJavaClassMeta original = new UserDefinedJavaClassMeta();
     original.setJavaTargetVersion(17);
-    UserDefinedJavaClassMeta copy = original.clone();
+    UserDefinedJavaClassMeta copy = (UserDefinedJavaClassMeta) original.clone();
 
     assertNotSame(original, copy);
     assertEquals(17, copy.getJavaTargetVersion());

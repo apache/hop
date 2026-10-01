@@ -68,8 +68,8 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
   }
 
   @Override
-  public Object clone() {
-    return new SystemDataMeta(this);
+  public boolean canStartWithoutInput() {
+    return true;
   }
 
   public SystemDataMeta(SystemDataMeta m) {
@@ -108,6 +108,7 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
             THIS_MONTH_END,
             NEXT_MONTH_START,
             NEXT_MONTH_END,
+            CREATED_DATE,
             MODIFIED_DATE,
             PREV_WEEK_START,
             PREV_WEEK_END,
@@ -140,6 +141,7 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
           break;
         case PIPELINE_NAME,
             FILENAME,
+            CREATED_USER,
             MODIFIED_USER,
             HOSTNAME,
             HOSTNAME_REAL,

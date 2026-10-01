@@ -55,12 +55,14 @@ public class SwtGc implements IGc {
    * its SWT {@link Image} bitmaps) that is never disposed — a severe handle leak on large graphs
    * (e.g. Data Vault models with many table icons redrawn while dragging).
    *
-   * <p>Keyed by SVG filename and dark-mode flag so theme changes get a correct rendering.
+   * <p>Keyed by Device (one Display per Hop Web session), then SVG filename and dark-mode flag. A
+   * process-wide cache would share (and dispose) session-unique SWT images.
    */
-  private static final Map<String, SwtUniversalImage> SVG_IMAGE_CACHE = new ConcurrentHashMap<>();
+  private static final Map<Device, Map<String, SwtUniversalImage>> SVG_IMAGE_CACHE_BY_DEVICE =
+      new ConcurrentHashMap<>();
 
-  private static final Object SVG_CACHE_HOOK_LOCK = new Object();
-  private static volatile boolean svgCacheDisposeHookRegistered;
+  private static final java.util.Set<Device> SVG_CACHE_DISPOSE_HOOKS =
+      ConcurrentHashMap.newKeySet();
 
   protected Color background;
 
@@ -231,6 +233,7 @@ public class SwtGc implements IGc {
       case UNCONDITIONAL_DISABLED -> GuiResource.getInstance().getSwtImageUnconditionalDisabled();
       case BUSY -> GuiResource.getInstance().getSwtImageBusy();
       case WAITING -> GuiResource.getInstance().getSwtImageWaiting();
+      case WARNING -> GuiResource.getInstance().getSwtImageWarning();
       case INJECT -> GuiResource.getInstance().getSwtImageInject();
       case ARROW_DEFAULT -> GuiResource.getInstance().getSwtImageArrowDefault();
       case ARROW_TRUE -> GuiResource.getInstance().getSwtImageArrowTrue();
@@ -565,34 +568,41 @@ public class SwtGc implements IGc {
     SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
     boolean darkMode = PropsUi.getInstance().isDarkMode();
     String cacheKey = svgFile.getFilename() + (darkMode ? "|dark" : "|light");
-    ensureSvgImageCacheDisposeHook(gc.getDevice());
-    return SVG_IMAGE_CACHE.computeIfAbsent(
-        cacheKey,
-        key -> new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()), false));
+    Device device = gc.getDevice();
+    ensureSvgImageCacheDisposeHook(device);
+    return SVG_IMAGE_CACHE_BY_DEVICE
+        .computeIfAbsent(device, d -> new ConcurrentHashMap<>())
+        .computeIfAbsent(
+            cacheKey,
+            key -> new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()), false));
   }
 
   private static void ensureSvgImageCacheDisposeHook(Device device) {
-    if (svgCacheDisposeHookRegistered || !(device instanceof Display display)) {
+    if (!(device instanceof Display display) || !SVG_CACHE_DISPOSE_HOOKS.add(device)) {
       return;
     }
-    synchronized (SVG_CACHE_HOOK_LOCK) {
-      if (svgCacheDisposeHookRegistered) {
-        return;
-      }
-      display.addListener(
-          SWT.Dispose,
-          event -> {
-            for (SwtUniversalImage image : SVG_IMAGE_CACHE.values()) {
-              try {
-                image.dispose();
-              } catch (Exception ignored) {
-                // best-effort cleanup at display shutdown
-              }
+    display.addListener(
+        SWT.Dispose,
+        event -> {
+          SVG_CACHE_DISPOSE_HOOKS.remove(device);
+          Map<String, SwtUniversalImage> cache = SVG_IMAGE_CACHE_BY_DEVICE.remove(device);
+          if (cache == null) {
+            return;
+          }
+          for (SwtUniversalImage image : cache.values()) {
+            try {
+              image.dispose();
+            } catch (Exception ignored) {
+              // best-effort cleanup at display shutdown
             }
-            SVG_IMAGE_CACHE.clear();
-          });
-      svgCacheDisposeHookRegistered = true;
-    }
+          }
+        });
+  }
+
+  /** Visible for tests: number of cached SVG images for a Device. */
+  static int cachedSvgCount(Device device) {
+    Map<String, SwtUniversalImage> cache = SVG_IMAGE_CACHE_BY_DEVICE.get(device);
+    return cache == null ? 0 : cache.size();
   }
 
   @Override
@@ -607,7 +617,17 @@ public class SwtGc implements IGc {
       }
       try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
         org.eclipse.swt.graphics.ImageData data = new org.eclipse.swt.graphics.ImageData(in);
-        Image img = new Image(gc.getDevice(), data);
+        Image img =
+            SwtUniversalImage.createDpiAwareImage(
+                gc.getDevice(),
+                zoom -> {
+                  if (zoom == 100) {
+                    return data;
+                  }
+                  int w = Math.max(1, data.width * zoom / 100);
+                  int h = Math.max(1, data.height * zoom / 100);
+                  return data.scaledTo(w, h);
+                });
         try {
           gc.drawImage(img, 0, 0, data.width, data.height, x, y, width, height);
         } finally {

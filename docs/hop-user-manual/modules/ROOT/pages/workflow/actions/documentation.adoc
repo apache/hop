@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: Build documentation of a Hop project
+:page-marketplace: hop-misc-documentation
 
 = Build documentation
 

@@ -17,27 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The AWS SQS reader transform enables you to receive messages from Amazon Web Services Simple Queue Service within an Apache Hop pipeline.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/aws-sqs.svg[AWS SQS reader, role="image-doc-icon"] AWS SQS reader
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The AWS SQS reader transform enables you to receive messages from Amazon Web Services Simple Queue Service within an Apache Hop pipeline.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Preconditions
 

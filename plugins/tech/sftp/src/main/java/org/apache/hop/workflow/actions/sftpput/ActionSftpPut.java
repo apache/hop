@@ -219,11 +219,6 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  @Override
-  public Object clone() {
-    return new ActionSftpPut(this);
-  }
-
   /** Whether this action gets its server settings from a named SFTP connection. */
   public boolean isUsingConnection() {
     return StringUtils.isNotEmpty(connection);
@@ -543,7 +538,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                           realDestinationFolder
                               + Const.FILE_SEPARATOR
                               + myFile.getName().getBaseName());
-                  myFile.moveTo(destination);
+                  HopVfs.moveFile(myFile, destination);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(

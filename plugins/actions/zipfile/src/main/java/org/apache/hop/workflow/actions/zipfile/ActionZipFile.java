@@ -166,12 +166,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    ActionZipFile je = (ActionZipFile) super.clone();
-    return je;
-  }
-
-  @Override
   public boolean isEvaluation() {
     return true;
   }
@@ -369,7 +363,12 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               // the zip file exists and user want to append
               // get a temp file
               fileZip = getFile(localrealZipfilename);
-              tempFile = File.createTempFile(fileZip.getName(), null);
+              // Create the temporary file next to the zip file, not in the shared system temp
+              // folder: the rename below then stays on the same file system and no other user
+              // can claim the name.
+              tempFile =
+                  File.createTempFile(
+                      fileZip.getName(), null, fileZip.getAbsoluteFile().getParentFile());
 
               // delete it, otherwise we cannot rename existing zip to it.
               if (!tempFile.delete()) {
@@ -683,7 +682,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             realMoveToDirectory + Const.FILE_SEPARATOR + fileObjectd.getName().getBaseName(),
             getVariables())) {
 
-      fileObjectd.moveTo(fileObjectm);
+      HopVfs.moveFile(fileObjectd, fileObjectm);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(PKG, "ActionZipFile.Cant_Move_File1.Label")

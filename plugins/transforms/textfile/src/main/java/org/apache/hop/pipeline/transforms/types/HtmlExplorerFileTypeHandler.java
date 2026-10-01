@@ -152,26 +152,20 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
   public void reload() {
     try {
       String filename = explorerFile.getFilename();
-      if (filename.toLowerCase().startsWith("http://")
-          || filename.toLowerCase().startsWith("https://")) {
-        wBrowser.setUrl(filename);
+      if (!ExplorerBrowserSupport.isHttpUrl(filename)) {
+        // Keep a copy for Save: the Browser widget does not expose edited markup.
+        String htmlContent = readTextFileContent(StandardCharsets.UTF_8);
+        originalHtmlContent = Const.NVL(htmlContent, "");
+      }
 
-        // Try to update the tab title after the page loads
-        // This is done asynchronously since the page needs to load first
+      if (ExplorerBrowserSupport.loadInBrowser(wBrowser, filename, hopGui.getVariables())) {
         updateTitleFromPageTitle();
-
         clearChanged();
         return;
       }
 
-      // Read HTML content from file
-      String htmlContent = readTextFileContent(StandardCharsets.UTF_8);
-      originalHtmlContent = Const.NVL(htmlContent, "");
-
-      // Display HTML in browser widget
-      wBrowser.setText(originalHtmlContent);
-
-      // Clear any change flags since we just reloaded
+      // Fallback when there is no fetchable document URL (non-file VFS on desktop).
+      wBrowser.setText(Const.NVL(originalHtmlContent, ""));
       clearChanged();
     } catch (Exception e) {
       LogChannel.UI.logError(

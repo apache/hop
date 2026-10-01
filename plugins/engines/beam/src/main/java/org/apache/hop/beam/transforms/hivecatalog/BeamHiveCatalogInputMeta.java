@@ -66,6 +66,16 @@ public class BeamHiveCatalogInputMeta
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return BeamHiveCatalogInputDialog.class.getName();
   }

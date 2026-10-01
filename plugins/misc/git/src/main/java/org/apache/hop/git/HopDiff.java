@@ -168,6 +168,8 @@ public class HopDiff {
     return identities;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public static PipelineMeta compareTransforms(
       PipelineMeta pipelineMeta1,
       PipelineMeta pipelineMeta2,

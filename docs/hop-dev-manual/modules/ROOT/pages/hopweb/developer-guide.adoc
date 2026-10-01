@@ -15,8 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: RAP is multi user framework by its nature. Every user session is associated with a display. In RAP, Display#getDefault() will not create a new display when it's called from non-UI thread - read Display#getDefault JavaDoc. When you execute a code in a background thread, RAP needs to know for which UI session (display) it belongs. That's why you have to provide the correct UISession/display from outside.
-:openvar: ${
-:closevar: }
 
 = Developer Guide
 
@@ -109,11 +107,16 @@ To then run it simply execute:
 
 == Configuring Hop Web
 
-The main configuration of Hop is done through a single configuration file called `hop-config.json` and it is found in folder `{openvar}HOP_CONFIG_FOLDER{closevar}`
+The main configuration of Hop is done through a single configuration file called `hop-config.json` and it is found in folder `+${HOP_CONFIG_FOLDER}+`
 
 It is possible to set pass this standard Hop environment variable `HOP_CONFIG_FOLDER` to the docker container.
 You can point it to a mounted volume for example:
 
-`docker run -p 8080:8080 -v /host/path/to/config:/config -e HOP_CONFIG_FOLDER=/config hop-web`
+`docker run -p 8080:8080 -v /host/path/to/config:/hop/config -e HOP_CONFIG_FOLDER=/hop/config hop-web`
+
+Prefer a dedicated path such as `/hop/config` rather than `/config`.
+The Hop Web image uses `/config` for an optional Tomcat `tomcat-users.xml` / `web.xml` overlay.
 
 In the same way you can set the standard variable `HOP_AUDIT_FOLDER` to store GUI auditing and logging information.
+
+For the operator-facing volume layout, Compose example, and upgrade procedure, see xref:{page-component-version}@manual::hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].

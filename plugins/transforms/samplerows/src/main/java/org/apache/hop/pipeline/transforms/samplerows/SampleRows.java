@@ -115,7 +115,7 @@ public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> {
             BaseMessages.getString(
                 PKG,
                 "SampleRows.Log.LineNumber",
-                linesRead + " : " + getInputRowMeta().getString(r)));
+                linesRead + " : " + data.outputRowMeta.getString(data.outputRow)));
       }
     }
 

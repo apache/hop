@@ -188,6 +188,10 @@ public class ProgressMonitorDialog {
     } catch (InterruptedException e) {
       interruptedException = e;
       Thread.currentThread().interrupt();
+    } finally {
+      // Callers that forget monitor.done() must not leave the modal dialog up forever.
+      // dispose() is idempotent, so callers that do call done() are unaffected.
+      dispose();
     }
   }
 
@@ -205,6 +209,13 @@ public class ProgressMonitorDialog {
       if (!display.readAndDispatch()) {
         display.sleep();
       }
+    }
+    // The worker may dispose the shell from its finally before this loop re-checks the flags.
+    if (interruptedException != null) {
+      throw interruptedException;
+    }
+    if (targetException != null) {
+      throw targetException;
     }
   }
 

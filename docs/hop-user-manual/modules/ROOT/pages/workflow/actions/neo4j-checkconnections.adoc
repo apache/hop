@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Check Neo4j connections action lines up a list of Neo4j connections that you want to check for availability.
+:page-marketplace: hop-tech-neo4j
 
 = Check Neo4j connections
 

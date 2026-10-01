@@ -90,6 +90,7 @@ public class FileTree extends Composite {
     btnFindDependencies.setLayoutData(new FormDataBuilder().left().fullWidth().bottom().result());
 
     tree = new HopTree(this, SWT.CHECK | SWT.MULTI | SWT.BORDER);
+    FolderTreeIcons.install(tree);
     PropsUi.setLook(tree);
     tree.setLayoutData(
         new FormDataBuilder()
@@ -151,7 +152,7 @@ public class FileTree extends Composite {
 
   /** Expand the given item and all descendants so the default selection is visible. */
   private void expandAll(TreeItem item) {
-    item.setExpanded(true);
+    FolderTreeIcons.setExpanded(item, true);
     for (TreeItem child : item.getItems()) {
       if (FOLDER.equals(child.getData("type"))) {
         expandAll(child);

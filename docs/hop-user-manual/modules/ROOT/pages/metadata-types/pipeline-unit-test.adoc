@@ -28,7 +28,10 @@ Describes a test for a pipeline. During the test, alternative data sets are used
 
 When the result set produced by the pipeline execution matches the expected result (golden data set), the test succeeds. If the generated results do not match what was expected, the test fails.
 
-Specific transforms in a pipeline can be bypassed or removed for testing for addtional flexibility.
+Transforms with an input data set are replaced with an Injector (the static data set rows are injected).
+Transforms with a golden data set are replaced with a Dummy so the test does not write to a file or a database; the rows flowing *into* that transform are compared to the golden data set.
+
+Specific transforms in a pipeline can be bypassed or removed for testing for additional flexibility.
 
 Additionally, unit tests can be executed in bulk.
 
@@ -45,7 +48,7 @@ None/All
 |Option|Default|Description
 |Name||the name to use for this unit test
 |Description||the description to use for this unit test
-|Type of test|Development|'Development' or 'unit test'
+|Type of test|Development|Development, Unit test, or a custom type. The list includes every type already used by unit tests in the project. Development and Unit test are stored as DEVELOPMENT and UNIT_TEST; any other type is stored as entered.
 |The pipeline to test||the pipeline that will be tested by this unit test
 |Test pipeline filename (Optional)||
 |Base test path (or use HOP_UNIT_TESTS_FOLDER)||

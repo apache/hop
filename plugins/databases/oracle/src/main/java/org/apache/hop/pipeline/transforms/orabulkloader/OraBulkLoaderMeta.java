@@ -34,6 +34,8 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -50,7 +52,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::OraBulkLoader.Keywords",
     documentationUrl = "/pipeline/transforms/orabulkloader.html",
-    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+    actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT},
+    classLoaderGroup = "oracle-db")
+@RelationalLineage(
+    operation = RelationalIoOperation.WRITE,
+    overwriteWhen = {"TRUNCATE", "REPLACE"})
 public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkLoaderData> {
   private static final Class<?> PKG =
       OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
@@ -164,7 +170,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   @HopMetadataProperty(
       key = "load_action",
       injectionKey = "LOAD_ACTION",
-      injectionKeyDescription = "OraBulkLoader.Injection.LoadAction")
+      injectionKeyDescription = "OraBulkLoader.Injection.LoadAction",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private String loadAction;
 
   /** Encoding to use */

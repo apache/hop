@@ -18,6 +18,7 @@
 package org.apache.hop.testing.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetCsvUtil;
+import org.apache.hop.testing.DataSetDefaults;
 import org.apache.hop.testing.DataSetField;
 import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -63,18 +65,24 @@ import org.apache.hop.testing.PipelineUnitTestTweak;
 import org.apache.hop.testing.actions.runtests.RunPipelineTests;
 import org.apache.hop.testing.actions.runtests.RunPipelineTestsField;
 import org.apache.hop.testing.util.DataSetConst;
+import org.apache.hop.testing.util.UnitTestGraphVariables;
+import org.apache.hop.testing.util.UnitTestTransformRenames;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboFilterPopup;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.SessionDisplay;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
@@ -86,6 +94,7 @@ import org.apache.hop.ui.testing.EditRowsDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
@@ -109,6 +118,14 @@ public class TestingGuiPlugin {
       "pipeline-graph-transform-20820-enable-tweak-bypass-transform";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM =
       "pipeline-graph-transform-20830-disable-tweak-bypass-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM =
+      "pipeline-graph-transform-20840-bulk-remove-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM =
+      "pipeline-graph-transform-20850-bulk-include-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM =
+      "pipeline-graph-transform-20860-bulk-bypass-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM =
+      "pipeline-graph-transform-20870-bulk-remove-bypass-transform";
   protected static final Class<?> PKG = TestingGuiPlugin.class;
 
   public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
@@ -127,6 +144,17 @@ public class TestingGuiPlugin {
 
   public static final String ACTION_ID_PIPELINE_GRAPH_COPY_TEST_ACTION_CLIPBOARD =
       "pipeline-graph-transform-10400-copy-pipeline-action";
+
+  /**
+   * GUI custom parameter: show the golden data set Dummy-replacement warning. Default {@code Y}.
+   */
+  public static final String STRING_GOLDEN_DATASET_WARNING_PARAMETER =
+      "UnitTestGoldenDataSetWarning";
+
+  /**
+   * GUI custom parameter: show the input data set Injector-replacement warning. Default {@code Y}.
+   */
+  public static final String STRING_INPUT_DATASET_WARNING_PARAMETER = "UnitTestInputDataSetWarning";
 
   private static TestingGuiPlugin instance = null;
 
@@ -230,6 +258,12 @@ public class TestingGuiPlugin {
       DataSet dataSet)
       throws HopException {
     HopGui hopGui = HopGui.getInstance();
+
+    showDataSetReplacementWarning(
+        hopGui.getShell(),
+        STRING_INPUT_DATASET_WARNING_PARAMETER,
+        "TestingGuiPlugin.InputDataSetReplacement.Title",
+        "TestingGuiPlugin.InputDataSetReplacement.Message");
 
     // Now we need to map the fields from the input data set to the transform...
     //
@@ -359,6 +393,45 @@ public class TestingGuiPlugin {
     }
   }
 
+  /**
+   * Inform the user that attaching a data set replaces the transform at test execution time. The
+   * "don't show this again" choice is stored as a GUI custom parameter.
+   */
+  private void showDataSetReplacementWarning(
+      Shell shell, String parameterName, String titleKey, String messageKey) {
+    PropsUi props = HopGui.getInstance().getProps();
+    if (!shouldShowReplacementWarning(props.getCustomParameter(parameterName, "Y"))) {
+      return;
+    }
+    MessageDialogWithToggle md =
+        new MessageDialogWithToggle(
+            shell,
+            BaseMessages.getString(PKG, titleKey),
+            BaseMessages.getString(PKG, messageKey, Const.CR) + Const.CR,
+            SWT.ICON_WARNING,
+            new String[] {BaseMessages.getString(PKG, "TestingGuiPlugin.DataSetReplacement.Close")},
+            BaseMessages.getString(PKG, "TestingGuiPlugin.DataSetReplacement.DontShowAgain"),
+            "N".equalsIgnoreCase(props.getCustomParameter(parameterName, "Y")));
+    md.open();
+    props.setCustomParameter(parameterName, replacementWarningStoredValue(md.getToggleState()));
+  }
+
+  /**
+   * @param storedValue GUI custom parameter value, {@code Y} (default) to show the warning
+   * @return true when the replacement warning dialog should be shown
+   */
+  static boolean shouldShowReplacementWarning(String storedValue) {
+    return "Y".equalsIgnoreCase(Const.NVL(storedValue, "Y"));
+  }
+
+  /**
+   * @param dontShowAgain true when the user checked "Don't show this message again"
+   * @return {@code N} to suppress the warning, {@code Y} to keep showing it
+   */
+  static String replacementWarningStoredValue(boolean dontShowAgain) {
+    return dontShowAgain ? "N" : "Y";
+  }
+
   private boolean checkTestPresent(HopGui hopGui, HopGuiPipelineTransformContext context) {
     // Get the unit test directly from the pipeline graph context (works in web/RAP mode)
     PipelineUnitTest activeTest = getUnitTestFromContext(context);
@@ -449,6 +522,13 @@ public class TestingGuiPlugin {
       PipelineUnitTest unitTest,
       DataSet dataSet)
       throws HopException {
+    HopGui hopGui = HopGui.getInstance();
+    showDataSetReplacementWarning(
+        hopGui.getShell(),
+        STRING_GOLDEN_DATASET_WARNING_PARAMETER,
+        "TestingGuiPlugin.GoldenDataSetReplacement.Title",
+        "TestingGuiPlugin.GoldenDataSetReplacement.Message");
+
     // Now we need to map the fields from the transform to golden data set fields...
     //
     IRowMeta transformFields;
@@ -466,7 +546,7 @@ public class TestingGuiPlugin {
     String[] setFieldNames = setFields.getFieldNames();
 
     EnterMappingDialog mappingDialog =
-        new EnterMappingDialog(HopGui.getInstance().getShell(), transformFieldNames, setFieldNames);
+        new EnterMappingDialog(hopGui.getShell(), transformFieldNames, setFieldNames);
     List<SourceToTargetMapping> mappings = mappingDialog.open();
     if (mappings == null) {
       return false;
@@ -485,7 +565,7 @@ public class TestingGuiPlugin {
     }
     EditRowsDialog orderDialog =
         new EditRowsDialog(
-            HopGui.getInstance().getShell(),
+            hopGui.getShell(),
             SWT.NONE,
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Title"),
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Message"),
@@ -614,30 +694,75 @@ public class TestingGuiPlugin {
           && currentTest.findGoldenLocation(context.getTransformMeta().getName()) != null;
     }
 
-    // Tweaks
+    // Tweaks. A multi-selection uses the Bulk actions (issue #5371), like enable and disable hops
+    // between selection. The single-transform actions stay for one selected transform.
     //
     PipelineUnitTestTweak tweak = null;
     if (currentTest != null) {
       tweak = currentTest.findTweak(context.getTransformMeta().getName());
     }
+    int selectedCount = selectedTransformCount(context.getPipelineMeta());
+    boolean unitTestActive = currentTest != null;
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null && tweak == null;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.REMOVE_TRANSFORM, true, selectedCount);
     }
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_REMOVE_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null
-          && tweak != null
-          && tweak.getTweak() == PipelineTweak.REMOVE_TRANSFORM;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.REMOVE_TRANSFORM, false, selectedCount);
     }
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_BYPASS_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null && tweak == null;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.BYPASS_TRANSFORM, true, selectedCount);
     }
     if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM.equals(contextActionId)) {
-      return currentTest != null
-          && tweak != null
-          && tweak.getTweak() == PipelineTweak.BYPASS_TRANSFORM;
+      return showSingleUnitTestTweak(
+          unitTestActive, tweak, PipelineTweak.BYPASS_TRANSFORM, false, selectedCount);
+    }
+    if (isBulkUnitTestTweakAction(contextActionId)) {
+      return showBulkUnitTestTweak(unitTestActive, selectedCount);
     }
 
     return true;
+  }
+
+  static boolean isBulkUnitTestTweakAction(String contextActionId) {
+    return ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM.equals(contextActionId)
+        || ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM.equals(contextActionId)
+        || ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM.equals(contextActionId)
+        || ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM.equals(contextActionId);
+  }
+
+  /**
+   * Whether a single-transform tweak action is shown. Hidden while more than one transform is
+   * selected, so the bulk actions are the ones that change the selection.
+   */
+  static boolean showSingleUnitTestTweak(
+      boolean unitTestActive,
+      PipelineUnitTestTweak clickedTweak,
+      PipelineTweak tweak,
+      boolean enable,
+      int selectedCount) {
+    if (!unitTestActive || selectedCount > 1) {
+      return false;
+    }
+    if (enable) {
+      return clickedTweak == null;
+    }
+    return clickedTweak != null && clickedTweak.getTweak() == tweak;
+  }
+
+  /** Whether the bulk remove and bypass actions are shown for the current selection. */
+  static boolean showBulkUnitTestTweak(boolean unitTestActive, int selectedCount) {
+    return unitTestActive && selectedCount > 1;
+  }
+
+  static int selectedTransformCount(PipelineMeta pipelineMeta) {
+    if (pipelineMeta == null) {
+      return 0;
+    }
+    List<TransformMeta> selected = pipelineMeta.getSelectedTransforms();
+    return selected == null ? 0 : selected.size();
   }
 
   /**
@@ -676,6 +801,12 @@ public class TestingGuiPlugin {
 
     try {
       DataSet dataSet = new DataSet();
+      DataSetDefaults.apply(
+          dataSet,
+          pipelineMeta.getFilename(),
+          transformMeta.getName(),
+          variables,
+          metadataProvider);
 
       IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, transformMeta);
       for (int i = 0; i < rowMeta.size(); i++) {
@@ -880,9 +1011,15 @@ public class TestingGuiPlugin {
         return;
       }
 
-      // Remove
+      // Clear unit-test sample variables from the graph variable space, then drop state.
       //
       Map<String, Object> stateMap = getStateMap(pipelineMeta);
+      if (stateMap != null) {
+        PipelineUnitTest unitTest =
+            (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+        UnitTestTransformRenames.revertAll(unitTest, stateMap);
+      }
+      UnitTestGraphVariables.clear(pipelineGraph.getVariables(), stateMap);
       if (stateMap != null) {
         stateMap.clear();
       }
@@ -894,7 +1031,7 @@ public class TestingGuiPlugin {
         combo.setText("");
       }
 
-      // Also clear the unit test variables from the pipelineGraph instance.
+      // Also clear the unit test control variables from the pipelineGraph instance.
       //
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_UNIT_TEST_NAME, null);
@@ -1091,6 +1228,29 @@ public class TestingGuiPlugin {
   }
 
   /**
+   * Clicking the combo selects the current test name so the next keystroke replaces it. Typing then
+   * filters the list in a popup under the combo (issue #7890).
+   */
+  private void installUnitTestComboSearch(Combo combo) {
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    ComboFilterPopup.attach(
+        combo, () -> Arrays.asList(combo.getItems()), this::applyFilteredUnitTest);
+  }
+
+  private void applyFilteredUnitTest(String testName) {
+    Combo combo = getUnitTestsCombo();
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    if (!Const.NVL(testName, "").equals(combo.getText())) {
+      combo.setText(Const.NVL(testName, ""));
+    }
+    selectUnitTest();
+  }
+
+  /**
    * Enable or disable the unit test buttons (Edit, Detach, Delete) based on whether a unit test is
    * selected.
    */
@@ -1106,6 +1266,7 @@ public class TestingGuiPlugin {
     }
 
     Combo combo = getUnitTestsCombo();
+    installUnitTestComboSearch(combo);
     boolean hasSelection = combo != null && !StringUtils.isEmpty(combo.getText());
 
     if (log.isDebug()) {
@@ -1141,6 +1302,11 @@ public class TestingGuiPlugin {
   public static void selectUnitTestInList(String name) {
     HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
     if (pipelineGraph == null) {
+      return;
+    }
+    Combo combo = getInstance().getUnitTestsCombo();
+    // Avoid re-firing the selection listener when the combo already shows this test
+    if (combo != null && Const.NVL(name, "").equals(combo.getText())) {
       return;
     }
     pipelineGraph.getToolBarWidgets().selectComboItem(ID_TOOLBAR_UNIT_TESTS_COMBO, name);
@@ -1281,6 +1447,11 @@ public class TestingGuiPlugin {
       if (!Utils.isEmpty(testName)) {
         PipelineUnitTest unitTest = testSerializer.load(testName);
         if (unitTest == null) {
+          ComboFilterPopup filter = ComboFilterPopup.get(combo);
+          if (filter != null && filter.isPopupOpen()) {
+            // Still typing a search; do not treat the filter text as a missing test.
+            return;
+          }
           throw new HopException(
               BaseMessages.getString(
                   PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Exception", testName));
@@ -1306,28 +1477,102 @@ public class TestingGuiPlugin {
   }
 
   public static final void selectUnitTest(PipelineMeta pipelineMeta, PipelineUnitTest unitTest) {
-    Map<String, Object> stateMap = getStateMap(pipelineMeta);
-    if (stateMap == null) {
+    HopGuiPipelineGraph pipelineGraph = getPipelineGraph(pipelineMeta);
+    if (pipelineGraph == null || unitTest == null) {
       // Can't select since we don't find the tab
+      return;
     }
+    Map<String, Object> stateMap = pipelineGraph.getStateMap();
     stateMap.put(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST, unitTest);
+
+    IVariables graphVariables = pipelineGraph.getVariables();
+    // Make unit-test sample variables available for design-time (get fields, check, dialogs)
+    // and as the live source for the next execution configuration dialog.
+    UnitTestGraphVariables.apply(graphVariables, unitTest, stateMap);
+
+    // Keep unit-test control flags in sync on switch (not only at run start)
+    graphVariables.setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "Y");
+    graphVariables.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, unitTest.getName());
+
     selectUnitTestInList(unitTest.getName());
   }
 
+  /**
+   * Returns the pipeline graph state map for the open tab that owns {@code pipelineMeta}, or null
+   * when the pipeline is not open in the explorer / Hop GUI is not available on this thread.
+   *
+   * <p>Safe to call from non-UI threads (e.g. pipeline transform threads during {@code
+   * getTransformFields} / lineage): on Hop Web, {@link HopGui#getInstance()} requires a RAP UI
+   * session and throws {@link IllegalStateException} ("Invalid thread access") otherwise.
+   */
   public static Map<String, Object> getStateMap(PipelineMeta pipelineMeta) {
-    for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
-      if (item.getTypeHandler().getSubject().equals(pipelineMeta)) {
-        HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) item.getTypeHandler();
-        return pipelineGraph.getStateMap();
-      }
+    try {
+      HopGuiPipelineGraph pipelineGraph = getPipelineGraph(pipelineMeta);
+      return pipelineGraph != null ? pipelineGraph.getStateMap() : null;
+    } catch (IllegalStateException e) {
+      // RAP/SWT: no UI context on this thread (transform/background workers)
+      return null;
+    } catch (RuntimeException e) {
+      // HopGui not initialized or perspective unavailable
+      return null;
     }
-    return null;
+  }
+
+  /**
+   * Find the open pipeline graph tab for the given metadata, if any.
+   *
+   * <p>Prefers the active pipeline graph when it matches, then scans explorer tabs. Matching is by
+   * identity first, then {@link PipelineMeta#equals(Object)} (filename/name).
+   *
+   * <p>Must only be called from the UI thread: looking up the active tab touches SWT widgets.
+   * Background callers (e.g. lineage GetFields from a transform thread) get {@code null}.
+   *
+   * @param pipelineMeta the pipeline metadata
+   * @return the graph, or null when the pipeline is not open in the GUI or the caller is not on the
+   *     UI thread
+   */
+  public static HopGuiPipelineGraph getPipelineGraph(PipelineMeta pipelineMeta) {
+    // Tab / graph lookup may touch SWT widgets; only safe on the UI thread (issue #7896).
+    if (SessionDisplay.current() == null) {
+      return null;
+    }
+    try {
+      HopGuiPipelineGraph active = HopGui.getActivePipelineGraph();
+      if (active != null && pipelineMetaMatches(active.getPipelineMeta(), pipelineMeta)) {
+        return active;
+      }
+      if (pipelineMeta == null || HopGui.getExplorerPerspective() == null) {
+        return null;
+      }
+      for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
+        if (!(item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph)) {
+          continue;
+        }
+        if (pipelineMetaMatches(pipelineGraph.getPipelineMeta(), pipelineMeta)) {
+          return pipelineGraph;
+        }
+      }
+      return null;
+    } catch (SWTException e) {
+      return null;
+    }
+  }
+
+  private static boolean pipelineMetaMatches(PipelineMeta a, PipelineMeta b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    return a == b || a.equals(b);
   }
 
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
     // When rendering a pipeline on a server status page we never have a current unit test
     //
     if (!"GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+      return null;
+    }
+    // Same rule as getPipelineGraph: never access HopGui/SWT from a worker thread (issue #7896).
+    if (SessionDisplay.current() == null) {
       return null;
     }
     Map<String, Object> stateMap = getStateMap(pipelineMeta);
@@ -1391,6 +1636,58 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void disableTweakBypassTransformInUnitTest(HopGuiPipelineTransformContext context) {
+    tweakBypassTransformInUnitTest(context, false);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveFromTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveFromTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkRemoveSelectionFromUnitTest(HopGuiPipelineTransformContext context) {
+    tweakRemoveTransformInUnitTest(context, true);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkIncludeInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkIncludeInTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkIncludeSelectionInUnitTest(HopGuiPipelineTransformContext context) {
+    tweakRemoveTransformInUnitTest(context, false);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkBypassInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkBypassInTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkBypassSelectionInUnitTest(HopGuiPipelineTransformContext context) {
+    tweakBypassTransformInUnitTest(context, true);
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveBypassInTest.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.BulkRemoveBypassInTest.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "i18n::TestingGuiPlugin.Category.Bulk",
+      categoryOrder = "81")
+  public void bulkRemoveBypassFromSelectionInUnitTest(HopGuiPipelineTransformContext context) {
     tweakBypassTransformInUnitTest(context, false);
   }
 

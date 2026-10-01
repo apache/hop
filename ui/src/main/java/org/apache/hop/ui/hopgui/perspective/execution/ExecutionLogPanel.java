@@ -107,7 +107,8 @@ public class ExecutionLogPanel {
           new StyledTextComp(
               Variables.getADefaultVariableSpace(),
               composite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+              TextComposite.STYLE_TYPE_LOG);
     } else {
       logText =
           new StyledTextVar(
@@ -115,7 +116,8 @@ public class ExecutionLogPanel {
               composite,
               SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
               false,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_LOG);
     }
     PropsUi.setLook(logText);
     FormData fdText = new FormData();

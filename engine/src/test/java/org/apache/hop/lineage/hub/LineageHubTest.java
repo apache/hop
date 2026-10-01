@@ -151,6 +151,44 @@ class LineageHubTest {
   }
 
   @Test
+  void sinkThatFailsToLoadDoesNotStallFlush() throws Exception {
+    // The OpenLineage sink once died in init() with a NoClassDefFoundError. That is not a
+    // HopException, so it killed the dispatcher thread while the hub still said it was running,
+    // and every pipeline and workflow completion then waited out the full flush timeout.
+    LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
+    AtomicInteger initCount = new AtomicInteger();
+    AtomicInteger accepted = new AtomicInteger();
+    ILineageSink broken =
+        new ILineageSink() {
+          @Override
+          public void init(IVariables variables, ILogChannel log) {
+            initCount.incrementAndGet();
+            throw new NoClassDefFoundError("com/fasterxml/jackson/dataformat/yaml/YAMLFactory");
+          }
+
+          @Override
+          public void accept(List<LineageEvent> events) {
+            accepted.incrementAndGet();
+          }
+        };
+    LineageHub hub = LineageHub.newIsolatedForTesting(cfg, List.of(broken));
+    hub.emit(sampleEvent());
+
+    long start = System.nanoTime();
+    hub.flush();
+    long millis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+    assertTrue(millis < 5_000, "flush waited " + millis + " ms on a dead worker");
+
+    // Later events must not restart a worker that fails the same way, once per event.
+    hub.emit(sampleEvent());
+    hub.emit(sampleEvent());
+    hub.flush();
+    hub.shutdown();
+    assertEquals(1, initCount.get());
+    assertEquals(0, accepted.get());
+  }
+
+  @Test
   void shutdownInvokesSinkShutdownAndIsIdempotent() throws Exception {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
     AtomicInteger shutdownCount = new AtomicInteger();

@@ -157,7 +157,7 @@ class YamlInputMetaTest {
     YamlInputField field = new YamlInputField("name");
     meta.getInputFields().add(field);
 
-    YamlInputMeta clone = meta.clone();
+    YamlInputMeta clone = (YamlInputMeta) meta.clone();
 
     assertNotSame(meta, clone);
 

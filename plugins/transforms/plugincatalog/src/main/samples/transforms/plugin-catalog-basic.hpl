@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>plugin-catalog-basic</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Dump the live Hop plugin registry (transforms, actions, metadata types) into rows using the Plugin Catalog transform. Run and preview the Dummy transform.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/06/20 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/06/20 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Plugin Catalog sample: the Plugin Catalog transform needs no input. It reflects the running Hop installation's plugin registry and emits one row per plugin (PER_PLUGIN) with a metadata_fields JSON column, or one row per property (PER_PROPERTY). Switch detailLevel in the transform dialog and re-run.</note>
+      <xloc>32</xloc>
+      <yloc>32</yloc>
+      <width>520</width>
+      <height>80</height>
+      <fontname>Sans</fontname>
+      <fontsize>9</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Plugin Catalog</from>
+      <to>Catalog</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Plugin Catalog</name>
+    <type>PluginCatalog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <includeTransforms>Y</includeTransforms>
+    <includeActions>Y</includeActions>
+    <includeMetadataTypes>Y</includeMetadataTypes>
+    <detailLevel>PER_PLUGIN</detailLevel>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Catalog</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>368</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

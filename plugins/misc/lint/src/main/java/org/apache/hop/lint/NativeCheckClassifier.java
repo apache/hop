@@ -1,0 +1,316 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.hop.lint;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.ICheckResultSource;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+
+/**
+ * Decides how the linter reports a remark from Hop's own {@code check()} methods.
+ *
+ * <p>Those remarks were written for the Verify button, where a person asked the question and reads
+ * every answer in context. The linter asks it unprompted, on every save and on every build, and a
+ * remark it repeats is a remark it stands behind. The two are not the same claim, so the severity a
+ * transform chose is not automatically the severity the linter reports: {@code check()} works from
+ * a row stream inferred statically at design time, which is right for a plain pipeline and wrong
+ * whenever metadata injection, a mapping or a runtime-populated stream is involved.
+ *
+ * <p>So native remarks pass through the rules like everything else. The core pack caps them at
+ * warning and drops the two checks known to be incorrect; a project raises, lowers or silences them
+ * by id in its own {@code hop-lint.yml}.
+ *
+ * @see <a href="https://github.com/apache/hop/issues/8294">#8294</a>
+ */
+public final class NativeCheckClassifier {
+
+  /**
+   * What a matching rule says should happen to a remark.
+   *
+   * @param narrowed whether the rule names a plugin or a check, rather than every remark
+   */
+  public record Classification(
+      String severity, String ruleId, boolean narrowed, String blanketRuleId) {}
+
+  /** Where MessageFormat left a value out: {@code {0}}, {@code {1}}, and so on. */
+  private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\d+\\}");
+
+  private final List<CustomLintRule> rules;
+
+  public NativeCheckClassifier(List<CustomLintRule> rules) {
+    List<CustomLintRule> nativeRules = new ArrayList<>();
+    if (rules != null) {
+      for (CustomLintRule rule : rules) {
+        if (rule != null && rule.isNativeVerify()) {
+          nativeRules.add(rule);
+        }
+      }
+    }
+    this.rules = nativeRules;
+  }
+
+  /** Whether any rule speaks about native remarks at all. */
+  public boolean isEmpty() {
+    return rules.isEmpty();
+  }
+
+  /**
+   * How to report one remark, or null when the rules say to drop it.
+   *
+   * <p>With no rule matching, the remark keeps the severity the transform gave it. That is what a
+   * pack which says nothing about native checks should mean, and it is what the linter did before
+   * the core pack had an opinion.
+   */
+  public Classification classify(ICheckResult remark) {
+    if (remark == null) {
+      return null;
+    }
+    CustomLintRule match = bestMatch(remark);
+    if (match == null) {
+      return new Classification(
+          LintSeverity.fromCheckResultType(remark.getType()), null, false, null);
+    }
+    if (!match.isEnabled()) {
+      return null;
+    }
+    boolean narrowed = isNarrowed(match);
+    String severity =
+        narrowed
+            ? match.getSeverity()
+            : capped(LintSeverity.fromCheckResultType(remark.getType()), match.getSeverity());
+    // A narrowed rule takes the id, so the rule that covers every remark would otherwise stop
+    // naming this finding, and a project's existing suppression of it would quietly lapse the
+    // moment that project named the check. It is carried along as another name.
+    return new Classification(
+        severity, match.generateRuleId(), narrowed, narrowed ? blanketRuleId() : null);
+  }
+
+  /**
+   * The remark's own severity, lowered to the cap if it is above it.
+   *
+   * <p>A rule covering every remark caps them: it cannot know that any one of them deserves more
+   * than the transform gave it, so a comment stays a comment. A rule naming a plugin or a check is
+   * a decision about those remarks, and its severity is reported as it stands.
+   */
+  private static String capped(String severity, String cap) {
+    return rank(severity) > rank(cap) ? cap : severity;
+  }
+
+  private static int rank(String severity) {
+    if ("ERROR".equalsIgnoreCase(severity)) {
+      return 2;
+    }
+    if ("WARNING".equalsIgnoreCase(severity)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * The most specific rule that covers this remark.
+   *
+   * <p>Specificity is what lets the pack hold both a blanket "native remarks are warnings" and a
+   * "this one check is wrong, drop it" without the order of the YAML deciding which wins. A rule
+   * naming the check beats one naming only the plugin, which beats the blanket rule.
+   */
+  private CustomLintRule bestMatch(ICheckResult remark) {
+    CustomLintRule best = null;
+    int bestScore = -1;
+    for (CustomLintRule rule : rules) {
+      int score = score(rule, remark);
+      if (score > bestScore) {
+        best = rule;
+        bestScore = score;
+      }
+    }
+    return bestScore < 0 ? null : best;
+  }
+
+  /**
+   * The id of the rule that covers every remark, or null when no such rule is in force.
+   *
+   * <p>A rule naming neither a plugin nor a check applies to anything put in front of it, so the
+   * first one is the one a blanket configuration was written against.
+   */
+  private String blanketRuleId() {
+    for (CustomLintRule rule : rules) {
+      if (!isNarrowed(rule)) {
+        return rule.generateRuleId();
+      }
+    }
+    return null;
+  }
+
+  private static boolean isNarrowed(CustomLintRule rule) {
+    return !rule.getAppliesTo().isEmpty() || !Utils.isEmpty(rule.getMessageKey());
+  }
+
+  /** How specifically the rule matches, or -1 when it does not apply. */
+  private static int score(CustomLintRule rule, ICheckResult remark) {
+    int score = 0;
+    if (!rule.getAppliesTo().isEmpty()) {
+      String pluginId = pluginIdOf(remark.getSourceInfo());
+      if (Utils.isEmpty(pluginId) || !containsIgnoreCase(rule.getAppliesTo(), pluginId)) {
+        return -1;
+      }
+      score += 1;
+    }
+    if (!Utils.isEmpty(rule.getMessageKey())) {
+      if (!printsMessage(remark.getText(), rule.getMessageKey(), bundleClassOf(remark))) {
+        return -1;
+      }
+      score += 2;
+    }
+    return score;
+  }
+
+  /**
+   * Whether the remark is the one that message key prints.
+   *
+   * <p>Matching the resolved message rather than a pattern is what keeps this working outside
+   * English: the key is resolved in the running locale, so the rule names the check itself instead
+   * of naming the English words a check happens to use. A key that resolves to nothing — the plugin
+   * is not installed, or the key was renamed — matches nothing rather than everything, so a stale
+   * rule loses its narrowing instead of silencing every remark.
+   *
+   * <p>Most checks fill values into their message. Resolved without them, the message keeps a
+   * {@code {0}} where each value goes, so it is matched as a pattern: the words must appear in
+   * order, and each placeholder stands for whatever the check filled in.
+   *
+   * @param text the remark as the transform built it, usually a heading followed by detail lines
+   * @param messageKey {@code <i18n package>:<key>}, the same form Hop's own plugin annotations use
+   * @param bundleClass the class whose class loader holds the bundle, or null
+   */
+  static boolean printsMessage(String text, String messageKey, Class<?> bundleClass) {
+    if (Utils.isEmpty(text)) {
+      return false;
+    }
+    int separator = messageKey.lastIndexOf(':');
+    if (separator <= 0 || separator == messageKey.length() - 1) {
+      return false;
+    }
+    String packageName = messageKey.substring(0, separator).trim();
+    String key = messageKey.substring(separator + 1).trim();
+    String message = resolve(packageName, key, bundleClass);
+    if (Utils.isEmpty(message)) {
+      return false;
+    }
+    Pattern pattern = patternOf(message.trim());
+    return pattern != null && pattern.matcher(text).find();
+  }
+
+  /**
+   * The resolved message as a pattern, or null when it holds no words to match.
+   *
+   * <p>BaseMessages formats every message, with or without values, so quoting is already undone and
+   * a value that was not given is printed as {@code {n}}. A message made of placeholders alone
+   * would match every remark, and is refused for the same reason as an unresolved key.
+   */
+  private static Pattern patternOf(String message) {
+    StringBuilder regex = new StringBuilder();
+    boolean hasWords = false;
+    int start = 0;
+    Matcher placeholder = PLACEHOLDER.matcher(message);
+    while (placeholder.find()) {
+      hasWords |= appendLiteral(regex, message.substring(start, placeholder.start()));
+      // Lazy, and across lines: values such as an exception message often carry line breaks.
+      regex.append("(?s:.*?)");
+      start = placeholder.end();
+    }
+    hasWords |= appendLiteral(regex, message.substring(start));
+    return hasWords ? Pattern.compile(regex.toString()) : null;
+  }
+
+  /** Append the text as a literal, and say whether it holds a letter or digit. */
+  private static boolean appendLiteral(StringBuilder regex, String literal) {
+    if (literal.isEmpty()) {
+      return false;
+    }
+    regex.append(Pattern.quote(literal));
+    return literal.codePoints().anyMatch(Character::isLetterOrDigit);
+  }
+
+  /**
+   * The message, or null when it cannot be resolved.
+   *
+   * <p>A transform in its own plugin folder has its own class loader, and the bundle is only on
+   * that one, so the lookup goes through the class the remark came from first and falls back to the
+   * core loader — the order the plugin registry uses to resolve the same {@code package:key} form
+   * in a plugin's annotations.
+   */
+  private static String resolve(String packageName, String key, Class<?> bundleClass) {
+    try {
+      if (bundleClass != null) {
+        String message = BaseMessages.getString(packageName, key, bundleClass);
+        if (!unresolved(message)) {
+          return message;
+        }
+      }
+      String message = BaseMessages.getString(packageName, key);
+      return unresolved(message) ? null : message;
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * BaseMessages answers {@code !key!} for a key it cannot resolve. A rule whose key has been
+   * renamed, or whose plugin is not installed, then matches nothing rather than everything: it
+   * loses its narrowing instead of silencing every remark.
+   */
+  private static boolean unresolved(String message) {
+    return Utils.isEmpty(message) || (message.startsWith("!") && message.endsWith("!"));
+  }
+
+  /** The class whose loader can see the bundle the remark's message came from. */
+  private static Class<?> bundleClassOf(ICheckResult remark) {
+    ICheckResultSource source = remark.getSourceInfo();
+    if (source instanceof TransformMeta transformMeta && transformMeta.getTransform() != null) {
+      return transformMeta.getTransform().getClass();
+    }
+    if (source instanceof ActionMeta actionMeta && actionMeta.getAction() != null) {
+      return actionMeta.getAction().getClass();
+    }
+    return null;
+  }
+
+  private static String pluginIdOf(ICheckResultSource source) {
+    if (source instanceof TransformMeta transformMeta) {
+      return transformMeta.getTransformPluginId();
+    }
+    if (source instanceof ActionMeta actionMeta) {
+      return actionMeta.getAction() != null ? actionMeta.getAction().getPluginId() : null;
+    }
+    return null;
+  }
+
+  private static boolean containsIgnoreCase(List<String> values, String candidate) {
+    for (String value : values) {
+      if (value != null && value.trim().equalsIgnoreCase(candidate)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}

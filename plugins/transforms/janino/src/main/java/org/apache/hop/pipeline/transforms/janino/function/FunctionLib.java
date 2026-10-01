@@ -126,10 +126,22 @@ public class FunctionLib {
   /**
    * @return A sorted array of function names, extracted from the function descriptions...
    */
+  /**
+   * Adds extra entries to the library, e.g. the example conditions the Java Filter dialog shows.
+   * They take part in the categories and descriptions like the scanned functions do.
+   *
+   * @param extraFunctions the entries to add
+   */
+  public void addFunctions(List<FunctionDescription> extraFunctions) {
+    functions.addAll(extraFunctions);
+  }
+
   public String[] getImportPackages() {
     ArrayList<String> importPackages = new ArrayList<>();
     for (FunctionDescription function : functions) {
-      importPackages.add(function.getImportPackage());
+      if (function.getImportPackage() != null) {
+        importPackages.add(function.getImportPackage());
+      }
     }
     importPackages.sort(Comparator.naturalOrder());
     return importPackages.stream().distinct().toArray(String[]::new);

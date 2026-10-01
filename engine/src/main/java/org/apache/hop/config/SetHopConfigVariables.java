@@ -78,11 +78,15 @@ public class SetHopConfigVariables implements IConfigOptions {
           describedVariable.setDescription(description);
         }
         HopConfig.getInstance().setDescribedVariable(describedVariable);
+        changed = true;
       } else {
         throw new HopException(
             "Please set a variable description in the format 'VARIABLE_NAME=DESCRIPTION'");
       }
     }
-    return false;
+    if (changed) {
+      HopConfig.getInstance().saveToFile();
+    }
+    return changed;
   }
 }

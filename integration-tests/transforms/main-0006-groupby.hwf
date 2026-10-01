@@ -26,6 +26,8 @@ limitations under the License.
   <modified_user>-</modified_user>
   <created_date>2021/04/19 12:05:51.497</created_date>
   <modified_date>2021/04/19 12:05:51.497</modified_date>
+  <created_hop_version/>
+  <modified_hop_version>2.20.0-SNAPSHOT</modified_hop_version>
   <workflow_version/>
   <parameters/>
   <actions>
@@ -65,12 +67,15 @@ limitations under the License.
         <test_name>
           <name>0006-groupby-moving-average UNIT</name>
         </test_name>
+        <test_name>
+          <name>0006-groupby-ignore-aggregate UNIT</name>
+        </test_name>
       </test_names>
       <name>Run Group By tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
-      <xloc>768</xloc>
+      <xloc>864</xloc>
       <yloc>80</yloc>
       <parallel>N</parallel>
       <attributes_hac/>
@@ -126,7 +131,7 @@ limitations under the License.
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <xloc>544</xloc>
+      <xloc>592</xloc>
       <yloc>80</yloc>
       <parallel>N</parallel>
       <attributes_hac/>

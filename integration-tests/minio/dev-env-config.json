@@ -1,11 +1,11 @@
 {
   "variables" : [ {
     "name" : "MINIO_ENDPOINT_HOSTNAME",
-    "value" : "minio",
+    "value" : "seaweedfs",
     "description" : "The endpoint hostname"
   }, {
     "name" : "MINIO_ENDPOINT_PORT",
-    "value" : "9000",
+    "value" : "8333",
     "description" : "The endpoint port"
   }, {
     "name" : "MINIO_ACCESS_KEY",

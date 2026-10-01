@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -29,7 +28,6 @@ import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
@@ -122,15 +120,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
   }
 
   public void prepareMappingExecution() throws HopException {
-    boolean singleThreaded =
-        data.isBeamContext()
-            || (getPipeline() != null
-                && getPipeline().getPipelineMeta() != null
-                && getPipeline().getPipelineMeta().getPipelineType()
-                    == PipelineMeta.PipelineType.SingleThreaded);
-    if (singleThreaded) {
-      data.mappingPipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
-    }
     SimpleMappingData simpleMappingData = getData();
     // Resolve pipeline full name in case variables are used and pipeline meta is not initialized in
     // advance
@@ -168,6 +157,20 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
                   runConfigName,
                   metadataProvider,
                   simpleMappingData.mappingPipelineMeta);
+    }
+
+    if (isSingleThreaded()) {
+      simpleMappingData.mappingPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+      // This child is driven again on every parent iteration and does not finish between them.
+      // A location here would register a second caching session (metadata document, sampler rows,
+      // and a timer) for the whole parent run.
+      if (suppressExecutionInformation(simpleMappingData.mappingPipeline)) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "SimpleMapping.Log.IgnoringExecutionInformationLocation",
+                simpleMappingData.mappingPipeline.getPipelineRunConfiguration().getName()));
+      }
     }
 
     // Copy the parameters over...
@@ -244,30 +247,40 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     getPipeline().addActiveSubPipeline(getTransformName(), simpleMappingData.mappingPipeline);
   }
 
-  public static List<MappingInput> findMappingInputs(Pipeline mappingPipeline) {
-    List<MappingInput> list = new ArrayList<>();
+  /**
+   * Are we running in a context where the sub-pipeline has to be driven row by row from this
+   * transform instead of by threads of its own?
+   */
+  private boolean isSingleThreaded() {
+    return data.isBeamContext()
+        || (getPipeline() != null
+            && getPipeline().getPipelineType() == PipelineMeta.PipelineType.SingleThreaded);
+  }
 
-    List<IEngineComponent> components = mappingPipeline.getComponents();
-    for (IEngineComponent component : components) {
-      if (component instanceof MappingInput mappingInput) {
-        list.add(mappingInput);
-      }
+  /**
+   * Drops the execution-information location from a copy of the child's run configuration. The
+   * metadata object itself is left unchanged.
+   *
+   * @return true when a location was removed
+   */
+  static boolean suppressExecutionInformation(LocalPipelineEngine engine) {
+    PipelineRunConfiguration runConfig = engine.getPipelineRunConfiguration();
+    if (runConfig == null || StringUtils.isEmpty(runConfig.getExecutionInfoLocationName())) {
+      return false;
     }
+    PipelineRunConfiguration copy = new PipelineRunConfiguration(runConfig);
+    copy.setExecutionInfoLocationName(null);
+    copy.setExecutionDataProfileName(null);
+    engine.setPipelineRunConfiguration(copy);
+    return true;
+  }
 
-    return list;
+  public static List<MappingInput> findMappingInputs(Pipeline mappingPipeline) {
+    return MappingTransforms.findMappingInputs(mappingPipeline);
   }
 
   private List<MappingOutput> findMappingOutputs(Pipeline mappingPipeline) {
-    List<MappingOutput> list = new ArrayList<>();
-
-    List<IEngineComponent> components = mappingPipeline.getComponents();
-    for (IEngineComponent component : components) {
-      if (component instanceof MappingOutput mappingOutput) {
-        list.add(mappingOutput);
-      }
-    }
-
-    return list;
+    return MappingTransforms.findMappingOutputs(mappingPipeline);
   }
 
   @Override
@@ -292,13 +305,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
           // We don't want to process one-row batches in a parallel engine where we need to wait for
           // the threads to finish.
           //
-          boolean singleThreaded =
-              data.isBeamContext()
-                  || (getPipeline() != null
-                      && getPipeline().getPipelineMeta() != null
-                      && getPipeline().getPipelineMeta().getPipelineType()
-                          == PipelineMeta.PipelineType.SingleThreaded);
-          if (singleThreaded) {
+          if (isSingleThreaded()) {
             data.executor = new SingleThreadedPipelineExecutor(data.mappingPipeline);
           }
 
@@ -333,6 +340,10 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     try {
       if (data.executor != null) {
         try {
+          // A single-threaded child has no transform threads, so it does not finish on its own.
+          if (data.mappingPipeline != null && !data.mappingPipeline.isFinished()) {
+            data.mappingPipeline.stopAll();
+          }
           data.executor.dispose();
         } catch (Exception e) {
           logError("Error calling dispose() on single threaded Simple Mapping executor", e);

@@ -34,7 +34,6 @@ import java.util.List;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -51,7 +50,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -60,8 +58,11 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -113,7 +114,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Combo wTk;
 
   private Label wlTkRename;
-  private Text wTkRename;
+  private TextVar wTkRename;
 
   private Button wTkAutoIncrement;
   private Button wTkUuid;
@@ -124,7 +125,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Text wSeq;
 
   private Button wTkFieldButton;
-  private Text wTkField;
+  private TextVar wTkField;
 
   private Button wDisableUnknownUpdate;
   private Button wShowUnknownTk;
@@ -186,27 +187,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     buildButtonBar().ok(e -> ok()).get(e -> get()).sql(e -> create()).cancel(e -> cancel()).build();
 
-    ScrolledComposite wScrolledComposite =
-        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
-    PropsUi.setLook(wScrolledComposite);
-    FormData fdSc = new FormData();
-    fdSc.left = new FormAttachment(0, 0);
-    fdSc.top = new FormAttachment(wSpacer, 0);
-    fdSc.right = new FormAttachment(100, 0);
-    fdSc.bottom = new FormAttachment(wOk, -margin);
-    wScrolledComposite.setLayoutData(fdSc);
-    wScrolledComposite.setLayout(new FillLayout());
-    wScrolledComposite.setExpandHorizontal(true);
-    wScrolledComposite.setExpandVertical(true);
-
-    Composite mainComposite = new Composite(wScrolledComposite, SWT.NONE);
-    PropsUi.setLook(mainComposite);
-    mainComposite.setLayout(props.createFormLayout());
-
-    Label wContentTop = new Label(mainComposite, SWT.NONE);
-    wContentTop.setLayoutData(new FormData(0, 0));
-
-    wTabFolder = new CTabFolder(mainComposite, SWT.BORDER);
+    wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addPhysicalTab(margin);
@@ -217,23 +198,10 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(wCacheSize, margin);
-    fdTabFolder.bottom = new FormAttachment(100, -margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
-
-    wScrolledComposite.setContent(mainComposite);
-    mainComposite.pack();
-    wScrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-
-    FormData fdComp = new FormData();
-    fdComp.left = new FormAttachment(0, 0);
-    fdComp.top = new FormAttachment(0, 0);
-    fdComp.right = new FormAttachment(100, 0);
-    fdComp.bottom = new FormAttachment(100, 0);
-    mainComposite.setLayoutData(fdComp);
-
-    mainComposite.pack();
 
     setTableMax();
     setSequence();
@@ -254,7 +222,11 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wPhysicalTab.setFont(GuiResource.getInstance().getFontDefault());
     wPhysicalTab.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.PhysicalTab.CTabItem"));
 
-    Composite wPhysicalComp = new Composite(wTabFolder, SWT.NONE);
+    ScrolledComposite wPhysicalSComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wPhysicalSComp.setLayout(new FillLayout());
+
+    Composite wPhysicalComp = new Composite(wPhysicalSComp, SWT.NONE);
     PropsUi.setLook(wPhysicalComp);
     wPhysicalComp.setLayout(props.createFormLayout());
 
@@ -314,7 +286,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
-    wSchema = new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
@@ -341,7 +315,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wbTable.setLayoutData(fdbTable);
     wbTable.addListener(SWT.Selection, e -> getTableName());
 
-    wTable = new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(middle, 0);
@@ -439,15 +415,15 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdCacheSize.right = new FormAttachment(100, 0);
     wCacheSize.setLayoutData(fdCacheSize);
 
-    FormData fdPhysicalComp = new FormData();
-    fdPhysicalComp.left = new FormAttachment(0, 0);
-    fdPhysicalComp.top = new FormAttachment(0, 0);
-    fdPhysicalComp.right = new FormAttachment(100, 0);
-    fdPhysicalComp.bottom = new FormAttachment(100, 0);
-    wPhysicalComp.setLayoutData(fdPhysicalComp);
+    wPhysicalComp.pack();
 
-    wPhysicalComp.layout();
-    wPhysicalTab.setControl(wPhysicalComp);
+    wPhysicalSComp.setContent(wPhysicalComp);
+    wPhysicalSComp.setExpandHorizontal(true);
+    wPhysicalSComp.setExpandVertical(true);
+    wPhysicalSComp.setMinWidth(wPhysicalComp.getBounds().width);
+    wPhysicalSComp.setMinHeight(wPhysicalComp.getBounds().height);
+
+    wPhysicalTab.setControl(wPhysicalSComp);
   }
 
   public void addKeyTab(int margin) {
@@ -458,7 +434,10 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wKeyTab.setFont(GuiResource.getInstance().getFontDefault());
     wKeyTab.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.KeyTab.CTabItem"));
 
-    Composite wKeyComp = new Composite(wTabFolder, SWT.NONE);
+    ScrolledComposite wKeySComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wKeySComp.setLayout(new FillLayout());
+
+    Composite wKeyComp = new Composite(wKeySComp, SWT.NONE);
     PropsUi.setLook(wKeyComp);
     wKeyComp.setLayout(props.createFormLayout());
 
@@ -507,15 +486,15 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdKey.bottom = new FormAttachment(100, 0);
     wKey.setLayoutData(fdKey);
 
-    FormData fdKeyComp = new FormData();
-    fdKeyComp.left = new FormAttachment(0, 0);
-    fdKeyComp.top = new FormAttachment(0, 0);
-    fdKeyComp.right = new FormAttachment(100, 0);
-    fdKeyComp.bottom = new FormAttachment(100, 0);
-    wKeyComp.setLayoutData(fdKeyComp);
+    wKeyComp.pack();
 
-    wKeyComp.layout();
-    wKeyTab.setControl(wKeyComp);
+    wKeySComp.setContent(wKeyComp);
+    wKeySComp.setExpandHorizontal(true);
+    wKeySComp.setExpandVertical(true);
+    wKeySComp.setMinWidth(wKeyComp.getBounds().width);
+    wKeySComp.setMinHeight(wKeyComp.getBounds().height);
+
+    wKeyTab.setControl(wKeySComp);
   }
 
   public void addTechnicalKeyTab(int margin, int middle) {
@@ -524,7 +503,11 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wTechnicalKeyTab.setText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.TechnicalKeyTab.CTabItem"));
 
-    Composite wTechnicalKeyComp = new Composite(wTabFolder, SWT.NONE);
+    ScrolledComposite wTechnicalKeySComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wTechnicalKeySComp.setLayout(new FillLayout());
+
+    Composite wTechnicalKeyComp = new Composite(wTechnicalKeySComp, SWT.NONE);
     PropsUi.setLook(wTechnicalKeyComp);
     wTechnicalKeyComp.setLayout(props.createFormLayout());
 
@@ -562,7 +545,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdlTkRename.top = new FormAttachment(wlTk, 0, SWT.CENTER);
     wlTkRename.setLayoutData(fdlTkRename);
 
-    wTkRename = new Text(wTechnicalKeyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTkRename =
+        new TextVar(variables, wTechnicalKeyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     PropsUi.setLook(wTkRename);
     FormData fdTkRename = new FormData();
     fdTkRename.left = new FormAttachment(wlTkRename, margin);
@@ -657,7 +642,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wTkFieldButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TkField.Label"));
     wTkFieldButton.addListener(SWT.Selection, e -> setTkType(FIELD));
 
-    wTkField = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTkField =
+        new TextVar(variables, gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     PropsUi.setLook(wTkField);
     FormData fdTkField = new FormData();
     fdTkField.left = new FormAttachment(wTkFieldButton, margin);
@@ -690,15 +677,15 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wShowUnknownTk.setLayoutData(fdShowUnknownTk);
     wShowUnknownTk.addListener(SWT.Selection, this::showUnknownTk);
 
-    FormData fdTechnicalKeyComp = new FormData();
-    fdTechnicalKeyComp.left = new FormAttachment(0, 0);
-    fdTechnicalKeyComp.top = new FormAttachment(0, 0);
-    fdTechnicalKeyComp.right = new FormAttachment(100, 0);
-    fdTechnicalKeyComp.bottom = new FormAttachment(100, 0);
-    wTechnicalKeyComp.setLayoutData(fdTechnicalKeyComp);
+    wTechnicalKeyComp.pack();
 
-    wTechnicalKeyComp.layout();
-    wTechnicalKeyTab.setControl(wTechnicalKeyComp);
+    wTechnicalKeySComp.setContent(wTechnicalKeyComp);
+    wTechnicalKeySComp.setExpandHorizontal(true);
+    wTechnicalKeySComp.setExpandVertical(true);
+    wTechnicalKeySComp.setMinWidth(wTechnicalKeyComp.getBounds().width);
+    wTechnicalKeySComp.setMinHeight(wTechnicalKeyComp.getBounds().height);
+
+    wTechnicalKeyTab.setControl(wTechnicalKeySComp);
   }
 
   private void showUnknownTk(Event event) {
@@ -777,7 +764,10 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wFieldsTab.setText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.FieldsTab.CTabItem.Title"));
 
-    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
+    ScrolledComposite wFieldsSComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wFieldsSComp.setLayout(new FillLayout());
+
+    Composite wFieldsComp = new Composite(wFieldsSComp, SWT.NONE);
     PropsUi.setLook(wFieldsComp);
 
     wFieldsComp.setLayout(props.createFormLayout());
@@ -802,6 +792,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    fieldColumns[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     fieldColumns[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "DimensionLookupDialog.ColumnInfo.StreamField"),
@@ -855,17 +846,17 @@ public class DimensionLookupDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
-    FormData fdFieldsComp = new FormData();
-    fdFieldsComp.left = new FormAttachment(0, 0);
-    fdFieldsComp.top = new FormAttachment(0, 0);
-    fdFieldsComp.right = new FormAttachment(100, 0);
-    fdFieldsComp.bottom = new FormAttachment(100, 0);
-    wFieldsComp.setLayoutData(fdFieldsComp);
+    wFieldsComp.pack();
 
-    wFieldsComp.layout();
-    wFieldsTab.setControl(wFieldsComp);
+    wFieldsSComp.setContent(wFieldsComp);
+    wFieldsSComp.setExpandHorizontal(true);
+    wFieldsSComp.setExpandVertical(true);
+    wFieldsSComp.setMinWidth(wFieldsComp.getBounds().width);
+    wFieldsSComp.setMinHeight(wFieldsComp.getBounds().height);
+
+    wFieldsTab.setControl(wFieldsSComp);
   }
 
   public void addVersioningTab(int margin, int middle) {
@@ -875,7 +866,11 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wVersioningTab.setText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.VersioningTab.CTabItem"));
 
-    Composite wVersioningComp = new Composite(wTabFolder, SWT.NONE);
+    ScrolledComposite wVersioningSComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wVersioningSComp.setLayout(new FillLayout());
+
+    Composite wVersioningComp = new Composite(wVersioningSComp, SWT.NONE);
     PropsUi.setLook(wVersioningComp);
 
     wVersioningComp.setLayout(props.createFormLayout());
@@ -1093,15 +1088,15 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wMaxYear.setLayoutData(fdMaxYear);
     wMaxYear.setToolTipText(BaseMessages.getString(PKG, "DimensionLookupDialog.MaxYear.ToolTip"));
 
-    FormData fdFieldsComp = new FormData();
-    fdFieldsComp.left = new FormAttachment(0, 0);
-    fdFieldsComp.top = new FormAttachment(0, 0);
-    fdFieldsComp.right = new FormAttachment(100, 0);
-    fdFieldsComp.bottom = new FormAttachment(100, 0);
-    wVersioningComp.setLayoutData(fdFieldsComp);
+    wVersioningComp.pack();
 
-    wVersioningComp.layout();
-    wVersioningTab.setControl(wVersioningComp);
+    wVersioningSComp.setContent(wVersioningComp);
+    wVersioningSComp.setExpandHorizontal(true);
+    wVersioningSComp.setExpandVertical(true);
+    wVersioningSComp.setMinWidth(wVersioningComp.getBounds().width);
+    wVersioningSComp.setMinHeight(wVersioningComp.getBounds().height);
+
+    wVersioningTab.setControl(wVersioningSComp);
   }
 
   public void setFlags() {
@@ -1765,10 +1760,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
         if (!sql.hasError()) {
           if (sql.hasSql()) {
             DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-            SqlEditor sqledit =
-                new SqlEditor(
-                    shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-            sqledit.open();
+            DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
           } else {
             MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
             mb.setMessage(
@@ -1802,7 +1794,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     if (databaseMeta != null) {
       try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
-        String[] schemas = Const.sortStrings(database.getSchemas());
+        String[] schemas = database.getSchemas();
 
         if (schemas != null && schemas.length > 0) {
           EnterSelectionDialog dialog =

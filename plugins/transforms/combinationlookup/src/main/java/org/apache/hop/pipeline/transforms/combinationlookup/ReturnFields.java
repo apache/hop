@@ -18,8 +18,14 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class ReturnFields {
   /** Technical Key field to return */
   @HopMetadataProperty(
@@ -46,86 +52,12 @@ public class ReturnFields {
       key = "creation_method",
       injectionKey = "TECHNICAL_KEY_CREATION",
       injectionKeyDescription = "CombinationLookup.Injection.TECHNICAL_KEY_CREATION")
-  private String techKeyCreation = null;
-
-  public ReturnFields() {}
+  private String techKeyCreation;
 
   public ReturnFields(ReturnFields f) {
     this.technicalKeyField = f.technicalKeyField;
     this.useAutoIncrement = f.useAutoIncrement;
     this.lastUpdateField = f.lastUpdateField;
     this.techKeyCreation = f.techKeyCreation;
-  }
-
-  /**
-   * Gets technicalKeyField
-   *
-   * @return value of technicalKeyField
-   */
-  public String getTechnicalKeyField() {
-    return technicalKeyField;
-  }
-
-  /**
-   * Sets technicalKeyField
-   *
-   * @param technicalKeyField value of technicalKeyField
-   */
-  public void setTechnicalKeyField(String technicalKeyField) {
-    this.technicalKeyField = technicalKeyField;
-  }
-
-  /**
-   * Gets useAutoinc
-   *
-   * @return value of useAutoinc
-   */
-  public boolean isUseAutoIncrement() {
-    return useAutoIncrement;
-  }
-
-  /**
-   * Sets useAutoinc
-   *
-   * @param useAutoIncrement value of useAutoinc
-   */
-  public void setUseAutoIncrement(boolean useAutoIncrement) {
-    this.useAutoIncrement = useAutoIncrement;
-  }
-
-  /**
-   * Gets lastUpdateField
-   *
-   * @return value of lastUpdateField
-   */
-  public String getLastUpdateField() {
-    return lastUpdateField;
-  }
-
-  /**
-   * Sets lastUpdateField
-   *
-   * @param lastUpdateField value of lastUpdateField
-   */
-  public void setLastUpdateField(String lastUpdateField) {
-    this.lastUpdateField = lastUpdateField;
-  }
-
-  /**
-   * Gets techKeyCreation
-   *
-   * @return value of techKeyCreation
-   */
-  public String getTechKeyCreation() {
-    return techKeyCreation;
-  }
-
-  /**
-   * Sets techKeyCreation
-   *
-   * @param techKeyCreation value of techKeyCreation
-   */
-  public void setTechKeyCreation(String techKeyCreation) {
-    this.techKeyCreation = techKeyCreation;
   }
 }

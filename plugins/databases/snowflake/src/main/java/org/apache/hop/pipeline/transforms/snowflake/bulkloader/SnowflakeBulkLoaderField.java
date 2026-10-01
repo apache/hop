@@ -25,7 +25,10 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 public class SnowflakeBulkLoaderField implements Cloneable {
 
   /** The field name on the stream */
-  @HopMetadataProperty(key = "stream_field", injectionGroupKey = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "stream_field",
+      injectionGroupKey = "OUTPUT_FIELDS",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String streamField;
 
   /** The field name on the table */

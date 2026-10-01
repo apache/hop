@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Text File Output transform is used to export data to text file format.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/textfileoutput.svg[Text File Output transform Icon, role="image-doc-icon"] Text File Output
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Text File Output transform is used to export data to text file format.
@@ -31,23 +29,11 @@ This is commonly used to generate Comma Separated Values (CSV files) that can be
 
 It is also possible to generate fixed width files by setting lengths on the fields in the fields tab.
 
+Output is buffered. Open files are flushed on an interval so slow-arriving rows show up without waiting for that buffer to fill. The interval is xref:variables.adoc[HOP_FILE_OUTPUT_MAX_STREAM_LIFE], in milliseconds. The default is 5 seconds. A value of 0 uses that default. Set a positive number of milliseconds to change the interval. A negative value, for example -1, disables the interval flush.
+
 You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually. If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
 The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
-
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Options
 
@@ -115,6 +101,7 @@ To use Unicode specify UTF-8 or UTF-16.
 Note: Only one file is placed in a single compressed archive.
 |Right pad fields|Add spaces to the end of the fields (or remove characters at the end) until they have the length specific on the Fields tab.
 |Fast data dump (no formatting)|Improves the performance when dumping large amounts of data to a text file by not including any formatting information.
+Field formats are ignored, so a Boolean is written as `true` or `false`.
 |Split every ... rows|Specify a number of rows to split the file into chunks of that many rows. 
 |Add Ending line of file|Specify an alternate ending row to the output file.
 |===
@@ -130,7 +117,10 @@ The table below describes each of the options for configuring the field properti
 |Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|The name of the field.
 |Type|Data type of the field. This can be either String, Date or Number.
-|Format|Select a format to apply to the field value. Only applies to numbers and dates.
+|Format|Select a format to apply to the field value. Applies to numbers, dates and Booleans.
+For a Boolean, the format is the text for true, a slash and the text for false, so `Ja/Nein` writes German words instead of `Y` / `N`.
+You can type your own pair, see xref:pipeline/formatting-values.adoc#boolean-own-format[Your own true and false text].
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length a| The length option depends on the field type:
 
 * Number - Total number of significant figures in a number
@@ -139,7 +129,8 @@ The table below describes each of the options for configuring the field properti
 |Precision |For numbers, specifies the number of floating point digits
 |Currency|Symbol used to represent currencies, such as dollars ($10,000.00) or Euros (E5.000,00)
 |Decimal|The character used to represent the decimal point in a floating-point number. A decimal point can be a "." (10,000.00) or "," (5.000,00).
-|Group|The character used to represent the thousands separator in numbers. This can be a "," (10,000.00) or "." (5.000,00)
+|Group|The thousands separator in numbers. This can be a "," (10,000.00) or "." (5.000,00).
+This is *not* a row group.
 |Trim type|The trimming method used to remove blank spaces from string values. This can be left (removes leading spaces), right (removes trailing spaces), both, or none.
 
 Note: Trimming only works when there is no field length given. 

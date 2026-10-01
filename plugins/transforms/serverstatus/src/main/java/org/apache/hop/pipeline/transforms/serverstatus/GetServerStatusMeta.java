@@ -77,8 +77,14 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
   @HopMetadataProperty(key = "active_pipelines_field")
   private String activePipelinesField;
 
+  @HopMetadataProperty(key = "finished_pipelines_field")
+  private String finishedPipelinesField;
+
   @HopMetadataProperty(key = "active_workflows_field")
   private String activeWorkflowsField;
+
+  @HopMetadataProperty(key = "finished_workflows_field")
+  private String finishedWorkflowsField;
 
   @HopMetadataProperty(key = "available_field")
   private String availableField;
@@ -99,32 +105,11 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     osVersionField = "osVersion";
     osArchitectureField = "osArchitecture";
     activePipelinesField = "activePipelines";
+    finishedPipelinesField = "finishedPipelines";
     activeWorkflowsField = "activeWorkflows";
+    finishedWorkflowsField = "finishedWorkflows";
     availableField = "available";
     responseNsField = "responseNs";
-  }
-
-  public GetServerStatusMeta(GetServerStatusMeta meta) {
-    this.serverField = meta.serverField;
-    this.errorMessageField = meta.errorMessageField;
-    this.statusDescriptionField = meta.statusDescriptionField;
-    this.serverLoadField = meta.serverLoadField;
-    this.memoryFreeField = meta.memoryFreeField;
-    this.memoryTotalField = meta.memoryTotalField;
-    this.cpuCoresField = meta.cpuCoresField;
-    this.cpuProcessTimeField = meta.cpuProcessTimeField;
-    this.osNameField = meta.osNameField;
-    this.osVersionField = meta.osVersionField;
-    this.osArchitectureField = meta.osArchitectureField;
-    this.activePipelinesField = meta.activePipelinesField;
-    this.activeWorkflowsField = meta.activeWorkflowsField;
-    this.availableField = meta.availableField;
-    this.responseNsField = meta.responseNsField;
-  }
-
-  @Override
-  public GetServerStatusMeta clone() {
-    return new GetServerStatusMeta(this);
   }
 
   @Override
@@ -169,8 +154,14 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     if (StringUtils.isNotEmpty(activePipelinesField)) {
       inputRowMeta.addValueMeta(new ValueMetaInteger(activePipelinesField));
     }
+    if (StringUtils.isNotEmpty(finishedPipelinesField)) {
+      inputRowMeta.addValueMeta(new ValueMetaInteger(finishedPipelinesField));
+    }
     if (StringUtils.isNotEmpty(activeWorkflowsField)) {
       inputRowMeta.addValueMeta(new ValueMetaInteger(activeWorkflowsField));
+    }
+    if (StringUtils.isNotEmpty(finishedWorkflowsField)) {
+      inputRowMeta.addValueMeta(new ValueMetaInteger(finishedWorkflowsField));
     }
     if (StringUtils.isNotEmpty(availableField)) {
       inputRowMeta.addValueMeta(new ValueMetaBoolean(availableField));
@@ -373,6 +364,22 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
   }
 
   /**
+   * Gets finishedPipelinesField
+   *
+   * @return value of finishedPipelinesField
+   */
+  public String getFinishedPipelinesField() {
+    return finishedPipelinesField;
+  }
+
+  /**
+   * @param finishedPipelinesField The finishedPipelinesField to set
+   */
+  public void setFinishedPipelinesField(String finishedPipelinesField) {
+    this.finishedPipelinesField = finishedPipelinesField;
+  }
+
+  /**
    * Gets activeWorkflowsField
    *
    * @return value of activeWorkflowsField
@@ -386,6 +393,22 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
    */
   public void setActiveWorkflowsField(String activeWorkflowsField) {
     this.activeWorkflowsField = activeWorkflowsField;
+  }
+
+  /**
+   * Gets finishedWorkflowsField
+   *
+   * @return value of finishedWorkflowsField
+   */
+  public String getFinishedWorkflowsField() {
+    return finishedWorkflowsField;
+  }
+
+  /**
+   * @param finishedWorkflowsField The finishedWorkflowsField to set
+   */
+  public void setFinishedWorkflowsField(String finishedWorkflowsField) {
+    this.finishedWorkflowsField = finishedWorkflowsField;
   }
 
   /**

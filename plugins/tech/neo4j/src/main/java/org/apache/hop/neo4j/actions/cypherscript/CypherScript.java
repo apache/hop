@@ -63,18 +63,6 @@ public class CypherScript extends ActionBase implements IAction {
     super(name, description);
   }
 
-  public CypherScript(CypherScript s) {
-    super(s.getName(), s.getDescription(), s.getPluginId());
-    this.connectionName = s.connectionName;
-    this.script = s.script;
-    this.replacingVariables = s.replacingVariables;
-  }
-
-  @Override
-  public CypherScript clone() {
-    return new CypherScript(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) throws HopException {
     IHopMetadataSerializer<NeoConnection> serializer =

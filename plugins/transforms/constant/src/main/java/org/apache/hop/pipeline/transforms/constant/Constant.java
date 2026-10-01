@@ -312,7 +312,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
               PKG,
               "Constant.Log.Wrote.Row",
               Long.toString(getLinesWritten()),
-              getInputRowMeta().getString(r)));
+              data.outputMeta.getString(r)));
     }
 
     if (checkFeedback(getLinesWritten()) && isBasic()) {

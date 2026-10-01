@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.canvas;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Rectangle;
@@ -26,6 +27,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.rap.json.JsonArray;
@@ -55,7 +57,10 @@ public final class AreaOwnerJsonSerializer {
     json.add("y", area.y);
     json.add("width", area.width);
     json.add("height", area.height);
-    json.add("hover", areaOwner.getAreaType().isSupportHover());
+    boolean hover =
+        areaOwner.getAreaType().isSupportHover()
+            || (areaOwner.getOwner() instanceof ContextDialog.Item);
+    json.add("hover", hover);
     json.add(
         "owner", ownerToJson(areaOwner.getOwner(), areaOwner.getParent(), areaOwner.getAreaType()));
     return json;
@@ -122,6 +127,20 @@ public final class AreaOwnerJsonSerializer {
       if (parent instanceof TransformMeta transformMeta) {
         json.add("transformName", transformMeta.getName());
       }
+      return json;
+    }
+    if (owner instanceof ContextDialog.Item item) {
+      json.add("kind", "contextItem");
+      json.add("name", item.getText());
+      json.add("actionId", item.getAction() != null ? item.getAction().getId() : "");
+      json.add(
+          "tooltip", item.getAction() != null ? Const.NVL(item.getAction().getTooltip(), "") : "");
+      return json;
+    }
+    if (owner instanceof ContextDialog.CategoryAndOrder category) {
+      json.add("kind", "contextCategory");
+      json.add("category", category.getCategory());
+      json.add("collapsed", category.isCollapsed());
       return json;
     }
     LogChannel.UI.logDebug(

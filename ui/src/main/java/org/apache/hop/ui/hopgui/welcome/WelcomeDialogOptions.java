@@ -54,12 +54,17 @@ public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginComposite
       id = "NoWelcomeDialog",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::WelcomeDialog.Show.Label")
+      label = "i18n::WelcomeDialog.Show.Label",
+      toolTip = "i18n::WelcomeDialog.Show.Tooltip",
+      defaultValue = "true")
   private boolean welcomeDialogShowAtStartup;
 
   public WelcomeDialogOptions() {
+    // The stored option is the negative one ("do not show"), this field is the positive one the
+    // checkbox is labelled with, so the two are inverses of each other. They used to be read and
+    // written straight across, which made ticking "show the welcome dialog" hide it.
     welcomeDialogShowAtStartup =
-        HopConfig.readOptionBoolean(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, false);
+        !HopConfig.readOptionBoolean(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, false);
   }
 
   private static WelcomeDialogOptions instance;
@@ -167,6 +172,6 @@ public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginComposite
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {
     HopConfig.getInstance()
-        .saveOption(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, welcomeDialogShowAtStartup);
+        .saveOption(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, !welcomeDialogShowAtStartup);
   }
 }

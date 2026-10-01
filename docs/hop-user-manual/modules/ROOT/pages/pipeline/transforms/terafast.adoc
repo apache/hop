@@ -18,30 +18,15 @@ under the License.
 :language: en_US
 :description: The Teradata Bulkloader transform supports fastloading data into a Teradata database using the fastload command line tool.
 
-:openvar: ${
-:closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/terafast.svg[Teradata Bulk Loader transform Icon, role="image-doc-icon"] Teradata Bulk Loader
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Teradata Bulkloader transform supports fastloading data into a Teradata database using the fastload command line tool.
 
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
+TIP: binary stream fields are written as lowercase hex, which is the format FastLoad expects for `BYTE`/`VARBYTE` in a VARTEXT data file.
 
 == Options
 
@@ -51,7 +36,7 @@ The Teradata Bulkloader transform supports fastloading data into a Teradata data
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
 |Use control file| Work in control file mode.
 |Control file|The path to the control file to be used.
-|Variable Substitution in control file|Make use of POI Variables (eg: {openvar}RUN_ID{closevar}) in the control file.
+|Variable Substitution in control file|Make use of POI Variables (eg: +${RUN_ID}+) in the control file.
 |Path to fastload|The path to the fastload command line utility.
 |Error log|An optional Error log to be created by Fastload.
 |Connection|A connection to the Teradata DB.

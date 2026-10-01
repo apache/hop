@@ -26,7 +26,8 @@ import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 @DatabaseMetaPlugin(
     type = "INFOBRIGHT",
     typeDescription = "Infobright",
-    documentationUrl = "/database/databases/infobright.html")
+    documentationUrl = "/database/databases/infobright.html",
+    classLoaderGroup = "infobright-db")
 @GuiPlugin(id = "GUI-InfobrightDatabaseMeta")
 public class InfobrightDatabaseMeta extends MySqlDatabaseMeta {
 

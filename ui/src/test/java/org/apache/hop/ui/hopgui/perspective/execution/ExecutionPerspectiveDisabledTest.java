@@ -19,8 +19,10 @@ package org.apache.hop.ui.hopgui.perspective.execution;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -88,5 +90,21 @@ class ExecutionPerspectiveDisabledTest {
   @Test
   void aDisabledPerspectiveIsNeverActive() {
     assertFalse(disabledPerspective.isActive());
+  }
+
+  @Test
+  void getInstanceDoesNotReturnNullWhenNeverConstructed() throws Exception {
+    Field instanceField = ExecutionPerspective.class.getDeclaredField("instance");
+    instanceField.setAccessible(true);
+    Object previous = instanceField.get(null);
+    instanceField.set(null, null);
+    try {
+      ExecutionPerspective perspective = ExecutionPerspective.getInstance();
+      assertNotNull(perspective);
+      assertDoesNotThrow(perspective::saveState);
+      assertDoesNotThrow(perspective::restoreState);
+    } finally {
+      instanceField.set(null, previous);
+    }
   }
 }

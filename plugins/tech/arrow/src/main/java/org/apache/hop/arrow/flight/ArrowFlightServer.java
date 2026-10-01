@@ -18,6 +18,9 @@
 
 package org.apache.hop.arrow.flight;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.arrow.flight.FlightProducer;
@@ -36,6 +39,7 @@ public class ArrowFlightServer {
   private int port;
   private final IVariables variables;
   private final IHopMetadataProvider metadataProvider;
+  private final ArrowFlightSecurity security;
 
   private final RootAllocator allocator;
   private final Location location;
@@ -50,24 +54,87 @@ public class ArrowFlightServer {
       IHopMetadataProvider metadataProvider,
       ILogChannel log)
       throws HopException {
+    this(hostname, port, ArrowFlightSecurity.NONE, variables, metadataProvider, log);
+  }
+
+  public ArrowFlightServer(
+      String hostname,
+      int port,
+      ArrowFlightSecurity security,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log)
+      throws HopException {
     this.hostname = hostname;
     this.port = port;
+    this.security = security == null ? ArrowFlightSecurity.NONE : security;
     this.variables = variables;
     this.metadataProvider = metadataProvider;
     this.log = log;
 
+    this.security.validate(log);
+
     this.allocator = new RootAllocator();
 
-    this.location = Location.forGrpcInsecure(hostname, port);
+    this.location =
+        this.security.isTlsEnabled()
+            ? Location.forGrpcTls(hostname, port)
+            : Location.forGrpcInsecure(hostname, port);
 
     FlightProducer producer = new HopFlightProducer(variables, metadataProvider, allocator);
-    flightServer = FlightServer.builder(allocator, location, producer).build();
+    flightServer = buildFlightServer(producer);
+  }
+
+  private FlightServer buildFlightServer(FlightProducer producer) throws HopException {
+    FlightServer.Builder builder = FlightServer.builder(allocator, location, producer);
+
+    if (security.isTlsEnabled()) {
+      byte[] certificate = ArrowFlightSecurity.readPemFile(security.getCertificateFile());
+      byte[] privateKey = ArrowFlightSecurity.readPemFile(security.getPrivateKeyFile());
+      try (InputStream certificateStream = new ByteArrayInputStream(certificate);
+          InputStream privateKeyStream = new ByteArrayInputStream(privateKey)) {
+        builder.useTls(certificateStream, privateKeyStream);
+      } catch (IOException e) {
+        throw new HopException(
+            "Unable to configure TLS for the Flight server on " + hostname + ":" + port, e);
+      }
+
+      if (security.isMutualTlsEnabled()) {
+        byte[] clientCa =
+            ArrowFlightSecurity.readPemFile(security.getClientCertificateAuthorityFile());
+        try (InputStream clientCaStream = new ByteArrayInputStream(clientCa)) {
+          builder.useMTlsClientVerification(clientCaStream);
+        } catch (IOException e) {
+          throw new HopException(
+              "Unable to configure client certificate verification for the Flight server on "
+                  + hostname
+                  + ":"
+                  + port,
+              e);
+        }
+      }
+    }
+
+    if (security.isAuthenticationEnabled()) {
+      builder.headerAuthenticator(security.createAuthenticator());
+    }
+
+    return builder.build();
   }
 
   public void start() throws HopException {
     try {
       flightServer.start();
-      log.logBasic("Apache Arrow Flight server listening on " + hostname + ":" + port);
+      log.logBasic(
+          "Apache Arrow Flight server listening on "
+              + hostname
+              + ":"
+              + port
+              + " (TLS: "
+              + (security.isTlsEnabled() ? "enabled" : "disabled")
+              + ", authentication: "
+              + (security.isAuthenticationEnabled() ? "enabled" : "disabled")
+              + ")");
     } catch (Exception e) {
       throw new HopException("Unable to start Flight server on " + hostname + ":" + port, e);
     }

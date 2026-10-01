@@ -210,46 +210,6 @@ public class XmlInputStreamMeta extends BaseTransformMeta<XmlInputStream, XmlInp
     xmlDataValueField = "xml_data_value";
   }
 
-  public XmlInputStreamMeta(XmlInputStreamMeta m) {
-    this();
-    this.addResultFile = m.addResultFile;
-    this.defaultStringLen = m.defaultStringLen;
-    this.enableNamespaces = m.enableNamespaces;
-    this.enableTrim = m.enableTrim;
-    this.encoding = m.encoding;
-    this.filename = m.filename;
-    this.filenameField = m.filenameField;
-    this.includeFilenameField = m.includeFilenameField;
-    this.includeRowNumberField = m.includeRowNumberField;
-    this.includeXmlDataNameField = m.includeXmlDataNameField;
-    this.includeXmlDataTypeDescriptionField = m.includeXmlDataTypeDescriptionField;
-    this.includeXmlDataTypeNumericField = m.includeXmlDataTypeNumericField;
-    this.includeXmlDataValueField = m.includeXmlDataValueField;
-    this.includeXmlElementIDField = m.includeXmlElementIDField;
-    this.includeXmlElementLevelField = m.includeXmlElementLevelField;
-    this.includeXmlLocationColumnField = m.includeXmlLocationColumnField;
-    this.includeXmlLocationLineField = m.includeXmlLocationLineField;
-    this.includeXmlParentElementIDField = m.includeXmlParentElementIDField;
-    this.includeXmlParentPathField = m.includeXmlParentPathField;
-    this.includeXmlPathField = m.includeXmlPathField;
-    this.nrRowsToSkip = m.nrRowsToSkip;
-    this.rowLimit = m.rowLimit;
-    this.rowNumberField = m.rowNumberField;
-    this.sourceFieldName = m.sourceFieldName;
-    this.sourceFromInput = m.sourceFromInput;
-    this.xmlDataNameField = m.xmlDataNameField;
-    this.xmlDataTypeDescriptionField = m.xmlDataTypeDescriptionField;
-    this.xmlDataTypeNumericField = m.xmlDataTypeNumericField;
-    this.xmlDataValueField = m.xmlDataValueField;
-    this.xmlElementIDField = m.xmlElementIDField;
-    this.xmlElementLevelField = m.xmlElementLevelField;
-    this.xmlLocationColumnField = m.xmlLocationColumnField;
-    this.xmlLocationLineField = m.xmlLocationLineField;
-    this.xmlParentElementIDField = m.xmlParentElementIDField;
-    this.xmlParentPathField = m.xmlParentPathField;
-    this.xmlPathField = m.xmlPathField;
-  }
-
   @Override
   public void getFields(
       IRowMeta r,
@@ -349,11 +309,6 @@ public class XmlInputStreamMeta extends BaseTransformMeta<XmlInputStream, XmlInp
       v.setOrigin(name);
       r.addValueMeta(v);
     }
-  }
-
-  @Override
-  public Object clone() {
-    return new XmlInputStreamMeta(this);
   }
 
   @Override

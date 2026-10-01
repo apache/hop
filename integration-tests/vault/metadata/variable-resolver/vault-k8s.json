@@ -1,0 +1,20 @@
+{
+  "virtualPath": "",
+  "name": "vault-k8s",
+  "description": "Hashicorp Vault Kubernetes auth",
+  "variable-resolver": {
+    "Vault-Variable-Resolver": {
+      "vaultAddress": "http://vault:8200",
+      "pemString": "",
+      "openTimeout": "",
+      "verifyingSsl": false,
+      "pemFilePath": "",
+      "readTimeout": "",
+      "authenticationType": "KUBERNETES",
+      "kubernetesRole": "hop",
+      "kubernetesJwtPath": "/tmp/k8s-sa/token",
+      "kubernetesJwt": "",
+      "kubernetesAuthPath": "kubernetes"
+    }
+  }
+}

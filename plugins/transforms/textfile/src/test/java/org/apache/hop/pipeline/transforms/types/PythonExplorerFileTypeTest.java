@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -72,7 +71,7 @@ class PythonExplorerFileTypeTest {
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_FILE_HISTORY));
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_COPY));
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_SELECT));
-    assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_NEW));
+    assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_NEW));
   }
 
   @Test

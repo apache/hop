@@ -25,7 +25,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -42,7 +44,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 
   // Connection properties
   //
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Text wSeparator;
   private Text wEnclosure;
@@ -72,7 +74,9 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -176,6 +180,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
               false,
               false),
         };
+    columnInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
         new TableView(

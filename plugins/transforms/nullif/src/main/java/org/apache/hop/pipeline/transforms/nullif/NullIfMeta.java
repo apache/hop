@@ -56,24 +56,12 @@ public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
     this.fields = new ArrayList<>();
   }
 
-  public NullIfMeta(NullIfMeta meta) {
-    this();
-    for (NullIfField field : meta.fields) {
-      fields.add(new NullIfField(field.getName(), field.getValue()));
-    }
-  }
-
   public List<NullIfField> getFields() {
     return fields;
   }
 
   public void setFields(List<NullIfField> fields) {
     this.fields = fields;
-  }
-
-  @Override
-  public Object clone() {
-    return new NullIfMeta(this);
   }
 
   @Override

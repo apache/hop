@@ -21,7 +21,6 @@
 # This Dockerfile can build all Hop container images using multi-stage builds:
 # - hop (client/server)
 # - hop-web
-# - hop-rest
 # - hop-dataflow-template
 #
 # Build arguments:
@@ -29,7 +28,7 @@
 #   HOP_GIT_REPO: GitHub repository URL
 #   HOP_GIT_TAG: Git tag/branch to build from
 #   HOP_VERSION: Version string for labeling
-#   TARGET_IMAGE: Which image to build (client, web, rest, dataflow)
+#   TARGET_IMAGE: Which image to build (client, web, dataflow)
 #   BUILDER_TYPE: Builder flavor (full, fast)
 ################################################################################
 
@@ -104,14 +103,12 @@ WORKDIR /build
 COPY ./assemblies/client/target/hop-client-*.zip /build/assemblies/client/target/
 COPY ./assemblies/web/target/hop.war /build/assemblies/web/target/
 COPY ./assemblies/plugins/target/hop-assemblies-*.zip /build/assemblies/plugins/target/
-COPY ./rest/target/hop-rest*.war /build/rest/target/
 COPY ./docker/resources/ /build/docker/resources/
 
 # builder-fast produces the same artifacts as builder-full:
 # - /build/assemblies/client/target/hop-client-*.zip
 # - /build/assemblies/web/target/hop.war
 # - /build/assemblies/plugins/target/hop-assemblies-*.zip
-# - /build/rest/target/hop-rest*.war
 # - /build/docker/resources/*
 #
 # These will be extracted and prepared in Stage 3
@@ -248,7 +245,10 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
-    chmod +x /build/hop-web-prepared/run-web.sh
+    chmod +x /build/hop-web-prepared/run-web.sh && \
+    # Tomcat configuration with response compression (see the comments in the file)
+    mkdir -p /build/hop-web-prepared/conf && \
+    cp /build/docker/resources/server.xml /build/hop-web-prepared/conf/server.xml
 
 # Make scripts executable
 RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
@@ -273,18 +273,6 @@ RUN mkdir -p /build/hop-client-prepared && \
     cp /build/docker/resources/run.sh /build/hop-client-prepared/run.sh && \
     cp /build/docker/resources/load-and-execute.sh /build/hop-client-prepared/load-and-execute.sh && \
     chmod +x /build/hop-client-prepared/run.sh /build/hop-client-prepared/load-and-execute.sh
-
-# Prepare Hop REST directory structure
-RUN mkdir -p /build/hop-rest-prepared/plugins && \
-    mkdir -p /build/hop-rest-prepared/webapps && \
-    mkdir -p /build/hop-rest-prepared/lib/swt/linux/x86_64 && \
-    # Copy plugins
-    cp -r /build/assemblies/plugins/target/plugins/* /build/hop-rest-prepared/plugins/ && \
-    # Copy REST war
-    cp /build/rest/target/hop-rest*.war /build/hop-rest-prepared/webapps/hop.war && \
-    # Copy run script
-    cp /build/docker/resources/run-rest.sh /build/hop-rest-prepared/run-rest.sh && \
-    chmod +x /build/hop-rest-prepared/run-rest.sh
 
 ################################################################################
 # Stage 4a: Hop Client/Server Image (Standard)
@@ -339,8 +327,7 @@ RUN addgroup -g ${HOP_GID} -S hop \
     && adduser -u ${HOP_UID} -S -D -G hop hop \
     && chmod 777 -R /tmp && chmod o+t -R /tmp \
     && apk update \
-    && apk --no-cache add bash curl fontconfig msttcorefonts-installer openjdk21-jre procps \
-    && update-ms-fonts \
+    && apk --no-cache add bash curl fontconfig font-dejavu font-noto-cjk openjdk21-jre procps \
     && fc-cache -f \
     && rm -rf /var/cache/apk/* \
     && mkdir ${DEPLOYMENT_PATH} \
@@ -375,10 +362,10 @@ ARG HOP_GID=501
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS=${CATALINA_HOME}/plugins
 ENV HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"
@@ -407,11 +394,17 @@ ENV CATALINA_OPTS='${HOP_OPTIONS} \
   -DHOP_GUI_ZOOM_FACTOR="${HOP_GUI_ZOOM_FACTOR}"'
 
 # Create Hop user
-RUN groupadd -r hop -g ${HOP_GID} \
+# fonts-noto-cjk: the canvas is painted server-side; without a CJK font the JVM measures
+# Chinese/Japanese/Korean names as missing-glyph boxes and lays them out too narrow (#8528)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
-    && mkdir "${HOP_AUDIT_FOLDER}" \
+    && mkdir -p "${HOP_AUDIT_FOLDER}" \
+    && chown hop:hop "${HOP_AUDIT_FOLDER}" \
     && chown -R hop:hop /usr/local/tomcat
 
 # Copy resources (matching original Dockerfile.web layer structure)
@@ -421,43 +414,6 @@ USER hop
 
 CMD ["/bin/bash", "/usr/local/tomcat/run-web.sh"]
 
-
-################################################################################
-# Stage 4c: Hop REST Image
-################################################################################
-FROM tomcat:10-jdk21 AS rest
-
-# Environment variables
-ENV HOP_CONFIG_FOLDER=""
-ENV HOP_AES_ENCODER_KEY=""
-ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
-ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
-ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-Xmx4g"
-ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
-ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
-ENV HOP_SHARED_JDBC_FOLDERS=""
-ENV HOP_REST_CONFIG_FOLDER="/config"
-
-# Set TOMCAT start variables
-ENV CATALINA_OPTS='${HOP_OPTIONS} \
-  -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" \
-  -DHOP_AES_ENCODER_KEY_FILE="${HOP_AES_ENCODER_KEY_FILE}" \
-  -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" \
-  -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" \
-  -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" \
-  -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" \
-  -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" \
-  -DHOP_REST_CONFIG_FOLDER="${HOP_REST_CONFIG_FOLDER}" \
-  -DHOP_SHARED_JDBC_FOLDERS="${HOP_SHARED_JDBC_FOLDERS}"\'
-
-# Cleanup and copy resources
-RUN rm -rf webapps/*
-
-COPY --from=builder /build/hop-rest-prepared/ "${CATALINA_HOME}"/
-
-CMD ["/bin/bash", "/usr/local/tomcat/run-rest.sh"]
 
 ################################################################################
 # Stage 4d: Hop Dataflow Template Image

@@ -198,17 +198,18 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   }
 
   @Override
-  public Object clone() {
-    MailInputMeta retval = (MailInputMeta) super.clone();
-    List<MailInputField> retvalFields = new ArrayList<>();
-    for (MailInputField inputField : inputFields) {
-      if (inputField != null) {
-        retvalFields.add((MailInputField) inputField.clone());
-      }
-    }
-    retval.setInputFields(retvalFields);
+  public boolean consumesMainInput() {
+    return isUseDynamicFolder();
+  }
 
-    return retval;
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isUseDynamicFolder();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "MailInput.dynamicFolder.Label");
   }
 
   @Override
@@ -263,22 +264,12 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    CheckResult cr;
-    // See if we get input...
-    if (input.length > 0) {
-      cr =
+    if (isUseDynamicFolder() && input.length <= 0) {
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "MailInputMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "MailInputMeta.CheckResult.NoInput"),
-              transformMeta);
-      remarks.add(cr);
+              BaseMessages.getString(PKG, "MailInputMeta.CheckResult.IncomingHopsRequired"),
+              transformMeta));
     }
   }
 

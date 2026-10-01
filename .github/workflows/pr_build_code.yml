@@ -19,27 +19,64 @@
 
 name: Hop PR Build (Code)
 
+# Path filters mirror gib.excludePathsMatching in the root pom: a change confined to
+# these paths cannot affect the Maven build, so the workflow does not run at all.
+# Keep both lists in sync when adding an exclusion. (Negation needs `paths`, not
+# `paths-ignore`; later patterns win.)
 on:
   push:
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!docker/**'
+      - '!helm/**'
+      - '!dist/**'
+      - '!integration-tests/**'
+      - '!*.md'
+      - '!Jenkinsfile*'
+      - '!.asf.yaml'
   pull_request:
     branches: [ 'main' ]
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!docker/**'
+      - '!helm/**'
+      - '!dist/**'
+      - '!integration-tests/**'
+      - '!*.md'
+      - '!Jenkinsfile*'
+      - '!.asf.yaml'
+
+# Supersede an in-flight PR build when the branch is pushed again; never cancel a
+# push build, so every merge to main keeps its own result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Full build only for pushes to main; incremental for pull requests and for
+  # pushes to any other branch.
+  GIB_DISABLE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') && 'true' || 'false' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 21
-        uses: actions/setup-java@v1
+      # fetch-depth: 0 gives gitflow-incremental-builder the history it needs to
+      # find the merge base with origin/main. Harmless on the (full) main build.
+      - uses: actions/checkout@v7
         with:
-          java-version: 21
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -47,27 +84,63 @@ jobs:
             ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
             ${{ runner.os }}-m2-
             ${{ runner.os }}-
+      # Source checks resolve no dependencies, so they skip GIB's upstream modules. Without
+      # this, buildUpstreamMode=impacted would pull in every plugin as an upstream of the
+      # assemblies (these steps do not pass -Dassemblies=false).
       - name: RAT Check
-        run: mvn clean apache-rat:check
+        run: mvn clean apache-rat:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Checkstyle
-        run: mvn clean checkstyle:check
+        run: mvn clean checkstyle:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Spotless check
-        run: mvn spotless:check
+        run: mvn spotless:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Build with Maven
-        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Djacoco.skip=true --file pom.xml
+        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true -Dgib.disable=$GIB_DISABLE --file pom.xml
+      # The build regenerates the configuration perspective's option tables from the
+      # @ConfigPlugin and @GuiWidgetElement annotations. If that leaves the working tree
+      # dirty, the committed page no longer matches the code it documents.
+      - name: Configuration documentation is up to date
+        run: |
+          CONFIG_DOCS=docs/hop-user-manual/modules/ROOT/partials/config
+          # --porcelain, not diff: a newly added configuration plugin writes a new .adoc, and an
+          # untracked file is invisible to git diff.
+          if [ -n "$(git status --porcelain -- $CONFIG_DOCS)" ]; then
+            echo "The configuration perspective's generated option tables are out of date."
+            echo "A configuration option was added, removed or changed without regenerating"
+            echo "the page that documents it."
+            echo
+            echo "To fix, from a full build of your branch:"
+            echo "    mvn clean install -DskipTests"
+            echo "and commit the result under $CONFIG_DOCS."
+            echo
+            git status --short -- $CONFIG_DOCS
+            git diff -- $CONFIG_DOCS
+            exit 1
+          fi
+          echo "Generated configuration documentation matches the code."
 
   # Add a UI and run the UI tests only
   ui-tests:
     runs-on: ubuntu-latest
+    # A hung SWT event loop used to sit here until GitHub's 6 hour default cut it off, with no
+    # log to show for it. The harness watchdog and the surefire fork timeout should fire long
+    # before this does; if this one trips, the hang is outside the test JVM.
+    timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 21
-        uses: actions/setup-java@v1
+      - uses: actions/checkout@v7
         with:
-          java-version: 21
-      - name: Cache Maven packages
-        uses: actions/cache@v4
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      # Restore only: this job runs `package` and installs nothing, and it finishes before
+      # the build job. Saving here took the shared key first, so the build job's installed
+      # repository was never cached ("Unable to reserve cache"). Keep path and keys in sync
+      # with the build job, or the restore misses.
+      - name: Restore Maven packages
+        uses: actions/cache/restore@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -78,13 +151,15 @@ jobs:
       # SWT uses the GTK3 native bindings on Linux; Xvfb provides the virtual display.
       - name: Install Xvfb and SWT GTK libraries
         run: sudo apt-get update && sudo apt-get install -y xvfb libgtk-3-0
+      # On a PR this only runs the UI tests when the change touches a module the UI
+      # tests depend on; otherwise the incremental reactor prunes them away.
       - name: Run SWTBot UI tests under Xvfb
         run: >
           xvfb-run -a --server-args="-screen 0 1280x1024x24"
-          mvn -B -V -Puitest -Dassemblies=false -Djacoco.skip=true package
+          mvn -B -V -Puitest -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true -Dgib.disable=$GIB_DISABLE package
       - name: Upload SWTBot failure screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: swtbot-screenshots
           path: '**/screenshots/**'

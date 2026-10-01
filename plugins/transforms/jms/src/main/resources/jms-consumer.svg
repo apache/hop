@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JMS Consumer icon, styled to match apache-kafka-consumer -->
+<svg version="1.1" id="jms-consumer" xmlns="http://www.w3.org/2000/svg"
+     x="0px" y="0px" width="42px" height="42px" viewBox="0 0 42 42" style="enable-background:new 0 0 42 42;">
+    <style type="text/css">
+        .st0{fill:#3D6480;}
+        .st1{fill:#EFF9FE;}
+        .st2{display:none;fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#3D6480;stroke-miterlimit:3.8637;}
+        .st3{fill:none;stroke:#3D6480;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+    </style>
+    <g>
+        <!-- inbound arrow (consumer) -->
+        <polygon class="st0" points="36.9,33 36.9,36.1 31.7,30.8 30.3,32.2 35.6,37.4 32.4,37.4 32.4,39.3 38.8,39.3 38.8,33  "/>
+        <!-- document with folded corner -->
+        <g>
+            <polygon class="st1" points="10,10 10,32 22.8,32 32,23 32,10       "/>
+            <polygon class="st0" points="10,32 10,10 32,10 32,23 34,21 34,8 8,8 8,34 20.7,34 22.8,32       "/>
+        </g>
+        <path class="st2" d="M42,39c0,1.7-1.3,3-3,3H3c-1.7,0-3-1.3-3-3L0,3c0-1.7,1.3-3,3-3l36,0c1.7,0,3,1.3,3,3V39z"/>
+        <!-- JMS glyph, drawn as vector paths (not <text>) for crisp, renderer-independent output -->
+        <g style="fill:none;stroke:#3D6480;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round">
+            <path d="M16.8,16.4 V21.6 C16.8,23.4 15.6,24.6 14.6,23.8"/>
+            <polyline points="18.8,24.6 18.8,16.4 21.5,20.9 24.2,16.4 24.2,24.6"/>
+            <path d="M28.3,16.6 C26.0,16.0 25.0,18.0 27.1,20.5 C29.2,23.0 28.2,25.0 25.9,24.4"/>
+        </g>
+    </g>
+</svg>

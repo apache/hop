@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -41,6 +42,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -145,12 +147,31 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     // Then set those parameters to the values if have any.
 
     injectPipeline.copyParametersFromDefinitions(data.pipelineMeta);
-    for (String variableName : injectPipeline.getVariableNames()) {
-      String variableValue = getVariable(variableName);
-      if (StringUtils.isNotEmpty(variableValue)) {
-        injectPipeline.setParameterValue(variableName, variableValue);
+
+    // The template resolves its parameters like any other child pipeline: a value on the
+    // Parameters tab wins, then the parent's value of the same name when that option is on,
+    // then the template's own default.
+    //
+    List<MetaInjectParameter> injectParameters =
+        meta.getParameters() == null ? new ArrayList<>() : meta.getParameters();
+    List<String> names = new ArrayList<>();
+    List<String> values = new ArrayList<>();
+    for (MetaInjectParameter parameter : injectParameters) {
+      if (StringUtils.isNotEmpty(parameter.getVariable())
+          && StringUtils.isNotEmpty(Const.trim(parameter.getInput()))) {
+        names.add(parameter.getVariable());
+        values.add(Const.NVL(resolve(parameter.getInput()), ""));
       }
     }
+    SubExecutionParameters.activate(
+        injectPipeline,
+        injectPipeline,
+        this,
+        injectPipeline.listParameters(),
+        names.toArray(new String[0]),
+        values.toArray(new String[0]),
+        meta.isInheritingAllVariables(),
+        false);
 
     getPipeline().addExecutionStoppedListener(e -> injectPipeline.stopAll());
 

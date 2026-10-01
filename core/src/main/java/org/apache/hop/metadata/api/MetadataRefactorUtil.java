@@ -33,7 +33,7 @@ public final class MetadataRefactorUtil {
    * reference used in pipeline/workflow XML (e.g. RDBMS_CONNECTION for "rdbms").
    *
    * @param provider metadata provider (used to resolve the class for the key)
-   * @param metadataKey the metadata type key (e.g. "rdbms", "restconnection")
+   * @param metadataKey the metadata type key (e.g. "rdbms", "rest-connection")
    * @return the property type, or {@link HopMetadataPropertyType#NONE} if not declared or unknown
    */
   public static HopMetadataPropertyType getPropertyTypeForMetadataKey(
@@ -56,7 +56,7 @@ public final class MetadataRefactorUtil {
    * pipelines and workflows when renaming). Uses {@link HopMetadata#supportsGlobalReplace()}.
    *
    * @param provider metadata provider (used to resolve the class for the key)
-   * @param metadataKey the metadata type key (e.g. "rdbms", "restconnection")
+   * @param metadataKey the metadata type key (e.g. "rdbms", "rest-connection")
    * @return true if global replace is supported, false otherwise
    */
   public static boolean supportsGlobalReplace(IHopMetadataProvider provider, String metadataKey) {

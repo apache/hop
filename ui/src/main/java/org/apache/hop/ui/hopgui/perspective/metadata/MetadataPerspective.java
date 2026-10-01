@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -44,6 +44,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -61,7 +63,6 @@ import org.apache.hop.metadata.refactor.MetadataObjectReference;
 import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
 import org.apache.hop.metadata.refactor.MetadataReferenceResult;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -69,6 +70,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.DetailsDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -80,6 +82,10 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.FolderTreeIcons;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -225,7 +231,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   private static final int FILTER_DEBOUNCE_MS = 250;
 
-  @Getter private static MetadataPerspective instance;
+  private static MetadataPerspective instance;
 
   private HopGui hopGui;
   private SashForm sash;
@@ -270,6 +276,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     instance = this;
 
     this.metadataFileType = new MetadataFileType();
+  }
+
+  public static MetadataPerspective getInstance() {
+    try {
+      MetadataPerspective fromGui = HopGui.findSessionPerspective(MetadataPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    return instance;
   }
 
   /**
@@ -571,6 +589,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     // Remember expand/collapse within the session (shared TreeMemory, keyed by stable node ids).
     tree.addListener(SWT.Expand, e -> recordTreeState((TreeItem) e.item, true));
     tree.addListener(SWT.Collapse, e -> recordTreeState((TreeItem) e.item, false));
+    FolderTreeIcons.install(tree);
 
     // Drag and drop: reorganize within tree (same type only) and drag to canvas to open
     createTreeDragSource(tree);
@@ -769,7 +788,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       onUnknownMetadataDetails();
     } else {
       // Expand/Collapse category
-      treeItem.setExpanded(!treeItem.getExpanded());
+      FolderTreeIcons.setExpanded(treeItem, !treeItem.getExpanded());
     }
   }
 
@@ -889,6 +908,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     //
     editor.createControl(area);
 
+    // Read-only role: disable all editor widgets (and extra button-bar actions) in the tab
+    if (BaseDialog.applyReadOnlyIfNeeded(composite, editor.getMetadata())) {
+      String suffix = BaseMessages.getString(BaseDialog.class, "BaseDialog.ReadOnly.TitleSuffix");
+      if (suffix != null && !tabItem.getText().contains(suffix.trim())) {
+        tabItem.setText(tabItem.getText() + suffix);
+      }
+    }
+
     tabItem.setControl(composite);
     tabItem.setData(editor);
 
@@ -957,7 +984,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public void selectType(String key) {
     TreeItem typeItem = findTypeItem(key);
     if (typeItem != null) {
-      typeItem.setExpanded(true);
+      FolderTreeIcons.setExpanded(typeItem, true);
       tree.setSelection(typeItem);
       tree.showSelection();
       updateSelection();
@@ -966,6 +993,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /** Creates a new metadata item of the given type from the overview page. */
   public void createNewMetadataFromOverview(String key) {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     createMetadataOfType(key, "");
   }
 
@@ -1151,6 +1181,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.NewType.Tooltip",
       image = "ui/images/add.svg")
   public void onNewMetadataType() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     Menu menu = new Menu(tree);
     addNewTypeMenuItems(menu, null);
     // Position the drop-down just below the toolbar button.
@@ -1270,6 +1303,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   public void onNewMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -1291,6 +1327,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * Creates a new metadata item of the given type at the given virtual path and opens its editor.
    */
   private void createMetadataOfType(String objectKey, String virtualPath) {
+    if (!HopSecurity.allows(Permission.METADATA_WRITE)) {
+      HopSecurityUi.deny(Permission.METADATA_WRITE);
+      return;
+    }
     try {
       MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
       manager.newMetadataWithEditor(Const.NVL(virtualPath, ""));
@@ -1313,6 +1353,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F3)
   @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void onEditMetadata() {
+    if (!HopSecurity.allows(Permission.METADATA_READ)
+        && !HopSecurity.allows(Permission.METADATA_WRITE)) {
+      HopSecurityUi.deny(Permission.METADATA_READ);
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -1347,6 +1392,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F2)
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void onRenameMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() < 1) {
       return;
@@ -1366,6 +1414,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
+      NamingSchemeWidgetSupport.attachShortcut(
+          text, hopGui.getVariables(), NamingSchemeTypes.HOP_METADATA);
       text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,
@@ -1878,6 +1928,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void onDeleteMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() != 1) {
       return;
@@ -2120,8 +2173,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    */
   private static String toDisplayPath(String path, String projectHome) {
     if (!Utils.isEmpty(projectHome) && path.startsWith(projectHome)) {
-      String rel = path.substring(projectHome.length());
-      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
+      String rel = path.substring(projectHome.length()).replace(File.separatorChar, '/');
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : '/' + rel);
     }
     return path;
   }
@@ -2222,6 +2275,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.CreateCopy.Tooltip",
       image = "ui/images/duplicate.svg")
   public void duplicateMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() != 1) {
       return;
@@ -2236,11 +2292,34 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
         IHopMetadata metadata = manager.loadElement(objectName);
 
+        String targetProviderName = metadata.getMetadataProviderName();
+        List<String> providerChoices =
+            HopMetadataUtil.duplicateProviderChoices(
+                hopGui.getMetadataProvider(), targetProviderName);
+        if (!providerChoices.isEmpty()) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  getShell(),
+                  providerChoices.toArray(new String[0]),
+                  BaseMessages.getString(
+                      PKG, "MetadataPerspective.DuplicateMetadata.SelectProvider.Title"),
+                  BaseMessages.getString(
+                      PKG,
+                      "MetadataPerspective.DuplicateMetadata.SelectProvider.Message",
+                      objectName));
+          String chosen = dialog.open(0);
+          if (chosen == null) {
+            return;
+          }
+          targetProviderName = chosen;
+        }
+
         int copyNr = 2;
         while (true) {
           String newName = objectName + " " + copyNr;
           if (!manager.getSerializer().exists(newName)) {
             metadata.setName(newName);
+            metadata.setMetadataProviderName(targetProviderName);
             manager.getSerializer().save(metadata);
             break;
           } else {
@@ -2405,7 +2484,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 annotation.image(),
                 metadataClass);
 
-        knownKeys.add(annotation.key());
+        // A folder named after a legacy key holds objects of this type which weren't saved since
+        // the type was renamed: they are not unknown.
+        //
+        knownKeys.addAll(HopMetadataUtil.getAllKeys(annotation));
 
         IHopMetadataSerializer<IHopMetadata> serializer =
             metadataProvider.getSerializer(metadataClass);
@@ -2475,7 +2557,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       IHopMetadataProvider metadataProvider,
       Set<String> knownKeys,
       Map<String, UnknownTypeModel> unknownByKey) {
-    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider)) {
+    // Child provider first, the way load() looks for an element.
+    //
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider).reversed()) {
       try {
         FileObject baseFolder = HopVfs.getFileObject(jsonProvider.getBaseFolder());
         if (!baseFolder.exists()) {
@@ -2486,14 +2570,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           if (!typeFolder.isFolder() || knownKeys.contains(key)) {
             continue;
           }
+          List<FileObject> jsonFiles = HopVfs.findFiles(typeFolder, "json", false);
+          if (jsonFiles.isEmpty()) {
+            continue;
+          }
           String reason =
               BaseMessages.getString(PKG, "MetadataPerspective.Unknown.NoPluginForType", key);
           UnknownTypeModel unknownType =
               unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
-          for (FileObject jsonFile : HopVfs.findFiles(typeFolder, "json", false)) {
+          for (FileObject jsonFile : jsonFiles) {
             String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
-            // The same element can live in a parent project as well: like anywhere else the first
-            // provider which has it wins, so we don't list it twice.
+            // The same element can live in a parent project as well: like anywhere else the child
+            // project's copy wins, so we don't list it twice.
             if (unknownType.items.stream().noneMatch(item -> item.name.equals(name))) {
               unknownType.items.add(
                   new UnknownItemModel(name, HopVfs.getFilename(jsonFile), reason));
@@ -2507,25 +2595,42 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
   }
 
-  /** The JSON (file based) providers behind the given provider, which can be a multi-provider. */
+  /**
+   * The JSON (file based) providers behind the given provider, which can be a multi-provider: the
+   * parent project first, the child project last.
+   */
   private static List<JsonMetadataProvider> getJsonProviders(IHopMetadataProvider provider) {
     List<JsonMetadataProvider> jsonProviders = new ArrayList<>();
-    if (provider instanceof MultiMetadataProvider multiProvider) {
-      for (IHopMetadataProvider childProvider : multiProvider.getProviders()) {
-        jsonProviders.addAll(getJsonProviders(childProvider));
+    for (IHopMetadataProvider leaf : HopMetadataUtil.getProviders(provider)) {
+      if (leaf instanceof JsonMetadataProvider jsonProvider) {
+        jsonProviders.add(jsonProvider);
       }
-    } else if (provider instanceof JsonMetadataProvider jsonProvider) {
-      jsonProviders.add(jsonProvider);
     }
     return jsonProviders;
   }
 
   /**
-   * The file behind a metadata element: {@code <base folder>/<type key>/<name>.json} in the first
-   * provider which has it. Returns null if no file was found (or the metadata isn't file based).
+   * The file behind a metadata element, the one {@code load()} reads: in the last (child) provider
+   * which has it, in the folder of the current key before a legacy one. Returns null if no file was
+   * found (or the metadata isn't file based).
    */
   private String findMetadataFilename(String typeKey, String name) {
-    for (JsonMetadataProvider jsonProvider : getJsonProviders(hopGui.getMetadataProvider())) {
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    Class<IHopMetadata> metadataClass = null;
+    try {
+      metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
+    } catch (Exception e) {
+      // An unknown type: only look in the folder named after the key, below.
+    }
+    if (metadataClass != null) {
+      try {
+        return HopMetadataUtil.findFilename(metadataProvider, metadataClass, name);
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error looking for the file of metadata element " + name, e);
+        return null;
+      }
+    }
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider).reversed()) {
       String filename = jsonProvider.getBaseFolder() + "/" + typeKey + "/" + name + ".json";
       try {
         if (HopVfs.fileExists(filename)) {
@@ -2543,28 +2648,45 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * its metadata type model, so explicitly-created (and possibly empty) folders are rendered.
    */
   private void loadPersistedFolders() {
+    // Folders can have been stored under a key the metadata type had before it was renamed.
+    //
     Map<String, MetadataTypeModel> byKey = new LinkedHashMap<>();
     for (MetadataTypeModel typeModel : typeModels) {
-      byKey.put(typeModel.key, typeModel);
+      HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(typeModel.metadataClass);
+      for (String key : HopMetadataUtil.getAllKeys(annotation)) {
+        byKey.putIfAbsent(key, typeModel);
+      }
     }
     try {
-      AuditList list =
-          AuditManager.getActive().retrieveList(getAuditNamespace(), FOLDER_AUDIT_TYPE);
+      IAuditManager auditManager = AuditManager.getActive();
+      String namespace = getAuditNamespace();
+      AuditList list = auditManager.retrieveList(namespace, FOLDER_AUDIT_TYPE);
       if (list == null || list.getNames() == null) {
         return;
       }
-      for (String entry : list.getNames()) {
+      boolean migrated = false;
+      for (int i = 0; i < list.getNames().size(); i++) {
+        String entry = list.getNames().get(i);
         int sep = entry.indexOf(FOLDER_AUDIT_SEPARATOR);
         if (sep < 0) {
           continue;
         }
-        MetadataTypeModel typeModel = byKey.get(entry.substring(0, sep));
+        String key = entry.substring(0, sep);
+        MetadataTypeModel typeModel = byKey.get(key);
         String path = entry.substring(sep + FOLDER_AUDIT_SEPARATOR.length());
+        if (typeModel != null && !typeModel.key.equals(key)) {
+          // Store it under the current key so removing the folder later on works.
+          list.getNames().set(i, typeModel.key + FOLDER_AUDIT_SEPARATOR + path);
+          migrated = true;
+        }
         if (typeModel != null
             && !Utils.isEmpty(path)
             && !typeModel.folderVirtualPaths.contains(path)) {
           typeModel.folderVirtualPaths.add(path);
         }
+      }
+      if (migrated) {
+        auditManager.storeList(namespace, FOLDER_AUDIT_TYPE, list);
       }
     } catch (Exception e) {
       LogChannel.UI.logError("Error reading metadata virtual folders from the audit trail", e);
@@ -2601,6 +2723,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * audit trail. Items are never deleted here.
    */
   public void onDeleteFolder() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -3093,16 +3218,17 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     if (path != null) {
       if (!Utils.isEmpty(currentSearchFilter)) {
         // While searching, expand everything so matches are visible (not recorded as a choice).
-        item.setExpanded(true);
+        FolderTreeIcons.setExpanded(item, true);
       } else {
         // Categories (including the "Unknown" one) expand by default; types and folders collapse
         // by default. Seed each default-expanded node once per session so the default holds until
         // the user changes it.
         boolean defaultExpanded = "C".equals(path[0]) || "UC".equals(path[0]);
-        if (defaultExpanded && treeStateSeeded.add(String.join(" ", path))) {
+        if (defaultExpanded && treeStateSeeded.add(String.join("\0", path))) {
           TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
         }
-        item.setExpanded(TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
+        FolderTreeIcons.setExpanded(
+            item, TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
       }
     }
     for (TreeItem child : item.getItems()) {
@@ -3118,7 +3244,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     String[] path = treeMemoryPath(item);
     if (path != null) {
       TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, expanded);
-      treeStateSeeded.add(String.join(" ", path));
+      treeStateSeeded.add(String.join("\0", path));
     }
   }
 
@@ -3173,7 +3299,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /** Recursively expand or collapse a tree item and all its children */
   private void expandTreeItem(TreeItem item, boolean expand) {
-    item.setExpanded(expand);
+    FolderTreeIcons.setExpanded(item, expand);
     for (TreeItem child : item.getItems()) {
       expandTreeItem(child, expand);
     }
@@ -3193,13 +3319,24 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       isFolderSelected = FOLDER.equals(nodeType);
       // An element we can't load can only be deleted.
       isUnknownSelected = UNKNOWN_FILE.equals(nodeType);
+      // The context "New" applies to a type, folder or file (all resolve to a type key), but not
+      // to a category header or a plain label.
+      canCreateHere = getObjectKey(treeItem) != null;
     }
 
+    boolean canWriteMeta = HopSecurity.allows(Permission.METADATA_WRITE);
+    boolean canReadMeta = HopSecurity.allows(Permission.METADATA_READ) || canWriteMeta;
+
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW_TYPE, canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected && canReadMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected && canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_DELETE, isMetadataSelected || isFolderSelected || isUnknownSelected);
+        TOOLBAR_ITEM_DELETE,
+        (isMetadataSelected || isFolderSelected || isUnknownSelected) && canWriteMeta);
   }
 
   @Override

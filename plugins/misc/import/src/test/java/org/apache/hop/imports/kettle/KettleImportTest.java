@@ -34,6 +34,7 @@ import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 class KettleImportTest {
 
@@ -109,6 +110,226 @@ class KettleImportTest {
 
     DatabaseMeta databaseMeta = kettleImport.getConnectionsList().get(0);
     assertNull(databaseMeta.getIDatabase().getManualUrl());
+  }
+
+  @Test
+  void caseVariantConnectionNamesAreDeduped() throws Exception {
+    String xml =
+        "<transformation>"
+            + "<connection><name>Database</name><type>GENERIC</type><access>Native</access></connection>"
+            + "</transformation>";
+    KettleImport kettleImport = new KettleImport();
+    invokeImportDbConnections(kettleImport, parse(xml));
+
+    DatabaseMeta otherCase = new DatabaseMeta();
+    otherCase.setName("DATABASE");
+    kettleImport.addDatabaseMeta("other.ktr", otherCase);
+
+    assertEquals(1, kettleImport.getConnectionsList().size());
+    assertEquals("Database", kettleImport.getConnectionsList().get(0).getName());
+  }
+
+  /**
+   * Without a default run configuration the importer used to blank every {@code run_configuration}
+   * element, so imported workflows refused to run (#3814, #8516). Keep what the source carried.
+   */
+  @Test
+  void runConfigurationOfSourceSurvivesWithoutADefault() throws Exception {
+    Document doc =
+        parse(
+            "<job>"
+                + "<entry><type>TRANS</type><run_configuration>Local pipeline</run_configuration></entry>"
+                + "<entry><type>JOB</type><run_configuration>Local workflow</run_configuration></entry>"
+                + "</job>");
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals("Local pipeline", runConfigurationAt(doc, 0));
+    assertEquals("Local workflow", runConfigurationAt(doc, 1));
+  }
+
+  @Test
+  void defaultRunConfigurationsReplaceTheSourceNames() throws Exception {
+    Document doc =
+        parse(
+            "<job>"
+                + "<entry><type>TRANS</type><run_configuration>Local pipeline</run_configuration></entry>"
+                + "<entry><type>JOB</type><run_configuration>Local workflow</run_configuration></entry>"
+                + "</job>");
+
+    KettleImport kettleImport = new KettleImport();
+    kettleImport.setDefaultPipelineRunConfiguration("Target pipeline RC");
+    kettleImport.setDefaultWorkflowRunConfiguration("Target workflow RC");
+    invokeProcessNode(kettleImport, doc);
+
+    assertEquals("Target pipeline RC", runConfigurationAt(doc, 0));
+    assertEquals("Target workflow RC", runConfigurationAt(doc, 1));
+  }
+
+  /**
+   * Kettle only started writing a {@code run_configuration} element for Job and Transformation
+   * entries in PDI 8, and later versions still leave it out when it was never set. The importer has
+   * to add one, or the imported action throws "You need to specify a run configuration" (#3814).
+   */
+  @Test
+  void missingRunConfigurationGetsTheDefault() throws Exception {
+    Document doc = parse(entriesWithoutRunConfiguration());
+
+    KettleImport kettleImport = new KettleImport();
+    kettleImport.setDefaultPipelineRunConfiguration("Target pipeline RC");
+    kettleImport.setDefaultWorkflowRunConfiguration("Target workflow RC");
+    invokeProcessNode(kettleImport, doc);
+
+    assertEquals(2, doc.getElementsByTagName("run_configuration").getLength());
+    assertEquals("Target pipeline RC", runConfigurationAt(doc, 0));
+    assertEquals("Target workflow RC", runConfigurationAt(doc, 1));
+  }
+
+  /**
+   * An empty run configuration is always broken, so a missing element falls back to {@code local}
+   * rather than staying out. That is different from an entry that names one: see {@link
+   * #runConfigurationOfSourceSurvivesWithoutADefault()}.
+   */
+  @Test
+  void missingRunConfigurationFallsBackToLocalWithoutADefault() throws Exception {
+    Document doc = parse(entriesWithoutRunConfiguration());
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals(2, doc.getElementsByTagName("run_configuration").getLength());
+    assertEquals("local", runConfigurationAt(doc, 0));
+    assertEquals("local", runConfigurationAt(doc, 1));
+  }
+
+  /**
+   * PDI 8 and later write the element out empty when no run configuration was ever selected. That
+   * carries no name to preserve, and an empty name leaves the action unable to run, so it is filled
+   * in exactly like a missing one. The two spellings of an empty element parse identically, so both
+   * are covered here.
+   */
+  @Test
+  void emptyRunConfigurationElementGetsTheDefault() throws Exception {
+    Document doc = parse(entriesWithEmptyRunConfiguration());
+
+    KettleImport kettleImport = new KettleImport();
+    kettleImport.setDefaultPipelineRunConfiguration("Target pipeline RC");
+    kettleImport.setDefaultWorkflowRunConfiguration("Target workflow RC");
+    invokeProcessNode(kettleImport, doc);
+
+    // Still three elements: the existing empty ones are filled rather than duplicated.
+    assertEquals(3, doc.getElementsByTagName("run_configuration").getLength());
+    assertEquals("Target pipeline RC", runConfigurationAt(doc, 0));
+    assertEquals("Target workflow RC", runConfigurationAt(doc, 1));
+    assertEquals("Target workflow RC", runConfigurationAt(doc, 2));
+  }
+
+  @Test
+  void emptyRunConfigurationElementFallsBackToLocalWithoutADefault() throws Exception {
+    Document doc = parse(entriesWithEmptyRunConfiguration());
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals(3, doc.getElementsByTagName("run_configuration").getLength());
+    assertEquals("local", runConfigurationAt(doc, 0));
+    assertEquals("local", runConfigurationAt(doc, 1));
+    assertEquals("local", runConfigurationAt(doc, 2));
+  }
+
+  /**
+   * Self-closing, explicitly closed and whitespace-only: all three carry no run configuration name.
+   * The name and location elements keep each entry from collapsing into a single text value.
+   */
+  private static String entriesWithEmptyRunConfiguration() {
+    return "<job>"
+        + "<entry><name>a</name><type>TRANS</type><xloc>1</xloc><run_configuration/></entry>"
+        + "<entry><name>b</name><type>JOB</type><xloc>2</xloc>"
+        + "<run_configuration></run_configuration></entry>"
+        + "<entry><name>c</name><type>JOB</type><xloc>3</xloc>"
+        + "<run_configuration>   </run_configuration></entry>"
+        + "</job>";
+  }
+
+  /** An entry that is neither a Job nor a Transformation must not gain a run configuration. */
+  @Test
+  void otherEntryTypesGetNoRunConfiguration() throws Exception {
+    Document doc = parse("<job><entry><name>Success</name><type>SUCCESS</type></entry></job>");
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals(0, doc.getElementsByTagName("run_configuration").getLength());
+  }
+
+  private static String entriesWithoutRunConfiguration() {
+    return "<job>"
+        + "<entry><name>sub trans</name><type>TRANS</type><filename>child.ktr</filename></entry>"
+        + "<entry><name>sub job</name><type>JOB</type><filename>child.kjb</filename></entry>"
+        + "</job>";
+  }
+
+  /**
+   * A Simple Mapping step has no run configuration in PDI, so the importer appends one. With no
+   * default to append it used to add an empty element; leave the transform alone instead.
+   */
+  @Test
+  void simpleMappingGetsNoEmptyRunConfigurationElement() throws Exception {
+    Document doc = parse(simpleMappingTransformation());
+
+    invokeProcessNode(new KettleImport(), doc);
+
+    assertEquals(0, doc.getElementsByTagName("runConfiguration").getLength());
+  }
+
+  @Test
+  void simpleMappingGetsTheDefaultPipelineRunConfiguration() throws Exception {
+    Document doc = parse(simpleMappingTransformation());
+
+    KettleImport kettleImport = new KettleImport();
+    kettleImport.setDefaultPipelineRunConfiguration("Target pipeline RC");
+    invokeProcessNode(kettleImport, doc);
+
+    assertEquals(1, doc.getElementsByTagName("runConfiguration").getLength());
+    assertEquals(
+        "Target pipeline RC",
+        doc.getElementsByTagName("runConfiguration").item(0).getTextContent());
+  }
+
+  private static String simpleMappingTransformation() {
+    return "<transformation>"
+        + "<step>"
+        + "<name>Sub-pipeline</name>"
+        + "<type>Mapping</type>"
+        + "<trans_name>child</trans_name>"
+        + "<directory_path>/sub</directory_path>"
+        + "<filename/>"
+        + "</step>"
+        + "</transformation>";
+  }
+
+  @Test
+  void csvFieldQuotesCommasAndDoublesQuotes() {
+    assertEquals("plain", KettleImport.csvField("plain"));
+    assertEquals("\"a,b\"", KettleImport.csvField("a,b"));
+    assertEquals("\"say \"\"hi\"\"\"", KettleImport.csvField("say \"hi\""));
+    assertEquals("", KettleImport.csvField(null));
+  }
+
+  private static String runConfigurationAt(Document doc, int entryIndex) {
+    return doc.getElementsByTagName("run_configuration").item(entryIndex).getTextContent();
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static void invokeProcessNode(KettleImport kettleImport, Document doc) throws Exception {
+    Class<?> entryType = Class.forName("org.apache.hop.imports.kettle.KettleImport$EntryType");
+    Method method =
+        KettleImport.class.getDeclaredMethod(
+            "processNode", Document.class, Node.class, entryType, int.class);
+    method.setAccessible(true);
+    method.invoke(
+        kettleImport,
+        doc,
+        doc.getDocumentElement(),
+        Enum.valueOf((Class<Enum>) entryType, "OTHER"),
+        0);
   }
 
   private static Document parse(String xml) throws Exception {

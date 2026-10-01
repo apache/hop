@@ -18,7 +18,6 @@
 package org.apache.hop.marketplace.gui;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,6 +39,7 @@ import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
+import org.apache.hop.marketplace.env.HopInstallSpecFiles;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
@@ -53,6 +53,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -96,6 +97,8 @@ public class MarketplaceDialog extends Dialog {
   private TableView wTable;
   private Text wSearch;
   private Label wStatus;
+  private Button wInstall;
+  private Button wUninstall;
   private Path hopHome;
   private MarketplaceConfig config;
   private MarketplaceRepositoriesPanel repositoriesPanel;
@@ -117,14 +120,14 @@ public class MarketplaceDialog extends Dialog {
    * @param initialSearch search box content on open, or null/blank to list everything
    */
   public MarketplaceDialog(Shell parent, String initialSearch) {
-    super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
+    super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     this.props = PropsUi.getInstance();
     this.initialSearch = initialSearch;
   }
 
   public void open() {
     Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageMarketplace());
     shell.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Shell.Title"));
@@ -220,11 +223,11 @@ public class MarketplaceDialog extends Dialog {
     comp.setLayout(layout);
     tab.setControl(comp);
 
-    Button wUninstall = new Button(comp, SWT.PUSH);
+    wUninstall = new Button(comp, SWT.PUSH);
     wUninstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall"));
     wUninstall.addListener(SWT.Selection, e -> uninstallSelected());
 
-    Button wInstall = new Button(comp, SWT.PUSH);
+    wInstall = new Button(comp, SWT.PUSH);
     wInstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install"));
     wInstall.addListener(SWT.Selection, e -> installSelected());
 
@@ -234,6 +237,8 @@ public class MarketplaceDialog extends Dialog {
 
     BaseTransformDialog.positionBottomButtons(
         comp, new Button[] {wInstall, wUninstall, wRefresh}, PropsUi.getMargin(), null);
+
+    applyPluginManagePermissions();
 
     // Search / filter above the plugin list
     Label wlSearch = new Label(comp, SWT.RIGHT);
@@ -337,8 +342,8 @@ public class MarketplaceDialog extends Dialog {
 
   private void createEnvironmentTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
-    tab.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Tab.Environment"));
-    tab.setImage(GuiResource.getInstance().getImageClientEnvironment());
+    tab.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Tab.InstallSpec"));
+    tab.setImage(GuiResource.getInstance().getImageMarketplace());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
@@ -347,8 +352,7 @@ public class MarketplaceDialog extends Dialog {
     comp.setLayout(layout);
     tab.setControl(comp);
 
-    // Full hop-env editor (formerly HopEnvironmentDialog modal)
-    HopEnvironmentDialog.embed(
+    HopInstallSpecEditor.embed(
         comp,
         resolveDefaultEnvPath(),
         msg -> {
@@ -358,22 +362,33 @@ public class MarketplaceDialog extends Dialog {
         });
   }
 
-  private Path resolveDefaultEnvPath() {
-    // Last file edited in the marketplace environment editor (audit list, most-recent first)
+  private String resolveDefaultEnvPath() {
     String last =
         org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil.getLastUsedValue(
-            HopEnvironmentDialog.AUDIT_TYPE_ENV_FILES);
-    if (StringUtils.isNotBlank(last)) {
-      Path lastPath = Path.of(last.trim()).toAbsolutePath().normalize();
-      if (Files.isRegularFile(lastPath)) {
-        return lastPath;
+            HopInstallSpecEditor.AUDIT_TYPE_ENV_FILES);
+    if (HopInstallSpecFiles.exists(last, hopGuiVariables())) {
+      return last;
+    }
+    if (hopHome != null) {
+      String fullClient = hopHome.resolve("full-client-env.yaml").toString();
+      if (HopInstallSpecFiles.exists(fullClient, hopGuiVariables())) {
+        return fullClient;
       }
     }
-    Path fullClient = hopHome.resolve("full-client-env.yaml");
-    if (Files.isRegularFile(fullClient)) {
-      return fullClient;
+    Path discovered = EnvironmentApplier.resolveEnvironmentFile(hopHome, null);
+    return discovered == null ? null : discovered.toString();
+  }
+
+  private org.apache.hop.core.variables.IVariables hopGuiVariables() {
+    try {
+      HopGui hopGui = HopGui.getInstance();
+      if (hopGui != null && hopGui.getVariables() != null) {
+        return hopGui.getVariables();
+      }
+    } catch (Exception ignored) {
+      // dialog constructed outside Hop Gui
     }
-    return EnvironmentApplier.resolveEnvironmentFile(hopHome, null);
+    return Variables.getADefaultVariableSpace();
   }
 
   private void createRepositoriesTab(CTabFolder folder) {
@@ -700,7 +715,29 @@ public class MarketplaceDialog extends Dialog {
         displayName(info));
   }
 
+  /** Enable Install/Uninstall only when plugin manage permission is allowed. */
+  private void applyPluginManagePermissions() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    if (wInstall != null && !wInstall.isDisposed()) {
+      wInstall.setEnabled(canManage);
+      wInstall.setToolTipText(
+          canManage
+              ? ""
+              : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin"));
+    }
+    if (wUninstall != null && !wUninstall.isDisposed()) {
+      wUninstall.setEnabled(canManage);
+      wUninstall.setToolTipText(
+          canManage
+              ? ""
+              : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall.RequiresAdmin"));
+    }
+  }
+
   private void installSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     List<OptionalPluginInfo> selection = selected();
     if (selection.isEmpty()) {
       return;
@@ -882,6 +919,9 @@ public class MarketplaceDialog extends Dialog {
   }
 
   private void uninstallSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     List<OptionalPluginInfo> selection = selected();
     if (selection.isEmpty()) {
       return;

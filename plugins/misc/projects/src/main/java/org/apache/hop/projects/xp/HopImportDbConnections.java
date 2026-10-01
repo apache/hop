@@ -17,29 +17,29 @@
 
 package org.apache.hop.projects.xp;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
-import org.apache.hop.projects.util.ProjectsUtil;
-import org.apache.hop.ui.hopgui.HopGui;
 
 @ExtensionPoint(
     id = "HopImportConnections",
@@ -55,23 +55,27 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
     List<DatabaseMeta> connectionList = (List<DatabaseMeta>) connectionObject[1];
     TreeMap<String, String> connectionFileMap = (TreeMap<String, String>) connectionObject[2];
 
-    HopGui hopGui = HopGui.getInstance();
-    ILogChannel log = hopGui.getLog();
+    ILogChannel log = iLogChannel != null ? iLogChannel : LogChannel.GENERAL;
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
-    Project project = projectConfig.loadProject(hopGui.getVariables());
-    ProjectsUtil.enableProject(
-        hopGui.getLog(), projectName, project, variables, Collections.emptyList(), null, hopGui);
-    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    if (projectConfig == null) {
+      throw new HopException("Unable to find project '" + projectName + "'");
+    }
+
+    // Apply the target project on a throwaway variable space so import does not switch the GUI
+    // session (PROJECT_HOME, metadata provider, namespace). See issue #2865.
+    IVariables importVars = new Variables();
+    importVars.initializeFrom(variables);
+    Project project = projectConfig.loadProject(importVars);
+    project.modifyVariables(importVars, projectConfig, Collections.emptyList(), null);
+
+    IHopMetadataProvider metadataProvider =
+        HopMetadataUtil.getStandardHopMetadataProvider(importVars);
     IHopMetadataSerializer<DatabaseMeta> databaseSerializer =
         metadataProvider.getSerializer(DatabaseMeta.class);
-    projectConfig.getProjectHome();
 
-    Iterator<DatabaseMeta> connectionIterator = connectionList.iterator();
-    while (connectionIterator.hasNext()) {
-      DatabaseMeta databaseMeta = connectionIterator.next();
+    for (DatabaseMeta databaseMeta : connectionList) {
       try {
         if (databaseSerializer.exists(databaseMeta.getName())) {
           log.logBasic(
@@ -85,22 +89,24 @@ public class HopImportDbConnections implements IExtensionPoint<Object[]> {
       }
     }
 
-    String eol = System.getProperty("line.separator");
+    if (connectionList.isEmpty()) {
+      return;
+    }
 
-    // only create connections csv if we have connections
-    if (!connectionList.isEmpty()) {
-      String connectionsFileName =
-          projectConfig.getProjectHome() + System.getProperty("file.separator") + "connections.csv";
-      try (OutputStream outputStream = HopVfs.getOutputStream(connectionsFileName, false)) {
+    String eol = System.getProperty("line.separator");
+    String projectHome = importVars.resolve(projectConfig.getProjectHome());
+    try (FileObject home = HopVfs.getFileObject(projectHome)) {
+      FileObject connectionsFile = home.resolveFile("connections.csv");
+      try (OutputStream outputStream = HopVfs.getOutputStream(connectionsFile, false)) {
         for (Map.Entry<String, String> entry : connectionFileMap.entrySet()) {
           outputStream.write(entry.getKey().getBytes(StandardCharsets.UTF_8));
           outputStream.write(",".getBytes(StandardCharsets.UTF_8));
           outputStream.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
           outputStream.write(eol.getBytes(StandardCharsets.UTF_8));
         }
-      } catch (IOException e) {
-        throw new HopException("Error writing connections file to project " + projectName, e);
       }
+    } catch (Exception e) {
+      throw new HopException("Error writing connections file to project " + projectName, e);
     }
   }
 }

@@ -35,8 +35,11 @@ services:
     depends_on:
       oracle:
         condition: service_healthy
+      oracle-nchar:
+        condition: service_healthy
     links:
       - oracle
+      - oracle-nchar
     environment:
       - HOP_DRIVERS_DOWNLOAD=oracle
       - ORACLE_HOST=oracle
@@ -49,6 +52,9 @@ services:
       # The client wallet the Oracle container generated, holding cwallet.sso plus a tnsnames.ora
       # with a TCPS alias. Read-only: the tests must not be able to alter what they connect with.
       - ORACLE_WALLET_DIR=/opt/oracle-data/clientWallet/FREE
+      # The second database, the one whose character set cannot hold the national characters.
+      - ORACLE_NCHAR_HOST=oracle-nchar
+      - ORACLE_NCHAR_SERVICE=FREEPDB1
     volumes:
       - oracle-data:/opt/oracle-data:ro
 
@@ -82,5 +88,34 @@ services:
       retries: 60
       start_period: 300s
 
+  # A second database whose character set is WE8MSWIN1252 rather than the AL32UTF8 the image
+  # ships. Writing an NVARCHAR2 through setString converts the value to the database character
+  # set on the way in, so on this one, and not on the Unicode one, the characters are lost.
+  # See the entrypoint for how a non-Unicode database is obtained from an image that ships a
+  # Unicode one.
+  oracle-nchar:
+    image: container-registry.oracle.com/database/free:latest
+    hostname: oracle-nchar
+    environment:
+      - ORACLE_PWD=HopIntegrationTest_1
+      - ORACLE_CHARACTERSET=WE8MSWIN1252
+      - ORACLE_NCHARACTERSET=AL16UTF16
+      - APP_USER=hop
+      - APP_USER_PASSWORD=hop_password
+    ports:
+      - "1521"
+    volumes:
+      - oracle-nchar-data:/opt/oracle/oradata
+      - ./resource/oracle/oracle-nchar-entrypoint.sh:/opt/oracle/hop-nchar-entrypoint.sh:ro
+    command: [ "/bin/bash", "-c", "/opt/oracle/hop-nchar-entrypoint.sh" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "\"$$ORACLE_BASE/$$CHECK_DB_FILE\" >/dev/null || exit 1" ]
+      interval: 20s
+      timeout: 15s
+      retries: 90
+      # Building a database from scratch takes far longer than opening the one the image ships.
+      start_period: 900s
+
 volumes:
   oracle-data:
+  oracle-nchar-data:

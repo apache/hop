@@ -16,8 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.filterrows;
 
+import static org.apache.hop.core.Condition.Function.EQUAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
@@ -27,6 +29,7 @@ import java.util.Map;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
@@ -92,6 +95,48 @@ class FilterRowsMetaTest {
     assertNotNull(clone.getCondition());
     assertEquals("true", clone.getTrueTransformName());
     assertEquals("false", clone.getFalseTransformName());
+  }
+
+  /**
+   * FilterRowsMeta.clone() must deep-copy the condition tree so copy/paste and undo do not share
+   * mutable Condition / CValue instances with the original meta.
+   */
+  @Test
+  void testCloneDeepCopiesCondition() throws Exception {
+    Condition nameCondition =
+        new Condition("name", EQUAL, null, new ValueMetaAndData("constant", "Alice"));
+    Condition codeCondition =
+        new Condition("code", EQUAL, null, new ValueMetaAndData("constant", "A-1"));
+    Condition condition = new Condition();
+    condition.addCondition(nameCondition);
+    condition.addCondition(codeCondition);
+
+    FilterRowsMeta filterRowsMeta = new FilterRowsMeta();
+    filterRowsMeta.setCondition(condition);
+    filterRowsMeta.setTrueTransformName("true");
+    filterRowsMeta.setFalseTransformName("false");
+
+    FilterRowsMeta clone = filterRowsMeta.clone();
+    assertNotSame(filterRowsMeta, clone);
+    assertNotSame(filterRowsMeta.getCondition(), clone.getCondition());
+    assertNotSame(
+        filterRowsMeta.getCondition().getCondition(0), clone.getCondition().getCondition(0));
+    assertNotSame(
+        filterRowsMeta.getCondition().getCondition(0).getRightValue(),
+        clone.getCondition().getCondition(0).getRightValue());
+    assertEquals("true", clone.getTrueTransformName());
+    assertEquals("false", clone.getFalseTransformName());
+    assertEquals(2, clone.getCondition().nrConditions());
+    assertEquals("Alice", clone.getCondition().getCondition(0).getRightValueString());
+    assertEquals("A-1", clone.getCondition().getCondition(1).getRightValueString());
+
+    clone.getCondition().getCondition(0).getRightValue().setText("Bob");
+    clone.getCondition().getCondition(0).setLeftValueName("other");
+
+    assertEquals("Alice", filterRowsMeta.getCondition().getCondition(0).getRightValueString());
+    assertEquals("name", filterRowsMeta.getCondition().getCondition(0).getLeftValueName());
+    assertEquals("Bob", clone.getCondition().getCondition(0).getRightValueString());
+    assertEquals("other", clone.getCondition().getCondition(0).getLeftValueName());
   }
 
   @Test

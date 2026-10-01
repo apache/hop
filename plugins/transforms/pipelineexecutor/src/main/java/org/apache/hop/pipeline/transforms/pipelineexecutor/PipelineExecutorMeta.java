@@ -80,6 +80,13 @@ public class PipelineExecutorMeta
       hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
   private String runConfigurationName;
 
+  /**
+   * Maximum time to wait for the child pipeline to complete, in milliseconds. Empty or 0 means wait
+   * indefinitely.
+   */
+  @HopMetadataProperty(key = "wait_timeout")
+  private String waitTimeout;
+
   /** Flag that indicate that pipeline name is specified in a stream's field */
   @HopMetadataProperty(key = "filenameInField")
   private boolean filenameInField;
@@ -257,6 +264,9 @@ public class PipelineExecutorMeta
     parameters = new ArrayList<>();
     resultRows = new ArrayList<>();
     filenameInField = false;
+    // On by default, like the Workflow Executor and the Pipeline and Workflow actions, and like
+    // the documentation has always said.
+    inheritingAllVariables = true;
 
     groupSize = "1";
     groupField = "";

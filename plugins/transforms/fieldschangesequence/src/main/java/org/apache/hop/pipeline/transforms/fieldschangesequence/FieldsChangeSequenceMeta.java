@@ -76,18 +76,6 @@ public class FieldsChangeSequenceMeta
     fields = new ArrayList<>();
   }
 
-  public FieldsChangeSequenceMeta(FieldsChangeSequenceMeta meta) {
-    super();
-
-    this.start = meta.getStart();
-    this.increment = meta.getIncrement();
-    this.resultFieldName = meta.getResultFieldName();
-    this.fields = new ArrayList<>();
-    for (FieldsChangeSequenceField field : meta.getFields()) {
-      fields.add(new FieldsChangeSequenceField(field.getName()));
-    }
-  }
-
   public String getStart() {
     return start;
   }
@@ -104,11 +92,6 @@ public class FieldsChangeSequenceMeta
    */
   public void setResultFieldName(String resultfieldName) {
     this.resultFieldName = resultfieldName;
-  }
-
-  @Override
-  public Object clone() {
-    return new FieldsChangeSequenceMeta(this);
   }
 
   /**

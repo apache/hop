@@ -48,6 +48,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   protected IWorkflowEngine<WorkflowMeta> createWorkflow(
       WorkflowConfiguration workflowConfiguration) throws HopException {
+    return createWorkflow(workflowConfiguration, 0);
+  }
+
+  protected IWorkflowEngine<WorkflowMeta> createWorkflow(
+      WorkflowConfiguration workflowConfiguration, int maxConcurrent) throws HopException {
     WorkflowExecutionConfiguration workflowExecutionConfiguration =
         workflowConfiguration.getWorkflowExecutionConfiguration();
 
@@ -89,8 +94,14 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
       workflow.setStartActionMeta(startActionMeta);
     }
 
-    getWorkflowMap()
-        .addWorkflow(workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration);
+    HopServerAdmission.admitAndAdd(
+        getPipelineMap(),
+        getWorkflowMap(),
+        maxConcurrent,
+        () ->
+            getWorkflowMap()
+                .addWorkflow(
+                    workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration));
 
     // Remember the generated container ID
     //
@@ -101,6 +112,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   protected IPipelineEngine<PipelineMeta> createPipeline(
       PipelineConfiguration pipelineConfiguration) throws HopException {
+    return createPipeline(pipelineConfiguration, 0);
+  }
+
+  protected IPipelineEngine<PipelineMeta> createPipeline(
+      PipelineConfiguration pipelineConfiguration, int maxConcurrent) throws HopException {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
     PipelineExecutionConfiguration pipelineExecutionConfiguration =
         pipelineConfiguration.getPipelineExecutionConfiguration();
@@ -157,8 +173,14 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     }
 
     pipeline.setContainerId(serverObjectId);
-    getPipelineMap()
-        .addPipeline(pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration);
+    HopServerAdmission.admitAndAdd(
+        getPipelineMap(),
+        getWorkflowMap(),
+        maxConcurrent,
+        () ->
+            getPipelineMap()
+                .addPipeline(
+                    pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration));
 
     return pipeline;
   }

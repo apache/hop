@@ -86,6 +86,12 @@ plugins:
   #
   # Technology
   #
+  - artifactId: hop-action-dbt
+    name: dbt
+    category: Technology
+    description: Workflow action and metadata type that run dbt Core and stitch its OpenLineage into Hop. Needs dbt Core installed on the machine that runs the workflow.
+    installPath: plugins/actions/dbt
+    modulePath: plugins/actions/dbt
   - artifactId: hop-tech-cassandra
     name: Cassandra
     category: Technology
@@ -98,6 +104,12 @@ plugins:
     description: Parquet file format support.
     installPath: plugins/tech/parquet
     modulePath: plugins/tech/parquet
+  - artifactId: hop-tech-pgvector
+    name: pgvector
+    category: Technology
+    description: Vector upsert and similarity search on PostgreSQL with the pgvector extension.
+    installPath: plugins/tech/pgvector
+    modulePath: plugins/tech/pgvector
   - artifactId: hop-tech-arrow
     name: Apache Arrow
     category: Technology
@@ -158,12 +170,27 @@ plugins:
     description: OpenSearch
     installPath: plugins/tech/opensearch
     modulePath: plugins/tech/opensearch
+  - artifactId: hop-tech-openlineage
+    name: OpenLineage
+    category: Technology
+    description: OpenLineage lineage sink — emit run, file and warehouse (column-level) lineage to Marquez or any OpenLineage endpoint.
+    installPath: plugins/tech/openlineage
+    modulePath: plugins/tech/openlineage
   - artifactId: hop-tech-salesforce
     name: SaleForce
     category: Technology
     description: SalesForce (SFDC)
     installPath: plugins/tech/salesforce
     modulePath: plugins/tech/salesforce
+  - artifactId: hop-tech-ftp
+    name: FTP
+    category: Technology
+    description: >-
+      Named FTP and FTPS connections usable as a VFS scheme in every transform and action, the
+      ftp:// and ftps:// schemes themselves, and the FTP get/put/delete actions. Also ships with
+      hop-client.
+    installPath: plugins/tech/ftp
+    modulePath: plugins/tech/ftp
   - artifactId: hop-tech-sftp
     name: SFTP
     category: Technology
@@ -180,16 +207,28 @@ plugins:
     modulePath: plugins/tech/avro
   - artifactId: hop-tech-google
     name: Google
-    category: Google
+    category: Technology
     description: Google technology
     installPath: plugins/tech/google
     modulePath: plugins/tech/google
+  - artifactId: hop-tech-git-vfs
+    name: Git repository
+    category: Technology
+    description: Read a git repository, checked out at a branch or revision, as a named VFS location.
+    installPath: plugins/tech/git-vfs
+    modulePath: plugins/tech/git-vfs
   - artifactId: hop-tech-minio
     name: MinIO
     category: Technology
     description: MinIO
     installPath: plugins/tech/minio
     modulePath: plugins/tech/minio
+  - artifactId: hop-tech-hadoop
+    name: Hadoop HDFS
+    category: Technology
+    description: HDFS via WebHDFS, HttpFS or Knox (Kerberos). No Hadoop client libraries.
+    installPath: plugins/tech/hadoop
+    modulePath: plugins/tech/hadoop
   - artifactId: hop-tech-databricks
     name: Databricks
     category: Technology
@@ -217,12 +256,12 @@ plugins:
     description: Generate Hop documentation
     installPath: plugins/misc/documentation
     modulePath: plugins/misc/documentation
-  - artifactId: hop-misc-import
-    name: Import
+  - artifactId: hop-misc-lint
+    name: Lint
     category: Miscellaneous
-    description: Import Kettle / Pentaho Data Integration metadata
-    installPath: plugins/misc/import
-    modulePath: plugins/misc/import
+    description: Check pipelines, workflows and metadata against lint rules, in Hop Gui and with the hop lint command
+    installPath: plugins/misc/lint
+    modulePath: plugins/misc/lint
   - artifactId: hop-misc-mail
     name: Mail
     category: Miscellaneous

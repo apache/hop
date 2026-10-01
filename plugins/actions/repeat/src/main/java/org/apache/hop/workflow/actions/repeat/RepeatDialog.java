@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -64,6 +65,8 @@ public class RepeatDialog extends ActionDialog {
   private TextVar wVariableValue;
   private TextVar wDelay;
   private Button wKeepValues;
+
+  private Button wPassParams;
   private TableView wParameters;
 
   private Button wLogFileEnabled;
@@ -123,11 +126,19 @@ public class RepeatDialog extends ActionDialog {
     wbbFilename.setLayoutData(fdbFilename);
     wbbFilename.addListener(SWT.Selection, e -> browseForFile());
 
+    Button wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbbFilename, -margin);
+    fdOpen.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.right = new FormAttachment(wbbFilename, -margin);
+    fdFilename.right = new FormAttachment(wbOpen, -margin);
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
     lastControl = wFilename;
@@ -217,6 +228,27 @@ public class RepeatDialog extends ActionDialog {
     fdKeepValues.top = new FormAttachment(wlKeepValues, 0, SWT.CENTER);
     wKeepValues.setLayoutData(fdKeepValues);
     lastControl = wlKeepValues;
+
+    Label wlPassParams = new Label(shell, SWT.RIGHT);
+    wlPassParams.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wlPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
+    PropsUi.setLook(wlPassParams);
+    FormData fdlPassParams = new FormData();
+    fdlPassParams.left = new FormAttachment(0, 0);
+    fdlPassParams.right = new FormAttachment(middle, -margin);
+    fdlPassParams.top = new FormAttachment(lastControl, margin);
+    wlPassParams.setLayoutData(fdlPassParams);
+    wPassParams = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wPassParams.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
+    PropsUi.setLook(wPassParams);
+    FormData fdPassParams = new FormData();
+    fdPassParams.left = new FormAttachment(middle, 0);
+    fdPassParams.right = new FormAttachment(100, 0);
+    fdPassParams.top = new FormAttachment(wlPassParams, 0, SWT.CENTER);
+    wPassParams.setLayoutData(fdPassParams);
+    lastControl = wlPassParams;
 
     Group wLogFileGroup = new Group(shell, SWT.SHADOW_NONE);
     PropsUi.setLook(wLogFileGroup);
@@ -480,6 +512,7 @@ public class RepeatDialog extends ActionDialog {
     wVariableValue.setText(Const.NVL(action.getVariableValue(), ""));
     wDelay.setText(Const.NVL(action.getDelay(), ""));
     wKeepValues.setSelection(action.isKeepingValues());
+    wPassParams.setSelection(action.isPassingAllParameters());
 
     wLogFileEnabled.setSelection(action.isLogFileEnabled());
     wLogFileBase.setText(Const.NVL(action.getLogFileBase(), ""));
@@ -542,6 +575,19 @@ public class RepeatDialog extends ActionDialog {
     action.setChanged();
   }
 
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wFilename.getText(),
+        ReferencedFileOpener.isDialogModified(
+            action.hasChanged(), wFilename.getText(), action.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? action.getFilename() : null;
+        });
+  }
+
   private void ok() {
     if (Utils.isEmpty(wName.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
@@ -571,6 +617,7 @@ public class RepeatDialog extends ActionDialog {
     action.setVariableValue(wVariableValue.getText());
     action.setDelay(wDelay.getText());
     action.setKeepingValues(wKeepValues.getSelection());
+    action.setPassingAllParameters(wPassParams.getSelection());
 
     action.setLogFileEnabled(wLogFileEnabled.getSelection());
     action.setLogFileAppended(wLogFileAppended.getSelection());

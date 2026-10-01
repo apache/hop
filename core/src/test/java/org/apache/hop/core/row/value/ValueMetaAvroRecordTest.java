@@ -20,6 +20,7 @@ package org.apache.hop.core.row.value;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,6 +34,8 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.TestUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -213,6 +216,50 @@ class ValueMetaAvroRecordTest {
     GenericRecord verify = (GenericRecord) valueMeta.readData(inputStream);
 
     verifyGenericRecords(genericRecord, verify);
+  }
+
+  @Test
+  void testWriteReadDataWithoutSchemaOnMetadata() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test");
+
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+    valueMeta.writeData(outputStream, genericRecord);
+    valueMeta.writeData(outputStream, null);
+    outputStream.close();
+
+    ByteArrayInputStream byteArrayInputStream =
+        new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
+    GenericRecord verify = (GenericRecord) valueMeta.readData(inputStream);
+    assertNull(valueMeta.readData(inputStream));
+
+    verifyGenericRecords(genericRecord, verify);
+    assertNull(valueMeta.getSchema());
+  }
+
+  @Test
+  void testWriteReadRowAroundAvroField() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    rowMeta.addValueMeta(new ValueMetaAvroRecord("record"));
+    rowMeta.addValueMeta(new ValueMetaInteger("n"));
+    Object[] row = new Object[] {"hop", genericRecord, 5L};
+
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+    rowMeta.writeData(outputStream, row);
+    outputStream.close();
+
+    DataInputStream inputStream =
+        new DataInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+    Object[] loaded = rowMeta.readData(inputStream);
+
+    assertEquals("hop", loaded[0]);
+    verifyGenericRecords(genericRecord, (GenericRecord) loaded[1]);
+    assertEquals(5L, loaded[2]);
   }
 
   private GenericRecord generateGenericRecord() {

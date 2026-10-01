@@ -163,28 +163,19 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     yamlField = "";
   }
 
-  public YamlInputMeta(YamlInputMeta m) {
-    this();
-    this.includeFilename = m.includeFilename;
-    this.filenameField = m.filenameField;
-    this.includeRowNumber = m.includeRowNumber;
-    this.rowNumberField = m.rowNumberField;
-    this.rowLimit = m.rowLimit;
-    this.encoding = m.encoding;
-    this.yamlField = m.yamlField;
-    this.inFields = m.inFields;
-    this.sourceFile = m.sourceFile;
-    this.addingResultFile = m.addingResultFile;
-    this.validating = m.validating;
-    this.ignoringEmptyFile = m.ignoringEmptyFile;
-    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    m.yamlFiles.forEach(y -> this.yamlFiles.add(new YamlFile(y)));
-    m.inputFields.forEach(f -> this.inputFields.add(new YamlInputField(f)));
+  @Override
+  public boolean consumesMainInput() {
+    return isInFields();
   }
 
   @Override
-  public YamlInputMeta clone() {
-    return new YamlInputMeta(this);
+  public boolean canStartWithoutInput() {
+    return !isInFields();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "YamlInputDialog.wlXmlStreamField.Label");
   }
 
   @Override
@@ -265,19 +256,11 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    // See if we get input...
-    if (input.length <= 0) {
+    if (isInFields() && input.length <= 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInput"),
+              BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.IncomingHopsRequired"),
               transformMeta);
       remarks.add(cr);
     }

@@ -17,7 +17,6 @@
 
 package org.apache.hop.debug.action;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -70,13 +69,8 @@ public class ActionDebugGuiPlugin {
       ActionMeta action = context.getActionMeta();
       IVariables variables = context.getWorkflowGraph().getVariables();
 
-      Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
-      Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
-
-      if (debugGroupAttributesMap == null) {
-        debugGroupAttributesMap = new HashMap<>();
-        attributesMap.put(Defaults.DEBUG_GROUP, debugGroupAttributesMap);
-      }
+      Map<String, String> debugGroupAttributesMap =
+          DebugLevelUtil.getOrCreateDebugGroup(workflowMeta.getAttributesMap());
 
       ActionDebugLevel debugLevel =
           DebugLevelUtil.getActionDebugLevel(debugGroupAttributesMap, action.toString());

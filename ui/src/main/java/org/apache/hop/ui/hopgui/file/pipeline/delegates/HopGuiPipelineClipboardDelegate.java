@@ -116,8 +116,7 @@ public class HopGuiPipelineClipboardDelegate {
         offset = new Point(-min.x, -min.y);
       }
 
-      // Undo/redo object positions...
-      int[] position = new int[transforms.size()];
+      pipelineGraph.markUndoPoint();
 
       for (int i = 0; i < transforms.size(); i++) {
         Point p = transforms.get(i).getLocation();
@@ -129,7 +128,6 @@ public class HopGuiPipelineClipboardDelegate {
         transformOldNames.add(name);
         transforms.get(i).setName(pipelineMeta.getAlternativeTransformName(name));
         pipelineMeta.addTransform(transforms.get(i));
-        position[i] = pipelineMeta.indexOfTransform(transforms.get(i));
         transforms.get(i).setSelected(true);
       }
 
@@ -184,23 +182,7 @@ public class HopGuiPipelineClipboardDelegate {
         }
       }
 
-      // Save undo information too...
-      hopGui.undoDelegate.addUndoNew(
-          pipelineMeta, transforms.toArray(new TransformMeta[0]), position, false);
-
-      int[] hopPos = new int[hops.size()];
-      for (int i = 0; i < hops.size(); i++) {
-        hopPos[i] = pipelineMeta.indexOfPipelineHop(hops.get(i));
-      }
-      hopGui.undoDelegate.addUndoNew(
-          pipelineMeta, hops.toArray(new PipelineHopMeta[0]), hopPos, true);
-
-      int[] notePos = new int[notes.size()];
-      for (int i = 0; i < notes.size(); i++) {
-        notePos[i] = pipelineMeta.indexOfNote(notes.get(i));
-      }
-      hopGui.undoDelegate.addUndoNew(
-          pipelineMeta, notes.toArray(new NotePadMeta[0]), notePos, true);
+      // Undo was recorded once before adding the pasted objects.
     } catch (HopException e) {
       // See if this was different (non-XML) content
       //

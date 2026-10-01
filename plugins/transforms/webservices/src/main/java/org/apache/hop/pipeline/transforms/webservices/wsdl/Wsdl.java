@@ -20,13 +20,8 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,10 +38,17 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 
@@ -59,7 +61,6 @@ public final class Wsdl implements java.io.Serializable {
   private final Service service;
   private final WsdlTypes wsdlTypes;
   private HashMap<String, WsdlOperation> operationHashMap;
-  private URI wsdlURI = null;
 
   /**
    * Loads and parses the specified WSDL file.
@@ -73,12 +74,38 @@ public final class Wsdl implements java.io.Serializable {
   }
 
   public Wsdl(URI wsdlURI, QName serviceQName, String portName, String username, String password) {
+    this(wsdlURI.toString(), null, serviceQName, portName, username, password);
+  }
 
-    this.wsdlURI = wsdlURI;
+  /**
+   * Loads and parses the WSDL file at the specified location.
+   *
+   * @param wsdlLocation An http(s) URL, or any file name Hop VFS understands: a plain path, a file:
+   *     URL or a VFS location like s3://.
+   * @param variables The variables of the caller, used to find the named VFS connections. Can be
+   *     null.
+   * @param serviceQName Name of the service in the WSDL, if null default to first service in WSDL.
+   * @param portName The service port name, if null default to first port in service.
+   * @param username to use for HTTP authentication
+   * @param password to use for HTTP authentication
+   */
+  public Wsdl(
+      String wsdlLocation,
+      IVariables variables,
+      QName serviceQName,
+      String portName,
+      String username,
+      String password) {
+
     try {
-      wsdlDefinition = parse(wsdlURI, username, password);
+      wsdlDefinition = parse(wsdlLocation, variables, username, password);
     } catch (WSDLException | HopException e) {
-      throw new HopRuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
+      throw new HopRuntimeException(
+          CONST_COULD_NOT_LOAD_WSDL_FILE
+              + wsdlLocation
+              + " : "
+              + Const.NVL(e.getMessage(), "").trim(),
+          e);
     }
     if (serviceQName == null) {
       service = (Service) wsdlDefinition.getServices().values().iterator().next();
@@ -86,7 +113,7 @@ public final class Wsdl implements java.io.Serializable {
       service = wsdlDefinition.getService(serviceQName);
       if (service == null) {
         throw new IllegalArgumentException(
-            "Service: " + serviceQName + " is not defined in the WSDL file " + wsdlURI);
+            "Service: " + serviceQName + " is not defined in the WSDL file " + wsdlLocation);
       }
     }
 
@@ -145,8 +172,8 @@ public final class Wsdl implements java.io.Serializable {
 
     // load and parse the WSDL
     try {
-      wsdlDefinition = parse(wsdlLocator, username, password);
-    } catch (WSDLException | HopException e) {
+      wsdlDefinition = parse(wsdlLocator);
+    } catch (WSDLException e) {
       throw new HopRuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
 
@@ -315,65 +342,75 @@ public final class Wsdl implements java.io.Serializable {
    * Load and parse the WSDL file using the wsdlLocator.
    *
    * @param wsdlLocator A WSDLLocator instance.
-   * @param username to use for authentication
-   * @param password to use for authentication
    * @return wsdl Definition.
    * @throws WSDLException on error.
    */
-  private Definition parse(WSDLLocator wsdlLocator, String username, String password)
+  private Definition parse(WSDLLocator wsdlLocator) throws WSDLException {
+    return getReader().readWSDL(wsdlLocator);
+  }
+
+  /**
+   * Load and parse the WSDL file at the specified location.
+   *
+   * @param wsdlLocation http(s) URL or Hop VFS file name of the WSDL file.
+   * @param variables to find the named VFS connections with, can be null
+   * @param username to use for HTTP authentication
+   * @param password to use for HTTP authentication
+   * @return wsdl Definition
+   * @throws WSDLException on error.
+   */
+  private Definition parse(
+      String wsdlLocation, IVariables variables, String username, String password)
       throws WSDLException, HopException {
-
+    if (StringUtils.isBlank(wsdlLocation)) {
+      throw new HopException("No WSDL location was specified");
+    }
+    String location = wsdlLocation.trim();
     WSDLReader wsdlReader = getReader();
-    try {
 
-      return wsdlReader.readWSDL(wsdlLocator);
-    } catch (WSDLException we) {
-      readWsdl(wsdlReader, wsdlURI.toString(), username, password);
-      return null;
+    // Imports are resolved relative to the WSDL's own URI and read through the same locator, so
+    // they come from wherever the WSDL came from: over http(s), or from any file system Hop VFS
+    // knows about. Everything it opens is closed once the WSDL has been read, failure or not.
+    //
+    try (HopVfsWsdlLocator locator =
+        new HopVfsWsdlLocator(baseUri(location, variables), variables, username, password)) {
+      Document doc;
+      try (InputStream wsdlStream = locator.openBase()) {
+        doc = XmlHandler.loadXmlFile(wsdlStream, locator.getBaseURI(), false, true);
+      } catch (IOException e) {
+        throw new HopException(e);
+      }
+      if (doc == null) {
+        throw new HopException("Unable to get document.");
+      }
+      return wsdlReader.readWSDL(locator, doc.getDocumentElement());
+    } catch (HopRuntimeException e) {
+      // An import the locator could not read. Unwrapped, so the message says which.
+      throw new HopException(e.getMessage(), e.getCause() == null ? e : e.getCause());
     }
   }
 
   /**
-   * Load and parse the WSDL file at the specified URI.
-   *
-   * @param wsdlURI URI of the WSDL file.
-   * @param username to use for authentication
-   * @param password to use for authentication
-   * @return wsdl Definition
-   * @throws WSDLException on error.
+   * The absolute URI of the WSDL: an http(s) URL as it stands, anything else, a plain path like the
+   * file dialog hands out, a file: URL or any other location Hop VFS knows about, as Hop VFS names
+   * it.
    */
-  private Definition parse(URI wsdlURI, String username, String password)
-      throws WSDLException, HopException {
-    WSDLReader wsdlReader = getReader();
-    return readWsdl(wsdlReader, wsdlURI.toString(), username, password);
-  }
-
-  private Definition readWsdl(WSDLReader wsdlReader, String uri, String username, String password)
-      throws WSDLException, HopException {
-
-    try (InputStream wsdlStream = openWsdlStream(uri, username, password)) {
-      Document doc = XmlHandler.loadXmlFile(wsdlStream, uri, false, true);
-      if (doc != null) {
-        return wsdlReader.readWSDL(uri, doc);
-      } else {
-        throw new HopException("Unable to get document.");
-      }
-    } catch (MalformedURLException mue) {
-      throw new HopException(mue);
-    } catch (IOException ioe) {
-      throw new HopException(ioe);
+  private static String baseUri(String location, IVariables variables) throws HopException {
+    if (isHttpLocation(location)) {
+      return location;
+    }
+    try (FileObject wsdlFile =
+        variables == null
+            ? HopVfs.getFileObject(location)
+            : HopVfs.getFileObject(location, variables)) {
+      return wsdlFile.getName().getURI();
+    } catch (FileSystemException e) {
+      throw new HopException("Unable to read WSDL file " + location, e);
     }
   }
 
-  private InputStream openWsdlStream(String uri, String username, String password)
-      throws IOException {
-    URLConnection connection = new URL(uri).openConnection();
-    if (username != null && !username.isEmpty()) {
-      String raw = username + ":" + (password == null ? "" : password);
-      String encoded = Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
-      connection.setRequestProperty("Authorization", "Basic " + encoded);
-    }
-    return connection.getInputStream();
+  static boolean isHttpLocation(String wsdlLocation) {
+    return Strings.CI.startsWithAny(wsdlLocation, "http://", "https://");
   }
 
   /**

@@ -89,6 +89,15 @@ public @interface GuiWidgetElement {
   int multiLineTextHeight() default 1;
 
   /**
+   * Preferred height of a {@link GuiElementType#TABLE}, in rows. Default is 5. Values less than 1
+   * are treated as 5. Ignored for other element types. The last grid in a parent also grows with
+   * the parent.
+   *
+   * @return height in rows
+   */
+  int tableRows() default 5;
+
+  /**
    * @return true if the widget supports variables
    */
   boolean variables() default true;
@@ -144,4 +153,51 @@ public @interface GuiWidgetElement {
    * @return
    */
   Class<? extends IHopMetadata> metadata() default IHopMetadata.class;
+
+  /**
+   * Metadata plugin key (for example {@code ai-provider}) so a widget can target a metadata type
+   * without a compile dependency on that plugin. Empty uses {@link #metadata()}. When the plugin is
+   * not installed the widget is omitted.
+   */
+  String metadataKey() default "";
+
+  /**
+   * Optional naming-scheme type code for this widget ({@code file}, {@code folder}, {@code
+   * hop-variable}, …). Empty means: infer {@code file}/{@code folder} from {@link
+   * GuiElementType#FILENAME}/{@link GuiElementType#FOLDER}, otherwise the widget is not a name
+   * field. Does not replace {@link #type()}.
+   */
+  String namingSchemeType() default "";
+
+  /**
+   * Layout bucket inside the {@link #parentId()} tree. Empty (the default) keeps the widget on the
+   * flat form. When any sibling has a group, widgets are shown in that container ({@link
+   * #groupType()}).
+   */
+  String group() default "";
+
+  /** Sort key for the group among other groups. Compared as a string, same as {@link #order()}. */
+  String groupOrder() default "";
+
+  /** Optional image filename for the group (tab icon, list item, …). */
+  String groupImage() default "";
+
+  /**
+   * How groups on this {@link #parentId()} are shown. Repeat on every field; the first non-{@link
+   * GuiWidgetGroupType#NONE} value wins. Mixed types log a warning and fall back to tabs.
+   */
+  GuiWidgetGroupType groupType() default GuiWidgetGroupType.NONE;
+
+  /**
+   * What this option falls back to when it has never been set, as it would be written in the
+   * documentation ({@code "true"}, {@code "1000"}, ...). Only for widgets whose value has no field
+   * of the same name on the {@code configClass()} of their {@code @ConfigPlugin} - a plugin reading
+   * the option straight from {@link org.apache.hop.core.config.HopConfig} with an inline fallback,
+   * for instance. Where that field does exist, leave this empty: a documentation generator reads
+   * the real default off the configuration object, which cannot fall out of step with the code the
+   * way a copy here can.
+   *
+   * @return The default value as text, or an empty String
+   */
+  String defaultValue() default "";
 }

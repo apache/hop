@@ -60,18 +60,6 @@ public class ClosureGeneratorMeta
     super();
   }
 
-  public ClosureGeneratorMeta(ClosureGeneratorMeta m) {
-    this.rootIdZero = m.rootIdZero;
-    this.parentIdFieldName = m.parentIdFieldName;
-    this.childIdFieldName = m.childIdFieldName;
-    this.distanceFieldName = m.distanceFieldName;
-  }
-
-  @Override
-  public ClosureGeneratorMeta clone() {
-    return new ClosureGeneratorMeta(this);
-  }
-
   @Override
   public void setDefault() {
     // Do nothing

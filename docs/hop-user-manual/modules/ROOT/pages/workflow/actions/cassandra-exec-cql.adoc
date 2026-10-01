@@ -17,9 +17,8 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Cassandra Exec CQL action executes one or more CassandraQL statements on a Cassandra cluster.
+:page-marketplace: hop-tech-cassandra
 
-:openvar: ${
-:closevar: }
 
 = Cassandra Exec CQL
 

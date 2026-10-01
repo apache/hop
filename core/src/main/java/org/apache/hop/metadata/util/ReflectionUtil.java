@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ReflectionUtil {
   private ReflectionUtil() {}
@@ -67,8 +68,16 @@ public class ReflectionUtil {
     while (superClass != null) {
       Field[] parentFields = superClass.getDeclaredFields();
       for (Field parentField : parentFields) {
-        if (doesNotHaveFieldWithName(fields, parentField.getName())) {
+        int index = indexOfFieldWithName(fields, parentField.getName());
+        if (index < 0) {
           fields.add(parentField);
+        } else if (isMetadataProperty(parentField) && !isMetadataProperty(fields.get(index))) {
+          // A subclass can hide a parent field with one of its own, typically to hang a
+          // @GuiWidgetElement off it. That placeholder is not the serialized property: the
+          // annotated parent field is. Letting the placeholder win drops the property from
+          // serialization altogether.
+          //
+          fields.set(index, parentField);
         }
       }
 
@@ -148,12 +157,20 @@ public class ReflectionUtil {
   }
 
   private static boolean doesNotHaveFieldWithName(List<Field> fields, String name) {
-    for (Field field : fields) {
-      if (field.getName().equals(name)) {
-        return false;
+    return indexOfFieldWithName(fields, name) < 0;
+  }
+
+  private static int indexOfFieldWithName(List<Field> fields, String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      if (fields.get(i).getName().equals(name)) {
+        return i;
       }
     }
-    return true;
+    return -1;
+  }
+
+  private static boolean isMetadataProperty(Field field) {
+    return field.getAnnotation(HopMetadataProperty.class) != null;
   }
 
   public static Object getFieldValue(Object object, String fieldName, boolean isBoolean)

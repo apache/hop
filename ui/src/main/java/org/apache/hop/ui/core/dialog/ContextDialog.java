@@ -49,9 +49,11 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -178,12 +180,12 @@ public class ContextDialog extends Dialog {
 
   private static ContextDialog activeInstance;
 
-  private enum OwnerType {
+  public enum OwnerType {
     CATEGORY,
     ITEM,
   }
 
-  private class CategoryAndOrder {
+  public static class CategoryAndOrder {
     String category;
     String order;
     boolean collapsed;
@@ -266,7 +268,7 @@ public class ContextDialog extends Dialog {
 
   private List<CategoryAndOrder> categories;
 
-  private static class Item {
+  public static class Item {
     private final GuiAction action;
     private final Image image;
     private boolean selected;
@@ -451,7 +453,10 @@ public class ContextDialog extends Dialog {
     fdCanvas.top = new FormAttachment(searchComposite, 0);
     fdCanvas.bottom = new FormAttachment(wTooltipComposite, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
+    // Expand + min size is the reliable ScrolledComposite/RAP pattern; content height is
+    // measured in onPaint and applied via setMinHeight / updateVerticalBar.
     wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
     itemsFont = GuiResource.getInstance().getFontDefault();
 
@@ -570,6 +575,10 @@ public class ContextDialog extends Dialog {
 
     // Manually set canvas size otherwise canvas never gets drawn.
     wCanvas.setSize(10, 10);
+
+    if (ContextDialogSvgFacade.isSupported()) {
+      ContextDialogSvgFacade.register(wCanvas, this);
+    }
 
     // Show the dialog now
     //
@@ -698,10 +707,12 @@ public class ContextDialog extends Dialog {
 
     removePlacementArmFilters();
 
-    // Store the toolbar settings
-    storeDialogSettings();
+    if (ContextDialogSvgFacade.isSupported() && wCanvas != null) {
+      ContextDialogSvgFacade.unregister(wCanvas);
+    }
 
-    // Close the dialog window
+    // Close the dialog window. The SWT.Close listener stores the dialog settings, so they are not
+    // stored a second time here.
     shell.close();
 
     // Do not dispose item images. They are cached by GuiResource so that they're only ever loaded
@@ -748,6 +759,8 @@ public class ContextDialog extends Dialog {
       toolTip = "i18n::ContextDialog.GuiAction.ShowCategories.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableCategories() {
+    updateToolbar();
+    previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
   }
@@ -759,6 +772,7 @@ public class ContextDialog extends Dialog {
       toolTip = "i18n::ContextDialog.GuiAction.FixedWidth.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableFixedWidth() {
+    previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
   }
@@ -767,22 +781,30 @@ public class ContextDialog extends Dialog {
     if (toolBarWidgets == null) {
       return null;
     }
-    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
-    if (checkboxItem == null) {
-      return null;
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (control instanceof Button button) {
+      return button;
     }
-    return (Button) checkboxItem.getControl();
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
   }
 
   private Button getFixedWidthCheckBox() {
     if (toolBarWidgets == null) {
       return null;
     }
-    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
-    if (checkboxItem == null) {
-      return null;
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_FIXED_WIDTH);
+    if (control instanceof Button button) {
+      return button;
     }
-    return (Button) checkboxItem.getControl();
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
   }
 
   private void onMouseMove(Event event) {
@@ -858,6 +880,7 @@ public class ContextDialog extends Dialog {
                   BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"),
                   e);
             }
+            GraphPalette.fireFavoritesChanged(HopGui.getInstance());
             refreshActionsFromSupplier();
             return;
           }
@@ -1055,11 +1078,19 @@ public class ContextDialog extends Dialog {
     int correctedIconSize = (int) (iconSize / props.getZoomFactor());
     Display display = shell != null && !shell.isDisposed() ? shell.getDisplay() : null;
 
+    // Hop Web draws the items as one SVG document straight from the icon files, so rasterizing a
+    // bitmap per action here would only slow down the first open of every session.
+    boolean loadBitmaps = !ContextDialogSvgFacade.isSupported();
+
     items.clear();
     for (GuiAction action : actions) {
       ClassLoader classLoader = action.getClassLoader();
       if (classLoader == null) {
         classLoader = ClassLoader.getSystemClassLoader();
+      }
+      if (!loadBitmaps) {
+        items.add(new Item(action, null));
+        continue;
       }
       Image image;
       try {
@@ -1107,6 +1138,11 @@ public class ContextDialog extends Dialog {
   }
 
   private void onResize(Event event) {
+    // Width changes reflow icons and change total content height; force a full remeasure.
+    previousTotalContentHeight = 0;
+    if (wCanvas != null && !wCanvas.isDisposed()) {
+      wCanvas.redraw();
+    }
     updateVerticalBar();
   }
 
@@ -1117,29 +1153,20 @@ public class ContextDialog extends Dialog {
    */
   private void onPaint(Event event) {
 
+    updateToolbar();
+
+    if (ContextDialogSvgFacade.isSupported()) {
+      ContextDialogSvgFacade.renderAndPublish(wCanvas, this);
+      return;
+    }
+
     GC gc = event.gc;
 
     org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
     org.eclipse.swt.graphics.Rectangle canvas = wCanvas.getBounds();
 
-    boolean useCategories;
-    Button categoriesCheckBox = getCategoriesCheckBox();
-    if (categoriesCheckBox == null) {
-      useCategories = true;
-    } else {
-      useCategories = categoriesCheckBox.getSelection();
-    }
-    useCategories &= !categories.isEmpty();
-
-    boolean useFixedWidth;
-    Button fixedWidthCheckBox = getFixedWidthCheckBox();
-    if (fixedWidthCheckBox == null) {
-      useFixedWidth = false;
-    } else {
-      useFixedWidth = fixedWidthCheckBox.getSelection();
-    }
-
-    updateToolbar();
+    boolean useCategories = isUseCategories();
+    boolean useFixedWidth = isUseFixedWidth();
 
     // Fill everything with white...
     //
@@ -1324,12 +1351,88 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    totalContentHeight = Math.max(area.height, y);
+    updateContentHeight(Math.max(area.height, y));
+  }
 
-    if (previousTotalContentHeight != totalContentHeight) {
-      previousTotalContentHeight = totalContentHeight;
-      wCanvas.setSize(area.width, totalContentHeight);
+  void updateContentHeight(int height) {
+    totalContentHeight = height;
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
     }
+    org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
+    int canvasWidth = (wCanvas != null && !wCanvas.isDisposed()) ? wCanvas.getBounds().width : 0;
+    if (previousTotalContentHeight != totalContentHeight || canvasWidth != area.width) {
+      previousTotalContentHeight = totalContentHeight;
+      if (wCanvas != null && !wCanvas.isDisposed()) {
+        wCanvas.setSize(area.width, totalContentHeight);
+      }
+      wScrolledComposite.setMinWidth(area.width);
+      wScrolledComposite.setMinHeight(totalContentHeight);
+      updateVerticalBar();
+    }
+  }
+
+  boolean isUseCategories() {
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    boolean useCategories = (categoriesCheckBox == null) || categoriesCheckBox.getSelection();
+    return useCategories && categories != null && !categories.isEmpty();
+  }
+
+  boolean isUseFixedWidth() {
+    Button fixedWidthCheckBox = getFixedWidthCheckBox();
+    return fixedWidthCheckBox != null && fixedWidthCheckBox.getSelection();
+  }
+
+  List<CategoryAndOrder> getCategories() {
+    return categories;
+  }
+
+  List<Item> getFilteredItems() {
+    return filteredItems;
+  }
+
+  Item getSelectedItem() {
+    return selectedItem;
+  }
+
+  int getIconSize() {
+    return iconSize;
+  }
+
+  int getMargin() {
+    return margin;
+  }
+
+  int getXMargin() {
+    return xMargin;
+  }
+
+  int getYMargin() {
+    return yMargin;
+  }
+
+  ScrolledComposite getScrolledComposite() {
+    return wScrolledComposite;
+  }
+
+  Canvas getCanvas() {
+    return wCanvas;
+  }
+
+  Label getTooltipLabel() {
+    return wlTooltip;
+  }
+
+  List<AreaOwner> getAreaOwners() {
+    return areaOwners;
+  }
+
+  void setAreaOwners(List<AreaOwner> areaOwners) {
+    this.areaOwners = areaOwners;
+  }
+
+  int getTotalContentHeight() {
+    return totalContentHeight;
   }
 
   private void updateToolbar() {
@@ -1357,6 +1460,14 @@ public class ContextDialog extends Dialog {
   }
 
   private void selectItem(Item selectedItem, boolean scroll) {
+    selectItem(selectedItem, scroll, true);
+  }
+
+  /**
+   * @param redraw false when the caller redraws the canvas itself afterwards. Without paint
+   *     coalescing (Hop Web) every redraw renders the whole item list again.
+   */
+  private void selectItem(Item selectedItem, boolean scroll, boolean redraw) {
 
     for (Item item : items) {
       item.setSelected(false);
@@ -1397,7 +1508,9 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    wCanvas.redraw();
+    if (redraw) {
+      wCanvas.redraw();
+    }
   }
 
   /**
@@ -1407,6 +1520,30 @@ public class ContextDialog extends Dialog {
    */
   public Text getSearchTextWidget() {
     return wSearch;
+  }
+
+  /**
+   * The filtered item whose name is exactly the search text, ignoring case, or null if there is
+   * none.
+   *
+   * <p>Relevance scoring on its own does not put it first: searching for "Null if" scores "If null"
+   * higher, and "Table input" scores "Spark lake table input" higher, so typing a transform's full
+   * name and pressing Enter gave you a different transform - and one whose name shares words with
+   * others could not be selected by typing at all when it landed in another category.
+   */
+  private Item exactNameMatch(String text) {
+    for (Item item : filteredItems) {
+      if (isExactName(item.getAction().getName(), text)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  /** Whether a name is exactly what was searched for, ignoring case and surrounding space. */
+  static boolean isExactName(String name, String searchText) {
+    String wanted = Const.trim(searchText);
+    return StringUtils.isNotEmpty(wanted) && wanted.equalsIgnoreCase(Const.trim(name));
   }
 
   public void filter(String text) {
@@ -1433,14 +1570,29 @@ public class ContextDialog extends Dialog {
       filteredItems.sort((a, b) -> Double.compare(scores.get(b), scores.get(a)));
     }
 
+    // An item called exactly what was typed comes first, whatever it scored.
+    //
+    Item exactMatch = exactNameMatch(text);
+    if (exactMatch != null) {
+      filteredItems.remove(exactMatch);
+      filteredItems.add(0, exactMatch);
+    }
+
     if (filteredItems.isEmpty()) {
-      selectItem(null, false);
+      selectItem(null, false, false);
+    }
+
+    // Typing something's full name selects that thing, even if the selection was already on a
+    // result that survived the narrowing.
+    //
+    else if (exactMatch != null) {
+      selectItem(exactMatch, false, false);
     }
 
     // if selected item is exclude, change to a new default selection: first in the list
     //
     else if (!filteredItems.contains(selectedItem)) {
-      selectItem(filteredItems.get(0), false);
+      selectItem(filteredItems.get(0), false, false);
     }
 
     // Update vertical bar
@@ -1649,25 +1801,35 @@ public class ContextDialog extends Dialog {
   }
 
   private void updateVerticalBar() {
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
+    }
     ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
+    if (verticalBar == null || verticalBar.isDisposed()) {
+      return;
+    }
     org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-    if (totalContentHeight < clientArea.height) {
+    // Prefer the height measured in onPaint; canvas bounds can still be the dummy 10x10 size
+    // when filter() runs before the first paint.
+    int contentHeight = totalContentHeight;
+    if (contentHeight <= 0 && wCanvas != null && !wCanvas.isDisposed()) {
+      contentHeight = wCanvas.getBounds().height;
+    }
+
+    if (contentHeight <= clientArea.height) {
       verticalBar.setEnabled(false);
       verticalBar.setVisible(false);
     } else {
       verticalBar.setEnabled(true);
       verticalBar.setVisible(true);
 
-      org.eclipse.swt.graphics.Rectangle bounds = wCanvas.getBounds();
-
       verticalBar.setMinimum(0);
-      verticalBar.setMaximum(bounds.height);
+      verticalBar.setMaximum(contentHeight);
 
-      // How much can we show in percentage?
-      // That's the size of the thumb
-      //
-      verticalBar.setThumb(Math.min(clientArea.height, bounds.height));
+      // Thumb is the visible portion of the content (pixels).
+      // Note: RAP ScrollBar has no setPageIncrement/setIncrement — do not call them here.
+      verticalBar.setThumb(Math.min(clientArea.height, contentHeight));
     }
   }
 

@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
@@ -43,7 +42,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -53,8 +51,11 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -250,7 +251,9 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar(variables, wContentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, wContentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
@@ -277,7 +280,9 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, wContentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, wContentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
@@ -885,6 +890,7 @@ public class TableOutputDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    ciFields[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     ciFields[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "TableOutputDialog.ColumnInfo.StreamField"),
@@ -957,7 +963,7 @@ public class TableOutputDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -1752,10 +1758,7 @@ public class TableOutputDialog extends BaseTransformDialog {
             info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, pk, autoInc, pk);
         if (!sql.hasError()) {
           if (sql.hasSql()) {
-            SqlEditor sqledit =
-                new SqlEditor(
-                    shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-            sqledit.open();
+            DatabaseWorkbenchDialog.openSql(databaseMeta, sql.getSql());
           } else {
             String message = BaseMessages.getString(PKG, "TableOutputDialog.NoSQL.DialogMessage");
             String text = BaseMessages.getString(PKG, "TableOutputDialog.NoSQL.DialogTitle");

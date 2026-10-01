@@ -131,7 +131,6 @@ public class LoggingCore {
       // Transaction is automatically committed by executeWrite
     } catch (Exception e) {
       log.logError("Error logging hierarchies", e);
-      // Transaction is automatically rolled back by executeWrite on exception
     }
   }
 

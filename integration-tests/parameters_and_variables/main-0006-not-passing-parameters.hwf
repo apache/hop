@@ -115,6 +115,16 @@ limitations under the License.
           <variable_value/>
           <variable_type>CURRENT_WORKFLOW</variable_type>
         </field>
+        <field>
+          <variable_name>TEST6_PARAMETER5</variable_name>
+          <variable_value>collision_test6_parameter5</variable_value>
+          <variable_type>CURRENT_WORKFLOW</variable_type>
+        </field>
+        <field>
+          <variable_name>TEST6_PARAMETER6</variable_name>
+          <variable_value>collision_test6_parameter6</variable_value>
+          <variable_type>CURRENT_WORKFLOW</variable_type>
+        </field>
       </fields>
       <parallel>N</parallel>
       <nr>0</nr>
@@ -166,7 +176,8 @@ var ok = true;
 var expectedVariables = [ 
    [ "TEST6_VARIABLE1",    "Pipeline Variables.0 - TEST6_VARIABLE1 = >test6_value1&lt;",              "test6_value1"             ],
    [ "TEST6_PARAMETER1",   "Pipeline Variables.0 - TEST6_PARAMETER1 = >&lt;",   "an empty string"   ],
-   [ "TEST6_PARAMETER2",   "TEST6_PARAMETER2 = >default_test6_parameter2&lt;", "default_test6_parameter2" ]
+   [ "TEST6_PARAMETER2",   "TEST6_PARAMETER2 = >default_test6_parameter2&lt;", "default_test6_parameter2" ],
+   [ "TEST6_PARAMETER5",   "TEST6_PARAMETER5 = >default_test6_parameter5&lt;", "default_test6_parameter5" ]
    
  ];
 
@@ -181,7 +192,8 @@ for (var i = 0 ; i&lt;expectedVariables.length ; i++) {
 var expectedValues = [ 
    [ "value1", "Pipeline Variables.0 - value1 = test6_value1",             "test6_value1"             ],
    [ "param1", "Pipeline Variables.0 - param1 = ",                         "an empty string"          ],
-   [ "param2", "Pipeline Variables.0 - param2 = default_test6_parameter2", "default_test6_parameter2" ]
+   [ "param2", "Pipeline Variables.0 - param2 = default_test6_parameter2", "default_test6_parameter2" ],
+   [ "param5", "Pipeline Variables.0 - param5 = default_test6_parameter5", "default_test6_parameter5" ]
  ];
 
 for (var i = 0 ; i&lt;expectedValues.length ; i++) {
@@ -213,7 +225,8 @@ var ok = true;
 var expectedVariables = [ 
    [ "TEST6_VARIABLE1",    "Workflow Variables - TEST6_VARIABLE1 = >test6_value1&lt;",              "test6_value1"             ],
    [ "TEST6_PARAMETER3",   "Workflow Variables - TEST6_PARAMETER3 = >&lt;",                         "an empty string"   ],
-   [ "TEST6_PARAMETER4",   "Workflow Variables - TEST6_PARAMETER4 = >default_test6_parameter4&lt;", "default_test6_parameter4" ]
+   [ "TEST6_PARAMETER4",   "Workflow Variables - TEST6_PARAMETER4 = >default_test6_parameter4&lt;", "default_test6_parameter4" ],
+   [ "TEST6_PARAMETER6",   "Workflow Variables - TEST6_PARAMETER6 = >default_test6_parameter6&lt;", "default_test6_parameter6" ]
    
  ];
 

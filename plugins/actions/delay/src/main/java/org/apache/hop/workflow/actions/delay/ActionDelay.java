@@ -60,17 +60,6 @@ public class ActionDelay extends ActionBase implements Cloneable {
     this("");
   }
 
-  public ActionDelay(ActionDelay other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.maximumTimeout = other.maximumTimeout;
-    this.scaleTime = other.scaleTime;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionDelay(this);
-  }
-
   /**
    * Execute this action and return the result. In this case it means, just set the result boolean
    * in the Result class.

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop</artifactId>
+        <version>2.20.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-config-doc</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Configuration Documentation Generator</name>
+    <description>Regenerates the AsciiDoc tables describing the options in the configuration perspective.
+        A build tool: it is not part of any assembly and ships with nothing.</description>
+
+    <properties>
+        <docs.partials.directory>${project.basedir}/../docs/hop-user-manual/modules/ROOT/partials/config</docs.partials.directory>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.smallrye</groupId>
+            <artifactId>jandex</artifactId>
+            <version>${jandex.version}</version>
+        </dependency>
+
+        <!-- The hop-* dependencies below are not used in code. They are the modules that declare a
+             @ConfigPlugin, and they are here so the reactor builds this one after all of them: the
+             generator reads the whole tree's build output, so running it earlier would document a
+             previous build. Declaration order alone would not hold under a parallel (-T) build; a
+             dependency edge does. A module that starts declaring a @ConfigPlugin belongs in this
+             list; until it is added its options simply appear on the next build. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-git</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-lint</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-projects</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-ai</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-calcite</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-dropbox</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-google</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- The edge is all that is wanted here, not the classpath behind it. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-config-docs</id>
+                        <goals>
+                            <!-- exec, not java: the java goal runs inside Maven's own JVM, where
+                                 java.class.path is Maven's classpath rather than this module's.
+                                 The generator reads its classpath to find the modules to
+                                 document, so it needs a forked JVM with the real one. -->
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <!-- The JVM running the build, not whatever java is first on
+                                 PATH: this module's classes are compiled for the former, and an
+                                 older PATH java fails here with an UnsupportedClassVersionError
+                                 from, of all things, a documentation generator. -->
+                            <executable>${java.home}/bin/java</executable>
+                            <!-- The modules to document are provided-scope dependencies, which
+                                 the default runtime classpath leaves out. -->
+                            <classpathScope>compile</classpathScope>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath></classpath>
+                                <argument>org.apache.hop.config.doc.ConfigDocGenerator</argument>
+                                <argument>${project.basedir}/..</argument>
+                                <argument>${docs.partials.directory}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

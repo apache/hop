@@ -37,6 +37,8 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -57,6 +59,7 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
 
@@ -133,12 +136,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   public UpdateMeta() {
     super();
     lookupField = new UpdateLookupField();
-  }
-
-  @Override
-  public Object clone() {
-    UpdateMeta retval = (UpdateMeta) super.clone();
-    return retval;
   }
 
   @Override

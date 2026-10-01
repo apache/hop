@@ -397,6 +397,15 @@ public class TextFileInputMeta
       injectionKeyDescription = "TextFileInput.Injection.IGNORE_FIELDS")
   private boolean ignoreFields;
 
+  /**
+   * Optional Naming Scheme applied to discovered field names when using Get Fields. Empty means
+   * auto-apply only when a unique matching scheme exists.
+   */
+  @HopMetadataProperty(
+      key = "namingScheme",
+      hopMetadataPropertyType = HopMetadataPropertyType.NAMING_SCHEME)
+  private String namingScheme;
+
   @HopMetadataProperty(inline = true)
   protected BaseFileInputAdditionalFields additionalOutputFields;
 
@@ -478,24 +487,13 @@ public class TextFileInputMeta
     content.rowLimit = 0L;
   }
 
-  public TextFileInputMeta(TextFileInputMeta m) {
-    this();
-    this.content = new Content(m.content);
-    this.errorCountField = m.errorCountField;
-    this.errorFieldsField = m.errorFieldsField;
-    this.errorLineSkipped = m.errorLineSkipped;
-    this.errorTextField = m.errorTextField;
-    this.ignoreFields = m.ignoreFields;
-    this.schemaDefinition = m.schemaDefinition;
-    this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
-    this.fileInput = new BaseFileInput(m.fileInput);
-    m.filters.forEach(filter -> this.filters.add(new TextFileFilter(filter)));
-    m.inputFields.forEach(f -> this.inputFields.add(new TextFileInputField(f.clone())));
-  }
-
+  /**
+   * {@link org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta} declares a covariant
+   * clone(), so this override is required even though it only delegates.
+   */
   @Override
   public TextFileInputMeta clone() {
-    return new TextFileInputMeta(this);
+    return (TextFileInputMeta) super.clone();
   }
 
   @Override
@@ -539,28 +537,34 @@ public class TextFileInputMeta
         // ignore any errors here.
       }
     } else {
-      for (ITextFileInputField field : inputFields) {
-        int type = field.getType();
-        if (type == IValueMeta.TYPE_NONE) {
-          type = IValueMeta.TYPE_STRING;
-        }
-
+      // Building the file list hits the file system, which for a VFS location means a remote
+      // directory listing. It doesn't depend on the field being described, and its only use is
+      // prefixing the field names, so resolve it once and only when that prefix is asked for.
+      // getFields() runs on every transform thread during pipeline preparation, so doing this per
+      // field turned one listing into "fields x transforms" concurrent listings of the same folder.
+      //
+      String fileNameToPrepend = null;
+      if (content.prependFileName) {
         FileInputList fileInputList =
             FileInputList.createFileList(variables, fileInput.getInputFiles());
-        String fileNameToPrepend = null;
         if (fileInputList.nrOfFiles() > 0) {
           fileNameToPrepend = fileInputList.getFile(0).getName().getURI();
         } else if (!fileInputList.getNonExistentFiles().isEmpty()) {
           fileNameToPrepend = fileInputList.getNonExistentFiles().get(0).getName().getURI();
         }
         // When file list is empty (e.g. not required and missing), use fictional path for prepend
-        if (content.prependFileName
-            && fileNameToPrepend == null
-            && !fileInput.getInputFiles().isEmpty()) {
+        if (fileNameToPrepend == null && !fileInput.getInputFiles().isEmpty()) {
           String firstPath = variables.resolve(fileInput.getInputFiles().getFirst().getFileName());
           if (!Utils.isEmpty(firstPath)) {
             fileNameToPrepend = firstPath;
           }
+        }
+      }
+
+      for (ITextFileInputField field : inputFields) {
+        int type = field.getType();
+        if (type == IValueMeta.TYPE_NONE) {
+          type = IValueMeta.TYPE_STRING;
         }
 
         try {
@@ -879,6 +883,11 @@ public class TextFileInputMeta
   @Override
   public boolean hasHeader() {
     return content != null && content.header;
+  }
+
+  @Override
+  public boolean skipEmptyLines() {
+    return content != null && content.isNoEmptyLines();
   }
 
   @Override

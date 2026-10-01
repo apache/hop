@@ -17,17 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.testing.SwtBotTestBase;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCCombo;
@@ -40,8 +47,9 @@ import org.junit.jupiter.api.Test;
  * loop in {@code open()}, so {@link SwtBotTestBase#withDialog} pumps it on the UI thread while the
  * assertions drive it from a worker thread.
  *
- * <p>Tagged {@code uitest} so it is excluded from the normal build (it needs a display); run with
- * {@code mvn -pl plugins/transforms/httppost -Puitest test}.
+ * <p>Tagged {@code uitest} so it is skipped when there is no display. The default reactor run still
+ * includes it on a desktop; wrap Maven with {@code tools/with-isolated-display.sh} so the dialog
+ * does not steal focus.
  */
 @Tag("uitest")
 class HttpPostDialogTest extends SwtBotTestBase {
@@ -119,6 +127,90 @@ class HttpPostDialogTest extends SwtBotTestBase {
       }
     }
     return fail("Content type combo not found in HttpPostDialog");
+  }
+
+  @Test
+  void optionsAreSplitAcrossTabs() {
+    HttpPostMeta meta = new HttpPostMeta();
+    meta.setDefault();
+    PipelineMeta pipelineMeta = pipelineWith(meta);
+
+    withDialog(
+        parent -> new HttpPostDialog(parent, new Variables(), meta, pipelineMeta).open(),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+          List<String> tabs =
+              List.of(
+                  "General",
+                  "Authentication",
+                  "Proxy",
+                  "SSL",
+                  "Body parameters",
+                  "Query parameters");
+          assertEquals(tabs, tabTitles(dialog));
+          // Selecting every tab proves each one has a control and laid out without error.
+          tabs.forEach(tab -> activateTab(dialog, tab));
+          dialog.button(buttonLabel("System.Button.Cancel")).click();
+        });
+  }
+
+  @Test
+  void aSelectedConnectionDisablesTheFieldsItSupersedes() {
+    HttpPostMeta meta = new HttpPostMeta();
+    meta.setDefault();
+    meta.setConnectionName("some-connection");
+    PipelineMeta pipelineMeta = pipelineWith(meta);
+
+    withDialog(
+        parent -> new HttpPostDialog(parent, new Variables(), meta, pipelineMeta).open(),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+          activateTab(dialog, "Proxy");
+          assertFalse(
+              dialog.textWithLabel("Proxy Host").isEnabled(),
+              "a connection supplies the proxy, so the field must be disabled");
+          activateTab(dialog, "SSL");
+          assertFalse(
+              dialog.checkBox().isEnabled(),
+              "a connection supplies the TLS settings, so the checkbox must be disabled");
+          dialog.button(buttonLabel("System.Button.Cancel")).click();
+        });
+  }
+
+  /**
+   * The titles of the dialog's tabs. Read off the folder rather than through {@code
+   * bot.cTabItem(...)}: SWTBot's widget finder only walks controls and never sees the tab items of
+   * a CTabFolder.
+   */
+  private List<String> tabTitles(SWTBot dialog) {
+    CTabFolder tabFolder = (CTabFolder) dialog.widget(widgetOfType(CTabFolder.class));
+    AtomicReference<List<String>> titles = new AtomicReference<>();
+    display.syncExec(
+        () -> {
+          List<String> found = new ArrayList<>();
+          for (CTabItem item : tabFolder.getItems()) {
+            // The look-and-feel pads tab labels with spaces, hence the trim().
+            found.add(item.getText().trim());
+          }
+          titles.set(found);
+        });
+    return titles.get();
+  }
+
+  /** Brings one tab to the front, by title. */
+  private void activateTab(SWTBot dialog, String title) {
+    CTabFolder tabFolder = (CTabFolder) dialog.widget(widgetOfType(CTabFolder.class));
+    display.syncExec(
+        () -> {
+          for (CTabItem item : tabFolder.getItems()) {
+            if (title.equals(item.getText().trim())) {
+              tabFolder.setSelection(item);
+              tabFolder.layout();
+              return;
+            }
+          }
+          throw new AssertionError("no tab titled " + title);
+        });
   }
 
   private static PipelineMeta pipelineWith(HttpPostMeta meta) {

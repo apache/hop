@@ -95,22 +95,6 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
     this.fields = new ArrayList<>();
   }
 
-  public IfNullMeta(final IfNullMeta meta) {
-    this();
-    this.selectFields = meta.selectFields;
-    this.selectValuesType = meta.selectValuesType;
-    this.replaceAllByValue = meta.replaceAllByValue;
-    this.replaceAllMask = meta.replaceAllMask;
-    this.setEmptyStringAll = meta.setEmptyStringAll;
-
-    for (Field field : meta.fields) {
-      this.fields.add(new Field(field));
-    }
-    for (ValueType vt : meta.valueTypes) {
-      this.valueTypes.add(new ValueType(vt));
-    }
-  }
-
   /**
    * @return Returns the setEmptyStringAll.
    */
@@ -123,11 +107,6 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
    */
   public void setSetEmptyStringAll(boolean setEmptyStringAll) {
     this.setEmptyStringAll = setEmptyStringAll;
-  }
-
-  @Override
-  public Object clone() {
-    return new IfNullMeta(this);
   }
 
   public boolean isSelectFields() {
