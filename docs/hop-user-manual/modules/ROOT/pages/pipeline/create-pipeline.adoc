@@ -178,7 +178,7 @@ The Pipeline tab allows you to specify general properties about the pipeline inc
 |Description|Short description of the pipeline
 |Extended description| Long extended description of the pipeline
 |Status| Draft or production status. Deprecated: nothing in Hop acts on this value and it will be removed in a future release.
-|Version|Description of the version. Deprecated: this label has to be maintained by hand and will be removed in a future release, use the version control system that holds the file instead.
+|Version|Description of the version
 |Created by| The user that created the pipeline. Only recorded when Hop knows who that is, such as an authenticated Hop web session, and shows `-` otherwise.
 |Created at|Displays the date and time when the pipeline was created.
 |Last modified by| The user that last modified the pipeline, recorded under the same conditions as `Created by`.

@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.hop.core.security.HopRole;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityContext;
+import org.apache.hop.core.security.HopSecurityPrivilegeMode;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -248,5 +249,25 @@ class ModificationStampTest {
 
     assertEquals(NO_USER, pipelineMeta.getCreatedUser());
     assertEquals(NO_USER, pipelineMeta.getModifiedUser());
+  }
+
+  @Test
+  void aDesktopRoleSimulationIsNeverWrittenAsAUser() {
+    HopSecurity.setProvider(
+        () ->
+            HopSecurityPrivilegeMode.createEffective(
+                HopSecurityContext.unrestricted(), HopRole.READ_ONLY));
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+
+    pipelineMeta.stampCreated();
+    pipelineMeta.stampModified();
+    workflowMeta.stampCreated();
+    workflowMeta.stampModified();
+
+    assertEquals(NO_USER, pipelineMeta.getCreatedUser());
+    assertEquals(NO_USER, pipelineMeta.getModifiedUser());
+    assertEquals(NO_USER, workflowMeta.getCreatedUser());
+    assertEquals(NO_USER, workflowMeta.getModifiedUser());
   }
 }

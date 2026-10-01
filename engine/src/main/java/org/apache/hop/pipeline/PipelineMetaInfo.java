@@ -26,15 +26,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Getter
 @Setter
 public class PipelineMetaInfo extends AbstractMetaInfo {
-  /**
-   * The version string for the pipeline.
-   *
-   * @deprecated since 2.20, for removal. The label has to be set and updated by hand and says
-   *     nothing that the version control system holding the file does not already say more
-   *     reliably. It is still read from and written to the file, so no existing value is lost
-   *     before it is removed.
-   */
-  @Deprecated(since = "2.20", forRemoval = true)
+  /** The version string for the pipeline. */
   @HopMetadataProperty(key = "pipeline_version")
   protected String pipelineVersion;
 

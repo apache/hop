@@ -79,13 +79,18 @@ public final class HopSecurity {
    * <p>Only an authenticated context yields a name. The desktop runs unrestricted under the {@link
    * HopSecurityContext#ANONYMOUS_USERNAME} placeholder, and neither that placeholder nor the
    * operating system account name says anything about who edited the file, so those cases return an
-   * empty result and leave whatever the file already holds untouched.
+   * empty result and leave whatever the file already holds untouched. The same goes for the {@link
+   * HopSecurityPrivilegeMode#STAND_IN_USERNAME} stand-in used when the desktop simulates a role.
    *
    * @return the authenticated user name, or empty when no real user is known
    */
   public static Optional<String> getAuditUsername() {
     HopSecurityContext context = getContext();
-    return context.isAuthenticated() ? Optional.of(context.getUsername()) : Optional.empty();
+    if (!context.isAuthenticated()
+        || HopSecurityPrivilegeMode.STAND_IN_USERNAME.equals(context.getUsername())) {
+      return Optional.empty();
+    }
+    return Optional.of(context.getUsername());
   }
 
   /**
