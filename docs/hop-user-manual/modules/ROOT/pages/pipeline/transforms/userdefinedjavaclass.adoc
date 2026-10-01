@@ -55,7 +55,7 @@ Put extra jars in `plugins/transforms/janino/lib` so this transform can load the
 See xref:installation-configuration.adoc[Installation and configuration].
 
 One tab is the *transform class*.
-Right-click that tab and choose *Set as transform class*.
+Right-click that tab and choose *Set as transform Class*.
 Hop compiles it as a subclass of its own transform base and adds the constructor, so do not write a constructor yourself.
 That class is the one Hop calls while the pipeline runs.
 Other tabs are helper classes.
@@ -77,7 +77,10 @@ This name has to be unique in the pipeline.
 |Java language level Janino uses to compile every class tab.
 Choose a value from 6 to 21.
 A pipeline that does not store the option, or stores a value outside that range, is compiled as Java 6.
-Pick a higher level when the class body uses newer Java syntax.
+The level does not unlock newer language features.
+Janino accepts generics, the diamond operator, for-each loops, `switch` on strings, and text blocks at every level.
+It rejects lambdas, method references, `var`, switch expressions, records, pattern matching in `instanceof`, and multi-type `catch` at every level, including 21.
+Use anonymous classes, explicit types, and plain `switch` statements instead.
 
 |Class code
 |The class body of the selected tab.
@@ -153,12 +156,13 @@ Once execution has started, Hop calls it in a tight loop.
 * `getRow()` blocks until the next row from the main input arrives, and returns `null` when that input is finished.
   That `null` is the usual place to call `setOutputDone()` and return `false`.
 
++
 An exception thrown out of `processRow()` stops the pipeline: the error is logged, the error count is set, and the transform marks its output done.
 Catch a bad row yourself and send it to the error hop when the pipeline should keep going.
 See <<error-handling>>.
 
 `dispose()`::
-Called once after the pipeline has finished.
+Called once when this transform stops running, after its last `processRow()` call.
 Close what `init()` opened.
 Call `parent.disposeImpl()` (or `super.dispose()`).
 
@@ -223,7 +227,7 @@ The left-hand tree has three kinds of entry.
 *Classes*::
 One entry per class tab.
 Double-click a name to show that tab.
-Right-click a tab for *Add new*, *Add copy*, *Set as transform class*, and *Remove class type*.
+Right-click a tab for *Add new*, *Add copy*, *Set as transform Class*, and *Remove class type*.
 Right-click a class in the tree to rename or delete it.
 
 *Code Snippets*::
@@ -242,7 +246,7 @@ The matching `IRowMeta` describes the field names, types, and order.
 
 `getRow()` returns the next main-input row and, on the first call, refreshes `data.inputRowMeta`.
 `data.outputRowMeta` is that layout plus the fields from the *Fields* tab, or only those fields when *Clear the result fields?* is checked.
-`getInputRowMeta()` is the same input layout.
+`getInputRowMeta()` returns the same input layout, but only once `getRow()` has returned a row; before that it is `null`.
 
 The usual way to read and write a field is `get(Fields.In, name)`, `get(Fields.Out, name)`, or `get(Fields.Info, name)`.
 Each returns a helper that remembers the field index, so the name is not searched again on every row.
@@ -299,12 +303,18 @@ The same lookup by index, which is what the helper caches for you, looks like th
 
 [source,java]
 ----
+Object[] r = getRow();
+if (r == null) {
+  setOutputDone();
+  return false;
+}
+// The input layout is only known after getRow() has returned a row.
+//
 IRowMeta inputRowMeta = getInputRowMeta();
 int yearIndex = inputRowMeta.indexOfValue(getParameter("YEAR"));
 if (yearIndex < 0) {
   throw new HopException("Year field not found in the input row, check parameter 'YEAR'!");
 }
-Object[] r = getRow();
 Long year = inputRowMeta.getInteger(r, yearIndex);
 ----
 
@@ -323,7 +333,7 @@ Hop already calls this kind of hop an *info* stream.
 Stream Lookup uses the same idea: one hop is the stream of rows to process, and another hop only supplies data that helps process those rows.
 In this transform the split is:
 
-* Hops that are *not* listed on *Info transforms* are the main input. `getRow()` reads them.
+* Hops that are *not* listed on *Info transforms* are the main input. `getRow()` reads them, and also reads an info hop that has not been drained yet (see below).
 * Hops that *are* listed there are info hops. The canvas draws an info icon on the hop. Read them with `findInfoRowSet(tag)` and `getRowFrom(rowSet)`.
 
 "Input" is already the main hop.
@@ -428,7 +438,7 @@ Those are not the parameter table.
   The message names the forbidden text when a <<blocking-code,code exclusion>> matched.
 . It looks up this transform in the pipeline the dialog was opened from.
   If the transform is not there, the test stops and reports that the fields from the previous transforms could not be read.
-. It builds a throwaway pipeline named after this transform with ` - PREVIEW` appended:
+. It builds a throwaway pipeline named after this transform with `++ - PREVIEW++` appended:
   * A Generate Rows transform named `## TEST DATA ##` feeds the main input.
     It produces 10 rows.
     The fields are the main input fields of this transform, not the fields of the info transforms.
@@ -438,7 +448,7 @@ Those are not the parameter table.
     Nothing is written to the real downstream transforms.
 . It runs that pipeline and previews up to 10 rows written by this class with `putRow`.
   Rows sent only with `putRowTo` go to the dummy target and are not part of that preview.
-  When the run reports errors, the test shows the log instead.
+  When the run reports errors, the test shows the log as well.
 
 [[error-handling]]
 == Error handling
@@ -485,9 +495,9 @@ if (checkFeedback(getLinesOutput())) {
 Code is checked, before it is compiled, against a list of forbidden substrings.
 A match is rejected with the text that matched.
 
-Hop looks for `codeExclusions.xml` next to the Janino plugin (`plugins/transforms/janino`).
-When that file is missing, the copy shipped with the plugin is used, and that copy allows everything.
-Add a file beside the plugin to block text:
+Hop reads `codeExclusions.xml` in the Janino plugin folder (`plugins/transforms/janino`).
+The file installed there is empty, so everything is allowed.
+Add an `exclusion` element for each piece of text to block:
 
 [source,xml]
 ----
