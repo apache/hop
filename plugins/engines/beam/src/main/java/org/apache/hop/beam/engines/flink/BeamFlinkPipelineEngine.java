@@ -47,7 +47,12 @@ public class BeamFlinkPipelineEngine extends BeamPipelineEngine
 
   private static final String COLLECTION_MASTER = "[collection]";
 
-  /** Job id Flink will submit. Null for the collection master, which does not start a job. */
+  private static final String AUTO_MASTER = "[auto]";
+
+  /**
+   * Job id Flink will submit. Null for the collection master, which does not start a job, and for
+   * the auto master, where Flink ignores the configuration directory that carries the id.
+   */
   @Getter private String flinkJobId;
 
   private Path flinkJobConfDir;
@@ -107,7 +112,7 @@ public class BeamFlinkPipelineEngine extends BeamPipelineEngine
       return;
     }
     FlinkPipelineOptions options = getBeamPipeline().getOptions().as(FlinkPipelineOptions.class);
-    if (COLLECTION_MASTER.equals(options.getFlinkMaster())) {
+    if (!acceptsFixedJobId(options.getFlinkMaster())) {
       return;
     }
     String jobId = new JobID().toHexString();
@@ -115,6 +120,18 @@ public class BeamFlinkPipelineEngine extends BeamPipelineEngine
     options.setFlinkConfDir(flinkJobConfDir.toAbsolutePath().toString());
     flinkJobId = jobId;
     logChannel.logBasic(BaseMessages.getString(PKG, "BeamEnginesFlink.JobId.Log", jobId));
+  }
+
+  /**
+   * Only a local or host:port master builds its Flink environment from the configuration directory
+   * Hop hands over. The auto master (also Beam's default for an empty master) takes the environment
+   * of {@code flink run} or the Kubernetes operator instead, so a fixed job id would never reach
+   * Flink and the reported id would be wrong.
+   */
+  static boolean acceptsFixedJobId(String flinkMaster) {
+    return StringUtils.isNotBlank(flinkMaster)
+        && !COLLECTION_MASTER.equals(flinkMaster.trim())
+        && !AUTO_MASTER.equals(flinkMaster.trim());
   }
 
   private void deleteFlinkJobConfiguration() {

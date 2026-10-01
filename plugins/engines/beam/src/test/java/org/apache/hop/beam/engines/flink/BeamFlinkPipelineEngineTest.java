@@ -18,8 +18,10 @@
 package org.apache.hop.beam.engines.flink;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -36,6 +38,8 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
@@ -117,5 +121,44 @@ class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
     } finally {
       FlinkJobConfiguration.delete(confDir);
     }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"[local]", "127.0.0.1:8081", "flink-jobmanager:8081"})
+  void fixedJobIdForLocalAndRemoteMasters(String master) {
+    assertTrue(BeamFlinkPipelineEngine.acceptsFixedJobId(master));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"", " ", "[auto]", "[collection]"})
+  void noFixedJobIdWhereFlinkIgnoresTheConfDir(String master) {
+    assertFalse(BeamFlinkPipelineEngine.acceptsFixedJobId(master));
+  }
+
+  @Test
+  void noFlinkJobIdForAutoMaster() throws Exception {
+    BeamFlinkPipelineRunConfiguration configuration =
+        new BeamFlinkPipelineRunConfiguration("[auto]", "1");
+    configuration.setEnginePluginId("BeamFlinkPipelineEngine");
+    configuration.setTempLocation(System.getProperty("java.io.tmpdir"));
+    PipelineRunConfiguration pipelineRunConfiguration =
+        new PipelineRunConfiguration(
+            "flink-auto", "description", "", Arrays.asList(), configuration, null, false);
+    metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);
+
+    PipelineMeta pipelineMeta =
+        BeamPipelineMetaUtil.generateBeamInputOutputPipelineMeta(
+            "flink-auto", "INPUT", "OUTPUT", metadataProvider);
+    IPipelineEngine<PipelineMeta> engine =
+        PipelineEngineFactory.createPipelineEngine(
+            variables, pipelineRunConfiguration.getName(), metadataProvider, pipelineMeta);
+    engine.prepareExecution();
+
+    BeamFlinkPipelineEngine flinkEngine = (BeamFlinkPipelineEngine) engine;
+    assertNull(flinkEngine.getFlinkJobId());
+    ExecutionState state = flinkEngine.capturePipelineExecutionState();
+    assertTrue(
+        state.getDetails() == null
+            || !state.getDetails().containsKey(BeamFlinkPipelineEngine.DETAIL_FLINK_JOB_ID));
   }
 }
