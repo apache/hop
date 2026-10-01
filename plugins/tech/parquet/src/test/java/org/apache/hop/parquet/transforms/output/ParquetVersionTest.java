@@ -42,6 +42,12 @@ class ParquetVersionTest {
   void testGetVersionFromDescription() {
     assertEquals(ParquetVersion.Version1, ParquetVersion.getVersionFromDescription("Parquet 1.0"));
     assertEquals(ParquetVersion.Version2, ParquetVersion.getVersionFromDescription("Parquet 2.0"));
+    assertEquals(ParquetVersion.Version1, ParquetVersion.getVersionFromDescription("Version1"));
+    assertEquals(ParquetVersion.Version2, ParquetVersion.getVersionFromDescription("Version2"));
+    assertEquals(ParquetVersion.Version1, ParquetVersion.getVersionFromDescription("1.0"));
+    assertEquals(ParquetVersion.Version2, ParquetVersion.getVersionFromDescription("2.0"));
     assertEquals(ParquetVersion.Version1, ParquetVersion.getVersionFromDescription("unknown"));
+    assertEquals(ParquetVersion.Version1, ParquetVersion.getVersionFromDescription(""));
+    assertEquals(ParquetVersion.Version1, ParquetVersion.getVersionFromDescription(null));
   }
 }

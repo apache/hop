@@ -23,14 +23,32 @@ services:
     depends_on:
       hop_server:
         condition: service_healthy
+      hop_server_no_cross_site_check:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
     links:
       - hop_server
+      - hop_server_no_cross_site_check
+      - seaweedfs
 
   hop_server:
     image: apache/hop:Development
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+    links:
+      - seaweedfs
     build:
       context: ../../.
       dockerfile: docker/Dockerfile
+      # Same uid/gid as the test runner (JENKINS_UID from run-tests-docker.sh).
+      # hop-server writes mapped folders on /hop_server_volume (the host
+      # integration-tests/hop_server tree). The default image user is 501, so a
+      # 775 directory owned by the host user is AccessDenied (main-0015).
+      args:
+        - HOP_UID=${JENKINS_UID:-1000}
+        - HOP_GID=${JENKINS_GID:-1000}
     pull_policy: never
     hostname: hop-server
     ports:
@@ -42,6 +60,8 @@ services:
       - HOP_PROJECT_NAME=samples
       - HOP_PROJECT_FOLDER=/opt/hop/config/projects/samples
       - HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
+      - HOP_ENVIRONMENT_NAME=server-dev
+      - HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/hop_server_volume/server-env-config.json
     volumes:
       - ./../../integration-tests/hop_server/:/hop_server_volume
     healthcheck:
@@ -50,3 +70,43 @@ services:
       timeout: 10s
       retries: 6
       start_period: 120s
+
+  # A second server with the cross-site check turned off (main-0018). The escape hatch for a
+  # deployment that needs cross-site browser access is only worth anything if the setting actually
+  # reaches the server process, which is what this container proves. No project or metadata folder:
+  # the test only calls the status and stopPipeline endpoints.
+  hop_server_no_cross_site_check:
+    image: apache/hop:Development
+    pull_policy: never
+    hostname: hop-server-nocheck
+    ports:
+      - "8182"
+    environment:
+      - HOP_SERVER_PORT=8182
+      - HOP_SERVER_HOSTNAME=hop-server-nocheck
+      - HOP_SERVER_CROSS_SITE_POLICY=off
+    healthcheck:
+      test: curl -u cluster:cluster --fail http://hop-server-nocheck:8182 || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 120s
+
+  # Storage behind the "export-only-storage" VFS connection of main-0014. That connection lives in
+  # the client project's metadata-client-only folder, so it only ever reaches the server inside the
+  # export ZIP - which is what the test is about. SeaweedFS serves the S3 API on 8333; the admin
+  # identity comes from the AWS_* variables. The connection is still of the Minio type: that plugin
+  # speaks plain S3 and works against any compatible store.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    hostname: seaweedfs
+    environment:
+      AWS_ACCESS_KEY_ID: "ApacheHopAccessKey"
+      AWS_SECRET_ACCESS_KEY: "ApacheHopSecretKey"
+    command: server -s3 -dir=/data -volume.max=0 -master.volumeSizeLimitMB=64
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8333/healthz"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s

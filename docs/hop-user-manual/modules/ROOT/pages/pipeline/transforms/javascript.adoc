@@ -18,30 +18,15 @@ under the License.
 :language: en_US
 :description: The JavaScript transform allows you to create JavaScript scripts that use the available pipeline fields as variables.
 :imagesdir: ../../../assets/images
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/javascript.svg[JavaScript transform Icon, role="image-doc-icon"] JavaScript
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The JavaScript transform provides a user interface for building JavaScript expressions that you can use to modify your data. The code you type in the script area is executed once for each input row.
 
 TIP: Variables won’t be usable or testable until you create fields. Click the “Get variables” button to convert script variables into fields.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Usage
 
@@ -60,6 +45,7 @@ image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
 * The Get variables button may not always work, so enter variables manually.
 * The JavaScript transform runs better with less whitespace and less line continuations, especially when using GraphQL. Avoid multi-line expressions or statements.
 * Ensure you select the correct Type for the outgoing JavaScript fields.
+* Large integers (more than about 15–16 significant digits) can change when they pass through the JavaScript transform. This is caused by JavaScript’s internal floating-point number representation, not by Hop rounding. See <<numeric-values, Numeric values>> below.
 
 == Examples
 E.g. JavasScript to create 4 new fields:
@@ -126,9 +112,54 @@ The Javascript pane is the editing area for writing your code. You can insert co
 
 The position at the bottom of the Javascript panel displays the line number and position of the cursor.
 
+The `ECMAScript level` selects the Mozilla Rhino language level used to compile and run your scripts. The default is *ES6*, which matches the engine default in recent Rhino releases and supports modern syntax such as `let`, `const`, arrow functions, and template literals.
+
+Existing pipelines that do not store a language level continue to run at *ES6*, so current behavior is preserved. Choose a legacy level only when a script depends on older JavaScript semantics.
+
+NOTE: Support is limited to what the embedded Rhino engine implements. Some modern features (for example `class` syntax or `async`/`await`) may still be unavailable even at ES6 or ECMASCRIPT.
+
+=== A short history of the language levels
+
+JavaScript grew up in the browser under Netscape and later Mozilla.
+Before the language was primarily described by yearly *ECMAScript* editions (ES5, ES6/ES2015, ES2016, …), Mozilla shipped numbered *JavaScript* releases (1.5, 1.6, 1.7, 1.8) in SpiderMonkey—the engine that powered Firefox.
+
+*Rhino* is Mozilla’s Java implementation of that same language family.
+It was built so server-side and embedded applications (like Hop pipelines) could run JavaScript on the JVM with tight Java interoperability.
+Rhino kept those historic language version switches so embedders could opt into newer syntax without silently breaking older scripts.
+Hop exposes that choice as *ECMAScript level*.
+
+Rough timeline:
+
+* **JavaScript 1.0–1.4** — Early Netscape era (`var`, functions, prototypes, basic objects). Hop lists levels starting at the more complete **1.5** baseline.
+* **JavaScript 1.5** (around 2000, Firefox 1.0 era) — Aligns with *ECMAScript 3*: exception-based error handling, richer regular expressions, `Number` formatting helpers (`toFixed`, `toPrecision`, …), getters/setters, and other ES3-era language work. This is the classic “pre-modern” scripting baseline many long-lived scripts still assume.
+* **JavaScript 1.6** (around 2005, Firefox 1.5) — Functional-style *Array* helpers: `indexOf`, `lastIndexOf`, `every`, `filter`, `forEach`, `map`, `some`, plus Array/String generics. Also introduced *E4X* (ECMAScript for XML) and related XML-oriented syntax that some older Hop samples still demonstrate.
+* **JavaScript 1.7** (around 2006, Firefox 2) — Block scoping with `let`, iterators and generators (`yield`), early `for…of`-style iteration ideas, and destructuring assignment. Several ideas here later became standard ECMAScript; a few Mozilla-only experiments (such as array comprehensions) did not.
+* **JavaScript 1.8** (around 2008, Firefox 3) — Array reduction (`reduce`, `reduceRight`) and more generator/expression-oriented features. Still the last of the old “JavaScript 1.x” marketing line before the industry moved fully to ES5/ES6 versioning.
+* **ES5** (2009) — Strict mode, `JSON`, `Object.create` / property descriptors, and other library/language cleanups. Rhino’s numbered 1.x levels predate calling this out as its own Hop combo entry; much of ES5 is available when you move to modern levels.
+* **ES6 / ES2015 and later** — The big modern leap: proper `let`/`const` semantics, arrow functions, template literals, classes (where implemented), promises, modules, and a long tail of yearly ECMAScript features. Rhino models this mainly as *VERSION_ES6* and, for the newest engine behavior, *VERSION_ECMASCRIPT*.
+
+Why offer the old levels at all? Because language upgrades are not always additive in practice.
+A script written for a looser 1.5-era engine can break under ES6 rules (reserved words, stricter scoping, different edge-case semantics).
+Keeping **DEFAULT** and **1.5–1.8** available means you can modernize new transforms with **ES6** while leaving battle-tested legacy scripts on the level they were written for.
+
+=== Available levels
+
+[%header]
+|===
+|Level|When it appeared (approx.)|Notable capabilities
+|DEFAULT|Rhino legacy default|Odd historical “default” mode kept for compatibility. Limited modern syntax (for example `let` is not available). Prefer an explicit 1.x or ES6 level for new work.
+|1.5|~2000 (ES3 / JS 1.5)|`var`-centric scripts, ES3 exceptions and regex features, classic `Number` formatting methods, getters/setters.
+|1.6|~2005|Array extras (`map`, `filter`, `forEach`, `some`, `every`, `indexOf`, …), Array/String generics, E4X XML features where enabled.
+|1.7|~2006|`let`, generators/`yield`, iterator-style looping, destructuring assignment (Mozilla-era forms).
+|1.8|~2008|`Array.reduce` / `reduceRight`, expression closures and further generator-oriented features from that era.
+|ES6 (default)|ES2015+ (engine default since Rhino 1.8.0)|Modern syntax Rhino implements: `let`/`const`, arrow functions, template literals, spread, and many later library features. Default for new transforms and for pipelines that omit the setting.
+|ECMASCRIPT|Ongoing|Latest ECMAScript level supported by the embedded Rhino build. Tracks the engine’s newest work and may enable stricter checks than ES6.
+|===
+
+
 The `Optimization level` selects the level of JavaScript optimization. The values are:
 
-* 1: JavaScript runs in interpreted mode.
+* -1: JavaScript runs in interpreted mode.
 * 0: No optimizations are performed.
 * 1-9: All optimizations are performed. 9 performs the most optimization with faster script execution, but compiles slower. The default is 9.
 
@@ -158,12 +189,17 @@ The Fields table contains a list of variables from your script, and enables you 
 |Fieldname|Specify the name of the incoming field.
 |Rename to|Specify a new name for the incoming field.
 |Type|Specify a data type for the output field.
-|Length|Specify the length of the output field.
-|Precision|Specify the precision value of the output field.
+|Length|Length of the output field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+|Precision|Precision of the output field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Replace value ‘Fieldname’ or ‘Rename to’|Specify whether to replace the value of the selected field with another value or to rename a field. The values are Y (Yes) and N (No).
 |Get variables|Retrieve a list of Javascript variables from your script. You can manually add variables as the ‘Get variables’ button may not always work.
 |Test Script|Test the syntax of your script, and displays the Generate Rows dialog box with a set of rows for testing.
 |===
+
+NOTE: This is the Rhino *JavaScript* transform.
+The GraalVM / JSR-223 *Script* transform has an extra *Script result?* column; see xref:pipeline/transforms/script.adoc#fields-table[Script — Fields table].
 
 == Javascript Internal API Objects
 
@@ -197,7 +233,48 @@ Fields must be added to the rows in the same order to keep the structure of the 
 
 To add a field, define it as var in the Javascript pane, and add it as a field in the Fields table.
 
-=== Numeric values
+=== [[stream-fields]]Stream fields are Java objects
+
+Fields coming from the input stream are not plain JavaScript primitives: the transform hands them to the Rhino engine as *wrapped Java objects* (`java.lang.Boolean`, `java.lang.Long`, `java.lang.String`, and so on). Variables you declare yourself with `var` inside the script are plain JavaScript values instead. That difference explains a number of surprising results, and `typeof` makes it visible:
+
+[source, javascript]
+----
+var myBoolean = false;
+
+typeof(myBoolean);      // "boolean" - declared in the script
+typeof(booleanField);   // "object"  - coming from the stream
+----
+
+Two consequences are worth knowing about.
+
+*A Boolean field is always truthy.* Rhino treats any wrapped object as `true`, so an `if` on a Boolean field never takes the else branch, even when the field is `false`. Comparing explicitly with `true` does work, because the equality operator unwraps the object:
+
+[source, javascript]
+----
+if (booleanField)             { ... }   // ALWAYS true, even when the field is false
+if (booleanField == true)     { ... }   // correct
+if (booleanField.valueOf())   { ... }   // correct
+----
+
+*Comparing two fields with `==` or `!=` compares object identity, not values.* Two Integer fields holding the same number are still two distinct Java objects, so `!=` reports them as different. Force a conversion to a JavaScript value first:
+
+[source, javascript]
+----
+if (intFieldA != intFieldB)                       { ... }   // WRONG: compares references
+if (intFieldA.valueOf() != intFieldB.valueOf())   { ... }   // correct
+if (parseInt(intFieldA) != parseInt(intFieldB))   { ... }   // correct
+----
+
+As a rule of thumb, call `.valueOf()` (or `parseInt()`, `parseFloat()`, `String()`) on a stream field whenever you use it in a comparison or in a boolean test.
+
+A field that is null in the stream is put in the script scope as `null`. Testing it with `fieldName == null` is safe, but calling any method on it - including `.valueOf()` - fails, so check for null first:
+
+[source, javascript]
+----
+var flag = (booleanField != null) && booleanField.valueOf();
+----
+
+=== [[numeric-values]]Numeric values
 
 Most values that are assigned in JavaScript are floating point values by default, even if you think you have assigned an integer value. If you are having trouble using == or switch/case on values that you know are integers, use the following constructs:
 
@@ -217,6 +294,33 @@ default:
  strvalueswitch = "five";
 }
 ----
+
+==== Loss of precision for large integers
+
+IMPORTANT: JavaScript numbers are always stored as double-precision floating-point values (IEEE 754). That is a limitation of the language (and of the Rhino engine Hop uses), not a bug in the transform.
+
+A double can represent integers exactly only up to `2^53 - 1` (`Number.MAX_SAFE_INTEGER` = `9007199254740991`), which is about 15–16 significant digits. Hop Integer fields are 64-bit (`long`) and can hold larger values. When such a value is passed into JavaScript—even if you only assign it to another variable, log it, or convert it to a string—the engine converts it through a floating-point number. Converting back to Integer (Integer → Double → Integer) can change the least significant digits.
+
+For example:
+
+|===
+|Input Integer |Value after JavaScript
+
+|`1234567890123456` (16 digits)
+|`1234567890123456` (unchanged)
+
+|`12345678901234567` (17 digits)
+|`12345678901234568` (last digit changed)
+
+|`20231213084852358` (17 digits)
+|`20231213084852360` (last digits changed)
+|===
+
+Workarounds when you need full integer precision:
+
+* Keep large identifiers (order numbers, keys, barcodes, and similar) as *String* fields and avoid treating them as numbers in JavaScript.
+* Prefer non-script transforms (Calculator, Formula, Select Values, and so on) for numeric work when possible.
+* If you must use script for very large numbers, use the *Script* transform (Groovy or another engine that supports arbitrary-precision types) instead of the JavaScript transform, or pass values as strings and only convert them outside JavaScript.
 
 === Filter Rows
 

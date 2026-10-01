@@ -30,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.execution.path.PathResult;
 import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
@@ -206,33 +207,36 @@ public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
     pathParams.put("executionId", executionId);
     String pathCypher = getPathToFailedCypher();
 
-    getSession()
-        .executeRead(
-            tx -> {
-              Result pathResult = tx.run(pathCypher, pathParams);
+    try {
+      getSession()
+          .executeRead(
+              tx -> {
+                Result pathResult = tx.run(pathCypher, pathParams);
 
-              while (pathResult.hasNext()) {
-                Record pathRecord = pathResult.next();
-                Value pathValue = pathRecord.get(0);
-                Path path = pathValue.asPath();
-                List<PathResult> shortestPath = new ArrayList<>();
-                for (Node node : path.nodes()) {
-                  PathResult nodeResult = new PathResult();
-                  nodeResult.setId(LoggingCore.getStringValue(node, "id"));
-                  nodeResult.setName(LoggingCore.getStringValue(node, "name"));
-                  nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
-                  nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
-                  nodeResult.setRegistrationDate(
-                      LoggingCore.getDateValue(node, "registrationDate"));
-                  nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
+                while (pathResult.hasNext()) {
+                  Record pathRecord = pathResult.next();
+                  Value pathValue = pathRecord.get(0);
+                  Path path = pathValue.asPath();
+                  List<PathResult> shortestPath = new ArrayList<>();
+                  for (Node node : path.nodes()) {
+                    PathResult nodeResult = new PathResult();
+                    nodeResult.setId(LoggingCore.getStringValue(node, "id"));
+                    nodeResult.setName(LoggingCore.getStringValue(node, "name"));
+                    nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
+                    nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
+                    nodeResult.setRegistrationDate(
+                        LoggingCore.getDateValue(node, "registrationDate"));
+                    nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
 
-                  shortestPath.add(0, nodeResult);
+                    shortestPath.add(0, nodeResult);
+                  }
+                  shortestPaths.add(shortestPath);
                 }
-                shortestPaths.add(shortestPath);
-              }
-              //
-              return null;
-            });
+                return null;
+              });
+    } catch (Exception e) {
+      new ErrorDialog(viewer.getShell(), "Error", "Error loading the error lineage from Neo4j", e);
+    }
 
     return shortestPaths;
   }

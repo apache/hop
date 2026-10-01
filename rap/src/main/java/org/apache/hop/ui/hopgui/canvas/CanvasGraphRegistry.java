@@ -20,13 +20,15 @@ package org.apache.hop.ui.hopgui.canvas;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.hop.core.logging.LogChannel;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.swt.widgets.Canvas;
 
 /**
  * Per UISession registry of pipeline/workflow canvas renders. Stores the latest SVG snapshot and
- * click-map for each canvas widget.
+ * click-map for each canvas widget, plus one RAP remote object per canvas for the SVG overlay,
+ * hover bridge, and wheel zoom.
  */
 public class CanvasGraphRegistry {
 
@@ -35,19 +37,13 @@ public class CanvasGraphRegistry {
   private final Map<String, CanvasRenderSnapshot> snapshots = new ConcurrentHashMap<>();
   private final Map<String, Object> graphsByCanvasId = new ConcurrentHashMap<>();
   private final Map<String, Canvas> canvasById = new ConcurrentHashMap<>();
+  private final Map<String, RemoteObject> svgRendererRemotes = new ConcurrentHashMap<>();
+  private final Map<String, RemoteObject> interactionRemotes = new ConcurrentHashMap<>();
+  private final Map<String, RemoteObject> zoomRemotes = new ConcurrentHashMap<>();
   private final AtomicLong revisionCounter = new AtomicLong(1);
 
-  /** Per-session remote object for the SVG canvas client (must not be static across sessions). */
-  private RemoteObject svgRendererRemote;
-
-  /** Per-session remote object for canvas hover notifications. */
-  private RemoteObject interactionRemote;
-
-  /** Active canvas for hover routing within this UI session. */
+  /** Active canvas for hover/zoom routing within this UI session. */
   private Canvas activeCanvas;
-
-  /** Per-session remote object for mouse-wheel zoom. */
-  private RemoteObject zoomRemote;
 
   /** Active zoom target (HopGuiPipelineGraph / HopGuiWorkflowGraph). */
   private Object activeZoomable;
@@ -57,14 +53,23 @@ public class CanvasGraphRegistry {
   }
 
   public void register(String canvasId, Canvas canvas, Object graph) {
-    canvasById.put(canvasId, canvas);
+    if (canvas != null) {
+      canvasById.put(canvasId, canvas);
+    }
     graphsByCanvasId.put(canvasId, graph);
   }
 
   public void unregister(String canvasId) {
-    canvasById.remove(canvasId);
+    Canvas canvas = canvasById.remove(canvasId);
     graphsByCanvasId.remove(canvasId);
     snapshots.remove(canvasId);
+    destroyRemote(svgRendererRemotes.remove(canvasId));
+    destroyRemote(interactionRemotes.remove(canvasId));
+    destroyRemote(zoomRemotes.remove(canvasId));
+    if (activeCanvas != null && (activeCanvas == canvas || isDisposed(activeCanvas))) {
+      activeCanvas = null;
+      activeZoomable = null;
+    }
   }
 
   public void updateSnapshot(String canvasId, CanvasRenderSnapshot snapshot) {
@@ -92,20 +97,32 @@ public class CanvasGraphRegistry {
     return snapshot == null ? 0 : snapshot.getRevision();
   }
 
-  public RemoteObject getSvgRendererRemote() {
-    return svgRendererRemote;
+  public RemoteObject getSvgRendererRemote(String canvasId) {
+    return canvasId == null ? null : svgRendererRemotes.get(canvasId);
   }
 
-  public void setSvgRendererRemote(RemoteObject svgRendererRemote) {
-    this.svgRendererRemote = svgRendererRemote;
+  public void putSvgRendererRemote(String canvasId, RemoteObject remoteObject) {
+    svgRendererRemotes.put(canvasId, remoteObject);
   }
 
-  public RemoteObject getInteractionRemote() {
-    return interactionRemote;
+  public RemoteObject getInteractionRemote(String canvasId) {
+    return canvasId == null ? null : interactionRemotes.get(canvasId);
   }
 
-  public void setInteractionRemote(RemoteObject interactionRemote) {
-    this.interactionRemote = interactionRemote;
+  public void putInteractionRemote(String canvasId, RemoteObject remoteObject) {
+    interactionRemotes.put(canvasId, remoteObject);
+  }
+
+  public RemoteObject getZoomRemote(String canvasId) {
+    return canvasId == null ? null : zoomRemotes.get(canvasId);
+  }
+
+  public void putZoomRemote(String canvasId, RemoteObject remoteObject) {
+    zoomRemotes.put(canvasId, remoteObject);
+  }
+
+  public RemoteObject removeZoomRemote(String canvasId) {
+    return canvasId == null ? null : zoomRemotes.remove(canvasId);
   }
 
   public Canvas getActiveCanvas() {
@@ -116,19 +133,30 @@ public class CanvasGraphRegistry {
     this.activeCanvas = activeCanvas;
   }
 
-  public RemoteObject getZoomRemote() {
-    return zoomRemote;
-  }
-
-  public void setZoomRemote(RemoteObject zoomRemote) {
-    this.zoomRemote = zoomRemote;
-  }
-
   public Object getActiveZoomable() {
     return activeZoomable;
   }
 
   public void setActiveZoomable(Object activeZoomable) {
     this.activeZoomable = activeZoomable;
+  }
+
+  private static boolean isDisposed(Canvas canvas) {
+    try {
+      return canvas.isDisposed();
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+  private static void destroyRemote(RemoteObject remoteObject) {
+    if (remoteObject == null) {
+      return;
+    }
+    try {
+      remoteObject.destroy();
+    } catch (Exception e) {
+      LogChannel.UI.logDebug("Failed to destroy canvas remote object: " + e.getMessage());
+    }
   }
 }

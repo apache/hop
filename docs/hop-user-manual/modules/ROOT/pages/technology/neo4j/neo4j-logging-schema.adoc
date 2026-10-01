@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/neo4j/
 :language: en_US
 :description: The Neo4j logging schema describes the nodes and relationships Apache Hop writes when logging executions to Neo4j.
+:page-marketplace: hop-tech-neo4j
 
 = Neo4j Logging Schema
 

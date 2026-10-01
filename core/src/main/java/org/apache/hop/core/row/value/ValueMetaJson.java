@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -171,6 +170,10 @@ public class ValueMetaJson extends ValueMetaBase {
     if (kindA != kindB) {
       return Integer.compare(kindA, kindB);
     }
+    // A Java null and a JSON null both classify as kind 0, so they can reach this point
+    if (a == null || b == null) {
+      return 0;
+    }
 
     return switch (a.getNodeType()) {
       case NULL, MISSING -> 0;
@@ -255,18 +258,15 @@ public class ValueMetaJson extends ValueMetaBase {
     try {
       JsonNode jn = getJson(data);
       if (jn == null) {
-        preparedStatement.setNull(index, Types.OTHER);
+        // A null of the type the neutral handling below writes, which is a string. Types.OTHER
+        // is what a database taking JSON as a typed object wants, and it says so with a binding
+        // of its own; Oracle rejects it outright with "invalid column type".
+        preparedStatement.setNull(index, Types.VARCHAR);
         return;
       }
 
-      // This handles both JSON and JSONB if Postgres.
-      // other dbs don't accept type OTHER
-      if (databaseMeta.getIDatabase().isPostgresVariant()) {
-        preparedStatement.setObject(index, jn, Types.OTHER);
-        return;
-      }
-
-      // generic fallback to String
+      // The neutral handling. A database that takes JSON as a typed object rather than a string
+      // says so with a binding of its own.
       preparedStatement.setString(index, this.convertJsonToString(jn));
     } catch (Exception e) {
       throw new HopDatabaseException(
@@ -326,23 +326,5 @@ public class ValueMetaJson extends ValueMetaBase {
    */
   public void setPrettyPrinting(boolean prettyPrinting) {
     this.prettyPrinting = prettyPrinting;
-  }
-
-  @Override
-  public String getDatabaseColumnTypeDefinition(
-      IDatabase iDatabase,
-      String tk,
-      String pk,
-      boolean useAutoIncrement,
-      boolean addFieldName,
-      boolean addCr) {
-    final String col = addFieldName ? getName() + " " : "";
-    String def = "JSON";
-
-    // Postgres advices non-legacy app to use JSONB instead of JSON
-    if (iDatabase.isPostgresVariant()) {
-      def = "JSONB";
-    }
-    return col + def + (addCr ? Const.CR : "");
   }
 }

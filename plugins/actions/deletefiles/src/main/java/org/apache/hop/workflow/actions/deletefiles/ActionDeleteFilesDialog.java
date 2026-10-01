@@ -30,6 +30,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -170,6 +171,7 @@ public class ActionDeleteFilesDialog extends ActionDialog {
         };
 
     colinf[0].setUsingVariables(true);
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.FILE);
     colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Column"));
     colinf[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
     colinf[1].setUsingVariables(true);

@@ -18,10 +18,12 @@
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link FieldSplitterMeta} */
 class FieldSplitterMetaTest {
 
   @Test
@@ -30,5 +32,6 @@ class FieldSplitterMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/field-splitter-transform.xml", FieldSplitterMeta.class);
     assertEquals(4, meta.getFields().size());
+    assertFalse(meta.isKeepSplitField());
   }
 }

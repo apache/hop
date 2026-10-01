@@ -139,17 +139,13 @@ public class NamedParameters implements INamedParameters {
       if (StringUtils.isNotEmpty(param.key)) {
         String value = param.getValue();
         if (StringUtils.isEmpty(value)) {
-          String defaultValue = Const.NVL(param.getDefaultValue(), "");
-          // Prefer an already-set variable only when the parameter has a non-empty default.
-          // That is the HOSTNAME=localhost case: nested files must not clobber env/project values.
-          // When the default is empty, applying "" is intentional (unset parameter) and must not
-          // silently adopt a same-named parent CURRENT_WORKFLOW variable — see IT main-0004/0006.
-          String existing = variables != null ? variables.getVariable(param.getKey()) : null;
-          if (StringUtils.isNotEmpty(existing) && StringUtils.isNotEmpty(defaultValue)) {
-            value = existing;
-          } else {
-            value = defaultValue;
-          }
+          // No value was explicitly passed to this parameter, so its own default applies.
+          // Never adopt a same-named variable that happens to exist in the parent's scope:
+          // a declared parameter isolates the pipeline/workflow from ambient variables unless
+          // the caller deliberately maps a value onto it (see issue #8084). Inheriting parent
+          // values is the job of the caller ("pass all parameter values down" in the
+          // pipeline/workflow action), not of parameter activation.
+          value = Const.NVL(param.getDefaultValue(), "");
         }
         variables.setVariable(param.getKey(), value);
       }

@@ -221,21 +221,6 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     repeatElement = "Row";
   }
 
-  public XmlOutputMeta(XmlOutputMeta m) {
-    this();
-    this.encoding = m.encoding;
-    this.fileDetails = new FileDetails(m.fileDetails);
-    this.mainElement = m.mainElement;
-    this.nameSpace = m.nameSpace;
-    this.repeatElement = m.repeatElement;
-    m.outputFields.forEach(field -> outputFields.add(new XmlField(field)));
-  }
-
-  @Override
-  public Object clone() {
-    return new XmlOutputMeta(this);
-  }
-
   public String getNewLine(String formatCode) {
     String nl = System.lineSeparator();
     if (formatCode != null) {

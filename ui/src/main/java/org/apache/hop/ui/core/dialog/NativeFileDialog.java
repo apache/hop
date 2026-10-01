@@ -57,6 +57,32 @@ public class NativeFileDialog implements IFileDialog {
     return fileDialog.getFileName();
   }
 
+  /**
+   * The native dialog needs the SWT.MULTI style at creation time, so multi-selection is decided by
+   * whoever builds the {@link FileDialog}. Selecting multiple files in a dialog created without
+   * that style is simply not possible, which is why this is a no-op.
+   */
+  @Override
+  public void setMultiSelection(boolean multiSelection) {
+    // See BaseDialog#presentFileDialog: the style is passed to the FileDialog constructor.
+  }
+
+  @Override
+  public String[] getFileNames() {
+    String[] names = fileDialog.getFileNames();
+    if (names == null || names.length < 2) {
+      // Not a multi-selection: the caller falls back on getFilterPath()/getFileName().
+      return new String[0];
+    }
+    // SWT returns the base names only, relative to the filter path.
+    String filterPath = fileDialog.getFilterPath();
+    String[] filenames = new String[names.length];
+    for (int i = 0; i < names.length; i++) {
+      filenames[i] = BaseDialog.buildFilename(filterPath, names[i]);
+    }
+    return filenames;
+  }
+
   @Override
   public String open() {
     return fileDialog.open();

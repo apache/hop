@@ -34,6 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -381,7 +382,8 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     outputFields.add(new OutputField(CONST_TABLE_CAT, CONST_TABLE_CAT));
   }
 
-  @HopMetadataProperty private String connection;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+  private String connection;
 
   public String getConnection() {
     return connection;
@@ -553,7 +555,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
 
   /** Stores the selection of fields that are added to the stream */
   @HopMetadataProperty(groupKey = "outputFields", key = "outputField")
-  private List<OutputField> outputFields;
+  private List<OutputField> outputFields = new ArrayList<>();
 
   /**
    * @return the selection of fields added to the stream
@@ -567,22 +569,6 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
    */
   public void setOutputFields(List<OutputField> outputFields) {
     this.outputFields = outputFields;
-  }
-
-  /**
-   * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
-   * step meta object. Be sure to create proper deep copies if the step configuration is stored in
-   * modifiable objects.
-   *
-   * <p>See org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta.clone() for an example on
-   * creating a deep copy.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
   }
 
   @Override
@@ -613,6 +599,14 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     int n = outputFields.size();
 
     Object[] methodDescriptor = getMethodDescriptor();
+    if (methodDescriptor == null) {
+      throw new HopTransformException(
+          "Unknown or missing JDBC metadata method '"
+              + getMethodName()
+              + "' in transform '"
+              + origin
+              + "'");
+    }
     IValueMeta[] fields = (IValueMeta[]) methodDescriptor[2];
     int m = fields.length;
     IValueMeta field;

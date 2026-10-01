@@ -1,0 +1,112 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Hop's logging model, and how to get a debugger attached to the GUI, the server or a running pipeline.
+[[Architecture-LoggingDebugging]]
+= Logging and debugging
+
+== Logging
+
+Everything that logs owns an `ILogChannel`, and channels form a parent/child tree that mirrors the execution: pipeline, transform, the database connection inside it.
+That parentage is what lets Hop show the log of one transform separately from the pipeline it ran in.
+
+Seven levels, from `LogLevel`:
+
+`NOTHING`, `ERROR`, `MINIMAL`, `BASIC`, `DETAILED`, `DEBUG`, `ROWLEVEL`
+
+The level is set per run, and a channel logs only what its level allows.
+`ROWLEVEL` logs per row and is a debugging tool, not something to leave on.
+
+=== Where the log lines end up
+
+`HopLogStore` is the central store every channel appends to.
+It is initialized by `HopEnvironment.init()`, so nothing is captured before that call.
+
+Every runtime object — `IPipelineEngine`, `IWorkflowEngine`, a transform, a database connection — owns a log channel id, and that id is the key into the store.
+The parent/child relations between those channels live in `LoggingRegistry.getInstance()`.
+
+To read back what an object logged, ask the store's appender for that channel's buffer:
+
+[source,java]
+----
+String logText =
+    HopLogStore.getInstance().getAppender().getBuffer(pipeline.getLogChannelId(), true);
+----
+
+The second argument clears the buffer as it is read.
+This is the same path a `logBasic()` call from a xref:manual::pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class] takes: the transform's own channel, the same store.
+
+=== SLF4J and the Log4j2 binding
+
+The log records hop writes to the store are mirrored to SLF4J by `Slf4jLoggingEventListener` and, in turn, to Log4j2 through the `log4j-slf4j2-impl` binding.
+The binding is a configuration concern, not a Hop one: bring your own `log4j2.xml` (or `logback.xml`, or JUL) on the classpath and the stack emits whatever the provider expects, without touching Hop code.
+A minimal `log4j2.xml` is shipped in `hop-core.jar`. Hop's own log lines are already printed by Hop's console writer (`ConsoleLoggingEventListener`), so in that default configuration the `org.apache.hop` logger has no appender and is not additive: nothing is printed twice. Warnings and errors from third-party libraries reach the console through the root logger.
+
+To route Hop's own lines through Log4j2 instead (a JSON layout, a Kafka appender, an OpenTelemetry appender, ...):
+
+. Supply your own configuration, for example `HOP_OPTIONS="-Dlog4j2.configurationFile=/path/to/log4j2.xml"`, and add an `AppenderRef` to the `org.apache.hop` logger.
+. Set `HOP_DISABLE_CONSOLE_LOGGING=Y` to switch off Hop's own console writer, otherwise every line is printed both by Hop and by Log4j2.
+
+`LogChannel` keeps feeding `HopLogStore` synchronously regardless of the binding, so the GUI, the execution information location and the server keep working even when the external logger is reconfigured, and no Log4j2 configuration can empty those log views.
+
+==== Hop context as MDC
+
+While dispatching a record, the listener publishes the Hop execution context to the SLF4J MDC so custom appenders (agent, collector, Kafka, OpenTelemetry) can correlate records without parsing the message text.
+
+[opts="header",cols="2,2,6"]
+|===
+|MDC key |Example |Meaning
+
+|`hop.logChannelId`
+|`04f3…`
+|The Hop channel id of the record, the same key used to look the line up in `HopLogStore`.
+
+|`hop.logLevel`
+|`7`
+|The native Hop log level code of the record, preserving all seven Hop levels even though SLF4J exposes five.
+
+|`hop.subject`
+|`/opt/import/pipeline.hpl`
+|The detailed subject of the log object, normally the pipeline or workflow filename.
+|===
+
+The keys are also exposed as constants on `Slf4jLoggingEventListener`: `MDC_CHANNEL_ID`, `MDC_LOG_LEVEL` and `MDC_SUBJECT`.
+MDC is scoped to a single dispatch and is cleared once the record is handed to SLF4J, so it never leaks to another thread.
+
+== Attaching a debugger
+
+The launcher scripts in the distribution read `HOP_OPTIONS`, and each ships with a commented-out JDWP line:
+
+[source,bash]
+----
+HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5009"
+----
+
+Uncomment it, or export `HOP_OPTIONS` yourself, and attach a remote debugger to that port.
+This works for `hop-gui`, `hop-run`, `hop-server` and the rest of the scripts.
+
+For running Hop straight from the IDE instead, see xref:setup-dev-environment.adoc[Setting up your development environment].
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Choosing a log level for a message, and the cost of logging on a per-row path — see xref:architecture/performance.adoc[Performance on the row hot path].
+* How log lines reach the GUI, the execution information location and the server, and why a message can appear in one and not another.
+* Debugging inside a container, and debugging a pipeline running on a remote Hop Server.
+* Getting a thread dump out of a stuck pipeline and reading it: which threads are transforms, which are row sets.
+* What to capture when reporting a bug so it can be reproduced.
+====

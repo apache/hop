@@ -25,6 +25,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -146,6 +147,30 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    */
   default void setDropTargetFolder(CTabFolder folder) {
     // Do nothing by default
+  }
+
+  /**
+   * Remember the tab currently being dragged, or {@code null} when a drag ends. Every folder of a
+   * perspective has its own drop target, but only the folder the drag started on knows the tab; the
+   * others read it here so a drop from one pane into another can complete. This is what makes
+   * cross-pane tab drops work in Hop Web, where the transfer types are not on the drop event by the
+   * time the drop is accepted. Held on the (per-session) perspective, so two sessions never see
+   * each other's drag.
+   *
+   * @param tabItem the tab being dragged, or null
+   */
+  default void setDraggedTabItem(CTabItem tabItem) {
+    // Do nothing by default
+  }
+
+  /**
+   * The tab currently being dragged in this perspective, or null when none is.
+   *
+   * @return the dragged tab, or null
+   * @see #setDraggedTabItem(CTabItem)
+   */
+  default CTabItem getDraggedTabItem() {
+    return null;
   }
 
   /** Drop into the folder itself (no split). */

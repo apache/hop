@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0005-bulk-loader-validate</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Checks what actually landed in both target tables. Every condition here is something the old CSV based Kettle step got wrong: nulls became empty strings, a value holding the separator split into two, and a value holding a line break ended the row early.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/08/21 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/08/21 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Check what was stored</from>
+      <to>All as expected?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>All as expected?</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Check what was stored</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>${MSSQL_CONNECTION}</connection>
+    <execute_each_row>N</execute_each_row>
+    <limit>0</limit>
+    <sql>SELECT CASE
+         WHEN (SELECT count(*) FROM master.dbo.bulkloader_mapped) = 4
+          AND (SELECT count(*) FROM master.dbo.bulkloader_byname) = 4
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_mapped
+               WHERE row_id = 3
+                 AND label IS NULL
+                 AND total IS NULL
+                 AND is_active IS NULL
+                 AND happened_on IS NULL
+                 AND happened_at IS NULL) = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_byname
+               WHERE id = 3
+                 AND note IS NULL
+                 AND amount IS NULL
+                 AND active IS NULL
+                 AND day_value IS NULL
+                 AND moment_value IS NULL) = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_mapped
+               WHERE row_id = 2 AND label = N'before,§;after') = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_byname
+               WHERE id = 2 AND note = N'before,§;after') = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_mapped
+               WHERE row_id = 4 AND CHARINDEX(CHAR(10), label) > 0) = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_mapped
+               WHERE row_id = 1
+                 AND total = 10.5
+                 AND is_active = 1
+                 AND happened_on = '2024-05-16'
+                 AND happened_at = '2024-05-16T10:11:12') = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_mapped
+               WHERE row_id = 2 AND total = -3.25 AND is_active = 0) = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_byname
+               WHERE id = 1
+                 AND JSON_VALUE(doc_text, '$.name') = 'Goku'
+                 AND JSON_VALUE(doc_text, '$.power') = '9500'
+                 AND JSON_VALUE(doc_json, '$.name') = 'Goku'
+                 AND JSON_VALUE(doc_json, '$.power') = '9500'
+                 AND guid = '123E4567-E89B-12D3-A456-426655440000'
+                 AND CAST(doc_xml AS nvarchar(max)) = '&lt;doc&gt;&lt;n&gt;Goku&lt;/n&gt;&lt;/doc&gt;') = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_byname
+               WHERE id = 3 AND doc_text IS NULL AND doc_json IS NULL
+                 AND guid IS NULL AND doc_xml IS NULL) = 1
+          AND (SELECT count(*)
+               FROM master.dbo.bulkloader_byname
+               WHERE id = 4
+                 AND amount = 0.0001
+                 AND day_value = '2020-02-29'
+                 AND moment_value = '2020-02-29T23:59:59') = 1
+         THEN 'ok'
+         ELSE 'bad'
+       END AS result,
+       CONCAT('mapped rows=', (SELECT count(*) FROM master.dbo.bulkloader_mapped),
+              ', byname rows=', (SELECT count(*) FROM master.dbo.bulkloader_byname),
+              ', mapped row 3 label=', (SELECT IIF(label IS NULL, '&lt;null&gt;', CONCAT('[', label, ']'))
+                                        FROM master.dbo.bulkloader_mapped WHERE row_id = 3),
+              ', mapped row 2 label=', (SELECT COALESCE(label, '&lt;null&gt;')
+                                        FROM master.dbo.bulkloader_mapped WHERE row_id = 2)) AS found;</sql>
+    <variables_active>N</variables_active>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>All as expected?</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>=</function>
+        <leftvalue>result</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <mask/>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>ok</text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <send_false_to>Abort</send_false_to>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>A value did not survive the bulk copy into SQL Server intact</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -40,6 +40,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
@@ -256,26 +257,49 @@ public class ExecutionData {
         int nrSets = dis.readInt();
 
         for (int i = 0; i < nrSets; i++) {
-          // The set key & description
-          //
-          String setKey = dis.readUTF();
-
-          // The row metadata...
-          //
-          IRowMeta rowMeta = new RowMeta(dis);
-
-          // How many data rows does this buffer have?
-          //
-          List<Object[]> rows = new ArrayList<>();
-          int nrRows = dis.readInt();
-          for (int r = 0; r < nrRows; r++) {
-            Object[] row = rowMeta.readData(dis);
-            rows.add(row);
+          if (!readDataSet(dis)) {
+            // An undecodable value (Avro stored without its schema) must not reject the cache
+            // entry that contains this blob. Complete rows stay; the rest of the blob is dropped.
+            return;
           }
-
-          dataSets.put(setKey, new RowBuffer(rowMeta, rows));
         }
       }
     }
+  }
+
+  /**
+   * @return false when a value could not be read and the remainder of the blob was left unread
+   */
+  private boolean readDataSet(DataInputStream dis) throws IOException {
+    String setKey;
+    IRowMeta rowMeta;
+    int nrRows;
+    try {
+      setKey = dis.readUTF();
+      rowMeta = new RowMeta(dis);
+      nrRows = dis.readInt();
+    } catch (HopFileException e) {
+      logStoppedReading(null, e);
+      return false;
+    }
+
+    List<Object[]> rows = new ArrayList<>();
+    for (int r = 0; r < nrRows; r++) {
+      try {
+        rows.add(rowMeta.readData(dis));
+      } catch (HopFileException e) {
+        logStoppedReading(setKey, e);
+        dataSets.put(setKey, new RowBuffer(rowMeta, rows));
+        return false;
+      }
+    }
+    dataSets.put(setKey, new RowBuffer(rowMeta, rows));
+    return true;
+  }
+
+  private static void logStoppedReading(String setKey, HopFileException e) {
+    String where = setKey == null ? "" : " at set '" + setKey + "'";
+    LogChannel.GENERAL.logError(
+        "Stopped reading execution data" + where + ". Rows after this point were dropped.", e);
   }
 }

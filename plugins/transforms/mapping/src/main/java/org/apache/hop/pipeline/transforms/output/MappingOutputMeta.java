@@ -45,15 +45,6 @@ public class MappingOutputMeta extends BaseTransformMeta<MappingOutput, MappingO
     super();
   }
 
-  public MappingOutputMeta(MappingOutputMeta m) {
-    this();
-  }
-
-  @Override
-  public MappingOutputMeta clone() {
-    return new MappingOutputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     // Do nothing

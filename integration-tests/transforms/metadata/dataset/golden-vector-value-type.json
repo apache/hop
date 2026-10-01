@@ -1,0 +1,23 @@
+{
+  "base_filename": "golden-vector-value-type.csv",
+  "name": "golden-vector-value-type",
+  "description": "Stream metadata for a Data Grid field declared as the Vector value type.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Fieldname",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Type",
+      "field_format": ""
+    }
+  ]
+}

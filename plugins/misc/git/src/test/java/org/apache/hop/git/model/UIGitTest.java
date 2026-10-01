@@ -20,6 +20,9 @@ package org.apache.hop.git.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,32 +31,41 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RemoteAddCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.junit.RepositoryTestCase;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryState;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class UIGitTest extends RepositoryTestCase {
   private Git git;
@@ -354,6 +366,114 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testPushAndDeleteTagByName() throws Exception {
+    // Set remote
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.tag().setName("v1").call();
+
+    // Push the tag itself, a default push doesn't include tags
+    assertTrue(uiGit.push());
+    assertFalse(uiGit2.getTags().contains("v1"));
+
+    assertTrue(uiGit.push(VCS.TYPE_TAG, "v1"));
+    assertTrue(uiGit2.getTags().contains("v1"));
+
+    // Delete the tag on the remote
+    assertTrue(uiGit.deleteRemoteTag("v1"));
+    assertFalse(uiGit2.getTags().contains("v1"));
+
+    // Deleting a tag that is already gone on the remote is not an error
+    assertTrue(uiGit.deleteRemoteTag("v1"));
+
+    // The name is known, so no selection dialog is opened
+    verify(uiGit, never()).getEnterSelectionDialog(any(), anyString(), anyString());
+    git2.close();
+  }
+
+  @Test
+  public void testDeleteRemoteBranch() throws Exception {
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.branchCreate().setName("feature/test").call();
+
+    // A branch name with a slash in it: the remote is origin, the branch is feature/test
+    assertTrue(uiGit.push(VCS.TYPE_BRANCH, "feature/test"));
+    git.fetch().call();
+    assertTrue(uiGit2.getLocalBranches().contains("feature/test"));
+    assertNotNull(db.findRef("refs/remotes/origin/feature/test"));
+
+    assertTrue(uiGit.deleteRemoteBranch("refs/remotes/origin/feature/test"));
+    assertFalse(uiGit2.getLocalBranches().contains("feature/test"));
+
+    // The tracking ref is removed as well, deleting on the remote doesn't prune it
+    assertNull(db.findRef("refs/remotes/origin/feature/test"));
+
+    git2.close();
+  }
+
+  @Test
+  public void testDeleteRemoteBranchWithoutRemote() throws Exception {
+    git.commit().setMessage("initial commit").call();
+
+    assertThrows(HopException.class, () -> uiGit.deleteRemoteBranch("refs/remotes/origin/feature"));
+  }
+
+  @Test
+  public void testRenameRemoteBranch() throws Exception {
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    RevCommit commit = git.commit().setMessage("initial commit").call();
+    git.branchCreate().setName("old").call();
+    assertTrue(uiGit.push(VCS.TYPE_BRANCH, "old"));
+    git.fetch().call();
+
+    assertTrue(uiGit.renameRemoteBranch("refs/remotes/origin/old", "new"));
+
+    // The branch is created under its new name and removed under the old one, pointing at the
+    // same commit
+    assertTrue(uiGit2.getLocalBranches().contains("new"));
+    assertFalse(uiGit2.getLocalBranches().contains("old"));
+    assertEquals(commit.getId(), db2.resolve("refs/heads/new"));
+
+    // The tracking refs follow along, without needing a fetch
+    assertNull(db.findRef("refs/remotes/origin/old"));
+    assertNotNull(db.findRef("refs/remotes/origin/new"));
+
+    git2.close();
+  }
+
+  @Test
+  public void testIsRemoteHead() throws Exception {
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.branchCreate().setName("feature").call();
+    assertTrue(uiGit.push(VCS.TYPE_BRANCH, "feature"));
+    git.fetch().call();
+
+    // Without a remote HEAD there is nothing to protect
+    assertFalse(uiGit.isRemoteHead("refs/remotes/origin/feature"));
+
+    db.updateRef("refs/remotes/origin/HEAD").link("refs/remotes/origin/feature");
+    assertTrue(uiGit.isRemoteHead("refs/remotes/origin/feature"));
+
+    // Local branches and tags are never a remote HEAD
+    assertFalse(uiGit.isRemoteHead("refs/heads/master"));
+  }
+
+  @Test
   public void testShouldPushOnlyToOrigin() throws Exception {
     // origin for db2
     URIish uri = new URIish(db2.getDirectory().toURI().toURL());
@@ -465,6 +585,155 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testRevertPathOnlyUnstagesAddedFile() throws Exception {
+    initialCommit();
+
+    // A new file which was staged with "add"
+    File file = writeTrashFile("New.txt", "Hello world");
+    git.add().addFilepattern("New.txt").call();
+    assertTrue(git.status().call().getAdded().contains("New.txt"));
+
+    uiGit.revertPath("New.txt");
+
+    // The file is unstaged but is still on disk with its content intact
+    assertTrue(file.exists());
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+    Status status = git.status().call();
+    assertTrue(status.getAdded().isEmpty());
+    assertTrue(status.getUntracked().contains("New.txt"));
+  }
+
+  @Test
+  public void testRevertPathKeepsUntrackedFile() throws Exception {
+    initialCommit();
+
+    File file = writeTrashFile("Untracked.txt", "Hello world");
+
+    uiGit.revertPath("Untracked.txt");
+
+    assertTrue(file.exists());
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+    assertTrue(git.status().call().getUntracked().contains("Untracked.txt"));
+  }
+
+  @Test
+  public void testRevertPathRestoresDeletedFile() throws Exception {
+    File file = writeTrashFile("Test.txt", "Hello world");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    assertTrue(file.delete());
+
+    uiGit.revertPath("Test.txt");
+
+    assertTrue(file.exists());
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testGetNewRevertPathFiles() throws Exception {
+    File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
+    git.add().addFilepattern("folder/Tracked.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    FileUtils.writeStringToFile(tracked, "Change", StandardCharsets.UTF_8);
+    writeTrashFile("folder/Untracked.txt", "Untracked");
+    writeTrashFile("folder/Added.txt", "Added");
+    git.add().addFilepattern("folder/Added.txt").call();
+
+    Set<String> newFiles = uiGit.getNewRevertPathFiles("folder");
+
+    assertEquals(2, newFiles.size());
+    assertTrue(newFiles.contains("folder/Untracked.txt"));
+    assertTrue(newFiles.contains("folder/Added.txt"));
+  }
+
+  @Test
+  public void testModifiedFilesAreUnstagedUntilTheyAreAdded() throws Exception {
+    File file = writeTrashFile("Test.txt", "Hello world");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    // A change in the working tree is not staged, only "git add" stages it
+    FileUtils.writeStringToFile(file, "Change", StandardCharsets.UTF_8);
+
+    List<UIFile> unstaged = uiGit.getUnstagedFiles();
+    assertEquals(1, unstaged.size());
+    assertEquals("Test.txt", unstaged.get(0).getName());
+    assertEquals(ChangeType.MODIFY, unstaged.get(0).getChangeType());
+    assertFalse(unstaged.get(0).isStaged());
+    assertTrue(uiGit.getStagedFiles().isEmpty());
+
+    uiGit.add("Test.txt");
+
+    List<UIFile> staged = uiGit.getStagedFiles();
+    assertEquals(1, staged.size());
+    assertEquals("Test.txt", staged.get(0).getName());
+    assertEquals(ChangeType.MODIFY, staged.get(0).getChangeType());
+    assertTrue(staged.get(0).isStaged());
+    assertTrue(uiGit.getUnstagedFiles().isEmpty());
+  }
+
+  @Test
+  public void testGetUntrackedPathFiles() throws Exception {
+    File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
+    writeTrashFile("folder/Ignored.txt", "Ignored");
+    writeTrashFile(".gitignore", "Ignored.txt");
+    git.add().addFilepattern("folder/Tracked.txt").addFilepattern(".gitignore").call();
+    git.commit().setMessage("initial commit").call();
+
+    FileUtils.writeStringToFile(tracked, "Change", StandardCharsets.UTF_8);
+    writeTrashFile("folder/Untracked.txt", "Untracked");
+    writeTrashFile("folder/Added.txt", "Added");
+    git.add().addFilepattern("folder/Added.txt").call();
+    writeTrashFile("outside/Other.txt", "Outside the folder");
+
+    // Only the untracked file: not the tracked, added, ignored or out of scope ones
+    assertEquals(List.of("folder/Untracked.txt"), uiGit.getUntrackedPathFiles("folder"));
+
+    // A single file works as well, as does the whole repository
+    assertEquals(
+        List.of("folder/Untracked.txt"), uiGit.getUntrackedPathFiles("folder/Untracked.txt"));
+    assertTrue(uiGit.getUntrackedPathFiles("folder/Tracked.txt").isEmpty());
+    assertEquals(
+        List.of("folder/Untracked.txt", "outside/Other.txt"), uiGit.getUntrackedPathFiles(null));
+  }
+
+  @Test
+  public void testCleanPathsOnlyRemovesUntrackedFiles() throws Exception {
+    File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
+    git.add().addFilepattern("folder/Tracked.txt").call();
+    git.commit().setMessage("initial commit").call();
+    FileUtils.writeStringToFile(tracked, "Change", StandardCharsets.UTF_8);
+
+    File untracked = writeTrashFile("folder/Untracked.txt", "Untracked");
+    File nested = writeTrashFile("folder/new-folder/Nested.txt", "Nested");
+
+    uiGit.cleanPaths(
+        List.of("folder/Untracked.txt", "folder/new-folder/Nested.txt", "folder/Tracked.txt"));
+
+    // Untracked files are removed, along with the folder they left behind empty
+    assertFalse(untracked.exists());
+    assertFalse(nested.exists());
+    assertFalse(nested.getParentFile().exists());
+
+    // A tracked file is never removed by a clean, even when it's passed in
+    assertTrue(tracked.exists());
+    assertEquals("Change", FileUtils.readFileToString(tracked, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testCleanPathsWithoutPathsDoesNotRemoveAnything() throws Exception {
+    initialCommit();
+    File untracked = writeTrashFile("Untracked.txt", "Untracked");
+
+    uiGit.cleanPaths(List.of());
+    uiGit.cleanPaths(null);
+
+    assertTrue(untracked.exists());
+  }
+
+  @Test
   public void testCreateDeleteBranchTag() throws Exception {
     initialCommit();
 
@@ -499,6 +768,150 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testUnstageFilesWithResetPath() throws Exception {
+    initialCommit();
+
+    // Stage a change to a tracked file and a brand new file
+    writeTrashFile("Test.txt", "Changed");
+    uiGit.add("Test.txt");
+    writeTrashFile("New.txt", "New file");
+    uiGit.add("New.txt");
+    assertEquals(2, uiGit.getStagedFiles().size());
+
+    for (UIFile file : uiGit.getStagedFiles()) {
+      uiGit.resetPath(file.getName());
+    }
+
+    // Nothing staged anymore, but both changes are still there
+    assertTrue(uiGit.getStagedFiles().isEmpty());
+    assertEquals(2, uiGit.getUnstagedFiles().size());
+    assertEquals("Changed", read(new File(db.getWorkTree(), "Test.txt")));
+  }
+
+  @Test
+  public void testUntrackedAndModifiedFileFlags() throws Exception {
+    initialCommit();
+
+    // A file git doesn't know about yet and a change to a file it does know about
+    writeTrashFile("New.txt", "New file");
+    writeTrashFile("Test.txt", "Changed");
+
+    List<UIFile> unstagedFiles = uiGit.getUnstagedFiles();
+    UIFile untracked = findFile(unstagedFiles, "New.txt");
+    UIFile modified = findFile(unstagedFiles, "Test.txt");
+
+    // The commit perspective tells both apart by change type to decide what it offers for the
+    // next commit: an unstaged ADD is a file git doesn't track yet, which is never checked for you
+    assertEquals(ChangeType.ADD, untracked.getChangeType());
+    assertFalse(untracked.isStaged());
+    assertEquals(ChangeType.MODIFY, modified.getChangeType());
+    assertFalse(modified.isStaged());
+
+    // Once added, the same new file is staged
+    uiGit.add("New.txt");
+    UIFile staged = findFile(uiGit.getStagedFiles(), "New.txt");
+    assertEquals(ChangeType.ADD, staged.getChangeType());
+    assertTrue(staged.isStaged());
+  }
+
+  private UIFile findFile(List<UIFile> files, String name) {
+    return files.stream()
+        .filter(file -> file.getName().equals(name))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("File '" + name + "' not found"));
+  }
+
+  @Test
+  public void testIgnoreRulesMatchedWithoutRegardToCase() throws Exception {
+    initialCommit();
+
+    // A rule in lower case, folders on disk in another case: git catches these when it is told the
+    // file system doesn't care about case, JGit doesn't
+    writeTrashFile(".gitignore", "output/\n*.LOG\n");
+    writeTrashFile("Output/generated.txt", "generated");
+    writeTrashFile("Deep/OUTPUT/generated.txt", "generated");
+    writeTrashFile("run.Log", "log");
+    writeTrashFile("keep.txt", "keep");
+
+    // Case sensitive, the way git behaves on Linux: JGit is right, nothing is filtered
+    List<String> unstaged = getUnstagedFileNames();
+    assertTrue(unstaged.contains("Output/generated.txt"));
+    assertTrue(unstaged.contains("run.Log"));
+
+    db.getConfig()
+        .setBoolean(
+            ConfigConstants.CONFIG_CORE_SECTION,
+            null,
+            CaseInsensitiveIgnores.CONFIG_KEY_IGNORECASE,
+            true);
+    db.getConfig().save();
+
+    unstaged = getUnstagedFileNames();
+    assertTrue(unstaged.contains("keep.txt"));
+    assertFalse(unstaged.contains("Output/generated.txt"));
+    assertFalse(unstaged.contains("Deep/OUTPUT/generated.txt"));
+    assertFalse(unstaged.contains("run.Log"));
+
+    // What is kept out of the unstaged files is reported as ignored instead
+    Set<String> ignored = uiGit.getIgnored(null);
+    assertTrue(ignored.contains("Output/generated.txt"));
+    assertTrue(ignored.contains("run.Log"));
+    assertFalse(ignored.contains("keep.txt"));
+  }
+
+  @Test
+  public void testIgnoreRuleCanBeNegatedWithoutRegardToCase() throws Exception {
+    initialCommit();
+
+    writeTrashFile(".gitignore", "output/\n!Output/keep.txt\n");
+    writeTrashFile("output/keep.txt", "keep");
+    writeTrashFile("output/generated.txt", "generated");
+
+    db.getConfig()
+        .setBoolean(
+            ConfigConstants.CONFIG_CORE_SECTION,
+            null,
+            CaseInsensitiveIgnores.CONFIG_KEY_IGNORECASE,
+            true);
+    db.getConfig().save();
+
+    // git never descends into an ignored folder, so the negated file stays ignored as well
+    List<String> unstaged = getUnstagedFileNames();
+    assertFalse(unstaged.contains("output/keep.txt"));
+    assertFalse(unstaged.contains("output/generated.txt"));
+  }
+
+  private List<String> getUnstagedFileNames() {
+    return uiGit.getUnstagedFiles().stream().map(UIFile::getName).toList();
+  }
+
+  @Test
+  public void testCreateBranchFromTag() throws Exception {
+    RevCommit tagged = initialCommit();
+
+    uiGit.createTag("lightweight");
+    Ref annotatedTag = git.tag().setName("annotated").setMessage("Annotated tag").call();
+
+    // Move the current branch forward, a branch created from a tag has to start at the tagged
+    // commit and not at HEAD
+    writeTrashFile("Test2.txt", "Hello world");
+    uiGit.add("Test2.txt");
+    RevCommit head = git.commit().setMessage("second commit").call();
+    assertNotEquals(tagged.getId(), head.getId());
+
+    assertTrue(
+        uiGit.createBranch("from-lightweight", uiGit.getExpandedName("lightweight", VCS.TYPE_TAG)));
+    assertEquals("from-lightweight", uiGit.getBranch());
+    assertEquals(tagged.getId(), db.resolve(Constants.HEAD));
+
+    // An annotated tag points at a tag object, it has to be peeled to the commit
+    uiGit.checkout(Constants.MASTER);
+    assertTrue(uiGit.createBranch("from-annotated", annotatedTag.getName()));
+    assertEquals("from-annotated", uiGit.getBranch());
+    assertEquals(tagged.getId(), db.resolve(Constants.HEAD));
+  }
+
+  @Test
   public void testCloneShouldFail() throws Exception {
     // WhenDirAlreadyExists
     boolean success = uiGit.cloneRepo(db.getDirectory().getPath(), db.getDirectory().getPath());
@@ -509,6 +922,412 @@ public class UIGitTest extends RepositoryTestCase {
     success = uiGit.cloneRepo(file.getPath(), "fakeURL");
     assertFalse(success);
     assertFalse(file.exists());
+  }
+
+  @Test
+  public void testMergeBranchWithUncommittedChangesExplainsWhatToDo() throws Exception {
+    initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+
+    // Let master move on as well, so merging develop is a real merge and not a fast-forward
+    //
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Other.txt", "Hello master");
+    git.add().addFilepattern("Other.txt").call();
+    git.commit().setMessage("master commit").call();
+
+    // Leave an uncommitted change in the file the merge needs to touch
+    //
+    writeTrashFile("Test.txt", "Uncommitted work");
+
+    assertFalse(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    assertMergeFailureExplained();
+  }
+
+  @Test
+  public void testFastForwardMergeWithUncommittedChangesExplainsWhatToDo() throws Exception {
+    initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+
+    // Master is untouched, so merging develop fast-forwards. The checkout of Test.txt can't happen
+    // while it holds uncommitted changes.
+    //
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Uncommitted work");
+
+    assertFalse(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    assertMergeFailureExplained();
+  }
+
+  @Test
+  public void testMergeBranchWithStagedButUncommittedWorkIsNotReportedAsSuccess() throws Exception {
+    initialCommit();
+
+    // Stage a file on the branch but never commit it, so the branch holds no commits of its own
+    //
+    git.branchCreate().setName("test-branch").call();
+    git.checkout().setName("test-branch").call();
+    writeTrashFile("bogus-pipeline.hpl", "not committed");
+    git.add().addFilepattern("bogus-pipeline.hpl").call();
+
+    git.checkout().setName(Constants.MASTER).call();
+
+    // There is nothing to merge, so this is not a successful merge
+    //
+    assertFalse(uiGit.mergeBranch("test-branch", MergeStrategy.RECURSIVE));
+
+    ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
+    verify(uiGit).showMessageBox(anyString(), message.capture());
+
+    assertTrue(message.getValue(), message.getValue().contains("is already up to date with"));
+    assertTrue(message.getValue(), message.getValue().contains("You have uncommitted changes"));
+    assertTrue(message.getValue(), message.getValue().contains("bogus-pipeline.hpl"));
+  }
+
+  @Test
+  public void testMergeBranchUpToDateWithCleanWorkingTreeDoesNotMentionUncommittedChanges()
+      throws Exception {
+    initialCommit();
+    git.branchCreate().setName("test-branch").call();
+
+    assertFalse(uiGit.mergeBranch("test-branch", MergeStrategy.RECURSIVE));
+
+    ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
+    verify(uiGit).showMessageBox(anyString(), message.capture());
+
+    assertTrue(message.getValue(), message.getValue().contains("is already up to date with"));
+    assertFalse(message.getValue().contains("You have uncommitted changes"));
+  }
+
+  /** The user needs to know which file is in the way and how to get past it. */
+  private void assertMergeFailureExplained() {
+    ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
+    verify(uiGit).showMessageBox(anyString(), message.capture());
+
+    assertTrue(message.getValue(), message.getValue().contains("Test.txt"));
+    assertTrue(
+        message.getValue(),
+        message.getValue().contains("Please commit or revert your changes before you merge"));
+  }
+
+  /**
+   * Every rule has to end up on a line of its own. Appending without a newline glued the rules
+   * together into a single pattern which ignored neither file.
+   */
+  @Test
+  public void testAddPathToIgnoreWritesEachRuleOnItsOwnLine() throws Exception {
+    initialCommit();
+    writeTrashFile("first.txt", "first");
+    writeTrashFile("second.txt", "second");
+
+    uiGit.addPathToIgnore("first.txt");
+    uiGit.addPathToIgnore("second.txt");
+
+    assertEquals(
+        List.of("first.txt", "second.txt"), readLines(new File(db.getWorkTree(), ".gitignore")));
+
+    // Both rules are understood by git, which is what the newline is there for
+    //
+    Set<String> ignored = uiGit.getIgnored(null);
+    assertTrue(ignored.toString(), ignored.contains("first.txt"));
+    assertTrue(ignored.toString(), ignored.contains("second.txt"));
+  }
+
+  /**
+   * A .gitignore does not have to end with a newline. Appending to one that doesn't used to glue
+   * the new rule onto the last one, breaking a rule which was already there.
+   */
+  @Test
+  public void testAddPathToIgnoreKeepsARuleWrittenWithoutATrailingNewline() throws Exception {
+    initialCommit();
+    writeTrashFile(".gitignore", "existing.txt");
+    writeTrashFile("existing.txt", "existing");
+    writeTrashFile("added.txt", "added");
+
+    uiGit.addPathToIgnore("added.txt");
+
+    assertEquals(
+        List.of("existing.txt", "added.txt"), readLines(new File(db.getWorkTree(), ".gitignore")));
+
+    Set<String> ignored = uiGit.getIgnored(null);
+    assertTrue(ignored.toString(), ignored.contains("existing.txt"));
+    assertTrue(ignored.toString(), ignored.contains("added.txt"));
+  }
+
+  /** The same path twice leaves one rule: the duplicate check reads whole lines. */
+  @Test
+  public void testAddPathToIgnoreDoesNotWriteTheSamePathTwice() throws Exception {
+    initialCommit();
+    writeTrashFile("once.txt", "once");
+
+    uiGit.addPathToIgnore("once.txt");
+    uiGit.addPathToIgnore("once.txt");
+
+    assertEquals(List.of("once.txt"), readLines(new File(db.getWorkTree(), ".gitignore")));
+  }
+
+  /** A .gitignore written on Windows keeps its line endings instead of ending up mixed. */
+  @Test
+  public void testAddPathToIgnoreFollowsTheLineEndingsOfTheFile() throws Exception {
+    initialCommit();
+    writeTrashFile(".gitignore", "existing.txt\r\n");
+
+    uiGit.addPathToIgnore("added.txt");
+
+    String content =
+        new String(
+            java.nio.file.Files.readAllBytes(new File(db.getWorkTree(), ".gitignore").toPath()),
+            StandardCharsets.UTF_8);
+    assertEquals("existing.txt\r\nadded.txt\r\n", content);
+  }
+
+  /** The .gitignore is staged, so the new rule is part of the next commit. */
+  @Test
+  public void testAddPathToIgnoreStagesANewlyCreatedGitIgnore() throws Exception {
+    initialCommit();
+    writeTrashFile("generated.txt", "generated");
+
+    uiGit.addPathToIgnore("generated.txt");
+
+    assertTrue(git.status().call().getAdded().contains(".gitignore"));
+  }
+
+  /** A .gitignore which was already committed is staged too, not only a newly created one. */
+  @Test
+  public void testAddPathToIgnoreStagesAnExistingGitIgnore() throws Exception {
+    writeTrashFile(".gitignore", "existing.txt\n");
+    git.add().addFilepattern(".gitignore").call();
+    git.commit().setMessage("initial commit").call();
+    writeTrashFile("generated.txt", "generated");
+
+    uiGit.addPathToIgnore("generated.txt");
+
+    assertTrue(git.status().call().getChanged().contains(".gitignore"));
+    assertTrue(uiGit.getUnstagedFiles().stream().noneMatch(f -> f.getName().equals(".gitignore")));
+  }
+
+  private List<String> readLines(File file) throws Exception {
+    return java.nio.file.Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
+        .filter(line -> !line.isBlank())
+        .toList();
+  }
+
+  /**
+   * A merge has to be recorded as a merge. Committing the resolved conflict used to reset the whole
+   * index first, which cleared MERGE_HEAD and left an ordinary commit behind: git no longer
+   * considered the branch merged and replayed everything on the next merge.
+   */
+  @Test
+  public void testCommitPathsAfterAMergeRecordsBothParents() throws Exception {
+    RevCommit base = initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+    RevCommit develop = git.getRepository().parseCommit(git.getRepository().resolve("develop"));
+
+    // Let master change the same file, so merging develop conflicts
+    //
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Hello from master");
+    git.add().addFilepattern("Test.txt").call();
+    RevCommit master = git.commit().setMessage("master commit").call();
+
+    assertTrue(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    assertEquals(RepositoryState.MERGING, uiGit.getRepositoryState());
+
+    // Resolve the conflict the way the commit perspective does: accept a side, then commit
+    //
+    uiGit.add("Test.txt.ours");
+    assertEquals(RepositoryState.MERGING_RESOLVED, uiGit.getRepositoryState());
+
+    assertTrue(
+        uiGit.commitPaths(List.of("Test.txt"), "John Doe <john@example.com>", "Merged", false));
+
+    RevCommit merged = git.getRepository().parseCommit(git.getRepository().resolve(Constants.HEAD));
+    assertEquals("The merge has to be recorded as a merge commit", 2, merged.getParentCount());
+    assertEquals(master, merged.getParent(0));
+    assertEquals(develop, merged.getParent(1));
+    assertEquals(RepositoryState.SAFE, uiGit.getRepositoryState());
+    assertNotEquals(base, merged);
+  }
+
+  /**
+   * The commit records the paths which were asked for and nothing else, whether or not the caller
+   * knew about everything that was staged.
+   */
+  @Test
+  public void testCommitPathsCommitsOnlyTheGivenPaths() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Committed.txt", "in the commit");
+    writeTrashFile("Unchecked.txt", "left out of the commit");
+    git.add().addFilepattern("Committed.txt").call();
+    git.add().addFilepattern("Unchecked.txt").call();
+
+    // Staged after the caller read its file list, so it is not in the selection either
+    //
+    writeTrashFile("StagedInTheMeantime.txt", "staged behind the GUI's back");
+    git.add().addFilepattern("StagedInTheMeantime.txt").call();
+
+    assertTrue(
+        uiGit.commitPaths(
+            List.of("Committed.txt"), "John Doe <john@example.com>", "One file only", false));
+
+    String head = uiGit.getCommitId(Constants.HEAD);
+    List<UIFile> committed = uiGit.getStagedFiles(uiGit.getParentCommitId(head), head);
+    assertEquals(1, committed.size());
+    assertEquals("Committed.txt", committed.get(0).getName());
+
+    // Both of the others are out of the index and still on disk, nothing was thrown away
+    //
+    Status status = git.status().call();
+    assertTrue(status.getUntracked().contains("Unchecked.txt"));
+    assertTrue(status.getUntracked().contains("StagedInTheMeantime.txt"));
+    assertTrue(new File(db.getWorkTree(), "Unchecked.txt").exists());
+    assertTrue(new File(db.getWorkTree(), "StagedInTheMeantime.txt").exists());
+  }
+
+  /**
+   * Committing part of a merge is not possible, so the whole index goes in and the resolution the
+   * user staged is never quietly dropped.
+   */
+  @Test
+  public void testCommitPathsDuringAMergeKeepsTheRestOfTheIndexStaged() throws Exception {
+    initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Hello from master");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("master commit").call();
+
+    assertTrue(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    uiGit.add("Test.txt.ours");
+
+    // Another file staged during the merge has to survive into the merge commit
+    //
+    writeTrashFile("AlsoResolved.txt", "resolved as well");
+    git.add().addFilepattern("AlsoResolved.txt").call();
+
+    assertTrue(
+        uiGit.commitPaths(List.of("Test.txt"), "John Doe <john@example.com>", "Merged", false));
+
+    String head = uiGit.getCommitId(Constants.HEAD);
+    List<UIFile> committed = uiGit.getStagedFiles(uiGit.getParentCommitId(head), head);
+    assertTrue(committed.stream().anyMatch(file -> file.getName().equals("AlsoResolved.txt")));
+    assertTrue(uiGit.isClean());
+  }
+
+  /**
+   * A commit that fails must leave the files it was asked to commit staged, so nothing has to be
+   * staged a second time to retry.
+   */
+  @Test
+  public void testCommitPathsLeavesTheSelectionStagedWhenTheCommitFails() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Staged.txt", "staged content");
+
+    // A malformed author name (no e-mail address) makes the commit itself fail
+    //
+    assertThrows(
+        Exception.class,
+        () -> uiGit.commitPaths(List.of("Staged.txt"), "no email address", "Nope", false));
+
+    assertTrue(git.status().call().getAdded().contains("Staged.txt"));
+  }
+
+  /** Revert takes the version of the parent: what the file looked like before that commit. */
+  @Test
+  public void testRestorePathFromCommitPutsBackTheContentOfThatCommit() throws Exception {
+    writeTrashFile("Test.txt", "first");
+    git.add().addFilepattern("Test.txt").call();
+    RevCommit first = git.commit().setMessage("first").call();
+
+    writeTrashFile("Test.txt", "second");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("second").call();
+
+    uiGit.restorePathFromCommit("Test.txt", first.getId().name());
+
+    assertEquals("first", read(new File(db.getWorkTree(), "Test.txt")));
+    assertTrue(git.status().call().getChanged().contains("Test.txt"));
+  }
+
+  /**
+   * Reverting a file which the commit added means removing it: its parent does not have the file,
+   * so restoring that state deletes it here.
+   */
+  @Test
+  public void testRestorePathFromCommitRemovesAPathTheCommitDoesNotHave() throws Exception {
+    RevCommit first = initialCommit();
+
+    writeTrashFile("Added.txt", "added later");
+    git.add().addFilepattern("Added.txt").call();
+    git.commit().setMessage("add a file").call();
+
+    uiGit.restorePathFromCommit("Added.txt", first.getId().name());
+
+    assertFalse(new File(db.getWorkTree(), "Added.txt").exists());
+    assertTrue(git.status().call().getRemoved().contains("Added.txt"));
+  }
+
+  /** Reverting a file which the commit deleted brings it back. */
+  @Test
+  public void testRestorePathFromCommitBringsBackADeletedPath() throws Exception {
+    RevCommit first = initialCommit();
+
+    git.rm().addFilepattern("Test.txt").call();
+    git.commit().setMessage("delete the file").call();
+    assertFalse(new File(db.getWorkTree(), "Test.txt").exists());
+
+    uiGit.restorePathFromCommit("Test.txt", first.getId().name());
+
+    assertEquals("Hello world", read(new File(db.getWorkTree(), "Test.txt")));
+  }
+
+  /**
+   * The commit records the one path it was given. Anything else which happened to be staged used to
+   * be swept into it under a message about a single file.
+   */
+  @Test
+  public void testCommitPathCommitsOnlyThatPath() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Test.txt", "changed");
+    writeTrashFile("Unrelated.txt", "staged by someone else");
+    git.add().addFilepattern("Test.txt").call();
+    git.add().addFilepattern("Unrelated.txt").call();
+
+    assertTrue(uiGit.commitPath("Test.txt", "John Doe <john@example.com>", "One file only"));
+
+    String head = uiGit.getCommitId(Constants.HEAD);
+    List<UIFile> committed = uiGit.getStagedFiles(uiGit.getParentCommitId(head), head);
+    assertEquals(1, committed.size());
+    assertEquals("Test.txt", committed.get(0).getName());
+
+    // The unrelated file is still staged, waiting for a commit of its own
+    //
+    assertTrue(git.status().call().getAdded().contains("Unrelated.txt"));
+  }
+
+  /** A path which already holds the content asked for has nothing to commit. */
+  @Test
+  public void testCommitPathReportsWhenThereIsNothingToCommit() throws Exception {
+    RevCommit first = initialCommit();
+
+    // Restoring the file to the version it already has changes nothing
+    //
+    uiGit.restorePathFromCommit("Test.txt", first.getId().name());
+
+    assertFalse(uiGit.commitPath("Test.txt", "John Doe <john@example.com>", "Nothing to do"));
+    assertEquals(first, git.getRepository().parseCommit(git.getRepository().resolve("HEAD")));
+  }
+
+  private void commitOnBranch(String branch, String file, String content) throws Exception {
+    git.branchCreate().setName(branch).call();
+    git.checkout().setName(branch).call();
+    writeTrashFile(file, content);
+    git.add().addFilepattern(file).call();
+    git.commit().setMessage(branch + " commit").call();
   }
 
   private RevCommit initialCommit() throws Exception {

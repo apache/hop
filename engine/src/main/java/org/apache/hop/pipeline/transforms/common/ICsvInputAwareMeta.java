@@ -52,9 +52,28 @@ public interface ICsvInputAwareMeta<T extends ITextFileInputField> {
 
   boolean isBreakInEnclosureAllowed();
 
+  /**
+   * When enabled, an empty field that is not enclosed (a;;b) is returned as null while an empty
+   * enclosed field (a;"";b) is returned as an empty string.
+   *
+   * @return true if empty values without enclosure have to be returned as null
+   */
+  default boolean isNullIfNotEnclosed() {
+    return false;
+  }
+
   int getFileFormatTypeNr();
 
   boolean hasHeader();
+
+  /**
+   * When true, a blank line is not one of the rows used to guess field types. Text file input
+   * follows its "No empty lines" option. Blank lines must not use up the sample size: a DOS file
+   * read as Unix yields an empty line after every row, and counting those would hide the data.
+   */
+  default boolean skipEmptyLines() {
+    return false;
+  }
 
   int getNrHeaderLines();
 

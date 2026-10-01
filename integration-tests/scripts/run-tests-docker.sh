@@ -22,6 +22,30 @@ CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 DOCKER_FILES_DIR="$(cd ${CURRENT_DIR}/../../docker/integration-tests/ && pwd)"
 EXECUTED_COMPOSE_FILES=("${DOCKER_FILES_DIR}/integration-tests-base.yaml")
 
+# Opt-in switch for projects carrying a disabled.txt. Those are skipped by default because they
+# need something the normal run should not pay for - a huge image, credentials, an external
+# service. Accepts "true" for all of them, or a comma separated list of project names so the full
+# suite can pull in one heavy project without also enabling every other disabled one.
+#   INCLUDE_DISABLED=oracle          run everything, plus oracle
+#   INCLUDE_DISABLED=oracle,vertica  run everything, plus those two
+#   INCLUDE_DISABLED=true            run everything, including every disabled project
+INCLUDE_DISABLED="${INCLUDE_DISABLED:-false}"
+
+# Whether a project carrying a disabled.txt should run anyway.
+is_included() {
+  case "${INCLUDE_DISABLED}" in
+  true | TRUE | True) return 0 ;;
+  "" | false | FALSE | False) return 1 ;;
+  *) ;;
+  esac
+  for included in ${INCLUDE_DISABLED//,/ }; do
+    if [ "${included}" = "$1" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 for ARGUMENT in "$@"; do
 
   # Quote so glob characters in values (e.g. TEST_FILTER='*0077*') are preserved.
@@ -43,6 +67,7 @@ for ARGUMENT in "$@"; do
   HADOOP_VERSION) HADOOP_VERSION=${VALUE} ;;
   SPARK_BASE_URL) SPARK_BASE_URL=${VALUE} ;;
   HOP_SPARK_CLIENT_VERSION) HOP_SPARK_CLIENT_VERSION=${VALUE} ;;
+  INCLUDE_DISABLED) INCLUDE_DISABLED=${VALUE} ;;
   *) ;;
   esac
 
@@ -62,6 +87,11 @@ if [ -z "${SPARK_BASE_URL}" ]; then
 fi
 # Optional: match driver + fat-jar Spark client pack to a cluster minor (see tools/spark-client-pack)
 export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL
+# The compose files hand this to the test container: run-tests.sh honours disabled.txt too.
+export INCLUDE_DISABLED
+# Watchdog for a hop-run that never returns (see run-tests.sh). Exported so the value reaches the
+# test container through the compose files; 0 disables it.
+export HOP_IT_TIMEOUT="${HOP_IT_TIMEOUT:-3600}"
 export HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION:-}"
 
 if [ -z "${PROJECT_NAME}" ]; then
@@ -100,6 +130,10 @@ if [ -z "${JENKINS_GID}" ]; then
   JENKINS_GID="$(id -g 2>/dev/null || echo 1000)"
 fi
 
+# Exported so the compose files pick the same identity up when they (re)build the image
+# themselves, e.g. the "up --build" runs for hop_server and spark.
+export JENKINS_USER JENKINS_UID JENKINS_GROUP JENKINS_GID
+
 echo "Integration-test container identity: user=${JENKINS_USER} uid=${JENKINS_UID} group=${JENKINS_GROUP} gid=${JENKINS_GID}"
 
 if [ -z "${SUREFIRE_REPORT}" ]; then
@@ -110,20 +144,30 @@ if [ -z "${GCP_KEY_FILE}" ]; then
   GCP_KEY_FILE="./docker/integration-tests/resource/dummyfile"
 fi
 
+GCP_KEY_PATH="${GCP_KEY_FILE}"
+case "${GCP_KEY_PATH}" in
+/*) ;;
+*)
+  if [ -f "$(cd "${CURRENT_DIR}/../.." && pwd)/${GCP_KEY_PATH#./}" ]; then
+    GCP_KEY_PATH="$(cd "${CURRENT_DIR}/../.." && pwd)/${GCP_KEY_PATH#./}"
+  fi
+  ;;
+esac
+
 # Detect a real Google Cloud service-account key. The dummy file is a license comment, not
 # JSON; spreadsheet Google Sheets ITs need a real key (Jenkins: credentials gcp-access-hop).
 # Require non-empty file + type=service_account + JSON-looking content so a corrupt/empty
 # secret still skips cleanly. When python3 is available, also require parseable JSON.
 SKIP_GOOGLE_SHEETS="false"
 GCP_KEY_OK="true"
-if [ ! -f "${GCP_KEY_FILE}" ] \
-  || [[ "${GCP_KEY_FILE}" == *dummyfile* ]] \
-  || [ ! -s "${GCP_KEY_FILE}" ] \
-  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_FILE}" 2>/dev/null \
-  || ! grep -qE '\{' "${GCP_KEY_FILE}" 2>/dev/null; then
+if [ ! -f "${GCP_KEY_PATH}" ] \
+  || [[ "${GCP_KEY_PATH}" == *dummyfile* ]] \
+  || [ ! -s "${GCP_KEY_PATH}" ] \
+  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_PATH}" 2>/dev/null \
+  || ! grep -qE '\{' "${GCP_KEY_PATH}" 2>/dev/null; then
   GCP_KEY_OK="false"
 elif command -v python3 >/dev/null 2>&1; then
-  if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${GCP_KEY_FILE}" 2>/dev/null; then
+  if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${GCP_KEY_PATH}" 2>/dev/null; then
     GCP_KEY_OK="false"
   fi
 fi
@@ -135,6 +179,21 @@ else
 fi
 export SKIP_GOOGLE_SHEETS
 echo "SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS}"
+
+# The key is bind-mounted into the container at run time (integration-tests-base.yaml) instead of
+# baked into the image, so the containers always see the file this script validated above.
+# Compose needs an absolute path here: relative values would resolve against the compose file dir.
+if [ "${GCP_KEY_OK}" = "true" ]; then
+  GCP_KEY_HOST_PATH="${GCP_KEY_PATH}"
+  case "${GCP_KEY_HOST_PATH}" in
+  /*) ;;
+  *) GCP_KEY_HOST_PATH="$(pwd)/${GCP_KEY_HOST_PATH#./}" ;;
+  esac
+else
+  GCP_KEY_HOST_PATH="$(cd "${CURRENT_DIR}/../.." && pwd)/docker/integration-tests/resource/dummyfile"
+fi
+export GCP_KEY_HOST_PATH
+echo "GCP_KEY_HOST_PATH=${GCP_KEY_HOST_PATH}"
 
 if [ -z "${HOP_OPTIONS}" ] ; then 
   HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=./docker/integration-tests/resource/keystore.jks -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.trustStore=./docker/integration-tests/resource/mail/conf/keystore "
@@ -186,8 +245,8 @@ if docker info >/dev/null 2>&1; then
 fi
 
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
-    if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
+    if [ -d "$d" ] && { [ ! -f "$d/disabled.txt" ] || is_included "$(basename "$d")"; }; then
       # Project root: MDI target_file=…-injected.hpl writes here.
       chmod a+rwx "$d" 2>/dev/null || true
 
@@ -275,6 +334,16 @@ else
   echo "Skipping client unzip (CLIENT_UNZIP=${CLIENT_UNZIP}, using existing ${HOP_DIR})"
 fi
 
+# Optional plugins (Wave 1) are not in hop-client.zip; install from reactor zips for ITs.
+if [ -x "${REPO_ROOT}/tools/install-wave1-plugins.sh" ]; then
+  echo "Installing Wave 1 marketplace plugins into ${HOP_DIR} for integration tests"
+  "${REPO_ROOT}/tools/install-wave1-plugins.sh" "${HOP_DIR}" || {
+    echo "WARNING: install-wave1-plugins.sh reported errors; some ITs may fail if plugins are missing"
+  }
+else
+  echo "WARNING: tools/install-wave1-plugins.sh not found; optional plugins not installed into ${HOP_DIR}"
+fi
+
 # Versioned Spark client packs are not in the client zip. Re-materialise after unzip so
 # HOP_SPARK_CLIENT_VERSION=… finds lib/spark-clients/<ver>/ (includes spark-streaming, etc.).
 # Also copy the selected pack into lib/spark-client/ so the default driver classpath always
@@ -316,82 +385,124 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
   docker rmi hop-base-image 2>/dev/null || true
 fi
 
-# Build base image only once (must run AFTER pack materialise so jars are in the image)
-docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
+# Build base image only once (must run AFTER pack materialise so jars are in the image).
+# Bail out on failure: "docker compose up" would otherwise silently rebuild hop-base-image from the
+# compose file defaults, hiding the real build error behind confusing test failures.
+if ! docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID}; then
+  echo "ERROR: could not build hop-base-image; aborting integration tests" >&2
+  exit 1
+fi
 
 # The Hop fat jar (needed only by the Beam runners: spark/flink/gcp) is expensive to build, so it
 # lives in a separate image (hop-beam-image) that we build lazily and only once, the first time a
 # project that actually references the fat jar is about to run.
 BEAM_IMAGE_BUILT="false"
 
+write_surefire_skipped() {
+  local name="$1"
+  local reason="$2"
+  local report="${CURRENT_DIR}/../surefire-reports/surefile_${name}.xml"
+  mkdir -p "${CURRENT_DIR}/../surefire-reports"
+  cat >"${report}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="${name}" time="0" tests="1" errors="0" skipped="1" failures="0">
+<testcase name="project_disabled" time="0"><skipped message="${reason}"/></testcase>
+</testsuite>
+EOF
+}
+
+write_surefire_env_failure() {
+  local name="$1"
+  local detail="$2"
+  local report="${CURRENT_DIR}/../surefire-reports/surefile_${name}.xml"
+  mkdir -p "${CURRENT_DIR}/../surefire-reports"
+  cat >"${report}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="${name}" time="0" tests="1" errors="1" skipped="0" failures="0">
+<testcase name="environment_setup" time="1"><failure type="could not start">${detail}</failure><system-out><![CDATA[ ${detail} ]]></system-out><system-err><![CDATA[ ${detail} ]]></system-err></testcase>
+</testsuite>
+EOF
+}
+
 # Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
-
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
-    # If there is a file called disabled.txt the project is disabled
-    if [ ! -f "$d/disabled.txt" ]; then
-
-      PROJECT_NAME=$(basename $d)
-
-      echo "Project name: ${PROJECT_NAME}"
-      echo "project path: $d"
-      echo "docker compose path: ${DOCKER_FILES_DIR}"
-
-      # If this project references the Hop fat jar (Beam runners), make sure hop-beam-image exists.
-      # Built once per run, and only when such a project is actually enabled.
-      if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
-        echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
-        if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
-          echo "Spark client pack for fat jar: ${HOP_SPARK_CLIENT_VERSION}"
-        fi
-        HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}" \
-          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build \
-            --build-arg HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}"
-        EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
-        BEAM_IMAGE_BUILT="true"
-      fi
-
-      # Check if specific compose exists
-
-      if [ -n "${TEST_FILTER}" ]; then
-        echo "TEST_FILTER: ${TEST_FILTER}"
-      fi
-
-      if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
-        echo "Project compose exists."
-        EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
-        # Rebuild project images so SPARK_VERSION (and similar) build args take effect.
-        # hop_server also must rebuild: its hop-server service image (apache/hop:Development
-        # from docker/Dockerfile) otherwise stays cached and can miss client-side assembly
-        # plugins needed by remote-export ITs (main-0008/0009/0010).
-        if [ "${PROJECT_NAME}" = "spark" ]; then
-          echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
-            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
-        elif [ "${PROJECT_NAME}" = "hop_server" ]; then
-          echo "Rebuilding hop_server images so remote Hop Server matches current assemblies"
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
-            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
-        else
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
-            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
-        fi
-      else
-        echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
-          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
-      fi
-    fi
+  if [[ "$d" == *"scripts/" ]] || [[ "$d" == *"surefire-reports/" ]]; then
+    continue
   fi
 
-  # Create final report
+  # Normalize project name from the folder we are iterating
+  PROJECT_NAME=$(basename "${d}")
+
+  # If there is a file called disabled.txt the project is disabled — do not pretend Docker failed.
+  # INCLUDE_DISABLED runs it anyway, which is how an opt-in project gets run: "true" for the one
+  # named by PROJECT_NAME, or a comma separated list to add projects to a full suite run.
+  if [ -f "$d/disabled.txt" ] && ! is_included "${PROJECT_NAME}"; then
+    echo "Project ${PROJECT_NAME} is disabled (disabled.txt present); skipping."
+    echo "  Run it anyway with: ${BASH_SOURCE[0]##*/} PROJECT_NAME=${PROJECT_NAME} INCLUDE_DISABLED=true"
+    if [ "${SUREFIRE_REPORT}" = "true" ]; then
+      write_surefire_skipped "${PROJECT_NAME}" "Project disabled via disabled.txt"
+    fi
+    continue
+  fi
+
+  echo "Project name: ${PROJECT_NAME}"
+  echo "project path: $d"
+  echo "docker compose path: ${DOCKER_FILES_DIR}"
+
+  # If this project references the Hop fat jar (Beam runners), make sure hop-beam-image exists.
+  # Built once per run, and only when such a project is actually enabled.
+  if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
+    echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
+    if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+      echo "Spark client pack for fat jar: ${HOP_SPARK_CLIENT_VERSION}"
+    fi
+    HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}" \
+      docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build \
+        --build-arg HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}"
+    EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
+    BEAM_IMAGE_BUILT="true"
+  fi
+
+  if [ -n "${TEST_FILTER}" ]; then
+    echo "TEST_FILTER: ${TEST_FILTER}"
+  fi
+
+  COMPOSE_EXIT=0
+  if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
+    echo "Project compose exists."
+    EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
+    # Rebuild project images so SPARK_VERSION (and similar) build args take effect.
+    # hop_server and load-balance must rebuild: their hop-server service image
+    # (apache/hop:Development from docker/Dockerfile) otherwise stays cached and can
+    # miss client-side assembly plugins (remote-export ITs, LoadBalancing engine).
+    if [ "${PROJECT_NAME}" = "spark" ]; then
+      echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
+    elif [ "${PROJECT_NAME}" = "hop_server" ] || [ "${PROJECT_NAME}" = "load-balance" ]; then
+      echo "Rebuilding ${PROJECT_NAME} images so remote Hop Server matches current assemblies"
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
+    else
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
+    fi
+  else
+    echo "Project compose does not exists."
+    PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+      docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit \
+      || COMPOSE_EXIT=$?
+  fi
+
+  # Create final report only when the project was actually run and no report was produced
   if [ "${SUREFIRE_REPORT}" = "true" ]; then
     if [ ! -f "${CURRENT_DIR}/../surefire-reports/surefile_${PROJECT_NAME}.xml" ]; then
-      echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-      echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"0\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-      echo "<testcase name=\"environment_setup\" time=\"1\"><failure type=\"could not start\"></failure><system-out><![CDATA[ Could not start docker environment ]]></system-out><system-err><![CDATA[ Could not start docker environment ]]></system-err></testcase>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-      echo "</testsuite>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+      write_surefire_env_failure "${PROJECT_NAME}" \
+        "Could not start docker environment for ${PROJECT_NAME} (compose exit ${COMPOSE_EXIT}). Check docker compose logs above."
     fi
   fi
 done

@@ -28,10 +28,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -193,6 +195,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   protected volatile Long dataVolumeOut;
 
+  /**
+   * Whether {@link Const#HOP_METRIC_DATA_VOLUME} byte counting is on. Resolved once in {@link
+   * #init()} rather than per row: it is a configuration flag, so looking it up in the variable map
+   * on every row is pointless work on the hottest path in the engine.
+   */
+  private boolean dataVolumeMetricEnabled;
+
   private boolean distributed;
 
   private final IRowDistribution rowDistribution;
@@ -251,6 +260,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /** The list of IRowListener interfaces */
   protected List<IRowListener> rowListeners;
+
+  /** Read-only view of {@link #rowListeners}, created once: getRowListeners() runs per row. */
+  private List<IRowListener> rowListenersView;
+
+  /** The list of destination-aware IRowToListener interfaces (target hops / putRowTo) */
+  protected List<IRowToListener> rowToListeners;
 
   /**
    * Map of files that are generated or used by this transform. After execution, these can be added
@@ -428,6 +443,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     rowDistribution = transformMeta.getRowDistribution();
 
     rowListeners = new CopyOnWriteArrayList<>();
+    rowListenersView = Collections.unmodifiableList(rowListeners);
+    rowToListeners = new CopyOnWriteArrayList<>();
     resultFiles = new HashMap<>();
     resultFilesLock = new ReentrantReadWriteLock();
 
@@ -493,6 +510,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
+
+    dataVolumeMetricEnabled =
+        Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"));
 
     // See if fields and types are not null when running.
     // Since this is expensive we're only going to enable it when safe mode checking is on.
@@ -576,11 +596,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         envSubFailed = true;
       }
 
-      // if we failed and environment subsutitue
-      return !envSubFailed;
+      // if we failed and environment substitute
+      if (envSubFailed) {
+        return false;
+      }
     }
 
-    return true;
+    return !hasDisallowedMainInputHops();
   }
 
   @Override
@@ -885,7 +907,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolume() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolume;
@@ -906,7 +928,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       if (getPipeline() == null) {
         return;
       }
-      if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+      if (!dataVolumeMetricEnabled) {
         return;
       }
       Long size = RowMeta.getRowSizeEstimateFromRow(row);
@@ -932,7 +954,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolumeIn() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolumeIn;
@@ -946,7 +968,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolumeOut() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolumeOut;
@@ -1422,9 +1444,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     }
 
-    // Do not call the row listeners for targeted rows.
-    // It can cause rows with varying layouts to arrive at the same listener without a way to keep
-    // them apart.
+    // Do not call IRowListener for targeted rows: mixed layouts can arrive without a way to keep
+    // them apart. Use IRowToListener instead — it includes the destination IRowSet.
+    //
+    for (IRowToListener listener : rowToListeners) {
+      listener.rowWrittenTo(rowMeta, row, rowSet);
+    }
 
     // Keep adding to terminator_rows buffer...
     if (terminator && terminatorRows != null) {
@@ -1523,10 +1548,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           break;
         }
       }
+      // Nothing is logged here on purpose. The row was handled: it went down the error handling
+      // hop that is by definition connected in this branch, carrying the description as a field,
+      // so anyone who wants it in the log routes that hop to a "Write to log" transform. An error
+      // hop is a hop, and the engine does not log the rows travelling down an ordinary one either.
+      // The unhandled case below is the one that is genuinely an error.
       incrementLinesRejected();
-      if (isLoggingErrorDescriptions() && !Utils.isEmpty(errorDescriptions)) {
-        logError(errorDescriptions);
-      }
     } else if (transformErrorMeta.isEnabled()) {
       String name =
           Objects.nonNull(transformErrorMeta.getTargetTransform())
@@ -2337,6 +2364,92 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       lastRowWrittenDate = new Date();
       outputRowSetsLock.readLock().unlock();
     }
+
+    if (!isStopped() && !isUnconsumedMainInputAllowed() && hasUnreadMainInput()) {
+      logDisallowedMainInput();
+      stopAll();
+    }
+  }
+
+  /**
+   * @return true if this transform is configured not to drain main input but has main predecessor
+   *     hops. Logs the error and increments the error count.
+   */
+  private boolean hasDisallowedMainInputHops() {
+    if (isUnconsumedMainInputAllowed() || !hasMainPredecessorsThatAreNotConsumed()) {
+      return false;
+    }
+    logDisallowedMainInput();
+    return true;
+  }
+
+  private boolean hasMainPredecessorsThatAreNotConsumed() {
+    if (meta == null || meta.consumesMainInput() || pipelineMeta == null || transformMeta == null) {
+      return false;
+    }
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousMainTransforms(transformMeta);
+    return mainPrev != null && !mainPrev.isEmpty();
+  }
+
+  private boolean isUnconsumedMainInputAllowed() {
+    return Const.toBoolean(getVariable(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT, "N"));
+  }
+
+  private void logDisallowedMainInput() {
+    List<TransformMeta> mainPrev = pipelineMeta.findPreviousMainTransforms(transformMeta);
+    String fromNames = "";
+    if (mainPrev != null && !mainPrev.isEmpty()) {
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < mainPrev.size(); i++) {
+        if (i > 0) {
+          builder.append(", ");
+        }
+        builder.append(mainPrev.get(i).getName());
+      }
+      fromNames = builder.toString();
+    }
+    String hint = meta.getMainInputRequirementHint();
+    if (Utils.isEmpty(hint)) {
+      logError(
+          BaseMessages.getString(
+              PKG, "BaseTransform.Log.DoesNotConsumeMainInput", getTransformName(), fromNames));
+    } else {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "BaseTransform.Log.DoesNotConsumeMainInput.Hint",
+              getTransformName(),
+              fromNames,
+              hint));
+    }
+    setErrors(getErrors() + 1);
+  }
+
+  @VisibleForTesting
+  boolean hasUnreadMainInput() {
+    if (!hasMainPredecessorsThatAreNotConsumed()) {
+      return false;
+    }
+    Set<String> names = new HashSet<>();
+    for (TransformMeta prev : pipelineMeta.findPreviousMainTransforms(transformMeta)) {
+      if (prev != null && prev.getName() != null) {
+        names.add(prev.getName());
+      }
+    }
+    inputRowSetsLock.readLock().lock();
+    try {
+      for (IRowSet rs : inputRowSets) {
+        if (rs == null || !names.contains(rs.getOriginTransformName())) {
+          continue;
+        }
+        if (rs.size() > 0 || !rs.isDone()) {
+          return true;
+        }
+      }
+      return false;
+    } finally {
+      inputRowSetsLock.readLock().unlock();
+    }
   }
 
   /**
@@ -2725,19 +2838,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
-   * Whether rejected-row error descriptions should be written to the log.
-   *
-   * <p>Transforms that can produce a very large number of validation/rejection errors may override
-   * this to reduce log volume. Error rows are still sent to the error handling hop when configured.
-   *
-   * @return true when error descriptions should be logged (default)
-   * @since 2.19.0
-   */
-  protected boolean isLoggingErrorDescriptions() {
-    return true;
-  }
-
-  /**
    * Log error.
    *
    * @param message the message
@@ -2920,7 +3020,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void setInternalVariables() {
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, transformName);
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(getCopy()));
-    setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
+    // The log channel isn't created yet when the constructor initializes the variables.
+    //
+    if (log != null) {
+      setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
+    }
   }
 
   /*
@@ -3277,7 +3381,25 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public List<IRowListener> getRowListeners() {
-    return Collections.unmodifiableList(rowListeners);
+    if (rowListenersView == null) {
+      rowListenersView = Collections.unmodifiableList(rowListeners);
+    }
+    return rowListenersView;
+  }
+
+  @Override
+  public void addRowToListener(IRowToListener rowToListener) {
+    rowToListeners.add(rowToListener);
+  }
+
+  @Override
+  public void removeRowToListener(IRowToListener rowToListener) {
+    rowToListeners.remove(rowToListener);
+  }
+
+  @Override
+  public List<IRowToListener> getRowToListeners() {
+    return Collections.unmodifiableList(rowToListeners);
   }
 
   /**
@@ -3583,6 +3705,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public void initializeFrom(IVariables parent) {
     variables.initializeFrom(parent);
+
+    // The Internal.Transform.* variables belong to this transform. The parent space can carry
+    // values of another transform (a nested execution started from e.g. a Pipeline or Workflow
+    // Executor passes them down), so re-apply ours after copying the parent's.
+    //
+    setInternalVariables();
   }
 
   /*

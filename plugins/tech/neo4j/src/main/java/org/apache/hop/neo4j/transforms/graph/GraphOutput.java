@@ -611,7 +611,11 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                 ResultSummary summary = result.consume();
                 boolean hasErrors = false;
                 for (Notification notification : summary.notifications()) {
-                  logError(notification.title() + " (" + notification.severity() + ")");
+                  logError(
+                      notification.title()
+                          + " ("
+                          + notification.rawSeverityLevel().orElse("")
+                          + ")");
                   logError(
                       notification.code()
                           + " : "
@@ -644,7 +648,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     boolean errors = false;
     ResultSummary summary = result.consume();
     for (Notification notification : summary.notifications()) {
-      logError(notification.title() + " (" + notification.severity() + ")");
+      logError(notification.title() + " (" + notification.rawSeverityLevel().orElse("") + ")");
       logError(
           notification.code()
               + " : "

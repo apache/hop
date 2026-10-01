@@ -63,11 +63,24 @@ public class BaseGuiWidgets {
    * @param guiPluginObject
    */
   public void registerGuiPluginObject(Object guiPluginObject) {
+    registerGuiPluginObject(guiPluginObject.getClass().getName(), guiPluginObject);
+  }
+
+  /**
+   * The same, for an object that is not registered under its own class name. Gui plugin objects are
+   * looked up by the class name declared on the element, so that is the name they have to be stored
+   * under - which is not {@code guiPluginObject.getClass().getName()} when the object is a stand-in
+   * (a subclass, a proxy, a test double) for the declared class.
+   *
+   * @param guiPluginClassName the class name the elements declare
+   * @param guiPluginObject the object to hand to the callbacks of those elements
+   */
+  public void registerGuiPluginObject(String guiPluginClassName, Object guiPluginObject) {
     this.guiPluginObject = guiPluginObject;
-    GuiRegistry guiRegistry = GuiRegistry.getInstance();
-    guiPluginClassName = guiPluginObject.getClass().getName();
-    guiRegistry.registerGuiPluginObject(
-        HopGui.getInstance().getId(), guiPluginClassName, instanceId, guiPluginObject);
+    this.guiPluginClassName = guiPluginClassName;
+    GuiRegistry.getInstance()
+        .registerGuiPluginObject(
+            HopGui.getInstance().getId(), guiPluginClassName, instanceId, guiPluginObject);
   }
 
   protected void addDeRegisterGuiPluginObjectListener(Control control) {

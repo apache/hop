@@ -23,6 +23,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -37,6 +38,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::FileMetadata.Keyword",
     documentationUrl = "/pipeline/transforms/filemetadata.html")
 public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetadataData> {
+  private static final Class<?> PKG = FileMetadataMeta.class;
+
   /** Stores the name of the file to examine */
   @HopMetadataProperty(key = "fileName")
   private String fileName;
@@ -71,13 +74,19 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     this.enclosureCandidates = new ArrayList<>();
   }
 
-  public FileMetadataMeta(FileMetadataMeta m) {
-    this();
-    this.fileName = m.fileName;
-    this.limitRows = m.limitRows;
-    this.defaultCharset = m.defaultCharset;
-    m.delimiterCandidates.forEach(c -> this.delimiterCandidates.add(new FMCandidate(c)));
-    m.enclosureCandidates.forEach(c -> this.enclosureCandidates.add(new FMCandidate(c)));
+  @Override
+  public boolean consumesMainInput() {
+    return isFilenameInField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFilenameInField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "FileMetadata.FileInField.Label");
   }
 
   /**
@@ -100,18 +109,6 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     enclosureCandidates.clear();
     enclosureCandidates.add(new FMCandidate("\""));
     enclosureCandidates.add(new FMCandidate("'"));
-  }
-
-  /**
-   * This method is used when a transform is duplicated. It needs to return a deep copy of this
-   * object. Be sure to create proper deep copies if the transform configuration is stored in
-   * modifiable objects.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public FileMetadataMeta clone() {
-    return new FileMetadataMeta(this);
   }
 
   @Override

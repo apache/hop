@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0021-xsd-validator-xxe</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Issue #8367: the XSD Validator transform must not resolve external entities unless it is explicitly told to.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/09/14 14:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/09/14 14:00:00.000</modified_date>
+    <key_for_session_key/>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Three cases share one golden data set.
+
+1 - a document without entities still validates with the secure default, so the
+    hardening does not break ordinary XSD validation.
+2 - the XXE document is refused by the secure default: its DOCTYPE is disallowed
+    and the file server is never contacted.
+3 - the same XXE document validates once external entities are enabled, which
+    proves case 2 fails because of the hardening and not because the payload is
+    unreachable.</note>
+      <xloc>32</xloc>
+      <yloc>352</yloc>
+      <width>520</width>
+      <heigth>140</heigth>
+      <fontname>Sans</fontname>
+      <fontsize>10</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Get safe xml</from>
+      <to>XSD validator secure default</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get xxe xml</from>
+      <to>XSD validator secure default</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get xxe xml for allowed validator</from>
+      <to>XSD validator external entities allowed</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>XSD validator secure default</from>
+      <to>Sort by case</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>XSD validator external entities allowed</from>
+      <to>Sort by case</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort by case</from>
+      <to>Dummy (do nothing)</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Get safe xml</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>xml-file</name>
+        <variable>${PROJECT_HOME}/files/xxe-safe-employee.xml</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>case</name>
+        <variable>1-safe-xml-secure-default</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Get xxe xml</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>xml-file</name>
+        <variable>${PROJECT_HOME}/files/xxe-employee.xml</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>case</name>
+        <variable>2-xxe-secure-default</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Get xxe xml for allowed validator</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>xml-file</name>
+        <variable>${PROJECT_HOME}/files/xxe-employee.xml</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>case</name>
+        <variable>3-xxe-external-entities-allowed</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>272</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>XSD validator secure default</name>
+    <type>XSDValidator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <xdsfilename>${PROJECT_HOME}/files/xxe-employee.xsd</xdsfilename>
+    <xmlstream>xml-file</xmlstream>
+    <resultfieldname>result</resultfieldname>
+    <addvalidationmsg>Y</addvalidationmsg>
+    <validationmsgfield>ValidationMsgField</validationmsgfield>
+    <ifxmlunvalid/>
+    <ifxmlvalid/>
+    <outputstringfield>N</outputstringfield>
+    <xmlsourcefile>Y</xmlsourcefile>
+    <xsddefinedfield/>
+    <xsdsource>filename</xsdsource>
+    <allowExternalEntities>N</allowExternalEntities>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>XSD validator external entities allowed</name>
+    <type>XSDValidator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <xdsfilename>${PROJECT_HOME}/files/xxe-employee.xsd</xdsfilename>
+    <xmlstream>xml-file</xmlstream>
+    <resultfieldname>result</resultfieldname>
+    <addvalidationmsg>Y</addvalidationmsg>
+    <validationmsgfield>ValidationMsgField</validationmsgfield>
+    <ifxmlunvalid/>
+    <ifxmlvalid/>
+    <outputstringfield>N</outputstringfield>
+    <xmlsourcefile>Y</xmlsourcefile>
+    <xsddefinedfield/>
+    <xsdsource>filename</xsdsource>
+    <allowExternalEntities>Y</allowExternalEntities>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>272</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Sort by case</name>
+    <type>SortRows</type>
+    <description>Two validators feed this hop, so sort to keep the golden comparison deterministic.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>case</name>
+        <ascending>Y</ascending>
+        <case_sensitive>Y</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing)</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

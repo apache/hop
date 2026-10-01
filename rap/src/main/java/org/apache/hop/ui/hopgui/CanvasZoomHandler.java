@@ -53,44 +53,41 @@ public class CanvasZoomHandler extends Widget {
     }
 
     CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
-    registry.setActiveCanvas(canvas);
-    registry.setActiveZoomable(zoomable);
-
-    RemoteObject remoteObject = registry.getZoomRemote();
+    String canvasId = WidgetUtil.getId(canvas);
+    RemoteObject remoteObject = registry.getZoomRemote(canvasId);
     if (remoteObject == null) {
-      createRemoteObject(registry);
+      createRemoteObject(registry, canvasId);
     } else {
-      updateCanvas(remoteObject);
+      remoteObject.call("attachListener", null);
     }
   }
 
-  private void createRemoteObject(CanvasGraphRegistry registry) {
+  private void createRemoteObject(CanvasGraphRegistry registry, String canvasId) {
     try {
       Connection connection = RWT.getUISession().getConnection();
-      Canvas currentCanvas = registry.getActiveCanvas();
 
       RemoteObject remoteObject = connection.createRemoteObject("hop.CanvasZoom");
       remoteObject.set("self", remoteObject.getId());
-      remoteObject.set("canvas", WidgetUtil.getId(currentCanvas));
+      remoteObject.set("canvas", canvasId);
 
       remoteObject.setHandler(
           new AbstractOperationHandler() {
             @Override
             public void handleNotify(String event, JsonObject properties) {
               if ("zoom".equals(event)) {
-                handleZoom(registry, properties);
+                handleZoom(properties);
               }
             }
           });
 
       remoteObject.listen("zoom", true);
-      registry.setZoomRemote(remoteObject);
+      registry.putZoomRemote(canvasId, remoteObject);
 
       getDisplay()
           .timerExec(
               50,
               () -> {
-                RemoteObject ro = registry.getZoomRemote();
+                RemoteObject ro = registry.getZoomRemote(canvasId);
                 if (ro != null) {
                   ro.call("attachListener", null);
                 }
@@ -101,13 +98,8 @@ public class CanvasZoomHandler extends Widget {
     }
   }
 
-  private static void handleZoom(CanvasGraphRegistry registry, JsonObject properties) {
-    Canvas currentCanvas = registry.getActiveCanvas();
-    Object zoomable = registry.getActiveZoomable();
-    if (currentCanvas == null || zoomable == null) {
-      return;
-    }
-    if (!(zoomable instanceof IZoomable activeZoomable)) {
+  private void handleZoom(JsonObject properties) {
+    if (canvas == null || canvas.isDisposed() || zoomable == null) {
       return;
     }
 
@@ -116,26 +108,33 @@ public class CanvasZoomHandler extends Widget {
     int y = properties.get("y").asInt();
 
     org.eclipse.swt.widgets.Event swtEvent = new org.eclipse.swt.widgets.Event();
-    swtEvent.widget = currentCanvas;
+    swtEvent.widget = canvas;
     swtEvent.x = x;
     swtEvent.y = y;
     swtEvent.count = count;
     MouseEvent mouseEvent = new MouseEvent(swtEvent);
 
     if (count > 0) {
-      activeZoomable.zoomIn(mouseEvent);
+      zoomable.zoomIn(mouseEvent);
     } else {
-      activeZoomable.zoomOut(mouseEvent);
+      zoomable.zoomOut(mouseEvent);
     }
-  }
-
-  private void updateCanvas(RemoteObject remoteObject) {
-    remoteObject.set("canvas", WidgetUtil.getId(canvas));
-    remoteObject.call("attachListener", null);
   }
 
   @Override
   public void dispose() {
+    try {
+      if (canvas != null && !canvas.isDisposed()) {
+        RemoteObject remoteObject =
+            CanvasGraphRegistry.getInstance().removeZoomRemote(WidgetUtil.getId(canvas));
+        if (remoteObject != null) {
+          remoteObject.destroy();
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logDebug(
+          "Failed to destroy CanvasZoomHandler remote object: " + e.getMessage());
+    }
     CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
     if (registry.getActiveCanvas() == this.canvas) {
       registry.setActiveCanvas(null);

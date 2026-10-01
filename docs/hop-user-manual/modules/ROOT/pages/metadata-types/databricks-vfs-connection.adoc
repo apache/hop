@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Named Databricks VFS connection for Unity Catalog Volumes and Workspace files (Files API)
+:page-marketplace: hop-tech-databricks
 
 = Databricks VFS Connection
 
@@ -48,7 +49,7 @@ xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native 
 |Option |Description
 
 |Name (URI scheme)
-|VFS scheme used in paths: `{name}:///…`. Prefer short names; do not reuse built-in schemes (`file`, `s3`, …).
+|VFS scheme used in paths: `+{name}:///…+`. Prefer short names; do not reuse built-in schemes (`file`, `s3`, …).
 
 |Description
 |Optional free-text description.
@@ -57,14 +58,15 @@ xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native 
 |Existing Jobs/workspace connection that supplies host and personal access token.
 
 |Root path
-|Absolute UC Volume or Workspace path that is the **root of this scheme**. Shortens URIs: `{name}:///input` → `{root}/input`. Leave empty if every URI must include full `/Volumes/…` or `/Workspace/…` paths.
+|Absolute UC Volume or Workspace path that is the **root of this scheme**. Shortens URIs: `+{name}:///input+` → `+{root}/input+`. Leave empty if every URI must include full `/Volumes/…` or `/Workspace/…` paths.
 |===
 
 == Tips
 
 * Create the **Databricks Connection** first and use **Test connection** there (or on this editor, which validates the referenced connection).
 * Set **Root path** to your testing volume (for example `/Volumes/apache-hop/default/testing`) so workflow paths stay short.
-* In File → Open, type `{name}:///` to list the root path contents (when root is set).
+* In File → Open, type `+{name}:///+` to list the root path contents (when root is set).
+* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`. The root path is applied by the provider, so do not put it in that URI.
 * One Jobs connection can back several VFS schemes (different root volumes).
 
 == Related

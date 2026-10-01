@@ -68,6 +68,24 @@ public interface IHopMetadataSerializer<T extends IHopMetadata> {
   List<String> listObjectNames() throws HopException;
 
   /**
+   * Read only the virtual path of the named object. Implementations should prefer a cheap path
+   * (e.g. streaming a single JSON field) over a full {@link #load(String)} when possible. Used by
+   * the metadata perspective tree to avoid deserializing every object on refresh.
+   *
+   * @param name The name of the object
+   * @return The virtual path, never {@code null} (empty string when unset)
+   * @throws HopException if the object does not exist or cannot be read
+   */
+  default String readVirtualPath(String name) throws HopException {
+    T object = load(name);
+    if (object == null) {
+      throw new HopException("Object '" + name + "' does not exist");
+    }
+    String virtualPath = object.getVirtualPath();
+    return virtualPath == null ? "" : virtualPath;
+  }
+
+  /**
    * See if an object with the given name exists.
    *
    * @param name The name of the object to check

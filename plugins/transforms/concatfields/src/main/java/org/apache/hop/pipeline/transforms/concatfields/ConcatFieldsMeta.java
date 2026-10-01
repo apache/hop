@@ -84,16 +84,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
     extraFields = new ExtraFields();
   }
 
-  public ConcatFieldsMeta(ConcatFieldsMeta m) {
-    this();
-    this.separator = m.separator;
-    this.enclosure = m.enclosure;
-    this.extraFields = new ExtraFields(m.extraFields);
-    for (ConcatField field : outputFields) {
-      outputFields.add(new ConcatField(field));
-    }
-  }
-
   @Override
   public void setDefault() {
     separator = ";";

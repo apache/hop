@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -35,11 +34,13 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.pipeline.IPartitioner;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -52,10 +53,12 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.partition.PartitionMethodSelector;
@@ -196,6 +199,10 @@ public class HopGuiPipelineTransformDelegate {
 
       dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
       TransformMeta before = null;
+      byte[] beforeSnapshot = null;
+      // Capture from the live object. A clone is often already "changed" because copying location
+      // or row distribution goes through setters that flip wrapperChanged.
+      boolean alreadyChanged = transformMeta.hasChanged();
       if (dialog != null) {
         dialogs.put(name, dialog);
 
@@ -203,7 +210,9 @@ public class HopGuiPipelineTransformDelegate {
         transformMeta.getTransform().convertIOMetaToTransformNames();
         // Snapshot after IO-meta normalization so OK-without-edits is not treated as a change.
         before = (TransformMeta) transformMeta.clone();
-        transformName = dialog.open();
+        beforeSnapshot = pipelineGraph.captureUndoSnapshot();
+        // Subject stack covers legacy dialogs that never set BaseDialog.DIALOG_SUBJECT
+        transformName = BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open);
 
         dialogs.remove(name);
       }
@@ -226,6 +235,8 @@ public class HopGuiPipelineTransformDelegate {
         // Re-search the metadata
         //
         transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+
+        offerToRemoveUnconsumedMainInputHops(pipelineMeta, transformMeta);
 
         //
         // See if the new name the user enter, doesn't collide with
@@ -257,15 +268,11 @@ public class HopGuiPipelineTransformDelegate {
         transformMeta.setName(transformName);
 
         TransformMeta after = (TransformMeta) transformMeta.clone();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
         if (hasTransformMetaChanged(before, after)) {
           transformMeta.setChanged();
-          hopGui.undoDelegate.addUndoChange(
-              pipelineMeta,
-              new TransformMeta[] {before},
-              new TransformMeta[] {after},
-              new int[] {pipelineMeta.indexOfTransform(transformMeta)});
         } else {
-          transformMeta.setChanged(before.hasChanged());
+          transformMeta.setChanged(alreadyChanged);
         }
       }
       pipelineGraph.updateGui();
@@ -289,6 +296,57 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   /**
+   * After a dialog OK, if the transform no longer drains main input but still has incoming main
+   * hops, those hops would stall the pipeline. Offer to remove them.
+   */
+  void offerToRemoveUnconsumedMainInputHops(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    List<PipelineHopMeta> badHops = pipelineMeta.findDisallowedMainInputHops(transformMeta);
+    if (badHops.isEmpty()) {
+      return;
+    }
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < badHops.size(); i++) {
+      if (i > 0) {
+        builder.append(", ");
+      }
+      builder.append(badHops.get(i).getFromTransform().getName());
+    }
+    String fromNames = builder.toString();
+    ITransformMeta iMeta = transformMeta.getTransform();
+    String hint = iMeta == null ? null : iMeta.getMainInputRequirementHint();
+    String message;
+    if (Utils.isEmpty(hint)) {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Dialog.UnconsumedMainInput.Message",
+              transformMeta.getName(),
+              fromNames);
+    } else {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineGraph.Dialog.UnconsumedMainInput.Hint.Message",
+              transformMeta.getName(),
+              fromNames,
+              hint);
+    }
+    MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    mb.setText(BaseMessages.getString(PKG, "PipelineGraph.Dialog.UnconsumedMainInput.Title"));
+    mb.setMessage(message);
+    if (mb.open() != SWT.YES) {
+      return;
+    }
+    for (int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i--) {
+      PipelineHopMeta hop = pipelineMeta.getPipelineHop(i);
+      if (badHops.contains(hop)) {
+        pipelineMeta.removePipelineHop(i);
+      }
+    }
+  }
+
+  /**
    * Allocate new transform, optionally open and rename it.
    *
    * @param id Id of the new transform
@@ -298,6 +356,7 @@ public class HopGuiPipelineTransformDelegate {
    * @param rename Rename this transform?
    * @return The newly created TransformMeta object.
    */
+  @SuppressWarnings("java:S2095") // the stream is closed in the finally block below
   public TransformMeta newTransform(
       PipelineMeta pipelineMeta,
       String id,
@@ -470,6 +529,12 @@ public class HopGuiPipelineTransformDelegate {
    */
   public TransformMeta insertTransform(
       PipelineMeta pipelineMeta, PipelineHopMeta hop, TransformMeta transformMeta) {
+    if (pipelineMeta.isMultipleCopiesTargetSplit(
+        hop, transformMeta, pipelineGraph.getVariables())) {
+      pipelineGraph.showMultipleCopiesNotAllowedDialog();
+      return null;
+    }
+
     TransformMeta fromTransform = hop.getFromTransform();
     TransformMeta toTransform = hop.getToTransform();
 
@@ -544,6 +609,8 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void editTransformPartitioning(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    boolean alreadyChanged = transformMeta.hasChanged();
+    byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
     String[] schemaNames;
     try {
       schemaNames = hopGui.partitionManager.getNamesArray();
@@ -595,27 +662,21 @@ public class HopGuiPipelineTransformDelegate {
                         settings.getTransformMeta(),
                         partitioningMeta,
                         settings.getPipelineMeta());
-                return dialog.open();
+                return BaseDialog.withDialogSubject(
+                    settings.getTransformMeta().getTransform(), dialog::open);
               });
         }
 
         TransformMeta partitionBefore = partitionSettings.getBefore();
         TransformMeta partitionAfter = partitionSettings.getAfter();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
         if (hasTransformMetaChanged(partitionBefore, partitionAfter)) {
           transformMeta.setChanged();
-          hopGui.undoDelegate.addUndoChange(
-              partitionSettings.getPipelineMeta(),
-              new TransformMeta[] {partitionBefore},
-              new TransformMeta[] {partitionAfter},
-              new int[] {
-                partitionSettings
-                    .getPipelineMeta()
-                    .indexOfTransform(partitionSettings.getTransformMeta())
-              });
         } else {
-          transformMeta.setChanged(partitionBefore.hasChanged());
+          transformMeta.setChanged(alreadyChanged);
         }
         pipelineGraph.redraw();
+        pipelineGraph.updateGui();
       }
     } catch (Exception e) {
       new ErrorDialog(
@@ -679,7 +740,9 @@ public class HopGuiPipelineTransformDelegate {
       List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta, true);
 
       // now edit this transformErrorMeta object:
+      boolean alreadyChanged = transformMeta.hasChanged();
       TransformMeta before = (TransformMeta) transformMeta.clone();
+      byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
       TransformErrorMetaDialog dialog =
           new TransformErrorMetaDialog(
               hopGui.getActiveShell(),
@@ -687,13 +750,15 @@ public class HopGuiPipelineTransformDelegate {
               transformErrorMeta,
               pipelineMeta,
               targetTransforms);
-      if (dialog.open()) {
+      if (Boolean.TRUE.equals(
+          BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open))) {
         transformMeta.setTransformErrorMeta(transformErrorMeta);
         TransformMeta after = (TransformMeta) transformMeta.clone();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
         if (hasTransformMetaChanged(before, after)) {
           transformMeta.setChanged();
         } else {
-          transformMeta.setChanged(before.hasChanged());
+          transformMeta.setChanged(alreadyChanged);
         }
         pipelineGraph.redraw();
       }
@@ -703,28 +768,24 @@ public class HopGuiPipelineTransformDelegate {
   /**
    * Returns {@code true} if two transform snapshots differ in persisted configuration (transform
    * body, partitioning, GUI placement, and error handling).
+   *
+   * <p>String {@code null} and {@code ""} are treated as the same so a dialog OK that only
+   * round-trips widget text does not mark the pipeline dirty. An extra empty table row is still a
+   * change. Serialization still writes null and empty string differently.
    */
   private static boolean hasTransformMetaChanged(TransformMeta before, TransformMeta after) {
-    try {
-      if (!before.getXml().equals(after.getXml())) {
-        return true;
-      }
-
-      return !getErrorMetaXml(before).equals(getErrorMetaXml(after));
-    } catch (HopException e) {
-      // If comparison fails, treat as changed to avoid losing edits.
+    if (!DialogOkContent.same(before, after)) {
       return true;
     }
-  }
-
-  private static String getErrorMetaXml(TransformMeta transformMeta) throws HopException {
-    TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
-    return errorMeta == null ? Const.EMPTY_STRING : errorMeta.getXml();
+    return !DialogOkContent.same(before.getTransformErrorMeta(), after.getTransformErrorMeta());
   }
 
   public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
     if (Utils.isEmpty(transforms)) {
       return; // nothing to do
+    }
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
     }
     try {
       ExtensionPointHandler.callExtensionPoint(
@@ -743,8 +804,8 @@ public class HopGuiPipelineTransformDelegate {
     for (int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i--) {
       PipelineHopMeta hi = pipelineMeta.getPipelineHop(i);
       for (int j = 0; j < transforms.size() && hopIndex < hopIndexes.length; j++) {
-        if (hi.getFromTransform().equals(transforms.get(j))
-            || hi.getToTransform().equals(transforms.get(j))) {
+        if (transforms.get(j).equals(hi.getFromTransform())
+            || transforms.get(j).equals(hi.getToTransform())) {
           int idx = pipelineMeta.indexOfPipelineHop(hi);
           pipelineHops.add((PipelineHopMeta) hi.clone());
           hopIndexes[hopIndex] = idx;

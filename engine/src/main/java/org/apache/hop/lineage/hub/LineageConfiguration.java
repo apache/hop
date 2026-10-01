@@ -27,12 +27,14 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.lineage.LineageVariables;
 
 /** Effective lineage hub settings resolved from Hop variables. */
 @Getter
 public final class LineageConfiguration {
+
+  /** Memoized result of {@link #resolve()}; see that method for why. */
+  private static volatile LineageConfiguration cached;
 
   private final boolean enabled;
   private final int queueCapacity;
@@ -60,10 +62,34 @@ public final class LineageConfiguration {
     return new LineageConfiguration(enabled, queueCapacity, batchMax, batchLingerMs, sinkIds);
   }
 
+  /**
+   * The effective configuration, memoized.
+   *
+   * <p>Resolving is not cheap — {@link LineageVariables#engineVariables()} builds a fresh variable
+   * space from every system property and described variable, then overlays the environment — and
+   * {@link LineageHub#emit} consults it for <b>every</b> event, including the disabled-by-default
+   * fast path. These are ENGINE-scoped settings read once per JVM at startup, so they cannot change
+   * under a running engine; caching the resolved value turns that per-event cost into a one-off.
+   * {@link #invalidate()} drops the cache when the environment is (re)initialized.
+   */
   public static LineageConfiguration resolve() {
-    Variables variables = new Variables();
-    variables.initializeFrom(null);
-    return resolve(variables);
+    LineageConfiguration current = cached;
+    if (current != null) {
+      return current;
+    }
+    synchronized (LineageConfiguration.class) {
+      if (cached == null) {
+        cached = resolve(LineageVariables.engineVariables());
+      }
+      return cached;
+    }
+  }
+
+  /** Drops the memoized configuration so the next {@link #resolve()} re-reads the variables. */
+  public static void invalidate() {
+    synchronized (LineageConfiguration.class) {
+      cached = null;
+    }
   }
 
   public static LineageConfiguration resolve(IVariables variables) {

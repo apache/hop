@@ -17,81 +17,156 @@ under the License.
 [[HopGuiWorkflows]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: Getting Started (7/8): Workflows in Hop are where you'll do most of the orchestration work: set the stage by fetching files, checking resource availability etc before your start to do actually run workflows and pipelines. We'll walk through what it takes to build and run a basic first workflow.
+:description: Getting Started (6/9): build a workflow that runs the pipeline you just created, and takes a different path depending on whether it worked.
 
-= Workflows
+= Your first workflow
 
-In xref:getting-started/hop-concepts.adoc[Concepts], we walked through workflows, actions and hops.
-Let’s remember:
+== Why and When to Use a Workflow
 
-* A _workflow_ is by default a sequential process that has a starting point and one or more endpoints.
-* An _action_ is an item of workflow functionality that executes pipelines already implemented or any other element that allows orchestrating the execution of the data integration processes.
-* A _hop_ in a _workflow_ can conditionally connect _actions_ and determine which _action_ the _workflow_ needs to execute next.
+Where pipelines do the heavy lifting of moving and transforming individual data rows, **workflows** manage the big picture.
+A workflow is your process coordinator: it decides *what tasks run, in what order, and what happens when something succeeds or fails*.
 
-== Create a Workflow
+In a production data platform, you almost never run a pipeline completely isolated in a vacuum.
+Before a pipeline processes data, you might need to check if a database is reachable or whether an incoming file has arrived on an SFTP server.
+After the pipeline finishes, you might want to archive the input files, write an audit log, or send an email alert if an unexpected error occurred.
+Workflows handle all of these orchestration tasks.
 
-There are two ways to create a workflow.
+Key things to remember before you build:
 
-* Click on the New option on the Horizontal toolbar and select the Workflow option.
+* **Actions are the steps**: Each action performs an atomic job (e.g. running a pipeline, checking a file, sending an email).
+* **Sequential execution**: Unlike transforms in a pipeline, actions run **one after another in sequence** by default.
+* **Conditional decision routing**: Hops in a workflow are conditional gateways. You can follow different branches depending on whether an action succeeded (green hop) or failed (red hop).
 
-image:getting-started/gs-hop-gui-create-workflow-1.png[]
+TIP: For an architectural deep dive into how workflows execute, the backtracking algorithm, and execution engines (Local, Remote, Load-Balancing), see the xref:workflow/workflows.adoc[Workflows guide].
 
-* File -> New -> Workflow
+In this chapter, we will build a workflow that orchestrates the pipeline you created in the xref:getting-started/hop-gui-pipelines.adoc[previous chapter] and takes different paths depending on whether the pipeline succeeded or failed.
 
-image:getting-started/gs-hop-gui-create-workflow-2.png[]
+== Create a workflow
 
-image:getting-started/gs-hop-gui-create-workflow-3.png[]
+Click *New* in the main toolbar and pick *Workflow*, or use *File -> New -> Workflow*.
 
-Your new workflow is created, and you’ll see the dialog below.
+image:getting-started/gs-hop-gui-create-workflow-1.png[The New option in the main toolbar]
 
-image:getting-started/gs-hop-gui-create-workflow-4.png[]
+Your new workflow already contains one action.
 
-NOTE: Note that when you create a workflow, Apache Hop automatically adds http://localhost:1313/manual/latest/workflow/actions/start.html[Start^] action by default.
+image:getting-started/gs-hop-gui-create-workflow-4.png[A new workflow with the Start action]
 
-== Add and connect actions
+NOTE: Hop adds a xref:workflow/actions/start.adoc[Start] action to every new workflow. It is where execution begins, and it is also where you configure a schedule if you want the workflow to repeat.
 
-=== Add Actions
+Save the workflow as `first-workflow.hwf`, in the same folder as `first-pipeline.hpl`.
 
-Now you are ready to add the first action.
-Click anywhere in the workflow canvas, the area where you’ll see the image below.
+== Run the pipeline from the workflow
 
-image:getting-started/gs-hop-gui-create-workflow-5.png[]
+Click anywhere on the canvas to open the context dialog, search for `Pipeline` and add the xref:workflow/actions/pipeline.adoc[Pipeline] action.
 
-After clicking you will see a dialog:
+image:getting-started/gs-hop-gui-create-workflow-6.png[The workflow context dialog]
 
-image:getting-started/gs-hop-gui-create-workflow-6.png[]
+Open the new action and set:
 
-Just like you did with pipelines, use the search box in this dialog to find the actions you need.
-Click or use the arrow keys and hit enter to add an action to your workflow.
+[options="header"]
+|===
+|Field|Value
+|Action name|`run first pipeline`
+|Pipeline|`+${PROJECT_HOME}/first-pipeline.hpl+`
+|===
 
-For now, add a xref:workflow/actions/pipeline.adoc[Pipeline] action to your workflow.
+This is the step the workflow exists for, so it is worth being precise about it: the *Pipeline* field is what ties the workflow to the pipeline you built.
+Use the *Browse* button if you prefer to pick the file, but note what Hop fills in.
 
-TIP: check the xref:workflow/actions.adoc[full list of actions].
-There are over 50 actions available in Hop 0.70, but you'll soon get to know the most commonly used ones.
+`+${PROJECT_HOME}+` is a variable that points at the folder of the current project.
+Using it instead of an absolute path is what lets the same workflow run on your laptop, on a colleague's machine and on a server.
+You'll see more of this in xref:getting-started/hop-projects.adoc[Projects and environments].
 
-=== Create a hop
+Now connect *Start* to `run first pipeline`.
+Creating a hop works exactly as it does in a pipeline:
 
-Creating a hop is identical to creating a hop in a pipeline:
+* **shift-drag** from one action to the other, or
+* **scroll-drag**, or
+* click the action and use the *Create hop* image:getting-started/icons/HOP.svg[Create hop,25px,align="bottom"] button in its context dialog.
 
-* **shift-drag**: while holding down the shift key on your keyboard.
-Click on an action, while holding down your primary mouse button, drag to the second action.
-Release the primary mouse button and the shift key.
-* **scroll-drag**: scroll-click on an action , while holding down your mouse’s scroll button, drag to the second action.
-Release the scroll button.
-* click on an action in your pipeline to open the '**click anywhere**' dialog.
-Click the 'Create hop' image:getting-started/icons/HOP.svg[Create hop,25px,align="bottom"] button and select the action you want to create the hop to.
+image:getting-started/gs-hop-gui-create-workflow-add-pipeline-action.png[The Pipeline action connected to Start]
 
-image:getting-started/gs-hop-gui-create-workflow-add-pipeline-action.png[]
+== React to the outcome
 
-Save your workflow:
+A workflow that only runs one thing is not doing much.
+Let's make it respond to what happened.
 
-image:getting-started/gs-hop-gui-create-workflow-save.png[]
+Add two xref:workflow/actions/writetolog.adoc[Write to log] actions:
 
-At first, we have the Workflow run configuration session.
-A Workflow Run Configuration is a metadata object in Apache Hop and defines where the workflow is executed.
+[options="header"]
+|===
+|Action name|Log level|Log message
+|`report success`|Basic|`Orders file written.`
+|`report failure`|Error|`The orders pipeline failed.`
+|===
 
-Select the 'local' workflow runtime configuration that is available by default in your Hop installation and click 'Launch'.
+Create a hop from `run first pipeline` to `report success`, and a second hop from `run first pipeline` to `report failure`.
 
-image:getting-started/gs-hop-gui-create-workflow-run.png[]
+By default both hops are green: they fire when the action succeeds.
+Right-click the hop to `report failure` and choose *Failure hop*.
+It turns red.
 
-You’ll now have an execution results pane very similar to the pipeline execution results.
+You now have the basic shape of every production workflow:
+
+....
+Start  ──▶  run first pipeline  ──✔──▶  report success
+                     │
+                     └───────────✘──▶  report failure
+....
+
+Right-clicking a hop gives you three choices:
+
+[options="header"]
+|===
+|Hop type|Colour|When the next action runs
+|*Unconditional hop*|black|always, whatever the previous action did
+|*Success hop*|green|only when the previous action succeeded
+|*Failure hop*|red|only when the previous action failed
+|===
+
+This is the main thing workflows give you that pipelines cannot: pipelines have no notion of "and if that fails, do this instead".
+
+== Run the workflow
+
+Save with `CTRL-S`, then press *F8* or click *Run*.
+
+image:getting-started/gs-hop-gui-create-workflow-run.png[The workflow run options dialog]
+
+A workflow run configuration decides *where* the workflow runs.
+A `local` one is created for you the first time you start Hop Gui.
+Select it and click *Launch*.
+
+The *Execution Results* panel works like the pipeline one.
+Its *Metrics* tab lists one line per action, in the order they ran, with the comment, result and reason for each.
+
+You should see `Start`, `run first pipeline` and `report success` execute, and `report failure` skipped.
+In the *Logging* tab you'll find your own message:
+
+[source,shell]
+----
+report success - Orders file written.
+----
+
+== Prove the failure path works
+
+An error path you have never seen run is a guess, not a safety net.
+
+Open `run first pipeline` and change the *Pipeline* field to a file that does not exist, for example `+${PROJECT_HOME}/nope.hpl+`.
+Run the workflow again.
+
+This time `run first pipeline` fails, `report success` is skipped and your error message appears in the log.
+The workflow itself is marked as failed, which is what a scheduler or a xref:hop-server/index.adoc[Hop Server] would pick up.
+
+Set the *Pipeline* field back when you're done.
+
+== What you learned
+
+* Workflows run actions in sequence; pipelines run transforms in parallel.
+* A Pipeline action is how a workflow runs a pipeline, and `+${PROJECT_HOME}+` is how it stays portable.
+* Hops in a workflow are conditional, and that is where error handling lives.
+* Every new workflow starts from a xref:workflow/actions/start.adoc[Start] action, which is also where scheduling is configured.
+
+TIP: check the xref:workflow/actions.adoc[full list of actions] for everything you can orchestrate: files, mail, conditions, scripts, other workflows, and more.
+
+You have now built and run both Hop file types.
+Next, we'll put them in a project so the paths keep working outside your own machine.

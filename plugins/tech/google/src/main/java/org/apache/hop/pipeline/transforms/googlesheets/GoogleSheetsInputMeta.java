@@ -53,6 +53,16 @@ public class GoogleSheetsInputMeta
     inputFields = new ArrayList<>();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   @HopMetadataProperty(
       key = "jsonCrendentialPath",
       injectionGroupKey = "SHEET",

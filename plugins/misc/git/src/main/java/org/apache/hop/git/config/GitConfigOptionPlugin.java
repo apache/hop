@@ -41,7 +41,9 @@ import picocli.CommandLine;
 
 @ConfigPlugin(
     id = "GitConfigOptionPlugin",
-    description = "Configuration options for the git GUI plugin")
+    description = "Configuration options for the git GUI plugin",
+    configKey = GitConfig.HOP_CONFIG_GIT_CONFIG_KEY,
+    configClass = GitConfig.class)
 @GuiPlugin(
     description = "i18n::GitConfig.Tab.Name" // label in options dialog
     )
@@ -54,22 +56,26 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
   private static final String WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS =
       "10010-git-search-parent-folders";
   private static final String WIDGET_ID_GIT_FETCH_AUTOMATIC = "10020-git-fetch-automatic";
+  private static final String WIDGET_ID_GIT_IGNORE_POSITION_IN_DIFF =
+      "10030-git-ignore-position-in-diff";
 
   @GuiWidgetElement(
       id = WIDGET_ID_GIT_ENABLE,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::GitConfig.EnableGitPlugin.Message")
+      label = "i18n::GitConfig.EnableGitPlugin.Message",
+      toolTip = "i18n::GitConfig.EnableGitPlugin.Tooltip")
   @CommandLine.Option(
       names = {"--git-gui-enabled"},
       description = "Enable or disable the git GUI plugin")
-  private Boolean gitEnabled;
+  private Boolean enabled;
 
   @GuiWidgetElement(
       id = WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::GitConfig.SearchParentFolders.Message")
+      label = "i18n::GitConfig.SearchParentFolders.Message",
+      toolTip = "i18n::GitConfig.SearchParentFolders.Tooltip")
   @CommandLine.Option(
       names = {"--git-gui-search-parent-folders"},
       description = "The git GUI searches the parent folders for a repository")
@@ -83,12 +89,24 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       toolTip = "i18n::GitConfig.FetchAutomatic.Tooltip")
   private Boolean fetchAutomatic;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_GIT_IGNORE_POSITION_IN_DIFF,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::GitConfig.IgnorePositionInDiff.Message",
+      toolTip = "i18n::GitConfig.IgnorePositionInDiff.Tooltip")
+  @CommandLine.Option(
+      names = {"--git-gui-diff-ignore-position"},
+      description = "Do not mark a moved transform or action as changed in the visual diff")
+  private Boolean ignoringPositionInDiff;
+
   public static GitConfigOptionPlugin getInstance() {
     GitConfigOptionPlugin instance = new GitConfigOptionPlugin();
     GitConfig config = GitConfigSingleton.getConfig();
-    instance.gitEnabled = config.isEnabled();
+    instance.enabled = config.isEnabled();
     instance.searchingParentFolders = config.isSearchingParentFolders();
     instance.fetchAutomatic = config.isFetchAutomatic();
+    instance.ignoringPositionInDiff = config.isIgnoringPositionInDiff();
     return instance;
   }
 
@@ -99,9 +117,9 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
     GitConfig config = GitConfigSingleton.getConfig();
     try {
       boolean changed = false;
-      if (gitEnabled != null) {
-        config.setEnabled(gitEnabled);
-        if (gitEnabled) {
+      if (enabled != null) {
+        config.setEnabled(enabled);
+        if (enabled) {
           log.logBasic("Enabled the git GUI plugin");
         } else {
           log.logBasic("Disabled the git GUI plugin");
@@ -120,6 +138,15 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       }
       if (fetchAutomatic != null) {
         config.setFetchAutomatic(fetchAutomatic);
+        changed = true;
+      }
+      if (ignoringPositionInDiff != null) {
+        config.setIgnoringPositionInDiff(ignoringPositionInDiff);
+        if (ignoringPositionInDiff) {
+          log.logBasic("The visual diff ignores the position of transforms and actions.");
+        } else {
+          log.logBasic("The visual diff marks a moved transform or action as changed.");
+        }
         changed = true;
       }
 
@@ -156,8 +183,8 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       Control control = compositeWidgets.getWidgetsMap().get(widgetId);
       switch (widgetId) {
         case WIDGET_ID_GIT_ENABLE:
-          gitEnabled = ((Button) control).getSelection();
-          GitConfigSingleton.getConfig().setEnabled(gitEnabled);
+          enabled = ((Button) control).getSelection();
+          GitConfigSingleton.getConfig().setEnabled(enabled);
           break;
         case WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS:
           searchingParentFolders = ((Button) control).getSelection();
@@ -166,6 +193,10 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
         case WIDGET_ID_GIT_FETCH_AUTOMATIC:
           fetchAutomatic = ((Button) control).getSelection();
           GitConfigSingleton.getConfig().setFetchAutomatic(fetchAutomatic);
+          break;
+        case WIDGET_ID_GIT_IGNORE_POSITION_IN_DIFF:
+          ignoringPositionInDiff = ((Button) control).getSelection();
+          GitConfigSingleton.getConfig().setIgnoringPositionInDiff(ignoringPositionInDiff);
           break;
         default:
           break;

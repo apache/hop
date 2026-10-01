@@ -40,6 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -88,7 +89,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             "proxyPort",
             "httpLogin",
             "httpPassword",
-            "preemptive",
+            "nonPreemptiveBasicAuth",
             "bodyField",
             "method",
             "dynamicMethod",
@@ -112,7 +113,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     getterMap.put("proxyPort", "getProxyPort");
     getterMap.put("httpLogin", "getHttpLogin");
     getterMap.put("httpPassword", "getHttpPassword");
-    getterMap.put("preemptive", "isPreemptive");
+    getterMap.put("nonPreemptiveBasicAuth", "isNonPreemptiveBasicAuth");
     getterMap.put("bodyField", "getBodyField");
     getterMap.put("method", "getMethod");
     getterMap.put("dynamicMethod", "isDynamicMethod");
@@ -136,7 +137,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     setterMap.put("proxyPort", "setProxyPort");
     setterMap.put("httpLogin", "setHttpLogin");
     setterMap.put("httpPassword", "setHttpPassword");
-    setterMap.put("preemptive", "setPreemptive");
+    setterMap.put("nonPreemptiveBasicAuth", "setNonPreemptiveBasicAuth");
     setterMap.put("bodyField", "setBodyField");
     setterMap.put("method", "setMethod");
     setterMap.put("dynamicMethod", "setDynamicMethod");
@@ -323,6 +324,49 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
+  void testCustomMethodsAllowBodyAndParameters() {
+    // Issue #4770: a custom verb must not have Body / Parameters greyed out, since we have no way
+    // of knowing that it does not take them.
+    assertTrue(RestMeta.isActiveBody("LIST"));
+    assertTrue(RestMeta.isActiveBody("PURGE"));
+    assertTrue(RestMeta.isActiveBody("PROPFIND"));
+
+    assertTrue(RestMeta.isActiveParameters("LIST"));
+    assertTrue(RestMeta.isActiveParameters("PURGE"));
+
+    // Variables are not resolved at dialog time, so they must not be treated as body-less either.
+    assertTrue(RestMeta.isActiveBody("${HTTP_METHOD}"));
+    assertTrue(RestMeta.isActiveParameters("${HTTP_METHOD}"));
+  }
+
+  @Test
+  void testNormalizeMethod() {
+    assertNull(RestMeta.normalizeMethod(null));
+
+    // Well-known verbs get canonicalized...
+    assertEquals(RestMeta.HTTP_METHOD_GET, RestMeta.normalizeMethod("  get "));
+    assertEquals(RestMeta.HTTP_METHOD_PATCH, RestMeta.normalizeMethod("Patch"));
+
+    // ...but a custom verb keeps its case, because HTTP method tokens are case-sensitive.
+    assertEquals("List", RestMeta.normalizeMethod(" List "));
+    assertEquals("PURGE", RestMeta.normalizeMethod("PURGE"));
+  }
+
+  @Test
+  void testIsValidMethodToken() {
+    assertTrue(RestMeta.isValidMethodToken("LIST"));
+    assertTrue(RestMeta.isValidMethodToken("M-SEARCH"));
+    assertTrue(RestMeta.isValidMethodToken("X_custom.verb!"));
+
+    assertFalse(RestMeta.isValidMethodToken(null));
+    assertFalse(RestMeta.isValidMethodToken(""));
+    // These would be spliced into the request line if we let them through.
+    assertFalse(RestMeta.isValidMethodToken("GET /admin HTTP/1.1"));
+    assertFalse(RestMeta.isValidMethodToken("GET\r\nX-Injected: 1"));
+    assertFalse(RestMeta.isValidMethodToken("GET("));
+  }
+
+  @Test
   void testClone() {
     RestMeta meta = new RestMeta();
     meta.setUrl("http://example.com");
@@ -352,7 +396,9 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     assertEquals(RestMeta.HTTP_METHOD_GET, meta.getMethod());
     assertFalse(meta.isDynamicMethod());
     assertNull(meta.getMethodFieldName());
-    assertFalse(meta.isPreemptive());
+    // Issue #4196: preemptive is what this transform has always done, so it is the default.
+    assertTrue(meta.isPreemptive());
+    assertFalse(meta.isNonPreemptiveBasicAuth());
     assertNull(meta.getTrustStoreFile());
     assertNull(meta.getTrustStorePassword());
     assertEquals(RestMeta.APPLICATION_TYPE_TEXT_PLAIN, meta.getApplicationType());
@@ -478,8 +524,14 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
 
     meta.check(remarks, pipelineMeta, transform, prev, input, output, info, variables, null);
 
-    // Check that there's a check result for the method field
-    assertFalse(remarks.isEmpty());
+    long errorCount =
+        remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
+    assertEquals(0, errorCount);
+    String okMessage = BaseMessages.getString(RestMeta.class, "RestMeta.CheckResult.MethodFieldOk");
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r -> r.getType() == ICheckResult.TYPE_RESULT_OK && okMessage.equals(r.getText())));
   }
 
   @Override

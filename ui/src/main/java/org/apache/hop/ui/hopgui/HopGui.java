@@ -21,7 +21,6 @@ import static org.apache.hop.core.Const.getDocUrl;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,13 +29,17 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -56,6 +59,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
@@ -69,14 +73,23 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.security.HopJdbcTokenService;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.HopSecurityContext;
+import org.apache.hop.core.security.HopSecurityPrivilegeMode;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -84,9 +97,11 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -94,6 +109,7 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.svg.SvgLabelFacade;
 import org.apache.hop.ui.core.widget.svg.SvgLabelListener;
@@ -114,6 +130,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
@@ -121,14 +138,18 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
+import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
@@ -144,6 +165,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -162,7 +184,23 @@ import org.eclipse.swt.widgets.ToolItem;
 @Setter
 public class HopGui
     implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
+
+  /**
+   * What a perspective's sidebar button is called in the browser, plus the perspective's plugin id.
+   * Switching perspective is the first thing any Hop Web test has to do, and the buttons are icons
+   * with no text to go by.
+   */
+  public static final String PERSPECTIVE_TEST_ID_PREFIX = "perspective-";
+
+  /**
+   * What a perspective's own content area is called in the browser. Exactly one is visible at a
+   * time, so it says which perspective is showing rather than which button was pressed.
+   */
+  public static final String PERSPECTIVE_CONTENT_TEST_ID_PREFIX = "perspective-content-";
+
   private static final Class<?> PKG = HopGui.class;
+
+  public static final String TEXT_EDITOR_FOCUS_DATA = HopGui.class.getName() + ".textEditorFocus";
 
   // The main Menu IDs
   public static final String ID_MAIN_MENU = "HopGui-Menu";
@@ -175,7 +213,23 @@ public class HopGui
   public static final String ID_MAIN_MENU_FILE_EXPORT_TO_SVG = "10050-menu-file-export-to-svg";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN = "10840-menu-file-copy-jdbc-token";
+  public static final String ID_MAIN_MENU_FILE_LOG_OFF = "10850-menu-file-log-off";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
+
+  public static final String ID_MAIN_MENU_FILE_USER_NEW = "15010-menu-file-user-new";
+  public static final String ID_MAIN_MENU_FILE_USER_OPEN = "15020-menu-file-user-open";
+  public static final String ID_MAIN_MENU_FILE_USER_SAVE = "15030-menu-file-user-save";
+  public static final String ID_MAIN_MENU_FILE_USER_SAVE_AS = "15040-menu-file-user-save-as";
+  public static final String ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG =
+      "15050-menu-file-user-export-svg";
+  public static final String ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT =
+      "15060-menu-file-user-export-project";
+  public static final String ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE =
+      "15070-menu-file-user-import-kettle-zip";
+
+  private static final String ID_MAIN_MENU_PROJECT_EXPORT_PLUGIN = "10055-menu-file-export-to-svg";
+  private static final String ID_MAIN_MENU_KETTLE_IMPORT_PLUGIN = "10060-menu-tools-import";
 
   public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "20000-menu-edit";
   public static final String ID_MAIN_MENU_EDIT_UNDO = "20010-menu-edit-undo";
@@ -203,8 +257,6 @@ public class HopGui
 
   public static final String ID_MAIN_MENU_VIEW_PARENT_ID = "25000-menu-view";
   public static final String ID_MAIN_MENU_VIEW_FULL_SCREEN = "25010-menu-view-full-screen";
-  public static final String ID_MAIN_MENU_VIEW_TERMINAL = "25010-menu-view-terminal";
-  public static final String ID_MAIN_MENU_VIEW_NEW_TERMINAL = "25020-menu-view-new-terminal";
 
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
@@ -228,7 +280,29 @@ public class HopGui
   public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10040-save";
   public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10050-save-as";
 
+  /**
+   * Temporary privilege mode combo (left of username). Id sorts before {@link
+   * #ID_MAIN_TOOLBAR_USER}.
+   */
+  public static final String ID_MAIN_TOOLBAR_PRIVILEGE = "toolbar-10880-privilege";
+
+  /**
+   * hop-config.json option to show the session controls ({@link #ID_MAIN_TOOLBAR_PRIVILEGE} and log
+   * off) in the desktop Hop GUI. There is no session to speak of there: the privilege combo only
+   * simulates roles and logging off does nothing, so both are hidden unless someone explicitly
+   * wants them to debug the different privilege modes.
+   */
+  public static final String HOP_CONFIG_SHOW_SESSION_CONTROLS = "showSessionControls";
+
+  /** Username label immediately left of {@link #ID_MAIN_TOOLBAR_LOG_OFF}. */
+  public static final String ID_MAIN_TOOLBAR_USER = "toolbar-10890-user";
+
+  public static final String ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN = "toolbar-10895-copy-jdbc-token";
+
+  public static final String ID_MAIN_TOOLBAR_LOG_OFF = "toolbar-10900-log-off";
+
   public static final String ID_STATUS_TOOLBAR = "HopGui-Status-Toolbar";
+  public static final String ID_NOTIFICATION_TOOLBAR = "HopGui-Notification-Toolbar";
 
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
@@ -239,8 +313,8 @@ public class HopGui
   public static final String SIDEBAR_TOOLBAR_ITEM_EXECUTION_RESULTS =
       "HopGui-SidebarToolbar-ExecutionResults";
 
-  /** Id for the terminal toggle button in the sidebar bottom toolbar. */
-  public static final String SIDEBAR_TOOLBAR_ITEM_TERMINAL = "HopGui-SidebarToolbar-Terminal";
+  /** Id for the bottom-panel show/hide button in the sidebar bottom toolbar. */
+  public static final String SIDEBAR_TOOLBAR_ITEM_PANEL = "HopGui-SidebarToolbar-Panel";
 
   public static final String DEFAULT_HOP_GUI_NAMESPACE = "hop-gui";
 
@@ -270,6 +344,7 @@ public class HopGui
 
   private Menu mainMenu;
   private GuiMenuWidgets mainMenuWidgets;
+  private Composite toolbarComposite;
   private Composite mainHopGuiComposite;
 
   private Control mainToolbar;
@@ -278,18 +353,47 @@ public class HopGui
   private Control statusToolbar;
   private GuiToolbarWidgets statusToolbarWidgets;
 
+  private Control notificationToolbar;
+  private GuiToolbarWidgets notificationToolbarWidgets;
+
   private Composite perspectivesSidebar;
   private Composite bottomToolbar;
   private final java.util.List<SidebarToolbarItemDescriptor> sidebarToolbarDescriptors =
       new java.util.ArrayList<>();
   private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
+
+  public ToolBar getNotificationToolbar() {
+    return (ToolBar) notificationToolbar;
+  }
+
+  public GuiToolbarWidgets getNotificationToolbarWidgets() {
+    return notificationToolbarWidgets;
+  }
+
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
+  private IHopFileTypeHandler capabilityFileTypeHandler;
   private org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock terminalPanel;
 
   public org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock getTerminalPanel() {
     return terminalPanel;
+  }
+
+  /**
+   * Apply the embedded-terminal option to the dock, the Tools menu, and the sidebar button. Safe to
+   * call before the dock exists.
+   */
+  public void applyEmbeddedTerminalOption() {
+    boolean enabled = HopGuiBottomDock.isTerminalCapabilityEnabled();
+    if (terminalPanel != null && !terminalPanel.isDisposed()) {
+      terminalPanel.setTerminalsEnabled(enabled);
+    }
+    if (mainMenuWidgets != null) {
+      mainMenuWidgets.enableMenuItem(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL, enabled);
+      mainMenuWidgets.enableMenuItem(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_NEW_TERMINAL, enabled);
+    }
+    refreshBottomToolbarItems();
   }
 
   private static final PrintStream originalSystemOut = System.out;
@@ -314,6 +418,27 @@ public class HopGui
    */
   private Consumer<Boolean> webThemeRedirectCallback;
 
+  /**
+   * Session security context (Hop Web). Unrestricted / null on desktop or when authentication is
+   * not configured. Used for window title and available to UI code that needs the current user.
+   */
+  @Setter private HopSecurityContext securityContext;
+
+  /**
+   * Per-HopGui (per RAP UISession) plugin/UI singletons that cannot use RAP {@code SingletonUtil}
+   * because they live in plugin classloaders.
+   */
+  private final Map<Class<?>, Object> sessionSingletons = new ConcurrentHashMap<>();
+
+  /**
+   * The file dialog currently open in this session, so toolbar plugins can navigate it without a
+   * process-wide static.
+   */
+  @Getter @Setter private org.apache.hop.ui.core.vfs.HopVfsFileDialog openVfsFileDialog;
+
+  /** Active namespace for this GUI session (project id, or {@link #DEFAULT_HOP_GUI_NAMESPACE}). */
+  @Getter @Setter private String activeNamespace = DEFAULT_HOP_GUI_NAMESPACE;
+
   protected HopGui() {
     this(Display.getCurrent());
   }
@@ -324,7 +449,7 @@ public class HopGui
     this.id = UUID.randomUUID().toString();
 
     commandLineArguments = new ArrayList<>();
-    variables = Variables.getADefaultVariableSpace();
+    setVariables(Variables.getADefaultVariableSpace());
 
     loggingObject = new LoggingObject(APP_NAME);
     log = new LogChannel(APP_NAME);
@@ -346,6 +471,7 @@ public class HopGui
 
     updateMetadataManagers();
 
+    this.activeNamespace = DEFAULT_HOP_GUI_NAMESPACE;
     HopNamespace.setNamespace(DEFAULT_HOP_GUI_NAMESPACE);
     shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
   }
@@ -365,8 +491,126 @@ public class HopGui
     PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(HopGui.class);
   }
 
+  /**
+   * Sits behind this GUI's variables and answers with the metadata of the project it has open, so
+   * that everything resolving a file through those variables lands in the right VFS namespace. In
+   * Hop Web every session has its own HopGui, so this is also what keeps one user's named VFS
+   * connections apart from another's. See issue #8106.
+   *
+   * <p>It is reached by walking the parent chain, never for looking a variable value up - {@link
+   * Variables#getVariable(String)} reads its own properties only - so variable inheritance is
+   * untouched.
+   */
+  private final IVariables metadataAnchor =
+      new Variables() {
+        @Override
+        public IHopMetadataProvider getMetadataProvider() {
+          return HopGui.this.metadataProvider;
+        }
+      };
+
+  /** The metadata this GUI took a VFS namespace for, so it can let go of it again. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
+  /**
+   * Take the VFS namespace of the project this GUI now has open, and let go of the previous one.
+   *
+   * <p>Only does anything where tenants share the JVM: in Hop Web this is what gives each session
+   * its own named VFS connections, so two people can both have a connection called {@code mydata}
+   * pointing somewhere different. On the desktop there is one project in the process and the
+   * process wide file system manager already holds its connections, so this reads them again
+   * instead. See Apache Hop issue #8106.
+   */
+  public void useVfsNamespaceOfOpenProject() {
+    IHopMetadataProvider previousProvider = vfsNamespaceProvider;
+    HopVfsNamespace namespace =
+        HopVfsNamespaces.acquire(variables, metadataProvider, "Hop GUI " + id);
+    vfsNamespaceProvider = namespace == null ? null : metadataProvider;
+
+    // Bind it for this session, so the call sites that resolve a file with no variables in hand
+    // land in it too. Deliberately not restored afterwards: it stays for as long as the session.
+    HopVfsNamespaces.bindThread(namespace);
+
+    if (previousProvider != null) {
+      HopVfsNamespaces.release(previousProvider);
+    }
+    if (namespace == null) {
+      HopVfs.refresh(variables);
+    }
+  }
+
+  /** Let go of the VFS namespace of this GUI, when its session ends. */
+  public void releaseVfsNamespace() {
+    if (vfsNamespaceProvider != null) {
+      HopVfsNamespaces.release(vfsNamespaceProvider);
+      vfsNamespaceProvider = null;
+    }
+    // Put back nothing: this session is going away.
+    HopVfsNamespaces.restoreThread(null);
+  }
+
+  /**
+   * Give this GUI a new set of variables, as loading a project does. The metadata of the open
+   * project stays reachable from them either way.
+   *
+   * @param variables the variables to use
+   */
+  public void setVariables(IVariables variables) {
+    this.variables = variables;
+    if (variables != null) {
+      variables.setParentVariables(metadataAnchor);
+    }
+  }
+
   public static HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
+  }
+
+  /**
+   * The HopGui of this process/session if it already exists. Does not construct a GUI. Use this
+   * from {@code getInstance()} helpers that must stay inert in unit tests.
+   */
+  public static HopGui peekInstance() {
+    try {
+      return (HopGui) PROVIDER.peekInstanceInternal();
+    } catch (Throwable e) {
+      return null;
+    }
+  }
+
+  /**
+   * Open or reuse an AI advisor session. No-op when {@code hop-tech-ai} is not installed. Other
+   * plugins (hopper-edw) should call this instead of compiling against the AI tech plugin.
+   */
+  public void openAiAdvisorSession(AiAdvisorOpenRequest request) throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        getLog(), getVariables(), HopExtensionPoint.HopGuiAiAdvisorOpenSession.id, request);
+  }
+
+  /**
+   * Returns a singleton owned by this HopGui / RAP UISession. Desktop has one HopGui, so this is
+   * equivalent to a process-wide singleton there. Plugins cannot use RAP {@code SingletonUtil}
+   * through {@link ImplementationLoader} because they load from a different classloader.
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T getSessionSingleton(Class<T> type, Supplier<T> factory) {
+    return (T) sessionSingletons.computeIfAbsent(type, key -> factory.get());
+  }
+
+  /**
+   * Looks up a perspective on the current session's HopGui. Returns null when the GUI or its
+   * perspective manager is not ready (tests, disabled perspectives).
+   */
+  public static <T extends IHopPerspective> T findSessionPerspective(Class<T> type) {
+    try {
+      HopGui hopGui = peekInstance();
+      if (hopGui == null || hopGui.getPerspectiveManager() == null) {
+        return null;
+      }
+      return hopGui.getPerspectiveManager().findPerspective(type);
+    } catch (Throwable e) {
+      return null;
+    }
   }
 
   public void setWebThemeRedirectCallback(Consumer<Boolean> callback) {
@@ -478,11 +722,16 @@ public class HopGui
   protected String getApplicationWindowTitle() {
     String appName = BaseMessages.getString(PKG, "HopGui.Application.Name");
     String version = new HopVersionProvider().getVersion()[0];
+    StringBuilder title = new StringBuilder(appName);
     if (StringUtils.isNotEmpty(version)) {
-      return appName + " - " + version;
+      title.append(" - ").append(version);
     }
-
-    return appName;
+    // Show authenticated username when Hop Web is fronted by container auth (EXTERNAL)
+    HopSecurityContext ctx = securityContext;
+    if (ctx != null && ctx.isAuthenticated()) {
+      title.append(" [").append(ctx.getUsername()).append(']');
+    }
+    return title.toString();
   }
 
   /** Build the shell */
@@ -574,10 +823,21 @@ public class HopGui
           // Terminal restoration is handled by the Projects plugin
 
           // Restore explorer perspective state (file explorer panel visibility) for current
-          // namespace (default or project set by extension point).
+          // namespace (default or project set by extension point). Skip when a perspective was
+          // not loaded (disabled, or Hop Web init before loadPerspectives(); issue #8477).
           //
-          ExplorerPerspective.getInstance().applyRestoredState();
-          ExecutionPerspective.getInstance().restoreState();
+          if (perspectiveManager != null) {
+            ExplorerPerspective explorerPerspective =
+                perspectiveManager.findPerspective(ExplorerPerspective.class);
+            if (explorerPerspective != null) {
+              explorerPerspective.applyRestoredState();
+            }
+            ExecutionPerspective executionPerspective =
+                perspectiveManager.findPerspective(ExecutionPerspective.class);
+            if (executionPerspective != null) {
+              executionPerspective.restoreState();
+            }
+          }
 
           // We need to start tracking file history again.
           //
@@ -645,48 +905,34 @@ public class HopGui
   }
 
   /**
-   * If -file= was passed in command line args (e.g. from Hop Web URL ?file=...), open that file
-   * once and remove the arg so the URL can later reflect the current tab.
+   * If -file= / --file / -f was passed in command line args (e.g. from Hop Web URL ?file=... or
+   * {@code hop gui -f}), open that file once and remove the arg so the URL can later reflect the
+   * current tab.
    */
   private void openFileFromCommandLineArgs() {
     List<String> args = getCommandLineArguments();
     if (args == null) {
       return;
     }
-    String filePath = null;
-    for (int i = 0; i < args.size(); i++) {
-      String arg = args.get(i);
-      if (arg != null && arg.startsWith("-file=")) {
-        filePath = arg.substring("-file=".length()).trim();
-        args.remove(i);
-        break;
-      }
-    }
+    String filePath = HopGuiCommandLine.takeOption(args, HopGuiCommandLine.FILE_OPTION_NAMES);
     if (StringUtils.isEmpty(filePath)) {
       return;
     }
     try {
-      String resolved = variables.resolve(filePath);
+      String resolved = HopGuiCommandLine.resolveFile(variables, filePath);
       if (StringUtils.isNotEmpty(resolved)) {
         fileDelegate.fileOpen(resolved, true);
       }
     } catch (Exception e) {
-      log.logError("Error opening file from URL '" + filePath + "'", e);
+      log.logError("Error opening file from command line '" + filePath + "'", e);
     }
   }
 
-  /** True if command line args contain -file=... (e.g. from Hop Web URL). */
+  /** True if command line args contain a file to open. */
   private boolean hasFileInCommandLineArgs() {
-    List<String> args = getCommandLineArguments();
-    if (args == null) {
-      return false;
-    }
-    for (String arg : args) {
-      if (arg != null && arg.startsWith("-file=")) {
-        return true;
-      }
-    }
-    return false;
+    return StringUtils.isNotEmpty(
+        HopGuiCommandLine.findOption(
+            getCommandLineArguments(), HopGuiCommandLine.FILE_OPTION_NAMES));
   }
 
   private void loadPerspectives() {
@@ -860,6 +1106,9 @@ public class HopGui
         imageLabel.setToolTipText(tooltip);
         imageLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
         SvgLabelFacade.setData(perspective.getId() + "-sidebar", imageLabel, imagePath, imageSize);
+        // The composite is what a click has to land on; the image only draws the icon.
+        TestIdFacade.set(comp, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId());
+        TestIdFacade.set(imageLabel, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId() + "-icon");
 
         // Center the label in the composite
         GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
@@ -867,6 +1116,7 @@ public class HopGui
       } else {
         Canvas canvas = new Canvas(parent, SWT.NONE);
         composite = canvas;
+        TestIdFacade.set(canvas, PERSPECTIVE_TEST_ID_PREFIX + perspective.getId());
         canvas.setToolTipText(tooltip);
         canvas.setBackground(normalBg);
         imageLabel = null;
@@ -1037,6 +1287,7 @@ public class HopGui
     return display;
   }
 
+  @SuppressWarnings("java:S2095") // the stream backs System.out/err for the lifetime of the process
   private static void setupConsoleLogging() {
     boolean doConsoleRedirect = !Boolean.getBoolean("HopUi.Console.Redirect.Disabled");
     if (doConsoleRedirect) {
@@ -1064,10 +1315,24 @@ public class HopGui
 
     mainMenu = new Menu(shell, SWT.BAR);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
+    updateWebUserFileMenuItems();
     mainMenuWidgets.ensureShortcutPluginInstancesRegistered();
+
+    eventsHandler.addEventListener(
+        getClass().getName() + "WebProjectMenuItems",
+        event -> updateWebUserFileMenuItems(),
+        HopGuiEvents.ProjectActivated.name(),
+        HopGuiEvents.ProjectDeactivated.name());
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
+    } else if (areSessionControlsVisible()) {
+      // Log off / JDBC token are Hop Web only
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF, false);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN, false);
+    } else {
+      mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF);
+      mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN);
     }
 
     // We build the menu items but don't attach them to the shell.
@@ -1116,6 +1381,12 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'n')
   @GuiOsxKeyboardShortcut(command = true, key = 'n')
   public void menuFileNew() {
+    if (!HopSecurityUi.check(Permission.FILE_CREATE)
+        && !HopSecurity.allows(Permission.METADATA_WRITE)) {
+      // Neither new files nor new metadata allowed
+      HopSecurityUi.deny(Permission.FILE_CREATE);
+      return;
+    }
     contextDelegate.fileNew();
   }
 
@@ -1185,7 +1456,7 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_EXPORT_TO_SVG,
       separator = true,
-      label = "i18n::HopGui.Menu.File.ExportToSVG",
+      label = "i18n::HopGui.Menu.File.ExportDiagram",
       image = "ui/images/image.svg",
       parentId = ID_MAIN_MENU_FILE)
   public void menuFileExportToSvg() {
@@ -1217,6 +1488,151 @@ public class HopGui
     if (fileDelegate.saveGuardAllFiles()) {
       fileDelegate.closeAllFiles();
     }
+  }
+
+  /**
+   * The privilege mode combo and the log off action belong with the security configuration, which
+   * is only available in Hop Web. In the desktop Hop GUI they are hidden unless option {@link
+   * #HOP_CONFIG_SHOW_SESSION_CONTROLS} is enabled in hop-config.json.
+   */
+  public static boolean areSessionControlsVisible() {
+    return EnvironmentUtils.getInstance().isWeb()
+        || HopConfig.readOptionBoolean(HOP_CONFIG_SHOW_SESSION_CONTROLS, false);
+  }
+
+  /**
+   * Temporary session privilege mode (Full / Operator / Read-only). Values from {@link
+   * #getPrivilegeModeList()}.
+   */
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_PRIVILEGE,
+      type = GuiToolbarElementType.COMBO,
+      comboValuesMethod = "getPrivilegeModeList",
+      extraWidth = 140,
+      toolTip = "i18n::HopGui.Toolbar.Privilege.Tooltip",
+      separator = true)
+  public void toolbarPrivilegeMode() {
+    if (!HopWebPrivilegeFacade.isAvailable() || mainToolbarWidgets == null) {
+      return;
+    }
+    Control control = mainToolbarWidgets.getWidgetsMap().get(ID_MAIN_TOOLBAR_PRIVILEGE);
+    if (!(control instanceof Combo combo) || combo.isDisposed()) {
+      return;
+    }
+    String label = combo.getText();
+    String modeId = HopWebPrivilegeFacade.labelToModeId(label);
+    if (HopWebPrivilegeFacade.setMode(modeId)) {
+      setSecurityContext(HopSecurity.getContext());
+      shell.setText(getApplicationWindowTitle());
+      updateLoggedInUserToolbar();
+      updatePrivilegeModeToolbar();
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      if (handler != null && handler.getFileType() != null) {
+        handleFileCapabilities(handler.getFileType(), handler, handler.hasChanged(), false, false);
+      } else {
+        handleFileCapabilities(new EmptyFileType(), false, false, false);
+      }
+      log.logBasic(
+          "Session privilege mode set to ''{0}'' (effective roles={1})",
+          modeId, HopSecurity.getContext().getRoleIds());
+    } else {
+      updatePrivilegeModeToolbar();
+    }
+  }
+
+  /**
+   * Combo values for {@link #toolbarPrivilegeMode()}. Return type must be {@code List<String>}
+   * because {@code BaseGuiWidgets.getComboItems} casts the reflected result to List.
+   */
+  public List<String> getPrivilegeModeList() {
+    if (!HopWebPrivilegeFacade.isAvailable()) {
+      return List.of(BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full"));
+    }
+    return Arrays.asList(HopWebPrivilegeFacade.getModeComboLabels());
+  }
+
+  /**
+   * Toolbar label showing the authenticated username (Hop Web). Text is set in {@link
+   * #updateLoggedInUserToolbar()}. Click is a no-op.
+   */
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_USER,
+      type = GuiToolbarElementType.LABEL,
+      label = "",
+      toolTip = "i18n::HopGui.Toolbar.User.Tooltip")
+  public void toolbarLoggedInUser() {
+    // Display-only label; no action
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_COPY_JDBC_TOKEN,
+      label = "i18n::HopGui.Menu.File.CopyJdbcToken",
+      parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/copy.svg",
+      separator = true)
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN,
+      image = "ui/images/copy.svg",
+      toolTip = "i18n::HopGui.Menu.File.CopyJdbcToken")
+  public void menuFileCopyJdbcToken() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Desktop.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Desktop.Message"));
+      box.open();
+      return;
+    }
+    HopSecurityContext ctx = HopSecurity.getContext();
+    if (ctx == null || !ctx.isAuthenticated()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Unauthenticated.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Unauthenticated.Message"));
+      box.open();
+      return;
+    }
+    try {
+      HopJdbcTokenService.IssuedToken issued =
+          HopJdbcTokenService.issue(
+              ctx.getUsername(), ctx.getRoleIds(), HopJdbcTokenService.DEFAULT_TTL);
+      GuiResource.getInstance().toClipboard(issued.token());
+      long minutes = Math.max(1L, issued.expiresInSeconds() / 60L);
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Copied.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Copied.Message", minutes));
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Error.Title"),
+          BaseMessages.getString(PKG, "HopGui.CopyJdbcToken.Error.Message"),
+          e);
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_LOG_OFF,
+      label = "i18n::HopGui.Menu.File.LogOff",
+      parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/shutdown.svg",
+      separator = true)
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_LOG_OFF,
+      image = "ui/images/shutdown.svg",
+      toolTip = "i18n::HopGui.Menu.File.LogOff")
+  public void menuFileLogOff() {
+    // Confirm when there may be unsaved work (same guard as exit on desktop)
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      if (!fileDelegate.saveGuardAllFiles()) {
+        return;
+      }
+    }
+    HopWebLogoutFacade.logOff();
   }
 
   @GuiMenuElement(
@@ -1319,11 +1735,9 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'c')
   @GuiOsxKeyboardShortcut(command = true, key = 'c')
   public void menuEditCopySelected() {
-    Control focusControl = display.getFocusControl();
-    if (isStyledTextControl(focusControl)) {
-      if (getStyledTextSelectionCount(focusControl) > 0) {
-        return;
-      }
+    if (TextEditingControlUtil.isTextEditingControl(display.getFocusControl())
+        || isWebTextEditorFocused()) {
+      return;
     }
 
     // Otherwise, delegate to the active file type handler (pipeline/workflow)
@@ -1339,9 +1753,8 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'v')
   @GuiOsxKeyboardShortcut(command = true, key = 'v')
   public void menuEditPaste() {
-    Control focusControl = display.getFocusControl();
-    if (isStyledTextControl(focusControl)) {
-      // Terminal handles paste internally
+    if (TextEditingControlUtil.isTextEditingControl(display.getFocusControl())
+        || isWebTextEditorFocused()) {
       return;
     }
 
@@ -1358,32 +1771,16 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'x')
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
   public void menuEditCutSelected() {
+    if (TextEditingControlUtil.isTextEditingControl(display.getFocusControl())
+        || isWebTextEditorFocused()) {
+      return;
+    }
+
     getActiveFileTypeHandler().cutSelectedToClipboard();
   }
 
-  /**
-   * Returns true if the control is a StyledText. Uses class name so RAP (Hop Web) does not load
-   * org.eclipse.swt.custom.StyledText, which is not available in RAP.
-   */
-  private static boolean isStyledTextControl(Control control) {
-    return control != null
-        && "org.eclipse.swt.custom.StyledText".equals(control.getClass().getName());
-  }
-
-  /**
-   * Returns getSelectionCount() for a StyledText control, or 0. Uses reflection so StyledText is
-   * not loaded on RAP.
-   */
-  private static int getStyledTextSelectionCount(Control control) {
-    if (!isStyledTextControl(control)) {
-      return 0;
-    }
-    try {
-      Method m = control.getClass().getMethod("getSelectionCount");
-      return ((Number) m.invoke(control)).intValue();
-    } catch (Exception e) {
-      return 0;
-    }
+  private boolean isWebTextEditorFocused() {
+    return display.getData(TEXT_EDITOR_FOCUS_DATA) != null;
   }
 
   @GuiMenuElement(
@@ -1579,6 +1976,9 @@ public class HopGui
   @GuiKeyboardShortcut(key = SWT.F8)
   @GuiOsxKeyboardShortcut(key = SWT.F8)
   public void menuRunStart() {
+    if (!HopSecurityUi.check(Permission.RUN_EXECUTE)) {
+      return;
+    }
     getActiveFileTypeHandler().start();
   }
 
@@ -1589,6 +1989,9 @@ public class HopGui
       image = "ui/images/stop.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunStop() {
+    if (!HopSecurityUi.check(Permission.RUN_STOP)) {
+      return;
+    }
     getActiveFileTypeHandler().stop();
   }
 
@@ -1600,6 +2003,9 @@ public class HopGui
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
   public void menuRunPause() {
+    if (!HopSecurityUi.check(Permission.RUN_STOP)) {
+      return;
+    }
     getActiveFileTypeHandler().pause();
   }
 
@@ -1665,20 +2071,125 @@ public class HopGui
   }
 
   protected void addMainToolbar() {
+    // Create a composite to hold both main toolbar and notification toolbar
+    toolbarComposite = new Composite(shell, SWT.NONE);
+    toolbarComposite.setLayout(new FormLayout());
+    FormData fdToolbarComposite = new FormData();
+    fdToolbarComposite.left = new FormAttachment(0, 0);
+    fdToolbarComposite.top = new FormAttachment(0, 0);
+    fdToolbarComposite.right = new FormAttachment(100, 0);
+    toolbarComposite.setLayoutData(fdToolbarComposite);
+
+    // Main toolbar (left side, fills remaining space) - use ToolbarFacade for SWT/RAP compatibility
     IToolbarContainer mainToolbarContainer =
-        ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+        ToolbarFacade.createToolbarContainer(
+            toolbarComposite, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     mainToolbar = mainToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
-    fdToolBar.right = new FormAttachment(100, 0);
+    fdToolBar.bottom = new FormAttachment(100, 0);
     mainToolbar.setLayoutData(fdToolBar);
     PropsUi.setLook(mainToolbar, Props.WIDGET_STYLE_TOOLBAR);
 
     mainToolbarWidgets = new GuiToolbarWidgets();
     mainToolbarWidgets.registerGuiPluginObject(this);
-    mainToolbarWidgets.createToolbarWidgets(mainToolbarContainer, ID_MAIN_TOOLBAR);
+    List<String> hiddenToolbarItems = new ArrayList<>();
+    if (!areSessionControlsVisible()) {
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_PRIVILEGE);
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN);
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_LOG_OFF);
+    }
+    mainToolbarWidgets.createToolbarWidgets(
+        mainToolbarContainer, ID_MAIN_TOOLBAR, hiddenToolbarItems);
+    updateLoggedInUserToolbar();
+    updatePrivilegeModeToolbar();
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_COPY_JDBC_TOKEN, false);
+      mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_LOG_OFF, false);
+    }
     mainToolbar.pack();
+
+    // Notification toolbar (right side, fixed width)
+    IToolbarContainer notificationToolbarContainer =
+        ToolbarFacade.createToolbarContainer(
+            toolbarComposite, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    notificationToolbar = notificationToolbarContainer.getControl();
+    FormData fdNotificationToolBar = new FormData();
+    fdNotificationToolBar.right = new FormAttachment(100, 0);
+    fdNotificationToolBar.top = new FormAttachment(0, 0);
+    fdNotificationToolBar.bottom = new FormAttachment(100, 0);
+    notificationToolbar.setLayoutData(fdNotificationToolBar);
+    PropsUi.setLook(notificationToolbar, Props.WIDGET_STYLE_TOOLBAR);
+
+    notificationToolbarWidgets = new GuiToolbarWidgets();
+    notificationToolbarWidgets.registerGuiPluginObject(this);
+    notificationToolbarWidgets.createToolbarWidgets(
+        notificationToolbarContainer, ID_NOTIFICATION_TOOLBAR);
+    notificationToolbar.pack();
+
+    // Make main toolbar end before notification toolbar
+    fdToolBar.right = new FormAttachment(notificationToolbar, 0);
+  }
+
+  /**
+   * Show the authenticated username on the main toolbar (left of Log off). Hidden when the session
+   * is unrestricted (desktop / no auth).
+   */
+  protected void updateLoggedInUserToolbar() {
+    if (mainToolbarWidgets == null) {
+      return;
+    }
+    HopSecurityContext ctx = HopSecurity.getContext();
+    if (ctx == null || !ctx.isAuthenticated()) {
+      mainToolbarWidgets.setToolbarLabelText(ID_MAIN_TOOLBAR_USER, "", null);
+      return;
+    }
+    String username = Const.NVL(ctx.getUsername(), "");
+    String roles =
+        ctx.getRoleIds() == null || ctx.getRoleIds().isEmpty()
+            ? ""
+            : String.join(", ", ctx.getRoleIds());
+    HopSecurityContext base = HopWebPrivilegeFacade.getBaseContext();
+    boolean downgraded = HopSecurityPrivilegeMode.isDowngraded(base, ctx);
+    String toolTip;
+    if (downgraded) {
+      toolTip =
+          BaseMessages.getString(
+              PKG,
+              "HopGui.Toolbar.User.TooltipDowngraded",
+              username,
+              roles,
+              String.join(", ", base.getRoleIds()));
+    } else if (StringUtils.isEmpty(roles)) {
+      toolTip = BaseMessages.getString(PKG, "HopGui.Toolbar.User.Tooltip", username);
+    } else {
+      toolTip =
+          BaseMessages.getString(PKG, "HopGui.Toolbar.User.TooltipWithRoles", username, roles);
+    }
+    mainToolbarWidgets.setToolbarLabelText(ID_MAIN_TOOLBAR_USER, username, toolTip);
+  }
+
+  /** Refresh privilege-mode combo items and selection from the session. */
+  protected void updatePrivilegeModeToolbar() {
+    if (mainToolbarWidgets == null) {
+      return;
+    }
+    Control control = mainToolbarWidgets.getWidgetsMap().get(ID_MAIN_TOOLBAR_PRIVILEGE);
+    if (!(control instanceof Combo combo) || combo.isDisposed()) {
+      return;
+    }
+    boolean available = HopWebPrivilegeFacade.isAvailable();
+    combo.setEnabled(available);
+    if (!available) {
+      combo.setItems(new String[] {BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full")});
+      combo.setText(BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full"));
+      return;
+    }
+    String[] items = HopWebPrivilegeFacade.getModeComboLabels();
+    combo.setItems(items);
+    String current = HopWebPrivilegeFacade.modeIdToLabel(HopWebPrivilegeFacade.getModeId());
+    combo.setText(current);
   }
 
   protected void addStatusToolbar() {
@@ -1686,8 +2197,10 @@ public class HopGui
         ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     statusToolbar = statusToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
-    int sidebarWidth = (int) (40 * PropsUi.getNativeZoomFactor());
-    fdToolBar.left = new FormAttachment(0, sidebarWidth);
+    // Span the full width of the shell, like the main toolbar at the top. Insetting this bar by
+    // the sidebar width leaves a strip of shell background in the bottom left corner which does
+    // not match the toolbar background.
+    fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.bottom = new FormAttachment(100, 0);
     statusToolbar.setLayoutData(fdToolBar);
@@ -1706,7 +2219,7 @@ public class HopGui
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
-    formData.top = new FormAttachment(mainToolbar, 0);
+    formData.top = new FormAttachment(toolbarComposite, 0);
     formData.bottom = new FormAttachment(statusToolbar, 0);
     mainHopGuiComposite.setLayoutData(formData);
 
@@ -1735,31 +2248,34 @@ public class HopGui
     bottomLayout.marginHeight = 0;
     bottomLayout.verticalSpacing = 1;
     bottomToolbar.setLayout(bottomLayout);
-    bottomToolbar.setBackground(GuiResource.getInstance().getWidgetBackGroundColor());
+    // Use the toolbar background so this strip matches the main and status toolbars instead of
+    // the sidebar behind it.
+    PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
     FormData fdBottomToolbar = new FormData();
     fdBottomToolbar.left = new FormAttachment(0, 0);
     fdBottomToolbar.right = new FormAttachment(100, 0);
     fdBottomToolbar.bottom = new FormAttachment(100, -4);
     bottomToolbar.setLayoutData(fdBottomToolbar);
 
-    // Register built-in sidebar toolbar items (visibility depends on active perspective).
-    // File explorer: both terminal and execution. Other perspectives: terminal only.
-    // List order: terminal then execution; refresh draws in reverse so execution appears above.
-    int sidebarIconSize = 21;
+    // Register built-in sidebar toolbar items. The first item added sits at the bottom because
+    // refresh lays the list out in reverse. Execution results stays File Explorer only and is
+    // added last so it sits above the panel button. Tools in the bottom panel are added from the
+    // "+" tab, not from here.
+    int sidebarIconSize = 24;
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
-            .id(SIDEBAR_TOOLBAR_ITEM_TERMINAL)
-            .imagePath("ui/images/terminal.svg")
+            .id(SIDEBAR_TOOLBAR_ITEM_PANEL)
+            .imagePath("ui/images/dock-panel.svg")
             .imageSize(sidebarIconSize)
-            .tooltip("Toggle Terminal Panel")
+            .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.BottomPanel.Tooltip"))
             .onSelect(
                 () -> {
                   if (terminalPanel != null) {
-                    terminalPanel.toggleTerminal();
+                    terminalPanel.toggleDock();
                   }
                 })
-            .selectedSupplier(() -> terminalPanel != null && terminalPanel.isTerminalVisible())
-            .available(!EnvironmentUtils.getInstance().isWeb())
+            .selectedSupplier(() -> terminalPanel != null && terminalPanel.isDockVisible())
+            .available(true)
             .build());
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
@@ -1793,7 +2309,7 @@ public class HopGui
     fdSidebar.left = new FormAttachment(0, 0);
     fdSidebar.top = new FormAttachment(0, 0);
     fdSidebar.bottom = new FormAttachment(100, 0);
-    fdSidebar.width = (int) (40 * PropsUi.getNativeZoomFactor());
+    fdSidebar.width = (int) (34 * PropsUi.getNativeZoomFactor());
     perspectivesSidebar.setLayoutData(fdSidebar);
   }
 
@@ -1801,22 +2317,15 @@ public class HopGui
    * Add a main composite where the various perspectives can parent on to show stuff... Its area is
    * to just below the main toolbar and to the right of the perspectives toolbar.
    *
-   * <p>Wraps everything in a {@link org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock} which hosts
-   * the perspectives in its top section and a tabbed dock (terminals and other tools such as the
-   * search results) in its bottom section. The integrated terminal is a gated capability: it is
-   * turned off on the web (no AWT/PTY there) and can be disabled in {@code
-   * disabledGuiElements.xml}.
+   * <p>Wraps everything in a {@link HopGuiBottomDock} which hosts the perspectives in its top
+   * section and a tabbed bottom panel (terminal, search, database, VFS file explorer, and other
+   * tools) below that. The integrated terminal is off on Hop Web, when excluded in {@code
+   * disabledGuiElements.xml}, and when the user clears Enable embedded terminal.
    */
   private void addMainPerspectivesComposite() {
-    boolean terminalsEnabled =
-        !EnvironmentUtils.getInstance().isWeb()
-            && !org.apache.hop.core.gui.plugin.GuiRegistry.getDisabledGuiElements()
-                .contains(
-                    org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL);
+    boolean terminalsEnabled = HopGuiBottomDock.isTerminalCapabilityEnabled();
 
-    terminalPanel =
-        new org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock(
-            mainHopGuiComposite, this, terminalsEnabled);
+    terminalPanel = new HopGuiBottomDock(mainHopGuiComposite, this, terminalsEnabled);
     FormData fdTerminalPanel = new FormData();
     fdTerminalPanel.top = new FormAttachment(0, 0);
     fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
@@ -1842,43 +2351,64 @@ public class HopGui
 
     mainPerspectivesComposite = terminalPanel.getPerspectiveComposite();
     mainPerspectivesComposite.setLayout(new StackLayout());
+    applyEmbeddedTerminalOption();
   }
 
   public void setUndoMenu(IUndo undoInterface) {
-    // Grab the undo and redo menu items...
-    //
-    MenuItem undoItem = mainMenuWidgets.findMenuItem(ID_MAIN_MENU_EDIT_UNDO);
-    MenuItem redoItem = mainMenuWidgets.findMenuItem(ID_MAIN_MENU_EDIT_REDO);
+    try {
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      if (handler instanceof ISnapshotUndoSupport support
+          && (undoInterface == null || support.isUndoMeta(undoInterface))) {
+        setUndoMenu(support.canUndo(), support.canRedo());
+        return;
+      }
+    } catch (Exception e) {
+      // Menu is built before a file handler exists.
+    }
+
+    ChangeAction prev = undoInterface != null ? undoInterface.viewThisUndo() : null;
+    ChangeAction next = undoInterface != null ? undoInterface.viewNextUndo() : null;
+    setUndoMenuItems(prev != null, next != null, prev, next);
+  }
+
+  public void setUndoMenu(boolean canUndo, boolean canRedo) {
+    setUndoMenuItems(canUndo, canRedo, null, null);
+  }
+
+  private void setUndoMenuItems(
+      boolean canUndo, boolean canRedo, ChangeAction prev, ChangeAction next) {
+    GuiMenuWidgets widgets = getMainMenuWidgets();
+    if (widgets == null) {
+      return;
+    }
+    MenuItem undoItem = widgets.findMenuItem(ID_MAIN_MENU_EDIT_UNDO);
+    MenuItem redoItem = widgets.findMenuItem(ID_MAIN_MENU_EDIT_REDO);
     if (undoItem == null || redoItem == null || undoItem.isDisposed() || redoItem.isDisposed()) {
       return;
     }
 
-    ChangeAction prev = null;
-    ChangeAction next = null;
-
-    if (undoInterface != null) {
-      prev = undoInterface.viewThisUndo();
-      next = undoInterface.viewNextUndo();
-    }
-
-    undoItem.setEnabled(prev != null);
-    if (prev == null) {
+    undoItem.setEnabled(canUndo);
+    if (!canUndo) {
       undoItem.setText(UNDO_UNAVAILABLE);
-    } else {
+    } else if (prev != null) {
       undoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Undo.Available", prev.toString()));
+    } else {
+      undoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Edit.Undo"));
     }
-    KeyboardShortcut undoShortcut = mainMenuWidgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_UNDO);
+    KeyboardShortcut undoShortcut = widgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_UNDO);
     if (undoShortcut != null) {
       GuiMenuWidgets.appendShortCut(undoItem, undoShortcut);
     }
 
-    redoItem.setEnabled(next != null);
-    if (next == null) {
+    redoItem.setEnabled(canRedo);
+    if (!canRedo) {
       redoItem.setText(REDO_UNAVAILABLE);
-    } else {
+    } else if (next != null) {
       redoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Redo.Available", next.toString()));
+    } else {
+      redoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Edit.Redo"));
     }
-    KeyboardShortcut redoShortcut = mainMenuWidgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_REDO);
+    KeyboardShortcut redoShortcut = widgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_REDO);
     if (redoShortcut != null) {
       GuiMenuWidgets.appendShortCut(redoItem, redoShortcut);
     }
@@ -1911,10 +2441,13 @@ public class HopGui
       boolean running,
       boolean paused) {
 
+    this.capabilityFileTypeHandler = handler;
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_FILE_EXPORT_TO_SVG, IHopFileType.CAPABILITY_EXPORT_TO_SVG);
     mainMenuWidgets.enableMenuItem(
@@ -1968,9 +2501,75 @@ public class HopGui
         fileType, handler, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainToolbarWidgets.enableToolbarItem(
         fileType, handler, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+
+    // New file / metadata: not capability-driven per active file — gate by RBAC only
+    boolean canCreate =
+        HopSecurity.allows(Permission.FILE_CREATE) || HopSecurity.allows(Permission.METADATA_WRITE);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_NEW, canCreate);
+    mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_NEW, canCreate);
+
+    updateWebUserFileMenuItems();
+  }
+
+  private void updateWebUserFileMenuItems() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+
+    boolean projectExportAvailable =
+        GuiRegistry.getInstance().findGuiMenuItem(ID_MAIN_MENU, ID_MAIN_MENU_PROJECT_EXPORT_PLUGIN)
+            != null;
+    boolean kettleImportAvailable =
+        GuiRegistry.getInstance().findGuiMenuItem(ID_MAIN_MENU, ID_MAIN_MENU_KETTLE_IMPORT_PLUGIN)
+            != null;
+
+    boolean showProjectExport =
+        HopWebUserFileMenuState.shouldShowProjectExport(
+            variables.resolve(Const.VAR_PROJECT_HOME),
+            projectExportAvailable,
+            HopSecurity.allows(Permission.FILE_EXPORT));
+    boolean showKettleImport =
+        HopWebUserFileMenuState.shouldShowKettleImport(
+            kettleImportAvailable,
+            HopSecurity.allows(Permission.FILE_CREATE),
+            HopSecurity.allows(Permission.METADATA_WRITE));
+    boolean showSvgExport =
+        HopWebUserFileMenuState.shouldShowDiagramExport(
+            getActiveFileTypeHandler(),
+            getActivePipelineGraph() != null,
+            getActiveWorkflowGraph() != null,
+            HopSecurity.allows(Permission.FILE_EXPORT));
+
+    boolean canDownload =
+        HopWebUserFileMenuState.canDownload(
+            getActiveFileTypeHandler(), HopSecurity.allows(Permission.FILE_SAVE));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE, canDownload);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_SAVE_AS, canDownload);
+
+    // Keep the enabled-state map in sync for keyboard/menu dispatch and hide unavailable actions.
+    // File Server keeps the same actions, but shares the web-only visibility rules for SVG.
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_EXPORT_TO_SVG, showSvgExport);
+    mainMenuWidgets.enableMenuItem(
+        ID_MAIN_MENU_FILE_USER_NEW,
+        HopSecurity.allows(Permission.FILE_CREATE)
+            || HopSecurity.allows(Permission.METADATA_WRITE));
+    mainMenuWidgets.enableMenuItem(
+        ID_MAIN_MENU_FILE_USER_OPEN, HopSecurity.allows(Permission.FILE_VIEW));
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT, showProjectExport);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE, showKettleImport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_EXPORT_PROJECT, showProjectExport);
+    mainMenuWidgets.setMenuItemVisible(ID_MAIN_MENU_FILE_USER_IMPORT_KETTLE, showKettleImport);
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
+    if (capabilityFileTypeHandler instanceof DatabaseSqlEditorTab tab
+        && tab.getControl() != null
+        && !tab.getControl().isDisposed()) {
+      return tab;
+    }
     return getActivePerspective().getActiveFileTypeHandler();
   }
 
@@ -1988,7 +2587,20 @@ public class HopGui
       return;
     }
 
-    if (control.getData("HOP_TERMINAL_WIDGET") == Boolean.TRUE) {
+    // Widgets that this shell creates later on (a metadata editor rebuilding a section, ...) are
+    // covered when they get the focus.
+    //
+    keyHandler.addHandledShell(display, control.getShell());
+
+    addKeyboardShortcutListeners(control, keyHandler);
+  }
+
+  private void addKeyboardShortcutListeners(Control control, HopGuiKeyHandler keyHandler) {
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+
+    if (control.getData(HopGuiKeyHandler.HOP_TERMINAL_WIDGET) == Boolean.TRUE) {
       return;
     }
 
@@ -1999,7 +2611,7 @@ public class HopGui
     //
     if (control instanceof Composite compositeControl) {
       for (Control child : compositeControl.getChildren()) {
-        replaceKeyboardShortcutListeners(child, keyHandler);
+        addKeyboardShortcutListeners(child, keyHandler);
       }
     }
   }
@@ -2064,6 +2676,10 @@ public class HopGui
     //
     StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
     layout.topControl = perspective.getControl();
+    // Only the perspective on top is visible, so naming every perspective's own control is what
+    // tells a browser which perspective is showing - the sidebar buttons all look alike.
+    TestIdFacade.set(
+        perspective.getControl(), PERSPECTIVE_CONTENT_TEST_ID_PREFIX + perspective.getId());
     mainPerspectivesComposite.layout();
 
     // Notify the perspective that it has been activated.
@@ -2127,7 +2743,9 @@ public class HopGui
       child.dispose();
     }
 
-    Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
+    // Take the background from the strip itself so the buttons stay in step with the toolbar
+    // style on every platform and theme.
+    Color normalBg = bottomToolbar.getBackground();
     Color selectionBg = GuiResource.getInstance().getColorLightBlue();
     Color hoverBg = GuiResource.getInstance().getColorGray();
     int buttonSize = (int) (34 * PropsUi.getNativeZoomFactor());
@@ -2156,6 +2774,7 @@ public class HopGui
         imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
         String svgId = "sidebar-bottom-" + d.getId();
         SvgLabelFacade.setData(svgId, imgLabel, d.getImagePath(), d.getImageSize());
+        TestIdFacade.set(comp, svgId);
 
         GridData compGd = new GridData();
         compGd.widthHint = buttonSize;
@@ -2194,7 +2813,7 @@ public class HopGui
             SWT.MouseDown,
             e -> {
               if (d.getOnSelect() != null) d.getOnSelect().run();
-              updateVisual.run();
+              refreshSidebarToolbarButtonStates();
             });
         imgLabel.addListener(
             SWT.MouseEnter,
@@ -2212,7 +2831,7 @@ public class HopGui
             SWT.MouseDown,
             e -> {
               if (d.getOnSelect() != null) d.getOnSelect().run();
-              updateVisual.run();
+              refreshSidebarToolbarButtonStates();
             });
 
         updateVisual.run();
@@ -2222,6 +2841,7 @@ public class HopGui
         canvas.setToolTipText(d.getTooltip());
         canvas.setBackground(normalBg);
         canvas.setData("descriptor", d);
+        TestIdFacade.set(canvas, "sidebar-bottom-" + d.getId());
         canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
         canvas.setData("hovered", false);
 
@@ -2268,8 +2888,9 @@ public class HopGui
               if (d.getOnSelect() != null) {
                 d.getOnSelect().run();
               }
-              canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
-              canvas.redraw();
+              // Refresh every button. Updating only the clicked one left the others highlighted
+              // after the panel was hidden and shown again.
+              refreshSidebarToolbarButtonStates();
             });
       }
     }
@@ -2328,11 +2949,7 @@ public class HopGui
     HopPerspectivePlugin plugin =
         activePerspective.getClass().getAnnotation(HopPerspectivePlugin.class);
     if (plugin != null) {
-      try {
-        EnvironmentUtils.getInstance().openUrl(getDocUrl(plugin.documentationUrl()));
-      } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error opening URL", e);
-      }
+      HelpUtils.openHelp(shell, getDocUrl(plugin.documentationUrl()));
     }
   }
 
@@ -2427,6 +3044,10 @@ public class HopGui
     return HopGui.getInstance().getPerspectiveManager().findPerspective(MetadataPerspective.class);
   }
 
+  public static DatabasePerspective getDatabasePerspective() {
+    return HopGui.getInstance().getPerspectiveManager().findPerspective(DatabasePerspective.class);
+  }
+
   public static ExecutionPerspective getExecutionPerspective() {
     return HopGui.getInstance().getPerspectiveManager().findPerspective(ExecutionPerspective.class);
   }
@@ -2484,12 +3105,17 @@ public class HopGui
       String selectedVariable)
       throws HopException {
     String message = "Editing configuration file: " + configFilename;
+    // Read this before getDescribedVariables(): that call can replace the config map with a nested
+    // "config" object, which would hide a description stored next to the variables.
+    String fileDescription = variablesConfigFile.getDescription();
     HopDescribedVariablesDialog variablesDialog =
         new HopDescribedVariablesDialog(
             shell, message, variablesConfigFile.getDescribedVariables(), selectedVariable);
+    variablesDialog.setFileDescriptionEditing(fileDescription);
     List<DescribedVariable> vars = variablesDialog.open();
     if (vars != null) {
       variablesConfigFile.setDescribedVariables(vars);
+      variablesConfigFile.setDescription(variablesDialog.getFileDescription());
       variablesConfigFile.saveToFile();
       return true;
     }

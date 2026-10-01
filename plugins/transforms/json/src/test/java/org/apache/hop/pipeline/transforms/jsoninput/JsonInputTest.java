@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.jsoninput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -41,12 +43,14 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
@@ -985,6 +989,121 @@ class JsonInputTest {
     assertTrue(errMsgs.contains("No file(s) specified!"), errMsgs);
   }
 
+  /**
+   * Issue #2723 A/C: listed files that exist must not emit "No file(s) specified" or finish with
+   * errors, regardless of Required and "Do not raise an error if no files".
+   */
+  @Test
+  void testExistingListedFilesDoNotEmitNoFilesError() throws Exception {
+    for (boolean fileRequired : new boolean[] {false, true}) {
+      for (boolean doNotFailIfNoFile : new boolean[] {false, true}) {
+        assertExistingListedFilesProcessed(fileRequired, doNotFailIfNoFile);
+      }
+    }
+  }
+
+  /** Issue #2723 E: no files and checkbox unchecked still errors. */
+  @Test
+  void testMissingListedFilesFailWhenDoNotFailUnchecked() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    JsonInputMeta meta = createListedFilesMeta(false, BASE_RAM_DIR + "does-not-exist.json");
+    meta.setDoNotFailIfNoFile(false);
+    meta.getInputFields().add(priceField());
+
+    try (LocaleChange enUS = new LocaleChange(Locale.US)) {
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 1);
+      disposeJsonInput(jsonInput);
+      String errMsgs = err.toString();
+      assertTrue(errMsgs.contains("No file(s) specified!"), errMsgs);
+      assertTrue(jsonInput.getErrors() > 0, "expected errors when no files and checkbox off");
+    }
+  }
+
+  /** Invalid / missing path with the checkbox on must not fail the transform. */
+  @Test
+  void testInvalidListedPathDoesNotFailWhenDoNotFailChecked() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    JsonInputMeta meta = createListedFilesMeta(false, BASE_RAM_DIR + "does-not-exist.json");
+    meta.setDoNotFailIfNoFile(true);
+    meta.getInputFields().add(priceField());
+
+    try (LocaleChange enUS = new LocaleChange(Locale.US)) {
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 1);
+      disposeJsonInput(jsonInput);
+      String errMsgs = err.toString();
+      assertFalse(errMsgs.contains("No file(s) specified!"), errMsgs);
+      assertEquals(0, jsonInput.getErrors(), errMsgs);
+    }
+  }
+
+  /**
+   * {@link JsonInput#onNewFile} must honor "Do not raise an error if no files" when a listed
+   * FileObject does not exist (the checkbox used to only guard the empty-list check).
+   */
+  @Test
+  void testOnNewFileMissingFileHonorsDoNotFailIfNoFile() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    try (FileObject missing = HopVfs.getFileObject(BASE_RAM_DIR + "missing.json");
+        FileObject good = HopVfs.getFileObject(BASE_RAM_DIR + "good.json");
+        LocaleChange enUS = new LocaleChange(Locale.US)) {
+      try (OutputStream out = good.getContent().getOutputStream()) {
+        out.write(getBasicTestJson().getBytes(StandardCharsets.UTF_8));
+      }
+
+      JsonInputMeta meta = createFileListMeta(List.of(missing, good));
+      meta.getInputFields().add(priceField());
+      meta.setDoNotFailIfNoFile(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      jsonInput.addRowListener(
+          new RowComparatorListener(
+              new Object[] {8.95d},
+              new Object[] {12.99d},
+              new Object[] {8.99d},
+              new Object[] {22.99d}));
+      processRows(jsonInput, 8);
+      disposeJsonInput(jsonInput);
+
+      String errMsgs = err.toString();
+      assertFalse(errMsgs.contains("is not a file"), errMsgs);
+      assertEquals(0, jsonInput.getErrors(), errMsgs);
+      assertEquals(4, jsonInput.getLinesWritten(), "rows written");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testOnNewFileMissingFileFailsWhenDoNotFailUnchecked() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    try (FileObject missing = HopVfs.getFileObject(BASE_RAM_DIR + "missing.json");
+        LocaleChange enUS = new LocaleChange(Locale.US)) {
+      JsonInputMeta meta = createFileListMeta(List.of(missing));
+      meta.getInputFields().add(priceField());
+      meta.setDoNotFailIfNoFile(false);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 3);
+      disposeJsonInput(jsonInput);
+
+      String errMsgs = err.toString();
+      assertTrue(errMsgs.contains("is not a file"), errMsgs);
+      assertTrue(jsonInput.getErrors() > 0, errMsgs);
+    } finally {
+      deleteFiles();
+    }
+  }
+
   @Test
   void testZipFileInput() throws Exception {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -1107,6 +1226,66 @@ class JsonInputTest {
     }
   }
 
+  /**
+   * Regression for Hidden additional field: must use {@code data.hidden} from {@code
+   * FileObject.isHidden()}, not {@code Boolean.valueOf(data.path)} (path is never the string
+   * "true", so the old code always emitted false).
+   */
+  @Test
+  void testHiddenFileFieldUsesFileIsHiddenFlag() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+
+    final String path = BASE_RAM_DIR + "hidden-flag.json";
+    try (FileObject fileObj = HopVfs.getFileObject(path)) {
+      try (OutputStream out = fileObj.getContent().getOutputStream()) {
+        out.write("{ \"store\": { \"bicycle\": { \"color\": \"green\" } } }".getBytes());
+      }
+
+      JsonInputField color = new JsonInputField();
+      color.setName("color");
+      color.setType(IValueMeta.TYPE_STRING);
+      color.setPath("$.store.bicycle.color");
+
+      JsonInputMeta meta = createSimpleMeta("in file", color);
+      meta.setInFields(true);
+      meta.setIsAFile(true);
+      meta.setRemoveSourceField(true);
+      meta.setPathField("dir path");
+      meta.setIsHiddenField("is_hidden");
+
+      JsonInputData data = new JsonInputData();
+      IRowSet input = helper.getMockInputRowSet(new Object[][] {new Object[] {path}});
+      IRowMeta rowMeta = new RowMeta();
+      rowMeta.addValueMeta(new ValueMetaString("in file"));
+      input.setRowMeta(rowMeta);
+
+      // Force hidden=true after VFS fill; path remains a normal URI so
+      // Boolean.valueOf(path)==false.
+      JsonInput jsonInput =
+          new JsonInput(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline) {
+            @Override
+            protected void fillFileAdditionalFields(JsonInputData data, FileObject file)
+                throws FileSystemException {
+              super.fillFileAdditionalFields(data, file);
+              data.hidden = true;
+            }
+          };
+      jsonInput.addRowSetToInputRowSets(input);
+      jsonInput.setInputRowMeta(rowMeta);
+      jsonInput.init();
+
+      RowComparatorListener rowComparator =
+          new RowComparatorListener(new Object[] {"green", "ram:///jsonInputTest", true});
+      jsonInput.addRowListener(rowComparator);
+      processRows(jsonInput, 2);
+      assertEquals(0, jsonInput.getErrors(), err.toString());
+      assertEquals(1, rowComparator.rowNbr, "expected one output row");
+    } finally {
+      deleteFiles();
+    }
+  }
+
   @Test
   void testZeroSizeFile() throws Exception {
     ByteArrayOutputStream log = new ByteArrayOutputStream();
@@ -1171,6 +1350,100 @@ class JsonInputTest {
       processRows(jsonInput, 8);
       assertEquals(0, jsonInput.getErrors());
       assertEquals(4, jsonInput.getLinesWritten());
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testZeroSizeFileIgnoredEmitsNoRow() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    try (FileObject empty = HopVfs.getFileObject(BASE_RAM_DIR + "empty.json")) {
+      empty.createFile();
+
+      JsonInputField price = new JsonInputField();
+      price.setName("price");
+      price.setType(IValueMeta.TYPE_NUMBER);
+      price.setPath("$..book[*].price");
+
+      JsonInputMeta meta = createFileListMeta(List.of(empty));
+      meta.getInputFields().add(price);
+      meta.setIgnoringEmptyFile(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 3);
+      disposeJsonInput(jsonInput);
+
+      assertEquals(0, jsonInput.getErrors(), err.toString());
+      assertEquals(0, jsonInput.getLinesWritten(), "rows written");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testZeroSizeFileNotIgnoredIsAnError() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    try (FileObject empty = HopVfs.getFileObject(BASE_RAM_DIR + "empty.json");
+        LocaleChange enUs = new LocaleChange(Locale.US)) {
+      empty.createFile();
+
+      JsonInputField price = new JsonInputField();
+      price.setName("price");
+      price.setType(IValueMeta.TYPE_NUMBER);
+      price.setPath("$..book[*].price");
+
+      JsonInputMeta meta = createFileListMeta(List.of(empty));
+      meta.getInputFields().add(price);
+      meta.setIgnoringEmptyFile(false);
+      meta.setIgnoringMissingPath(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      processRows(jsonInput, 3);
+      disposeJsonInput(jsonInput);
+
+      String logMsgs = err.toString();
+      assertTrue(logMsgs.contains("is empty!"), logMsgs);
+      assertEquals(1, jsonInput.getErrors(), "errors");
+    } finally {
+      deleteFiles();
+    }
+  }
+
+  @Test
+  void testZeroSizeLastFileIgnoredEmitsNoExtraRow() throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    try (FileObject good = HopVfs.getFileObject(BASE_RAM_DIR + "good.json");
+        FileObject empty = HopVfs.getFileObject(BASE_RAM_DIR + "empty.json")) {
+      try (OutputStream os = good.getContent().getOutputStream()) {
+        IOUtils.write(getBasicTestJson(), os, StandardCharsets.UTF_8);
+      }
+      empty.createFile();
+
+      JsonInputField price = new JsonInputField();
+      price.setName("price");
+      price.setType(IValueMeta.TYPE_NUMBER);
+      price.setPath("$..book[*].price");
+
+      JsonInputMeta meta = createFileListMeta(List.of(good, empty));
+      meta.getInputFields().add(price);
+      meta.setIgnoringEmptyFile(true);
+
+      JsonInput jsonInput = createJsonInput(meta);
+      jsonInput.addRowListener(
+          new RowComparatorListener(
+              new Object[] {8.95d},
+              new Object[] {12.99d},
+              new Object[] {8.99d},
+              new Object[] {22.99d}));
+      processRows(jsonInput, 8);
+      disposeJsonInput(jsonInput);
+
+      assertEquals(0, jsonInput.getErrors(), err.toString());
+      assertEquals(4, jsonInput.getLinesWritten(), "rows written");
     } finally {
       deleteFiles();
     }
@@ -1332,6 +1605,74 @@ class JsonInputTest {
     meta.setInFields(false);
     meta.setIgnoringMissingPath(false);
     return meta;
+  }
+
+  /**
+   * Meta that lists files through {@link JsonInputMeta#getFileInputList(IVariables)} (the GUI
+   * path), not a stubbed list.
+   */
+  private JsonInputMeta createListedFilesMeta(boolean fileRequired, String... fileNames) {
+    JsonInputMeta meta = new JsonInputMeta();
+    meta.setInFields(false);
+    meta.setIgnoringMissingPath(false);
+    for (String fileName : fileNames) {
+      InputFile inputFile = new InputFile();
+      inputFile.setFileName(fileName);
+      inputFile.setFileRequired(fileRequired);
+      meta.getFileInput().getInputFiles().add(inputFile);
+    }
+    return meta;
+  }
+
+  private JsonInputField priceField() {
+    JsonInputField price = new JsonInputField();
+    price.setName("price");
+    price.setType(IValueMeta.TYPE_NUMBER);
+    price.setPath("$..book[*].price");
+    return price;
+  }
+
+  private void assertExistingListedFilesProcessed(boolean fileRequired, boolean doNotFailIfNoFile)
+      throws Exception {
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    helper.redirectLog(err, LogLevel.ERROR);
+    final String input1 = getBasicTestJson();
+    final String input2 = "{ \"store\": { \"book\": [ { \"price\": 9.99 } ] } }";
+    String flags = "required=" + fileRequired + ", doNotFailIfNoFile=" + doNotFailIfNoFile;
+    try (FileObject fileObj1 = HopVfs.getFileObject(BASE_RAM_DIR + "test1.json");
+        FileObject fileObj2 = HopVfs.getFileObject(BASE_RAM_DIR + "test2.json");
+        LocaleChange enUS = new LocaleChange(Locale.US)) {
+      try (OutputStream out = fileObj1.getContent().getOutputStream()) {
+        out.write(input1.getBytes(StandardCharsets.UTF_8));
+      }
+      try (OutputStream out = fileObj2.getContent().getOutputStream()) {
+        out.write(input2.getBytes(StandardCharsets.UTF_8));
+      }
+
+      JsonInputMeta meta =
+          createListedFilesMeta(
+              fileRequired, BASE_RAM_DIR + "test1.json", BASE_RAM_DIR + "test2.json");
+      meta.setDoNotFailIfNoFile(doNotFailIfNoFile);
+      meta.getInputFields().add(priceField());
+
+      JsonInput jsonInput = createJsonInput(meta);
+      jsonInput.addRowListener(
+          new RowComparatorListener(
+              new Object[] {8.95d},
+              new Object[] {12.99d},
+              new Object[] {8.99d},
+              new Object[] {22.99d},
+              new Object[] {9.99d}));
+      processRows(jsonInput, 8);
+      disposeJsonInput(jsonInput);
+
+      String errMsgs = err.toString();
+      assertFalse(errMsgs.contains("No file(s) specified!"), flags + " " + errMsgs);
+      assertEquals(0, jsonInput.getErrors(), flags + " " + errMsgs);
+      assertEquals(5, jsonInput.getLinesWritten(), flags);
+    } finally {
+      deleteFiles();
+    }
   }
 
   protected void testSimpleJsonPath(
@@ -1558,5 +1899,110 @@ class JsonInputTest {
       assertTrue(results.contains("one"));
       assertTrue(results.contains("three"));
     }
+  }
+
+  /**
+   * Issue #4373. With HOP_EMPTY_STRING_DIFFERS_FROM_NULL=Y a JSON {@code null} (and a missing path)
+   * must stay null, while {@code ""} stays an empty string. Otherwise both come out as "".
+   */
+  @Test
+  void testEmptyStringDiffersFromJsonNull() throws Exception {
+    ParsedRows parsed = readEmptyAndNullRows("Y");
+    List<Object[]> rows = parsed.rows;
+    IValueMeta tenantName = parsed.rowMeta.searchValueMeta("tenantName");
+    // {"params":{},"tenantName":"hop"} — jobNumber is absent
+    assertNull(rows.get(0)[1]);
+    assertEquals("{}", rows.get(0)[2]);
+    assertEquals("hop", rows.get(0)[3]);
+    // {"jobNumber":3,"params":{},"tenantName":null}
+    assertEquals("3", rows.get(1)[1]);
+    assertEquals("{}", rows.get(1)[2]);
+    assertNull(rows.get(1)[3]);
+    assertTrue(tenantName.isNull(rows.get(1)[3]));
+    // {"jobNumber":2,"tenantName":""} — params is absent, tenantName is empty
+    assertEquals("2", rows.get(2)[1]);
+    assertNull(rows.get(2)[2]);
+    assertEquals("", rows.get(2)[3]);
+    assertFalse(tenantName.isNull(rows.get(2)[3]));
+    // {"jobNumber":120,"params":{},"tenantName":"hop"}
+    assertEquals("120", rows.get(3)[1]);
+    assertEquals("{}", rows.get(3)[2]);
+    assertEquals("hop", rows.get(3)[3]);
+    // {"jobNumber":1,"params":{}} — tenantName is absent
+    assertEquals("1", rows.get(4)[1]);
+    assertEquals("{}", rows.get(4)[2]);
+    assertNull(rows.get(4)[3]);
+    assertTrue(tenantName.isNull(rows.get(4)[3]));
+  }
+
+  /**
+   * Default (the variable is N): an empty string is still stored as "", but it compares as null, so
+   * preview shows both as {@code <null>}. JSON null and a missing path stay null.
+   */
+  @Test
+  void testEmptyStringAndJsonNullLookTheSameByDefault() throws Exception {
+    ParsedRows parsed = readEmptyAndNullRows("N");
+    List<Object[]> rows = parsed.rows;
+    assertNull(rows.get(1)[3]);
+    assertEquals("", rows.get(2)[3]);
+    assertNull(rows.get(0)[1]);
+    assertNull(rows.get(2)[2]);
+    assertNull(rows.get(4)[3]);
+
+    IValueMeta tenantName = parsed.rowMeta.searchValueMeta("tenantName");
+    assertTrue(tenantName.isNull(rows.get(1)[3]));
+    assertTrue(tenantName.isNull(rows.get(2)[3]));
+  }
+
+  private ParsedRows readEmptyAndNullRows(String emptyDiffersFromNull) throws Exception {
+    String previous = System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL);
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, emptyDiffersFromNull);
+    try {
+      JsonInputField jobNumber = new JsonInputField("jobNumber");
+      jobNumber.setPath("$.jobNumber");
+      jobNumber.setType(IValueMeta.TYPE_STRING);
+      JsonInputField params = new JsonInputField("params");
+      params.setPath("$.params");
+      params.setType(IValueMeta.TYPE_STRING);
+      JsonInputField tenantName = new JsonInputField("tenantName");
+      tenantName.setPath("$.tenantName");
+      tenantName.setType(IValueMeta.TYPE_STRING);
+
+      JsonInputMeta meta = createSimpleMeta("content", jobNumber, params, tenantName);
+      JsonInput transform =
+          createJsonInput(
+              "content",
+              meta,
+              new Object[] {"{\"params\":{},\"tenantName\":\"hop\"}"},
+              new Object[] {"{\"jobNumber\":3,\"params\":{},\"tenantName\":null}"},
+              new Object[] {"{\"jobNumber\":2,\"tenantName\":\"\"}"},
+              new Object[] {"{\"jobNumber\":120,\"params\":{},\"tenantName\":\"hop\"}"},
+              new Object[] {"{\"jobNumber\":1,\"params\":{}}"});
+
+      ParsedRows parsed = new ParsedRows();
+      transform.addRowListener(
+          new RowAdapter() {
+            @Override
+            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+              parsed.rowMeta = rowMeta;
+              parsed.rows.add(row);
+            }
+          });
+      processRows(transform, 10);
+      assertEquals(0, transform.getErrors());
+      assertEquals(5, parsed.rows.size());
+      return parsed;
+    } finally {
+      if (previous == null) {
+        System.clearProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL);
+      } else {
+        System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, previous);
+      }
+    }
+  }
+
+  private static final class ParsedRows {
+    private final List<Object[]> rows = new ArrayList<>();
+    private IRowMeta rowMeta;
   }
 }

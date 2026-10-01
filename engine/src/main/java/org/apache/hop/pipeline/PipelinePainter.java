@@ -47,7 +47,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
@@ -68,6 +67,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public static final String STRING_HOP_TYPE_COPY = "HopTypeCopy";
   public static final String STRING_ROW_DISTRIBUTION = "RowDistribution";
 
+  /** Same fill as {@code ui/images/success.svg}. Used for the partial-copy count disc. */
+  private static final int COPY_BADGE_RED = 92;
+
+  private static final int COPY_BADGE_GREEN = 192;
+  private static final int COPY_BADGE_BLUE = 196;
+
   private PipelineMeta pipelineMeta;
 
   private Map<String, String> transformLogMap;
@@ -80,6 +85,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private IPipelineEngine<PipelineMeta> pipeline;
   private boolean slowTransformIndicatorEnabled;
   private Map<String, RowBuffer> outputRowsMap;
+
+  /** Hop key (origin\\tdestination) → sampled rows for target hops / putRowTo. */
+  private Map<String, RowBuffer> outputHopRowsMap;
+
   private Map<String, Object> stateMap;
   private boolean showingSelectedTransformMetrics = true;
 
@@ -131,6 +140,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     this.slowTransformIndicatorEnabled = slowTransformIndicatorEnabled;
 
     this.outputRowsMap = outputRowsMap;
+    this.outputHopRowsMap = null;
 
     transformLogMap = null;
 
@@ -662,42 +672,85 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   private void drawTransformStatusIndicator(TransformMeta transformMeta) throws HopException {
 
-    if (transformMeta == null) {
+    if (transformMeta == null || pipeline == null) {
       return;
     }
 
-    // draw status indicator
-    if (pipeline != null) {
+    Point pt = transformMeta.getLocation();
+    if (pt == null) {
+      pt = new Point(50, 50);
+    }
 
-      Point pt = transformMeta.getLocation();
-      if (pt == null) {
-        pt = new Point(50, 50);
+    Point screen = real2screen(pt.x, pt.y);
+    int x = screen.x;
+    int y = screen.y;
+
+    if (hasTransformFailureIcon(transformMeta)) {
+      x += miniIconSize;
+    }
+
+    TransformCopyCompletion.Summary summary =
+        TransformCopyCompletion.of(pipeline.getComponentCopies(transformMeta.getName()));
+    switch (summary.badge()) {
+      case PAUSED ->
+          gc.drawImage(
+              EImage.WAITING,
+              (x + iconSize) - (miniIconSize / 2) + 1,
+              y - (miniIconSize / 2) - 1,
+              magnification);
+      case FINISHED ->
+          gc.drawImage(
+              EImage.SUCCESS,
+              (x + iconSize) - (miniIconSize / 2) + 1,
+              y - (miniIconSize / 2) - 1,
+              magnification);
+      case PARTIAL -> drawPartialCopyBadge(x, y, summary.finished());
+      case NONE -> {
+        // Still starting, still running, or stopped before any copy finished.
       }
+    }
+  }
 
-      Point screen = real2screen(pt.x, pt.y);
-      int x = screen.x;
-      int y = screen.y;
-
-      if (pipeline != null) {
-        List<IEngineComponent> transforms = pipeline.getComponentCopies(transformMeta.getName());
-
-        for (IEngineComponent transform : transforms) {
-          if (transform.getStatus() == ComponentExecutionStatus.STATUS_PAUSED) {
-            gc.drawImage(
-                EImage.WAITING,
-                (x + iconSize) - (miniIconSize / 2) + 1,
-                y - (miniIconSize / 2) - 1,
-                magnification);
-          } else if (transform.getStatus() == ComponentExecutionStatus.STATUS_FINISHED) {
-            gc.drawImage(
-                EImage.SUCCESS,
-                (x + iconSize) - (miniIconSize / 2) + 1,
-                y - (miniIconSize / 2) - 1,
-                magnification);
+  private boolean hasTransformFailureIcon(TransformMeta transformMeta) {
+    if (transformMeta == null) {
+      return false;
+    }
+    if (!Utils.isEmpty(transformLogMap)
+        && !Utils.isEmpty(transformLogMap.get(transformMeta.getName()))) {
+      return true;
+    }
+    if (pipeline != null) {
+      List<IEngineComponent> copies = pipeline.getComponentCopies(transformMeta.getName());
+      if (copies != null) {
+        for (IEngineComponent copy : copies) {
+          if (copy != null && copy.getErrors() > 0) {
+            return true;
           }
         }
       }
     }
+    return false;
+  }
+
+  /** Azure disc with the number of finished copies, anchored on the icon's top-right corner. */
+  private void drawPartialCopyBadge(int x, int y, int finished) {
+    String label = Integer.toString(finished);
+    gc.setFont(EFont.TINY);
+    Point extent = gc.textExtent(label);
+    int badgeHeight = miniIconSize;
+    int badgeWidth = Math.max(miniIconSize, extent.x + 4);
+    int centerX = (x + iconSize) + 1;
+    int centerY = y - 1;
+    int badgeX = centerX - badgeWidth / 2;
+    int badgeY = centerY - badgeHeight / 2;
+
+    gc.setBackground(COPY_BADGE_RED, COPY_BADGE_GREEN, COPY_BADGE_BLUE);
+    gc.fillRoundRectangle(badgeX, badgeY, badgeWidth, badgeHeight, badgeHeight, badgeHeight);
+
+    gc.setForeground(EColor.WHITE);
+    int textX = badgeX + Math.max(0, (badgeWidth - extent.x) / 2);
+    int textY = badgeY + Math.max(0, (badgeHeight - extent.y) / 2);
+    gc.drawText(label, textX, textY, true);
   }
 
   private void drawTransformOutputIndicator(TransformMeta transformMeta) throws HopException {
@@ -737,6 +790,46 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
   }
 
+  /**
+   * Draw a data-preview icon on the hop near the source transform when hop-level samples exist. Key
+   * format matches UI hop sampling: {@code origin + "\t" + destination}.
+   */
+  private void drawHopOutputDataIndicator(
+      PipelineHopMeta pipelineHop,
+      TransformMeta fromTransform,
+      TransformMeta toTransform,
+      int x1,
+      int y1,
+      int x2,
+      int y2)
+      throws HopException {
+    if (Utils.isEmpty(outputHopRowsMap) || pipelineHop == null || fromTransform == null) {
+      return;
+    }
+    String hopKey = fromTransform.getName() + "\t" + toTransform.getName();
+    RowBuffer rowBuffer = outputHopRowsMap.get(hopKey);
+    if (rowBuffer == null || rowBuffer.isEmpty()) {
+      return;
+    }
+
+    // Place at ~30% of the hop length from the source transform
+    double hopDataPosition = 0.30;
+    int iconX = (int) (x1 + hopDataPosition * (x2 - x1)) - miniIconSize / 2;
+    int iconY = (int) (y1 + hopDataPosition * (y2 - y1)) - miniIconSize / 2;
+
+    gc.drawImage(EImage.DATA, iconX, iconY, magnification);
+    areaOwners.add(
+        new AreaOwner(
+            AreaType.HOP_OUTPUT_DATA,
+            iconX,
+            iconY,
+            miniIconSize,
+            miniIconSize,
+            offset,
+            pipelineHop,
+            rowBuffer));
+  }
+
   private void drawTextRightAligned(String txt, int x, int y) {
     int off = gc.textExtent(txt).x;
     x -= off;
@@ -772,13 +865,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     int x = screen.x;
     int y = screen.y;
 
-    boolean transformError = false;
-    if (!Utils.isEmpty(transformLogMap)) {
-      String log = transformLogMap.get(transformMeta.getName());
-      if (!Utils.isEmpty(log)) {
-        transformError = true;
-      }
-    }
+    boolean transformError = hasTransformFailureIcon(transformMeta);
 
     // PARTITIONING
 
@@ -948,10 +1035,30 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               transformMeta));
     }
 
-    // If there was an error during the run, the map "transformLogMap" is not empty and not null.
+    // If there was an error during the run, show the failure icon in the upper right corner...
     //
     if (transformError) {
-      String log = transformLogMap.get(transformMeta.getName());
+      String log = null;
+      if (!Utils.isEmpty(transformLogMap)) {
+        log = transformLogMap.get(transformMeta.getName());
+      }
+      if (Utils.isEmpty(log) && pipeline != null) {
+        List<IEngineComponent> copies = pipeline.getComponentCopies(transformMeta.getName());
+        if (copies != null) {
+          for (IEngineComponent copy : copies) {
+            if (copy != null && copy.getErrors() > 0) {
+              String text = copy.getLogText();
+              if (!Utils.isEmpty(text)) {
+                log = text;
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (Utils.isEmpty(log)) {
+        log = STRING_TRANSFORM_ERROR_LOG;
+      }
 
       // Show an error lines icon in the upper right corner of the transform...
       //
@@ -1009,6 +1116,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return new Point(xpos, ypos);
   }
 
+  @SuppressWarnings("javabugs:S2259") // drawHop() only calls this with both transforms set
   private void drawLine(
       TransformMeta from, TransformMeta to, PipelineHopMeta hop, boolean isCandidate)
       throws HopException {
@@ -1195,14 +1303,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           gc.drawImage(svgFile, mx, my, 16, 16, magnification, 0);
           areaOwners.add(
               new AreaOwner(
-                  AreaType.ROW_DISTRIBUTION_ICON,
-                  mx,
-                  my,
-                  16,
-                  16,
-                  offset,
-                  fs,
-                  STRING_ROW_DISTRIBUTION));
+                  AreaType.ROW_DISTRIBUTION_ICON, mx, my, 16, 16, offset, fs, pipelineHop));
           mx += 16;
         }
 
@@ -1216,8 +1317,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         gc.drawImage(image, mx, my, magnification);
 
         areaOwners.add(
-            new AreaOwner(
-                AreaType.HOP_COPY_ICON, mx, my, 16, 16, offset, fs, STRING_HOP_TYPE_COPY));
+            new AreaOwner(AreaType.HOP_COPY_ICON, mx, my, 16, 16, offset, fs, pipelineHop));
         mx += 16;
       }
 
@@ -1288,6 +1388,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           }
         }
       }
+
+      // Data preview icon near the source transform for hop-level samples (target hops, etc.)
+      //
+      drawHopOutputDataIndicator(pipelineHop, fs, ts, x1, y1, x2, y2);
     }
 
     PipelinePainterExtension extension =
@@ -1427,6 +1531,22 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
    */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
+  }
+
+  /**
+   * Gets outputHopRowsMap
+   *
+   * @return hop-keyed sample buffers
+   */
+  public Map<String, RowBuffer> getOutputHopRowsMap() {
+    return outputHopRowsMap;
+  }
+
+  /**
+   * @param outputHopRowsMap hop key → RowBuffer samples for target hops
+   */
+  public void setOutputHopRowsMap(Map<String, RowBuffer> outputHopRowsMap) {
+    this.outputHopRowsMap = outputHopRowsMap;
   }
 
   /**

@@ -18,12 +18,14 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class ReturnValue {
   @HopMetadataProperty(
       key = "name",
       injectionKey = "return_table_field",
-      injectionKeyDescription = "DatabaseLookupMeta.Injection.ReturnTableField")
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.ReturnTableField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String tableField;
 
   @HopMetadataProperty(

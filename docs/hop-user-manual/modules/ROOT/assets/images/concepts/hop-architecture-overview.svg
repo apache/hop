@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" width="960" height="480">
+  <defs>
+    <style>
+      .ar-bg { fill: #f8fafc; }
+      .ar-layer-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 8px; }
+      .ar-layer-header-wf { fill: #0e3a5a; }
+      .ar-layer-header-pl { fill: #00a3a6; }
+      .ar-layer-header-conn { fill: #334155; }
+      
+      .ar-text-head { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 700; fill: #ffffff; }
+      .ar-text-item-title { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 700; fill: #0e3a5a; }
+      .ar-text-item-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #64748b; }
+      
+      .ar-pill { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1; rx: 6px; }
+      .ar-pill-accent { fill: #e0f2fe; stroke: #bae6fd; stroke-width: 1; rx: 6px; }
+      .ar-pill-text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; font-weight: 600; fill: #0369a1; }
+      
+      .ar-flow-arrow { stroke: #00a3a6; stroke-width: 2; stroke-dasharray: 4 4; fill: none; }
+      .ar-ink-strong { fill: #0e3a5a; }
+
+      /* Dark mode. The OS preference is the default, but the Hop site also has
+         its own light/dark toggle which sets data-theme on the page root, so
+         both have to be honoured -- and an explicit light choice has to win
+         over a dark OS. */
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) .ar-bg { fill: #0f172a; }
+        :root:not([data-theme="light"]) .ar-layer-box { fill: #1e293b; stroke: #334155; }
+        :root:not([data-theme="light"]) .ar-text-item-title { fill: #f1f5f9; }
+        :root:not([data-theme="light"]) .ar-text-item-desc { fill: #94a3b8; }
+        :root:not([data-theme="light"]) .ar-pill { fill: #0f172a; stroke: #334155; }
+        :root:not([data-theme="light"]) .ar-pill-accent { fill: #0e3a5a; stroke: #0284c7; }
+        :root:not([data-theme="light"]) .ar-pill-text { fill: #38bdf8; }
+        :root:not([data-theme="light"]) .ar-ink-strong { fill: #f1f5f9; }
+      }
+
+      :root[data-theme="dark"] .ar-bg { fill: #0f172a; }
+      :root[data-theme="dark"] .ar-layer-box { fill: #1e293b; stroke: #334155; }
+      :root[data-theme="dark"] .ar-text-item-title { fill: #f1f5f9; }
+      :root[data-theme="dark"] .ar-text-item-desc { fill: #94a3b8; }
+      :root[data-theme="dark"] .ar-pill { fill: #0f172a; stroke: #334155; }
+      :root[data-theme="dark"] .ar-pill-accent { fill: #0e3a5a; stroke: #0284c7; }
+      :root[data-theme="dark"] .ar-pill-text { fill: #38bdf8; }
+      :root[data-theme="dark"] .ar-ink-strong { fill: #f1f5f9; }
+    </style>
+
+    <marker id="arrow-down" viewBox="0 0 10 10" refX="5" refY="6" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 0 L 5 8 z" fill="#00a3a6" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="480" rx="10" class="ar-bg" />
+
+  <!-- TOP BAR: CLIENT INTERFACES & SCHEDULERS -->
+  <g transform="translate(30, 15)">
+    <rect width="900" height="52" class="ar-layer-box" />
+    <text x="20" y="31" class="ar-text-item-title" font-size="13">Clients &amp; Schedulers:</text>
+    
+    <g transform="translate(180, 10)">
+      <rect width="135" height="32" class="ar-pill" />
+      <text x="67" y="21" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" class="ar-ink-strong">Hop GUI</text>
+    </g>
+    <g transform="translate(325, 10)">
+      <rect width="135" height="32" class="ar-pill" />
+      <text x="67" y="21" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" class="ar-ink-strong">hop-run (CLI)</text>
+    </g>
+    <g transform="translate(470, 10)">
+      <rect width="145" height="32" class="ar-pill" />
+      <text x="72" y="21" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" class="ar-ink-strong">Python (PyHop)</text>
+    </g>
+    <g transform="translate(625, 10)">
+      <rect width="250" height="32" class="ar-pill-accent" />
+      <text x="125" y="21" text-anchor="middle" class="ar-pill-text">Airflow / Cron / Kubernetes</text>
+    </g>
+  </g>
+
+  <!-- DOWN ARROW 1 -->
+  <line x1="480" y1="68" x2="480" y2="84" class="ar-flow-arrow" marker-end="url(#arrow-down)" />
+
+  <!-- LAYER 1: WORKFLOWS (ORCHESTRATOR / CONTROL PLANE) -->
+  <g transform="translate(30, 85)">
+    <rect width="900" height="120" class="ar-layer-box" />
+    <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 892 0 C 896.42 0 900 3.58 900 8 L 900 32 L 0 32 Z" class="ar-layer-header-wf" />
+    <text x="16" y="21" class="ar-text-head">Workflows (.hwf) — The Control Plane (Sequential Orchestration)</text>
+    
+    <!-- Actions Inside Workflow -->
+    <g transform="translate(16, 42)">
+      <rect width="265" height="66" class="ar-pill" />
+      <text x="14" y="24" class="ar-text-item-title">Prerequisites &amp; Health</text>
+      <text x="14" y="42" class="ar-text-item-desc">Database checks, file verification,</text>
+      <text x="14" y="56" class="ar-text-item-desc">archive extraction, PGP encryption</text>
+    </g>
+    
+    <g transform="translate(297, 42)">
+      <rect width="285" height="66" class="ar-pill" />
+      <text x="14" y="24" class="ar-text-item-title">Decision Routing &amp; Backtracking</text>
+      <text x="14" y="42" class="ar-text-item-desc">Success hops, failure hops, error alerts,</text>
+      <text x="14" y="56" class="ar-text-item-desc">conditional recovery paths, parallel branches</text>
+    </g>
+
+    <g transform="translate(598, 42)">
+      <rect width="286" height="66" class="ar-pill-accent" />
+      <text x="14" y="24" class="ar-pill-text" font-size="12">Workflow Engines</text>
+      <text x="14" y="42" class="ar-text-item-desc">Native Local (Workstation / Server)</text>
+      <text x="14" y="56" class="ar-text-item-desc">Native Remote (Hop Server) &amp; Clustered</text>
+    </g>
+  </g>
+
+  <!-- DOWN ARROW 2 -->
+  <line x1="480" y1="206" x2="480" y2="222" class="ar-flow-arrow" marker-end="url(#arrow-down)" />
+
+  <!-- LAYER 2: PIPELINES (DATA WORKER / DATA PLANE) -->
+  <g transform="translate(30, 225)">
+    <rect width="900" height="120" class="ar-layer-box" />
+    <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 892 0 C 896.42 0 900 3.58 900 8 L 900 32 L 0 32 Z" class="ar-layer-header-pl" />
+    <text x="16" y="21" class="ar-text-head">Pipelines (.hpl) — The Data Plane (Parallel Streaming Data Workers)</text>
+
+    <!-- Content Inside Pipeline Layer -->
+    <g transform="translate(16, 42)">
+      <rect width="265" height="66" class="ar-pill" />
+      <text x="14" y="24" class="ar-text-item-title">Streaming Transforms</text>
+      <text x="14" y="42" class="ar-text-item-desc">Reads from sources, cleans, transforms,</text>
+      <text x="14" y="56" class="ar-text-item-desc">enriches, joins, and writes simultaneously</text>
+    </g>
+
+    <g transform="translate(297, 42)">
+      <rect width="285" height="66" class="ar-pill" />
+      <text x="14" y="24" class="ar-text-item-title">Row Buffers &amp; Back-Pressure</text>
+      <text x="14" y="42" class="ar-text-item-desc">In-memory queues stream rows safely</text>
+      <text x="14" y="56" class="ar-text-item-desc">Slow downstream targets throttle readers</text>
+    </g>
+
+    <g transform="translate(598, 42)">
+      <rect width="286" height="66" class="ar-pill-accent" />
+      <text x="14" y="24" class="ar-pill-text" font-size="12">Pipeline Execution Engines</text>
+      <text x="14" y="42" class="ar-text-item-desc">Native Local, Remote Hop Server, Beam</text>
+      <text x="14" y="56" class="ar-text-item-desc">(Flink, Spark, Dataflow), Native Spark</text>
+    </g>
+  </g>
+
+  <!-- DOWN ARROW 3 -->
+  <line x1="480" y1="346" x2="480" y2="362" class="ar-flow-arrow" marker-end="url(#arrow-down)" />
+
+  <!-- LAYER 3: STORAGE, PLATFORMS & CONNECTIVITY -->
+  <g transform="translate(30, 365)">
+    <rect width="900" height="95" class="ar-layer-box" />
+    <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 892 0 C 896.42 0 900 3.58 900 8 L 900 28 L 0 28 Z" class="ar-layer-header-conn" />
+    <text x="16" y="19" class="ar-text-head" font-size="12.5">Storage &amp; External Platforms (via VFS &amp; Connectors)</text>
+
+    <g transform="translate(16, 38)">
+      <rect width="200" height="44" class="ar-pill" />
+      <text x="100" y="27" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" class="ar-ink-strong">Relational Databases</text>
+    </g>
+    <g transform="translate(232, 38)">
+      <rect width="215" height="44" class="ar-pill" />
+      <text x="107" y="27" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" class="ar-ink-strong">Cloud Storage (S3/GCS/Blob)</text>
+    </g>
+    <g transform="translate(463, 38)">
+      <rect width="215" height="44" class="ar-pill" />
+      <text x="107" y="27" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" class="ar-ink-strong">Streaming (Kafka/PubSub)</text>
+    </g>
+    <g transform="translate(694, 38)">
+      <rect width="190" height="44" class="ar-pill" />
+      <text x="95" y="27" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" class="ar-ink-strong">Data Warehouses &amp; Lakes</text>
+    </g>
+  </g>
+</svg>

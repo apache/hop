@@ -1,0 +1,187 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Git Input transform reads commits, issues, pull requests, comments and events from a Git hosting provider or from a local clone.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+
+= image:transforms/icons/git.svg[Git Input transform Icon, role="image-doc-icon"] Git Input
+
+== Description
+
+The Git Input transform reads commits, issues, pull requests, issue comments and issue events from a Git hosting provider, or reads commit history straight from a clone on disk.
+
+Supported providers are GitHub (cloud and Enterprise), GitLab, Bitbucket, Forgejo and Gitea.
+
+Every provider is normalized to the same output row, so a pipeline written against GitHub keeps working when it is pointed at a GitLab or Bitbucket xref:metadata-types/git-connection.adoc[Git connection].
+
+== Options
+
+=== Source
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Source|`REMOTE` calls the provider REST API. `LOCAL` reads commit history from a clone on disk with JGit, without an API call or a token.
+|Git connection|The xref:metadata-types/git-connection.adoc[Git connection] holding the API endpoint and credentials. Required when the source is `REMOTE`.
+|Local repository path|Path to a working tree or `.git` directory. Required when the source is `LOCAL`. This is read from the local file system, not through Apache VFS, because JGit needs a real path.
+|===
+
+=== Repository
+
+Only used when the source is `REMOTE`. For a local repository the owner and name are taken from the `origin` remote when there is one, and from the folder name otherwise.
+
+[options="header"]
+|===
+|Option|Description
+|Repository owner|Organization, group, workspace or user that owns the repository.
+|Repository name|The repository slug.
+|Browse...|Lists the organizations, groups or workspaces the connection can see, then pages through their repositories with a filter. Sets both the owner and the repository name. Needs a connection with a token, because providers only report the organizations of the signed-in account; a public repository can still be read anonymously by typing the owner and name in directly.
+|Branch|Branch or tag to read commits from. Optional; a local repository defaults to `HEAD`.
+|Browse... (branch)|Picks from the branches of the selected repository.
+|===
+
+=== Content
+
+[options="header"]
+|===
+|Option|Description
+|Resource type|`COMMITS`, `COMMIT_FILES`, `ISSUES`, `PULL_REQUESTS`, `ISSUE_COMMENTS`, `PR_COMMENTS` or `ISSUE_EVENTS`. A local repository offers `COMMITS` and `COMMIT_FILES`; the other types need a provider API.
+|State|`all`, `open` or `closed`. Applies to issues, pull requests and events on a remote source.
+|Since|ISO-8601 timestamp, for example `2026-01-01T00:00:00Z`. Only reads commits after this moment. Leave empty for the full history.
+|Page size|Rows fetched per request. Capped at the provider maximum (100 for GitHub, GitLab and Bitbucket, 50 for Gitea and Forgejo). For a local repository this only controls the streaming batch size.
+|Max pages (0 = all)|How many pages to fetch from a remote source. The row cap is the effective page size multiplied by this number, so the default 50 x 20 reads up to 1,000 rows. Set it to **0** to keep reading until the provider runs out of pages, with no row cap. Ignored for a local repository, which returns all matching rows.
+|Include raw JSON in output|When checked, each row carries a `raw_json` field with the full provider payload. Uncheck it to leave the field out and keep rows small.
+|===
+
+== Output fields
+
+The row layout is chosen per **Resource type**, not shared by all of them. A single layout would have to be the union of everything any type can report, so a commit row would carry empty label and assignee columns and an issue row would carry empty branch and merge columns.
+
+Within a type the layout is identical across providers, so a pipeline written against GitHub keeps working when it is pointed at GitLab or Bitbucket. A field a given provider does not report arrives as an empty value, not as a missing column.
+
+Changing **Resource type** changes the fields the transform emits, so re-open the dialog after changing it to let the downstream transforms pick the new layout up.
+
+=== Fields every type reports
+
+[options="header"]
+|===
+|Field|Type|Description
+|provider|String|The provider the row came from, or `local` for a local repository.
+|entity_type|String|The resource type that produced the row, for example `commits` or `pull_requests`.
+|repo_owner, repo_name|String|The repository the row belongs to.
+|id|String|Provider identifier: a GitHub node id, a GitLab id, or the commit SHA.
+|url|String|Link to the item on the provider.
+|raw_json|String|The full provider payload, when **Include raw JSON in output** is checked. Always the last field, so unchecking it never shifts the fields in front of it.
+|===
+
+=== COMMITS
+
+`sha`, `title` (message subject), `body` (full message), `author`, `author_email`, `author_login`, `committer`, `committer_email`, `created_at`, `is_merge`.
+
+A commit carries two idents. `author` and `author_email` are who wrote the change; `committer` and `committer_email` are who applied it, and the two differ after a rebase, a squash, a cherry-pick or a merge made through a provider's web UI. `author_login` is the provider account the ident was matched to, which is a different thing again: `author` is whatever the person put in their `git config`, `author_login` is who they are on the platform, and it is the only one of the three that reliably joins commits to issues and pull requests. It is empty for a local repository and for any ident the provider could not match to an account.
+
+`is_merge` is a Boolean, true when the commit has more than one parent, which is what you want to filter out of contributor statistics. It is not related to `merged` on a pull request: `is_merge` says the commit *is* a merge, `merged` says a pull request *was* merged. The two never appear on the same row.
+
+=== COMMIT_FILES
+
+`sha`, `title` (file path), `state` (change type), `body` (previous path of a rename or copy), `author`, `author_email`, `author_login`, `created_at`.
+
+=== ISSUES
+
+`number`, `title`, `state`, `body`, `author`, `author_login`, `labels`, `assignees`, `created_at`, `updated_at`, `closed_at`.
+
+Issues identify people by account rather than by e-mail, so there is no `author_email`. `labels` and `assignees` are comma-separated lists, flattened from the provider's array. Bitbucket has no labels and carries a single assignee rather than a list.
+
+=== PULL_REQUESTS
+
+The `ISSUES` fields, plus `source_branch`, `target_branch`, `merged` and `merged_at`.
+
+`merged` is a Boolean; `merged_at` is when it happened, which is not the same as `closed_at` and is what a lead-time or cycle-time calculation needs. Bitbucket does not report a merge time.
+
+=== ISSUE_COMMENTS, PR_COMMENTS
+
+`number` (the parent issue or pull request), `title`, `state`, `body`, `author`, `author_login`, `created_at`, `updated_at`.
+
+For these two types `title` and `state` carry the event type and event detail rather than the issue title and state.
+
+=== ISSUE_EVENTS
+
+`number`, `title` (event type), `state` (event detail), `body`, `author`, `author_login`, `created_at`.
+
+=== Dates
+
+`created_at`, `updated_at`, `closed_at` and `merged_at` are real Date values, so they can be compared and formatted without a Select Values transform. A timestamp that cannot be parsed becomes `null` rather than failing the row; the original text stays in `raw_json`.
+
+
+Providers format timestamps differently: GitHub uses `2026-05-01T12:00:00Z`, GitLab adds milliseconds and Bitbucket uses microsecond precision. All of them are parsed to the same instant.
+
+=== Reading every page
+
+**Max pages** set to `0` lifts the row cap: the transform keeps requesting pages until the provider stops returning them.
+
+That is the right setting for a full extract, but it hands control of the request count to the size of the repository, so it is worth knowing what stops it:
+
+* A provider limit of its own still applies and is not treated as a failure. GitHub caps page-based pagination at 1,000 items on some endpoints, so `0` reads to that ceiling, keeps the rows and logs why it stopped.
+* Nothing else caps it. A busy repository can mean a lot of API calls, and anonymous GitHub requests run out after 60 per hour. Use a token, or a **Since** filter, for a large history.
+
+**Page size** is unaffected by this and still controls how many rows come back per request. Raising it is the cheapest way to reduce the number of calls a full read needs.
+
+== Reading a local repository
+
+Set **Source** to `LOCAL` and point **Local repository path** at the folder that contains `.git`. No connection or token is needed.
+
+Commit rows carry both Git idents in full: `author` and `author_email` from the author ident, `committer` and `committer_email` from the committer ident, and `is_merge` from the parent count. `author_login` stays empty, because a clone on disk has no provider accounts to match idents against. All of it is repeated in `raw_json`.
+
+That is enough for a contributor list: group on `author` and `author_email`, count the rows, and filter on `is_merge` being false to leave merge commits out of the totals.
+
+`COMMIT_FILES` emits one row per changed file per commit, with the file path in `title` and the change type (`added`, `modified`, `deleted`, `renamed`, `copied`) in `state`. Rename and copy detection is on, so moving a file produces a single `renamed` row carrying its previous path in `body` rather than a `deleted` row plus an `added` row. Merge commits are compared against their first parent.
+
+== Issue comments and events
+
+[options="header"]
+|===
+|Type|Rows|GitHub / Enterprise|GitLab|Bitbucket
+|`ISSUE_COMMENTS`|One row per comment on an **issue**|Repository-wide comment feed, filtered to issues|Per-issue notes|Per-issue comments
+|`PR_COMMENTS`|One row per comment on a **pull request**|The same feed, filtered to pull requests|Per-merge-request notes|Per-pull-request comments
+|`ISSUE_EVENTS`|One row per timeline event|Per-issue events such as `labeled`, `closed` or `assigned`|Per-issue activity notes|Per-issue changes
+|===
+
+Comments on issues and on pull requests are separate resource types, so `ISSUE_COMMENTS` never returns pull request comments and `PR_COMMENTS` never returns issue comments. That matches `ISSUES` and `PULL_REQUESTS`, which are also separate.
+
+On GitHub both come from one repository-wide feed and are told apart by the comment's own URL, so reading both types costs two passes over that feed. On a repository where most discussion happens in pull requests, `ISSUE_COMMENTS` can legitimately return very few rows.
+
+NOTE: Gitea and Forgejo do not support `ISSUE_COMMENTS`, `PR_COMMENTS` or `ISSUE_EVENTS` yet; the transform reports that rather than returning an empty result.
+
+The GitHub comment feed returns comments without their parent issue, so `title` and `state` are empty for GitHub `ISSUE_COMMENTS` rows. That feed also ignores **State**; use **Since** to limit it by comment time. GitLab and Bitbucket walk issues one at a time and do fill both fields.
+
+The row cap applies to the rows that come out, not to the number of issues scanned.
+
+== Incomplete results
+
+If a provider request fails part way through pagination, after the built-in retries, the transform fails rather than passing on the rows it had already collected. An empty page cannot be told apart from the end of the data, so continuing would report a successful run over a silently incomplete result set.
+
+A provider refusing to paginate further because of a documented limit of its own is not a failure. GitHub caps page-based pagination at 1,000 items on some endpoints; the transform stops there, keeps the rows it read and logs why. The same applies when the configured row cap is reached.
+
+== Proxies and TLS
+
+Requests use the JVM default proxy selector, so the usual `http.proxyHost`, `https.proxyHost` and `http.nonProxyHosts` system properties apply. That matters for a self-hosted GitLab, Gitea or Forgejo behind a corporate proxy. Custom certificate authorities are picked up from the usual `javax.net.ssl.trustStore` properties.
+
+== Samples
+
+The samples project contains `transforms/git-input-github-pull-requests.hpl`, which reads recent pull requests from the `apache/hop` repository over the anonymous GitHub API.

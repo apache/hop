@@ -42,6 +42,7 @@ public final class PathVariableReplacer {
   private static final Set<String> NON_PATH_VARIABLE_NAMES =
       Set.of(
           Defaults.VARIABLE_HOP_PROJECT_NAME,
+          Defaults.VARIABLE_HOP_PROJECT_ID,
           Defaults.VARIABLE_HOP_ENVIRONMENT_NAME,
           ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME);
 
@@ -153,7 +154,10 @@ public final class PathVariableReplacer {
     if (value.contains("${") || value.contains(",")) {
       return false;
     }
-    // Absolute local path, Windows drive path, UNC, or VFS URI
+    // Tilde home path, absolute local path, Windows drive path, UNC, or VFS URI
+    if (value.equals("~") || value.startsWith("~/") || value.startsWith("~\\")) {
+      return true;
+    }
     if (value.startsWith("/") || value.startsWith("\\")) {
       return true;
     }

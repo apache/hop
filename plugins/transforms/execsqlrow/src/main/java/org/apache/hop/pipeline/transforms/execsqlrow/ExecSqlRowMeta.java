@@ -243,11 +243,6 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
   }
 
   @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  @Override
   public void setDefault() {
     sqlFromfile = false;
     commitSize = 1;
@@ -341,7 +336,9 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
               transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.close();
+      }
     }
 
     if (input.length > 0) {

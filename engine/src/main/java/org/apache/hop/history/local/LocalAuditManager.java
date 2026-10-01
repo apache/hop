@@ -19,6 +19,7 @@ package org.apache.hop.history.local;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,10 +68,7 @@ public class LocalAuditManager implements IAuditManager {
     String filename = calculateEventFilename(event);
     try {
       File file = new File(filename);
-      File parentFolder = file.getParentFile();
-      if (!parentFolder.exists()) {
-        parentFolder.mkdirs();
-      }
+      ensureWritableDirectory(file.getParentFile());
 
       // write the event to JSON...
       //
@@ -78,6 +76,12 @@ public class LocalAuditManager implements IAuditManager {
       mapper.writeValue(new File(filename), event);
     } catch (IOException e) {
       throw new HopException("Unable to write event to filename '" + filename + "'", e);
+    }
+  }
+
+  private static void ensureWritableDirectory(File dir) throws IOException {
+    if (dir != null) {
+      Files.createDirectories(dir.toPath());
     }
   }
 
@@ -215,10 +219,14 @@ public class LocalAuditManager implements IAuditManager {
   private boolean checkFileAndFolder(String filename) {
     File file = new File(filename);
     if (!file.exists()) {
-      // A new file, create the parent folder if needed
+      // A new file, create the parent folder if needed (open perms for multi-UID Docker mounts)
       //
-      File parent = file.getParentFile();
-      parent.mkdirs();
+      try {
+        ensureWritableDirectory(file.getParentFile());
+      } catch (IOException e) {
+        LogChannel.GENERAL.logError(
+            "LocalAuditManager: unable to create parent folder for '" + filename + "'", e);
+      }
       return false;
     } else {
       return true;

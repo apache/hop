@@ -20,6 +20,7 @@ import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -31,14 +32,17 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Setter
 @GuiPlugin
 @HopMetadata(
-    key = "S3ConnectionDefinition",
+    key = "s3-connection",
+    legacyKeys = {"S3ConnectionDefinition"},
     name = "i18n::S3Meta.name",
     description = "i18n::S3Meta.description",
     image = "s3.svg",
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/s3-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.VFS_S3_CONNECTION)
-public class S3Meta extends HopMetadataBase implements Serializable, IHopMetadata {
+    hopMetadataPropertyType = HopMetadataPropertyType.VFS_S3_CONNECTION,
+    classLoaderGroup = "vfs-s3")
+public class S3Meta extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   @HopMetadataProperty private String description;
 

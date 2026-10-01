@@ -40,6 +40,9 @@
 #   --progress <mode>             Docker build output mode: auto (default), plain (verbose), tty (compact)
 #   --builder <type>              Builder type: full (Maven, default) or fast (pre-built artifacts)
 #   --skip-fat-jar                Skip building the fat jar (auto-detected based on images, only needed for dataflow/web-beam)
+#   --with-optional-plugins       Install the marketplace-optional (Wave 1) plugins into the image
+#                                 (auto-enabled for dataflow/web-beam, which need the Beam engine)
+#   --no-optional-plugins         Never install the marketplace-optional plugins
 #   --no-cache                    Build without using cache
 #   -h, --help                    Show this help message
 #
@@ -67,6 +70,12 @@
 #
 #   # Manually skip fat jar generation (saves time if not building dataflow/web-beam)
 #   ./build-hop-images.sh --images web,client --skip-fat-jar
+#
+#   # Ship the marketplace-optional (Wave 1) plugins inside the server image
+#   ./build-hop-images.sh --images client --with-optional-plugins
+#
+#   # Same, reusing the plugin zips from a local build instead of rebuilding them
+#   ./build-hop-images.sh --images client --with-optional-plugins --builder fast
 #
 ################################################################################
 
@@ -113,6 +122,7 @@ MAVEN_THREADS="1C"  # Maven thread count (1C, 2C, or specific number like 4)
 BUILD_PROGRESS="auto"  # Docker build progress output (auto, plain, tty)
 BUILDER_TYPE="full"  # Builder type: full (Maven build) or fast (pre-built artifacts)
 SKIP_FAT_JAR="auto"  # Whether to skip fat jar generation (auto, true, false)
+OPTIONAL_PLUGINS="auto"  # Install marketplace-optional (Wave 1) plugins (auto, true, false)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -201,6 +211,19 @@ needs_fat_jar() {
     done
     
     # No images that need fat jar
+    return 1
+}
+
+# Function to determine whether a stage needs the marketplace-optional (Wave 1) plugins.
+# The Beam engine is one of them and it owns --generate-fat-jar, so anything built around the
+# fat jar can only work with the optional plugins installed.
+stage_needs_optional_plugins() {
+    local stage_name="$1"
+
+    if [[ "$stage_name" == "dataflow"* ]] || [[ "$stage_name" == "web-beam"* ]]; then
+        return 0
+    fi
+
     return 1
 }
 
@@ -320,6 +343,14 @@ parse_args() {
                 SKIP_FAT_JAR="true"
                 shift
                 ;;
+            --with-optional-plugins)
+                OPTIONAL_PLUGINS="true"
+                shift
+                ;;
+            --no-optional-plugins)
+                OPTIONAL_PLUGINS="false"
+                shift
+                ;;
             --no-cache)
                 USE_CACHE="false"
                 shift
@@ -407,14 +438,41 @@ build_image() {
     if [[ "$skip_fat_jar_value" == "true" ]]; then
         print_info "Skipping fat jar generation (not needed for $stage_name)"
     fi
-    
+
+    # Determine whether the marketplace-optional plugins go into this specific image
+    local optional_plugins_value="false"
+    if [[ "$OPTIONAL_PLUGINS" == "true" ]]; then
+        optional_plugins_value="true"
+    elif [[ "$OPTIONAL_PLUGINS" == "auto" ]]; then
+        # Auto-detect: only images that need the Beam engine get them
+        if stage_needs_optional_plugins "$stage_name"; then
+            optional_plugins_value="true"
+        fi
+    fi
+
+    # The full builder already has the whole reactor; the fast builder needs the flavor that
+    # also picks up the locally built plugin zips (see builder-fast-plugins in the Dockerfile)
+    local effective_builder="$BUILDER_TYPE"
+    if [[ "$optional_plugins_value" == "true" ]]; then
+        print_info "Installing marketplace-optional (Wave 1) plugins into $stage_name"
+        if [[ "$BUILDER_TYPE" == "fast" ]]; then
+            effective_builder="fast-plugins"
+            if ! ls "$PROJECT_ROOT"/plugins/*/*/target/*.zip &> /dev/null; then
+                print_error "No plugin zips found under plugins/*/*/target/"
+                print_error "Run a local build first, or drop --with-optional-plugins"
+                exit 1
+            fi
+        fi
+    fi
+
     # Build arguments
     local build_args=(
         "--build-arg" "HOP_BUILD_FROM_SOURCE=$SOURCE_TYPE"
         "--build-arg" "TARGET_IMAGE=$stage_name"
         "--build-arg" "MAVEN_THREADS=$maven_threads"
-        "--build-arg" "BUILDER_TYPE=$BUILDER_TYPE"
+        "--build-arg" "BUILDER_TYPE=$effective_builder"
         "--build-arg" "SKIP_FAT_JAR=$skip_fat_jar_value"
+        "--build-arg" "INCLUDE_OPTIONAL_PLUGINS=$optional_plugins_value"
         "--progress" "$BUILD_PROGRESS"
         "--file" "$SCRIPT_DIR/unified.Dockerfile"
         "--target" "$stage_name"
@@ -528,7 +586,16 @@ build_images() {
     else
         echo "Fat jar:       enabled"
     fi
-    
+
+    # Show marketplace-optional plugin status
+    if [[ "$OPTIONAL_PLUGINS" == "auto" ]]; then
+        echo "Wave1 plugins: auto (only for dataflow/web-beam, which need the Beam engine)"
+    elif [[ "$OPTIONAL_PLUGINS" == "true" ]]; then
+        echo "Wave1 plugins: enabled (all marketplace-optional plugins)"
+    else
+        echo "Wave1 plugins: disabled"
+    fi
+
     echo "Push:          $PUSH"
     echo "Cache:         $USE_CACHE"
     echo ""

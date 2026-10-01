@@ -122,23 +122,6 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     passThroughFields = new ArrayList<>();
   }
 
-  public MergeRowsMeta(MergeRowsMeta m) {
-    this();
-    this.flagField = m.flagField;
-    this.keyFields = new ArrayList<>(m.keyFields);
-    this.valueFields = new ArrayList<>(m.valueFields);
-    this.referenceTransform = m.referenceTransform;
-    this.compareTransform = m.compareTransform;
-    this.diffJsonField = m.diffJsonField;
-    this.alignInputLayouts = m.alignInputLayouts;
-    m.getPassThroughFields().forEach(f -> this.passThroughFields.add(new PassThroughField(f)));
-  }
-
-  @Override
-  public MergeRowsMeta clone() {
-    return new MergeRowsMeta(this);
-  }
-
   @Override
   public void setDefault() {
     flagField = "flagfield";

@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.hop.vfs.s3.s3common.S3CommonFileObject;
-import org.apache.hop.vfs.s3.s3common.S3CommonPipedOutputStream;
 
 public class S3FileObject extends S3CommonFileObject {
 
@@ -36,7 +35,6 @@ public class S3FileObject extends S3CommonFileObject {
 
   @Override
   public OutputStream doGetOutputStream(boolean bAppend) throws Exception {
-    return new S3CommonPipedOutputStream(
-        this.fileSystem, bucketName, key, ((S3FileSystem) this.fileSystem).getPartSize());
+    return createOutputStream(bAppend, ((S3FileSystem) this.fileSystem).getPartSize());
   }
 }

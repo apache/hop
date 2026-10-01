@@ -65,12 +65,6 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionWriteToLog action = (ActionWriteToLog) super.clone();
-    return action;
-  }
-
   private class LogWriterObject implements ILoggingObject {
 
     private ILogChannel log;

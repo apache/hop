@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.util.List;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
@@ -64,6 +65,10 @@ public enum HopGuiExtensionPoint {
   PipelineExecutionViewerUpdate(
       "When the UI needs updating and you want to enable/disable widgets",
       PipelineExecutionViewer.class),
+
+  HopGuiSystemVariablesSaved(
+      "Called after system (described) variables were saved from the configuration perspective",
+      List.class),
   ;
 
   public String id;

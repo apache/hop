@@ -1,0 +1,112 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images/
+:description: Notes on pipeline and workflow canvases, including Markdown formatting, note types, links, and images.
+
+[[CanvasNotes]]
+= Notes on pipelines and workflows
+
+Notes are free-floating annotations on the pipeline and workflow canvas. They do not participate in execution; they document design intent for anyone opening the file.
+
+== Create and edit notes
+
+* From an empty area of the canvas, open the context dialog and choose **Create a note** (or the equivalent note action).
+* Double-click a note, use the note context menu, or press **Ctrl+click** (Windows/Linux) / **⌘+click** (macOS) on a note to open the note editor.
+* Drag a note to move it; drag the edges or corners to resize. Markdown notes reflow text when you change the width.
+
+== Markdown mode
+
+In the note editor, enable **Render as Markdown** to treat the body as **CommonMark** with **GFM tables** and **task lists**.
+
+When Markdown is enabled:
+
+* Pick a **Note type** (General, Information, Important, Warning). Hop chooses background, border, text contrast, and optional accent icon so notes look consistent across projects and light/dark mode.
+* The Font & style tab is disabled; type-based styling replaces free-form colors and fonts.
+* Use a fixed-width font in the editor for easier source editing.
+* **Preview** opens an HTML rendering of the source (relative image paths are expanded so images load in the browser).
+* **Help** opens an in-app guide with examples of supported Markdown.
+
+If Markdown is off, notes behave as classic plain-text notes with customizable fonts and colors.
+
+== Supported Markdown (canvas)
+
+[cols="1,2,3", options="header"]
+|===
+|Feature |Syntax |Behavior on the canvas
+
+|Headings
+|`#` … `######`
+|Sized relative to the graph font
+
+|Emphasis
+|`**bold**`, `*italic*`
+|Styled runs
+
+|Code
+|`` `inline` `` and fenced code blocks
+|Monospace; fenced blocks use a shaded background
+
+|Lists
+|`-` / `*` bullets, numbered lists
+|Task lists: `- [ ]` / `- [x]`
+
+|Links
+|`[label](target)`
+|`http://` and `https://` open in a browser. Relative paths to files Hop can open (for example `.hpl`, `.hwf`) open in Hop Gui. Paths resolve relative to the pipeline or workflow file; variables are supported. Click the link to follow it; Ctrl/⌘+click edits the note.
+
+|Images
+|`![alt](path)`
+|Local or VFS paths only (relative to the pipeline/workflow file). PNG, JPEG, GIF, and SVG. Remote `http(s)` images are not loaded. Missing files show `[alt]` as placeholder text.
+
+|Tables
+|GFM pipe tables
+|Header row emphasized
+
+|Horizontal rule
+|`---` on its own line
+|Drawn as a rule
+|===
+
+=== Not supported
+
+* Raw HTML inside the note body
+* Remote images (`http://` / `https://`)
+* MultiMarkdown extras (citations, math, bibliographies)
+* Custom fonts and colors while Markdown is enabled (use note type instead)
+
+== Simple example
+
+----
+# Load order
+
+## Source
+- Extract from CRM
+- [details](crm-extract.hpl)
+
+## Quality
+![DQ flow](images/dq.png)
+
+| Check | Owner |
+| ----- | ----- |
+| Nulls | QA     |
+----
+
+== Tips
+
+* Keep note width readable for wrapping; new notes use a sensible default width.
+* Store images next to the pipeline or workflow (or in a subfolder) and use relative paths such as `images/overview.png`.
+* Auto-layout can move notes with nearby transforms or actions; configure that behaviour in the configuration perspective if needed.

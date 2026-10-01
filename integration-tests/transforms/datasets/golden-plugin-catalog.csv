@@ -1,0 +1,5 @@
+plugin_id,plugin_type,property_xml_key,property_java_type
+PluginCatalog,transform,detailLevel,DetailLevel
+PluginCatalog,transform,includeActions,boolean
+PluginCatalog,transform,includeMetadataTypes,boolean
+PluginCatalog,transform,includeTransforms,boolean

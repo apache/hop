@@ -556,6 +556,10 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>requires connection</item>
       </line>
       <line>
+        <item>databasevaluevalidation-basic.hpl</item>
+        <item>template sample: requires connection and target table</item>
+      </line>
+      <line>
         <item>rest-client-slack-conversations-loop.hpl</item>
         <item>requires SLACK_BOT_TOKEN with channels:read or conversations:read</item>
       </line>

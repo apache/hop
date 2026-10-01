@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -231,7 +232,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
           }
         });
 
-    wTablename = new TextVar(variables, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTablename =
+        new TextVar(variables, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTablename);
     wTablename.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tablename.Tooltip"));
     wTablename.addModifyListener(lsMod);
@@ -308,7 +311,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     fdbFilename.top = new FormAttachment(wConnectionGroup, 0);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar(variables, wDataFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wDataFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.setToolTipText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filename.Tooltip"));
     wFilename.addModifyListener(lsMod);

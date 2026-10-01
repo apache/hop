@@ -17,6 +17,10 @@
 
 package org.apache.hop.core.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -109,5 +113,28 @@ class LogChannelTest {
     logChannel.setFilter("b");
     logChannel.println(logMsgInterfaceFil, LogLevel.BASIC);
     verify(logChFileWriterBuffer, times(0)).addEvent(any(HopLoggingEvent.class));
+  }
+
+  @Test
+  void testPrintlnWithThrowableBumpsLevelPreRendersTraceAndReleasesThrowable() {
+    LoggingBuffer loggingBuffer = mock(LoggingBuffer.class);
+    mockedHopLogStore.when(HopLogStore::getAppender).thenReturn(loggingBuffer);
+    logChannel.setFilter("");
+
+    LogMessage message = new LogMessage("Boom", "1234-5678-abcd-efgh", LogLevel.BASIC);
+    IllegalStateException failure = new IllegalStateException("kaboom");
+
+    logChannel.println(message, failure, LogLevel.ERROR);
+
+    // Surfaced at ERROR level so error scanners/counters still detect it.
+    assertEquals(LogLevel.ERROR, message.getLevel());
+    // Live throwable released so the buffered event does not retain the exception object graph.
+    assertNull(message.getThrowable());
+    // Pre-rendered trace survives for text/buffer consumers (console, file, GUI log browser).
+    assertNotNull(message.getStackTrace());
+    assertTrue(message.getStackTrace().contains("IllegalStateException"));
+    assertTrue(message.getStackTrace().contains("kaboom"));
+    // A single combined event is emitted instead of the legacy two-event path.
+    verify(loggingBuffer, times(1)).addLogggingEvent(any(HopLoggingEvent.class));
   }
 }

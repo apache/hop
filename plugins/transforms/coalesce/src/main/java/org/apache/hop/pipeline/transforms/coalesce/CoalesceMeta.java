@@ -70,14 +70,6 @@ public class CoalesceMeta extends BaseTransformMeta<CoalesceTransform, CoalesceD
     fields = new ArrayList<>();
   }
 
-  public CoalesceMeta(CoalesceMeta c) {
-    super();
-    this.treatEmptyStringsAsNulls = c.treatEmptyStringsAsNulls;
-    for (CoalesceField field : c.getFields()) {
-      fields.add(new CoalesceField(field));
-    }
-  }
-
   @Override
   public void setDefault() {
     this.fields = new ArrayList<>();
@@ -90,11 +82,6 @@ public class CoalesceMeta extends BaseTransformMeta<CoalesceTransform, CoalesceD
 
   public void setTreatEmptyStringsAsNulls(boolean value) {
     this.treatEmptyStringsAsNulls = value;
-  }
-
-  @Override
-  public Object clone() {
-    return new CoalesceMeta(this);
   }
 
   @Override

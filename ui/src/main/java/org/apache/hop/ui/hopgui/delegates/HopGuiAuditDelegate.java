@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -82,8 +83,26 @@ public class HopGuiAuditDelegate {
       return;
     }
 
-    String namespace = HopNamespace.getNamespace();
+    // Prevent per-file writeLastOpenFiles() calls (from fileOpenWithType) from rewriting the
+    // audit list mid-restore. Same flag used at Hop GUI startup.
+    //
+    boolean previousReOpening = hopGui.isReOpeningFiles();
+    hopGui.setReOpeningFiles(true);
+    try {
+      openLastFilesInternal();
+    } finally {
+      hopGui.setReOpeningFiles(previousReOpening);
+    }
 
+    // Persist the actual open set once restore is finished (failed opens are omitted).
+    // Only when we were not already inside a broader re-open block.
+    //
+    if (!previousReOpening) {
+      writeLastOpenFiles();
+    }
+  }
+
+  private void openLastFilesInternal() {
     // Collect files that fail to open
     List<String> failedFiles = new ArrayList<>();
 
@@ -303,6 +322,13 @@ public class HopGuiAuditDelegate {
     if (hopGui.isReOpeningFiles()) {
       return;
     }
+    // Bulk close (project/environment switch, File → Close All) empties tabs first, then may call
+    // writeLastOpenFiles from closeTab handlers. Writing then would overwrite the list we just
+    // saved for reopen (issue #7692).
+    //
+    if (hopGui.fileDelegate != null && hopGui.fileDelegate.isClosing()) {
+      return;
+    }
     if (!hopGui.getProps().openLastFile()) {
       return;
     }
@@ -340,7 +366,7 @@ public class HopGuiAuditDelegate {
 
             // Also save the state : active, zoom, pane (Explorer split), fileType, ...
             //
-            Map<String, Object> stateProperties = typeHandler.getStateProperties();
+            Map<String, Object> stateProperties = copyStateProperties(typeHandler);
             boolean active =
                 activeFileTypeHandler != null
                     && activeFileTypeHandler.getFilename() != null
@@ -385,5 +411,21 @@ public class HopGuiAuditDelegate {
         }
       }
     }
+  }
+
+  /**
+   * Copy handler state into a mutable map. Some handlers return {@link
+   * java.util.Collections#emptyMap()}; the audit list still needs to record active/fileType/pane.
+   */
+  static Map<String, Object> copyStateProperties(IHopFileTypeHandler typeHandler) {
+    Map<String, Object> stateProperties = new HashMap<>();
+    if (typeHandler == null) {
+      return stateProperties;
+    }
+    Map<String, Object> existing = typeHandler.getStateProperties();
+    if (existing != null) {
+      stateProperties.putAll(existing);
+    }
+    return stateProperties;
   }
 }

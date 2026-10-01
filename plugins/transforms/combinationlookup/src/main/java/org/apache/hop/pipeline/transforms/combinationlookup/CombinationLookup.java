@@ -222,7 +222,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       }
 
       if (meta.isUseHash()) {
-        valHash = (long) data.hashRowMeta.hashCode(hashRow);
+        valHash = hashValue(rowMeta, row, hashRow);
         lookupRow[lookupIndex] = valHash;
         lookupIndex++;
       }
@@ -329,6 +329,26 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     return outputRow;
   }
 
+  Long hashValue(IRowMeta rowMeta, Object[] row, Object[] hashRow) throws HopValueException {
+    if (data.hashFieldNr >= 0) {
+      return rowMeta.getInteger(row, data.hashFieldNr);
+    }
+    return (long) data.hashRowMeta.hashCode(hashRow);
+  }
+
+  void resolveHashField(IRowMeta inputRowMeta) throws HopTransformException {
+    data.hashFieldNr = -1;
+    if (!meta.isUseHash() || Utils.isEmpty(resolve(meta.getHashFieldInStream()))) {
+      return;
+    }
+    String hashFieldName = resolve(meta.getHashFieldInStream());
+    data.hashFieldNr = inputRowMeta.indexOfValue(hashFieldName);
+    if (data.hashFieldNr < 0) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "CombinationLookup.Exception.FieldNotFound", hashFieldName));
+    }
+  }
+
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -389,6 +409,8 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         data.hashRowMeta.addValueMeta(getInputRowMeta().getValueMeta(data.keynrs[i])); // KEYi = ?
       }
 
+      resolveHashField(getInputRowMeta());
+
       setCombiLookup(getInputRowMeta());
       preloadCache(data.hashRowMeta);
     }
@@ -418,10 +440,6 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     return true;
   }
 
-  /**
-   * CombinationLookup table: dimension table keys[]: which dim-fields do we use to look up key?
-   * retval: name of the key to return
-   */
   public void setCombiLookup(IRowMeta inputRowMeta) throws HopDatabaseException {
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
     CFields fields = meta.getFields();

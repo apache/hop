@@ -30,9 +30,8 @@ import static org.apache.commons.lang3.StringUtils.trim;
 import static org.apache.hop.core.util.Utils.isEmpty;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.i18nUtil.i18n;
 
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   public static final String CONST_MODEL_TYPE = "model_type";
 
   private Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
+  private LanguageModelChatMeta modelMeta;
 
   private int parallelism = 1;
   private ForkJoinPool executor;
@@ -122,7 +122,8 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      facadeMap.put(new LanguageModel(meta), new LanguageModelFacade(variables, meta));
+      modelMeta = LanguageModelChatAiProviderSupport.resolve(meta, this, metadataProvider);
+      facadeMap.put(new LanguageModel(modelMeta), new LanguageModelFacade(variables, modelMeta));
 
       int parallelism =
           meta.getParallelism() <= 0 ? getRuntime().availableProcessors() : meta.getParallelism();
@@ -235,7 +236,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     String finishReason = null;
     String output = null;
 
-    LanguageModel model = new LanguageModel(meta);
+    LanguageModel model = new LanguageModel(modelMeta);
     LanguageModelFacade facade = facadeMap.get(model);
 
     List<ChatMessage> messageList = facade.inputToChatMessages(message);
@@ -255,7 +256,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     } else {
       Instant inferenceStart = now();
       try {
-        Response<AiMessage> ai = facade.generate(messageList);
+        ChatResponse ai = facade.chat(messageList);
         inferenceTime = between(inferenceStart, now()).toMillis();
         inputTokenCount =
             ai.tokenUsage() == null || ai.tokenUsage().inputTokenCount() == null
@@ -271,9 +272,9 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
                 : ai.tokenUsage().totalTokenCount().longValue();
         finishReason = ai.finishReason() == null ? null : ai.finishReason().name();
         if (meta.isOutputChatJson()) {
-          output = facade.messagesToOutput(messageList, ai.content().text());
+          output = facade.messagesToOutput(messageList, ai.aiMessage().text());
         } else {
-          output = ai.content().text();
+          output = ai.aiMessage().text();
         }
       } catch (Exception e) {
         inferenceTime = between(inferenceStart, now()).toMillis();

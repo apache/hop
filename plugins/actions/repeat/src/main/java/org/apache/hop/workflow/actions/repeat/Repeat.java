@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -37,8 +38,9 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -95,6 +97,17 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   @HopMetadataProperty(key = "keep_values")
   private boolean keepingValues;
 
+  /**
+   * Pass this workflow's value of a same-named parameter or variable to a parameter the repeated
+   * pipeline or workflow declares but that is not listed on the Parameters tab.
+   *
+   * <p>On for a newly created action, like every other action and transform that runs a child. A
+   * workflow saved before this option existed carries no tag and therefore loads as off, which is
+   * what a Repeat action did before: only the Parameters tab reached the child.
+   */
+  @HopMetadataProperty(key = "pass_all_parameters")
+  private boolean passingAllParameters = true;
+
   @HopMetadataProperty(key = "run_configuration")
   private String runConfigurationName;
 
@@ -143,11 +156,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
   public Repeat() {
     this("", "");
-  }
-
-  @Override
-  public Repeat clone() {
-    return (Repeat) super.clone();
   }
 
   @Override
@@ -272,11 +280,8 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     // So let's take the workflow variables to evaluate.
     pipeline.setVariables(getVariablesMap(getParentWorkflow(), previousResult));
 
-    // TODO: check this!
-    INamedParameters previousParams =
-        previousResult == null ? null : (INamedParameters) previousResult.variables;
     IVariables previousVars = previousResult == null ? null : previousResult.variables;
-    updateParameters(pipeline, previousVars, getParentWorkflow(), previousParams);
+    updateParameters(pipeline, pipeline, previousVars);
 
     pipeline.setLogLevel(getLogLevel());
     pipeline.setMetadataProvider(getMetadataProvider());
@@ -380,11 +385,8 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     workflow.getWorkflowMeta().setInternalHopVariables(workflow);
     workflow.setVariables(getVariablesMap(workflow, previousResult));
 
-    // TODO: check this!
-    INamedParameters previousParams =
-        previousResult == null ? null : (INamedParameters) previousResult.variables;
     IVariables previousVars = previousResult == null ? null : (IVariables) previousResult.variables;
-    updateParameters(workflow, previousVars, getParentWorkflow(), previousParams);
+    updateParameters(workflow, workflow, previousVars);
 
     workflow.setLogLevel(getLogLevel());
     workflow.getActionListeners().addAll(parentWorkflow.getActionListeners());
@@ -418,42 +420,41 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   private void updateParameters(
-      INamedParameters subParams, IVariables subVars, INamedParameters... params) {
-    // Inherit
-    for (INamedParameters param : params) {
-      if (param != null) {}
-    }
-
-    // Any parameters to initialize from the workflow action?
-    //
+      IVariables subVariables, INamedParameters subParams, IVariables subVars) {
     String[] parameterNames = subParams.listParameters();
+
+    // What the Parameters tab of this action configures. A row that names a parameter but
+    // carries no value configures nothing, so it is left to the option and the child's default.
+    //
+    Map<String, String> values = new LinkedHashMap<>();
     for (ParameterDetails parameter : parameters) {
-      if (Const.indexOfString(parameter.getName(), parameterNames) >= 0) {
-        // Set this parameter
-        //
-        String value = resolve(parameter.getField());
-        try {
-          subParams.setParameterValue(parameter.getName(), value);
-        } catch (UnknownParamException e) {
-          // Ignore
-        }
+      if (Utils.isEmpty(parameter.getName()) || Utils.isEmpty(Const.trim(parameter.getField()))) {
+        continue;
       }
+      values.put(parameter.getName(), Const.NVL(resolve(parameter.getField()), ""));
     }
 
-    // Changed values?
+    // "Keep values between executions" carries the previous repetition's values forward, which
+    // wins over the Parameters tab: that is what makes a repeat accumulate.
     //
     if (keepingValues && subVars != null) {
-      for (String parameterName : subParams.listParameters()) {
-        try {
-          String value = subVars.getVariable(parameterName);
-          subParams.setParameterValue(parameterName, value);
-        } catch (UnknownParamException e) {
-          // Ignore
+      for (String parameterName : parameterNames) {
+        String value = subVars.getVariable(parameterName);
+        if (value != null) {
+          values.put(parameterName, value);
         }
       }
     }
 
-    // subParams.activateParameters(); TODO
+    SubExecutionParameters.activate(
+        subVariables,
+        subParams,
+        getParentWorkflow(),
+        parameterNames,
+        values.keySet().toArray(new String[0]),
+        values.values().toArray(new String[0]),
+        passingAllParameters,
+        false);
   }
 
   private boolean isVariableValueSet(IVariables variables) {

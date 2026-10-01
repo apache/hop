@@ -44,6 +44,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link MailConnection} */
 class MailConnectionFilterTest {
 
   private MailConnection conn;
@@ -55,7 +56,7 @@ class MailConnectionFilterTest {
   }
 
   @BeforeEach
-  void setUp() throws HopException, MessagingException {
+  void setUp() throws HopException {
     ILogChannel log = new LogChannel(new Object());
     conn =
         new MailConnection(
@@ -91,9 +92,25 @@ class MailConnectionFilterTest {
   }
 
   @Test
+  void recipientTermEmptyIsNoop() {
+    conn.setReceipientTerm("");
+    conn.setReceipientTerm(null);
+    assertNull(conn.getSearchTerm());
+  }
+
+  @Test
   void recipientTermAdded() {
     conn.setReceipientTerm("b@x.com");
     assertInstanceOf(RecipientStringTerm.class, conn.getSearchTerm());
+  }
+
+  @Test
+  void subjectAndBodyEmptyAreNoop() {
+    conn.setSubjectTerm("", false);
+    conn.setSubjectTerm(null, true);
+    conn.setBodyTerm("", false);
+    conn.setBodyTerm(null, true);
+    assertNull(conn.getSearchTerm());
   }
 
   @Test
@@ -128,7 +145,7 @@ class MailConnectionFilterTest {
   }
 
   @Test
-  void receivedDateTermsAreSkippedForPop3() throws HopException, MessagingException {
+  void receivedDateTermsAreSkippedForPop3() throws HopException {
     MailConnection pop3 =
         new MailConnection(
             new LogChannel(new Object()),

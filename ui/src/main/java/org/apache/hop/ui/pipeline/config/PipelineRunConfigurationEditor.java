@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.server.loadbalance.ILoadBalancingRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -47,7 +48,9 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.server.loadbalance.LoadBalancingRunConfigurationWidgets;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -77,7 +80,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private final PipelineRunConfiguration runConfiguration;
   private final PipelineRunConfiguration workingConfiguration;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Button wDefault;
   private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
@@ -87,6 +90,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Composite wPluginSpecificComp;
   private ScrolledComposite wsPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
+  private LoadBalancingRunConfigurationWidgets loadBalancingWidgets;
 
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
   private TableView wVariables;
@@ -176,21 +180,12 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     //
     // What's the name
     //
-    Label wlName = new Label(wMainComp, SWT.RIGHT);
-    PropsUi.setLook(wlName);
-    wlName.setText(BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.name"));
-    FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin);
-    fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlName.right = new FormAttachment(middle, -margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.left = new FormAttachment(middle, 0); // To the right of the label
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    wName =
+        createNameField(
+            wMainComp,
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.name"),
+            middle,
+            margin);
     Control lastControl = wName;
 
     Label wlDescription = new Label(wMainComp, SWT.RIGHT);
@@ -291,7 +286,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     // Add a composite area
     //
     wsPluginSpecificComp = new ScrolledComposite(wMainComp, SWT.V_SCROLL | SWT.H_SCROLL);
-    wsPluginSpecificComp.setLayout(new FormLayout());
+    wsPluginSpecificComp.setLayout(new FillLayout());
     FormData fdsPluginSpecificComp = new FormData();
     fdsPluginSpecificComp.left = new FormAttachment(0, 0);
     fdsPluginSpecificComp.top = new FormAttachment(lastControl, margin);
@@ -301,26 +296,18 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     wPluginSpecificComp = new Composite(wsPluginSpecificComp, SWT.BACKGROUND);
     PropsUi.setLook(wPluginSpecificComp);
-    wPluginSpecificComp.setLayout(new FormLayout());
-    FormData fdPluginSpecificComp = new FormData();
-    fdPluginSpecificComp.left = new FormAttachment(0, 0);
-    fdPluginSpecificComp.right = new FormAttachment(100, 0);
-    fdPluginSpecificComp.top = new FormAttachment(lastControl, margin);
-    fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
-    wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
+    FormLayout pluginSpecificLayout = new FormLayout();
+    pluginSpecificLayout.marginWidth = PropsUi.getFormMargin();
+    pluginSpecificLayout.marginHeight = PropsUi.getFormMargin();
+    wPluginSpecificComp.setLayout(pluginSpecificLayout);
 
     wsPluginSpecificComp.setContent(wPluginSpecificComp);
+    wsPluginSpecificComp.setExpandHorizontal(true);
+    wsPluginSpecificComp.setExpandVertical(true);
 
     // Add the plugin specific widgets
     //
     addGuiCompositeWidgets();
-
-    wPluginSpecificComp.layout();
-    wsPluginSpecificComp.setExpandHorizontal(true);
-    wsPluginSpecificComp.setExpandVertical(true);
-    Rectangle bounds = wPluginSpecificComp.getBounds();
-    wsPluginSpecificComp.setMinWidth(bounds.width);
-    wsPluginSpecificComp.setMinHeight(bounds.height);
 
     FormData fdMainComp = new FormData();
     fdMainComp.left = new FormAttachment(0, 0);
@@ -360,18 +347,12 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     variablesLayout.marginHeight = 0;
     wVariablesComp.setLayout(variablesLayout);
 
-    ColumnInfo[] columns = {
-      new ColumnInfo(
-          BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Name"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
-      new ColumnInfo(
-          BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Value"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
-      new ColumnInfo(
-          BaseMessages.getString(
-              PKG, "PipelineRunConfigurationDialog.Variables.Column.Description"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
-    };
+    ColumnInfo[] columns =
+        createVariablesColumns(
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Name"),
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Value"),
+            BaseMessages.getString(
+                PKG, "PipelineRunConfigurationDialog.Variables.Column.Description"));
 
     wVariables =
         new TableView(
@@ -443,9 +424,18 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     for (Control child : wPluginSpecificComp.getChildren()) {
       child.dispose();
     }
+    guiCompositeWidgets = null;
+    loadBalancingWidgets = null;
 
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
+      if (workingConfiguration.getEngineRunConfiguration()
+          instanceof ILoadBalancingRunConfiguration) {
+        loadBalancingWidgets =
+            new LoadBalancingRunConfigurationWidgets(
+                manager.getVariables(), manager.getMetadataProvider());
+        loadBalancingWidgets.registerServersGroup(guiCompositeWidgets, e -> setChanged());
+      }
       guiCompositeWidgets.createCompositeWidgets(
           workingConfiguration.getEngineRunConfiguration(),
           null,
@@ -492,11 +482,17 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                     wPluginSpecificComp,
                     PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
                 wPluginSpecificComp.layout(true, true);
+                updatePluginSpecificMinSize();
               }
               setChanged();
             }
           });
     }
+    updatePluginSpecificMinSize();
+  }
+
+  private void updatePluginSpecificMinSize() {
+    GuiCompositeWidgets.updateScrolledMinSize(wPluginSpecificComp);
   }
 
   private AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
@@ -536,6 +532,13 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   public void save() throws HopException {
     changeWorkingEngineConfiguration(runConfiguration);
 
+    // Make this the exclusive default when the default flag is set (issue #2753).
+    getWidgetsContent(getMetadata());
+    if (getMetadata().isDefaultSelection()) {
+      PipelineRunConfiguration.clearDefaultFlagFromOthers(
+          manager.getMetadataProvider(), getMetadata().getName());
+    }
+
     super.save();
   }
 
@@ -544,6 +547,9 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     try {
       wExecutionInfoLocation.fillItems();
       wProfile.fillItems();
+      if (loadBalancingWidgets != null) {
+        loadBalancingWidgets.refreshServerNames();
+      }
     } catch (Exception e) {
       LogChannel.UI.logError("Error refreshing execution metadata lists", e);
     }
@@ -579,6 +585,12 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+        updatePluginSpecificMinSize();
+      }
+      if (loadBalancingWidgets != null
+          && workingConfiguration.getEngineRunConfiguration()
+              instanceof ILoadBalancingRunConfiguration loadBalancing) {
+        loadBalancingWidgets.setServers(loadBalancing);
       }
     } else {
       if (!wPluginType.getText().isEmpty()) {
@@ -622,6 +634,11 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
       guiCompositeWidgets.getWidgetsContents(
           meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
     }
+    if (loadBalancingWidgets != null
+        && meta.getEngineRunConfiguration()
+            instanceof ILoadBalancingRunConfiguration loadBalancing) {
+      loadBalancingWidgets.getServers(loadBalancing);
+    }
 
     meta.setExecutionDataProfileName(wProfile.getText());
 
@@ -658,5 +675,21 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
     Arrays.sort(types, String.CASE_INSENSITIVE_ORDER);
     return types;
+  }
+
+  /**
+   * Builds the Variables table columns for a pipeline run configuration. Only the Value column
+   * enables the variable picker — names are literal keys and are resolved at runtime only for
+   * values (see {@code PipelineEngineFactory.applyVariableDefinitions}).
+   */
+  static ColumnInfo[] createVariablesColumns(
+      String nameTitle, String valueTitle, String descriptionTitle) {
+    ColumnInfo[] columns = {
+      new ColumnInfo(nameTitle, ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(valueTitle, ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(descriptionTitle, ColumnInfo.COLUMN_TYPE_TEXT),
+    };
+    columns[1].setUsingVariables(true);
+    return columns;
   }
 }

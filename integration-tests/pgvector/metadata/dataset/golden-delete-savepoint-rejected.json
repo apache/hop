@@ -1,0 +1,15 @@
+{
+  "base_filename": "golden-delete-savepoint-rejected.csv",
+  "name": "golden-delete-savepoint-rejected",
+  "description": "Only the document whose delete the trigger refuses reaches the error hop.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "document_id",
+      "field_format": ""
+    }
+  ]
+}

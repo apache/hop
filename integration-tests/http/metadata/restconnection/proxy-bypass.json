@@ -1,0 +1,10 @@
+{
+  "name": "proxy-bypass",
+  "auth_type": "No Auth",
+  "base_url": "http://${HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false,
+  "proxy_host": "${PROXY_HOST}",
+  "proxy_port": "${PROXY_PORT}",
+  "non_proxy_hosts": "${HOSTNAME}"
+}

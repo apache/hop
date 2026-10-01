@@ -17,8 +17,12 @@
 
 package org.apache.hop.databases.sqlite;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
 import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -26,19 +30,116 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.database.types.StandardJdbcTypeMapper;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 
 /** Contains SQLite specific information through static final members */
 @DatabaseMetaPlugin(
     type = "SQLITE",
     typeDescription = "SQLite",
     image = "sqlite.svg",
-    documentationUrl = "/database/databases/sqlite.html")
+    documentationUrl = "/database/databases/sqlite.html",
+    classLoaderGroup = "sqlite-db")
 @GuiPlugin(id = "GUI-SQLiteDatabaseMeta")
 public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** SQLite limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
+  @Override
+  public String getSqlObjectDdl(String schemaName, String objectName) {
+    if (Utils.isEmpty(objectName)) {
+      return null;
+    }
+    return "SELECT sql FROM sqlite_master WHERE name = "
+        + quoteSqlString(objectName)
+        + " AND type IN ('table', 'view')";
+  }
+
+  @Override
+  public String getSqlViewDefinition(String schemaName, String viewName) {
+    return getSqlObjectDdl(schemaName, viewName);
+  }
+
+  /**
+   * Reading and writing dates as text rather than through the driver's getTimestamp/setTimestamp.
+   * See {@link SqliteDateValues} and issue #3910.
+   */
+  private static final IValueBinding DATE_BINDING =
+      new IValueBinding() {
+        @Override
+        public Object read(IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index)
+            throws SQLException {
+          return SqliteDateValues.read(resultSet, index);
+        }
+
+        @Override
+        public void write(
+            IDatabase database,
+            IValueMeta valueMeta,
+            PreparedStatement preparedStatement,
+            int index,
+            Object value)
+            throws SQLException, HopValueException {
+          SqliteDateValues.write(database, valueMeta, preparedStatement, index, value);
+        }
+      };
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // A table column declared NUMERIC, DECIMAL or NUMBER is an exact number, whatever the
+          // driver makes of the row it is on: INTEGER for a whole number, NUMERIC for a null,
+          // VARCHAR for text. The prepared statement says NUMERIC for all of them, and a Database
+          // Join takes its fields from one and its values from the other. Matched on the declared
+          // name, which is the same on both, rather than on the JDBC type. See issue #3633.
+          .readNativeMatching(SqliteNumericValues.DECLARED_TYPE)
+          .where(column -> !Utils.isEmpty(column.getTableName()))
+          .bind(SqliteNumericValues.BINDING)
+          .as(
+              IValueMeta.TYPE_BIGNUMBER,
+              column -> column.getPrecision() > 0 ? column.getPrecision() : -1,
+              column -> column.getPrecision() > 0 ? column.getScale() : -1)
+          // Dynamic typing means a binary column is as likely to hold text.
+          .read(Types.BINARY, Types.BLOB, Types.VARBINARY, Types.LONGVARBINARY)
+          .where(
+              (variables, databaseMeta, column) ->
+                  !StandardJdbcTypeMapper.displaySizeIsTwiceThePrecision(databaseMeta, column))
+          .as(IValueMeta.TYPE_STRING, -1, -1)
+          // The driver types an expression column from the first row it sees, and answers NUMERIC
+          // when that row was null and it has nothing to go on: a value it can type comes back as
+          // INTEGER, REAL or VARCHAR instead. Taking that "no idea" for a number is what turns
+          // STRFTIME('%Y-%m-%d', ...) into 2024, because SQLite casts a string to a number by its
+          // leading digits, and SQLite's date and string functions all return text. A string is
+          // the only reading that cannot lose the value, whatever the remaining rows hold.
+          //
+          // Only for a column with no table behind it. A column of a table declared NUMERIC is a
+          // column the user asked to be numeric, and the driver reports its table even through a
+          // view, a subquery or an alias. See issue #3910.
+          .read(Types.NUMERIC)
+          .nativeName("NUMERIC")
+          .where(column -> Utils.isEmpty(column.getTableName()))
+          .as(IValueMeta.TYPE_STRING, -1, -1)
+          .bind(IValueMeta.TYPE_DATE, DATE_BINDING)
+          .bind(IValueMeta.TYPE_TIMESTAMP, DATE_BINDING)
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -61,6 +162,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  @SuppressWarnings("java:S1313") // the driver version is not an IP address
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("org.xerial:sqlite-jdbc")
@@ -123,7 +225,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -143,7 +245,8 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

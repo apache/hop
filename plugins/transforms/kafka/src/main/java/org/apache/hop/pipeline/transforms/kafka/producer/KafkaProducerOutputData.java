@@ -29,6 +29,9 @@ public class KafkaProducerOutputData extends BaseTransformData implements ITrans
   public Producer<Object, Object> kafkaProducer;
   public int keyFieldIndex;
   public int messageFieldIndex;
+  public int topicFieldIndex;
+  public int headersFieldIndex;
+  public String topic;
   public boolean isOpen;
 
   public KafkaProducerOutputData() {

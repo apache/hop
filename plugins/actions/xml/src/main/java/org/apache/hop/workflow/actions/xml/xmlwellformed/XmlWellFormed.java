@@ -140,12 +140,6 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    XmlWellFormed je = (XmlWellFormed) super.clone();
-    return je;
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     result.setNrErrors(1);
@@ -359,7 +353,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
                   new AllFileSelector() {
                     @Override
                     public boolean traverseDescendents(FileSelectInfo info) {
-                      return true;
+                      return info.getDepth() == 0 || includeSubfolders;
                     }
 
                     @Override

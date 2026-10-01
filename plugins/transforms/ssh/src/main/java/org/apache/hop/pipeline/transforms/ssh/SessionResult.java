@@ -32,6 +32,13 @@ public class SessionResult {
   private static final int CHANNEL_POLL_MS = 50;
   private static final int CHANNEL_MAX_WAIT_MS = 120_000;
 
+  /**
+   * After JSch reports the channel closed, {@link InputStream#available()} can still briefly return
+   * 0 while stdout/stderr packets are in flight (common under CI load). Keep polling a few times
+   * before treating empty streams as complete so we do not drop command output.
+   */
+  private static final int POST_CLOSE_EMPTY_POLLS = 10;
+
   @Getter @Setter private String stdOut;
   @Getter private String stdErr;
   @Getter @Setter private boolean stdErrorType;
@@ -74,22 +81,37 @@ public class SessionResult {
       StringBuilder stderr = new StringBuilder();
 
       long deadline = System.currentTimeMillis() + CHANNEL_MAX_WAIT_MS;
+      int emptyPollsAfterClose = 0;
       while (true) {
-        appendAvailable(isOut, buffer, stdout);
-        appendAvailable(isErr, buffer, stderr);
+        boolean readOut = appendAvailable(isOut, buffer, stdout);
+        boolean readErr = appendAvailable(isErr, buffer, stderr);
+        boolean readSomething = readOut || readErr;
+
         if (channel.isClosed()) {
-          if (isStreamDrained(isOut) && isStreamDrained(isErr)) {
-            break;
+          if (readSomething) {
+            emptyPollsAfterClose = 0;
+          } else if (isStreamDrained(isOut) && isStreamDrained(isErr)) {
+            // Already captured output: channel close is enough. Empty output needs a short grace
+            // window because available()==0 right after close is not a reliable EOF under load.
+            if (stdout.length() > 0 || stderr.length() > 0) {
+              break;
+            }
+            emptyPollsAfterClose++;
+            if (emptyPollsAfterClose >= POST_CLOSE_EMPTY_POLLS) {
+              break;
+            }
           }
         } else if (System.currentTimeMillis() > deadline) {
           throw new HopException("Timed out waiting for SSH command to complete");
         } else {
-          try {
-            Thread.sleep(CHANNEL_POLL_MS);
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new HopException(e);
-          }
+          emptyPollsAfterClose = 0;
+        }
+
+        try {
+          Thread.sleep(CHANNEL_POLL_MS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new HopException(e);
         }
       }
 
@@ -100,18 +122,24 @@ public class SessionResult {
     }
   }
 
-  private static void appendAvailable(InputStream in, byte[] buffer, StringBuilder target)
+  /**
+   * @return true if at least one byte was read
+   */
+  private static boolean appendAvailable(InputStream in, byte[] buffer, StringBuilder target)
       throws IOException {
     if (in == null) {
-      return;
+      return false;
     }
+    boolean readSomething = false;
     while (in.available() > 0) {
       int read = in.read(buffer, 0, buffer.length);
       if (read < 0) {
         break;
       }
       target.append(new String(buffer, 0, read, StandardCharsets.UTF_8));
+      readSomething = true;
     }
+    return readSomething;
   }
 
   private boolean isStreamDrained(InputStream in) throws IOException {

@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0042-formula-pre1900-error-handling</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>With error handling configured, a date the Formula transform can not represent is
+diverted instead of stopping the pipeline. 1899-12-31 is the oldest supported date (Excel date
+serial number 0), so only the 1800-01-01 row ends up on the error stream while the two supported
+dates pass through unchanged. See https://github.com/apache/hop/issues/3572</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/08/12 09:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/08/12 09:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>input dates</from>
+      <to>date formula</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>date formula</from>
+      <to>verify supported dates</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>date formula</from>
+      <to>verify error description</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify supported dates</from>
+      <to>count supported rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify supported dates</from>
+      <to>Abort on wrong date</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>count supported rows</from>
+      <to>verify supported count</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify supported count</from>
+      <to>Supported dates OK</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify supported count</from>
+      <to>Abort on supported count</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify error description</from>
+      <to>count error rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify error description</from>
+      <to>Abort on wrong error</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>count error rows</from>
+      <to>verify error count</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify error count</from>
+      <to>Errors OK</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>verify error count</from>
+      <to>Abort on error count</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>input dates</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>epoch</item>
+        <item>1899-12-31</item>
+      </line>
+      <line>
+        <item>supported</item>
+        <item>1900-01-01</item>
+      </line>
+      <line>
+        <item>too old</item>
+        <item>1800-01-01</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <name>label</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>input_date</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>date formula</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <formulas>
+      <formula>
+        <field_name>passthrough_date</field_name>
+        <formula>IF(1=2, DATE(2000,1,1), [input_date])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>3</value_type>
+      </formula>
+    </formulas>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>verify supported dates</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>count supported rows</send_true_to>
+    <send_false_to>Abort on wrong date</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>passthrough_date</leftvalue>
+        <function>=</function>
+        <rightvalue>input_date</rightvalue>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>count supported rows</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <all_rows>N</all_rows>
+    <ignore_aggregate>N</ignore_aggregate>
+    <field_ignore/>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>grp</prefix>
+    <add_linenr>N</add_linenr>
+    <linenr_fieldname/>
+    <give_back_row>N</give_back_row>
+    <group>
+    </group>
+    <fields>
+      <field>
+        <aggregate>supported_rows</aggregate>
+        <subject>label</subject>
+        <type>COUNT_ALL</type>
+        <valuefield/>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>verify supported count</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Supported dates OK</send_true_to>
+    <send_false_to>Abort on supported count</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>supported_rows</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>2</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>####0;-####0</mask>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Supported dates OK</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort on wrong date</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>16</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort on supported count</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>16</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>verify error description</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>count error rows</send_true_to>
+    <send_false_to>Abort on wrong error</send_false_to>
+    <compare>
+      <condition>
+        <conditions>
+          <condition>
+            <conditions>
+</conditions>
+            <function>CONTAINS</function>
+            <leftvalue>err_desc</leftvalue>
+            <negated>N</negated>
+            <operator>-</operator>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>1899-12-31</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>err_field</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>passthrough_date</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>label</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>too old</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+          </condition>
+        </conditions>
+        <negated>N</negated>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>count error rows</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <all_rows>N</all_rows>
+    <ignore_aggregate>N</ignore_aggregate>
+    <field_ignore/>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>grp</prefix>
+    <add_linenr>N</add_linenr>
+    <linenr_fieldname/>
+    <give_back_row>N</give_back_row>
+    <group>
+    </group>
+    <fields>
+      <field>
+        <aggregate>error_rows</aggregate>
+        <subject>label</subject>
+        <type>COUNT_ALL</type>
+        <valuefield/>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>verify error count</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Errors OK</send_true_to>
+    <send_false_to>Abort on error count</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>error_rows</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>1</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>####0;-####0</mask>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Errors OK</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort on wrong error</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>320</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort on error count</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>320</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>date formula</source_transform>
+      <target_transform>verify error description</target_transform>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>err_nr</nr_valuename>
+      <descriptions_valuename>err_desc</descriptions_valuename>
+      <fields_valuename>err_field</fields_valuename>
+      <codes_valuename>err_code</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

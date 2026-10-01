@@ -62,16 +62,6 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
     mergeFields = new ArrayList<>();
   }
 
-  public SortedMergeMeta(SortedMergeMeta m) {
-    this();
-    m.mergeFields.forEach(f -> this.mergeFields.add(new MergeField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new SortedMergeMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,
@@ -86,7 +76,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
       int idx = inputRowMeta.indexOfValue(field.getFieldName());
       if (idx >= 0) {
         IValueMeta valueMeta = inputRowMeta.getValueMeta(idx);
-        valueMeta.setSortedDescending(field.isAscending());
+        valueMeta.setSortedDescending(!field.isAscending());
       }
     }
   }

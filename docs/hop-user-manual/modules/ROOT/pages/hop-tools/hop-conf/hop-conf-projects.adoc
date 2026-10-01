@@ -14,8 +14,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:openvar: ${
-:closevar: }
 
 
 === Configuration on the command line
@@ -99,6 +97,31 @@ As you can see from the log, an empty file was created to set variables in:
 [source,json]
 ----
 { }
+----
+
+==== Adding configuration files from a directory
+
+`--environment-config-files` still lists files one by one.
+To add every matching file in a folder, pass the folder and a regular expression.
+The expression is matched against the file name, the same way as in the JSON Input and Get File Names transforms.
+`*.json` is not a valid expression; use `.*\.json`.
+
+An exclusion expression and `--environment-config-include-subfolders` are optional.
+Files found in the folder are stored as individual paths.
+They can be combined with `--environment-config-files`.
+When either option is set, that selection replaces the environment's configuration file list.
+
+[source,bash]
+----
+$ sh hop-conf.sh \
+     --environment-create \
+     --environment test-file \
+     --environment-project test-file \
+     --environment-purpose=Testing \
+     --environment-config-file-directory="<YOUR_ENV_CONFIG_PATH>/config" \
+     --environment-config-file-wildcard=".*\.json" \
+     --environment-config-file-exclude-wildcard=".*secret.*" \
+     --environment-config-include-subfolders
 ----
 
 ==== Setting variables in an environment

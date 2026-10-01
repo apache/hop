@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.workflowexecutor;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -29,11 +30,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.parameters.SubExecutionParameters;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -71,7 +73,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       Object[] row = getRow();
 
       if (row == null) {
-        if (!data.groupBuffer.isEmpty()) {
+        if (data.groupBuffer != null && !data.groupBuffer.isEmpty()) {
           executeWorkflow();
         }
         setOutputDone();
@@ -80,69 +82,40 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
       if (first) {
         first = false;
-
-        // calculate the various output row layouts first...
-        //
-        data.inputRowMeta = getInputRowMeta();
-        data.executionResultsOutputRowMeta = data.inputRowMeta.clone();
-        data.resultRowsOutputRowMeta = data.inputRowMeta.clone();
-        data.resultFilesOutputRowMeta = data.inputRowMeta.clone();
-
-        if (meta.getExecutionResultTargetTransformMeta() != null) {
-          meta.getFields(
-              data.executionResultsOutputRowMeta,
-              getTransformName(),
-              null,
-              meta.getExecutionResultTargetTransformMeta(),
-              this,
-              metadataProvider);
-          data.executionResultRowSet =
-              findOutputRowSet(meta.getExecutionResultTargetTransformMeta().getName());
+        if (!meta.isFilenameInField()) {
+          initOnFirstProcessingIteration();
         }
-        if (meta.getResultRowsTargetTransformMeta() != null) {
-          meta.getFields(
-              data.resultRowsOutputRowMeta,
-              getTransformName(),
-              null,
-              meta.getResultRowsTargetTransformMeta(),
-              this,
-              metadataProvider);
-          data.resultRowsRowSet =
-              findOutputRowSet(meta.getResultRowsTargetTransformMeta().getName());
-        }
-        if (meta.getResultFilesTargetTransformMeta() != null) {
-          meta.getFields(
-              data.resultFilesOutputRowMeta,
-              getTransformName(),
-              null,
-              meta.getResultFilesTargetTransformMeta(),
-              this,
-              metadataProvider);
-          data.resultFilesRowSet =
-              findOutputRowSet(meta.getResultFilesTargetTransformMeta().getName());
-        }
+      }
 
-        // Remember which column to group on, if any...
-        //
-        data.groupFieldIndex = -1;
-        if (!Utils.isEmpty(data.groupField)) {
-          data.groupFieldIndex = getInputRowMeta().indexOfValue(data.groupField);
-          if (data.groupFieldIndex < 0) {
+      if (meta.isFilenameInField()) {
+        int pos = getInputRowMeta().indexOfValue(meta.getFilenameField());
+        if (pos < 0) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "WorkflowExecutor.Exception.UnableToFindField", meta.getFilenameField()));
+        }
+        String filename = getInputRowMeta().getString(row, pos);
+        if (data.prevFilename == null || !data.prevFilename.equals(filename)) {
+          // When grouping by size, flush a partial group before switching child workflow so each
+          // execution only receives rows for the previous path. Per-copy buffer; shared meta is
+          // not touched (see runtimeWorkflowFilename).
+          if (data.prevFilename != null
+              && data.groupSize > 0
+              && data.groupBuffer != null
+              && !data.groupBuffer.isEmpty()) {
+            executeWorkflow();
+          }
+          if (isDetailed()) {
+            logDetailed("Identified a new workflow to execute: '" + filename + "'");
+          }
+          data.runtimeWorkflowFilename = filename;
+          data.prevFilename = filename;
+          if (!initWorkflow()) {
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "WorkflowExecutor.Exception.GroupFieldNotFound", data.groupField));
+                    PKG, "WorkflowExecutor.Exception.UnableToLoadWorkflow", filename));
           }
-          data.groupFieldMeta = getInputRowMeta().getValueMeta(data.groupFieldIndex);
-        }
-
-        // Edge case: no grouping information given at all...
-        //
-        if (data.groupSize < 0 && data.groupFieldIndex < 0 && data.groupTime <= 0) {
-          // We assume that we want to execute once per input row, not once for all the input
-          // rows...
-          // This is the default but the case might come about anyway
-          //
-          data.groupSize = 1;
+          initOnFirstProcessingIteration();
         }
       }
 
@@ -178,6 +151,70 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       return true;
     } catch (Exception e) {
       throw new HopException(BaseMessages.getString(PKG, "WorkflowExecutor.UnexpectedError"), e);
+    }
+  }
+
+  private void initOnFirstProcessingIteration() throws HopException {
+    // calculate the various output row layouts first...
+    //
+    data.inputRowMeta = getInputRowMeta();
+    data.executionResultsOutputRowMeta = data.inputRowMeta.clone();
+    data.resultRowsOutputRowMeta = data.inputRowMeta.clone();
+    data.resultFilesOutputRowMeta = data.inputRowMeta.clone();
+
+    if (meta.getExecutionResultTargetTransformMeta() != null) {
+      meta.getFields(
+          data.executionResultsOutputRowMeta,
+          getTransformName(),
+          null,
+          meta.getExecutionResultTargetTransformMeta(),
+          this,
+          metadataProvider);
+      data.executionResultRowSet =
+          findOutputRowSet(meta.getExecutionResultTargetTransformMeta().getName());
+    }
+    if (meta.getResultRowsTargetTransformMeta() != null) {
+      meta.getFields(
+          data.resultRowsOutputRowMeta,
+          getTransformName(),
+          null,
+          meta.getResultRowsTargetTransformMeta(),
+          this,
+          metadataProvider);
+      data.resultRowsRowSet = findOutputRowSet(meta.getResultRowsTargetTransformMeta().getName());
+    }
+    if (meta.getResultFilesTargetTransformMeta() != null) {
+      meta.getFields(
+          data.resultFilesOutputRowMeta,
+          getTransformName(),
+          null,
+          meta.getResultFilesTargetTransformMeta(),
+          this,
+          metadataProvider);
+      data.resultFilesRowSet = findOutputRowSet(meta.getResultFilesTargetTransformMeta().getName());
+    }
+
+    // Remember which column to group on, if any...
+    //
+    data.groupFieldIndex = -1;
+    if (!Utils.isEmpty(data.groupField)) {
+      data.groupFieldIndex = getInputRowMeta().indexOfValue(data.groupField);
+      if (data.groupFieldIndex < 0) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "WorkflowExecutor.Exception.GroupFieldNotFound", data.groupField));
+      }
+      data.groupFieldMeta = getInputRowMeta().getValueMeta(data.groupFieldIndex);
+    }
+
+    // Edge case: no grouping information given at all...
+    //
+    if (data.groupSize < 0 && data.groupFieldIndex < 0 && data.groupTime <= 0) {
+      // We assume that we want to execute once per input row, not once for all the input
+      // rows...
+      // This is the default but the case might come about anyway
+      //
+      data.groupSize = 1;
     }
   }
 
@@ -219,7 +256,38 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     getPipeline().addActiveSubWorkflow(getTransformName(), data.executorWorkflow);
 
-    Result result = data.executorWorkflow.startExecution();
+    AtomicReference<Result> resultRef = new AtomicReference<>();
+    Thread runner =
+        new Thread(
+            () -> resultRef.set(data.executorWorkflow.startExecution()),
+            "WorkflowExecutor-" + getTransformName());
+    runner.start();
+
+    long timeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
+    boolean finishedInTime =
+        ExecutionWait.waitForThread(
+            runner, () -> isStopped() || getPipeline().isStopped(), timeoutMs);
+
+    if (!finishedInTime || isStopped() || getPipeline().isStopped()) {
+      if (!finishedInTime) {
+        logError(
+            BaseMessages.getString(
+                PKG, "WorkflowExecutor.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
+      }
+      data.executorWorkflow.stopExecution();
+      ExecutionWait.joinQuietly(runner);
+    }
+
+    Result result = resultRef.get();
+    if (result == null) {
+      result = new Result();
+      result.setResult(false);
+      result.setNrErrors(1);
+    }
+    if (!finishedInTime) {
+      result.setResult(false);
+      result.setNrErrors(Math.max(1, result.getNrErrors()));
+    }
 
     // First the natural output...
     // Execution-result rows keep the first input row fields (e.g. filename) and append metrics.
@@ -389,12 +457,15 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     List<WorkflowExecutorParameters> parameters = meta.getParameters();
 
+    List<String> names = new ArrayList<>();
+    List<String> values = new ArrayList<>();
     for (WorkflowExecutorParameters parameter : parameters) {
       String variableName = parameter.getVariable();
       String variableInput = parameter.getInput();
       String fieldName = parameter.getField();
       String variableValue = null;
-      if (StringUtils.isNotEmpty(variableName)) {
+      if (StringUtils.isNotEmpty(variableName)
+          && (StringUtils.isNotEmpty(fieldName) || StringUtils.isNotEmpty(variableInput))) {
         // The value is provided by a field in an input row
         //
         if (StringUtils.isNotEmpty(fieldName)) {
@@ -413,64 +484,85 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           }
         }
 
-        try {
-          data.executorWorkflow.setParameterValue(variableName, Const.NVL(variableValue, ""));
-        } catch (UnknownParamException e) {
-          data.executorWorkflow.setVariable(variableName, Const.NVL(variableValue, ""));
-        }
+        names.add(variableName);
+        values.add(Const.NVL(variableValue, ""));
       }
     }
-    data.executorWorkflow.activateParameters(data.executorWorkflow);
+
+    // A sub-workflow resolves its parameters exactly like a sub-pipeline does. This is also where
+    // "pass parent values to matching parameters" is honoured, which used to be a dialog-only
+    // setting on this transform.
+    //
+    SubExecutionParameters.activate(
+        data.executorWorkflow,
+        data.executorWorkflow,
+        this,
+        data.executorWorkflow.listParameters(),
+        names.toArray(new String[0]),
+        values.toArray(new String[0]),
+        meta.isInheritingAllVariables(),
+        false);
   }
 
   @Override
   public boolean init() {
 
     if (super.init()) {
-      // First we need to load the mapping (pipeline)
       try {
+        // Init commons parameters and data structures. groupBuffer is initialized only once.
+        data.groupBuffer = new ArrayList<>();
 
-        data.executorWorkflowMeta =
-            WorkflowExecutorMeta.loadWorkflowMeta(meta, metadataProvider, this);
+        // How many rows do we group together for the workflow?
+        data.groupSize = -1;
+        if (!Utils.isEmpty(meta.getGroupSize())) {
+          data.groupSize = Const.toIntExpanded(resolve(meta.getGroupSize()), -1);
+        }
 
-        // Do we have a workflow at all?
-        //
-        if (data.executorWorkflowMeta != null) {
-          data.groupBuffer = new ArrayList<>();
+        // Is there a grouping time set?
+        data.groupTime = -1;
+        if (!Utils.isEmpty(meta.getGroupTime())) {
+          data.groupTime = Const.toInt(resolve(meta.getGroupTime()), -1);
+        }
+        data.groupTimeStart = System.currentTimeMillis();
 
-          // How many rows do we group together for the workflow?
-          //
-          data.groupSize = -1;
-          if (!Utils.isEmpty(meta.getGroupSize())) {
-            data.groupSize = Const.toIntExpanded(resolve(meta.getGroupSize()), -1);
-          }
+        // Is there a grouping field set?
+        data.groupField = null;
+        if (!Utils.isEmpty(meta.getGroupField())) {
+          data.groupField = resolve(meta.getGroupField());
+        }
 
-          // Is there a grouping time set?
-          //
-          data.groupTime = -1;
-          if (!Utils.isEmpty(meta.getGroupTime())) {
-            data.groupTime = Const.toInt(resolve(meta.getGroupTime()), -1);
-          }
-          data.groupTimeStart = System.currentTimeMillis();
-
-          // Is there a grouping field set?
-          //
-          data.groupField = null;
-          if (!Utils.isEmpty(meta.getGroupField())) {
-            data.groupField = resolve(meta.getGroupField());
-          }
-
-          // That's all for now...
-          return true;
-        } else {
-          logError("No valid workflow was specified nor loaded!");
+        // First we need to load the workflow (unless the filename comes from a field)
+        if ((!meta.isFilenameInField() && Utils.isEmpty(meta.getFilename()))
+            || (meta.isFilenameInField() && Utils.isEmpty(meta.getFilenameField()))) {
+          logError("No workflow filename given either in path or in a field!");
           return false;
         }
+
+        if (!meta.isFilenameInField() && !Utils.isEmpty(meta.getFilename())) {
+          return initWorkflow();
+        }
+
+        // Filename comes from a field; load on first row in processRow()
+        return true;
       } catch (Exception e) {
         logError("Unable to load the executor workflow because of an error : ", e);
       }
     }
     return false;
+  }
+
+  private boolean initWorkflow() throws HopException {
+    String explicit = meta.isFilenameInField() ? data.runtimeWorkflowFilename : null;
+    data.executorWorkflowMeta =
+        WorkflowExecutorMeta.loadWorkflowMeta(meta, explicit, metadataProvider, this);
+
+    if (data.executorWorkflowMeta != null) {
+      data.groupTimeStart = System.currentTimeMillis();
+      return true;
+    } else {
+      logError("No valid workflow was specified nor loaded!");
+      return false;
+    }
   }
 
   @Override

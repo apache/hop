@@ -18,32 +18,15 @@ under the License.
 :language: en_US
 :description: The Dynamic SQL Row transform allows you to execute a SQL statement that is defined in a field.
 
-:openvar: ${
-:closevar: }
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/dynamicsqlrow.svg[Dynamic SQL row transform Icon, role="image-doc-icon"] Dynamic SQL row
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Dynamic SQL Row transform allows you to execute a SQL statement that is defined in a database field.
 
 The lookup values returned by the transform are added as new fields onto the stream.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -55,7 +38,7 @@ The lookup values returned by the transform are added as new fields onto the str
 |SQL field name|Specify the field that contains the SQL to execute
 |Number of rows to return|Specify the number of records to return. 0 means, return all rows
 |Outer Join|- false: don't return rows where nothing is found - true: at least return one source row, the rest is NULL
-|Replace variables|In case you want to use variables in the SQL, e.g. {openvar}table_name{closevar}, this option needs to be checked.
+|Replace variables|In case you want to use variables in the SQL, e.g. +${table_name}+, this option needs to be checked.
 |Query only on parameters change|If your SQL statements do not change a lot, check this option to reduce the number of physical database queries.
 |Template SQL|In Hop meta and data are separate so you have to specify the meta part in template SQL (field name and type).
 I mean any statement that returns the same row structure.

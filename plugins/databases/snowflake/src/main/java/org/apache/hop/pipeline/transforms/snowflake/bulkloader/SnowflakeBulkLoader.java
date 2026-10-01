@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -41,6 +42,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -79,8 +81,27 @@ public class SnowflakeBulkLoader
 
     Object[] row = getRow(); // This also waits for a row to be finished.
 
-    if (row != null && first) {
+    if (row == null) {
+      // no more input to be expected...
+      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
+        truncateTable();
+      }
+      // Only close/load when files were written; empty input has nothing to bulk load
+      if (data.oneFileOpened) {
+        closeFile();
+        loadDatabase();
+      }
+      setOutputDone();
+      return false;
+    }
+
+    if (first) {
       first = false;
+
+      if (meta.isTruncateTable()) {
+        truncateTable();
+      }
+
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -138,12 +159,30 @@ public class SnowflakeBulkLoader
               CONST_FIELD + meta.getJsonField() + "] couldn't be found in the input stream!");
         }
         data.fieldnrs.put("json", streamFieldLocation);
+      } else {
+        // No fields were specified: every field on the stream is written, in stream order.  The
+        // COPY statement maps those to the table columns by position, so describe the table to
+        // find out in which column every value lands.
+        //
+        try {
+          getDbFields();
+        } catch (HopException e) {
+          // Without the table layout we can still write the file, dates simply fall back to the
+          // timestamp format.
+          //
+          logBasic("Unable to get the fields of the target table, using default date formats", e);
+          data.dbFields = null;
+        }
+      }
+
+      if (meta.getDataTypeId() == SnowflakeBulkLoaderMeta.DATA_TYPE_CSV
+          && !meta.isSpecifyFields()) {
+        data.writeValueMetas = getWriteValueMetas(data.outputRowMeta);
       }
     }
 
     // Create a new split?
-    if ((row != null
-        && data.outputCount > 0
+    if ((data.outputCount > 0
         && Const.toIntExpanded(resolve(meta.getSplitSize()), 0) > 0
         && (data.outputCount % Const.toIntExpanded(resolve(meta.getSplitSize()), 0)) == 0)) {
 
@@ -152,14 +191,6 @@ public class SnowflakeBulkLoader
 
       // Not finished: open another file...
       openNewFile(buildFilename());
-    }
-
-    if (row == null) {
-      // no more input to be expected...
-      closeFile();
-      loadDatabase();
-      setOutputDone();
-      return false;
     }
 
     writeRowToFile(data.outputRowMeta, row);
@@ -172,6 +203,18 @@ public class SnowflakeBulkLoader
     }
 
     return true;
+  }
+
+  /**
+   * Truncates the target table when the option is enabled. Only the first transform copy (or a
+   * partitioned copy) performs the truncate to avoid races with concurrent copies.
+   *
+   * @throws HopDatabaseException if the truncate fails
+   */
+  void truncateTable() throws HopDatabaseException {
+    if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+      data.db.truncateTable(resolve(meta.getTargetSchema()), resolve(meta.getTargetTable()));
+    }
   }
 
   /**
@@ -323,6 +366,64 @@ public class SnowflakeBulkLoader
     data.db.execStatement("commit");
   }
 
+  private static boolean isSnowflakeBinaryColumn(String type) {
+    String upper = type.toUpperCase();
+    return upper.startsWith("BINARY") || upper.startsWith("VARBINARY");
+  }
+
+  /**
+   * Determines the value metadata to use when writing the fields of the stream to a temp file. Date
+   * and timestamp values are written with the conversion mask matching the file format of the COPY
+   * statement instead of the mask defined on the stream, since Snowflake only parses the format it
+   * was told to expect.
+   *
+   * @param rowMeta The metadata of the rows on the stream
+   * @return The value metadata to write every field of the row with
+   */
+  IValueMeta[] getWriteValueMetas(IRowMeta rowMeta) {
+    IValueMeta[] writeValueMetas = new IValueMeta[rowMeta.size()];
+    for (int i = 0; i < rowMeta.size(); i++) {
+      writeValueMetas[i] = getWriteValueMeta(rowMeta.getValueMeta(i), i);
+    }
+    return writeValueMetas;
+  }
+
+  /**
+   * Determines the value metadata to use for a single field of the stream.
+   *
+   * @param valueMeta The metadata of the field on the stream
+   * @param index The position of the field, which is the position of the column it is loaded into
+   * @return The original value metadata, or a copy of it carrying the Snowflake conversion mask
+   */
+  private IValueMeta getWriteValueMeta(IValueMeta valueMeta, int index) {
+    if (!valueMeta.isDate()) {
+      return valueMeta;
+    }
+
+    // Without the table layout we don't know the type of the target column, the timestamp format
+    // is the safest default as it also carries the date.
+    //
+    String mask = SnowflakeBulkLoaderMeta.TIMESTAMP_MASK;
+    if (data.dbFields != null && index < data.dbFields.size()) {
+      String type = data.dbFields.get(index)[1].toUpperCase();
+      if (type.startsWith("TIMESTAMP")) {
+        mask = SnowflakeBulkLoaderMeta.TIMESTAMP_MASK;
+      } else if (type.startsWith("DATE")) {
+        mask = SnowflakeBulkLoaderMeta.DATE_MASK;
+      } else if (type.startsWith("TIME")) {
+        mask = SnowflakeBulkLoaderMeta.TIME_MASK;
+      } else {
+        // The value doesn't end up in a date column, leave the format of the stream alone.
+        //
+        return valueMeta;
+      }
+    }
+
+    IValueMeta writeValueMeta = valueMeta.clone();
+    writeValueMeta.setConversionMask(mask);
+    return writeValueMeta;
+  }
+
   /**
    * Writes an individual row of data to a temp file
    *
@@ -330,7 +431,7 @@ public class SnowflakeBulkLoader
    * @param row The input row
    * @throws HopTransformException
    */
-  private void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+  void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
     try {
       if (meta.getDataTypeId() == SnowflakeBulkLoaderMeta.DATA_TYPE_CSV
           && !meta.isSpecifyFields()) {
@@ -341,7 +442,7 @@ public class SnowflakeBulkLoader
           if (i > 0 && data.binarySeparator.length > 0) {
             data.writer.write(data.binarySeparator);
           }
-          IValueMeta v = rowMeta.getValueMeta(i);
+          IValueMeta v = data.writeValueMetas[i];
           Object valueData = row[i];
 
           // no special null value default was specified since no fields are specified at all
@@ -365,13 +466,13 @@ public class SnowflakeBulkLoader
 
             if (field[1].toUpperCase().startsWith("TIMESTAMP")) {
               v = new ValueMetaDate();
-              v.setConversionMask("yyyy-MM-dd HH:mm:ss.SSS");
+              v.setConversionMask(SnowflakeBulkLoaderMeta.TIMESTAMP_MASK);
             } else if (field[1].toUpperCase().startsWith("DATE")) {
               v = new ValueMetaDate();
-              v.setConversionMask("yyyy-MM-dd");
+              v.setConversionMask(SnowflakeBulkLoaderMeta.DATE_MASK);
             } else if (field[1].toUpperCase().startsWith("TIME")) {
               v = new ValueMetaDate();
-              v.setConversionMask("HH:mm:ss.SSS");
+              v.setConversionMask(SnowflakeBulkLoaderMeta.TIME_MASK);
             } else if (field[1].toUpperCase().startsWith("NUMBER")
                 || field[1].toUpperCase().startsWith("FLOAT")) {
               v = new ValueMetaBigNumber();
@@ -386,7 +487,15 @@ public class SnowflakeBulkLoader
             }
             Object valueData = null;
             if (fieldIndex >= 0) {
-              valueData = v.convertData(rowMeta.getValueMeta(fieldIndex), row[fieldIndex]);
+              IValueMeta streamMeta = rowMeta.getValueMeta(fieldIndex);
+              // Binary must not be converted through String (that is `new String(bytes)`). Keep
+              // the stream metadata so formatField can emit hex for COPY BINARY_FORMAT='HEX'.
+              if (streamMeta.isBinary() || isSnowflakeBinaryColumn(field[1])) {
+                v = streamMeta;
+                valueData = row[fieldIndex];
+              } else {
+                valueData = v.convertData(streamMeta, row[fieldIndex]);
+              }
             } else if (meta.isErrorColumnMismatch()) {
               throw new HopException(
                   "Error column mismatch: Database field "
@@ -419,6 +528,13 @@ public class SnowflakeBulkLoader
    * @throws HopValueException
    */
   private byte[] formatField(IValueMeta v, Object valueData) throws HopValueException {
+    if (v.isBinary()) {
+      byte[] bytes = v.getBinary(valueData);
+      if (bytes == null) {
+        return null;
+      }
+      return Hex.encodeHexString(bytes).getBytes(StandardCharsets.UTF_8);
+    }
     if (v.isString()) {
       if (v.isStorageBinaryString()
           && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE

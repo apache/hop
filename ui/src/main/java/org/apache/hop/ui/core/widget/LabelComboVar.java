@@ -141,6 +141,16 @@ public class LabelComboVar extends Composite {
     wCombo.addTraverseListener(tl);
   }
 
+  public LabelComboVar enableNamingSchemes(String type) {
+    wCombo.enableNamingSchemes(type);
+    return this;
+  }
+
+  public LabelComboVar asNameField(String type) {
+    wCombo.asNameField(type);
+    return this;
+  }
+
   public CCombo getComboWidget() {
     return wCombo.getCComboWidget();
   }

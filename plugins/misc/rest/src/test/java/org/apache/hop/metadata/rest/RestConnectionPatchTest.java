@@ -20,25 +20,27 @@ package org.apache.hop.metadata.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.sun.net.httpserver.HttpServer;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Regression test for issue #7558: a PATCH request issued through a REST connection must actually
- * reach the server. The invocation builder produced by {@link RestConnection} uses Jersey's default
- * (JDK {@code HttpURLConnection}) connector, which rejects PATCH unless {@link
- * org.glassfish.jersey.client.HttpUrlConnectorProvider#SET_METHOD_WORKAROUND} is enabled. Before
- * the fix the PATCH failed with a {@code ProcessingException} even though the URL was assembled
- * correctly.
+ * reach the server. It used to fail with a {@code ProcessingException} even though the URL was
+ * assembled correctly, because Jersey's default JDK {@code HttpURLConnection} connector rejects
+ * PATCH. The connection now runs on the Apache 5 connector, which writes the method token straight
+ * into the request line.
  */
 class RestConnectionPatchTest {
 
@@ -73,13 +75,24 @@ class RestConnectionPatchTest {
   void patchThroughConnectionReachesServer() throws Exception {
     RestConnection connection = new RestConnection(new Variables());
 
-    Invocation.Builder invocationBuilder = connection.getInvocationBuilder(url);
-    try (Response response =
-        invocationBuilder.method(
-            "PATCH", Entity.entity("{\"name\":\"updated\"}", MediaType.APPLICATION_JSON_TYPE))) {
+    assertEquals("method=PATCH", execute(connection, "PATCH", url, "{\"name\":\"updated\"}"));
+  }
 
-      assertEquals(200, response.getStatus());
-      assertEquals("method=PATCH", response.readEntity(String.class));
+  /** Issues one request on a client built from the connection, returning the body. */
+  private static String execute(RestConnection connection, String method, String url, String body)
+      throws Exception {
+    try (CloseableHttpClient client =
+        RestClientFactory.createClient(connection.createClientSettings())) {
+      HttpUriRequestBase request = new HttpUriRequestBase(method, URI.create(url));
+      if (body != null) {
+        request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
+      }
+      return client.execute(
+          request,
+          response -> {
+            assertEquals(200, response.getCode());
+            return EntityUtils.toString(response.getEntity());
+          });
     }
   }
 }

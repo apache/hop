@@ -47,7 +47,7 @@ import org.bson.Document;
     description = "i18n::ActionMQL.Description",
     image = "mql.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    keywords = "i18n::ActionMql.keyword",
+    keywords = "i18n::ActionMQL.keyword",
     documentationUrl = "/workflow/actions/mql.html",
     actionTransformTypes = {ActionTransformType.NOSQL})
 public class ActionMql extends ActionBase implements Cloneable, IAction {
@@ -76,12 +76,6 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
 
   public ActionMql() {
     this("");
-  }
-
-  @Override
-  public Object clone() {
-    ActionMql je = (ActionMql) super.clone();
-    return je;
   }
 
   public void setMql(String mql) {

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -49,6 +50,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.NoneDatabaseMeta;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
@@ -61,9 +63,11 @@ import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.imp.ConnectionNameMap;
 import org.apache.hop.imp.HopImportBase;
 import org.apache.hop.imp.IHopImport;
 import org.apache.hop.imp.ImportPlugin;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,6 +82,42 @@ import org.w3c.dom.NodeList;
 public class KettleImport extends HopImportBase implements IHopImport {
   private static final Class<?> PKG = KettleImport.class;
   public static final String CONST_SERVERNAME = "servername";
+  public static final String CONST_PASSWORD = "password";
+  private static final String SFTP_PUT_TYPE = "SFTPPut";
+  private static final String TRANS_EXECUTOR_TYPE = "TransExecutor";
+  private static final String SFTP_CONNECTION_METADATA_KEY = "sftp-connection";
+
+  /**
+   * Kettle type ids for the Kafka consumer, plus {@code KafkaConsumer} once {@code
+   * KettleKafkaConsumerInput} has been renamed. The sub-pipeline lives in {@code
+   * transformationPath}, which this import renames to {@code pipelinePath}.
+   */
+  private static final List<String> KAFKA_CONSUMER_TYPES =
+      List.of("KafkaConsumerInput", "KettleKafkaConsumerInput", "KafkaConsumer");
+
+  /** The run configuration every Hop project is created with. */
+  private static final String DEFAULT_RUN_CONFIGURATION = "local";
+
+  /** The elements of a Kettle SFTPPut step which describe the server, not the upload itself. */
+  private static final List<String> SFTP_CONNECTION_TAGS =
+      List.of(
+          CONST_SERVERNAME,
+          "serverport",
+          "username",
+          CONST_PASSWORD,
+          "usekeyfilename",
+          "keyfilename",
+          "keyfilepass",
+          "compression",
+          "proxyType",
+          "proxyHost",
+          "proxyPort",
+          "proxyUsername",
+          "proxyPassword");
+
+  /** The SFTP connections created during this import, by the step settings they came from. */
+  private final Map<String, String> sftpConnectionNames = new HashMap<>();
+
   public static final String CONST_TABLESPACE = "tablespace";
   public static final String CONST_DATA_TABLESPACE = "data_tablespace";
   public static final String CONST_INDEX_TABLESPACE = "index_tablespace";
@@ -85,6 +125,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private int kjbCounter;
   private int ktrCounter;
   private int otherCounter;
+
+  /** Files left unchanged because the target already existed, per source type. */
+  private int kjbSkippedCounter;
+
+  private int ktrSkippedCounter;
+  private int otherSkippedCounter;
   private String variablesTargetConfigFile;
   private String connectionsReportFileName;
 
@@ -112,6 +158,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
       this.kjbCounter = 0;
       this.ktrCounter = 0;
       this.otherCounter = 0;
+      this.kjbSkippedCounter = 0;
+      this.ktrSkippedCounter = 0;
+      this.otherSkippedCounter = 0;
 
       // Find all files...
       //
@@ -180,6 +229,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       Node targetNode = XmlHandler.getSubNode(documentElement, "info");
       if (targetNode != null) {
         targetNode.insertBefore(nameSync, XmlHandler.getSubNode(targetNode, "description"));
+        addCreatedHopVersion(doc, targetNode);
       }
     } else if (extension.equalsIgnoreCase("kjb")) {
       kjbCounter++;
@@ -188,6 +238,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       // Add the name-sync node in /workflow/
       //
       documentElement.insertBefore(nameSync, XmlHandler.getSubNode(documentElement, "description"));
+      addCreatedHopVersion(doc, documentElement);
     }
 
     processNode(doc, documentElement, EntryType.OTHER, 0);
@@ -244,6 +295,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         FileObject targetFile = HopVfs.getFileObject(targetFilename);
         if (isSkippingExistingTargetFiles() && targetFile.exists()) {
+          recordSkippedExistingTarget(sourceFile, domSource);
           continue;
         }
 
@@ -286,6 +338,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
               try (OutputStream fileStream = HopVfs.getOutputStream(targetFilename, false)) {
                 fileStream.write(xml.getBytes(StandardCharsets.UTF_8));
               }
+              writtenHopFileNames.add(targetFilename);
             }
           }
         }
@@ -300,6 +353,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
     collectConnectionsFromSharedXml();
     collectConnectionsFromJdbcProperties();
     importCollectedConnections();
+  }
+
+  @Override
+  protected void afterConnectionRewrite() throws HopException {
     saveConnectionsReport();
   }
 
@@ -309,16 +366,53 @@ public class KettleImport extends HopImportBase implements IHopImport {
       this.connectionsReportFileName = getOutputFolderName() + "/connections.csv";
       try (OutputStream outputStream =
           HopVfs.getOutputStream(this.connectionsReportFileName, false)) {
+        writeCsvRow(outputStream, "file", "original_name", "target_name", "note");
+        ConnectionNameMap nameMap =
+            connectionRewriteResult != null ? connectionRewriteResult.getNameMap() : null;
         for (Map.Entry<String, String> entry : connectionFileMap.entrySet()) {
-          outputStream.write(entry.getKey().getBytes(StandardCharsets.UTF_8));
-          outputStream.write(",".getBytes(StandardCharsets.UTF_8));
-          outputStream.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
-          outputStream.write(Const.CR.getBytes(StandardCharsets.UTF_8));
+          String original = entry.getValue();
+          String target = nameMap != null ? nameMap.targetFor(original) : original;
+          writeCsvRow(outputStream, entry.getKey(), original, target, "");
+        }
+        if (nameMap != null) {
+          for (ConnectionNameMap.Collision collision : nameMap.getCollisions()) {
+            writeCsvRow(
+                outputStream,
+                "",
+                "",
+                collision.targetName(),
+                "collision: '"
+                    + collision.leftOriginal()
+                    + "' and '"
+                    + collision.rightOriginal()
+                    + "'");
+          }
         }
       } catch (IOException e) {
         throw new HopException("Error writing connections.csv file to project", e);
       }
     }
+  }
+
+  static void writeCsvRow(OutputStream outputStream, String... fields) throws IOException {
+    for (int i = 0; i < fields.length; i++) {
+      if (i > 0) {
+        outputStream.write(',');
+      }
+      outputStream.write(csvField(fields[i]).getBytes(StandardCharsets.UTF_8));
+    }
+    outputStream.write(Const.CR.getBytes(StandardCharsets.UTF_8));
+  }
+
+  static String csvField(String value) {
+    String field = Const.NVL(value, "");
+    if (field.indexOf(',') >= 0
+        || field.indexOf('"') >= 0
+        || field.indexOf('\n') >= 0
+        || field.indexOf('\r') >= 0) {
+      return '"' + field.replace("\"", "\"\"") + '"';
+    }
+    return field;
   }
 
   private void importCollectedConnections() throws HopException {
@@ -335,8 +429,13 @@ public class KettleImport extends HopImportBase implements IHopImport {
     if (StringUtils.isEmpty(sharedXmlFilename)) {
       return;
     }
-    Document doc = getDocFromFile(HopVfs.getFileObject(sharedXmlFilename));
-    importDbConnections(doc, HopVfs.getFileObject(sharedXmlFilename));
+    collectingFromSharedXml = true;
+    try {
+      Document doc = getDocFromFile(HopVfs.getFileObject(sharedXmlFilename));
+      importDbConnections(doc, HopVfs.getFileObject(sharedXmlFilename));
+    } finally {
+      collectingFromSharedXml = false;
+    }
   }
 
   public void collectConnectionsFromJdbcProperties() throws HopException {
@@ -467,6 +566,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
 
           databaseMeta.getIDatabase().setAttributes(attributesMap);
+
+          // Kettle stores the JDBC connection string of a generic database connection in a
+          // CUSTOM_URL attribute, but Hop's GenericDatabaseMeta reads its URL from the manualUrl
+          // field. Map it across so the imported connection keeps its URL (#5383). The driver
+          // class is preserved automatically because both use the CUSTOM_DRIVER_CLASS attribute.
+          if ("GENERIC".equals(databaseType) && attributesMap.containsKey("CUSTOM_URL")) {
+            databaseMeta.getIDatabase().setManualUrl(attributesMap.get("CUSTOM_URL"));
+          }
+
           addDatabaseMeta(kettleFile.getName().getURI(), databaseMeta);
 
         } catch (Exception e) {
@@ -500,6 +608,244 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
   private void renameNode(Document doc, Element element, String newElementName) {
     doc.renameNode(element, null, newElementName);
+  }
+
+  /**
+   * The Kettle SFTPPut step keeps the server and its credentials in the step itself. Hop keeps them
+   * in an SFTP connection in the metadata, so that the same server can be reached from every
+   * transform and action. Move the settings of this step into such a connection and point the step
+   * at it.
+   */
+  private void migrateSftpPutStep(Document doc, Node stepNode) {
+    Map<String, String> settings = new LinkedHashMap<>();
+    for (String tag : SFTP_CONNECTION_TAGS) {
+      settings.put(tag, Const.NVL(XmlHandler.getTagValue(stepNode, tag), ""));
+    }
+
+    String transformName = Const.NVL(XmlHandler.getTagValue(stepNode, "name"), "SFTP Put");
+    String connectionName = createSftpConnection(settings, transformName);
+
+    for (String tag : SFTP_CONNECTION_TAGS) {
+      removeChildElement(stepNode, tag);
+    }
+
+    // Very old files stored "delete the file after the upload" in a separate <remove> element.
+    //
+    Element removeElement = getChildElement(stepNode, "remove");
+    if (removeElement != null) {
+      if ("Y".equalsIgnoreCase(removeElement.getTextContent())
+          && StringUtils.isEmpty(XmlHandler.getTagValue(stepNode, "aftersftpput"))) {
+        setChildElement(doc, stepNode, "aftersftpput", "delete");
+      }
+      removeChildElement(stepNode, "remove");
+    }
+
+    // Kettle's typo, fixed in Hop.
+    //
+    Element addFilenameElement = getChildElement(stepNode, "addFilenameResut");
+    if (addFilenameElement != null) {
+      renameNode(doc, addFilenameElement, "addFilenameToResult");
+    }
+
+    setChildElement(doc, stepNode, "connection", connectionName);
+  }
+
+  /**
+   * Kettle writes the parameters of a mapping, a job executor and a transformation executor step as
+   * {@code <parameters><variablemapping>}. Hop reads them the same way, except for the pipeline
+   * executor, which reads {@code <variable_mapping>}.
+   */
+  private void migrateTransExecutorParameters(Document doc, Node stepNode) {
+    Element parametersElement = getChildElement(stepNode, "parameters");
+    if (parametersElement == null) {
+      return;
+    }
+    Element variableMapping;
+    while ((variableMapping = getChildElement(parametersElement, "variablemapping")) != null) {
+      renameNode(doc, variableMapping, "variable_mapping");
+    }
+  }
+
+  /**
+   * Create an SFTP connection in the metadata for the given step settings, or return the name of
+   * the one created earlier for the very same settings: a transformation with five steps talking to
+   * the same server ends up with one connection, not five.
+   *
+   * @return the name of the connection to point the step at
+   */
+  private String createSftpConnection(Map<String, String> settings, String transformName) {
+    String signature = settings.toString();
+    String existingName = sftpConnectionNames.get(signature);
+    if (existingName != null) {
+      return existingName;
+    }
+
+    String name = uniqueSftpConnectionName(settings.get(CONST_SERVERNAME), transformName);
+    sftpConnectionNames.put(signature, name);
+
+    try {
+      Class<IHopMetadata> connectionClass =
+          metadataProvider.getMetadataClassForKey(SFTP_CONNECTION_METADATA_KEY);
+      IHopMetadata connection = connectionClass.getDeclaredConstructor().newInstance();
+
+      setSftpProperty(connection, "setName", name);
+      setSftpProperty(
+          connection,
+          "setDescription",
+          "Imported from the Kettle SFTPPut step \"" + transformName + "\"");
+      setSftpProperty(connection, "setServerName", settings.get(CONST_SERVERNAME));
+      setSftpProperty(connection, "setServerPort", Const.NVL(settings.get("serverport"), "22"));
+      setSftpProperty(connection, "setUsername", settings.get("username"));
+      setSftpProperty(
+          connection,
+          "setPassword",
+          Encr.decryptPasswordOptionallyEncrypted(settings.get(CONST_PASSWORD)));
+      setSftpProperty(connection, "setKeyFilename", settings.get("keyfilename"));
+      setSftpProperty(
+          connection,
+          "setKeyPassphrase",
+          Encr.decryptPasswordOptionallyEncrypted(settings.get("keyfilepass")));
+      setSftpProperty(connection, "setCompression", Const.NVL(settings.get("compression"), "none"));
+      setSftpProperty(connection, "setProxyType", settings.get("proxyType"));
+      setSftpProperty(connection, "setProxyHost", settings.get("proxyHost"));
+      setSftpProperty(connection, "setProxyPort", settings.get("proxyPort"));
+      setSftpProperty(connection, "setProxyUsername", settings.get("proxyUsername"));
+      setSftpProperty(
+          connection,
+          "setProxyPassword",
+          Encr.decryptPasswordOptionallyEncrypted(settings.get("proxyPassword")));
+      connectionClass
+          .getMethod("setUseKeyFile", boolean.class)
+          .invoke(connection, "Y".equalsIgnoreCase(settings.get("usekeyfilename")));
+
+      metadataProvider.getSerializer(connectionClass).save(connection);
+      log.logBasic("Created SFTP connection '" + name + "' for step '" + transformName + "'");
+    } catch (Exception e) {
+      // Without the SFTP plugin there's no connection to create. The step is still pointed at the
+      // name we picked, so all that's left for the user to do is to create it.
+      //
+      log.logError(
+          "Unable to create SFTP connection '"
+              + name
+              + "' for step '"
+              + transformName
+              + "'. Please create it by hand in the metadata.",
+          e);
+    }
+    return name;
+  }
+
+  /**
+   * The name of an SFTP connection doubles as a VFS scheme, so it can only hold the characters a
+   * URI scheme allows.
+   */
+  private String uniqueSftpConnectionName(String serverName, String transformName) {
+    String base = StringUtils.isEmpty(serverName) ? transformName : serverName;
+    String cleaned = base.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
+    String name = "sftp-" + (StringUtils.isEmpty(cleaned) ? "connection" : cleaned);
+    String uniqueName = name;
+    int copy = 2;
+    while (sftpConnectionNames.containsValue(uniqueName)) {
+      uniqueName = name + "-" + copy++;
+    }
+    return uniqueName;
+  }
+
+  private void setSftpProperty(IHopMetadata connection, String setter, String value)
+      throws HopException {
+    try {
+      connection
+          .getClass()
+          .getMethod(setter, String.class)
+          .invoke(connection, Const.NVL(value, ""));
+    } catch (Exception e) {
+      throw new HopException("Unable to set " + setter + " on an SFTP connection", e);
+    }
+  }
+
+  private Element getChildElement(Node parent, String name) {
+    NodeList children = parent.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node child = children.item(i);
+      if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(name)) {
+        return (Element) child;
+      }
+    }
+    return null;
+  }
+
+  private void removeChildElement(Node parent, String name) {
+    Element child = getChildElement(parent, name);
+    if (child != null) {
+      parent.removeChild(child);
+    }
+  }
+
+  /**
+   * Record the version of Hop that imported this pipeline or workflow. The Kettle created and
+   * modified date and user elements carry the same names in Hop, so they pass through the import
+   * untouched and keep their original Kettle values.
+   *
+   * @param doc the document being imported
+   * @param parent the node holding the metadata: /pipeline/info/ for a pipeline, /workflow/ for a
+   *     workflow
+   */
+  private void addCreatedHopVersion(Document doc, Node parent) {
+    // An empty element when the version isn't known, which happens when we're not running from
+    // the packaged jars. That matches what the serializer writes for an unknown version.
+    //
+    Element createdHopVersion = doc.createElement("created_hop_version");
+    createdHopVersion.appendChild(doc.createTextNode(Const.NVL(Const.getHopVersion(), "")));
+    parent.insertBefore(createdHopVersion, XmlHandler.getSubNode(parent, "description"));
+  }
+
+  private void setChildElement(Document doc, Node parent, String name, String value) {
+    Element child = getChildElement(parent, name);
+    if (child == null) {
+      child = doc.createElement(name);
+      parent.appendChild(child);
+    }
+    child.setTextContent(value);
+  }
+
+  /**
+   * A Pipeline or Workflow action without a run configuration name refuses to run: both actions
+   * throw "You need to specify a run configuration" when the name is empty, and neither falls back
+   * to the parent's engine the way a Mapping transform does. Kettle only started writing the {@code
+   * run_configuration} element in PDI 8, writes it empty when one was never selected, and later
+   * versions still leave it out entirely, so fill it in at import time (#3814).
+   *
+   * <p>An element that is absent and one that is present but empty are the same thing here: neither
+   * carries a name to preserve, so both get the default. An element that names a run configuration
+   * is left to the main loop in {@link #processNode}, which keeps that name unless a default was
+   * configured.
+   *
+   * @param entryNode the Kettle {@code entry} node being imported
+   * @param entryType the type of the entry, only JOB and TRANS are handled
+   */
+  private void addMissingRunConfiguration(Document doc, Node entryNode, EntryType entryType) {
+    if (entryType != EntryType.JOB && entryType != EntryType.TRANS) {
+      return;
+    }
+    if (StringUtils.isNotBlank(getChildText(entryNode, "run_configuration"))) {
+      return;
+    }
+    // Reuses the element when the source wrote an empty one, so this never adds a second.
+    setChildElement(doc, entryNode, "run_configuration", defaultActionRunConfiguration(entryType));
+  }
+
+  /**
+   * The run configuration to give a Pipeline or Workflow action that has none. Falls back to the
+   * {@code local} run configuration every Hop project is created with, because an empty name leaves
+   * the action unable to execute. An action that already names one keeps that name when no default
+   * is configured, so this fallback only applies to a missing or empty element.
+   */
+  private String defaultActionRunConfiguration(EntryType entryType) {
+    String runConfiguration =
+        entryType == EntryType.JOB
+            ? defaultWorkflowRunConfiguration
+            : defaultPipelineRunConfiguration;
+    return StringUtils.isNotEmpty(runConfiguration) ? runConfiguration : DEFAULT_RUN_CONFIGURATION;
   }
 
   private void processNode(Document doc, Node node, EntryType entryType, int depth) {
@@ -565,14 +911,25 @@ public class KettleImport extends HopImportBase implements IHopImport {
               }
             }
           }
+          addMissingRunConfiguration(doc, currentNode, entryType);
         }
 
         if (currentNode.getNodeName().equals("step")) {
           entryType = EntryType.OTHER;
+          boolean sftpPutStep = false;
+          boolean transExecutorStep = false;
           NodeList currentNodeChildNodes = currentNode.getChildNodes();
           for (int i1 = 0; i1 < currentNodeChildNodes.getLength(); i1++) {
             Node childNode = currentNodeChildNodes.item(i1);
             if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals(SFTP_PUT_TYPE)) {
+                sftpPutStep = true;
+              }
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals(TRANS_EXECUTOR_TYPE)) {
+                transExecutorStep = true;
+              }
               if (childNode.getNodeName().equals("type")
                   && childNode.getChildNodes().item(0).getNodeValue().equals("Formula")) {
                 entryType = EntryType.FORMULA;
@@ -586,7 +943,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.GOOGLE_SHEETS_INPUT;
               }
               if (childNode.getNodeName().equals("type")
-                  && childNode.getChildNodes().item(0).getNodeValue().equals("Mapping")) {
+                  && KettleConst.mappingTypes.contains(
+                      childNode.getChildNodes().item(0).getNodeValue())) {
                 entryType = EntryType.SIMPLE_MAPPING;
               }
               if (childNode.getNodeName().equals("type")
@@ -594,6 +952,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.METAINJECT;
               }
             }
+          }
+          if (sftpPutStep) {
+            migrateSftpPutStep(doc, currentNode);
+          }
+          if (transExecutorStep) {
+            migrateTransExecutorParameters(doc, currentNode);
           }
         }
 
@@ -668,10 +1032,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         if ((entryType == EntryType.JOB || entryType == EntryType.TRANS)
             && currentNode.getNodeName().equals("run_configuration")) {
-          if (entryType == EntryType.JOB)
-            currentNode.setTextContent(defaultWorkflowRunConfiguration);
-          else if (entryType == EntryType.TRANS)
-            currentNode.setTextContent(defaultPipelineRunConfiguration);
+          String defaultRunConfiguration =
+              entryType == EntryType.JOB
+                  ? defaultWorkflowRunConfiguration
+                  : defaultPipelineRunConfiguration;
+          // Without a default, keep the name the source file carried. Blanking it leaves the
+          // imported workflow or pipeline without a run configuration to execute with.
+          if (StringUtils.isNotEmpty(defaultRunConfiguration)) {
+            currentNode.setTextContent(defaultRunConfiguration);
+          }
         }
 
         // rename Kettle elements to Hop elements
@@ -702,39 +1071,26 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
       }
 
+      if ("pipelinePath".equals(currentNode.getNodeName())
+          && isKafkaConsumerStep(currentNode.getParentNode())) {
+        ensureKafkaPipelineExtension(currentNode);
+      }
+
       if ((entryType == EntryType.SIMPLE_MAPPING || entryType == EntryType.METAINJECT)
           && currentNode.getNodeName().equals("transform")) {
 
-        Node filenameNode = null;
-        String transName = "";
-        String directoryPath = "";
-        // get trans name, file name, path, set correct filename when needed.
-        for (int j = 0; j < currentNode.getChildNodes().getLength(); j++) {
-          if (currentNode.getChildNodes().item(j).getNodeName().equals("directory_path")) {
-            directoryPath = currentNode.getChildNodes().item(j).getTextContent();
-            currentNode.removeChild(currentNode.getChildNodes().item(j));
-          }
-          if (currentNode.getChildNodes().item(j).getNodeName().equals("trans_name")) {
-            transName = currentNode.getChildNodes().item(j).getTextContent();
-            currentNode.removeChild(currentNode.getChildNodes().item(j));
-          }
-          if (currentNode.getChildNodes().item(j).getNodeName().equals("filename")) {
-            filenameNode = currentNode.getChildNodes().item(j);
-          }
-        }
+        migrateTransformationReference(doc, currentNode);
 
-        // if we have a trans name and directory path, use it to update the mapping or injectable
-        // pipeline
-        // filename.
-        if (!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)) {
-          filenameNode.setTextContent(
-              Const.VAR_PROJECT_HOME + directoryPath + '/' + transName + ".hpl");
+        // Add the default pipeline run configuration. Metadata Injection reads a differently
+        // named element than a mapping does. Without a default, keep what the source carried:
+        // an empty element leaves the step without a run configuration to execute with.
+        if (StringUtils.isNotEmpty(defaultPipelineRunConfiguration)) {
+          setChildElement(
+              doc,
+              currentNode,
+              entryType == EntryType.METAINJECT ? "run_configuration" : "runConfiguration",
+              defaultPipelineRunConfiguration);
         }
-
-        // add the default pipeline run configuration.
-        Element runConfigElement = doc.createElement("runConfiguration");
-        runConfigElement.appendChild(doc.createTextNode(defaultPipelineRunConfiguration));
-        currentNode.appendChild(runConfigElement);
       }
 
       if (entryType == EntryType.GOOGLE_SHEETS_INPUT
@@ -815,6 +1171,74 @@ public class KettleImport extends HopImportBase implements IHopImport {
     }
   }
 
+  private boolean isKafkaConsumerStep(Node stepNode) {
+    return stepNode != null && KAFKA_CONSUMER_TYPES.contains(getChildText(stepNode, "type"));
+  }
+
+  /**
+   * Pentaho stores the Kafka consumer sub-transformation in {@code transformationPath}. A
+   * repository reference, and a filename PDI resolves by appending {@code .ktr} itself, has no
+   * extension. Hop only opens that sub-pipeline when {@code pipelinePath} ends with {@code .hpl}.
+   */
+  private void ensureKafkaPipelineExtension(Node pipelinePathNode) {
+    String path = StringUtils.trimToEmpty(pipelinePathNode.getTextContent());
+    if (path.isEmpty()
+        || StringUtils.endsWithIgnoreCase(path, ".hpl")
+        || StringUtils.endsWithIgnoreCase(path, ".hwf")
+        || StringUtils.endsWithIgnoreCase(path, ".kjb")) {
+      return;
+    }
+    if (StringUtils.endsWithIgnoreCase(path, ".ktr")) {
+      pipelinePathNode.setTextContent(path.substring(0, path.length() - 4) + ".hpl");
+      return;
+    }
+    int slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    String name = path.substring(slash + 1);
+    if (!name.isEmpty() && name.indexOf('.') < 0) {
+      pipelinePathNode.setTextContent(path + ".hpl");
+    }
+  }
+
+  /**
+   * A Kettle mapping or metadata injection step refers to its sub-transformation either by filename
+   * or, when it was saved in a repository, by name and repository folder. Hop only knows filenames,
+   * so a repository reference becomes a path below the project home. The repository elements are
+   * removed either way.
+   */
+  private void migrateTransformationReference(Document doc, Node transformNode) {
+    String specificationMethod = getChildText(transformNode, "specification_method");
+    String transName = getChildText(transformNode, "trans_name");
+    String directoryPath = getChildText(transformNode, "directory_path");
+    for (String name :
+        new String[] {"specification_method", "trans_object_id", "trans_name", "directory_path"}) {
+      removeChildElement(transformNode, name);
+    }
+
+    Element filenameElement = getChildElement(transformNode, "filename");
+    String filename = filenameElement == null ? "" : filenameElement.getTextContent();
+
+    // Kettle keeps the repository name when you switch a step to a filename, so a filename wins
+    // unless the step explicitly refers to the repository.
+    if (StringUtils.isEmpty(transName)
+        || (StringUtils.isNotEmpty(filename)
+            && !StringUtils.startsWith(specificationMethod, "REPOSITORY"))) {
+      return;
+    }
+
+    String folder = directoryPath == null ? "" : StringUtils.strip(directoryPath, "/");
+    if (filenameElement == null) {
+      filenameElement = doc.createElement("filename");
+      transformNode.appendChild(filenameElement);
+    }
+    filenameElement.setTextContent(
+        Const.VAR_PROJECT_HOME + (folder.isEmpty() ? "" : "/" + folder) + "/" + transName + ".hpl");
+  }
+
+  private String getChildText(Node parent, String name) {
+    Element child = getChildElement(parent, name);
+    return child == null ? null : child.getTextContent();
+  }
+
   private Node processRepositoryNode(Node repositoryNode) {
 
     String filename = "";
@@ -846,9 +1270,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
         filenameNode = childNode;
       }
 
-      // hard coded local run configuration for now
       if (childNode.getNodeName().equals("run_configuration")) {
-        childNode.setTextContent("local");
+        childNode.setTextContent(DEFAULT_RUN_CONFIGURATION);
       }
       if (childNode.getNodeName().equals("jobname")
           || childNode.getNodeName().equals("transname")) {
@@ -892,32 +1315,50 @@ public class KettleImport extends HopImportBase implements IHopImport {
     }
   }
 
+  /**
+   * The find phase counts every source file as imported. A later skip leaves that file unchanged,
+   * so move it from the imported count to the skipped count before the summary is shown.
+   */
+  private void recordSkippedExistingTarget(FileObject sourceFile, DOMSource domSource) {
+    String extension = sourceFile.getName().getExtension();
+    if (domSource != null && "kjb".equalsIgnoreCase(extension)) {
+      kjbCounter = Math.max(0, kjbCounter - 1);
+      kjbSkippedCounter++;
+    } else if (domSource != null && "ktr".equalsIgnoreCase(extension)) {
+      ktrCounter = Math.max(0, ktrCounter - 1);
+      ktrSkippedCounter++;
+    } else {
+      otherCounter = Math.max(0, otherCounter - 1);
+      otherSkippedCounter++;
+    }
+  }
+
   @Override
   public String getImportReport() {
     String eol = System.getProperty("line.separator");
     String messageString =
         BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.Imported.Label") + eol;
-    if (getKjbCounter() > 0) {
-      messageString +=
-          getKjbCounter()
-              + " "
-              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedJobs.Label")
-              + eol;
-    }
-    if (getKtrCounter() > 0) {
-      messageString +=
-          getKtrCounter()
-              + " "
-              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedTransf.Label")
-              + eol;
-    }
-    if (getOtherCounter() > 0) {
-      messageString +=
-          getOtherCounter()
-              + " "
-              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedOther.Label")
-              + eol;
-    }
+    messageString +=
+        importedCountLine(
+            getKjbCounter(),
+            kjbSkippedCounter,
+            "KettleImportDialog.ImportSummary.ImportedJobs.Label",
+            "KettleImportDialog.ImportSummary.ImportedJobsSkipped.Label",
+            eol);
+    messageString +=
+        importedCountLine(
+            getKtrCounter(),
+            ktrSkippedCounter,
+            "KettleImportDialog.ImportSummary.ImportedTransf.Label",
+            "KettleImportDialog.ImportSummary.ImportedTransfSkipped.Label",
+            eol);
+    messageString +=
+        importedCountLine(
+            getOtherCounter(),
+            otherSkippedCounter,
+            "KettleImportDialog.ImportSummary.ImportedOther.Label",
+            "KettleImportDialog.ImportSummary.ImportedOtherSkipped.Label",
+            eol);
     if (getVariableCounter() > 0) {
       messageString +=
           getVariableCounter()
@@ -937,12 +1378,53 @@ public class KettleImport extends HopImportBase implements IHopImport {
       messageString +=
           "Connections with the same name and different configurations have only been saved once."
               + eol;
+      if (appliedNamingSchemeName != null) {
+        messageString +=
+            "Relational connection names were rewritten with naming scheme '"
+                + appliedNamingSchemeName
+                + "'."
+                + eol;
+      } else {
+        messageString +=
+            "Relational connection names were aligned to a single case-sensitive spelling." + eol;
+      }
+      if (connectionRewriteResult != null) {
+        messageString +=
+            connectionRewriteResult.getConnectionsRenamed()
+                + " connection metadata object(s) renamed, "
+                + connectionRewriteResult.getFilesRewritten()
+                + " pipeline/workflow file(s) updated."
+                + eol;
+        if (!connectionRewriteResult.getNameMap().getCollisions().isEmpty()) {
+          messageString +=
+              connectionRewriteResult.getNameMap().getCollisions().size()
+                  + " name collision(s) were recorded (distinct connections mapping to the same target name)."
+                  + eol;
+        }
+      }
       messageString +=
           "Check the following file for a list of connections that might need extra attention: "
               + getConnectionsReportFileName();
     }
 
     return messageString;
+  }
+
+  /**
+   * One summary line. With nothing skipped this stays "{count} {label}". Otherwise it names both
+   * the files written and the files left in place, including a zero written count.
+   */
+  private static String importedCountLine(
+      int imported, int skipped, String labelKey, String skippedKey, String eol) {
+    if (imported <= 0 && skipped <= 0) {
+      return "";
+    }
+    if (skipped > 0) {
+      return BaseMessages.getString(
+              PKG, skippedKey, Integer.toString(imported), Integer.toString(skipped))
+          + eol;
+    }
+    return imported + " " + BaseMessages.getString(PKG, labelKey) + eol;
   }
 
   /**
@@ -991,6 +1473,18 @@ public class KettleImport extends HopImportBase implements IHopImport {
    */
   public void setOtherCounter(int otherCounter) {
     this.otherCounter = otherCounter;
+  }
+
+  public int getKjbSkippedCounter() {
+    return kjbSkippedCounter;
+  }
+
+  public int getKtrSkippedCounter() {
+    return ktrSkippedCounter;
+  }
+
+  public int getOtherSkippedCounter() {
+    return otherSkippedCounter;
   }
 
   /**

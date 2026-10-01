@@ -17,8 +17,6 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Write To Log action writes a specific string to the Hop logging system.
-:openvar: ${
-:closevar: }
 
 = Write to Log
 
@@ -36,7 +34,7 @@ Parameters and variables must be specified in the Log message section.
 
 A Logging level must be set. Set the Log detail level to Basic if you want parameters and variables to be printed out.
 
-Example to print parameter or variable in Log message section: ``COUNTER: {openvar}COUNTER{closevar}``
+Example to print parameter or variable in Log message section: `+COUNTER: ${COUNTER}+`
 
 TIP: If an error stops anything from being written to the log, then disable the Hops that fail, add logging, and re-run.
 

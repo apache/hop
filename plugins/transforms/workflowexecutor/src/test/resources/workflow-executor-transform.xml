@@ -28,7 +28,10 @@
         <schema_name/>
     </partitioning>
     <run_configuration>local</run_configuration>
+    <wait_timeout>1500</wait_timeout>
     <filename>${PROJECT_HOME}/loops/child-workflow-executor.hwf</filename>
+    <filenameInField>N</filenameInField>
+    <filenameField/>
     <group_size>1</group_size>
     <group_field/>
     <group_time/>

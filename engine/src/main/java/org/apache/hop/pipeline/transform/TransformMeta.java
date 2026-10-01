@@ -44,6 +44,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHasName;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IMissingPlugin;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
@@ -58,6 +60,7 @@ import org.w3c.dom.Node;
 /** This class contains everything that is needed to define a transform. */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-transform")
 public class TransformMeta
     implements Cloneable,
         Comparable<TransformMeta>,
@@ -69,6 +72,15 @@ public class TransformMeta
         IBaseMeta,
         IHasName {
   private static final Class<?> PKG = TransformMeta.class;
+
+  /**
+   * Tracks changes to the settings this wrapper owns - position, number of copies, row distribution
+   * - as opposed to the settings a transform dialog edits, which live on the inner {@link
+   * ITransformMeta}. Keeping the two apart means a dialog's Cancel, which restores the inner flag
+   * it captured when it opened, cannot discard a change made on the canvas in the meantime.
+   * Transform dialogs are not modal, so that overlap is easy to hit. See issue #8022.
+   */
+  private boolean wrapperChanged;
 
   public static final String XML_TAG = "transform";
   public static final String STRING_ID_MAPPING = "Mapping";
@@ -82,7 +94,8 @@ public class TransformMeta
   @HopMetadataProperty(key = "type")
   private String transformPluginId; // --> transform plugin id
 
-  @HopMetadataProperty private String name;
+  @HopMetadataProperty(namingSchemeType = "hop-transform")
+  private String name;
 
   @HopMetadataProperty(inline = true)
   private ITransformMeta transform;
@@ -186,34 +199,43 @@ public class TransformMeta
 
   public String getXml() throws HopException {
 
-    StringBuilder xml = new StringBuilder(200);
+    StringBuilder body = new StringBuilder(200);
 
-    xml.append("  ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
-    xml.append("    ").append(XmlHandler.addTagValue("name", getName()));
-    xml.append("    ").append(XmlHandler.addTagValue("type", getTransformPluginId()));
-    xml.append("    ").append(XmlHandler.addTagValue("description", description));
-    xml.append("    ").append(XmlHandler.addTagValue("distribute", distributes));
-    xml.append("    ")
+    body.append("    ").append(XmlHandler.addTagValue("name", getName()));
+    body.append("    ").append(XmlHandler.addTagValue("type", getTransformPluginId()));
+    body.append("    ").append(XmlHandler.addTagValue("description", description));
+    body.append("    ").append(XmlHandler.addTagValue("distribute", distributes));
+    body.append("    ")
         .append(
             XmlHandler.addTagValue(
                 "custom_distribution", rowDistribution == null ? null : rowDistribution.getCode()));
-    xml.append("    ").append(XmlHandler.addTagValue("copies", copiesString));
+    body.append("    ").append(XmlHandler.addTagValue("copies", copiesString));
 
-    xml.append(transformPartitioningMeta.getXml());
+    body.append(transformPartitioningMeta.getXml());
     if (targetTransformPartitioningMeta != null) {
-      xml.append(XmlHandler.openTag(CONST_TARGET_TRANSFORM_PARTITIONING))
+      body.append(XmlHandler.openTag(CONST_TARGET_TRANSFORM_PARTITIONING))
           .append(targetTransformPartitioningMeta.getXml())
           .append(XmlHandler.closeTag(CONST_TARGET_TRANSFORM_PARTITIONING));
     }
 
-    xml.append(transform.getXml());
+    body.append(transform.getXml());
 
-    xml.append(AttributesUtil.getAttributesXml(attributesMap));
+    body.append(AttributesUtil.getAttributesXml(attributesMap));
 
-    xml.append("    ").append(XmlHandler.openTag("GUI")).append(Const.CR);
-    xml.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
-    xml.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
-    xml.append("    ").append(XmlHandler.closeTag("GUI")).append(Const.CR);
+    body.append("    ").append(XmlHandler.openTag("GUI")).append(Const.CR);
+    body.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
+    body.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
+    body.append("    ").append(XmlHandler.closeTag("GUI")).append(Const.CR);
+
+    // The settings of a transform whose plugin isn't installed are written back out untouched.
+    //
+    if (transform instanceof IMissingPlugin missingPlugin) {
+      body.append(XmlMetadataUtil.getPreservedMissingPluginXml(missingPlugin, body.toString()));
+    }
+
+    StringBuilder xml = new StringBuilder(body.length() + 100);
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+    xml.append(body);
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR).append(Const.CR);
 
     return xml.toString();
@@ -239,7 +261,12 @@ public class TransformMeta
           registry.findPluginWithId(TransformPluginType.class, transformPluginId, true);
 
       if (transformPlugin == null) {
-        setTransform(new Missing(name, transformPluginId));
+        // The plugin isn't installed: keep the XML of the transform so that saving the pipeline
+        // doesn't throw away its configuration.
+        //
+        Missing missing = new Missing(name, transformPluginId);
+        XmlMetadataUtil.preserveMissingPluginXml(missing, transformNode);
+        setTransform(missing);
       } else {
         setTransform((ITransformMeta) registry.loadClass(transformPlugin));
       }
@@ -336,7 +363,7 @@ public class TransformMeta
    * @param c The number of copies.
    */
   public void setCopies(int c) {
-    setChanged();
+    setWrapperChanged();
     copiesString = Integer.toString(c);
     copiesCache = c;
   }
@@ -403,10 +430,11 @@ public class TransformMeta
   public synchronized boolean hasChanged() {
     // Check both the wrapper level changed flag and the inner metadata
     ITransformMeta meta = this.getTransform();
-    return meta != null && meta.hasChanged();
+    return wrapperChanged || (meta != null && meta.hasChanged());
   }
 
   public synchronized void setChanged(boolean ch) {
+    wrapperChanged = ch;
     // Propagate to inner metadata
     ITransformMeta meta = this.getTransform();
     if (meta != null) {
@@ -416,6 +444,14 @@ public class TransformMeta
 
   public synchronized void setChanged() {
     setChanged(true);
+  }
+
+  /**
+   * Marks the settings owned by this wrapper as changed, without touching the transform's own
+   * changed flag. See {@link #wrapperChanged}.
+   */
+  private synchronized void setWrapperChanged() {
+    wrapperChanged = true;
   }
 
   public boolean chosesTargetTransforms() {
@@ -433,6 +469,7 @@ public class TransformMeta
         .copy(this);
   }
 
+  @SuppressWarnings("javabugs:S2259") // the copy factory only returns null for a null source
   public synchronized void replaceMeta(TransformMeta transformMeta) {
     // Use the copy factory to replace metadata with proper state preservation
     TransformMeta copy =
@@ -522,7 +559,7 @@ public class TransformMeta
 
     Point loc = new Point(nx, ny);
     if (!loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -530,7 +567,7 @@ public class TransformMeta
   @Override
   public void setLocation(Point loc) {
     if (loc != null && !loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -577,7 +614,7 @@ public class TransformMeta
   public void setDistributes(boolean distributes) {
     if (this.distributes != distributes) {
       this.distributes = distributes;
-      setChanged();
+      setWrapperChanged();
     }
   }
 
@@ -715,7 +752,7 @@ public class TransformMeta
     if (rowDistribution != null) {
       setDistributes(true);
     }
-    setChanged();
+    setWrapperChanged();
   }
 
   /**

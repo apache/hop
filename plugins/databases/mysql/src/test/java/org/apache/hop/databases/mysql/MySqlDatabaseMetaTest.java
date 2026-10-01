@@ -337,6 +337,8 @@ class MySqlDatabaseMetaTest {
   void testSqlStatements() {
     assertEquals(" LIMIT 15", nativeMeta.getLimitClause(15));
     assertEquals("SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlQueryFields("FOO"));
+    assertEquals(
+        "SHOW CREATE TABLE `sales`.`orders`", nativeMeta.getSqlObjectDdl("sales", "orders"));
     assertEquals("SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlTableExists("FOO"));
     assertEquals("SELECT FOO FROM BAR LIMIT 0", nativeMeta.getSqlQueryColumnFields("FOO", "BAR"));
 
@@ -429,8 +431,9 @@ class MySqlDatabaseMetaTest {
         "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+    // MySQL has no address type, so the dialect names the column that holds one.
     assertEquals(
-        "ALTER TABLE FOO ADD BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD BAR VARCHAR(45)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

@@ -36,7 +36,7 @@ import org.apache.hop.testing.DataSet;
 @Transform(
     id = "DataSetInput",
     description = "Read static data from a data set defined in the metadata",
-    name = "Data Set Input",
+    name = "Data set input",
     image = "dataset.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::DataSetInputMeta.keyword",
@@ -47,6 +47,16 @@ public class DataSetInputMeta extends BaseTransformMeta<DataSetInput, DataSetInp
 
   public DataSetInputMeta() {
     super();
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
   }
 
   @Override

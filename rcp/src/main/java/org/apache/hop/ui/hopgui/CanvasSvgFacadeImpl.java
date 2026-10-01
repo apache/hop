@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
 import org.apache.hop.workflow.canvas.WorkflowCanvasSvgRenderer;
 import org.eclipse.swt.widgets.Canvas;
@@ -53,6 +54,16 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       float magnification,
       DPoint offset) {
     return null;
+  }
+
+  @Override
+  void publishSnapshotInternal(
+      Canvas canvas,
+      CanvasSvgRenderResult result,
+      float magnification,
+      DPoint offset,
+      Point canvasSize) {
+    // Desktop paints on SWT canvas directly
   }
 
   @Override

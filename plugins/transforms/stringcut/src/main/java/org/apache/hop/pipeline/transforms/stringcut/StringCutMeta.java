@@ -60,18 +60,6 @@ public class StringCutMeta extends BaseTransformMeta<StringCut, StringCutData> {
     fields = new ArrayList<>();
   }
 
-  public StringCutMeta(StringCutMeta obj) {
-    fields = new ArrayList<>();
-    for (StringCutField field : obj.fields) {
-      this.fields.add(new StringCutField(field));
-    }
-  }
-
-  @Override
-  public Object clone() {
-    return new StringCutMeta(this);
-  }
-
   /**
    * Gets fields
    *

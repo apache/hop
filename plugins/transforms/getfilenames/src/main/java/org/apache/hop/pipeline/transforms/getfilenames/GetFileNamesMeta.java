@@ -172,11 +172,6 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   }
 
   @Override
-  public Object clone() {
-    return (GetFileNamesMeta) super.clone();
-  }
-
-  @Override
   public void setDefault() {
     doNotFailIfNoFile = false;
     filterItemList.add(new FilterItem(FileTypeFilter.FILES_AND_FOLDERS.toString()));
@@ -188,6 +183,21 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     dynamicWildcardField = "";
     dynamicIncludeSubFolders = false;
     dynamicExcludeWildcardField = "";
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return isFileField();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !isFileField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Label");
   }
 
   @Override

@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.changefileencoding;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -26,6 +24,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -372,18 +371,8 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
 
   private void setEncodings(ComboVar cVar) {
     // Encoding of the text file:
-    String encoding =
-        Const.NVL(cVar.getText(), Const.getEnvironmentVariable("file.encoding", Const.UTF_8));
-    cVar.removeAll();
-    ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-    for (Charset charSet : values) {
-      cVar.add(charSet.displayName());
-    }
-
-    // Now select the default!
-    int idx = Const.indexOfString(encoding, cVar.getItems());
-    if (idx >= 0) {
-      cVar.select(idx);
-    }
+    String encoding = cVar.getText();
+    cVar.setItems(ConstUi.getEncodings());
+    cVar.setText(Const.NVL(encoding, ""));
   }
 }

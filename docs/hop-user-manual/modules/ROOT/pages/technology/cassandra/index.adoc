@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/cassandra/
 :language: en_US
 :description: Apache Hop supports Apache Cassandra through a connection metadata type, actions and transforms.
+:page-marketplace: hop-tech-cassandra
 
 = Cassandra Technology
 

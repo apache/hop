@@ -198,6 +198,9 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
     return new RowMetaAndData(rowMeta, rowData);
   }
 
+  @SuppressWarnings(
+      "java:S2276") // this is a pacing delay for the never-ending generator, there is nothing to
+  // wait for
   @Override
   public synchronized boolean processRow() throws HopException {
 

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0117-text-chunker-redaction</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Credentials in Hop XML and metadata JSON must not reach chunk text, which is
+      normally sent to an embedding model.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/09/17 09:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/09/17 09:00:00.000</modified_date>
+    <key_for_session_key/>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop> <from>Definitions</from> <to>Chunk</to> <enabled>Y</enabled> </hop>
+    <hop> <from>Chunk</from> <to>Sort chunks</to> <enabled>Y</enabled> </hop>
+    <hop> <from>Sort chunks</from> <to>OUTPUT</to> <enabled>Y</enabled> </hop>
+  </order>
+  <transform>
+    <name>Definitions</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>pipeline</item>
+        <item>&lt;pipeline&gt;&lt;info&gt;&lt;name&gt;secret-demo&lt;/name&gt;&lt;/info&gt;&#10;&lt;transform&gt;&lt;name&gt;DB&lt;/name&gt;&lt;type&gt;TableInput&lt;/type&gt;&#10;&lt;connection&gt;&lt;hostname&gt;localhost&lt;/hostname&gt;&lt;username&gt;hop&lt;/username&gt;&#10;&lt;password&gt;letmein&lt;/password&gt;&lt;lookupKeys&gt;customer_id&lt;/lookupKeys&gt;&lt;/connection&gt;&#10;&lt;/transform&gt;&lt;/pipeline&gt;</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"prod-rest","restConnection":{"baseUrl":"https://api.example.com",&#10;"bearerToken":"tok-abcdef123456","proxyPassword":"hunter2"}}</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length><precision>-1</precision><set_empty_string>N</set_empty_string>
+        <name>source_type</name><type>String</type>
+      </field>
+      <field>
+        <length>-1</length><precision>-1</precision><set_empty_string>N</set_empty_string>
+        <name>content</name><type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI><xloc>96</xloc><yloc>96</yloc></GUI>
+  </transform>
+  <transform>
+    <name>Chunk</name>
+    <type>TextChunker</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <inputField>content</inputField>
+    <outputChunkField>chunk_text</outputChunkField>
+    <chunkingStrategy>STRUCTURE</chunkingStrategy>
+    <contentType>AUTO</contentType>
+    <contentTypeField>source_type</contentTypeField>
+    <chunkSize>4000</chunkSize>
+    <chunkOverlap>0</chunkOverlap>
+    <includeMetadata>N</includeMetadata>
+    <attributes/>
+    <GUI><xloc>320</xloc><yloc>96</yloc></GUI>
+  </transform>
+  <transform>
+    <name>Sort chunks</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>chunk_text</name>
+        <ascending>Y</ascending>
+        <case_sensitive>Y</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI><xloc>432</xloc><yloc>96</yloc></GUI>
+  </transform>
+  <transform>
+    <name>OUTPUT</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI><xloc>544</xloc><yloc>96</yloc></GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

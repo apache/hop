@@ -24,8 +24,12 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
+import org.apache.hop.testing.util.UnitTestGraphVariables;
+import org.apache.hop.testing.util.UnitTestTransformRenames;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
     extensionPointId = "HopGuiPipelineAfterClose",
@@ -36,8 +40,20 @@ public class HopGuiPipelineAfterClose implements IExtensionPoint<PipelineMeta> {
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
       throws HopException {
-    Map<String, Object> stateMap = TestingGuiPlugin.getStateMap(pipelineMeta);
+    HopGuiPipelineGraph pipelineGraph = TestingGuiPlugin.getPipelineGraph(pipelineMeta);
+    Map<String, Object> stateMap =
+        pipelineGraph != null
+            ? pipelineGraph.getStateMap()
+            : TestingGuiPlugin.getStateMap(pipelineMeta);
+    if (pipelineGraph != null) {
+      UnitTestGraphVariables.clear(pipelineGraph.getVariables(), stateMap);
+    } else {
+      UnitTestGraphVariables.clear(variables, stateMap);
+    }
     if (stateMap != null) {
+      PipelineUnitTest unitTest =
+          (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+      UnitTestTransformRenames.revertAll(unitTest, stateMap);
       stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
     }
   }

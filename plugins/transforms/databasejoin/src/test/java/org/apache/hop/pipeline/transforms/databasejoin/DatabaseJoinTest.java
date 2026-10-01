@@ -42,6 +42,11 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit test for {@link DatabaseJoin}
+ *
+ * @author lance 2026/8/22 7:43
+ */
 class DatabaseJoinTest {
 
   DatabaseJoinMeta mockTransformMetaInterface;

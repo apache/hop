@@ -70,12 +70,6 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    DtdValidator je = (DtdValidator) super.clone();
-    return je;
-  }
-
   public String getRealxmlfilename() {
     return resolve(xmlFilename);
   }

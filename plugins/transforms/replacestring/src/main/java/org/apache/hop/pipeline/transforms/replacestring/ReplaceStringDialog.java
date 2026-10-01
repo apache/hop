@@ -33,7 +33,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -99,6 +101,7 @@ public class ReplaceStringDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    ciKey[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     ciKey[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.useRegEx"),
@@ -193,7 +196,7 @@ public class ReplaceStringDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     input.setChanged(changed);

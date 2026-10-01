@@ -18,17 +18,14 @@
 package org.apache.hop.testing;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +46,16 @@ import org.apache.hop.core.vfs.HopVfs;
  * file defined by the tableName in the data set
  */
 public class DataSetCsvUtil {
+  /**
+   * Storage mask for Number and BigNumber fields without a format. DecimalFormat prints the
+   * shortest decimal representation of a double, so 3.14 is written as "3.14" while no digits are
+   * ever dropped (340 is the maximum number of fraction digits DecimalFormat honours for a double).
+   * Without it a BigNumber falls back to the default mask, which keeps 19 fraction digits, or to a
+   * pattern built from its length and precision, which rounds and zero-pads. Declared precision is
+   * applied when comparing against golden data, not when storing.
+   */
+  static final String NUMBER_STORAGE_MASK = "0." + "#".repeat(340);
+
   public static void setValueFormats(IRowMeta rowMeta) {
     for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
       if (StringUtils.isEmpty(valueMeta.getConversionMask())) {
@@ -56,8 +63,8 @@ public class DataSetCsvUtil {
           case IValueMeta.TYPE_INTEGER:
             valueMeta.setConversionMask("0");
             break;
-          case IValueMeta.TYPE_NUMBER:
-            valueMeta.setConversionMask("0.#");
+          case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
+            valueMeta.setConversionMask(NUMBER_STORAGE_MASK);
             break;
           case IValueMeta.TYPE_DATE:
             valueMeta.setConversionMask("yyyyMMdd-HHmmss.SSS");
@@ -101,7 +108,7 @@ public class DataSetCsvUtil {
               constantValueMeta.setConversionMetadata(valueMeta);
               if (i < csvRecord.size()) {
                 String value = csvRecord.get(i);
-                row[i] = valueMeta.convertData(constantValueMeta, value);
+                row[i] = csvValueToField(valueMeta, constantValueMeta, value);
               }
             }
             rows.add(row);
@@ -174,7 +181,7 @@ public class DataSetCsvUtil {
                 IValueMeta valueMeta = setRowMeta.getValueMeta(index);
                 constantValueMeta.setConversionMetadata(valueMeta);
                 String value = csvRecord.get(index);
-                row[i] = valueMeta.convertData(constantValueMeta, value);
+                row[i] = csvValueToField(valueMeta, constantValueMeta, value);
               } else {
                 row[i] = null;
               }
@@ -223,50 +230,38 @@ public class DataSetCsvUtil {
   public static final void writeDataSetData(
       IVariables variables, DataSet dataSet, IRowMeta rowMeta, List<Object[]> rows)
       throws HopException {
-
-    String dataSetFilename = dataSet.getActualDataSetFilename(variables);
-
-    IRowMeta setRowMeta = rowMeta.clone(); // just making sure
-    setValueFormats(setRowMeta);
-
-    OutputStream outputStream = null;
-    BufferedWriter writer = null;
-    CSVPrinter csvPrinter = null;
-    try {
-
-      FileObject file = HopVfs.getFileObject(dataSetFilename);
-      outputStream = HopVfs.getOutputStream(file, false);
-      writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-      CSVFormat csvFormat = getCsvFormat(rowMeta);
-      csvPrinter = new CSVPrinter(writer, csvFormat);
-
+    try (DataSetCsvWriter writer = new DataSetCsvWriter(variables, dataSet, rowMeta)) {
       for (Object[] row : rows) {
-        List<String> strings = new ArrayList<>();
-        for (int i = 0; i < setRowMeta.size(); i++) {
-          IValueMeta valueMeta = setRowMeta.getValueMeta(i);
-          String string = valueMeta.getString(row[i]);
-          strings.add(string);
-        }
-        csvPrinter.printRecord(strings);
+        writer.writeRow(row);
       }
-      csvPrinter.flush();
+    }
+  }
 
-    } catch (Exception e) {
-      throw new HopException("Unable to write data set to file '" + dataSetFilename + "'", e);
-    } finally {
-      try {
-        if (csvPrinter != null) {
-          csvPrinter.close();
-        }
-        if (writer != null) {
-          writer.close();
-        }
-        if (outputStream != null) {
-          outputStream.close();
-        }
-      } catch (IOException e) {
-        throw new HopException("Error closing file " + dataSetFilename + " : ", e);
-      }
+  /**
+   * Binary data-set fields are stored as lowercase hex (no {@code \\x} prefix). Everything else
+   * uses the field's normal string conversion.
+   */
+  static Object csvValueToField(IValueMeta valueMeta, IValueMeta stringMeta, String value)
+      throws HopException {
+    if (valueMeta.isBinary()) {
+      return decodeHex(value, valueMeta.getName());
+    }
+    if (value != null && (valueMeta.isNumber() || valueMeta.isBigNumber())) {
+      // Earlier versions padded a BigNumber with a length to " 00001234.57"
+      value = value.trim();
+    }
+    return valueMeta.convertData(stringMeta, value);
+  }
+
+  static byte[] decodeHex(String value, String fieldName) throws HopException {
+    if (value == null || value.isEmpty()) {
+      return null;
+    }
+    try {
+      return Hex.decodeHex(value);
+    } catch (DecoderException e) {
+      throw new HopException(
+          "Unable to decode hex binary value for field '" + fieldName + "': " + value, e);
     }
   }
 

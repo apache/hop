@@ -64,9 +64,6 @@ public class CheckResultDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Color red;
-  private Color yellow;
-
   private boolean showSuccessfulResults = false;
 
   private String transformName;
@@ -82,8 +79,9 @@ public class CheckResultDialog extends Dialog {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    red = display.getSystemColor(SWT.COLOR_RED);
-    yellow = display.getSystemColor(SWT.COLOR_YELLOW);
+    // Show successful results by default when there are no errors
+    showSuccessfulResults =
+        remarks.stream().noneMatch(cr -> cr.getType() == ICheckResult.TYPE_RESULT_ERROR);
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
@@ -115,6 +113,7 @@ public class CheckResultDialog extends Dialog {
 
     wNoOK = new Button(shell, SWT.CHECK);
     wNoOK.setText(STRING_SHOW_SUCESSFUL);
+    wNoOK.setSelection(showSuccessfulResults);
     PropsUi.setLook(wNoOK);
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -220,10 +219,10 @@ public class CheckResultDialog extends Dialog {
         Color col = null;
         switch (cr.getType()) {
           case ICheckResult.TYPE_RESULT_ERROR:
-            col = red;
+            col = GuiResource.getInstance().getColorLightRed();
             break;
           case ICheckResult.TYPE_RESULT_WARNING:
-            col = yellow;
+            col = GuiResource.getInstance().getColorLight();
             break;
           default:
             break;

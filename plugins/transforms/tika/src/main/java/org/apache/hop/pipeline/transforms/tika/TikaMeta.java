@@ -172,35 +172,19 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     this.filenameField = "filename";
   }
 
-  public TikaMeta(TikaMeta meta) {
-    this();
-    for (TikaFile file : meta.files) {
-      this.files.add(new TikaFile(file));
-    }
-    this.contentFieldName = meta.contentFieldName;
-    this.fileSizeFieldName = meta.fileSizeFieldName;
-    this.filenameField = meta.filenameField;
-    this.rowNumberField = meta.rowNumberField;
-    this.rowLimit = meta.rowLimit;
-    this.outputFormat = meta.outputFormat;
-    this.encoding = meta.encoding;
-    this.dynamicFilenameField = meta.dynamicFilenameField;
-    this.fileInField = meta.fileInField;
-    this.addingResultFile = meta.addingResultFile;
-    this.ignoreEmptyFile = meta.ignoreEmptyFile;
-    this.shortFileFieldName = meta.shortFileFieldName;
-    this.pathFieldName = meta.pathFieldName;
-    this.hiddenFieldName = meta.hiddenFieldName;
-    this.lastModificationTimeFieldName = meta.lastModificationTimeFieldName;
-    this.uriFieldName = meta.uriFieldName;
-    this.rootUriNameFieldName = meta.rootUriNameFieldName;
-    this.extensionFieldName = meta.extensionFieldName;
-    this.metadataFieldName = meta.metadataFieldName;
+  @Override
+  public boolean consumesMainInput() {
+    return isFileInField();
   }
 
   @Override
-  public TikaMeta clone() {
-    return new TikaMeta(this);
+  public boolean canStartWithoutInput() {
+    return !isFileInField();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "TikaDialog.FilenameInField.Label");
   }
 
   @Override
@@ -344,19 +328,11 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
 
     CheckResult cr;
 
-    // See if we get input...
-    if (input.length <= 0) {
+    if (isFileInField() && input.length <= 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "TikaMeta.CheckResult.NoInputExpected"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "TikaMeta.CheckResult.NoInput"),
+              BaseMessages.getString(PKG, "TikaMeta.CheckResult.IncomingHopsRequired"),
               transformMeta);
       remarks.add(cr);
     }

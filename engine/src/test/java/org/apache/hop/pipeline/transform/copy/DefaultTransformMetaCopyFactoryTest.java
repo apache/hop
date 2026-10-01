@@ -182,4 +182,18 @@ class DefaultTransformMetaCopyFactoryTest {
     assertTrue(
         cloned.getTransform().hasChanged(), "Clone inner transform should preserve changed state");
   }
+
+  @Test
+  void copyOfUnchangedTransformIsNotMarkedChanged() {
+    sourceTransformMeta.setLocation(50, 80);
+    sourceTransformMeta.setChanged(false);
+    dummyMeta.setChanged(false);
+
+    TransformMeta copy = factory.copy(sourceTransformMeta, CopyContext.DEFAULT);
+
+    assertFalse(sourceTransformMeta.hasChanged(), "Source should stay unchanged");
+    assertFalse(
+        copy.hasChanged(),
+        "Copying a clean transform must not mark the copy changed (location/row-distribution setters used to flip wrapperChanged)");
+  }
 }

@@ -20,12 +20,12 @@ package org.apache.hop.pipeline.transforms.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import jakarta.ws.rs.core.MediaType;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.util.Utils;
 
 /** Merges paging tokens into HTTP request bodies for {@link RestPaginationType#BODY_CURSOR}. */
@@ -53,7 +53,7 @@ final class PagingBodyMerge {
       return false;
     }
     try {
-      return MediaType.APPLICATION_JSON_TYPE.isCompatible(MediaType.valueOf(contentTypeHeader));
+      return matchesMimeType(contentTypeHeader, ContentType.APPLICATION_JSON);
     } catch (IllegalArgumentException ex) {
       return contentTypeHeader.toLowerCase().contains("json");
     }
@@ -64,8 +64,7 @@ final class PagingBodyMerge {
       return false;
     }
     try {
-      return MediaType.APPLICATION_FORM_URLENCODED_TYPE.isCompatible(
-          MediaType.valueOf(contentTypeHeader));
+      return matchesMimeType(contentTypeHeader, ContentType.APPLICATION_FORM_URLENCODED);
     } catch (IllegalArgumentException ex) {
       return contentTypeHeader.toLowerCase().contains("x-www-form-urlencoded");
     }
@@ -151,5 +150,15 @@ final class PagingBodyMerge {
 
   private static String encodeFormComponent(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
+  /** True when the Content-Type header names the same media type, ignoring any parameters. */
+  private static boolean matchesMimeType(String contentTypeHeader, ContentType expected) {
+    try {
+      ContentType actual = ContentType.parse(contentTypeHeader);
+      return actual != null && expected.getMimeType().equalsIgnoreCase(actual.getMimeType());
+    } catch (Exception e) {
+      return false;
+    }
   }
 }

@@ -1,0 +1,142 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Neo4j Cypher builder transform composes a Cypher statement from a list of node and relationship operations, so you can read or update a graph without writing Cypher by hand.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-neo4j
+
+= image:transforms/icons/neo4j_cypher.svg[Neo4j Cypher builder transform Icon, role="image-doc-icon"] Neo4j Cypher builder
+
+== Description
+
+The *Neo4j Cypher builder* transform builds a Cypher statement from a list of **operations** you define in the dialog: match, merge, create, delete or set nodes and relationships, order the result and return values.
+The generated Cypher is shown in the *Cypher* tab and executed over the Bolt protocol for every input row, or for a batch of rows at once with `UNWIND`.
+
+Use it when you want the structure of the statement to be visible and editable in the dialog rather than typed as free text.
+When you need something the operations cannot express, use the xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher] transform, which runs any statement you give it.
+
+== Options
+
+=== Options tab
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|Neo4j Connection
+|The xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j connection] to use.
+
+|Batch size (rows)
+|How many input rows are sent to Neo4j in one transaction. Default `1000`. With an *Unwind map alias* the whole batch goes into a single `UNWIND` statement; without one, the statement is executed once per row inside the same transaction.
+
+|Unwind map alias
+|The alias used in the generated `UNWIND $rows AS <alias>` clause, default `row`. Every parameter is then referenced as `<alias>.<parameter>` in the statement. Clear this field to execute the statement per row with plain `$parameter` references instead; that is slower but keeps the input fields on the output rows (see <<output>>).
+
+|Maximum retries
+|How many times a failed batch is retried before the transform errors out. Default `10`; `0` disables retries.
+|===
+
+=== Parameters tab
+
+Parameters make input field values available to the operations.
+Click *Get parameters* to add every input field.
+
+[options="header",cols="1,3"]
+|===
+|Column |Description
+
+|Parameter
+|The name used to reference the value in the operations.
+
+|Input field
+|The input field whose value is passed.
+
+|Neo4j type
+|The type the value is converted to before it is sent to Neo4j.
+|===
+
+Parameters can be used for property values and keys.
+They can not be used for node labels or relationship labels.
+
+=== Operations tab
+
+The list on the left holds the operations, executed in the order shown; use the buttons to add, delete and reorder them.
+Every operation has a name and a type, and the fields on the right depend on the type:
+
+[options="header",cols="1,3"]
+|===
+|Operation type |What it generates
+
+|Match node
+|`MATCH (alias:Label {key: value, ...})`. Give the node one or more labels, an alias to refer to it later, and the *Node keys* (property name and the parameter that supplies its value) that identify it.
+
+|Merge node
+|`MERGE (alias:Label {key: value, ...})`, so the node is created when the keys do not match an existing one. Extra *Properties* are set on the node with `SET`.
+
+|Create node
+|`CREATE (alias:Label {...})` with the listed properties.
+
+|Delete node
+|`DELETE alias` for a node matched earlier. Check *Detach when deleting?* to also delete the relationships attached to it (`DETACH DELETE`).
+
+|Set values
+|`SET alias.property = value, ...` on a node or relationship matched earlier. Each property has a name and a parameter or expression that supplies the value.
+
+|Match relationship
+|`MATCH (source)-[alias:LABEL]->(target)` between two nodes matched or merged earlier, referenced by their aliases.
+
+|Merge relationship
+|`MERGE (source)-[alias:LABEL]->(target)`, with optional properties set on the relationship.
+
+|Create relationship
+|`CREATE (source)-[alias:LABEL {...}]->(target)`.
+
+|Order by
+|`ORDER BY alias.property [DESC], ...` on the values returned.
+
+|Return values
+|`RETURN alias.property AS name, ...`. Each return value has an alias and property or a free expression, an optional *Rename*, the Neo4j type and the Hop type it is converted to. The listed values become the output fields of the transform.
+|===
+
+=== Cypher tab
+
+Shows the statement the operations generate, with the `UNWIND` clause on top when an alias is set.
+It is read-only; change the operations to change the Cypher.
+
+[[output]]
+== Output
+
+* Without a *Return values* operation the transform only writes to the graph and passes the input rows through unchanged.
+* With *Return values* and an *Unwind map alias*, the output rows are the records Neo4j returns for the whole batch. They can not be matched back to individual input rows, so the output layout consists of the return values only.
+* With *Return values* and no unwind alias, every returned record is appended to the input row it was produced for, so the output has the input fields followed by the return values.
+
+The transform opens a read transaction when the operations only match, order and return, and a write transaction as soon as one of them merges, creates, deletes or sets values.
+
+== Metadata injection
+
+All options support xref:pipeline/metadata-injection.adoc[metadata injection].
+
+== Related pages
+
+* xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher] for hand-written statements
+* xref:pipeline/transforms/neo4j-output.adoc[Neo4j output] for loading nodes and relationships from a row layout
+* xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j connection]
+* xref:technology/neo4j/index.adoc[Neo4j technology overview]

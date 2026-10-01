@@ -28,16 +28,19 @@ public class GitConfig {
   private boolean enabled;
   private boolean searchingParentFolders;
   private boolean fetchAutomatic;
+  private boolean ignoringPositionInDiff;
 
   public GitConfig() {
     this.enabled = true;
     this.searchingParentFolders = false;
     this.fetchAutomatic = false;
+    this.ignoringPositionInDiff = true;
   }
 
   public GitConfig(GitConfig config) {
     this.enabled = config.enabled;
     this.searchingParentFolders = config.searchingParentFolders;
     this.fetchAutomatic = config.fetchAutomatic;
+    this.ignoringPositionInDiff = config.ignoringPositionInDiff;
   }
 }

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
-import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,16 +51,16 @@ final class LinkHeaderPaging {
   private LinkHeaderPaging() {}
 
   /** Collects {@code Link} header values case-insensitively and merges them comma-wise. */
-  static String concatenateLinkHeaders(MultivaluedMap<String, ?> headers) {
+  static String concatenateLinkHeaders(Map<String, ? extends List<String>> headers) {
     if (headers == null) {
       return "";
     }
     StringJoiner joiner = new StringJoiner(", ");
-    for (Map.Entry<String, ? extends List<?>> e : headers.entrySet()) {
+    for (Map.Entry<String, ? extends List<String>> e : headers.entrySet()) {
       if (e.getKey() != null && "link".equalsIgnoreCase(e.getKey()) && e.getValue() != null) {
-        for (Object o : e.getValue()) {
+        for (String o : e.getValue()) {
           if (o != null) {
-            String s = o.toString().trim();
+            String s = o.trim();
             if (!s.isEmpty()) {
               joiner.add(s);
             }
@@ -75,7 +74,7 @@ final class LinkHeaderPaging {
   /**
    * @return bracket-URI whose {@code rel} includes the {@code next} token, else null
    */
-  static String findFirstUriWithRelNext(MultivaluedMap<String, ?> headers) {
+  static String findFirstUriWithRelNext(Map<String, ? extends List<String>> headers) {
     String concatenated = concatenateLinkHeaders(headers);
     if (Utils.isEmpty(concatenated)) {
       return null;

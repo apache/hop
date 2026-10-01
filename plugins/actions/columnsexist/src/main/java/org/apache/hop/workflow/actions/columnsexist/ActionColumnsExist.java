@@ -101,19 +101,6 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     this("");
   }
 
-  public ActionColumnsExist(ActionColumnsExist meta) {
-    super(meta.getName(), meta.getDescription(), meta.getPluginId());
-    this.schemaName = meta.schemaName;
-    this.tableName = meta.tableName;
-    this.connectionName = meta.connectionName;
-    this.columns = meta.columns;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionColumnsExist(this);
-  }
-
   @Override
   public boolean isEvaluation() {
     return true;

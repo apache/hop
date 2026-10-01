@@ -19,6 +19,7 @@ package org.apache.hop.vfs.databricks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -36,11 +37,11 @@ class DatabricksVfsPluginTest {
   }
 
   @Test
-  void getProviderReturnsDatabricksProvider() {
+  void getProviderIsNullWithoutFixedSchemes() {
+    // Nothing to register a provider under, and a provider the manager has no scheme for is never
+    // closed : "DefaultFilesystemManager.close: not all components are closed".
     DatabricksVfsPlugin plugin = new DatabricksVfsPlugin();
-    FileProvider provider = plugin.getProvider();
-    assertNotNull(provider);
-    assertTrue(provider instanceof DatabricksFileProvider);
+    assertNull(plugin.getProvider());
   }
 
   @Test

@@ -19,17 +19,19 @@ package org.apache.hop.parquet.transforms.output;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.parquet.transforms.input.ParquetField;
 import org.apache.hop.parquet.transforms.input.ParquetInputMeta;
 import org.apache.hop.parquet.transforms.input.ParquetReadSupport;
@@ -76,9 +78,10 @@ final class ParquetTestUtil {
   }
 
   static List<RowMetaAndData> readAllRows(String filename, List<ParquetField> fields)
-      throws IOException {
-    byte[] data = Files.readAllBytes(Path.of(filename));
-    ParquetStream inputFile = new ParquetStream(data, filename);
+      throws IOException, HopFileException {
+    FileObject fileObject = HopVfs.getFileObject(filename);
+    ParquetStream inputFile = new ParquetStream(fileObject, filename);
+
     ParquetReadSupport readSupport = new ParquetReadSupport(fields);
     try (ParquetReader<RowMetaAndData> reader =
         new ParquetReaderBuilder<>(readSupport, inputFile).build()) {

@@ -30,3 +30,6 @@ services:
       - "8080"
     volumes:
       - ./resource/xml/test.xsd:/web/test.xsd
+      # Target of the external entity in files/xxe-employee.xml. The XSD Validator tests assert
+      # that this file is only ever fetched when external entities are explicitly enabled.
+      - ./resource/xml/xxe-payload.txt:/web/xxe-payload.txt

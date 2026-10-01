@@ -24,7 +24,6 @@ import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
@@ -81,20 +80,14 @@ public class FolderFileType implements IHopFileType {
   }
 
   /**
-   * See if this is a folder
-   *
-   * @param filename The filename
-   * @param checkContent True if we want to look inside the file content
-   * @return
-   * @throws HopException
+   * Folders cannot be detected from a path string alone. Callers that already know the entry is a
+   * folder (e.g. the explorer after {@code FileObject.isFolder()}) must select this type explicitly
+   * rather than probing here — a VFS {@code isFolder()} on every candidate path dominated large
+   * project tree builds.
    */
   @Override
   public boolean isHandledBy(String filename, boolean checkContent) throws HopException {
-    try {
-      return HopVfs.getFileObject(filename).isFolder();
-    } catch (Exception e) {
-      throw new HopException("Error seeing if file '" + filename + "' is a folder", e);
-    }
+    return false;
   }
 
   @Override

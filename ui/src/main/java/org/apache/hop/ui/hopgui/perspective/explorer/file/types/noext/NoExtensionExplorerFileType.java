@@ -17,11 +17,10 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.noext;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -75,9 +74,7 @@ public class NoExtensionExplorerFileType
 
   @Override
   public boolean isHandledBy(String filename, boolean checkContent) throws HopException {
-    FileObject fileObject = HopVfs.getFileObject(filename);
-    String baseName = fileObject.getName().getBaseName();
-
+    String baseName = HopFileTypeBase.extractBaseName(filename);
     for (String extension : getFilterExtensions()) {
       if (extension.equals(baseName)) {
         return true;

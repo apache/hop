@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: This is used to register one or more S3 endpoints
+:page-marketplace: hop-tech-minio
 
 = Minio Connection
 
@@ -50,6 +51,7 @@ as **sss:///bucketName**.
 
 * To test a connection you can use the Hop GUI File dialog (File - Open) and type `ChosenName://` to see
 the bucket list of the S3 service.
+* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.
 * Give logical and simple names to these Minio metadata connection elements.
 * Take a functional name instead of a technical one.
 * Avoid dashes and the like.

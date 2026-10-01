@@ -163,7 +163,7 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
   @HopMetadataProperty(
       key = "output_type",
       injectionKeyDescription = "AvroOutput.Injection.OUTPUT_TYPE")
-  private String outputType;
+  private String outputType = OUTPUT_TYPES[OUTPUT_TYPE_BINARY_FILE];
 
   @HopMetadataProperty(
       key = "output_field_name",
@@ -330,7 +330,7 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
     if (outputTypeId >= 0 && outputTypeId < OUTPUT_TYPES.length) {
       this.outputType = OUTPUT_TYPES[outputTypeId];
     } else {
-      this.outputType = null;
+      this.outputType = OUTPUT_TYPES[OUTPUT_TYPE_BINARY_FILE];
     }
   }
 
@@ -398,17 +398,6 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
 
   public void setCreateSchemaFile(boolean createSchemaFile) {
     this.createSchemaFile = createSchemaFile;
-  }
-
-  @Override
-  public Object clone() {
-    AvroOutputMeta retval = new AvroOutputMeta();
-
-    for (AvroOutputField field : outputFields) {
-      retval.getOutputFields().add(new AvroOutputField(field));
-    }
-
-    return retval;
   }
 
   @Override
@@ -572,11 +561,11 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
       throws HopTransformException {
     // change the case insensitive flag too
 
-    if (outputType.equalsIgnoreCase(OUTPUT_TYPES[OUTPUT_TYPE_FIELD])) {
+    if (OUTPUT_TYPES[OUTPUT_TYPE_FIELD].equalsIgnoreCase(outputType)) {
       IValueMeta v = new ValueMetaBinary(variables.resolve(outputFieldName));
       v.setOrigin(origin);
       row.addValueMeta(v);
-    } else if (outputType.equalsIgnoreCase(OUTPUT_TYPES[OUTPUT_TYPE_JSON_FIELD])) {
+    } else if (OUTPUT_TYPES[OUTPUT_TYPE_JSON_FIELD].equalsIgnoreCase(outputType)) {
       IValueMeta valueMetaInterface = new ValueMetaString(variables.resolve(outputFieldName));
       valueMetaInterface.setOrigin(origin);
       row.addValueMeta(valueMetaInterface);

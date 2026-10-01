@@ -39,7 +39,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::BaseTransform.TypeTooltipDesc.DorisBulkLoader",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::DorisBulkLoaderMeta.keyword",
-    documentationUrl = "/pipeline/transforms/dorisbulkloader.html")
+    documentationUrl = "/pipeline/transforms/dorisbulkloader.html",
+    classLoaderGroup = "doris-db")
 public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, DorisBulkLoaderData> {
   private static final Class<?> PKG = DorisBulkLoaderMeta.class;
 

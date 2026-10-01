@@ -62,6 +62,13 @@ public class DriverDownload {
   @Builder.Default private final List<String> excludes = List.of();
 
   /**
+   * Extra Maven coordinates ({@code groupId:artifactId}) to install next to the driver, resolved at
+   * the same version. For artifacts the driver needs at runtime but does not declare as a
+   * dependency, so transitive resolution never finds them.
+   */
+  @Builder.Default private final List<String> companionCoordinates = List.of();
+
+  /**
    * Optional extra Maven repository base URL to resolve this driver from, for drivers that are not
    * on Maven Central (e.g. MonetDB on Clojars). It is searched in addition to Maven Central / the
    * user-supplied repository. Null means Maven Central only.
@@ -82,6 +89,17 @@ public class DriverDownload {
   public String toCoordinate(String version) {
     String v = (version == null || version.isBlank()) ? defaultVersion : version;
     return mavenCoordinate + ":" + v;
+  }
+
+  /**
+   * @return the full Maven coordinates of the companion artifacts, at the driver's own version.
+   */
+  public List<String> toCompanionCoordinates(String version) {
+    if (companionCoordinates == null || companionCoordinates.isEmpty()) {
+      return List.of();
+    }
+    String v = (version == null || version.isBlank()) ? defaultVersion : version;
+    return companionCoordinates.stream().map(coordinate -> coordinate + ":" + v).toList();
   }
 
   /**

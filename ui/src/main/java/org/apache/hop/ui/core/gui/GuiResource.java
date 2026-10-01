@@ -39,8 +39,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.HopWebUrlHelper;
+import org.apache.hop.ui.hopgui.IHopWebUrlUpdater;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -120,7 +123,6 @@ public class GuiResource {
   //
   private ManagedFont fontDefault;
   private ManagedFont fontGraph;
-  private ManagedFont fontNote;
   private ManagedFont fontFixed;
   private ManagedFont fontMedium;
   private ManagedFont fontMediumBold;
@@ -144,11 +146,16 @@ public class GuiResource {
   private SwtUniversalImage imageDeprecated;
   private SwtUniversalImage imageVariable;
   private SwtUniversalImage imageHash;
+  private SwtUniversalImage imageNaming;
   private SwtUniversalImage imagePipeline;
   private SwtUniversalImage imagePipelineDisabled;
+  private SwtUniversalImage imagePipelineError;
+  private SwtUniversalImage imagePipelineStalled;
   private SwtUniversalImage imagePartitionSchema;
   private SwtUniversalImage imageWorkflow;
   private SwtUniversalImage imageWorkflowDisabled;
+  private SwtUniversalImage imageWorkflowError;
+  private SwtUniversalImage imageWorkflowStalled;
   private SwtUniversalImage imageArrowDefault;
   private SwtUniversalImage imageArrowTrue;
   private SwtUniversalImage imageArrowFalse;
@@ -157,6 +164,7 @@ public class GuiResource {
   private SwtUniversalImage imageArrowCandidate;
   private SwtUniversalImage imageServer;
   private SwtUniversalImage imageFolder;
+  private SwtUniversalImage imageFolderOpen;
   private SwtUniversalImage imageFile;
   private SwtUniversalImage imageEdit;
   private SwtUniversalImage imageCopyRows;
@@ -196,6 +204,7 @@ public class GuiResource {
   @Getter private Image imageAddAbove;
   @Getter private Image imageAddBelow;
   @Getter private Image imageAddSingle;
+  @Getter private Image imageClientEnvironment;
   @Getter private Image imageCalendar;
   @Getter private Image imageCancel;
   @Getter private Image imageCatalog;
@@ -207,10 +216,12 @@ public class GuiResource {
   @Getter private Image imageCopy;
   @Getter private Image imageCut;
   @Getter private Image imageDelete;
+  @Getter private Image imageDependence;
   @Getter private Image imageDown;
   @Getter private Image imageDuplicate;
   @Getter private Image imageEmpty;
   @Getter private Image imageExpandAll;
+  @Getter private Image imageFindReplace;
   @Getter private Image imageFunction;
   @Getter private Image imageKeyboard;
   @Getter private Image imageHelp;
@@ -221,8 +232,10 @@ public class GuiResource {
   @Getter private Image imageLocation;
   @Getter private Image imageMaximizePanel;
   @Getter private Image imageMinimizePanel;
+  @Getter private Image imageNotification;
   @Getter private Image imageDetachPanel;
   @Getter private Image imageDockPanel;
+  @Getter private Image imageMarketplace;
   @Getter private Image imageNavigateBack;
   @Getter private Image imageNavigateForward;
   @Getter private Image imageNavigateUp;
@@ -236,9 +249,11 @@ public class GuiResource {
   @Getter private Image imageRedo;
   @Getter private Image imageRefresh;
   @Getter private Image imageRegex;
+  @Getter private Image imageRegexDisabled;
   @Getter private Image imageRemoveAll;
   @Getter private Image imageRemoveSingle;
   @Getter private Image imageRename;
+  @Getter private Image imageRepository;
   @Getter private Image imageResetOption;
   @Getter private Image imageRotateLeft;
   @Getter private Image imageRotateRight;
@@ -275,6 +290,8 @@ public class GuiResource {
    * put it in a separate singleton just for this one member.
    */
   private Clipboard clipboard;
+
+  private final WebClipboard webClipboard = new WebClipboard();
 
   protected GuiResource() {
     this(Display.getCurrent());
@@ -428,7 +445,6 @@ public class GuiResource {
     //
     fontDefault.dispose();
     fontGraph.dispose();
-    fontNote.dispose();
     fontFixed.dispose();
     fontMedium.dispose();
     fontMediumBold.dispose();
@@ -444,15 +460,22 @@ public class GuiResource {
     imagePreview.dispose();
     imageServer.dispose();
     imageFile.dispose();
+    imageFindReplace.dispose();
     imageFolder.dispose();
+    imageFolderOpen.dispose();
     imageMissing.dispose();
     imageVariable.dispose();
     imageHash.dispose();
+    imageNaming.dispose();
     imagePipeline.dispose();
     imagePipelineDisabled.dispose();
+    imagePipelineError.dispose();
+    imagePipelineStalled.dispose();
     imagePartitionSchema.dispose();
     imageWorkflow.dispose();
     imageWorkflowDisabled.dispose();
+    imageWorkflowError.dispose();
+    imageWorkflowStalled.dispose();
     imageCopyRows.dispose();
     imageCopyRowsDisabled.dispose();
     imageError.dispose();
@@ -468,6 +491,7 @@ public class GuiResource {
     imageExpandAll.dispose();
     imageSearch.dispose();
     imageRegex.dispose();
+    imageRegexDisabled.dispose();
     imageNew.dispose();
     imageEdit.dispose();
     imageLocked.dispose();
@@ -502,6 +526,7 @@ public class GuiResource {
     disposeImage(imageAddAbove);
     disposeImage(imageAddBelow);
     disposeImage(imageAddSingle);
+    disposeImage(imageClientEnvironment);
     disposeImage(imageCalendar);
     disposeImage(imageCancel);
     disposeImage(imageCatalog);
@@ -513,6 +538,7 @@ public class GuiResource {
     disposeImage(imageCopy);
     disposeImage(imageCut);
     disposeImage(imageDelete);
+    disposeImage(imageDependence);
     disposeImage(imageDown);
     disposeImage(imageDuplicate);
     disposeImage(imageFunction);
@@ -523,12 +549,14 @@ public class GuiResource {
     disposeImage(imageHome);
     disposeImage(imageLabel);
     disposeImage(imageLocation);
+    disposeImage(imageMarketplace);
     disposeImage(imageMaximizePanel);
     disposeImage(imageMinimizePanel);
     disposeImage(imageNavigateBack);
     disposeImage(imageNavigateForward);
     disposeImage(imageNavigateUp);
     disposeImage(imageNote);
+    disposeImage(imageNotification);
     disposeImage(imagePaste);
     disposeImage(imagePause);
     disposeImage(imagePlugin);
@@ -538,6 +566,7 @@ public class GuiResource {
     disposeImage(imageRemoveAll);
     disposeImage(imageRemoveSingle);
     disposeImage(imageRename);
+    disposeImage(imageRepository);
     disposeImage(imageResetOption);
     disposeImage(imageRotateLeft);
     disposeImage(imageRotateRight);
@@ -648,11 +677,6 @@ public class GuiResource {
     graphFontData.setHeight(graphFontSize);
     fontGraph = new ManagedFont(display, graphFontData);
 
-    FontData noteFontData = props.getNoteFont();
-    int noteFontSize = (int) Math.round(noteFontData.getHeight() * props.getGlobalZoomFactor());
-    noteFontData.setHeight(noteFontSize);
-    fontNote = new ManagedFont(display, noteFontData);
-
     FontData fixedFontData = props.getFixedFont();
     int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * props.getGlobalZoomFactor());
     fixedFontData.setHeight(fixedFontSize);
@@ -734,6 +758,8 @@ public class GuiResource {
     imageAddBelow =
         loadAsResource(display, "ui/images/add-item-below.svg", ConstUi.SMALL_ICON_SIZE);
     imageAddSingle = loadAsResource(display, "ui/images/add_single.svg", ConstUi.SMALL_ICON_SIZE);
+    imageClientEnvironment =
+        loadAsResource(display, "ui/images/client-environment.svg", ConstUi.SMALL_ICON_SIZE);
     imageCalendar = loadAsResource(display, "ui/images/calendar.svg", ConstUi.SMALL_ICON_SIZE);
     imageCatalog = loadAsResource(display, "ui/images/catalog.svg", ConstUi.SMALL_ICON_SIZE);
     imageCheck = loadAsResource(display, "ui/images/check.svg", ConstUi.SMALL_ICON_SIZE);
@@ -743,13 +769,17 @@ public class GuiResource {
     imageCancel = loadAsResource(display, "ui/images/cancel.svg", ConstUi.SMALL_ICON_SIZE);
     imageCopy = loadAsResource(display, "ui/images/copy.svg", ConstUi.SMALL_ICON_SIZE);
     imageCut = loadAsResource(display, "ui/images/cut.svg", ConstUi.SMALL_ICON_SIZE);
+    imageDependence = loadAsResource(display, "ui/images/dependence.svg", ConstUi.SMALL_ICON_SIZE);
     imageDuplicate = loadAsResource(display, "ui/images/duplicate.svg", ConstUi.SMALL_ICON_SIZE);
     imagePaste = loadAsResource(display, "ui/images/paste.svg", ConstUi.SMALL_ICON_SIZE);
     imageExpandAll = loadAsResource(display, "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE);
     imageLabel = loadAsResource(display, "ui/images/label.svg", ConstUi.SMALL_ICON_SIZE);
+    imageFindReplace =
+        loadAsResource(display, "ui/images/find-replace.svg", ConstUi.SMALL_ICON_SIZE);
     imageFunction = loadAsResource(display, "ui/images/function.svg", ConstUi.SMALL_ICON_SIZE);
     imageKeyboard = loadAsResource(display, "ui/images/keyboard.svg", ConstUi.SMALL_ICON_SIZE);
-
+    imageMarketplace =
+        loadAsResource(display, "ui/images/marketplace.svg", ConstUi.SMALL_ICON_SIZE);
     imageNavigateBack =
         loadAsResource(display, "ui/images/navigate-back.svg", ConstUi.SMALL_ICON_SIZE);
     imageNavigateForward =
@@ -769,14 +799,19 @@ public class GuiResource {
     imageDockPanel = loadAsResource(display, "ui/images/dock-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageNew = loadAsResource(display, "ui/images/new.svg", ConstUi.SMALL_ICON_SIZE);
     imageNote = loadAsResource(display, "ui/images/note.svg", ConstUi.SMALL_ICON_SIZE);
+    imageNotification =
+        loadAsResource(display, "ui/images/notification-bell.svg", ConstUi.SMALL_ICON_SIZE);
     imagePlugin = loadAsResource(display, "ui/images/plugin.svg", ConstUi.SMALL_ICON_SIZE);
     imagePrint = loadAsResource(display, "ui/images/print.svg", ConstUi.SMALL_ICON_SIZE);
     imageRefresh = loadAsResource(display, "ui/images/refresh.svg", ConstUi.SMALL_ICON_SIZE);
     imageRegex = loadAsResource(display, "ui/images/regex.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRegexDisabled =
+        loadAsResource(display, "ui/images/regex-disabled.svg", ConstUi.SMALL_ICON_SIZE);
     imageRemoveAll = loadAsResource(display, "ui/images/remove_all.svg", ConstUi.SMALL_ICON_SIZE);
     imageRemoveSingle =
         loadAsResource(display, "ui/images/remove_single.svg", ConstUi.SMALL_ICON_SIZE);
     imageRename = loadAsResource(display, "ui/images/rename.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRepository = loadAsResource(display, "ui/images/repository.svg", ConstUi.SMALL_ICON_SIZE);
     imageResetOption =
         loadAsResource(display, "ui/images/reset_option.svg", ConstUi.SMALL_ICON_SIZE);
     imageRotateLeft = loadAsResource(display, "ui/images/rotate-left.svg", ConstUi.SMALL_ICON_SIZE);
@@ -825,9 +860,17 @@ public class GuiResource {
     imagePipeline = SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline.svg");
     imagePipelineDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline-disabled.svg");
+    imagePipelineError =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline-error.svg");
+    imagePipelineStalled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline-stalled.svg");
     imageWorkflow = SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow.svg");
     imageWorkflowDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow-disabled.svg");
+    imageWorkflowError =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow-error.svg");
+    imageWorkflowStalled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow-stalled.svg");
     imageServer = SwtSvgImageUtil.getImageAsResource(display, "ui/images/server.svg");
     imagePreview = SwtSvgImageUtil.getImageAsResource(display, "ui/images/preview.svg");
     imageTrue = SwtSvgImageUtil.getImageAsResource(display, "ui/images/true.svg");
@@ -837,8 +880,10 @@ public class GuiResource {
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/false-disabled.svg");
     imageVariable = SwtSvgImageUtil.getImageAsResource(display, "ui/images/variable.svg");
     imageHash = SwtSvgImageUtil.getImageAsResource(display, "ui/images/hash.svg");
+    imageNaming = SwtSvgImageUtil.getImageAsResource(display, "ui/images/naming.svg");
     imageFile = SwtSvgImageUtil.getImageAsResource(display, "ui/images/file.svg");
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
+    imageFolderOpen = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder-open.svg");
     imagePartitionSchema =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/partition_schema.svg");
     imageDatabase = SwtSvgImageUtil.getImageAsResource(display, "ui/images/database.svg");
@@ -1000,11 +1045,9 @@ public class GuiResource {
     return fontDefault.getFont();
   }
 
-  /**
-   * @return Returns the fontNote.
-   */
+  /** Fallback font for notes that do not set their own. Same as {@link #getFontGraph()}. */
   public Font getFontNote() {
-    return fontNote.getFont();
+    return fontGraph.getFont();
   }
 
   /**
@@ -1162,12 +1205,26 @@ public class GuiResource {
       return;
     }
 
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      IHopWebUrlUpdater urlUpdater = HopWebUrlHelper.getUrlUpdater();
+      try {
+        webClipboard.write(cliptext, urlUpdater == null ? null : urlUpdater::copyToClipboard);
+      } catch (Exception e) {
+        log.logDebug("Unable to copy text to the browser clipboard", e);
+      }
+      return;
+    }
+
     getNewClipboard();
     TextTransfer tran = TextTransfer.getInstance();
     clipboard.setContents(new String[] {cliptext}, new Transfer[] {tran});
   }
 
   public String fromClipboard() {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return webClipboard.read();
+    }
+
     getNewClipboard();
     TextTransfer tran = TextTransfer.getInstance();
 
@@ -1181,7 +1238,17 @@ public class GuiResource {
   private Image getZoomedImaged(
       SwtUniversalImage universalImage, Device device, int width, int height) {
     return universalImage.getAsBitmapForSize(
-        device, (int) (zoomFactor * width), (int) (zoomFactor * height));
+        device,
+        ConstUi.zoomedIconSize(width, zoomFactor),
+        ConstUi.zoomedIconSize(height, zoomFactor));
+  }
+
+  /**
+   * Tree/toolbar-sized bitmap of {@code image}, scaled by the current zoom factor. Do not dispose
+   * the returned image; it is cached on the universal image.
+   */
+  public Image getSmallIcon(SwtUniversalImage image) {
+    return getZoomedImaged(image, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**
@@ -1208,6 +1275,18 @@ public class GuiResource {
     return getZoomedImaged(imageHash, display, 12, 12);
   }
 
+  /**
+   * @return the naming-scheme indicator image at standard small icon size
+   */
+  public Image getImageNaming() {
+    return getZoomedImaged(imageNaming, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  /** Mini N icon for TextVar naming-scheme shortcut indicator (matches variable mini). */
+  public Image getImageNamingMini() {
+    return getZoomedImaged(imageNaming, display, 12, 12);
+  }
+
   public Image getImagePipeline() {
     return getZoomedImaged(
         imagePipeline, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
@@ -1216,6 +1295,16 @@ public class GuiResource {
   public Image getImagePipelineDisabled() {
     return getZoomedImaged(
         imagePipelineDisabled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  public Image getImagePipelineError() {
+    return getZoomedImaged(
+        imagePipelineError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  public Image getImagePipelineStalled() {
+    return getZoomedImaged(
+        imagePipelineStalled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   @Deprecated
@@ -1244,11 +1333,34 @@ public class GuiResource {
         imageWorkflowDisabled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
+  public Image getImageWorkflowError() {
+    return getZoomedImaged(
+        imageWorkflowError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  public Image getImageWorkflowStalled() {
+    return getZoomedImaged(
+        imageWorkflowStalled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
   /**
-   * @return the imageArrow
+   * Closed folder, tree-item sized. Pair with {@link #getImageFolderOpen()} through {@link
+   * org.apache.hop.ui.core.widget.FolderTreeIcons} to swap the icon on expand/collapse.
+   *
+   * @return the closed folder image
    */
   public Image getImageFolder() {
     return getZoomedImaged(imageFolder, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  /**
+   * Open folder, tree-item sized: the expanded counterpart of {@link #getImageFolder()}.
+   *
+   * @return the open folder image
+   */
+  public Image getImageFolderOpen() {
+    return getZoomedImaged(
+        imageFolderOpen, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**
@@ -1485,18 +1597,18 @@ public class GuiResource {
     builder.append(height);
     String key = builder.toString();
 
-    Image image = imageMap.get(key);
-    if (image == null) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
-      int realWidth = (int) Math.round(zoomFactor * width);
-      int realHeight = (int) Math.round(zoomFactor * height);
-      image =
-          new Image(
-              display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
-      svg.dispose();
-      imageMap.put(key, image);
-    }
-    return image;
+    return imageMap.computeIfAbsent(
+        key,
+        k -> {
+          SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
+          int realWidth = (int) Math.round(zoomFactor * width);
+          int realHeight = (int) Math.round(zoomFactor * height);
+          Image loaded =
+              new Image(
+                  display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
+          svg.dispose();
+          return loaded;
+        });
   }
 
   /**
@@ -1533,60 +1645,59 @@ public class GuiResource {
     builder.append('|').append(width).append('|').append(height).append('|').append(disabled);
     String key = builder.toString();
 
-    Image image = imageMap.get(key);
-    if (image == null) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
+    return imageMap.computeIfAbsent(
+        key,
+        k -> {
+          SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
 
-      Image zoomedImaged = getZoomedImaged(svg, display, width, height);
-      if (disabled) {
-        // First disabled the image...
-        //
-        image = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
-
-        // Now darken or lighten the image...
-        //
-        float factor;
-        if (PropsUi.getInstance().isDarkMode()) {
-          factor = 0.4f;
-        } else {
-          factor = 2.5f;
-        }
-
-        ImageData data = image.getImageData();
-        for (int x = 0; x < data.width; x++) {
-          for (int y = 0; y < data.height; y++) {
-            int pixel = data.getPixel(x, y);
-            int a = (pixel >> 24) & 0xFF;
-            int b = (pixel >> 16) & 0xFF;
-            int g = (pixel >> 8) & 0xFF;
-            int r = pixel & 0xFF;
-            a = (int) (a * factor);
-            b = (int) (b * factor);
-            g = (int) (g * factor);
-            r = (int) (r * factor);
-            data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
+          Image loaded;
+          if (disabled) {
+            // Grayscaling reads the pixels back, which a vector-backed Hop Web image lacks.
+            Image raster =
+                svg.getAsRasterForSize(
+                    display,
+                    ConstUi.zoomedIconSize(width, zoomFactor),
+                    ConstUi.zoomedIconSize(height, zoomFactor));
+            Image gray = new Image(display, raster, SWT.IMAGE_GRAY);
+            float factor = PropsUi.getInstance().isDarkMode() ? 0.4f : 2.5f;
+            loaded =
+                SwtUniversalImage.createDpiAwareImage(
+                    display,
+                    zoom ->
+                        applyDisabledContrast(
+                            SwtUniversalImage.getImageDataAtZoom(gray, zoom), factor));
+          } else {
+            Image zoomedImaged = getZoomedImaged(svg, display, width, height);
+            loaded = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
           }
-          image.dispose();
-          image = new Image(display, data);
-        }
-      } else {
-        image = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
-      }
 
-      svg.dispose();
-      imageMap.put(key, image);
+          svg.dispose();
+          return loaded;
+        });
+  }
+
+  private static ImageData applyDisabledContrast(ImageData source, float factor) {
+    ImageData data = (ImageData) source.clone();
+    for (int x = 0; x < data.width; x++) {
+      for (int y = 0; y < data.height; y++) {
+        int pixel = data.getPixel(x, y);
+        int a = (pixel >> 24) & 0xFF;
+        int b = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int r = pixel & 0xFF;
+        a = (int) (a * factor);
+        b = (int) (b * factor);
+        g = (int) (g * factor);
+        r = (int) (r * factor);
+        data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
+      }
     }
-    return image;
+    return data;
   }
 
   public Color getColor(int red, int green, int blue) {
     RGB rgb = new RGB(red, green, blue);
-    Color color = colorMap.get(rgb);
-    if (color == null) {
-      color = new Color(display, rgb);
-      colorMap.put(rgb, color);
-    }
-    return color;
+    return colorMap.computeIfAbsent(rgb, key -> new Color(display, key));
   }
 
   /**

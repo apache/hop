@@ -101,6 +101,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     return this.port;
   }
 
+  @SuppressWarnings("java:S2095") // the socket is closed in the finally block below
   private static int getUnusedPort() throws IOException {
     Socket s = new Socket();
     s.bind((InetSocketAddress) null);

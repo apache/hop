@@ -17,28 +17,13 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/httppost.svg[HTTP Post transform Icon, role="image-doc-icon"] HTTP Post
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -49,6 +34,9 @@ The General tab defines which RSS/Atom URLs you want to use, and optionally whic
 [options="header"]
 |===
 |Option|Description
+|REST connection|Optional.
+The name of a xref:metadata-types/rest-connection.adoc[REST connection] that supplies the client for this transform: the proxy, the credentials, the TLS settings and the timeouts.
+When one is selected, those fields below are not used, and the URL may be a path that is resolved against the connection's base URL.
 |URL|The Web service URL to submit to.
 |Accept URL from field?|If checked, you must specify which field to retrieve the URL from.
 |URL field name|If the previous option is checked, this is where you specify the URL field.
@@ -73,6 +61,11 @@ This option can reduce this memory overhead by reducing the time to keep a close
 |HTTP password|If this form requires authentication, this field should contain the password that corresponds with the username.
 |Proxy host|Hostname or IP address of the proxy server, if you use one.
 |Proxy port|Port number of the proxy server, if you use one.
+|Proxy username|The user name for a proxy that requires authentication.
+The credentials of the web server are never offered to the proxy, and vice versa.
+|Proxy password|The password that goes with the proxy user name.
+|Ignore proxy for hosts|Target hosts to reach directly instead of through the proxy.
+Separate the entries with `\|` and use `*` as a wildcard, for example `localhost\|127.*\|*.internal.example.com`.
 |===
 
 === Fields tab: Body (Header) Parameters

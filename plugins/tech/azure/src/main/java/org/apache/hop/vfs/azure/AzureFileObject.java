@@ -20,6 +20,11 @@ package org.apache.hop.vfs.azure;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClientBuilder;
+import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.file.datalake.DataLakeDirectoryClient;
 import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
@@ -475,7 +480,11 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     DataLakeFileClient dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
     if (dataLakeFileClient != null) {
       if (bAppend) {
-        throw new UnsupportedOperationException();
+        OutputStream appendStream = openAppendStream(dataLakeFileClient);
+        if (appendStream != null) {
+          return appendStream;
+        }
+        // Nothing to append to yet, so creating the file below is the correct append semantic.
       }
       type = FileType.FILE;
       getAbstractFileSystem().invalidateListCacheForParentOf(containerName, currentFilePath);
@@ -483,6 +492,78 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     } else {
       throw new UnsupportedOperationException();
     }
+  }
+
+  /**
+   * Open a {@link BlockBlobAppendOutputStream} on an existing, non-empty file.
+   *
+   * <p>Appending has to use the Blob API rather than the Data Lake one: files are written here with
+   * {@code DataLakeFileClient.getOutputStream()}, which is a block blob written through the Blob
+   * API, and the Data Lake {@code append} operation rejects such files with {@code 409
+   * InvalidAppendOperation}.
+   *
+   * @return the append stream, or null when there is no content to append to and the file should
+   *     simply be created
+   */
+  private OutputStream openAppendStream(DataLakeFileClient fileClient) throws IOException {
+    BlockBlobClient blob = blockBlobClientFor(fileClient);
+    BlobProperties properties;
+    try {
+      properties = blob.getProperties();
+    } catch (BlobStorageException e) {
+      if (e.getStatusCode() == 404) {
+        return null;
+      }
+      throw e;
+    }
+    if (properties.getBlobSize() <= 0) {
+      return null;
+    }
+
+    List<String> committedBlockIds = BlockBlobAppendOutputStream.committedBlockIds(blob);
+    BlockBlobAppendOutputStream appendStream =
+        new BlockBlobAppendOutputStream(
+            blob,
+            committedBlockIds,
+            contentHeadersOf(properties),
+            properties.getMetadata(),
+            properties.getETag());
+    if (committedBlockIds.isEmpty()) {
+      // A blob uploaded in a single request has no block list to build on, so its content has to be
+      // carried forward or committing our blocks alone would drop it.
+      appendStream.restageExistingContent();
+    }
+
+    type = FileType.FILE;
+    getAbstractFileSystem().invalidateListCacheForParentOf(containerName, currentFilePath);
+    return appendStream;
+  }
+
+  /**
+   * A Blob API client for the same file, reusing the Data Lake client's authenticated pipeline so
+   * no credential handling is duplicated. Only the endpoint differs between the two APIs, which is
+   * the same swap the Azure SDK makes internally.
+   */
+  private static BlockBlobClient blockBlobClientFor(DataLakeFileClient fileClient) {
+    String blobUrl = fileClient.getFileUrl().replaceFirst("\\.dfs\\.", ".blob.");
+    return new BlobClientBuilder()
+        .endpoint(blobUrl)
+        .pipeline(fileClient.getHttpPipeline())
+        .buildClient()
+        .getBlockBlobClient();
+  }
+
+  /**
+   * The content headers the blob already carries. Committing a block list only keeps the headers it
+   * is handed, so these have to be replayed or appending would reset the blob's content type.
+   */
+  private static BlobHttpHeaders contentHeadersOf(BlobProperties properties) {
+    return new BlobHttpHeaders()
+        .setCacheControl(properties.getCacheControl())
+        .setContentDisposition(properties.getContentDisposition())
+        .setContentEncoding(properties.getContentEncoding())
+        .setContentLanguage(properties.getContentLanguage())
+        .setContentType(properties.getContentType());
   }
 
   @Override

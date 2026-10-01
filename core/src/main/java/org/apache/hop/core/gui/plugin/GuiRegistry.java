@@ -52,6 +52,8 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -372,12 +374,18 @@ public class GuiRegistry {
     // See if we need to disable something of if something is disabled already...
     // In those scenarios we ignore the GuiWidgetElement
     //
-    GuiElements existing = guiElements.findChild(guiElement.id());
+    GuiElements existing = guiElements.findChild(child.getId());
     if (existing != null && existing.isIgnored()) {
       return;
     }
     if (existing != null && child.isIgnored()) {
       existing.setIgnored(true);
+      return;
+    }
+    // Already registered: HopGuiEnvironment.init() can run more than once in the same JVM, and a
+    // second copy of the element would be built as a second widget with the same id.
+    //
+    if (existing != null) {
       return;
     }
 
@@ -422,6 +430,18 @@ public class GuiRegistry {
       String dataClassName,
       ClassLoader classLoader) {
 
+    // A grid is a List field. A method has nothing to read the rows from.
+    if (guiElement.type() == GuiElementType.TABLE) {
+      if (HopLogStore.isInitialized()) {
+        LogChannel.GENERAL.logError(
+            "GuiWidgetElement type TABLE is only supported on a List field, not on method "
+                + guiPluginClassMethod.getDeclaringClass().getName()
+                + "."
+                + guiPluginClassMethod.getName());
+      }
+      return;
+    }
+
     GuiElements guiElements = findGuiElements(dataClassName, guiElement.parentId());
     if (guiElements == null) {
       guiElements = new GuiElements();
@@ -435,12 +455,18 @@ public class GuiRegistry {
     // See if we need to disable something of if something is disabled already...
     // In those scenarios we ignore the GuiWidgetElement
     //
-    GuiElements existing = guiElements.findChild(guiElement.id());
+    GuiElements existing = guiElements.findChild(child.getId());
     if (existing != null && existing.isIgnored()) {
       return;
     }
     if (existing != null && child.isIgnored()) {
       existing.setIgnored(true);
+      return;
+    }
+    // Already registered: HopGuiEnvironment.init() can run more than once in the same JVM, and a
+    // second copy of the element would be built as a second widget with the same id.
+    //
+    if (existing != null) {
       return;
     }
 
@@ -552,6 +578,7 @@ public class GuiRegistry {
     List<KeyboardShortcut> shortcuts =
         shortCutsMap.computeIfAbsent(guiPluginClassName, k -> new ArrayList<>());
     KeyboardShortcut keyboardShortCut = new KeyboardShortcut(shortcut, method);
+    keyboardShortCut.setParentClassName(guiPluginClassName);
     shortcuts.add(keyboardShortCut);
   }
 
@@ -559,7 +586,9 @@ public class GuiRegistry {
       String parentClassName, Method parentMethod, GuiOsxKeyboardShortcut shortcut) {
     List<KeyboardShortcut> shortcuts =
         shortCutsMap.computeIfAbsent(parentClassName, k -> new ArrayList<>());
-    shortcuts.add(new KeyboardShortcut(shortcut, parentMethod));
+    KeyboardShortcut keyboardShortCut = new KeyboardShortcut(shortcut, parentMethod);
+    keyboardShortCut.setParentClassName(parentClassName);
+    shortcuts.add(keyboardShortCut);
   }
 
   /**

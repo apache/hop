@@ -22,13 +22,18 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GraphicsEnvironment;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -50,7 +55,13 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
 public class SvgGc implements IGc {
-  private static final String CONST_FREESANS = "FreeSans";
+  /**
+   * The family the canvas text is measured with: the first of {@link
+   * HopSvgGraphics2D#SANS_SERIF_FAMILIES} this JVM has, so that the browser, which is asked for the
+   * same families in the same order, lays the text out the way it was measured. Falls back to the
+   * logical SansSerif font, which Batik writes as the generic "sans-serif".
+   */
+  private static volatile String graphFontFamily;
 
   private static SvgFile imageLocked;
   private static SvgFile imageFailure;
@@ -81,6 +92,7 @@ public class SvgGc implements IGc {
   private static SvgFile imageUnconditionalDisabled;
   private static SvgFile imageBusy;
   private static SvgFile imageWaiting;
+  private static SvgFile imageWarning;
   private static SvgFile imageMissing;
   private static SvgFile imageDeprecated;
   private static SvgFile imageInject;
@@ -273,6 +285,7 @@ public class SvgGc implements IGc {
         new SvgFile("ui/images/unconditional-disabled.svg", this.getClass().getClassLoader());
     imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader());
     imageWaiting = new SvgFile("ui/images/waiting.svg", this.getClass().getClassLoader());
+    imageWarning = new SvgFile("ui/images/warning.svg", this.getClass().getClassLoader());
     imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader());
     imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader());
     imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader());
@@ -290,16 +303,41 @@ public class SvgGc implements IGc {
     imageArrowDisabled =
         new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader());
 
-    fontGraph = new Font(CONST_FREESANS, Font.PLAIN, 10);
-    fontGraphBold = new Font(CONST_FREESANS, Font.BOLD, 10);
-    fontNote = new Font(CONST_FREESANS, Font.PLAIN, 10);
-    fontSmall = new Font(CONST_FREESANS, Font.PLAIN, 8);
-    fontTiny = new Font(CONST_FREESANS, Font.PLAIN, 6);
+    String family = getGraphFontFamily();
+    fontGraph = new Font(family, Font.PLAIN, 10);
+    fontGraphBold = new Font(family, Font.BOLD, 10);
+    fontNote = new Font(family, Font.PLAIN, 10);
+    fontSmall = new Font(family, Font.PLAIN, 8);
+    fontTiny = new Font(family, Font.PLAIN, 6);
 
     gc.setFont(fontGraph);
 
     gc.setColor(background);
     gc.fillRect(0, 0, area.x, area.y);
+  }
+
+  private static String getGraphFontFamily() {
+    String family = graphFontFamily;
+    if (family == null) {
+      family = Font.SANS_SERIF;
+      try {
+        Set<String> available =
+            new HashSet<>(
+                Arrays.asList(
+                    GraphicsEnvironment.getLocalGraphicsEnvironment()
+                        .getAvailableFontFamilyNames()));
+        for (String candidate : HopSvgGraphics2D.SANS_SERIF_FAMILIES) {
+          if (available.contains(candidate)) {
+            family = candidate;
+            break;
+          }
+        }
+      } catch (Throwable e) {
+        // No font configuration on this system: the logical font will have to do.
+      }
+      graphFontFamily = family;
+    }
+    return family;
   }
 
   @Override
@@ -475,6 +513,12 @@ public class SvgGc implements IGc {
   }
 
   @Override
+  public int getFontHeight() {
+    Font current = gc.getFont();
+    return current != null ? current.getSize() : -1;
+  }
+
+  @Override
   public void setForeground(EColor color) {
     gc.setColor(getColor(color));
   }
@@ -539,7 +583,11 @@ public class SvgGc implements IGc {
     String[] lines = text.split(Const.CR);
     int maxWidth = 0;
     for (String line : lines) {
-      Rectangle2D bounds = gc.getFontMetrics().getStringBounds(line, gc);
+      // The canvas font has no glyphs for CJK text; measure such lines with a font that does.
+      Font measuringFont = HopSvgGraphics2D.measuringFont(gc.getFont(), line);
+      FontMetrics metrics =
+          measuringFont == null ? gc.getFontMetrics() : gc.getFontMetrics(measuringFont);
+      Rectangle2D bounds = metrics.getStringBounds(line, gc);
       if (bounds.getWidth() > maxWidth) {
         maxWidth = (int) bounds.getWidth();
       }
@@ -640,6 +688,7 @@ public class SvgGc implements IGc {
       case UNCONDITIONAL_DISABLED -> imageUnconditionalDisabled;
       case BUSY -> imageBusy;
       case WAITING -> imageWaiting;
+      case WARNING -> imageWarning;
       case INJECT -> imageInject;
       case ARROW_DEFAULT -> imageArrowDefault;
       case ARROW_TRUE -> imageArrowTrue;
@@ -712,6 +761,30 @@ public class SvgGc implements IGc {
 
     if (svgFile != null) { // Draw the icon!
       drawImage(svgFile, x + xOffset, y + yOffset, iconSize, iconSize, magnification, 0);
+    }
+  }
+
+  @Override
+  public boolean drawFileImage(String path, int x, int y, int width, int height) {
+    if (path == null || path.isEmpty() || width <= 0 || height <= 0) {
+      return false;
+    }
+    try {
+      String lower = path.toLowerCase(java.util.Locale.ROOT);
+      if (lower.endsWith(".svg") || lower.contains(".svg?")) {
+        drawImage(new SvgFile(path, getClass().getClassLoader()), x, y, width, height, 1.0f, 0);
+        return true;
+      }
+      try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
+        java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(in);
+        if (image == null) {
+          return false;
+        }
+        gc.drawImage(image, x, y, width, height, null);
+        return true;
+      }
+    } catch (Exception e) {
+      return false;
     }
   }
 

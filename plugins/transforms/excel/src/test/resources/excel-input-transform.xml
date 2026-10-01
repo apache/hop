@@ -129,6 +129,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>POI</spreadsheet_type>
+    <password>s3cr3t</password>
     <attributes></attributes>
     <GUI>
         <xloc>112</xloc>

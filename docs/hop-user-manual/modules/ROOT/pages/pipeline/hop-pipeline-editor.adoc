@@ -52,3 +52,10 @@ image::getting-started/getting-started-pipeline-toolbar.png[Hop - Pipeline Toolb
 |||
 |arrange (auto-layout)|image:getting-started/icons/auto-layout.svg[Auto-layout,25px,align="bottom"]|automatically arrange the transforms into a clean, layered left-to-right layout with no overlaps. Click (or `Ctrl/Cmd+Shift+L`) arranges the whole pipeline; Shift-click arranges only the selected transforms, keeping the rest in place. The whole operation is a single undo step. Notes are moved along with the transform they sit closest to (notes that aren't near any transform are left in place); this can be turned off. The layout direction, spacing, crossing-reduction iterations and note behaviour can be tuned in the xref:hop-gui/perspective-configuration.adoc[configuration perspective] (Auto-layout section).
 |===
+
+== Notes
+
+Use canvas notes to document design intent. Notes can be plain text or **Markdown** (CommonMark/GFM) with typed styles, clickable links, and local images.
+
+See xref:hop-gui/notes.adoc[Notes on pipelines and workflows] for create/edit shortcuts, Markdown syntax, and security rules for images and links.
+

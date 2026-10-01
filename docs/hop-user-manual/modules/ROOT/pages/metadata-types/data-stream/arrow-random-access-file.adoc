@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../../assets/images/
 :page-pagination:
 :description: Apache Arrow Random Access File Data Stream
+:page-marketplace: hop-tech-arrow
 
 = Apache Arrow Random Access File Data Stream
 

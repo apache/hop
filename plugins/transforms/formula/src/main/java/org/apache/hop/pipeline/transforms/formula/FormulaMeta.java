@@ -59,7 +59,17 @@ public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
   }
 
   public FormulaMeta(FormulaMeta m) {
-    this.formulas = m.formulas;
+    this();
+    for (FormulaMetaFunction formula : m.formulas) {
+      this.formulas.add(new FormulaMetaFunction(formula));
+    }
+  }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    // Rows for which a formula can not be calculated can be diverted instead of stopping the
+    // pipeline.
+    return true;
   }
 
   @Override

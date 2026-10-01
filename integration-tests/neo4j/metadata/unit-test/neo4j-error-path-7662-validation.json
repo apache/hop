@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "errorId",
+          "data_set_field": "errorId"
+        },
+        {
+          "transform_field": "errorName",
+          "data_set_field": "errorName"
+        },
+        {
+          "transform_field": "pathLength",
+          "data_set_field": "pathLength"
+        }
+      ],
+      "field_order": [
+        "errorId",
+        "errorName",
+        "pathLength"
+      ],
+      "transform_name": "ERROR PATH",
+      "data_set_name": "neo4j-error-path-7662"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-error-path-7662-validation",
+  "description": "Verifies the error path lookup of the Neo4j perspective runs on Neo4j 5 and finds the deepest error, see issue #7662",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-error-path-7662/neo4j-error-path-7662-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

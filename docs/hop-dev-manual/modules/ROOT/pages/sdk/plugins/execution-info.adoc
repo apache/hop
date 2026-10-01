@@ -1,0 +1,131 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Building custom execution information locations in Apache Hop: persisting and querying execution logs, metrics, and state.
+[[Sdk-Plugins-ExecutionInfo]]
+= Execution Information Locations
+
+An execution information location is a pluggable storage target where Apache Hop records runtime telemetry: pipeline and workflow execution records, status changes, component metrics, execution logs, and captured row samples.
+The Hop GUI Execution perspective, Hop Server, and external monitoring dashboards query these locations to visualize run history.
+
+== Implementing an Execution Information Location
+
+Annotate your class with `@ExecutionInfoLocationPlugin` and implement `IExecutionInfoLocation`:
+
+[source,java]
+----
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+@ExecutionInfoLocationPlugin(
+    id = "CustomElasticLocation",
+    name = "Custom Elasticsearch Location",
+    description = "Persists Hop execution history and metrics to Elasticsearch"
+)
+@GuiPlugin
+@Getter
+@Setter
+public class CustomElasticExecutionInfoLocation implements IExecutionInfoLocation {
+
+  @GuiWidgetElement(
+      id = "cluster_url",
+      type = GuiElementType.TEXT,
+      label = "Elasticsearch URL",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID
+  )
+  @HopMetadataProperty(key = "cluster_url")
+  private String clusterUrl;
+
+  @Override
+  public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    // Connect to target storage
+  }
+
+  // --- Writing telemetry during execution ---
+
+  @Override
+  public void registerExecution(Execution execution) throws HopException {
+    // Write execution metadata (pipeline/workflow name, start time, parameters)
+  }
+
+  @Override
+  public void updateExecutionState(ExecutionState executionState) throws HopException {
+    // Update runtime metrics (lines read, written, errors, status changes)
+  }
+
+  @Override
+  public void registerData(ExecutionData executionData) throws HopException {
+    // Store sampled row data and execution logs
+  }
+
+  // --- Reading telemetry for the Hop GUI and API ---
+
+  @Override
+  public Execution getExecution(String executionId) throws HopException {
+    return fetchExecutionRecord(executionId);
+  }
+
+  @Override
+  public ExecutionState getExecutionState(String executionId) throws HopException {
+    return fetchExecutionState(executionId);
+  }
+
+  @Override
+  public List<String> findChildIds(ExecutionType parentType, String parentExecutionId)
+      throws HopException {
+    // Critical: returns child execution IDs (transforms or sub-workflows) for drill-down
+    return queryChildren(parentExecutionId);
+  }
+
+  @Override
+  public void close() throws HopException {
+    // Flush pending buffers and close client connections
+  }
+}
+----
+
+This sample is abbreviated.
+`IExecutionInfoLocation` declares further methods with no default, including `clone()`, the plugin id and name accessors, `clearCaches()`, `unBuffer(String)`, `deleteExecution(String)`, `getExecutionState(String, boolean)`, `getExecutionStateLoggingText(String, int)`, `getExecutionIds(boolean, int)`, and the `findExecutions` lookups.
+Read the interface before implementing a location.
+
+
+
+== Key Architectural Rules
+
+* **Implement Both Halves:** An execution location is both a writer (called continuously during runs) and a reader (queried by the GUI Execution perspective). Both halves, including child lookups (`findChildIds`), must be implemented for drill-down views to work.
+* **Buffering and Throughput:** Execution state updates occur frequently during high-throughput pipeline runs. Implement in-memory buffering and batch flushes to prevent I/O bottlenecks.
+* **Metadata Configuration:** Configuration settings reside in an `Execution Information Location` metadata object. Annotate fields with `@HopMetadataProperty` and `@GuiWidgetElement` using `parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID`.
+
+== Concrete Codebase Examples
+
+* `engine/src/main/java/org/apache/hop/execution/local/FileExecutionInfoLocation.java`: Standard file-based execution telemetry storage.
+* `plugins/misc/execution-database/src/main/java/org/apache/hop/execution/database/CachingDatabaseExecutionInfoLocation.java`: Relational database execution storage.
+* `engine/src/main/java/org/apache/hop/execution/caching/CachingFileExecutionInfoLocation.java`: File-backed cache of execution telemetry.
+
+== See also
+
+* xref:plugin-types/execution-observability.adoc[Execution and observability]

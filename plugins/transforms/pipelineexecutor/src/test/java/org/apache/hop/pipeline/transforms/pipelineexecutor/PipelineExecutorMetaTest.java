@@ -38,6 +38,7 @@ class PipelineExecutorMetaTest {
             "/pipeline-executor-transform.xml", PipelineExecutorMeta.class);
 
     assertEquals("${PROJECT_HOME}/loops/child-loops-log-counter.hpl", meta.getFilename());
+    assertEquals("1500", meta.getWaitTimeout());
     assertEquals("execution results", meta.getExecutionResultTargetTransform());
     assertEquals("ExecutionTime", meta.getExecutionTimeField());
     assertEquals("ExecutionResult", meta.getExecutionResultField());
@@ -89,6 +90,7 @@ class PipelineExecutorMetaTest {
     assertEquals(meta.getResultFilesTargetTransform(), clone.getResultFilesTargetTransform());
     assertEquals(meta.getResultFilesFileNameField(), clone.getResultFilesFileNameField());
     assertEquals(meta.getExecutorsOutputTransform(), clone.getExecutorsOutputTransform());
+    assertEquals(meta.getWaitTimeout(), clone.getWaitTimeout());
     assertEquals(meta.getParameters().size(), clone.getParameters().size());
     assertEquals(meta.getResultRows().size(), clone.getResultRows().size());
   }

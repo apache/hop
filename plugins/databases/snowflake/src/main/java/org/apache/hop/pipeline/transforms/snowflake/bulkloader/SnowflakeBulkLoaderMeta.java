@@ -39,6 +39,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -58,6 +60,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     classLoaderGroup = "snowflake",
     isIncludeJdbcDrivers = true,
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class SnowflakeBulkLoaderMeta
     extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
 
@@ -75,6 +78,16 @@ public class SnowflakeBulkLoaderMeta
   public static final String ENCLOSURE = "\"";
   public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
   public static final String TIMESTAMP_FORMAT_STRING = "YYYY-MM-DD HH24:MI:SS.FF3";
+  public static final String TIME_FORMAT_STRING = "HH24:MI:SS.FF3";
+
+  /*
+   * The Java conversion masks matching the Snowflake file formats above.  Dates and timestamps have
+   * to be written to the temp files in exactly the format the COPY statement declares, otherwise
+   * Snowflake refuses to parse them.
+   */
+  public static final String DATE_MASK = "yyyy-MM-dd";
+  public static final String TIMESTAMP_MASK = "yyyy-MM-dd HH:mm:ss.SSS";
+  public static final String TIME_MASK = "HH:mm:ss.SSS";
 
   /** The valid location type codes */
   public static final String[] LOCATION_TYPE_CODES = {"user", "table", "internal_stage"};
@@ -122,6 +135,24 @@ public class SnowflakeBulkLoaderMeta
       injectionKeyDescription = "",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String targetTable;
+
+  /** Truncate the target table before loading */
+  @HopMetadataProperty(
+      key = "truncate",
+      injectionKey = "TRUNCATE_TABLE",
+      injectionKeyDescription = "SnowflakeBulkLoader.Injection.TruncateTable.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
+  private boolean truncateTable;
+
+  /**
+   * When truncate is enabled, only truncate if at least one input row is received. When false,
+   * truncate even when the input stream is empty.
+   */
+  @HopMetadataProperty(
+      key = "only_when_have_rows",
+      injectionKey = "ONLY_WHEN_HAVE_ROWS",
+      injectionKeyDescription = "SnowflakeBulkLoader.Injection.OnlyWhenHaveRows.Field")
+  private boolean onlyWhenHaveRows;
 
   /** The location type (user, table, internal_stage) */
   @HopMetadataProperty(key = "location_type", injectionKeyDescription = "")
@@ -264,6 +295,38 @@ public class SnowflakeBulkLoaderMeta
    */
   public void setTargetTable(String targetTable) {
     this.targetTable = targetTable;
+  }
+
+  /**
+   * @return true if the target table should be truncated before loading
+   */
+  public boolean isTruncateTable() {
+    return truncateTable;
+  }
+
+  /**
+   * Set whether the target table should be truncated before loading
+   *
+   * @param truncateTable true/false
+   */
+  public void setTruncateTable(boolean truncateTable) {
+    this.truncateTable = truncateTable;
+  }
+
+  /**
+   * @return true if truncate should only run when input rows are received
+   */
+  public boolean isOnlyWhenHaveRows() {
+    return onlyWhenHaveRows;
+  }
+
+  /**
+   * Set whether truncate should only run when input rows are received
+   *
+   * @param onlyWhenHaveRows true/false
+   */
+  public void setOnlyWhenHaveRows(boolean onlyWhenHaveRows) {
+    this.onlyWhenHaveRows = onlyWhenHaveRows;
   }
 
   /**
@@ -702,16 +765,6 @@ public class SnowflakeBulkLoaderMeta
     return fileDate;
   }
 
-  /**
-   * Clones the transform so that it can be copied and used in clusters
-   *
-   * @return A copy of the transform
-   */
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   /** Sets the default values for all metadata attributes. */
   @Override
   public void setDefault() {
@@ -719,6 +772,8 @@ public class SnowflakeBulkLoaderMeta
     workDirectory = "${java.io.tmpdir}";
     onError = ON_ERROR_CODES[ON_ERROR_ABORT];
     removeFiles = true;
+    truncateTable = false;
+    onlyWhenHaveRows = false;
 
     dataType = DATA_TYPE_CODES[DATA_TYPE_CSV];
     trimWhitespace = false;
@@ -925,7 +980,7 @@ public class SnowflakeBulkLoaderMeta
         throw new HopException(
             BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(
@@ -1013,6 +1068,7 @@ public class SnowflakeBulkLoaderMeta
       returnValue.append("ESCAPE_UNENCLOSED_FIELD = '\\\\' FIELD_OPTIONALLY_ENCLOSED_BY='\"' ");
       returnValue.append("SKIP_HEADER = 0 DATE_FORMAT = '").append(DATE_FORMAT_STRING).append("' ");
       returnValue.append("TIMESTAMP_FORMAT = '").append(TIMESTAMP_FORMAT_STRING).append("' ");
+      returnValue.append("TIME_FORMAT = '").append(TIME_FORMAT_STRING).append("' ");
       returnValue.append("TRIM_SPACE = ").append(trimWhitespace).append(" ");
       if (!StringUtils.isEmpty(nullIf)) {
         returnValue.append("NULL_IF = (");
@@ -1035,6 +1091,7 @@ public class SnowflakeBulkLoaderMeta
           .append(errorColumnMismatch)
           .append(" ");
       returnValue.append("COMPRESSION = 'GZIP' ");
+      returnValue.append("BINARY_FORMAT = 'HEX' ");
 
     } else if (dataType.equals(DATA_TYPE_CODES[DATA_TYPE_JSON])) {
       returnValue.append("'JSON' COMPRESSION = 'GZIP' STRIP_OUTER_ARRAY = FALSE ");
@@ -1110,7 +1167,7 @@ public class SnowflakeBulkLoaderMeta
                 BaseMessages.getString(
                     PKG, "TableOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
           } finally {
-            db.disconnect();
+            db.close();
           }
         } else {
           retval.setError(BaseMessages.getString(PKG, "TableOutputMeta.Error.NoTable"));

@@ -63,6 +63,9 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
   public static final String OPTIMIZATION_LEVEL_DEFAULT = "9";
 
+  /** Default ECMAScript language level code ({@link ScriptValuesEcmaVersion#DEFAULT_CODE}). */
+  public static final String LANGUAGE_VERSION_DEFAULT = ScriptValuesEcmaVersion.DEFAULT_CODE;
+
   @Getter
   @Setter
   public static class ScriptField {
@@ -135,11 +138,22 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
       injectionKeyDescription = "ScriptValuesMod.Injection.OPTIMIZATION_LEVEL")
   private String optimizationLevel;
 
+  /**
+   * Rhino ECMAScript language level code (see {@link ScriptValuesEcmaVersion}). Empty or missing
+   * values use {@link #LANGUAGE_VERSION_DEFAULT} (ES6), matching Rhino's current engine default.
+   */
+  @HopMetadataProperty(
+      key = "languageVersion",
+      injectionKey = "LANGUAGE_VERSION",
+      injectionKeyDescription = "ScriptValuesMod.Injection.LANGUAGE_VERSION")
+  private String languageVersion;
+
   public ScriptValuesMeta() {
     super();
     jsScripts = new ArrayList<>();
     scriptFields = new ArrayList<>();
     optimizationLevel = OPTIMIZATION_LEVEL_DEFAULT;
+    languageVersion = LANGUAGE_VERSION_DEFAULT;
 
     ScriptValuesScript script = new ScriptValuesScript();
     script.setType(ScriptValuesScript.TRANSFORM_SCRIPT);
@@ -147,18 +161,6 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     script.setScript(
         "//" + BaseMessages.getString(PKG, "ScriptValuesMod.ScriptHere") + Const.CR + Const.CR);
     jsScripts.add(script);
-  }
-
-  public ScriptValuesMeta(ScriptValuesMeta m) {
-    this();
-    this.optimizationLevel = m.optimizationLevel;
-    m.jsScripts.forEach(s -> this.jsScripts.add(new ScriptValuesScript(s)));
-    m.scriptFields.forEach(f -> scriptFields.add(new ScriptField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new ScriptValuesMeta(this);
   }
 
   @Override
@@ -249,6 +251,12 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     jsContext = ContextFactory.getGlobal().enterContext();
     jsScope = jsContext.initStandardObjects(null, false);
     try {
+      ScriptValuesEcmaVersion.apply(jsContext, variables.resolve(languageVersion));
+    } catch (HopException e) {
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta);
+      remarks.add(cr);
+    }
+    try {
       jsContext.setOptimizationLevel(Integer.parseInt(variables.resolve(optimizationLevel)));
     } catch (NumberFormatException nfe) {
       errorMessage =
@@ -270,10 +278,12 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     String strActiveEndScript = "";
 
     // Building the Scripts
+    boolean transformScriptFound = false;
     if (!jsScripts.isEmpty()) {
       for (ScriptValuesScript jsScript : jsScripts) {
         if (jsScript.isTransformScript()) {
           strActiveScript = jsScript.getScript();
+          transformScriptFound = true;
         } else if (jsScript.isStartScript()) {
           strActiveStartScriptName = jsScript.getName();
           strActiveStartScript = jsScript.getScript();
@@ -282,6 +292,17 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
           strActiveEndScript = jsScript.getScript();
         }
       }
+    }
+
+    // A transform script is what gets executed for every row. Without one the transform quietly
+    // does nothing at all, so report it here instead of letting it slip through unnoticed.
+    //
+    if (!transformScriptFound) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ScriptValuesMetaMod.CheckResult.NoTransformScript"),
+              transformMeta));
     }
 
     if (prev != null && !strActiveScript.isEmpty()) {

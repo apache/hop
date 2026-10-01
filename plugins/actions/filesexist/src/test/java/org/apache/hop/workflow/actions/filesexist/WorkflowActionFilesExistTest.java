@@ -23,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.utils.TestUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -41,6 +43,7 @@ class WorkflowActionFilesExistTest {
 
   private String existingFile1;
   private String existingFile2;
+  private String folderPath;
 
   @BeforeAll
   static void setUpBeforeClass() {
@@ -48,7 +51,7 @@ class WorkflowActionFilesExistTest {
   }
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionFilesExist();
 
@@ -59,10 +62,18 @@ class WorkflowActionFilesExistTest {
 
     workflow.setStopped(false);
 
-    existingFile1 =
-        TestUtils.createRamFile(getClass().getSimpleName() + "/existingFile1.ext", action);
-    existingFile2 =
-        TestUtils.createRamFile(getClass().getSimpleName() + "/existingFile2.ext", action);
+    String base = getClass().getSimpleName();
+    existingFile1 = TestUtils.createRamFile(base + "/existingFile1.ext", action);
+    existingFile2 = TestUtils.createRamFile(base + "/existingFile2.ext", action);
+
+    folderPath = "ram://" + base + "/folder";
+    try (FileObject folder = HopVfs.getFileObject(folderPath, action)) {
+      folder.createFolder();
+    }
+    TestUtils.createRamFile(base + "/folder/match.txt", action);
+    TestUtils.createRamFile(base + "/folder/skip.tmp", action);
+    TestUtils.createRamFile(base + "/folder/other.log", action);
+    TestUtils.createRamFile(base + "/folder/sub/nested.txt", action);
   }
 
   @Test
@@ -72,7 +83,11 @@ class WorkflowActionFilesExistTest {
             "/files-exist-action.xml", ActionFilesExist.class);
 
     assertEquals("/folder", meta.getFileItems().get(0).getFileName());
+    assertEquals(".*\\.txt", meta.getFileItems().get(0).getFileMask());
+    assertEquals(".*\\.tmp", meta.getFileItems().get(0).getExcludeFileMask());
+    assertTrue(meta.getFileItems().get(0).isIncludeSubfolders());
     assertEquals("/archive.zip", meta.getFileItems().get(1).getFileName());
+    assertFalse(meta.getFileItems().get(1).isIncludeSubfolders());
     assertEquals(2, meta.getFileItems().size());
   }
 
@@ -119,5 +134,60 @@ class WorkflowActionFilesExistTest {
 
     Result res = action.execute(new Result(), 0);
     assertFalse(res.isResult());
+  }
+
+  @Test
+  void testFolderExistsWithoutWildcard() {
+    action.setFileItems(List.of(new FileItem(folderPath)));
+
+    Result res = action.execute(new Result(), 0);
+    assertTrue(res.isResult(), "Folder path without wildcards should succeed when folder exists");
+  }
+
+  @Test
+  void testFolderWithMatchingWildcard() {
+    action.setFileItems(List.of(new FileItem(folderPath, ".*\\.txt")));
+
+    Result res = action.execute(new Result(), 0);
+    assertTrue(res.isResult(), "Matching files in folder should succeed");
+  }
+
+  @Test
+  void testFolderWithNonMatchingWildcard() {
+    action.setFileItems(List.of(new FileItem(folderPath, ".*\\.csv")));
+
+    Result res = action.execute(new Result(), 0);
+    assertFalse(res.isResult(), "No matching files should fail");
+  }
+
+  @Test
+  void testFolderWithExcludeWildcard() {
+    // Only skip.tmp would match .*, but exclude removes .tmp — match.txt and other.log remain
+    action.setFileItems(List.of(new FileItem(folderPath, ".*", ".*\\.tmp")));
+
+    Result res = action.execute(new Result(), 0);
+    assertTrue(res.isResult(), "Files remaining after exclude should succeed");
+  }
+
+  @Test
+  void testFolderWithExcludeRemovesAllMatches() {
+    // Include only .tmp, then exclude .tmp → nothing left
+    action.setFileItems(List.of(new FileItem(folderPath, ".*\\.tmp", ".*\\.tmp")));
+
+    Result res = action.execute(new Result(), 0);
+    assertFalse(res.isResult(), "All matches excluded should fail");
+  }
+
+  @Test
+  void testIncludeSubfoldersPerRow() {
+    // nested.txt is in a subfolder; without includeSubfolders it is not found
+    action.setFileItems(List.of(new FileItem(folderPath, "nested\\.txt", null, false)));
+
+    Result withoutSub = action.execute(new Result(), 0);
+    assertFalse(withoutSub.isResult(), "Nested file should not match without subfolders");
+
+    action.setFileItems(List.of(new FileItem(folderPath, "nested\\.txt", null, true)));
+    Result withSub = action.execute(new Result(), 0);
+    assertTrue(withSub.isResult(), "Nested file should match with include subfolders");
   }
 }

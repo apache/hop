@@ -131,7 +131,6 @@ public class LoggingCore {
       // Transaction is automatically committed by executeWrite
     } catch (Exception e) {
       log.logError("Error logging hierarchies", e);
-      // Transaction is automatically rolled back by executeWrite on exception
     }
   }
 
@@ -284,6 +283,7 @@ public class LoggingCore {
    * @param logChannelId The root of the hierarchy to examine
    * @return The list of logging hierarchy objects
    */
+  @SuppressWarnings("javabugs:S2259") // the log channel id is never null here
   public static final List<LoggingHierarchy> getLoggingHierarchy(String logChannelId) {
     List<LoggingHierarchy> hierarchy = new ArrayList<>();
     List<String> childIds = LoggingRegistry.getInstance().getLogChannelChildren(logChannelId);

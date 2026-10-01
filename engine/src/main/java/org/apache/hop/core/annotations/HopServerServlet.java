@@ -48,4 +48,14 @@ public @interface HopServerServlet {
   boolean isSeparateClassLoaderNeeded() default false;
 
   String classLoaderGroup() default "";
+
+  /**
+   * Hop Web RBAC permission id for this servlet (e.g. {@code run.execute}, {@code file.view}).
+   * Empty (default) means the endpoint stays unknown and is default-denied by {@code
+   * HopServerEndpointPermissionMapper} until something calls {@code register}. Built-in servlets
+   * are already in that table; plugin servlets should set this.
+   *
+   * @return permission id, or empty
+   */
+  String requiredPermission() default "";
 }

@@ -16,28 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Avro File Output transform can write Apache Avro messages to a file or field
+:description: The Avro file output transform can write Apache Avro messages to a file or field
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-avro
 
-= image:transforms/icons/avro_output.svg[Avro File Output Icon, role="image-doc-icon"] Avro File Output
+= image:transforms/icons/avro_output.svg[Avro file output Icon, role="image-doc-icon"] Avro file output
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
-The Avro File Output transform can write Apache Avro messages to a file or field
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
+The Avro file output transform can write Apache Avro messages to a file or field
 
 == Options
 
@@ -76,6 +63,8 @@ Note: This name has to be unique in a single pipeline.
 
 |Schema filename
 |Filepath to write or read the schema from.
+The path can contain variables, for example `${PROJECT_HOME}/schemas/customer.avsc`, and can point to any file system Hop supports (local, `s3://`, `azure://`, `gs://`, ...).
+When *Automatically create schema* is disabled, the transform reads the schema from this file before it writes the first row, and fails if the file can't be read or isn't a valid Avro schema.
 
 |Create parent folder
 |When creating a file, select this if you want to create the parent folder.

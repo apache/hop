@@ -33,6 +33,8 @@ import org.apache.hop.core.row.IRowMeta;
 /** A collection of utilities to manipulate strings. */
 public class StringUtil {
 
+  // Only used to generate test data, never for anything security related
+  @SuppressWarnings("java:S2245")
   private static final Random random = new Random();
 
   public static final String UNIX_OPEN = "${";
@@ -369,9 +371,31 @@ public class StringUtil {
 
   public static void getUsedVariables(
       String aString, List<String> list, boolean includeSystemVariables) {
+    // Include variable resolvers by default. This is what the encryption code relies on: a value
+    // like #{vault:hop/data/some-db:password} must be recognized as "contains variables" so it is
+    // not encrypted (see #7293).
+    getUsedVariables(aString, list, includeSystemVariables, true);
+  }
+
+  /**
+   * Collect the variables used in the given string.
+   *
+   * @param aString the string to scan
+   * @param list the list to add the used variable names to
+   * @param includeSystemVariables whether to include already-set system variables
+   * @param includeResolvers whether to also collect variable resolver references (the {@code
+   *     #{name:arguments}} syntax). These are not plain, user-settable variables, so callers that
+   *     build a list of variables to present to the user (e.g. the run options dialog) should pass
+   *     {@code false} to avoid polluting the list with resolver names and secret paths. Real {@code
+   *     ${...}} variables nested inside resolver arguments are still collected by the UNIX scan.
+   */
+  public static void getUsedVariables(
+      String aString, List<String> list, boolean includeSystemVariables, boolean includeResolvers) {
     getUsedVariables(aString, UNIX_OPEN, UNIX_CLOSE, list, includeSystemVariables);
     getUsedVariables(aString, WINDOWS_OPEN, WINDOWS_CLOSE, list, includeSystemVariables);
-    getUsedVariables(aString, RESOLVER_OPEN, RESOLVER_CLOSE, list, includeSystemVariables);
+    if (includeResolvers) {
+      getUsedVariables(aString, RESOLVER_OPEN, RESOLVER_CLOSE, list, includeSystemVariables);
+    }
   }
 
   public static String generateRandomString(
@@ -383,7 +407,7 @@ public class StringUtil {
     }
 
     for (int i = 0; i < length; i++) {
-      int c = 'a' + random.nextInt() * 26;
+      int c = 'a' + random.nextInt(26);
       buffer.append((char) c);
     }
     if (!Utils.isEmpty(postfix)) {
@@ -555,6 +579,24 @@ public class StringUtil {
     return variable.startsWith(UNIX_OPEN) && variable.endsWith(UNIX_CLOSE)
         || variable.startsWith(WINDOWS_OPEN) && variable.endsWith(WINDOWS_CLOSE)
         || variable.startsWith(HEX_OPEN) && variable.endsWith(HEX_CLOSE);
+  }
+
+  /**
+   * Whether {@code value} still contains a Hop variable delimiter after substitution. Used to skip
+   * design-time checks that cannot be decided when a name or URL still holds {@code ${...}}, {@code
+   * %%...%%}, {@code $[...]} or {@code #{...}}.
+   *
+   * @param value the string to inspect, may be null
+   * @return true when a variable token is still present
+   */
+  public static boolean containsVariableToken(String value) {
+    if (value == null) {
+      return false;
+    }
+    return value.contains(UNIX_OPEN)
+        || value.contains(WINDOWS_OPEN)
+        || value.contains(HEX_OPEN)
+        || value.contains(RESOLVER_OPEN);
   }
 
   /**

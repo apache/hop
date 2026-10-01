@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -214,7 +215,9 @@ public class AccessOutputDialog extends BaseTransformDialog {
     fdbTablename.top = new FormAttachment(wWaitFirstRowToCreateFile, margin);
     wbbTableName.setLayoutData(fdbTablename);
 
-    wTableName = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTableName =
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     wTableName.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.TargetTable.Tooltip"));
     PropsUi.setLook(wTableName);

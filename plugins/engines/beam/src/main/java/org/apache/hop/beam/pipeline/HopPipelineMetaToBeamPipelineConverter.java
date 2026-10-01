@@ -66,7 +66,10 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
+import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
+import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.IndexView;
@@ -97,7 +100,13 @@ public class HopPipelineMetaToBeamPipelineConverter {
           GroupByMeta.class,
           "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.",
           UniqueRowsMeta.class,
-          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");
+          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows",
+          SortRowsMeta.class,
+          "Sort Rows is not supported on Beam.  A Beam pipeline re-shuffles rows across workers to maximize parallelism, so this transform would only order the rows a single worker happens to hold, not the data set as a whole.",
+          UniqueRowsByHashSetMeta.class,
+          "Unique Rows By Hashset is not supported on Beam.  Every worker keeps its own hash set, so duplicates spread over different workers would survive.  Use a Memory Group By to get distinct rows.",
+          JoinRowsMeta.class,
+          "Join Rows is not supported on Beam.  A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing.  Add the same constant field to both inputs and use a Merge Join on that field instead.");
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;
@@ -292,6 +301,13 @@ public class HopPipelineMetaToBeamPipelineConverter {
 
     pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
 
+    // The log level for the per-transform pipelines executed inside the Beam workers.
+    // The engine sets this as a runtime variable on its live run configuration, but this converter
+    // reloads a fresh copy of the run configuration from the metadata, so that runtime variable is
+    // not present here. When it is absent we default to BASIC (the documented default of
+    // HopPipelineExecutionOptions and the behaviour of the local pipeline engine); defaulting to a
+    // lower level such as MINIMAL would silently swallow BASIC-level transform logging (e.g. the
+    // "Write to log" transform) when running on Beam.
     pipelineOptions
         .as(HopPipelineExecutionOptions.class)
         .setLogLevel(
@@ -299,11 +315,13 @@ public class HopPipelineMetaToBeamPipelineConverter {
                 Const.NVL(
                     pipelineRunConfiguration.getVariable(
                         BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL),
-                    "MINIMAL")));
+                    LogLevel.BASIC.getCode())));
 
     pipelineOptions.setRunner(runnerClass);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public Pipeline createPipeline() throws Exception {
     try {
       ILogChannel log = LogChannel.GENERAL;

@@ -131,7 +131,7 @@ public class FieldsChangeSequence
             BaseMessages.getString(PKG, "FieldsChangeSequence.Log.WriteRow")
                 + getLinesWritten()
                 + " : "
-                + getInputRowMeta().getString(r));
+                + data.outputRowMeta.getString(outputRowData));
       }
 
       if (checkFeedback(getLinesRead()) && isBasic()) {

@@ -25,4 +25,6 @@ The items below will make your Apache Hop project easier to manage, to monitor a
 * Make sure to have a backup and restore strategy, and test it.
 * Run continuous integration
 * Set up lifecycle environments (development, test, acceptance, production)
+* Deploy Hop Server using one of the xref:hop-server/deploying.adoc[documented patterns]
+* Schedule production runs with an xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[external scheduler], not the Start action's repeat option
 * Test your pipelines with xref:pipeline/pipeline-unit-testing.adoc[unit tests]. Run all your unit tests regularly, validate the results & take action if needed

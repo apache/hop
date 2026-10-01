@@ -16,21 +16,22 @@ under the License.
 ////
 :imagesdir: ../../../assets/images/
 :page-pagination:
-:description: Databricks Job Wait — poll a job run until it completes.
+:description: Databricks job wait — poll a job run until it completes.
+:page-marketplace: hop-tech-databricks
 
-= Databricks Job Wait
+= Databricks job wait
 
 == Description
 
-**Databricks Job Wait** polls the Jobs API (`jobs/runs/get`) until a run reaches a terminal state (`SUCCESS`, `FAILED`, …). Use it after xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] in **Fire and forget** mode, or when another system already started a run and you only have a **Run ID**.
+**Databricks job wait** polls the Jobs API (`jobs/runs/get`) until a run reaches a terminal state (`SUCCESS`, `FAILED`, …). Use it after xref:workflow/actions/databricks-job-run.adoc[Databricks job run] in **Fire and forget** mode, or when another system already started a run and you only have a **Run ID**.
 
 There is no dedicated “wait” endpoint on Databricks: this action repeatedly GETs run status, sleeps for the poll interval, and exits when the run finishes or the timeout is hit.
 
 == Typical pattern
 
-. Job Run with **Fire and forget** → sets `${DatabricksRunId}`
+. Job Run with **Fire and forget** → sets `+${DatabricksRunId}+`
 . Other workflow actions (notifications, parallel prep, …)
-. **Job Wait** with Run ID `${DatabricksRunId}` → success/failure hops
+. **Job Wait** with Run ID `+${DatabricksRunId}+` → success/failure hops
 
 For “submit and block on this step,” use Job Run’s built-in **Wait for completion** instead.
 
@@ -44,7 +45,7 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 |xref:metadata-types/databricks-connection.adoc[Databricks Connection] (PAT)
 
 |Run ID
-|Numeric run id; default `${DatabricksRunId}`
+|Numeric run id; default `+${DatabricksRunId}+`
 
 |Timeout (seconds)
 |Maximum wait; `0` = no timeout
@@ -61,6 +62,6 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 
 == Related
 
-* xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
+* xref:workflow/actions/databricks-job-run.adoc[Databricks job run]
 * xref:pipeline/spark/databricks.adoc[Native Spark on Databricks]
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]

@@ -36,6 +36,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -59,6 +61,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DeleteMeta.Keyword",
     documentationUrl = "/pipeline/transforms/delete.html",
     actionTransformTypes = {ActionTransformType.DELETE, ActionTransformType.RDBMS})
+@RelationalLineage(operation = RelationalIoOperation.DELETE)
 public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class;
 
@@ -116,11 +119,6 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     this.commitSize = obj.commitSize;
     this.useBatchUpdate = obj.useBatchUpdate;
     this.lookup = new DeleteLookupField(obj.lookup);
-  }
-
-  @Override
-  public Object clone() {
-    return new DeleteMeta(this);
   }
 
   @Override

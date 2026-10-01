@@ -259,7 +259,7 @@ limitations under the License.
     <anthropicBaseUrl>https://api.anthropic.com/v1/</anthropicBaseUrl>
     <anthropicApiKey>${ANTHROPIC_API_KEY}</anthropicApiKey>
     <anthropicVersion>2023-06-01</anthropicVersion>
-    <anthropicModelName>claude-3-5-sonnet-20240620</anthropicModelName>
+    <anthropicModelName>claude-sonnet-5</anthropicModelName>
     <anthropicMaxTokens>1024</anthropicMaxTokens>
     <anthropicTimeout>15</anthropicTimeout>
     <anthropicMaxRetries>3</anthropicMaxRetries>

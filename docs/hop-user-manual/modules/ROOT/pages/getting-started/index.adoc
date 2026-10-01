@@ -24,17 +24,20 @@ under the License.
 
 This guide walks you through the Hop basics.
 
-We'll focus on the core knowledge you need to move around in Hop, without going in detail.
-At the end of this guide, there will be links to dive deeper into various Hop topics.
+It is built around one small example that you'll carry from chapter to chapter: a pipeline that creates and writes data, a workflow that runs it and handles failure, and a project that holds both.
+By the end you'll have built and run something real, and you'll know where to look for everything else.
+
+Set aside about an hour.
+All you need is a machine with Java on it.
 
 This is what we'll cover:
 
-* xref:getting-started/hop-what-is-hop.adoc[What is Hop?]
-* xref:getting-started/hop-concepts.adoc[Concepts]
-* xref:getting-started/hop-download-install.adoc[Download & Install]
-* xref:getting-started/hop-tools.adoc[Tools]
-* xref:getting-started/hop-gui.adoc[Hop Gui overview]
-* xref:getting-started/hop-gui-pipelines.adoc[Pipelines]
-* xref:getting-started/hop-gui-workflows.adoc[Workflows]
-* xref:getting-started/hop-next-steps.adoc[Next Steps]
-
+. xref:getting-started/hop-what-is-hop.adoc[What is Hop?] - what the platform is for
+. xref:getting-started/hop-download-install.adoc[Download & Install] - get it running
+. xref:getting-started/hop-concepts.adoc[Concepts] - the vocabulary
+. xref:getting-started/hop-gui.adoc[Hop Gui overview] - find your way around
+. xref:getting-started/hop-gui-pipelines.adoc[Your first pipeline] - build, preview and run it
+. xref:getting-started/hop-gui-workflows.adoc[Your first workflow] - orchestrate it
+. xref:getting-started/hop-projects.adoc[Projects and environments] - make it portable
+. xref:getting-started/hop-tools.adoc[The Hop toolbox] - run it without the GUI
+. xref:getting-started/hop-next-steps.adoc[Next Steps] - where to go from here

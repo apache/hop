@@ -75,16 +75,7 @@ public class VCardInputMeta extends BaseTransformMeta<VCardInput, VCardInputData
   @HopMetadataProperty(key = "encoding")
   private String encoding;
 
-  @HopMetadataProperty(
-      key = "file",
-      inline = true,
-      childKeysToIgnore = {
-        "accept_filenames",
-        "accept_transform_name",
-        "passing_through_fields",
-        "accept_field",
-        "add_to_result_filenames",
-      })
+  @HopMetadataProperty(key = "file", inline = true)
   private BaseFileInput fileInput;
 
   @HopMetadataProperty(key = "field")
@@ -95,6 +86,21 @@ public class VCardInputMeta extends BaseTransformMeta<VCardInput, VCardInputData
     encoding = Const.UTF_8;
     fileInput = new BaseFileInput();
     fieldMappings = new ArrayList<>();
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return fileInput != null && fileInput.isAcceptingFilenames();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "VCardInputFileDialog.AcceptFilenames.Label");
   }
 
   public FileInputList getFileInputList(IVariables variables) {

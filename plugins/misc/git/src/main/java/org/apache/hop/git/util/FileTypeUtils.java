@@ -17,6 +17,7 @@
 
 package org.apache.hop.git.util;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -45,6 +46,19 @@ public final class FileTypeUtils {
     }
 
     return perspective.getFileTypeImage(fileType);
+  }
+
+  /**
+   * What to call a file in the title of a diff. Both versions are read out of a git blob and carry
+   * no filename of their own, which leaves PipelineMeta and WorkflowMeta falling back to the name
+   * stored inside the file. That is not what the rest of the GUI calls the file.
+   *
+   * @param path the file being compared, relative to the repository
+   * @param fallback what to use if the path holds nothing usable
+   */
+  public static String getDiffName(String path, String fallback) {
+    String baseName = FilenameUtils.getBaseName(path);
+    return baseName == null || baseName.isEmpty() ? fallback : baseName;
   }
 
   public static boolean isHopFileType(String fileName) {

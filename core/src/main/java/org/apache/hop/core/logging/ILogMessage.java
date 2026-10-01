@@ -31,4 +31,14 @@ public interface ILogMessage {
   Object[] getArguments();
 
   boolean isSimplified();
+
+  /**
+   * The throwable associated with this message, if any, so structured listeners can render
+   * dedicated error fields instead of a pre-stringified stack-trace event.
+   *
+   * @return the associated throwable, or {@code null} when none.
+   */
+  default Throwable getThrowable() {
+    return null;
+  }
 }

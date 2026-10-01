@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -122,8 +121,9 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     return compressionProvider;
   }
 
+  @SuppressWarnings("java:S2095") // the stream is owned by the transform and closed in closeFile()
   public void initFileStreamWriter(String filename) throws HopException {
-    data.writer = null;
+    assignWriter(null, null);
     try {
       TextFileOutputData.FileStream fileStreams = null;
 
@@ -247,7 +247,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
 
       data.fos = fileStreams.getFileOutputStream();
       data.out = fileStreams.getCompressedOutputStream();
-      data.writer = fileStreams.getBufferedOutputStream();
+      assignWriter(fileStreams.getBufferedOutputStream(), fileStreams);
     } catch (HopException ke) {
       throw ke;
     } catch (Exception e) {
@@ -288,15 +288,20 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     return filename;
   }
 
+  /**
+   * Milliseconds between flushes when {@link Const#HOP_FILE_OUTPUT_MAX_STREAM_LIFE} is unset, not a
+   * number, or {@code 0}. A few seconds, so slow input shows up without waiting for the buffer to
+   * fill. A negative value disables the interval flush.
+   */
+  static final int DEFAULT_FILE_FLUSH_INTERVAL_MS = 5000;
+
   public int getFlushInterval() {
-    String maxStreamLife = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_LIFE");
-    int flushInterval = 0;
-    if (maxStreamLife != null) {
-      try {
-        flushInterval = Integer.parseInt(maxStreamLife);
-      } catch (Exception ex) {
-        // Do nothing
-      }
+    String maxStreamLife = variables.getVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE);
+    int flushInterval = Const.toInt(maxStreamLife, DEFAULT_FILE_FLUSH_INTERVAL_MS);
+    // 0 is what existing hop-config.json files store and means "not configured".
+    // Only a negative value disables the interval flush.
+    if (flushInterval == 0) {
+      return DEFAULT_FILE_FLUSH_INTERVAL_MS;
     }
     return flushInterval;
   }
@@ -369,7 +374,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         data.splitnr++;
         data.fos = null;
         data.out = null;
-        data.writer = null;
+        assignWriter(null, null);
         filename = getOutputFileName(null);
         isWriteHeader = isWriteHeader(filename);
         initFileStreamWriter(filename);
@@ -387,16 +392,16 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
 
       int flushInterval = getFlushInterval();
       if (flushInterval > 0) {
-        long currentTime = new Date().getTime();
+        long currentTime = currentFlushTimeMillis();
         if (data.lastFileFlushTime == 0) {
           data.lastFileFlushTime = currentTime;
-        } else if (data.lastFileFlushTime - currentTime > flushInterval) {
+        } else if (currentTime - data.lastFileFlushTime > flushInterval) {
           try {
             data.getFileStreamsCollection().flushOpenFiles(false);
           } catch (IOException e) {
             throw new HopException("Unable to flush open files", e);
           }
-          data.lastFileFlushTime = new Date().getTime();
+          data.lastFileFlushTime = currentTime;
         }
       }
       return true;
@@ -449,6 +454,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       setOutputDone();
       return false;
     }
+  }
+
+  /** Clock for the file-flush interval. Tests advance this instead of sleeping. */
+  protected long currentFlushTimeMillis() {
+    return System.currentTimeMillis();
   }
 
   public void flushOpenFiles(boolean closeAfterFlush) throws IOException {
@@ -524,6 +534,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       }
 
       incrementLinesOutput();
+      markCurrentFileDirty();
 
     } catch (Exception e) {
       throw new HopTransformException("Error writing line", e);
@@ -731,6 +742,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       if (sLine != null && !sLine.trim().isEmpty()) {
         data.writer.write(getBinaryString(sLine));
         incrementLinesOutput();
+        markCurrentFileDirty();
       }
     } catch (Exception e) {
       logError("Error writing ended tag line: " + e.toString());
@@ -809,7 +821,26 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       retval = true;
     }
     incrementLinesOutput();
+    markCurrentFileDirty();
     return retval;
+  }
+
+  /**
+   * Writer and the stream it belongs to move together so dirty-marking does not scan open files.
+   */
+  private void assignWriter(OutputStream writer, TextFileOutputData.FileStream fileStream) {
+    data.writer = writer;
+    data.currentFileStream = fileStream;
+  }
+
+  /**
+   * An interval flush clears the dirty flag. Later rows still land in the buffer, so the flag has
+   * to be set again or the next flush is skipped.
+   */
+  private void markCurrentFileDirty() {
+    if (data.currentFileStream != null) {
+      data.currentFileStream.setDirty(true);
+    }
   }
 
   public String buildFilename(String filename, boolean ziparchive) {
@@ -963,7 +994,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
           coll.closeStream(data.writer);
         }
       }
-      data.writer = null;
+      assignWriter(null, null);
       data.out = null;
       data.fos = null;
       if (isDebug()) {
@@ -973,7 +1004,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     } catch (Exception e) {
       logError("Exception trying to close file: " + e.toString());
       setErrors(1);
-      data.writer = null;
+      assignWriter(null, null);
       data.out = null;
       data.fos = null;
       retval = false;
@@ -1111,7 +1142,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       }
       coll.flushOpenFiles(true);
     }
-    data.writer = null;
+    assignWriter(null, null);
   }
 
   private void emitWriteLineageForOpenStream(String filename, TextFileOutputData.FileStream fs) {
@@ -1149,7 +1180,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       logError("Unexpected error closing file", e);
       setErrors(1);
     }
-    data.writer = null;
+    assignWriter(null, null);
     data.out = null;
     data.fos = null;
 

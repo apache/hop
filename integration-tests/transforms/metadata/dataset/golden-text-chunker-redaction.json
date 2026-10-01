@@ -1,0 +1,15 @@
+{
+  "base_filename": "golden-text-chunker-redaction.csv",
+  "name": "golden-text-chunker-redaction",
+  "description": "Chunk text from a Hop pipeline definition and a metadata document, with credentials redacted.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "chunk_text",
+      "field_format": ""
+    }
+  ]
+}

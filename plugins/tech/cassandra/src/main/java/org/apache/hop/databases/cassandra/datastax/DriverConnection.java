@@ -33,7 +33,6 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.datastax.oss.driver.api.querybuilder.schema.CreateKeyspace;
 import com.datastax.oss.driver.api.querybuilder.schema.CreateKeyspaceStart;
 import com.datastax.oss.driver.internal.core.type.codec.registry.DefaultCodecRegistry;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import java.net.InetSocketAddress;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -46,6 +45,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * connection using standard datastax driver<br>

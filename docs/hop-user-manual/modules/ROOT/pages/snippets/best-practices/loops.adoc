@@ -23,7 +23,7 @@ The easiest way to loop over a set of values, rows, files, ... is to use an Exec
 * xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] : run a pipeline for each input row
 * xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor] : run a workflow for each input row
 * xref:workflow/actions/repeat.adoc[Repeat]: run a workflow or pipeline from a workflow action until a variable (value) is set.
-* xref:workflow/actions/repeat-end.adoc[End Repeat]: break out of a loop that was started by a Repeat action.
+* xref:workflow/actions/repeat-end.adoc[End repeat]: break out of a loop that was started by a Repeat action.
 
 Each of these options allows you to map field values to parameters for the child pipeline or workflow, making loops a breeze.
 

@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
+import org.apache.hop.testing.util.UnitTestGraphVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
@@ -65,6 +66,34 @@ public class HopGuiUnitTestVariablesExtensionPoint
         (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
     if (unitTest == null) {
       return;
+    }
+
+    // Reload from metadata so we never use a stale in-memory copy after switching tests
+    String unitTestName = unitTest.getName();
+    if (StringUtils.isNotEmpty(unitTestName)) {
+      try {
+        PipelineUnitTest reloaded =
+            HopGui.getInstance()
+                .getMetadataProvider()
+                .getSerializer(PipelineUnitTest.class)
+                .load(unitTestName);
+        if (reloaded != null) {
+          unitTest = reloaded;
+          // Keep state map aligned with the fresh object
+          stateMap.put(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST, unitTest);
+          // Also refresh graph variables so design-time and execution stay in sync
+          UnitTestGraphVariables.apply(activePipelineGraph.getVariables(), unitTest, stateMap);
+        }
+      } catch (HopException e) {
+        // Fall back to the in-memory unit test from the state map
+        if (log.isDetailed()) {
+          log.logDetailed(
+              "Could not reload unit test '"
+                  + unitTestName
+                  + "' for execution variables: "
+                  + e.getMessage());
+        }
+      }
     }
 
     applyUnitTestVariables(

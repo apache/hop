@@ -54,5 +54,6 @@ NOTE: **Username**, **password**, and **WebDAV root URL** support variable subst
 == Tips
 
 * To verify a connection, open **File → Open** (or any file dialog) and browse `+YourConnectionName:///+` or drill into a subfolder path.
+* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.
 * Prefer **`webdav4s://`** for Nextcloud and similar hosts that enforce HTTPS.
 * Pick a **Name** that does not clash with https://commons.apache.org/proper/commons-vfs/filesystems.html[built-in VFS schemes] (`file`, `ftp`, `http`, …) or other registered plugins (`s3`, `azure`, `gs`, etc.).

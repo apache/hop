@@ -300,6 +300,14 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       injectionKeyDescription = "ExcelInput.Injection.SPREADSHEET_TYPE")
   private SpreadSheetType spreadSheetType;
 
+  /** The password to open a protected (encrypted) workbook with */
+  @HopMetadataProperty(
+      key = "password",
+      password = true,
+      injectionKey = "PASSWORD",
+      injectionKeyDescription = "ExcelInput.Injection.PASSWORD")
+  private String password;
+
   public ExcelInputMeta() {
     super();
     this.fields = new ArrayList<>();
@@ -307,49 +315,19 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.sheets = new ArrayList<>();
   }
 
-  public ExcelInputMeta(ExcelInputMeta m) {
-    this();
-    m.fields.forEach(f -> this.fields.add(new ExcelInputField(f)));
-    m.sheets.forEach(s -> this.sheets.add(new EISheet(s)));
-    m.files.forEach(f -> this.files.add(new EIFile(f)));
-    this.fileField = m.fileField;
-    this.sheetField = m.sheetField;
-    this.startsWithHeader = m.startsWithHeader;
-    this.schemaDefinition = m.schemaDefinition;
-    this.ignoreFields = m.ignoreFields;
-    this.stopOnEmpty = m.stopOnEmpty;
-    this.ignoreEmptyRows = m.ignoreEmptyRows;
-    this.rowNumberField = m.rowNumberField;
-    this.sheetRowNumberField = m.sheetRowNumberField;
-    this.rowLimit = m.rowLimit;
-    this.strictTypes = m.strictTypes;
-    this.errorIgnored = m.errorIgnored;
-    this.errorLineSkipped = m.errorLineSkipped;
-    this.warningFilesDestinationDirectory = m.warningFilesDestinationDirectory;
-    this.warningFilesExtension = m.warningFilesExtension;
-    this.errorFilesDestinationDirectory = m.errorFilesDestinationDirectory;
-    this.errorFilesExtension = m.errorFilesExtension;
-    this.lineNumberFilesDestinationDirectory = m.lineNumberFilesDestinationDirectory;
-    this.lineNumberFilesExtension = m.lineNumberFilesExtension;
-    this.acceptingFilenames = m.acceptingFilenames;
-    this.acceptingField = m.acceptingField;
-    this.acceptingTransformName = m.acceptingTransformName;
-    this.encoding = m.encoding;
-    this.addFilenamesToResult = m.addFilenamesToResult;
-    this.shortFileFieldName = m.shortFileFieldName;
-    this.pathFieldName = m.pathFieldName;
-    this.hiddenFieldName = m.hiddenFieldName;
-    this.lastModificationTimeFieldName = m.lastModificationTimeFieldName;
-    this.uriNameFieldName = m.uriNameFieldName;
-    this.rootUriNameFieldName = m.rootUriNameFieldName;
-    this.extensionFieldName = m.extensionFieldName;
-    this.sizeFieldName = m.sizeFieldName;
-    this.spreadSheetType = m.spreadSheetType;
+  @Override
+  public boolean consumesMainInput() {
+    return isAcceptingFilenames();
   }
 
   @Override
-  public ExcelInputMeta clone() {
-    return new ExcelInputMeta(this);
+  public boolean canStartWithoutInput() {
+    return !isAcceptingFilenames();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "ExcelInputDialog.AcceptFilenames.Label");
   }
 
   @Override

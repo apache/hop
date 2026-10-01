@@ -714,6 +714,7 @@ public class ValueDataUtil {
     return removeTrailingZeroFractionOrScale(result, result.scale());
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object sqrt(IValueMeta metaA, Object dataA) throws HopValueException {
     if (dataA == null) {
       return null;
@@ -911,6 +912,7 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object round(IValueMeta metaA, Object dataA) throws HopValueException {
     if (dataA == null) {
       return null;
@@ -933,6 +935,7 @@ public class ValueDataUtil {
    * @return The rounded value
    * @throws HopValueException
    */
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object round(IValueMeta metaA, Object dataA, int roundingMode)
       throws HopValueException {
     if (dataA == null) {
@@ -1026,6 +1029,7 @@ public class ValueDataUtil {
     return round(metaA, dataA, metaB, dataB, roundingMode);
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object ceil(IValueMeta metaA, Object dataA) throws HopValueException {
     if (dataA == null) {
       return null;
@@ -1038,6 +1042,7 @@ public class ValueDataUtil {
     };
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object floor(IValueMeta metaA, Object dataA) throws HopValueException {
     if (dataA == null) {
       return null;
@@ -1050,6 +1055,7 @@ public class ValueDataUtil {
     };
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object abs(IValueMeta metaA, Object dataA) throws HopValueException {
     if (dataA == null) {
       return null;
@@ -1097,6 +1103,7 @@ public class ValueDataUtil {
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object nvl(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
     switch (metaA.getType()) {
@@ -1158,6 +1165,7 @@ public class ValueDataUtil {
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value meta is never null here
   public static Object removeTimeFromDate(IValueMeta metaA, Object dataA) throws HopValueException {
     Calendar cal = Calendar.getInstance();
     Date date = metaA.getDate(dataA);

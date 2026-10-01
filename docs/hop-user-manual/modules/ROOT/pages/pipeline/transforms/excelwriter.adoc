@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Excel Writer transform writes incoming rows to Microsoft Excel (.xls, .xlsx) or OpenDocument Spreadsheet (.ods) files.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/excelwriter.svg[Excel writer transform Icon, role="image-doc-icon"] Excel writer
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Excel Writer transform writes incoming rows from Hop to spreadsheet files.
@@ -36,19 +34,6 @@ The `.xls` and `.xlsx` backends share the same POI code path.
 The `.ods` backend is a separate implementation that mirrors the same transform options where the ODF format allows it.
 
 The `.xls` files use a binary format which is better suited for simple content, while the `.xlsx` files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
 
 == Output formats
 
@@ -152,7 +137,7 @@ Negative numbers may be useful if you need to append to a sheet, but still prese
 
 The fields section is for specifying the fields that must be written to the Excel file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
-If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema Mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
+If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
 The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
 
@@ -163,10 +148,11 @@ The `ignore manual fields` ignores any fields manually defined in the transform'
 |Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|The field to write
 |Type|The type of data
-|Format|The Excel format to use in the sheet.
+|Format|The *Excel* number/date format to use in the sheet, not Hop's DecimalFormat / SimpleDateFormat mask.
 Please consult the Excel manual for valid formats.
 There are some online references as well.
 For `.ods`, common Excel format tokens are converted to OpenDocument equivalents where possible.
+Hop field-metadata formats are described in xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Style from cell|A cell (i.e. A1, B3 etc.) to copy the styling from for this column (usually some pre-styled cell in a template)
 |Field Title|If set, this is used for the Header/Footer instead of the Hop field name
 |Header/Footer style from cell|A cell to copy the styling from for headers/footers (usually some pre-styled cell in a template)

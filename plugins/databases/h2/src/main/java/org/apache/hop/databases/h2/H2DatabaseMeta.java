@@ -17,12 +17,18 @@
 
 package org.apache.hop.databases.h2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -31,9 +37,31 @@ import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
     type = "H2",
     typeDescription = "H2",
-    documentationUrl = "/database/databases/h2.html")
+    documentationUrl = "/database/databases/h2.html",
+    classLoaderGroup = "h2-db",
+    image = "h2.svg")
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // H2 has both of these as column types of its own.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
+
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -138,7 +166,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -158,7 +186,8 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ALTER "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override
@@ -166,12 +195,12 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
     String retval = "";
 
-    String fieldname = v.getName();
+    String fieldName = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
     if (addFieldName) {
-      retval += fieldname + " ";
+      retval += fieldName + " ";
     }
 
     int type = v.getType();
@@ -187,9 +216,9 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         }
         break;
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (fieldname.equalsIgnoreCase(tk)
+        if (fieldName.equalsIgnoreCase(tk)
             || // Technical key
-            fieldname.equalsIgnoreCase(pk) // Primary key
+            fieldName.equalsIgnoreCase(pk) // Primary key
         ) {
           retval += "IDENTITY";
         } else {
@@ -294,5 +323,81 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return false;
+  }
+
+  @Override
+  public boolean isSupportsSequences() {
+    return true;
+  }
+
+  /**
+   * H2 takes the single word NOMAXVALUE that {@link BaseDatabaseMeta} supplies, and rejects the
+   * MAXVALUE -1 that Hop would write for an unbounded sequence otherwise.
+   */
+  @Override
+  public boolean isSupportsSequenceNoMaxValueOption() {
+    return true;
+  }
+
+  @Override
+  public String getSqlListOfSequences() {
+    return "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SEQUENCES"
+        + " ORDER BY SEQUENCE_SCHEMA, SEQUENCE_NAME";
+  }
+
+  /** The standard form takes an identifier, so a quoted or schema qualified name works as it is. */
+  @Override
+  public String getSqlNextSequenceValue(String sequenceName) {
+    return "SELECT NEXT VALUE FOR " + sequenceName;
+  }
+
+  @Override
+  public String getSqlCurrentSequenceValue(String sequenceName) {
+    return "SELECT CURRENT VALUE FOR " + sequenceName;
+  }
+
+  @Override
+  public String getSqlSequenceExists(String sequenceName) {
+    // The name arrives the way getQuotedSchemaTableCombination built it, so it can carry a schema.
+    List<String> parts = splitQualifiedName(sequenceName.toUpperCase(Locale.ROOT));
+    StringBuilder sql =
+        new StringBuilder("SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SEQUENCES WHERE ")
+            // H2 folds an unquoted identifier to upper case, so a lookup cannot be case-sensitive.
+            .append("UPPER(SEQUENCE_NAME) = ")
+            .append(quoteSqlString(parts.getLast()));
+    if (parts.size() > 1) {
+      sql.append(" AND UPPER(SEQUENCE_SCHEMA) = ")
+          .append(quoteSqlString(parts.get(parts.size() - 2)));
+    }
+    return sql.toString();
+  }
+
+  /**
+   * Splits a qualified name into its parts, on the dots outside a quoted identifier, and gives
+   * every part back the way the catalog holds it: unquoted.
+   */
+  private static List<String> splitQualifiedName(String name) {
+    List<String> parts = new ArrayList<>();
+    StringBuilder part = new StringBuilder();
+    boolean quoted = false;
+    for (int i = 0; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if (c == '"') {
+        // Two quotes within a quoted identifier stand for one quote in the name itself.
+        if (quoted && i + 1 < name.length() && name.charAt(i + 1) == '"') {
+          part.append('"');
+          i++;
+        } else {
+          quoted = !quoted;
+        }
+      } else if (c == '.' && !quoted) {
+        parts.add(part.toString().trim());
+        part.setLength(0);
+      } else {
+        part.append(c);
+      }
+    }
+    parts.add(part.toString().trim());
+    return parts;
   }
 }

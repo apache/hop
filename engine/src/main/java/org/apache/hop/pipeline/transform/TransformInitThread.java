@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transform;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
@@ -27,12 +29,14 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 public class TransformInitThread implements Runnable {
   private static final Class<?> PKG = Pipeline.class;
 
-  public boolean ok;
-  public boolean finished;
-  public boolean doIt;
+  @Getter public boolean ok;
+  @Getter public boolean finished;
 
-  private TransformMetaDataCombi combi;
-  private Pipeline pipeline;
+  @Setter @Getter public boolean doIt;
+
+  @Setter @Getter private TransformMetaDataCombi combi;
+
+  @Setter @Getter private Pipeline pipeline;
 
   private ILogChannel log;
 
@@ -76,11 +80,6 @@ public class TransformInitThread implements Runnable {
         ok = true;
       } else {
         combi.transform.setErrors(1);
-        log.logError(
-            BaseMessages.getString(
-                PKG,
-                "Pipeline.Log.ErrorInitializingTransform",
-                combi.transform.getTransformName()));
       }
     } catch (Throwable e) {
       log.logError(
@@ -92,57 +91,5 @@ public class TransformInitThread implements Runnable {
     }
 
     finished = true;
-  }
-
-  public boolean isFinished() {
-    return finished;
-  }
-
-  public boolean isOk() {
-    return ok;
-  }
-
-  /**
-   * @return Returns the combi.
-   */
-  public TransformMetaDataCombi getCombi() {
-    return combi;
-  }
-
-  /**
-   * @param combi The combi to set.
-   */
-  public void setCombi(TransformMetaDataCombi combi) {
-    this.combi = combi;
-  }
-
-  /**
-   * Gets pipeline
-   *
-   * @return value of pipeline
-   */
-  public Pipeline getPipeline() {
-    return pipeline;
-  }
-
-  /**
-   * @param pipeline The pipeline to set
-   */
-  public void setPipeline(Pipeline pipeline) {
-    this.pipeline = pipeline;
-  }
-
-  /**
-   * @return the doIt
-   */
-  public boolean isDoIt() {
-    return doIt;
-  }
-
-  /**
-   * @param doIt the doIt to set
-   */
-  public void setDoIt(boolean doIt) {
-    this.doIt = doIt;
   }
 }

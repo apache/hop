@@ -17,10 +17,12 @@
 
 package org.apache.hop.ui.hopgui.search;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
@@ -38,9 +40,12 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.search.config.SearchAnalysisResult;
+import org.apache.hop.ui.hopgui.search.config.SearchLimits;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -50,6 +55,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Tree;
@@ -77,9 +83,6 @@ public class HopGuiSearchResultsPanel extends Composite {
   private static final String STATE_SASH_WEIGHTS_PROP = "weights";
   private static final int[] DEFAULT_SASH_WEIGHTS = {70, 30};
 
-  /** Debounce in ms between a keystroke and running the search. */
-  private static final int SEARCH_DELAY_MS = 300;
-
   private final HopGui hopGui;
   private final String eventListenerId;
   private List<ISearchablesLocation> searchablesLocations;
@@ -87,6 +90,8 @@ public class HopGuiSearchResultsPanel extends Composite {
   private Combo wSearchString;
   private Button wCaseSensitive;
   private Button wRegEx;
+  private Button wSettings;
+  private Label wlStatus;
   private SashForm sash;
   private Tree wTree;
   private Button wbOpen;
@@ -107,6 +112,14 @@ public class HopGuiSearchResultsPanel extends Composite {
   private Map<Class<ISearchableAnalyser>, ISearchableAnalyser> cachedAnalysers;
 
   private final Runnable searchRunnable = () -> search(new Event());
+  private final AtomicInteger searchGeneration = new AtomicInteger();
+  private final ExecutorService searchExecutor =
+      Executors.newSingleThreadExecutor(
+          r -> {
+            Thread t = new Thread(r, "hop-gui-search-panel");
+            t.setDaemon(true);
+            return t;
+          });
 
   /**
    * When true, programmatic changes to the search field (e.g. showing a reference label) must not
@@ -133,6 +146,8 @@ public class HopGuiSearchResultsPanel extends Composite {
     addDisposeListener(
         e -> {
           // The Dispose event fires before the child sash is released, so weights are still valid.
+          searchGeneration.incrementAndGet();
+          searchExecutor.shutdownNow();
           saveState();
           hopGui.getEventsHandler().removeEventListeners(eventListenerId);
         });
@@ -150,11 +165,11 @@ public class HopGuiSearchResultsPanel extends Composite {
     layout.marginBottom = margin;
     setLayout(layout);
 
-    // --- Top toolbar: search field, case/regex toggles, refresh ---
+    // --- Top toolbar: search field, case/regex toggles, refresh, settings ---
     //
     Composite toolbar = new Composite(this, SWT.NONE);
     PropsUi.setLook(toolbar);
-    toolbar.setLayout(new GridLayout(5, false));
+    toolbar.setLayout(new GridLayout(7, false));
     FormData fdToolbar = new FormData();
     fdToolbar.left = new FormAttachment(0, 0);
     fdToolbar.right = new FormAttachment(100, 0);
@@ -169,7 +184,7 @@ public class HopGuiSearchResultsPanel extends Composite {
     PropsUi.setLook(wSearchString);
     wSearchString.setFont(GuiResource.getInstance().getFontBold());
     wSearchString.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    wSearchString.addListener(SWT.Modify, e -> scheduleSearch());
+    wSearchString.addListener(SWT.Modify, e -> onSearchModified());
     wSearchString.addListener(
         SWT.DefaultSelection,
         e -> {
@@ -199,6 +214,29 @@ public class HopGuiSearchResultsPanel extends Composite {
           invalidateCache();
           search(e);
         });
+
+    wSettings = new Button(toolbar, SWT.PUSH);
+    PropsUi.setLook(wSettings);
+    Image gear = GuiResource.getInstance().getImage("ui/images/gear.svg", 16, 16);
+    if (gear != null) {
+      wSettings.setImage(gear);
+    } else {
+      wSettings.setText("…");
+    }
+    wSettings.setToolTipText(
+        BaseMessages.getString(PKG, "HopGuiSearchResultsPanel.Settings.Tooltip"));
+    wSettings.addListener(
+        SWT.Selection,
+        e -> {
+          if (new SearchSettingsDialog(getShell(), hopGui).open()) {
+            invalidateCache();
+            search(new Event());
+          }
+        });
+
+    wlStatus = new Label(toolbar, SWT.LEFT);
+    PropsUi.setLook(wlStatus);
+    wlStatus.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
     // --- Bottom: Open button ---
     //
@@ -316,12 +354,22 @@ public class HopGuiSearchResultsPanel extends Composite {
     }
   }
 
+  private void onSearchModified() {
+    if (isDisposed() || suppressAutoSearch) {
+      return;
+    }
+    if (!SearchLimits.fromConfig().isSearchAsYouType()) {
+      return;
+    }
+    scheduleSearch();
+  }
+
   private void scheduleSearch() {
     if (isDisposed() || suppressAutoSearch) {
       return;
     }
     getDisplay().timerExec(-1, searchRunnable);
-    getDisplay().timerExec(SEARCH_DELAY_MS, searchRunnable);
+    getDisplay().timerExec(SearchLimits.fromConfig().getDebounceMs(), searchRunnable);
   }
 
   /** Size the last column (Matched text) to take whatever width is left after the Name column. */
@@ -402,13 +450,16 @@ public class HopGuiSearchResultsPanel extends Composite {
   }
 
   /** Make sure the searchables across all locations are enumerated once (and cached). */
-  private boolean ensureLoaded() {
+  private synchronized boolean ensureLoaded() {
     if (cachedEnumeration != null) {
       return true;
     }
     try {
       if (cachedAnalysers == null) {
         cachedAnalysers = HopGuiSearchHelper.loadSearchableAnalysers();
+      }
+      if (searchablesLocations == null) {
+        searchablesLocations = hopGui.getSearchablesLocations();
       }
       cachedEnumeration =
           HopGuiSearchHelper.enumerateAll(
@@ -434,31 +485,79 @@ public class HopGuiSearchResultsPanel extends Composite {
 
     String searchString = wSearchString.getText();
     if (Utils.isEmpty(searchString)) {
+      searchGeneration.incrementAndGet();
+      setStatus("");
       return;
     }
 
-    if (searchablesLocations == null) {
-      searchablesLocations = hopGui.getSearchablesLocations();
-    }
-    if (!ensureLoaded()) {
-      return;
-    }
+    final boolean caseSensitive = wCaseSensitive.getSelection();
+    final boolean regExp = wRegEx.getSelection();
+    final SearchLimits limits = SearchLimits.fromConfig();
+    final int generation = searchGeneration.incrementAndGet();
+    final Display display = getDisplay();
+    setStatus(BaseMessages.getString(PKG, "HopGuiSearchResultsPanel.Status.Searching"));
 
-    SearchQuery query =
-        new SearchQuery(searchString, wCaseSensitive.getSelection(), wRegEx.getSelection());
+    searchExecutor.execute(
+        () -> {
+          try {
+            if (!ensureLoaded()) {
+              display.asyncExec(
+                  () -> {
+                    if (generation == searchGeneration.get() && !isDisposed()) {
+                      setStatus("");
+                    }
+                  });
+              return;
+            }
+            SearchQuery query = new SearchQuery(searchString, caseSensitive, regExp);
+            SearchAnalysisResult analysis =
+                HopGuiSearchHelper.analyseRankedLimited(
+                    cachedEnumeration.getSearchables(),
+                    query,
+                    cachedAnalysers,
+                    true,
+                    limits,
+                    cachedEnumeration.getSourceByKey());
+            display.asyncExec(
+                () -> {
+                  if (generation != searchGeneration.get() || isDisposed()) {
+                    return;
+                  }
+                  populateTree(analysis.getResults(), cachedEnumeration.getSourceByKey());
+                  setStatusFromAnalysis(analysis, limits);
+                });
+          } catch (Exception e) {
+            hopGui.getLog().logError("Error while searching", e);
+            display.asyncExec(
+                () -> {
+                  if (generation == searchGeneration.get() && !isDisposed()) {
+                    setStatus("");
+                  }
+                });
+          }
+        });
+  }
 
-    // The searchables were enumerated once; here we only run the cheap in-memory matching.
-    // Errors are logged (not shown in a modal dialog) since this runs on every debounced keystroke.
-    List<ISearchResult> results;
-    try {
-      results =
-          HopGuiSearchHelper.analyseRanked(
-              cachedEnumeration.getSearchables(), query, cachedAnalysers, true);
-    } catch (Exception e) {
-      hopGui.getLog().logError("Error while searching", e);
-      results = new ArrayList<>();
+  private void setStatus(String text) {
+    if (wlStatus != null && !wlStatus.isDisposed()) {
+      wlStatus.setText(Const.NVL(text, ""));
     }
-    populateTree(results, cachedEnumeration.getSourceByKey());
+  }
+
+  private void setStatusFromAnalysis(SearchAnalysisResult analysis, SearchLimits limits) {
+    if (analysis.isTruncated()) {
+      setStatus(BaseMessages.getString(PKG, "HopGuiSearchResultsPanel.Status.Capped"));
+    } else if (analysis.isContentSearchSkipped()) {
+      setStatus(
+          BaseMessages.getString(
+              PKG,
+              "HopGuiSearchResultsPanel.Status.MinLength",
+              Integer.toString(limits.getMinContentQueryLength())));
+    } else if (analysis.isProjectTextFilesExcluded()) {
+      setStatus(BaseMessages.getString(PKG, "HopGuiSearchResultsPanel.Status.TextFilesExcluded"));
+    } else {
+      setStatus("");
+    }
   }
 
   /**

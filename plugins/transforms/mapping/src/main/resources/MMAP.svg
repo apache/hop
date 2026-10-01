@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="42px" height="42px" viewBox="0 0 42 42">
+    <g>
+        <rect x="14.753" y="8.232" fill="#0E3A5A" width="2.523" height="1.699"/>
+        <rect x="18.276" y="8.232" fill="#0E3A5A" width="2.524" height="1.699"/>
+        <rect x="28.85" y="8.232" fill="#0E3A5A" width="2.525" height="1.699"/>
+        <rect x="32.41" y="24.557" fill="#0E3A5A" width="1.699" height="2.396"/>
+        <rect x="25.325" y="8.232" fill="#0E3A5A" width="2.524" height="1.699"/>
+        <rect x="21.801" y="8.232" fill="#0E3A5A" width="2.524" height="1.699"/>
+        <rect x="32.41" y="17.767" fill="#0E3A5A" width="1.699" height="2.396"/>
+        <rect x="32.41" y="21.162" fill="#0E3A5A" width="1.699" height="2.395"/>
+        <rect x="32.41" y="10.977" fill="#0E3A5A" width="1.699" height="2.395"/>
+        <rect x="32.41" y="14.371" fill="#0E3A5A" width="1.699" height="2.396"/>
+        <polygon fill="#0E3A5A"
+                 points="32.41,9.977 34.109,9.977 34.109,8.232 32.375,8.232 32.375,9.932 32.41,9.932"/>
+        <rect x="7.167" y="7.296" fill="#FFFFFF" width="3.666" height="3.666"/>
+        <rect x="7.167" y="31.037" fill="#FFFFFF" width="3.666" height="3.667"/>
+        <rect x="31.167" y="31.037" fill="#FFFFFF" width="3.666" height="3.667"/>
+        <rect x="31.167" y="7.296" fill="#FFFFFF" width="3.666" height="3.666"/>
+        <path fill="#0E3A5A" d="M34.109,29.338v-1.386H32.41v1.386h-2.942v3.172H12.532v-3.172h-2.7V12.661h2.7V9.932h1.221V8.232h-1.221
+		V5.597H5.468v7.064h2.665v16.677H5.468v7.065h7.064v-2.194h16.936v2.194h7.064v-7.065H34.109z M7.167,10.962V7.296h3.666v3.666
+		H7.167z M10.833,34.704H7.167v-3.667h3.666V34.704z M34.833,34.704h-3.666v-3.667h3.666V34.704z M34.833,10.962h-3.666V7.296h3.666
+		V10.962z"/>
+    </g>
+</svg>

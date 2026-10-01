@@ -40,6 +40,7 @@ import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
@@ -509,9 +510,10 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
     for (ExcelInputMeta.EISheet sheet : meta.getSheets()) {
       if (sheet.isRegex()) {
-        logBasic("Sheet regex pattern: [" + sheet.getName() + "]");
+        String sheetNameRegex = resolve(sheet.getName());
+        logBasic("Sheet regex pattern: [" + sheetNameRegex + "]");
         try {
-          Pattern pattern = Pattern.compile(sheet.getName());
+          Pattern pattern = Pattern.compile(sheetNameRegex);
           for (String sheetName : allSheetNames) {
             if (pattern.matcher(sheetName).matches()) {
               logBasic("  -> matched: [" + sheetName + "]");
@@ -523,7 +525,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         } catch (PatternSyntaxException e) {
           logError(
               BaseMessages.getString(
-                  PKG, "ExcelInput.Error.InvalidSheetRegex", sheet.getName(), e.getMessage()));
+                  PKG, "ExcelInput.Error.InvalidSheetRegex", sheetNameRegex, e.getMessage()));
         }
       } else {
         logBasic("Sheet exact name: [" + sheet.getName() + "]");
@@ -645,7 +647,11 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
         data.workbook =
             WorkbookFactory.getWorkbook(
-                meta.getSpreadSheetType(), data.filename, meta.getEncoding(), variables);
+                meta.getSpreadSheetType(),
+                data.filename,
+                meta.getEncoding(),
+                Utils.resolvePassword(variables, meta.getPassword()),
+                variables);
 
         data.errorHandler.handleFile(data.file);
         // Start at the first sheet again...

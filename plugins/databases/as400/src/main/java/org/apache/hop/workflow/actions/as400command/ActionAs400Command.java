@@ -48,7 +48,8 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionAs400Command.keyword",
     documentationUrl = "/workflow/actions/as400command.html",
-    isIncludeJdbcDrivers = true)
+    isIncludeJdbcDrivers = true,
+    classLoaderGroup = "as400-db")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class;
 
@@ -91,21 +92,6 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
 
   public ActionAs400Command() {
     this("", "");
-  }
-
-  public ActionAs400Command(ActionAs400Command other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.server = other.server;
-    this.user = other.user;
-    this.password = other.password;
-    this.proxyHost = other.proxyHost;
-    this.proxyPort = other.proxyPort;
-    this.command = other.command;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionAs400Command(this);
   }
 
   /**
@@ -209,6 +195,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     return true;
   }
 
+  @SuppressWarnings("java:S2095") // disconnectService() is called in the finally block below
   @Override
   public Result execute(final Result result, int nr) throws HopException {
 
@@ -316,13 +303,23 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
         this.getProxyServer(variables.resolve(proxyHost), variables.resolve(proxyPort));
 
     // Create an AS400 object
-    AS400 system =
+    try (AS400 system =
         new AS400(
             variables.resolve(server),
             variables.resolve(user),
             Utils.resolvePassword(this, password),
-            proxyServer);
-    system.connectService(AS400.COMMAND);
+            proxyServer)) {
+      try {
+        system.connectService(AS400.COMMAND);
+      } finally {
+        try {
+          // This is only a connection test, so release the service again
+          system.disconnectService(AS400.COMMAND);
+        } catch (Exception e) {
+          // Ignore
+        }
+      }
+    }
 
     return true;
   }

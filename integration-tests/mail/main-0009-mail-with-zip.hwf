@@ -70,6 +70,10 @@ limitations under the License.
       <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
       <protocol>IMAP</protocol>
       <retrievemails>0</retrievemails>
+      <actiontype>get</actiontype>
+      <valueimaplist>imaplistall</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>nothing</aftergetimap>
       <saveattachment>Y</saveattachment>
       <savemessage>Y</savemessage>
       <servername>${MAIL_SMTP_SERVER}</servername>

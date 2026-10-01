@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "SplunkInput",
-    name = "Splunk Input",
+    name = "Splunk input",
     description = "Read data from Splunk",
     image = "splunk.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
@@ -72,6 +72,16 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
     super();
     returnValues = new ArrayList<>();
     this.query = "search * | head 100";
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
   }
 
   @Override

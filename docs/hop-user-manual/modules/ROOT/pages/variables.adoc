@@ -16,8 +16,6 @@ under the License.
 ////
 [[Variables]]
 :imagesdir: ../assets/images
-:openvar: ${
-:closevar: }
 :description: Well-designed Hop solutions never use hard coded values. Hop offers variables on the global, project and environment levels, and allows workflows and parameters to provide parameters, to set and read variables in runtime etc.
 
 :TOC:
@@ -31,36 +29,8 @@ It's simply bad form to hardcode host names, user names, passwords, directories 
 Variables allow your solutions to adapt to a changing environment.
 If for example the database server is different when developing than it is when running in production, you set it as a variable.
 
-TIP: Fields, parameters, and variables implicitly are available downstream if in scope. You can pass them again any number of levels, but the "get parameters/variables" button only retrieves from one level above.
-
-== Fields
-Fields are columns in data row(s) and are viewable in some transform field textboxes and columns and you can see the fields in scope and its value when looking at transform row results after executing a workflow/pipeline (click the little grid icon on the bottom-right of a transform to see a preview of the cached results). Field values can be passed upstream for example if you use a pipeline executor and fill in the Result rows tab and use it in conjunction with a “copy rows to result” transform in the child pipeline.
-
-== Parameters
-Think of parameters as function arguments, which turn into variables with the same name. When adding parameters you are basically creating MyPipeline(parameter1, parameter2,..). Parameters (e.g. in pipeline or workflow properties) need to be declared at least once in every pipeline or workflow. 
-
-For example, if you set parameters on a pipeline executor, the pipeline that is being called must declare the same parameter names in its pipeline properties (set to NULL if you want to inherit values). Parameters can not be “sent” upstream, but you can use a Set variables transform, but they become variables in the scope they are defined in.
-
-**Explicit vs Implicit:** If you set a parameter to a default value, it becomes explicit (e.g. when editing a pipeline in pipeline properties), and it will take precedence over the same named implicit variable (a passed-in variable), but not take precedence over the same named explicit parameter. So whenever you see a transform with a column title “Parameters/Variables” that means an explicit parameter is sent to a function that will then set a variable name overriding any previous set parameter with the same name (useful if wanting to override an explicitly set param/variable in the child).
-           
-To change implicit parameter behaviour to explicit, you can also disable “pass all parameters” on the pipeline action. Parameters are simply variables which are explicitly defined in a workflow or pipeline to make them recognizable from outside those objects. They can also have a description and a default value.
-
-You cannot combine implicit variable inheritance with explicit parameter definitions. So, if you add parameters to the pipeline definition (or to a pipeline executor) and you want it set, you must add it to the parameters tab of the child pipeline action/transform even if the same variable already exists.
-
-**Advanced:** there are multiple layers in hop where you can set variables that do or do not get overwritten downstream (Java -> hop environment -> project -> run configuration -> workflow -> pipeline).
-
-== Variables
-Variables are more global and the scope can be targeted (entire Java VM, grandparent workflow, etc.) whereas fields are the data flowing between the transforms. Local variables can be set in a pipeline but should not be used in the same pipeline as they are not thread-safe and can inherit a previous value. It is better to send or return variables to another pipeline/workflow before using them.  Variables can be passed upstream if the variable was set to a larger scope. E.g.: if a variable was set in a parent with "valid in the current workflow".
-
-Think of variables in 2 scopes: runtime variables and environment/workflow variables:
-
-* Runtime variables – Runtime variables depend on pipeline information to generate, so they cannot be set beforehand, you need to declare those differently to be able to use them.
-* Environment/workflow variables or parameters – Environment variables/parameters are set once and used when needed in any downstream workflow/pipeline and there is no need to use Get Variables , you can refer to them directly like {openvar}myVariable{closevar} unless you need it in a field/data stream.
-  - E.g.: Define a parameter only once, even just in the Pipeline Executor (no need to define in receiving pipeline)
-
-A pipeline needs to start to get new variables. A running or nested pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor. An alternative is to use parameters.
-
-
+Fields, parameters, and variables are related but they are not the same thing.
+For a comparison, how values flow between pipelines and workflows, and the common pitfalls, see xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
 
 == How do I use a variable?
 
@@ -68,7 +38,7 @@ In the Hop user interface all places where you can enter a variable have a '$' s
 
 image::variable-indicator.png[The variable indicatorm, width="65%"]
 
-You can specify a variable by referencing it between an opening `{openvar}` and a closing `{closevar}`.
+You can specify a variable by referencing it between an opening `+${+` and a closing `+}+`.
 
 [source]
 ${VARIABLE_NAME}
@@ -83,6 +53,16 @@ ${ENVIRONMENT_HOME}/input/source-file.txt
 
 // CTRL-space snippet
 include::snippets/variables/control-space.adoc[]
+
+== User home directory shortcut (~)
+
+In file and folder paths, Hop automatically expands a leading tilde character (`~`) to the current user's home directory (`${user.home}`). This works across all operating systems (Linux, macOS, and Windows with both `\` and `/`):
+
+* `~` resolves to `${user.home}`
+* `~/projects/my-project` resolves to `${user.home}/projects/my-project`
+* `~\projects\my-project` resolves to `${user.home}\projects\my-project`
+
+NOTE: The tilde character is only expanded at the beginning of a path (e.g. `~`, `~/...`, `~\...`). A tilde anywhere else in a string (e.g. `folder/~` or `foo~bar`) or followed by non-separator characters (e.g. `~user`) is treated as a literal character.
 
 == Hexadecimal values
 
@@ -174,11 +154,16 @@ This also means that's important to know where variables can be set and used and
 
 == Parameters
 
-Pipeline and workflows can (optionally) accept parameters.
+Pipelines and workflows can (optionally) accept parameters.
 
-Workflow and pipeline parameters are similar, and are a special type of variable that is only available within the current workflow or pipeline.
+Parameters are a special type of variable: they are declared on the pipeline or workflow (name, optional default, optional description) so callers can pass values in.
+When the pipeline or workflow starts, each parameter is activated as a variable of the same name, available only in that execution.
 
-Workflow and pipeline parameters can have a default value and a description, and can be passed on from workflows and pipelines to other workflows and pipelines through a variety of workflow actions and pipeline transforms.
+Pass parameters from a parent through the *Parameters* tab of a xref:workflow/actions/pipeline.adoc[Pipeline] action, xref:workflow/actions/workflow.adoc[Workflow] action, xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], or xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor].
+Declare the same names on the receiving pipeline or workflow.
+
+How parameters differ from fields and from other variables is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+The exact rules that decide which value a parameter ends up with when one pipeline or workflow starts another are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
 
 === System properties
 
@@ -190,7 +175,7 @@ You can add your own system variables to the ones that come with Apache Hop by d
 
 image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
-These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `{openvar}HOP_CONFIG_FOLDER{closevar}` location.
+These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
 
 CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
@@ -249,6 +234,7 @@ Otherwise by default a NULL is returned when all values are NULL.
 Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL.
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
 |HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
+|HOP_ALLOW_UNCONSUMED_MAIN_INPUT|N|Set this variable to Y to start a pipeline that has main hops into transforms that do not consume input (for example existing files whose upstream produces no rows). Default N fails init and stops on leftover input. Verify still reports an error. See xref:pipeline/pipeline-sources.adoc[Pipeline sources].
 |HOP_BATCHING_ROWSET|N|Set this variable to 'Y' if you want to test a more efficient batching row set.
 |HOP_DATABASE_CONNECTION_TIMEOUT|30|Default login/connection timeout in **seconds** applied when opening a JDBC database connection (maps to `DriverManager.setLoginTimeout`).
 Defaults to `30`; set to `0` to impose no timeout (a stalled connect can then block indefinitely).
@@ -272,8 +258,13 @@ Otherwise they are not.
 |HOP_FILE_OUTPUT_MAX_STREAM_COUNT|1024|This project variable is used by the Text File Output transform.
 It defines the max number of simultaneously open files within the transform.
 The transform will close/reopen files as necessary to insure the max is not exceeded
-|HOP_FILE_OUTPUT_MAX_STREAM_LIFE|0|This project variable is used by the Text File Output transform.
-It defines the max number of milliseconds between flushes of files opened by the transform.
+|HOP_FILE_OUTPUT_MAX_STREAM_LIFE|5000|This project variable is used by the Text File Output transform.
+It defines how many milliseconds to wait between flushes of files opened by the transform.
+Output is buffered, so slow input stays invisible until the buffer fills or the file is closed.
+The default is 5000 (5 seconds).
+A value of 0 uses that default.
+Set a positive number of milliseconds to change the interval.
+A negative value, for example -1, disables the interval flush.
 |HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|N|Set this variable to N to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
 Changing it to true will clear it when export pipeline / workflow.
 |HOP_JSON_INPUT_INCLUDE_NULLS|Y|Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not be included (default behavior)
@@ -304,6 +295,9 @@ This only makes a difference for extremely short lived pipelines.
 |HOP_ROWSET_PUT_TIMEOUT|50|The name of the variable that optionally contains an alternative rowset put timeout (in ms).
 This only makes a difference for extremely short lived pipelines.
 |HOP_S3_VFS_PART_SIZE|5MB|The default part size for multi-part uploads of new files to S3 (added and used by by the xref:vfs/aws-s3-vfs.adoc[AWS S3] VFS plugin)
+|HOP_SERVER_CROSS_SITE_POLICY|same-site|Which browser requests Hop Server accepts, based on the Sec-Fetch-Site header: `same-site` (the default) rejects cross-site requests, `same-origin` also rejects same-site ones, and `off` disables the check.
+Clients that send no Sec-Fetch-* headers at all, such as hop-run or the Hop GUI, are never affected.
+See xref:hop-server/index.adoc[Hop Server].
 |HOP_SERVER_DETECTION_TIMER|-|The name of the variable that defines the timer used for detecting server nodes
 |HOP_SERVER_JETTY_ACCEPTORS||A variable to configure jetty option: acceptors for Hop Server
 |HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE||A variable to configure jetty option: acceptQueueSize for Hop Server
@@ -345,6 +339,7 @@ Additionally, the following environment variables can help you to add even more 
 |===
 |Variable|Default|Description
 |HOP_AUTO_CREATE_CONFIG|N|Set this variable to 'Y' to automatically create config file when it's missing.
+|HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `+${HOP_CONFIG_IN_MEMORY}+` equivalent on the command line is `-ime` / `--in-memory`.
 |HOP_METADATA_FOLDER|-|The system environment variable pointing to the alternative location for the Hop metadata folder
 |HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
 |HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.

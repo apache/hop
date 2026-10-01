@@ -41,8 +41,9 @@ import org.junit.jupiter.api.Test;
  * runs its own blocking event loop in {@code open()}, so {@link SwtBotTestBase#withDialog} pumps it
  * on the UI thread while the assertions drive it from a worker thread.
  *
- * <p>Tagged {@code uitest} so it is only run with a display; run with {@code mvn -pl
- * plugins/transforms/fake -Puitest test}.
+ * <p>Tagged {@code uitest} so it is skipped when there is no display. The default reactor run still
+ * includes it on a desktop; wrap Maven with {@code tools/with-isolated-display.sh} so the dialog
+ * does not steal focus.
  */
 @Tag("uitest")
 class FakerBrowserDialogTest extends SwtBotTestBase {

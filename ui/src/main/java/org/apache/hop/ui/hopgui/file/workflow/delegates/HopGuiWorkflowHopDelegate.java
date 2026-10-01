@@ -17,9 +17,11 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowHopMeta;
@@ -107,6 +109,9 @@ public class HopGuiWorkflowHopDelegate {
   }
 
   public void delHop(WorkflowMeta workflowMeta, WorkflowHopMeta hopMeta) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
     int index = workflowMeta.indexOfWorkflowHop(hopMeta);
 
     hopGui.undoDelegate.addUndoDelete(

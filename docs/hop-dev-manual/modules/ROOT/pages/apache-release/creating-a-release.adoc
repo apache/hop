@@ -55,6 +55,60 @@ Build the software using the apache release profile
 mvn clean install -Papache-release
 ----
 
+=== Optional marketplace plugins
+
+Large / lesser-used plugins are *not* bundled in the hop-client zip (ASF package size).
+Each plugin module with `src/assembly/assembly.xml` builds a standalone zip (Maven
+assembly with `appendAssemblyId=false`).
+
+Two independent switches control this, and mixing them up is what breaks the marketplace:
+
+[cols="1,3"]
+|===
+|Property |Gates
+
+|`assemblies`
+|The `assemblies/` reactor — `hop-assemblies-plugins` and the hop-client / hop-web
+products — plus the `hop-core` / `hop-engine` / `hop-ui` / `hop-ui-rcp` zips, which exist
+only to be unpacked into those products. None of these are staged to Maven Central; the
+client and the source release go to dist.apache.org. The release turns this off via
+`-P=-assemblies`, so a normal build still produces everything `assemblies/client` needs.
+
+|`module.zips`
+|The per-module `artifactId-version.zip` attached next to each plugin jar. This is the
+artifact the marketplace installs, so a release must **never** disable it.
+|===
+
+Net effect on a release: every plugin zip is staged, and no `hop-assemblies-*` or
+core/engine/ui/rcp zip is.
+
+They used to share the single `assemblies` property, so one `-Dassemblies=false` silently
+dropped every plugin zip while the build still reported `BUILD SUCCESS`. That is why the
+zips are missing from Maven Central for 2.12.0-2.14.0 and 2.16.0-2.18.1.
+
+WARNING: Do not add `-Dassemblies=false`, `-Dmodule.zips=false` or `-P=-assembly` to the
+release commands, and do not pass `-Darguments="..."` on the command line — it replaces the
+`<arguments>` configured in the root pom wholesale, taking the `-P=-assemblies` with it.
+Older versions of this guide included both; that is the bug described above.
+
+So `release:perform` publishes both the jar and the zip under the same GAV, for example:
+
+----
+https://repository.apache.org/content/groups/public/org/apache/hop/hop-tech-parquet/<version>/hop-tech-parquet-<version>.zip
+----
+
+After staging a release candidate, verify marketplace zips in the Nexus staging
+repository (see xref:apache-release/checking-a-release.adoc[Checking a release]).
+Optional plugins are listed in
+`plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml`.
+
+**SNAPSHOT** testing: Jenkins deploys plugin zips to the ASF snapshots repository so
+marketplace can install them during development. Local-only testing can still use
+`docker/marketplace-nexus/` and `publish-marketplace-plugins.sh`.
+
+Keep the client under the ASF ~850 MB package limit by running
+`tools/check-assembly-size.sh` before promoting distribution artifacts.
+
 we are going to use the `mvn release:prepare` command to prepare the release process
 
 full command:
@@ -343,7 +397,6 @@ Cheers,
 Update following files and set the correct documentation version and name
 
 * docs/hop-user-manual/antora.yml
-* docs/hop-tech-manual/antora.yml
 * docs/hop-dev-manual/antora.yml
 
 Remove the `prerelease` and `display_version` attributes

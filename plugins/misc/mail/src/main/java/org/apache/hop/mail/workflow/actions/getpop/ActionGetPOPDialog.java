@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -496,7 +497,9 @@ public class ActionGetPOPDialog extends ActionDialog {
     wbDirectory.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputDirectory, variables));
 
-    wOutputDirectory = new TextVar(variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOutputDirectory =
+        new TextVar(variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FOLDER);
     PropsUi.setLook(wOutputDirectory);
     wOutputDirectory.setToolTipText(
         BaseMessages.getString(PKG, "ActionGetPOP.OutputDirectory.Tooltip"));

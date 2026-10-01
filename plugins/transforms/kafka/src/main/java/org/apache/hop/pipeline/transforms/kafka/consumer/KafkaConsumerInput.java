@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.kafka.consumer;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -87,7 +89,19 @@ public class KafkaConsumerInput
     data.batchSize = Const.toIntExpanded(resolve(meta.getBatchSize()), 0);
     data.stopWhenIdle = meta.isStopWhenIdle();
     data.maxIdleTimeMs = Const.toLong(resolve(meta.getMaxIdleTimeMs()), 500L);
-    data.lastRecordTime = System.currentTimeMillis();
+    long maxConsume = Const.toLong(resolve(meta.getMaxConsumeDurationMs()), 0L);
+    data.maxConsumeDurationMs = maxConsume > 0 ? maxConsume : 0L;
+    data.startTime = System.currentTimeMillis();
+    data.lastRecordTime = data.startTime;
+    logBasic(
+        "Kafka consumer batchDuration="
+            + data.batchDuration
+            + "ms, stopWhenIdle="
+            + data.stopWhenIdle
+            + ", maxIdleTimeMs="
+            + data.maxIdleTimeMs
+            + ", maxConsumeDurationMs="
+            + data.maxConsumeDurationMs);
 
     data.consumer = buildKafkaConsumer(this, meta);
 
@@ -107,6 +121,7 @@ public class KafkaConsumerInput
 
     // Set Kafka consumer is closing flag to false
     data.isKafkaConsumerClosing = false;
+    startMaxConsumeDeadlineWakeup();
     return true;
   }
 
@@ -117,7 +132,6 @@ public class KafkaConsumerInput
       PipelineMeta subTransMeta = new PipelineMeta(realFilename, metadataProvider, this);
       subTransMeta.setMetadataProvider(metadataProvider);
       subTransMeta.setFilename(realFilename);
-      subTransMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       logDetailed("Loaded sub-pipeline '" + realFilename + "'");
 
       PipelineRunConfiguration runConfiguration =
@@ -131,8 +145,13 @@ public class KafkaConsumerInput
               false);
 
       LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, this, this);
+      kafkaPipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       kafkaPipeline.setParentPipeline(getPipeline());
       kafkaPipeline.setPipelineRunConfiguration(runConfiguration);
+      // Register under the consumer log channel. prepareExecution() captures the id, and the
+      // execution-info timer later reads it again. Swapping the channel afterwards made every tick
+      // miss the entry and keep it warm through a parent-id fallback.
+      kafkaPipeline.setLogChannel(getLogChannel());
       kafkaPipeline.prepareExecution();
       kafkaPipeline.setLogLevel(getPipeline().getLogLevel());
       kafkaPipeline.setPreviousResult(new Result());
@@ -184,7 +203,6 @@ public class KafkaConsumerInput
               }
             });
       }
-      kafkaPipeline.setLogChannel(getLogChannel());
       kafkaPipeline.startThreads();
 
       if (errorHandlingConditionIsSatisfied()) {
@@ -193,8 +211,6 @@ public class KafkaConsumerInput
         // If the conditions for error handling are not met init SingleThreadedExecutor normally
         data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
       }
-      data.executor.setClearingMetricsPerIteration(
-          StringUtils.isEmpty(meta.getExecutionInformationLocation()));
 
       // Initialize the sub-pipeline
       //
@@ -211,7 +227,9 @@ public class KafkaConsumerInput
 
   @Override
   public void dispose() {
+    interruptMaxConsumeDeadlineWakeup();
     if (data.consumer != null) {
+      data.consumer.wakeup();
       data.consumer.unsubscribe();
       data.consumer.close();
     }
@@ -283,16 +301,39 @@ public class KafkaConsumerInput
     // Poll records...
     // If we get any, process them...
     // When stop-when-idle is enabled, use a short poll timeout so idle time can be measured.
+    // When a max consume duration is set, cap the poll to the remaining time so a long batch
+    // duration cannot overshoot the deadline.
     //
     try {
+      long now = System.currentTimeMillis();
+      if (maxConsumeDurationReached(now, data.maxConsumeDurationMs, data.startTime)) {
+        return stopGracefully(
+            "Kafka consumer max consume duration of "
+                + data.maxConsumeDurationMs
+                + "ms reached, stopping gracefully");
+      }
       long pollMs =
-          data.stopWhenIdle ? 100L : (data.batchDuration > 0 ? data.batchDuration : Long.MAX_VALUE);
+          pollTimeoutMs(
+              data.stopWhenIdle,
+              data.batchDuration,
+              data.maxConsumeDurationMs,
+              data.startTime,
+              now);
       Duration duration = Duration.ofMillis(pollMs);
       ConsumerRecords<Object, Object> records = data.consumer.poll(duration);
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
-          // No records: optionally stop after max idle time.
+          // No records: still honor max consume duration. The deadline is wall-clock since
+          // start, not "time since last message", so an idle topic must stop here.
+          if (maxConsumeDurationReached(
+              System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
+            return stopGracefully(
+                "Kafka consumer max consume duration of "
+                    + data.maxConsumeDurationMs
+                    + "ms reached, stopping gracefully");
+          }
+          // Optionally stop after max idle time.
           // Do not count idle until partitions are assigned — group join / rebalance can take
           // longer than maxIdleTimeMs and would otherwise stop before any poll can succeed.
           //
@@ -300,21 +341,18 @@ public class KafkaConsumerInput
             if (data.consumer.assignment() == null || data.consumer.assignment().isEmpty()) {
               data.lastRecordTime = System.currentTimeMillis();
             } else if ((System.currentTimeMillis() - data.lastRecordTime) >= data.maxIdleTimeMs) {
-              logBasic(
+              return stopGracefully(
                   "Kafka consumer idle timeout of "
                       + data.maxIdleTimeMs
                       + "ms exceeded, stopping gracefully");
-              data.isKafkaConsumerClosing = true;
-              if (data.executor != null) {
-                data.executor.getPipeline().stopAll();
-              }
-              setOutputDone();
-              return false;
             }
           }
         } else {
           // Grab the records...
           //
+          if (getFirstRowReadDate() == null) {
+            setFirstRowReadDate(new Date());
+          }
           for (ConsumerRecord<Object, Object> record : records) {
             Object[] outputRow = processMessageAsRow(record);
             data.rowProducer.putRow(data.outputRowMeta, outputRow);
@@ -325,7 +363,7 @@ public class KafkaConsumerInput
           }
           data.lastRecordTime = System.currentTimeMillis();
           if (isBasic()) {
-            logBasic("Number of rows read: " + data.rowProducer.getRowSet().size());
+            logBasic(batchLogMessage(records.count(), getLinesInput()));
           }
           // Pass them to the single threaded transformation and do an iteration...
           //
@@ -366,18 +404,35 @@ public class KafkaConsumerInput
           // "removing" failing items from the kafka queue
           //
           data.consumer.commitAsync();
-          data.executor.buildExecutionSummary();
           if (errorHandlingConditionIsSatisfied()) {
             data.incomingRowsBuffer.clear();
           }
         }
+
+        if (maxConsumeDurationReached(
+            System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
+          return stopGracefully(
+              "Kafka consumer max consume duration of "
+                  + data.maxConsumeDurationMs
+                  + "ms reached, stopping gracefully");
+        }
       }
     } catch (WakeupException e) {
-      // We're going to close kafka consumer because of pipeline has been stopped so stop executor
-      // too
-      data.executor.getPipeline().stopAll();
+      // Deadline wakeup (no new messages, poll was still blocked) or the pipeline was stopped.
+      if (data.maxConsumeDeadlineWakeup
+          || maxConsumeDurationReached(
+              System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
+        return stopGracefully(
+            "Kafka consumer max consume duration of "
+                + data.maxConsumeDurationMs
+                + "ms reached, stopping gracefully");
+      }
+      if (data.executor != null) {
+        data.executor.getPipeline().stopAll();
+      }
       setOutputDone();
       stopAll();
+      return false;
     }
 
     if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
@@ -400,6 +455,98 @@ public class KafkaConsumerInput
     return true;
   }
 
+  /**
+   * One batch in the parent log. This is not the single-threaded executor's "Finished processing"
+   * line, and it is not the injector buffer size.
+   */
+  static String batchLogMessage(int batchRecords, long totalInput) {
+    return "Kafka consumer batch of " + batchRecords + " record(s), cumulative input " + totalInput;
+  }
+
+  /**
+   * True when a max consume duration is configured and the wall clock since transform start has
+   * reached it. {@code maxConsumeDurationMs <= 0} means no limit.
+   */
+  static boolean maxConsumeDurationReached(long now, long maxConsumeDurationMs, long startTime) {
+    return maxConsumeDurationMs > 0 && (now - startTime) >= maxConsumeDurationMs;
+  }
+
+  /**
+   * Poll timeout in milliseconds. Stop-when-idle and max-consume-duration use a short poll so the
+   * deadline can be re-checked when no records arrive. A long or infinite poll would otherwise
+   * never return on an idle topic, and the duration check after poll() would never run. A
+   * configured max consume duration also caps the timeout to the remaining window.
+   */
+  static long pollTimeoutMs(
+      boolean stopWhenIdle,
+      long batchDuration,
+      long maxConsumeDurationMs,
+      long startTime,
+      long now) {
+    boolean shortPoll = stopWhenIdle || maxConsumeDurationMs > 0;
+    long pollMs = shortPoll ? 100L : (batchDuration > 0 ? batchDuration : Long.MAX_VALUE);
+    if (maxConsumeDurationMs > 0) {
+      long remaining = maxConsumeDurationMs - (now - startTime);
+      if (remaining <= 0) {
+        return 0L;
+      }
+      pollMs = Math.min(pollMs, remaining);
+    }
+    return pollMs;
+  }
+
+  /**
+   * {@code consumer.poll()} can block beyond the requested timeout (coordinator lookup, metadata, a
+   * stuck fetch). Interrupt that wait when the max consume deadline is reached so an idle topic
+   * still finishes.
+   */
+  private void startMaxConsumeDeadlineWakeup() {
+    if (data.maxConsumeDurationMs <= 0 || data.consumer == null) {
+      return;
+    }
+    final long deadline = data.startTime + data.maxConsumeDurationMs;
+    data.maxConsumeDeadlineThread =
+        new Thread(
+            () -> {
+              try {
+                long sleepMs = deadline - System.currentTimeMillis();
+                if (sleepMs > 0) {
+                  Thread.sleep(sleepMs);
+                }
+                if (!data.isKafkaConsumerClosing && data.consumer != null) {
+                  data.maxConsumeDeadlineWakeup = true;
+                  data.consumer.wakeup();
+                }
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+            },
+            "KafkaConsumer-maxConsumeDeadline");
+    data.maxConsumeDeadlineThread.setDaemon(true);
+    data.maxConsumeDeadlineThread.start();
+  }
+
+  private void interruptMaxConsumeDeadlineWakeup() {
+    if (data.maxConsumeDeadlineThread != null) {
+      data.maxConsumeDeadlineThread.interrupt();
+      data.maxConsumeDeadlineThread = null;
+    }
+  }
+
+  private boolean stopGracefully(String reason) {
+    logBasic(reason);
+    data.isKafkaConsumerClosing = true;
+    interruptMaxConsumeDeadlineWakeup();
+    if (data.consumer != null) {
+      data.consumer.wakeup();
+    }
+    if (data.executor != null) {
+      data.executor.getPipeline().stopAll();
+    }
+    setOutputDone();
+    return false;
+  }
+
   private boolean errorHandlingConditionIsSatisfied() {
     // Added a check to be sure that lines collecting for error handling is limited
     // to the case of batchSize = 1.
@@ -410,14 +557,30 @@ public class KafkaConsumerInput
 
     Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
+    // Only fields carrying an output name are on the row, in the order KafkaConsumerInputMeta
+    // adds them, so each value is placed conditionally rather than at a fixed index.
     int index = 0;
-    rowData[index++] = record.key();
-    rowData[index++] = record.value();
-    rowData[index++] = record.topic();
-    rowData[index++] = (long) record.partition();
-    rowData[index++] = record.offset();
-    rowData[index] = record.timestamp();
+    index = putIfNamed(rowData, index, meta.getKeyField(), record.key());
+    index = putIfNamed(rowData, index, meta.getMessageField(), record.value());
+    index = putIfNamed(rowData, index, meta.getTopicField(), record.topic());
+    index = putIfNamed(rowData, index, meta.getPartitionField(), (long) record.partition());
+    index = putIfNamed(rowData, index, meta.getOffsetField(), record.offset());
+    index = putIfNamed(rowData, index, meta.getTimestampField(), record.timestamp());
+    putIfNamed(rowData, index, meta.getHeadersField(), KafkaHeaders.toJson(record.headers()));
 
     return rowData;
+  }
+
+  /**
+   * Writes a value at the given index only when the field contributes a column, and reports the
+   * next free index. A field with an empty output name is skipped by {@code
+   * KafkaConsumerInputMeta.getRowMeta}, so writing it here would shift every later column.
+   */
+  private int putIfNamed(Object[] rowData, int index, KafkaConsumerField field, Object value) {
+    if (field == null || StringUtils.isEmpty(field.getOutputName()) || index >= rowData.length) {
+      return index;
+    }
+    rowData[index] = value;
+    return index + 1;
   }
 }

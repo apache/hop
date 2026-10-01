@@ -230,6 +230,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
   // get sorted rows from available files in iterative manner.
   // that means call to this method will continue to return rows
   // till all temp files will not be read to the end.
+  @SuppressWarnings("javabugs:S2259") // the file list is initialised in init()
   Object[] getBuffer() throws HopValueException {
     Object[] retval;
 

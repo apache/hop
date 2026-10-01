@@ -1,0 +1,11 @@
+{
+  "name": "proxy-required-auth",
+  "auth_type": "No Auth",
+  "base_url": "http://${PROXY_ONLY_HOST}",
+  "test_url": "",
+  "ignoreSsl": false,
+  "proxy_host": "${PROXY_HOST}",
+  "proxy_port": "${PROXY_AUTH_PORT}",
+  "proxy_username": "${PROXY_USER}",
+  "proxy_password": "${PROXY_PASS}"
+}

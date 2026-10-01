@@ -1,0 +1,33 @@
+{
+  "variables": [],
+  "LocaleDefault": "en_BE",
+  "guiProperties": {
+  },
+  "projectsConfig": {
+    "enabled": true,
+    "projectMandatory": true,
+    "environmentMandatory": true,
+    "defaultProject": "default",
+    "defaultEnvironment": null,
+    "standardParentProject": "default",
+    "standardProjectsFolder": null,
+    "projectConfigurations": [
+      {
+        "projectName": "default",
+        "projectHome": "${HOP_CONFIG_FOLDER}",
+        "configFilename": "project-config.json"
+      }
+    ],
+    "lifecycleEnvironments": [
+      {
+        "name": "dev",
+        "purpose": "Testing",
+        "projectName": "default",
+        "configurationFiles": [
+          "${PROJECT_HOME}/dev-env-config.json"
+        ]
+      }
+    ],
+    "projectLifecycles": []
+  }
+}

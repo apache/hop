@@ -22,6 +22,9 @@ package org.apache.hop.mail.pipeline.transforms.mailinput;
  *
  * @see MailInputMeta
  */
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -130,6 +133,24 @@ class MailInputMetaTest implements IInitializer<ITransformMeta> {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  @Test
+  void staticFolderDoesNotConsumeMainInput() {
+    MailInputMeta meta = new MailInputMeta();
+    meta.setDefault();
+    assertFalse(meta.isUseDynamicFolder());
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
+  }
+
+  @Test
+  void dynamicFolderConsumesMainInput() {
+    MailInputMeta meta = new MailInputMeta();
+    meta.setDefault();
+    meta.setUseDynamicFolder(true);
+    assertTrue(meta.consumesMainInput());
+    assertFalse(meta.canStartWithoutInput());
   }
 
   public class MailInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<MailInputField> {

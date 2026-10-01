@@ -16,16 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The File Metadata transform scans a file to determine its metadata structure or layout.
+:description: The File metadata transform scans a file to determine its metadata structure or layout.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
-= image:transforms/icons/filemetadata.svg[File Metadata transform Icon, role="image-doc-icon"] File Metadata
+= image:transforms/icons/filemetadata.svg[File metadata transform Icon, role="image-doc-icon"] File metadata
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
-The File Metadata transform scans a file to determine its metadata structure or layout.
+The File metadata transform scans a file to determine its metadata structure or layout.
 
 Use this transforms in situations where you need to read a structured text file (e.g. CSV, TSV) when you don't know the exact layout in advance.
 
@@ -35,19 +33,6 @@ The layout detected depends on the number of rows scanned.
 
 For example, if the first 100 rows of a file are scanned and the first field is detected as an integer, there is a possibility this field contains alphanumerical characters in later rows.
 Using 0 rows for 'limit scanned rows' is a way to make sure the entire file is scanned and the layout is detected correctly, even though this may be time consuming or even impossible for large files.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -63,9 +48,29 @@ Use 0 rows to scan the entire file.
 |Fallback charset|Charset to use while scanning the file
 |Delimiter candidates|List of delimiters to try while detecting the file layout.
 Tab, semicolon, comma are provided by default.
-|Enclosure candidates|List of delimiters to try while detecting the file layout.
+|Enclosure candidates|List of enclosure characters to try while detecting the file layout.
 Double and single quote are provided by default.
 |===
+
+== Detection rules
+
+=== Enclosures
+
+An enclosure opens a field when it is the first character of the field.
+It closes the field when it is followed by the delimiter or the end of the line.
+Inside an enclosed field:
+
+* delimiters are part of the value: `"Smith, Bob"` is one field.
+* a doubled enclosure is an escaped enclosure: `"BOB ""ROBERT"" SMITH"`.
+* any other enclosure is part of the value as well: `"BOB "ROBERT" SMITH"` is one field.
+
+An enclosure in the middle of a field that is not enclosed, such as `5" pipe`, does not open a field, and the line does not fit that enclosure.
+The same goes for a line that ends inside an enclosed field: fields spanning several lines are not supported.
+
+=== Numbers
+
+A number column gets the precision of the value with the most decimals, read with the detected decimal symbol.
+The suggested mask keeps all of those decimals: `123.58` and `90524.10` give the mask `#.00` and a precision of 2.
 
 == Output Fields
 
@@ -73,6 +78,7 @@ The fields returned by this transform are
 
 * charset
 * delimiter
+* enclosure
 * field_count
 * skip_header_lines
 * skip_footer_lines

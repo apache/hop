@@ -16,31 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Kafka Producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
+:description: The Kafka producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
-= image:transforms/icons/KafkaProducerOutput.svg[Kafka Producer transform Icon, role="image-doc-icon"] Kafka Producer
+= image:transforms/icons/KafkaProducerOutput.svg[Kafka producer transform Icon, role="image-doc-icon"] Kafka producer
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
-The Kafka Producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
+The Kafka producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
 
-A Kafka Producer transform publishes a stream of records to one Kafka topic.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
+A Kafka producer transform publishes a stream of records to one Kafka topic, or to a topic read per row from a field in the incoming stream.
 
 == Options
 
@@ -59,6 +44,21 @@ A Kafka Producer transform publishes a stream of records to one Kafka topic.
 
 |Topic
 |The category to which records are published.
+Disabled when the topic is read from a field.
+
+|Get topic from field
+|Read the topic from a field in the incoming stream instead of publishing every row to a fixed topic.
+This lets a single transform route rows across topics, rather than needing one Kafka producer transform per topic.
+
+|Topic field
+|The field holding the topic name for each row, used when *Get topic from field* is enabled.
+Rows where this field is empty cause the transform to fail.
+
+|Headers field
+|Optional.
+A field holding the record headers to attach to each message, as a JSON array of `{"name":..,"value":..}` objects — the same shape the Kafka Consumer transform produces, so headers survive a consume-then-produce round trip.
+An array is used rather than a JSON object because Kafka keeps headers ordered and allows a name to repeat.
+Leave empty to send messages without headers.
 
 |Key Field
 |In Kafka, all messages can be keyed, allowing for messages to be distributed to partitions based on their keys in a default routing scheme.

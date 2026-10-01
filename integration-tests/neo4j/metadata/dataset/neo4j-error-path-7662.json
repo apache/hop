@@ -1,0 +1,32 @@
+{
+  "base_filename": "neo4j-error-path-7662.csv",
+  "name": "neo4j-error-path-7662",
+  "description": "The deepest execution which reported errors, as found by the error path lookup of the Neo4j perspective",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": 0,
+      "field_format": "",
+      "field_name": "errorId"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": 0,
+      "field_format": "",
+      "field_name": "errorName"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "pathLength"
+    }
+  ],
+  "folder_name": ""
+}

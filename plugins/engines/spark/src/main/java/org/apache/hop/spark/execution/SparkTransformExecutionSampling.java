@@ -168,9 +168,9 @@ public class SparkTransformExecutionSampling {
     }
 
     String profileName = runConf.getExecutionDataProfileName();
+    ExecutionDataProfile dataProfile = null;
     if (StringUtils.isNotEmpty(profileName)) {
-      ExecutionDataProfile dataProfile =
-          metadataProvider.getSerializer(ExecutionDataProfile.class).load(profileName);
+      dataProfile = metadataProvider.getSerializer(ExecutionDataProfile.class).load(profileName);
       if (dataProfile != null && dataProfile.getSamplers() != null) {
         dataSamplers.addAll(dataProfile.getSamplers());
       } else {
@@ -199,6 +199,10 @@ public class SparkTransformExecutionSampling {
                 + "' (non-fatal): "
                 + e.getMessage());
       }
+    }
+
+    if (dataProfile != null) {
+      dataProfile.applyLimits(dataSamplers, variables);
     }
 
     if (dataSamplers.isEmpty()) {

@@ -26,7 +26,8 @@ public class InsertUpdateKeyField {
   @HopMetadataProperty(
       key = "name",
       injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_STREAM",
-      injectionKey = "KEY_STREAM")
+      injectionKey = "KEY_STREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String keyStream;
 
   /** field in table */

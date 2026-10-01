@@ -35,6 +35,8 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -54,6 +56,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     classLoaderGroup = "postgres-db",
     isIncludeJdbcDrivers = true,
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+@RelationalLineage(
+    operation = RelationalIoOperation.WRITE,
+    overwriteWhen = {"TRUNCATE"})
 public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> {
 
   private static final Class<?> PKG = PGBulkLoaderMeta.class;
@@ -89,7 +94,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
   /** Load action */
   @HopMetadataProperty(
       key = "load_action",
-      injectionKeyDescription = "PGBulkLoader.Injection.LoadAction.Label")
+      injectionKeyDescription = "PGBulkLoader.Injection.LoadAction.Label",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private String loadAction;
 
   /** Database name override */
@@ -301,7 +307,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       errorMessage = BaseMessages.getString(PKG, "GPBulkLoaderMeta.CheckResult.InvalidConnection");
@@ -360,8 +366,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         }
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta);
-          try {
+          try (Database db = new Database(loggingObject, variables, databaseMeta)) {
             db.connect();
 
             String schemaTable =
@@ -464,7 +469,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         throw new HopException(
             BaseMessages.getString(PKG, "GPBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(

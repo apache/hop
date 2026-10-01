@@ -27,7 +27,8 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
     type = "GREENPLUM",
     typeDescription = "Greenplum",
     image = "greenplum.svg",
-    documentationUrl = "/database/databases/greenplum.html")
+    documentationUrl = "/database/databases/greenplum.html",
+    classLoaderGroup = "greenplum-db")
 @GuiPlugin(id = "GUI-GreenplumDatabaseMeta")
 public class GreenplumDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
   @Override

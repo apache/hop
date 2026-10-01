@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -186,7 +187,10 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
 
     wRulesEditor =
         new StyledTextComp(
-            variables, wRulesComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            variables,
+            wRulesComp,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_DROOLS);
     PropsUi.setLook(wRulesEditor, Props.WIDGET_STYLE_FIXED);
 
     FormData fdRulesEditor = new FormData();

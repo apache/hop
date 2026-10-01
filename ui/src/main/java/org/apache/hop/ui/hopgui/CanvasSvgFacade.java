@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
 import org.apache.hop.workflow.canvas.WorkflowCanvasSvgRenderer;
 import org.eclipse.swt.widgets.Canvas;
@@ -26,6 +27,10 @@ import org.eclipse.swt.widgets.Composite;
 
 /**
  * Facade for Hop Web server-side SVG canvas rendering. Desktop (RCP) uses a no-op implementation.
+ *
+ * <p>Pipeline and workflow graphs use {@link #renderPipeline} / {@link #renderWorkflow}. Plugins
+ * with custom graph editors should render SVG themselves (for example with {@code SvgGc}) and call
+ * {@link #publishSnapshot} so the existing Hop Web client overlay can display the result.
  */
 public abstract class CanvasSvgFacade {
 
@@ -59,6 +64,27 @@ public abstract class CanvasSvgFacade {
     return IMPL.renderWorkflowInternal(canvas, context, magnification, offset);
   }
 
+  /**
+   * Publish a pre-rendered SVG snapshot for a canvas registered via {@link #registerCanvas}.
+   *
+   * <p>Intended for plugin graph editors on Hop Web. Pipeline/workflow graphs continue to use
+   * {@link #renderPipeline} / {@link #renderWorkflow}, which store snapshots the same way.
+   *
+   * @param canvas canvas registered with {@link #registerCanvas}
+   * @param result SVG XML, area owners, and optional view/graph ports
+   * @param magnification graph magnification (before native zoom factor)
+   * @param offset pan offset in graph coordinates
+   * @param canvasSize canvas widget size in pixels (may be null)
+   */
+  public static void publishSnapshot(
+      Canvas canvas,
+      CanvasSvgRenderResult result,
+      float magnification,
+      DPoint offset,
+      Point canvasSize) {
+    IMPL.publishSnapshotInternal(canvas, result, magnification, offset, canvasSize);
+  }
+
   public static String getSessionUuid() {
     return IMPL.getSessionUuidInternal();
   }
@@ -84,6 +110,13 @@ public abstract class CanvasSvgFacade {
 
   abstract CanvasSvgRenderResult renderWorkflowInternal(
       Canvas canvas, WorkflowCanvasSvgRenderer.Context context, float magnification, DPoint offset);
+
+  abstract void publishSnapshotInternal(
+      Canvas canvas,
+      CanvasSvgRenderResult result,
+      float magnification,
+      DPoint offset,
+      Point canvasSize);
 
   abstract String getSessionUuidInternal();
 

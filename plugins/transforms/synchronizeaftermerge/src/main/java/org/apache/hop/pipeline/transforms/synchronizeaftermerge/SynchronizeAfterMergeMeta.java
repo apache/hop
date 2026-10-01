@@ -38,6 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -63,7 +64,8 @@ public class SynchronizeAfterMergeMeta
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTION_NAME",
-      injectionKeyDescription = "SynchronizeAfterMerge.Injection.CONNECTION_NAME")
+      injectionKeyDescription = "SynchronizeAfterMerge.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** Commit size for inserts/updates */
@@ -128,25 +130,6 @@ public class SynchronizeAfterMergeMeta
     super();
     this.lookup = new Lookup();
     this.commitSize = "100";
-  }
-
-  public SynchronizeAfterMergeMeta(SynchronizeAfterMergeMeta m) {
-    this.commitSize = m.commitSize;
-    this.connection = m.connection;
-    this.lookup = new Lookup(m.lookup);
-    this.orderDelete = m.orderDelete;
-    this.orderInsert = m.orderInsert;
-    this.orderUpdate = m.orderUpdate;
-    this.performingLookup = m.performingLookup;
-    this.tableNameField = m.tableNameField;
-    this.tableNameInField = m.tableNameInField;
-    this.usingBatchUpdates = m.usingBatchUpdates;
-    this.operationOrderField = m.operationOrderField;
-  }
-
-  @Override
-  public Object clone() {
-    return new SynchronizeAfterMergeMeta(this);
   }
 
   @Override

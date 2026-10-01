@@ -31,13 +31,22 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IOptionalDatabaseConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 /** Meta data for the Add Sequence transform. */
 @Transform(
@@ -50,7 +59,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::AddSequenceMeta.keyword")
 @Getter
 @Setter
-public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData> {
+public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData>
+    implements IOptionalDatabaseConnection {
 
   private static final Class<?> PKG = AddSequenceMeta.class;
 
@@ -66,7 +76,8 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
 
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "AddSequenceMeta.Injection.Connection")
+      injectionKeyDescription = "AddSequenceMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
@@ -103,6 +114,35 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       key = "max_value",
       injectionKeyDescription = "AddSequenceMeta.Injection.MaxValue")
   private String maxValue;
+
+  /** Info transform that provides one row with the counter start, end, and increment. */
+  @HopMetadataProperty(
+      key = "configuration_transform",
+      injectionKeyDescription = "AddSequenceMeta.Injection.ConfigurationTransform")
+  private String configurationTransform;
+
+  @HopMetadataProperty(
+      key = "start_field",
+      injectionKeyDescription = "AddSequenceMeta.Injection.StartField")
+  private String startField;
+
+  @HopMetadataProperty(
+      key = "end_field",
+      injectionKeyDescription = "AddSequenceMeta.Injection.EndField")
+  private String endField;
+
+  @HopMetadataProperty(
+      key = "increment_field",
+      injectionKeyDescription = "AddSequenceMeta.Injection.IncrementField")
+  private String incrementField;
+
+  /**
+   * Counter values come from one row of {@link #configurationTransform} instead of the typed start,
+   * increment, and maximum.
+   */
+  public boolean isConfigurationFromTransform() {
+    return counterUsed && !databaseUsed && !Utils.isEmpty(configurationTransform);
+  }
 
   /**
    * @param maxValue The maxValue to set.
@@ -152,6 +192,15 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
     row.addValueMeta(v);
   }
 
+  /**
+   * The connection is only used when a database sequence is selected. A counter leaves it unset,
+   * and that must not be reported as a missing connection.
+   */
+  @Override
+  public boolean isDatabaseConnectionUsed(String key) {
+    return databaseUsed;
+  }
+
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -163,50 +212,14 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    CheckResult cr;
-    Database db = null;
-
-    try {
-      DatabaseMeta databaseMeta =
-          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-
-      if (databaseUsed) {
-        db = new Database(loggingObject, variables, databaseMeta);
-        db.connect();
-        if (db.checkSequenceExists(
-            variables.resolve(schemaName), variables.resolve(sequenceName))) {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK,
-                  BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.SequenceExists.Title"),
-                  transformMeta);
-        } else {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_ERROR,
-                  BaseMessages.getString(
-                      PKG,
-                      "AddSequenceMeta.CheckResult.SequenceCouldNotBeFound.Title",
-                      sequenceName),
-                  transformMeta);
-        }
-        remarks.add(cr);
-      }
-    } catch (HopException e) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title")
-                  + Const.CR
-                  + e.getMessage(),
-              transformMeta);
-      remarks.add(cr);
-    } finally {
-      if (db != null) {
-        db.disconnect();
-      }
+    // The counter does not open a connection. Loading an unset name here only raises "you need to
+    // specify the name of the metadata object to load", which the verify dialog shows as a database
+    // error. Issue #8561.
+    if (databaseUsed) {
+      checkDatabaseSequence(remarks, transformMeta, variables, metadataProvider);
     }
 
+    CheckResult cr;
     if (input.length > 0) {
       cr =
           new CheckResult(
@@ -222,6 +235,156 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
               transformMeta);
       remarks.add(cr);
     }
+
+    checkConfigurationTransform(remarks, pipelineMeta, transformMeta, info, variables);
+  }
+
+  /**
+   * The configuration transform is optional. When it is set, the start, end, and increment field
+   * names have to be set as well, and the transform has to exist. Running in several copies needs
+   * the configuration row copied to every copy: distributed, it only reaches the first one.
+   */
+  private void checkConfigurationTransform(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta info,
+      IVariables variables) {
+    if (!isConfigurationFromTransform()) {
+      return;
+    }
+
+    boolean fieldsMissing =
+        Utils.isEmpty(startField) || Utils.isEmpty(endField) || Utils.isEmpty(incrementField);
+    if (fieldsMissing) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.ConfigurationFieldsMissing"),
+              transformMeta));
+    }
+
+    if (pipelineMeta != null) {
+      TransformMeta source = pipelineMeta.findTransform(configurationTransform);
+      if (source != null
+          && source.isDistributes()
+          && transformMeta != null
+          && transformMeta.getCopies(variables) > 1) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "AddSequenceMeta.CheckResult.ConfigurationRowDistributed",
+                    configurationTransform),
+                transformMeta));
+      }
+      if (source == null) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "AddSequenceMeta.CheckResult.ConfigurationTransformNotFound",
+                    configurationTransform),
+                transformMeta));
+      } else {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(
+                    PKG,
+                    "AddSequenceMeta.CheckResult.ConfigurationTransformSelected",
+                    configurationTransform),
+                transformMeta));
+      }
+    }
+
+    if (fieldsMissing || info == null || info.isEmpty()) {
+      return;
+    }
+
+    StringBuilder missing = new StringBuilder();
+    appendMissingConfigurationField(missing, info, startField);
+    appendMissingConfigurationField(missing, info, endField);
+    appendMissingConfigurationField(missing, info, incrementField);
+    if (!missing.isEmpty()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "AddSequenceMeta.CheckResult.ConfigurationFieldsNotFound", missing),
+              transformMeta));
+    } else {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.ConfigurationFieldsFound"),
+              transformMeta));
+    }
+  }
+
+  private static void appendMissingConfigurationField(
+      StringBuilder missing, IRowMeta info, String fieldName) {
+    String name = Const.trim(fieldName);
+    if (Utils.isEmpty(name) || info.indexOfValue(name) >= 0) {
+      return;
+    }
+    if (!missing.isEmpty()) {
+      missing.append(", ");
+    }
+    missing.append(name);
+  }
+
+  /**
+   * Verify the database sequence. An unset connection is left to {@code
+   * ReferencedDatabaseConnectionChecker}, which reports it with a code the linter can baseline.
+   */
+  private void checkDatabaseSequence(
+      List<ICheckResult> remarks,
+      TransformMeta transformMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    String resolvedConnection = variables.resolve(connection);
+    if (Utils.isEmpty(resolvedConnection)) {
+      return;
+    }
+
+    Database db = null;
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(resolvedConnection);
+      db = new Database(loggingObject, variables, databaseMeta);
+      db.connect();
+      CheckResult cr;
+      if (db.checkSequenceExists(variables.resolve(schemaName), variables.resolve(sequenceName))) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.SequenceExists.Title"),
+                transformMeta);
+      } else {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "AddSequenceMeta.CheckResult.SequenceCouldNotBeFound.Title", sequenceName),
+                transformMeta);
+      }
+      remarks.add(cr);
+    } catch (HopException e) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title")
+                  + Const.CR
+                  + e.getMessage(),
+              transformMeta));
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
   }
 
   @Override
@@ -231,43 +394,124 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       TransformMeta transformMeta,
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
+    SqlStatement retval = new SqlStatement(transformMeta.getName(), null, null);
+    if (!databaseUsed) {
+      return retval;
+    }
+
     Database db = null;
-    SqlStatement retval = null;
     try {
-      DatabaseMeta databaseMeta =
-          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-      retval = new SqlStatement(transformMeta.getName(), databaseMeta, null);
-      // default: nothing to do!
-      if (databaseUsed) {
-        // Otherwise, don't bother!
-        if (databaseMeta != null) {
-          db = new Database(loggingObject, variables, databaseMeta);
-          db.connect();
-          if (!db.checkSequenceExists(schemaName, sequenceName)) {
-            String crTable =
-                db.getCreateSequenceStatement(sequenceName, startAt, incrementBy, maxValue, true);
-            retval.setSql(crTable);
-          } else {
-            retval.setSql(null); // Empty string means: nothing to do: set it to null...
-          }
+      String resolvedConnection = variables.resolve(connection);
+      DatabaseMeta databaseMeta = null;
+      if (!Utils.isEmpty(resolvedConnection)) {
+        databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(resolvedConnection);
+      }
+      retval.setDatabase(databaseMeta);
+      if (databaseMeta != null) {
+        db = new Database(loggingObject, variables, databaseMeta);
+        db.connect();
+        if (!db.checkSequenceExists(schemaName, sequenceName)) {
+          String crTable =
+              db.getCreateSequenceStatement(sequenceName, startAt, incrementBy, maxValue, true);
+          retval.setSql(crTable);
         } else {
-          retval.setError(
-              BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"));
+          retval.setSql(null); // Empty string means: nothing to do: set it to null...
         }
+      } else {
+        retval.setError(
+            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"));
       }
     } catch (HopException e) {
-      if (retval != null) {
-        retval.setError(
-            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
-                + Const.CR
-                + e.getMessage());
-      }
+      retval.setError(
+          BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
+              + Const.CR
+              + e.getMessage());
     } finally {
       if (db != null) {
-        db.disconnect();
+        db.close();
       }
     }
 
     return retval;
+  }
+
+  /**
+   * Keeps {@link #configurationTransform} in sync when the info hop is drawn, split, or detached.
+   * {@link #searchInfoAndTargetTransforms} resolves the stream from that name.
+   */
+  @Override
+  public void handleStreamSelection(IStream stream) {
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.isEmpty() || stream == null || !infoStreams.contains(stream)) {
+      return;
+    }
+    TransformMeta source = stream.getTransformMeta();
+    if (source == null) {
+      return;
+    }
+    setConfigurationTransform(source.getName());
+    stream.setSubject(source.getName());
+  }
+
+  @Override
+  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.isEmpty()) {
+      return;
+    }
+    IStream stream = infoStreams.get(0);
+    if (!isConfigurationFromTransform()) {
+      stream.setTransformMeta(null);
+      return;
+    }
+    String lookupName = stream.getSubject();
+    if (!Utils.isEmpty(configurationTransform)) {
+      lookupName = configurationTransform;
+      stream.setSubject(configurationTransform);
+    }
+    stream.setTransformMeta(TransformMeta.findTransform(transforms, Const.trim(lookupName)));
+  }
+
+  @Override
+  public void convertIOMetaToTransformNames() {
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.isEmpty()) {
+      return;
+    }
+    String name = infoStreams.get(0).getTransformName();
+    if (!Utils.isEmpty(name)) {
+      configurationTransform = name;
+    }
+  }
+
+  @Override
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
+    if (ioMeta == null) {
+      ioMeta = new TransformIOMeta(true, true, false, false, false, false);
+      ioMeta.addStream(
+          new Stream(
+              StreamType.INFO,
+              null,
+              BaseMessages.getString(PKG, "AddSequenceMeta.InfoStream.Description"),
+              StreamIcon.INFO,
+              configurationTransform));
+      setTransformIOMeta(ioMeta);
+    }
+    return ioMeta;
+  }
+
+  @Override
+  public void resetTransformIoMeta() {
+    // Keep the configuration info stream. Recreating it here drops the transform it points at.
+  }
+
+  /**
+   * The configuration row does not have the same layout as the main input. Skip the safe-mode row
+   * mixing check while that info hop is in use.
+   */
+  @Override
+  public boolean excludeFromRowLayoutVerification() {
+    return isConfigurationFromTransform();
   }
 }

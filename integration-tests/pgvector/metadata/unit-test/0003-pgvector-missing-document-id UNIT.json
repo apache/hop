@@ -1,0 +1,46 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "document_id",
+          "data_set_field": "document_id"
+        },
+        {
+          "transform_field": "chunk_index",
+          "data_set_field": "chunk_index"
+        }
+      ],
+      "field_order": [
+        "document_id",
+        "chunk_index"
+      ],
+      "transform_name": "STORED",
+      "data_set_name": "golden-missing-document-id-stored"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "chunk_index",
+          "data_set_field": "chunk_index"
+        }
+      ],
+      "field_order": [
+        "chunk_index"
+      ],
+      "transform_name": "REJECTED",
+      "data_set_name": "golden-missing-document-id-rejected"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0003-pgvector-missing-document-id UNIT",
+  "description": "A row with no document ID is rejected rather than stored under the key \"null_7\"",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0003-pgvector-missing-document-id.hpl",
+  "test_type": "UNIT_TEST"
+}

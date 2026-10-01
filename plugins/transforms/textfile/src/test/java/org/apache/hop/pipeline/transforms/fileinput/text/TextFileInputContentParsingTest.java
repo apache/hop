@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -138,6 +139,95 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
     process();
 
     check(new Object[][] {{"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third", "3", "3.3"}});
+  }
+
+  /**
+   * Issue #5725: with "Return null for empty values which are not enclosed" a value which is empty
+   * and not enclosed (a;;b) is a null, while an empty enclosed value (a;"";b) is an empty string.
+   */
+  @Test
+  void testNullIfNotEnclosed() throws Exception {
+    meta.getContent().setFileFormat("unix");
+    meta.getContent().setNullIfNotEnclosed(true);
+
+    initByFile("null-if-not-enclosed.csv");
+
+    setFields(
+        new TextFileInputField("id", -1, -1),
+        new TextFileInputField("empty_column", -1, -1),
+        new TextFileInputField("null_column", -1, -1),
+        new TextFileInputField("label", -1, -1));
+
+    process();
+
+    check(
+        new Object[][] {
+          {"1", "", null, "a label"},
+          {"2", null, "", "other"},
+          // A line ending on a separator leaves an empty, non-enclosed last value.
+          {"3", "x", "y", null},
+          {"4", "x", "y", ""}
+        });
+  }
+
+  /**
+   * The scenario from issue #5725: with HOP_EMPTY_STRING_DIFFERS_FROM_NULL every empty value used
+   * to end up as an empty string, so a missing value could never be told apart from an enclosed
+   * empty one. The option has to return the non-enclosed values as null anyway.
+   */
+  @Test
+  void testNullIfNotEnclosedWithEmptyStringDiffersFromNull() throws Exception {
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
+    try {
+      meta.getContent().setFileFormat("unix");
+      meta.getContent().setNullIfNotEnclosed(true);
+
+      initByFile("null-if-not-enclosed.csv");
+
+      setFields(
+          new TextFileInputField("id", -1, -1),
+          new TextFileInputField("empty_column", -1, -1),
+          new TextFileInputField("null_column", -1, -1),
+          new TextFileInputField("label", -1, -1));
+
+      process();
+
+      check(
+          new Object[][] {
+            {"1", "", null, "a label"},
+            {"2", null, "", "other"},
+            {"3", "x", "y", null},
+            {"4", "x", "y", ""}
+          });
+    } finally {
+      System.clearProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL);
+    }
+  }
+
+  /**
+   * Without the option both an empty and an empty enclosed value stay null, as they always were.
+   */
+  @Test
+  void testNullIfNotEnclosedDisabled() throws Exception {
+    meta.getContent().setFileFormat("unix");
+
+    initByFile("null-if-not-enclosed.csv");
+
+    setFields(
+        new TextFileInputField("id", -1, -1),
+        new TextFileInputField("empty_column", -1, -1),
+        new TextFileInputField("null_column", -1, -1),
+        new TextFileInputField("label", -1, -1));
+
+    process();
+
+    check(
+        new Object[][] {
+          {"1", null, null, "a label"},
+          {"2", null, null, "other"},
+          {"3", "x", "y", null},
+          {"4", "x", "y", null}
+        });
   }
 
   @Test

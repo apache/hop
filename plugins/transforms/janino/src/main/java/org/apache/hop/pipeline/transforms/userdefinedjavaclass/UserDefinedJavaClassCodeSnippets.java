@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
@@ -123,12 +124,15 @@ public class UserDefinedJavaClassCodeSnippets {
     List<Node> nodes =
         XmlHandler.getNodes(XmlHandler.getSubNode(doc, "codeSnippets"), "codeSnippet");
     for (Node node : nodes) {
+      String code = XmlHandler.getTagValue(node, "code");
+      // Most snippets are their own best sample, only specify <sample> when it differs.
+      String sample = Const.NVL(XmlHandler.getTagValue(node, "sample"), code);
       Snippet snippet =
           new Snippet(
               Category.valueOf(XmlHandler.getTagValue(node, "category")),
               XmlHandler.getTagValue(node, "name"),
-              XmlHandler.getTagValue(node, "sample"),
-              XmlHandler.getTagValue(node, "code"));
+              sample,
+              code);
       snippets.add(snippet);
       Snippet oldSnippet = snippetsMap.put(snippet.name, snippet);
       if (oldSnippet != null) {

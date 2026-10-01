@@ -117,15 +117,15 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <url>https://example.org/</url>
+    <url>http://${PROXY_ONLY_HOST}/data</url>
     <urlInField>N</urlInField>
     <ignoreSsl>N</ignoreSsl>
     <urlField/>
     <encoding>UTF-8</encoding>
     <httpLogin/>
     <httpPassword>Encrypted </httpPassword>
-    <proxyHost>47.254.153.200</proxyHost>
-    <proxyPort>80</proxyPort>
+    <proxyHost>${PROXY_HOST}</proxyHost>
+    <proxyPort>${PROXY_PORT}</proxyPort>
     <socketTimeout>10000</socketTimeout>
     <connectionTimeout>10000</connectionTimeout>
     <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>

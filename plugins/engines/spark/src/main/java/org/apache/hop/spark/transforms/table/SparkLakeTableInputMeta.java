@@ -108,6 +108,16 @@ public class SparkLakeTableInputMeta
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public String getDialogClassName() {
     return SparkLakeTableInputDialog.class.getName();
   }

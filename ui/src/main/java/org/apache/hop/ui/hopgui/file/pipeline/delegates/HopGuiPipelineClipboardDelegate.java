@@ -64,15 +64,17 @@ public class HopGuiPipelineClipboardDelegate {
     ILogChannel log = hopGui.getLog();
   }
 
-  public void toClipboard(String clipText) {
+  public boolean toClipboard(String clipText) {
     try {
       GuiResource.getInstance().toClipboard(clipText);
+      return true;
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title"),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message"),
           e);
+      return false;
     }
   }
 
@@ -114,8 +116,7 @@ public class HopGuiPipelineClipboardDelegate {
         offset = new Point(-min.x, -min.y);
       }
 
-      // Undo/redo object positions...
-      int[] position = new int[transforms.size()];
+      pipelineGraph.markUndoPoint();
 
       for (int i = 0; i < transforms.size(); i++) {
         Point p = transforms.get(i).getLocation();
@@ -127,7 +128,6 @@ public class HopGuiPipelineClipboardDelegate {
         transformOldNames.add(name);
         transforms.get(i).setName(pipelineMeta.getAlternativeTransformName(name));
         pipelineMeta.addTransform(transforms.get(i));
-        position[i] = pipelineMeta.indexOfTransform(transforms.get(i));
         transforms.get(i).setSelected(true);
       }
 
@@ -182,23 +182,7 @@ public class HopGuiPipelineClipboardDelegate {
         }
       }
 
-      // Save undo information too...
-      hopGui.undoDelegate.addUndoNew(
-          pipelineMeta, transforms.toArray(new TransformMeta[0]), position, false);
-
-      int[] hopPos = new int[hops.size()];
-      for (int i = 0; i < hops.size(); i++) {
-        hopPos[i] = pipelineMeta.indexOfPipelineHop(hops.get(i));
-      }
-      hopGui.undoDelegate.addUndoNew(
-          pipelineMeta, hops.toArray(new PipelineHopMeta[0]), hopPos, true);
-
-      int[] notePos = new int[notes.size()];
-      for (int i = 0; i < notes.size(); i++) {
-        notePos[i] = pipelineMeta.indexOfNote(notes.get(i));
-      }
-      hopGui.undoDelegate.addUndoNew(
-          pipelineMeta, notes.toArray(new NotePadMeta[0]), notePos, true);
+      // Undo was recorded once before adding the pasted objects.
     } catch (HopException e) {
       // See if this was different (non-XML) content
       //
@@ -298,10 +282,10 @@ public class HopGuiPipelineClipboardDelegate {
     location.y = location.y + (int) (5 * PropsUi.getInstance().getZoomFactor());
   }
 
-  public void copySelected(
+  public boolean copySelected(
       PipelineMeta pipelineMeta, List<TransformMeta> transforms, List<NotePadMeta> notes) {
     if (transforms == null || transforms.isEmpty() && notes.isEmpty()) {
-      return;
+      return false;
     }
 
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
@@ -313,9 +297,10 @@ public class HopGuiPipelineClipboardDelegate {
       serializeTransformErrorHandlingToXml(transforms, xml);
       xml.append(XmlHandler.closeTag(XML_TAG_PIPELINE_TRANSFORMS)).append(Const.CR);
 
-      toClipboard(xml.toString());
+      return toClipboard(xml.toString());
     } catch (Exception ex) {
       new ErrorDialog(hopGui.getActiveShell(), "Error", "Error encoding to XML", ex);
+      return false;
     }
   }
 

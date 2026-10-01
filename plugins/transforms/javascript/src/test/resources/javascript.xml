@@ -19,6 +19,7 @@
 
 <transform>
     <optimizationLevel>2</optimizationLevel>
+    <languageVersion>ES6</languageVersion>
     <jsScripts>
         <jsScript>
             <jsScript_type>1</jsScript_type>

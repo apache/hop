@@ -176,6 +176,12 @@ public class StringSearcher {
       for (int j = 0; j < objectArray.length; j++) {
         findMetaData(((Object[]) obj)[j], level + 1, stringList, parentObject, grandParentObject);
       }
+    } else if (obj instanceof Iterable<?> iterable) {
+      for (Object element : iterable) {
+        if (element != null) {
+          stringSearchInObject(element, level, stringList, parentObject, grandParentObject, field);
+        }
+      }
     } else {
       findMetaData(obj, level + 1, stringList, parentObject, grandParentObject);
     }

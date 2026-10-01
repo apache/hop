@@ -151,7 +151,7 @@ public class FilterRowsDialog extends BaseTransformDialog {
           ke);
     }
 
-    wCondition = new ConditionEditor(shell, SWT.BORDER, condition, inputfields);
+    wCondition = new ConditionEditor(shell, SWT.BORDER, condition, inputfields, variables);
 
     FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment(0, 0);

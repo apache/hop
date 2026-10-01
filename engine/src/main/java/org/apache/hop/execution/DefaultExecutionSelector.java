@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 
 public record DefaultExecutionSelector(
@@ -37,6 +38,9 @@ public record DefaultExecutionSelector(
   public static final SimpleDateFormat START_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
   public boolean isSelected(Execution execution) {
+    if (execution == null) {
+      return false;
+    }
     if (isSelectingWorkflows && !execution.getExecutionType().equals(ExecutionType.Workflow)) {
       return false;
     }
@@ -44,11 +48,14 @@ public record DefaultExecutionSelector(
       return false;
     }
     if (isSelectingByUuid()) {
-      return execution.getId().equalsIgnoreCase(filterText);
+      return StringUtils.isNotEmpty(execution.getId())
+          && execution.getId().equalsIgnoreCase(filterText);
     }
     if (StringUtils.isNotEmpty(filterText)) {
-      boolean match = execution.getName().toLowerCase().contains(filterText.toLowerCase());
-      match = match || execution.getId().contains(filterText);
+      String name = Const.NVL(execution.getName(), "");
+      String id = Const.NVL(execution.getId(), "");
+      boolean match = name.toLowerCase().contains(filterText.toLowerCase());
+      match = match || id.contains(filterText);
       if (execution.getExecutionStartDate() != null) {
         String startDateString = START_DATE_FORMAT.format(execution.getExecutionStartDate());
         match = match || startDateString.contains(filterText);
@@ -60,7 +67,8 @@ public record DefaultExecutionSelector(
     if (startDateFilter != null && execution.getExecutionStartDate() != null) {
       return startDateFilter.matches(execution.getExecutionStartDate());
     }
-    return false;
+    // No start date: only accept when there is no time-window constraint (NONE/null).
+    return startDateFilter == null || startDateFilter == LastPeriod.NONE;
   }
 
   public boolean isSelected(ExecutionState executionState) {

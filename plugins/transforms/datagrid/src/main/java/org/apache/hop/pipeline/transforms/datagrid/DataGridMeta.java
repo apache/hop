@@ -58,17 +58,6 @@ public class DataGridMeta extends BaseTransformMeta<DataGrid, DataGridData> {
     dataLines = new ArrayList<>();
   }
 
-  public DataGridMeta(DataGridMeta m) {
-    this();
-    this.dataGridFields = m.dataGridFields;
-    this.dataLines = m.dataLines;
-  }
-
-  @Override
-  public DataGridMeta clone() {
-    return new DataGridMeta(this);
-  }
-
   public List<DataGridDataMeta> getDataLines() {
     return dataLines;
   }
@@ -117,5 +106,15 @@ public class DataGridMeta extends BaseTransformMeta<DataGrid, DataGridData> {
             "Unable to create value of type " + dataGridField.getType(), e);
       }
     }
+  }
+
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
   }
 }

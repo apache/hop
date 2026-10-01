@@ -31,6 +31,8 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.actions.execcql.ExecCql;
 import org.eclipse.swt.SWT;
@@ -40,7 +42,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 public class CassandraConnectionEditor extends MetadataEditor<CassandraConnection> {
 
@@ -48,7 +49,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
   public static final String CONST_ERROR = "Error";
 
   private Composite parent;
-  private Text wName;
+  private TextVar wName;
   private GuiCompositeWidgets widgets;
 
   public CassandraConnectionEditor(
@@ -75,7 +76,9 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);

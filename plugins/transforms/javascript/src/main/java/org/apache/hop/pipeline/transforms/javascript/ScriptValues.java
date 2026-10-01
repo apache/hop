@@ -41,6 +41,7 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 /**
  * Executes a JavaScript on the values in the input stream. Selected calculated values can then be
@@ -97,27 +98,13 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
   }
 
   private void determineUsedFields(IRowMeta row) {
-    int nr = 0;
-    // Count the occurrences of the values.
+    // Collect the fields the script mentions. JavaScript identifiers are case sensitive and
+    // addFieldsToScope() binds each field under its exact name, so the match has to be case
+    // sensitive too -- matching case insensitively here only creates unusable slots.
     // Perhaps we find values in comments, but we take no risk!
     //
+    List<Integer> usedFields = new ArrayList<>();
     for (int i = 0; i < row.size(); i++) {
-      String valueName = row.getValueMeta(i).getName().toUpperCase();
-      if (strTransformScript.toUpperCase().contains(valueName)) {
-        nr++;
-      }
-    }
-
-    // Allocate fields_used
-    data.fieldsUsed = new int[nr];
-
-    nr = 0;
-    // Count the occurrences of the values.
-    // Perhaps we find values in comments, but we take no risk!
-    //
-    for (int i = 0; i < row.size(); i++) {
-      // Values are case-insensitive in JavaScript.
-      //
       String valname = row.getValueMeta(i).getName();
       if (strTransformScript.contains(valname)) {
         if (isDetailed()) {
@@ -125,10 +112,11 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
               BaseMessages.getString(
                   PKG, "ScriptValuesMod.Log.UsedValueName", String.valueOf(i), valname));
         }
-        data.fieldsUsed[nr] = i;
-        nr++;
+        usedFields.add(i);
       }
     }
+
+    data.fieldsUsed = usedFields.stream().mapToInt(i -> i).toArray();
 
     if (isDetailed()) {
       logDetailed(
@@ -183,8 +171,22 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         }
       }
 
-      // set the optimization level
+      // set language version and optimization level
       data.context = ContextFactory.getGlobal().enterContext();
+
+      try {
+        String languageVersionAsString = resolve(meta.getLanguageVersion());
+        ScriptValuesEcmaVersion languageVersion =
+            ScriptValuesEcmaVersion.fromCode(languageVersionAsString);
+        languageVersion.applyTo(data.context);
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ScriptValuesMod.LanguageVersion.Level", languageVersion.getCode()));
+        }
+      } catch (HopException e) {
+        throw new HopTransformException(e.getMessage(), e);
+      }
 
       try {
         String optimizationLevelAsString = resolve(meta.getOptimizationLevel());
@@ -282,12 +284,11 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         if (pipelineStatus != Scriptable.NOT_FOUND) {
           bWithPipelineStat = true;
           if (isDetailed()) {
-            logDetailed(
-                ("pipeline_Status found. Checking pipeline status while script execution."));
+            logDetailed(BaseMessages.getString(PKG, "ScriptValuesMod.Log.PipelineStatusUsed"));
           }
         } else {
           if (isDetailed()) {
-            logDetailed(("No pipeline_Status found. Pipeline status checking not available."));
+            logDetailed(BaseMessages.getString(PKG, "ScriptValuesMod.Log.PipelineStatusNotUsed"));
           }
           bWithPipelineStat = false;
         }
@@ -360,11 +361,11 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         Script startScript = data.context.compileString(strStartScript, "pipeline_Start", 1, null);
         startScript.exec(data.context, data.scope, data.scope);
         if (isDetailed()) {
-          logDetailed(("Start Script found!"));
+          logDetailed(BaseMessages.getString(PKG, "ScriptValuesMod.Log.StartScriptExecuted"));
         }
       } else {
         if (isDetailed()) {
-          logDetailed(("No starting Script found!"));
+          logDetailed(BaseMessages.getString(PKG, "ScriptValuesMod.Log.NoStartScriptDefined"));
         }
       }
     } catch (Exception es) {
@@ -419,6 +420,17 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     ScriptValuesMeta.ScriptField field = meta.getScriptFields().get(i);
     if (!Utils.isEmpty(field.getName())) {
       try {
+        // The script never assigned this field: Rhino hands back its NOT_FOUND sentinel, which
+        // would otherwise be stringified into the row as "...UniqueTag@1234: NOT_FOUND".
+        //
+        if (result == Scriptable.NOT_FOUND || result instanceof Undefined) {
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "ScriptValuesMod.Log.FieldNotSetByScript", field.getName()));
+          }
+          return null;
+        }
         return (result == null)
             ? null
             : JavaScriptUtils.convertFromJs(result, field.getType(), field.getName());
@@ -478,11 +490,11 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
           Script endScript = data.context.compileString(strEndScript, "pipeline_End", 1, null);
           endScript.exec(data.context, data.scope, data.scope);
           if (isDetailed()) {
-            logDetailed(("End Script found!"));
+            logDetailed(BaseMessages.getString(PKG, "ScriptValuesMod.Log.EndScriptExecuted"));
           }
         } else {
           if (isDetailed()) {
-            logDetailed(("No end Script found!"));
+            logDetailed(BaseMessages.getString(PKG, "ScriptValuesMod.Log.NoEndScriptDefined"));
           }
         }
       }
@@ -520,10 +532,13 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     //
     jsScripts.clear();
     meta.getJsScripts().forEach(jsScript -> jsScripts.add(new ScriptValuesScript(jsScript)));
+    boolean transformScriptFound = false;
     for (ScriptValuesScript jsScript : jsScripts) {
       switch (jsScript.getType()) {
         case ScriptValuesScript.TRANSFORM_SCRIPT:
-          strTransformScript = jsScript.getScript();
+          // never null: determineUsedFields() scans this for the incoming field names
+          strTransformScript = Const.NVL(jsScript.getScript(), "");
+          transformScriptFound = true;
           break;
         case ScriptValuesScript.START_SCRIPT:
           strStartScript = jsScript.getScript();
@@ -534,6 +549,15 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         default:
           break;
       }
+    }
+
+    // Without a script marked as the transform script there is nothing to run for the incoming
+    // rows: we would silently pass every row through and leave the output fields unset. That state
+    // can't be produced by the dialog, so it always means the metadata is broken. Fail loudly.
+    //
+    if (!transformScriptFound) {
+      logError(BaseMessages.getString(PKG, "ScriptValuesMod.Log.NoTransformScript"));
+      return false;
     }
     return true;
   }

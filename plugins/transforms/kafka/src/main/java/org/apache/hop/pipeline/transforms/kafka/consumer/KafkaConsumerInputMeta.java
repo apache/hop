@@ -105,6 +105,8 @@ public class KafkaConsumerInputMeta
 
   @HopMetadataProperty private TimestampConsumerField timestampField;
 
+  @HopMetadataProperty private HeadersConsumerField headersField;
+
   @HopMetadataProperty(
       key = "pipelinePath",
       injectionKey = "pipelinePath",
@@ -180,6 +182,12 @@ public class KafkaConsumerInputMeta
   private String maxIdleTimeMs;
 
   @HopMetadataProperty(
+      key = "maxConsumeDurationMs",
+      injectionKey = "MAX_CONSUME_DURATION_MS",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.MAX_CONSUME_DURATION_MS")
+  private String maxConsumeDurationMs;
+
+  @HopMetadataProperty(
       groupKey = "options",
       key = "option",
       injectionGroupKey = "CONFIGURATION_PROPERTIES",
@@ -207,6 +215,7 @@ public class KafkaConsumerInputMeta
     batchSize = "1000";
     batchDuration = "1000";
     maxIdleTimeMs = "500";
+    maxConsumeDurationMs = "0";
     subTransform = "";
     topics = new ArrayList<>();
     options = new ArrayList<>();
@@ -236,31 +245,20 @@ public class KafkaConsumerInputMeta
     timestampField =
         new TimestampConsumerField(
             BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TimestampField"));
+
+    // Left unnamed on purpose: an empty output name keeps the field off the output row, so
+    // pipelines saved before headers existed produce exactly the same row as before.
+    headersField = new HeadersConsumerField("");
   }
 
-  public KafkaConsumerInputMeta(KafkaConsumerInputMeta m) {
-    super(m);
-    this.keyField = new KeyConsumerField(m.keyField);
-    this.messageField = new MessageConsumerField(m.messageField);
-    this.topicField = new TopicConsumerField(m.topicField);
-    this.offsetField = new OffsetConsumerField(m.offsetField);
-    this.partitionField = new PartitionConsumerField(m.partitionField);
-    this.timestampField = new TimestampConsumerField(m.timestampField);
-    this.filename = m.filename;
-    this.executionInformationLocation = m.executionInformationLocation;
-    this.executionDataProfile = m.executionDataProfile;
-    this.batchSize = m.batchSize;
-    this.batchDuration = m.batchDuration;
-    this.subTransform = m.subTransform;
-    this.directBootstrapServers = m.directBootstrapServers;
-    this.topics = new ArrayList<>(m.topics);
-    this.consumerGroup = m.consumerGroup;
-    this.autoCommit = m.autoCommit;
-    this.stopWhenIdle = m.stopWhenIdle;
-    this.maxIdleTimeMs = m.maxIdleTimeMs;
-    this.mappingMetaRetriever = m.mappingMetaRetriever;
-    this.options = new ArrayList<>();
-    m.options.forEach(o -> this.options.add(new KafkaOption(o)));
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
   }
 
   public RowMeta getRowMeta(String origin, IVariables variables) throws HopTransformException {
@@ -271,6 +269,7 @@ public class KafkaConsumerInputMeta
     putFieldOnRowMeta(getPartitionField(), rowMeta, origin, variables);
     putFieldOnRowMeta(getOffsetField(), rowMeta, origin, variables);
     putFieldOnRowMeta(getTimestampField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getHeadersField(), rowMeta, origin, variables);
     return rowMeta;
   }
 
@@ -301,12 +300,8 @@ public class KafkaConsumerInputMeta
             getTopicField(),
             getPartitionField(),
             getOffsetField(),
-            getTimestampField()));
-  }
-
-  @Override
-  public KafkaConsumerInputMeta clone() {
-    return new KafkaConsumerInputMeta(this);
+            getTimestampField(),
+            getHeadersField()));
   }
 
   @Override
@@ -433,6 +428,28 @@ public class KafkaConsumerInputMeta
                 transformMeta));
       }
     }
+
+    String maxConsumeResolved = variables.resolve(Const.NVL(getMaxConsumeDurationMs(), "0"));
+    if (StringUtils.isNotBlank(maxConsumeResolved)) {
+      try {
+        long maxConsume = Long.parseLong(maxConsumeResolved);
+        if (maxConsume < 0) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "KafkaConsumerInputMeta.CheckResult.Negative", "Max consume duration"),
+                  transformMeta));
+        }
+      } catch (NumberFormatException e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Max consume duration"),
+                transformMeta));
+      }
+    }
   }
 
   @Override
@@ -512,6 +529,7 @@ public class KafkaConsumerInputMeta
             case PARTITION -> partitionField;
             case OFFSET -> offsetField;
             case TIMESTAMP -> timestampField;
+            case HEADERS -> headersField;
           };
       field.setKafkaName(name);
       field.setOutputType(type);
@@ -601,6 +619,41 @@ public class KafkaConsumerInputMeta
     }
 
     public TopicConsumerField(String outputName) {
+      this();
+      this.outputName = outputName;
+    }
+  }
+
+  /**
+   * The record headers, rendered as a JSON array of {@code {"name":..,"value":..}} objects.
+   *
+   * <p>A Kafka record carries an ordered list of header pairs and the same name may appear more
+   * than once, which a flat row column cannot represent. An array of objects keeps both the order
+   * and any repeats, so the value round-trips through the Kafka Producer transform unchanged. Leave
+   * the output name empty to keep headers off the row entirely.
+   */
+  @Getter
+  @Setter
+  public static class HeadersConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        key = "outputName",
+        injectionKey = "HEADERS.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.HEADERS.OUTPUT_NAME")
+    protected String outputName;
+
+    public HeadersConsumerField() {
+      super();
+      this.outputName = "";
+      super.outputType = Type.String;
+      super.kafkaName = Name.HEADERS;
+    }
+
+    public HeadersConsumerField(HeadersConsumerField f) {
+      super(f.kafkaName, f.outputName, f.outputType);
+      this.outputName = f.outputName;
+    }
+
+    public HeadersConsumerField(String outputName) {
       this();
       this.outputName = outputName;
     }

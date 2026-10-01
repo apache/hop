@@ -1,0 +1,9 @@
+{
+  "name": "paging-page-number",
+  "pagination_type": "PAGE_NUMBER",
+  "page_param_name": "page",
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

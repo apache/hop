@@ -34,3 +34,5 @@ NOTE: We support variables, but VFS filesystems are only loaded at startup. This
 |Description| Description field for additional information
 |Storage Account Key| The primary or secondary key of the storage account
 |===
+
+**Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.

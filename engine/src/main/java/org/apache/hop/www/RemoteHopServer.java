@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -98,7 +99,7 @@ public class RemoteHopServer {
 
   public static final String PROTOCOL_HTTP = "http";
   public static final String PROTOCOL_HTTPS = "https";
-  private static final Random RANDOM = new Random();
+  private static final Random RANDOM = new SecureRandom();
   private static final String STRING_HOP_SERVER = "Hop Server";
 
   private static final String CONST_NAME = "/?name=";
@@ -270,6 +271,11 @@ public class RemoteHopServer {
 
   // Method is defined as package-protected in order to be accessible by unit tests
   HttpPost buildSendExportMethod(IVariables variables, String type, String load, InputStream is) {
+    return buildSendExportMethod(variables, type, load, is, 0);
+  }
+
+  HttpPost buildSendExportMethod(
+      IVariables variables, String type, String load, InputStream is, int maxConcurrent) {
     String serviceUrl = RegisterPackageServlet.CONTEXT_PATH;
     if (type != null && load != null) {
       serviceUrl +=
@@ -280,7 +286,8 @@ public class RemoteHopServer {
               + "&"
               + RegisterPackageServlet.PARAMETER_LOAD
               + "="
-              + URLEncoder.encode(load, UTF_8);
+              + URLEncoder.encode(load, UTF_8)
+              + HopServerAdmission.querySuffix(maxConcurrent);
     }
 
     String urlString = constructUrl(variables, serviceUrl);
@@ -306,10 +313,16 @@ public class RemoteHopServer {
    */
   public String sendExport(IVariables variables, String filename, String type, String load)
       throws Exception {
+    return sendExport(variables, filename, type, load, 0);
+  }
+
+  public String sendExport(
+      IVariables variables, String filename, String type, String load, int maxConcurrent)
+      throws Exception {
     // Request content will be retrieved directly from the input stream
     try (InputStream is = HopVfs.getInputStream(HopVfs.getFileObject(filename))) {
       // Execute request
-      HttpPost method = buildSendExportMethod(variables, type, load, is);
+      HttpPost method = buildSendExportMethod(variables, type, load, is, maxConcurrent);
       try {
         return executeAuth(variables, method);
       } finally {

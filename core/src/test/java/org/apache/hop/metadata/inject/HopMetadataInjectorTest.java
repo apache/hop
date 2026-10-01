@@ -47,6 +47,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.inject.company.Company;
 import org.apache.hop.metadata.inject.company.Employee;
+import org.apache.hop.metadata.inject.prefix.TwinParent;
 import org.apache.hop.metadata.inject.sample.Field;
 import org.apache.hop.metadata.inject.sample.SampleMeta;
 import org.apache.hop.metadata.inject.sample.SampleType;
@@ -294,6 +295,51 @@ class HopMetadataInjectorTest {
     assertTrue(moreFields.contains("FIELD_LENGTH"));
     assertTrue(moreFields.contains("FIELD_PRECISION"));
     assertTrue(moreFields.contains("FIELD_TRIM_TYPE"));
+  }
+
+  @Test
+  void injectionKeyPrefixDisambiguatesReusedNestedType() throws Exception {
+    TwinParent parent = new TwinParent();
+
+    Map<String, Object> injectionKeyMap = new HashMap<>();
+    injectionKeyMap.put("LEFT_NAME", "west");
+    injectionKeyMap.put("RIGHT_NAME", "east");
+
+    Map<String, RowBuffer> injectionGroupMap = new HashMap<>();
+    RowBuffer leftItems = new RowBuffer();
+    leftItems.setRowMeta(new RowMetaBuilder().addString("LEFT_VALUE").build());
+    leftItems.addRow("l1");
+    leftItems.addRow("l2");
+    injectionGroupMap.put("LEFT_ITEMS", leftItems);
+
+    RowBuffer rightItems = new RowBuffer();
+    rightItems.setRowMeta(new RowMetaBuilder().addString("RIGHT_VALUE").build());
+    rightItems.addRow("r1");
+    injectionGroupMap.put("RIGHT_ITEMS", rightItems);
+
+    HopMetadataInjector.inject(
+        new MemoryMetadataProvider(), parent, injectionKeyMap, injectionGroupMap);
+
+    assertEquals("west", parent.getLeft().getName());
+    assertEquals("east", parent.getRight().getName());
+    assertEquals(2, parent.getLeft().getItems().size());
+    assertEquals("l1", parent.getLeft().getItems().get(0).getValue());
+    assertEquals("l2", parent.getLeft().getItems().get(1).getValue());
+    assertEquals(1, parent.getRight().getItems().size());
+    assertEquals("r1", parent.getRight().getItems().get(0).getValue());
+  }
+
+  @Test
+  void injectionKeyPrefixGroupKeysAreUnique() throws Exception {
+    Map<String, Set<String>> map = HopMetadataInjector.findInjectionGroupKeys(TwinParent.class);
+    assertEquals(2, map.size());
+    assertEquals(Set.of("LEFT_VALUE"), map.get("LEFT_ITEMS"));
+    assertEquals(Set.of("RIGHT_VALUE"), map.get("RIGHT_ITEMS"));
+
+    assertTrue(HopMetadataInjector.isTopLevelInjectionKey(TwinParent.class, "LEFT_NAME"));
+    assertTrue(HopMetadataInjector.isTopLevelInjectionKey(TwinParent.class, "RIGHT_NAME"));
+    assertFalse(HopMetadataInjector.isTopLevelInjectionKey(TwinParent.class, "LEFT_VALUE"));
+    assertFalse(HopMetadataInjector.isTopLevelInjectionKey(TwinParent.class, "NAME"));
   }
 
   @Test

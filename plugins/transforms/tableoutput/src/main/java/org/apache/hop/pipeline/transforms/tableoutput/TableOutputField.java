@@ -39,7 +39,8 @@ public class TableOutputField {
   @HopMetadataProperty(
       key = "stream_name",
       injectionKey = "STREAM_FIELDNAME",
-      injectionKeyDescription = "TableOutputMeta.Injection.FieldStream.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.FieldStream.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String fieldStream;
 
   /** Fields in the table to insert */

@@ -42,6 +42,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -66,13 +67,17 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_SHORT = "    ";
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
-  @HopMetadataProperty(key = "schema")
+  @HopMetadataProperty(
+      key = "schema",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
-  @HopMetadataProperty(key = "table")
+  @HopMetadataProperty(key = "table", hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   @HopMetadataProperty(key = "truncate")
@@ -372,7 +377,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
                   transformMeta);
           remarks.add(cr);
         } finally {
-          db.disconnect();
+          db.close();
         }
       } else {
         CheckResult cr =
@@ -389,7 +394,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
       CheckResult cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.close();
+      }
     }
 
     // See if we have input streams leading to this transform!
@@ -503,7 +510,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
                   BaseMessages.getString(
                       PKG, "SQLFileOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
             } finally {
-              db.disconnect();
+              db.close();
             }
           } else {
             retVal.setError(
@@ -551,7 +558,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
         throw new HopException(
             BaseMessages.getString(PKG, "SQLFileOutputMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(

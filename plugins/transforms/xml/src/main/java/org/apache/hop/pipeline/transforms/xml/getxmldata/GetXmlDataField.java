@@ -213,6 +213,7 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
+  @SuppressWarnings("javabugs:S6466") // the code array is a non-empty constant
   public static String getTrimTypeCode(int i) {
     if (i < 0 || i >= trimTypeCode.length) {
       return trimTypeCode[0];
@@ -228,6 +229,7 @@ public class GetXmlDataField implements Cloneable {
     return ElementOldTypeCode[i];
   }
 
+  @SuppressWarnings("javabugs:S6466") // the desc array is a non-empty constant
   public static String getTrimTypeDesc(int i) {
     if (i < 0 || i >= trimTypeDesc.length) {
       return trimTypeDesc[0];
@@ -235,6 +237,7 @@ public class GetXmlDataField implements Cloneable {
     return trimTypeDesc[i];
   }
 
+  @SuppressWarnings("javabugs:S6466") // the desc array is a non-empty constant
   public static String getElementTypeDesc(int i) {
     if (i < 0 || i >= ElementTypeDesc.length) {
       return ElementTypeDesc[0];
@@ -291,6 +294,7 @@ public class GetXmlDataField implements Cloneable {
     return getResultTypeDesc(getResultTypeByCode(resultType));
   }
 
+  @SuppressWarnings("javabugs:S6466") // the desc array is a non-empty constant
   public static final String getResultTypeDesc(int i) {
     if (i < 0 || i >= ResultTypeDesc.length) {
       return ResultTypeDesc[0];
@@ -312,6 +316,7 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
+  @SuppressWarnings("javabugs:S6466") // the code array is a non-empty constant
   public static final String getResultTypeCode(int i) {
     if (i < 0 || i >= ResultTypeCode.length) {
       return ResultTypeCode[0];

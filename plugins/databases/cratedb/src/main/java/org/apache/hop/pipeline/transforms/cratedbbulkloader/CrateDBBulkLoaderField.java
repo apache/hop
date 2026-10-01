@@ -33,7 +33,8 @@ public class CrateDBBulkLoaderField {
   @HopMetadataProperty(
       key = "stream_name",
       injectionKey = "STREAM_FIELDNAME",
-      injectionKeyDescription = "CrateDBBulkLoader.Inject.FIELDSTREAM")
+      injectionKeyDescription = "CrateDBBulkLoader.Inject.FIELDSTREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String streamField;
 
   @HopMetadataProperty(

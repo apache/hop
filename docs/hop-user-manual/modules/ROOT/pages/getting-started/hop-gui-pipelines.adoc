@@ -17,117 +17,212 @@ under the License.
 [[HopGuiPipelines]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: Getting Started (6/8): Pipelines are one of the two main file types in Hop. Learn how to add transforms and connect them through hops before your run, preview and debug your first pipeline.
+:description: Getting Started (5/9): build, preview and run your first pipeline. You'll create rows, add a sequence number, look at the data before you run anything, and write the result to a file.
 
-= Pipelines
+= Your first pipeline
 
-In xref:getting-started/hop-concepts.adoc[Concepts], we walked through pipelines, transforms and hops.
-Let’s remember:
+== Why and When to Use a Pipeline
 
-* A pipeline consists of a chain of transforms that read, process or write data.
-Transforms are connected by hops.
-Hops have a direction but can't create loops, which effectively makes Pipelines DAGs (Directed Acyclic Graphs).
-* A transform is each basic operation in your pipeline.
-Each transform performs an operation on the data: reads from a source, operates on data in the pipeline or writes to to a target.
-* A hop in a pipeline passes data between transforms.
+In Apache Hop, a **pipeline** is your streaming data worker.
+Whenever your task involves moving, filtering, cleaning, joining, or transforming actual rows of data, you build a pipeline.
+Whether you are extracting millions of records from a database into a data lake, listening to real-time events on an Apache Kafka topic, or cleaning customer addresses from a CSV file, pipelines perform the heavy lifting.
 
-== Create a Pipeline
+Key things to remember before you build:
 
-There are two ways to create a pipeline.
+* **Transforms are the workers**: Each transform on the canvas does one specific job (e.g. generating data, calculating a value, writing to disk).
+* **Parallel streaming**: All transforms in a pipeline start at the same time and run concurrently. Rows stream continuously through in-memory row buffers between transforms.
+* **Automatic back-pressure**: If a downstream transform is slower than an upstream transform, the buffer between them fills up and upstream automatically pauses. This keeps the memory held between transforms bounded, however large the data set.
 
-* click on the **New** option on the Horizontal toolbar and select the Pipeline option.
+TIP: For an architectural deep dive into how pipelines run, row buffers, and execution engines (Local, Remote, Beam, Spark), see the xref:pipeline/pipelines.adoc[Pipelines guide].
 
-image:getting-started/gs-hop-gui-create-pipeline-1.png[]
+Now, let's turn these concepts into a working pipeline on your workstation.
+The example below is deliberately self-contained: it creates data in memory, modifies it, lets you inspect it live with preview, and writes it to a file.
+You will need nothing but your Hop installation — no external databases or network connections required.
 
-* File -> New -> Pipeline ￼
-image:getting-started/gs-hop-gui-create-pipeline-2.png[] +
-image:getting-started/gs-hop-gui-create-pipeline-3.png[]
+== Create a pipeline
 
-Your new pipeline is created.
-You’ll see the dialog below.
+Click *New* in the main toolbar and pick *Pipeline*, or use *File -> New -> Pipeline*.
 
-image:getting-started/gs-hop-gui-create-pipeline-4.png[width=65%]
+image:getting-started/gs-hop-gui-create-pipeline-1.png[The New option in the main toolbar]
 
-== Add and connect Transforms
+You now have an empty pipeline canvas, with the pipeline toolbar above it.
 
-=== Add Transforms
+image:getting-started/gs-hop-gui-create-pipeline-4.png[An empty pipeline canvas]
 
-Now you are ready to add the first transform.
-Click anywhere in the pipeline canvas, the area where you’ll see the image below.
+Save it right away with `CTRL-S` and call it `first-pipeline.hpl`.
+Hop can run a pipeline straight from the editor, but you will need the file on disk in the xref:getting-started/hop-gui-workflows.adoc[next chapter].
 
-image:getting-started/gs-hop-gui-create-pipeline-5.png[]
+== Add the first transform
 
-After clicking you will see the context dialog.
-This is the dialog you'll use every time you need to select transforms to add to your pipeline.
+Click anywhere on the empty canvas.
+The context dialog opens: this is how you add transforms.
 
-image:getting-started/gs-hop-gui-create-pipeline-6.png[]
+image:getting-started/gs-hop-gui-create-pipeline-6.png[The context dialog]
 
-Use the search box in this dialog to find the transforms you need.
-Click or use the arrow keys and hit enter to add a transform to your pipeline.
+Type in the search box to filter, then click or use the arrow keys and *Enter* to add.
 
-For now, add a xref:pipeline/transforms/rowgenerator.adoc[Generate Rows] and a xref:pipeline/transforms/addsequence.adoc[Add Sequence] transform to your pipeline.
+Every pipeline has to start with a xref:pipeline/pipeline-sources.adoc[pipeline source]: a transform that produces rows instead of reading them from an incoming hop.
+Search for `Generate rows` and add it.
 
-image:getting-started/gs-hop-gui-create-pipeline-add-two-transforms.png[]
+TIP: search for `pipeline source` in the context dialog to see all transforms that can start a pipeline.
 
-TIP: check the xref:pipeline/transforms.adoc[full list of transforms].
-There are 186 transforms available in Hop 0.99, but you'll soon get to know the most commonly used ones.
+=== Configure Generate rows
 
-=== Create a Hop
+Double-click the new transform to open its dialog, and set:
 
-There are a number of ways to create a hop:
+[options="header"]
+|===
+|Field|Value
+|Transform name|`generate orders`
+|Limit|`100`
+|===
 
-* **shift-drag**: while holding down the shift key on your keyboard.
-Click on a transform, while holding down your primary mouse button, drag to the second transform.
-Release the primary mouse button and the shift key.
-* **scroll-drag**: scroll-click on a transform , while holding down your mouse’s scroll button, drag to the second transform.
-Release the scroll button.
-* click on a transform in your pipeline to open the context dialog (the dialog you opened in the '**click anywhere**' step).
-Click the 'Create hop' image:getting-started/icons/HOP.svg[Create hop,25px,align="bottom"] button and select the transform you want to create the hop to.
+In the *Fields* table at the bottom, add one row:
 
-image:getting-started/gs-hop-gui-create-pipeline-create-hop.png[]
+[options="header"]
+|===
+|Name|Type|Value
+|`product`|String|`Widget`
+|===
 
-== Run your pipeline
+Click *OK*.
 
-Running a pipeline to see how it performs can be done in one of the following tasks:
+This transform now produces 100 identical rows, each with a single `product` field.
+Identical rows are not very interesting, so let's make them distinct.
 
-* Using the Run icon.
+== Add a second transform and connect it
 
-image:getting-started/gs-hop-gui-run-pipeline-1.png[]
+Click the canvas again, search for `Add sequence` and add it.
 
-* Select Run and click on Start Execution from the toolbar.
+image:getting-started/gs-hop-gui-create-pipeline-add-two-transforms.png[Two transforms on the canvas]
 
-image:getting-started/gs-hop-gui-run-pipeline-2.png[]
+Open it and set:
 
-* Press F8
+[options="header"]
+|===
+|Field|Value
+|Transform name|`number the orders`
+|Name of value|`order_id`
+|Start at value|`1000`
+|Increment by|`1`
+|===
 
-You will see the Run Options dialog.
+Leave *Use counter to calculate sequence* checked.
+That is the default, and it means Hop counts internally instead of asking a database for the next value, so this works without a database connection.
 
-image:getting-started/gs-hop-gui-run-pipeline-3.png[] +
+Now connect the two transforms.
+There are three ways to create a hop:
 
-image:getting-started/gs-hop-gui-run-pipeline-4.png[]
+* **shift-drag**: hold *Shift*, press your primary mouse button on `generate orders`, drag to `number the orders` and release.
+* **scroll-drag**: press the scroll button on `generate orders`, drag to `number the orders` and release.
+* click `generate orders` to open its context dialog and use the *Create hop* image:getting-started/icons/HOP.svg[Create hop,25px,align="bottom"] button.
 
-TIP: a 'local' runtime configuration is created when you first start Hop Gui.
-Check the available xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[runtime configurations] for other engines to run your pipelines on.
+image:getting-started/gs-hop-gui-create-pipeline-create-hop.png[Creating a hop between two transforms]
 
-Make sure your configuration is selected and hit Launch.
+The arrow on the hop shows which way the rows travel.
+Hops in a pipeline cannot form a loop.
 
-You'll see green check marks in the upper right corner of the transforms when a pipeline ran successfully.
+== Look at the data before you run anything
 
-image:getting-started/gs-hop-gui-run-pipeline-5.png[]
+This is the step that makes Hop quick to work with, and it is worth learning before anything else.
 
-After each run, the execution results are displayed in the panel on the bottom of your window.
-The Execution Results contains two tabs:
+Right-click `number the orders` and choose *Preview & debug output*, then click *Quick Launch*.
 
-* transform metrics
-* logging
+Hop runs just enough of the pipeline to fill a preview window, and shows you the actual rows:
 
-The Transform Metrics tab displays metrics per transform.
+[options="header"]
+|===
+|product|order_id
+|Widget|1000
+|Widget|1001
+|Widget|1002
+|===
 
-image:getting-started/gs-hop-gui-run-pipeline-6.png[]
+Two things are worth noticing.
 
-The logging tab displays the log of the pipeline according to the log level chosen on execution.
+`order_id` exists even though no transform "wrote" it to disk: fields are created as rows travel down the pipeline.
+And you got this without configuring an output, a connection or a run configuration.
+Preview early and often - it is much faster than running a whole pipeline to find out that a field is wrong.
 
-image:getting-started/gs-hop-gui-run-pipeline-7.png[]
+TIP: xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline] covers previewing a subset of rows, pausing on a condition, and debugging.
 
-TIP: for more detailed information, check out the xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline] page.
+== Write the result out
 
+A preview is not a result. Let's write the rows to a file.
+
+Click the canvas, search for `Text file output` and add it.
+Create a hop from `number the orders` to the new transform.
+
+Open it and, on the *File* tab, set:
+
+[options="header"]
+|===
+|Field|Value
+|Transform name|`write orders`
+|Filename|`+${java.io.tmpdir}/hop-orders+`
+|Extension|`csv`
+|===
+
+`+${java.io.tmpdir}+` is a xref:fields-parameters-variables.adoc[variable].
+Hop exposes every Java system property as one, so this resolves to your system's temporary folder on any operating system.
+Anywhere Hop accepts a path, it accepts a variable.
+
+Go to the *Fields* tab and click *Get Fields*.
+Hop reads the fields coming in over the hop and fills the table with `product` and `order_id`.
+Click *OK*.
+
+NOTE: *Get Fields* only works when the incoming hop exists and the transforms before it are configured, because Hop asks them what they produce. If the table stays empty, check the hop.
+
+== Run the pipeline
+
+Press *F8*, or click *Run* in the pipeline toolbar.
+
+image:getting-started/gs-hop-gui-run-pipeline-1.png[The Run button in the pipeline toolbar]
+
+The run options dialog opens.
+
+image:getting-started/gs-hop-gui-run-pipeline-3.png[The pipeline run options dialog]
+
+A `local` xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[pipeline run configuration] is created the first time you start Hop Gui.
+Select it and click *Launch*.
+
+Green check marks in the corner of each transform mean the pipeline finished without errors.
+
+image:getting-started/gs-hop-gui-run-pipeline-5.png[A pipeline that ran successfully]
+
+== Read the results
+
+The *Execution Results* panel at the bottom of the window is where you find out what happened.
+
+The *Metrics* tab shows one line per transform, with rows read, written and rejected, and the time each one took.
+`write orders` should show 100 rows written.
+
+image:getting-started/gs-hop-gui-run-pipeline-6.png[The Metrics tab]
+
+The *Logging* tab shows the log for the run, at the log level you picked in the run options dialog.
+When something goes wrong, this is where the reason is.
+
+image:getting-started/gs-hop-gui-run-pipeline-7.png[The logging tab]
+
+Now open `hop-orders.csv` in your temporary folder.
+The log line for `write orders` tells you the full path if you are not sure where that is.
+
+[source,csv]
+----
+product;order_id
+Widget;1000
+Widget;1001
+Widget;1002
+----
+
+That is a complete pipeline: it created data, changed it, and wrote it somewhere you can use it.
+
+== What you learned
+
+* A pipeline starts with a xref:pipeline/pipeline-sources.adoc[source] transform and moves rows along hops.
+* Fields are created and changed as rows travel; you don't declare them up front.
+* *Preview* shows you real rows without running or configuring the whole pipeline.
+* Variables work anywhere Hop accepts a path.
+* *Execution Results* tells you how many rows moved and what went wrong.
+
+Next, we'll build a workflow that runs this pipeline and reacts to whether it worked.

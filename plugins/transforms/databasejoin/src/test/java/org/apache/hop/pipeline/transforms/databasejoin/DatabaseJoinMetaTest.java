@@ -16,27 +16,37 @@
  */
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+/** Unit test for {@link DatabaseJoinMeta} */
 class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
   LoadSaveTester<DatabaseJoinMeta> loadSaveTester;
   Class<DatabaseJoinMeta> testMetaClass = DatabaseJoinMeta.class;
@@ -54,7 +64,15 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
   void setUpLoadSave() throws Exception {
     List<String> attributes =
         Arrays.asList(
-            "sql", "rowLimit", "outerJoin", "replaceVariables", "connection", "parameters");
+            "sql",
+            "sqlFromFile",
+            "rowLimit",
+            "outerJoin",
+            "replaceVariables",
+            "connection",
+            "cached",
+            "cacheSize",
+            "parameters");
 
     Map<String, String> getterMap = new HashMap<>();
 
@@ -88,8 +106,246 @@ class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     loadSaveTester.testSerialization();
   }
 
+  @Test
+  void getEffectiveSqlUsesInlineWhenNoFile() throws Exception {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setSql("SELECT 1");
+    Assertions.assertEquals("SELECT 1", meta.getEffectiveSql(new Variables()));
+  }
+
+  @Test
+  void getEffectiveSqlLoadsFromFile() throws Exception {
+    Path file = Files.createTempFile("databasejoin-", ".sql");
+    try {
+      String sql = "SELECT * FROM lookup WHERE id = ?";
+      Files.writeString(file, sql);
+      DatabaseJoinMeta meta = new DatabaseJoinMeta();
+      meta.setSql("SELECT 1");
+      meta.setSqlFromFile(file.toAbsolutePath().toString());
+      Assertions.assertEquals(sql, meta.getEffectiveSql(new Variables()));
+    } finally {
+      Files.deleteIfExists(file);
+    }
+  }
+
+  @Test
+  void getEffectiveSqlResolvesVariablesInPath() throws Exception {
+    Path file = Files.createTempFile("databasejoin-", ".sql");
+    try {
+      Files.writeString(file, "SELECT 2");
+      DatabaseJoinMeta meta = new DatabaseJoinMeta();
+      meta.setSqlFromFile("${SQL_FILE}");
+      Variables variables = new Variables();
+      variables.setVariable("SQL_FILE", file.toAbsolutePath().toString());
+      Assertions.assertEquals("SELECT 2", meta.getEffectiveSql(variables));
+    } finally {
+      Files.deleteIfExists(file);
+    }
+  }
+
+  @Test
+  void getEffectiveSqlMissingFileThrows() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setSqlFromFile("/this/path/does/not/exist-databasejoin.sql");
+    Assertions.assertThrows(HopException.class, () -> meta.getEffectiveSql(new Variables()));
+  }
+
+  @Test
+  void getEffectiveSqlEmptyFilePathUsesInlineSql() throws Exception {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setSql("SELECT 1");
+    meta.setSqlFromFile("");
+    Assertions.assertEquals("SELECT 1", meta.getEffectiveSql(new Variables()));
+  }
+
+  @Test
+  void setDefaultResetsLookupOptions() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setSql("SELECT 1");
+    meta.setRowLimit(10);
+    meta.setOuterJoin(true);
+    meta.setReplaceVariables(true);
+    ParameterField field = new ParameterField();
+    field.setName("id");
+    meta.getParameters().add(field);
+
+    meta.setDefault();
+
+    Assertions.assertEquals("", meta.getSql());
+    Assertions.assertEquals(0, meta.getRowLimit());
+    Assertions.assertFalse(meta.isOuterJoin());
+    Assertions.assertFalse(meta.isReplaceVariables());
+    Assertions.assertTrue(meta.getParameters().isEmpty());
+  }
+
+  @Test
+  void supportsErrorHandling() {
+    Assertions.assertTrue(new DatabaseJoinMeta().supportsErrorHandling());
+  }
+
+  @Test
+  void getFieldsDoesNothingWhenConnectionIsMissing() throws Exception {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("id"));
+    meta.getFields(row, "join", null, null, new Variables(), null);
+    Assertions.assertEquals(1, row.size());
+    Assertions.assertEquals("id", row.getValueMeta(0).getName());
+  }
+
+  @Test
+  void parseSqlParameterSpecSupportsMixedNamedAndPositionalPlaceholders() {
+    String sql =
+        "SELECT order_id, total FROM orders WHERE customer_id = ?{customer_id} AND status = ?";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(
+        "SELECT order_id, total FROM orders WHERE customer_id = ? AND status = ?",
+        spec.getPreparedSql());
+    Assertions.assertEquals(2, spec.getParameterCount());
+    Assertions.assertEquals(1, spec.getPositionalParameterCount());
+    Assertions.assertEquals("customer_id", spec.getParameterReferences().get(0));
+    Assertions.assertNull(spec.getParameterReferences().get(1));
+  }
+
+  @Test
+  void parseSqlParameterSpecForSqlServerExecUsesJdbcPositionalMarkers() {
+    String sql = "exec usp_WOAvgCycleTimeByOp @OrderNumber = ?{order}, @RouteName = ?{route};";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(
+        "exec usp_WOAvgCycleTimeByOp @OrderNumber = ?, @RouteName = ?;", spec.getPreparedSql());
+    Assertions.assertEquals(List.of("order", "route"), spec.getParameterReferences());
+    Assertions.assertEquals(0, spec.getPositionalParameterCount());
+  }
+
+  @Test
+  void parseSqlParameterSpecIgnoresQuotedCommentedAndJsonbOperatorQuestionMarks() {
+    String sql =
+        "SELECT \"?identifier\" FROM t /* ? block */ WHERE payload ? 'x' -- ? line\nAND route = ?{route} AND status = ?";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(
+        "SELECT \"?identifier\" FROM t /* ? block */ WHERE payload ? 'x' -- ? line\nAND route = ? AND status = ?",
+        spec.getPreparedSql());
+    Assertions.assertEquals(3, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList(null, "route", null), spec.getParameterReferences());
+  }
+
+  @Test
+  void parseSqlParameterSpecIgnoresPostgresDollarQuotedQuestionMarks() {
+    String sql = "SELECT $$ ? $$, $tag$ ?{ignored} $tag$ FROM dual WHERE id = ?";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(sql, spec.getPreparedSql());
+    Assertions.assertEquals(1, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList((String) null), spec.getParameterReferences());
+  }
+
+  @Test
+  void parseSqlParameterSpecCountsPostgresArrayConstructorParameters() {
+    String sql = "SELECT 1 WHERE x = ANY(ARRAY[?]) AND y = ARRAY[?, ?]";
+
+    DatabaseJoinMeta.SqlParameterSpec spec = DatabaseJoinMeta.parseSqlParameterSpec(sql);
+
+    Assertions.assertEquals(sql, spec.getPreparedSql());
+    Assertions.assertEquals(3, spec.getParameterCount());
+    Assertions.assertEquals(Arrays.asList(null, null, null), spec.getParameterReferences());
+  }
+
+  @Test
+  void createQueryParameterRowMetaResolvesNamedAndPositionalOrder() throws Exception {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField positional = new ParameterField();
+    positional.setName("status");
+    positional.setType(IValueMeta.TYPE_STRING);
+    meta.setParameters(List.of(positional));
+
+    IRowMeta source = new RowMeta();
+    source.addValueMeta(new ValueMetaInteger("customer_id"));
+    source.addValueMeta(new ValueMetaString("status"));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec(
+            "SELECT 1 FROM dual WHERE customer_id = ?{customer_id} AND status = ?");
+
+    IRowMeta queryParamMeta = meta.createQueryParameterRowMeta(source, spec);
+    Assertions.assertEquals(2, queryParamMeta.size());
+    Assertions.assertEquals("customer_id", queryParamMeta.getValueMeta(0).getName());
+    Assertions.assertEquals("status", queryParamMeta.getValueMeta(1).getName());
+  }
+
+  @Test
+  void createMetadataLookupParameterRowMetaPrefersIncomingTypeOverDeclaredType() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField field = new ParameterField();
+    field.setName("id");
+    field.setType(IValueMeta.TYPE_STRING);
+    meta.setParameters(List.of(field));
+
+    IRowMeta incoming = new RowMeta();
+    incoming.addValueMeta(new ValueMetaNumber("id"));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec("SELECT 1 FROM dual WHERE id = ?");
+    IRowMeta queryParamMeta = meta.createMetadataLookupParameterRowMeta(spec, incoming);
+
+    Assertions.assertEquals(1, queryParamMeta.size());
+    Assertions.assertEquals(IValueMeta.TYPE_NUMBER, queryParamMeta.getValueMeta(0).getType());
+  }
+
+  @Test
+  void createMetadataLookupParameterRowDataUsesNullValues() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField intField = new ParameterField();
+    intField.setName("order");
+    intField.setType(IValueMeta.TYPE_INTEGER);
+    ParameterField boolField = new ParameterField();
+    boolField.setName("active");
+    boolField.setType(IValueMeta.TYPE_BOOLEAN);
+    ParameterField textField = new ParameterField();
+    textField.setName("route");
+    textField.setType(IValueMeta.TYPE_STRING);
+    meta.setParameters(List.of(intField, boolField, textField));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec(
+            "exec usp_WOAvgCycleTimeByOp @OrderNumber = ?{order}, @Active = ?{active}, @RouteName = ?{route}");
+    IRowMeta queryParamMeta = meta.createMetadataLookupParameterRowMeta(spec);
+    Object[] rowData = meta.createMetadataLookupParameterRowData(queryParamMeta);
+
+    Assertions.assertEquals(3, rowData.length);
+    Assertions.assertNull(rowData[0]);
+    Assertions.assertNull(rowData[1]);
+    Assertions.assertNull(rowData[2]);
+  }
+
+  @Test
+  void getMissingPositionalParameterFieldsChecksDeclaredFieldAndIncomingFieldPresence() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    ParameterField p1 = new ParameterField();
+    p1.setName("id");
+    ParameterField p2 = new ParameterField();
+    p2.setName("missing");
+    meta.setParameters(List.of(p1, p2));
+
+    IRowMeta incoming = new RowMeta();
+    incoming.addValueMeta(new ValueMetaInteger("id"));
+
+    DatabaseJoinMeta.SqlParameterSpec spec =
+        DatabaseJoinMeta.parseSqlParameterSpec(
+            "SELECT 1 FROM dual WHERE id = ? AND status = ? AND route = ?");
+
+    Assertions.assertEquals(
+        Arrays.asList("missing", "#3"),
+        new ArrayList<>(meta.getMissingPositionalParameterFields(incoming, spec)));
+  }
+
   public class ParameterFieldLoadSaveValidator implements IFieldLoadSaveValidator<ParameterField> {
-    final Random rand = new Random();
 
     @Override
     public ParameterField getTestObject() {

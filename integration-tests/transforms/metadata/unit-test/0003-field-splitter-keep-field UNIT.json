@@ -1,0 +1,52 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        },
+        {
+          "transform_field": "sales1",
+          "data_set_field": "sales1"
+        },
+        {
+          "transform_field": "sales2",
+          "data_set_field": "sales2"
+        },
+        {
+          "transform_field": "sales3",
+          "data_set_field": "sales3"
+        },
+        {
+          "transform_field": "sales4",
+          "data_set_field": "sales4"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-field-splitter-keep-field",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0003-field-splitter-keep-field UNIT",
+  "description": "Keep the field to split and append new fields at the end",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0003-field-splitter-keep-field.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -98,7 +98,7 @@ public class GetPreviewTableProgressDialog {
     IRunnableWithProgress op = this::runPreviewWithResources;
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      startCancelWatcherThread(pmd);
+      DatabaseProgressCancelWatcher.startIfDesktop(pmd, () -> db, "Hop-DB-Preview-CancelWatcher");
       pmd.run(true, op);
     } catch (InvocationTargetException e) {
       previewSucceeded = false;
@@ -129,34 +129,6 @@ public class GetPreviewTableProgressDialog {
     } finally {
       db = null;
     }
-  }
-
-  private void startCancelWatcherThread(ProgressMonitorDialog pmd) {
-    Runnable run =
-        () -> {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while (pmd.getShell() == null
-              || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-            try {
-              Thread.sleep(100);
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-              return;
-            }
-          }
-          if (monitor.isCanceled()) {
-            try {
-              if (db != null) {
-                db.cancelQuery();
-              }
-            } catch (Exception e) {
-              // Ignore
-            }
-          }
-        };
-    Thread cancelWatcher = new Thread(run, "Hop-DB-Preview-CancelWatcher");
-    cancelWatcher.setDaemon(true);
-    cancelWatcher.start();
   }
 
   private void openWeb() {

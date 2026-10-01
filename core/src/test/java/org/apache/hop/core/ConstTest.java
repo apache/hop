@@ -90,6 +90,28 @@ class ConstTest {
   }
 
   @Test
+  void testGetRootCauseMessage() {
+    // The deepest cause explains the problem, on a single line.
+    //
+    HopException nested =
+        new HopException(
+            "Error loading the object",
+            new HopException("Unable to find the plugin with id: BeamDirectPipelineEngine"));
+    assertEquals(
+        "Unable to find the plugin with id: BeamDirectPipelineEngine",
+        Const.getRootCauseMessage(nested));
+
+    // Without a cause the error itself is the root cause.
+    //
+    assertEquals(
+        "Something went wrong", Const.getRootCauseMessage(new Exception("Something went wrong")));
+
+    // Without a message we fall back to the class name.
+    //
+    assertEquals("NullPointerException", Const.getRootCauseMessage(new NullPointerException()));
+  }
+
+  @Test
   void testNullToEmpty_NVL() {
     assertEquals(Const.NVL(null, ""), Const.nullToEmpty(null));
     assertEquals(Const.NVL("", ""), Const.nullToEmpty(""));

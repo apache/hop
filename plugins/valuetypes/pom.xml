@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-plugins-valuetypes</artifactId>
@@ -30,5 +30,6 @@
     <name>Hop Plugins Value Types</name>
     <modules>
         <module>uuid</module>
+        <module>vector</module>
     </modules>
 </project>

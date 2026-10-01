@@ -46,6 +46,8 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCode;
@@ -68,6 +70,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.LOOKUP})
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
   private static final Class<?> PKG = DimensionLookupMeta.class;
   public static final String CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM =
@@ -204,33 +207,6 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public DimensionLookupMeta clone() {
-    return new DimensionLookupMeta(this);
-  }
-
-  public DimensionLookupMeta(DimensionLookupMeta m) {
-    this();
-    this.schemaName = m.schemaName;
-    this.tableName = m.tableName;
-    this.connection = m.connection;
-    this.update = m.update;
-    this.fields = new DLFields(m.fields);
-    this.sequenceName = m.sequenceName;
-    this.tkSourceField = m.tkSourceField;
-    this.commitSize = m.commitSize;
-    this.useBatchUpdate = m.useBatchUpdate;
-    this.minYear = m.minYear;
-    this.maxYear = m.maxYear;
-    this.cacheSize = m.cacheSize;
-    this.usingStartDateAlternative = m.usingStartDateAlternative;
-    this.startDateAlternative = m.startDateAlternative;
-    this.startDateFieldName = m.startDateFieldName;
-    this.preloadingCache = m.preloadingCache;
-    this.ignoreZeroLengthValidity = m.ignoreZeroLengthValidity;
-    this.unknownRowCheckDisabled = m.unknownRowCheckDisabled;
   }
 
   @Override
@@ -1425,7 +1401,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     @HopMetadataProperty(
         key = "name",
         injectionKey = "STREAM_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.STREAM_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.STREAM_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
     private String name;
 
     /** Fields in the dimension to update or retrieve */
@@ -1485,13 +1462,15 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     /** Fields used to look up a value in the dimension */
     @HopMetadataProperty(
         injectionKey = "KEY_STREAM_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.KEY_STREAM_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.KEY_STREAM_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
     private String name;
 
     /** Fields in the dimension to use for lookup */
     @HopMetadataProperty(
         injectionKey = "KEY_DATABASE_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.KEY_DATABASE_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.KEY_DATABASE_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
     private String lookup;
 
     public DLKey() {}

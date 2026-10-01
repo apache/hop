@@ -42,6 +42,8 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,6 +55,56 @@ class BaseHttpServletTest {
   void setUp() {
     servlet = new BaseHttpServlet();
     servlet.setLog(mock(ILogChannel.class));
+  }
+
+  @Test
+  void getServletVariablesReadsLiveConfigAfterReplacement() {
+    PipelineMap pipelineMap = new PipelineMap();
+    HopServerConfig config = new HopServerConfig();
+    IVariables first = new Variables();
+    first.setVariable("PROJECT_HOME", "/tmp/project-a");
+    config.setVariables(first);
+    pipelineMap.setHopServerConfig(config);
+
+    servlet.setup(pipelineMap, null);
+    assertEquals("/tmp/project-a", servlet.getServletVariables().getVariable("PROJECT_HOME"));
+
+    IVariables second = new Variables();
+    second.setVariable("PROJECT_HOME", "/tmp/project-b");
+    config.setVariables(second);
+    assertEquals("/tmp/project-b", servlet.getServletVariables().getVariable("PROJECT_HOME"));
+  }
+
+  @Test
+  void copyServletVariablesDoesNotMutateServerSpace() {
+    PipelineMap pipelineMap = new PipelineMap();
+    HopServerConfig config = new HopServerConfig();
+    IVariables serverVars = new Variables();
+    serverVars.setVariable("PROJECT_HOME", "/tmp/project");
+    config.setVariables(serverVars);
+    pipelineMap.setHopServerConfig(config);
+
+    servlet.setup(pipelineMap, null);
+    IVariables copy = servlet.copyServletVariables();
+    copy.setVariable("FOO", "bar");
+
+    assertEquals("/tmp/project", copy.getVariable("PROJECT_HOME"));
+    assertEquals("bar", copy.getVariable("FOO"));
+    assertNull(config.getVariables().getVariable("FOO"));
+    assertEquals("/tmp/project", config.getVariables().getVariable("PROJECT_HOME"));
+  }
+
+  @Test
+  void getServerConfigPrefersPipelineMapOverField() {
+    HopServerConfig fieldConfig = new HopServerConfig();
+    servlet.setServerConfig(fieldConfig);
+
+    PipelineMap pipelineMap = new PipelineMap();
+    HopServerConfig mapConfig = new HopServerConfig();
+    pipelineMap.setHopServerConfig(mapConfig);
+    servlet.setPipelineMap(pipelineMap);
+
+    assertEquals(mapConfig, servlet.getServerConfig());
   }
 
   @Test
@@ -164,5 +216,38 @@ class BaseHttpServletTest {
     PrintWriter pw = new PrintWriter(new StringWriter());
     when(response.getWriter()).thenReturn(pw);
     assertNotNull(servlet.getSafeWriter(response));
+  }
+
+  private String staticPathFor(String requestUri, String contextPath) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn(requestUri);
+    return servlet.getStaticPath(request, contextPath);
+  }
+
+  @Test
+  void getStaticPathIsRootBasedForARootDeployment() {
+    assertEquals("/static", staticPathFor("/hop-server/status", "/hop-server/status"));
+  }
+
+  @Test
+  void getStaticPathKeepsTheDeploymentPrefix() {
+    assertEquals(
+        "/hop/ui/static", staticPathFor("/hop/ui/hop-server/status", "/hop-server/status"));
+  }
+
+  @Test
+  void getStaticPathHandlesAMissingRequestUri() {
+    assertEquals("/static", staticPathFor(null, "/hop-server/status"));
+  }
+
+  @Test
+  void getStaticPathDropsAPrefixThatIsNotAPlainPath() {
+    // The request URI is client controlled: a prefix that could break out of an HTML attribute
+    // must never make it into the response.
+    assertEquals(
+        "/static",
+        staticPathFor("/\"><script>alert(1)</script>/hop-server/status", "/hop-server/status"));
+    assertEquals("/static", staticPathFor("/a b/hop-server/status", "/hop-server/status"));
+    assertEquals("/static", staticPathFor("/a'x/hop-server/status", "/hop-server/status"));
   }
 }

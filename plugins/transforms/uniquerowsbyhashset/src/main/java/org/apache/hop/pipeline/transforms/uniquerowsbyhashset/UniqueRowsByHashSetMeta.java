@@ -40,7 +40,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::UniqueRowsByHashSet.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::UniqueRowsByHashSetMeta.keyword",
-    documentationUrl = "/pipeline/transforms/uniquerowsbyhashset.html")
+    documentationUrl = "/pipeline/transforms/uniquerowsbyhashset.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 @Getter
 @Setter
 public class UniqueRowsByHashSetMeta
@@ -106,19 +108,6 @@ public class UniqueRowsByHashSetMeta
     rejectDuplicateRow = false;
     errorDescription = null;
     storeValues = true;
-  }
-
-  public UniqueRowsByHashSetMeta(UniqueRowsByHashSetMeta m) {
-    this();
-    this.storeValues = m.storeValues;
-    this.rejectDuplicateRow = m.rejectDuplicateRow;
-    this.errorDescription = m.errorDescription;
-    m.compareFields.forEach(f -> this.compareFields.add(new CompareField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new UniqueRowsByHashSetMeta(this);
   }
 
   @Override

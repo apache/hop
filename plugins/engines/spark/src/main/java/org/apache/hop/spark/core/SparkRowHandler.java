@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowHandler;
 import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.IRowToListener;
 
 /**
  * Non-blocking row I/O for single-threaded mini-pipelines on Spark executors (same idea as Beam's
@@ -105,9 +106,10 @@ public class SparkRowHandler implements IRowHandler {
   @Override
   public void putRowTo(IRowMeta rowMeta, Object[] row, IRowSet rowSet)
       throws HopTransformException {
-    List<IRowListener> rowListeners = transform.getRowListeners();
-    for (IRowListener listener : rowListeners) {
-      listener.rowWrittenEvent(rowMeta, row);
+    // Destination-aware listeners (not IRowListener — mixed layouts need the target rowset)
+    List<IRowToListener> rowToListeners = transform.getRowToListeners();
+    for (IRowToListener listener : rowToListeners) {
+      listener.rowWrittenTo(rowMeta, row, rowSet);
     }
     rowSet.putRow(rowMeta, row);
     transform.incrementLinesWritten();

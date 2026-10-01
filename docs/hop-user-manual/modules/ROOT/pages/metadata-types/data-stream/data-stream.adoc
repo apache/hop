@@ -47,4 +47,4 @@ See also:
 
 . Create a new **Data Stream** in the Metadata perspective
 . Choose the desired implementation
-. Use **Data Stream Output** or **Data Stream Input** transforms in your pipelines and select the stream by name
+. Use **Data stream output** or **Data stream input** transforms in your pipelines and select the stream by name

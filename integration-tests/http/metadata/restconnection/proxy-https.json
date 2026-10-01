@@ -1,0 +1,9 @@
+{
+  "name": "proxy-https",
+  "auth_type": "No Auth",
+  "base_url": "https://${HTTPS_HOST}:${HTTPS_PORT}",
+  "test_url": "",
+  "ignoreSsl": true,
+  "proxy_host": "${PROXY_HOST}",
+  "proxy_port": "${PROXY_PORT}"
+}

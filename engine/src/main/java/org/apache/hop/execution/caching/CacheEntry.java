@@ -19,6 +19,7 @@
 package org.apache.hop.execution.caching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.OutputStream;
@@ -52,6 +53,13 @@ public class CacheEntry {
   // The name of the pipeline of workflow
   private String name;
 
+  /**
+   * Root copy of {@link Execution#getProjectId()}. Elastic and OpenSearch filter on this field.
+   * Omitted when empty so 2.19 readers can still open the document.
+   */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private String projectId;
+
   // The creation date of this entry
   //
   private Date creationDate;
@@ -82,6 +90,15 @@ public class CacheEntry {
   // Was content modified and not yet written to disk?
   @JsonIgnore private boolean dirty;
 
+  /**
+   * Local engine is the only writer of this row. Later saves update the small columns and leave the
+   * stored document alone.
+   */
+  @JsonIgnore private boolean singleWriter;
+
+  /** The document with metadata and pipeline XML has been inserted. */
+  @JsonIgnore private boolean heavyDocumentStored;
+
   public CacheEntry() {
     childExecutions = new HashMap<>();
     childExecutionStates = new HashMap<>();
@@ -90,6 +107,41 @@ public class CacheEntry {
     lastWritten = new Date();
     creationDate = new Date();
     dirty = true;
+  }
+
+  /**
+   * Copy a non-empty project id between this entry and its execution before writing JSON. Does not
+   * replace a stored id with an empty one; callers that loaded a previous document should call
+   * {@link #keepStoredProjectId} first.
+   */
+  public void prepareForPersist() {
+    if (execution == null) {
+      return;
+    }
+    if (StringUtils.isEmpty(projectId)) {
+      projectId = StringUtils.trimToNull(execution.getProjectId());
+    } else if (StringUtils.isEmpty(execution.getProjectId())) {
+      execution.setProjectId(projectId);
+    }
+  }
+
+  /**
+   * Keep a project id already stored on disk or in the database when this in-memory entry has none.
+   * A later update from a process that has no {@code HOP_PROJECT_ID} must not wipe it.
+   */
+  public void keepStoredProjectId(CacheEntry stored) {
+    if (stored == null) {
+      return;
+    }
+    if (StringUtils.isEmpty(projectId) && StringUtils.isNotEmpty(stored.getProjectId())) {
+      projectId = stored.getProjectId();
+    }
+    if (execution != null
+        && stored.getExecution() != null
+        && StringUtils.isEmpty(execution.getProjectId())
+        && StringUtils.isNotEmpty(stored.getExecution().getProjectId())) {
+      execution.setProjectId(stored.getExecution().getProjectId());
+    }
   }
 
   /**
@@ -129,7 +181,7 @@ public class CacheEntry {
         targetFileObject.delete();
       }
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
-      fileObject.moveTo(targetFileObject);
+      HopVfs.moveFile(fileObject, targetFileObject);
     } catch (Exception e) {
       throw new HopException(
           "Error renaming execution information to file '" + targetFilename + "'", e);
@@ -194,6 +246,11 @@ public class CacheEntry {
     return executionState;
   }
 
+  /** Read the state without counting as a cache hit. Lookup scans must not keep an entry warm. */
+  ExecutionState peekExecutionState() {
+    return executionState;
+  }
+
   public void addChildExecution(Execution childExecution) {
     childExecutions.put(childExecution.getId(), childExecution);
     flagDirty();
@@ -216,12 +273,24 @@ public class CacheEntry {
     }
   }
 
+  void markRead() {
+    flagRead();
+  }
+
   private void flagRead() {
     lastRead = new Date();
   }
 
   public Execution getChildExecution(String id) {
     flagRead();
+    return childExecutions.get(id);
+  }
+
+  /** Read a child without counting as a cache hit. */
+  Execution peekChildExecution(String id) {
+    if (childExecutions == null) {
+      return null;
+    }
     return childExecutions.get(id);
   }
 
@@ -265,10 +334,14 @@ public class CacheEntry {
    * @return true if this entry is too old.
    */
   public boolean isTooOld(int maxAge) {
-    if (lastRead != null && System.currentTimeMillis() - lastRead.getTime() > maxAge) {
-      return true;
+    long lastActivity = creationDate != null ? creationDate.getTime() : 0L;
+    if (lastWritten != null) {
+      lastActivity = Math.max(lastActivity, lastWritten.getTime());
     }
-    return lastWritten != null && System.currentTimeMillis() - lastWritten.getTime() > maxAge;
+    if (lastRead != null) {
+      lastActivity = Math.max(lastActivity, lastRead.getTime());
+    }
+    return (System.currentTimeMillis() - lastActivity) > maxAge;
   }
 
   /**

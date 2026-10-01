@@ -73,7 +73,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
 
       // See if a main transform is supplied: in that case move the corresponding rowset to position
       // 0
-      swapFirstInputRowSetIfExists(meta.getMainTransformName());
+      moveInputRowSetToFront(meta.getMainTransformName());
 
       List<IRowSet> inputRowSets = getInputRowSets();
       int rowSetsSize = inputRowSets.size();
@@ -133,7 +133,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
     if (filenr == 0) {
       // Rowset 0:
       IRowSet rowSet = getFirstInputRowSet();
-      rowData = getRowFrom(rowSet);
+      rowData = readRow(rowSet);
       if (rowData != null) {
         data.fileRowMeta[0] = rowSet.getRowMeta();
       }
@@ -262,15 +262,23 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       initialize();
     }
 
-    if (data.caching) {
+    // Like the lookup rows of a Stream Lookup: read all the rows of the other input streams first.
+    //
+    while (data.caching) {
       if (!cacheInputRow()) {
         return false;
       }
-    } else {
+    }
+
+    // Read one row of the main stream and write all its combinations with the other streams.
+    // We're back at the main stream (filenr 0) once they are all written.
+    //
+    do {
       if (!outputRow()) {
         return false;
       }
-    }
+    } while (data.filenr != 0 && !isStopped());
+
     return true;
   }
 
@@ -287,12 +295,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       // Before we exit we need to make sure the 100 rows in the other streams are consumed
       // though...
       //
-      while (getRow() != null) {
-        // Consume
-        if (isStopped()) {
-          break;
-        }
-      }
+      consumeRemainingInput();
 
       setOutputDone();
       return false;
@@ -381,7 +384,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
 
     // Read a line from the appropriate rowset...
     IRowSet rowSet = data.rs[data.filenr];
-    Object[] rowData = getRowFrom(rowSet);
+    Object[] rowData = readRow(rowSet);
     if (rowData != null) {
       // We read a row from one of the input streams...
 
@@ -462,6 +465,56 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
     return outputRowMeta;
   }
 
+  /**
+   * Move the row set of the given transform to position 0, and keep the other row sets in hop
+   * order. That's the order in which {@link JoinRowsMeta#getFields} lists their fields. Swapping it
+   * with position 0 would mix up the fields of the other streams when there are more than two.
+   */
+  private void moveInputRowSetToFront(String transformName) {
+    List<IRowSet> rowSets = getInputRowSets();
+    for (int i = 1; i < rowSets.size(); i++) {
+      if (rowSets.get(i).getOriginTransformName().equalsIgnoreCase(transformName)) {
+        rowSets.add(0, rowSets.remove(i));
+        setInputRowSets(rowSets);
+        return;
+      }
+    }
+  }
+
+  /**
+   * Read a row from one of the input row sets. The single threaded executor runs the previous
+   * transforms first, so the rows waiting on the input row sets are all there is. It doesn't flag
+   * those row sets as done though: an empty row set marks the end of that input, reading on would
+   * wait forever.
+   */
+  private Object[] readRow(IRowSet rowSet) throws HopException {
+    if (isSingleThreaded() && rowSet.size() == 0) {
+      return null;
+    }
+    return getRowFrom(rowSet);
+  }
+
+  private void consumeRemainingInput() throws HopException {
+    if (isSingleThreaded()) {
+      for (IRowSet rowSet : new ArrayList<>(getInputRowSets())) {
+        while (!isStopped() && readRow(rowSet) != null) {
+          // Consume
+        }
+      }
+    } else {
+      while (getRow() != null) {
+        // Consume
+        if (isStopped()) {
+          break;
+        }
+      }
+    }
+  }
+
+  private boolean isSingleThreaded() {
+    return getPipeline().getPipelineType() == PipelineMeta.PipelineType.SingleThreaded;
+  }
+
   @Override
   public void dispose() {
 
@@ -475,27 +528,5 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
     }
 
     super.dispose();
-  }
-
-  @Override
-  public void batchComplete() throws HopException {
-    IRowSet rowSet = getFirstInputRowSet();
-    int repeats = 0;
-    for (int i = 0; i < data.cache.length; i++) {
-      if (repeats == 0) {
-        repeats = 1;
-      }
-      if (data.cache[i] != null) {
-        repeats *= data.cache[i].size();
-      }
-    }
-    while (rowSet.size() > 0 && !isStopped()) {
-      init();
-    }
-    // The last row needs to be written too to the account of the number of input rows.
-    //
-    for (int i = 0; i < repeats; i++) {
-      init();
-    }
   }
 }

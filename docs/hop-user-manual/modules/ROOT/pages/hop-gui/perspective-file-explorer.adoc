@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
+:page-aliases: hop-gui/perspective-data-orchestration.adoc
 
 = File Explorer Perspective
 
@@ -24,14 +25,31 @@ Keyboard shortcut: `CTRL-Shift-E`
 
 == Description
 
-The file explorer perspective is where you'll perform a lot of your file operation.
+The File Explorer perspective is where you'll spend most of your time in Hop Gui.
+This is where xref:pipeline/pipelines.adoc[pipelines] and xref:workflow/workflows.adoc[workflows] are built, tested and run, and where you'll perform most of your file operations.
+
+The project tree on the left shows the files in your project.
+Files you open appear as tabs in the editor area next to the tree.
 This perspective contains handlers for the most common file types known to Hop.
 These are obviously hwf (workflows) and hpl (pipelines), but also JSON, CSV, TXT, XML, Markdown, SVG, Log and SAS 7 BDAT files.
 The File Explorer perspective is also where you'll manage version control for your projects through xref:hop-gui/hop-gui-git.adoc[Git integration].
 
+NOTE: Older Hop versions had a separate Data Orchestration perspective for editing pipelines and workflows. It has been merged into the File Explorer perspective.
+Its `CTRL-Shift-D` shortcut now opens the xref:hop-gui/perspective-database.adoc[Database perspective]; pipeline and workflow editing stays on `CTRL-Shift-E`.
+
 TIP: Even though fully functional, the editor for most file types in the File Explorer is rather basic.
 Expect these to evolve in the next Hop releases, or check the http://hop.apache.org/community/contribution-guides/code-contribution-guide/[code contribution guide] if you'd like to help us improve Hop by contributing file editors.
 
+
+== Editing pipelines and workflows
+
+Open or create a pipeline or workflow and it appears in a new tab in the editor area, with its own graph toolbar above the canvas.
+
+An optional Spoon-style palette tree of transforms or actions can be shown on the left of the canvas with the palette button on the graph toolbar (hidden by default). See xref:hop-gui/hop-gui-popup-dialog.adoc#palette-tree[the palette tree] in the popup dialog page.
+
+For more information on how to get started with pipelines, see the xref:getting-started/hop-gui-pipelines.adoc[Pipelines getting started guide].
+
+For more information on how to get started with workflows, see the xref:getting-started/hop-gui-workflows.adoc[Workflows getting started guide].
 
 == File operations
 
@@ -39,14 +57,16 @@ The file operations are available through a number of toolbar options:
 
 image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar items]
 
-* Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. If this is a workflow or pipeline it will be opened in the xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestation] perspective. In all other cases the file will be opened in a new tab.
-* Create folder: Add a new folder.
+* Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. The file is opened in a new tab in the editor area; pipelines and workflows open in their graph editor. Select multiple files with `Ctrl` (`Cmd` on macOS) or `Shift` to open them all at once.
+* Create folder: Add a new folder. This works on a single selected folder.
 * Expand all folders: Display all nested folders in the directory tree.
 * Collapse all folders: Hide all nested folders in the directory tree.
-* Delete: Remove a selected file or folder.
-* Rename: Rename a file or folder.
+* Delete: Remove a selected file or folder. Only one file or folder at a time.
+* Rename: Rename a file or folder. Only one file or folder at a time.
 * Refresh: Refresh the file list.
 * Show or hide files: Show or hide files or directories.
+
+New pipelines, workflows and files are created from the file explorer's right-click menu rather than the toolbar; see the "Right-click menu options" section below.
 
 == Toggling the File Explorer Panel
 
@@ -64,6 +84,9 @@ The File Explorer perspective can be configured through the xref:hop-gui/perspec
 * **The initial depth to load not lazily**: Controls how many folder levels are loaded immediately when opening folders in the file explorer tree.
 * **The maximum file size to load**: Sets the maximum file size (in MB) that will be loaded when opening files in the explorer.
 * **Show file explorer panel by default**: When enabled, the file explorer panel (project tree) is shown by default when opening the explorer perspective. When disabled, the panel starts hidden, giving you more workspace for editing files.
+* **Open help pages in**: Where Help buttons and F1 open documentation: the system browser, a tab in this perspective, or a dialog on top of the current window.
++
+image::hop-gui/configuration-perspective-open-help-pages-in.png[Open help pages in,width="90%"]
 
 == Git integration
 
@@ -83,7 +106,7 @@ The "Git Info" icon in the toolbar will be enabled if there is information regar
 
 image::hop-gui/perspective-explorer-git-info-panel.png[Git information shown in a tab]
 
-Below the revision history you can see the revisions of a file.  If you select a revision you'll be able to not only see the text differences between two revisions but also use the "Visual diff" button on the right-hand side of the tab.  If you select the "visual diff" option the GUI will switch to the data orchestration perspective where 2 new tabs will be opened with the pipeline or workflow state before and after the change.
+Below the revision history you can see the revisions of a file.  If you select a revision you'll be able to not only see the text differences between two revisions but also use the "Visual diff" button on the right-hand side of the tab.  If you select the "visual diff" option 2 new tabs will be opened with the pipeline or workflow state before and after the change.
 
 image::hop-gui/perspective-explorer-git-visual-diff-example.png[Git visual diff example]
 
@@ -92,10 +115,13 @@ Small information icons will be added to the various transforms, actions and hop
 === Right-click menu options
 The right-click menu in Apache Hop Git integration offers several useful options to help manage your files and Git operations directly from the interface. Here’s a breakdown of each option:
 
-* Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources.
+* Create pipeline: Create a new, empty pipeline inside the selected folder and open it. Only available when a folder is selected.
+* Create workflow: Create a new, empty workflow inside the selected folder and open it. Only available when a folder is selected.
+* Create file: Create a new, empty file inside the selected folder, choosing its name and file type, and open it. Only available when a folder is selected.
+* Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources. Only available when a folder is selected.
 * Expand all folders: Reveals all nested folders in the project directory tree. Useful for getting a full overview of your project structure without opening folders one by one.
 * Collapse all folders: Closes all expanded folders, showing only the top-level directory. Helps reset the view or reduce visual clutter.
-* Open: Opens the selected file or folder. For workflows and pipelines, it launches them in the Data Orchestration perspective, while other file types will open in a new tab.
+* Open: Opens the selected file or folder. The file opens in a new tab in the editor area; workflows and pipelines open in their graph editor.
 * Rename: Allows you to change the name of the selected file or folder, helping you keep your project files organized and clearly labeled.
 * Copy name: Copies the name of the selected file or folder to your clipboard, making it easy to paste and reference elsewhere.
 * Copy path: Copies the full path of the selected file or folder to your clipboard, useful for quick navigation or sharing the location with others.

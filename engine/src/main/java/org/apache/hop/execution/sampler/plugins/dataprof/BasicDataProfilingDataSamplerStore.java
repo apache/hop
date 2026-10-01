@@ -110,6 +110,13 @@ public class BasicDataProfilingDataSamplerStore
   }
 
   @Override
+  public void clearSamples() {
+    super.clearSamples();
+    // Row buffers grow with the stream. Min, max and counters stay so a long run keeps its profile.
+    profileSamples.clear();
+  }
+
+  @Override
   public Map<String, RowBuffer> getSamples() {
     Map<String, RowBuffer> samples = Collections.synchronizedMap(new HashMap<>());
 

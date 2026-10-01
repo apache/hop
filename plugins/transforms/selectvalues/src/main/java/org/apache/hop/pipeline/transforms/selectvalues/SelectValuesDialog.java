@@ -19,9 +19,7 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 
 import static org.apache.hop.core.row.IValueMeta.storageTypeCodes;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,13 +39,16 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -201,6 +202,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RenameTo"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Length"),
@@ -420,6 +422,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaBase.roundingTypeDesc),
         };
+    colmeta[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colmeta[5].setToolTip(
         BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip"));
     fieldColumns.add(colmeta[0]);
@@ -518,7 +521,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     input.setChanged(changed);
@@ -664,12 +667,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
 
   private String[] getCharsets() {
     if (charsets == null) {
-      Collection<Charset> charsetCol = Charset.availableCharsets().values();
-      charsets = new String[charsetCol.size()];
-      int i = 0;
-      for (Charset charset : charsetCol) {
-        charsets[i++] = charset.displayName();
-      }
+      charsets = ConstUi.getEncodings();
     }
     return charsets;
   }

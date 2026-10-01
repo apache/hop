@@ -69,6 +69,7 @@ public class HttpProtocol {
    * @throws AuthenticationException
    * @throws IOException
    */
+  @SuppressWarnings("java:S2095") // see the comment on httpClient.execute() below
   public String get(String urlAsString, String username, String password)
       throws IOException, AuthenticationException {
 
@@ -80,7 +81,7 @@ public class HttpProtocol {
           HttpClientManager.getInstance().createBuilder();
       clientBuilder.setCredentials(username, password);
       httpClient = clientBuilder.build();
-      HttpHost origin = HttpHost.create(URI.create(urlAsString));
+      HttpHost origin = HttpClientManager.createHttpHost(URI.create(urlAsString));
       HttpClientContext preemptive =
           HttpClientUtil.createPreemptiveBasicAuthentication(
               origin.getHostName(), origin.getPort(), username, password, origin.getSchemeName());
@@ -90,29 +91,31 @@ public class HttpProtocol {
     } else {
       httpClient = HttpClientManager.getInstance().createDefaultClient();
     }
-    ClassicHttpResponse httpResponse =
-        (ClassicHttpResponse) httpClient.execute(getMethod, clientContext);
-    int statusCode = httpResponse.getCode();
-    StringBuilder bodyBuffer = new StringBuilder();
+    // Do NOT close httpClient: it is built on the process-wide shared connection manager in
+    // HttpClientManager, and closing the client shuts that pool down for every other caller.
+    // Closing the response is what releases this request's connection back to the pool.
+    try (ClassicHttpResponse httpResponse =
+        (ClassicHttpResponse) httpClient.execute(getMethod, clientContext)) {
+      int statusCode = httpResponse.getCode();
+      StringBuilder bodyBuffer = new StringBuilder();
 
-    if (statusCode != -1) {
-      if (statusCode != HttpStatus.SC_UNAUTHORIZED) {
-        // the response
-        InputStreamReader inputStreamReader =
-            new InputStreamReader(httpResponse.getEntity().getContent());
-
-        int c;
-        while ((c = inputStreamReader.read()) != -1) {
-          bodyBuffer.append((char) c);
+      if (statusCode != -1) {
+        if (statusCode != HttpStatus.SC_UNAUTHORIZED) {
+          // the response
+          try (InputStreamReader inputStreamReader =
+              new InputStreamReader(httpResponse.getEntity().getContent())) {
+            int c;
+            while ((c = inputStreamReader.read()) != -1) {
+              bodyBuffer.append((char) c);
+            }
+          }
+        } else {
+          throw new AuthenticationException();
         }
-        inputStreamReader.close();
-
-      } else {
-        throw new AuthenticationException();
       }
-    }
 
-    // Display response
-    return bodyBuffer.toString();
+      // Display response
+      return bodyBuffer.toString();
+    }
   }
 }

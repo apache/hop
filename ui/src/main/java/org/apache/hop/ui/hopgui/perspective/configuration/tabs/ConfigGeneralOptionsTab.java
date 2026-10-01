@@ -21,6 +21,7 @@ package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -30,6 +31,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
+import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -58,6 +61,7 @@ public class ConfigGeneralOptionsTab {
   private Text wDefaultPreview;
   private Button wUseCache;
   private Button wOpenLast;
+  private Button wEmbeddedTerminal;
   private Button wReloadFileOnChange;
   private Button wAutoSave;
   private Button wAutoSplit;
@@ -97,6 +101,11 @@ public class ConfigGeneralOptionsTab {
       wDefaultPreview.setText(Integer.toString(props.getDefaultPreviewSize()));
       wUseCache.setSelection(props.useDBCache());
       wOpenLast.setSelection(props.openLastFile());
+      if (wEmbeddedTerminal != null
+          && !wEmbeddedTerminal.isDisposed()
+          && wEmbeddedTerminal.isEnabled()) {
+        wEmbeddedTerminal.setSelection(props.isEmbeddedTerminalEnabled());
+      }
       wReloadFileOnChange.setSelection(props.isReloadingFilesOnChange());
       wAutoSave.setSelection(!props.getAutoSave()); // Inverted logic
       wCopyDistribute.setSelection(props.showCopyOrDistributeWarning());
@@ -221,6 +230,29 @@ public class ConfigGeneralOptionsTab {
             lastControl,
             margin);
     lastControl = wOpenLast;
+
+    // Embedded terminal. Hop Web has no PTY, so the checkbox is omitted there. An exclusion of the
+    // terminal menu forces it off and must not be overwritten when the other options are saved.
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      boolean forcedOff =
+          GuiRegistry.getDisabledGuiElements()
+              .contains(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL);
+      wEmbeddedTerminal =
+          createCheckbox(
+              wGeneralComp,
+              "EnterOptionsDialog.EmbeddedTerminal.Label",
+              forcedOff
+                  ? "EnterOptionsDialog.EmbeddedTerminal.ForcedOff.ToolTip"
+                  : "EnterOptionsDialog.EmbeddedTerminal.ToolTip",
+              !forcedOff && props.isEmbeddedTerminalEnabled(),
+              lastControl,
+              margin);
+      if (forcedOff) {
+        wEmbeddedTerminal.setEnabled(false);
+        wEmbeddedTerminal.setSelection(false);
+      }
+      lastControl = wEmbeddedTerminal;
+    }
 
     // Reload file if changed on filesystem?
     wReloadFileOnChange =
@@ -520,7 +552,7 @@ public class ConfigGeneralOptionsTab {
     expandBar.addListener(
         SWT.Expand,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wGeneralComp.isDisposed() && !sGeneralComp.isDisposed()) {
@@ -532,7 +564,7 @@ public class ConfigGeneralOptionsTab {
     expandBar.addListener(
         SWT.Collapse,
         e ->
-            Display.getDefault()
+            Display.getCurrent()
                 .asyncExec(
                     () -> {
                       if (!wGeneralComp.isDisposed() && !sGeneralComp.isDisposed()) {
@@ -614,44 +646,33 @@ public class ConfigGeneralOptionsTab {
   }
 
   /**
-   * Creates a button with image in front and text label behind it (like checkboxes).
+   * Creates an action button with icon and text together (Reset / Clear).
    *
    * @param parent The parent composite
-   * @param labelKey The message key for the label text
+   * @param labelKey The message key for the button text
    * @param tooltipKey Optional tooltip message key (can be null)
    * @param lastControl The last control to attach to
    * @param margin The margin to use
-   * @return An array containing [Button, Label] controls
+   * @return An array containing the Button
    */
   private Control[] createButton(
       Composite parent, String labelKey, String tooltipKey, Control lastControl, int margin) {
-    // Button with image
     Button button = new Button(parent, SWT.PUSH);
     PropsUi.setLook(button);
+    button.setText(BaseMessages.getString(PKG, labelKey));
 
-    // Try to set image, otherwise use text
-    Image buttonImage = GuiResource.getInstance().getImageResetOption();
+    // Compact icon beside the text (smaller than toolbar SMALL_ICON_SIZE)
+    Image buttonImage = GuiResource.getInstance().getImage("ui/images/reset_option.svg", 12, 12);
     if (buttonImage != null) {
       button.setImage(buttonImage);
-      button.setBackground(GuiResource.getInstance().getColorWhite());
-    } else {
-      button.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Button.Reset"));
     }
 
     if (tooltipKey != null) {
       button.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
     }
 
-    // Calculate proper button height based on image and zoom factor
-    int buttonHeight = (int) (32 * PropsUi.getInstance().getZoomFactor());
-    if (buttonImage != null) {
-      // Ensure button is at least as tall as the image with some padding
-      buttonHeight = Math.max(buttonHeight, buttonImage.getBounds().height + 8);
-    }
-
     FormData fdButton = new FormData();
     fdButton.left = new FormAttachment(0, 0);
-    fdButton.height = buttonHeight;
     if (lastControl != null) {
       fdButton.top = new FormAttachment(lastControl, margin);
     } else {
@@ -659,18 +680,7 @@ public class ConfigGeneralOptionsTab {
     }
     button.setLayoutData(fdButton);
 
-    // Label with text behind the button
-    Label label = new Label(parent, SWT.LEFT);
-    PropsUi.setLook(label);
-    label.setText(BaseMessages.getString(PKG, labelKey));
-
-    FormData fdLabel = new FormData();
-    fdLabel.left = new FormAttachment(button, margin);
-    fdLabel.top = new FormAttachment(button, 0, SWT.CENTER);
-    fdLabel.right = new FormAttachment(100, 0);
-    label.setLayoutData(fdLabel);
-
-    return new Control[] {button, label};
+    return new Control[] {button};
   }
 
   /**
@@ -725,6 +735,15 @@ public class ConfigGeneralOptionsTab {
         Const.toInt(wDefaultPreview.getText(), props.getDefaultPreviewSize()));
     props.setUseDBCache(wUseCache.getSelection());
     props.setOpenLastFile(wOpenLast.getSelection());
+    if (wEmbeddedTerminal != null
+        && !wEmbeddedTerminal.isDisposed()
+        && wEmbeddedTerminal.isEnabled()) {
+      boolean embeddedTerminal = wEmbeddedTerminal.getSelection();
+      if (embeddedTerminal != props.isEmbeddedTerminalEnabled()) {
+        props.setEmbeddedTerminalEnabled(embeddedTerminal);
+        HopGui.getInstance().applyEmbeddedTerminalOption();
+      }
+    }
     props.setReloadingFilesOnChange(wReloadFileOnChange.getSelection());
     props.setAutoSave(
         !wAutoSave

@@ -1,0 +1,4 @@
+case,result
+1-safe-xml-secure-default,Y
+2-xxe-secure-default,N
+3-xxe-external-entities-allowed,Y

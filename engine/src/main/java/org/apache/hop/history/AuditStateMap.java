@@ -51,4 +51,17 @@ public class AuditStateMap {
   public AuditState get(String name) {
     return nameStateMap.get(name);
   }
+
+  /**
+   * Remove the audit state stored under {@code name}.
+   *
+   * @param name The name of the object whose state should be removed
+   * @return the previous state, or {@code null} if there was none
+   */
+  public AuditState remove(String name) {
+    if (nameStateMap == null || name == null) {
+      return null;
+    }
+    return nameStateMap.remove(name);
+  }
 }

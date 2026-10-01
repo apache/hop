@@ -63,16 +63,6 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     this("", "");
   }
 
-  public ActionEval(ActionEval other) {
-    super(other.getName(), other.getDescription(), other.getPluginId());
-    this.script = other.script;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionEval(this);
-  }
-
   public void setScript(String s) {
     script = s;
   }

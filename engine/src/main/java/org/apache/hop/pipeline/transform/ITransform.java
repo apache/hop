@@ -245,6 +245,28 @@ public interface ITransform extends IVariables, IHasLogChannel, IEngineComponent
   List<IRowListener> getRowListeners();
 
   /**
+   * Add a destination-aware row listener for rows written via target hops ({@code putRowTo}).
+   *
+   * @param rowToListener the listener to add
+   */
+  @Override
+  void addRowToListener(IRowToListener rowToListener);
+
+  /**
+   * Remove a destination-aware row listener from this transform.
+   *
+   * @param rowToListener the listener to remove
+   */
+  @Override
+  void removeRowToListener(IRowToListener rowToListener);
+
+  /**
+   * @return a list of the installed destination-aware row listeners
+   */
+  @Override
+  List<IRowToListener> getRowToListeners();
+
+  /**
    * @return The list of active input rowsets for the transform
    */
   List<IRowSet> getInputRowSets();

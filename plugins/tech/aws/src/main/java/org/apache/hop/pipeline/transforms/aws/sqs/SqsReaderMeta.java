@@ -83,6 +83,16 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
     super();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
   /**
    * This method is called every time a new transform is created and should allocate/set the
    * transform configuration to sensible defaults. The values set here will be used by Hop Gui when
@@ -185,22 +195,6 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
 
   public void setTFldMaxMessages(String tFldMaxMessages) {
     this.tFldMaxMessages = tFldMaxMessages;
-  }
-
-  /**
-   * This method is used when a transform is duplicated in Hop Gui. It needs to return a deep copy
-   * of this transform meta object. Be sure to create proper deep copies if the transform
-   * configuration is stored in modifiable objects.
-   *
-   * <p>See org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta.clone() for an example
-   * on creating a deep copy.
-   *
-   * @return a deep copy of this
-   */
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
   }
 
   /**

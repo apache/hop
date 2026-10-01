@@ -358,7 +358,20 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     return true;
   }
 
-  public void setLookup(IRowMeta rowMeta) throws HopDatabaseException {
+  /**
+   * The lookup keys drive the WHERE clause of both the lookup SELECT and the UPDATE. Without a
+   * single key we would generate a statement ending in a dangling WHERE, so fail with a
+   * configuration error instead of letting the database report invalid SQL.
+   */
+  private void verifyLookupKeys() throws HopTransformException {
+    if (meta.getLookupField().getLookupKeys().isEmpty()) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "Update.Exception.NoKeyFields"));
+    }
+  }
+
+  public void setLookup(IRowMeta rowMeta) throws HopException {
+    verifyLookupKeys();
+
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
@@ -437,7 +450,9 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   }
 
   // Lookup certain fields in a table
-  public void prepareUpdate(IRowMeta rowMeta) throws HopDatabaseException {
+  public void prepareUpdate(IRowMeta rowMeta) throws HopException {
+    verifyLookupKeys();
+
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     data.updateParameterRowMeta = new RowMeta();
 

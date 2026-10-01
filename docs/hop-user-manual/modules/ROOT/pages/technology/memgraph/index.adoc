@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /technology/memgraph/
 :language: en_US
 :description: Apache Hop has extensive support for the Neo4j graph database. Memgraph is largely compatible with Neo4j and can use a lot of the Neo4j functionality in Apache Hop.
+:page-marketplace: hop-tech-neo4j
 
 = Memgraph
 

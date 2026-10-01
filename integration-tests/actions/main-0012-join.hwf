@@ -80,7 +80,7 @@ limitations under the License.
       <attributes/>
       <parallel>N</parallel>
       <xloc>176</xloc>
-      <yloc>512</yloc>
+      <yloc>624</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -133,6 +133,30 @@ limitations under the License.
       <yloc>400</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>0012-join-failure-with-intermediate.hwf</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-join-failure-with-intermediate.hwf</filename>
+      <loglevel>Nothing</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>176</xloc>
+      <yloc>512</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -158,6 +182,13 @@ limitations under the License.
     </hop>
     <hop>
       <from>0012-join-failure-with-true.hwf</from>
+      <to>0012-join-failure-with-intermediate.hwf</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0012-join-failure-with-intermediate.hwf</from>
       <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>

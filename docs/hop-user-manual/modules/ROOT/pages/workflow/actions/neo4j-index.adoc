@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Neo4j index action can be used to create or drop indexes on node or relationship properties in a Neo4j Graph
+:page-marketplace: hop-tech-neo4j
 
 = Neo4j index
 

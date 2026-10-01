@@ -26,6 +26,8 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeButtonsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -34,7 +36,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 @GuiPlugin(description = "Editor for Spark catalog metadata")
 public class SparkCatalogEditor extends MetadataEditor<SparkCatalog> {
@@ -43,7 +44,7 @@ public class SparkCatalogEditor extends MetadataEditor<SparkCatalog> {
 
   public static final String GUI_WIDGETS_PARENT_ID = "SparkCatalogEditor-GuiWidgetsParent";
 
-  private Text wName;
+  private TextVar wName;
   private Composite wWidgetsComposite;
   private GuiCompositeWidgets guiCompositeWidgets;
 
@@ -74,7 +75,9 @@ public class SparkCatalogEditor extends MetadataEditor<SparkCatalog> {
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);

@@ -33,7 +33,8 @@ public class RedshiftBulkLoaderField {
   @HopMetadataProperty(
       key = "stream_name",
       injectionKey = "STREAM_FIELDNAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDSTREAM")
+      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDSTREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String streamField;
 
   @HopMetadataProperty(

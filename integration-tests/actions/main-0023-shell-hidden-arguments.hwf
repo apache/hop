@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0023-shell-hidden-arguments</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Issue #4935: hidden Shell arguments are masked as *** in the action log and must not appear as plaintext.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/08/27 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/08/27 12:00:00.000</modified_date>
+  <parameters>
+  </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Log variables with hidden password</name>
+      <description>Run a script that logs visible arguments. The password argument is marked hidden so Hop must mask it in the command log.</description>
+      <type>SHELL</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0023-log-variables.sh</filename>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>N</insertScript>
+      <script/>
+      <arguments>
+        <argument>
+          <value>VisibleUser4935</value>
+          <hidden>N</hidden>
+        </argument>
+        <argument>
+          <value>HiddenSecret4935</value>
+          <hidden>Y</hidden>
+        </argument>
+        <argument>
+          <value>--from-it-4935</value>
+          <hidden>N</hidden>
+        </argument>
+      </arguments>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Command log masks hidden argument</name>
+      <description>The Executing command line must show the visible args with the hidden argument replaced by ***.</description>
+      <type>SIMPLE_EVAL</type>
+      <attributes/>
+      <valuetype>logtext</valuetype>
+      <fieldtype>string</fieldtype>
+      <fieldname/>
+      <variablename/>
+      <mask/>
+      <comparevalue>VisibleUser4935 *** --from-it-4935</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successcondition>contains</successcondition>
+      <successwhenvarset>N</successwhenvarset>
+      <successbooleancondition>true</successbooleancondition>
+      <successnumbercondition>equal</successnumbercondition>
+      <xloc>544</xloc>
+      <yloc>96</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Secret is not in the log</name>
+      <description>The hidden argument value must not appear anywhere in the accumulated action log.</description>
+      <type>SIMPLE_EVAL</type>
+      <attributes/>
+      <valuetype>logtext</valuetype>
+      <fieldtype>string</fieldtype>
+      <fieldname/>
+      <variablename/>
+      <mask/>
+      <comparevalue>HiddenSecret4935</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successcondition>notcontains</successcondition>
+      <successwhenvarset>N</successwhenvarset>
+      <successbooleancondition>true</successbooleancondition>
+      <successnumbercondition>equal</successnumbercondition>
+      <xloc>800</xloc>
+      <yloc>96</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Script logged visible variables</name>
+      <description>The script stdout (which Hop logs) must still contain the non-hidden variables.</description>
+      <type>SIMPLE_EVAL</type>
+      <attributes/>
+      <valuetype>logtext</valuetype>
+      <fieldtype>string</fieldtype>
+      <fieldname/>
+      <variablename/>
+      <mask/>
+      <comparevalue>VISIBLE_USER=VisibleUser4935</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successcondition>contains</successcondition>
+      <successwhenvarset>N</successwhenvarset>
+      <successbooleancondition>true</successbooleancondition>
+      <successnumbercondition>equal</successnumbercondition>
+      <xloc>1056</xloc>
+      <yloc>96</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>1312</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort shell failed</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Shell action failed before the hidden-argument log checks could run</message>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort command not masked</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Shell command log did not contain the masked argument sequence VisibleUser4935 *** --from-it-4935</message>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort secret leaked</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Hidden Shell argument HiddenSecret4935 appeared in the action log</message>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort visible variables missing</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Shell script did not log VISIBLE_USER=VisibleUser4935</message>
+      <parallel>N</parallel>
+      <xloc>1056</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Log variables with hidden password</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Log variables with hidden password</from>
+      <to>Command log masks hidden argument</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log variables with hidden password</from>
+      <to>Abort shell failed</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Command log masks hidden argument</from>
+      <to>Secret is not in the log</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Command log masks hidden argument</from>
+      <to>Abort command not masked</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Secret is not in the log</from>
+      <to>Script logged visible variables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Secret is not in the log</from>
+      <to>Abort secret leaked</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Script logged visible variables</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Script logged visible variables</from>
+      <to>Abort visible variables missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,15 +31,22 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurityConfig;
+import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
+import org.apache.hop.ui.hopgui.explorer.RapExplorerFileService;
+import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
+import org.apache.hop.ui.hopgui.notifications.NotificationService;
+import org.apache.hop.ui.hopgui.perspective.explorer.web.HopWebExplorerFileHelper;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.rap.rwt.client.service.JavaScriptLoader;
 import org.eclipse.rap.rwt.client.service.StartupParameters;
+import org.eclipse.rap.rwt.internal.client.ConnectionMessages;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.rap.rwt.service.UISessionEvent;
 import org.eclipse.rap.rwt.service.UISessionListener;
@@ -49,6 +57,54 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
+
+  /** How long a request may run before the browser shows RAP's wait hint (RAP default: 1000). */
+  static final int WAIT_HINT_TIMEOUT_MS = 1500;
+
+  /**
+   * Shortcuts that must remain active (sent to the server) but must not be cancelled in the
+   * browser, so native text editing still works (e.g. Ctrl+C/V/X in input fields).
+   */
+  private static final Set<String> NATIVE_TEXT_EDITING_SHORTCUTS =
+      Set.of("CTRL+C", "CTRL+V", "CTRL+X");
+
+  /**
+   * Navigation keys used for caret movement and selection in text fields (and tree widgets), both
+   * bare and with SHIFT held down to extend the selection. They may stay in {@code ACTIVE_KEYS} so
+   * the canvas navigation shortcuts still reach the server when focus is on the graph, but must not
+   * be in {@code CANCEL_KEYS} or the browser never moves the caret (see issue #7833).
+   *
+   * <p>Horizontal Ctrl/Alt+Left/Right are the same kind of key (issue #8362): the browser moves by
+   * word (Ctrl on Windows and Linux, Alt/Option on macOS) or extends that selection with Shift.
+   * They stay active so the canvas can still align or distribute when focus is not a text field.
+   * Vertical modifier arrows (align top/bottom, distribute vertically) stay cancelled.
+   */
+  private static final Set<String> NATIVE_TEXT_NAVIGATION_KEYS =
+      Set.of(
+          "ARROW_UP",
+          "ARROW_DOWN",
+          "ARROW_LEFT",
+          "ARROW_RIGHT",
+          "HOME",
+          "END",
+          "PAGE_UP",
+          "PAGE_DOWN",
+          "SHIFT+ARROW_UP",
+          "SHIFT+ARROW_DOWN",
+          "SHIFT+ARROW_LEFT",
+          "SHIFT+ARROW_RIGHT",
+          "SHIFT+HOME",
+          "SHIFT+END",
+          "SHIFT+PAGE_UP",
+          "SHIFT+PAGE_DOWN",
+          "CTRL+ARROW_LEFT",
+          "CTRL+ARROW_RIGHT",
+          "CTRL+SHIFT+ARROW_LEFT",
+          "CTRL+SHIFT+ARROW_RIGHT",
+          "ALT+ARROW_LEFT",
+          "ALT+ARROW_RIGHT",
+          "ALT+SHIFT+ARROW_LEFT",
+          "ALT+SHIFT+ARROW_RIGHT");
 
   /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
   public static final String AUDIT_GROUP_HOP_WEB = "hop-web";
@@ -112,26 +168,68 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     RapClientOsProvider.detectAndStoreClientMac();
     Const.setClientOsProvider(new RapClientOsProvider());
 
+    // Bind RBAC context from servlet Principal (EXTERNAL/Tomcat auth) for this UI session
+    HopSecurityContext securityContext = RapSecurityContextProvider.bindFromCurrentRequest();
+    if (securityContext.isAuthenticated()) {
+      LogChannel.UI.logBasic(
+          "Hop Web security: user ''{0}'' roles={1}",
+          securityContext.getUsername(), securityContext.getRoleIds());
+    } else {
+      HopSecurityConfig.AuthMode mode = resolveAuthMode();
+      if (mode == HopSecurityConfig.AuthMode.NONE) {
+        LogChannel.UI.logDebug("Hop Web security: no authenticated principal (mode NONE)");
+      } else {
+        // A principal-less session in a non-NONE mode is unexpected: log at error level so
+        // EXTERNAL without a container security-constraint is visible instead of failing open.
+        LogChannel.UI.logError(
+            "Hop Web security WARNING: authentication mode is ''{0}'' but this request has no "
+                + "authenticated principal, so the UI is being served unauthenticated. "
+                + "In EXTERNAL mode Hop relies on the servlet container or reverse proxy: add a "
+                + "<security-constraint> covering /* (and a <login-config>) to WEB-INF/web.xml, "
+                + "or switch to BASIC / OAUTH2.",
+            mode.name());
+      }
+    }
+
     ResourceManager resourceManager = RWT.getResourceManager();
     JavaScriptLoader jsLoader = RWT.getClient().getService(JavaScriptLoader.class);
+
+    // RAP dims the whole page (the "wait hint") when a request runs longer than 1 s. Response-time
+    // guidance puts the point where feedback is due at about a second, but a grey-out reads as a
+    // freeze, so give ordinary work another half second before the hint comes up; the theme keeps
+    // the hint itself light (SystemMessage-DisplayOverlay in light-mode.css / dark-mode.css).
+    ConnectionMessages connectionMessages = RWT.getClient().getService(ConnectionMessages.class);
+    if (connectionMessages != null) {
+      connectionMessages.setWaitHintTimeout(WAIT_HINT_TIMEOUT_MS);
+    }
 
     // Load canvas zoom handler and Monaco editor client script
     String jsLocation = resourceManager.getLocation("js/canvas-zoom.js");
     jsLoader.require(jsLocation);
     jsLoader.require(resourceManager.getLocation("js/canvas-svg.js"));
+    jsLoader.require(resourceManager.getLocation("js/context-dialog-svg.js"));
+    jsLoader.require(resourceManager.getLocation("js/log-console.js"));
+    // RAP's GC leaves image onload handlers alive after dispose; see the script.
+    jsLoader.require(resourceManager.getLocation("js/gc-pending-images.js"));
+    // RAP's drag cursor icon would otherwise catch the pointer on a fast move; see the script.
+    jsLoader.require(resourceManager.getLocation("js/dnd-cursor-passthrough.js"));
     jsLoader.require(resourceManager.getLocation("js/monaco-editor.js"));
     // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
     String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
     jsLoader.require(macKeysLocation);
+    // Empty Ctrl/Cmd+C/X copies or cuts the current line. Must run in the key gesture.
+    jsLoader.require(resourceManager.getLocation("js/text-line-clipboard.js"));
+    // Ctrl/Cmd+A selects the field. CANCEL_KEYS would otherwise swallow it (issue #8606).
+    jsLoader.require(resourceManager.getLocation("js/text-select-all.js"));
 
     // Configure keyboard shortcuts for RAP dynamically from annotations
     // ACTIVE_KEYS tells RAP to send these key combinations to the server
     // CANCEL_KEYS prevents the browser from handling these shortcuts
     // Note: CTRL automatically maps to Command key on Mac
     Display display = parent.getDisplay();
-    String[] allShortcuts = buildKeyboardShortcuts();
-    display.setData(RWT.ACTIVE_KEYS, allShortcuts);
-    display.setData(RWT.CANCEL_KEYS, allShortcuts);
+    String[] activeShortcuts = buildKeyboardShortcuts();
+    display.setData(RWT.ACTIVE_KEYS, activeShortcuts);
+    display.setData(RWT.CANCEL_KEYS, buildCancelledKeyboardShortcuts(activeShortcuts));
 
     // Transferring Widget Data for client-side canvas drawing instructions
     WidgetUtil.registerDataKeys("props");
@@ -165,6 +263,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     PropsUi props = PropsUi.getInstance();
     HopGui.getInstance().setProps(props);
     props.clearPersistedDialogPositionsOnStartupIfConfigured();
+    // Expose identity on HopGui for window title / status (session-scoped instance)
+    HopGui.getInstance().setSecurityContext(securityContext);
 
     // When user changes theme in Configuration → GUI options, redirect so the new theme takes
     // effect. Boolean null = "follow system" (run system redirect, don't use dark flag).
@@ -201,7 +301,13 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // URL params were only for initial project/file; clear so they don't affect CLI/run.
     HopGui.getInstance().setCommandLineArguments(new ArrayList<>());
 
+    // Hop Web only delivers background asyncExec updates to the browser while a server
+    // push session is running. Start server push for the session so pipeline/workflow logs,
+    // notifications, and other async UI updates are pushed immediately without stalling.
+    ServerPushSessionFacade.start();
+
     HopWebUrlHelper.setUrlUpdater(new RapHopWebUrlUpdater());
+    HopWebExplorerFileHelper.setService(new RapExplorerFileService());
 
     // Persist open tabs when the session ends (browser close, timeout, etc.).
     // We use the session-cached audit manager so no request is needed.
@@ -211,15 +317,34 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
             new UISessionListener() {
               @Override
               public void beforeDestroy(UISessionEvent event) {
+                // Stop this session's notification polling and let go of its server push channel.
+                // Both are started per session, and nothing else would ever end them: the threads
+                // and the open push connection would otherwise accumulate for as long as the
+                // server runs. Done first, and on its own, so a disposed widget further down
+                // cannot skip it.
+                try {
+                  NotificationService.getInstance().stop();
+                  ServerPushSessionFacade.stop();
+                } catch (Exception e) {
+                  LogChannel.UI.logError(
+                      "Error stopping notifications and server push on session end", e);
+                }
                 try {
                   HopGui hopGui = HopGui.getInstance();
-                  if (hopGui == null || hopGui.auditDelegate == null) {
+                  if (hopGui == null) {
+                    return;
+                  }
+                  // Let go of this session's VFS namespace: it closes once nothing is using it,
+                  // and the sessions still running keep theirs.
+                  hopGui.releaseVfsNamespace();
+                  if (hopGui.auditDelegate == null) {
                     return;
                   }
                   if (hopGui.getShell() != null && hopGui.getShell().isDisposed()) {
                     return;
                   }
                   hopGui.auditDelegate.writeLastOpenFiles();
+                  DrillDownGuiPlugin.cleanupSession(hopGui.getId());
                 } catch (SWTException e) {
                   if (e.code != SWT.ERROR_WIDGET_DISPOSED) {
                     LogChannel.UI.logError("Error persisting open files on session end", e);
@@ -229,6 +354,20 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
                 }
               }
             });
+  }
+
+  /**
+   * The configured Hop Web authentication mode, or {@code NONE} when the security configuration
+   * cannot be read. Used to decide whether an unauthenticated request is expected (mode {@code
+   * NONE}) or a sign that the container security constraint for {@code EXTERNAL} is missing.
+   */
+  private HopSecurityConfig.AuthMode resolveAuthMode() {
+    try {
+      return HopSecurityConfig.load().getAuthMode();
+    } catch (Exception e) {
+      LogChannel.UI.logDebug("Could not read the Hop Web security configuration", e);
+      return HopSecurityConfig.AuthMode.NONE;
+    }
   }
 
   /**
@@ -339,6 +478,26 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     return shortcuts.toArray(new String[0]);
   }
 
+  static String[] buildCancelledKeyboardShortcuts(String[] activeShortcuts) {
+    return Arrays.stream(activeShortcuts)
+        .filter(shortcut -> !NATIVE_TEXT_EDITING_SHORTCUTS.contains(shortcut))
+        .filter(shortcut -> !NATIVE_TEXT_NAVIGATION_KEYS.contains(shortcut))
+        .distinct()
+        .toArray(String[]::new);
+  }
+
+  /**
+   * Whether this shortcut is a plain character - a letter, a digit, punctuation or space - with no
+   * CTRL, ALT, SHIFT or command held down.
+   */
+  private static boolean isUnmodifiedPrintableCharacter(KeyboardShortcut shortcut, int keyCode) {
+    if (shortcut.isAlt() || shortcut.isControl() || shortcut.isCommand() || shortcut.isShift()) {
+      return false;
+    }
+    // Special keys (F1, arrows, HOME, ...) have bit 24 set and type nothing, so they are fine.
+    return keyCode >= 32 && keyCode < 127;
+  }
+
   /**
    * Convert a KeyboardShortcut to RAP format for ACTIVE_KEYS / CANCEL_KEYS. RAP only supports CTRL,
    * ALT, SHIFT (not META), so we use CTRL+ for all command/control shortcuts; on Mac the browser
@@ -347,19 +506,24 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
    * @param shortcut The keyboard shortcut to convert
    * @return RAP format string (e.g., "CTRL+C", "ALT+SHIFT+F1") or null if invalid
    */
-  private String convertToRapFormat(KeyboardShortcut shortcut) {
+  String convertToRapFormat(KeyboardShortcut shortcut) {
     if (shortcut.getKeyCode() == 0) {
       return null;
     }
 
     int keyCode = shortcut.getKeyCode();
-    // Never register unmodified SPACE as a shortcut - it would capture every space key press
-    // and prevent typing space in text fields (see RAP ACTIVE_KEYS behavior).
-    if ((keyCode == ' ' || keyCode == 32)
-        && !shortcut.isAlt()
-        && !shortcut.isControl()
-        && !shortcut.isCommand()
-        && !shortcut.isShift()) {
+    // Never register a shortcut that is a printable character with no modifier held. RAP cancels
+    // the browser's own handling of every key it is told about, so registering one takes that
+    // character away from typing everywhere in Hop Web, whatever has the focus: the bare "z" that
+    // opens a referenced object, and the bare "x" that opens a running execution, made it
+    // impossible to type that letter anywhere. Searching the context dialog for "fuzzy match"
+    // arrived as "fuy match".
+    //
+    // Nothing is lost that a browser could have delivered: the key handler already refuses to act
+    // on an unmodified printable character while a text widget has the focus, so such a shortcut
+    // could only ever have fired on a canvas - and there is no way to tell the browser to cancel
+    // the key in one place and not in another.
+    if (isUnmodifiedPrintableCharacter(shortcut, keyCode)) {
       return null;
     }
 

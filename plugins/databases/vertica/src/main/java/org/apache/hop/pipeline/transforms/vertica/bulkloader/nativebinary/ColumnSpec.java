@@ -166,7 +166,7 @@ public class ColumnSpec {
 
     switch (this.type) {
       case BINARY:
-        inputBinary = valueMeta.getBinaryString(value);
+        inputBinary = valueMeta.getBinary(value);
         length = inputBinary.length;
         this.mainBuffer.put(inputBinary);
         for (int i = 0; i < (this.bytes - length); i++) {
@@ -290,7 +290,7 @@ public class ColumnSpec {
         sizePosition = this.mainBuffer.position();
         this.mainBuffer.putInt(0);
         prevPosition = this.mainBuffer.position();
-        this.mainBuffer.put(valueMeta.getBinaryString(value));
+        this.mainBuffer.put(valueMeta.getBinary(value));
         this.mainBuffer.putInt(sizePosition, this.mainBuffer.position() - prevPosition);
         this.bytes = this.mainBuffer.position() - sizePosition;
         break;

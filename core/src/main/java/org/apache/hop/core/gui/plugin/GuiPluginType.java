@@ -99,6 +99,6 @@ public class GuiPluginType extends BasePluginType<GuiPlugin> {
 
   @Override
   protected String extractClassLoaderGroup(GuiPlugin annotation) {
-    return null;
+    return annotation.classLoaderGroup();
   }
 }

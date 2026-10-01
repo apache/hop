@@ -78,7 +78,12 @@ public class PoiCell implements IKCell {
   @Override
   public Object getValue() {
     try {
-      switch (getType()) {
+      // getType() returns null for cell types this reader does not map
+      KCellType type = getType();
+      if (type == null) {
+        return null;
+      }
+      switch (type) {
         case BOOLEAN_FORMULA, BOOLEAN:
           return cell.getBooleanCellValue();
         case DATE_FORMULA, DATE:

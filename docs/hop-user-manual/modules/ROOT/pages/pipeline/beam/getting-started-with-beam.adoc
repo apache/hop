@@ -19,6 +19,7 @@ under the License.
 :description: Apache Beam is an advanced unified programming model that allows you to implement and run batch and streaming data processing jobs.
 
 :toc:
+:page-marketplace: hop-engines-beam
 
 = Getting started with Apache Beam
 
@@ -155,6 +156,11 @@ The transforms are in general split into a different types described below.
 
 Important to remember is that Beam pipelines try to solve every action in an 'embarrassingly parallel' way. This means that every transform can and usually will run in more than 1 copy.  On large clusters you should expect a lot of copies of the same code to run at any given time.
 
+The number from xref:pipeline/specify-copies.adoc[Specify copies] and a xref:pipeline/partitioning.adoc[partition schema] do not set that parallelism.
+Both are applied only by the local Hop pipeline engine.
+On Beam, including Flink, a numeric copy count is not a thread count.
+The copies field carries the `SINGLE_BEAM` and `BATCH` flags described below.
+
 === Beam specific transforms
 
 There are a number of Beam specific transforms available which only work on the provided Beam pipeline execution engines.
@@ -182,11 +188,17 @@ When using the Beam engines it uses `org.apache.beam.sdk.io.synthetic.SyntheticB
 [#_unsupported_transforms]
 === Unsupported transforms
 
-A few transforms are simply not supported because we haven't found a good way to do this on Beam yet:
+A few transforms are simply not supported because we haven't found a good way to do this on Beam yet.
+They all depend on seeing the rows in a particular order, or on holding state for the whole data set in one place, and a Beam pipeline re-shuffles rows across workers to maximize parallelism.
+Each of these transforms would therefore only ever see the slice of the data one worker happens to hold, and would quietly produce a wrong result, so the Beam engines refuse them with an error instead:
 
-* xref:pipeline/transforms/uniquerows.adoc[Unique Rows]
+* xref:pipeline/transforms/uniquerows.adoc[Unique Rows] : Use the `Memory Group By` instead
+* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/groupby.adoc[Group By] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/sort.adoc[Sort Rows]
+* xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)] : Add the same constant field to both inputs and use a `Merge Join` on that field instead
+
+The Hop GUI knows about this list: when you set the canvas palette filter to a Beam engine these transforms are hidden, and running a pipeline that still contains one is blocked with the reason shown above.
 
 The xref:pipeline/transforms/rowdenormaliser.adoc[Denormaliser] transform works technically correct on Apache Beam in release 1.1.0 and later.
 Even so you need to consider that the aggregation of the key-value pairs in that transform (in the general case) only happens on a sub-set of the rows.
@@ -230,7 +242,7 @@ A better way to deal with this problem is NOT to insist on creating a single fil
 
 |Row batching with non-Beam transforms
 |A lot of target databases like to receive rows in batches of records.
-So if you have a transform like for example `Table Output` or `Neo4j Output` you might see that performance is not that great.
+So if you have a transform like for example `Table Output` or `Neo4j output` you might see that performance is not that great.
 This is because by default the https://beam.apache.org/documentation/runtime/model/[Beam programming model] is designed to stream rows of data through a pipeline in `bundles` and the Hop API only knows about a single record at once.
 For these transforms you can include *`BATCH`* in the number of copies string of a transform click on the transform and select `Number of copies` in the Hop GUI).
 For these flagged transforms you can then specify 2 parameters in your Beam pipeline run configurations.

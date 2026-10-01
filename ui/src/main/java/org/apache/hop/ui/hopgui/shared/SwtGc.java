@@ -19,6 +19,8 @@ package org.apache.hop.ui.hopgui.shared;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
@@ -35,6 +37,7 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -42,8 +45,24 @@ import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.widgets.Display;
 
 public class SwtGc implements IGc {
+
+  /**
+   * Cached {@link SwtUniversalImageSvg} instances used by {@link #drawImage(SvgFile, int, int, int,
+   * int, float, double)}. Without this cache, every canvas paint creates a new universal image (and
+   * its SWT {@link Image} bitmaps) that is never disposed — a severe handle leak on large graphs
+   * (e.g. Data Vault models with many table icons redrawn while dragging).
+   *
+   * <p>Keyed by Device (one Display per Hop Web session), then SVG filename and dark-mode flag. A
+   * process-wide cache would share (and dispose) session-unique SWT images.
+   */
+  private static final Map<Device, Map<String, SwtUniversalImage>> SVG_IMAGE_CACHE_BY_DEVICE =
+      new ConcurrentHashMap<>();
+
+  private static final java.util.Set<Device> SVG_CACHE_DISPOSE_HOOKS =
+      ConcurrentHashMap.newKeySet();
 
   protected Color background;
 
@@ -108,6 +127,15 @@ public class SwtGc implements IGc {
     this.hopDefault = GuiResource.getInstance().getColorHopDefault();
     this.hopTrue = GuiResource.getInstance().getColorHopTrue();
     this.deprecated = GuiResource.getInstance().getColorDeprecated();
+  }
+
+  /**
+   * Underlying SWT graphics context. Callers must not dispose it; ownership stays with the canvas
+   * paint event (or the double-buffer image GC). Useful for painting shared/cached {@link Image}
+   * bitmaps without going through {@link #drawImage(SvgFile, int, int, int, int, float, double)}.
+   */
+  public GC getNativeGc() {
+    return gc;
   }
 
   @Override
@@ -205,6 +233,7 @@ public class SwtGc implements IGc {
       case UNCONDITIONAL_DISABLED -> GuiResource.getInstance().getSwtImageUnconditionalDisabled();
       case BUSY -> GuiResource.getInstance().getSwtImageBusy();
       case WAITING -> GuiResource.getInstance().getSwtImageWaiting();
+      case WARNING -> GuiResource.getInstance().getSwtImageWarning();
       case INJECT -> GuiResource.getInstance().getSwtImageInject();
       case ARROW_DEFAULT -> GuiResource.getInstance().getSwtImageArrowDefault();
       case ARROW_TRUE -> GuiResource.getInstance().getSwtImageArrowTrue();
@@ -326,6 +355,24 @@ public class SwtGc implements IGc {
       case GRAPH:
         gc.setFont(GuiResource.getInstance().getFontGraph());
         break;
+      case GRAPH_BOLD:
+        {
+          // Bold variant of the canvas graph font (same point size as transform/action names)
+          org.eclipse.swt.graphics.Font graph = GuiResource.getInstance().getFontGraph();
+          org.eclipse.swt.graphics.FontData fd = graph.getFontData()[0];
+          org.eclipse.swt.graphics.Font bold =
+              new org.eclipse.swt.graphics.Font(
+                  gc.getDevice(), fd.getName(), fd.getHeight(), fd.getStyle() | SWT.BOLD);
+          int index = fonts.indexOf(bold);
+          if (index < 0) {
+            fonts.add(bold);
+          } else {
+            bold.dispose();
+            bold = fonts.get(index);
+          }
+          gc.setFont(bold);
+        }
+        break;
       case NOTE:
         gc.setFont(GuiResource.getInstance().getFontNote());
         break;
@@ -338,6 +385,19 @@ public class SwtGc implements IGc {
       default:
         break;
     }
+  }
+
+  @Override
+  public int getFontHeight() {
+    org.eclipse.swt.graphics.Font current = gc.getFont();
+    if (current == null || current.isDisposed()) {
+      return -1;
+    }
+    org.eclipse.swt.graphics.FontData[] data = current.getFontData();
+    if (data == null || data.length == 0) {
+      return -1;
+    }
+    return data[0].getHeight();
   }
 
   @Override
@@ -477,10 +537,7 @@ public class SwtGc implements IGc {
       float magnification,
       double angle)
       throws HopException {
-    //
-    SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
-    SwtUniversalImageSvg imageSvg =
-        new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()));
+    SwtUniversalImage imageSvg = getCachedSvgImage(svgFile);
 
     int magnifiedWidth = Math.round(desiredWidth * magnification);
     int magnifiedHeight = Math.round(desiredHeight * magnification);
@@ -500,6 +557,86 @@ public class SwtGc implements IGc {
       Image img = imageSvg.getAsBitmapForSize(gc.getDevice(), magnifiedWidth, magnifiedHeight);
       Rectangle bounds = img.getBounds();
       gc.drawImage(img, 0, 0, bounds.width, bounds.height, x, y, desiredWidth, desiredHeight);
+    }
+  }
+
+  /**
+   * Returns a process-wide cached {@link SwtUniversalImage} for the given SVG file. Callers must
+   * not dispose the returned instance.
+   */
+  private SwtUniversalImage getCachedSvgImage(SvgFile svgFile) throws HopException {
+    SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
+    boolean darkMode = PropsUi.getInstance().isDarkMode();
+    String cacheKey = svgFile.getFilename() + (darkMode ? "|dark" : "|light");
+    Device device = gc.getDevice();
+    ensureSvgImageCacheDisposeHook(device);
+    return SVG_IMAGE_CACHE_BY_DEVICE
+        .computeIfAbsent(device, d -> new ConcurrentHashMap<>())
+        .computeIfAbsent(
+            cacheKey,
+            key -> new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()), false));
+  }
+
+  private static void ensureSvgImageCacheDisposeHook(Device device) {
+    if (!(device instanceof Display display) || !SVG_CACHE_DISPOSE_HOOKS.add(device)) {
+      return;
+    }
+    display.addListener(
+        SWT.Dispose,
+        event -> {
+          SVG_CACHE_DISPOSE_HOOKS.remove(device);
+          Map<String, SwtUniversalImage> cache = SVG_IMAGE_CACHE_BY_DEVICE.remove(device);
+          if (cache == null) {
+            return;
+          }
+          for (SwtUniversalImage image : cache.values()) {
+            try {
+              image.dispose();
+            } catch (Exception ignored) {
+              // best-effort cleanup at display shutdown
+            }
+          }
+        });
+  }
+
+  /** Visible for tests: number of cached SVG images for a Device. */
+  static int cachedSvgCount(Device device) {
+    Map<String, SwtUniversalImage> cache = SVG_IMAGE_CACHE_BY_DEVICE.get(device);
+    return cache == null ? 0 : cache.size();
+  }
+
+  @Override
+  public boolean drawFileImage(String path, int x, int y, int width, int height) {
+    if (path == null || path.isEmpty() || width <= 0 || height <= 0) {
+      return false;
+    }
+    try {
+      if (org.apache.hop.core.gui.markdown.NoteImageSupport.isSvgPath(path)) {
+        drawImage(new SvgFile(path, getClass().getClassLoader()), x, y, width, height, 1.0f, 0);
+        return true;
+      }
+      try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
+        org.eclipse.swt.graphics.ImageData data = new org.eclipse.swt.graphics.ImageData(in);
+        Image img =
+            SwtUniversalImage.createDpiAwareImage(
+                gc.getDevice(),
+                zoom -> {
+                  if (zoom == 100) {
+                    return data;
+                  }
+                  int w = Math.max(1, data.width * zoom / 100);
+                  int h = Math.max(1, data.height * zoom / 100);
+                  return data.scaledTo(w, h);
+                });
+        try {
+          gc.drawImage(img, 0, 0, data.width, data.height, x, y, width, height);
+        } finally {
+          img.dispose();
+        }
+        return true;
+      }
+    } catch (Exception e) {
+      return false;
     }
   }
 

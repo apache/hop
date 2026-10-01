@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -304,6 +305,154 @@ class ValueMetaBaseTest {
   }
 
   @Test
+  void testBooleanToStringWithoutMaskFollowsLength() throws HopValueException {
+    // Without a mask, the length decides (#5958): 3 or more prints true/false, anything else Y/N
+    assertEquals("Y", new ValueMetaBoolean("b").getString(true));
+    assertEquals("N", new ValueMetaBoolean("b", 1, -1).getString(false));
+    assertEquals("true", new ValueMetaBoolean("b", 4, -1).getString(true));
+    assertEquals("false", new ValueMetaBoolean("b", 4, -1).getString(false));
+  }
+
+  @Test
+  void testBooleanToStringWithMask() throws HopValueException {
+    ValueMetaBoolean shortField = new ValueMetaBoolean("b");
+    ValueMetaBoolean longField = new ValueMetaBoolean("b", 4, -1);
+    for (String mask : Const.getBooleanFormats()) {
+      String[] texts = mask.split("/");
+      shortField.setConversionMask(mask);
+      longField.setConversionMask(mask);
+      // The mask wins over the length, so both fields print the same
+      assertEquals(texts[0], shortField.getString(true), mask);
+      assertEquals(texts[1], shortField.getString(false), mask);
+      assertEquals(texts[0], longField.getString(true), mask);
+      assertEquals(texts[1], longField.getString(false), mask);
+    }
+
+    ValueMetaBoolean custom = new ValueMetaBoolean("b");
+    custom.setConversionMask("Ja/Nee");
+    assertEquals("Ja", custom.getString(true));
+    assertEquals("Nee", custom.getString(false));
+    assertNull(custom.getString(null));
+  }
+
+  @Test
+  void testBooleanToBinaryStringWithMask() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("yes/no");
+    assertArrayEquals("yes".getBytes(), field.getBinaryString(true));
+    assertArrayEquals("no".getBytes(), field.getBinaryString(false));
+  }
+
+  @Test
+  void testNonBooleanMaskIsIgnored() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    // Yes/yes: the same word twice ignoring case, which reading could not tell apart
+    for (String mask : new String[] {"yyyy/MM/dd", "#.##", "/N", "Y/", "/", " / ", "Yes/yes"}) {
+      field.setConversionMask(mask);
+      assertEquals("Y", field.getString(true), mask);
+      assertEquals("N", field.getString(false), mask);
+    }
+  }
+
+  @Test
+  void testStringToBooleanWithMask() throws HopValueException {
+    ValueMetaString string = new ValueMetaString("s");
+    string.setConversionMask("Ja/Nee");
+    assertTrue(string.getBoolean("Ja"));
+    assertTrue(string.getBoolean("ja"));
+    assertFalse(string.getBoolean("NEE"));
+    // Text outside the mask falls back to the standard rules
+    assertTrue(string.getBoolean("Y"));
+    assertTrue(string.getBoolean("true"));
+    assertFalse(string.getBoolean("maybe"));
+    assertNull(string.getBoolean(""));
+
+    // A mask whose true text is not in the standard rules, e.g. T/F
+    string.setConversionMask("T/F");
+    assertTrue(string.getBoolean("t"));
+    assertFalse(string.getBoolean("F"));
+  }
+
+  @Test
+  void testBooleanMaskTextsAreTrimmed() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("Ja / Nein");
+    assertEquals("Ja", field.getString(true));
+    assertEquals("Nein", field.getString(false));
+
+    // What was written reads back, also once a reader trimmed it
+    ValueMetaString string = new ValueMetaString("s");
+    string.setConversionMask("Ja / Nein");
+    assertTrue(string.getBoolean("Ja"));
+    assertFalse(string.getBoolean("Nein"));
+    assertFalse(string.getBoolean(" nein "));
+  }
+
+  /**
+   * Typed text becomes a Boolean through a String value whose conversion metadata is the Boolean:
+   * the Enter Value dialog, a condition's value, a sorted table cell. The mask is on the Boolean.
+   */
+  @Test
+  void testStringToBooleanUsesTheMaskOfTheConversionMetadata() throws HopValueException {
+    for (String[] mask :
+        new String[][] {{"Ja/Nee", "Ja", "Nee"}, {"T/F", "T", "F"}, {"on/off", "on", "off"}}) {
+      ValueMetaBoolean booleanMeta = new ValueMetaBoolean("b");
+      booleanMeta.setConversionMask(mask[0]);
+      ValueMetaString stringMeta = new ValueMetaString("s");
+      stringMeta.setConversionMetadata(booleanMeta);
+
+      assertEquals(Boolean.TRUE, stringMeta.convertDataUsingConversionMetaData(mask[1]), mask[0]);
+      assertEquals(Boolean.FALSE, stringMeta.convertDataUsingConversionMetaData(mask[2]), mask[0]);
+    }
+  }
+
+  /**
+   * A Boolean read lazily keeps the bytes of the file. They are only written as they are while the
+   * format still matches: another mask, or another length without one, converts them.
+   */
+  @Test
+  void testBinaryStringBooleanFollowsAChangedMask() throws Exception {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("Y/N");
+    IValueMeta storage = ValueMetaFactory.cloneValueMeta(field, IValueMeta.TYPE_STRING);
+    field.setStorageMetadata(storage);
+    field.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+
+    // Same mask as when it was read: the bytes go out unchanged
+    byte[] yes = "Y".getBytes();
+    assertSame(yes, field.getBinaryString(yes));
+
+    field.setConversionMask("Ja/Nee");
+    assertArrayEquals("Ja".getBytes(), field.getBinaryString("Y".getBytes()));
+    assertArrayEquals("Nee".getBytes(), field.getBinaryString("N".getBytes()));
+
+    // No mask on either side: the length decides the text, so a new length converts too
+    ValueMetaBoolean read = new ValueMetaBoolean("b", 1, -1);
+    IValueMeta readStorage = ValueMetaFactory.cloneValueMeta(read, IValueMeta.TYPE_STRING);
+    read.setStorageMetadata(readStorage);
+    read.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    assertSame(yes, read.getBinaryString(yes));
+
+    ValueMetaBoolean longer = new ValueMetaBoolean("b", 5, -1);
+    longer.setStorageMetadata(readStorage);
+    longer.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    assertArrayEquals("true".getBytes(), longer.getBinaryString("Y".getBytes()));
+  }
+
+  @Test
+  void testConvertDataFromStringToBooleanWithMask() throws Exception {
+    ValueMetaBoolean target = new ValueMetaBoolean("b");
+    target.setConversionMask("on/off");
+    IValueMeta convertMeta = ValueMetaFactory.cloneValueMeta(target, IValueMeta.TYPE_STRING);
+    assertEquals(
+        Boolean.TRUE,
+        target.convertDataFromString("on", convertMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+    assertEquals(
+        Boolean.FALSE,
+        target.convertDataFromString(" OFF ", convertMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+  }
+
+  @Test
   void testConvertDataFromStringToString() throws HopValueException {
     ValueMetaBase inValueMetaString = new ValueMetaString();
     ValueMetaBase outValueMetaString = new ValueMetaString();
@@ -441,6 +590,112 @@ class ValueMetaBaseTest {
   void testGetBigDecimalThrowsHopValueException() {
     ValueMetaBase valueMeta = new ValueMetaBigNumber();
     assertThrows(HopValueException.class, () -> valueMeta.getBigNumber("1234567890"));
+  }
+
+  @Test
+  void testGetBigNumberFromNumberKeepsPlainNotation() throws HopValueException {
+    // BigDecimal.valueOf(55487400.0) is built from Double.toString(), which returns "5.54874E7".
+    // The resulting BigDecimal has an unscaled value of 554874 and a scale of -2, so rendering it
+    // with toString() yields "5.54874E+7" rather than "55487400".
+    ValueMetaBase valueMeta = new ValueMetaNumber("float53");
+
+    BigDecimal bigNumber = valueMeta.getBigNumber(55487400.0d);
+
+    assertEquals(0, bigNumber.compareTo(new BigDecimal("55487400")));
+    assertTrue(bigNumber.scale() >= 0, "unexpected negative scale: " + bigNumber.scale());
+    assertEquals("55487400", bigNumber.toString());
+  }
+
+  @Test
+  void testGetBigNumberFromNumberKeepsPlainNotationAcrossMagnitudes() throws HopValueException {
+    ValueMetaBase valueMeta = new ValueMetaNumber("float53");
+    double[] values = {1.0e7, 5.54874e7, 1.23456789e8, 1.5e10, 9.007199254740992e15, -5.54874e7};
+
+    for (double value : values) {
+      BigDecimal bigNumber = valueMeta.getBigNumber(value);
+
+      assertTrue(bigNumber.scale() >= 0, "negative scale for " + value + ": " + bigNumber.scale());
+      assertEquals(
+          bigNumber.toPlainString(), bigNumber.toString(), "scientific notation for " + value);
+      assertEquals(0, bigNumber.compareTo(BigDecimal.valueOf(value)), "value changed for " + value);
+    }
+  }
+
+  @Test
+  void testGetBigNumberFromNumberLeavesNonNegativeScalesUntouched() throws HopValueException {
+    // Values that already convert to a non-negative scale must keep the exact BigDecimal they
+    // produced before, scale included. BigDecimal.equals() is scale sensitive, so this pins that
+    // down rather than only comparing numeric values.
+    ValueMetaBase valueMeta = new ValueMetaNumber("number");
+    double[] values = {0.0, 0.1, 123.45, 1.0e-7, 55487400.5};
+
+    for (double value : values) {
+      assertEquals(BigDecimal.valueOf(value), valueMeta.getBigNumber(value), "changed " + value);
+    }
+  }
+
+  @Test
+  void testConvertNumberToBigNumberKeepsPlainNotation() throws HopValueException {
+    // The metadata change a Select Values transform performs when a Number field is turned into a
+    // BigNumber field.
+    IValueMeta source = new ValueMetaNumber("float53");
+    IValueMeta target = new ValueMetaBigNumber("decimal");
+
+    BigDecimal converted = (BigDecimal) target.convertData(source, 55487400.0d);
+
+    assertEquals("55487400", converted.toString());
+  }
+
+  @Test
+  void testGetBigNumberFromStringKeepsPlainNotation() throws HopValueException {
+    ValueMetaBase valueMeta = new ValueMetaString("float53");
+
+    BigDecimal bigNumber = valueMeta.getBigNumber("55487400");
+
+    assertTrue(bigNumber.scale() >= 0, "unexpected negative scale: " + bigNumber.scale());
+    assertEquals(0, bigNumber.compareTo(new BigDecimal("55487400")));
+  }
+
+  @Test
+  void testWriteBigNumberConvertedFromNumberUsesPlainNotation() throws Exception {
+    // writeBigNumber() serializes with BigDecimal.toString(), so a negative scale would put
+    // scientific notation on the wire as well.
+    BigDecimal bigNumber = new ValueMetaNumber("float53").getBigNumber(55487400.0d);
+    ValueMetaBase valueMeta = new ValueMetaBigNumber("decimal");
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try (DataOutputStream outputStream = new DataOutputStream(out)) {
+      valueMeta.writeData(outputStream, bigNumber);
+    }
+
+    BigDecimal restored;
+    try (DataInputStream inputStream =
+        new DataInputStream(new ByteArrayInputStream(out.toByteArray()))) {
+      restored = (BigDecimal) valueMeta.readData(inputStream);
+    }
+
+    // readBigNumber() keeps whatever scale was written, so a plain result proves a plain wire form.
+    assertEquals("55487400", restored.toString());
+  }
+
+  @Test
+  void testGetDataXmlForBigNumberConvertedFromNumberUsesPlainNotation() throws Exception {
+    BigDecimal bigNumber = new ValueMetaNumber("float53").getBigNumber(55487400.0d);
+    ValueMetaBase valueMeta = new ValueMetaBigNumber("decimal");
+
+    String xml = valueMeta.getDataXml(bigNumber);
+
+    assertTrue(xml.contains("55487400"), xml);
+    assertFalse(xml.contains("E+"), xml);
+  }
+
+  @Test
+  void testConvertNumberToStringDoesNotUseScientificNotation() throws HopValueException {
+    // Guards the string conversion path, which formats through DecimalFormat and was already
+    // correct, against a regression from the BigDecimal change.
+    assertFalse(new ValueMetaNumber("float53").getString(55487400.0d).contains("E"));
+    assertFalse(
+        new ValueMetaBigNumber("decimal").getString(new BigDecimal("5.54874E+7")).contains("E"));
   }
 
   @Test

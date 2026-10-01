@@ -1,0 +1,15 @@
+{
+  "base_filename": "golden-vector-conversions.csv",
+  "name": "golden-vector-conversions",
+  "description": "Canonical text form after a String to Vector to String round trip.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "embedding",
+      "field_format": ""
+    }
+  ]
+}

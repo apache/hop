@@ -19,6 +19,7 @@ package org.apache.hop.vfs.minio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.apache.hop.vfs.minio.metadata.MinioMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,9 +52,10 @@ class MinioVfsPluginTest {
 
   @Test
   void testGetProvider() {
-    FileProvider provider = plugin.getProvider();
-    assertNotNull(provider, "Provider should not be null");
-    assertTrue(provider instanceof MinioFileProvider, "Provider should be MinioFileProvider");
+    // There are no fixed schemes, so there is nothing to register a provider under. Handing one
+    // over anyway leaves it unreachable and unclosed on the file system manager :
+    // "DefaultFilesystemManager.close: not all components are closed".
+    assertNull(plugin.getProvider(), "MinIO has no fixed scheme, so it has no fixed provider");
   }
 
   @Test
@@ -82,17 +85,6 @@ class MinioVfsPluginTest {
   }
 
   @Test
-  void testMultipleGetProviderCalls() {
-    FileProvider provider1 = plugin.getProvider();
-    FileProvider provider2 = plugin.getProvider();
-
-    assertNotNull(provider1, "First provider should not be null");
-    assertNotNull(provider2, "Second provider should not be null");
-    assertTrue(provider1 instanceof MinioFileProvider, "Should be MinioFileProvider");
-    assertTrue(provider2 instanceof MinioFileProvider, "Should be MinioFileProvider");
-  }
-
-  @Test
   void testPluginAnnotation() {
     // Verify the plugin has the VfsPlugin annotation by checking class annotations
     assertTrue(
@@ -107,7 +99,27 @@ class MinioVfsPluginTest {
 
     assertNotNull(annotation, "VfsPlugin annotation should not be null");
     assertEquals("minio", annotation.type(), "Plugin type should be 'minio'");
-    assertEquals("S3 VFS plugin", annotation.typeDescription(), "Type description should match");
+    assertEquals("Minio VFS plugin", annotation.typeDescription(), "Type description should match");
+  }
+
+  @Test
+  void connectionMetadataSharesTheClassLoaderGroupOfThisPlugin() {
+    // The plugin reads MinioMeta objects it did not deserialize itself when the connections come
+    // from a resource export.
+    String pluginGroup =
+        plugin
+            .getClass()
+            .getAnnotation(org.apache.hop.core.vfs.plugin.VfsPlugin.class)
+            .classLoaderGroup();
+    String metadataGroup =
+        MinioMeta.class
+            .getAnnotation(org.apache.hop.metadata.api.HopMetadata.class)
+            .classLoaderGroup();
+
+    assertEquals(
+        pluginGroup,
+        metadataGroup,
+        "MinioMeta and the Minio VFS plugin must share a class loader group");
   }
 
   @Test
@@ -120,15 +132,6 @@ class MinioVfsPluginTest {
 
     // Should not throw exception, even if metadata provider fails
     assertNotNull(providers, "Should handle errors and return empty map");
-  }
-
-  @Test
-  void testProviderCreation() {
-    // Test that provider is properly created each time
-    FileProvider provider = plugin.getProvider();
-
-    assertNotNull(provider, "Provider should be created");
-    assertTrue(provider instanceof MinioFileProvider, "Should create MinioFileProvider");
   }
 
   @Test

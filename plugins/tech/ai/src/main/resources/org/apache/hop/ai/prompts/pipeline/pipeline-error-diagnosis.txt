@@ -1,0 +1,3 @@
+Scenario: Pipeline error diagnosis.
+
+Focus on pipeline check results and any execution log excerpt. Explain likely root causes and fixes for validation errors, hop wiring problems, missing metadata, or runtime failures. Prioritize the focus transform when one is named in the context.

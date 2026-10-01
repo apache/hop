@@ -36,6 +36,8 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -172,7 +174,10 @@ public class WriteToLogDialog extends BaseTransformDialog {
 
     wLogMessage =
         new StyledTextComp(
-            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            variables,
+            shell,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_TEXT);
     PropsUi.setLook(wLogMessage, Props.WIDGET_STYLE_FIXED);
     FormData fdLogMessage = new FormData();
     fdLogMessage.left = new FormAttachment(middle, 0);
@@ -237,7 +242,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
             }
           }
         };
-    new Thread(runnable).start();
+    BackgroundThreadFacade.start(runnable);
 
     getData();
     input.setChanged(changed);
@@ -317,10 +322,12 @@ public class WriteToLogDialog extends BaseTransformDialog {
     input.setLimitRows(wLimitRows.getSelection());
     input.setLimitRowsNumber(Const.toInt(wLimitRowsNumber.getText(), 0));
 
-    if (wLoglevel.getSelectionIndex() < 0) {
+    // The combo holds the translated descriptions in enum order: map by position, not by label.
+    int logLevelIndex = wLoglevel.getSelectionIndex();
+    if (logLevelIndex < 0 || logLevelIndex >= LogLevel.values().length) {
       input.setLogLevel(LogLevel.BASIC);
     } else {
-      input.setLogLevel(LogLevel.lookupCode(wLoglevel.getText()));
+      input.setLogLevel(LogLevel.values()[logLevelIndex]);
     }
 
     if (!Utils.isEmpty(wLogMessage.getText())) {

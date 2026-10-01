@@ -29,8 +29,8 @@ Hop supports Azure through a number of metadata types:
 
 == Pipeline Transforms
 
-* xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs Listener]: listens indefinitely to an Event Hub on the Microsoft Azure cloud platform.
-* xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Event Hubs Writer]: allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
+* xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs listener]: listens indefinitely to an Event Hub on the Microsoft Azure cloud platform.
+* xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Event Hubs writer]: allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
 
 == VFS
 

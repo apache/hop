@@ -58,6 +58,9 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     super(workflowMap);
   }
 
+  // Hop runs its own embedded server, not a managed JEE container. The lock below guards the
+  // re-creation of a finished workflow against concurrent start requests.
+  @SuppressWarnings("java:S2654")
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {

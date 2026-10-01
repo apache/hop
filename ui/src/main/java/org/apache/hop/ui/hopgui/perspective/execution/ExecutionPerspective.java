@@ -181,7 +181,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private static final String TAB_KEY_DELIMITER = "\t";
   public static final String SNAP_ID_EIL_REFRESH = "EILRefresh";
 
-  @Getter private static ExecutionPerspective instance;
+  private static ExecutionPerspective instance;
 
   private boolean onlyShowingParents = true;
   private boolean onlyShowingFailed;
@@ -225,6 +225,24 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   public ExecutionPerspective() {
     instance = this;
+  }
+
+  public static ExecutionPerspective getInstance() {
+    try {
+      ExecutionPerspective fromGui = HopGui.findSessionPerspective(ExecutionPerspective.class);
+      if (fromGui != null) {
+        return fromGui;
+      }
+    } catch (Throwable e) {
+      // No HopGuiImpl in unit tests
+    }
+    // Fallback for tests and the disabled-perspective case (constructed, never initialized).
+    // Hop Web project activation can reach us before loadPerspectives() has run, or when this
+    // perspective is excluded; callers must not NPE on a null singleton (issue #8477).
+    if (instance == null) {
+      new ExecutionPerspective();
+    }
+    return instance;
   }
 
   /**
@@ -307,18 +325,67 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @Override
   public void clearSearchFilters() {
     filterText = "";
-    if (toolBarWidgets != null) {
-      ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-      if (item != null && !item.isDisposed()) {
-        org.eclipse.swt.widgets.Control control = item.getControl();
-        if (control != null && !control.isDisposed() && control instanceof Text text) {
-          text.setText("");
-        }
-      }
-    }
+    setFilterTextOnToolbar("");
     if (hopGui != null && hopGui.isActivePerspective(this)) {
       refresh();
     }
+  }
+
+  /**
+   * Read the free-text filter from the toolbar into {@link #filterText}. Treats the placeholder
+   * label as empty. Does not modify the widget.
+   */
+  private void syncFilterTextFromToolbar() {
+    if (toolBarWidgets == null) {
+      return;
+    }
+    Text text = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
+    if (text == null) {
+      return;
+    }
+    String value = Const.NVL(text.getText(), "").trim();
+    if (FILTER_NAME_DATE_ID.equals(value)) {
+      value = "";
+    }
+    this.filterText = value;
+  }
+
+  private void setFilterTextOnToolbar(String value) {
+    Text text = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
+    if (text != null) {
+      text.setText(Const.NVL(value, ""));
+    }
+  }
+
+  private Text getToolbarText(String id) {
+    if (toolBarWidgets == null) {
+      return null;
+    }
+    Control control = toolBarWidgets.getControlForMenu(id);
+    if (control instanceof Text text && !text.isDisposed()) {
+      return text;
+    }
+    // Desktop fallback: SEPARATOR ToolItem holding the Text
+    ToolItem item = toolBarWidgets.findToolItem(id);
+    if (item != null && !item.isDisposed() && item.getControl() instanceof Text text) {
+      return text;
+    }
+    return null;
+  }
+
+  private Combo getToolbarCombo(String id) {
+    if (toolBarWidgets == null) {
+      return null;
+    }
+    Control control = toolBarWidgets.getControlForMenu(id);
+    if (control instanceof Combo combo && !combo.isDisposed()) {
+      return combo;
+    }
+    ToolItem item = toolBarWidgets.findToolItem(id);
+    if (item != null && !item.isDisposed() && item.getControl() instanceof Combo combo) {
+      return combo;
+    }
+    return null;
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
@@ -354,6 +421,21 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+
+    // Ensure Enter in the free-text filter applies the filter (GTK toolbar Text often does not
+    // fire DefaultSelection). GuiToolbarWidgets also wires this; keep a local handler as a
+    // fallback when the toolbar listener instance mapping is incomplete.
+    Text filterTextWidget = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
+    if (filterTextWidget != null && !filterTextWidget.isDisposed()) {
+      filterTextWidget.addListener(
+          SWT.KeyDown,
+          event -> {
+            if (event.keyCode == SWT.CR || event.keyCode == SWT.KEYPAD_CR) {
+              selectTextFilter();
+              event.doit = false;
+            }
+          });
+    }
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -424,16 +506,31 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void addViewer(IExecutionViewer viewer) {
-    // Create tab item
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
+
+    // Data is set before any call that can throw. A tab left without data makes the next
+    // double-click crash in setActiveViewer (issue #8601).
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setFont(GuiResource.getInstance().getFontDefault());
-    tabItem.setText(viewer.getName());
-    tabItem.setImage(viewer.getTitleImage());
-    tabItem.setToolTipText(viewer.getTitleToolTip());
-
-    tabItem.setControl(viewer.getControl());
-    tabItem.setData(viewer);
+    boolean ok = false;
+    try {
+      tabItem.setData(viewer);
+      tabItem.setFont(GuiResource.getInstance().getFontDefault());
+      tabItem.setText(Const.NVL(viewer.getName(), ""));
+      tabItem.setImage(viewer.getTitleImage());
+      tabItem.setToolTipText(viewer.getTitleToolTip());
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        tabItem.setControl(control);
+      }
+      ok = true;
+    } finally {
+      if (!ok) {
+        discardViewerTab(tabItem, viewer);
+      }
+    }
 
     PropsUi.setTheme(viewer.getControl());
 
@@ -459,6 +556,32 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   /**
+   * Drop a tab that never became a usable viewer. The viewer composite is a child of the folder
+   * even when it was not attached to the tab, so it is disposed too.
+   */
+  private void discardViewerTab(CTabItem tabItem, IExecutionViewer viewer) {
+    if (tabItem != null && !tabItem.isDisposed()) {
+      try {
+        tabItem.setControl(null);
+      } catch (RuntimeException e) {
+        // Detach is best-effort; the tab is about to be disposed.
+      }
+      tabItem.dispose();
+    }
+    if (viewer == null) {
+      return;
+    }
+    try {
+      Control control = viewer.getControl();
+      if (control != null && !control.isDisposed()) {
+        control.dispose();
+      }
+    } catch (RuntimeException e) {
+      // The viewer is already unusable; the open fails with the original exception.
+    }
+  }
+
+  /**
    * Find a metadata editor
    *
    * @param logChannelId the ID of the execution (log channel)
@@ -477,22 +600,33 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void setActiveViewer(IExecutionViewer viewer) {
+    if (viewer == null || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
     for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(viewer)) {
+      if (item == null || item.isDisposed()) {
+        continue;
+      }
+      // Compare from the viewer. A tab with no data must not throw (issue #8601).
+      //
+      if (viewer.equals(item.getData())) {
         tabFolder.setSelection(item);
         tabFolder.showItem(item);
-
         viewer.setFocus();
       }
     }
   }
 
   public IExecutionViewer getActiveViewer() {
-    if (tabFolder.getSelectionIndex() < 0) {
+    if (tabFolder == null || tabFolder.isDisposed() || tabFolder.getSelectionIndex() < 0) {
       return null;
     }
 
-    return (IExecutionViewer) tabFolder.getSelection().getData();
+    Object data = tabFolder.getSelection().getData();
+    if (data instanceof IExecutionViewer viewer) {
+      return viewer;
+    }
+    return null;
   }
 
   protected void onTabClose(CTabFolderEvent event) {
@@ -710,23 +844,14 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       }
     }
 
-    // Time filter
-    item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_TIME_FILTER);
-    if (item != null && !item.isDisposed()) {
-      org.eclipse.swt.widgets.Control control = item.getControl();
-      if (control != null && !control.isDisposed() && control instanceof Combo) {
-        ((Combo) control).setText(timeFilter.getDescription());
-      }
+    // Time filter combo (safe to push model → widget)
+    Combo timeCombo = getToolbarCombo(TOOLBAR_ITEM_TIME_FILTER);
+    if (timeCombo != null) {
+      timeCombo.setText(timeFilter.getDescription());
     }
 
-    // Filter string
-    item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    if (item != null && !item.isDisposed()) {
-      org.eclipse.swt.widgets.Control control = item.getControl();
-      if (control != null && !control.isDisposed() && control instanceof Text) {
-        ((Text) control).setText(Const.NVL(filterText, ""));
-      }
-    }
+    // Do not overwrite the free-text filter box here: the user may have typed text that is not
+    // yet committed via Enter. refresh() always syncs model ← widget instead.
 
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     if (activeHandler != null) {
@@ -774,6 +899,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     if (!isInitialized() || !hopGui.isActivePerspective(this)) {
       return;
     }
+
+    // Always pick up whatever is currently in the filter box (including text typed without Enter).
+    syncFilterTextFromToolbar();
 
     Cursor busyCursor = getBusyCursor();
 
@@ -1032,8 +1160,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       comboValuesMethod = "getLastPeriodDescriptions",
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.TimeFilter.Tooltip")
   public void selectTimeFilter() {
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_TIME_FILTER);
-    if (item == null || !(item.getControl() instanceof Combo combo)) {
+    Combo combo = getToolbarCombo(TOOLBAR_ITEM_TIME_FILTER);
+    if (combo == null) {
       return;
     }
     this.timeFilter = LastPeriod.lookupDescription(combo.getText());
@@ -1057,13 +1185,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     this.onlyShowingFailed = false;
     this.filterText = "";
 
+    // Clear the box (empty, not the placeholder string as a real filter value).
     // The filter box itself can be switched off in disabledGuiElements.xml while this button is
     // not, in which case there is no box to clear.
-    //
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    if (item != null && item.getControl() instanceof Text text) {
-      text.setText(FILTER_NAME_DATE_ID);
-    }
+    setFilterTextOnToolbar("");
 
     // Update the icon && apply the filter
     updateGui();
@@ -1077,11 +1202,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       type = GuiToolbarElementType.TEXT,
       defaultText = FILTER_NAME_DATE_ID)
   public void selectTextFilter() {
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    if (item == null || !(item.getControl() instanceof Text text)) {
-      return;
-    }
-    this.filterText = text.getText();
+    syncFilterTextFromToolbar();
 
     // Update the icon && apply the filter
     updateGui();
@@ -1094,14 +1215,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       Execution execution,
       ExecutionState state) {
     try {
-      executionItem.setImage(GuiResource.getInstance().getImagePipeline());
-
       String label = execution.getName();
       label += " - " + START_DATE_FORMAT.format(execution.getExecutionStartDate());
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      decorateItemWithState(executionItem, location, state);
+      decorateItemWithState(executionItem, location, execution, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing pipeline execution information tree item", e);
@@ -1114,8 +1233,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       Execution execution,
       ExecutionState state) {
     try {
-      executionItem.setImage(GuiResource.getInstance().getImageWorkflow());
-
       String label = execution.getName();
       label +=
           " - "
@@ -1123,7 +1240,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      decorateItemWithState(executionItem, location, state);
+      decorateItemWithState(executionItem, location, execution, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing workflow execution information tree item", e);
@@ -1131,15 +1248,36 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   private static void decorateItemWithState(
-      TreeItem executionItem, ExecutionInfoLocation location, ExecutionState state) {
+      TreeItem executionItem,
+      ExecutionInfoLocation location,
+      Execution execution,
+      ExecutionState state) {
     long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+    ExecutionStatusIcon statusIcon = ExecutionStatusIcon.from(state, loggingInterval);
+    executionItem.setImage(statusIcon.toImage(execution.getExecutionType()));
 
+    if (state == null) {
+      return;
+    }
     if (state.isFailed()) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
     } else if (state.isStale(loggingInterval)) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightGray());
     } else if (state.isRunning()) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightBlueMuted());
+    }
+  }
+
+  /** Refresh the tab image after a viewer reloads execution state (failed / stalled / default). */
+  public void updateViewerTabImage(IExecutionViewer viewer) {
+    if (tabFolder == null || tabFolder.isDisposed() || viewer == null) {
+      return;
+    }
+    for (CTabItem item : tabFolder.getItems()) {
+      if (viewer.equals(item.getData()) && !item.isDisposed()) {
+        item.setImage(viewer.getTitleImage());
+        return;
+      }
     }
   }
 
@@ -1474,13 +1612,21 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    IExecutionViewer viewer = (IExecutionViewer) tabItem.getData();
-
-    boolean isRemoved = viewers.remove(viewer);
+    if (tabItem == null || tabItem.isDisposed()) {
+      return;
+    }
+    Object data = tabItem.getData();
+    boolean isRemoved = data instanceof IExecutionViewer viewer && viewers.remove(viewer);
     tabItem.dispose();
 
     if (isRemoved) {
-      hopGui.auditDelegate.writeLastOpenFiles();
+      // Skip during bulk close (project/environment switch or closeAllTabs): the open-files list
+      // was saved before closeAllFiles; writing here would overwrite it with empty tabs after
+      // pipelines/workflows were already closed (issue #7692).
+      //
+      if (!closingAllTabs && !hopGui.fileDelegate.isClosing()) {
+        hopGui.auditDelegate.writeLastOpenFiles();
+      }
       // Keep the per-project open-tabs audit in sync when the user closes a single tab.
       // Skip during closeAllTabs so a prior saveState() for project switch is not wiped.
       //
@@ -1612,10 +1758,15 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       onlyShowingWorkflows = toolbarState.extractBoolean(AUDIT_ONLY_WORKFLOWS, false);
       onlyShowingPipelines = toolbarState.extractBoolean(AUDIT_ONLY_PIPELINES, false);
       filterText = toolbarState.extractString(AUDIT_FILTER_TEXT, "");
+      if (FILTER_NAME_DATE_ID.equals(filterText)) {
+        filterText = "";
+      }
       String timeFilterName = toolbarState.extractString(AUDIT_TIME_FILTER, "");
       timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_HOUR);
       String activeKey = toolbarState.extractString(AUDIT_ACTIVE_TAB, "");
 
+      // Restore filter text onto the widget before updateGui/refresh (updateGui does not write it).
+      setFilterTextOnToolbar(filterText);
       updateGui();
       refresh();
 

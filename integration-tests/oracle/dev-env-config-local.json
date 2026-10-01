@@ -1,0 +1,59 @@
+{
+  "variables": [
+    {
+      "name": "ORACLE_HOST",
+      "value": "oracle",
+      "description": "Not localhost on purpose: the server certificate carries CN=oracle, so connecting by any other name fails with ORA-17965 unless server DN matching is switched off. Add '127.0.0.1  oracle' to your hosts file and the certificate check stays meaningful."
+    },
+    {
+      "name": "ORACLE_PORT",
+      "value": "1521",
+      "description": "Plain TCP listener. Requires the ports to be published on fixed numbers - see the note at the bottom of this file."
+    },
+    {
+      "name": "ORACLE_TCPS_PORT",
+      "value": "2484",
+      "description": "TLS (TCPS) listener. Also the port the tnsnames.ora inside the wallet points at."
+    },
+    {
+      "name": "ORACLE_SERVICE",
+      "value": "FREEPDB1",
+      "description": "Service name of the pluggable database, where the application user lives"
+    },
+    {
+      "name": "ORACLE_SID",
+      "value": "FREE",
+      "description": "SID of the container database"
+    },
+    {
+      "name": "ORACLE_USER",
+      "value": "hop",
+      "description": ""
+    },
+    {
+      "name": "ORACLE_PASSWORD",
+      "value": "hop_password",
+      "description": ""
+    },
+    {
+      "name": "ORACLE_SYSTEM_USER",
+      "value": "system",
+      "description": "The SID connection addresses the container database, where the application user (created in the PDB) does not exist"
+    },
+    {
+      "name": "ORACLE_SYSTEM_PASSWORD",
+      "value": "HopIntegrationTest_1",
+      "description": "ORACLE_PWD of the throwaway test container"
+    },
+    {
+      "name": "ORACLE_WALLET_DIR",
+      "value": "/tmp/oracle-wallet",
+      "description": "Where you copied the wallet to on this machine: docker cp integration-tests-oracle-1:/opt/oracle/oradata/clientWallet/FREE /tmp/oracle-wallet . Re-copy it if you ever recreate the container with 'down -v': a new container issues a new server certificate, and a wallet from the old one fails with 'signature check failed'."
+    },
+    {
+      "name": "ORACLE_LOCAL_SETUP",
+      "value": "see description",
+      "description": "Three steps before this environment works. 1) Start the database with the ports on fixed numbers, because the integration test compose publishes random ones: create an override file containing 'services: {oracle: {ports: [\"1521:1521\", \"2484:2484\"]}}' and run 'docker compose -f docker/integration-tests/integration-tests-oracle.yaml -f <override> up -d oracle'. 2) Once it reports healthy, copy the wallet out with the docker cp command in ORACLE_WALLET_DIR above. 3) Add '127.0.0.1  oracle' to your hosts file, see ORACLE_HOST. Then install the driver with 'hop driver install oracle --accept-license'."
+    }
+  ]
+}

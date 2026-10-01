@@ -44,11 +44,8 @@ class RestDataTest {
     assertNull(data.method);
     assertEquals(-1, data.indexOfBodyField);
     assertEquals(-1, data.indexOfMethod);
-    assertNull(data.config);
     assertNull(data.trustStoreFile);
     assertNull(data.trustStorePassword);
-    assertNull(data.basicAuthentication);
-    assertNull(data.sslContext);
   }
 
   @Test

@@ -174,6 +174,7 @@ public class SimpleResourceNaming implements IResourceNaming {
     return null;
   }
 
+  @SuppressWarnings("javabugs:S2259") // callers always pass a resolved path
   protected String fixPath(String originalPathName) {
     // This should convert all of the following into foo\bar or foo/bar
     // D:\foo\bar

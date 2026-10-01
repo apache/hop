@@ -24,6 +24,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -48,11 +49,21 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
+import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -70,6 +81,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
@@ -97,7 +109,8 @@ public class ContextDialog extends Dialog {
   public static final String AUDIT_NAME_CATEGORY_STATES = "CategoryStates";
 
   private final Point location;
-  private final List<GuiAction> actions;
+  private List<GuiAction> actions;
+  private final Supplier<List<GuiAction>> actionsSupplier;
   private final PropsUi props;
   private Shell shell;
   private Text wSearch;
@@ -114,6 +127,34 @@ public class ContextDialog extends Dialog {
   private boolean shiftClicked;
   private boolean ctrlClicked;
   private boolean focusLost;
+
+  /**
+   * True when the user started dragging a placeable Create item out of this dialog (issue #3111).
+   * On native SWT the dialog closes on drag-start and the graph continues placement; on Hop Web
+   * HTML5/SWT DnD is used and the shell is only hidden until dragFinished.
+   */
+  private boolean placementDrag;
+
+  /**
+   * True when a canvas DropTarget already created the transform/action (Hop Web DnD path). Prevents
+   * GuiContextUtil from starting a second placement gesture.
+   */
+  private boolean placementCompletedByDrop;
+
+  /** Item under the mouse when a potential placement drag was armed (MouseDown on Create item). */
+  private Item pressItem;
+
+  /** Display coordinates of the MouseDown that armed a potential placement drag. */
+  private org.eclipse.swt.graphics.Point pressDisplayLocation;
+
+  private Listener placementArmMoveFilter;
+  private Listener placementArmUpFilter;
+
+  /** Item currently being dragged via SWT DnD (Hop Web). */
+  private Item dndDragItem;
+
+  /** Minimum pointer movement (display px) before a press on a Create item becomes a drag. */
+  private static final int PLACEMENT_DRAG_THRESHOLD_PX = 8;
 
   /** All context items. */
   private final List<Item> items = new ArrayList<>();
@@ -139,12 +180,12 @@ public class ContextDialog extends Dialog {
 
   private static ContextDialog activeInstance;
 
-  private enum OwnerType {
+  public enum OwnerType {
     CATEGORY,
     ITEM,
   }
 
-  private class CategoryAndOrder {
+  public static class CategoryAndOrder {
     String category;
     String order;
     boolean collapsed;
@@ -227,7 +268,7 @@ public class ContextDialog extends Dialog {
 
   private List<CategoryAndOrder> categories;
 
-  private static class Item {
+  public static class Item {
     private final GuiAction action;
     private final Image image;
     private boolean selected;
@@ -303,11 +344,22 @@ public class ContextDialog extends Dialog {
 
   public ContextDialog(
       Shell parent, String title, Point location, List<GuiAction> actions, String contextId) {
+    this(parent, title, location, actions, contextId, null);
+  }
+
+  public ContextDialog(
+      Shell parent,
+      String title,
+      Point location,
+      List<GuiAction> actions,
+      String contextId,
+      Supplier<List<GuiAction>> actionsSupplier) {
     super(parent);
 
     this.setText(title);
     this.location = location;
     this.actions = actions;
+    this.actionsSupplier = actionsSupplier;
 
     props = PropsUi.getInstance();
 
@@ -328,58 +380,10 @@ public class ContextDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHop());
     shell.setLayout(new FormLayout());
 
-    Display display = shell.getDisplay();
-
     xMargin = 3 * margin;
     yMargin = 2 * margin;
 
-    // Let's take a look at the list of actions and see if we've got categories to use...
-    //
-    categories = new ArrayList<>();
-    for (GuiAction action : actions) {
-      CategoryAndOrder categoryAndOrder;
-      if (StringUtils.isNotEmpty(action.getCategory())) {
-        categoryAndOrder =
-            new CategoryAndOrder(
-                action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
-      } else {
-        // Add an "Other" category
-        categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
-      }
-      if (!categories.contains(categoryAndOrder)) {
-        categories.add(categoryAndOrder);
-      }
-    }
-
-    categories.sort(Comparator.comparing(o -> o.order));
-
-    // Correct the icon size which is multiplied in GuiResource...
-    //
-    int correctedIconSize = (int) (iconSize / props.getZoomFactor());
-
-    // Load the action images
-    //
-    items.clear();
-    for (GuiAction action : actions) {
-      ClassLoader classLoader = action.getClassLoader();
-      if (classLoader == null) {
-        classLoader = ClassLoader.getSystemClassLoader();
-      }
-      // Load or get from the image cache...
-      //
-      Image image;
-      try {
-        image =
-            GuiResource.getInstance()
-                .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
-      } catch (Exception e) {
-        image =
-            GuiResource.getInstance()
-                .getSwtImageMissing()
-                .getAsBitmapForSize(display, correctedIconSize, correctedIconSize);
-      }
-      items.add(new Item(action, image));
-    }
+    rebuildCategoriesAndItems();
 
     // Add a search bar at the top...
     //
@@ -449,7 +453,10 @@ public class ContextDialog extends Dialog {
     fdCanvas.top = new FormAttachment(searchComposite, 0);
     fdCanvas.bottom = new FormAttachment(wTooltipComposite, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
+    // Expand + min size is the reliable ScrolledComposite/RAP pattern; content height is
+    // measured in onPaint and applied via setMinHeight / updateVerticalBar.
     wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
     itemsFont = GuiResource.getInstance().getFontDefault();
 
@@ -536,9 +543,14 @@ public class ContextDialog extends Dialog {
 
     wCanvas.addListener(SWT.KeyDown, this::onKeyPressed);
     wCanvas.addListener(SWT.Paint, this::onPaint);
+    wCanvas.addListener(SWT.MouseDown, this::onMouseDown);
     wCanvas.addListener(SWT.MouseUp, this::onMouseUp);
     if (!EnvironmentUtils.getInstance().isWeb()) {
       wCanvas.addListener(SWT.MouseMove, this::onMouseMove);
+    } else {
+      // Hop Web: RAP does not deliver reliable mouse-move-while-pressed for Display filters.
+      // Use HTML5-backed SWT DnD so the user can drag a create item onto the graph canvas.
+      installWebPlacementDragSource();
     }
 
     // OS Specific listeners...
@@ -564,6 +576,10 @@ public class ContextDialog extends Dialog {
     // Manually set canvas size otherwise canvas never gets drawn.
     wCanvas.setSize(10, 10);
 
+    if (ContextDialogSvgFacade.isSupported()) {
+      ContextDialogSvgFacade.register(wCanvas, this);
+    }
+
     PropsUi.setTheme(shell);
 
     // Show the dialog now
@@ -580,6 +596,7 @@ public class ContextDialog extends Dialog {
 
     // Wait until the dialog is closed
     //
+    Display display = shell.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
@@ -686,11 +703,18 @@ public class ContextDialog extends Dialog {
   }
 
   public void dispose() {
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
 
-    // Store the toolbar settings
-    storeDialogSettings();
+    removePlacementArmFilters();
 
-    // Close the dialog window
+    if (ContextDialogSvgFacade.isSupported() && wCanvas != null) {
+      ContextDialogSvgFacade.unregister(wCanvas);
+    }
+
+    // Close the dialog window. The SWT.Close listener stores the dialog settings, so they are not
+    // stored a second time here.
     shell.close();
 
     // Do not dispose item images. They are cached by GuiResource so that they're only ever loaded
@@ -698,8 +722,12 @@ public class ContextDialog extends Dialog {
     // There's no need to keep re-loading all the time.
     // Previously this cache was not functional so that we needed to dispose here.
 
-    highlightColor.dispose();
-    headerFont.dispose();
+    if (highlightColor != null && !highlightColor.isDisposed()) {
+      highlightColor.dispose();
+    }
+    if (headerFont != null && !headerFont.isDisposed()) {
+      headerFont.dispose();
+    }
   }
 
   @GuiToolbarElement(
@@ -733,6 +761,8 @@ public class ContextDialog extends Dialog {
       toolTip = "i18n::ContextDialog.GuiAction.ShowCategories.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableCategories() {
+    updateToolbar();
+    previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
   }
@@ -744,6 +774,7 @@ public class ContextDialog extends Dialog {
       toolTip = "i18n::ContextDialog.GuiAction.FixedWidth.Tooltip",
       type = GuiToolbarElementType.CHECKBOX)
   public void enableDisableFixedWidth() {
+    previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
   }
@@ -752,22 +783,30 @@ public class ContextDialog extends Dialog {
     if (toolBarWidgets == null) {
       return null;
     }
-    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
-    if (checkboxItem == null) {
-      return null;
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (control instanceof Button button) {
+      return button;
     }
-    return (Button) checkboxItem.getControl();
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_ENABLE_CATEGORIES);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
   }
 
   private Button getFixedWidthCheckBox() {
     if (toolBarWidgets == null) {
       return null;
     }
-    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
-    if (checkboxItem == null) {
-      return null;
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_FIXED_WIDTH);
+    if (control instanceof Button button) {
+      return button;
     }
-    return (Button) checkboxItem.getControl();
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FIXED_WIDTH);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
   }
 
   private void onMouseMove(Event event) {
@@ -779,7 +818,38 @@ public class ContextDialog extends Dialog {
     }
   }
 
+  private void onMouseDown(Event event) {
+    if (event.button != 1 || placementDrag) {
+      return;
+    }
+    AreaOwner areaOwner = AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
+    if (areaOwner == null || areaOwner.getParent() != OwnerType.ITEM) {
+      return;
+    }
+    Item item = (Item) areaOwner.getOwner();
+    if (item == null || !GuiActionFavorites.isPlaceableCreateAction(item.getAction())) {
+      return;
+    }
+    selectItem(item, false);
+    // Native Hop GUI: arm Display-filter placement drag. Hop Web uses SWT DnD instead (see
+    // installWebPlacementDragSource) because RAP does not deliver mouse-move-while-pressed.
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    pressItem = item;
+    pressDisplayLocation = shell.getDisplay().getCursorLocation();
+    installPlacementArmFilters();
+  }
+
   private void onMouseUp(Event event) {
+    if (placementDrag) {
+      // Drag already committed; dialog is closing or closed.
+      return;
+    }
+    removePlacementArmFilters();
+    pressItem = null;
+    pressDisplayLocation = null;
+
     AreaOwner areaOwner = AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
     if (areaOwner == null) {
       return;
@@ -799,6 +869,24 @@ public class ContextDialog extends Dialog {
         //
         Item item = (Item) areaOwner.getOwner();
         if (item != null) {
+          // ALT-Click: toggle transform/action favorite without closing the dialog (issue #3526)
+          //
+          boolean altClicked = (event.stateMask & SWT.ALT) != 0;
+          if (altClicked && GuiActionFavorites.tryToggleFromAction(item.getAction())) {
+            try {
+              HopConfig.getInstance().saveToFile();
+            } catch (Exception e) {
+              new ErrorDialog(
+                  shell,
+                  BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Header"),
+                  BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"),
+                  e);
+            }
+            GraphPalette.fireFavoritesChanged(HopGui.getInstance());
+            refreshActionsFromSupplier();
+            return;
+          }
+
           selectedAction = item.getAction();
 
           shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
@@ -814,7 +902,249 @@ public class ContextDialog extends Dialog {
     }
   }
 
+  private void installPlacementArmFilters() {
+    removePlacementArmFilters();
+    Display display = shell.getDisplay();
+    placementArmMoveFilter =
+        event -> {
+          if (event.type != SWT.MouseMove || pressItem == null || placementDrag) {
+            return;
+          }
+          // Only commit while the primary button is still held (avoids stray move events).
+          if ((event.stateMask & SWT.BUTTON1) == 0) {
+            return;
+          }
+          if (shell.isDisposed()) {
+            removePlacementArmFilters();
+            return;
+          }
+          org.eclipse.swt.graphics.Point cursor = display.getCursorLocation();
+          int dx = cursor.x - pressDisplayLocation.x;
+          int dy = cursor.y - pressDisplayLocation.y;
+          int thresholdSq = PLACEMENT_DRAG_THRESHOLD_PX * PLACEMENT_DRAG_THRESHOLD_PX;
+          if (dx * dx + dy * dy > thresholdSq) {
+            commitPlacementDrag(pressItem);
+          }
+        };
+    placementArmUpFilter =
+        event -> {
+          if (event.type == SWT.MouseUp) {
+            // Click path: dialog MouseUp will select. Clear arm state only.
+            removePlacementArmFilters();
+            pressItem = null;
+            pressDisplayLocation = null;
+          }
+        };
+    display.addFilter(SWT.MouseMove, placementArmMoveFilter);
+    display.addFilter(SWT.MouseUp, placementArmUpFilter);
+  }
+
+  private void removePlacementArmFilters() {
+    if (shell == null || shell.isDisposed()) {
+      placementArmMoveFilter = null;
+      placementArmUpFilter = null;
+      return;
+    }
+    Display display = shell.getDisplay();
+    if (placementArmMoveFilter != null) {
+      display.removeFilter(SWT.MouseMove, placementArmMoveFilter);
+      placementArmMoveFilter = null;
+    }
+    if (placementArmUpFilter != null) {
+      display.removeFilter(SWT.MouseUp, placementArmUpFilter);
+      placementArmUpFilter = null;
+    }
+  }
+
+  private void commitPlacementDrag(Item item) {
+    if (item == null || placementDrag) {
+      return;
+    }
+    selectedAction = item.getAction();
+    placementDrag = true;
+    focusLost = false;
+    shiftClicked = false;
+    ctrlClicked = false;
+    pressItem = null;
+    pressDisplayLocation = null;
+    removePlacementArmFilters();
+    dispose();
+  }
+
+  /**
+   * Hop Web: DragSource on the icon canvas so HTML5 DnD can carry a placeable create action to the
+   * pipeline/workflow canvas DropTarget. The shell is hidden on dragStart (so the canvas is
+   * visible) but kept alive until dragFinished so the DragSource remains valid.
+   */
+  private void installWebPlacementDragSource() {
+    DragSource dragSource = new DragSource(wCanvas, DND.DROP_COPY);
+    dragSource.setTransfer(new Transfer[] {TextTransfer.getInstance()});
+    dragSource.addDragListener(
+        new DragSourceAdapter() {
+          @Override
+          public void dragStart(DragSourceEvent event) {
+            Item item = findItem(event.x, event.y);
+            if (item == null || !GuiActionFavorites.isPlaceableCreateAction(item.getAction())) {
+              event.doit = false;
+              dndDragItem = null;
+              return;
+            }
+            dndDragItem = item;
+            selectItem(item, false);
+            selectedAction = item.getAction();
+            placementDrag = true;
+            placementCompletedByDrop = false;
+            focusLost = false;
+            // Prefer the item icon as drag image; fall back to Hop logo on web if needed.
+            if (item.getImage() != null && !item.getImage().isDisposed()) {
+              event.image = item.getImage();
+            } else {
+              event.image = GuiResource.getInstance().getImageHop();
+            }
+            // Hide (do not dispose) so the graph canvas is usable while the DragSource stays alive.
+            if (shell != null && !shell.isDisposed()) {
+              shell.setVisible(false);
+            }
+            event.doit = true;
+          }
+
+          @Override
+          public void dragSetData(DragSourceEvent event) {
+            if (TextTransfer.getInstance().isSupportedType(event.dataType) && dndDragItem != null) {
+              event.data = ContextDialogPlacement.encode(dndDragItem.getAction());
+              event.doit = event.data != null;
+            }
+          }
+
+          @Override
+          public void dragFinished(DragSourceEvent event) {
+            dndDragItem = null;
+            // End the modal open() loop. If the drop already created the item,
+            // GuiContextUtil will see placementCompletedByDrop and skip a second create.
+            if (selectedAction == null && !placementCompletedByDrop) {
+              // Drag cancelled without a selection — treat as focus-lost style cancel.
+              placementDrag = false;
+            }
+            dispose();
+          }
+        });
+  }
+
+  /** Called by canvas drop targets when a web DnD drop successfully placed a transform/action. */
+  public void markPlacementCompletedByDrop() {
+    placementCompletedByDrop = true;
+    placementDrag = true;
+    focusLost = false;
+  }
+
+  /**
+   * @return true if a canvas DropTarget already handled creation for this placement gesture
+   */
+  public boolean isPlacementCompletedByDrop() {
+    return placementCompletedByDrop;
+  }
+
+  /**
+   * Rebuild the category list and icon items from the current {@link #actions} list. Preserves
+   * collapsed state of categories when refreshing after a favorites toggle.
+   */
+  private void rebuildCategoriesAndItems() {
+    Map<String, Boolean> previousCollapsed = new HashMap<>();
+    if (categories != null) {
+      for (CategoryAndOrder category : categories) {
+        previousCollapsed.put(category.getCategory(), category.isCollapsed());
+      }
+    }
+
+    categories = new ArrayList<>();
+    for (GuiAction action : actions) {
+      CategoryAndOrder categoryAndOrder;
+      if (StringUtils.isNotEmpty(action.getCategory())) {
+        categoryAndOrder =
+            new CategoryAndOrder(
+                action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
+      } else {
+        categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
+      }
+      if (!categories.contains(categoryAndOrder)) {
+        Boolean wasCollapsed = previousCollapsed.get(categoryAndOrder.getCategory());
+        if (wasCollapsed != null) {
+          categoryAndOrder.setCollapsed(wasCollapsed);
+        }
+        categories.add(categoryAndOrder);
+      }
+    }
+
+    categories.sort(Comparator.comparing(o -> o.order));
+
+    int correctedIconSize = (int) (iconSize / props.getZoomFactor());
+    Display display = shell != null && !shell.isDisposed() ? shell.getDisplay() : null;
+
+    // Hop Web draws the items as one SVG document straight from the icon files, so rasterizing a
+    // bitmap per action here would only slow down the first open of every session.
+    boolean loadBitmaps = !ContextDialogSvgFacade.isSupported();
+
+    items.clear();
+    for (GuiAction action : actions) {
+      ClassLoader classLoader = action.getClassLoader();
+      if (classLoader == null) {
+        classLoader = ClassLoader.getSystemClassLoader();
+      }
+      if (!loadBitmaps) {
+        items.add(new Item(action, null));
+        continue;
+      }
+      Image image;
+      try {
+        image =
+            GuiResource.getInstance()
+                .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
+      } catch (Exception e) {
+        if (display != null) {
+          image =
+              GuiResource.getInstance()
+                  .getSwtImageMissing()
+                  .getAsBitmapForSize(display, correctedIconSize, correctedIconSize);
+        } else {
+          image = null;
+        }
+      }
+      items.add(new Item(action, image));
+    }
+  }
+
+  /**
+   * Reload actions from the supplier (after a favorite toggle) and re-apply the current search
+   * filter so the Favorites category appears/disappears without closing the dialog.
+   */
+  private void refreshActionsFromSupplier() {
+    if (actionsSupplier == null) {
+      return;
+    }
+    String selectedName = selectedItem != null ? selectedItem.getAction().getName() : null;
+    actions = actionsSupplier.get();
+    rebuildCategoriesAndItems();
+    String searchText = wSearch != null && !wSearch.isDisposed() ? wSearch.getText() : "";
+    filter(searchText);
+
+    // Try to re-select the same tool by name after the list refresh
+    //
+    if (selectedName != null) {
+      for (Item item : filteredItems) {
+        if (selectedName.equals(item.getAction().getName())) {
+          selectItem(item, false);
+          break;
+        }
+      }
+    }
+  }
+
   private void onResize(Event event) {
+    // Width changes reflow icons and change total content height; force a full remeasure.
+    previousTotalContentHeight = 0;
+    if (wCanvas != null && !wCanvas.isDisposed()) {
+      wCanvas.redraw();
+    }
     updateVerticalBar();
   }
 
@@ -825,29 +1155,20 @@ public class ContextDialog extends Dialog {
    */
   private void onPaint(Event event) {
 
+    updateToolbar();
+
+    if (ContextDialogSvgFacade.isSupported()) {
+      ContextDialogSvgFacade.renderAndPublish(wCanvas, this);
+      return;
+    }
+
     GC gc = event.gc;
 
     org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
     org.eclipse.swt.graphics.Rectangle canvas = wCanvas.getBounds();
 
-    boolean useCategories;
-    Button categoriesCheckBox = getCategoriesCheckBox();
-    if (categoriesCheckBox == null) {
-      useCategories = true;
-    } else {
-      useCategories = categoriesCheckBox.getSelection();
-    }
-    useCategories &= !categories.isEmpty();
-
-    boolean useFixedWidth;
-    Button fixedWidthCheckBox = getFixedWidthCheckBox();
-    if (fixedWidthCheckBox == null) {
-      useFixedWidth = false;
-    } else {
-      useFixedWidth = fixedWidthCheckBox.getSelection();
-    }
-
-    updateToolbar();
+    boolean useCategories = isUseCategories();
+    boolean useFixedWidth = isUseFixedWidth();
 
     // Fill everything with white...
     //
@@ -1032,15 +1353,94 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    totalContentHeight = Math.max(area.height, y);
+    updateContentHeight(Math.max(area.height, y));
+  }
 
-    if (previousTotalContentHeight != totalContentHeight) {
+  void updateContentHeight(int height) {
+    totalContentHeight = height;
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
+    }
+    org.eclipse.swt.graphics.Rectangle area = wScrolledComposite.getClientArea();
+    int canvasWidth = (wCanvas != null && !wCanvas.isDisposed()) ? wCanvas.getBounds().width : 0;
+    if (previousTotalContentHeight != totalContentHeight || canvasWidth != area.width) {
       previousTotalContentHeight = totalContentHeight;
-      wCanvas.setSize(area.width, totalContentHeight);
+      if (wCanvas != null && !wCanvas.isDisposed()) {
+        wCanvas.setSize(area.width, totalContentHeight);
+      }
+      wScrolledComposite.setMinWidth(area.width);
+      wScrolledComposite.setMinHeight(totalContentHeight);
+      updateVerticalBar();
     }
   }
 
+  boolean isUseCategories() {
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    boolean useCategories = (categoriesCheckBox == null) || categoriesCheckBox.getSelection();
+    return useCategories && categories != null && !categories.isEmpty();
+  }
+
+  boolean isUseFixedWidth() {
+    Button fixedWidthCheckBox = getFixedWidthCheckBox();
+    return fixedWidthCheckBox != null && fixedWidthCheckBox.getSelection();
+  }
+
+  List<CategoryAndOrder> getCategories() {
+    return categories;
+  }
+
+  List<Item> getFilteredItems() {
+    return filteredItems;
+  }
+
+  Item getSelectedItem() {
+    return selectedItem;
+  }
+
+  int getIconSize() {
+    return iconSize;
+  }
+
+  int getMargin() {
+    return margin;
+  }
+
+  int getXMargin() {
+    return xMargin;
+  }
+
+  int getYMargin() {
+    return yMargin;
+  }
+
+  ScrolledComposite getScrolledComposite() {
+    return wScrolledComposite;
+  }
+
+  Canvas getCanvas() {
+    return wCanvas;
+  }
+
+  Label getTooltipLabel() {
+    return wlTooltip;
+  }
+
+  List<AreaOwner> getAreaOwners() {
+    return areaOwners;
+  }
+
+  void setAreaOwners(List<AreaOwner> areaOwners) {
+    this.areaOwners = areaOwners;
+  }
+
+  int getTotalContentHeight() {
+    return totalContentHeight;
+  }
+
   private void updateToolbar() {
+    if (toolBarWidgets == null) {
+      return;
+    }
     Button categoriesCheckBox = getCategoriesCheckBox();
     boolean categoriesEnabled = categoriesCheckBox != null && categoriesCheckBox.getSelection();
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_COLLAPSE_ALL, categoriesEnabled);
@@ -1062,6 +1462,14 @@ public class ContextDialog extends Dialog {
   }
 
   private void selectItem(Item selectedItem, boolean scroll) {
+    selectItem(selectedItem, scroll, true);
+  }
+
+  /**
+   * @param redraw false when the caller redraws the canvas itself afterwards. Without paint
+   *     coalescing (Hop Web) every redraw renders the whole item list again.
+   */
+  private void selectItem(Item selectedItem, boolean scroll, boolean redraw) {
 
     for (Item item : items) {
       item.setSelected(false);
@@ -1102,7 +1510,9 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    wCanvas.redraw();
+    if (redraw) {
+      wCanvas.redraw();
+    }
   }
 
   /**
@@ -1112,6 +1522,30 @@ public class ContextDialog extends Dialog {
    */
   public Text getSearchTextWidget() {
     return wSearch;
+  }
+
+  /**
+   * The filtered item whose name is exactly the search text, ignoring case, or null if there is
+   * none.
+   *
+   * <p>Relevance scoring on its own does not put it first: searching for "Null if" scores "If null"
+   * higher, and "Table input" scores "Spark lake table input" higher, so typing a transform's full
+   * name and pressing Enter gave you a different transform - and one whose name shares words with
+   * others could not be selected by typing at all when it landed in another category.
+   */
+  private Item exactNameMatch(String text) {
+    for (Item item : filteredItems) {
+      if (isExactName(item.getAction().getName(), text)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  /** Whether a name is exactly what was searched for, ignoring case and surrounding space. */
+  static boolean isExactName(String name, String searchText) {
+    String wanted = Const.trim(searchText);
+    return StringUtils.isNotEmpty(wanted) && wanted.equalsIgnoreCase(Const.trim(name));
   }
 
   public void filter(String text) {
@@ -1138,14 +1572,29 @@ public class ContextDialog extends Dialog {
       filteredItems.sort((a, b) -> Double.compare(scores.get(b), scores.get(a)));
     }
 
+    // An item called exactly what was typed comes first, whatever it scored.
+    //
+    Item exactMatch = exactNameMatch(text);
+    if (exactMatch != null) {
+      filteredItems.remove(exactMatch);
+      filteredItems.add(0, exactMatch);
+    }
+
     if (filteredItems.isEmpty()) {
-      selectItem(null, false);
+      selectItem(null, false, false);
+    }
+
+    // Typing something's full name selects that thing, even if the selection was already on a
+    // result that survived the narrowing.
+    //
+    else if (exactMatch != null) {
+      selectItem(exactMatch, false, false);
     }
 
     // if selected item is exclude, change to a new default selection: first in the list
     //
     else if (!filteredItems.contains(selectedItem)) {
-      selectItem(filteredItems.get(0), false);
+      selectItem(filteredItems.get(0), false, false);
     }
 
     // Update vertical bar
@@ -1156,8 +1605,20 @@ public class ContextDialog extends Dialog {
   }
 
   private void onFocusLost() {
+    // Placement drag closes the dialog intentionally; do not treat as cancel.
+    if (placementDrag || selectedAction != null) {
+      return;
+    }
     focusLost = true;
     dispose();
+  }
+
+  /**
+   * @return true if the dialog closed because the user started dragging a placeable create item
+   *     onto the canvas (issue #3111)
+   */
+  public boolean isPlacementDrag() {
+    return placementDrag;
   }
 
   private void onModifySearch() {
@@ -1342,25 +1803,35 @@ public class ContextDialog extends Dialog {
   }
 
   private void updateVerticalBar() {
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
+    }
     ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
+    if (verticalBar == null || verticalBar.isDisposed()) {
+      return;
+    }
     org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-    if (totalContentHeight < clientArea.height) {
+    // Prefer the height measured in onPaint; canvas bounds can still be the dummy 10x10 size
+    // when filter() runs before the first paint.
+    int contentHeight = totalContentHeight;
+    if (contentHeight <= 0 && wCanvas != null && !wCanvas.isDisposed()) {
+      contentHeight = wCanvas.getBounds().height;
+    }
+
+    if (contentHeight <= clientArea.height) {
       verticalBar.setEnabled(false);
       verticalBar.setVisible(false);
     } else {
       verticalBar.setEnabled(true);
       verticalBar.setVisible(true);
 
-      org.eclipse.swt.graphics.Rectangle bounds = wCanvas.getBounds();
-
       verticalBar.setMinimum(0);
-      verticalBar.setMaximum(bounds.height);
+      verticalBar.setMaximum(contentHeight);
 
-      // How much can we show in percentage?
-      // That's the size of the thumb
-      //
-      verticalBar.setThumb(Math.min(clientArea.height, bounds.height));
+      // Thumb is the visible portion of the content (pixels).
+      // Note: RAP ScrollBar has no setPageIncrement/setIncrement — do not call them here.
+      verticalBar.setThumb(Math.min(clientArea.height, contentHeight));
     }
   }
 

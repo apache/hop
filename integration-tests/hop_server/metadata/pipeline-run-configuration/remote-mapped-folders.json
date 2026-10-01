@@ -1,0 +1,19 @@
+{
+  "engineRunConfiguration": {
+    "Remote": {
+      "export_resources": true,
+      "resources_target_folder": "/hop_server_volume",
+      "resources_source_folder": "${PROJECT_HOME}",
+      "run_config": "local",
+      "server_poll_interval": "",
+      "hop_server": "testserver",
+      "server_poll_delay": ""
+    }
+  },
+  "defaultSelection": false,
+  "configurationVariables": [],
+  "name": "remote-mapped-folders",
+  "description": "Runs a pipeline on the test Hop Server with linked resources exported. The named-resource folders are mapped from the client project folder onto /hop_server_volume, which is the same host folder mounted inside the server container, so the client can observe what the server wrote. Used by main-0015.",
+  "dataProfile": "",
+  "executionInfoLocationName": ""
+}

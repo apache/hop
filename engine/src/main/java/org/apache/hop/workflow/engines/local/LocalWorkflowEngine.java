@@ -31,7 +31,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.util.ExecutorUtil;
@@ -61,8 +60,15 @@ import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
     description = "Executes your workflow locally")
 public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<WorkflowMeta> {
 
+  /**
+   * Must stay in sync with {@code org.apache.hop.spark.util.SparkConst#VAR_TRANSFORM_OWNER_ID}.
+   * Engine cannot depend on the spark plugin.
+   */
+  static final String VAR_SPARK_TRANSFORM_OWNER_ID = "Internal.Spark.TransformOwnerId";
+
   private ExecutionInfoLocation executionInfoLocation;
   private Timer executionInfoTimer;
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   public LocalWorkflowEngine() {
     super();
@@ -255,7 +261,17 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
           startExecutionInfoTimer();
         });
 
-    return super.startExecution();
+    try {
+      return super.startExecution();
+    } finally {
+      // Finished listeners are not guaranteed to run to the end: an earlier listener that throws
+      // skips stopExecutionInfoTimer(), and the cache timer then keeps writing. Close here too.
+      try {
+        stopExecutionInfoTimer();
+      } catch (Exception e) {
+        log.logError("Error closing execution information location after workflow execution", e);
+      }
+    }
   }
 
   /** This method looks up the execution information location specified in the run configuration. */
@@ -273,6 +289,13 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
           executionInfoLocation = location.clone();
 
           IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+          if (iLocation == null) {
+            log.logError(
+                "Execution information location '"
+                    + locationName
+                    + "' has no location plugin configured (non-fatal)");
+            return;
+          }
           // Initialize the location with this workflow's variable space (includes inherited parent
           // pipeline variables after WorkflowExecutor.initializeFrom). This is when
           // ${EXECUTIONS_INFORMATION_FOLDER} / ${HOP_DATA} must resolve.
@@ -318,25 +341,43 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
    * When this workflow is nested under a Native Spark mapPartitions transform (Workflow Executor),
    * the parent transform is registered under a synthetic id {@code pipelineId|name|copy}. Rebind so
    * the execution perspective can drill down from that transform node.
+   *
+   * <p>Uses {@link IVariables#getVariable(String)} (not {@link IVariables#resolve(String)}):
+   * resolve only substitutes {@code ${...}} tokens and returns a bare name unchanged, which would
+   * always overwrite parentId with the literal variable name (issue #7743).
    */
-  private void rebindSparkTransformOwnerParent(Execution execution) {
+  /** Package-private for unit tests. */
+  void rebindSparkTransformOwnerParent(Execution execution) {
     if (execution == null) {
       return;
     }
-    String sparkOwner = resolve("Internal.Spark.TransformOwnerId");
+    String sparkOwner = sparkTransformOwnerId(this);
     if (StringUtils.isNotEmpty(sparkOwner)) {
       execution.setParentId(sparkOwner);
     }
   }
 
-  private void rebindSparkTransformOwnerParent(ExecutionState state) {
+  /** Package-private for unit tests. */
+  void rebindSparkTransformOwnerParent(ExecutionState state) {
     if (state == null) {
       return;
     }
-    String sparkOwner = resolve("Internal.Spark.TransformOwnerId");
+    String sparkOwner = sparkTransformOwnerId(this);
     if (StringUtils.isNotEmpty(sparkOwner)) {
       state.setParentId(sparkOwner);
     }
+  }
+
+  /**
+   * Returns the Spark transform owner id when set on the variable space; otherwise null.
+   *
+   * <p>Package-private for unit tests.
+   */
+  static String sparkTransformOwnerId(IVariables variables) {
+    if (variables == null) {
+      return null;
+    }
+    return variables.getVariable(VAR_SPARK_TRANSFORM_OWNER_ID);
   }
 
   public void startExecutionInfoTimer() {
@@ -346,7 +387,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
-    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
 
@@ -362,17 +402,19 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               // Update the workflow execution state regularly
               //
               ExecutionState executionState =
-                  ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, lastLogLineNr.get())
+                  ExecutionStateBuilder.fromExecutor(
+                          LocalWorkflowEngine.this, executionInfoLastLogLineNr.get())
                       .build();
               rebindSparkTransformOwnerParent(executionState);
               iLocation.updateExecutionState(executionState);
               if (executionState.getLastLogLineNr() != null) {
-                lastLogLineNr.set(executionState.getLastLogLineNr());
+                executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
               }
             } catch (Exception e) {
-              throw new HopRuntimeException(
-                  "Error registering execution info data from transforms at location "
-                      + executionInfoLocation.getName(),
+              log.logError(
+                  "Warning: unable to register execution state at location "
+                      + executionInfoLocation.getName()
+                      + " (non-fatal)",
                   e);
             }
           }
@@ -472,26 +514,35 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     }
   }
 
-  public void stopExecutionInfoTimer() throws HopException {
+  public synchronized void stopExecutionInfoTimer() throws HopException {
     ExecutorUtil.cleanup(executionInfoTimer);
+    executionInfoTimer = null;
 
-    if (executionInfoLocation == null) {
+    ExecutionInfoLocation location = executionInfoLocation;
+    // Claim it so the finished listener and the startExecution() finally do not both flush and
+    // close, and so a second run cannot observe this location while it is being closed.
+    executionInfoLocation = null;
+    if (location == null || location.getExecutionInfoLocation() == null) {
       return;
     }
 
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
     try {
-      IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
-
       // Register one final last state of the workflow
       //
       ExecutionState executionState =
-          ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, -1).build();
+          ExecutionStateBuilder.fromExecutor(
+                  LocalWorkflowEngine.this, executionInfoLastLogLineNr.get())
+              .build();
+      if (executionState.getLastLogLineNr() != null) {
+        executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
+      }
       rebindSparkTransformOwnerParent(executionState);
       iLocation.updateExecutionState(executionState);
     } finally {
       // Nothing more needs to be done. We can now close the location.
       //
-      executionInfoLocation.getExecutionInfoLocation().close();
+      iLocation.close();
     }
   }
 }

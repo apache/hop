@@ -42,9 +42,11 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -54,6 +56,12 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -77,10 +85,22 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
   private WorkflowExecutorMeta workflowExecutorMeta;
 
+  private Label wlPath;
   private TextVar wPath;
+  private Button wbBrowse;
+  private Button wbOpen;
 
-  protected Label wlRunConfiguration;
-  protected ComboVar wRunConfiguration;
+  private Button wbWorkflowNameInField;
+
+  private Label wlWorkflowNameField;
+  private ComboVar wWorkflowNameField;
+
+  private boolean gotPreviousFields = false;
+
+  protected MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
+
+  private Label wlWaitTimeout;
+  private TextVar wWaitTimeout;
 
   private CTabFolder wTabFolder;
 
@@ -144,7 +164,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    Label wlPath = new Label(shell, SWT.RIGHT);
+    ModifyListener lsMod = e -> workflowExecutorMeta.setChanged();
+
+    wlPath = new Label(shell, SWT.RIGHT);
     PropsUi.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Workflow.Label"));
     FormData fdlJobformation = new FormData();
@@ -153,7 +175,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdlJobformation.right = new FormAttachment(middle, -margin);
     wlPath.setLayoutData(fdlJobformation);
 
-    Button wbBrowse = new Button(shell, SWT.PUSH);
+    wbBrowse = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
@@ -162,32 +184,109 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     wbBrowse.setLayoutData(fdBrowse);
     wbBrowse.addListener(SWT.Selection, e -> selectWorkflowFile());
 
+    wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -margin);
+    fdOpen.bottom = new FormAttachment(wlPath, 0, SWT.CENTER);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdPath = new FormData();
     fdPath.left = new FormAttachment(wlPath, margin);
     fdPath.top = new FormAttachment(wlPath, 0, SWT.CENTER);
-    fdPath.right = new FormAttachment(wbBrowse, -margin);
+    fdPath.right = new FormAttachment(wbOpen, -margin);
     wPath.setLayoutData(fdPath);
 
-    wlRunConfiguration = new Label(shell, SWT.RIGHT);
-    wlRunConfiguration.setText(
-        BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"));
-    PropsUi.setLook(wlRunConfiguration);
-    FormData fdlRunConfiguration = new FormData();
-    fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(wPath, margin);
-    fdlRunConfiguration.right = new FormAttachment(middle, -margin);
-    wlRunConfiguration.setLayoutData(fdlRunConfiguration);
+    wbWorkflowNameInField = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wbWorkflowNameInField);
+    wbWorkflowNameInField.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.WorkflowNameInField.Label"));
+    FormData fdWorkflowNameInField = new FormData();
+    fdWorkflowNameInField.left = new FormAttachment(middle, 0);
+    fdWorkflowNameInField.top = new FormAttachment(wPath, margin);
+    wbWorkflowNameInField.setLayoutData(fdWorkflowNameInField);
+    wbWorkflowNameInField.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            workflowExecutorMeta.setChanged();
+            activeWorkflowNameField();
+          }
+        });
 
-    wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wlRunConfiguration);
+    wlWorkflowNameField = new Label(shell, SWT.RIGHT);
+    wlWorkflowNameField.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.WorkflowNameField.Label"));
+    PropsUi.setLook(wlWorkflowNameField);
+    FormData fdlWorkflowNameField = new FormData();
+    fdlWorkflowNameField.left = new FormAttachment(0, 0);
+    fdlWorkflowNameField.right = new FormAttachment(middle, -margin);
+    fdlWorkflowNameField.top = new FormAttachment(wbWorkflowNameInField, margin);
+    wlWorkflowNameField.setLayoutData(fdlWorkflowNameField);
+
+    wWorkflowNameField = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWorkflowNameField);
+    wWorkflowNameField.addModifyListener(lsMod);
+    FormData fdWorkflowNameField = new FormData();
+    fdWorkflowNameField.left = new FormAttachment(middle, 0);
+    fdWorkflowNameField.top = new FormAttachment(wlWorkflowNameField, 0, SWT.CENTER);
+    fdWorkflowNameField.right = new FormAttachment(100, 0);
+    wWorkflowNameField.setLayoutData(fdWorkflowNameField);
+    wWorkflowNameField.setEnabled(false);
+    wWorkflowNameField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            WorkflowRunConfiguration.class,
+            shell,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"),
+            BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Tooltip"));
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment(middle, 0);
-    fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
-    fdRunConfiguration.right = new FormAttachment(wbBrowse, -margin);
+    fdRunConfiguration.left = new FormAttachment(0, 0);
+    fdRunConfiguration.top = new FormAttachment(wWorkflowNameField, margin);
+    fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
-    PropsUi.setLook(wRunConfiguration);
+
+    wlWaitTimeout = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlWaitTimeout);
+    wlWaitTimeout.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.WaitTimeout.Label"));
+    FormData fdlWaitTimeout = new FormData();
+    fdlWaitTimeout.left = new FormAttachment(0, 0);
+    fdlWaitTimeout.top = new FormAttachment(wRunConfiguration, margin);
+    fdlWaitTimeout.right = new FormAttachment(middle, -margin);
+    wlWaitTimeout.setLayoutData(fdlWaitTimeout);
+
+    wWaitTimeout = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWaitTimeout);
+    wWaitTimeout.setToolTipText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.WaitTimeout.Tooltip"));
+    FormData fdWaitTimeout = new FormData();
+    fdWaitTimeout.left = new FormAttachment(middle, 0);
+    fdWaitTimeout.top = new FormAttachment(wlWaitTimeout, 0, SWT.CENTER);
+    fdWaitTimeout.right = new FormAttachment(100, 0);
+    wWaitTimeout.setLayoutData(fdWaitTimeout);
 
     //
     // Add a tab folder for the parameters and various input and output
@@ -199,7 +298,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
+    fdTabFolder.top = new FormAttachment(wWaitTimeout, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -219,6 +318,56 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void getFields() {
+    if (!gotPreviousFields) {
+      try {
+        String field = wWorkflowNameField.getText();
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (r != null) {
+          wWorkflowNameField.setItems(r.getFieldNames());
+        }
+        if (field != null) {
+          wWorkflowNameField.setText(field);
+        }
+      } catch (HopException ke) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingWorkflow.DialogTitle"),
+            BaseMessages.getString(
+                PKG, "WorkflowExecutorDialog.ErrorLoadingWorkflow.DialogMessage"),
+            ke);
+      }
+      gotPreviousFields = true;
+    }
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            workflowExecutorMeta.hasChanged(), wPath.getText(), workflowExecutorMeta.getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? workflowExecutorMeta.getFilename() : null;
+        });
+  }
+
+  private void activeWorkflowNameField() {
+    wlWorkflowNameField.setEnabled(wbWorkflowNameInField.getSelection());
+    wWorkflowNameField.setEnabled(wbWorkflowNameInField.getSelection());
+    wPath.setEnabled(!wbWorkflowNameInField.getSelection());
+    wlPath.setEnabled(!wbWorkflowNameInField.getSelection());
+    wbBrowse.setEnabled(!wbWorkflowNameInField.getSelection());
+    wbOpen.setEnabled(!wbWorkflowNameInField.getSelection());
+    if (wbWorkflowNameInField.getSelection()) {
+      wPath.setText("");
+    } else {
+      wWorkflowNameField.setText("");
+    }
   }
 
   private void selectWorkflowFile() {
@@ -308,9 +457,17 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
       } else {
         wRunConfiguration.setText(workflowExecutorMeta.getRunConfigurationName());
       }
+
+      wbWorkflowNameInField.setSelection(workflowExecutorMeta.isFilenameInField());
+      if (workflowExecutorMeta.getFilenameField() != null) {
+        wWorkflowNameField.setText(workflowExecutorMeta.getFilenameField());
+      }
+      activeWorkflowNameField();
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting workflow run configurations", e);
     }
+
+    wWaitTimeout.setText(Const.NVL(workflowExecutorMeta.getWaitTimeout(), ""));
 
     try {
       String[] prevTransforms = pipelineMeta.getTransformNames();
@@ -498,8 +655,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     // Add a checkbox: inherit all variables...
     //
     wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(
-        BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.InheritAll"));
+    wInheritAll.setText(BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Label"));
+    wInheritAll.setToolTipText(
+        BaseMessages.getString(PKG, "System.Parameters.PassParentValues.Tooltip"));
     PropsUi.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.left = new FormAttachment(0, 0);
@@ -1038,20 +1196,26 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
     transformName = wTransformName.getText(); // return value
 
-    try {
-      loadWorkflow();
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(
-              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_TITLE),
-          BaseMessages.getString(
-              PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE),
-          e);
+    // No check if the workflow to be executed comes from the stream field.
+    if (!wbWorkflowNameInField.getSelection()) {
+      try {
+        loadWorkflow();
+      } catch (HopException e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(
+                PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_TITLE),
+            BaseMessages.getString(
+                PKG, CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE),
+            e);
+      }
     }
 
     workflowExecutorMeta.setFilename(wPath.getText());
+    workflowExecutorMeta.setFilenameInField(wbWorkflowNameInField.getSelection());
+    workflowExecutorMeta.setFilenameField(wWorkflowNameField.getText());
     workflowExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
+    workflowExecutorMeta.setWaitTimeout(wWaitTimeout.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

@@ -187,12 +187,57 @@ class AbstractMetaTest {
     assertNotNull(meta.viewPreviousUndo());
     assertNotNull(meta.viewNextUndo());
     meta.addUndo(from, to, pos, prev, curr, AbstractMeta.TYPE_UNDO_DELETE, false);
-    meta.addUndo(from, to, pos, prev, curr, AbstractMeta.TYPE_UNDO_POSITION, false);
+    Point[] prevPos = new Point[] {new Point(10, 20)};
+    Point[] currPos = new Point[] {new Point(30, 40)};
+    meta.addUndo(from, to, pos, prevPos, currPos, AbstractMeta.TYPE_UNDO_POSITION, false);
     assertNotNull(meta.previousUndo());
     assertNotNull(meta.nextUndo());
     meta.setMaxUndo(1);
     assertEquals(1, meta.getUndoSize());
     meta.addUndo(from, to, pos, prev, curr, AbstractMeta.TYPE_UNDO_NEW, false);
+  }
+
+  @Test
+  void testAddUndoPositionSkipsEmptyOrMismatched() {
+    meta.clearUndo();
+    meta.setMaxUndo(10);
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    Object[] from = new Object[] {transformMeta};
+    int[] pos = new int[] {0};
+
+    // Empty location arrays must not be recorded (and must not throw)
+    meta.addUndo(
+        new Object[0],
+        null,
+        new int[0],
+        new Point[0],
+        new Point[0],
+        AbstractMeta.TYPE_UNDO_POSITION,
+        false);
+    assertEquals(0, meta.getUndoSize());
+
+    // Length mismatch between previous/current locations
+    meta.addUndo(
+        from,
+        null,
+        pos,
+        new Point[] {new Point(1, 1)},
+        new Point[0],
+        AbstractMeta.TYPE_UNDO_POSITION,
+        false);
+    assertEquals(0, meta.getUndoSize());
+
+    // Valid position undo is recorded
+    meta.addUndo(
+        from,
+        null,
+        pos,
+        new Point[] {new Point(1, 1)},
+        new Point[] {new Point(2, 2)},
+        AbstractMeta.TYPE_UNDO_POSITION,
+        false);
+    assertEquals(1, meta.getUndoSize());
+    assertEquals(ChangeAction.ActionType.PositionTransform, meta.viewThisUndo().getType());
   }
 
   @Test

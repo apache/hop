@@ -30,7 +30,6 @@ class ParquetOutputDataTest {
     ParquetOutputData data = new ParquetOutputData();
     assertNull(data.sourceFieldIndexes);
     assertNull(data.outputFields);
-    assertNull(data.conf);
     assertNull(data.props);
     assertNull(data.filename);
     assertNull(data.outputStream);
@@ -43,6 +42,5 @@ class ParquetOutputDataTest {
     assertEquals(0, data.rowGroupSize);
     assertEquals(0, data.pageSize);
     assertEquals(0, data.dictionaryPageSize);
-    assertNull(data.avroSchema);
   }
 }

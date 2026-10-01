@@ -21,7 +21,6 @@
 # This Dockerfile can build all Hop container images using multi-stage builds:
 # - hop (client/server)
 # - hop-web
-# - hop-rest
 # - hop-dataflow-template
 #
 # Build arguments:
@@ -29,7 +28,7 @@
 #   HOP_GIT_REPO: GitHub repository URL
 #   HOP_GIT_TAG: Git tag/branch to build from
 #   HOP_VERSION: Version string for labeling
-#   TARGET_IMAGE: Which image to build (client, web, rest, dataflow)
+#   TARGET_IMAGE: Which image to build (client, web, dataflow)
 #   BUILDER_TYPE: Builder flavor (full, fast)
 ################################################################################
 
@@ -104,17 +103,32 @@ WORKDIR /build
 COPY ./assemblies/client/target/hop-client-*.zip /build/assemblies/client/target/
 COPY ./assemblies/web/target/hop.war /build/assemblies/web/target/
 COPY ./assemblies/plugins/target/hop-assemblies-*.zip /build/assemblies/plugins/target/
-COPY ./rest/target/hop-rest*.war /build/rest/target/
 COPY ./docker/resources/ /build/docker/resources/
 
 # builder-fast produces the same artifacts as builder-full:
 # - /build/assemblies/client/target/hop-client-*.zip
 # - /build/assemblies/web/target/hop.war
 # - /build/assemblies/plugins/target/hop-assemblies-*.zip
-# - /build/rest/target/hop-rest*.war
 # - /build/docker/resources/*
 #
 # These will be extracted and prepared in Stage 3
+
+################################################################################
+# Stage 2b': Fast Builder + marketplace-optional plugins
+################################################################################
+# Same as builder-fast, plus everything Stage 3 needs to install the optional ("Wave 1")
+# plugins from the local reactor output: the helper scripts, the registry they read, and the
+# plugin zips themselves. Docker COPY flattens globs, so the zips land in a single directory
+# and Stage 3 resolves them by file name through HOP_PLUGIN_ZIP_DIR.
+#
+# This is a separate flavor on purpose: the zip glob fails the build when nothing matches, and
+# a plain "fast" build must not start requiring plugins/**/target/*.zip to be present.
+FROM builder-fast AS builder-fast-plugins
+
+COPY ./tools/ /build/tools/
+COPY ./plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml \
+     /build/plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml
+COPY ./plugins/*/*/target/*.zip /build/optional-plugin-zips/
 
 ################################################################################
 # Stage 2c: Builder Selector
@@ -172,16 +186,49 @@ RUN echo "=== Extracting assemblies ===" && \
         echo "WARNING: Plugins assembly not found, will use built plugins directly"; \
     fi
 
+# Step 1b: Install the marketplace-optional ("Wave 1") plugins into the extracted client
+#
+# These plugins are released to Maven but deliberately kept out of hop-client.zip, so they are
+# absent from the images unless requested. The list is read from optional-plugins.yaml, the same
+# source of truth Jenkins and the integration tests use (tools/install-wave1-plugins.sh).
+#
+# Note: the Beam engine is one of these plugins and it owns the --generate-fat-jar option, so the
+# dataflow and web-beam targets require this to be enabled (build-hop-images.sh does that for you).
+#
+# Works with both builders: "full" resolves the zips from the reactor it just built, "fast" from
+# the flat directory it copied out of the local plugins/**/target/ folders (HOP_PLUGIN_ZIP_DIR).
+ARG INCLUDE_OPTIONAL_PLUGINS=false
+RUN if [ "${INCLUDE_OPTIONAL_PLUGINS}" = "true" ]; then \
+        echo "=== Installing marketplace-optional plugins ===" && \
+        if [ ! -f /build/tools/install-wave1-plugins.sh ]; then \
+            echo "ERROR: tools/install-wave1-plugins.sh is not present in this builder." && \
+            exit 1; \
+        fi && \
+        HOP_VERSION="$(ls /build/assemblies/client/target/hop-client-*.zip | head -1 | sed -e 's#.*/hop-client-##' -e 's#\.zip$##')" && \
+        echo "Hop version: ${HOP_VERSION}" && \
+        export HOP_VERSION && \
+        export HOP_PLUGIN_ZIP_DIR=/build/optional-plugin-zips && \
+        bash /build/tools/install-wave1-plugins.sh /build/assemblies/client/target/hop; \
+    else \
+        echo "=== Skipping marketplace-optional plugins (INCLUDE_OPTIONAL_PLUGINS=false) ==="; \
+    fi
+
 # Step 2: Generate fat jar for dataflow template (only if needed)
 ARG SKIP_FAT_JAR=false
 RUN if [ "${SKIP_FAT_JAR}" = "false" ]; then \
         echo "=== Generating fat jar ===" && \
-        if [ -f /build/assemblies/client/target/hop/hop-conf.sh ]; then \
-            /build/assemblies/client/target/hop/hop-conf.sh \
-            --generate-fat-jar=/tmp/hop-fatjar.jar; \
-        else \
+        if [ ! -f /build/assemblies/client/target/hop/hop-conf.sh ]; then \
             echo "ERROR: hop-conf.sh not found" && exit 1; \
-        fi; \
+        fi && \
+        # --generate-fat-jar is contributed by the Beam engine plugin, which is marketplace-optional.
+        # Without it hop-conf silently produces nothing usable, so fail loudly instead.
+        if [ ! -d /build/assemblies/client/target/hop/plugins/engines/beam ]; then \
+            echo "ERROR: the Beam engine plugin is missing, so the fat jar cannot be generated." && \
+            echo "       Rebuild with --with-optional-plugins (INCLUDE_OPTIONAL_PLUGINS=true)." && \
+            exit 1; \
+        fi && \
+        /build/assemblies/client/target/hop/hop-conf.sh \
+        --generate-fat-jar=/tmp/hop-fatjar.jar; \
     else \
         echo "=== Skipping fat jar generation (not needed) ===" && \
         touch /tmp/hop-fatjar.jar; \
@@ -193,11 +240,15 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/config /build/hop-web-prepared/webapps/ROOT/ && \
     cp -r /build/assemblies/client/target/hop/plugins /build/hop-web-prepared/ && \
     cp -r /build/assemblies/client/target/hop/lib/jdbc/ /build/hop-web-prepared/jdbc-drivers && \
-    cp -r /build/assemblies/client/target/hop/lib/beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
+    # Beam SDKs unpack under lib/core when the marketplace Beam plugin is installed (#7721/#7722).
+    # Legacy plugins/engines/beam/lib-beam is no longer produced; do not require it (apache/hop#7748).
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
-    chmod +x /build/hop-web-prepared/run-web.sh
+    chmod +x /build/hop-web-prepared/run-web.sh && \
+    # Tomcat configuration with response compression (see the comments in the file)
+    mkdir -p /build/hop-web-prepared/conf && \
+    cp /build/docker/resources/server.xml /build/hop-web-prepared/conf/server.xml
 
 # Make scripts executable
 RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
@@ -222,18 +273,6 @@ RUN mkdir -p /build/hop-client-prepared && \
     cp /build/docker/resources/run.sh /build/hop-client-prepared/run.sh && \
     cp /build/docker/resources/load-and-execute.sh /build/hop-client-prepared/load-and-execute.sh && \
     chmod +x /build/hop-client-prepared/run.sh /build/hop-client-prepared/load-and-execute.sh
-
-# Prepare Hop REST directory structure
-RUN mkdir -p /build/hop-rest-prepared/plugins && \
-    mkdir -p /build/hop-rest-prepared/webapps && \
-    mkdir -p /build/hop-rest-prepared/lib/swt/linux/x86_64 && \
-    # Copy plugins
-    cp -r /build/assemblies/plugins/target/plugins/* /build/hop-rest-prepared/plugins/ && \
-    # Copy REST war
-    cp /build/rest/target/hop-rest*.war /build/hop-rest-prepared/webapps/hop.war && \
-    # Copy run script
-    cp /build/docker/resources/run-rest.sh /build/hop-rest-prepared/run-rest.sh && \
-    chmod +x /build/hop-rest-prepared/run-rest.sh
 
 ################################################################################
 # Stage 4a: Hop Client/Server Image (Standard)
@@ -288,8 +327,7 @@ RUN addgroup -g ${HOP_GID} -S hop \
     && adduser -u ${HOP_UID} -S -D -G hop hop \
     && chmod 777 -R /tmp && chmod o+t -R /tmp \
     && apk update \
-    && apk --no-cache add bash curl fontconfig msttcorefonts-installer openjdk21-jre procps \
-    && update-ms-fonts \
+    && apk --no-cache add bash curl fontconfig font-dejavu font-noto-cjk openjdk21-jre procps \
     && fc-cache -f \
     && rm -rf /var/cache/apk/* \
     && mkdir ${DEPLOYMENT_PATH} \
@@ -324,10 +362,10 @@ ARG HOP_GID=501
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS=${CATALINA_HOME}/plugins
 ENV HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"
@@ -356,11 +394,17 @@ ENV CATALINA_OPTS='${HOP_OPTIONS} \
   -DHOP_GUI_ZOOM_FACTOR="${HOP_GUI_ZOOM_FACTOR}"'
 
 # Create Hop user
-RUN groupadd -r hop -g ${HOP_GID} \
+# fonts-noto-cjk: the canvas is painted server-side; without a CJK font the JVM measures
+# Chinese/Japanese/Korean names as missing-glyph boxes and lays them out too narrow (#8528)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
-    && mkdir "${HOP_AUDIT_FOLDER}" \
+    && mkdir -p "${HOP_AUDIT_FOLDER}" \
+    && chown hop:hop "${HOP_AUDIT_FOLDER}" \
     && chown -R hop:hop /usr/local/tomcat
 
 # Copy resources (matching original Dockerfile.web layer structure)
@@ -370,43 +414,6 @@ USER hop
 
 CMD ["/bin/bash", "/usr/local/tomcat/run-web.sh"]
 
-
-################################################################################
-# Stage 4c: Hop REST Image
-################################################################################
-FROM tomcat:10-jdk21 AS rest
-
-# Environment variables
-ENV HOP_CONFIG_FOLDER=""
-ENV HOP_AES_ENCODER_KEY=""
-ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
-ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
-ENV HOP_LOG_LEVEL="Basic"
-ENV HOP_OPTIONS="-Xmx4g"
-ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
-ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
-ENV HOP_SHARED_JDBC_FOLDERS=""
-ENV HOP_REST_CONFIG_FOLDER="/config"
-
-# Set TOMCAT start variables
-ENV CATALINA_OPTS='${HOP_OPTIONS} \
-  -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" \
-  -DHOP_AES_ENCODER_KEY_FILE="${HOP_AES_ENCODER_KEY_FILE}" \
-  -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" \
-  -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" \
-  -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" \
-  -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" \
-  -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" \
-  -DHOP_REST_CONFIG_FOLDER="${HOP_REST_CONFIG_FOLDER}" \
-  -DHOP_SHARED_JDBC_FOLDERS="${HOP_SHARED_JDBC_FOLDERS}"\'
-
-# Cleanup and copy resources
-RUN rm -rf webapps/*
-
-COPY --from=builder /build/hop-rest-prepared/ "${CATALINA_HOME}"/
-
-CMD ["/bin/bash", "/usr/local/tomcat/run-rest.sh"]
 
 ################################################################################
 # Stage 4d: Hop Dataflow Template Image

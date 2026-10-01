@@ -57,20 +57,19 @@ public class GitConfigSingleton {
     HopConfig.getInstance().getConfigMap().put(GitConfig.HOP_CONFIG_GIT_CONFIG_KEY, gitConfig);
   }
 
-  public static GitConfigSingleton getInstance() {
-    return configSingleton;
-  }
-
-  public static GitConfig getConfig() {
+  public static synchronized GitConfigSingleton getInstance() {
     if (configSingleton == null) {
       configSingleton = new GitConfigSingleton();
     }
-    return configSingleton.gitConfig;
+    return configSingleton;
   }
 
-  public static void saveConfig() throws HopException {
-    HopConfig.getInstance()
-        .saveOption(GitConfig.HOP_CONFIG_GIT_CONFIG_KEY, configSingleton.gitConfig);
+  public static synchronized GitConfig getConfig() {
+    return getInstance().gitConfig;
+  }
+
+  public static synchronized void saveConfig() throws HopException {
+    HopConfig.getInstance().saveOption(GitConfig.HOP_CONFIG_GIT_CONFIG_KEY, getConfig());
     HopConfig.getInstance().saveToFile();
   }
 }

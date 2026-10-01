@@ -34,6 +34,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.TempFileUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
@@ -255,7 +256,7 @@ public final class HopSparkDeployHelper {
       } else {
         String home = resolveProjectHome(variables, options.projectHome());
         try {
-          packageLocal = Files.createTempFile("hop-dbx-spark-pkg-", ".zip");
+          packageLocal = TempFileUtil.createTempFile("hop-dbx-spark-pkg-", ".zip");
           packageLocal.toFile().deleteOnExit();
         } catch (Exception e) {
           throw new HopException("Unable to create temp file for Spark project package", e);
@@ -295,7 +296,7 @@ public final class HopSparkDeployHelper {
       Path metadataLocal;
       try {
         String json = new SerializableMetadataProvider(metadataProvider).toJson();
-        metadataLocal = Files.createTempFile("hop-dbx-metadata-", ".json");
+        metadataLocal = TempFileUtil.createTempFile("hop-dbx-metadata-", ".json");
         metadataLocal.toFile().deleteOnExit();
         Files.writeString(metadataLocal, json, StandardCharsets.UTF_8);
       } catch (Exception e) {
@@ -502,7 +503,7 @@ public final class HopSparkDeployHelper {
       if (Files.isRegularFile(Paths.get(pathOrVfs))) {
         return Paths.get(pathOrVfs);
       }
-      Path temp = Files.createTempFile(prefix, suffix);
+      Path temp = TempFileUtil.createTempFile(prefix, suffix);
       temp.toFile().deleteOnExit();
       try (var in = HopVfs.getInputStream(pathOrVfs);
           var out = Files.newOutputStream(temp)) {

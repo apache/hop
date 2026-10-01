@@ -19,4 +19,12 @@ package org.apache.hop.ui.hopgui;
 
 public interface ISingletonProvider {
   Object getInstanceInternal();
+
+  /**
+   * Existing instance, or {@code null} if one has not been created. Must not construct a GUI.
+   * Default is {@code null} so providers that only create on demand stay inert during tests.
+   */
+  default Object peekInstanceInternal() {
+    return null;
+  }
 }

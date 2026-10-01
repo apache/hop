@@ -185,12 +185,20 @@ public class ActionEvalTableContent extends ActionBase {
     return successConditionsDesc[i];
   }
 
+  public void setConnection(String connection) {
+    this.connection = connection;
+    // Invalidate the resolved connection, it's looked up again lazily.
+    this.databaseMeta = null;
+  }
+
   public DatabaseMeta getDatabase() {
     if (databaseMeta != null) {
       return databaseMeta;
     }
     try {
-      databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
+      // Resolved, like every other action and transform that names a connection: a workflow may
+      // hand the name in as a parameter, which is how one test runs against two servers.
+      databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), resolve(connection));
       return databaseMeta;
     } catch (HopXmlException e) {
       return null;

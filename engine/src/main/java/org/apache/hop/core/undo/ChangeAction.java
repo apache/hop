@@ -117,6 +117,10 @@ public class ChangeAction {
   }
 
   public void setDelete(Object[] prev, int[] idx) {
+    if (prev == null || prev.length == 0) {
+      return;
+    }
+
     current = prev;
     currentIndex = idx;
 
@@ -141,6 +145,10 @@ public class ChangeAction {
   }
 
   public void setChanged(Object[] prev, Object[] curr, int[] idx) {
+    if (prev == null || prev.length == 0) {
+      return;
+    }
+
     previous = prev;
     current = curr;
     currentIndex = idx;
@@ -167,7 +175,7 @@ public class ChangeAction {
   }
 
   public void setNew(Object[] prev, int[] position) {
-    if (prev.length == 0) {
+    if (prev == null || prev.length == 0) {
       return;
     }
 
@@ -196,7 +204,14 @@ public class ChangeAction {
   }
 
   public void setPosition(Object[] obj, int[] idx, Point[] prev, Point[] curr) {
-    if (prev.length != curr.length) {
+    // Nothing to record: empty selection, or mouse-down/up selection size mismatch
+    if (obj == null
+        || obj.length == 0
+        || prev == null
+        || curr == null
+        || prev.length == 0
+        || prev.length != curr.length
+        || obj.length != prev.length) {
       return;
     }
 

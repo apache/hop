@@ -151,15 +151,15 @@ public class WebServiceAvailable
 
       // addwebservice available to the row
       // copy row to output rowset(s)
-      putRow(
-          data.outputRowMeta, RowDataUtil.addValueData(r, data.nrPrevFields, webServiceAvailable));
+      Object[] outputRow = RowDataUtil.addValueData(r, data.nrPrevFields, webServiceAvailable);
+      putRow(data.outputRowMeta, outputRow);
 
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
                 PKG,
                 "FileExists.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRow)));
       }
     } catch (Exception e) {
       boolean sendToErrorRow = false;

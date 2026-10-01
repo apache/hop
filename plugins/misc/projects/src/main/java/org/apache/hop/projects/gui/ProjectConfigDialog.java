@@ -20,11 +20,15 @@ package org.apache.hop.projects.gui;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.ProjectRenameBlockedException;
+import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -32,6 +36,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -42,6 +47,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -58,7 +64,7 @@ public class ProjectConfigDialog extends Dialog {
   private final String originalName;
 
   private Shell shell;
-  private Text wName;
+  private TextVar wName;
   private TextVar wHome;
   private TextVar wConfigFile;
   private ComboVar wGroup;
@@ -117,7 +123,9 @@ public class ProjectConfigDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin * 2);
     wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.BORDER);
+    wName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
@@ -143,7 +151,9 @@ public class ProjectConfigDialog extends Dialog {
     wbHome.setLayoutData(fdbHome);
     wbHome.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wHome, variables));
-    wHome = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER);
+    wHome =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FOLDER);
     PropsUi.setLook(wHome);
     FormData fdHome = new FormData();
     fdHome.left = new FormAttachment(middle, margin);
@@ -172,6 +182,7 @@ public class ProjectConfigDialog extends Dialog {
     Label wlGroup = new Label(shell, SWT.RIGHT);
     PropsUi.setLook(wlGroup);
     wlGroup.setText(BaseMessages.getString(PKG, "ProjectConfigDialog.Label.Group"));
+    wlGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectConfigDialog.Label.Group.Tooltip"));
     FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment(0, 0);
     fdlGroup.right = new FormAttachment(middle, 0);
@@ -179,6 +190,7 @@ public class ProjectConfigDialog extends Dialog {
     wlGroup.setLayoutData(fdlGroup);
     wGroup = new ComboVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wGroup);
+    wGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectConfigDialog.Label.Group.Tooltip"));
     FormData fdGroup = new FormData();
     fdGroup.left = new FormAttachment(middle, margin);
     fdGroup.right = new FormAttachment(100, 0);
@@ -259,10 +271,14 @@ public class ProjectConfigDialog extends Dialog {
 
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       if (!name.equals(originalName)) {
+        // Project names are unique regardless of case, a case-only rename is fine
         ProjectConfig clash = config.findProjectConfig(name);
-        if (clash != null) {
+        if (clash != null && !clash.getProjectName().equalsIgnoreCase(originalName)) {
           throw new IllegalArgumentException(
               BaseMessages.getString(PKG, "ProjectConfigDialog.Error.NameExists", name));
+        }
+        if (StringUtils.isNotEmpty(originalName) && !checkRename(name)) {
+          return;
         }
       }
 
@@ -281,6 +297,24 @@ public class ProjectConfigDialog extends Dialog {
           BaseMessages.getString(PKG, "ProjectConfigDialog.Error.Header"),
           BaseMessages.getString(PKG, "ProjectConfigDialog.Error.Message"),
           e);
+    }
+  }
+
+  /**
+   * Verify that the projects using this one as their parent can follow the rename.
+   *
+   * @return false when the rename is blocked, the reason was shown to the user
+   */
+  private boolean checkRename(String newName) {
+    try {
+      ProjectsUtil.checkProjectRename(originalName, newName, variables, LogChannel.UI);
+      return true;
+    } catch (ProjectRenameBlockedException e) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      box.setText(BaseMessages.getString(Project.class, "ProjectRename.Blocked.Header"));
+      box.setMessage(e.getUserMessage());
+      box.open();
+      return false;
     }
   }
 

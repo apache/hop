@@ -135,7 +135,8 @@ public class KafkaConsumerField {
     TOPIC("topic"),
     PARTITION("partition"),
     OFFSET("offset"),
-    TIMESTAMP("timestamp");
+    TIMESTAMP("timestamp"),
+    HEADERS("headers");
 
     private final String code;
 

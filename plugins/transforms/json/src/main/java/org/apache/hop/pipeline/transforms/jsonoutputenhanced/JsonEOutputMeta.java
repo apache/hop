@@ -184,27 +184,6 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
     jsonBloc = "";
   }
 
-  public JsonEOutputMeta(JsonEOutputMeta m) {
-    this();
-    this.addingToResult = m.addingToResult;
-    this.encoding = m.encoding;
-    this.jsonBloc = m.jsonBloc;
-    this.jsonPrettified = m.jsonPrettified;
-    this.jsonSizeFieldName = m.jsonSizeFieldName;
-    this.operationType = m.operationType;
-    this.outputValue = m.outputValue;
-    this.useArrayWithSingleInstance = m.useArrayWithSingleInstance;
-    this.useSingleItemPerGroup = m.useSingleItemPerGroup;
-    this.fileSettings = new FileSettings(m.fileSettings);
-    m.keyFields.forEach(f -> this.keyFields.add(new JsonEOutputKeyField(f)));
-    m.outputFields.forEach(f -> this.outputFields.add(new JsonEOutputField(f)));
-  }
-
-  @Override
-  public Object clone() {
-    return new JsonEOutputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

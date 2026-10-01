@@ -57,8 +57,15 @@ public class HopLogLayout {
     Object object = event.getMessage();
     if (object instanceof LogMessage message) {
 
-      String[] parts =
-          message.getMessage() == null ? new String[] {} : message.getMessage().split(Const.CR);
+      // Append the message's stack trace (pre-rendered, or rendered on demand from an attached
+      // throwable) so console/file output still shows it.
+      String text = message.getMessage();
+      String stackTrace = message.getStackTrace();
+      if (stackTrace != null && !stackTrace.isEmpty()) {
+        text = (text == null || text.isEmpty()) ? stackTrace : text + Const.CR + stackTrace;
+      }
+
+      String[] parts = text == null ? new String[] {} : text.split(Const.CR);
       for (int i = 0; i < parts.length; i++) {
         // Start every line of the output with a dateTimeString
         if (!message.isSimplified()) {

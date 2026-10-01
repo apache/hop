@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
+:page-marketplace: hop-tech-neo4j
 
 = Neo4j Perspective
 
@@ -29,5 +30,9 @@ The perspective shows the value the `NEO4J_LOGGING_CONNECTION` (used to load exe
 For the selected workflow or pipeline, or all executions if none selected), the id, name, type, number of rows read, written, input, output and rejected, the number of error rows and the execution date and duration are shown.
 
 In the bottom half of the perspective dialog, the logging text, path to errors and a number of useful cypher queries are shown.
+
+Selecting an execution and clicking Open takes you to the pipeline or workflow behind it, with the failing transform or action selected.
+
+IMPORTANT: This perspective only shows executions written by the Neo4j logging in `NEO4J_LOGGING_CONNECTION`. Executions written by a xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j] xref:metadata-types/execution-information-location.adoc[execution information location] are stored with a different set of properties and do not appear here: they are shown in the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective], which gains extra Lineage, Error path and Cypher tabs when the location is a Neo4j one. Both write `Execution` nodes and `EXECUTES` relationships, so point them at separate databases if you use both.
 
 TIP: While fully functional we recommend you use the xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j] xref:metadata-types/execution-information-location.adoc[execution information location] plugin.

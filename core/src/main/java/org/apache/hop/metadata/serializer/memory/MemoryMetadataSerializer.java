@@ -110,6 +110,19 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
   }
 
   @Override
+  public String readVirtualPath(String name) throws HopException {
+    if (name == null) {
+      throw new HopException("Error: you need to specify the name of the metadata object to load");
+    }
+    T object = objectMap.get(name);
+    if (object == null) {
+      throw new HopException("Object '" + name + "' does not exist");
+    }
+    String virtualPath = object.getVirtualPath();
+    return virtualPath == null ? "" : virtualPath;
+  }
+
+  @Override
   public boolean exists(String name) throws HopException {
     return objectMap.containsKey(name);
   }

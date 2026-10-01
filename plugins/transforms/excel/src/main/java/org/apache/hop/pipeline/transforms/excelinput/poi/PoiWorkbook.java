@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.excelinput.poi;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.exception.HopException;
@@ -45,10 +46,17 @@ public class PoiWorkbook implements IKWorkbook {
   private POIFSFileSystem poifs;
 
   public PoiWorkbook(String filename, String encoding, IVariables variables) throws HopException {
+    this(filename, encoding, null, variables);
+  }
+
+  public PoiWorkbook(String filename, String encoding, String password, IVariables variables)
+      throws HopException {
     this.filename = filename;
     this.encoding = encoding;
     this.log = HopLogStore.getLogChannelFactory().create(this);
     this.variables = variables;
+    // POI treats an empty password as "no password", null is what its API expects in that case
+    String realPassword = StringUtils.isEmpty(password) ? null : password;
     try {
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
       if (fileObject instanceof LocalFile) {
@@ -57,15 +65,23 @@ public class PoiWorkbook implements IKWorkbook {
         //
         String localFilename = HopVfs.getFilename(fileObject);
         File excelFile = new File(localFilename);
-        try {
-          poifs = new POIFSFileSystem(excelFile, true);
-          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(poifs);
-        } catch (Exception ofe) {
-          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile, null, true);
+        if (realPassword != null) {
+          // An encrypted workbook can't be read straight from the POIFS container, POI has to
+          // decrypt it first. The password aware factory method handles both XLS and XLSX.
+          //
+          workbook =
+              org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile, realPassword, true);
+        } else {
+          try {
+            poifs = new POIFSFileSystem(excelFile, true);
+            workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(poifs);
+          } catch (Exception ofe) {
+            workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile, null, true);
+          }
         }
       } else {
         try (InputStream internalIS = HopVfs.getInputStream(filename, variables)) {
-          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(internalIS);
+          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(internalIS, realPassword);
         }
       }
     } catch (Exception e) {
@@ -74,10 +90,17 @@ public class PoiWorkbook implements IKWorkbook {
   }
 
   public PoiWorkbook(InputStream inputStream, String encoding) throws HopException {
+    this(inputStream, encoding, null);
+  }
+
+  public PoiWorkbook(InputStream inputStream, String encoding, String password)
+      throws HopException {
     this.encoding = encoding;
 
     try {
-      workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(inputStream);
+      workbook =
+          org.apache.poi.ss.usermodel.WorkbookFactory.create(
+              inputStream, StringUtils.isEmpty(password) ? null : password);
     } catch (Exception e) {
       throw new HopException(e);
     }

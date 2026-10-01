@@ -50,13 +50,16 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0087-javascript-basics UNIT</name>
+      <name>Run Pipeline Unit Tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
           <name>0087-javascript-basics UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0087-javascript-loadscript-from-tab UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -108,13 +111,13 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0087-javascript-basics UNIT</to>
+      <to>Run Pipeline Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0087-javascript-basics UNIT</from>
+      <from>Run Pipeline Unit Tests</from>
       <to>Simple evaluation</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -348,6 +349,33 @@ class XmlInputStreamTest {
     assertEquals("some data", rl.getWritten().get(2)[3]);
     assertEquals("CHARACTERS", rl.getWritten().get(3)[0]);
     assertEquals("other data", rl.getWritten().get(3)[3]);
+  }
+
+  @Test
+  void doesNotResolveExternalEntities() throws Exception {
+    File secret = File.createTempFile("xxe-secret", ".txt");
+    secret.deleteOnExit();
+    try (Writer writer = new PrintWriter(secret, "UTF8")) {
+      writer.write("CANARY_SECRET_VALUE");
+    }
+
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<!DOCTYPE root [ <!ENTITY xxe SYSTEM \""
+            + secret.toURI()
+            + "\"> ]>"
+            + "<root>&xxe;</root>";
+    xmlInputStreamMeta.setFilename(createTestFile(xml));
+
+    assertThrows(HopException.class, this::doTest);
+
+    for (Object[] row : rl.getWritten()) {
+      for (Object cell : row) {
+        if (cell instanceof String value) {
+          assertFalse(value.contains("CANARY_SECRET_VALUE"));
+        }
+      }
+    }
   }
 
   private void doTest() throws HopException {

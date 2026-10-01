@@ -60,3 +60,6 @@
 !lib/**
 !lib-jdbc/
 !lib-jdbc/**
+# Build helpers used inside the unified Dockerfile (marketplace-optional plugin install)
+!tools/
+!tools/**

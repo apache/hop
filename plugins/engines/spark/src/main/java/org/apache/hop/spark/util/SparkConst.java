@@ -35,8 +35,10 @@ public final class SparkConst {
   public static final String MEMORY_GROUP_BY_PLUGIN_ID = "MemoryGroupBy";
   public static final String MERGE_JOIN_PLUGIN_ID = "MergeJoin";
   public static final String UNIQUE_ROWS_PLUGIN_ID = "Unique";
+  public static final String UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID = "UniqueRowsByHashSet";
   public static final String SORT_ROWS_PLUGIN_ID = "SortRows";
   public static final String GROUP_BY_PLUGIN_ID = "GroupBy";
+  public static final String JOIN_ROWS_PLUGIN_ID = "JoinRows";
 
   public static final String SPARK_FILE_INPUT_PLUGIN_ID = "SparkFileInput";
   public static final String SPARK_FILE_OUTPUT_PLUGIN_ID = "SparkFileOutput";
@@ -49,6 +51,9 @@ public final class SparkConst {
   public static final String SPARK_LAKE_TABLE_MERGE_PLUGIN_ID = "SparkLakeTableMerge";
 
   public static final String SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID = "SparkLakeTableMaintenance";
+
+  /** Spark SQL over the Datasets of the incoming transforms — native Spark only. */
+  public static final String SPARK_SQL_PLUGIN_ID = "SparkSql";
 
   private SparkConst() {}
 }

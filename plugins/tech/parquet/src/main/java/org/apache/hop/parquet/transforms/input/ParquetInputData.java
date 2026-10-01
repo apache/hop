@@ -17,7 +17,6 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import java.io.InputStream;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -30,8 +29,7 @@ public class ParquetInputData extends BaseTransformData implements ITransformDat
   public IRowMeta outputRowMeta;
   public int filenameFieldIndex;
   public ParquetReader<RowMetaAndData> reader;
-  public InputStream inputStream;
-  public boolean readerClosed = false;
+  public ParquetStream parquetStream;
 
   public ParquetInputData() {
     super();

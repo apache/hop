@@ -78,18 +78,6 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     this("");
   }
 
-  public ActionDeleteResultFilenames(ActionDeleteResultFilenames a) {
-    super(a);
-    this.specifyWildcard = a.specifyWildcard;
-    this.wildcard = a.wildcard;
-    this.wildcardExclude = a.wildcardExclude;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionDeleteResultFilenames(this);
-  }
-
   @Override
   public Result execute(Result result, int nr) {
     result.setResult(false);

@@ -41,12 +41,27 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 
+/**
+ * Drag-and-drop reordering and splitting of editor tabs, on the desktop and in Hop Web alike.
+ *
+ * <ul>
+ *   <li>Drop a tab on another tab of the same folder to reorder them.
+ *   <li>Drop a tab in the outer {@link #EDGE_FRACTION} band of a folder to split it off into a new
+ *       pane on that side (right / bottom / left / top).
+ *   <li>Drop a tab into another open pane to move it there.
+ * </ul>
+ *
+ * <p>All of it works in Hop Web too, with three RAP-specific adjustments: the drop frame is a child
+ * composite of the folder rather than a floating shell ({@link TabDropFrame}); the tab being
+ * dragged is settled from the MouseDown that RAP delivers just after the DragStart ({@link
+ * #settleDragItem}); and the tab is shared across the panes of a perspective ({@link
+ * #activeDragItem()}), because a pane that did not start the drag has no {@code dragItem} of its
+ * own and RAP has dropped the transfer types from the event by the time the drop is accepted.
+ */
 public class TabItemReorder {
 
   /** Fraction of the folder width/height near an edge that triggers a split-on-drop. */
@@ -62,6 +77,14 @@ public class TabItemReorder {
    * drop a silent no-op until a second try.
    */
   private CTabItem mouseDownItem;
+
+  /**
+   * True from {@code dragStart} to {@code dragFinished} of a drag that started on this folder. Hop
+   * Web needs it: RAP hands the folder its {@code DragStart} before the {@code MouseDown} of the
+   * same request, so {@link #dragItem} can only be settled from {@link #mouseDownItem} once the
+   * drag is under way, and only by the folder the drag started on (see {@link #settleDragItem}).
+   */
+  private boolean dragging;
 
   /**
    * Tab under the cursor during a tab drag; drop will swap with this tab. Painted as drop
@@ -80,31 +103,39 @@ public class TabItemReorder {
   private int lastDragOverZone = IHopPerspective.DROP_ZONE_CENTER;
 
   /**
-   * Overlay marking where a split-on-drop would land; a hollow frame (see {@link #overlayRegion})
-   * so the cursor passes through its centre to the folder underneath instead of stealing the drag.
+   * The frame marking where the drop would land: around the tab to swap with (Hop Web only, the
+   * desktop paints that one on the folder) or around the half of the folder an edge drop would
+   * split off.
    */
-  private Shell zoneOverlay;
+  private final TabDropFrame dropFrame = TabDropFrame.create();
 
-  /** The frame-shaped region applied to {@link #zoneOverlay}; disposed with it. */
-  private Region overlayRegion;
-
-  /** Zone/folder the overlay currently reflects, so we only touch the Shell when they change. */
+  /** What the frame currently shows, so it is only touched when that changes. */
   private int shownZone = IHopPerspective.DROP_ZONE_CENTER;
 
+  private CTabItem shownTab;
   private CTabFolder shownFolder;
 
   public TabItemReorder(IHopPerspective perspective, CTabFolder folder) {
     this.perspective = perspective;
+    folder.addListener(SWT.Dispose, e -> dropFrame.dispose());
 
     // Remember which tab the pointer went down on: dragStart can't reliably re-derive it from the
-    // cursor location on the first macOS drag of a session.
+    // cursor location on the first macOS drag of a session, and in Hop Web it runs before this
+    // listener. Forget it again on release so that a later drag never picks up a stale tab.
     folder.addListener(
         SWT.MouseDown,
         e -> {
           if (e.button == 1) {
             mouseDownItem = folder.getItem(new Point(e.x, e.y));
+            // In Hop Web, DragStart of the same request may have already run and left the drag
+            // waiting for this tab (it runs before this listener). Settle it now, in the same
+            // request as DragStart, so even a fast drop - one that reaches the target pane before
+            // any drag-over settles the tab there - already has it. Otherwise the merge only works
+            // when the pointer lingers long enough for a source drag-over to fire first.
+            settleDragItem(folder);
           }
         });
+    folder.addListener(SWT.MouseUp, e -> mouseDownItem = null);
 
     final DragSource source = new DragSource(folder, DND.DROP_MOVE);
     source.setTransfer(TabTransfer.INSTANCE);
@@ -115,13 +146,22 @@ public class TabItemReorder {
           @Override
           public void dragStart(DragSourceEvent event) {
             dragItem = itemBeingDragged(folder);
+            perspective.setDraggedTabItem(dragItem);
 
             if (dragItem == null) {
+              if (EnvironmentUtils.getInstance().isWeb()) {
+                // RAP delivers this before the MouseDown of the same request, and by the time the
+                // drag threshold is passed the pointer has often left the tab strip. Keep the drag
+                // alive: settleDragItem picks the tab up from that MouseDown on the next event.
+                dragging = true;
+                return;
+              }
               // Couldn't identify the tab (e.g. drag not started from a tab): cancel cleanly rather
               // than begin a data-less drag that would silently do nothing on drop.
               event.doit = false;
               return;
             }
+            dragging = true;
             Rectangle columnBounds = dragItem.getBounds();
             if (dragImage != null) {
               dragImage.dispose();
@@ -149,12 +189,16 @@ public class TabItemReorder {
 
           @Override
           public void dragSetData(DragSourceEvent event) {
+            settleDragItem(folder);
             event.data = dragItem;
           }
 
           @Override
           public void dragFinished(DragSourceEvent event) {
             dragItem = null;
+            mouseDownItem = null;
+            dragging = false;
+            perspective.setDraggedTabItem(null);
             if (EnvironmentUtils.getInstance().isWeb()) {
               return;
             }
@@ -172,7 +216,8 @@ public class TabItemReorder {
         FileTransfer.getInstance(),
         MetadataTransfer.INSTANCE);
 
-    // Paint a drop indicator (highlight) on the tab we're about to swap with
+    // Paint a drop indicator (highlight) on the tab we're about to swap with. RAP delivers no paint
+    // events for a folder; Hop Web shows the drop frame around that tab instead (updateDropFrame).
     Listener paintListener =
         event -> {
           if (dropTargetTab == null || dragItem == null || dropTargetTab.isDisposed()) {
@@ -196,6 +241,7 @@ public class TabItemReorder {
 
           @Override
           public void dragEnter(DropTargetEvent event) {
+            settleDragItem(folder);
             lastDragOverZone = IHopPerspective.DROP_ZONE_CENTER;
             isFileDrop = isFileTransferType(event);
             isMetadataDrop = isMetadataTransferType(event);
@@ -229,6 +275,7 @@ public class TabItemReorder {
 
           @Override
           public void dragOver(DropTargetEvent event) {
+            settleDragItem(folder);
             if (!isFileDrop && !isMetadataDrop) {
               isFileDrop = isFileTransferType(event);
               isMetadataDrop = isMetadataTransferType(event);
@@ -248,7 +295,9 @@ public class TabItemReorder {
             handleDragEvent(event);
             // Update drop indicator (tab reorder) and split zone (edge drop) feedback.
             boolean tabDrag =
-                !isFileDrop && !isMetadataDrop && (dragItem != null || hasActiveTabTransfer(event));
+                !isFileDrop
+                    && !isMetadataDrop
+                    && (activeDragItem() != null || hasActiveTabTransfer(event));
             if (tabDrag && event.detail != DND.DROP_NONE) {
               Point p = eventPoint(folder, event);
               CTabItem over = folder.getItem(p);
@@ -272,7 +321,7 @@ public class TabItemReorder {
               // Remember the zone while we're genuinely over the folder; drop() falls back to this
               // if its own event coordinates come through degenerate.
               lastDragOverZone = newZone;
-              updateZoneOverlay(folder);
+              updateDropFrame(folder);
             } else {
               clearDropFeedback(folder);
             }
@@ -280,6 +329,7 @@ public class TabItemReorder {
 
           @Override
           public void drop(DropTargetEvent event) {
+            settleDragItem(folder);
             handleDragEvent(event);
             // Resolve the drop point from the event's own display coordinates, which — unlike
             // Display.getCursorLocation() — are the actual drop location and are reliable even on
@@ -302,7 +352,7 @@ public class TabItemReorder {
               receiver.openDroppedFiles(paths);
               return;
             }
-            boolean tabDrag = dragItem != null || hasActiveTabTransfer(event);
+            boolean tabDrag = activeDragItem() != null || hasActiveTabTransfer(event);
             if (LogChannel.UI.isDebug() && tabDrag) {
               LogChannel.UI.logDebug(
                   "Tab drop: detail="
@@ -407,7 +457,13 @@ public class TabItemReorder {
           }
 
           private boolean isDropSupported(CTabFolder folder, DropTargetEvent event) {
-            if (dragItem != null && !dragItem.isDisposed()) {
+            CTabItem item = activeDragItem();
+            if (item != null) {
+              // A tab dragged in from another pane can always land here (join or split), and its
+              // drop point maps unreliably across panes in Hop Web, so accept without resolving it.
+              if (item.getParent() != folder) {
+                return true;
+              }
               // Use the event's own coordinates rather than Display.getCursorLocation(): the latter
               // can read stale on the first macOS drag, wrongly collapsing an edge drop to CENTER
               // and forcing event.detail to DROP_NONE (the "first drop does nothing" bug).
@@ -415,11 +471,9 @@ public class TabItemReorder {
               if (folder.getItem(point) != null) {
                 return true;
               }
-              // Allow an edge drop to split. A same-folder split must leave a tab behind (>1 tab);
-              // a cross-folder drop can always land, so only require an edge zone there.
-              boolean sameFolder = dragItem.getParent() == folder;
+              // A same-folder split must leave a tab behind (>1 tab).
               boolean edge = computeDropZone(folder, point) != IHopPerspective.DROP_ZONE_CENTER;
-              return edge && (!sameFolder || folder.getItemCount() > 1);
+              return edge && folder.getItemCount() > 1;
             }
             return hasActiveTabTransfer(event);
           }
@@ -474,7 +528,42 @@ public class TabItemReorder {
         && mouseDownItem.getParent() == folder) {
       return mouseDownItem;
     }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // The pointer is wherever the drag threshold was passed, which need not be the pressed tab
+      // (or any tab): the MouseDown that follows is the only reliable source, see settleDragItem.
+      return null;
+    }
     return folder.getItem(folder.toControl(folder.getDisplay().getCursorLocation()));
+  }
+
+  /**
+   * Settle the tab being dragged once the drag is under way: in Hop Web {@code dragStart} may have
+   * run before the MouseDown that names the tab (see {@link #dragging}). Only the folder the drag
+   * started on does this; another folder's last pressed tab has nothing to do with the drag.
+   */
+  private void settleDragItem(CTabFolder folder) {
+    if (dragging
+        && dragItem == null
+        && mouseDownItem != null
+        && !mouseDownItem.isDisposed()
+        && mouseDownItem.getParent() == folder) {
+      dragItem = mouseDownItem;
+      perspective.setDraggedTabItem(dragItem);
+    }
+  }
+
+  /**
+   * The tab this drag is carrying: {@link #dragItem} on the folder the drag started on, or the tab
+   * the perspective is holding on any other folder of the same perspective. This is what lets a
+   * drop into a <em>different</em> pane complete: that pane's own {@code dragItem} is null, and in
+   * Hop Web the transfer types are no longer on the drop event by the time the drop is accepted.
+   */
+  private CTabItem activeDragItem() {
+    if (dragItem != null && !dragItem.isDisposed()) {
+      return dragItem;
+    }
+    CTabItem shared = perspective.getDraggedTabItem();
+    return (shared != null && !shared.isDisposed()) ? shared : null;
   }
 
   private void moveTabs(CTabFolder folder, DropTargetEvent event, int zone, Point dropPoint) {
@@ -487,6 +576,16 @@ public class TabItemReorder {
     if (sourceItem == null && event.data instanceof CTabItem transferredItem) {
       if (!transferredItem.isDisposed()) {
         sourceItem = transferredItem;
+      }
+    }
+
+    // A drop into another pane: this folder was not the drag source, so its own dragItem is null
+    // and (in Hop Web) the transfer may not have delivered event.data. Fall back to the tab the
+    // perspective is holding for the drag.
+    if (sourceItem == null) {
+      CTabItem shared = perspective.getDraggedTabItem();
+      if (shared != null && !shared.isDisposed()) {
+        sourceItem = shared;
       }
     }
 
@@ -619,12 +718,6 @@ public class TabItemReorder {
    * side maps to that edge (split), the middle maps to {@code CENTER} (drop into the folder as-is).
    */
   private int computeDropZone(CTabFolder folder, Point p) {
-    // Drag-to-split relies on native DnD + floating overlays, which don't behave under RAP, so on
-    // the web every drop is a plain centre drop (no edge splits). This is the single choke point
-    // for edge zones (drag feedback, drop routing and isDropSupported all go through here).
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      return IHopPerspective.DROP_ZONE_CENTER;
-    }
     Point size = folder.getSize();
     if (size.x <= 0 || size.y <= 0) {
       return IHopPerspective.DROP_ZONE_CENTER;
@@ -663,86 +756,50 @@ public class TabItemReorder {
       }
     }
     dropZone = IHopPerspective.DROP_ZONE_CENTER;
-    hideZoneOverlay();
-  }
-
-  /** Show (or move) the translucent overlay marking where an edge-drop split would land. */
-  private void updateZoneOverlay(CTabFolder folder) {
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      return; // Floating overlays have no faithful equivalent under RAP.
-    }
-    if (dropZone == IHopPerspective.DROP_ZONE_CENTER || folder.isDisposed()) {
-      hideZoneOverlay();
-      return;
-    }
-    // Nothing changed since the overlay was last shown: leave the Shell untouched. Repositioning it
-    // on every drag-over event (they fire continuously) is what makes it flicker.
-    if (dropZone == shownZone
-        && folder == shownFolder
-        && zoneOverlay != null
-        && !zoneOverlay.isDisposed()
-        && zoneOverlay.getVisible()) {
-      return;
-    }
-    Rectangle r = zoneRectangleDisplay(folder, dropZone);
-    if (r == null || r.width <= 0 || r.height <= 0) {
-      hideZoneOverlay();
-      return;
-    }
-    try {
-      if (zoneOverlay == null || zoneOverlay.isDisposed()) {
-        zoneOverlay = new Shell(folder.getShell(), SWT.NO_TRIM | SWT.ON_TOP);
-        zoneOverlay.setBackground(folder.getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION));
-        zoneOverlay.addDisposeListener(e -> disposeOverlayRegion());
-      }
-      zoneOverlay.setBounds(r);
-      applyFrameRegion(r.width, r.height);
-      if (!zoneOverlay.getVisible()) {
-        zoneOverlay.setVisible(true);
-      }
-      shownZone = dropZone;
-      shownFolder = folder;
-    } catch (Exception e) {
-      hideZoneOverlay();
-    }
+    hideDropFrame();
   }
 
   /**
-   * Shape {@link #zoneOverlay} as a hollow rectangle frame of the given size. The cut-out centre is
-   * not part of the window, so the drag cursor passes through it to the folder underneath (no
-   * enter/leave oscillation), and only the thin border is painted (no compositing flicker).
+   * Show (or move) the frame marking where the drop would land, or take it down when the drop is a
+   * plain centre drop with nothing to mark.
    */
-  private void applyFrameRegion(int width, int height) {
-    int border = Math.max(3, Math.min(8, Math.min(width, height) / 12));
-    Region region = new Region(zoneOverlay.getDisplay());
-    region.add(0, 0, width, height);
-    if (width > 2 * border && height > 2 * border) {
-      region.subtract(border, border, width - 2 * border, height - 2 * border);
+  private void updateDropFrame(CTabFolder folder) {
+    if (folder.isDisposed()) {
+      hideDropFrame();
+      return;
     }
-    zoneOverlay.setRegion(region);
-    disposeOverlayRegion();
-    overlayRegion = region;
+    // The desktop paints the tab highlight itself; Hop Web gets no paint events and frames the tab.
+    CTabItem tab = EnvironmentUtils.getInstance().isWeb() ? dropTargetTab : null;
+    int zone = tab != null ? IHopPerspective.DROP_ZONE_CENTER : dropZone;
+    if (tab == null && zone == IHopPerspective.DROP_ZONE_CENTER) {
+      hideDropFrame();
+      return;
+    }
+    // Nothing changed since the frame was last shown: leave it alone. Moving it on every drag-over
+    // event (they fire continuously) is what makes it flicker.
+    if (tab == shownTab && zone == shownZone && folder == shownFolder) {
+      return;
+    }
+    Rectangle r = tab != null ? tab.getBounds() : zoneRectangle(folder, zone);
+    if (r == null || r.width <= 0 || r.height <= 0) {
+      hideDropFrame();
+      return;
+    }
+    dropFrame.show(folder, r);
+    shownTab = tab;
+    shownZone = zone;
+    shownFolder = folder;
   }
 
-  private void disposeOverlayRegion() {
-    if (overlayRegion != null && !overlayRegion.isDisposed()) {
-      overlayRegion.dispose();
-    }
-    overlayRegion = null;
-  }
-
-  private void hideZoneOverlay() {
-    if (zoneOverlay != null && !zoneOverlay.isDisposed() && zoneOverlay.getVisible()) {
-      zoneOverlay.setVisible(false);
-    }
+  private void hideDropFrame() {
+    dropFrame.hide();
+    shownTab = null;
     shownZone = IHopPerspective.DROP_ZONE_CENTER;
     shownFolder = null;
   }
 
-  /**
-   * The half of the folder (in display coordinates) that a split-drop in {@code zone} would use.
-   */
-  private Rectangle zoneRectangleDisplay(CTabFolder folder, int zone) {
+  /** The half of the folder (in folder coordinates) that a split-drop in {@code zone} would use. */
+  private Rectangle zoneRectangle(CTabFolder folder, int zone) {
     Point size = folder.getSize();
     if (size.x <= 0 || size.y <= 0) {
       return null;
@@ -766,8 +823,7 @@ public class TabItemReorder {
         return null;
       }
     }
-    Point topLeft = folder.toDisplay(x, y);
-    return new Rectangle(topLeft.x, topLeft.y, w, h);
+    return new Rectangle(x, y, w, h);
   }
 
   private void updateTabItemHandler(IHopFileTypeHandler fileTypeHandler, CTabItem tabItem) {

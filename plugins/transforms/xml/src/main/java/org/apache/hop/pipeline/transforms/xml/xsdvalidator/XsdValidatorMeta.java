@@ -59,7 +59,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION =
       "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";
-  public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "true";
+  public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "false";
 
   public static final String SPECIFY_FILENAME = "filename";
   public static final String SPECIFY_FIELDNAME = "fieldname";
@@ -117,27 +117,6 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
                 .getProperty(
                     ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION,
                     ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT));
-  }
-
-  public XsdValidatorMeta(XsdValidatorMeta m) {
-    this();
-    this.addValidationMessage = m.addValidationMessage;
-    this.allowExternalEntities = m.allowExternalEntities;
-    this.ifXmlInvalid = m.ifXmlInvalid;
-    this.ifXmlValid = m.ifXmlValid;
-    this.outputStringField = m.outputStringField;
-    this.resultFieldName = m.resultFieldName;
-    this.validationMessageField = m.validationMessageField;
-    this.xmlSourceFile = m.xmlSourceFile;
-    this.xmlStream = m.xmlStream;
-    this.xsdDefinedField = m.xsdDefinedField;
-    this.xsdFilename = m.xsdFilename;
-    this.xsdSource = m.xsdSource;
-  }
-
-  @Override
-  public Object clone() {
-    return new XsdValidatorMeta(this);
   }
 
   @Override

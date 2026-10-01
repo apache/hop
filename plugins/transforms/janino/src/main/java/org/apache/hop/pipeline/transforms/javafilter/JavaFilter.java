@@ -17,13 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.javafilter;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -32,8 +28,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
-import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
-import org.codehaus.janino.ExpressionEvaluator;
 
 /** Calculate new field values using pre-defined functions. */
 public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
@@ -156,80 +150,14 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
 
   private boolean calcFields(Object[] r) throws HopValueException {
     try {
-      // Initialize evaluators etc. Only do it once.
+      // Compiling is relatively slow so we do it only for the first row...
       //
-      if (data.expressionEvaluator == null) {
-        String realCondition = resolve(meta.getCondition());
-        data.argumentIndexes = new ArrayList<>();
-
-        List<String> parameterNames = new ArrayList<>();
-        List<Class<?>> parameterTypes = new ArrayList<>();
-
-        for (int i = 0; i < data.outputRowMeta.size(); i++) {
-
-          IValueMeta valueMeta = data.outputRowMeta.getValueMeta(i);
-
-          // See if the value is being used in a formula...
-          //
-          if (realCondition.contains(valueMeta.getName())) {
-            // If so, add it to the indexes...
-            data.argumentIndexes.add(i);
-
-            Class<?> parameterType =
-                switch (valueMeta.getType()) {
-                  case IValueMeta.TYPE_STRING -> String.class;
-                  case IValueMeta.TYPE_NUMBER -> Double.class;
-                  case IValueMeta.TYPE_INTEGER -> Long.class;
-                  case IValueMeta.TYPE_DATE -> Date.class;
-                  case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.class;
-                  case IValueMeta.TYPE_BOOLEAN -> Boolean.class;
-                  case IValueMeta.TYPE_BINARY -> byte[].class;
-                  default -> String.class;
-                };
-            parameterTypes.add(parameterType);
-            parameterNames.add(valueMeta.getName());
-          }
-        }
-
-        // Create the expression evaluator: is relatively slow so we do it only for the first row...
-        //
-        data.expressionEvaluator = new ExpressionEvaluator();
-        data.expressionEvaluator.setParameters(
-            parameterNames.toArray(new String[0]), parameterTypes.toArray(new Class<?>[0]));
-        data.expressionEvaluator.setReturnType(Object.class);
-        data.expressionEvaluator.setThrownExceptions(new Class<?>[] {Exception.class});
-
-        // Validate Formula
-        JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
-        List<String> codeCheck = janinoCheckerUtil.checkCode(realCondition);
-        if (!codeCheck.isEmpty()) {
-          throw new HopException("Script contains code that is not allowed : " + codeCheck);
-        }
-
-        data.expressionEvaluator.cook(realCondition);
-
-        // Also create the argument data structure once...
-        //
-        data.argumentData = new Object[data.argumentIndexes.size()];
+      if (data.condition == null) {
+        data.condition =
+            JavaFilterCondition.compile(data.outputRowMeta, resolve(meta.getCondition()));
       }
 
-      // This method can only accept the specified number of values...
-      //
-      for (int x = 0; x < data.argumentIndexes.size(); x++) {
-        int index = data.argumentIndexes.get(x);
-        IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta(index);
-        data.argumentData[x] = outputValueMeta.convertToNormalStorageType(r[index]);
-      }
-
-      Object formulaResult = data.expressionEvaluator.evaluate(data.argumentData);
-
-      if (formulaResult instanceof Boolean bool) {
-        return bool;
-      } else {
-        throw new HopException(
-            "The result of the filter expression must be a boolean and we got back : "
-                + formulaResult.getClass().getName());
-      }
+      return data.condition.evaluate(data.outputRowMeta, r);
     } catch (Exception e) {
       throw new HopValueException(e);
     }

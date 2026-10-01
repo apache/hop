@@ -550,53 +550,45 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static Object fireToDB(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
 
-    Object oRC = new Object();
-    if (argList.length == 2) {
-      try {
-        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
-        ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
-        String strDBName = Context.toString(argList[0]);
-        String strSql = Context.toString(argList[1]);
-        DatabaseMeta databaseMeta =
-            DatabaseMeta.findDatabase(scm.getPipelineMeta().getDatabases(), strDBName);
-        if (databaseMeta == null) {
-          throw Context.reportRuntimeError("Database connection not found: " + strDBName);
-        }
-
-        // TODO: figure out how to set variables on the connection?
-        //
-        Database db = new Database(scm, Variables.getADefaultVariableSpace(), databaseMeta);
-        db.setQueryLimit(0);
-        try {
-          db.connect();
-
-          ResultSet rs = db.openQuery(strSql);
-          ResultSetMetaData resultSetMetaData = rs.getMetaData();
-          int columnCount = resultSetMetaData.getColumnCount();
-          if (rs != null) {
-            List<Object[]> list = new ArrayList<>();
-            while (rs.next()) {
-              Object[] objRow = new Object[columnCount];
-              for (int i = 0; i < columnCount; i++) {
-                objRow[i] = rs.getObject(i + 1);
-              }
-              list.add(objRow);
-            }
-            Object[][] resultArr = new Object[list.size()][];
-            list.toArray(resultArr);
-            db.disconnect();
-            return resultArr;
-          }
-        } catch (Exception er) {
-          throw Context.reportRuntimeError(er.toString());
-        }
-      } catch (Exception e) {
-        throw Context.reportRuntimeError(e.toString());
-      }
-    } else {
+    if (argList.length != 2) {
       throw Context.reportRuntimeError("The function call fireToDB requires 2 arguments.");
     }
-    return oRC;
+    try {
+      Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
+      ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
+      String strDBName = Context.toString(argList[0]);
+      String strSql = Context.toString(argList[1]);
+      DatabaseMeta databaseMeta =
+          DatabaseMeta.findDatabase(scm.getPipelineMeta().getDatabases(), strDBName);
+      if (databaseMeta == null) {
+        throw Context.reportRuntimeError("Database connection not found: " + strDBName);
+      }
+
+      // TODO: figure out how to set variables on the connection?
+      //
+      try (Database db = new Database(scm, Variables.getADefaultVariableSpace(), databaseMeta)) {
+        db.setQueryLimit(0);
+        db.connect();
+
+        try (ResultSet rs = db.openQuery(strSql)) {
+          ResultSetMetaData resultSetMetaData = rs.getMetaData();
+          int columnCount = resultSetMetaData.getColumnCount();
+          List<Object[]> list = new ArrayList<>();
+          while (rs.next()) {
+            Object[] objRow = new Object[columnCount];
+            for (int i = 0; i < columnCount; i++) {
+              objRow[i] = rs.getObject(i + 1);
+            }
+            list.add(objRow);
+          }
+          Object[][] resultArr = new Object[list.size()][];
+          list.toArray(resultArr);
+          return resultArr;
+        }
+      }
+    } catch (Exception e) {
+      throw Context.reportRuntimeError(e.toString());
+    }
   }
 
   public static Object dateDiff(
@@ -1780,14 +1772,27 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   // Adding the ScriptsItemTab to the actual running Context
   public static void LoadScriptFromTab(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
-    try {
-      for (Object o : argList) { // don't worry about "undefined" arguments
-        String strToLoad = Context.toString(o);
-        String strScript = actualObject.get(strToLoad, actualObject).toString();
-        actualContext.evaluateString(actualObject, strScript, "_" + strToLoad + "_", 0, null);
+    if (argList.length == 0) {
+      throw Context.reportRuntimeError(
+          "The function call LoadScriptFromTab requires at least 1 argument.");
+    }
+
+    for (Object o : argList) {
+      String strToLoad = Context.toString(o);
+      Object scriptObj = actualObject.get(strToLoad, actualObject);
+      if (scriptObj == Scriptable.NOT_FOUND
+          || scriptObj == null
+          || scriptObj == Context.getUndefinedValue()) {
+        throw Context.reportRuntimeError("Unable to find script tab \"" + strToLoad + "\"");
       }
-    } catch (Exception e) {
-      // TODO: DON'T EAT EXCEPTION
+
+      try {
+        String strScript = Context.toString(scriptObj);
+        actualContext.evaluateString(actualObject, strScript, "_" + strToLoad + "_", 0, null);
+      } catch (Exception e) {
+        throw Context.reportRuntimeError(
+            "Unable to load script from tab \"" + strToLoad + "\": " + e.getMessage());
+      }
     }
   }
 
@@ -2679,7 +2684,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
               boolean destinationExists = fileDestination.exists();
               // Let's move the file...
               if ((destinationExists && overwrite) || !destinationExists) {
-                fileSource.moveTo(fileDestination);
+                HopVfs.moveFile(fileSource, fileDestination);
               }
             }
           } else {

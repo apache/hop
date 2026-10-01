@@ -50,6 +50,31 @@ You'll feel right at home!
 
 image:hop-web.png[Hop Web,width="90%"]
 
+== Working with server files and browser files
+
+The *File* menu opens and saves files on the Hop server or its configured virtual file systems.
+The toolbar Save button and keyboard Save shortcut use this same server-side behavior.
+*Close* and *Close All* are available in this menu.
+
+The *File Browser* menu transfers files between Hop Web and your computer:
+
+* *Open* uploads a `.hpl` pipeline or `.hwf` workflow and opens an unsaved copy.
+  Use *File → Save* to choose a permanent server location for that copy.
+  Uploaded temporary paths are not added to recent files or restored when the session ends.
+* *Save* downloads the active pipeline or workflow using its suggested filename, even when it has no changes.
+* *Save As* asks for a download filename first. The browser controls where the download is stored on your computer.
+* *Export project ZIP* downloads the active project.
+* *Import Kettle/PDI ZIP* uploads a ZIP and opens the existing Kettle/PDI import dialog.
+  The extracted folder is temporary and is not stored as the last import source.
+  The standard distribution includes the import plugin; custom distributions must include `hop-misc-import`.
+
+*Export SVG* appears in both menus only while a pipeline or workflow is active.
+In *File Browser*, it downloads the SVG to your computer.
+
+A completed browser download clears the unsaved indicator of an untitled document only if its content has not changed during the transfer.
+Downloading a copy of an existing server file leaves any pending server changes marked as unsaved.
+Save or download your work before logging off or allowing the web session to expire.
+
 == Starting Hop Web with a project and environment
 
 Hop Web accepts the same variables as the default Apache Hop container image to allow Hop Web users to specify their project and environment when starting a Hop Web container:
@@ -79,6 +104,16 @@ When using an environment a project has to be created too
 |```HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS```
 | This is a comma separated list of paths to environment config files (including filename and file extension).
 
+|```HOP_CONFIG_FOLDER```
+| Directory for `hop-config.json` and `security/`.
+Point this at a volume so project registrations and users survive replacing the container.
+Default in the image is `/usr/local/tomcat/webapps/ROOT/config`.
+
+|```HOP_AUDIT_FOLDER```
+| Per-user UI audit data (`users/<username>/`).
+Default in the image is `/tmp/hop-web-audit`.
+Mount a volume at the same path to keep it across restarts.
+
 |===
 
 Example `docker run` command to start Hop Web with a project and environment:
@@ -89,13 +124,48 @@ docker run -it --rm \
   --env HOP_PROJECT_FOLDER=/project \
   --env HOP_PROJECT_NAME=web-samples \
   --env HOP_ENVIRONMENT_NAME=web-samples-test \
-  --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/web-samples-test.json \
+  --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/project-env/web-samples-test.json \
   --name hop-web-test-container \
   -p 8080:8080 \
   -v <PATH_TO_YOUR_PROJECT>:/project \
-  -v <PATH_TO_YOUR_ENVIRONMENT>:/config \
-  hop-web
+  -v <PATH_TO_YOUR_ENVIRONMENT>:/project-env \
+  apache/hop-web
 ----
+
+Do not mount environment JSON at `/config`.
+That path is reserved for Tomcat `tomcat-users.xml` / `web.xml` when you use <<hop-web-authentication,EXTERNAL authentication>>.
+
+This example still keeps `hop-config.json` and GUI settings inside the container.
+For a layout that survives replacing the image, persist `HOP_CONFIG_FOLDER` and the project home on volumes — see below.
+
+[[hop-web-upgrade]]
+== Upgrade-friendly deployment
+
+The `default` and `samples` projects that ship in the image are a starter layout.
+Save real pipelines and workflows on the host or on a volume, not under the image's own `config/projects/` tree.
+
+Set `HOP_CONFIG_FOLDER` and `HOP_AUDIT_FOLDER` to mounted paths so project registrations, security files, and UI audit data survive `docker pull` of a new `apache/hop-web` tag.
+The official image already includes the standard plugin set; extra JDBC drivers belong on a separate folder or `HOP_DRIVERS_DOWNLOAD`.
+
+The full persist/replace table, Compose example, and upgrade steps are in the xref:hop-web-docker.adoc[Hop Web in Docker] page.
+
+== Response compression
+
+Hop Web talks to the browser in JSON, and the pipeline canvas and the transform selector are sent as SVG documents that run to several hundred kB for a large pipeline or a full plugin list.
+gzip shrinks these responses four to five times, which keeps the interface responsive on slower links.
+
+The `apache/hop-web` image enables compression on its Tomcat connector; its `conf/server.xml` is `docker/resources/server.xml` in the Hop source tree.
+If you deploy `hop.war` on your own Tomcat, add it to the HTTP connector in `conf/server.xml`; `image/svg+xml` is not in Tomcat's default list:
+
+[source,xml]
+----
+<Connector port="8080" protocol="HTTP/1.1"
+           compression="on"
+           compressibleMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,image/svg+xml"
+           ... />
+----
+
+Other servlet containers and reverse proxies have an equivalent setting.
 
 == Using the Hop CLI tools in Hop Web.
 
@@ -103,13 +173,124 @@ Hop Web contains the default xref:hop-tools/index.adoc[Hop tools] like xref:hop-
 
 The tools are available in `/usr/local/tomcat/webapps/ROOT` in a running Hop Web container.
 
+[[hop-web-authentication]]
 == Authentication
 
-Hop Web runs on a Tomcat server by default. You can extend Hop Web's tomcat configuration to add authentication.
+Hop Web runs on a Tomcat server by default and ships with **no authentication** (open access).
+For any shared or production deployment you should put an authentication layer in front of it.
+
+TIP: Persist `HOP_CONFIG_FOLDER/security/` (or the whole config folder) across container upgrades so users, role mappings, and xref:hop-web-docker.adoc[project access rules] are not lost.
+See xref:hop-web-docker.adoc[Hop Web in Docker: persistence and upgrades].
+
+There are two complementary layers:
+
+* **Authentication (who are you?)** — Hop-managed BASIC form login, OAuth2/OIDC, servlet container / reverse proxy (`EXTERNAL`), or open access (`NONE`).
+* **Authorization (what may you do?)** — Hop maps roles to built-in Hop roles and uses them to enable or disable menus, toolbars, and actions (save, run, edit, and so on).
+
+IMPORTANT: The same security constraint must cover the whole application (`/*`), not only `/ui`.
+Hop Web co-deploys the RAP UI, RAP service handlers, and the Hop Server servlet under `/hop/*` on the same origin.
+
+NOTE: The Hop Server API under `/hop/*` follows the same authorization as the rest of Hop Web.
+In the authenticated modes (`BASIC`, `EXTERNAL`, `OAUTH2`) each endpoint requires the matching permission from the caller's role — for example a *Read-only* user can call `status` and the status/image endpoints but not `addPipeline`, `startPipeline`, `execWorkflow`, or the register/remove endpoints, and an *Operator* can run and stop but not deploy (`add*`) or remove.
+Endpoints that are not recognized are denied by default.
+In mode `NONE` (the default, open install) the two surfaces behave differently:
+
+* `/ui` stays **open by design** — mode `NONE` is the single-user / trusted-network install and the UI is the product.
+* `/hop/*` is **closed by default** and returns `403`, because mode `NONE` has no user identity to authorize against and the Hop Server API can run and deploy pipelines and workflows.
+
+To use Hop Web as an execution server in mode `NONE`, opt in explicitly:
+
+* *Configuration perspective → Security → General → Expose the Hop Server API without authentication*, or
+* set `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API=true` (persisted as `allowUnauthenticatedServerApi` in `security-config.json`).
+
+WARNING: With that option on, anyone who can reach `/hop/*` can deploy and execute pipelines and workflows without credentials. Only enable it behind your own network controls (private network, firewall, service mesh, authenticating reverse proxy).
+The option applies to mode `NONE` only — `BASIC`, `EXTERNAL`, and `OAUTH2` always enforce the per-endpoint role permission and ignore it.
+
+Put an authentication layer in front of Hop Web for any shared deployment.
+
+=== Built-in Hop roles
+
+When a user is authenticated, Hop Web reads the servlet `Principal` and container roles and maps them to one or more of these built-in roles:
+
+[cols="1,1,3"]
+|===
+| Hop role | Typical container role names | Capabilities
+
+| *Admin*
+| `hop-admin`, `admin`
+| Full access, including security administration and marketplace plugin install/remove (`plugin.manage`).
+
+| *User* (developer)
+| `hop-user`, `user`, `apachehop`
+| Create, edit, save, delete, execute, metadata CRUD. No security administration or marketplace install.
+
+| *Operator*
+| `hop-operator`, `operator`
+| View and execute only. No save, edit, delete, metadata write, or marketplace install.
+
+| *Read-only*
+| `hop-readonly`, `readonly`, `read-only`, `viewer`
+| View files and metadata only. No execute and no mutations.
+|===
+
+If the user is authenticated but none of the known role names match, Hop assigns the *User* role so existing single-role `apachehop` samples keep working with full developer access.
+
+When nobody is authenticated (default open install), Hop treats the session as *unrestricted* (all actions enabled), matching historical behavior.
+
+The browser window title shows the authenticated username when present (for example `Hop - 2.19.0 [alice]`).
+The main toolbar also shows the signed-in username to the left of the **Log off** button (Hop Web only):
+
+image:hop-web-toolbar-user-and-log-off.png[Hop Web toolbar with signed-in username and Log off,width="50%"]
+
+==== Temporary session privileges
+
+Next to the username, a **session privilege** combo lets you temporarily *lower* your effective role without logging out—for example switch from Admin to **Read-only** or **Operator** while browsing a project, then choose **Full access** to restore login rights.
+
+* You can only select a role whose permissions are a subset of your login-time (base) privileges (no elevation).
+* Username and audit identity stay the same; only UI authorization changes.
+* Open editors are not closed; the next save/edit uses the new permissions (dialogs and canvas already re-check).
+* Security configuration still requires Admin at the effective level—downgrade to Read-only hides it until you restore Full access.
+* Marketplace install/uninstall and hop-env install spec *Apply* also require Admin (`plugin.manage`) at the effective level.
+
+Desktop unrestricted sessions can use the same control to simulate Operator / Read-only.
+
+==== Marketplace and authorization
+
+The Tools → Marketplace dialog remains available for browsing the catalog when authentication is enabled.
+*Install*, *Uninstall*, repository configuration, and hop-env install spec *Apply* require the `plugin.manage` permission (built-in *Admin* role only).
+*Validate* (drift check without installing) does not.
+
+Plugin installs affect the shared server installation for all Hop Web users; they are not per-session.
+The `hop marketplace` CLI on the host is not gated by Hop Web roles (use OS access control for that).
+
+Per-user audit data (open tabs, project history, and so on) is stored under `HOP_AUDIT_FOLDER/users/<username>/` when a principal is available.
+Usernames are sanitized for path safety (for example `mattcasters@gmail.com` becomes `mattcasters_gmail.com`).
+
+In the Docker image the default is `HOP_AUDIT_FOLDER=/tmp/hop-web-audit` (writable by the `hop` process without a bind mount).
+If the configured folder is not writable, Hop Web falls back to `${java.io.tmpdir}/hop-web-audit` and logs a warning.
+To keep audit data across container restarts, mount a volume and set the same path, for example:
+
+[source,bash]
+----
+-e HOP_AUDIT_FOLDER=/tmp/hop-web-audit \
+-v /host/path/to/audit:/tmp/hop-web-audit
+----
+
+=== Tomcat BASIC authentication (EXTERNAL)
 
 The default Hop Web docker image picks up `tomcat-users.xml` and `web.xml` files and moves them to the correct location before Hop Web starts.
 
-A minimal sample `tomcat-users.xml` file:
+IMPORTANT: Mode `EXTERNAL` is *delegation, not enforcement*.
+Hop itself does not challenge anyone in this mode: it only reads the `Principal` the servlet container (or authenticating reverse proxy) put on the request.
+The `web.xml` that ships with Hop Web contains no `<security-constraint>`, so selecting `EXTERNAL` without supplying your own constraint over `/*` leaves `/ui` **completely open**.
+The Security perspective makes that contradiction visible rather than hiding it: the General tab shows an authenticated mode (`EXTERNAL`), while the status line for the same session still reads `Session is unrestricted (no AuthN). Config mode: EXTERNAL.`
+If you see that combination, the container is not challenging anyone.
+`/hop/*` still returns `401` (no principal), and Hop logs a warning on every unauthenticated UI session, but the UI itself is unprotected.
+Always pair `EXTERNAL` with a `<security-constraint>` + `<login-config>` covering `/*` (see <<hop-web-external-full-webxml,the full `web.xml` sample>>) or with a proxy that rejects unauthenticated requests before they reach Tomcat.
+
+==== Single user (minimal)
+
+A minimal sample `tomcat-users.xml` file (legacy single role `apachehop` → Hop *User*):
 
 [source,xml]
 ----
@@ -136,6 +317,284 @@ A minimal sample `tomcat-users.xml` file:
   <user username="apachehop" password="password" roles="apachehop" />
 </tomcat-users>
 ----
+
+==== Multi-role sample
+
+To exercise Admin / User / Operator / Read-only in Tomcat, declare the Hop role names and assign them to users.
+Any authenticated role listed in the `<auth-constraint>` may log in; Hop then maps the user's roles to UI permissions.
+
+[source,xml]
+----
+<?xml version='1.0' encoding='utf-8'?>
+<tomcat-users>
+  <role rolename="hop-admin"/>
+  <role rolename="hop-user"/>
+  <role rolename="hop-operator"/>
+  <role rolename="hop-readonly"/>
+
+  <user username="admin" password="change-me" roles="hop-admin"/>
+  <user username="developer" password="change-me" roles="hop-user"/>
+  <user username="operator" password="change-me" roles="hop-operator"/>
+  <user username="viewer" password="change-me" roles="hop-readonly"/>
+</tomcat-users>
+----
+
+In `web.xml`, allow every role that should be able to open Hop Web:
+
+[source,xml]
+----
+    <security-constraint>
+      <web-resource-collection>
+        <web-resource-name>Hop Web</web-resource-name>
+        <url-pattern>/*</url-pattern>
+        <http-method>GET</http-method>
+        <http-method>POST</http-method>
+      </web-resource-collection>
+      <auth-constraint>
+        <role-name>hop-admin</role-name>
+        <role-name>hop-user</role-name>
+        <role-name>hop-operator</role-name>
+        <role-name>hop-readonly</role-name>
+      </auth-constraint>
+      <user-data-constraint>
+        <transport-guarantee>NONE</transport-guarantee>
+      </user-data-constraint>
+    </security-constraint>
+
+    <login-config>
+      <auth-method>BASIC</auth-method>
+    </login-config>
+
+    <security-role><role-name>hop-admin</role-name></security-role>
+    <security-role><role-name>hop-user</role-name></security-role>
+    <security-role><role-name>hop-operator</role-name></security-role>
+    <security-role><role-name>hop-readonly</role-name></security-role>
+----
+
+TIP: Prefer HTTPS in production (`transport-guarantee` CONFIDENTIAL, or terminate TLS at a reverse proxy).
+BASIC auth sends credentials on every request; combine it with TLS and digested passwords (see below).
+
+NOTE: UI disablement (for example hiding Save for a read-only user) is applied from the mapped Hop role.
+Menus, toolbars, context actions, and keyboard shortcuts (for example Ctrl+S) are gated.
+Save, run, export, explorer create/delete/rename, and metadata create/edit/rename/duplicate/delete also re-check permission and show an *Access denied* dialog if invoked without rights.
+Transform, action, and metadata settings dialogs open in *read-only* mode when the user lacks edit permission (`file.edit` or `metadata.write`): inputs cannot be changed, OK is disabled, and Cancel / Close / Help remain available.
+The same applies to metadata editors opened as tabs in the Metadata perspective.
+
+Always keep untrusted clients off the network and use container/proxy auth on `/*`.
+Further hardening of remaining mutation paths continues in subsequent releases.
+
+Optional instance config file `HOP_CONFIG_FOLDER/security/security-config.json` can set mode and custom container-role → Hop-role mappings (see `docker/local-auth-config/security-config.json` for a sample).
+
+=== Hop-managed BASIC authentication
+
+Hop Web can enforce authentication itself (no Tomcat `tomcat-users.xml` required). When mode is `BASIC`, a styled **Hop Web sign-in page** (`/login`) collects username and password; a servlet filter validates them against `HOP_CONFIG_FOLDER/security/users.json` (PBKDF2 hashes) and stores the session principal. Optional HTTP `Authorization: Basic` is still accepted for API clients.
+
+The login page shows the Apache Hop logo, title, and an optional custom welcome message (Configuration → Security → General, or `welcomeMessage` in `security-config.json`):
+
+image:hop-web-login.png[Hop Web sign-in page (BASIC),width="45%"]
+
+Environment variables (evaluated at startup):
+
+[cols="2,3"]
+|===
+| Variable | Purpose
+
+| `HOP_WEB_SECURITY_MODE`
+| Set to `BASIC` (also: `NONE`, `EXTERNAL`, `OAUTH2`)
+
+| `HOP_WEB_ADMIN_USER` / `HOP_WEB_ADMIN_PASSWORD`
+| Create the first admin when the user store is empty
+
+| `HOP_WEB_ALLOW_DEFAULT_ADMIN`
+| `true` to bootstrap `admin`/`admin` if admin env vars are unset (local only)
+
+| `HOP_WEB_SEED_DEMO_USERS`
+| `true` to seed admin, developer, operator, viewer (password = username) when the store is empty
+
+| `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API`
+| `true` to open the embedded Hop Server API (`/hop/*`) in mode `NONE`. Off by default; ignored in the authenticated modes. Only use behind your own network controls.
+|===
+
+Example Docker run:
+
+[source,bash]
+----
+docker run -it --rm -p 8080:8080 \
+  -e HOP_WEB_SECURITY_MODE=BASIC \
+  -e HOP_WEB_SEED_DEMO_USERS=true \
+  -v hop-web-security:/usr/local/tomcat/webapps/ROOT/config/security \
+  apache/hop-web
+----
+
+This volume keeps `users.json` only.
+To keep project registrations, GUI settings, and xref:#hop-web-project-access[project access] rules as well, persist the whole `HOP_CONFIG_FOLDER` as shown in xref:hop-web-docker.adoc[Hop Web in Docker].
+
+Or from a local source build:
+
+[source,bash]
+----
+./docker/run-hop-web-local-with-basic.sh
+----
+
+==== Configuration Perspective → Security
+
+The *Security* tab appears only in **Hop Web**, and only for administrators (role with `security.manage`, or an unrestricted session when authentication mode is `NONE`).
+It is not shown in the desktop Hop GUI.
+The page is split into tabs:
+
+* *General* — authentication mode (`NONE` / `EXTERNAL` / `BASIC` / `OAUTH2`), login welcome message, and the <<Cross-site requests to the Hop Server API,cross-site policy>> for `/hop/*`
+* *OAuth* — OIDC issuer, client id/secret, redirect, scopes, role/username claims, PKCE
+* *External* — container / IdP / LDAP group → Hop role mappings (also used for OAuth claim groups)
+* *Basic* — Hop-managed users (`users.json`: username, role, enabled, password)
+* *Projects* (Projects plugin) — which users, Hop roles, or LDAP/IdP groups may open which projects
+
+image:hop-web-security-configuration-ui.png[Hop Web Security configuration (Configuration perspective),width="90%"]
+
+Save writes `security-config.json` and, for BASIC, `users.json` under `HOP_CONFIG_FOLDER/security/`.
+Project access rules are stored in `projects-access.json` in the same folder.
+
+[[hop-web-project-access]]
+When project access control is enabled, the project switcher and startup project load only show allowed projects; security administrators always retain full access. Desktop / unrestricted sessions are not filtered.
+Keep this `security/` directory on the same persisted `HOP_CONFIG_FOLDER` volume as `hop-config.json` so upgrades do not drop users or project mappings.
+
+Do **not** combine Hop-managed BASIC with a Tomcat `<security-constraint>` on the same deployment; pick one AuthN path.
+
+=== OAuth2 / OpenID Connect
+
+When mode is `OAUTH2`, Hop Web uses the **authorization code flow with PKCE** against an OIDC-compliant IdP (Keycloak, Microsoft Entra ID, Google, Okta, …).
+
+[cols="2,3"]
+|===
+| Setting | Description
+
+| Issuer URL
+| OIDC issuer (e.g. `https://keycloak.example/realms/hop`)
+
+| Client ID / secret
+| Confidential clients set a secret (or `HOP_WEB_OAUTH_CLIENT_SECRET`). Public clients may leave the secret empty and rely on PKCE.
+
+| Redirect URI
+| Defaults to `+{origin}{context}/oauth/callback+` — register this exact URI with the IdP.
+
+| Scopes
+| Default `openid profile email`
+
+| Role claim
+| Claim path for groups/roles (e.g. `groups`, `roles`, `realm_access.roles` for Keycloak). Personal Google accounts typically have no groups claim — see Google section below.
+
+| Username claim
+| Default `preferred_username` (falls back to `email`, then `sub`). For Google, set `email`.
+|===
+
+Environment variables (applied at startup into `security-config.json` when set): `HOP_WEB_SECURITY_MODE=OAUTH2`, `HOP_WEB_OAUTH_ISSUER`, `HOP_WEB_OAUTH_CLIENT_ID`, `HOP_WEB_OAUTH_CLIENT_SECRET`, `HOP_WEB_OAUTH_REDIRECT_URI`, `HOP_WEB_OAUTH_SCOPES`, and optionally `HOP_WEB_OAUTH_ROLE_CLAIM` / `HOP_WEB_OAUTH_USERNAME_CLAIM`.
+
+IMPORTANT: If you set `HOP_WEB_OAUTH_ROLE_CLAIM` or `HOP_WEB_OAUTH_USERNAME_CLAIM` in the environment (or leave old values exported in your shell), they **override** the same fields in `security-config.json` on container start.
+The local OAuth run script only passes those env vars when you export them yourself — it does not inject Keycloak-style defaults.
+Prefer editing the config file (or Configuration → Security → OAuth / External) and leaving claim env vars unset unless you intentionally want env to win.
+
+Flow:
+
+1. Browser opens Hop Web → redirect to `/login` (branded page + welcome message).
+2. **Continue with SSO** → IdP authorization endpoint.
+3. Callback `/oauth/callback` exchanges the code, validates the ID token (JWKS), maps roles, opens `/ui`.
+4. **Log off** clears the Hop session and, when advertised by the IdP, uses RP-initiated logout (`end_session_endpoint`).
+
+Map IdP groups (and other claim values) to Hop roles on the *External* tab (container / IdP role → Hop role), e.g. `hop-admin` → `admin`.
+Hop also tries to map the signed-in **username** and **email** claim through the same table, so you can grant Admin by email (see Google example).
+
+.Example Keycloak client
+====
+* Client type: confidential (or public + PKCE)
+* Valid redirect URIs: `http://localhost:8080/oauth/callback`
+* Valid post-logout redirect URIs: `http://localhost:8080/login`
+* Client scopes include groups or a custom realm role claim mapped into the ID token
+* Role claim in Hop: `realm_access.roles` (or `groups`), then map those names to Hop roles on the External tab
+====
+
+.Example Google (personal Gmail) as Admin
+====
+Personal Google accounts do not send Hop roles or Keycloak-style group claims.
+To make a specific Google account an administrator for local/dev:
+
+1. Create an OAuth 2.0 **Web application** client in Google Cloud Console.
+2. Add authorized redirect URI: `http://localhost:8080/oauth/callback` (exact match, including port).
+3. If the consent screen is in *Testing*, add your Gmail address under **Test users**.
+4. Run Hop Web in OAUTH2 mode with issuer `https://accounts.google.com`, your client id/secret, and scopes `openid profile email`.
+5. In `HOP_CONFIG_FOLDER/security/security-config.json` (or Configuration → Security after you have access):
++
+[source,json]
+----
+{
+  "mode": "OAUTH2",
+  "oauthIssuerUrl": "https://accounts.google.com",
+  "oauthClientId": "….apps.googleusercontent.com",
+  "oauthClientSecret": "…",
+  "oauthRedirectUri": "http://localhost:8080/oauth/callback",
+  "oauthScopes": "openid profile email",
+  "oauthRoleClaim": "email",
+  "oauthUsernameClaim": "email",
+  "oauthUsePkce": true,
+  "roleMappings": {
+    "you@gmail.com": "admin"
+  }
+}
+----
+
+6. Ensure shell env does **not** still export Keycloak claims, then restart and log in again:
++
+[source,bash]
+----
+unset HOP_WEB_OAUTH_ROLE_CLAIM HOP_WEB_OAUTH_USERNAME_CLAIM
+./docker/run-hop-web-local-with-oauth.sh
+----
+
+After sign-in, your session should include the *Admin* role (`security.manage`) so Configuration → Security is available.
+Other users without a mapping fall back to the *User* role.
+====
+
+=== Cross-site requests to the Hop Server API
+
+Hop Web co-deploys the Hop Server API on `/hop/*`.
+Those servlets answer state-changing operations on `GET` — a single URL starts a pipeline, stops a workflow or removes one — so without a check, a web page an operator happens to be visiting can drive them in the operator's browser, using the session cookie the browser attaches by itself.
+
+Hop Web therefore rejects requests whose https://developer.mozilla.org/docs/Web/HTTP/Headers/Sec-Fetch-Site[`Sec-Fetch-Site`] header says they were started by another site, answering `403 Forbidden` before authentication and before the RBAC check run.
+This is the same policy the standalone xref:hop-server/index.adoc[Hop Server] applies, and it is set the same way:
+
+[options="header"]
+|===
+
+|Value|Behaviour
+
+|`same-site`
+|The default.
+Rejects requests started by a site on a different registrable domain.
+
+|`same-origin`
+|Also rejects requests started by another host of the same domain, so only Hop Web's own pages may drive the API.
+
+|`off`
+|Does not look at `Sec-Fetch-Site` at all.
+
+|===
+
+Set it in *Configuration → Security → General*, as `crossSitePolicy` in `security-config.json`, or with the `HOP_SERVER_CROSS_SITE_POLICY` environment variable (which overrides the config file).
+A `crossSitePolicy` init-param on the `CrossSiteRequest` filter in `web.xml` pins it for a single deployment and wins over both.
+
+Only browsers send `Sec-Fetch-*` headers, and requests without them are always accepted, so hop-run, the Hop GUI, `curl` and your own automation calling `/hop/*` are unaffected.
+Following a link to `/hop/*` **from another site** does land on a `403`; Hop Web's own UI is unaffected because its calls are same-origin.
+
+NOTE: This guards the Hop Server API only. The Hop Web UI itself (`/ui`) is not covered by this filter.
+
+=== JDBC and API Bearer tokens
+
+JDBC drivers and `curl` cannot complete an OIDC browser login. After you sign in to Hop Web (BASIC or OAUTH2), use *File → Copy JDBC token* or `GET /hop/jdbcToken` (`file.view`) to mint a short-lived HMAC JWT (`aud=hop-jdbc`). Send it as `Authorization: Bearer <token>`.
+
+IMPORTANT: These tokens are not revoked when you log off or when an administrator changes the user's roles. They stay valid until expiry (about one hour) with the roles frozen at issue time. The only way to invalidate outstanding tokens is to rotate `HOP_WEB_JDBC_TOKEN_SECRET` (or delete `HOP_CONFIG_FOLDER/security/jdbc-token.secret`), which invalidates *every* issued token.
+
+Hop creates `jdbc-token.secret` with owner-only permissions (`0600`) on local filesystems when it can. Anyone who can read that file can mint tokens for any user.
+
+[[hop-web-external-full-webxml]]
+==== Full web.xml with Tomcat BASIC (single role, EXTERNAL)
 
 The following sample `web.xml` extends Hop Web's default `web.xml` with the `<security-constraint />` and `<login-config />` elements required for basic authentication.
 
@@ -238,9 +697,9 @@ docker run -it --rm \
     apache/hop-web
 ----
 
-Hop Web will now ask for your username and password:
+Hop Web will now ask for your username and password (browser or Tomcat challenge for container BASIC; for Hop-managed BASIC see the styled sign-in page above):
 
-image:hop-gui/hop-web-basic-authentication.png[Hop Web with basic authentication, width="90%"]
+image:hop-gui/hop-web-basic-authentication.png[Hop Web with Tomcat basic authentication, width="90%"]
 
 === Encrypting passwords
 

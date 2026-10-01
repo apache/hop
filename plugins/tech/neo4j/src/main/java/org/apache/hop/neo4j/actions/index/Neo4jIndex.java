@@ -24,6 +24,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
@@ -33,7 +34,7 @@ import org.neo4j.driver.Session;
 
 @Action(
     id = "NEO4J_INDEX",
-    name = "Neo4j Index",
+    name = "Neo4j index",
     description = "Create or delete indexes in a Neo4j database",
     image = "neo4j_index.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
@@ -109,23 +110,14 @@ public class Neo4jIndex extends ActionBase implements IAction {
   public static String generateDropIndexCypher(IndexUpdate indexUpdate) throws HopException {
     String cypher = "DROP INDEX ";
 
-    if (StringUtils.isNotEmpty(indexUpdate.getIndexName())) {
-      cypher += indexUpdate.getIndexName();
-    } else {
-      cypher += " FOR ";
-      switch (indexUpdate.getObjectType()) {
-        case NODE:
-          cypher +=
-              ":" + indexUpdate.getObjectName() + "(" + indexUpdate.getObjectProperties() + ")";
-          break;
-        case RELATIONSHIP:
-          throw new HopException(
-              "Please drop indexes on relationship properties with their name.  Relationship label: "
-                  + indexUpdate.getObjectName()
-                  + ", properties: "
-                  + indexUpdate.getObjectProperties());
-      }
+    if (StringUtils.isEmpty(indexUpdate.getIndexName())) {
+      throw new HopException(
+          "Please drop indexes with the name of the index. Object: "
+              + indexUpdate.getObjectName()
+              + ", properties: "
+              + indexUpdate.getObjectProperties());
     }
+    cypher += indexUpdate.getIndexName();
     cypher += " IF EXISTS";
     return cypher;
   }
@@ -148,8 +140,8 @@ public class Neo4jIndex extends ActionBase implements IAction {
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                logError("Error dropping index with cypher [" + _cypher + "]", e);
-                return false;
+                throw new HopRuntimeException(
+                    "Error dropping index with cypher [" + _cypher + "]", e);
               }
             });
       }
@@ -216,8 +208,8 @@ public class Neo4jIndex extends ActionBase implements IAction {
                 result.consume();
                 return true;
               } catch (Throwable e) {
-                logError("Error creating index with cypher [" + _cypher + "]", e);
-                return false;
+                throw new HopRuntimeException(
+                    "Error creating index with cypher [" + _cypher + "]", e);
               }
             });
       }

@@ -45,7 +45,6 @@ public class KettleConst {
                 {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
                 {"transformationPath", "pipelinePath"},
                 {"SUB_STEP", "subTransform"},
-                {"variablemapping", "variable_mapping"},
                 // jobs
                 {"job", "workflow"},
                 {"job_version", "workflow_version"},
@@ -87,6 +86,17 @@ public class KettleConst {
                 {"step7", "transform7"},
                 {"step8", "transform8"},
                 {"step9", "transform9"},
+                // Output transform metrics (Kettle: Output steps metrics)
+                {"stepRequired", "transformRequired"},
+                {"stepnamefield", "transformnamefield"},
+                {"stepidfield", "transformidfield"},
+                {"steplinesinputfield", "transformlinesinputfield"},
+                {"steplinesoutputfield", "transformlinesoutputfield"},
+                {"steplinesreadfield", "transformlinesreadfield"},
+                {"steplinesupdatedfield", "transformlinesupdatedfield"},
+                {"steplineswrittentfield", "transformlineswrittenfield"},
+                {"steplineserrorsfield", "transformlineserrorsfield"},
+                {"stepsecondsfield", "transformsecondsfield"},
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -160,6 +170,7 @@ public class KettleConst {
                 {"ROOT_JOB", "ROOT_WORKFLOW"},
                 {"BlockingStep", "BlockingTransform"},
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
+                {"StepsMetrics", "TransformsMetrics"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
                 {"StepMetastructure", "TransformMetaStructure"},
                 {"JobExecutor", "WorkflowExecutor"},
@@ -168,6 +179,9 @@ public class KettleConst {
                 {"Mapping", "SimpleMapping"},
                 // Text File Input deprecated
                 {"TextFileInput", "TextFileInput2"},
+                {"HTTP", "Http"},
+                // Pentaho's Kafka Consumer step id. The older key is kept for files that used it.
+                {"KafkaConsumerInput", "KafkaConsumer"},
                 {"KettleKafkaConsumerInput", "KafkaConsumer"},
                 {"PentahoGoogleSheetsPluginOutputMeta", "GoogleSheetsOutput"},
                 {"PentahoGoogleSheetsPluginInputMeta", "GoogleSheetsInput"}
@@ -235,6 +249,9 @@ public class KettleConst {
   public static final List<String> jobTypes = Arrays.asList("JOB");
 
   public static final List<String> transTypes = Arrays.asList(CONST_TRANS);
+
+  /** Kettle's "Mapping" and "Simple Mapping" steps both become a Hop Simple Mapping transform. */
+  public static final List<String> mappingTypes = Arrays.asList("Mapping", "SimpleMapping");
 
   public KettleConst() {
     // Do nothing

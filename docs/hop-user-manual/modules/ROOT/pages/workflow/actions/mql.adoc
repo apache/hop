@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The SQL action executes one or more SQL scripts from this action's configuration or from a file.
+:page-marketplace: hop-tech-mongodb
 
 = MongoDB QL
 

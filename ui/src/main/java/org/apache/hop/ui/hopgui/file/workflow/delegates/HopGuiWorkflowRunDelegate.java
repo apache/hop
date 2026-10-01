@@ -28,11 +28,13 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.EngineCompatibilityRunGate;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -75,6 +77,9 @@ public class HopGuiWorkflowRunDelegate {
       IVariables variables, WorkflowMeta workflowMeta, String startActionName) throws HopException {
 
     if (workflowMeta == null) {
+      return;
+    }
+    if (!HopSecurityUi.check(Permission.RUN_EXECUTE)) {
       return;
     }
 

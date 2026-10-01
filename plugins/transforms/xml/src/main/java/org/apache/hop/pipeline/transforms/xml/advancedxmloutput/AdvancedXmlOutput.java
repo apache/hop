@@ -48,6 +48,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -64,7 +65,8 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
 
   private static final String EOL = "\n";
   private static final XMLOutputFactory XML_OUT_FACTORY = XMLOutputFactory.newInstance();
-  private static final XMLInputFactory XML_IN_FACTORY = createSecureInputFactory();
+  private static final XMLInputFactory XML_IN_FACTORY =
+      XmlParserFactoryProducer.createSecureXmlInputFactory();
 
   /** Writes every byte to two underlying streams (e.g. file + in-memory capture). */
   private static final class TeeOutputStream extends OutputStream {
@@ -988,13 +990,6 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       }
     }
     return s;
-  }
-
-  private static XMLInputFactory createSecureInputFactory() {
-    XMLInputFactory f = XMLInputFactory.newInstance();
-    f.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-    f.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    return f;
   }
 
   /** Test hook: returns the current data object's writer (so unit tests can inject a mock). */

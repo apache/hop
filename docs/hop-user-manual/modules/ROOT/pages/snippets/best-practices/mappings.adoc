@@ -22,8 +22,12 @@ under the License.
 
 If you have recurring logic in various pipelines, consider using the xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] to avoid repeating the same logic over and over in your pipelines.
 
-The Simple Mapping is a pipeline reading from a xref:pipeline/transforms/mapping-input.adoc[Mapping Input] and writing to a xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform.
+The Simple Mapping is a pipeline reading from a xref:pipeline/transforms/mapping-input.adoc[Mapping input] and writing to a xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform.
 
 You can re-use the work in other pipelines using the xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] transform.
+
+To turn an existing sequential chain into a mapping, select the transforms on the canvas and choose *Create mapping* from the transform context menu.
+
+When the reusable logic needs more than one input or output, or info / target hops, use xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] instead.
 
 

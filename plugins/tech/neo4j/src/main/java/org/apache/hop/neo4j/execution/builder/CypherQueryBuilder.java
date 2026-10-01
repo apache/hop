@@ -44,7 +44,7 @@ public class CypherQueryBuilder extends BaseCypherBuilder {
         .append(" : $")
         .append(key)
         .append(" }) ");
-    parameters.put(key, keyValue);
+    addParameter(key, keyValue);
     return this;
   }
 
@@ -62,7 +62,7 @@ public class CypherQueryBuilder extends BaseCypherBuilder {
         cypher.append(", ");
       }
       cypher.append(key).append(" : $").append(param);
-      parameters.put(param, value);
+      addParameter(param, value);
     }
     cypher.append(" }) ");
 
@@ -175,7 +175,7 @@ public class CypherQueryBuilder extends BaseCypherBuilder {
       String parameter = nodeAlias + "_" + otherKey;
       Object value = nodeKeys.get(otherKey);
       cypher.append(otherKey).append(" : $").append(parameter);
-      parameters.put(parameter, value);
+      addParameter(parameter, value);
     }
     cypher.append(" }) ");
     return this;

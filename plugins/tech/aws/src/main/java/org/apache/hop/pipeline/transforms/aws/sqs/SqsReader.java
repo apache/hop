@@ -208,10 +208,11 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
       ObjectMapper mapper = new ObjectMapper();
       JsonFactory factory = new JsonFactory();
       factory.setCodec(mapper);
-      JsonParser parser = factory.createParser(body);
-      JsonNode jsonNode = parser.readValueAsTree();
-      JsonNode statusNode = jsonNode.get("Message");
-      return statusNode.textValue();
+      try (JsonParser parser = factory.createParser(body)) {
+        JsonNode jsonNode = parser.readValueAsTree();
+        JsonNode statusNode = jsonNode.get("Message");
+        return statusNode.textValue();
+      }
     } catch (JsonParseException e) {
       logError("Error parsing JSON: " + e.getMessage());
       return "";

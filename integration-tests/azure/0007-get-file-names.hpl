@@ -39,11 +39,6 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>Sparkle</from>
-      <to>Get file names</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Get file names</from>
       <to>Select values</to>
       <enabled>Y</enabled>

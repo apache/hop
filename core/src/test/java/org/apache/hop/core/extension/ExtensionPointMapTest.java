@@ -18,6 +18,8 @@
 package org.apache.hop.core.extension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -61,6 +63,17 @@ class ExtensionPointMapTest {
 
     // Verify lazy loading
     verify(pluginInterface, never()).loadClass(any(Class.class));
+  }
+
+  @Test
+  void isRegisteredTest() {
+    assertFalse(ExtensionPointMap.getInstance().isRegistered(TEST_NAME));
+
+    ExtensionPointMap.getInstance().addExtensionPoint(pluginInterface);
+    assertTrue(ExtensionPointMap.getInstance().isRegistered(TEST_NAME));
+
+    ExtensionPointMap.getInstance().removeExtensionPoint(pluginInterface);
+    assertFalse(ExtensionPointMap.getInstance().isRegistered(TEST_NAME));
   }
 
   @Test

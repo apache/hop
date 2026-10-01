@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -68,6 +70,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
@@ -77,13 +80,18 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
+import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformSourceSupport;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
@@ -97,6 +105,7 @@ import org.w3c.dom.Node;
  * This class defines information about a pipeline and offers methods to save and load it from XML
  * as well as methods to alter a pipeline by adding/removing databases, transforms, hops, etc.
  */
+@org.apache.hop.core.naming.NamingSchemeKind("hop-pipeline")
 public class PipelineMeta extends AbstractMeta
     implements IXml,
         Comparator<PipelineMeta>,
@@ -143,6 +152,14 @@ public class PipelineMeta extends AbstractMeta
 
   /** The transforms fields cache. */
   protected Map<String, IRowMeta> transformFieldsCache;
+
+  /**
+   * The {@link DbCache} generation the transform fields cache was filled against. Transforms like
+   * Table Input derive their output fields from the database cache, so clearing that cache has to
+   * invalidate the fields we cached here as well. Without this, clearing the database cache only
+   * takes effect after the pipeline is reloaded.
+   */
+  protected int transformFieldsCacheDbGeneration;
 
   /** The loop cache. */
   protected Map<String, Boolean> loopCache;
@@ -279,6 +296,7 @@ public class PipelineMeta extends AbstractMeta
     maxUndo = Const.MAX_UNDO;
     undoPosition = -1;
     transformFieldsCache = new HashMap<>();
+    transformFieldsCacheDbGeneration = DbCache.getInstance().getGeneration();
     loopCache = new HashMap<>();
     previousTransformCache = new HashMap<>();
     super.clear();
@@ -429,9 +447,35 @@ public class PipelineMeta extends AbstractMeta
       removeMissingPipeline(missingTransform);
     }
 
+    // Nothing may keep pointing at a transform that is no longer in the pipeline: a hop or an
+    // error handling entry that outlives its transform is written back to the file as a reference
+    // to a transform that isn't there.
+    //
+    removeReferencesTo(removeTransform);
+
     changedTransforms = true;
     setChanged();
     clearCaches();
+  }
+
+  /** Drops the hops attached to a transform and the error handling aimed at it. */
+  private void removeReferencesTo(TransformMeta removedTransform) {
+    for (int h = hops.size() - 1; h >= 0; h--) {
+      PipelineHopMeta hop = hops.get(h);
+      if (removedTransform.equals(hop.getFromTransform())
+          || removedTransform.equals(hop.getToTransform())) {
+        hops.remove(h);
+        changedHops = true;
+      }
+    }
+
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta != null && removedTransform.equals(errorMeta.getTargetTransform())) {
+        // The error rows have nowhere to go anymore, so the whole entry goes with the target.
+        transformMeta.setTransformErrorMeta(null);
+      }
+    }
   }
 
   /**
@@ -517,6 +561,20 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setPipelineHop(int i, PipelineHopMeta hop) {
     hops.set(i, hop);
+    clearCaches();
+  }
+
+  /**
+   * Enables or disables a hop. Use this instead of {@link PipelineHopMeta#setEnabled(boolean)}: the
+   * caches in this class take the enabled state of the hops into account, so they need to be
+   * cleared. A stale cache makes the engine look for row sets which were never allocated for a
+   * disabled hop, resulting in "Unable to find input rowset!" during initialization.
+   *
+   * @param hop The hop to enable or disable
+   * @param enabled true to enable the hop, false to disable it
+   */
+  public void setHopEnabled(PipelineHopMeta hop, boolean enabled) {
+    hop.setEnabled(enabled);
     clearCaches();
   }
 
@@ -699,6 +757,202 @@ public class PipelineMeta extends AbstractMeta
     }
 
     return false;
+  }
+
+  /**
+   * Whether {@code hop} is a main (non-info, non-error) hop into a transform that will not drain
+   * it. Creating such a hop stalls the pipeline: the upstream {@code putRow} fills the rowset and
+   * blocks.
+   *
+   * @param hop the candidate or existing hop
+   * @return true if the hop should be refused
+   */
+  public boolean isDisallowedMainInputHop(PipelineHopMeta hop) {
+    if (hop == null || hop.getFromTransform() == null || hop.getToTransform() == null) {
+      return false;
+    }
+    if (!hop.isEnabled() || hop.isErrorHop()) {
+      return false;
+    }
+    TransformMeta to = hop.getToTransform();
+    ITransformMeta iMeta = to.getTransform();
+    if (iMeta == null || iMeta.consumesMainInput()) {
+      return false;
+    }
+    return !isTransformInformative(to, hop.getFromTransform());
+  }
+
+  /**
+   * Named target streams (Filter Rows true/false, Switch/Case, and similar) deliver rows to copy 0
+   * of the target only. A transform that is such a target cannot run in multiple copies.
+   *
+   * @param transformMeta transform that would be started in multiple copies
+   * @return {@code false} when an enabled previous hop comes from a transform that names it as a
+   *     target stream
+   */
+  public boolean allowsMultipleCopies(TransformMeta transformMeta) {
+    if (transformMeta == null) {
+      return true;
+    }
+    for (TransformMeta previous : findPreviousTransforms(transformMeta)) {
+      if (namesTarget(previous, transformMeta)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @return {@code true} when the copies string resolves to an integer greater than one. Unresolved
+   *     variables and partitioning are ignored, matching the copies dialog.
+   */
+  public boolean hasMultipleCopies(TransformMeta transformMeta, IVariables variables) {
+    if (transformMeta == null || Utils.isEmpty(transformMeta.getCopiesString())) {
+      return false;
+    }
+    IVariables space = variables != null ? variables : Variables.getADefaultVariableSpace();
+    return Const.toInt(space.resolve(transformMeta.getCopiesString()), -1) > 1;
+  }
+
+  /**
+   * @return {@code true} when {@code hop} connects a named target stream to a transform that
+   *     already runs in multiple copies
+   */
+  public boolean isMultipleCopiesTargetHop(PipelineHopMeta hop, IVariables variables) {
+    if (hop == null
+        || !hop.isEnabled()
+        || hop.getFromTransform() == null
+        || hop.getToTransform() == null) {
+      return false;
+    }
+    return hasMultipleCopies(hop.getToTransform(), variables)
+        && namesTarget(hop.getFromTransform(), hop.getToTransform());
+  }
+
+  /**
+   * Splitting {@code hop} redirects the source transform's target streams from the current
+   * destination onto {@code inserted}.
+   *
+   * @return {@code true} when that redirect would land on a transform that already runs in multiple
+   *     copies
+   */
+  public boolean isMultipleCopiesTargetSplit(
+      PipelineHopMeta hop, TransformMeta inserted, IVariables variables) {
+    if (hop == null || hop.getFromTransform() == null || hop.getToTransform() == null) {
+      return false;
+    }
+    return hasMultipleCopies(inserted, variables)
+        && namesTarget(hop.getFromTransform(), hop.getToTransform());
+  }
+
+  private boolean namesTarget(TransformMeta source, TransformMeta target) {
+    if (source == null || target == null || Utils.isEmpty(target.getName())) {
+      return false;
+    }
+    ITransformMeta meta = source.getTransform();
+    if (meta == null) {
+      return false;
+    }
+    ITransformIOMeta ioMeta = meta.getTransformIOMeta();
+    if (ioMeta == null) {
+      return false;
+    }
+    String[] targetNames = ioMeta.getTargetTransformNames();
+    if (targetNames == null) {
+      return false;
+    }
+    for (String targetName : targetNames) {
+      if (!Utils.isEmpty(targetName) && targetName.equalsIgnoreCase(target.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Previous transforms on enabled main hops into {@code transformMeta}: not info, not error.
+   * {@link #findPreviousTransforms(TransformMeta, boolean)} with {@code info=false} still includes
+   * error-hop predecessors.
+   */
+  public List<TransformMeta> findPreviousMainTransforms(TransformMeta transformMeta) {
+    List<TransformMeta> previousTransforms = new ArrayList<>();
+    if (transformMeta == null) {
+      return previousTransforms;
+    }
+    for (PipelineHopMeta hi : hops) {
+      if (hi.getToTransform() != null
+          && hi.isEnabled()
+          && !hi.isErrorHop()
+          && hi.getToTransform().equals(transformMeta)
+          && !isTransformInformative(transformMeta, hi.getFromTransform())) {
+        previousTransforms.add(hi.getFromTransform());
+      }
+    }
+    return previousTransforms;
+  }
+
+  /**
+   * Main (non-info, non-error) hops into {@code to} that {@link ITransformMeta#consumesMainInput()}
+   * says will not be drained.
+   */
+  public List<PipelineHopMeta> findDisallowedMainInputHops(TransformMeta to) {
+    List<PipelineHopMeta> result = new ArrayList<>();
+    if (to == null) {
+      return result;
+    }
+    for (int i = 0; i < nrPipelineHops(); i++) {
+      PipelineHopMeta hop = getPipelineHop(i);
+      if (to.equals(hop.getToTransform()) && isDisallowedMainInputHop(hop)) {
+        result.add(hop);
+      }
+    }
+    return result;
+  }
+
+  void addUnconsumedMainInputRemark(List<ICheckResult> remarks, TransformMeta transformMeta) {
+    ITransformMeta iMeta = transformMeta.getTransform();
+    if (iMeta == null || iMeta.consumesMainInput()) {
+      return;
+    }
+    List<TransformMeta> mainPrev = findPreviousMainTransforms(transformMeta);
+    if (mainPrev.isEmpty()) {
+      return;
+    }
+    String fromNames =
+        mainPrev.stream().map(TransformMeta::getName).collect(Collectors.joining(", "));
+    String hint = iMeta.getMainInputRequirementHint();
+    String message;
+    if (Utils.isEmpty(hint)) {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.CheckResult.TypeResultError.DoesNotConsumeMainInput.Description",
+              transformMeta.getName(),
+              fromNames);
+    } else {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "PipelineMeta.CheckResult.TypeResultError.DoesNotConsumeMainInput.Hint.Description",
+              transformMeta.getName(),
+              fromNames,
+              hint);
+    }
+    remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
+  }
+
+  void addPipelineSourceRemark(List<ICheckResult> remarks, TransformMeta transformMeta) {
+    ITransformMeta iMeta = transformMeta.getTransform();
+    if (!TransformSourceSupport.isPipelineSource(iMeta)) {
+      return;
+    }
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_COMMENT,
+            TransformSourceSupport.CHECK_CODE_PIPELINE_SOURCE,
+            BaseMessages.getString(
+                PKG, "PipelineMeta.CheckResult.TypeResultComment.CanStartWithoutInput.Description"),
+            transformMeta));
   }
 
   /**
@@ -1053,6 +1307,8 @@ public class PipelineMeta extends AbstractMeta
     if (transformMeta == null) {
       return row;
     }
+
+    discardTransformFieldsCacheIfDatabaseCacheCleared();
 
     String fromToCacheEntry = calculateFieldsCacheEntryKey(transformMeta, targetTransform);
     IRowMeta rowMeta = transformFieldsCache.get(fromToCacheEntry);
@@ -1462,6 +1718,7 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public String getXml(IVariables variables) throws HopException {
+    persistSynchronizedName();
     return XmlHandler.getLicenseHeader(variables)
         + XmlFormatter.format(
             XmlHandler.aroundTag(XML_TAG, XmlMetadataUtil.serializeObjectToXml(this)));
@@ -1501,7 +1758,7 @@ public class PipelineMeta extends AbstractMeta
     // OK, try to load using the VFS stuff...
     Document doc;
     try {
-      final FileObject pipelineFile = HopVfs.getFileObject(filename);
+      final FileObject pipelineFile = HopVfs.getFileObject(filename, parentVariableSpace);
       if (!pipelineFile.exists()) {
         throw new HopXmlException(
             BaseMessages.getString(PKG, "PipelineMeta.Exception.InvalidXMLPath", filename));
@@ -1605,6 +1862,23 @@ public class PipelineMeta extends AbstractMeta
     clearChanged();
   }
 
+  /**
+   * Replace this pipeline's persisted content from a snapshot XML node. Used by GUI undo/redo.
+   *
+   * <p>Does not fire {@code PipelineMetaLoaded} (undo is not a file open) and does not call {@link
+   * #clearChanged()} — the caller decides the dirty flag.
+   */
+  public void restoreContentFromXml(
+      Node pipelineNode, String filename, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    this.metadataProvider = metadataProvider;
+    clear();
+    setFilename(filename);
+    XmlMetadataUtil.deSerializeFromXml(
+        null, null, pipelineNode, PipelineMeta.class, this, metadataProvider);
+    lookupReferencesAfterLoading();
+  }
+
   private void deSerializeXml(
       Node pipelineNode,
       String filename,
@@ -1641,6 +1915,7 @@ public class PipelineMeta extends AbstractMeta
    * that need to be set. This is happening here.
    */
   public void lookupReferencesAfterLoading() {
+    missingPipeline = null;
     for (TransformMeta transformMeta : transforms) {
       ITransformMeta iTransform = transformMeta.getTransform();
 
@@ -1650,8 +1925,54 @@ public class PipelineMeta extends AbstractMeta
       // Also set the parent pipeline to which this transform belongs.
       // This is rarely used, for example in getTableFields.getTableFields()
       transformMeta.setParentPipelineMeta(this);
+
+      // Keep track of the transforms whose plugin isn't installed so we can warn about them.
+      //
+      if (iTransform instanceof Missing missing) {
+        addMissingPipeline(missing);
+      }
     }
+    dropReferencesToTransformsNotInTheFile();
     syncTransformErrorHandlingWithHops();
+  }
+
+  /**
+   * A hop or an error handling entry naming a transform that the file does not contain - a name
+   * left behind by a rename or by a transform that was deleted elsewhere - is resolved to null
+   * while de-serializing. Half of a hop is of no use to anyone: it is not drawn, it is not
+   * executed, and saving the pipeline again writes it back with one end missing. So it is dropped
+   * here, and the user is told about it.
+   */
+  private void dropReferencesToTransformsNotInTheFile() {
+    for (int i = hops.size() - 1; i >= 0; i--) {
+      PipelineHopMeta hop = hops.get(i);
+      TransformMeta from = hop.getFromTransform();
+      TransformMeta to = hop.getToTransform();
+      if (from == null || to == null) {
+        hops.remove(i);
+        changedHops = true;
+        TransformMeta known = from == null ? to : from;
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "PipelineMeta.Log.RemovedHopToUnknownTransform",
+                known == null ? "?" : known.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
+
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta != null && errorMeta.getTargetTransform() == null) {
+        transformMeta.setTransformErrorMeta(null);
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(
+                PKG,
+                "PipelineMeta.Log.RemovedErrorHandlingToUnknownTransform",
+                transformMeta.getName(),
+                Const.NVL(filename, getName())));
+      }
+    }
   }
 
   /**
@@ -2509,6 +2830,8 @@ public class PipelineMeta extends AbstractMeta
                   transformMeta));
         }
 
+        addPipelineSourceRemark(remarks, transformMeta);
+
         int nrInfoTransforms = findNrInfoTransforms(transformMeta);
         TransformMeta[] infoTransform = null;
         if (nrInfoTransforms > 0) {
@@ -2570,6 +2893,7 @@ public class PipelineMeta extends AbstractMeta
                   remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
           transformMeta.check(
               remarks, this, prev, input, output, infoRowMeta, variables, metadataProvider);
+          addUnconsumedMainInputRemark(remarks, transformMeta);
           ExtensionPointHandler.callExtensionPoint(
               LogChannel.GENERAL,
               variables,
@@ -2696,6 +3020,26 @@ public class PipelineMeta extends AbstractMeta
                 BaseMessages.getString(PKG, "PipelineMeta.CheckResult.TypeResultOK.Description"),
                 null);
         remarks.add(cr);
+      }
+
+      // Bounded-buffer deadlock risk on split–rejoin multi-input transforms (classic engine)
+      //
+      List<BufferDeadlockRisk> deadlockRisks = PipelineBufferDeadlockAnalyzer.analyze(this);
+      for (BufferDeadlockRisk risk : deadlockRisks) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineMeta.CheckResult.TypeResultWarning.BufferDeadlockRisk.Description",
+                    risk.formatMessage()),
+                risk.reconvergence()));
+      }
+
+      for (TransformMeta transformMeta : transformsToCheck) {
+        remarks.addAll(
+            ReferencedDatabaseConnectionChecker.checkTransform(
+                transformMeta, variables, metadataProvider));
       }
 
       ExtensionPointHandler.callExtensionPoint(
@@ -2915,8 +3259,10 @@ public class PipelineMeta extends AbstractMeta
     List<String> varList = new ArrayList<>();
 
     // Look around in the strings, see what we find...
+    // Exclude variable resolvers (#{...}): their content is a resolver name plus a secret path, not
+    // a user-settable variable, so it shouldn't end up in the run options variable list.
     for (StringSearchResult result : stringList) {
-      StringUtil.getUsedVariables(result.getString(), varList, false);
+      StringUtil.getUsedVariables(result.getString(), varList, false, false);
     }
 
     return varList;
@@ -3204,6 +3550,20 @@ public class PipelineMeta extends AbstractMeta
   /** Clears the transform fields cache. */
   private void clearTransformFieldsCache() {
     transformFieldsCache.clear();
+    transformFieldsCacheDbGeneration = DbCache.getInstance().getGeneration();
+  }
+
+  /**
+   * Drop the cached transform fields when the database cache was cleared since we filled them.
+   * Transforms which read their layout from the database (Table Input, Table Output, Database
+   * Lookup, ...) go through {@link DbCache}, so a stale entry here survives clearing that cache and
+   * keeps showing the old columns until the pipeline is reloaded.
+   */
+  private void discardTransformFieldsCacheIfDatabaseCacheCleared() {
+    int currentGeneration = DbCache.getInstance().getGeneration();
+    if (currentGeneration != transformFieldsCacheDbGeneration) {
+      clearTransformFieldsCache();
+    }
   }
 
   /** Clears the loop cache. */
@@ -3214,24 +3574,6 @@ public class PipelineMeta extends AbstractMeta
   @VisibleForTesting
   void clearPreviousTransformCache() {
     previousTransformCache.clear();
-  }
-
-  /**
-   * Gets the pipeline type.
-   *
-   * @return the pipelineType
-   */
-  public PipelineType getPipelineType() {
-    return info.getPipelineType();
-  }
-
-  /**
-   * Sets the pipeline type.
-   *
-   * @param pipelineType the pipelineType to set
-   */
-  public void setPipelineType(PipelineType pipelineType) {
-    this.info.setPipelineType(pipelineType);
   }
 
   public void addTransformChangeListener(ITransformMetaChangeListener listener) {
@@ -3259,6 +3601,23 @@ public class PipelineMeta extends AbstractMeta
   public void notifyAllListeners(TransformMeta oldMeta, TransformMeta newMeta) {
     for (ITransformMetaChangeListener listener : transformChangeListeners) {
       listener.onTransformChange(this, oldMeta, newMeta);
+    }
+    if (oldMeta == null || newMeta == null) {
+      return;
+    }
+    String oldName = oldMeta.getName();
+    String newName = newMeta.getName();
+    if (oldName == null || oldName.equals(newName)) {
+      return;
+    }
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL,
+          Variables.getADefaultVariableSpace(),
+          HopExtensionPoint.PipelineTransformRenamed.id,
+          new TransformNameChange(this, oldName, newName));
+    } catch (HopException e) {
+      LogChannel.GENERAL.logError("Error calling extension point PipelineTransformRenamed", e);
     }
   }
 
@@ -3308,8 +3667,14 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * The PipelineType enum describes the various types of pipelines in terms of execution, including
-   * Normal, Serial Single-Threaded, and Single-Threaded.
+   * Describes how an engine drives the transforms of a pipeline. This is a property of the engine
+   * that executes the pipeline, not of the pipeline itself: the very same pipeline runs under
+   * either type, so it is never stored in the .hpl file. See {@link
+   * org.apache.hop.pipeline.engine.IPipelineEngine#getPipelineType()}.
+   *
+   * <p>Transforms use it in {@link
+   * org.apache.hop.pipeline.transform.BaseTransformMeta#getSupportedPipelineTypes()} to declare
+   * which of these execution models they can cope with.
    */
   @SuppressWarnings("java:S115")
   @Getter
@@ -3516,6 +3881,42 @@ public class PipelineMeta extends AbstractMeta
   @Override
   public String getModifiedUser() {
     return info.getModifiedUser();
+  }
+
+  /**
+   * Gets the version of Hop that created the pipeline.
+   *
+   * @return the Hop version that created the pipeline, or null when it isn't known.
+   */
+  public String getCreatedHopVersion() {
+    return info.getCreatedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that created the pipeline.
+   *
+   * @param createdHopVersion The Hop version to set.
+   */
+  public void setCreatedHopVersion(String createdHopVersion) {
+    info.setCreatedHopVersion(createdHopVersion);
+  }
+
+  /**
+   * Gets the version of Hop that last saved the pipeline.
+   *
+   * @return the Hop version that last saved the pipeline, or null when it isn't known.
+   */
+  public String getModifiedHopVersion() {
+    return info.getModifiedHopVersion();
+  }
+
+  /**
+   * Sets the version of Hop that last saved the pipeline.
+   *
+   * @param modifiedHopVersion The Hop version to set.
+   */
+  public void setModifiedHopVersion(String modifiedHopVersion) {
+    info.setModifiedHopVersion(modifiedHopVersion);
   }
 
   @Override

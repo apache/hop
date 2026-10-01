@@ -17,7 +17,6 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -33,21 +32,17 @@ public class ParquetRecordMaterializer extends RecordMaterializer<RowMetaAndData
   private final ParquetRowConverter root;
   private final MessageType messageType;
   private final List<ParquetField> fields;
-  private final List<Integer> requestedFieldIndexes;
   private final IRowMeta schemaRowMeta;
 
   public ParquetRecordMaterializer(MessageType messageType, List<ParquetField> fields) {
     this.messageType = messageType;
     this.fields = fields;
-    this.requestedFieldIndexes = new ArrayList<>();
     this.schemaRowMeta = new RowMeta();
     for (ParquetField field : fields) {
-      int fieldIndex = messageType.getFieldIndex(field.getSourceField());
-      if (fieldIndex < 0) {
+      if (!messageType.containsField(field.getSourceField())) {
         throw new HopRuntimeException(
             "Error finding source field '" + field.getSourceField() + "' in the input file");
       }
-      requestedFieldIndexes.add(fieldIndex);
       try {
         schemaRowMeta.addValueMeta(field.createValueMeta());
       } catch (HopException e) {

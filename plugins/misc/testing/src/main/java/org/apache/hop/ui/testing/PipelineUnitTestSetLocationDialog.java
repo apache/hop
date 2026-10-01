@@ -18,8 +18,10 @@
 package org.apache.hop.ui.testing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -63,7 +65,16 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
   private final PipelineUnitTestSetLocation location;
   private final List<DataSet> dataSets;
-  private final Map<String, IRowMeta> transformFieldsMap;
+
+  /**
+   * Resolves the output fields of a transform, or returns null when they can't be determined.
+   * Called on demand only: resolving the fields of every transform up front can be very expensive
+   * (issue #8203), for example when a Table input transform has to connect to a database for it.
+   */
+  private final Function<String, IRowMeta> transformFieldsResolver;
+
+  /** Cache of the fields resolved so far in this dialog, keyed by transform name. */
+  private final Map<String, IRowMeta> transformFieldsCache = new HashMap<>();
 
   private final String[] transformNames;
   private final String[] datasetNames;
@@ -87,17 +98,18 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
       IHopMetadataProvider metadataProvider,
       PipelineUnitTestSetLocation location,
       List<DataSet> dataSets,
-      Map<String, IRowMeta> transformFieldsMap) {
+      String[] transformNames,
+      Function<String, IRowMeta> transformFieldsResolver) {
     super(parent, SWT.NONE);
     this.variables = variables;
     this.metadataProvider = metadataProvider;
     this.location = location;
     this.dataSets = dataSets;
-    this.transformFieldsMap = transformFieldsMap;
+    this.transformFieldsResolver = transformFieldsResolver;
     props = PropsUi.getInstance();
     ok = false;
 
-    transformNames = transformFieldsMap.keySet().toArray(new String[0]);
+    this.transformNames = transformNames;
     datasetNames = new String[dataSets.size()];
     for (int i = 0; i < datasetNames.length; i++) {
       datasetNames[i] = dataSets.get(i).getName();
@@ -273,6 +285,21 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     return ok;
   }
 
+  /**
+   * Get the output fields of the given transform, resolving them the first time they are needed.
+   *
+   * @param transformName the transform to get the fields for
+   * @return the fields, or null when they can't be determined
+   */
+  private IRowMeta getTransformFields(String transformName) {
+    // Remember failures as well (null values): retrying is just as expensive as the first attempt.
+    //
+    if (!transformFieldsCache.containsKey(transformName)) {
+      transformFieldsCache.put(transformName, transformFieldsResolver.apply(transformName));
+    }
+    return transformFieldsCache.get(transformName);
+  }
+
   protected void getFieldMappings() {
 
     try {
@@ -286,7 +313,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
         throw new HopException("Please select a transform and a data set to map fields between");
       }
 
-      IRowMeta transformRowMeta = transformFieldsMap.get(transformName);
+      IRowMeta transformRowMeta = getTransformFields(transformName);
       if (transformRowMeta == null) {
         throw new HopException("Unable to find fields for transform " + transformName);
       }
@@ -482,7 +509,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     // Check fields of the transform if selected
     IRowMeta transformRowMeta = null;
     if (StringUtils.isNotEmpty(transformName)) {
-      transformRowMeta = transformFieldsMap.get(transformName);
+      transformRowMeta = getTransformFields(transformName);
       if (transformRowMeta == null) {
         remarks.add(
             new CheckResult(

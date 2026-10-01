@@ -131,7 +131,7 @@ class ExecProcessMetaTest {
     a.getArgumentFields().add(f);
     a.setOutputLineDelimiter("|");
 
-    ExecProcessMeta b = a.clone();
+    ExecProcessMeta b = (ExecProcessMeta) a.clone();
     assertNotSame(a, b);
     assertNotSame(a.getArgumentFields(), b.getArgumentFields());
     assertNotSame(a.getArgumentFields().get(0), b.getArgumentFields().get(0));

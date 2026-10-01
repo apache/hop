@@ -266,6 +266,16 @@ public class JediTerminalWidget implements ITerminalWidget {
         }
       }
 
+      /**
+       * JediTerm seeds its style state (which paints the block cursor as the inverse of the default
+       * style) from this method, not from the foreground/background getters above. Without it the
+       * cursor stays black, which is invisible on a dark background.
+       */
+      @Override
+      public TextStyle getDefaultStyle() {
+        return new TextStyle(getDefaultForeground(), getDefaultBackground());
+      }
+
       @Override
       public TextStyle getFoundPatternColor() {
         TerminalColor bg = new TerminalColor(255, 255, 0);
@@ -340,7 +350,8 @@ public class JediTerminalWidget implements ITerminalWidget {
       jediTermWidget.start();
 
       // Request focus after terminal initialization
-      new Thread(
+      Thread.ofVirtual()
+          .start(
               () -> {
                 try {
                   Thread.sleep(100);
@@ -359,8 +370,7 @@ public class JediTerminalWidget implements ITerminalWidget {
                 } catch (Exception e) {
                   log.logDebug("Error requesting initial AWT focus: " + e.getMessage());
                 }
-              })
-          .start();
+              });
 
     } catch (Exception e) {
       log.logError("Error starting JediTerm shell process", e);

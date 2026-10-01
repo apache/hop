@@ -38,7 +38,6 @@ At the end of the workflow there will be a commit or rollback (in case of error)
 Note that child pipelines and workflows are also automatically run as a transaction.
 Also be aware that while you *can* commit and rollback across multiple databases that this still means that you can have a successful commit on one database and a failure on another.
 This is not a two-phase-commit system.
-|false
 
 |Safe mode
 |Passed down to child pipelines.

@@ -1,0 +1,37 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "rowNr",
+          "data_set_field": "rowNr"
+        }
+      ],
+      "field_order": [
+        "id",
+        "rowNr"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-split-field-to-rows-enclosure"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0019-split-field-to-rows-enclosure UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0019-split-field-to-rows-enclosure.hpl",
+  "test_type": "UNIT_TEST"
+}

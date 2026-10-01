@@ -19,14 +19,21 @@ package org.apache.hop.parquet.transforms.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -37,6 +44,8 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.parquet.column.ParquetProperties;
+import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,7 +103,7 @@ class ParquetOutputTest {
     assertTrue(output.init());
     assertEquals(ParquetProperties.DEFAULT_PAGE_SIZE, data.pageSize);
     assertEquals(ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE, data.dictionaryPageSize);
-    assertEquals(ParquetProperties.DEFAULT_PAGE_ROW_COUNT_LIMIT, data.rowGroupSize);
+    assertEquals(ParquetWriter.DEFAULT_BLOCK_SIZE, data.rowGroupSize);
     assertEquals(-1, data.maxSplitSizeRows);
   }
 
@@ -150,7 +159,11 @@ class ParquetOutputTest {
   @Test
   void testResolveOutputFieldsUsesConfiguredFields() throws Exception {
     ParquetOutputMeta meta = new ParquetOutputMeta();
-    meta.getFields().add(new ParquetField("id", "identifier"));
+    ParquetField id = new ParquetField("id", "identifier");
+    id.setParquetType("Date");
+    id.setPrecision("8");
+    id.setScale("0");
+    meta.getFields().add(id);
     meta.getFields().add(new ParquetField("name", ""));
 
     ParquetOutputData data = new ParquetOutputData();
@@ -165,7 +178,117 @@ class ParquetOutputTest {
 
     assertEquals(2, data.outputFields.size());
     assertEquals("identifier", data.outputFields.get(0).getTargetFieldName());
+    assertEquals("Date", data.outputFields.get(0).getParquetType());
+    assertEquals("8", data.outputFields.get(0).getPrecision());
+    assertEquals("0", data.outputFields.get(0).getScale());
     assertEquals("name", data.outputFields.get(1).getTargetFieldName());
+    assertNull(data.outputFields.get(1).getParquetType());
+  }
+
+  @Test
+  void testBuildFilenameCompressionBeforeExtensionByDefault() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setCompressionCodec(CompressionCodecName.SNAPPY);
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals("/tmp/output.snappy.parquet", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameCompressionAfterExtensionWhenDisabled() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setFilenameCompressionBeforeExtension(false);
+    meta.setCompressionCodec(CompressionCodecName.SNAPPY);
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals("/tmp/output.parquet.snappy", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameUncompressedHasNoCodecExtension() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setCompressionCodec(CompressionCodecName.UNCOMPRESSED);
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals("/tmp/output.parquet", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameWithEveryNamePart() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingDate(true);
+    meta.setFilenameIncludingTime(true);
+    meta.setFilenameIncludingDateTime(true);
+    meta.setFilenameDateTimeFormat("yyyy-MM-dd'T'HH");
+    meta.setFilenameIncludingCopyNr(true);
+    meta.setFilenameIncludingSplitNr(true);
+    meta.setCompressionCodec(CompressionCodecName.GZIP);
+
+    ParquetOutputData data = new ParquetOutputData();
+    data.split = 3;
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals(
+        "/tmp/output-20240115-103000-2024-01-15T10-00-0003.gz.parquet",
+        output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameDefaultsTheExtensionAndResolvesVariables() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("${OUT}/data");
+    meta.setFilenameExtension("");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setCompressionCodec(CompressionCodecName.UNCOMPRESSED);
+
+    ParquetOutput output = createTransform(meta, new ParquetOutputData());
+    output.setVariable("OUT", "/var/out");
+
+    assertEquals("/var/out/data.parquet", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testInitClampsMaxOpenPartitionsToAtLeastOne() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setMaxOpenPartitions("0");
+    ParquetOutputData data = new ParquetOutputData();
+    assertTrue(createTransform(meta, data).init());
+    assertEquals(1, data.maxOpenPartitions);
+  }
+
+  @Test
+  void testAvroTypeRejectsUnsupportedHopTypes() {
+    IValueMeta unsupported = mock(IValueMeta.class);
+    when(unsupported.getType()).thenReturn(IValueMeta.TYPE_INET);
+    when(unsupported.getTypeDesc()).thenReturn("Internet Address");
+
+    HopException e = assertThrows(HopException.class, () -> ParquetOutput.avroType(unsupported));
+    assertTrue(e.getMessage().contains("Internet Address"));
+  }
+
+  private static Date fixedDate() {
+    return new GregorianCalendar(2024, Calendar.JANUARY, 15, 10, 30, 0).getTime();
   }
 
   private ParquetOutput createTransform(ParquetOutputMeta meta, ParquetOutputData data) {

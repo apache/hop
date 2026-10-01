@@ -124,6 +124,7 @@ public class EnvironmentUtils {
    *
    * @return a string that contains the current Operating System.
    */
+  @SuppressWarnings("javabugs:S2259") // getLinuxDistribution() returns a non-null value on linux
   private String getEnvironmentName() {
     String osName = getOsName();
     if (osName.contentEquals("linux")) {

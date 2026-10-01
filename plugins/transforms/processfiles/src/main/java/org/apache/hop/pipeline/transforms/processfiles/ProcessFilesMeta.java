@@ -208,6 +208,7 @@ public class ProcessFilesMeta extends BaseTransformMeta<ProcessFiles, ProcessFil
     operationType = OPERATION_TYPE_COPY;
   }
 
+  @SuppressWarnings("javabugs:S6466") // the code array is a non-empty constant
   private static String getOperationTypeCode(int i) {
     if (i < 0 || i >= operationTypeCode.length) {
       return operationTypeCode[0];

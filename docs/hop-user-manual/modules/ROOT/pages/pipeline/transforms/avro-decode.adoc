@@ -16,28 +16,21 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
+:description: The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-avro
 
-= image:transforms/icons/avro_decode.svg[Avro Decode Icon, role="image-doc-icon"] Avro Decode
+= image:transforms/icons/avro_decode.svg[Avro decode Icon, role="image-doc-icon"] Avro decode
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
-The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:check_mark.svg[Supported, 24]
-!Beam Flink! image:check_mark.svg[Supported, 24]
-!Beam Dataflow! image:check_mark.svg[Supported, 24]
-!===
-|===
+The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
+
+[WARNING]
+====
+Avro decode does not run on the native Spark engine.
+It decodes an Avro Record field, and the native Spark engine has no Spark data type to carry such a field from one transform to the next, so the pipeline is refused before it starts.
+====
 
 == Options
 
@@ -60,7 +53,10 @@ Please note that complex data types like Map and Record are converted into JSON 
 Note: The "Avro type" column is informational only.
 It's not used at runtime.
 
-|Get fields button
-|You can use the "Get fields" button to retrieve the fields from the schema present in the metadata of the specified Avro Record source field.  If there's no metadata in this field, in case of sourcing from a Kafka consumer for example, you can opt to read from an Avro file.
+|Get fields from file
+|Retrieves fields from the schema on the selected Avro Record source field, when that field already has one (for example after Avro Encode). If there is no schema, pick an Avro file. The fields are taken from the first record. Rows are added to the table.
+
+|Get fields from JSON
+|Paste JSON instead of reading a file. Three forms are accepted: a Hop Avro value with `schema` and `data`, an Avro record schema, or one sample record (the JSON shown when previewing an Avro value, including from Kafka). A sample record's types are a best effort: JSON null becomes String, and only the top-level fields are added. Rows are added to the table.
 
 |===

@@ -56,9 +56,7 @@ public class ParquetRowConverter extends GroupConverter {
     }
 
     return new ParquetValueConverter(
-        group,
-        rowIndex,
-        messageType.getColumns().get(schemaIndex).getPrimitiveType().getLogicalTypeAnnotation());
+        group, rowIndex, messageType.getColumns().get(schemaIndex).getPrimitiveType());
   }
 
   @Override

@@ -22,17 +22,12 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-detectlanguage</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Detect Language</name>
-
-    <properties>
-        <hop.pluginlib.exclude1>lingua</hop.pluginlib.exclude1>
-        <hop.pluginlib.exclude2>fastutil</hop.pluginlib.exclude2>
-    </properties>
 
     <dependencyManagement>
         <dependencies>

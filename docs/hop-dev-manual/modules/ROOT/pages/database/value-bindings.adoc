@@ -1,0 +1,109 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: When a driver needs the values themselves handled specially, rather than the types named differently.
+[[Database-ValueBindings]]
+= Moving values across JDBC
+
+Most of the time, once Hop knows a column is a date, reading it is `getTimestamp` and writing it is `setTimestamp`.
+Some drivers are not that obliging.
+
+A binding is for those cases.
+It is not for naming types differently, which is what xref:database/column-types.adoc[type rules] are for.
+Reach for a binding only when the driver misbehaves over the value itself.
+
+The three in Hop's own plugins are a fair sample of what qualifies:
+
+* the Netezza driver returns nothing usable from `getDate` on a `TIME` column
+* the DuckDB driver has never implemented the `Calendar` overloads of `setDate` and `setTimestamp`
+* PostgreSQL takes JSON as a typed object, where other databases reject `Types.OTHER`
+
+== The interface
+
+[source,java]
+----
+public interface IValueBinding {
+  Object read(IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index)
+      throws SQLException;
+
+  void write(IDatabase database, IValueMeta valueMeta, PreparedStatement preparedStatement,
+      int index, Object value) throws SQLException, HopValueException;
+}
+----
+
+The index is the JDBC one, counting from 1.
+
+A binding that only ever writes can throw `UnsupportedOperationException` from `read`, and the other way round.
+A binding is asked for in both directions, so that is how it says it does not serve this one: Hop then falls back to the value type's own handling, which is what happened before the binding existed.
+
+== Declaring one
+
+[source,java]
+----
+DatabaseTypes.rules()
+    .bind(IValueMeta.TYPE_DATE, MY_DATE_BINDING)
+    .build();
+----
+
+Or, when it should only apply in some cases:
+
+[source,java]
+----
+DatabaseTypes.rules()
+    .bind(
+        IValueMeta.TYPE_DATE,
+        (database, valueMeta) ->
+            valueMeta.getPrecision() == 1 || !database.isSupportsTimeStampToDateConversion(),
+        NETEZZA_DATE_BINDING)
+    .build();
+----
+
+== Choosing happens before the work
+
+A binding is chosen from the dialect and the value metadata, never from column metadata.
+By the time rows are moving there is no column metadata left, only the value meta the row carries.
+
+So everything the choice depends on is answered when the binding is *chosen*: a driver quirk, a connection capability, the value's own precision.
+The binding itself only does the work.
+That is why the Netezza example above tests `isSupportsTimeStampToDateConversion` in the condition rather than inside `read`.
+
+== Bindings and the classloader
+
+A binding is the one place in the type system that is likely to touch the JDBC driver's own classes, and driver classes only resolve in the classloader that loaded the driver.
+
+If the binding lives in the same plugin as the dialect, that is automatic.
+If it lives somewhere else, the plugin has to join the dialect's `classLoaderGroup`, or unwrapping a driver object fails with the confusing `class com.acme.Thing cannot be cast to class com.acme.Thing`.
+See xref:database/extending-another-dialect.adoc[Extending a dialect you don't own].
+
+Prefer exchanging driver neutral values — byte arrays, strings, numbers — so that whatever consumes the value needs no knowledge of any driver.
+
+== Where Hop asks
+
+Hop asks for a binding at two places, and only two:
+
+* reading, in the dialect's own `getValueFromResultSet`
+* writing, in `Database.setValue`
+
+Both are the points the engine goes through, which is deliberate.
+A value type that handles its own reading or writing still gets its database's binding, because the question is asked before the value type is reached.
+
+== Cost
+
+Binding lookup runs for every value of every row.
+The rules that can supply one are collected once per dialect and cached, and nearly every dialect has none, so the lookup is a map read and an empty list check.
+
+A rule that can supply a binding must say so by returning true from `suppliesBindings()`; the builder does this for you.
+A rule that never binds is skipped entirely.

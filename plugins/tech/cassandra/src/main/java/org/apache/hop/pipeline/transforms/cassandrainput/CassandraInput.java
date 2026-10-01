@@ -269,6 +269,8 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
     super.setStopped(stopped);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public void dispose() {
     try {

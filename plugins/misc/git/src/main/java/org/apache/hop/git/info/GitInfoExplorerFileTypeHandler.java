@@ -18,6 +18,7 @@
 
 package org.apache.hop.git.info;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,10 +39,12 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.git.GitGuiPlugin;
 import org.apache.hop.git.HopDiff;
+import org.apache.hop.git.config.GitConfigSingleton;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.model.revision.ObjectRevision;
+import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -352,6 +355,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
               hopGui.getVariables(),
               wDiffComposite,
               SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      // styleType STYLE_TYPE_DIFF is set by DiffStyledTextComp constructor
       PropsUi.setLook(wDiffStyled, Props.WIDGET_STYLE_FIXED);
       wDiffStyled.setLayoutData(fdDiff);
       wDiff = wDiffStyled;
@@ -368,6 +372,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     if (wFiles.getSelectionIndices().length == 0) {
       return;
     }
+    if (wRevisions.table.getSelectionCount() == 0) {
+      return;
+    }
     TableItem fileItem = wFiles.table.getSelection()[0];
     String filename = fileItem.getText(1);
     if (StringUtils.isEmpty(filename)) {
@@ -376,6 +383,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
+    if (git == null) {
+      return;
+    }
 
     try {
 
@@ -411,11 +421,15 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       }
 
       ExplorerPerspective perspective = HopGui.getExplorerPerspective();
-      if (perspective.getPipelineFileType().isHandledBy(filename, false)) {
+      if (perspective != null
+          && perspective.getPipelineFileType() != null
+          && perspective.getPipelineFileType().isHandledBy(filename, false)) {
         // A pipeline
         //
         showPipelineFileDiff(filename, commitIdNew, commitIdOld);
-      } else if (perspective.getWorkflowFileType().isHandledBy(filename, false)) {
+      } else if (perspective != null
+          && perspective.getWorkflowFileType() != null
+          && perspective.getWorkflowFileType().isHandledBy(filename, false)) {
         // A workflow
         //
         showWorkflowFileDiff(filename, commitIdNew, commitIdOld);
@@ -432,22 +446,30 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
 
-    InputStream xmlStreamOld = null;
-    InputStream xmlStreamNew = null;
-
-    try {
-      xmlStreamOld = git.open(filename, commitIdOld);
-      xmlStreamNew = git.open(filename, commitIdNew);
+    try (InputStream xmlStreamOld = git.open(filename, commitIdOld);
+        InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       PipelineMeta pipelineMetaOld =
           new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
       PipelineMeta pipelineMetaNew =
           new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
-      pipelineMetaOld = HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true);
-      pipelineMetaOld = HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true);
-      pipelineMetaNew = HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false);
-      pipelineMetaNew = HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false);
+      boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      Map<String, String> renamed =
+          HopDiff.detectTransformRenames(pipelineMetaOld, pipelineMetaNew);
+      Map<String, String> renamedBack =
+          HopDiff.detectTransformRenames(pipelineMetaNew, pipelineMetaOld);
+
+      pipelineMetaOld =
+          HopDiff.compareTransforms(
+              pipelineMetaOld, pipelineMetaNew, true, ignorePosition, renamed);
+      pipelineMetaOld =
+          HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true, renamed);
+      pipelineMetaNew =
+          HopDiff.compareTransforms(
+              pipelineMetaNew, pipelineMetaOld, false, ignorePosition, renamedBack);
+      pipelineMetaNew =
+          HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false, renamedBack);
 
       pipelineMetaOld.setPipelineVersion(CONST_GIT + commitIdOld);
       pipelineMetaNew.setPipelineVersion(CONST_GIT + commitIdNew);
@@ -457,7 +479,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       pipelineMetaOld.setName(
           String.format(
               CONST_S_S_S,
-              pipelineMetaOld.getName(),
+              FileTypeUtils.getDiffName(filename, pipelineMetaOld.getName()),
               git.getShortenedName(commitIdOld),
               git.getShortenedName(commitIdNew)));
       pipelineMetaOld.setNameSynchronizedWithFilename(false);
@@ -465,7 +487,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       pipelineMetaNew.setName(
           String.format(
               CONST_S_S_S,
-              pipelineMetaNew.getName(),
+              FileTypeUtils.getDiffName(filename, pipelineMetaNew.getName()),
               git.getShortenedName(commitIdNew),
               git.getShortenedName(commitIdOld)));
       pipelineMetaNew.setNameSynchronizedWithFilename(false);
@@ -474,17 +496,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       //
       HopGui.getExplorerPerspective().addPipeline(pipelineMetaOld);
       HopGui.getExplorerPerspective().addPipeline(pipelineMetaNew);
-    } finally {
-      try {
-        if (xmlStreamOld != null) {
-          xmlStreamOld.close();
-        }
-        if (xmlStreamNew != null) {
-          xmlStreamNew.close();
-        }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error closing XML file after reading", e);
-      }
+    } catch (IOException e) {
+      // only reachable from the implicit close() calls above
+      LogChannel.UI.logError("Error closing XML file after reading", e);
     }
   }
 
@@ -493,22 +507,28 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
 
-    InputStream xmlStreamOld = null;
-    InputStream xmlStreamNew = null;
-
-    try {
-      xmlStreamOld = git.open(filename, commitIdOld);
-      xmlStreamNew = git.open(filename, commitIdNew);
+    try (InputStream xmlStreamOld = git.open(filename, commitIdOld);
+        InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       WorkflowMeta workflowMetaOld =
           new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
       WorkflowMeta workflowMetaNew =
           new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
-      workflowMetaOld = HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true);
-      workflowMetaOld = HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true);
-      workflowMetaNew = HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false);
-      workflowMetaNew = HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false);
+      boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      Map<String, String> renamed = HopDiff.detectActionRenames(workflowMetaOld, workflowMetaNew);
+      Map<String, String> renamedBack =
+          HopDiff.detectActionRenames(workflowMetaNew, workflowMetaOld);
+
+      workflowMetaOld =
+          HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true, ignorePosition, renamed);
+      workflowMetaOld =
+          HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true, renamed);
+      workflowMetaNew =
+          HopDiff.compareActions(
+              workflowMetaNew, workflowMetaOld, false, ignorePosition, renamedBack);
+      workflowMetaNew =
+          HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false, renamedBack);
 
       workflowMetaOld.setWorkflowVersion(CONST_GIT + commitIdOld);
       workflowMetaNew.setWorkflowVersion(CONST_GIT + commitIdNew);
@@ -518,7 +538,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       workflowMetaOld.setName(
           String.format(
               CONST_S_S_S,
-              workflowMetaOld.getName(),
+              FileTypeUtils.getDiffName(filename, workflowMetaOld.getName()),
               git.getShortenedName(commitIdOld),
               git.getShortenedName(commitIdNew)));
       workflowMetaOld.setNameSynchronizedWithFilename(false);
@@ -526,7 +546,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       workflowMetaNew.setName(
           String.format(
               CONST_S_S_S,
-              workflowMetaNew.getName(),
+              FileTypeUtils.getDiffName(filename, workflowMetaNew.getName()),
               git.getShortenedName(commitIdNew),
               git.getShortenedName(commitIdOld)));
       workflowMetaNew.setNameSynchronizedWithFilename(false);
@@ -536,17 +556,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       HopGui.getExplorerPerspective().addWorkflow(workflowMetaOld);
       HopGui.getExplorerPerspective().addWorkflow(workflowMetaNew);
       HopGui.getExplorerPerspective().activate();
-    } finally {
-      try {
-        if (xmlStreamOld != null) {
-          xmlStreamOld.close();
-        }
-        if (xmlStreamNew != null) {
-          xmlStreamNew.close();
-        }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error closing XML file after reading", e);
-      }
+    } catch (IOException e) {
+      // only reachable from the implicit close() calls above
+      LogChannel.UI.logError("Error closing XML file after reading", e);
     }
   }
 

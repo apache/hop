@@ -18,7 +18,6 @@
 package org.apache.hop.ui.core.dialog;
 
 import java.util.List;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
@@ -48,13 +47,13 @@ import org.eclipse.swt.widgets.TableItem;
  * <p>Use this when the caller already has rows in memory and only needs to display them. For
  * transform preview (streaming, "get more rows", pause/stop, logging text), use {@link
  * PreviewRowsDialog} instead.
+ *
+ * <p>Column headers are sortable. Cells hold their full values — the grid only shortens long or
+ * multi-line text when drawing it — so copying, exporting and sorting all work on complete values.
  */
 public final class ShowRowsDialog {
 
   private static final Class<?> PKG = ShowRowsDialog.class;
-
-  private static final int MAX_BINARY_STRING_PREVIEW_SIZE =
-      PreviewRowsDialog.MAX_BINARY_STRING_PREVIEW_SIZE;
 
   private static final boolean AVOID_BINARY_IN_HEX =
       Const.toBoolean(
@@ -126,6 +125,7 @@ public final class ShowRowsDialog {
 
     tableView = buildTableView(margin, messageLabel);
     populateRows();
+    RowPreviewSupport.installCellTooltips(tableView, rowMeta);
 
     BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());
   }
@@ -136,10 +136,7 @@ public final class ShowRowsDialog {
       IValueMeta valueMeta = rowMeta.getValueMeta(i);
       columns[i] =
           new ColumnInfo(valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
-      columns[i].setToolTip(valueMeta.toStringMeta());
-      columns[i].setValueMeta(valueMeta);
-      columns[i].setImage(GuiResource.getInstance().getImage(valueMeta));
-      columns[i].setReadOnly(true);
+      RowPreviewSupport.applyColumnMeta(columns[i], valueMeta);
     }
 
     TableView view =
@@ -152,6 +149,9 @@ public final class ShowRowsDialog {
             null,
             PropsUi.getInstance());
     view.setShowingBlueNullValues(true);
+    // Data rows, not configuration: draw long / multi-line values shortened.
+    view.setShortenDisplayedValues(true);
+    // Column sorting is enabled: items carry their full values, so a sort reorders complete rows.
     view.setSortable(true);
 
     FormData fdTable = new FormData();
@@ -197,27 +197,16 @@ public final class ShowRowsDialog {
       IValueMeta valueMeta = rowMeta.getValueMeta(column);
       String displayValue;
       try {
-        if (valueMeta.isBinary()) {
-          byte[] bytes = valueMeta.getBinary(row[column]);
-          if (bytes == null) {
-            displayValue = null;
-          } else {
-            displayValue =
-                AVOID_BINARY_IN_HEX ? valueMeta.getString(bytes) : Hex.encodeHexString(bytes);
-            if (displayValue != null && displayValue.length() > MAX_BINARY_STRING_PREVIEW_SIZE) {
-              displayValue = displayValue.substring(0, MAX_BINARY_STRING_PREVIEW_SIZE);
-            }
-          }
-        } else {
-          displayValue = valueMeta.getString(row[column]);
-        }
+        displayValue = RowPreviewSupport.formatCell(valueMeta, row[column], AVOID_BINARY_IN_HEX);
       } catch (HopValueException | ArrayIndexOutOfBoundsException e) {
         new LogChannel(PKG).logError("Unable to format cell value", e);
         displayValue = null;
       }
 
       if (displayValue != null) {
-        item.setText(column + 1, TableView.formatCellValueForDisplay(displayValue));
+        // The cell holds the shortened, single-line text while the grid keeps the full value
+        // aside, so what is copied, expanded or read back out of the table stays complete.
+        tableView.setCellValue(item, column + 1, displayValue);
         item.setForeground(column + 1, GuiResource.getInstance().getColorBlack());
       } else {
         item.setText(column + 1, "<null>");
@@ -232,5 +221,9 @@ public final class ShowRowsDialog {
     }
     PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
+  }
+
+  static String formatColumnMetaTooltip(IValueMeta valueMeta) {
+    return RowPreviewSupport.formatColumnMetaTooltip(valueMeta);
   }
 }

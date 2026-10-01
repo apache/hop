@@ -19,7 +19,9 @@ package org.apache.hop.vfs.databricks.metadata;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
 import org.apache.hop.databricks.client.RestDatabricksJobsClient;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
@@ -32,7 +34,10 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -41,7 +46,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 @GuiPlugin(description = "Editor for Databricks Volumes / Workspace VFS metadata")
 public class DatabricksVfsConnectionEditor extends MetadataEditor<DatabricksVfsConnection> {
@@ -51,7 +55,7 @@ public class DatabricksVfsConnectionEditor extends MetadataEditor<DatabricksVfsC
   public static final String GUI_WIDGETS_PARENT_ID =
       "DatabricksVfsConnectionEditor-GuiWidgetsParent";
 
-  private Text wName;
+  private TextVar wName;
   private Composite wWidgetsComposite;
   private GuiCompositeWidgets guiCompositeWidgets;
 
@@ -84,7 +88,9 @@ public class DatabricksVfsConnectionEditor extends MetadataEditor<DatabricksVfsC
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -187,5 +193,16 @@ public class DatabricksVfsConnectionEditor extends MetadataEditor<DatabricksVfsC
       return false;
     }
     return wName.setFocus();
+  }
+
+  @Override
+  public void save() throws HopException {
+    super.save();
+    HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

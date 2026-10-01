@@ -161,6 +161,14 @@ public class Const {
           "Set this variable to 'Y' to automatically create config file when it's missing.")
   public static final String HOP_AUTO_CREATE_CONFIG = "HOP_AUTO_CREATE_CONFIG";
 
+  /** The system variable to keep the Hop configuration in memory without persisting it to disk */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "N",
+      description =
+          "Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk.")
+  public static final String HOP_CONFIG_IN_MEMORY = "HOP_CONFIG_IN_MEMORY";
+
   /**
    * The system environment variable pointing to the alternative location for the Hop metadata
    * folder
@@ -218,6 +226,18 @@ public class Const {
       description =
           "Set to 'Y' to bypass the engine-compatibility gate and run pipelines/workflows that contain transforms or actions marked UNSUPPORTED on the selected engine. Run-scoped, not persisted.")
   public static final String HOP_ALLOW_UNSUPPORTED = "HOP_ALLOW_UNSUPPORTED";
+
+  /**
+   * When a main hop feeds a transform that does not consume input, init fails and leftover rows
+   * stop the pipeline. Set to 'Y' to start anyway (Verify still reports an error). Use for existing
+   * files whose upstream produces no rows.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "N",
+      description =
+          "Set to 'Y' to start a pipeline that has main hops into transforms that do not consume input. Verify still reports an error. Default N fails init and stops on leftover input.")
+  public static final String HOP_ALLOW_UNCONSUMED_MAIN_INPUT = "HOP_ALLOW_UNCONSUMED_MAIN_INPUT";
 
   /** The operating system the hop platform runs on */
   @Variable(
@@ -335,6 +355,9 @@ public class Const {
 
   /** An array of number conversion formats */
   private static String[] numberFormats;
+
+  /** The Boolean conversion formats: the text for true and for false, separated by a slash */
+  private static final String[] BOOLEAN_FORMATS = {"true/false", "Y/N", "1/0", "yes/no"};
 
   /**
    * Generalized date/time format: Wherever dates are used, date and time values are organized from
@@ -788,13 +811,14 @@ public class Const {
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_COUNT = "HOP_FILE_OUTPUT_MAX_STREAM_COUNT";
 
   /**
-   * This variable contains the number of milliseconds between flushes of all open files in the Text
-   * File Output transform.
+   * Milliseconds between flushes of all open files in the Text File Output transform. {@code 0}
+   * selects the transform default of 5000. A negative value, for example {@code -1}, disables the
+   * interval flush.
    */
   @Variable(
-      value = "0",
+      value = "5000",
       description =
-          "This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.")
+          "This project variable is used by the Text File Output transform. It defines how many milliseconds to wait between flushes of files opened by the transform. Output is buffered, so slow input stays invisible until the buffer fills or the file is closed. The default is 5000 (5 seconds). A value of 0 uses that default. Set a positive number of milliseconds to change the interval. A negative value, for example -1, disables the interval flush.")
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_LIFE = "HOP_FILE_OUTPUT_MAX_STREAM_LIFE";
 
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */
@@ -902,6 +926,19 @@ public class Const {
       description =
           "Defines the default encoding for servlets, leave it empty to use Java default encoding")
   public static final String HOP_DEFAULT_SERVLET_ENCODING = "HOP_DEFAULT_SERVLET_ENCODING";
+
+  /** A variable to configure which browser requests the Hop server accepts */
+  // No `value` default on purpose: HopEnvironment copies every declared default into a system
+  // property without consulting the environment, so declaring one here would shadow both
+  // HOP_SERVER_CROSS_SITE_POLICY and the Hop Web security config. See
+  // HopSecurityConfig.resolveCrossSitePolicy.
+  @Variable(
+      description =
+          "Which browser requests the Hop server accepts, based on the Sec-Fetch-Site header: "
+              + "'same-site' (the default) rejects cross-site requests, 'same-origin' also rejects "
+              + "same-site ones, and 'off' disables the check. Clients that send no Sec-Fetch-* "
+              + "headers at all, such as hop-run or the Hop GUI, are never affected.")
+  public static final String HOP_SERVER_CROSS_SITE_POLICY = "HOP_SERVER_CROSS_SITE_POLICY";
 
   /** A variable to configure refresh for Hop server workflow/pipeline status page */
   @Variable(
@@ -1984,6 +2021,8 @@ public class Const {
       } else {
         BufferedReader br;
         try {
+          // Safe: resolving "hostname" through the PATH of the operator who started Hop is intended
+          @SuppressWarnings("java:S4036")
           Process pr = Runtime.getRuntime().exec("hostname");
           br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
           String line;
@@ -2165,20 +2204,33 @@ public class Const {
   public static String getBaseDocUrl() {
     String url = BaseMessages.getString(PKG, "Const.BaseDocUrl");
 
-    // Get the implementation version:
-    // Temporary build: 2.4.0-SNAPSHOT (2023-02-13 08.50.52)
-    // Release version: 2.4.0
-    String version = Const.class.getPackage().getImplementationVersion();
+    String version = getHopVersion();
 
     // Check if implementation version is a SNAPHOT build or if version is not known.
     if (version == null || version.contains("SNAPSHOT")) {
       version = "next";
-    } else {
-      // Only keep until first space to remove the build date
-      version = version.split(" ")[0];
     }
 
     return url + version + "/";
+  }
+
+  /**
+   * Provides the version of Hop this code was built as, without the build date.
+   *
+   * @return the version, for example "2.20.0" or "2.20.0-SNAPSHOT", or null when the version can't
+   *     be determined. That is the case whenever Hop doesn't run from its packaged jars, for
+   *     example in an IDE or during unit tests.
+   */
+  public static String getHopVersion() {
+    // Get the implementation version:
+    // Temporary build: 2.4.0-SNAPSHOT (2023-02-13 08.50.52)
+    // Release version: 2.4.0
+    String version = Const.class.getPackage().getImplementationVersion();
+    if (version == null) {
+      return null;
+    }
+    // Only keep until first space to remove the build date
+    return version.split(" ")[0];
   }
 
   /**
@@ -2803,6 +2855,26 @@ public class Const {
   }
 
   /**
+   * Digs up the message of the deepest cause of an error and puts it on a single line. Use it to
+   * explain a problem in a dialog or in a list of problems: Hop exception messages are nested and
+   * spread over several lines, and only the deepest one says what actually went wrong.
+   *
+   * @param aThrowable the error to explain
+   * @return the message of the root cause, or the name of its class if it doesn't have one
+   */
+  public static String getRootCauseMessage(Throwable aThrowable) {
+    Throwable rootCause = ExceptionUtils.getRootCause(aThrowable);
+    if (rootCause == null) {
+      rootCause = aThrowable;
+    }
+    String message = rootCause.getMessage();
+    if (StringUtils.isEmpty(message)) {
+      return rootCause.getClass().getSimpleName();
+    }
+    return message.replaceAll("\\s+", " ").trim();
+  }
+
+  /**
    * Create a valid filename using a name We remove all special characters, spaces, etc.
    *
    * @param name The name to use as a base for the filename
@@ -2926,6 +2998,14 @@ public class Const {
    */
   public static String[] getConversionFormats() {
     return (String[]) ArrayUtils.addAll(Const.getDateFormats(), Const.getNumberFormats());
+  }
+
+  /**
+   * @return The Boolean conversion formats, each holding the text for true and for false separated
+   *     by a slash (for example {@code Y/N})
+   */
+  public static String[] getBooleanFormats() {
+    return BOOLEAN_FORMATS.clone();
   }
 
   /**

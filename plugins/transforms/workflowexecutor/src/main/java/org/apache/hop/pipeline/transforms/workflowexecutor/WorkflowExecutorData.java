@@ -48,6 +48,15 @@ public class WorkflowExecutorData extends BaseTransformData implements ITransfor
   public IRowSet resultFilesRowSet;
   public IRowSet executionResultRowSet;
 
+  public String prevFilename;
+
+  /**
+   * When the child workflow path comes from a field, the resolved path for this transform copy
+   * only. Shared transform meta filename must not be updated at runtime so multiple copies stay
+   * isolated.
+   */
+  public String runtimeWorkflowFilename;
+
   public WorkflowExecutorData() {
     super();
   }

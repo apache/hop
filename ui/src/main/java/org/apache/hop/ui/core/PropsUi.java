@@ -34,10 +34,15 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -52,6 +57,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
@@ -63,15 +69,26 @@ import org.eclipse.swt.widgets.Widget;
 public class PropsUi extends Props {
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
-  private static double nativeZoomFactor;
+  /**
+   * Style passed to {@link #setTheme(Widget, int)} when it is not the default. The theme walk reads
+   * it back so a fixed-width editor or toolbar field keeps the style it was given.
+   */
+  private static final String WIDGET_STYLE_KEY = PropsUi.class.getName() + ".widgetStyle";
+
+  private double nativeZoomFactor;
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
+  private static final String SHOW_CANVAS_TOOL_TIP_PREFIX = "ShowCanvasToolTip";
   private static final String RESOLVE_VARIABLES_IN_TOOLTIPS = "ResolveVariablesInToolTips";
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
   private static final String HIDE_MENU_BAR = "HideMenuBar";
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
+
+  /** Absent means the embedded terminal stays on. */
+  public static final String STRING_EMBEDDED_TERMINAL_ENABLED = "EmbeddedTerminalEnabled";
+
   private static final String AUTO_LAYOUT_DIRECTION = "AutoLayoutDirection";
   private static final String AUTO_LAYOUT_LAYER_SPACING = "AutoLayoutLayerSpacing";
   private static final String AUTO_LAYOUT_NODE_SPACING = "AutoLayoutNodeSpacing";
@@ -80,6 +97,10 @@ public class PropsUi extends Props {
   private static final String LEGACY_PERSPECTIVE_MODE = "LegacyPerspectiveMode";
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
+  private static final String USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG = "UseRightClickForContextDialog";
+  private static final String USE_MENUS_INSTEAD_OF_CONTEXT_DIALOG =
+      "UseMenusInsteadOfContextDialog";
+  private static final String DIALOGS_ON_ANY_SCREEN = "DialogsOnAnyScreen";
   private static final String DRAW_BORDER_AROUND_CANVAS_NAMES = "DrawBorderAroundCanvasNames";
   private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
   private static final String RELOAD_FILES_ON_CHANGE = "ReloadFilesOnChange";
@@ -91,7 +112,6 @@ public class PropsUi extends Props {
   private static final String DISABLE_ZOOM_SCROLLING = "DisableZoomScrolling";
   private static final String METRICS_ABOVE_SELECTED_TRANSFORMS = "MetricsAboveSelectedTransforms";
   private static final String ENABLE_INFINITE_CANVAS_MOVE = "EnableInfiniteCanvasMove";
-  private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
   private static final String REMEMBER_DIALOG_POSITIONS = "RememberDialogPositions";
   private static final String RESET_DIALOG_POSITIONS_ON_RESTART = "ResetDialogPositionsOnRestart";
 
@@ -113,10 +133,37 @@ public class PropsUi extends Props {
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME = "MetricsPanel.ShowDataVolume";
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME_IN = "MetricsPanel.ShowDataVolumeIn";
   private static final String METRICS_PANEL_SHOW_DATA_VOLUME_OUT = "MetricsPanel.ShowDataVolumeOut";
+  private static final String METRICS_PANEL_DYNAMIC_COLUMN_RESIZE =
+      "MetricsPanel.DynamicColumnResize";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
-  private static PropsUi instance;
+
+  /**
+   * Hop Web session override for dark mode so one user on /ui-dark does not rewrite hop-config for
+   * every other session.
+   */
+  private Boolean darkModeOverride;
+
+  private static PropsUi fallback;
+
+  private static final ISingletonProvider PROVIDER = loadProvider();
+
+  private static ISingletonProvider loadProvider() {
+    try {
+      return (ISingletonProvider) ImplementationLoader.newInstance(PropsUi.class);
+    } catch (Throwable e) {
+      // hop-ui unit tests have no rcp/rap *Impl on the classpath.
+      return () -> {
+        synchronized (PropsUi.class) {
+          if (fallback == null) {
+            fallback = new PropsUi();
+          }
+          return fallback;
+        }
+      };
+    }
+  }
 
   /**
    * Session-only window position storage for dialogs. This map is kept in memory only and is
@@ -126,13 +173,10 @@ public class PropsUi extends Props {
   private final Map<String, WindowProperty> sessionWindowProperties = new HashMap<>();
 
   public static PropsUi getInstance() {
-    if (instance == null) {
-      instance = new PropsUi();
-    }
-    return instance;
+    return (PropsUi) PROVIDER.getInstanceInternal();
   }
 
-  private PropsUi() {
+  public PropsUi() {
     super();
 
     // If the zoom factor is set with variable HOP_GUI_ZOOM_FACTOR we set this first.
@@ -154,7 +198,7 @@ public class PropsUi extends Props {
   public void reCalculateNativeZoomFactor() {
     double globalZoom = getGlobalZoomFactor();
     if (EnvironmentUtils.getInstance().isWeb()) {
-      nativeZoomFactor = globalZoom / 0.75;
+      nativeZoomFactor = 1.0 * globalZoom;
     } else {
       // Calculate the native default zoom factor...
       // We take the default font and render it, calculate the height.
@@ -220,12 +264,7 @@ public class PropsUi extends Props {
     }
 
     if (display != null) {
-      FontData fontData = getDefaultFont();
-      setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
-      setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
-      setProperty(STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle());
-
-      fontData = getFixedFont();
+      FontData fontData = getFixedFont();
       setProperty(STRING_FONT_FIXED_NAME, fontData.getName());
       setProperty(STRING_FONT_FIXED_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_FIXED_STYLE, "" + fontData.getStyle());
@@ -234,11 +273,6 @@ public class PropsUi extends Props {
       setProperty(STRING_FONT_GRAPH_NAME, fontData.getName());
       setProperty(STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle());
-
-      fontData = getNoteFont();
-      setProperty(STRING_FONT_NOTE_NAME, fontData.getName());
-      setProperty(STRING_FONT_NOTE_SIZE, "" + fontData.getHeight());
-      setProperty(STRING_FONT_NOTE_STYLE, "" + fontData.getStyle());
 
       setProperty(STRING_ICON_SIZE, "" + getIconSize());
       setProperty(STRING_LINE_WIDTH, "" + getLineWidth());
@@ -275,20 +309,11 @@ public class PropsUi extends Props {
     return new FontData(name, size, style);
   }
 
+  /**
+   * Default UI font. Always the OS system font; leftover FontDefault* hop-config keys are ignored.
+   */
   public FontData getDefaultFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty(STRING_FONT_DEFAULT_NAME, def.getName());
-    int size = Const.toInt(getProperty(STRING_FONT_DEFAULT_SIZE), def.getHeight());
-    int style = Const.toInt(getProperty(STRING_FONT_DEFAULT_STYLE), def.getStyle());
-
-    return new FontData(name, size, style);
-  }
-
-  public void setDefaultFont(FontData fd) {
-    setProperty(STRING_FONT_DEFAULT_NAME, fd.getName());
-    setProperty(STRING_FONT_DEFAULT_SIZE, "" + fd.getHeight());
-    setProperty(STRING_FONT_DEFAULT_STYLE, "" + fd.getStyle());
+    return getDefaultFontData();
   }
 
   public void setGraphFont(FontData fd) {
@@ -307,20 +332,12 @@ public class PropsUi extends Props {
     return new FontData(name, size, style);
   }
 
-  public void setNoteFont(FontData fd) {
-    setProperty(STRING_FONT_NOTE_NAME, fd.getName());
-    setProperty(STRING_FONT_NOTE_SIZE, "" + fd.getHeight());
-    setProperty(STRING_FONT_NOTE_STYLE, "" + fd.getStyle());
-  }
-
+  /**
+   * Fallback font for notes that do not set their own. Same as {@link #getGraphFont()}; leftover
+   * FontNote* hop-config keys are ignored.
+   */
   public FontData getNoteFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty(STRING_FONT_NOTE_NAME, def.getName());
-    int size = Const.toInt(getProperty(STRING_FONT_NOTE_SIZE), def.getHeight());
-    int style = Const.toInt(getProperty(STRING_FONT_NOTE_STYLE), def.getStyle());
-
-    return new FontData(name, size, style);
+    return getGraphFont();
   }
 
   public void setIconSize(int size) {
@@ -545,6 +562,18 @@ public class PropsUi extends Props {
     return !NO.equalsIgnoreCase(open);
   }
 
+  public void setEmbeddedTerminalEnabled(boolean enabled) {
+    setProperty(STRING_EMBEDDED_TERMINAL_ENABLED, enabled ? YES : NO);
+  }
+
+  /**
+   * True unless the user has turned the embedded terminal off. Hop Web and {@code
+   * disabledGuiElements.xml} are applied separately by {@code HopGuiBottomDock}.
+   */
+  public boolean isEmbeddedTerminalEnabled() {
+    return !NO.equalsIgnoreCase(getProperty(STRING_EMBEDDED_TERMINAL_ENABLED));
+  }
+
   public void setReloadingFilesOnChange(boolean reload) {
     setProperty(RELOAD_FILES_ON_CHANGE, reload ? YES : NO);
   }
@@ -625,6 +654,15 @@ public class PropsUi extends Props {
 
   public void setShowTableViewToolbar(boolean show) {
     setProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, show ? YES : NO);
+  }
+
+  public boolean isShowTextCompositeToolbar() {
+    String show = getProperty(STRING_SHOW_TEXT_COMPOSITE_TOOLBAR, YES);
+    return YES.equalsIgnoreCase(show); // Default: show the toolbar
+  }
+
+  public void setShowTextCompositeToolbar(boolean show) {
+    setProperty(STRING_SHOW_TEXT_COMPOSITE_TOOLBAR, show ? YES : NO);
   }
 
   /**
@@ -733,18 +771,96 @@ public class PropsUi extends Props {
     setProperty(METRICS_PANEL_SHOW_DATA_VOLUME_OUT, show ? YES : NO);
   }
 
-  @Deprecated(since = "2.19.0", forRemoval = true)
+  /**
+   * When true (default), auto-sized metrics columns grow during execution as values get wider. When
+   * false, widths stay where they were after the last pack or user drag.
+   */
+  public boolean isMetricsPanelDynamicColumnResize() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, YES));
+  }
+
+  public void setMetricsPanelDynamicColumnResize(boolean dynamic) {
+    setProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, dynamic ? YES : NO);
+  }
+
+  /**
+   * @deprecated Colors and fonts are applied once by {@link #setTheme(Widget)} on the shell. This
+   *     still attaches the keyboard handler, because Hop Web only delivers keys for a widget that
+   *     already has a listener when it is rendered.
+   */
+  @Deprecated(since = "2.20.0", forRemoval = true)
   public static void setLook(Widget widget) {
-    // Do nothing
+    attachKeyHandler(widget);
   }
 
-  @Deprecated(since = "2.19.0", forRemoval = true)
+  /**
+   * @deprecated Prefer {@link #setTheme(Widget)}. An explicit fixed-width style is remembered and
+   *     applied, so a later theme walk does not replace it with the default font.
+   */
+  @Deprecated(since = "2.20.0", forRemoval = true)
   public static void setLook(final Widget widget, int style) {
-    // Do nothing
+    // One control, not the tree. Callers pass FIXED, TAB or TOOLBAR for a control that is created
+    // after the shell was themed (a new script tab, a toolbar item). The style is remembered so a
+    // later theme walk does not replace a fixed-width font with the default font.
+    setTheme(widget, style);
   }
 
-  /** Set themes colors and font to the widget and all its children. */
+  /** Set theme colors and font on the widget and all its children. */
   public static void setTheme(final Widget widget) {
+    if (widget == null || widget.isDisposed()) {
+      return;
+    }
+
+    setTheme(widget, styleFor(widget));
+
+    if (widget instanceof Composite composite) {
+      for (Control control : composite.getChildren()) {
+        setTheme(control);
+      }
+    }
+  }
+
+  public static void setTheme(final Widget widget, int style) {
+    attachKeyHandler(widget);
+    if (widget == null || widget.isDisposed()) {
+      return;
+    }
+    if (style != WIDGET_STYLE_DEFAULT) {
+      widget.setData(WIDGET_STYLE_KEY, style);
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      setThemeOnWeb(widget, style);
+      return;
+    }
+    if (OsHelper.isWindows()) {
+      setThemeOnWindows(widget, style);
+    } else if (OsHelper.isMac()) {
+      setThemeOnMac(widget, style);
+    } else {
+      setThemeOnLinux(widget, style);
+    }
+  }
+
+  /**
+   * Handle the keyboard shortcuts of widgets that are created after their shell was set up, e.g.
+   * when a metadata editor rebuilds a section. In Hop Web the key listener has to be there when the
+   * widget is rendered or RAP never sends its key events to the server.
+   */
+  private static void attachKeyHandler(Widget widget) {
+    if (widget == null || widget.isDisposed()) {
+      return;
+    }
+    HopGuiKeyHandler.getInstance().attachTo(widget);
+  }
+
+  private static int styleFor(Widget widget) {
+    Object explicit = widget.getData(WIDGET_STYLE_KEY);
+    if (explicit instanceof Integer style) {
+      return style;
+    }
+    if (inheritsFixedFont(widget)) {
+      return WIDGET_STYLE_FIXED;
+    }
     int style = WIDGET_STYLE_DEFAULT;
     if (widget instanceof Table) {
       style = WIDGET_STYLE_TABLE;
@@ -765,28 +881,27 @@ public class PropsUi extends Props {
         style = WIDGET_STYLE_PUSH_BUTTON;
       }
     }
-
-    setTheme(widget, style);
-
-    if (widget instanceof Composite composite) {
-      for (Control control : composite.getChildren()) {
-        setTheme(control);
-      }
-    }
+    return style;
   }
 
-  public static void setTheme(final Widget widget, int style) {
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      setThemeOnWeb(widget, style);
-      return;
+  /**
+   * Script, SQL and the other fixed-width editors are marked on the editor composite. The text
+   * inside that composite is a separate control, and the theme walk would otherwise give it the
+   * default font.
+   */
+  private static boolean inheritsFixedFont(Widget widget) {
+    if (!(widget instanceof Text) && !(widget instanceof StyledText)) {
+      return false;
     }
-    if (OsHelper.isWindows()) {
-      setThemeOnWindows(widget, style);
-    } else if (OsHelper.isMac()) {
-      setThemeOnMac(widget, style);
-    } else {
-      setThemeOnLinux(widget, style);
+    if (!(widget instanceof Control control)) {
+      return false;
     }
+    Composite parent = control.getParent();
+    return parent != null && !parent.isDisposed() && isFixedStyle(parent.getData(WIDGET_STYLE_KEY));
+  }
+
+  private static boolean isFixedStyle(Object style) {
+    return style instanceof Integer value && value == WIDGET_STYLE_FIXED;
   }
 
   /** Hop Web (RAP) specific look. Keeps web theme logic separate from OS-specific setLookOn*. */
@@ -1155,6 +1270,46 @@ public class PropsUi extends Props {
     setProperty(USE_DOUBLE_CLICK_ON_CANVAS, use ? YES : NO);
   }
 
+  /**
+   * When set, a right click (or whatever the platform treats as asking for a context menu) opens
+   * the context dialog on the canvas and a left click never does. See the canvas mouse gestures
+   * page of the user manual.
+   */
+  public boolean useRightClickForContextDialog() {
+    return YES.equalsIgnoreCase(getProperty(USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG, NO));
+  }
+
+  public void setUseRightClickForContextDialog(boolean use) {
+    setProperty(USE_RIGHT_CLICK_FOR_CONTEXT_DIALOG, use ? YES : NO);
+  }
+
+  /**
+   * When set, the pipeline and workflow canvas show the actions of a transform, action, hop or note
+   * as a pop-up menu instead of the context dialog. A click on the empty canvas keeps the context
+   * dialog while the design palette is hidden: that is where new transforms and actions are
+   * searched for. With the palette shown the empty canvas gets a menu as well.
+   */
+  public boolean useMenusInsteadOfContextDialog() {
+    return YES.equalsIgnoreCase(getProperty(USE_MENUS_INSTEAD_OF_CONTEXT_DIALOG, NO));
+  }
+
+  public void setUseMenusInsteadOfContextDialog(boolean use) {
+    setProperty(USE_MENUS_INSTEAD_OF_CONTEXT_DIALOG, use ? YES : NO);
+  }
+
+  /**
+   * macOS only. Off (the default): transform, action and metadata dialogs are child windows that
+   * follow the Hop window and stay above it. On: they are modal windows of their own that can be
+   * moved to another screen.
+   */
+  public boolean isDialogsOnAnyScreenEnabled() {
+    return YES.equalsIgnoreCase(getProperty(DIALOGS_ON_ANY_SCREEN, NO));
+  }
+
+  public void setDialogsOnAnyScreenEnabled(boolean enabled) {
+    setProperty(DIALOGS_ON_ANY_SCREEN, enabled ? YES : NO);
+  }
+
   public boolean isBorderDrawnAroundCanvasNames() {
     return YES.equalsIgnoreCase(getProperty(DRAW_BORDER_AROUND_CANVAS_NAMES, NO));
   }
@@ -1172,10 +1327,17 @@ public class PropsUi extends Props {
   }
 
   public boolean isDarkMode() {
+    if (darkModeOverride != null) {
+      return darkModeOverride;
+    }
     return YES.equalsIgnoreCase(getProperty(DARK_MODE, NO));
   }
 
   public void setDarkMode(boolean darkMode) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      darkModeOverride = darkMode;
+      return;
+    }
     setProperty(DARK_MODE, darkMode ? YES : NO);
   }
 
@@ -1185,6 +1347,18 @@ public class PropsUi extends Props {
 
   public void setShowToolTips(boolean show) {
     setProperty(SHOW_TOOL_TIPS, show ? YES : NO);
+  }
+
+  /**
+   * Whether the pipeline and workflow canvas show one kind of tooltip. Every kind is on by default;
+   * {@link #showToolTips()} switches all of them off at once.
+   */
+  public boolean isCanvasToolTipShown(CanvasToolTip toolTip) {
+    return YES.equalsIgnoreCase(getProperty(SHOW_CANVAS_TOOL_TIP_PREFIX + toolTip.getCode(), YES));
+  }
+
+  public void setCanvasToolTipShown(CanvasToolTip toolTip, boolean show) {
+    setProperty(SHOW_CANVAS_TOOL_TIP_PREFIX + toolTip.getCode(), show ? YES : NO);
   }
 
   public boolean resolveVariablesInToolTips() {
@@ -1388,14 +1562,14 @@ public class PropsUi extends Props {
    * @return value of nativeZoomFactor
    */
   public static double getNativeZoomFactor() {
-    return nativeZoomFactor;
+    return getInstance().nativeZoomFactor;
   }
 
   /**
    * @param nativeZoomFactor The nativeZoomFactor to set
    */
   public static void setNativeZoomFactor(double nativeZoomFactor) {
-    PropsUi.nativeZoomFactor = nativeZoomFactor;
+    getInstance().nativeZoomFactor = nativeZoomFactor;
   }
 
   private void populateContrastingColors() {

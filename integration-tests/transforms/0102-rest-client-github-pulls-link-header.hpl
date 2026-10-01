@@ -140,7 +140,6 @@ limitations under the License.
     <url>/repos/apache/hop-website/pulls?state=all&amp;per_page=100</url>
     <urlInField>N</urlInField>
     <httpPassword>Encrypted </httpPassword>
-    <preemptive>N</preemptive>
     <method>GET</method>
     <dynamicMethod>N</dynamicMethod>
     <trustStorePassword>Encrypted </trustStorePassword>

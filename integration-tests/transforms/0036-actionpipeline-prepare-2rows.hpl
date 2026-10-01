@@ -48,11 +48,6 @@ limitations under the License.
       <to>Start</to>
       <enabled>Y</enabled>
     </hop>
-    <hop>
-      <from>Start</from>
-      <to>Data grid</to>
-      <enabled>Y</enabled>
-    </hop>
   </order>
   <transform>
     <name>Copy rows to result</name>

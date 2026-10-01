@@ -388,6 +388,45 @@ public interface ITransformMeta extends ILegacyXml {
   ITransformIOMeta getTransformIOMeta();
 
   /**
+   * Whether this instance, in its current configuration, will drain main (non-info, non-error)
+   * input rowsets in {@code processRow()}.
+   *
+   * <p>Default is {@code true}. Third-party plugins inherit this, so hops into them stay allowed.
+   * Override to return {@code false} when the transform never calls {@code getRow()} (Generate
+   * Rows, Data Grid, file input with "source from field" disabled, Execute SQL with "each row"
+   * off).
+   *
+   * @return true if main input hops are consumed
+   */
+  default boolean consumesMainInput() {
+    return true;
+  }
+
+  /**
+   * Whether this instance can produce output with no incoming hops. Used by pipeline Verify (a
+   * comment on the transform), the add-transform dialog and palette ({@code pipeline source}
+   * keyword), canvas tooltips, and documentation.
+   *
+   * <p>Default is {@code false}. This is independent of {@link #consumesMainInput()}: Get Variables
+   * both starts without input and drains hops when they are present.
+   *
+   * @return true if the transform can act as a pipeline source
+   */
+  default boolean canStartWithoutInput() {
+    return false;
+  }
+
+  /**
+   * Optional hint naming the dialog option that makes this transform start consuming main input
+   * (for example {@code "Source is from a previous transform"}). Used in Verify error text.
+   *
+   * @return a short option name, or {@code null} when there is no such option
+   */
+  default String getMainInputRequirementHint() {
+    return null;
+  }
+
+  /**
    * @return The list of optional input streams. It allows the user to select f rom a list of
    *     possible actions like "New target transform"
    */

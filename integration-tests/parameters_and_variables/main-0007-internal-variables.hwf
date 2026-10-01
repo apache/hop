@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0007-internal-variables</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description/>
+  <description>Issue #2430: verify internal pipeline and workflow variables are populated at runtime</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>

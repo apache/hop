@@ -83,11 +83,11 @@ public class RandomRowsExecutionDataSampler
         if (rows.isEmpty()) {
           samplerStore.setRowMeta(rowMeta);
         }
-        rows.add(row);
+        rows.add(getSampledValueLimits().copyRow(rowMeta, row));
       } else {
         int randomIndex = random.nextInt(samplerStore.getMaxRows());
         if (randomIndex < samplerStore.getMaxRows()) {
-          rows.set(randomIndex, rowMeta.cloneRow(row));
+          rows.set(randomIndex, getSampledValueLimits().copyRow(rowMeta, row));
         }
       }
     }

@@ -95,6 +95,9 @@ public class LogChannelFileWriter {
     exception = null;
     active.set(true);
 
+    // A platform thread on purpose: this one lives for the duration of the logging channel and is
+    // referenced by callers to join on, a virtual thread buys us nothing here.
+    @SuppressWarnings("java:S6881")
     Thread thread =
         new Thread(
             () -> {

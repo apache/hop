@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.normaliser;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -28,7 +29,7 @@ public class NormaliserData extends BaseTransformData implements ITransformData 
   public List<String> type_occ;
   public int maxlen;
   public List<Integer> copyFieldnrs;
-  Map<String, List<Integer>> typeToFieldIndex;
+  Map<String, List<Placement>> typeToPlacements;
 
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
@@ -38,4 +39,15 @@ public class NormaliserData extends BaseTransformData implements ITransformData 
 
     type_occ = null;
   }
+
+  /**
+   * Where one input field goes on the output row of its type.
+   *
+   * @param inputIndex the input field
+   * @param outputIndex the normalised field it fills
+   * @param source the input field's metadata
+   * @param target the normalised field's metadata when the value has to be converted into it, null
+   *     when it is copied as it is
+   */
+  record Placement(int inputIndex, int outputIndex, IValueMeta source, IValueMeta target) {}
 }

@@ -32,6 +32,10 @@ import picocli.CommandLine.Parameters;
  * <p>For restricted (Category X) drivers the install is refused unless {@code --accept-license} is
  * given: Apache Hop neither ships nor hosts these drivers; you obtain them from the vendor / Maven
  * Central under the vendor's license, at your own request.
+ *
+ * <p>Exit codes: 0 the driver is installed (or was already there), 2 the vendor license still has
+ * to be accepted, 3 no database type goes by that id, 4 the database type exists but declares no
+ * downloadable driver.
  */
 @SuppressWarnings("java:S106")
 @Command(
@@ -43,6 +47,7 @@ public class DriverInstallCommand implements Callable<Integer> {
   private static final int EXIT_OK = 0;
   private static final int EXIT_LICENSE_REQUIRED = 2;
   private static final int EXIT_UNKNOWN_DRIVER = 3;
+  private static final int EXIT_NO_DOWNLOAD = 4;
 
   @Parameters(
       index = "0",
@@ -82,9 +87,7 @@ public class DriverInstallCommand implements Callable<Integer> {
     DriverCatalog catalog = DriverCatalog.load();
     DriverDefinition driver = catalog.get(driverId);
     if (driver == null) {
-      System.err.println("Unknown driver id: '" + driverId + "'.");
-      System.err.println("Run 'hop driver list' to see the available drivers.");
-      return EXIT_UNKNOWN_DRIVER;
+      return reportNothingToInstall(catalog);
     }
 
     if (driver.isRestricted() && !acceptLicense) {
@@ -92,10 +95,7 @@ public class DriverInstallCommand implements Callable<Integer> {
       return EXIT_LICENSE_REQUIRED;
     }
 
-    File target =
-        (targetFolder != null && !targetFolder.isBlank())
-            ? new File(targetFolder).getAbsoluteFile()
-            : DriverInstaller.defaultInstallFolder();
+    File target = resolveTarget();
 
     String installVersion =
         (version != null && !version.isBlank())
@@ -107,7 +107,33 @@ public class DriverInstallCommand implements Callable<Integer> {
     boolean sameVersionInTarget =
         existing.stream()
             .anyMatch(p -> p.folder().equals(target) && p.version().equals(installVersion));
-    if (sameVersionInTarget && !force) {
+
+    // The driver alone is not enough when it needs companions: an install that stopped at the
+    // driver (or predates the companion being declared) leaves the driver looking present while
+    // the runtime still fails. Oracle wallets are the case in point - without oraclepki the
+    // connection dies with "SSO KeyStore not available".
+    //
+    boolean companionsMissing =
+        driver.getDownload().toCompanionCoordinates(installVersion).stream()
+            .anyMatch(
+                coordinate -> {
+                  String[] parts = coordinate.split(":");
+                  String companionArtifact = parts.length >= 2 ? parts[1] : null;
+                  return companionArtifact != null
+                      && DriverInstaller.findInstalled(companionArtifact).stream()
+                          .noneMatch(p -> p.folder().equals(target));
+                });
+    if (companionsMissing && sameVersionInTarget && !force) {
+      System.out.println(
+          driver.getName()
+              + " "
+              + installVersion
+              + " is installed in "
+              + target
+              + " but a companion artifact it needs is missing; installing that now.");
+    }
+
+    if (sameVersionInTarget && !companionsMissing && !force) {
       System.out.println(
           driver.getName() + " " + installVersion + " is already installed in " + target + ".");
       System.out.println("Use --force to download and re-install it.");
@@ -153,6 +179,61 @@ public class DriverInstallCommand implements Callable<Integer> {
     System.out.println();
     System.out.println("Restart Hop (or the server/worker) so the driver is picked up.");
     return EXIT_OK;
+  }
+
+  private File resolveTarget() {
+    return (targetFolder != null && !targetFolder.isBlank())
+        ? new File(targetFolder).getAbsoluteFile()
+        : DriverInstaller.defaultInstallFolder();
+  }
+
+  /**
+   * Explain why there is nothing to install. "Unknown driver id" is only true when no database type
+   * goes by that id at all; when the type exists, what the user needs to hear is whether its driver
+   * is already there or has to come from the vendor by hand.
+   */
+  private int reportNothingToInstall(DriverCatalog catalog) {
+    DriverCatalog.KnownDatabase database = catalog.getDatabaseType(driverId);
+
+    if (database == null) {
+      System.err.println(
+          "Unknown driver id: '"
+              + driverId
+              + "'. No database type in this Hop installation uses that id.");
+      List<String> suggestions = catalog.suggestIds(driverId);
+      if (!suggestions.isEmpty()) {
+        System.err.println("Did you mean: " + String.join(", ", suggestions) + "?");
+      }
+      System.err.println("Run 'hop driver list' to see the drivers Hop can download.");
+      return EXIT_UNKNOWN_DRIVER;
+    }
+
+    if (database.isDriverAvailable()) {
+      System.out.println(
+          "Nothing to install: the "
+              + database.name()
+              + " JDBC driver ("
+              + database.driverClass()
+              + ") is already available in this Hop installation.");
+      return EXIT_OK;
+    }
+
+    System.err.println(
+        "No driver download available for '" + driverId + "' (" + database.name() + ").");
+    System.err.println(
+        "Hop knows this database type, but it declares no downloadable driver - typically because");
+    System.err.println("the vendor does not publish it to a public Maven repository.");
+    System.err.println();
+    System.err.println(
+        "Download the driver from the vendor and copy its jar(s) into "
+            + resolveTarget()
+            + ", then restart Hop.");
+    System.err.println(
+        "The documentation page for "
+            + database.name()
+            + " points at the vendor's download location.");
+    System.err.println("Run 'hop driver list' to see the drivers Hop can download.");
+    return EXIT_NO_DOWNLOAD;
   }
 
   private void printLicenseNotice(DriverDefinition driver) {

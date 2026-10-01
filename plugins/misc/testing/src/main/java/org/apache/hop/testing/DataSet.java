@@ -49,6 +49,9 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
 
   public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";
 
+  /** Placeholder base file name until a suggestion or the user replaces it. */
+  public static final String DEFAULT_BASE_FILENAME = "data-set-filename.csv";
+
   @HopMetadataProperty private String description;
 
   @HopMetadataProperty(key = "folder_name")
@@ -62,7 +65,7 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
 
   public DataSet() {
     fields = new ArrayList<>();
-    baseFilename = "data-set-filename.csv";
+    baseFilename = DEFAULT_BASE_FILENAME;
   }
 
   public DataSet(
@@ -96,6 +99,75 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
       rowMeta.addValueMeta(valueMeta);
     }
     return rowMeta;
+  }
+
+  /**
+   * Build data set fields from Hop row metadata. Used when (re)creating a data set from a pipeline
+   * stream.
+   */
+  public static List<DataSetField> createFieldsFromRowMeta(IRowMeta rowMeta) {
+    List<DataSetField> setFields = new ArrayList<>();
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      setFields.add(
+          new DataSetField(
+              valueMeta.getName(),
+              valueMeta.getType(),
+              valueMeta.getLength(),
+              valueMeta.getPrecision(),
+              valueMeta.getComments(),
+              valueMeta.getFormatMask()));
+    }
+    return setFields;
+  }
+
+  /**
+   * Compare incoming row metadata with this data set. Field count, names (case-insensitive, same
+   * order) and types must match because the CSV layout is positional.
+   */
+  public void validateRowMeta(IRowMeta inputRowMeta) throws HopException {
+    IRowMeta setRowMeta = getSetRowMeta();
+    List<String> errors = new ArrayList<>();
+    if (inputRowMeta.size() != setRowMeta.size()) {
+      errors.add(
+          "field count: input has "
+              + inputRowMeta.size()
+              + ", data set '"
+              + Const.NVL(getName(), "")
+              + "' has "
+              + setRowMeta.size());
+    }
+    int n = Math.min(inputRowMeta.size(), setRowMeta.size());
+    for (int i = 0; i < n; i++) {
+      IValueMeta inputMeta = inputRowMeta.getValueMeta(i);
+      IValueMeta setMeta = setRowMeta.getValueMeta(i);
+      if (!inputMeta.getName().equalsIgnoreCase(setMeta.getName())) {
+        errors.add(
+            "field "
+                + (i + 1)
+                + ": name '"
+                + inputMeta.getName()
+                + "' vs '"
+                + setMeta.getName()
+                + "'");
+      }
+      if (inputMeta.getType() != setMeta.getType()) {
+        errors.add(
+            "field '"
+                + inputMeta.getName()
+                + "': type "
+                + inputMeta.getTypeDesc()
+                + " vs "
+                + setMeta.getTypeDesc());
+      }
+    }
+    if (!errors.isEmpty()) {
+      throw new HopException(
+          "Input row metadata does not match data set '"
+              + Const.NVL(getName(), "")
+              + "': "
+              + String.join("; ", errors));
+    }
   }
 
   public DataSetField findFieldWithName(String fieldName) {

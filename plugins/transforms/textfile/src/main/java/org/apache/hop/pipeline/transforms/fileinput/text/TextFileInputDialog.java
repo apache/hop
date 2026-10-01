@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +46,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -61,6 +61,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -73,6 +74,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -131,12 +133,13 @@ public class TextFileInputDialog extends BaseTransformDialog
   private Button wAccFilenames;
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+  private MetaSelectionLine wNamingScheme;
 
   private Label wlPassThruFields;
   private Button wPassThruFields;
 
   private Label wlAccField;
-  private Text wAccField;
+  private CCombo wAccField;
 
   private Label wlAccTransform;
   private CCombo wAccTransform;
@@ -174,6 +177,8 @@ public class TextFileInputDialog extends BaseTransformDialog
   private Button wPrependFileName;
 
   private Button wEnclBreaks;
+
+  private Button wNullIfNotEnclosed;
 
   private Label wlNrHeader;
   private Text wNrHeader;
@@ -483,31 +488,43 @@ public class TextFileInputDialog extends BaseTransformDialog
     checkCompressedFile();
   }
 
-  /*check the compressed extension of the first file in the archive and change the
-   * compression mode in the content tab depending on it*/
+  /**
+   * Optionally auto-select compression from filename extensions when the user has not already
+   * chosen a non-None compression (issue #3209). Does not override an explicit selection.
+   */
   private void checkCompressedFile() {
-    if (wFilenameList.getItemCount() > 0) {
-      for (int i = 0; i < wFilenameList.getItemCount(); i++) {
-        String[] fileRecord = wFilenameList.getItem(i);
-        String fileExtension = FilenameUtils.getExtension(fileRecord[i]);
-        Collection<ICompressionProvider> compProviders =
-            CompressionProviderFactory.getInstance().getCompressionProviders();
-        for (ICompressionProvider provider : compProviders) {
-          if (provider.getDefaultExtension() != null
-              && provider.getDefaultExtension().equals(fileExtension)) {
-            int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+    // Preserve explicit Compression settings (GZip, Zip, ...). Only auto-detect when None/empty.
+    String current = Const.NVL(wCompression.getText(), "");
+    if (!Utils.isEmpty(current) && !"None".equalsIgnoreCase(current)) {
+      return;
+    }
+
+    if (wFilenameList.getItemCount() <= 0) {
+      return;
+    }
+
+    Collection<ICompressionProvider> compProviders =
+        CompressionProviderFactory.getInstance().getCompressionProviders();
+
+    for (int i = 0; i < wFilenameList.getItemCount(); i++) {
+      String[] fileRecord = wFilenameList.getItem(i);
+      if (fileRecord == null || fileRecord.length == 0 || Utils.isEmpty(fileRecord[0])) {
+        continue;
+      }
+      // Filename is always column 0 (not row index i)
+      String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
+      for (ICompressionProvider provider : compProviders) {
+        if (provider.getDefaultExtension() != null
+            && provider.getDefaultExtension().equals(fileExtension)) {
+          int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+          if (toBeSelected >= 0) {
             wCompression.select(toBeSelected);
-            return;
           }
+          return;
         }
       }
-      wCompression.select(
-          ArrayUtils.indexOf(
-              wCompression.getItems(),
-              CompressionProviderFactory.getInstance()
-                  .getCompressionProviderByName("None")
-                  .getName()));
     }
+    // No matching compressed extension: leave compression as None/empty (do not force select).
   }
 
   private void showFiles() {
@@ -578,7 +595,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdbaFilename.top = new FormAttachment(0, 0);
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
@@ -763,7 +782,8 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdlAccField.left = new FormAttachment(0, 0);
     fdlAccField.right = new FormAttachment(middle, -margin);
     wlAccField.setLayoutData(fdlAccField);
-    wAccField = new Text(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAccField = new CCombo(gAccepting, SWT.BORDER | SWT.READ_ONLY);
+    wAccField.setEditable(true);
     wAccField.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptField.Tooltip"));
     PropsUi.setLook(wAccField);
@@ -772,6 +792,15 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdAccField.left = new FormAttachment(middle, 0);
     fdAccField.right = new FormAttachment(100, 0);
     wAccField.setLayoutData(fdAccField);
+    wAccField.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          setAcceptField();
+          shell.setCursor(null);
+          busy.dispose();
+        });
 
     // Fill in the source transforms...
     List<TransformMeta> prevTransforms =
@@ -982,6 +1011,27 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdEscape.right = new FormAttachment(100, 0);
     wEscape.setLayoutData(fdEscape);
 
+    // Return null for empty values which are not enclosed
+    Label wlNullIfNotEnclosed = new Label(wContentComp, SWT.RIGHT);
+    wlNullIfNotEnclosed.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Label"));
+    wlNullIfNotEnclosed.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Tooltip"));
+    PropsUi.setLook(wlNullIfNotEnclosed);
+    FormData fdlNullIfNotEnclosed = new FormData();
+    fdlNullIfNotEnclosed.left = new FormAttachment(0, 0);
+    fdlNullIfNotEnclosed.top = new FormAttachment(wEscape, margin);
+    fdlNullIfNotEnclosed.right = new FormAttachment(middle, -margin);
+    wlNullIfNotEnclosed.setLayoutData(fdlNullIfNotEnclosed);
+    wNullIfNotEnclosed = new Button(wContentComp, SWT.CHECK);
+    wNullIfNotEnclosed.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Tooltip"));
+    PropsUi.setLook(wNullIfNotEnclosed);
+    FormData fdNullIfNotEnclosed = new FormData();
+    fdNullIfNotEnclosed.left = new FormAttachment(middle, 0);
+    fdNullIfNotEnclosed.top = new FormAttachment(wlNullIfNotEnclosed, 0, SWT.CENTER);
+    wNullIfNotEnclosed.setLayoutData(fdNullIfNotEnclosed);
+
     // Addition Prepend file name
     Label wlPrependFileName = new Label(wContentComp, SWT.RIGHT);
     wlPrependFileName.setText(
@@ -989,7 +1039,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wlPrependFileName);
     FormData fdlPrependFileName = new FormData();
     fdlPrependFileName.left = new FormAttachment(0, 0);
-    fdlPrependFileName.top = new FormAttachment(wEscape, margin);
+    fdlPrependFileName.top = new FormAttachment(wNullIfNotEnclosed, margin);
     fdlPrependFileName.right = new FormAttachment(middle, -margin);
     wlPrependFileName.setLayoutData(fdlPrependFileName);
     wPrependFileName = new Button(wContentComp, SWT.CHECK);
@@ -1492,14 +1542,11 @@ public class TextFileInputDialog extends BaseTransformDialog
   }
 
   protected void setLocales() {
-    Locale[] locale = Locale.getAvailableLocales();
-    String[] dateLocale = new String[locale.length];
-    for (int i = 0; i < locale.length; i++) {
-      dateLocale[i] = locale[i].toString();
-    }
-    if (dateLocale != null) {
-      wDateLocale.setItems(dateLocale);
-    }
+    // The list is sorted and starts with an empty entry so the locale can be cleared again.
+    //
+    String locale = wDateLocale.getText();
+    wDateLocale.setItems(EnvUtil.getLocaleList());
+    wDateLocale.setText(Const.NVL(locale, ""));
   }
 
   private void addErrorTab() {
@@ -1977,6 +2024,31 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wSchemaDefinition.addSelectionListener(lsSelection);
 
+    wNamingScheme =
+        MetaSelectionLine.forMetadataKey(
+            variables,
+            metadataProvider,
+            wFieldsComp,
+            SWT.NONE,
+            "naming-scheme",
+            BaseMessages.getString(PKG, "TextFileInputDialog.NamingScheme.Label"),
+            BaseMessages.getString(PKG, "TextFileInputDialog.NamingScheme.Tooltip"));
+    Control namingAnchor = wSchemaDefinition;
+    if (wNamingScheme != null) {
+      PropsUi.setLook(wNamingScheme);
+      FormData fdNamingScheme = new FormData();
+      fdNamingScheme.left = new FormAttachment(0, 0);
+      fdNamingScheme.top = new FormAttachment(wSchemaDefinition, margin);
+      fdNamingScheme.right = new FormAttachment(100, 0);
+      wNamingScheme.setLayoutData(fdNamingScheme);
+      try {
+        wNamingScheme.fillItems();
+      } catch (Exception e) {
+        log.logError("Error getting naming scheme items", e);
+      }
+      namingAnchor = wNamingScheme;
+    }
+
     // Ignore manual schema
     //
     Label wlIgnoreFields = new Label(wFieldsComp, SWT.RIGHT);
@@ -1986,7 +2058,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     FormData fdlIgnoreFields = new FormData();
     fdlIgnoreFields.left = new FormAttachment(0, 0);
     fdlIgnoreFields.right = new FormAttachment(middle, -margin);
-    fdlIgnoreFields.top = new FormAttachment(wSchemaDefinition, margin);
+    fdlIgnoreFields.top = new FormAttachment(namingAnchor, margin);
     wlIgnoreFields.setLayoutData(fdlIgnoreFields);
     wIgnoreFields = new Button(wFieldsComp, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wIgnoreFields);
@@ -2070,6 +2142,7 @@ public class TextFileInputDialog extends BaseTransformDialog
               },
               true)
         };
+    colInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colInfos[12].setToolTip(
         BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Tooltip"));
@@ -2173,6 +2246,32 @@ public class TextFileInputDialog extends BaseTransformDialog
         wFields.table.redraw();
         wFields.table.update();
       }
+    }
+  }
+
+  /**
+   * Fill the filename field combo with the fields of the transform we accept filenames from. When
+   * no transform has been selected yet we fall back to the fields of all previous transforms.
+   */
+  private void setAcceptField() {
+    try {
+      String acceptTransformName = wAccTransform.getText();
+      IRowMeta r =
+          Utils.isEmpty(acceptTransformName)
+              ? pipelineMeta.getPrevTransformFields(variables, transformName)
+              : pipelineMeta.getTransformFields(variables, acceptTransformName);
+      // setItems() leaves the text of an editable combo alone, so the configured field survives
+      // the refresh and simply opening the dropdown does not mark the dialog as changed.
+      //
+      wAccField.setItems(r == null ? new String[0] : r.getFieldNames());
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "TextFileInputDialog.ErrorDialog.UnableToGetInputFields.Title"),
+          BaseMessages.getString(
+              PKG, "TextFileInputDialog.ErrorDialog.UnableToGetInputFields.Message"),
+          e);
     }
   }
 
@@ -2281,6 +2380,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     wAccField.setText(Const.NVL(meta.getFileInput().getAcceptingField(), ""));
     wAccTransform.setText(Const.NVL(meta.getAcceptingTransformName(), ""));
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
+    if (wNamingScheme != null) {
+      wNamingScheme.setText(Const.NVL(meta.getNamingScheme(), ""));
+    }
     wIgnoreFields.setSelection(meta.isIgnoreFields());
 
     // Apply the ignore fields state (fill from schema and disable/enable controls)
@@ -2305,6 +2407,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wEnclosure.setText(Const.NVL(meta.getContent().getEnclosure(), ""));
     wEscape.setText(Const.NVL(meta.getContent().getEscapeCharacter(), ""));
     wEnclBreaks.setSelection(meta.getContent().isBreakInEnclosureAllowed());
+    wNullIfNotEnclosed.setSelection(meta.getContent().isNullIfNotEnclosed());
     wPrependFileName.setSelection(meta.getContent().isPrependFileName());
     wHeader.setSelection(meta.getContent().isHeader());
     wNrHeader.setText("" + meta.getContent().getNrHeaderLines());
@@ -2465,18 +2568,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 
@@ -2522,6 +2616,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setEnclosure(wEnclosure.getText());
     meta.getContent().setEscapeCharacter(wEscape.getText());
     meta.getContent().setBreakInEnclosureAllowed(wEnclBreaks.getSelection());
+    meta.getContent().setNullIfNotEnclosed(wNullIfNotEnclosed.getSelection());
     meta.getContent().setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     meta.getContent().setFilenameField(wInclFilenameField.getText());
     meta.getContent().setRowNumberField(wInclRownumField.getText());
@@ -2547,6 +2642,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setLength(wLength.getText());
 
     meta.setSchemaDefinition(wSchemaDefinition.getText());
+    if (wNamingScheme != null) {
+      meta.setNamingScheme(wNamingScheme.getText());
+    }
     meta.setIgnoreFields(wIgnoreFields.getSelection());
 
     meta.getFileInput().getInputFiles().clear();
@@ -3295,6 +3393,14 @@ public class TextFileInputDialog extends BaseTransformDialog
   @Override
   public TableView getFieldsTable() {
     return this.wFields;
+  }
+
+  @Override
+  public String getNamingSchemeName() {
+    if (wNamingScheme != null && !wNamingScheme.isDisposed()) {
+      return wNamingScheme.getText();
+    }
+    return input.getNamingScheme();
   }
 
   @Override

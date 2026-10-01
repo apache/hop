@@ -172,4 +172,38 @@ public interface IHopImport {
    * @param metadataProvider The metadataProvider to set
    */
   void setMetadataProvider(MultiMetadataProvider metadataProvider);
+
+  /** When true, a hop-metadata (or general) naming scheme in the target is applied. */
+  default void setApplyNamingSchemes(boolean applyNamingSchemes) {}
+
+  default boolean isApplyNamingSchemes() {
+    return true;
+  }
+
+  /** Optional explicit naming-scheme metadata name to apply to relational connections. */
+  default void setNamingSchemeName(String namingSchemeName) {}
+
+  default String getNamingSchemeName() {
+    return null;
+  }
+
+  /**
+   * The run configuration name to set on every imported pipeline. When left empty the name found in
+   * the source file is preserved.
+   */
+  default void setDefaultPipelineRunConfiguration(String defaultPipelineRunConfiguration) {}
+
+  default String getDefaultPipelineRunConfiguration() {
+    return null;
+  }
+
+  /**
+   * The run configuration name to set on every imported workflow. When left empty the name found in
+   * the source file is preserved.
+   */
+  default void setDefaultWorkflowRunConfiguration(String defaultWorkflowRunConfiguration) {}
+
+  default String getDefaultWorkflowRunConfiguration() {
+    return null;
+  }
 }

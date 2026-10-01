@@ -1,0 +1,24 @@
+{
+  "base_filename": "bulk-binary.csv",
+  "name": "bulk-binary",
+  "description": "Known binary payloads for bulk-loader integration tests",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "id",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 8,
+      "field_precision": -1,
+      "field_name": "payload",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}

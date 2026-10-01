@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hc.core5.http.ContentType;
@@ -40,15 +41,22 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.owasp.encoder.Encode;
 
 public class BaseHttpServlet extends HttpServlet {
   @Serial protected static final long serialVersionUID = -1348342810327662788L;
+
+  /**
+   * A deployment root prefix is a plain URL path: a servlet container context path and/or a reverse
+   * proxy prefix. Anything else in the request URI is not ours to reflect back.
+   */
+  private static final Pattern SAFE_ROOT_PATH = Pattern.compile("[\\w/.~-]*");
 
   @Setter @Getter protected PipelineMap pipelineMap;
 
   @Setter @Getter protected WorkflowMap workflowMap;
 
-  @Setter @Getter protected HopServerConfig serverConfig;
+  @Setter protected HopServerConfig serverConfig;
   protected IVariables variables;
 
   @Setter @Getter protected boolean supportGraphicEnvironment;
@@ -74,6 +82,10 @@ public class BaseHttpServlet extends HttpServlet {
    * (served on the root Jetty context) and the Hop Web war (unpacked to the war root), so this
    * resolves correctly in every deployment - including behind a reverse proxy - without a
    * Jetty-vs-servlet-container branch.
+   *
+   * <p>The prefix is taken from the (client controlled) request URI, so anything that is not a
+   * plain path is dropped and the result is HTML encoded: the return value is meant to be written
+   * into an HTML attribute and must never be able to break out of it.
    */
   protected String getStaticPath(HttpServletRequest request, String contextPath) {
     String requestUri = request.getRequestURI();
@@ -84,7 +96,10 @@ public class BaseHttpServlet extends HttpServlet {
         root = requestUri.substring(0, index);
       }
     }
-    return root + StatusServletUtils.STATIC_PATH;
+    if (!SAFE_ROOT_PATH.matcher(root).matches()) {
+      root = "";
+    }
+    return Encode.forHtml(root + StatusServletUtils.STATIC_PATH);
   }
 
   public BaseHttpServlet() {}
@@ -368,8 +383,52 @@ public class BaseHttpServlet extends HttpServlet {
   public void setup(PipelineMap pipelineMap, WorkflowMap workflowMap) {
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
-    this.serverConfig = pipelineMap.getHopServerConfig();
-    this.variables = serverConfig.getVariables();
+    this.serverConfig = pipelineMap != null ? pipelineMap.getHopServerConfig() : null;
+    HopServerConfig config = getServerConfig();
+    this.variables =
+        config != null && config.getVariables() != null
+            ? config.getVariables()
+            : Variables.getADefaultVariableSpace();
+  }
+
+  /**
+   * The config the pipeline or workflow map currently holds. Read back on every call so replacing
+   * the config after {@link #setup(PipelineMap, WorkflowMap)} (as hop-server does when it loads
+   * hop-server.xml) is visible to servlets. Same idea as {@code HopServerApiContext}.
+   */
+  public HopServerConfig getServerConfig() {
+    if (pipelineMap != null && pipelineMap.getHopServerConfig() != null) {
+      return pipelineMap.getHopServerConfig();
+    }
+    if (workflowMap != null && workflowMap.getHopServerConfig() != null) {
+      return workflowMap.getHopServerConfig();
+    }
+    return serverConfig;
+  }
+
+  /**
+   * Live variable space of this server. Project and environment variables such as {@code
+   * PROJECT_HOME} live here after {@code -j}/{@code -e} at startup.
+   */
+  protected IVariables getServletVariables() {
+    HopServerConfig config = getServerConfig();
+    if (config != null && config.getVariables() != null) {
+      return config.getVariables();
+    }
+    if (variables != null) {
+      return variables;
+    }
+    return Variables.getADefaultVariableSpace();
+  }
+
+  /**
+   * A per-request copy of {@link #getServletVariables()} so query parameters cannot leak into the
+   * server-wide space.
+   */
+  protected IVariables copyServletVariables() {
+    IVariables copy = new Variables();
+    copy.copyFrom(getServletVariables());
+    return copy;
   }
 
   private String getContentEncoding(String contentTypeValue) {

@@ -91,6 +91,22 @@ public abstract class BaseFileInputMeta<
     return getFileInput().isAcceptingFilenames();
   }
 
+  @Override
+  public boolean consumesMainInput() {
+    I file = getFileInput();
+    return file != null && file.isAcceptingFilenames();
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return !consumesMainInput();
+  }
+
+  @Override
+  public String getMainInputRequirementHint() {
+    return BaseMessages.getString(PKG, "BaseFileInputMeta.MainInputRequirementHint");
+  }
+
   public String getAcceptingTransformName() {
     return getFileInput() == null ? null : getFileInput().getAcceptingTransformName();
   }

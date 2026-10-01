@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -105,20 +106,6 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
     this.validations = new ArrayList<>();
   }
 
-  public ValidatorMeta(ValidatorMeta m) {
-    this();
-    m.validations.forEach(v -> this.validations.add(new Validation(v)));
-    this.validatingAll = m.validatingAll;
-    this.concatenatingErrors = m.concatenatingErrors;
-    this.concatenationSeparator = m.concatenationSeparator;
-    this.suppressingLogFailedData = m.suppressingLogFailedData;
-  }
-
-  @Override
-  public ValidatorMeta clone() {
-    return new ValidatorMeta(this);
-  }
-
   @Override
   public void check(
       List remarks,
@@ -163,6 +150,44 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
               BaseMessages.getString(PKG, "ValidatorMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);
+    }
+
+    checkInfoTransformsReachEveryCopy(remarks, pipelineMeta, transformMeta, variables);
+  }
+
+  /**
+   * Every copy of this transform builds its own list of allowed values, so the transforms
+   * delivering those values have to copy their rows to all the copies instead of distributing them.
+   * Report that at design time as well, the transform refuses to start otherwise.
+   */
+  private void checkInfoTransformsReachEveryCopy(
+      List remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables) {
+    if (pipelineMeta == null
+        || transformMeta.isPartitioned()
+        || transformMeta.getCopies(variables) <= 1) {
+      return;
+    }
+
+    for (Validation validation : validations) {
+      if (!validation.isSourcingValues()
+          || StringUtils.isEmpty(validation.getSourcingTransformName())) {
+        continue;
+      }
+      TransformMeta sourceTransform =
+          pipelineMeta.findTransform(validation.getSourcingTransformName());
+      if (sourceTransform != null && sourceTransform.isDistributes()) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "Validator.Exception.InfoTransformIsDistributing",
+                    sourceTransform.getName(),
+                    transformMeta.getName(),
+                    Integer.toString(transformMeta.getCopies(variables)),
+                    Const.NVL(validation.getName(), validation.getFieldName())),
+                transformMeta));
+      }
     }
   }
 

@@ -54,8 +54,15 @@ public class FixedWidthLogLayout {
 
       String logLevel = getLogLevelPadded(message.getLevel());
 
-      String[] parts =
-          message.getMessage() == null ? new String[] {} : message.getMessage().split(Const.CR);
+      // Append the message's stack trace (pre-rendered, or rendered on demand from an attached
+      // throwable) so the GUI log browser still shows it.
+      String text = message.getMessage();
+      String stackTrace = message.getStackTrace();
+      if (stackTrace != null && !stackTrace.isEmpty()) {
+        text = (text == null || text.isEmpty()) ? stackTrace : text + Const.CR + stackTrace;
+      }
+
+      String[] parts = text == null ? new String[] {} : text.split(Const.CR);
 
       for (int i = 0; i < parts.length; i++) {
         if (!message.isSimplified()) {

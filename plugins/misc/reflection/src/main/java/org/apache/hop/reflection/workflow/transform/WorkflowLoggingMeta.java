@@ -49,6 +49,16 @@ public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, Work
   }
 
   @Override
+  public boolean consumesMainInput() {
+    return false;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return true;
+  }
+
+  @Override
   public void setDefault() {
     loggingActionResults = true;
   }

@@ -20,9 +20,12 @@ package org.apache.hop.ui.core.gui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
@@ -196,6 +199,46 @@ public class WindowProperty {
       resizedRect.y = monitorClientArea.y + (monitorClientArea.height - resizedRect.height) / 2;
 
       shell.setBounds(resizedRect);
+    }
+
+    relayoutOnShow(shell);
+  }
+
+  /**
+   * Re-run the shell's layout once it is actually on screen.
+   *
+   * <p>Restoring a remembered geometry means the widgets are built - and laid out - while the shell
+   * still has its pre-open size. {@link Shell#setBounds(Rectangle)} sets the *outer* bounds, so the
+   * client area only loses the window trim (title bar) when the shell is shown. Composites whose
+   * bounds are handed to them by a parent layout that does not re-run - a {@link
+   * org.eclipse.swt.custom.SashForm} pane is the common case - then keep child positions that are
+   * off by the trim height, which shows up as a toolbar clipped against the top of the panel until
+   * the user resizes the window by hand.
+   *
+   * <p>A single recursive layout on the first show costs nothing noticeable and puts every child
+   * where the freshly-sized shell says it belongs.
+   */
+  private void relayoutOnShow(Shell shell) {
+    shell.addListener(
+        SWT.Show,
+        new Listener() {
+          @Override
+          public void handleEvent(Event event) {
+            shell.removeListener(SWT.Show, this);
+            // Asynchronous: on the first show the platform is still settling the window frame, so
+            // the client area is only final once the pending events have been handled.
+            shell.getDisplay().asyncExec(() -> layoutIfAlive(shell));
+          }
+        });
+    // A shell that is already up gets its layout straight away: no Show event is coming.
+    if (shell.isVisible()) {
+      layoutIfAlive(shell);
+    }
+  }
+
+  private static void layoutIfAlive(Shell shell) {
+    if (!shell.isDisposed()) {
+      shell.layout(true, true);
     }
   }
 

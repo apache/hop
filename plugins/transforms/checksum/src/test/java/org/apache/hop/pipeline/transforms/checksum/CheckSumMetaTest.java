@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.checksum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -53,6 +58,27 @@ class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
     assertEquals("SHA-256", CheckSumMeta.CheckSumType.SHA256.getCode());
     assertEquals("SHA-384", CheckSumMeta.CheckSumType.SHA384.getCode());
     assertEquals("SHA-512", CheckSumMeta.CheckSumType.SHA512.getCode());
+    assertEquals("HASHCODE", CheckSumMeta.CheckSumType.HASHCODE.getCode());
+    assertTrue(CheckSumMeta.CheckSumType.HASHCODE.isIntegerResult());
+    assertTrue(CheckSumMeta.CheckSumType.CRC32.isIntegerResult());
+    assertTrue(CheckSumMeta.CheckSumType.ADLER32.isIntegerResult());
+    assertFalse(CheckSumMeta.CheckSumType.HASHCODE.isDigest());
+    assertTrue(CheckSumMeta.CheckSumType.MD5.isDigest());
+    assertFalse(CheckSumMeta.CheckSumType.MD5.isIntegerResult());
+  }
+
+  @Test
+  void hashCodeResultFieldIsAnInteger() throws HopException {
+    CheckSumMeta meta = new CheckSumMeta();
+    meta.setCheckSumType(CheckSumMeta.CheckSumType.HASHCODE);
+    meta.setResultFieldName("row_hash");
+    RowMeta rowMeta = new RowMeta();
+
+    meta.getFields(rowMeta, "checksum", null, null, new Variables(), null);
+
+    assertEquals(1, rowMeta.size());
+    assertEquals("row_hash", rowMeta.getValueMeta(0).getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, rowMeta.getValueMeta(0).getType());
   }
 
   @Test

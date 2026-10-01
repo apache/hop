@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.filterrows;
 
+import org.apache.hop.core.Condition;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -31,6 +32,7 @@ public class FilterRowsData extends BaseTransformData implements ITransformData 
   public boolean chosesTargetTransforms;
   public String trueTransformName;
   public String falseTransformName;
+  public Condition condition;
 
   public FilterRowsData() {
     super();

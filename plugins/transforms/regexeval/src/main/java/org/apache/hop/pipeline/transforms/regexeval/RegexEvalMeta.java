@@ -186,29 +186,6 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     regexFields = new ArrayList<>();
   }
 
-  public RegexEvalMeta(RegexEvalMeta m) {
-    this();
-    this.script = m.script;
-    this.matcher = m.matcher;
-    this.resultFieldName = m.resultFieldName;
-    this.usingVariables = m.usingVariables;
-    this.allowingCaptureGroups = m.allowingCaptureGroups;
-    this.replacingFields = m.replacingFields;
-    this.canonicalEqualityEnabled = m.canonicalEqualityEnabled;
-    this.caseInsensitive = m.caseInsensitive;
-    this.commentingEnabled = m.commentingEnabled;
-    this.dotAllEnabled = m.dotAllEnabled;
-    this.multiLine = m.multiLine;
-    this.unicode = m.unicode;
-    this.unixLineEndings = m.unixLineEndings;
-    m.regexFields.forEach(field -> this.regexFields.add(new RegexField(field)));
-  }
-
-  @Override
-  public RegexEvalMeta clone() {
-    return new RegexEvalMeta(this);
-  }
-
   public String getRegexOptions() {
     StringBuilder options = new StringBuilder();
 

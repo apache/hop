@@ -30,11 +30,14 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.CrossSitePolicy;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.www.api.HopApiApplication;
+import org.apache.hop.www.api.HopServerApiContext;
 import org.eclipse.jetty.ee11.servlet.DefaultServlet;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
@@ -63,6 +66,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 public class WebServer {
 
@@ -87,6 +91,12 @@ public class WebServer {
   private String passwordFile;
 
   private final SslConfiguration sslConfig;
+
+  /**
+   * Which browser requests are accepted. Applied centrally in {@link #start()} by a {@link
+   * CrossSiteRequestHandler} wrapped around every context.
+   */
+  @Setter @Getter private CrossSitePolicy crossSitePolicy = CrossSitePolicy.SAME_SITE;
 
   public WebServer(
       ILogChannel log,
@@ -203,7 +213,16 @@ public class WebServer {
       log.logBasic("Hop Server: Basic authentication is DISABLED (enableAuth=false)");
     }
 
-    server.setHandler(innerHandler);
+    // Keep cross-site browser requests away from the servlets, the static resources and the JSON
+    // API alike, whether or not authentication was enabled above.
+    if (crossSitePolicy == CrossSitePolicy.OFF) {
+      log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.CrossSiteCheckDisabled"));
+      server.setHandler(innerHandler);
+    } else {
+      log.logBasic(
+          BaseMessages.getString(PKG, "WebServer.Log.CrossSitePolicy", crossSitePolicy.getCode()));
+      server.setHandler(new CrossSiteRequestHandler(innerHandler, crossSitePolicy, log));
+    }
 
     // Setup timeout to allow graceful timeout of server components
     server.setStopTimeout(1000L);
@@ -230,6 +249,7 @@ public class WebServer {
       IHopServerPlugin servlet = pluginRegistry.loadClass(plugin, IHopServerPlugin.class);
       servlet.setup(pipelineMap, workflowMap);
       servlet.setJettyMode(true);
+      HopServerPluginPermissions.register(servlet, log);
 
       ServletContextHandler servletContext =
           new ServletContextHandler(getContextPath(servlet), ServletContextHandler.SESSIONS);
@@ -252,6 +272,20 @@ public class WebServer {
     shutdownServlet.setup(pipelineMap, workflowMap);
     shutdownServlet.setJettyMode(true);
     shutdownContext.addServlet(new ServletHolder(shutdownServlet), "/*");
+
+    // JSON API (JAX-RS/Jersey). Added inside this collection so it sits behind the same
+    // security constraint as every servlet above it.
+    ServletContextHandler apiContext =
+        new ServletContextHandler(HopApiApplication.CONTEXT_PATH, ServletContextHandler.SESSIONS);
+    apiContext.setAllowNullPathInContext(true);
+    contexts.addHandler(apiContext);
+    ServletHolder apiHolder =
+        new ServletHolder(
+            "hop-api",
+            new ServletContainer(
+                new HopApiApplication(new HopServerApiContext(pipelineMap, workflowMap, log))));
+    apiHolder.setInitOrder(1);
+    apiContext.addServlet(apiHolder, "/*");
 
     // Static resources
     ServletHolder staticHolder = new ServletHolder("static", DefaultServlet.class);

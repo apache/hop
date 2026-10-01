@@ -17,8 +17,6 @@ under the License.
 [[database-plugins-googlebigquery]]
 :documentationPath: /database/databases/
 :language: en_US
-:openvar: ${
-:closevar: }
 
 = Google BigQuery
 

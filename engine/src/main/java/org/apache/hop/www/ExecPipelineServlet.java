@@ -35,6 +35,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -129,6 +130,9 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
       return;
     }
 
+    IVariables requestVars = copyServletVariables();
+    String resolvedPipelinePath = requestVars.resolve(pipelineOption);
+
     try {
       // Get metadata provider from server config
       IHopMetadataProvider metadataProvider = getServerConfig().getMetadataProvider();
@@ -136,12 +140,11 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
         throw new HopException("Metadata provider is not available");
       }
 
-      // Resolve variables in the pipeline path (e.g., ${PROJECT_HOME})
-      String resolvedPipelinePath = variables.resolve(pipelineOption);
-
-      // Load pipeline from file
+      // Load pipeline from file. Path is resolved against a per-request copy of the server
+      // variables so ${PROJECT_HOME} (and environment config vars) work, and query parameters
+      // cannot leak into the server-wide space. See issue #8284.
       PipelineMeta pipelineMeta =
-          new PipelineMeta(resolvedPipelinePath, metadataProvider, variables);
+          new PipelineMeta(resolvedPipelinePath, metadataProvider, requestVars);
 
       // Set the servlet parameters as variables/parameters in the pipeline
       String[] parameters = pipelineMeta.listParameters();
@@ -155,7 +158,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
           // If it's a pipeline parameter, it will be set later via setParameterValue
           // Otherwise, set as variable
           if (Const.indexOfString(parameter, parameters) < 0) {
-            variables.setVariable(parameter, values[0]);
+            requestVars.setVariable(parameter, values[0]);
           }
         }
       }
@@ -202,8 +205,8 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
       // Create the pipeline engine using the run configuration from execution configuration
       IPipelineEngine<PipelineMeta> pipeline =
           PipelineEngineFactory.createPipelineEngine(
-              variables,
-              variables.resolve(pipelineExecutionConfiguration.getRunConfiguration()),
+              requestVars,
+              requestVars.resolve(pipelineExecutionConfiguration.getRunConfiguration()),
               metadataProvider,
               pipelineMeta);
       pipeline.setParent(servletLoggingObject);
@@ -256,7 +259,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
         String safePipelineOption =
             pipelineOption != null ? Encode.forHtml(pipelineOption) : "null";
         String safeResolved =
-            pipelineOption != null ? Encode.forHtml(variables.resolve(pipelineOption)) : "null";
+            resolvedPipelinePath != null ? Encode.forHtml(resolvedPipelinePath) : "null";
         WebResult notFound =
             new WebResult(
                 WebResult.STRING_ERROR,

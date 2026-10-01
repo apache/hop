@@ -33,7 +33,7 @@ import org.neo4j.driver.TransactionCallback;
 
 @Action(
     id = "NEO4J_CYPHER_SCRIPT",
-    name = "Neo4j Cypher Script",
+    name = "Neo4j Cypher script",
     description = "Execute a Neo4j Cypher script",
     image = "neo4j_cypher.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
@@ -61,18 +61,6 @@ public class CypherScript extends ActionBase implements IAction {
 
   public CypherScript(String name, String description) {
     super(name, description);
-  }
-
-  public CypherScript(CypherScript s) {
-    super(s.getName(), s.getDescription(), s.getPluginId());
-    this.connectionName = s.connectionName;
-    this.script = s.script;
-    this.replacingVariables = s.replacingVariables;
-  }
-
-  @Override
-  public CypherScript clone() {
-    return new CypherScript(this);
   }
 
   @Override

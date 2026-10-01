@@ -168,7 +168,6 @@ class CrateDBDatabaseMetaTest {
         nativeMeta.getExtraOptionsHelpText());
     assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
-    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isUseSafePoints());
     assertTrue(nativeMeta.isSupportsBooleanDataType());
     assertTrue(nativeMeta.isSupportsTimestampDataType());
@@ -271,8 +270,11 @@ class CrateDBDatabaseMetaTest {
         "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+    // An ALTER TABLE spells a column the way a CREATE TABLE does: through the dialect's type
+    // rules, inherited here from PostgreSQL. Before those were consulted here, this produced
+    // "BAR  UNKNOWN".
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD COLUMN BAR IP",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

@@ -1,0 +1,100 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: JMS consumer reads messages from a JMS queue or topic and turns each into a row.
+
+= image:transforms/icons/jms-consumer.svg[JMS consumer transform Icon, role="image-doc-icon"] JMS consumer
+
+== Description
+
+*JMS consumer* reads messages from a JMS queue or topic and turns each into a row.
+
+It works with any JMS 3.0 provider. Apache ActiveMQ Artemis works with no extra setup because its client ships with the transform; other brokers — ActiveMQ "Classic", RabbitMQ through its JMS client, IBM MQ — are reached by adding their client jar and using JNDI mode on the xref:metadata-types/jms-connection.adoc[JMS connection].
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|JMS connection
+|The xref:metadata-types/jms-connection.adoc[JMS connection] metadata object to use.
+
+|Destination type
+|`QUEUE` for point-to-point, `TOPIC` for publish/subscribe.
+
+|Queue / topic name
+|Name of the destination. Supports variables.
+
+|Message selector
+|Optional JMS selector expression, evaluated by the broker so unwanted messages are never delivered. For example `priority > 5 AND region = 'EU'`.
+
+|Durable subscription name
+|Topics only. Makes the subscription durable, so messages published while the pipeline is not running are still delivered. The JMS specification requires a client id on the connection for this.
+
+|Use a JMS transaction
+|Commit each message in a JMS transaction instead of acknowledging it individually.
+
+|Maximum messages
+|Stop after this many messages. `0` means no limit. Supports variables.
+
+|Receive timeout (ms)
+|How long to wait for a message before concluding the destination is drained — see <<When the transform stops>>.
+
+|Message body field
+|Field to put the message body in. Leave empty to omit it.
+
+|Correlation id field
+|Field for the JMS correlation id. Leave empty to omit it.
+
+|Destination field
+|Field for the destination the message came from. Leave empty to omit it.
+
+|Message id field
+|Field for the broker-assigned message id. Leave empty to omit it.
+
+|Timestamp field
+|Field for the broker timestamp, as a Date. Leave empty to omit it.
+|===
+
+Every output field is optional: naming a field adds it to the row, leaving it empty keeps it out. Fields appear in the row in the order listed above.
+
+== When the transform stops
+
+Consumption ends on whichever comes first:
+
+* the *Maximum messages* count is reached,
+* no message arrives within *Receive timeout*, or
+* the pipeline is stopped.
+
+The timeout is what makes this a batch-friendly transform: it drains what is on the destination and finishes, rather than blocking a pipeline forever. To poll continuously, schedule the pipeline to run repeatedly rather than raising the timeout.
+
+== Acknowledgement and message loss
+
+The transform uses `CLIENT_ACKNOWLEDGE`, and acknowledges each message only *after* its row has been passed downstream. If the pipeline fails partway, unacknowledged messages stay on the broker and are redelivered.
+
+`AUTO_ACKNOWLEDGE` is deliberately not used: it confirms the message on receipt, so a failure later in the pipeline would lose it silently.
+
+NOTE: Acknowledging after `putRow` guarantees the row was *handed to* the next transform, not that the pipeline finished with it. For end-to-end exactly-once behaviour you still need an idempotent target.
+
+== Message bodies
+
+Only `TextMessage` bodies are read. Any other message type still produces a row with its identifiers, destination, timestamp and properties, but the body field is left null rather than guessing at an encoding.

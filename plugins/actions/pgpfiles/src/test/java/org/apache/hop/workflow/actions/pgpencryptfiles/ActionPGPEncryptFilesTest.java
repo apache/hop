@@ -19,6 +19,7 @@
 package org.apache.hop.workflow.actions.pgpencryptfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.encryption.Encr;
@@ -74,18 +75,22 @@ class ActionPGPEncryptFilesTest {
     assertEquals(ActionPGPEncryptFiles.ActionType.ENCRYPT, f.getActionType());
     assertEquals("folder1", f.getSourceFileFolder());
     assertEquals("user1", f.getUserId());
+    // Written before the signing key had a field of its own, so it has none.
+    assertNull(f.getLocalUser());
     assertEquals("target1", f.getDestinationFileFolder());
     assertEquals("wildcard1", f.getWildcard());
     f = action.getPgpFiles().get(1);
     assertEquals(ActionPGPEncryptFiles.ActionType.SIGN, f.getActionType());
     assertEquals("folder2", f.getSourceFileFolder());
     assertEquals("user2", f.getUserId());
+    assertEquals("signer2", f.getLocalUser());
     assertEquals("target2", f.getDestinationFileFolder());
     assertEquals("wildcard2", f.getWildcard());
     f = action.getPgpFiles().getLast();
     assertEquals(ActionPGPEncryptFiles.ActionType.SIGN_AND_ENCRYPT, f.getActionType());
     assertEquals("folder3", f.getSourceFileFolder());
     assertEquals("user3", f.getUserId());
+    assertEquals("signer3", f.getLocalUser());
     assertEquals("target3", f.getDestinationFileFolder());
     assertEquals("wildcard3", f.getWildcard());
   }

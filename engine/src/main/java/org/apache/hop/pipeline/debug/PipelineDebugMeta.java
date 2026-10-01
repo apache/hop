@@ -55,6 +55,8 @@ public class PipelineDebugMeta {
     transformDebugMetaMap = new HashMap<>();
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public synchronized void addRowListenersToPipeline(final IPipelineEngine<PipelineMeta> pipeline) {
 
     // for every transform in the map, add a row listener...

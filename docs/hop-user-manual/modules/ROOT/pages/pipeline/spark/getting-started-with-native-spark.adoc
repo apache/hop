@@ -20,6 +20,7 @@ under the License.
 
 :toc:
 :toclevels: 3
+:page-marketplace: hop-engines-spark
 
 = Getting started with the native Spark pipeline engine
 
@@ -56,7 +57,7 @@ The *native* engine skips Beam entirely:
 
 * Hop’s `SparkPipelineEngine` builds a logical plan of Spark Datasets on the driver.
 * Each Hop transform becomes either a *native handler* (Spark APIs such as `groupBy`, `join`, `read` / `write`) or a *generic* `mapPartitions` stage that runs a small single-threaded Hop mini-pipeline once per Spark partition.
-* You use Hop’s *Spark File Input* / *Spark File Output* transforms for bulk Dataset I/O (not Beam File Input/Output).
+* You use Hop’s *Spark file input* / *Spark file output* transforms for bulk Dataset I/O (not Beam file input/output).
 
 [options="header",cols="1,2,2"]
 |===
@@ -67,7 +68,7 @@ The *native* engine skips Beam entirely:
 |Beam pipelines on Spark (batch *and* streaming)
 
 |Spark line
-|https://spark.apache.org/docs/4.1.2/[4.1.x] (Scala 2.13)
+|https://spark.apache.org/docs/4.1.3/[4.1.x] (Scala 2.13)
 |3.5.x (Scala 2.12; see Beam support matrix)
 
 |Programming model
@@ -79,8 +80,8 @@ The *native* engine skips Beam entirely:
 |Supported via Beam
 
 |Preferred bulk I/O
-|*Spark File Input* / *Spark File Output*
-|*Beam File Input* / *Beam File Output*
+|*Spark file input* / *Spark file output*
+|*Beam file input* / *Beam file output*
 
 |Side data (lookups)
 |Info streams (broadcast), e.g. Stream Lookup
@@ -105,6 +106,8 @@ If you need streaming, windowing, or Beam-only connectors, stay on the Beam engi
 ** applies a *native handler* that rewrites the hop as Spark Dataset operations, or
 ** wraps the transform in `mapPartitions` so each Spark partition runs that transform in a tiny local Hop pipeline.
 . File outputs and other Spark *actions* materialise the graph (read → transform → write).
+
+Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
 . Transform metrics are collected via Spark accumulators and shown in Hop like any other engine.
 
 You still design pipelines *visually* in Hop. Spark’s role is the distributed execution engine and the Dataset runtime under the hood.
@@ -115,7 +118,7 @@ You still design pipelines *visually* in Hop. Spark’s role is the distributed 
 ====
 *Java:* Hop requires *Java 21* for the GUI, `hop-run`, and the fat jar executed on the Spark driver/executors. Your Spark cluster must also run a JVM that can load that bytecode (Java 21).
 
-*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.2* in the Hop source tree, Scala *2.13*). For `local[*]` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
+*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.3* in the Hop source tree, Scala *2.13*). For `local[*]` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
 ====
 
 [options="header",cols="1,1,2,2"]
@@ -196,9 +199,9 @@ Full option reference: xref:pipeline/pipeline-run-configurations/native-spark-pi
 === First pipeline on `local[*]`
 
 . Create a small batch pipeline, for example:
-** *Spark File Input* — CSV path under your project, header and separator, field list
+** *Spark file input* — CSV path under your project, header and separator, field list
 ** *Filter Rows* or *Select Values* — any familiar transform
-** *Spark File Output* — path, format (`csv` or `parquet`), save mode *Overwrite*
+** *Spark file output* — path, format (`csv` or `parquet`), save mode *Overwrite*
 . Run the pipeline and choose your `spark-local` run configuration.
 . When it finishes, check:
 ** Transform metrics on the pipeline graph (input / output / written / errors)
@@ -319,7 +322,7 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 
 ==== Environment configuration file (4th argument)
 
-On a laptop, Hop projects usually set `PROJECT_HOME` to a local folder. In a *clustered* `spark-submit` job that path often has no meaning: drivers and executors do not share your desktop filesystem, and paths in pipelines are typically `${PROJECT_HOME}/…` or other project variables.
+On a laptop, Hop projects usually set `PROJECT_HOME` to a local folder. In a *clustered* `spark-submit` job that path often has no meaning: drivers and executors do not share your desktop filesystem, and paths in pipelines are typically `+${PROJECT_HOME}/…+` or other project variables.
 
 Pass an optional **environment configuration file** as the 4th positional argument (or `--HopConfigFile=…`). It uses the same JSON format as a Hop environment / `hop-config` variables file. `MainSpark` loads every described variable into the pipeline variable space before execution.
 
@@ -343,7 +346,7 @@ Example `cluster-env-config.json`:
 }
 ----
 
-Use this for any value that must differ between local development and the cluster: connection endpoints, bucket prefixes, `${PROJECT_HOME}`, credentials placeholders you resolve elsewhere, and so on.
+Use this for any value that must differ between local development and the cluster: connection endpoints, bucket prefixes, `+${PROJECT_HOME}+`, credentials placeholders you resolve elsewhere, and so on.
 
 [IMPORTANT]
 ====
@@ -352,7 +355,7 @@ Use this for any value that must differ between local development and the cluste
 * Variables in this file override defaults for *this* submit only; they do not rewrite your project’s GUI environment on disk.
 ====
 
-*Data paths* in the pipeline (files, tables, object stores) must be reachable from *workers*, not only from your laptop. Prefer HDFS, S3/GS/ABFS, or a shared mount — and set `PROJECT_HOME` (and similar) in the environment config so `${PROJECT_HOME}/…` resolves correctly on the cluster.
+*Data paths* in the pipeline (files, tables, object stores) must be reachable from *workers*, not only from your laptop. Prefer HDFS, S3/GS/ABFS, or a shared mount — and set `PROJECT_HOME` (and similar) in the environment config so `+${PROJECT_HOME}/…+` resolves correctly on the cluster.
 
 *Resource flags* (optional examples):
 
@@ -376,18 +379,18 @@ You can also put memory/core settings in the run configuration’s engine option
 [#_building_spark_oriented_pipelines]
 == Building Spark-oriented pipelines
 
-=== Prefer Spark File Input and Spark File Output
+=== Prefer Spark file input and Spark file output
 
 For large or production Dataset I/O, use the dedicated transforms in the *Big Data* category:
 
-* *Spark File Input* — `spark.read.format(...).load`
-* *Spark File Output* — `df.write.format(...).save`
+* *Spark file input* — `spark.read.format(...).load`
+* *Spark file output* — `df.write.format(...).save`
 
 Typical first pipeline shape:
 
-image::pipeline/spark/spark-native-0001-input-output.png[Spark File Input to Spark File Output sample,width=70%]
+image::pipeline/spark/spark-native-0001-input-output.png[Spark file input to Spark file output sample,width=70%]
 
-==== Spark File Input
+==== Spark file input
 
 Common options:
 
@@ -411,7 +414,7 @@ Common options:
 |Optional; explicit fields are safer for production
 |===
 
-==== Spark File Output
+==== Spark file output
 
 [options="header",cols="1,3"]
 |===
@@ -436,14 +439,14 @@ Common options:
 |Optional partition column list for directory partitioning
 |===
 
-Writes run as Spark *actions* when the engine materialises the graph. Prefer *Spark File Output* for large partitioned writes to object stores or HDFS.
+Writes run as Spark *actions* when the engine materialises the graph. Prefer *Spark file output* for large partitioned writes to object stores or HDFS.
 
 === Open table formats (Delta Lake / Apache Iceberg)
 
 Classic *Spark File* transforms cover `csv` / `parquet` / `json` / `orc` / `text` only. For ACID lake tables use the dedicated **Lake Table** transforms (Big Data category):
 
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
-* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
 * xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata for Iceberg TABLE mode
 
 Connector JARs **ship in the default Hop assembly** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
@@ -478,7 +481,7 @@ On the native Spark engine, that variable is set to a *readable* value:
 
 [NOTE]
 ====
-For large distributed writes, prefer *Spark File Output* (Spark manages part files). Classic Text File Output is ideal for small POC side-loads and local/shared paths where unique names per partition are enough.
+For large distributed writes, prefer *Spark file output* (Spark manages part files). Classic Text File Output is ideal for small POC side-loads and local/shared paths where unique names per partition are enough.
 ====
 
 ==== Accept filenames from a previous transform
@@ -487,7 +490,7 @@ For large distributed writes, prefer *Spark File Output* (Spark manages part fil
 
 Example shape from the integration tests:
 
-image::pipeline/spark/spark-native-0008-text-file-input-spark-readback.png[Get File Names to Text File Input to Spark File Output,width=70%]
+image::pipeline/spark/spark-native-0008-text-file-input-spark-readback.png[Get File Names to Text File Input to Spark file output,width=70%]
 
 == Metrics and execution information
 
@@ -544,9 +547,14 @@ These use Spark Dataset APIs on the driver graph (no per-row Hop mini-pipeline f
 |Sort Rows
 |`orderBy`
 
-|Spark File Input / Output
+|Spark file input / output
 |`spark.read` / `df.write`
+
+|xref:pipeline/transforms/spark-sql.adoc[Spark SQL]
+|`spark.sql` over the incoming Datasets, each registered as a temporary view
 |===
+
+TIP: When a chain of Join / Filter / Calculator transforms exists only to express analytic logic, a single xref:pipeline/transforms/spark-sql.adoc[Spark SQL] transform lets Catalyst plan the whole thing as one query instead.
 
 === Generic mapPartitions transforms
 
@@ -580,7 +588,7 @@ Keep these in mind when moving a local pipeline to native Spark.
 |See the authoritative list on
 xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#transforms-not-supported-on-native-spark[Native Spark Pipeline Engine — Transforms not supported].
 It is derived from each transform page’s *Supported Engines* table (*Native Spark* row).
-Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*Blocking until transforms finish*), result-row hops, *Kafka Consumer*, multi-way / sorted merges.
+Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*Blocking until transforms finish*), result-row hops, *Kafka consumer*, multi-way / sorted merges.
 
 |Sorted *Group By*
 |*Not supported.* Use *Memory Group By* (native `groupBy`).
@@ -592,7 +600,7 @@ Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*B
 |Out of scope. Use the Beam engines.
 
 |Native Spark Kafka
-|*Not supported.* There is no Hop transform that maps to Spark’s structured streaming / Kafka source-sink APIs. For Kafka-oriented Beam pipelines, use the Beam engines (e.g. Beam Kafka Consumer/Producer). Hop’s own Kafka transforms (if used) are not native-Spark Dataset I/O.
+|*Not supported.* There is no Hop transform that maps to Spark’s structured streaming / Kafka source-sink APIs. For Kafka-oriented Beam pipelines, use the Beam engines (e.g. Beam Kafka consumer/producer). Hop’s own Kafka transforms (if used) are not native-Spark Dataset I/O.
 
 |Spark SQL
 |*Not supported* as a first-class surface. You cannot submit arbitrary Spark SQL / `DataFrame` queries from Hop metadata; the engine only builds a Dataset graph from the Hop transform graph (plus native handlers for a fixed set of transforms).
@@ -607,7 +615,7 @@ Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*B
 |Reject-to-error style options may not apply; prefer Dataset-oriented dedup semantics.
 
 |Transform copies / partitioning GUI
-|Parallelism comes from *Spark partitions*, not Hop “copies” in the local sense.
+|Ignored. Parallelism comes from *Spark partitions*, not the local-engine copy count or partition schema. See xref:pipeline/specify-copies.adoc#supported-engines[Specify copies] and xref:pipeline/partitioning.adoc#supported-engines[Partitioning].
 
 |Plugins in mapPartitions
 |Must be present on the Spark classpath (staged list + fat jar). Missing plugins fail at runtime on the executor.
@@ -627,9 +635,9 @@ integration-tests/spark-native/
 
 Open that folder as a Hop project (or copy patterns into your own). Workflows are named `main-00xx-*.hwf` and typically: clean output → run the Spark pipeline with `spark-local` → validate on the local engine.
 
-=== 0001 — Spark File Input / Output
+=== 0001 — Spark file input / output
 
-Minimal path: read a CSV with *Spark File Input*, write with *Spark File Output*.
+Minimal path: read a CSV with *Spark file input*, write with *Spark file output*.
 
 image::pipeline/spark/spark-native-0001-input-output.png[0001 input output,width=70%]
 
@@ -665,13 +673,13 @@ image::pipeline/spark/spark-native-0005-switch-case.png[0006 switch case,width=7
 
 === 0007 — Classic Text File Input and Spark write-back
 
-Get File Names → Text File Input (accept filenames) → Spark File Output (e.g. Parquet). Validates classic I/O and partition-safe readback.
+Get File Names → Text File Input (accept filenames) → Spark file output (e.g. Parquet). Validates classic I/O and partition-safe readback.
 
 image::pipeline/spark/spark-native-0008-text-file-input-spark-readback.png[0007 text file input spark readback,width=70%]
 
 === 0008 — Excel info stream into Stream Lookup
 
-Main data from multiple Parquet files (*Spark File Input*); product dimension from *Microsoft Excel Input* into *Stream Lookup*; CSV result via *Spark File Output*.
+Main data from multiple Parquet files (*Spark file input*); product dimension from *Microsoft Excel Input* into *Stream Lookup*; CSV result via *Spark file output*.
 
 image::pipeline/spark/spark-native-0008-excel-stream-lookup.png[0008 excel stream lookup,width=75%]
 
@@ -685,13 +693,13 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 
 * [ ] Java 21; Hop 2.19+ with `plugins/engines/spark`
 * [ ] Run configuration engine = *Native Spark* (not Beam Spark)
-* [ ] First success on `local[*]` with Spark File Input → transform → Spark File Output
+* [ ] First success on `local[*]` with Spark file input → transform → Spark file output
 * [ ] Execution information location attached if you need history and samples
 * [ ] Cluster: fat jar with `--spark-client-version=native-provided`
 * [ ] Cluster: `SPARK_HOME` pinned to Spark *4.1.x*
 * [ ] Cluster: metadata JSON exported; run configuration name matches submit args
 * [ ] No sorted Group By; no reliance on Copy/Distribute multi-hop behaviour
-* [ ] Classic writers use `${Internal.Transform.ID}` (or accept Spark File Output for bulk writes)
+* [ ] Classic writers use `${Internal.Transform.ID}` (or accept Spark file output for bulk writes)
 * [ ] Lakehouse (optional): confirm `plugins/engines/spark/lib/{delta,iceberg}` present; see xref:pipeline/spark/lakehouse.adoc[lakehouse guide]
 
 == Related pages

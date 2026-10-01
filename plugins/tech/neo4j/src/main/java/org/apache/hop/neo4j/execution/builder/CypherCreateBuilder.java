@@ -38,7 +38,7 @@ public class CypherCreateBuilder extends BaseCypherBuilder {
         .append(" : $")
         .append(key)
         .append("}) ");
-    parameters.put(key, value);
+    addParameter(key, value);
     return this;
   }
 
@@ -53,7 +53,7 @@ public class CypherCreateBuilder extends BaseCypherBuilder {
         cypher.append(", ");
       }
       cypher.append(key).append(" : $").append(key);
-      parameters.put(key, value);
+      addParameter(key, value);
     }
     cypher.append(" }) ");
     return this;
@@ -67,8 +67,6 @@ public class CypherCreateBuilder extends BaseCypherBuilder {
       cypher.append(", ");
     }
     cypher.append("n.").append(property).append("=$").append(property).append(" ");
-
-    value = mapTypes(value);
 
     addParameter(property, value);
 

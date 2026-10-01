@@ -1,0 +1,4 @@
+id;empty_value;null_value;plain_value;trailing_value
+1;"";;abc;
+2;"";;abc;
+3;"";;abc;

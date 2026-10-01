@@ -22,6 +22,13 @@ ORIGINDIR=$(pwd)
 BASEDIR=$(dirname "$0")
 cd "${BASEDIR}" || exit 1
 
+# Optional user-level env written by `hop setup` (does not override already-set variables)
+HOP_USER_ENV="${XDG_CONFIG_HOME:-${HOME}/.config}/hop/hop-env.sh"
+if [ -f "${HOP_USER_ENV}" ]; then
+  # shellcheck source=/dev/null
+  . "${HOP_USER_ENV}"
+fi
+
 # set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
 if [ -n "${HOP_JAVA_HOME}" ]; then
   _HOP_JAVA="${HOP_JAVA_HOME}/bin/java"
@@ -111,7 +118,7 @@ Darwin)
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
 esac
-CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/$os_path/$arch_path/*"
+CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/$os_path/$arch_path/*"
 
 
 
@@ -122,6 +129,7 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK
   CLASSPATH=$(echo "${CLASSPATH}" | sed 's|lib/spark-client/\*||g')
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
 fi
+
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.ui.hopgui.HopGui "$@"
 EXITCODE=$?
 

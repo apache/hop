@@ -20,10 +20,16 @@ package org.apache.hop.pipeline.transforms.mapping;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class MappingValueRename implements Cloneable {
-  @HopMetadataProperty(key = "parent")
+  @HopMetadataProperty(
+      key = "parent",
+      injectionKey = "SOURCE_FIELD",
+      injectionKeyDescription = "SimpleMapping.Injection.SOURCE_FIELD")
   private String sourceValueName;
 
-  @HopMetadataProperty(key = "child")
+  @HopMetadataProperty(
+      key = "child",
+      injectionKey = "TARGET_FIELD",
+      injectionKeyDescription = "SimpleMapping.Injection.TARGET_FIELD")
   private String targetValueName;
 
   public MappingValueRename() {}

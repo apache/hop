@@ -182,7 +182,7 @@ public class ConfigKeyboardShortcutsTab {
       expandBar.addListener(
           SWT.Expand,
           e ->
-              Display.getDefault()
+              Display.getCurrent()
                   .asyncExec(
                       () -> {
                         if (!contentComposite.isDisposed() && !scrolledComposite.isDisposed()) {
@@ -194,7 +194,7 @@ public class ConfigKeyboardShortcutsTab {
       expandBar.addListener(
           SWT.Collapse,
           e ->
-              Display.getDefault()
+              Display.getCurrent()
                   .asyncExec(
                       () -> {
                         if (!contentComposite.isDisposed() && !scrolledComposite.isDisposed()) {

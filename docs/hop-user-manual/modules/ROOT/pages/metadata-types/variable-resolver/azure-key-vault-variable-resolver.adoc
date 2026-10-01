@@ -16,8 +16,6 @@ under the License.
 ////
 [[AzureKeyVaultVariableResolver]]
 :imagesdir: ../assets/images
-:openvar: #{
-:closevar: }
 :description: The Azure Key Vault Variable Resolver allows you to retrieve secrets from Microsoft Azure Key Vault and use them in your pipelines and workflows.
 
 = Azure Key Vault Variable Resolver

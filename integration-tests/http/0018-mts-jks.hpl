@@ -150,7 +150,6 @@ limitations under the License.
     <method>GET</method>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <readTimeout>10000</readTimeout>
     <result>
       <code>result_code</code>

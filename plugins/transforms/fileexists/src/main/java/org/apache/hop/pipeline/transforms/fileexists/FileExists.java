@@ -147,7 +147,7 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> {
             BaseMessages.getString(
                 PKG,
                 "FileExists.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRow)));
       }
     } catch (Exception e) {
       if (getTransformMeta().isDoingErrorHandling()) {

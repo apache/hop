@@ -19,7 +19,10 @@ package org.apache.hop.parquet.transforms.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ParquetField} */
@@ -42,9 +45,17 @@ class ParquetFieldTest {
   @Test
   void testCopyConstructor() {
     ParquetField original = new ParquetField("source", "target");
+    original.setParquetType("Date");
+    original.setPrecision("10");
+    original.setScale("2");
     ParquetField copy = new ParquetField(original);
     assertEquals("source", copy.getSourceFieldName());
     assertEquals("target", copy.getTargetFieldName());
+    assertEquals("Date", copy.getParquetType());
+    assertEquals("10", copy.getPrecision());
+    assertEquals("2", copy.getScale());
+    copy.setParquetType("UTF8");
+    assertEquals("Date", original.getParquetType());
   }
 
   @Test
@@ -52,7 +63,30 @@ class ParquetFieldTest {
     ParquetField field = new ParquetField();
     field.setSourceFieldName("in");
     field.setTargetFieldName("out");
+    field.setParquetType("Int32");
+    field.setPrecision("8");
+    field.setScale("0");
     assertEquals("in", field.getSourceFieldName());
     assertEquals("out", field.getTargetFieldName());
+    assertEquals("Int32", field.getParquetType());
+    assertEquals("8", field.getPrecision());
+    assertEquals("0", field.getScale());
+  }
+
+  @Test
+  void testParquetType() throws Exception {
+    ParquetField field = new ParquetField("birthday", "birthday");
+    assertNull(field.parquetFieldType());
+
+    field.setParquetType("  ");
+    assertNull(field.parquetFieldType());
+
+    field.setParquetType("date");
+    assertEquals(ParquetFieldType.Date, field.parquetFieldType());
+
+    field.setParquetType("Geography");
+    HopException e = assertThrows(HopException.class, field::parquetFieldType);
+    assertTrue(e.getMessage().contains("Geography"));
+    assertTrue(e.getMessage().contains("Date"));
   }
 }

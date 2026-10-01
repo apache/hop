@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +24,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PublicKey;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -46,9 +49,28 @@ class SshTestSupport {
   /** Passphrase used when generating test keys; must match {@link #privateKeyMeta}. */
   static final String TEST_KEY_PASSPHRASE = "hello";
 
+  /**
+   * Lightweight pool for embedded command handlers. SSHD expects {@link Command#start} not to block
+   * the I/O thread for the whole command lifetime.
+   */
+  private static final ExecutorService COMMAND_EXECUTOR =
+      Executors.newCachedThreadPool(
+          new ThreadFactory() {
+            private final AtomicInteger seq = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+              Thread t = new Thread(r, "ssh-test-command-" + seq.incrementAndGet());
+              t.setDaemon(true);
+              return t;
+            }
+          });
+
   static SshServer startPasswordSshServer(PublicKey authorizedPublicKey) throws IOException {
     SshServer sshd = SshServer.setUpDefaultServer();
     sshd.setPort(0);
+    // Keep the embedded server lean for constrained CI runners.
+    sshd.setNioWorkers(2);
     sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
     sshd.setPasswordAuthenticator(
         (username, password, session) -> SSH_USER.equals(username) && SSH_PASS.equals(password));
@@ -180,33 +202,39 @@ class SshTestSupport {
     }
 
     @Override
-    public void start(ChannelSession channel, Environment env) throws IOException {
-      try {
-        if (command != null && command.startsWith("echo ")) {
-          String payload = command.substring(5) + "\n";
-          stdout.write(payload.getBytes(StandardCharsets.UTF_8));
-          stdout.flush();
-          exitCallback.onExit(0);
-        } else if (command != null && command.startsWith("stderr ")) {
-          String payload = command.substring(7) + "\n";
-          stderr.write(payload.getBytes(StandardCharsets.UTF_8));
-          stderr.flush();
-          exitCallback.onExit(0);
-        } else {
-          stderr.write(("unsupported command: " + command + "\n").getBytes(StandardCharsets.UTF_8));
-          stderr.flush();
-          exitCallback.onExit(1);
-        }
-      } finally {
-        closeQuietly(stdout);
-        closeQuietly(stderr);
-      }
+    public void start(ChannelSession channel, Environment env) {
+      // Run off the SSHD I/O thread. Synchronous start+onExit can close the channel before the
+      // client has attached readers, which shows up as empty stdout under CI load.
+      COMMAND_EXECUTOR.execute(this::runCommand);
     }
 
-    private static void closeQuietly(OutputStream stream) throws IOException {
-      if (stream instanceof Closeable closeable) {
-        closeable.close();
+    private void runCommand() {
+      try {
+        if (command != null && command.startsWith("echo ")) {
+          writeAndFlush(stdout, command.substring(5) + "\n");
+          exitCallback.onExit(0);
+        } else if (command != null && command.startsWith("stderr ")) {
+          writeAndFlush(stderr, command.substring(7) + "\n");
+          exitCallback.onExit(0);
+        } else {
+          writeAndFlush(stderr, "unsupported command: " + command + "\n");
+          exitCallback.onExit(1);
+        }
+      } catch (IOException e) {
+        log.warn("Embedded SSH test command failed: {}", command, e);
+        if (exitCallback != null) {
+          exitCallback.onExit(1, e.getMessage());
+        }
       }
+      // Do not close stdout/stderr here: SSHD owns channel stream lifecycle after onExit.
+    }
+
+    private static void writeAndFlush(OutputStream stream, String payload) throws IOException {
+      if (stream == null) {
+        return;
+      }
+      stream.write(payload.getBytes(StandardCharsets.UTF_8));
+      stream.flush();
     }
 
     @Override

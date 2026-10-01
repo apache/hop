@@ -32,6 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -55,7 +56,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class ODataInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ODataInputMeta.class;
@@ -112,15 +112,14 @@ public class ODataInputDialog extends BaseTransformDialog {
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
     fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    createTransformNameControl(shell, fdTransformName);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
 
     // Button bar at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -645,7 +644,7 @@ public class ODataInputDialog extends BaseTransformDialog {
           String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
           javax.xml.parsers.DocumentBuilderFactory factory =
-              javax.xml.parsers.DocumentBuilderFactory.newInstance();
+              XmlParserFactoryProducer.createSecureDocBuilderFactory();
           factory.setNamespaceAware(true);
           javax.xml.parsers.DocumentBuilder db = factory.newDocumentBuilder();
           org.w3c.dom.Document doc =

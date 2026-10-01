@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,5 +72,22 @@ class ActionMoveFilesTest {
     assertEquals("sourceFolder2", f.getSourceFileFolder());
     assertEquals("destinationFolder2", f.getDestinationFileFolder());
     assertEquals("wildcard2", f.getWildcard());
+  }
+
+  /**
+   * Issue #7858: workflows without an {@code <iffileexists>} tag used to fall back to "do nothing".
+   */
+  @Test
+  void testIfFileExistsDefaultsToDoNothing() throws Exception {
+    assertEquals(ActionMoveFiles.CONST_DO_NOTHING, new ActionMoveFiles().getIfFileExists());
+
+    String xml =
+        XmlHandler.openTag("action")
+            + XmlHandler.addTagValue("success_condition", "success_if_no_errors")
+            + XmlHandler.closeTag("action");
+    ActionMoveFiles action = new ActionMoveFiles();
+    action.loadXml(XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), "action"), null, null);
+
+    assertEquals(ActionMoveFiles.CONST_DO_NOTHING, action.getIfFileExists());
   }
 }

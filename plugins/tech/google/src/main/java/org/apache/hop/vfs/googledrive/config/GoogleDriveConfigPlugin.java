@@ -39,7 +39,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "GoogleDriveConfigPlugin",
     description = "i18n::GoogleDriveConfig.ConfigPlugin.Description",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY,
+    configClass = GoogleDriveConfig.class)
 @GuiPlugin(
     description = "i18n::GoogleDriveConfig.GuiPlugin.Description" // Tab label in options dialog
     )

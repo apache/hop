@@ -19,9 +19,11 @@ package org.apache.hop.metadata.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
+import org.apache.hop.core.security.IDialogEditable;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.Utils;
 
-public class HopMetadataBase implements IHopMetadata {
+public class HopMetadataBase implements IHopMetadata, IDialogEditable {
 
   /** All metadata objects have a name to uniquely identify it. */
   @HopMetadataProperty protected String name;
@@ -41,6 +43,16 @@ public class HopMetadataBase implements IHopMetadata {
     this();
     this.name = name;
     this.virtualPath = "";
+  }
+
+  /**
+   * Metadata editor dialogs require {@link Permission#METADATA_WRITE}. Inherited by metadata
+   * objects that extend this base so dialogs can open read-only when the current user lacks that
+   * permission.
+   */
+  @Override
+  public Permission requiredEditPermission() {
+    return Permission.METADATA_WRITE;
   }
 
   public HopMetadataBase(String name, String virtualPath) {

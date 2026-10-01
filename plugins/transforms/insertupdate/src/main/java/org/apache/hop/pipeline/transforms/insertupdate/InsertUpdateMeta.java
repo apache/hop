@@ -34,6 +34,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -52,6 +54,7 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html",
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData> {
   private static final Class<?> PKG = InsertUpdateMeta.class;
 
@@ -123,13 +126,6 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
    */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
-  }
-
-  @Override
-  public Object clone() {
-    InsertUpdateMeta retval = (InsertUpdateMeta) super.clone();
-
-    return retval;
   }
 
   /**
@@ -427,7 +423,9 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
               transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.close();
+      }
     }
 
     // See if we have input streams leading to this transform!
@@ -525,8 +523,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           RowMetaUtils.getRowMetaForUpdate(prev, keyLookup, keyStream, updateLookup, updateStream);
 
       if (!Utils.isEmpty(insertUpdateLookupField.getTableName())) {
-        Database db = new Database(loggingObject, variables, databaseMeta);
-        try {
+        try (Database db = new Database(loggingObject, variables, databaseMeta)) {
           db.connect();
 
           String schemaTable =

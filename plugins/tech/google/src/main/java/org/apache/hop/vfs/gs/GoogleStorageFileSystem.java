@@ -23,6 +23,7 @@ import com.google.api.gax.retrying.RetrySettings;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.StorageRetryStrategy;
 import com.google.storage.control.v2.StorageControlClient;
 import com.google.storage.control.v2.StorageControlSettings;
 import java.io.IOException;
@@ -83,28 +84,57 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
 
     GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
 
-    RetrySettings retrySettings =
-        StorageOptions.getDefaultRetrySettings().toBuilder()
-            .setMaxAttempts(Integer.parseInt(config.getMaxAttempts()))
-            .setInitialRetryDelay(
-                Duration.ofSeconds(Integer.parseInt(config.getInitialRetryDelay())))
-            .setRetryDelayMultiplier(Double.parseDouble(config.getRetryDelayMultiplier()))
-            .setMaxRetryDelay(Duration.ofSeconds(Integer.parseInt(config.getMaxRetryDelay())))
-            .setTotalTimeout(Duration.ofMinutes(Integer.parseInt(config.getTotalTimeout())))
-            .setInitialRpcTimeout(
-                Duration.ofSeconds(Integer.parseInt(config.getInitialRpcTimeout())))
-            .setRpcTimeoutMultiplier(Double.parseDouble(config.getRpcTimeoutMultiplier()))
-            // max RPC Timeout setting causes problems,  disabled for now
-            // .setMaxRpcTimeout(Duration.ofSeconds(Integer.parseInt(config.getMaxRpcTimeout())))
-            .build();
-
-    StorageOptions.Builder optionsBuilder = StorageOptions.newBuilder();
+    StorageOptions.Builder optionsBuilder = buildStorageOptions(config);
     optionsBuilder.setCredentials(
         GoogleStorageFileSystemConfigBuilder.getInstance().getGoogleCredentials(fileSystemOptions));
-    optionsBuilder.setRetrySettings(retrySettings);
-    optionsBuilder.setTransportOptions(buildTransportOptions(config));
 
     return storage = optionsBuilder.build().getService();
+  }
+
+  /**
+   * Assemble everything about the client that depends only on the configuration. Kept separate from
+   * {@link #setupStorage()} - which additionally needs credentials and a live service - so the
+   * wiring can be exercised from a test against a local endpoint.
+   */
+  static StorageOptions.Builder buildStorageOptions(GoogleCloudConfig config) {
+    return StorageOptions.newBuilder()
+        .setRetrySettings(buildRetrySettings(config))
+        .setTransportOptions(buildTransportOptions(config))
+        .setStorageRetryStrategy(selectRetryStrategy(config));
+  }
+
+  /**
+   * The GCS client only retries calls it considers idempotent. Object create, delete and
+   * upload-session-start carry no preconditions here, so they are classified non-idempotent and are
+   * never retried - whatever the configured number of attempts says. The uniform strategy drops
+   * that distinction and retries writes too; see {@link
+   * GoogleCloudConfig#getRetryNonIdempotentOperations()} for why it is opt-in.
+   */
+  static StorageRetryStrategy selectRetryStrategy(GoogleCloudConfig config) {
+    return Boolean.TRUE.equals(config.getRetryNonIdempotentOperations())
+        ? StorageRetryStrategy.getUniformStorageRetryStrategy()
+        : StorageRetryStrategy.getDefaultStorageRetryStrategy();
+  }
+
+  static RetrySettings buildRetrySettings(GoogleCloudConfig config) {
+    long initialRpcTimeout = Const.toLong(config.getInitialRpcTimeout(), 50);
+    // gax rejects a max RPC timeout below the initial one with an IllegalStateException while the
+    // client is being built, taking down all GCS access. Raise the ceiling to whatever the user
+    // explicitly asked for as a starting point rather than failing to connect at all.
+    long maxRpcTimeout = Math.max(Const.toLong(config.getMaxRpcTimeout(), 50), initialRpcTimeout);
+
+    return StorageOptions.getDefaultRetrySettings().toBuilder()
+        .setMaxAttempts(Const.toInt(config.getMaxAttempts(), 6))
+        .setInitialRetryDelay(Duration.ofSeconds(Const.toLong(config.getInitialRetryDelay(), 1)))
+        .setRetryDelayMultiplier(Const.toDouble(config.getRetryDelayMultiplier(), 2.0))
+        .setMaxRetryDelay(Duration.ofSeconds(Const.toLong(config.getMaxRetryDelay(), 32)))
+        // Minutes, unlike every other duration here - kept that way so upgrading does not silently
+        // shorten existing configurations by a factor of 60. The label spells out the unit.
+        .setTotalTimeout(Duration.ofMinutes(Const.toLong(config.getTotalTimeout(), 50)))
+        .setInitialRpcTimeout(Duration.ofSeconds(initialRpcTimeout))
+        .setRpcTimeoutMultiplier(Const.toDouble(config.getRpcTimeoutMultiplier(), 1.0))
+        .setMaxRpcTimeout(Duration.ofSeconds(maxRpcTimeout))
+        .build();
   }
 
   static HttpTransportOptions buildTransportOptions(GoogleCloudConfig config) {
@@ -160,13 +190,21 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     if (storageControlClient != null) {
       return storageControlClient;
     }
-    StorageControlSettings settings =
+    RetrySettings retrySettings = buildRetrySettings(GoogleCloudConfigSingleton.getConfig());
+    StorageControlSettings.Builder builder =
         StorageControlSettings.newBuilder()
             .setCredentialsProvider(
                 FixedCredentialsProvider.create(
                     GoogleStorageFileSystemConfigBuilder.getInstance()
-                        .getGoogleCredentials(fileSystemOptions)))
-            .build();
+                        .getGoogleCredentials(fileSystemOptions)));
+    // This client was left on the library defaults, so the configured retry behaviour never
+    // reached HNS folder operations.
+    builder.applyToAllUnaryMethods(
+        callSettings -> {
+          callSettings.setRetrySettings(retrySettings);
+          return null;
+        });
+    StorageControlSettings settings = builder.build();
     storageControlClient = StorageControlClient.create(settings);
     return storageControlClient;
   }

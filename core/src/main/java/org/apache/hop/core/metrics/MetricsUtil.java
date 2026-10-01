@@ -123,6 +123,7 @@ public class MetricsUtil {
     return null;
   }
 
+  @SuppressWarnings("javabugs:S2259") // the log channel id is never null here
   public static List<MetricsDuration> getAllDurations(String parentLogChannelId) {
     List<MetricsDuration> durations = new ArrayList<>();
 

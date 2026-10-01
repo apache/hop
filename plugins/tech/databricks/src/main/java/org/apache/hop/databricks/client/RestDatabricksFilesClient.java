@@ -34,6 +34,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.TempFileUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
 import org.json.simple.JSONArray;
@@ -146,7 +147,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
       text = "";
     }
     try {
-      Path tmp = Files.createTempFile("hop-dbx-text-", ".txt");
+      Path tmp = TempFileUtil.createTempFile("hop-dbx-text-", ".txt");
       try {
         Files.writeString(tmp, text, StandardCharsets.UTF_8);
         upload(tmp, workspacePath);

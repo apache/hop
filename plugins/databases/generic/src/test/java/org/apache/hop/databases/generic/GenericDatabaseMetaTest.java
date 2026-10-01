@@ -162,7 +162,7 @@ class GenericDatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
     assertEquals(
-        "ALTER TABLE FOO ADD BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD BAR VARCHAR(45)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 
@@ -228,6 +228,25 @@ class GenericDatabaseMetaTest {
     assertEquals(
         "insert into FOO(FOOVERSION) values (1)",
         nativeMeta.getSqlInsertAutoIncUnknownDimensionRow("FOO", "FOOKEY", "FOOVERSION"));
+  }
+
+  @Test
+  void limitClausePrefixDelegatesToDialect() {
+    String dialect = "mssql";
+    IDatabase dialectMeta = Mockito.mock(IDatabase.class);
+    Mockito.when(dialectMeta.getPluginName()).thenReturn(dialect);
+    Mockito.when(dialectMeta.getLimitClausePrefix(25)).thenReturn(" TOP 25");
+    IDatabase[] dbInterfaces = new IDatabase[] {dialectMeta};
+    try (MockedStatic<DatabaseMeta> dbMetaStatic = Mockito.mockStatic(DatabaseMeta.class)) {
+      dbMetaStatic.when(DatabaseMeta::getDatabaseInterfaces).thenReturn(dbInterfaces);
+      nativeMeta.setDatabaseDialect(dialect);
+      assertEquals(" TOP 25", nativeMeta.getLimitClausePrefix(25));
+    }
+  }
+
+  @Test
+  void limitClausePrefixWithoutDialectIsEmpty() {
+    assertEquals("", nativeMeta.getLimitClausePrefix(10));
   }
 
   @Test

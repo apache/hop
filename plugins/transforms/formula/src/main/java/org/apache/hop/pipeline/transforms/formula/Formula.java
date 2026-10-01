@@ -21,17 +21,18 @@ import static org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtra
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -40,8 +41,10 @@ import org.apache.hop.pipeline.transforms.formula.util.FormulaParser;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.FormulaError;
 
 public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
+  private static final Class<?> PKG = Formula.class; // for i18n purposes
 
   private FormulaPoi[] poi;
   private List<String>[] formulaFieldLists;
@@ -136,7 +139,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     int tempIndex = getInputRowMeta().size();
 
     if (isRowLevel()) {
-      logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
+      logRowlevel("Read row #" + getLinesRead() + " : " + getInputRowMeta().getString(r));
     }
 
     Object[] outputRowData = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
@@ -202,6 +205,9 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
             data.returnType[i] = FormulaData.RETURN_TYPE_STRING;
             formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_STRING);
             break;
+          case ERROR:
+            outputValue = getErrorValue(cellValue, formula);
+            break;
           default:
             break;
         }
@@ -211,15 +217,17 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         outputRowData[realIndex] =
             getReturnValue(outputValue, data.returnType[i], realIndex, formula);
       } catch (Exception e) {
-        throw new HopException(
-            "Formula '" + formula.getFormula() + "' could not not be parsed ", e);
+        // The row can not be calculated: divert it to the error stream if the user asked for it,
+        // stop the pipeline otherwise.
+        return handleFormulaError(r, formula, e);
       }
     }
 
     putRow(data.outputRowMeta, outputRowData);
 
     if (isRowLevel()) {
-      logRowlevel("Wrote row #" + getLinesWritten() + " : " + Arrays.toString(r));
+      logRowlevel(
+          "Wrote row #" + getLinesWritten() + " : " + data.outputRowMeta.getString(outputRowData));
     }
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead());
@@ -248,6 +256,61 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+  }
+
+  /**
+   * Excel reports a failed calculation as an error value rather than by throwing. Only {@code #N/A}
+   * means "no value available" - the transform produces it on purpose through the "Set Null to
+   * #N/A" option - so it maps back to null. Every other error code ({@code #DIV/0!}, {@code
+   * #VALUE!}, {@code #NUM!}, ...) is a genuine calculation failure and has to be reported instead
+   * of silently turning the field blank.
+   *
+   * @param cellValue the evaluated cell holding the error
+   * @param formula the formula that produced it
+   * @return null for {@code #N/A}
+   * @throws HopValueException for any other error value
+   */
+  private Object getErrorValue(CellValue cellValue, FormulaMetaFunction formula)
+      throws HopValueException {
+    byte errorCode = cellValue.getErrorValue();
+    if (FormulaError.isValidCode(errorCode) && FormulaError.forInt(errorCode) == FormulaError.NA) {
+      return null;
+    }
+    String errorText =
+        FormulaError.isValidCode(errorCode)
+            ? FormulaError.forInt(errorCode).getString()
+            : Byte.toString(errorCode);
+    throw new HopValueException(
+        BaseMessages.getString(
+            PKG, "Formula.Exception.FormulaError", formula.getFieldName(), errorText));
+  }
+
+  /**
+   * A formula could not be calculated for the current row. Send the row to the error stream when
+   * error handling is configured, stop the pipeline otherwise.
+   *
+   * @param row the input row that could not be calculated
+   * @param formula the formula that failed
+   * @param e the cause of the failure
+   * @return true when the row was diverted and processing can continue, false to end this transform
+   * @throws HopTransformException when the row could not be written to the error stream
+   */
+  private boolean handleFormulaError(Object[] row, FormulaMetaFunction formula, Exception e)
+      throws HopTransformException {
+    String message =
+        BaseMessages.getString(
+            PKG, "Formula.Exception.CouldNotBeEvaluated", formula.getFormula(), e.getMessage());
+
+    if (getTransformMeta().isDoingErrorHandling()) {
+      putError(getInputRowMeta(), row, 1, message, formula.getFieldName(), "Formula001");
+      return true;
+    }
+
+    logError(message, e);
+    setErrors(1);
+    stopAll();
+    setOutputDone();
+    return false;
   }
 
   protected Object getReturnValue(

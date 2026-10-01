@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-tech</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-tech-arrow</artifactId>
@@ -187,7 +187,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-static-schema</artifactId>
-            <version>2.19.0-SNAPSHOT</version>
+            <version>2.20.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -262,6 +262,14 @@
             </exclusions>
         </dependency>
     </dependencies>
+    <!--
+        The os-maven-plugin build extension is disabled: nothing in this project or the
+        reactor consumes the ${os.detected.*} properties it provides. It stays commented
+        out for reference. If those properties are ever needed again, prefer the
+        Maveniverse Nisse extension (eu.maveniverse.maven.nisse:extension registered in
+        .mvn/extensions.xml), which works with both Maven 3 and Maven 4 and can emit the
+        same properties by adding -Dnisse.compat.osDetector to .mvn/maven.config.
+
     <build>
         <extensions>
             <extension>
@@ -271,4 +279,6 @@
             </extension>
         </extensions>
     </build>
+    -->
+
 </project>

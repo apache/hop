@@ -18,7 +18,7 @@
 package org.apache.hop.ui.core.metadata;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
@@ -207,7 +207,7 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
 
   @Override
   public Map<String, Object> getStateProperties() {
-    return Collections.emptyMap();
+    return new HashMap<>();
   }
 
   @Override

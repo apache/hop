@@ -29,7 +29,7 @@ public enum GraphPropertyDataType {
   String("string"),
   Integer("long"),
   Float("double"),
-  Number("doubler"),
+  Number("double"),
   Boolean("boolean"),
   Date("date"),
   LocalDateTime("localdatetime"),

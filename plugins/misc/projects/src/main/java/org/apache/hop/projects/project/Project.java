@@ -75,6 +75,13 @@ public class Project extends ConfigFile implements IConfigFile {
 
   @JsonIgnore private String configFilename;
   private String description;
+
+  /**
+   * Optional id copied onto execution information. Empty means a shared execution store is not
+   * filtered (2.19.0 behavior). Not inherited from the parent project.
+   */
+  private String projectId;
+
   private String company;
   private String department;
   private String version;
@@ -85,7 +92,27 @@ public class Project extends ConfigFile implements IConfigFile {
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private boolean enforcingExecutionInHome;
 
+  /**
+   * When true, Hop writes a single-file JSON export of the project's metadata (connections, run
+   * configurations, etc.) whenever the project is enabled or metadata is created/updated/deleted.
+   * See {@link org.apache.hop.projects.util.ProjectsMetadataExporter}.
+   */
+  private boolean autoExportMetadata;
+
+  /**
+   * Target filename for auto-export, relative to the project home (or absolute). Empty means the
+   * default {@code metadata.json}.
+   */
+  private String autoExportMetadataFilename;
+
   private String parentProjectName;
+
+  /**
+   * Folders to copy from the parent project home into this project. Empty means no file
+   * synchronization; metadata/variable inheritance is independent of this list.
+   */
+  private List<ParentProjectFolder> parentProjectFolders;
+
   @JsonIgnore private MultiMetadataProvider metadataProvider;
   @JsonIgnore private List<Path> pipelinePaths;
   @JsonIgnore private List<Path> workflowPaths;
@@ -98,6 +125,9 @@ public class Project extends ConfigFile implements IConfigFile {
     dataSetsCsvFolder = "${" + ProjectsUtil.VARIABLE_PROJECT_HOME + "}/datasets";
     unitTestsBasePath = "${" + ProjectsUtil.VARIABLE_PROJECT_HOME + "}";
     enforcingExecutionInHome = true;
+    autoExportMetadata = false;
+    autoExportMetadataFilename = "";
+    parentProjectFolders = new ArrayList<>();
   }
 
   public Project(String configFilename) {
@@ -146,6 +176,7 @@ public class Project extends ConfigFile implements IConfigFile {
       Project project = objectMapper.readValue(inputStream, Project.class);
 
       this.description = project.description;
+      this.projectId = project.projectId;
       this.company = project.company;
       this.department = project.department;
       this.version = project.version;
@@ -153,8 +184,14 @@ public class Project extends ConfigFile implements IConfigFile {
       this.unitTestsBasePath = project.unitTestsBasePath;
       this.dataSetsCsvFolder = project.dataSetsCsvFolder;
       this.enforcingExecutionInHome = project.enforcingExecutionInHome;
+      this.autoExportMetadata = project.autoExportMetadata;
+      this.autoExportMetadataFilename = project.autoExportMetadataFilename;
       this.configMap = project.configMap;
       this.parentProjectName = project.parentProjectName;
+      this.parentProjectFolders =
+          project.parentProjectFolders != null
+              ? new ArrayList<>(project.parentProjectFolders)
+              : new ArrayList<>();
     } catch (Exception e) {
       throw new HopException(
           "Error saving project configuration to file '" + configFilename + "'", e);
@@ -218,6 +255,10 @@ public class Project extends ConfigFile implements IConfigFile {
     //
     variables.setVariable(
         Defaults.VARIABLE_HOP_PROJECT_NAME, Const.NVL(projectConfig.getProjectName(), ""));
+    // Always set, including to empty, so a project without an id does not keep a parent's value.
+    variables.setVariable(
+        Defaults.VARIABLE_HOP_PROJECT_ID,
+        StringUtils.defaultString(StringUtils.trimToNull(projectId)));
     variables.setVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME, Const.NVL(environmentName, ""));
 
     // To allow circular logic where an environment file is relative to the project home
@@ -226,6 +267,10 @@ public class Project extends ConfigFile implements IConfigFile {
       String realValue = variables.resolve(projectConfig.getProjectHome());
       variables.setVariable(ProjectsUtil.VARIABLE_PROJECT_HOME, realValue);
     }
+
+    // Project variables can be used in environment configuration file paths.
+    //
+    applyProjectVariables(variables);
 
     // Apply the described variables from the various configuration files in the given order...
     //
@@ -285,6 +330,12 @@ public class Project extends ConfigFile implements IConfigFile {
       String realValue = variables.resolve(dataSetsCsvFolder);
       variables.setVariable(ProjectsUtil.VARIABLE_HOP_DATASETS_FOLDER, realValue);
     }
+    // Keep project variables as the final values when a configuration file defines the same name.
+    //
+    applyProjectVariables(variables);
+  }
+
+  private void applyProjectVariables(IVariables variables) {
     for (DescribedVariable variable : getDescribedVariables()) {
       if (variable.getName() != null) {
         variables.setVariable(variable.getName(), variable.getValue());
@@ -305,7 +356,7 @@ public class Project extends ConfigFile implements IConfigFile {
       return;
     }
 
-    if (parentProjectName.equals(projectName)) {
+    if (parentProjectName.equalsIgnoreCase(projectName)) {
       throw new HopException(
           "Parent project '" + parentProjectName + "' can not be the same as the project itself");
     }
@@ -342,7 +393,7 @@ public class Project extends ConfigFile implements IConfigFile {
             realParentProjectName = variables.resolve(parentProject.parentProjectName);
             // See if we've had this one before...
             if (StringUtils.isNotEmpty(realParentProjectName)
-                && projectsList.contains(realParentProjectName)) {
+                && projectsList.stream().anyMatch(realParentProjectName::equalsIgnoreCase)) {
               throw new HopException(
                   "There is a loop in the parent projects hierarchy: project "
                       + realParentProjectName
@@ -429,6 +480,8 @@ public class Project extends ConfigFile implements IConfigFile {
    * @throws IOException
    * @throws HopFileException
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<String> getTransformTypes(IVariables variables) throws IOException, HopFileException {
     // build a map of all pipelines and transforms in the project.
     buildPipelineMap(variables);
@@ -626,6 +679,13 @@ public class Project extends ConfigFile implements IConfigFile {
       }
     }
     return resultStrings;
+  }
+
+  public List<ParentProjectFolder> getParentProjectFolders() {
+    if (parentProjectFolders == null) {
+      parentProjectFolders = new ArrayList<>();
+    }
+    return parentProjectFolders;
   }
 
   /**

@@ -32,7 +32,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopPluginClassMapException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -45,6 +52,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link PluginRegistry} */
 @ExtendWith(RestoreHopEnvironmentExtension.class)
@@ -129,6 +137,57 @@ class PluginRegistryUnitTest {
     // test removing a shared plugin creates a new classloader
     registry.removePlugin(BasePluginType.class, mockPlugin2);
     assertNotEquals(ucl, registry.getClassLoader(mockPlugin1));
+  }
+
+  /**
+   * A plugin joining an existing class loader group must get its own libraries added to the shared
+   * class loader. The plugin that creates the group's class loader first doesn't necessarily carry
+   * the same libraries - a database plugin adds the shared JDBC folders, the bulk loader transform
+   * sharing its group doesn't - and the loser of that race used to end up without its driver (issue
+   * #8133).
+   */
+  @Test
+  void testPluginClassloaderGroupKeepsLibrariesOfEveryMember(@TempDir Path tempDir)
+      throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    File driverJar = tempDir.resolve("driver.jar").toFile();
+
+    // Both plugins live in the same jar, but only the second one needs the driver.
+    //
+    IPlugin withoutLibraries = mockGroupPlugin("noLibs", String.class, List.of());
+    IPlugin withDriver =
+        mockGroupPlugin("withDriver", Integer.class, List.of(driverJar.getAbsolutePath()));
+
+    registry.registerPlugin(BasePluginType.class, withoutLibraries);
+    registry.registerPlugin(BasePluginType.class, withDriver);
+
+    // The plugin without libraries creates the group's class loader first.
+    //
+    URLClassLoader ucl = (URLClassLoader) registry.getClassLoader(withoutLibraries);
+    assertEquals(ucl, registry.getClassLoader(withDriver));
+
+    URL driverUrl = driverJar.toURI().toURL();
+    assertTrue(
+        Arrays.asList(ucl.getURLs()).contains(driverUrl),
+        "the shared class loader should carry the libraries of every plugin in the group");
+
+    // Asking again must not add the same jar a second time.
+    //
+    registry.getClassLoader(withDriver);
+    assertEquals(
+        1, Arrays.stream(ucl.getURLs()).filter(driverUrl::equals).count(), "duplicated library");
+  }
+
+  private static IPlugin mockGroupPlugin(String id, Class<?> mainClass, List<String> libraries) {
+    IPlugin plugin = mock(IPlugin.class);
+    when(plugin.getIds()).thenReturn(new String[] {id});
+    when(plugin.matches(id)).thenReturn(true);
+    when(plugin.getName()).thenReturn(id);
+    when(plugin.getClassMap()).thenReturn(Map.of(IPluginType.class, mainClass.getName()));
+    when(plugin.getLibraries()).thenReturn(libraries);
+    when(plugin.getClassLoaderGroup()).thenReturn("sharedGroup");
+    doReturn(BasePluginType.class).when(plugin).getPluginType();
+    return plugin;
   }
 
   @Test

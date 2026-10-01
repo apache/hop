@@ -24,6 +24,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.changed.IChanged;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
@@ -35,6 +37,8 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHasName;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IMissingPlugin;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.copy.CopyContext;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.copy.DefaultActionCopyFactory;
@@ -51,6 +55,15 @@ public class ActionMeta
 
   private static final String XML_ATTRIBUTE_WORKFLOW_ACTION_COPY = AttributesUtil.XML_TAG + "_hac";
   private static final String CONST_SPACE = "      ";
+
+  /**
+   * Tracks changes to the settings this wrapper owns - the position on the canvas - as opposed to
+   * the settings an action dialog edits, which live on the {@link IAction} itself. Keeping the two
+   * apart means a dialog's Cancel, which restores the action's flag as it was when the dialog
+   * opened, cannot discard a change made on the canvas in the meantime. Action dialogs are not
+   * modal, so that overlap is easy to hit. See issue #8022.
+   */
+  private boolean wrapperChanged;
 
   @HopMetadataProperty(inline = true)
   private IAction action;
@@ -89,19 +102,34 @@ public class ActionMeta
   }
 
   public String getXml() {
-    StringBuilder xml = new StringBuilder(100);
+    StringBuilder body = new StringBuilder(100);
 
-    xml.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
     action.setParentWorkflowMeta(
         parentWorkflowMeta); // Attempt to set the WorkflowMeta for entries that need it
-    xml.append(action.getXml());
+    body.append(action.getXml());
 
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("parallel", launchingInParallel));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("xloc", location.x));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("yloc", location.y));
+    body.append(CONST_SPACE).append(XmlHandler.addTagValue("parallel", launchingInParallel));
+    body.append(CONST_SPACE).append(XmlHandler.addTagValue("xloc", location.x));
+    body.append(CONST_SPACE).append(XmlHandler.addTagValue("yloc", location.y));
 
-    xml.append(AttributesUtil.getAttributesXml(attributesMap, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY));
+    body.append(AttributesUtil.getAttributesXml(attributesMap, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY));
 
+    // The settings of an action whose plugin isn't installed are written back out untouched.
+    //
+    if (action instanceof IMissingPlugin missingPlugin) {
+      try {
+        body.append(XmlMetadataUtil.getPreservedMissingPluginXml(missingPlugin, body.toString()));
+      } catch (HopException e) {
+        throw new HopRuntimeException(
+            "Unable to serialize the settings of missing plugin "
+                + missingPlugin.getMissingPluginId(),
+            e);
+      }
+    }
+
+    StringBuilder xml = new StringBuilder(body.length() + 100);
+    xml.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+    xml.append(body);
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
     return xml.toString();
   }
@@ -113,8 +141,18 @@ public class ActionMeta
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin actionPlugin = registry.findPluginWithId(ActionPluginType.class, pluginId, true);
       if (actionPlugin == null) {
+        // The plugin isn't installed: keep the XML of the action so that saving the workflow
+        // doesn't throw away its configuration.
+        //
         String name = XmlHandler.getTagValue(actionNode, "name");
-        setAction(new MissingAction(name, pluginId));
+        MissingAction missingAction = new MissingAction(name, pluginId);
+        XmlMetadataUtil.preserveMissingPluginXml(missingAction, actionNode);
+        // Keep pointing at the plugin which is missing so the action can be restored once it is
+        // installed.
+        //
+        missingAction.setPluginId(pluginId);
+        missingAction.setDescription(XmlHandler.getTagValue(actionNode, "description"));
+        setAction(missingAction);
       } else {
         setAction(registry.loadClass(actionPlugin, IAction.class));
       }
@@ -238,7 +276,8 @@ public class ActionMeta
   public String getTypeDesc() {
     IPlugin plugin =
         PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, action.getPluginId());
-    return plugin.getDescription();
+    // The plugin is not registered when the workflow references an action that is not installed
+    return plugin == null ? action.getPluginId() : plugin.getDescription();
   }
 
   @Override
@@ -248,7 +287,7 @@ public class ActionMeta
 
     Point loc = new Point(nx, ny);
     if (!loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -256,7 +295,7 @@ public class ActionMeta
   @Override
   public void setLocation(Point loc) {
     if (loc != null && !loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -271,19 +310,30 @@ public class ActionMeta
     setChanged(true);
   }
 
+  @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   @Override
   public void setChanged(boolean ch) {
+    wrapperChanged = ch;
     action.setChanged(ch);
   }
 
   @Override
   public void clearChanged() {
+    wrapperChanged = false;
     action.setChanged(false);
   }
 
   @Override
   public boolean hasChanged() {
-    return action.hasChanged();
+    return wrapperChanged || action.hasChanged();
+  }
+
+  /**
+   * Marks the settings owned by this wrapper as changed, without touching the action's own changed
+   * flag. See {@link #wrapperChanged}.
+   */
+  private void setWrapperChanged() {
+    wrapperChanged = true;
   }
 
   public void setLaunchingInParallel(boolean p) {
@@ -366,6 +416,7 @@ public class ActionMeta
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   public void setName(String name) {
     action.setName(name);
   }
@@ -378,6 +429,7 @@ public class ActionMeta
     return parentWorkflowMeta;
   }
 
+  @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   public void setParentWorkflowMeta(WorkflowMeta parentWorkflowMeta) {
     this.parentWorkflowMeta = parentWorkflowMeta;
     this.action.setParentWorkflowMeta(parentWorkflowMeta);

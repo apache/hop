@@ -1,0 +1,354 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How to paint extra icons on the pipeline or workflow canvas and make them clickable.
+[[PluginTypes-CanvasOverlays]]
+= Canvas overlays
+
+A canvas overlay is extra drawing on the pipeline or workflow graph — a badge on an action, a label next to a transform, a clickable icon in a corner — plus the hit-testing that makes that drawing respond to the mouse.
+
+It is not a separate plugin type.
+You implement it with `@ExtensionPoint` (see xref:plugin-types/execution-observability.adoc[Execution and observability]): one listener that *paints*, and one or more listeners that *handle clicks*.
+The Hop GUI already does this for busy/success/failure decorations; a plugin adds its own on top.
+
+Annotation:: `@ExtensionPoint`
+Implement:: `IExtensionPoint<WorkflowPainter>` / `IExtensionPoint<WorkflowPainterExtension>` (workflow) or the pipeline equivalents; `IExtensionPoint<HopGuiWorkflowGraphExtension>` / `IExtensionPoint<HopGuiPipelineGraphExtension>` for mouse events
+Plugin type:: `ExtensionPointPluginType`, id `EXTENSION_POINT`
+
+In-tree examples worth copying:
+
+* Unit-test data-set arrows — `plugins/misc/testing` (`DrawInputDataSetOnTransformExtensionPoint`, `LocationMouseUpExtensionPoint`)
+* Lint severity badges — `plugins/misc/lint` (`WorkflowLintActionPainterExtension`, `WorkflowLintTotalsClickExtension`)
+* Debug-level bees — `plugins/misc/debug` (`DrawActionDebugLevelBeeExtensionPoint`)
+* Git status markers — `plugins/misc/git` (`DrawDiffOnActionExtensionPoint`)
+
+== The two halves
+
+Every overlay plugin is two cooperating extension points.
+
+. *Paint.* Hop redraws the canvas; you draw your icon and *leave a drawn area* (`AreaOwner`) describing the rectangle you just painted.
+. *Click.* The user presses the mouse; you look at that list of drawn areas, decide whether the click is yours, and either handle it or leave it alone.
+
+If you draw without adding an `AreaOwner`, the icon is visible and dead.
+If you add an `AreaOwner` in the wrong coordinate space, the icon is visible and clicks miss it.
+The rest of this page is those two mistakes and how the in-tree plugins avoid them.
+
+== Which extension point to paint on
+
+There is a pair of painter hooks for pipelines and the same pair for workflows.
+Pick the one that matches *when* you need to draw.
+
+[cols="2,2,4", options="header"]
+|===
+|Hook |Payload |When to use it
+
+|`PipelinePainterTransform` / `WorkflowPainterAction`
+|`PipelinePainterExtension` / `WorkflowPainterExtension`
+|Once per transform or action, after Hop has drawn that icon.
+`x1`, `y1`, `iconSize`, `offset`, `gc` and `areaOwners` are already the values Hop used for that icon.
+Use this for a badge that belongs to one icon.
+
+|`PipelinePainterEnd` / `WorkflowPainterEnd`
+|`PipelinePainter` / `WorkflowPainter`
+|After every icon, hop and note.
+Use this when the overlay must sit on top of *everything* (a canvas-wide totals widget, a badge that would otherwise be covered by a later action).
+
+|`PipelinePainterStart` / `WorkflowPainterStart`
+|`PipelinePainter` / `WorkflowPainter`
+|Before Hop draws icons.
+Rare; only if you need to paint *under* the graph.
+
+|`PipelinePainterArrow` / `WorkflowPainterArrow`
+|the same `*PainterExtension`
+|Decorations on a hop, not on an icon.
+|===
+
+Per-icon painting is the common case:
+
+[source,java]
+----
+@ExtensionPoint(
+    id = "DrawFooOnActionExtensionPoint",
+    extensionPointId = "WorkflowPainterAction",
+    description = "Draws a Foo badge on a workflow action")
+public class DrawFooOnActionExtensionPoint
+    implements IExtensionPoint<WorkflowPainterExtension> {
+
+  public static final String AREA_DRAWN_FOO = "Drawn_FooBadge";
+
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, WorkflowPainterExtension ext)
+      throws HopException {
+    if (ext == null || ext.actionMeta == null) {
+      return;
+    }
+    // ... decide whether this action gets a badge ...
+
+    int iconX = (ext.x1 + ext.iconSize) - (ext.iconSize / 4);
+    int iconY = (ext.y1 + ext.iconSize) - (ext.iconSize / 4);
+    int size = ext.iconSize / 2;
+
+    ext.gc.drawImage(
+        new SvgFile("foo-badge.svg", getClass().getClassLoader()),
+        iconX,
+        iconY,
+        size,
+        size,
+        ext.gc.getMagnification(),
+        0);
+
+    ext.areaOwners.add(
+        new AreaOwner(
+            AreaOwner.AreaType.CUSTOM,
+            iconX,
+            iconY,
+            size,
+            size,
+            ext.offset,
+            AREA_DRAWN_FOO,
+            "Foo tooltip"));
+  }
+}
+----
+
+`WorkflowPainterEnd` is the same idea, but you walk `painter.getWorkflowMeta().getActions()` yourself and convert each action location with the same `real2screen` formula Hop uses (`x + offset.x`, `y + offset.y`).
+Prefer `WorkflowPainterAction` when you can: the coordinates are already done.
+
+Drawing goes through `IGc`, not through SWT `GC`.
+That is what keeps the same painter working on the desktop canvas and on the Hop Web SVG renderer.
+See xref:svg-files.adoc[SVG files] for the icon file itself.
+
+== Drawn areas
+
+`org.apache.hop.core.gui.AreaOwner` is the record of "we drew this rectangle, and this is what it means".
+Hop keeps a list of them for the current paint, searches it back-to-front on hover and click, and that is how tooltips, hop icons and plugin badges all get hit-tested.
+
+[source,java]
+----
+new AreaOwner(
+    AreaOwner.AreaType.CUSTOM,  // type: always CUSTOM for a plugin
+    x,                          // same x, y, width, height you passed to gc.drawImage
+    y,
+    width,
+    height,
+    offset,                     // the painter's DPoint offset, not (0,0)
+    parent,                     // your overlay id (see below)
+    owner);                     // tooltip text: must be a String
+----
+
+The constructor stores the rectangle in *graph* coordinates:
+
+[source,java]
+----
+this.area = new Rectangle((int) (x - offset.x), (int) (y - offset.y), width, height);
+----
+
+You therefore pass the same screen-space `x, y` you drew with, plus the painter `offset`.
+Do not pre-subtract the offset, and do not pass a zero offset "to keep it simple" — the icon and the hit rectangle will then disagree as soon as the user pans.
+
+=== `parent` and `owner`
+
+The last two arguments are easy to swap, and the workflow graph is unforgiving about it.
+
+`parent`::
+How *you* recognise the overlay later.
+The testing plugin uses a string constant (`DataSetConst.AREA_DRAWN_INPUT_DATA_SET`).
+Lint uses `"hop-lint-overlay"`.
+Give yours a unique `Drawn_...` / `AREA_DRAWN_...` string and compare with `equals` on click.
+
+`owner`::
+On the workflow graph, `HopGuiWorkflowGraph.setToolTip` does `(String) areaOwner.getOwner()` for `AreaType.CUSTOM`.
+If `owner` is not a `String`, hover throws `ClassCastException` and the tooltip never appears.
+Put the tooltip text here.
+Anything structured you need on click belongs in `parent` (a string id, or an object *and* a string tooltip as owner).
+
+The testing plugin is the pattern to copy:
+
+[source,java]
+----
+areaOwners.add(
+    new AreaOwner(
+        AreaOwner.AreaType.CUSTOM,
+        point.x,
+        point.y,
+        textExtent.x,
+        textExtent.y,
+        ext.offset,
+        DataSetConst.AREA_DRAWN_INPUT_DATA_SET, // parent: who we are
+        transformMeta.getName()));              // owner: tooltip (a String)
+----
+
+Then on click:
+
+[source,java]
+----
+Object area = areaOwner.getParent();
+if (DataSetConst.AREA_DRAWN_INPUT_DATA_SET.equals(area)
+    || DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET.equals(area)) {
+  pipelineGraphExtension.setPreventingDefault(true);
+  // ... open the dialog ...
+}
+----
+
+[WARNING]
+====
+`AreaType.CUSTOM` is required for hover highlighting (`AreaType.CUSTOM` has `hover = true`).
+Do not invent a new `AreaType` value; the enum lives in Hop core.
+====
+
+== Coordinates
+
+Mouse events arrive as canvas pixels.
+`HopGuiWorkflowGraph.screen2real` / `HopGuiPipelineGraph.screen2real` convert them to graph coordinates:
+
+[source]
+----
+graph = canvas / magnification - offset
+----
+
+`getVisibleAreaOwner(x, y)` takes those *graph* coordinates.
+The `AreaOwner` constructor already subtracted `offset` from the screen-space rectangle you passed in, so a click on the pixels you drew hits the area you registered — *if* you used the painter's `offset` and the same `x, y` as `drawImage`.
+
+A short checklist:
+
+* Draw at `ext.x1` / `ext.y1` (per-icon) or `location + offset` (painter-end).
+* Register the `AreaOwner` with those same numbers and `ext.offset`.
+* Hit-test with `extension.getPoint()` (already graph space) or `graph.getVisibleAreaOwner(point.x, point.y)`.
+* Do not compare `event.x` / `event.y` (canvas pixels) to an `AreaOwner` rectangle (graph units).
+
+== Mouse handling
+
+The graph fires these hooks *before* it interprets the click as "select this action" or "start a lasso":
+
+[cols="2,2,4", options="header"]
+|===
+|Hook |Payload |Typical job
+
+|`WorkflowGraphMouseDown` / `PipelineGraphMouseDown`
+|`HopGuiWorkflowGraphExtension` / `HopGuiPipelineGraphExtension`
+|If the click is on your overlay, call `setPreventingDefault(true)` so Hop does not start a drag or a selection rectangle.
+
+|`WorkflowGraphMouseUp` / `PipelineGraphMouseUp`
+|the same
+|Open the dialog, follow the link, toggle the flag.
+Also call `setPreventingDefault(true)` so the context dialog does not open.
+
+|`WorkflowGraphMouseDoubleClick` / `PipelineGraphMouseDoubleClick`
+|the same
+|Same as mouse-up if you want double-click as well as click.
+|===
+
+The payload carries the graph, the SWT `MouseEvent`, the graph-space `Point`, and the *topmost* `AreaOwner` at that point.
+
+Handle mouse-down *and* mouse-up.
+Mouse-down alone is what stops the lasso; mouse-up is what should open the dialog (so a drag that started on the badge does not fire it).
+The testing plugin's `LocationMouseUpExtensionPoint` is mouse-up; lint totals also listen on mouse-down.
+A status badge that should be clickable needs both.
+
+[source,java]
+----
+@ExtensionPoint(
+    id = "FooBadgeMouseDownExtensionPoint",
+    extensionPointId = "WorkflowGraphMouseDown",
+    description = "Prevents lasso selection when clicking a Foo badge")
+public class FooBadgeMouseDownExtensionPoint
+    implements IExtensionPoint<HopGuiWorkflowGraphExtension> {
+
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiWorkflowGraphExtension ext)
+      throws HopException {
+    if (ext == null) {
+      return;
+    }
+    if (isFooBadge(ext)) {
+      ext.setPreventingDefault(true);
+    }
+  }
+}
+----
+
+=== The topmost owner is not always yours
+
+`getVisibleAreaOwner` walks the list from the end.
+Your `CUSTOM` area is on top only if it was added *after* the `ACTION_ICON` / `TRANSFORM_ICON` that occupies the same pixels *and* its rectangle contains the click.
+
+A badge that sits on the corner of an action overlaps that action's `ACTION_ICON`.
+If the click is recorded as `ACTION_ICON`, a handler that requires `areaType == CUSTOM` will miss.
+
+Do what the testing plugin does: identify the overlay by `parent`, not only by `AreaType`, and look at more than `extension.getAreaOwner()`:
+
+[source,java]
+----
+Point point = ext.getPoint();
+AreaOwner areaOwner = ext.getAreaOwner();
+if (areaOwner == null && point != null) {
+  areaOwner = ext.getWorkflowGraph().getVisibleAreaOwner(point.x, point.y);
+}
+if (areaOwner != null && AREA_DRAWN_FOO.equals(areaOwner.getParent())) {
+  ext.setPreventingDefault(true);
+  return;
+}
+// Fallback: the badge sits on ACTION_ICON / ACTION_BUSY.
+if (areaOwner != null
+    && areaOwner.getOwner() instanceof ActionMeta action
+    && isFooAction(action)
+    && clickIsOnFooBadge(action, point)) {
+  ext.setPreventingDefault(true);
+}
+----
+
+`ACTION_BUSY` is Hop's own running indicator (top-right of an executing action).
+It is a different rectangle from a plugin badge on the bottom-right.
+If the user is supposed to click *your* icon, test *your* rectangle.
+If clicking Hop's busy icon should do the same thing, handle `AreaType.ACTION_BUSY` on the actions you care about as well.
+
+== What Hop does if you do not prevent default
+
+On mouse-down, `CUSTOM` falls through the graph's `switch` to the default branch.
+`done` stays false, and Hop then treats the click as background: it starts a lasso.
+That is why a badge that is clearly visible can still "do nothing" — the lasso ate the gesture, and mouse-up never looks like a click on the badge.
+
+`setPreventingDefault(true)` on mouse-down is the difference.
+
+== Hop Web
+
+The desktop and web canvases share the painter and the `AreaOwner` list.
+Clicks still arrive as SWT mouse events on the server; `AreaOwnerJsonSerializer` only sends rectangles to the browser for hover chrome.
+
+Two web-specific traps:
+
+* The client hit-tests `ACTION_ICON` / `TRANSFORM_ICON` to decide whether to start a drag.
+A click on a `CUSTOM` rectangle that does *not* overlap an icon can start a client-side lasso.
+Keep the badge overlapping the icon, or handle mouse-down on the server so `preventingDefault` still wins for the overlapping part.
+* JSON serialisation of `owner` understands transforms, actions, notes, hops and `String`.
+A custom object becomes `kind: "unknown"`.
+That does not break server-side click handling (the Java list still has your `parent`), but it does mean the browser cannot describe the overlay.
+Keep `owner` a `String` anyway, for the tooltip.
+
+Do not call SWT `GC` from a painter extension; `IGc` is what the SVG renderer implements.
+See xref:hopweb/hopweb-antipatterns.adoc[Hop Web antipatterns].
+
+== A minimal checklist
+
+. `@ExtensionPoint` on a painter hook (`WorkflowPainterAction` or `PipelinePainterTransform` unless you need `*PainterEnd`).
+. Draw with `IGc` and an `SvgFile` from your classloader.
+. `areaOwners.add(new AreaOwner(CUSTOM, x, y, w, h, offset, AREA_DRAWN_FOO, tooltipString))`.
+. `@ExtensionPoint` on `*GraphMouseDown` that recognises `AREA_DRAWN_FOO` (and the overlapping `ACTION_ICON` / `TRANSFORM_ICON`) and calls `setPreventingDefault(true)`.
+. `@ExtensionPoint` on `*GraphMouseUp` that opens the dialog and also prevents default.
+. Jandex index in the plugin jar, or Hop will never see the listeners — xref:plugin-types/index.adoc[Plugin types].
+. Put GUI classes in an `org.apache.hop.ui.*` package, or a plugin folder that is only loaded with the GUI, so `hop run` does not load SWT.

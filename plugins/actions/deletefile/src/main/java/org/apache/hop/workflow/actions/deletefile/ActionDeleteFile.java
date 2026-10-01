@@ -72,17 +72,6 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  public ActionDeleteFile(ActionDeleteFile meta) {
-    super(meta.getName(), meta.getDescription(), meta.getPluginId());
-    this.filename = meta.filename;
-    this.failIfFileNotExists = meta.failIfFileNotExists;
-  }
-
-  @Override
-  public Object clone() {
-    return new ActionDeleteFile(this);
-  }
-
   public void setFilename(String filename) {
     this.filename = filename;
   }

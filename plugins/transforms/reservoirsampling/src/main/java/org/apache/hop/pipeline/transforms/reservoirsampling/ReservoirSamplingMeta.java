@@ -60,27 +60,11 @@ public class ReservoirSamplingMeta
     super();
   }
 
-  public ReservoirSamplingMeta(ReservoirSamplingMeta m) {
-    this();
-    this.sampleSize = m.sampleSize;
-    this.seed = m.seed;
-  }
-
   /** Set the defaults for this transform. */
   @Override
   public void setDefault() {
     sampleSize = "100";
     seed = "1";
-  }
-
-  /**
-   * Clone this transform's meta data
-   *
-   * @return the cloned meta data
-   */
-  @Override
-  public ReservoirSamplingMeta clone() {
-    return new ReservoirSamplingMeta(this);
   }
 
   @Override

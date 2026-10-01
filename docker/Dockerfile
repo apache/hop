@@ -97,13 +97,15 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 ENV HOP_CONFIG_OPTIONS=
 
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
+# hop-server paints pipeline/workflow images server-side. font-dejavu is the family the web image
+# measures text with as well, so both lay text out the same; without font-noto-cjk the JVM measures
+# Chinese/Japanese/Korean names as missing-glyph boxes and lays them out too narrow (#8528)
 # procps: The package includes the programs ps/home/matt.casters@vdab.be/Projects/demo, top, vmstat, w, kill, free, slabtop, and skill
 RUN addgroup -g ${HOP_GID} -S hop \
     && adduser -u ${HOP_UID} -S -D -G hop hop \
     && chmod 777 -R /tmp && chmod o+t -R /tmp \
     && apk update \
-    && apk --no-cache add bash curl fontconfig msttcorefonts-installer openjdk21-jre procps \
-    && update-ms-fonts \
+    && apk --no-cache add bash curl fontconfig font-dejavu font-noto-cjk openjdk21-jre procps \
     && fc-cache -f \
     && rm -rf /var/cache/apk/* \
     && mkdir ${DEPLOYMENT_PATH} \

@@ -24,13 +24,12 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.UnitTestResult;
 
 @Transform(
     id = "ExecuteTests",
     description = "Execute Unit Tests",
-    name = "Execute Unit Tests",
+    name = "Execute unit tests",
     image = "executetests.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::ExecuteTestsMeta.keyword",
@@ -50,7 +49,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTes
   private String testNameInputField;
 
   @HopMetadataProperty(key = TAG_TYPE_TO_EXECUTE)
-  private TestType typeToExecute;
+  private String typeToExecute;
 
   @HopMetadataProperty(key = TAG_PIPELINE_NAME_FIELD)
   private String pipelineNameField;
@@ -127,14 +126,14 @@ public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTes
    *
    * @return value of typeToExecute
    */
-  public TestType getTypeToExecute() {
+  public String getTypeToExecute() {
     return typeToExecute;
   }
 
   /**
    * @param typeToExecute The typeToExecute to set
    */
-  public void setTypeToExecute(TestType typeToExecute) {
+  public void setTypeToExecute(String typeToExecute) {
     this.typeToExecute = typeToExecute;
   }
 

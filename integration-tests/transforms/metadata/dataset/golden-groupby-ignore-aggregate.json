@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-groupby-ignore-aggregate.csv",
+  "name": "golden-groupby-ignore-aggregate",
+  "description": "Expected aggregates when ignore_aggregate skips boolean-flagged rows",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "grp"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "sum_amount"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "cnt"
+    }
+  ],
+  "folder_name": ""
+}

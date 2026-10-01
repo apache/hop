@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: A Beam File Definition describes a file layout in a Beam pipeline. The Beam File Definition specifies the file layout (name, field definitions, enclosure and separator) to be used in Beam Pipelines.
+:page-marketplace: hop-engines-beam
 
 = Beam File Definition
 
@@ -44,6 +45,7 @@ Transforms:
 |Enclosure|field enclosure used for fields in the file definition
 |Field Definitions|List of field name, type, format, length and precision.
 Describes the file layout for this field definition.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |===
 
 == Samples

@@ -17,6 +17,7 @@ under the License.
 [[BeamDataFlowPipelineEngine]]
 :imagesdir: ../assets/images
 :description: Apache Hop supports running pipelines on GCP Dataflow over Apache Beam. GCP Dataflow is a fully managed service for executing Beam pipelines.
+:page-marketplace: hop-engines-beam
 
 = Apache Beam Google DataFlow Pipeline Engine
 

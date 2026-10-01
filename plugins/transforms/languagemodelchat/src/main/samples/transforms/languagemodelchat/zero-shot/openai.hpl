@@ -272,7 +272,7 @@ https://upload.wikimedia.org/wikipedia/commons/3/3d/Fesoj_-_Papilio_machaon_%28b
     <parallelism>1</parallelism>
     <openAiBaseUrl>https://api.openai.com/v1</openAiBaseUrl>
     <openAiApiKey>${OPENAI_API_KEY}</openAiApiKey>
-    <openAiModelName>gpt-4-turbo</openAiModelName>
+    <openAiModelName>gpt-5.6-luna</openAiModelName>
     <openAiTimeout>60</openAiTimeout>
     <openAiMaxRetries>3</openAiMaxRetries>
     <openAiUseProxy>false</openAiUseProxy>

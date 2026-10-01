@@ -28,7 +28,9 @@ The class which carries this annotation will contain the metadata.
 
 Here are the attributes of the @HopMetadata annotation:
 
-* key : this uniquely identifies the plugin and will be the name of the folder in which the metadata resides when serialising to JSON (see below)
+* key : this uniquely identifies the plugin and will be the name of the folder in which the metadata resides when serialising to JSON (see below).
+Use lower-case words separated by dashes, see <<metadata-key-naming>>.
+* legacyKeys : the keys this metadata type was known under before its key was renamed (optional), see <<metadata-key-renaming>>
 * name : a human-readable name
 * description : an extended description
 * image : the path to an image which helps identify the metadata in the Hop GUI
@@ -36,6 +38,46 @@ Here are the attributes of the @HopMetadata annotation:
 The class with this annotation will be found either because it lives in the ```plugins/``` folder of Hop or if it's an internal class and is described in the file ```engine/src/main/resources/hop-metadata-plugins.xml```
 
 Example: https://github.com/apache/hop/blob/f8f2ad2d0bc0cfd143ae90cc32e73b6c9e1cda78/engine/src/main/java/org/apache/hop/partition/PartitionSchema.java#L47[PartitionSchema.java]
+
+[[metadata-key-naming]]
+=== Choosing a key
+
+The key is more than an internal ID.
+It is the name of the folder in a project which holds the metadata objects (`metadata/<key>/<name>.json`), it is written into the metadata exported for remote execution, and it is the ID used to disable the type in `disabledGuiElements`.
+Users see it and check it into version control, so it is effectively public.
+
+Use lower-case words separated by dashes (kebab-case) which describe the type, like the existing `pipeline-run-configuration`, `sftp-connection` or `mail-server-connection`.
+Don't use the Java class name or PascalCase (`MailServerConnection`): the folders in a project then no longer follow one convention.
+
+[[metadata-key-renaming]]
+=== Renaming a key
+
+Changing the key of an existing metadata type would make all the objects users already have invisible, because they live in a folder named after the old key.
+If you have to rename a key, move the old one to `legacyKeys`:
+
+[source,java]
+----
+@HopMetadata(
+    key = "mail-server-connection",
+    legacyKeys = {"MailServerConnection"},
+    name = "i18n::MailServerConnection.name",
+    ...)
+public class MailServerConnection extends HopMetadataBase implements IHopMetadata {
+----
+
+With a legacy key in place:
+
+* objects in the folder named after the legacy key are still listed and loaded.
+If an object exists in both folders, the one in the folder named after the current key wins.
+* saving an object always writes it to the folder named after the current key and removes the copy in the legacy folder.
+Projects move to the new folder one object at a time, as users edit them.
+* deleting an object removes it from all the folders.
+* a metadata export which uses the legacy key, for example one sent by an older Hop client to a Hop server, is still understood.
+
+Code which looks for metadata files or compares type keys should use `HopMetadataUtil.getAllKeys()`, `HopMetadataUtil.matchesKey()` or `JsonMetadataSerializer.findFilename()` rather than the `key` alone, so it also finds objects which haven't moved yet.
+
+Note that older Hop versions only know the old key: once an object has been saved by a newer version, older versions no longer see it.
+Mention the rename in the release notes.
 
 == Metadata Properties
 

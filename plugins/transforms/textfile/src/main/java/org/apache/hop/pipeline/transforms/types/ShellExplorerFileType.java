@@ -34,7 +34,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     name = "Shell File Type",
     description = "Shell file handling in the explorer perspective",
     image = "ui/images/script.svg")
-public class ShellExplorerFileType extends BaseTextExplorerFileType<TextExplorerFileTypeHandler> {
+public class ShellExplorerFileType extends BaseTextExplorerFileType<ShellExplorerFileTypeHandler> {
 
   public ShellExplorerFileType() {
     super(
@@ -54,9 +54,9 @@ public class ShellExplorerFileType extends BaseTextExplorerFileType<TextExplorer
   }
 
   @Override
-  public TextExplorerFileTypeHandler createFileTypeHandler(
+  public ShellExplorerFileTypeHandler createFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
-    return new TextExplorerFileTypeHandler(hopGui, perspective, file);
+    return new ShellExplorerFileTypeHandler(hopGui, perspective, file);
   }
 
   @Override

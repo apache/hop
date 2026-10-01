@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -148,7 +149,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
     //
     // Search the fields in the background
     //
-    new Thread(this::getPreviousFields).start();
+    BackgroundThreadFacade.start(this::getPreviousFields);
 
     getData();
     input.setChanged(changed);

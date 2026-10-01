@@ -43,6 +43,7 @@ public class SqlExplorerFileType extends BaseTextExplorerFileType<SqlExplorerFil
         new String[] {"*.sql"},
         new String[] {"SQL files"},
         FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_NEW,
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,

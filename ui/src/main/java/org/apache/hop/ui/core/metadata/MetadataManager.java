@@ -162,6 +162,21 @@ public class MetadataManager<T extends IHopMetadata> {
    * @return True, if anything was changed
    */
   public boolean editMetadata(String elementName) {
+    return editMetadata(elementName, false);
+  }
+
+  /**
+   * Edit an element in a modal dialog even when the metadata perspective is active. Use this when
+   * the caller is already editing something else (for example the naming-scheme N indicator).
+   *
+   * @param elementName The name of the element to edit
+   * @return True if anything was changed
+   */
+  public boolean editMetadataInDialog(String elementName) {
+    return editMetadata(elementName, true);
+  }
+
+  private boolean editMetadata(String elementName, boolean forceDialog) {
 
     if (StringUtils.isEmpty(elementName)) {
       return false;
@@ -189,9 +204,10 @@ public class MetadataManager<T extends IHopMetadata> {
 
       // Open this element in the metadata perspective if that one is active. The perspective is
       // absent when it is switched off in disabledGuiElements.xml, and we fall back to the dialog.
+      // Callers already editing another object pass forceDialog so we do not steal a tab.
       //
       MetadataPerspective perspective = HopGui.getMetadataPerspective();
-      if (perspective != null && perspective.isActive()) {
+      if (!forceDialog && perspective != null && perspective.isActive()) {
         perspective.addEditor(editor);
         return false;
       } else {
@@ -354,6 +370,14 @@ public class MetadataManager<T extends IHopMetadata> {
     serializer.save(metadata);
     serializer.delete(oldName);
 
+    // Notify listeners (auto-export, etc.) that metadata changed via rename
+    //
+    ExtensionPointHandler.callExtensionPoint(
+        HopGui.getInstance().getLog(),
+        variables,
+        HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
+        metadata);
+
     return true;
   }
 
@@ -451,6 +475,8 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
+      // Suggested default names from create-before hooks are not a persisted identity
+      editor.markAsNew();
 
       // Always open this in a separate dialog so that we block until we have a name for the new
       // element.
@@ -459,15 +485,9 @@ public class MetadataManager<T extends IHopMetadata> {
       MetadataEditorDialog dialog =
           new MetadataEditorDialog(HopGui.getInstance().getShell(), editor);
 
+      // MetadataEditor.save() already fires HopGuiMetadataObjectCreated on success
       String name = dialog.open();
-      if (name != null) {
-        ExtensionPointHandler.callExtensionPoint(
-            HopGui.getInstance().getLog(),
-            variables,
-            HopExtensionPoint.HopGuiMetadataObjectCreated.id,
-            element);
-      }
-      return element;
+      return name != null ? element : null;
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(), CONST_ERROR, "Error editing new metadata element", e);
@@ -493,6 +513,8 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
+      // Suggested default names from create-before hooks are not a persisted identity
+      editor.markAsNew();
       editor.setTitle(
           BaseMessages.getString(
               PKG,
@@ -504,12 +526,11 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       MetadataPerspective perspective = HopGui.getMetadataPerspective();
       if (perspective == null) {
+        // MetadataEditor.save() already fires HopGuiMetadataObjectCreated on success
         MetadataEditorDialog dialog = new MetadataEditorDialog(hopGui.getActiveShell(), editor);
         if (dialog.open() == null) {
           return null;
         }
-        ExtensionPointHandler.callExtensionPoint(
-            hopGui.getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectCreated.id, element);
         return element;
       }
 

@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Get System Info transform retrieves system information from the Hop project, or the environment or system Hop is running on.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/systeminfo.svg[Get System Info transform Icon, role="image-doc-icon"] Get System Info
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Get System Info transform retrieves system information from the Hop project, or the environment or system Hop is running on.
@@ -31,19 +29,6 @@ The transform includes a table where you can designate a name and assign it to a
 This transform generates a single row with the fields containing the requested information.
 
 It can also accept any number of input streams, aggregate any fields defined by this transform, and send the combined results to the output stream.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:check_mark.svg[Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
@@ -108,9 +93,13 @@ See also Launching several copies of a transform. | `copy of transform`
 
 |Pipeline file name|File name of the pipeline (XML only). | This code has leading white space :  `{sp}pipeline file name`
 
-|User that modified the pipeline last| | `User modified`
+|User that created the pipeline|Only filled in when Hop knew who created the pipeline, such as an authenticated Hop web session. `-` otherwise. | `User created`
 
-|Date when the pipeline was modified last| | `Date modified`
+|Date when the pipeline was created|The date the pipeline was first created. | `Date created`
+
+|User that modified the pipeline last|Only filled in when Hop knew who saved the pipeline last, such as an authenticated Hop web session. `-` otherwise. | `User modified`
+
+|Date when the pipeline was modified last|The date of the last save that changed the pipeline. | `Date modified`
 
 |Hostname (Network setup)|Returns the hostname of the server. | `Hostname`
 

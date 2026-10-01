@@ -39,6 +39,8 @@ public class Props implements Cloneable {
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 
+  // Leftover hop-config keys. Ignored at runtime: UI uses the OS font, notes fall back to
+  // the workspace (graph) font.
   public static final String STRING_FONT_DEFAULT_NAME = "FontDefaultName";
   public static final String STRING_FONT_DEFAULT_SIZE = "FontDefaultSize";
   public static final String STRING_FONT_DEFAULT_STYLE = "FontDefaultStyle";
@@ -78,6 +80,7 @@ public class Props implements Cloneable {
 
   public static final String STRING_HIDE_VIEWPORT = "HideViewport";
   public static final String STRING_SHOW_TABLE_VIEW_TOOLBAR = "ShowTableViewToolbar";
+  public static final String STRING_SHOW_TEXT_COMPOSITE_TOOLBAR = "ShowTextCompositeToolbar";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
 
   public static final String STRING_CUSTOM_PARAMETER = "CustomParameter";

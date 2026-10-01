@@ -144,8 +144,12 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
       HashMap<String, String> newVariables = new HashMap<>();
 
       for (String varname : vars) {
-        newVariables.put(
-            varname, Const.NVL(variablesMap.get(varname), sp.getProperty(varname, "")));
+        // Prefer live variable space over values from a previous run dialog
+        if (sp.containsKey(varname)) {
+          newVariables.put(varname, sp.getProperty(varname, ""));
+        } else {
+          newVariables.put(varname, Const.NVL(variablesMap.get(varname), ""));
+        }
       }
       variablesMap.putAll(newVariables);
     }
@@ -176,8 +180,14 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
 
       for (String varname : vars) {
         if (!varname.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
-          newVariables.put(
-              varname, Const.NVL(variablesMap.get(varname), sp.getProperty(varname, "")));
+          // Prefer the live variable space (project/env/pipeline graph, including active unit-test
+          // values) over values remembered from a previous run dialog. Otherwise switching unit
+          // tests leaves the old sample values sticky in the execution configuration.
+          if (sp.containsKey(varname)) {
+            newVariables.put(varname, sp.getProperty(varname, ""));
+          } else {
+            newVariables.put(varname, Const.NVL(variablesMap.get(varname), ""));
+          }
         }
       }
       variablesMap.putAll(newVariables);

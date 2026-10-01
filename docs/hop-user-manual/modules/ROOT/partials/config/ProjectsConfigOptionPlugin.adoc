@@ -1,0 +1,66 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+// Generated from the @ConfigPlugin and @GuiWidgetElement annotations.
+// Edit those, not this file.
+
+These options are stored under `pass:c[projectsConfig]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Enable the projects plugin]
+|pass:c[Switches the projects plugin on or off. With it off, Hop GUI drops the project and environment selectors and files are addressed by path alone.]
+|`pass:c[true]`
+
+|pass:c[Use of a project is mandatory]
+|pass:c[Refuse to run a pipeline or workflow unless a project is selected. Catches runs against the wrong configuration on a shared installation.]
+|`pass:c[false]`
+
+|pass:c[Use of an environment is mandatory]
+|pass:c[Refuse to run a pipeline or workflow unless a lifecycle environment is selected, so every run has explicit environment variables behind it.]
+|`pass:c[false]`
+
+|pass:c[The default project to use when none is specified]
+|pass:c[The default project to use when none is specified. Accepts variables.]
+|
+
+|pass:c[The default environment to use when none is specified]
+|pass:c[The name of the default environment to use when none is specified. Accepts variables.]
+|
+
+|pass:c[The parent project to propose when creating projects]
+|pass:c[The project proposed as the parent when a new project is created. A child project inherits its parent's variables and configuration. Accepts variables.]
+|
+
+|pass:c[The standard projects folder for new projects]
+|pass:c[The standard projects folder for new projects. Accepts variables.]
+|
+
+|pass:c[The project configuration filename for new projects]
+|pass:c[The name given to the configuration file of a newly created project, relative to the project folder. Accepts variables.]
+|`pass:c[project-config.json]`
+
+|pass:c[Clear DB cache when switching project/environment]
+|pass:c[Empty the database cache when switching project or environment. Keep this on where environments point at different databases that share connection names, so metadata cached for the previous one is not reused.]
+|`pass:c[true]`
+
+|pass:c[Sort the last used projects alphabetically]
+|pass:c[List the last used projects alphabetically rather than most recently used first.]
+|`pass:c[false]`
+
+|===

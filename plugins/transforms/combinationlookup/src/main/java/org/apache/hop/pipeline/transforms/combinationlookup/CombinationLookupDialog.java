@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,23 +35,31 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
@@ -78,7 +86,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
 
   private Button wPreloadCache;
 
-  private Text wTk;
+  private TextVar wTk;
 
   private Label wlAutoinc;
   private Button wAutoinc;
@@ -97,7 +105,10 @@ public class CombinationLookupDialog extends BaseTransformDialog {
   private TableView wKey;
 
   private Label wlHashfield;
-  private Text wHashfield;
+  private TextVar wHashfield;
+
+  private Label wlHashFieldInStream;
+  private ComboVar wHashFieldInStream;
 
   private Text wLastUpdateField;
 
@@ -127,24 +138,82 @@ public class CombinationLookupDialog extends BaseTransformDialog {
 
     buildButtonBar().ok(e -> ok()).get(e -> get()).sql(e -> create()).cancel(e -> cancel()).build();
 
-    ModifyListener lsMod = e -> input.setChanged();
+    backupChanged = input.hasChanged();
+
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+
+    addGeneralTab(wTabFolder);
+    addKeyFieldsTab(wTabFolder);
+    addTechnicalKeyTab(wTabFolder);
+
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+
+    //
+    // Search the fields in the background
+    //
+
+    final Runnable runnable =
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
+              }
+              setComboBoxes();
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+            }
+          }
+        };
+    BackgroundThreadFacade.start(runnable);
+
+    getData();
+    setTableFieldCombo();
+
+    wTabFolder.setSelection(0);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return transformName;
+  }
+
+  private void addGeneralTab(CTabFolder wTabFolder) {
     ModifyListener lsTableMod =
-        arg0 -> {
-          input.setChanged();
+        e -> {
           setTableFieldCombo();
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
             setTableFieldCombo();
           }
         };
-    backupChanged = input.hasChanged();
+
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
+    wGeneralTab.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.GeneralTab.TabTitle"));
+
+    ScrolledComposite wGeneralSComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wGeneralSComp.setLayout(new FillLayout());
+
+    Composite wGeneralComp = new Composite(wGeneralSComp, SWT.NONE);
+    PropsUi.setLook(wGeneralComp);
+    wGeneralComp.setLayout(props.createFormLayout());
 
     // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, input.getConnectionName(), lsMod);
+    wConnection = addConnectionLine(wGeneralComp, null, input.getConnectionName(), lsMod);
     wConnection.addSelectionListener(lsSelection);
     wConnection.addModifyListener(
         e -> {
@@ -152,11 +221,10 @@ public class CombinationLookupDialog extends BaseTransformDialog {
           databaseMeta = findDatabase(wConnection.getText());
           setAutoincUse();
           setSequence();
-          input.setChanged();
         });
 
     // Schema line...
-    Label wlSchema = new Label(shell, SWT.RIGHT);
+    Label wlSchema = new Label(wGeneralComp, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TargetSchema.Label"));
     PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
@@ -165,15 +233,18 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
-    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbSchema = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
-    wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema =
+        new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
@@ -183,7 +254,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    Label wlTable = new Label(shell, SWT.RIGHT);
+    Label wlTable = new Label(wGeneralComp, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Target.Label"));
     PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
@@ -192,15 +263,18 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdlTable.top = new FormAttachment(wbSchema, margin);
     wlTable.setLayoutData(fdlTable);
 
-    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbTable = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.BrowseTable.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
+    wbTable.addListener(SWT.Selection, e -> getTableName());
 
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
@@ -210,7 +284,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wTable.setLayoutData(fdTable);
 
     // Commit size ...
-    Label wlCommit = new Label(shell, SWT.RIGHT);
+    Label wlCommit = new Label(wGeneralComp, SWT.RIGHT);
     wlCommit.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Commitsize.Label"));
     PropsUi.setLook(wlCommit);
     FormData fdlCommit = new FormData();
@@ -218,55 +292,185 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     fdlCommit.right = new FormAttachment(middle, -margin);
     fdlCommit.top = new FormAttachment(wTable, margin);
     wlCommit.setLayoutData(fdlCommit);
-    wCommit = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommit = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
     fdCommit.top = new FormAttachment(wTable, margin);
     fdCommit.left = new FormAttachment(middle, 0);
-    fdCommit.right = new FormAttachment(middle + (100 - middle) / 3, -margin);
+    fdCommit.right = new FormAttachment(100, 0);
     wCommit.setLayoutData(fdCommit);
 
     // Cache size
-    Label wlCachesize = new Label(shell, SWT.RIGHT);
-    wlCachesize.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Cachesize.Label"));
-    PropsUi.setLook(wlCachesize);
-    FormData fdlCachesize = new FormData();
-    fdlCachesize.top = new FormAttachment(wTable, margin);
-    fdlCachesize.left = new FormAttachment(wCommit, margin);
-    fdlCachesize.right = new FormAttachment(middle + 2 * (100 - middle) / 3, -margin);
-    wlCachesize.setLayoutData(fdlCachesize);
-    wCachesize = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Label wlCacheSize = new Label(wGeneralComp, SWT.RIGHT);
+    wlCacheSize.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Cachesize.Label"));
+    PropsUi.setLook(wlCacheSize);
+    FormData fdlCacheSize = new FormData();
+    fdlCacheSize.left = new FormAttachment(0, 0);
+    fdlCacheSize.right = new FormAttachment(middle, -margin);
+    fdlCacheSize.top = new FormAttachment(wCommit, margin);
+    wlCacheSize.setLayoutData(fdlCacheSize);
+    wCachesize = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCachesize);
     wCachesize.addModifyListener(lsMod);
-    FormData fdCachesize = new FormData();
-    fdCachesize.top = new FormAttachment(wTable, margin);
-    fdCachesize.left = new FormAttachment(wlCachesize, margin);
-    fdCachesize.right = new FormAttachment(100, 0);
-    wCachesize.setLayoutData(fdCachesize);
+    FormData fdCacheSize = new FormData();
+    fdCacheSize.top = new FormAttachment(wCommit, margin);
+    fdCacheSize.left = new FormAttachment(middle, 0);
+    fdCacheSize.right = new FormAttachment(100, 0);
+    wCachesize.setLayoutData(fdCacheSize);
     wCachesize.setToolTipText(
         BaseMessages.getString(PKG, "CombinationLookupDialog.Cachesize.ToolTip"));
 
     // Preload Cache
-    wPreloadCache = new Button(shell, SWT.CHECK);
-    wPreloadCache.setText(
+    Label wlPreloadCache = new Label(wGeneralComp, SWT.RIGHT);
+    wlPreloadCache.setText(
         BaseMessages.getString(PKG, "CombinationLookupDialog.PreloadCache.Label"));
+    PropsUi.setLook(wlPreloadCache);
+    FormData fdlPreloadCache = new FormData();
+    fdlPreloadCache.left = new FormAttachment(0, 0);
+    fdlPreloadCache.right = new FormAttachment(middle, -margin);
+    fdlPreloadCache.top = new FormAttachment(wCachesize, margin);
+    wlPreloadCache.setLayoutData(fdlPreloadCache);
+    wPreloadCache = new Button(wGeneralComp, SWT.CHECK);
     PropsUi.setLook(wPreloadCache);
     FormData fdPreloadCache = new FormData();
-    fdPreloadCache.top = new FormAttachment(wCachesize, margin);
-    fdPreloadCache.left = new FormAttachment(wlCachesize, margin);
+    fdPreloadCache.left = new FormAttachment(middle, 0);
+    fdPreloadCache.top = new FormAttachment(wlPreloadCache, 0, SWT.CENTER);
     fdPreloadCache.right = new FormAttachment(100, 0);
     wPreloadCache.setLayoutData(fdPreloadCache);
+    wPreloadCache.addListener(SWT.Selection, e -> input.setChanged());
+
+    // Replace lookup fields in the output stream?
+    Label wlReplace = new Label(wGeneralComp, SWT.RIGHT);
+    wlReplace.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Replace.Label"));
+    PropsUi.setLook(wlReplace);
+    FormData fdlReplace = new FormData();
+    fdlReplace.left = new FormAttachment(0, 0);
+    fdlReplace.right = new FormAttachment(middle, -margin);
+    fdlReplace.top = new FormAttachment(wlPreloadCache, margin);
+    wlReplace.setLayoutData(fdlReplace);
+    wReplace = new Button(wGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wReplace);
+    FormData fdReplace = new FormData();
+    fdReplace.left = new FormAttachment(middle, 0);
+    fdReplace.top = new FormAttachment(wlReplace, 0, SWT.CENTER);
+    fdReplace.right = new FormAttachment(100, 0);
+    wReplace.setLayoutData(fdReplace);
+    wReplace.addListener(SWT.Selection, e -> enableFields());
+
+    // Use a hashcode?
+    Label wlHashcode = new Label(wGeneralComp, SWT.RIGHT);
+    wlHashcode.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Hashcode.Label"));
+    PropsUi.setLook(wlHashcode);
+    FormData fdlHashcode = new FormData();
+    fdlHashcode.left = new FormAttachment(0, 0);
+    fdlHashcode.right = new FormAttachment(middle, -margin);
+    fdlHashcode.top = new FormAttachment(wlReplace, margin);
+    wlHashcode.setLayoutData(fdlHashcode);
+    wHashcode = new Button(wGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wHashcode);
+    FormData fdHashcode = new FormData();
+    fdHashcode.left = new FormAttachment(middle, 0);
+    fdHashcode.top = new FormAttachment(wlHashcode, 0, SWT.CENTER);
+    fdHashcode.right = new FormAttachment(100, 0);
+    wHashcode.setLayoutData(fdHashcode);
+    wHashcode.addListener(SWT.Selection, e -> enableFields());
+
+    // Hash field:
+    wlHashfield = new Label(wGeneralComp, SWT.RIGHT);
+    wlHashfield.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Hashfield.Label"));
+    PropsUi.setLook(wlHashfield);
+    FormData fdlHashfield = new FormData();
+    fdlHashfield.left = new FormAttachment(0, 0);
+    fdlHashfield.right = new FormAttachment(middle, -margin);
+    fdlHashfield.top = new FormAttachment(wlHashcode, margin);
+    wlHashfield.setLayoutData(fdlHashfield);
+    wHashfield =
+        new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_COLUMN);
+    PropsUi.setLook(wHashfield);
+    wHashfield.addModifyListener(lsMod);
+    FormData fdHashfield = new FormData();
+    fdHashfield.left = new FormAttachment(middle, 0);
+    fdHashfield.top = new FormAttachment(wlHashcode, margin);
+    fdHashfield.right = new FormAttachment(100, 0);
+    wHashfield.setLayoutData(fdHashfield);
+
+    wlHashFieldInStream = new Label(wGeneralComp, SWT.RIGHT);
+    wlHashFieldInStream.setText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.HashFieldInStream.Label"));
+    wlHashFieldInStream.setToolTipText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.HashFieldInStream.ToolTip"));
+    PropsUi.setLook(wlHashFieldInStream);
+    FormData fdlHashFieldInStream = new FormData();
+    fdlHashFieldInStream.left = new FormAttachment(0, 0);
+    fdlHashFieldInStream.right = new FormAttachment(middle, -margin);
+    fdlHashFieldInStream.top = new FormAttachment(wHashfield, margin);
+    wlHashFieldInStream.setLayoutData(fdlHashFieldInStream);
+    wHashFieldInStream = new ComboVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHashFieldInStream.setToolTipText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.HashFieldInStream.ToolTip"));
+    PropsUi.setLook(wHashFieldInStream);
+    wHashFieldInStream.addModifyListener(lsMod);
+    FormData fdHashFieldInStream = new FormData();
+    fdHashFieldInStream.left = new FormAttachment(middle, 0);
+    fdHashFieldInStream.top = new FormAttachment(wHashfield, margin);
+    fdHashFieldInStream.right = new FormAttachment(100, 0);
+    wHashFieldInStream.setLayoutData(fdHashFieldInStream);
+
+    // Last update field:
+    Label wlLastUpdateField = new Label(wGeneralComp, SWT.RIGHT);
+    wlLastUpdateField.setText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.LastUpdateField.Label"));
+    PropsUi.setLook(wlLastUpdateField);
+    FormData fdlLastUpdateField = new FormData();
+    fdlLastUpdateField.left = new FormAttachment(0, 0);
+    fdlLastUpdateField.right = new FormAttachment(middle, -margin);
+    fdlLastUpdateField.top = new FormAttachment(wHashFieldInStream, margin);
+    wlLastUpdateField.setLayoutData(fdlLastUpdateField);
+    wLastUpdateField = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wLastUpdateField);
+    wLastUpdateField.addModifyListener(lsMod);
+    FormData fdLastUpdateField = new FormData();
+    fdLastUpdateField.left = new FormAttachment(middle, 0);
+    fdLastUpdateField.top = new FormAttachment(wHashFieldInStream, margin);
+    fdLastUpdateField.right = new FormAttachment(100, 0);
+    wLastUpdateField.setLayoutData(fdLastUpdateField);
+
+    wGeneralComp.pack();
+
+    wGeneralSComp.setContent(wGeneralComp);
+    wGeneralSComp.setExpandHorizontal(true);
+    wGeneralSComp.setExpandVertical(true);
+    wGeneralSComp.setMinWidth(wGeneralComp.getBounds().width);
+    wGeneralSComp.setMinHeight(wGeneralComp.getBounds().height);
+
+    wGeneralTab.setControl(wGeneralSComp);
+  }
+
+  private void addKeyFieldsTab(CTabFolder wTabFolder) {
+    CTabItem wKeyFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wKeyFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
+    wKeyFieldsTab.setText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.KeyFieldsTab.TabTitle"));
+
+    ScrolledComposite wKeyFieldsSComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wKeyFieldsSComp.setLayout(new FillLayout());
+
+    Composite wKeyFieldsComp = new Composite(wKeyFieldsSComp, SWT.NONE);
+    PropsUi.setLook(wKeyFieldsComp);
+    wKeyFieldsComp.setLayout(props.createFormLayout());
 
     //
     // The Lookup fields: usually the (business) key
     //
-    Label wlKey = new Label(shell, SWT.NONE);
+    Label wlKey = new Label(wKeyFieldsComp, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Keyfields.Label"));
     PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(0, 0);
-    fdlKey.top = new FormAttachment(wPreloadCache, margin);
+    fdlKey.top = new FormAttachment(0, 0);
     fdlKey.right = new FormAttachment(100, 0);
     wlKey.setLayoutData(fdlKey);
 
@@ -286,116 +490,83 @@ public class CombinationLookupDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
+    ciKey[0].setNamingSchemeType(NamingSchemeTypes.DATABASE_COLUMN);
     tableFieldColumns.add(ciKey[0]);
     wKey =
         new TableView(
             variables,
-            shell,
+            wKeyFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
             nrKeyRows,
             lsMod,
             props);
+    FormData fdKey = new FormData();
+    fdKey.left = new FormAttachment(0, 0);
+    fdKey.top = new FormAttachment(wlKey, margin);
+    fdKey.right = new FormAttachment(100, 0);
+    fdKey.bottom = new FormAttachment(100, 0);
+    wKey.setLayoutData(fdKey);
 
-    // Last update field:
-    Label wlLastUpdateField = new Label(shell, SWT.RIGHT);
-    wlLastUpdateField.setText(
-        BaseMessages.getString(PKG, "CombinationLookupDialog.LastUpdateField.Label"));
-    PropsUi.setLook(wlLastUpdateField);
-    FormData fdlLastUpdateField = new FormData();
-    fdlLastUpdateField.left = new FormAttachment(0, 0);
-    fdlLastUpdateField.right = new FormAttachment(middle, -margin);
-    fdlLastUpdateField.bottom = new FormAttachment(wOk, -margin);
-    wlLastUpdateField.setLayoutData(fdlLastUpdateField);
-    wLastUpdateField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wLastUpdateField);
-    wLastUpdateField.addModifyListener(lsMod);
-    FormData fdLastUpdateField = new FormData();
-    fdLastUpdateField.left = new FormAttachment(middle, 0);
-    fdLastUpdateField.right = new FormAttachment(100, 0);
-    fdLastUpdateField.bottom = new FormAttachment(wOk, -margin);
-    wLastUpdateField.setLayoutData(fdLastUpdateField);
+    wKeyFieldsComp.pack();
 
-    // Hash field:
-    wlHashfield = new Label(shell, SWT.RIGHT);
-    wlHashfield.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Hashfield.Label"));
-    PropsUi.setLook(wlHashfield);
-    FormData fdlHashfield = new FormData();
-    fdlHashfield.left = new FormAttachment(0, 0);
-    fdlHashfield.right = new FormAttachment(middle, -margin);
-    fdlHashfield.bottom = new FormAttachment(wLastUpdateField, -margin);
-    wlHashfield.setLayoutData(fdlHashfield);
-    wHashfield = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wHashfield);
-    wHashfield.addModifyListener(lsMod);
-    FormData fdHashfield = new FormData();
-    fdHashfield.left = new FormAttachment(middle, 0);
-    fdHashfield.right = new FormAttachment(100, 0);
-    fdHashfield.bottom = new FormAttachment(wLastUpdateField, -margin);
-    wHashfield.setLayoutData(fdHashfield);
+    wKeyFieldsSComp.setContent(wKeyFieldsComp);
+    wKeyFieldsSComp.setExpandHorizontal(true);
+    wKeyFieldsSComp.setExpandVertical(true);
+    wKeyFieldsSComp.setMinWidth(wKeyFieldsComp.getBounds().width);
+    wKeyFieldsSComp.setMinHeight(wKeyFieldsComp.getBounds().height);
 
-    // Output the input rows or one (1) log-record?
-    Label wlHashcode = new Label(shell, SWT.RIGHT);
-    wlHashcode.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Hashcode.Label"));
-    PropsUi.setLook(wlHashcode);
-    FormData fdlHashcode = new FormData();
-    fdlHashcode.left = new FormAttachment(0, 0);
-    fdlHashcode.right = new FormAttachment(middle, -margin);
-    fdlHashcode.bottom = new FormAttachment(wHashfield, -margin);
-    wlHashcode.setLayoutData(fdlHashcode);
-    wHashcode = new Button(shell, SWT.CHECK);
-    PropsUi.setLook(wHashcode);
-    FormData fdHashcode = new FormData();
-    fdHashcode.left = new FormAttachment(middle, 0);
-    fdHashcode.right = new FormAttachment(100, 0);
-    fdHashcode.bottom = new FormAttachment(wlHashcode, 0, SWT.CENTER);
-    wHashcode.setLayoutData(fdHashcode);
-    wHashcode.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            enableFields();
-          }
-        });
+    wKeyFieldsTab.setControl(wKeyFieldsSComp);
+  }
 
-    // Replace lookup fields in the output stream?
-    Label wlReplace = new Label(shell, SWT.RIGHT);
-    wlReplace.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Replace.Label"));
-    PropsUi.setLook(wlReplace);
-    FormData fdlReplace = new FormData();
-    fdlReplace.left = new FormAttachment(0, 0);
-    fdlReplace.right = new FormAttachment(middle, -margin);
-    fdlReplace.bottom = new FormAttachment(wHashcode, -margin);
-    wlReplace.setLayoutData(fdlReplace);
-    wReplace = new Button(shell, SWT.CHECK);
-    PropsUi.setLook(wReplace);
-    FormData fdReplace = new FormData();
-    fdReplace.left = new FormAttachment(middle, 0);
-    fdReplace.bottom = new FormAttachment(wlReplace, 0, SWT.CENTER);
-    fdReplace.right = new FormAttachment(100, 0);
-    wReplace.setLayoutData(fdReplace);
-    wReplace.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            enableFields();
-          }
-        });
+  private void addTechnicalKeyTab(CTabFolder wTabFolder) {
+    CTabItem wTechnicalKeyTab = new CTabItem(wTabFolder, SWT.NONE);
+    wTechnicalKeyTab.setFont(GuiResource.getInstance().getFontDefault());
+    wTechnicalKeyTab.setText(
+        BaseMessages.getString(PKG, "CombinationLookupDialog.TechnicalKeyTab.TabTitle"));
 
-    Label wlTechGroup = new Label(shell, SWT.RIGHT);
+    ScrolledComposite wTechnicalKeySComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    wTechnicalKeySComp.setLayout(new FillLayout());
+
+    Composite wTechnicalKeyComp = new Composite(wTechnicalKeySComp, SWT.NONE);
+    PropsUi.setLook(wTechnicalKeyComp);
+    wTechnicalKeyComp.setLayout(props.createFormLayout());
+
+    // Technical key field:
+    Label wlTk = new Label(wTechnicalKeyComp, SWT.RIGHT);
+    wlTk.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TechnicalKey.Label"));
+    PropsUi.setLook(wlTk);
+    FormData fdlTk = new FormData();
+    fdlTk.left = new FormAttachment(0, 0);
+    fdlTk.right = new FormAttachment(middle, -margin);
+    fdlTk.top = new FormAttachment(0, 0);
+    wlTk.setLayoutData(fdlTk);
+    wTk =
+        new TextVar(variables, wTechnicalKeyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_COLUMN);
+    PropsUi.setLook(wTk);
+    FormData fdTk = new FormData();
+    fdTk.left = new FormAttachment(middle, 0);
+    fdTk.top = new FormAttachment(0, 0);
+    fdTk.right = new FormAttachment(100, 0);
+    wTk.setLayoutData(fdTk);
+
+    // Creation of technical key
+    Label wlTechGroup = new Label(wTechnicalKeyComp, SWT.RIGHT);
     wlTechGroup.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TechGroup.Label"));
     PropsUi.setLook(wlTechGroup);
     FormData fdlTechGroup = new FormData();
     fdlTechGroup.left = new FormAttachment(0, 0);
     fdlTechGroup.right = new FormAttachment(middle, -margin);
     wlTechGroup.setLayoutData(fdlTechGroup);
-    Composite gTechGroup = new Composite(shell, SWT.NONE);
+    Composite gTechGroup = new Composite(wTechnicalKeyComp, SWT.NONE);
     GridLayout gridLayout = new GridLayout(3, false);
     gTechGroup.setLayout(gridLayout);
     PropsUi.setLook(gTechGroup);
     FormData fdTechGroup = new FormData();
     fdTechGroup.left = new FormAttachment(middle, 0);
-    fdTechGroup.bottom = new FormAttachment(wReplace, -margin);
+    fdTechGroup.top = new FormAttachment(wTk, margin);
     fdTechGroup.right = new FormAttachment(100, 0);
     gTechGroup.setLayoutData(fdTechGroup);
     fdlTechGroup.top = new FormAttachment(gTechGroup, margin, SWT.TOP);
@@ -472,74 +643,15 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     setSequence();
     setAutoincUse();
 
-    // Technical key field:
-    Label wlTk = new Label(shell, SWT.RIGHT);
-    wlTk.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TechnicalKey.Label"));
-    PropsUi.setLook(wlTk);
-    FormData fdlTk = new FormData();
-    fdlTk.left = new FormAttachment(0, 0);
-    fdlTk.right = new FormAttachment(middle, -margin);
-    fdlTk.bottom = new FormAttachment(gTechGroup, -margin);
-    wlTk.setLayoutData(fdlTk);
-    wTk = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTk);
-    FormData fdTk = new FormData();
-    fdTk.left = new FormAttachment(middle, 0);
-    fdTk.bottom = new FormAttachment(gTechGroup, -margin);
-    fdTk.right = new FormAttachment(100, 0);
-    wTk.setLayoutData(fdTk);
+    wTechnicalKeyComp.pack();
 
-    FormData fdKey = new FormData();
-    fdKey.left = new FormAttachment(0, 0);
-    fdKey.top = new FormAttachment(wlKey, margin);
-    fdKey.right = new FormAttachment(100, 0);
-    fdKey.bottom = new FormAttachment(wTk, -margin);
-    wKey.setLayoutData(fdKey);
+    wTechnicalKeySComp.setContent(wTechnicalKeyComp);
+    wTechnicalKeySComp.setExpandHorizontal(true);
+    wTechnicalKeySComp.setExpandVertical(true);
+    wTechnicalKeySComp.setMinWidth(wTechnicalKeyComp.getBounds().width);
+    wTechnicalKeySComp.setMinHeight(wTechnicalKeyComp.getBounds().height);
 
-    //
-    // Search the fields in the background
-    //
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.add(row.getValueMeta(i).getName());
-              }
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-            }
-          }
-        };
-    new Thread(runnable).start();
-
-    wbSchema.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSchemaNames();
-          }
-        });
-    wbTable.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getTableName();
-          }
-        });
-
-    getData();
-    setTableFieldCombo();
-    focusTransformName();
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return transformName;
+    wTechnicalKeyTab.setControl(wTechnicalKeySComp);
   }
 
   protected void setComboBoxes() {
@@ -547,11 +659,17 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[1].setComboValues(fieldNames);
+    if (wHashFieldInStream != null && !wHashFieldInStream.isDisposed()) {
+      wHashFieldInStream.setItems(fieldNames);
+    }
   }
 
   public void enableFields() {
-    wHashfield.setEnabled(wHashcode.getSelection());
-    wlHashfield.setEnabled(wHashcode.getSelection());
+    boolean useHash = wHashcode.getSelection();
+    wHashfield.setEnabled(useHash);
+    wlHashfield.setEnabled(useHash);
+    wHashFieldInStream.setEnabled(useHash);
+    wlHashFieldInStream.setEnabled(useHash);
   }
 
   private void setTableFieldCombo() {
@@ -648,8 +766,6 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wPreloadCache.setSelection(input.isPreloadCache());
     wReplace.setSelection(input.isReplaceFields());
     wHashcode.setSelection(input.isUseHash());
-    wHashfield.setEnabled(input.isUseHash());
-    wlHashfield.setEnabled(input.isUseHash());
 
     String techKeyCreation = returnFields.getTechKeyCreation();
     if (techKeyCreation == null) {
@@ -699,6 +815,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       wConnection.setText(input.getConnectionName());
     }
     wHashfield.setText(Const.NVL(input.getHashField(), ""));
+    wHashFieldInStream.setText(Const.NVL(input.getHashFieldInStream(), ""));
+    enableFields();
 
     wCommit.setText("" + input.getCommitSize());
     wCachesize.setText("" + input.getCacheSize());
@@ -748,6 +866,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     in.setReplaceFields(wReplace.getSelection());
     in.setUseHash(wHashcode.getSelection());
     in.setHashField(wHashfield.getText());
+    String hashFieldInStream = wHashFieldInStream.getText();
+    in.setHashFieldInStream(Utils.isEmpty(hashFieldInStream) ? null : hashFieldInStream);
     in.setSchemaName(wSchema.getText());
     in.setTableName(wTable.getText());
     returnFields.setTechnicalKeyField(wTk.getText());
@@ -775,13 +895,11 @@ public class CombinationLookupDialog extends BaseTransformDialog {
   private void getSchemaNames() {
     DatabaseMeta dbMeta = findDatabase(wConnection.getText());
     if (dbMeta != null) {
-      Database database = new Database(loggingObject, variables, dbMeta);
-      try {
+      try (Database database = new Database(loggingObject, variables, dbMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
         if (null != schemas && schemas.length > 0) {
-          schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   shell,
@@ -810,8 +928,6 @@ public class CombinationLookupDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "CombinationLookupDialog.ErrorGettingSchemas"),
             e);
-      } finally {
-        database.disconnect();
       }
     }
   }
@@ -890,15 +1006,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor sqledit =
-              new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  pipelineMeta.findDatabase(info.getConnectionName(), variables),
-                  DbCache.getInstance(),
-                  sql.getSql());
-          sqledit.open();
+          DatabaseWorkbenchDialog.openSql(
+              pipelineMeta.findDatabase(info.getConnectionName(), variables), sql.getSql());
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(

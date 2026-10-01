@@ -429,7 +429,7 @@ Claim: ${claim}</input_text>
     <openAiLogRequests>false</openAiLogRequests>
     <openAiLogResponses>false</openAiLogResponses>
     <huggingFaceAccessToken>${HF_TOKEN}</huggingFaceAccessToken>
-    <huggingFaceModelId>meta-llama/Llama-3.1-70B-Instruct</huggingFaceModelId>
+    <huggingFaceModelId>meta-llama/Llama-3.3-70B-Instruct</huggingFaceModelId>
     <huggingFaceTemperature>0.7</huggingFaceTemperature>
     <huggingFaceMaxNewTokens>50</huggingFaceMaxNewTokens>
     <huggingFaceReturnFullText>false</huggingFaceReturnFullText>
@@ -465,7 +465,7 @@ Claim: ${claim}</input_text>
     <parallelism>1</parallelism>
     <openAiBaseUrl>https://api.openai.com/v1</openAiBaseUrl>
     <openAiApiKey>${OPENAI_API_KEY}</openAiApiKey>
-    <openAiModelName>gpt-4o-mini</openAiModelName>
+    <openAiModelName>gpt-5.6-luna</openAiModelName>
     <openAiTemperature>0.7</openAiTemperature>
     <openAiMaxTokens>50</openAiMaxTokens>
     <openAiResponseFormat>text</openAiResponseFormat>

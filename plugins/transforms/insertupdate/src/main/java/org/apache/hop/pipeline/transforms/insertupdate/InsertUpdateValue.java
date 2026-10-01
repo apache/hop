@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.insertupdate;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class InsertUpdateValue {
 
@@ -25,14 +26,16 @@ public class InsertUpdateValue {
   @HopMetadataProperty(
       key = "name",
       injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_LOOKUP",
-      injectionKey = "UPDATE_LOOKUP")
+      injectionKey = "UPDATE_LOOKUP",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String updateLookup;
 
   /** Stream name to update value with */
   @HopMetadataProperty(
       key = "rename",
       injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_STREAM",
-      injectionKey = "UPDATE_STREAM")
+      injectionKey = "UPDATE_STREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String updateStream;
 
   /** Stream name to update value with */

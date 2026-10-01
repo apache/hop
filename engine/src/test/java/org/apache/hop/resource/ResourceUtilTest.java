@@ -18,12 +18,28 @@
 package org.apache.hop.resource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests for {@link ResourceUtil#assignNamedResourceDirectoryVariables}, the resolution of the
@@ -101,5 +117,64 @@ class ResourceUtilTest {
         variables, directoryMap, "${PROJECT_HOME}", "/server/", variablesMap);
 
     assertEquals("/server/files", variablesMap.get("DATA_PATH_1"));
+  }
+
+  /**
+   * The generated folder variables are only of use to the remote server if they are part of the
+   * execution configuration that travels inside the export archive. The remote pipeline engine used
+   * to hand this method a clone of its configuration while the variables were written into the
+   * original, so the archive carried none of them and the server created a folder literally called
+   * ${DATA_PATH_1} (#8234).
+   */
+  @Test
+  void generatedFolderVariablesEndUpInTheArchivedConfiguration(@TempDir File tempDir)
+      throws Exception {
+    File dataFolder = new File(tempDir, "data");
+    assertTrue(dataFolder.mkdirs());
+    File dataFile = new File(dataFolder, "input.txt");
+    Files.write(dataFile.toPath(), "content".getBytes(StandardCharsets.UTF_8));
+
+    IVariables variables = new Variables();
+    PipelineExecutionConfiguration executionConfiguration = new PipelineExecutionConfiguration();
+
+    // A minimal export that renames one referenced file, exactly as a file transform does.
+    IResourceExport resourceExport =
+        (vars, definitions, naming, provider) -> {
+          try {
+            String renamed =
+                naming.nameResource(HopVfs.getFileObject(dataFile.getAbsolutePath()), vars, true);
+            assertTrue(renamed.startsWith("${DATA_PATH_1}/"), renamed);
+          } catch (FileSystemException e) {
+            throw new HopException(e);
+          }
+          definitions.put("main.hpl", new ResourceDefinition("main.hpl", "<pipeline/>"));
+          return "main.hpl";
+        };
+
+    File zip = new File(tempDir, "export.zip");
+    ResourceUtil.serializeResourceExportInterface(
+        zip.getAbsolutePath(),
+        resourceExport,
+        variables,
+        new MemoryMetadataProvider(),
+        executionConfiguration,
+        Pipeline.CONFIGURATION_IN_EXPORT_FILENAME,
+        null,
+        null);
+
+    String configurationXml = readEntry(zip, Pipeline.CONFIGURATION_IN_EXPORT_FILENAME);
+    assertNotNull(configurationXml);
+    assertTrue(
+        configurationXml.contains("DATA_PATH_1"),
+        "the archived execution configuration should carry the generated folder variable: "
+            + configurationXml);
+  }
+
+  private static String readEntry(File zip, String name) throws IOException {
+    try (ZipFile zipFile = new ZipFile(zip)) {
+      ZipEntry entry = zipFile.getEntry(name);
+      assertNotNull(entry, name + " is missing from the export archive");
+      return IOUtils.toString(zipFile.getInputStream(entry), StandardCharsets.UTF_8);
+    }
   }
 }

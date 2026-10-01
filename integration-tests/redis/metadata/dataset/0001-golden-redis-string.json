@@ -1,0 +1,24 @@
+{
+  "base_filename": "0001-golden-redis-string.csv",
+  "name": "0001-golden-redis-string",
+  "description": "Expected Redis STRING key/value pairs after write/read roundtrip",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "redis_key",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "redis_value",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

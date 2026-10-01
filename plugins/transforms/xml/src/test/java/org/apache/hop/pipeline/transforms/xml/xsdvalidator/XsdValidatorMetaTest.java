@@ -40,4 +40,9 @@ class XsdValidatorMetaTest {
     Assertions.assertEquals("filename", meta.getXsdSource());
     Assertions.assertTrue(meta.isAllowExternalEntities());
   }
+
+  @Test
+  void testExternalEntitiesAreDisabledByDefault() {
+    Assertions.assertFalse(new XsdValidatorMeta().isAllowExternalEntities());
+  }
 }

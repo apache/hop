@@ -71,14 +71,28 @@ public final class ExecutionStateBuilder {
     return new ExecutionStateBuilder();
   }
 
+  /**
+   * A null or negative request is the whole buffer. Callers pass {@code -1} for that. A caching
+   * location appends when the state carries a line number, so a full snapshot has to leave it unset
+   * or the next tick stores the same lines again.
+   */
+  private static boolean isDeltaRequest(Integer lastLogLineNr) {
+    return lastLogLineNr != null && lastLogLineNr >= 0;
+  }
+
   private static String getLoggingText(String logChannelId, Integer lastLogLineNr) {
     StringBuffer loggingTextBuffer;
-    if (lastLogLineNr != null) {
+    if (isDeltaRequest(lastLogLineNr)) {
       loggingTextBuffer = HopLogStore.getAppender().getBuffer(logChannelId, false, lastLogLineNr);
     } else {
       loggingTextBuffer = HopLogStore.getAppender().getBuffer(logChannelId, false);
     }
     return loggingTextBuffer.toString();
+  }
+
+  /** Line number for the next delta. A full snapshot does not advance a cursor. */
+  private static Integer loggingCursor(Integer requestedLineNr, int lastNrInLogStore) {
+    return isDeltaRequest(requestedLineNr) ? lastNrInLogStore : null;
   }
 
   public static ExecutionStateBuilder fromExecutor(
@@ -97,7 +111,7 @@ public final class ExecutionStateBuilder {
             .withId(pipeline.getLogChannelId())
             .withName(pipeline.getPipelineMeta().getName())
             .withLoggingText(getLoggingText(pipeline.getLogChannelId(), lastLogLineNr))
-            .withLastLogLineNr(lastNrInLogStore)
+            .withLastLogLineNr(loggingCursor(lastLogLineNr, lastNrInLogStore))
             .withFailed(pipeline.getErrors() > 0)
             .withStatusDescription(pipeline.getStatusDescription())
             .withChildIds(
@@ -261,7 +275,7 @@ public final class ExecutionStateBuilder {
         .withId(workflow.getLogChannelId())
         .withName(workflow.getWorkflowMeta().getName())
         .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
-        .withLastLogLineNr(lastNrInLogStore)
+        .withLastLogLineNr(loggingCursor(lastLogLineNr, lastNrInLogStore))
         .withFailed(result != null && !result.isResult())
         .withStatusDescription(workflow.getStatusDescription())
         .withChildIds(

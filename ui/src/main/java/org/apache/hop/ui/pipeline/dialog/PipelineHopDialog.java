@@ -155,7 +155,6 @@ public class PipelineHopDialog extends Dialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            input.setEnabled(!input.isEnabled());
             input.setChanged();
           }
         });
@@ -234,8 +233,10 @@ public class PipelineHopDialog extends Dialog {
   private void ok() {
     TransformMeta fromBackup = input.getFromTransform();
     TransformMeta toBackup = input.getToTransform();
+    boolean enabledBackup = input.isEnabled();
     input.setFromTransform(pipelineMeta.findTransform(wFrom.getText()));
     input.setToTransform(pipelineMeta.findTransform(wTo.getText()));
+    input.setEnabled(wEnabled.getSelection());
 
     pipelineMeta.clearCaches();
 
@@ -259,6 +260,8 @@ public class PipelineHopDialog extends Dialog {
     } else if (pipelineMeta.hasLoop(input.getToTransform())) {
       input.setFromTransform(fromBackup);
       input.setToTransform(toBackup);
+      input.setEnabled(enabledBackup);
+      pipelineMeta.clearCaches();
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "PipelineHopDialog.LoopsNotAllowed.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "PipelineHopDialog.LoopsNotAllowed.DialogTitle"));

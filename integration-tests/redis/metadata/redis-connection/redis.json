@@ -1,0 +1,16 @@
+{
+  "name": "redis",
+  "deploymentMode": "STANDALONE",
+  "hostname": "${REDIS_HOSTNAME}",
+  "port": "${REDIS_PORT}",
+  "database": "0",
+  "username": "",
+  "password": "",
+  "useSsl": false,
+  "timeoutMs": "10000",
+  "enablePooling": false,
+  "poolMaxTotal": "8",
+  "poolMaxIdle": "8",
+  "poolMinIdle": "0",
+  "poolMaxWaitMs": "-1"
+}

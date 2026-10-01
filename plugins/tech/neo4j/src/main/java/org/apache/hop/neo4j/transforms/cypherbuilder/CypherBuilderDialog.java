@@ -127,7 +127,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
 
-    this.copy = input.clone();
+    this.copy = (CypherBuilderMeta) input.clone();
   }
 
   @Override

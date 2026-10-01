@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -130,9 +131,18 @@ public class GetVariableDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               IValueMeta.TrimType.getDescriptions()),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colinf[1].setToolTip(BaseMessages.getString(PKG, "GetVariableDialog.VariableColumn.Tooltip"));
     colinf[1].setUsingVariables(true);
+    colinf[2].setToolTip(BaseMessages.getString(PKG, "System.Column.Type.Tooltip"));
+    colinf[3].setToolTip(BaseMessages.getString(PKG, "System.Column.Format.Tooltip"));
+    colinf[4].setToolTip(BaseMessages.getString(PKG, "System.Column.Length.Tooltip"));
+    colinf[5].setToolTip(BaseMessages.getString(PKG, "System.Column.Precision.Tooltip"));
+    colinf[6].setToolTip(BaseMessages.getString(PKG, "System.Column.Currency.Tooltip"));
+    colinf[7].setToolTip(BaseMessages.getString(PKG, "System.Column.Decimal.Tooltip"));
+    colinf[8].setToolTip(BaseMessages.getString(PKG, "System.Column.Group.Tooltip"));
+    colinf[9].setToolTip(BaseMessages.getString(PKG, "System.Column.TrimType.Tooltip"));
 
     wFields =
         new TableView(

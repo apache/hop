@@ -61,6 +61,10 @@ When you are finished with your pipeline, save it.
 This can be done via the File menu, the icons or using CTLR s or Command s.
 For new pipelines a file browser is displayed to navigate towards the location you want to store the file.
 
+By default Hop warns if a transform references a relational database connection that is not in the project metadata. You can still save. Connection names that still contain a variable such as `+'${CONNECTION}'+` are skipped. Check *Don't run this check when saving* on the dialog, or turn the option off under xref:hop-gui/perspective-configuration.adoc[Configuration] → Plugins → File validation.
+
+image::hop-gui/validate-database-connections-on-save-warning-dialog.png[Database connections save warning,width="90%"]
+
 == Add Transform to your pipelines
 
 Click anywhere in the pipeline canvas, the area where you'll see the image below.
@@ -68,7 +72,8 @@ Click anywhere in the pipeline canvas, the area where you'll see the image below
 image::getting-started/getting-started-click-anywhere.png[Hop - Click Anywhere,45%,align="left"]
 
 Upon clicking, you'll be presented with the dialog shown below.
-The search box at the top of this dialog works for transform, name, tags (TODO) etc.
+The search box at the top of this dialog matches transform names, descriptions and keywords.
+Search for `pipeline source` to list transforms that can start without incoming hops (see xref:pipeline/pipeline-sources.adoc[Pipeline sources]).
 Once you've found the transform you're looking for, click on it to add it to your pipeline.
 An alternative to clicking is arrow key navigation + enter.
 Repeat this step now or whenever you want to add more transforms to your pipeline.
@@ -92,6 +97,7 @@ image::hop-gui/pipeline/transforms.png[Hop - transforms,75%,align="left"]
 |===
 |Action|Description
 |Detach transform|Detach the transform from the pipeline
+|Create mapping|Extract the selected sequential transforms into a mapping pipeline and replace them with a Simple Mapping transform
 |Edit the transform|Edit the transform's metadata
 |Copy transform to clipboard|Copies selected items to clipboard.
 |Create hop| Creates a new hop between two transforms.
@@ -121,6 +127,10 @@ This will show a real-time table with a continuous output of the selected transf
 |Include in test|Run the current pipeline and write the data to a data set
 |Bypass in tess|When this unit test is run, bypass this transform (replace with a dummy)
 |Remove bypass in test|Do not bypass this transform in the current pipeline during testing
+|Remove selection from test|When two or more transforms are selected, do not include those transforms in this unit test
+|Include selection in test|When two or more transforms are selected, include those transforms in this unit test
+|Bypass selection in test|When two or more transforms are selected, bypass those transforms (replace each with a dummy)
+|Remove bypass from selection|When two or more transforms are selected, do not bypass those transforms during testing
 |===
 
 == Add a Hop between transforms
@@ -171,12 +181,14 @@ The Pipeline tab allows you to specify general properties about the pipeline inc
 |Pipeline filename| The filename of the pipeline
 |Description|Short description of the pipeline
 |Extended description| Long extended description of the pipeline
-|Status| Draft or production status
+|Status| Draft or production status. Deprecated: nothing in Hop acts on this value and it will be removed in a future release.
 |Version|Description of the version
-|Created by| Displays the original creator of the pipeline
+|Created by| The user that created the pipeline. Only recorded when Hop knows who that is, such as an authenticated Hop web session, and shows `-` otherwise.
 |Created at|Displays the date and time when the pipeline was created.
-|Last modified by| Displays the last user that modified the pipeline
-|Last modified at|Displays the date and time when the pipeline was last modified.
+|Last modified by| The user that last modified the pipeline, recorded under the same conditions as `Created by`.
+|Last modified at|Displays the date and time of the last save that changed the pipeline. A save that does not change anything leaves this untouched.
+|Created with|The version of Hop that created the pipeline. Empty for pipelines created before Hop started recording this.
+|Last modified with|The version of Hop that last saved a change to the pipeline.
 |===
 
 The parameters tab allows you to specify parameters specific for the pipeline.

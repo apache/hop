@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.filterrows;
 
 import java.util.List;
+import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -47,7 +48,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
 
   private synchronized boolean keepRow(IRowMeta rowMeta, Object[] row) throws HopException {
     try {
-      return meta.getCondition().evaluate(rowMeta, row);
+      return data.condition.evaluate(rowMeta, row);
     } catch (Exception e) {
       String message =
           BaseMessages.getString(
@@ -160,9 +161,9 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
   public boolean init() {
 
     if (super.init()) {
-      // could it be a better idea to have a clone on the condition in data and do this on the first
-      // row?
-      meta.getCondition().clearFieldPositions();
+      data.condition = meta.getCondition().clone();
+      resolveVariables(data.condition);
+      data.condition.clearFieldPositions();
 
       List<IStream> targetStreams = meta.getTransformIOMeta().getTargetStreams();
       data.trueTransformName = targetStreams.get(0).getTransformName();
@@ -174,6 +175,19 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
       return true;
     }
     return false;
+  }
+
+  void resolveVariables(Condition condition) {
+    if (condition.isAtomic()) {
+      Condition.CValue rightValue = condition.getRightValue();
+      if (rightValue != null && rightValue.getText() != null) {
+        rightValue.setText(resolve(rightValue.getText()));
+      }
+    } else {
+      for (int i = 0; i < condition.nrConditions(); i++) {
+        resolveVariables(condition.getCondition(i));
+      }
+    }
   }
 
   protected void checkNonExistingFields() throws HopException {

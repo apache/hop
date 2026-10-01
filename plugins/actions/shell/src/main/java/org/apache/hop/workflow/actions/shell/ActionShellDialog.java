@@ -424,15 +424,46 @@ public class ActionShellDialog extends ActionDialog {
     // / END OF LOGGING GROUP
     // ///////////////////////////////////////////////////////////
 
-    wlPrevious = new Label(wGeneralComp, SWT.RIGHT);
+    FormData fdGeneralComp = new FormData();
+    fdGeneralComp.left = new FormAttachment(0, 0);
+    fdGeneralComp.top = new FormAttachment(0, 0);
+    fdGeneralComp.right = new FormAttachment(100, 0);
+    fdGeneralComp.bottom = new FormAttachment(100, 0);
+    wGeneralComp.setLayoutData(fdGeneralComp);
+
+    wGeneralComp.layout();
+    wGeneralTab.setControl(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF GENERAL TAB
+    // ///////////////////////////////////////////////////////////
+
+    // ////////////////////////////////////
+    // START OF ARGUMENTS TAB ///
+    // ///////////////////////////////////
+
+    CTabItem wArgumentsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wArgumentsTab.setFont(GuiResource.getInstance().getFontDefault());
+    wArgumentsTab.setText(BaseMessages.getString(PKG, "ActionShell.Tab.Arguments.Label"));
+
+    Composite wArgumentsComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wArgumentsComp);
+
+    FormLayout argumentsLayout = new FormLayout();
+    argumentsLayout.marginWidth = 3;
+    argumentsLayout.marginHeight = 3;
+    wArgumentsComp.setLayout(argumentsLayout);
+
+    wlPrevious = new Label(wArgumentsComp, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionShell.Previous.Label"));
     PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wLogging, margin * 3);
+    fdlPrevious.top = new FormAttachment(0, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
-    wPrevious = new Button(wGeneralComp, SWT.CHECK);
+    wPrevious = new Button(wArgumentsComp, SWT.CHECK);
     PropsUi.setLook(wPrevious);
     wPrevious.setSelection(action.argFromPrevious);
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionShell.Previous.Tooltip"));
@@ -452,7 +483,7 @@ public class ActionShellDialog extends ActionDialog {
           }
         });
 
-    wlEveryRow = new Label(wGeneralComp, SWT.RIGHT);
+    wlEveryRow = new Label(wArgumentsComp, SWT.RIGHT);
     wlEveryRow.setText(BaseMessages.getString(PKG, "ActionShell.ExecForEveryInputRow.Label"));
     PropsUi.setLook(wlEveryRow);
     FormData fdlEveryRow = new FormData();
@@ -460,7 +491,7 @@ public class ActionShellDialog extends ActionDialog {
     fdlEveryRow.top = new FormAttachment(wPrevious, margin);
     fdlEveryRow.right = new FormAttachment(middle, -margin);
     wlEveryRow.setLayoutData(fdlEveryRow);
-    wEveryRow = new Button(wGeneralComp, SWT.CHECK);
+    wEveryRow = new Button(wArgumentsComp, SWT.CHECK);
     PropsUi.setLook(wEveryRow);
     wEveryRow.setSelection(action.execPerRow);
     wEveryRow.setToolTipText(
@@ -479,7 +510,7 @@ public class ActionShellDialog extends ActionDialog {
           }
         });
 
-    wlFields = new Label(wGeneralComp, SWT.NONE);
+    wlFields = new Label(wArgumentsComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionShell.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
@@ -487,7 +518,7 @@ public class ActionShellDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wlEveryRow, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int nrFieldsCols = 1;
+    final int nrFieldsCols = 2;
     int nrRows =
         action.arguments == null ? 1 : (action.arguments.isEmpty() ? 1 : action.arguments.size());
 
@@ -499,10 +530,18 @@ public class ActionShellDialog extends ActionDialog {
             false);
     fieldColumns[0].setUsingVariables(true);
 
+    fieldColumns[1] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "ActionShell.Fields.Hidden.Label"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {"Y", "N"},
+            false);
+    fieldColumns[1].setToolTip(BaseMessages.getString(PKG, "ActionShell.Fields.Hidden.Tooltip"));
+
     wFields =
         new TableView(
             variables,
-            wGeneralComp,
+            wArgumentsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             fieldColumns,
             nrRows,
@@ -519,19 +558,18 @@ public class ActionShellDialog extends ActionDialog {
     wlFields.setEnabled(!action.argFromPrevious);
     wFields.setEnabled(!action.argFromPrevious);
 
-    FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, 0);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(500, -margin);
-    wGeneralComp.setLayoutData(fdGeneralComp);
+    FormData fdArgumentsComp = new FormData();
+    fdArgumentsComp.left = new FormAttachment(0, 0);
+    fdArgumentsComp.top = new FormAttachment(0, 0);
+    fdArgumentsComp.right = new FormAttachment(100, 0);
+    fdArgumentsComp.bottom = new FormAttachment(100, 0);
+    wArgumentsComp.setLayoutData(fdArgumentsComp);
 
-    wGeneralComp.layout();
-    wGeneralTab.setControl(wGeneralComp);
-    PropsUi.setLook(wGeneralComp);
+    wArgumentsComp.layout();
+    wArgumentsTab.setControl(wArgumentsComp);
 
     // ///////////////////////////////////////////////////////////
-    // / END OF GENERAL TAB
+    // / END OF ARGUMENTS TAB
     // ///////////////////////////////////////////////////////////
 
     // ////////////////////////////////////
@@ -596,29 +634,11 @@ public class ActionShellDialog extends ActionDialog {
   }
 
   private void activeInsertScript() {
-    wFilename.setEnabled(!wInsertScript.getSelection());
-    wlFilename.setEnabled(!wInsertScript.getSelection());
-    wbFilename.setEnabled(!wInsertScript.getSelection());
-    wScript.setEnabled(wInsertScript.getSelection());
-    // We can not use arguments !!!
-    if (wInsertScript.getSelection()) {
-      wFields.clearAll(false);
-      wFields.setEnabled(false);
-      wlFields.setEnabled(false);
-      wPrevious.setSelection(false);
-      wPrevious.setEnabled(false);
-      wlPrevious.setEnabled(false);
-      wEveryRow.setSelection(false);
-      wEveryRow.setEnabled(false);
-      wlEveryRow.setEnabled(false);
-    } else {
-      wFields.setEnabled(true);
-      wlFields.setEnabled(true);
-      wPrevious.setEnabled(true);
-      wlPrevious.setEnabled(true);
-      wEveryRow.setEnabled(true);
-      wlEveryRow.setEnabled(true);
-    }
+    boolean insert = wInsertScript.getSelection();
+    wFilename.setEnabled(!insert);
+    wlFilename.setEnabled(!insert);
+    wbFilename.setEnabled(!insert);
+    wScript.setEnabled(insert);
   }
 
   public void enableFields() {
@@ -655,8 +675,12 @@ public class ActionShellDialog extends ActionDialog {
     if (action.arguments != null) {
       for (int i = 0; i < action.arguments.size(); i++) {
         TableItem ti = wFields.table.getItem(i);
-        if (action.arguments.get(i) != null) {
-          ti.setText(1, action.arguments.get(i));
+        ActionShell.ShellArgument arg = action.arguments.get(i);
+        if (arg != null) {
+          if (arg.getValue() != null) {
+            ti.setText(1, arg.getValue());
+          }
+          ti.setText(2, arg.isHidden() ? "Y" : "N");
         }
       }
       wFields.setRowNums();
@@ -708,8 +732,9 @@ public class ActionShellDialog extends ActionDialog {
 
     for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       String arg = wFields.getNonEmpty(i).getText(1);
+      boolean hidden = "Y".equalsIgnoreCase(wFields.getNonEmpty(i).getText(2));
       if (!Utils.isEmpty(arg)) {
-        action.arguments.add(arg);
+        action.arguments.add(new ActionShell.ShellArgument(arg, hidden));
       }
     }
 

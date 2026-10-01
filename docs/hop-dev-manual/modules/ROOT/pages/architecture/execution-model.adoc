@@ -1,0 +1,89 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: What actually happens between hitting run and rows moving: engines, run configurations, row sets, threads and the execution lifecycle.
+[[Architecture-ExecutionModel]]
+= How a pipeline and a workflow run
+
+Almost every question a new contributor has — why is my transform called twice, why does this work locally but not on Beam, when exactly does `init()` run — comes back to the execution model.
+This page is the map.
+
+== The short version
+
+A pipeline is a *dataflow*: all transforms start at once, each runs in its own thread, and rows move between them through bounded queues.
+Nothing is "step one, then step two"; a transform is running from the moment the pipeline starts until its input is exhausted.
+
+A workflow is *sequential*: one action runs, produces a `Result`, and the hops out of it decide what runs next.
+Actions do not stream, they finish.
+
+Mixing the two up is the single most common source of confusion, and it is why "loop over rows" looks so different in the two worlds.
+
+== Choosing an engine
+
+Nothing in a `.hpl` or `.hwf` file says how it should run.
+That is a *run configuration*, a metadata object naming a pipeline or workflow engine plugin and holding its settings.
+The engine plugin is looked up in the registry, instantiated, and handed the metadata.
+
+Hop ships local, remote and load-balancing engines; the Beam plugin adds several more.
+See xref:plugin-types/pipeline-workflow.adoc[the engine plugin types] and xref:engine-compatibility.adoc[Engine compatibility].
+
+== A pipeline, in the local engine
+
+`prepareExecution()`::
+Resolves the run configuration, expands the transform copies, creates the row sets between them, constructs one transform object per copy, and calls `init()` on each.
+A failing `init()` fails the pipeline before any row moves.
+
+`startThreads()`::
+Starts a thread per transform copy, each looping on `processRow()` until it returns false.
+
+Row sets::
+The queues between transforms, all implementing `IRowSet`.
+They are bounded, which is what gives Hop its backpressure: a fast reader in front of a slow writer blocks rather than filling memory.
+Several implementations exist for different needs — blocking, batching, single-row, spilling to disk.
+
+Finishing::
+Each transform ends its own loop; the pipeline is done when every thread has ended, and the finished listeners fire after that.
+
+== A workflow
+
+A workflow starts at the Start action and walks the hops, executing one action at a time and recording an `ActionResult` for each.
+The `Result` carries success, error count, and the rows and filenames passed along to the next action.
+
+Parallel branches change this: each branch gets its own thread and its own starting result.
+
+== Hooking in
+
+The lifecycle is exposed through xref:plugin-types/execution-observability.adoc[extension points] — `PipelinePrepareExecution`, `PipelineStart`, `TransformBeforeStart`, `PipelineFinish`, `PipelineCompleted` and their workflow equivalents.
+These are how logging, execution information, lineage and live status all attach without the engine knowing about them.
+
+[IMPORTANT]
+====
+An extension point must bind to `IPipelineEngine` / `IWorkflowEngine`, never to the concrete `Pipeline` or `Workflow` class.
+Binding to the concrete class works on the local engine and throws a `ClassCastException` everywhere else.
+====
+
+[NOTE]
+====
+This page is a scaffold: the outline is right and the summaries above are accurate, but each section deserves more than a paragraph. Still to write:
+
+* A diagram of the local pipeline execution, from run configuration to row sets to threads.
+* Transform copies and partitioning: what "run 4 copies" actually creates, and how rows are distributed over them.
+* Info and target streams, and why round-robin distribution over an info hop silently splits a lookup.
+* Error handling: error hops, `putError`, and what happens to a row that fails.
+* Sub-pipelines and sub-workflows: how a child gets its variables, parameters and result rows, and what is *not* inherited.
+* The remote engine: what is serialized, what is executed where, and how status comes back.
+* Stopping: soft stop versus hard stop, and what a transform must do to honour it.
+====

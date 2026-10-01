@@ -16,19 +16,26 @@
 # under the License.
 
 services:
-  integration_test_xml:
+  integration_test_ftp:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
-    links:
-      - ftp-server
+    depends_on:
+      ftp-server:
+        condition: service_healthy
 
   ftp-server:
     image: "delfer/alpine-ftp-server:latest"
     hostname: ftp-server
     ports:
-      - "21:21"
-      - "21000-21010:21000-21010"
+      - "21"
+      - "21000-21010"
     environment:
       - "USERS=admin|admin"
       - "ADDRESS=ftp-server"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 21 || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 2s

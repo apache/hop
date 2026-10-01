@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 class BeamBQInputDialogTest extends SwtBotTestBase {
 
   private static final String TRANSFORM_NAME = "BigQuery Input";
-  private static final String DIALOG_TITLE = "BigQuery Input";
+  private static final String DIALOG_TITLE = "BigQuery input";
 
   @Test
   void okWritesEditedFieldsBackToMeta() {
@@ -96,7 +96,7 @@ class BeamBQInputDialogTest extends SwtBotTestBase {
   private static PipelineMeta pipelineWith(BeamBQInputMeta meta) {
     String pluginId = PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
     assertNotNull(
-        pluginId, "BigQuery Input transform plugin must be registered via HopEnvironment.init()");
+        pluginId, "BigQuery input transform plugin must be registered via HopEnvironment.init()");
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.addTransform(new TransformMeta(pluginId, TRANSFORM_NAME, meta));
     return pipelineMeta;

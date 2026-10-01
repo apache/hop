@@ -2832,7 +2832,6 @@ from
     <method>GET</method>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <readTimeout>10000</readTimeout>
     <result>
 </result>
@@ -3389,6 +3388,7 @@ from
       <schema_name/>
     </partitioning>
     <delimiter>;</delimiter>
+    <enclosure/>
     <delimiter_is_regex>N</delimiter_is_regex>
     <resetrownumber>Y</resetrownumber>
     <rownum>N</rownum>

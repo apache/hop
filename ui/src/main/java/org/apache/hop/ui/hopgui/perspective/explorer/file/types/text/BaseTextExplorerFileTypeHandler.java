@@ -52,10 +52,10 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
   /**
    * Language id for syntax highlighting (e.g. "json", "xml"). Subclasses can override; default is
-   * null (plain text).
+   * plain text.
    */
   protected String getLanguageId() {
-    return null;
+    return "plaintext";
   }
 
   @Override
@@ -155,6 +155,20 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     } catch (Exception e) {
       LogChannel.UI.logError(
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
+    }
+  }
+
+  @Override
+  public void undo() {
+    if (editorWidget != null) {
+      editorWidget.undo();
+    }
+  }
+
+  @Override
+  public void redo() {
+    if (editorWidget != null) {
+      editorWidget.redo();
     }
   }
 

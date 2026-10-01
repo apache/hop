@@ -43,20 +43,25 @@ import java.lang.reflect.Field;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -136,6 +141,112 @@ class DatabaseTest {
     assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
     assertEquals(columnType, iRowMeta.getValueMeta(0).getOriginalColumnTypeName());
     assertEquals(columnSize, iRowMeta.getValueMeta(0).getLength());
+  }
+
+  @Test
+  void getParameterMetaDataMapsNvarcharAndNumeric() throws Exception {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    ParameterMetaData parameterMetaData = mock(ParameterMetaData.class);
+    when(ps.getParameterMetaData()).thenReturn(parameterMetaData);
+    when(parameterMetaData.getParameterCount()).thenReturn(2);
+    when(parameterMetaData.getParameterType(1)).thenReturn(Types.NVARCHAR);
+    when(parameterMetaData.getPrecision(1)).thenReturn(20);
+    when(parameterMetaData.getScale(1)).thenReturn(0);
+    when(parameterMetaData.getParameterType(2)).thenReturn(Types.NUMERIC);
+    when(parameterMetaData.getPrecision(2)).thenReturn(18);
+    when(parameterMetaData.getScale(2)).thenReturn(4);
+
+    Database db = new Database(log, variables, meta);
+    IRowMeta rowMeta = db.getParameterMetaData(ps);
+
+    assertEquals(2, rowMeta.size());
+    assertTrue(rowMeta.getValueMeta(0).isString());
+    assertTrue(rowMeta.getValueMeta(1).isNumeric());
+    assertFalse(rowMeta.getValueMeta(1).isInteger());
+    assertEquals(4, rowMeta.getValueMeta(1).getPrecision());
+  }
+
+  @Test
+  void getParameterMetaDataMapsUnsizedNumericToInteger() throws Exception {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    ParameterMetaData parameterMetaData = mock(ParameterMetaData.class);
+    when(ps.getParameterMetaData()).thenReturn(parameterMetaData);
+    when(parameterMetaData.getParameterCount()).thenReturn(1);
+    when(parameterMetaData.getParameterType(1)).thenReturn(Types.NUMERIC);
+    when(parameterMetaData.getPrecision(1)).thenReturn(0);
+    when(parameterMetaData.getScale(1)).thenReturn(0);
+
+    Database db = new Database(log, variables, meta);
+    IRowMeta rowMeta = db.getParameterMetaData(ps);
+
+    assertEquals(1, rowMeta.size());
+    assertTrue(rowMeta.getValueMeta(0).isInteger());
+  }
+
+  @Test
+  void parseSqlParameterSpecSkipsOnlyExplicitJsonbOperatorQuestionMarks() {
+    String sql =
+        "SELECT \"?identifier\", $$ ? $$ FROM t /* ? block */ "
+            + "WHERE payload ? 'key' AND options ?| array['a'] AND flags ?& array['b'] "
+            + "AND route = ?{route} -- ? line\nAND status = ?";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(
+        "SELECT \"?identifier\", $$ ? $$ FROM t /* ? block */ "
+            + "WHERE payload ? 'key' AND options ?| array['a'] AND flags ?& array['b'] "
+            + "AND route = ? -- ? line\nAND status = ?",
+        spec.getPreparedSql());
+    assertEquals(3, spec.getParameterCount());
+    assertNull(spec.getParameterReferences().get(0));
+    assertEquals("route", spec.getParameterReferences().get(1));
+    assertNull(spec.getParameterReferences().get(2));
+  }
+
+  @Test
+  void countParametersTreatsArrayConstructorsAsPositionalParameters() {
+    Database db = new Database(log, variables, meta);
+    String sql = "SELECT 1 WHERE x = ANY(ARRAY[?]) AND y = ARRAY[?, ?]";
+
+    assertEquals(3, db.countParameters(sql));
+  }
+
+  @Test
+  void countParametersUsesBracketIdentifierRulesForBracketQuotingDialects() {
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.getStartQuote()).thenReturn("[");
+    when(iDatabase.getEndQuote()).thenReturn("]");
+
+    Database db = new Database(log, variables, meta);
+    String sql =
+        "SELECT [a?b], `c?d`, \"e?f\" FROM t WHERE payload ? ? AND note = '?z' "
+            + "AND id = ? -- ? comment\nAND type = ?";
+
+    assertEquals(4, db.countParameters(sql));
+  }
+
+  @Test
+  void countParametersTreatsCommonJdbcQuestionMarksAsParameters() {
+    Database db = new Database(log, variables, meta);
+
+    assertEquals(2, db.countParameters("WHERE name LIKE ? AND status = ?"));
+    assertEquals(2, db.countParameters("WHERE val BETWEEN ? AND ?"));
+    assertEquals(1, db.countParameters("SELECT ? FROM dual"));
+    assertEquals(1, db.countParameters("WHERE col NOT LIKE ? OR active = true"));
+  }
+
+  @Test
+  void parseSqlParameterSpecHandlesEscapedQuestionJsonbOperators() {
+    String sql =
+        "SELECT * FROM t WHERE col ?? ? "
+            + "AND options ?| array['a'] "
+            + "AND flags ??& array['b']";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(sql, spec.getPreparedSql());
+    assertEquals(1, spec.getParameterCount());
+    assertNull(spec.getParameterReferences().get(0));
   }
 
   /**
@@ -381,7 +492,9 @@ class DatabaseTest {
     doReturn(v).when(fields).getValueMeta(0);
     boolean useAutoIncrement = true, semiColon = true;
 
-    doReturn("double foo").when(meta).getFieldDefinition(v, tk, pk, useAutoIncrement);
+    doReturn("double foo")
+        .when(meta)
+        .getFieldDefinition(any(IVariables.class), eq(v), eq(tk), eq(pk), eq(useAutoIncrement));
     doReturn(true).when(meta).requiresCreateTablePrimaryKeyAppend();
     String statement =
         db.getCreateTableStatement(tableName, fields, tk, useAutoIncrement, pk, semiColon);
@@ -519,6 +632,20 @@ class DatabaseTest {
   }
 
   @Test
+  void disconnectClearsCachedDatabaseMetaData() throws Exception {
+    Database db = new Database(log, variables, meta);
+    Connection connection = mockConnection(dbMetaData);
+    db.setConnection(connection);
+    assertNotNull(db.getDatabaseMetaData());
+
+    db.disconnect();
+
+    Field field = Database.class.getDeclaredField("dbmd");
+    field.setAccessible(true);
+    assertNull(field.get(db));
+  }
+
+  @Test
   void testGetTablenames() throws SQLException, HopDatabaseException {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
@@ -623,5 +750,152 @@ class DatabaseTest {
     assertEquals(1, iRowMeta.size());
     assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
     assertInstanceOf(ValueMetaNumber.class, iRowMeta.getValueMeta(0));
+  }
+
+  @Test
+  void testOpenQueryDerivesRowMetaOncePerPreparedStatement() throws Exception {
+    Database db = mockDatabaseForOpenQuery();
+
+    // Database Join re-executes the same prepared statement once per incoming row. Deriving the
+    // result layout costs one plugin class load per column, so it has to happen only once.
+    //
+    for (int i = 0; i < 5; i++) {
+      db.openQuery(ps, new RowMeta(), new Object[] {});
+
+      assertEquals(1, db.getReturnRowMeta().size());
+      assertEquals(columnName, db.getReturnRowMeta().getValueMeta(0).getName());
+      assertInstanceOf(ValueMetaNumber.class, db.getReturnRowMeta().getValueMeta(0));
+    }
+
+    verify(rs, times(1)).getMetaData();
+  }
+
+  @Test
+  void testOpenQueryDerivesRowMetaAgainAfterStatementIsClosed() throws Exception {
+    Database db = mockDatabaseForOpenQuery();
+
+    db.openQuery(ps, new RowMeta(), new Object[] {});
+    db.closePreparedStatement(ps);
+    db.openQuery(ps, new RowMeta(), new Object[] {});
+
+    // A driver may hand the same statement object back for different SQL once it is closed, so the
+    // cached layout must not survive it.
+    verify(rs, times(2)).getMetaData();
+  }
+
+  @Test
+  void testOpenQueryDerivesRowMetaPerStatementWhenStatementsAreAlternated() throws Exception {
+    Database db = mockDatabaseForOpenQuery();
+
+    // A second statement on the same connection, returning a different layout.
+    PreparedStatement otherPs = mock(PreparedStatement.class);
+    ResultSet otherRs = mock(ResultSet.class);
+    ResultSetMetaData otherRsMetaData = mock(ResultSetMetaData.class);
+    when(otherRsMetaData.getColumnCount()).thenReturn(1);
+    when(otherRsMetaData.getColumnName(1)).thenReturn("bonus");
+    when(otherRsMetaData.getColumnLabel(1)).thenReturn("bonus");
+    when(otherRsMetaData.getColumnType(1)).thenReturn(Types.VARCHAR);
+    when(otherRs.getMetaData()).thenReturn(otherRsMetaData);
+    when(otherPs.executeQuery()).thenReturn(otherRs);
+
+    // Alternating statements must never hand out the layout cached for the other one.
+    //
+    for (int i = 0; i < 3; i++) {
+      db.openQuery(ps, new RowMeta(), new Object[] {});
+      assertEquals(columnName, db.getReturnRowMeta().getValueMeta(0).getName());
+      assertInstanceOf(ValueMetaNumber.class, db.getReturnRowMeta().getValueMeta(0));
+
+      db.openQuery(otherPs, new RowMeta(), new Object[] {});
+      assertEquals("bonus", db.getReturnRowMeta().getValueMeta(0).getName());
+      assertInstanceOf(ValueMetaString.class, db.getReturnRowMeta().getValueMeta(0));
+    }
+  }
+
+  private Database mockDatabaseForOpenQuery() throws SQLException {
+    when(rsMetaData.getColumnCount()).thenReturn(1);
+    when(rsMetaData.getColumnName(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnLabel(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnType(1)).thenReturn(Types.DECIMAL);
+    when(rs.getMetaData()).thenReturn(rsMetaData);
+    when(ps.executeQuery()).thenReturn(rs);
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  /** A database whose driver reports {@code count} affected rows for every non-query statement. */
+  private Database databaseAffecting(int count) throws SQLException {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    when(meta.stripCR(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    Statement statement = mock(Statement.class);
+    when(statement.execute(anyString())).thenReturn(false);
+    when(statement.getUpdateCount()).thenReturn(count);
+    when(conn.createStatement()).thenReturn(statement);
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  @Test
+  void execStatementCountsMergeAsUpdated() throws Exception {
+    Result result =
+        databaseAffecting(4)
+            .execStatement(
+                "MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN UPDATE SET v = s.v "
+                    + "WHEN NOT MATCHED THEN INSERT (id, v) VALUES (s.id, s.v)");
+
+    assertEquals(4, result.getNrLinesUpdated());
+    assertEquals(0, result.getNrLinesOutput());
+    assertEquals(0, result.getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementCountsCtePrefixedDmlByItsVerb() throws Exception {
+    Result result =
+        databaseAffecting(2)
+            .execStatement(
+                "WITH s AS (SELECT id FROM src) UPDATE t SET v = 1 FROM s WHERE t.id = s.id");
+    assertEquals(2, result.getNrLinesUpdated());
+
+    result = databaseAffecting(3).execStatement("WITH s AS (SELECT 1) DELETE FROM t");
+    assertEquals(3, result.getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementKeepsInsertUpdateDeleteBuckets() throws Exception {
+    assertEquals(
+        5, databaseAffecting(5).execStatement("insert into t values (1)").getNrLinesOutput());
+    assertEquals(6, databaseAffecting(6).execStatement("UPDATE t SET v = 1").getNrLinesUpdated());
+    assertEquals(
+        7, databaseAffecting(7).execStatement("-- all\nDELETE FROM t").getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementCountsCustomUpdateAndDeleteStatements() throws Exception {
+    when(meta.isSupportsCustomUpdateStmt()).thenReturn(true);
+    when(meta.isSupportsCustomDeleteStmt()).thenReturn(true);
+
+    assertEquals(
+        2,
+        databaseAffecting(2)
+            .execStatement("ALTER TABLE t UPDATE v = 1 WHERE id = 1")
+            .getNrLinesUpdated());
+    assertEquals(
+        3,
+        databaseAffecting(3)
+            .execStatement("ALTER TABLE t DELETE WHERE id = 1")
+            .getNrLinesDeleted());
+  }
+
+  @Test
+  void execStatementIgnoresStatementsWithoutAffectedRows() throws Exception {
+    Result result = databaseAffecting(0).execStatement("MERGE INTO t USING s ON t.id = s.id");
+    assertEquals(0, result.getNrLinesUpdated());
+
+    result = databaseAffecting(-1).execStatement("CREATE TABLE t (id INT)");
+    assertEquals(0, result.getNrLinesUpdated());
+    assertEquals(0, result.getNrLinesOutput());
   }
 }

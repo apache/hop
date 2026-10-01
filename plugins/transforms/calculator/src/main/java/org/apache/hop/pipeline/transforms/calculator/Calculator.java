@@ -174,7 +174,8 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       putRow(data.getOutputRowMeta(), row); // copy row to possible alternate rowset(s).
 
       if (isRowLevel()) {
-        logRowlevel("Wrote row #" + getLinesWritten() + " : " + getInputRowMeta().getString(r));
+        logRowlevel(
+            "Wrote row #" + getLinesWritten() + " : " + data.getOutputRowMeta().getString(row));
       }
       if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Calculator.Log.Linenr", "" + getLinesRead()));

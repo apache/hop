@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "typefield",
+          "data_set_field": "typefield"
+        },
+        {
+          "transform_field": "X",
+          "data_set_field": "X"
+        },
+        {
+          "transform_field": "Y",
+          "data_set_field": "Y"
+        }
+      ],
+      "field_order": [
+        "id",
+        "typefield",
+        "X",
+        "Y"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-row-normaliser-mixed-types"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0020-row-normaliser-mixed-types UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0020-row-normaliser-mixed-types.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import lombok.Setter;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -27,6 +29,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.IRowToListener;
 
 public class EngineComponent implements IEngineComponent {
 
@@ -193,6 +196,23 @@ public class EngineComponent implements IEngineComponent {
   public void removeRowListener(IRowListener rowListener) {
     throw new HopRuntimeException(
         "Removing a row listener to this transform is not possible as it's not part of a running engine");
+  }
+
+  @Override
+  public void addRowToListener(IRowToListener rowToListener) {
+    throw new HopRuntimeException(
+        "Adding a row-to listener to this transform is not possible as it's not part of a running engine");
+  }
+
+  @Override
+  public void removeRowToListener(IRowToListener rowToListener) {
+    throw new HopRuntimeException(
+        "Removing a row-to listener to this transform is not possible as it's not part of a running engine");
+  }
+
+  @Override
+  public List<IRowToListener> getRowToListeners() {
+    return Collections.emptyList();
   }
 
   /**

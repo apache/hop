@@ -169,11 +169,21 @@ public class DriverInstaller {
 
     DriverResolver resolver = new DriverResolver(cache);
     List<ResolvedArtifact> resolved =
-        resolver.resolve(
-            download.toCoordinate(version),
-            repoUrl,
-            download.getExcludes(),
-            download.getRepositoryUrl());
+        new ArrayList<>(
+            resolver.resolve(
+                download.toCoordinate(version),
+                repoUrl,
+                download.getExcludes(),
+                download.getRepositoryUrl()));
+
+    // Artifacts the driver needs at runtime but does not declare as a dependency, so transitive
+    // resolution never finds them.
+    //
+    for (String companion : download.toCompanionCoordinates(version)) {
+      resolved.addAll(
+          resolver.resolve(
+              companion, repoUrl, download.getExcludes(), download.getRepositoryUrl()));
+    }
 
     if (!targetFolder.exists() && !targetFolder.mkdirs()) {
       throw new HopException("Unable to create target folder " + targetFolder.getAbsolutePath());

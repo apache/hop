@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "nrCustomers",
+          "data_set_field": "nrCustomers"
+        },
+        {
+          "transform_field": "sumIds",
+          "data_set_field": "sumIds"
+        }
+      ],
+      "field_order": [
+        "stateCode"
+      ],
+      "data_set_name": "0014-csv-lazy-conversion-golden",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0014-csv-lazy-conversion-validation UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0014-csv-lazy-conversion-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

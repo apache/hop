@@ -38,6 +38,24 @@ if [ -z "${HOP_IT_PER_TEST_JVM}" ]; then
   HOP_IT_PER_TEST_JVM="false"
 fi
 
+# Hard cap (in seconds) on a single hop-run invocation. Without it, one workflow that never
+# returns blocks the whole nightly and says nothing about why: ASF Jenkins builds #2269 and #2270
+# both sat inside the sftp project until the run was killed hours later, with the console log
+# ending mid-workflow. When the cap is hit the watchdog first sends SIGQUIT to the JVM, which
+# writes a full thread dump to the test output (the test image ships a JRE, so jstack/jcmd are not
+# available), and only then kills it, so the next hang lands in the log with a stack trace.
+# Set HOP_IT_TIMEOUT=0 to disable the watchdog.
+if [ -z "${HOP_IT_TIMEOUT}" ]; then
+  HOP_IT_TIMEOUT=3600
+fi
+case "${HOP_IT_TIMEOUT}" in
+'' | *[!0-9]*)
+  echo "WARNING: ignoring non-numeric HOP_IT_TIMEOUT='${HOP_IT_TIMEOUT}', using 3600"
+  HOP_IT_TIMEOUT=3600
+  ;;
+*) ;;
+esac
+
 # Install any JDBC drivers required by this test set, using the Hop driver-download CLI.
 # Driven by HOP_DRIVERS_DOWNLOAD (comma separated driver ids, each optionally with a version, e.g.
 # "vertica,mysql:9.2.0"), set per test in the integration-tests-*.yaml compose files. Restricted
@@ -136,6 +154,20 @@ if [ -z "${SKIP_GOOGLE_SHEETS}" ]; then
   SKIP_GOOGLE_SHEETS="false"
 fi
 
+# Double-check inside the container: the host may have a valid key while the file that actually
+# reaches the pipelines is still the placeholder (bad mount, stale image, ...). Deciding here, on
+# the file the transforms open, turns that into a clean skip instead of a Google credentials error.
+GCP_KEY_IN_CONTAINER="${GOOGLE_APPLICATION_CREDENTIALS:-/tmp/google-key-apache-hop-it.json}"
+if [ "${SKIP_GOOGLE_SHEETS}" != "true" ]; then
+  if [ ! -s "${GCP_KEY_IN_CONTAINER}" ] \
+    || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_IN_CONTAINER}" 2>/dev/null; then
+    echo "WARNING: ${GCP_KEY_IN_CONTAINER} is not a service-account JSON key even though the host"
+    echo "         reported a valid one (check the GCP_KEY_HOST_PATH mount in integration-tests-base.yaml)."
+    echo "         Skipping the Google Sheets integration tests."
+    SKIP_GOOGLE_SHEETS="true"
+  fi
+fi
+
 #set global variables
 SPACER="==========================================="
 
@@ -190,6 +222,117 @@ should_run_workflow() {
   return 1
 }
 
+# Emit one "STATUS<TAB>NAME<TAB>TIME" line per <testcase> in a surefire XML report.
+# The single-JVM suite runner records each test's outcome in that report rather than in this
+# script's loop, so it is the only place the per-test breakdown still exists.
+# Parsed with python3 (installed in the IT image) rather than grep/awk: every testcase embeds
+# its full workflow log in a CDATA section, and that log text can contain anything a line-based
+# parser would mistake for markup.
+parse_surefire_testcases() {
+  python3 - "$1" <<'PYTHON_PARSE_SUREFIRE' 2>/dev/null
+import sys
+import xml.etree.ElementTree as ET
+
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except Exception:
+    sys.exit(1)
+
+for testcase in root.iter("testcase"):
+    if testcase.find("failure") is not None:
+        status = "FAIL"
+    elif testcase.find("error") is not None:
+        status = "ERROR"
+    elif testcase.find("skipped") is not None:
+        status = "SKIP"
+    else:
+        status = "PASS"
+    print("%s\t%s\t%s" % (status, testcase.get("name", ""), testcase.get("time", "")))
+PYTHON_PARSE_SUREFIRE
+}
+
+# Write a captured log into a CDATA section with everything XML 1.0 cannot carry removed.
+# A test that shells out to a colourising CLI (dbt does) otherwise leaves an ESC (0x1b) in the log
+# and the whole report becomes unparsable: Jenkins' JUnit plugin then reports nothing at all for
+# the project. Terminal escape sequences go whole rather than only their ESC, so their printable
+# tail ("[0m") does not litter the report, and a literal CDATA terminator in the log is split.
+# python3 (installed in the IT image) rather than sed, so the filtering does not depend on the
+# GNU/BSD sed difference in escape handling.
+cat_cdata_safe() {
+  python3 - "$1" <<'PYTHON_CDATA_SAFE'
+import re
+import sys
+
+ANSI = re.compile("\x1b\\[[0-?]*[ -/]*[@-~]")
+ILLEGAL = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
+
+try:
+    with open(sys.argv[1], "r", encoding="utf-8", errors="replace") as f:
+        text = f.read()
+except OSError:
+    text = ""
+sys.stdout.write(ILLEGAL.sub("", ANSI.sub("", text)).replace("]]>", "]]]]><![CDATA[>"))
+PYTHON_CDATA_SAFE
+}
+
+# Run hop-run.sh with the usual tee redirection, bounded by HOP_IT_TIMEOUT (see above).
+# Returns hop-run's own exit code, or 124 when the watchdog had to kill a stuck run.
+run_hop_with_watchdog() {
+  if [ "${HOP_IT_TIMEOUT}" -eq 0 ]; then
+    $HOP_LOCATION/hop-run.sh "$@" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+    return $?
+  fi
+
+  $HOP_LOCATION/hop-run.sh "$@" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1) &
+  local runner_pid=$!
+  local waited=0
+
+  while kill -0 "${runner_pid}" 2>/dev/null; do
+    if [ "${waited}" -ge "${HOP_IT_TIMEOUT}" ]; then
+      echo "${SPACER}"
+      echo "ERROR: hop-run has not finished after ${HOP_IT_TIMEOUT}s, assuming it is stuck."
+      echo "Sending SIGQUIT to the JVM for a thread dump, then terminating it."
+      echo "${SPACER}"
+
+      # hop-run.sh does not exec java, so the JVM is a child of the shell we started.
+      local jvm_pid
+      jvm_pid=$(pgrep -P "${runner_pid}" java | head -n1)
+      if [ -z "${jvm_pid}" ]; then
+        jvm_pid=$(pgrep -f 'org.apache.hop.run.HopRun' | head -n1)
+      fi
+      if [ -n "${jvm_pid}" ]; then
+        # SIGQUIT makes the JVM print every thread's stack on its stdout, which tee captures.
+        # Twice: two dumps a few seconds apart show whether anything is moving at all.
+        kill -QUIT "${jvm_pid}" 2>/dev/null || true
+        sleep 15
+        kill -QUIT "${jvm_pid}" 2>/dev/null || true
+        sleep 10
+        kill -TERM "${jvm_pid}" 2>/dev/null || true
+        sleep 5
+        kill -KILL "${jvm_pid}" 2>/dev/null || true
+      else
+        echo "WARNING: could not find the hop-run JVM process, killing the wrapper only"
+      fi
+
+      kill -TERM "${runner_pid}" 2>/dev/null || true
+      wait "${runner_pid}" 2>/dev/null
+
+      # The surefire report is built from these files, so say there why the run has no result.
+      {
+        echo ""
+        echo "ERROR: hop-run was killed by the integration-test watchdog after ${HOP_IT_TIMEOUT}s."
+        echo "The JVM thread dump above (SIGQUIT) shows where the run was stuck."
+      } >>/tmp/test_output
+      return 124
+    fi
+    sleep 5
+    waited=$((waited + 5))
+  done
+
+  wait "${runner_pid}"
+  return $?
+}
+
 # Set up a temporary folder
 export TMP_FOLDER=/tmp/hop-it-$$
 rm -rf "${TMP_FOLDER}"
@@ -233,11 +376,14 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   #cleanup project testcases
   rm -f "${TMP_TESTCASES}"
 
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
 
-    # If there is a file called disabled.txt the project is disabled
+    # If there is a file called disabled.txt the project is disabled, unless the run explicitly
+    # opted in with INCLUDE_DISABLED=true (see run-tests-docker.sh).
     #
-    if [ ! -f "$d/disabled.txt" ]; then
+    if [ ! -f "$d/disabled.txt" ] \
+      || [ "${INCLUDE_DISABLED:-false}" = "true" ] \
+      || [[ ",${INCLUDE_DISABLED:-}," == *",$(basename "$d"),"* ]]; then
 
       #set test variables
       start_time=$SECONDS
@@ -298,23 +444,20 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
         start_time_test=$SECONDS
 
-        $HOP_LOCATION/hop-run.sh \
+        run_hop_with_watchdog \
           -r "${SUITE_RUN_CONFIG}" \
           "${HOP_RUN_COMMON_ARGS[@]}" \
           -p "PROJECT_NAME=${PROJECT_NAME}" \
           -p "IT_SUREFIRE_DIR=${SUREFIRE_DIR}" \
-          -f "${RUNNER_PIPELINE}" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+          -f "${RUNNER_PIPELINE}"
 
-        exit_code=${PIPESTATUS[0]}
+        exit_code=$?
         test_duration=$((SECONDS - start_time_test))
         total_duration=$((SECONDS - start_time))
 
         if (($exit_code >= 1)); then
           errors_counter=1
           failures_counter=1
-          echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
-        else
-          echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
         fi
 
         echo ${SPACER}
@@ -323,6 +466,22 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         echo "Duration: $test_duration"
         echo "Exit Code: $exit_code"
 
+        # A watchdog kill must always turn the build red. The suite may already have written a
+        # report for the workflows it did finish, so add a separate failing suite rather than
+        # overwriting those results.
+        if [ "${exit_code}" -eq 124 ] && [ "${SUREFIRE_REPORT}" = "true" ]; then
+          TIMEOUT_REPORT="${SUREFIRE_DIR}/surefile_${PROJECT_NAME}_timeout.xml"
+          {
+            echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}_timeout\" time=\"$total_duration\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">"
+            echo "<testcase name=\"suite_timeout\" time=\"$test_duration\"><failure type=\"suite_timeout\">hop-run did not finish within ${HOP_IT_TIMEOUT}s</failure><system-out><![CDATA["
+            cat_cdata_safe /tmp/test_output
+            echo "]]></system-out><system-err><![CDATA["
+            cat_cdata_safe /tmp/test_output_err
+            echo "]]></system-err></testcase></testsuite>"
+          } >"${TIMEOUT_REPORT}"
+        fi
+
         # Surefire XML is written by the Surefire Report Output transform.
         # If the transform never ran (startup failure), write a minimal failure suite.
         if [ "${SUREFIRE_REPORT}" = "true" ]; then
@@ -330,10 +489,69 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "<testcase name=\"suite_startup\" time=\"$test_duration\"><failure type=\"suite_startup\"></failure><system-out><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
-            cat /tmp/test_output >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            cat_cdata_safe /tmp/test_output >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "]]></system-out><system-err><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
-            cat /tmp/test_output_err >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            cat_cdata_safe /tmp/test_output_err >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "]]></system-err></testcase></testsuite>" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+          fi
+        fi
+
+        # Every main*.hwf ran inside one JVM, so this loop never saw the individual tests.
+        # Replay the per-test outcomes from the surefire report the suite just wrote, so the
+        # console keeps its per-test breakdown and the passed_tests/failed_tests overview files
+        # (printed at the end of run-tests-docker.sh) list test names rather than one project
+        # name. Runs after the fallback report above on purpose: a suite that died on startup
+        # then shows up here as a failed "suite_startup" test instead of vanishing.
+        SUITE_RESULTS="${TMP_FOLDER}/suite-results-${PROJECT_NAME}.tsv"
+        : >"${SUITE_RESULTS}"
+        if [ -f "${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml" ]; then
+          parse_surefire_testcases "${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml" \
+            >"${SUITE_RESULTS}" || : >"${SUITE_RESULTS}"
+        fi
+
+        if [ -s "${SUITE_RESULTS}" ]; then
+          suite_passed=0
+          suite_failed=0
+          suite_skipped=0
+
+          echo ${SPACER}
+          echo "Test results: ${PROJECT_NAME}"
+          echo ${SPACER}
+
+          while IFS=$'\t' read -r tc_status tc_name tc_time; do
+            [ -z "${tc_name}" ] && continue
+            case "${tc_status}" in
+            PASS)
+              suite_passed=$((suite_passed + 1))
+              echo -e "\033[1;32mPASSED \033[0m ${tc_name} (${tc_time}s)"
+              echo "${tc_name}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
+              ;;
+            SKIP)
+              suite_skipped=$((suite_skipped + 1))
+              echo -e "\033[1;93mSKIPPED\033[0m ${tc_name}"
+              ;;
+            *)
+              suite_failed=$((suite_failed + 1))
+              echo -e "\033[1;91mFAILED \033[0m ${tc_name} (${tc_time}s)"
+              echo "${tc_name}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+              ;;
+            esac
+          done <"${SUITE_RESULTS}"
+
+          echo ${SPACER}
+          echo "${PROJECT_NAME}: ${suite_passed} passed, ${suite_failed} failed, ${suite_skipped} skipped"
+
+          # A non-zero hop-run exit that no testcase accounts for (e.g. the suite aborted after
+          # the report was written) must still surface as a failure rather than an all-green list.
+          if (($exit_code >= 1)) && ((suite_failed == 0)); then
+            echo "${PROJECT_NAME} (suite exited ${exit_code})" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+          fi
+        else
+          # No parseable report at all: fall back to a single project-level entry.
+          if (($exit_code >= 1)); then
+            echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+          else
+            echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
           fi
         fi
 
@@ -371,13 +589,13 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
           start_time_test=$SECONDS
 
           #Run Test (use project pipeline run config, e.g. Beam "local")
-          $HOP_LOCATION/hop-run.sh \
+          run_hop_with_watchdog \
             -r "${PIPELINE_RUN_CONFIG}" \
             "${HOP_RUN_COMMON_ARGS[@]}" \
-            -f "$hop_file" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+            -f "$hop_file"
 
           #Capture exit code
-          exit_code=${PIPESTATUS[0]}
+          exit_code=$?
 
           #Test time duration
           test_duration=$((SECONDS - start_time_test))
@@ -390,12 +608,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<failure type=\"$test_name\"></failure>" >>${TMP_TESTCASES}
             echo "<system-out>" >>${TMP_TESTCASES}
             echo "<![CDATA[" >>${TMP_TESTCASES}
-            cat /tmp/test_output >>${TMP_TESTCASES}
+            cat_cdata_safe /tmp/test_output >>${TMP_TESTCASES}
             echo "]]>" >>${TMP_TESTCASES}
             echo "</system-out>" >>${TMP_TESTCASES}
             echo "<system-err>" >>${TMP_TESTCASES}
             echo "<![CDATA[" >>${TMP_TESTCASES}
-            cat /tmp/test_output_err >>${TMP_TESTCASES}
+            cat_cdata_safe /tmp/test_output_err >>${TMP_TESTCASES}
             echo "]]>" >>${TMP_TESTCASES}
             echo "</system-err>" >>${TMP_TESTCASES}
             echo "</testcase>" >>${TMP_TESTCASES}
@@ -407,7 +625,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
             echo "<system-out>" >>${TMP_TESTCASES}
             echo "<![CDATA[" >>${TMP_TESTCASES}
-            cat /tmp/test_output >>${TMP_TESTCASES}
+            cat_cdata_safe /tmp/test_output >>${TMP_TESTCASES}
             echo "]]>" >>${TMP_TESTCASES}
             echo "</system-out>" >>${TMP_TESTCASES}
             echo "</testcase>" >>${TMP_TESTCASES}

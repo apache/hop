@@ -33,6 +33,14 @@ public class ResultField {
   @HopMetadataProperty(key = "response_header", injectionKey = "RESPONSE_HEADER")
   private String responseHeader;
 
+  /**
+   * When set, the response body is handed on as raw bytes in a Binary result field instead of being
+   * decoded to a String. Decoding a binary payload to a String and back is lossy, so this is the
+   * only way to retrieve a file, an image or any other non-text response intact (issue #3746).
+   */
+  @HopMetadataProperty(key = "binary", injectionKey = "RESULT_BINARY")
+  private boolean binary;
+
   public ResultField() {}
 
   public ResultField(String fieldName, String code, String responseTime, String responseHeader) {
@@ -70,5 +78,13 @@ public class ResultField {
 
   public void setResponseHeader(String responseHeader) {
     this.responseHeader = responseHeader;
+  }
+
+  public boolean isBinary() {
+    return binary;
+  }
+
+  public void setBinary(boolean binary) {
+    this.binary = binary;
   }
 }

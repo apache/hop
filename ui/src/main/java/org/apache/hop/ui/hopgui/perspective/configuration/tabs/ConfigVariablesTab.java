@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -34,6 +36,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -150,6 +153,28 @@ public class ConfigVariablesTab {
       }
       HopConfig.getInstance().setDescribedVariables(variables);
       HopConfig.getInstance().saveToFile();
+
+      // Apply the saved variables to the live HopGui variable space so non-project
+      // usage picks them up without a restart. Open files still need a project reload
+      // (or restart) for a full refresh of resolved paths and metadata.
+      //
+      HopGui hopGui = HopGui.getInstance();
+      IVariables hopGuiVariables = hopGui.getVariables();
+      if (hopGuiVariables != null) {
+        for (DescribedVariable variable : variables) {
+          if (variable.getName() != null) {
+            hopGuiVariables.setVariable(variable.getName(), variable.getValue());
+          }
+        }
+      }
+
+      // Allow plugins (e.g. Projects) to reload so files and metadata see the new values.
+      //
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          hopGuiVariables,
+          HopGuiExtensionPoint.HopGuiSystemVariablesSaved.id,
+          variables);
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),

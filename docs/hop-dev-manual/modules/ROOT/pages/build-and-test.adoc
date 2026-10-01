@@ -1,0 +1,125 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The Maven build: what it needs, what the profiles do, which checks have to pass, and what CI runs.
+[[BuildAndTest]]
+= Building and testing
+
+== What you need
+
+* A JDK 21. The build targets Java 21 and the tests are skipped on anything older.
+* Maven 3.6.3 or newer — or nothing at all, and use the bundled wrapper `./mvnw`.
+
+[source,bash]
+----
+./mvnw clean install
+----
+
+That builds every module, runs the unit tests, applies the license and formatting checks, and produces the distributions under `assemblies/`.
+
+== Useful invocations
+
+[cols="2,3", options="header"]
+|===
+|Command |What it does
+
+|`./mvnw clean install`
+|The full build.
+
+|`./mvnw clean install -Pfast-build`
+|Skips tests, Spotless, RAT, Javadoc and coverage. For a quick compile, never for a build you intend to trust.
+
+|`./mvnw clean install -Dassemblies=false`
+|Builds the code but not the distributions. Much faster when you are only changing Java.
+
+|`./mvnw clean install -pl plugins/transforms/foo -am`
+|One module and what it depends on.
+
+|`./mvnw spotless:apply`
+|Reformats the code. Run this before committing.
+
+|`./mvnw test -pl core`
+|Unit tests of a single module.
+|===
+
+== Profiles
+
+Several profiles activate themselves, which is why the build usually needs no flags:
+
+`base` / `assemblies`::
+Decide which module sets are in the reactor. Both are on unless you pass `-Dbase=false` or `-Dassemblies=false`.
+
+`swt-unix` / `swt-mac` / `swt-windows`::
+Selected by your operating system, and pick the matching SWT artifact. `swt-mac` also adds `-XstartOnFirstThread` to the test JVM, which SWT needs on macOS.
+
+`assembly`::
+Activates for any module that has a `src/assembly` folder, and packages it as a zip. This is why a plugin needs no assembly configuration in its pom.
+
+`filtered-resources`::
+Activates for any module with a `src/main/resources-filtered` folder.
+
+And the opt-in ones:
+
+`fast-build`::
+Skips every check and every test.
+
+`uitest` / `skip-uitest`::
+Run only, or skip, the SWTBot UI tests. See xref:testing/ui-testing.adoc[UI tests with SWTBot].
+
+`webtest`::
+The Selenium tests that drive Hop Web in a container. They need Docker and take minutes, so they are out of the normal build: `mvn -Pwebtest -pl web-tests test`.
+
+`apache-release` / `deploy-snapshots`::
+Release plumbing, including the CycloneDX SBOM. See xref:apache-release/index.adoc[the release process].
+
+== Checks that must pass
+
+Formatting — Spotless::
+Java is formatted with google-java-format, imports are ordered and unused ones removed, and `pom.xml` files are sorted.
+Run `./mvnw spotless:apply` before you commit; CI runs `spotless:check` and fails on any difference.
+
+License headers — Apache RAT::
+Every source and text file needs the Apache License 2.0 header, including new `.adoc` pages.
+RAT fails the build otherwise.
+See xref:setup-dev-environment.adoc[Setting up your development environment] for configuring your IDE to add it automatically.
+
+Annotation index — Jandex::
+Bound for every module, so plugin discovery works. Nothing to do unless you are building a plugin outside this repository.
+
+Tests::
+JUnit 5 through Surefire. UI tests are tagged and can be included or excluded, see below.
+
+== What CI runs
+
+`Jenkinsfile`::
+The per-change build: full `clean deploy` under `xvfb-run` so the UI tests have a display, an assembly size check (`tools/check-assembly-size.sh` — ASF Artifactory rejects packages over roughly 850 MB), then the Docker images and the snapshot deploy.
+
+`Jenkinsfile.daily`::
+Build and test plus a code quality stage, and the integration tests against the built image.
+
+`Jenkinsfile.hop-web-selenium`::
+The Hop Web Selenium suite.
+
+CI builds with `-fae` and `-Dsurefire.rerunFailingTestsCount=2`, so a flaky test can pass on CI and still be a real problem.
+
+[NOTE]
+====
+This page is a scaffold. Still to write:
+
+* Troubleshooting a failing build: the usual suspects and their fixes.
+* `tools/find_duplicate_jars.sh` and what a duplicate jar means — see xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading].
+* Building only the distribution you need, and how to run from `assemblies/client/target`.
+====

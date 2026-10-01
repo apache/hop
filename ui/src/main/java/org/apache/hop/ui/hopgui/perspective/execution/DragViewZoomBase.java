@@ -30,6 +30,15 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
 public abstract class DragViewZoomBase extends Composite {
+
+  /** The distance the view pans for one arrow key press, in graph coordinates at 100% zoom. */
+  private static final double PAN_STEP = 20;
+
+  /**
+   * How much larger a step is when SHIFT is held down, both for panning and for moving elements.
+   */
+  protected static final int LARGE_STEP_FACTOR = 5;
+
   protected Canvas canvas;
   protected DPoint offset;
   protected Point maximum;
@@ -98,33 +107,92 @@ public abstract class DragViewZoomBase extends Composite {
   @GuiKeyboardShortcut(key = SWT.ARROW_LEFT)
   @GuiOsxKeyboardShortcut(key = SWT.ARROW_LEFT)
   public void viewLeft() {
-    offset.x += 15 * magnification * PropsUi.getNativeZoomFactor();
-    validateOffset();
-    redraw();
+    arrowKey(-1, 0, false);
   }
 
   @GuiKeyboardShortcut(key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(key = SWT.ARROW_RIGHT)
   public void viewRight() {
-    offset.x -= 15 * magnification * PropsUi.getNativeZoomFactor();
-    validateOffset();
-    redraw();
+    arrowKey(1, 0, false);
   }
 
   @GuiKeyboardShortcut(key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(key = SWT.ARROW_UP)
   public void viewUp() {
-    offset.y += 15 * magnification * PropsUi.getNativeZoomFactor();
-    validateOffset();
-    redraw();
+    arrowKey(0, -1, false);
   }
 
   @GuiKeyboardShortcut(key = SWT.ARROW_DOWN)
   @GuiOsxKeyboardShortcut(key = SWT.ARROW_DOWN)
   public void viewDown() {
-    offset.y -= 15 * magnification * PropsUi.getNativeZoomFactor();
+    arrowKey(0, 1, false);
+  }
+
+  @GuiKeyboardShortcut(shift = true, key = SWT.ARROW_LEFT)
+  @GuiOsxKeyboardShortcut(shift = true, key = SWT.ARROW_LEFT)
+  public void viewLeftFast() {
+    arrowKey(-1, 0, true);
+  }
+
+  @GuiKeyboardShortcut(shift = true, key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(shift = true, key = SWT.ARROW_RIGHT)
+  public void viewRightFast() {
+    arrowKey(1, 0, true);
+  }
+
+  @GuiKeyboardShortcut(shift = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(shift = true, key = SWT.ARROW_UP)
+  public void viewUpFast() {
+    arrowKey(0, -1, true);
+  }
+
+  @GuiKeyboardShortcut(shift = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut(shift = true, key = SWT.ARROW_DOWN)
+  public void viewDownFast() {
+    arrowKey(0, 1, true);
+  }
+
+  /**
+   * Handle an arrow key: move the selected elements when there are any, pan the view otherwise.
+   *
+   * @param dx -1, 0 or 1: the horizontal direction
+   * @param dy -1, 0 or 1: the vertical direction
+   * @param largeStep true when SHIFT is held down: take a larger step
+   */
+  protected void arrowKey(int dx, int dy, boolean largeStep) {
+    if (moveSelectionWithArrowKey(dx, dy, largeStep)) {
+      return;
+    }
+    double step = calculatePanStep(largeStep);
+    offset.x -= dx * step;
+    offset.y -= dy * step;
     validateOffset();
     redraw();
+  }
+
+  /**
+   * Move the elements selected on the canvas with the arrow keys. Only the editors (pipeline and
+   * workflow graph) support this, the execution viewers always pan the view.
+   *
+   * @param dx -1, 0 or 1: the horizontal direction
+   * @param dy -1, 0 or 1: the vertical direction
+   * @param largeStep true when SHIFT is held down: take a larger step
+   * @return true if the arrow key moved a selection, false to pan the view instead
+   */
+  protected boolean moveSelectionWithArrowKey(int dx, int dy, boolean largeStep) {
+    return false;
+  }
+
+  /**
+   * The distance to pan for a single arrow key press, in graph coordinates. It compensates for the
+   * magnification so that the view always moves the same visible distance.
+   *
+   * @param largeStep true to take a larger step (SHIFT)
+   * @return the distance to pan in graph coordinates
+   */
+  protected double calculatePanStep(boolean largeStep) {
+    double step = PAN_STEP / Math.max(0.1f, magnification);
+    return largeStep ? step * LARGE_STEP_FACTOR : step;
   }
 
   @GuiKeyboardShortcut(control = true, key = '+')
@@ -333,44 +401,54 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   /**
-   * See if this is a click on the navigation view inner rectangle with the goal of dragging it
-   * around a bit.
+   * See if this is a click on the navigation minimap. A click on the blue visible-area overlay
+   * starts a drag. A click on the rest of the minimap first jumps the view so the overlay is
+   * centered on the click, then starts a drag.
    */
   protected boolean setupDragViewPort(Point screenClick) {
-    if (viewPort != null && viewPort.contains(screenClick)) {
-      viewPortNavigation = true;
-      viewPortStart = new Point(screenClick);
-      viewDragBaseOffset = new DPoint(offset);
-      // Change cursor when dragging view port
-      setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
-      return true;
+    if (!ViewPortNavigator.hitMinimap(graphPort, viewPort, screenClick)) {
+      return false;
     }
-    return false;
+    if (viewPort != null && !viewPort.contains(screenClick)) {
+      Point viewCenter = ViewPortNavigator.viewPortCenter(viewPort);
+      if (viewCenter != null) {
+        offset = computeViewPortDragOffset(new DPoint(offset), viewCenter, screenClick);
+        validateOffset();
+        redraw();
+      }
+    }
+    viewPortNavigation = true;
+    viewPortStart = new Point(screenClick);
+    viewDragBaseOffset = new DPoint(offset);
+    setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
+    return true;
   }
 
   protected void dragViewPort(Point clickLocation) {
-    double deltaX = clickLocation.x - viewPortStart.x;
-    double deltaY = clickLocation.y - viewPortStart.y;
+    if (viewPortStart == null || viewDragBaseOffset == null) {
+      return;
+    }
+    offset = computeViewPortDragOffset(viewDragBaseOffset, viewPortStart, clickLocation);
+    validateOffset();
+    redraw();
+  }
 
-    // Convert pixel delta (in minimap/canvas space) to graph coordinates using the same
-    // scale as the minimap: overlay size in pixels = visible size in graph * scale.
-    //
-    double mag = Math.max(0.01, magnification);
+  /**
+   * Convert a pixel drag of the visible-area overlay into a graph offset. Uses the same
+   * magnification as drawing so the overlay tracks the pointer 1:1.
+   */
+  private DPoint computeViewPortDragOffset(DPoint baseOffset, Point start, Point current) {
+    double mag = Math.max(0.01, calculateCorrectedMagnification());
     Point area = getArea();
     double visibleWidthGraph = area.x / mag;
     double visibleHeightGraph = area.y / mag;
-    if (viewPort.width <= 0 || viewPort.height <= 0) {
-      return;
-    }
-    double scaleX = (double) viewPort.width / visibleWidthGraph;
-    double scaleY = (double) viewPort.height / visibleHeightGraph;
-    double deltaGraphX = deltaX / scaleX;
-    double deltaGraphY = deltaY / scaleY;
+    return ViewPortNavigator.dragOffset(
+        baseOffset, viewPort, start, current, visibleWidthGraph, visibleHeightGraph);
+  }
 
-    offset = new DPoint(viewDragBaseOffset.x - deltaGraphX, viewDragBaseOffset.y - deltaGraphY);
-
-    validateOffset();
-    redraw();
+  /** True when the pointer is over the navigation minimap (frame or visible-area overlay). */
+  protected boolean isOverNavigationView(Point screenClick) {
+    return ViewPortNavigator.hitMinimap(graphPort, viewPort, screenClick);
   }
 
   public void validateOffset() {

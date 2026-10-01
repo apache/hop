@@ -18,19 +18,28 @@
 package org.apache.hop.projects.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.Defaults;
+import org.apache.hop.projects.util.ProjectsConfigHelper;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
+@Getter
+@Setter
 public class ProjectsOptionPlugin implements IConfigOptions {
 
   @CommandLine.Option(
@@ -43,6 +52,31 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       description = "The name of the project to use")
   private String projectOption = null;
 
+  @CommandLine.Option(
+      names = {"-pl", "--project-locations"},
+      description = "Comma-separated list of project locations (name=location or archive files)",
+      split = ",")
+  protected String[] projectLocations = null;
+
+  @CommandLine.Option(
+      names = {"--environments"},
+      description =
+          "Comma-separated list of environment definitions (name=[project:]configFile1;configFile2)",
+      split = ",")
+  protected String[] environments = null;
+
+  @CommandLine.Option(
+      names = {"--environment-conf-files", "--environment-config-files"},
+      description =
+          "Comma-separated list of configuration files to apply to the project or environment",
+      split = ",")
+  protected String[] environmentConfigFiles = null;
+
+  @CommandLine.Option(
+      names = {"-ime", "--in-memory"},
+      description = "Keep configuration in memory without persisting to hop-config.json")
+  protected boolean inMemory = false;
+
   protected String projectName;
   protected String environmentName;
 
@@ -51,9 +85,57 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
       throws HopException {
 
+    if (inMemory
+        || projectLocations != null
+        || environments != null
+        || environmentConfigFiles != null) {
+      ProjectsConfigHelper.enableInMemoryMode(log);
+    }
+
+    List<String> registeredProjects = new ArrayList<>();
+    if (projectLocations != null && projectLocations.length > 0) {
+      registeredProjects =
+          ProjectsConfigHelper.addProjectLocations(log, variables, projectLocations);
+    }
+
+    if (environments != null && environments.length > 0) {
+      ProjectsConfigHelper.addEnvironments(log, variables, environments, registeredProjects);
+    }
+
     projectName = projectOption;
     environmentName = environmentOption;
-    return configure(log, variables, hasHopMetadataProvider, projectName, environmentName);
+
+    // A later mixin (hop-server, hop-run) often has empty -e/-j even though the root command
+    // already enabled an environment. Inherit HOP_ENVIRONMENT_NAME so environment config files
+    // are not dropped on the second configure(). Only do this when this mixin specified neither.
+    if (StringUtils.isEmpty(projectName) && StringUtils.isEmpty(environmentName)) {
+      if (variables != null) {
+        environmentName = variables.getVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME);
+      }
+      if (StringUtils.isEmpty(environmentName)) {
+        projectName =
+            ProjectsConfigHelper.determineActiveProject(
+                projectName, environmentName, registeredProjects, variables);
+      }
+    }
+
+    if (hasHopMetadataProvider == null
+        && StringUtils.isEmpty(projectName)
+        && StringUtils.isEmpty(environmentName)) {
+      return false;
+    }
+
+    List<String> extraConfigFiles = new ArrayList<>();
+    if (environmentConfigFiles != null) {
+      for (String cf : environmentConfigFiles) {
+        if (StringUtils.isNotEmpty(cf)) {
+          extraConfigFiles.add(cf.trim());
+        }
+      }
+    }
+
+    return configure(
+        log, variables, hasHopMetadataProvider, projectName, environmentName, extraConfigFiles);
   }
 
   public static final boolean configure(
@@ -62,6 +144,23 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       IHasHopMetadataProvider hasHopMetadataProvider,
       String projectName,
       String environmentName)
+      throws HopException {
+    return configure(
+        log,
+        variables,
+        hasHopMetadataProvider,
+        projectName,
+        environmentName,
+        Collections.emptyList());
+  }
+
+  public static final boolean configure(
+      ILogChannel log,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider,
+      String projectName,
+      String environmentName,
+      List<String> extraConfigFiles)
       throws HopException {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig;
@@ -141,6 +240,24 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       return false;
     }
 
+    if (extraConfigFiles != null && !extraConfigFiles.isEmpty()) {
+      configurationFiles.addAll(extraConfigFiles);
+    }
+
+    if (ProjectsConfigHelper.alreadyEnabled(projectName, environmentName)
+        && (extraConfigFiles == null || extraConfigFiles.isEmpty())) {
+      // Skip the expensive second enable (VFS reset, metadata rebuild, extension points) but
+      // still apply PROJECT_HOME and environment config variables onto this variables instance.
+      // hop-server rebuilds HopServerConfig after the mixin runs; a different IVariables than
+      // the one that was first enabled must still resolve ${PROJECT_HOME}. See issue #8284.
+      applyEnabledProjectVariables(variables, projectConfig, configurationFiles, environmentName);
+      MultiMetadataProvider current = HopMetadataInstance.getMetadataProvider();
+      if (hasHopMetadataProvider != null && current != null) {
+        hasHopMetadataProvider.setMetadataProvider(current);
+      }
+      return true;
+    }
+
     try {
       Project project = projectConfig.loadProject(variables);
       log.logBasic("Enabling project '" + projectName + "'");
@@ -162,6 +279,25 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       return true;
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "'", e);
+    }
+  }
+
+  /**
+   * Copy project and environment variables onto {@code variables} without rebuilding metadata or
+   * resetting VFS. Used when the same project/environment was already enabled on another instance.
+   */
+  static void applyEnabledProjectVariables(
+      IVariables variables,
+      ProjectConfig projectConfig,
+      List<String> configurationFiles,
+      String environmentName)
+      throws HopException {
+    if (variables == null || projectConfig == null) {
+      return;
+    }
+    Project project = projectConfig.loadProject(variables);
+    if (project != null) {
+      project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
     }
   }
 }
