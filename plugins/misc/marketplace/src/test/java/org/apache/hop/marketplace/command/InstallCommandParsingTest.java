@@ -58,6 +58,29 @@ class InstallCommandParsingTest {
   }
 
   @Test
+  void repoUrlAndCredentialsOptionsAreParsed() {
+    CommandLine commandLine = new CommandLine(new MarketplaceCommand.InstallCommand());
+    CommandLine.ParseResult parsed =
+        commandLine.parseArgs(
+            "--repo-url",
+            "https://repository.data-hopper.com/repository/hop-community-plugins/",
+            "--username",
+            "testuser",
+            "--password",
+            "testpass",
+            "--auth-type",
+            "basic",
+            "org.hopper:hopper-edw:0.10.0");
+    assertEquals(List.of("org.hopper:hopper-edw:0.10.0"), parsed.matchedPositional(0).getValue());
+    assertEquals(
+        "https://repository.data-hopper.com/repository/hop-community-plugins/",
+        parsed.matchedOptionValue("--repo-url", null));
+    assertEquals("testuser", parsed.matchedOptionValue("--username", null));
+    assertEquals("testpass", parsed.matchedOptionValue("--password", null));
+    assertEquals("basic", parsed.matchedOptionValue("--auth-type", null));
+  }
+
+  @Test
   void atLeastOneCoordinateIsRequired() {
     assertThrows(CommandLine.MissingParameterException.class, this::parseNothing);
   }

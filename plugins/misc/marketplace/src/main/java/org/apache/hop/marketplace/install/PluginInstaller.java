@@ -36,6 +36,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
@@ -57,15 +58,16 @@ public class PluginInstaller {
   private final MavenRepositoryClient client;
 
   public PluginInstaller(ILogChannel log, Path hopHome, MarketplaceConfig config) {
-    this.log = log;
-    this.hopHome = hopHome;
-    this.config = config;
-    this.client = new MavenRepositoryClient(log);
+    this(
+        log != null ? log : new LogChannel("PluginInstaller"),
+        hopHome,
+        config,
+        new MavenRepositoryClient(log != null ? log : new LogChannel("PluginInstaller")));
   }
 
   PluginInstaller(
       ILogChannel log, Path hopHome, MarketplaceConfig config, MavenRepositoryClient client) {
-    this.log = log;
+    this.log = log != null ? log : new LogChannel("PluginInstaller");
     this.hopHome = hopHome;
     this.config = config;
     this.client = client;

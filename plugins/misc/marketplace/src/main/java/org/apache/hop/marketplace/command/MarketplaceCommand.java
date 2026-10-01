@@ -141,7 +141,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
               + " Every coordinate is resolved before the first download, so a typo fails before"
               + " anything is fetched. A plugin that fails to install does not stop the others;"
               + " the command exits non-zero when any of them failed.")
-  static class InstallCommand extends MarketplaceSubCommand {
+  public static class InstallCommand extends MarketplaceSubCommand {
     @Parameters(
         index = "0",
         arity = "1..*",
@@ -155,17 +155,75 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     @Option(
         names = {"--repo"},
         description =
-            "Use only this repository id (skip fallback chain). Default: prefer discovery source,"
-                + " then primary and other enabled repos.")
+            "Use only this repository id (skip fallback chain) or base URL. Default: prefer discovery"
+                + " source, then primary and other enabled repos.")
     private String repoId;
+
+    @Option(
+        names = {"--repo-url"},
+        description =
+            "Maven repository base URL to download from (e.g. corporate Artifactory or Nexus). "
+                + "When specified, takes precedence over configured repositories.")
+    private String repoUrl;
+
+    @Option(
+        names = {"--username"},
+        description = "Optional Basic auth username for the repository specified in --repo-url")
+    private String username;
+
+    @Option(
+        names = {"--password"},
+        description =
+            "Optional Basic auth password or bearer token for the repository specified in --repo-url")
+    private String password;
+
+    @Option(
+        names = {"--auth-type"},
+        description = "Authentication type for --repo-url: auto (default), none, basic or token")
+    private String authType;
 
     @Override
     public void run() {
       try {
+        if (log == null) {
+          log = new LogChannel("Marketplace");
+        }
         MarketplaceConfig config = MarketplaceConfig.load();
         if (!config.isEnabled()) {
           throw new HopException("Marketplace is disabled in hop-config.json");
         }
+
+        // If repoId is an HTTP/HTTPS URL and repoUrl was omitted, treat it as repoUrl
+        if (StringUtils.isBlank(repoUrl)
+            && StringUtils.isNotBlank(repoId)
+            && (repoId.startsWith("http://") || repoId.startsWith("https://"))) {
+          repoUrl = repoId;
+          repoId = null;
+        }
+
+        if (StringUtils.isNotBlank(repoUrl)) {
+          String adhocId = "adhoc-repo";
+          int counter = 1;
+          while (config.findRepository(adhocId) != null) {
+            adhocId = "adhoc-repo-" + counter++;
+          }
+          MarketplaceRepository adHoc =
+              new MarketplaceRepository(adhocId, "Ad-hoc Repository", repoUrl, true);
+          if (StringUtils.isNotBlank(username)) {
+            adHoc.setUsername(username);
+          }
+          if (StringUtils.isNotBlank(password)) {
+            adHoc.setPassword(password);
+          }
+          if (StringUtils.isNotBlank(authType)) {
+            adHoc.setAuthType(authType);
+          }
+          adHoc.setBrowse(true);
+          config.getRepositories().add(0, adHoc);
+          config.ensureValidPrimary();
+          repoId = adhocId;
+        }
+
         Path hopHome = HopHome.resolve();
         PluginInstaller installer = new PluginInstaller(log, hopHome, config);
         // Activate any previously staged plugins first

@@ -448,6 +448,55 @@ The download is supported by the client/server image (running pipelines, workflo
 
 NOTE: `HOP_DRIVERS_DOWNLOAD` is available from Hop version 2.19.
 
+[[DownloadingMarketplacePlugins]]
+== Downloading Marketplace plugins
+
+The Docker container can install optional or third-party plugins from the Hop marketplace or a corporate Maven repository (e.g. Sonatype Nexus, JFrog Artifactory) on startup *before* Hop starts.
+
+Set `HOP_PLUGINS_DOWNLOAD` to a comma-separated list of plugin coordinates. Each entry can be:
+
+* An artifact id or short name (e.g. `hop-tech-parquet`, `datavault`).
+* An artifact id with version (e.g. `hopper-edw:0.10.0`).
+* Full Maven coordinates (e.g. `org.hopper:hopper-edw:0.10.0`).
+
+If the plugins are hosted on a corporate Artifactory or custom Maven repository rather than the default Hop repositories (ASF and Maven Central), provide the base repository URL with `HOP_PLUGINS_MAVEN_REPO`.
+
+.Install a plugin from a custom repository in a container
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_PLUGINS_DOWNLOAD="org.hopper:hopper-edw:0.10.0" \
+  --env HOP_PLUGINS_MAVEN_REPO="https://repository.data-hopper.com/repository/hop-community-plugins/" \
+  --env HOP_PROJECT_FOLDER=/project \
+  --env HOP_PROJECT_NAME=my-project \
+  --env HOP_FILE_PATH='${PROJECT_HOME}/main.hpl' \
+  --env HOP_RUN_CONFIG=local \
+  --mount type=bind,source=/path/to/project,target=/project \
+  apache/hop
+----
+
+If your corporate repository requires authentication, specify credentials:
+
+* `HOP_PLUGINS_REPO_USERNAME`: Basic auth username.
+* `HOP_PLUGINS_REPO_PASSWORD`: Basic auth password or bearer token.
+* `HOP_PLUGINS_REPO_AUTH_TYPE`: `auto` (default), `none`, `basic`, or `token`.
+
+Alternatively, standard marketplace environment variables (`HOP_MARKETPLACE_USERNAME`, `HOP_MARKETPLACE_PASSWORD`) are also picked up automatically.
+
+If you maintain a declarative Hop environment install spec (`hop-env.yaml`) or repository definition (`hop-marketplace-repo.yaml`), you can point to it directly using `HOP_PLUGINS_ENV_FILE`:
+
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_PLUGINS_ENV_FILE=https://raw.githubusercontent.com/ProjectDataHopper/hopper-edw/main/hop-marketplace-repo.yaml \
+  ... \
+  apache/hop
+----
+
+The downloaded plugins are unpacked into the container's `plugins/` directory and loaded during startup.
+
+NOTE: `HOP_PLUGINS_DOWNLOAD` is available from Hop version 2.19.
+
 == Custom Entrypoint Extension Shell Script
 
 To make the Hop Docker image even more flexible, we added a ```HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH``` variable that accepts a path to a custom shell script (that you provide).This shell script will run when you start the container before your Hop project is registered with the container's Hop config and before your Hop workflow or pipeline gets kicked off.

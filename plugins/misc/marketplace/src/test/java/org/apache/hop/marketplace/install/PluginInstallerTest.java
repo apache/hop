@@ -36,12 +36,14 @@ import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import picocli.CommandLine;
 
 class PluginInstallerTest {
 
@@ -338,6 +340,39 @@ class PluginInstallerTest {
           listener.lastBytes,
           "the final byte callback must equal the file size so the bar completes");
       assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installCommandWithRepoUrlInstallsFromAdHocRepository() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = zipServer(zipBytes);
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-adhoc-install");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      int port = server.getAddress().getPort();
+
+      String originalUserDir = System.getProperty("user.dir");
+      try {
+        System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
+        MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+        CommandLine cl = new CommandLine(cmd);
+        cl.parseArgs("--repo-url", localUrl(port), "org.apache.hop:hop-test-plugin:1.0.0");
+        cmd.run();
+
+        Path pluginJar = hopHome.resolve("plugins/tech/test/plugin.jar");
+        assertTrue(Files.isRegularFile(pluginJar));
+        assertTrue(
+            Files.isRegularFile(
+                hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
+      } finally {
+        if (originalUserDir != null) {
+          System.setProperty("user.dir", originalUserDir);
+        }
+      }
     } finally {
       server.stop(0);
     }
