@@ -18,13 +18,20 @@
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.compress.gzip.GzipCompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -80,6 +87,86 @@ class TextFileOutputFlushTest {
 
     transform.setVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE, "2500");
     assertEquals(2500, transform.getFlushInterval());
+
+    transform.setVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE, "-1");
+    assertEquals(-1, transform.getFlushInterval());
+  }
+
+  @Test
+  void negativeIntervalDoesNotFlushOnTheClock() throws Exception {
+    FlushProbe transform = newProbe();
+    transform.setVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE, "-1");
+    assertTrue(transform.init());
+
+    transform.now = 1_000_000L;
+    transform.row = new Object[] {"a"};
+    assertTrue(transform.processRow());
+
+    transform.now = 1_060_000L;
+    transform.row = new Object[] {"b"};
+    assertTrue(transform.processRow());
+    assertEquals("", transform.written(), "a negative interval does not flush on the clock");
+  }
+
+  @Test
+  void intervalFlushAfterLastRowStillClosesGzipFile() throws Exception {
+    FlushProbe transform = newProbe("GZip");
+    transform.setVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE, "1000");
+    assertTrue(transform.init());
+
+    transform.now = 1_000_000L;
+    transform.row = new Object[] {"a"};
+    assertTrue(transform.processRow());
+
+    // Last data row. The interval elapses while writing it, so the flush clears the dirty flag.
+    transform.now = 1_002_000L;
+    transform.row = new Object[] {"b"};
+    assertTrue(transform.processRow());
+    assertFalse(transform.currentStreamDirty(), "interval flush cleared the dirty flag");
+    assertTrue(transform.currentStreamOpen(), "interval flush must not close the file");
+    assertFalse(transform.isOutputClosed());
+
+    transform.row = null;
+    assertFalse(transform.processRow());
+    assertFalse(transform.currentStreamOpen());
+    assertTrue(transform.isOutputClosed());
+    assertEquals("a\nb\n", gunzip(transform.gzipBytes()));
+  }
+
+  @Test
+  void closeAfterFlushClosesStreamThatIntervalFlushAlreadyCleaned() throws Exception {
+    TextFileOutputData data = new TextFileOutputData();
+    assertCleanOpenStreamIsClosed(data.new FileStreamsList());
+    assertCleanOpenStreamIsClosed(data.new FileStreamsMap());
+  }
+
+  private static void assertCleanOpenStreamIsClosed(TextFileOutputData.IFileStreamsCollection coll)
+      throws Exception {
+    String collection = coll.getClass().getSimpleName();
+    ByteArrayOutputStream raw = new ByteArrayOutputStream();
+    CompressionOutputStream compression = new GzipCompressionProvider().createOutputStream(raw);
+    BufferedOutputStream buffered = new BufferedOutputStream(compression, 5000);
+    TextFileOutputData.FileStream stream =
+        new TextFileOutputData().new FileStream(raw, compression, buffered);
+    buffered.write("hello\n".getBytes(StandardCharsets.UTF_8));
+    stream.setDirty(true);
+    coll.add("out.txt", stream);
+
+    coll.flushOpenFiles(false);
+    assertFalse(stream.isDirty(), collection);
+    assertTrue(stream.isOpen(), collection);
+    assertEquals(1, coll.getNumOpenFiles(), collection);
+
+    coll.flushOpenFiles(true);
+    assertFalse(stream.isOpen(), collection);
+    assertEquals(0, coll.getNumOpenFiles(), collection);
+    assertEquals("hello\n", gunzip(raw.toByteArray()), collection);
+  }
+
+  private static String gunzip(byte[] gzipBytes) throws IOException {
+    try (GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(gzipBytes))) {
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
   }
 
   @Test
@@ -110,8 +197,13 @@ class TextFileOutputFlushTest {
   }
 
   private FlushProbe newProbe() {
+    return newProbe("None");
+  }
+
+  private FlushProbe newProbe(String compression) {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
+    meta.setFileCompression(compression);
     meta.setHeaderEnabled(false);
     meta.setFooterEnabled(false);
     meta.setSeparator("");
@@ -144,6 +236,7 @@ class TextFileOutputFlushTest {
   private static final class FlushProbe extends TextFileOutput {
     private long now;
     private Object[] row;
+    private boolean outputClosed;
     private final ByteArrayOutputStream written = new ByteArrayOutputStream();
 
     private FlushProbe(
@@ -157,6 +250,24 @@ class TextFileOutputFlushTest {
 
     private String written() {
       return written.toString(StandardCharsets.UTF_8);
+    }
+
+    private byte[] gzipBytes() {
+      return written.toByteArray();
+    }
+
+    private boolean isOutputClosed() {
+      return outputClosed;
+    }
+
+    private boolean currentStreamOpen() {
+      TextFileOutputData.FileStream last = data.getFileStreamsCollection().getLastStream();
+      return last != null && last.isOpen();
+    }
+
+    private boolean currentStreamDirty() {
+      TextFileOutputData.FileStream last = data.getFileStreamsCollection().getLastStream();
+      return last != null && last.isDirty();
     }
 
     @Override
@@ -186,6 +297,11 @@ class TextFileOutputFlushTest {
         @Override
         public void write(byte[] b, int off, int len) {
           written.write(b, off, len);
+        }
+
+        @Override
+        public void close() {
+          outputClosed = true;
         }
       };
     }

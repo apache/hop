@@ -213,16 +213,17 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     @Override
     public void flushOpenFiles(boolean closeAfterFlush) throws IOException {
       for (FileStream outputStream : streamsList) {
-        if (outputStream.isDirty()) {
-          try {
+        try {
+          if (outputStream.isDirty()) {
             outputStream.flush();
-            if (closeAfterFlush && outputStream.isOpen()) {
-              outputStream.close();
-              numOpenFiles--;
-            }
-          } catch (IOException e) {
-            e.printStackTrace();
           }
+          // An interval flush clears the dirty flag. End-of-run still has to close the stream.
+          if (closeAfterFlush && outputStream.isOpen()) {
+            outputStream.close();
+            numOpenFiles--;
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
         }
       }
     }
@@ -405,15 +406,18 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     @Override
     public void flushOpenFiles(boolean closeAfterFlush) {
       for (FileStreamsCollectionEntry collectionEntry : indexMap.values()) {
-        if (collectionEntry.getFileStream().isDirty()) {
-          try {
-            collectionEntry.getFileStream().flush();
-            if (closeAfterFlush) {
-              collectionEntry.getFileStream().close();
-            }
-          } catch (IOException e) {
-            e.printStackTrace();
+        FileStream fileStream = collectionEntry.getFileStream();
+        try {
+          if (fileStream.isDirty()) {
+            fileStream.flush();
           }
+          // An interval flush clears the dirty flag. End-of-run still has to close the stream.
+          if (closeAfterFlush && fileStream.isOpen()) {
+            fileStream.close();
+            numOpenFiles--;
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
         }
       }
     }
@@ -455,6 +459,9 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
   public CompressionOutputStream out;
 
   public OutputStream writer;
+
+  /** Stream {@link #writer} currently writes to, so a row can mark that file dirty directly. */
+  public FileStream currentFileStream;
 
   public DecimalFormat defaultDecimalFormat;
   public DecimalFormatSymbols defaultDecimalFormatSymbols;

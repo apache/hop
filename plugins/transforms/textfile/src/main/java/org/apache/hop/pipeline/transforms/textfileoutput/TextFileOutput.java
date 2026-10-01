@@ -123,7 +123,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
 
   @SuppressWarnings("java:S2095") // the stream is owned by the transform and closed in closeFile()
   public void initFileStreamWriter(String filename) throws HopException {
-    data.writer = null;
+    assignWriter(null, null);
     try {
       TextFileOutputData.FileStream fileStreams = null;
 
@@ -247,7 +247,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
 
       data.fos = fileStreams.getFileOutputStream();
       data.out = fileStreams.getCompressedOutputStream();
-      data.writer = fileStreams.getBufferedOutputStream();
+      assignWriter(fileStreams.getBufferedOutputStream(), fileStreams);
     } catch (HopException ke) {
       throw ke;
     } catch (Exception e) {
@@ -289,17 +289,18 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   /**
-   * Milliseconds between flushes when {@link Const#HOP_FILE_OUTPUT_MAX_STREAM_LIFE} is unset or not
-   * a positive number. A few seconds, so slow input shows up without waiting for the buffer to
-   * fill.
+   * Milliseconds between flushes when {@link Const#HOP_FILE_OUTPUT_MAX_STREAM_LIFE} is unset, not a
+   * number, or {@code 0}. A few seconds, so slow input shows up without waiting for the buffer to
+   * fill. A negative value disables the interval flush.
    */
   static final int DEFAULT_FILE_FLUSH_INTERVAL_MS = 5000;
 
   public int getFlushInterval() {
     String maxStreamLife = variables.getVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE);
     int flushInterval = Const.toInt(maxStreamLife, DEFAULT_FILE_FLUSH_INTERVAL_MS);
-    // 0 is the historical default and means "not configured".
-    if (flushInterval <= 0) {
+    // 0 is what existing hop-config.json files store and means "not configured".
+    // Only a negative value disables the interval flush.
+    if (flushInterval == 0) {
       return DEFAULT_FILE_FLUSH_INTERVAL_MS;
     }
     return flushInterval;
@@ -373,7 +374,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         data.splitnr++;
         data.fos = null;
         data.out = null;
-        data.writer = null;
+        assignWriter(null, null);
         filename = getOutputFileName(null);
         isWriteHeader = isWriteHeader(filename);
         initFileStreamWriter(filename);
@@ -825,28 +826,21 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   /**
+   * Writer and the stream it belongs to move together so dirty-marking does not scan open files.
+   */
+  private void assignWriter(OutputStream writer, TextFileOutputData.FileStream fileStream) {
+    data.writer = writer;
+    data.currentFileStream = fileStream;
+  }
+
+  /**
    * An interval flush clears the dirty flag. Later rows still land in the buffer, so the flag has
    * to be set again or the next flush is skipped.
    */
   private void markCurrentFileDirty() {
-    if (data.writer == null) {
-      return;
+    if (data.currentFileStream != null) {
+      data.currentFileStream.setDirty(true);
     }
-    TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
-    if (coll == null) {
-      return;
-    }
-    TextFileOutputData.FileStream last = coll.getLastStream();
-    if (last != null && last.getBufferedOutputStream() == data.writer) {
-      last.setDirty(true);
-      return;
-    }
-    coll.forEachOpenStream(
-        stream -> {
-          if (stream.getBufferedOutputStream() == data.writer) {
-            stream.setDirty(true);
-          }
-        });
   }
 
   public String buildFilename(String filename, boolean ziparchive) {
@@ -1000,7 +994,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
           coll.closeStream(data.writer);
         }
       }
-      data.writer = null;
+      assignWriter(null, null);
       data.out = null;
       data.fos = null;
       if (isDebug()) {
@@ -1010,7 +1004,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     } catch (Exception e) {
       logError("Exception trying to close file: " + e.toString());
       setErrors(1);
-      data.writer = null;
+      assignWriter(null, null);
       data.out = null;
       data.fos = null;
       retval = false;
@@ -1148,7 +1142,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       }
       coll.flushOpenFiles(true);
     }
-    data.writer = null;
+    assignWriter(null, null);
   }
 
   private void emitWriteLineageForOpenStream(String filename, TextFileOutputData.FileStream fs) {
@@ -1186,7 +1180,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       logError("Unexpected error closing file", e);
       setErrors(1);
     }
-    data.writer = null;
+    assignWriter(null, null);
     data.out = null;
     data.fos = null;
 
