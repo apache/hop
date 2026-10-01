@@ -17,6 +17,7 @@
 
 package org.apache.hop.ai.provider;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.plugins.IPlugin;
@@ -29,15 +30,43 @@ public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
   @Override
   public Object createObject(String id, Object parentObject)
       throws HopException, HopMissingPluginsException {
+    if (StringUtils.isEmpty(id) || "null".equalsIgnoreCase(id)) {
+      return null;
+    }
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.findPluginWithId(AiProviderPluginType.class, id);
+    if (plugin == null) {
+      plugin = registry.findPluginWithName(AiProviderPluginType.class, id);
+    }
+    if (plugin == null) {
+      for (IPlugin p : registry.getPlugins(AiProviderPluginType.class)) {
+        for (String pId : p.getIds()) {
+          if (id.equalsIgnoreCase(pId)) {
+            plugin = p;
+            break;
+          }
+        }
+        if (plugin != null) {
+          break;
+        }
+        if (p.getName() != null && id.equalsIgnoreCase(p.getName())) {
+          plugin = p;
+          break;
+        }
+      }
+    }
     if (plugin == null) {
       HopMissingPluginsException missing =
           new HopMissingPluginsException("AI provider plugin not found: " + id);
       missing.addMissingPluginDetails(AiProviderPluginType.class, id);
       throw missing;
     }
-    return registry.loadClass(plugin);
+    Object object = registry.loadClass(plugin);
+    if (object instanceof IAiProvider provider) {
+      provider.setPluginId(plugin.getIds()[0]);
+      provider.setPluginName(plugin.getName());
+    }
+    return object;
   }
 
   @Override
@@ -45,6 +74,18 @@ public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
     if (!(object instanceof IAiProvider provider)) {
       throw new HopException("Object is not an IAiProvider but " + object.getClass().getName());
     }
-    return provider.getPluginId();
+    String pluginId = provider.getPluginId();
+    if (StringUtils.isEmpty(pluginId)) {
+      PluginRegistry registry = PluginRegistry.getInstance();
+      pluginId = registry.getPluginId(AiProviderPluginType.class, object);
+      if (pluginId != null) {
+        provider.setPluginId(pluginId);
+        IPlugin plugin = registry.findPluginWithId(AiProviderPluginType.class, pluginId);
+        if (plugin != null) {
+          provider.setPluginName(plugin.getName());
+        }
+      }
+    }
+    return pluginId;
   }
 }

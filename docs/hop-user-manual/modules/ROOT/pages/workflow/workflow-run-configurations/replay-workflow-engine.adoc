@@ -1,0 +1,76 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ReplayWorkflowEngine]]
+:imagesdir: ../assets/images
+:description: The Replay workflow engine executes workflow replay from failed actions with verified sealed gates.
+
+= Replay Workflow Engine
+
+== Hop Replay Workflow Engine
+
+The **Hop replay workflow engine** is a specialized workflow runtime engine designed to recover and resume workflows that encountered errors or interruptions.
+
+Unlike standard workflow engines that execute every action sequentially from the start, the Replay Workflow Engine interacts with xref:workflow/replay-gate.adoc[Replay Gates]. It verifies cryptographic checksums for previously completed actions, skips those with valid sealed snapshots, and actively resumes execution from the designated start action or the first failed action.
+
+This page describes the configuration options specific to the Replay workflow engine. These options extend the general xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configuration options].
+
+=== Options
+
+[options="header",cols="1,4"]
+|===
+|Option|Description
+
+|Source execution ID
+|(Optional) The execution ID of the failed workflow run to replay. When launching replay from the **Execution Perspective**, this is automatically linked.
+
+|Start action name
+|(Optional) The name of the specific action to resume active execution from. If left blank, the engine automatically skips all verified upstream actions with valid sealed gates and resumes execution at the first action that failed or lacks a sealed gate.
+
+|Make this workflow transactional
+|If enabled, there will be just one database connection used per database. At the end of the workflow, a commit or rollback (in case of error) is performed on all named connections simultaneously. Child pipelines and workflows also run as a transaction.
+
+|Safe mode
+|Checks every row passed through pipelines launched by this workflow to ensure all layouts are identical. If a row does not match the initial layout, an error is generated.
+|===
+
+=== Creating a Replay Run Configuration
+
+1. In the **Metadata Perspective**, expand **Workflow Run Configuration** and click **New** (or click **New** next to the run configuration selector in any workflow dialog).
+2. Enter a descriptive **Name** (e.g., `replay` or `local-replay`).
+3. Select **Hop replay workflow engine** as the **Workflow engine type**.
+4. Configure an xref:metadata-types/execution-information-location.adoc[Execution Information Location] so that replay execution details and logs are tracked.
+5. Save the run configuration.
+
+=== Typical Usage
+
+* **Execution Perspective**: Select a workflow run in the Execution Perspective and click the **Replay this workflow** toolbar button:
++
+image:replay/replay-workflow-execution-viewer.png[Replay Workflow Toolbar Icon,width="85%"]
++
+The run dialog automatically opens with your Replay run configuration pre-selected.
+* **Hop Run CLI**: Pass the configuration name using the `-r` option:
++
+[source,bash]
+----
+./hop-run.sh -j my-project -e dev -f workflows/main-workflow.hwf -r replay
+----
+
+=== Related Topics
+
+* xref:workflow/replay-gate.adoc[Replay Gates and Workflow Replay]
+* xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
+* xref:workflow/workflow-run-configurations/native-local-workflow-engine.adoc[Native Local Workflow Engine]

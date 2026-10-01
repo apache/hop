@@ -20,6 +20,7 @@ package org.apache.hop.ai.provider;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -63,6 +64,43 @@ class AiProviderPluginTypeTest {
     PluginRegistry.addPluginType(AiProviderPluginType.getInstance());
     AiProviderObjectFactory factory = new AiProviderObjectFactory();
     assertThrows(HopMissingPluginsException.class, () -> factory.createObject("missing", null));
+  }
+
+  @Test
+  void objectFactoryHandlesNullOrEmptyId() throws Exception {
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    assertNull(factory.createObject(null, null));
+    assertNull(factory.createObject("null", null));
+    assertNull(factory.createObject("", null));
+  }
+
+  @Test
+  void objectFactorySetsPluginIdOnCreatedObject() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginType(AiProviderPluginType.class);
+    registry.registerPluginClass(
+        FakeProvider.class.getName(), AiProviderPluginType.class, AiProviderPlugin.class);
+
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    FakeProvider provider = (FakeProvider) factory.createObject("fake-openai", null);
+    assertNotNull(provider);
+    assertEquals("fake-openai", provider.getPluginId());
+    assertEquals("Fake OpenAI", provider.getPluginName());
+  }
+
+  @Test
+  void objectFactoryResolvesPluginIdFallback() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginType(AiProviderPluginType.class);
+    registry.registerPluginClass(
+        FakeProvider.class.getName(), AiProviderPluginType.class, AiProviderPlugin.class);
+
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    FakeProvider provider = new FakeProvider();
+    assertNull(provider.getPluginId());
+    assertEquals("fake-openai", factory.getObjectId(provider));
+    assertEquals("fake-openai", provider.getPluginId());
+    assertEquals("Fake OpenAI", provider.getPluginName());
   }
 
   @Test
@@ -112,5 +150,9 @@ class AiProviderPluginTypeTest {
       image = "fake.svg",
       documentationUrl = "/docs/fake.html",
       classLoaderGroup = "hop-ai")
-  static class FakeProvider extends BaseAiProvider {}
+  public static class FakeProvider extends BaseAiProvider {
+    public FakeProvider() {
+      super();
+    }
+  }
 }

@@ -2361,7 +2361,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return result;
   }
 
-  protected TabItemHandler findTabItemHandler(String filename) {
+  public TabItemHandler findTabItemHandler(String filename) {
     if (filename != null) {
       for (TabItemHandler item : items) {
         if (filename.equals(item.getTypeHandler().getFilename())) {
@@ -2372,7 +2372,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return null;
   }
 
-  protected TabItemHandler findTabItemHandler(String filename, IHopFileType fileType) {
+  public TabItemHandler findTabItemHandler(String filename, IHopFileType fileType) {
     if (filename != null) {
       for (TabItemHandler item : items) {
         if (filename.equals(item.getTypeHandler().getFilename())

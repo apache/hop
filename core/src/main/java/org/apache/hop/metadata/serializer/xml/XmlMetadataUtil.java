@@ -567,9 +567,13 @@ public class XmlMetadataUtil {
   private static void serializeMapKeyToXml(StringBuilder xml, String keyTag, Map.Entry<?, ?> entry)
       throws HopException {
     Object keyObject = entry.getKey();
+    String keyTagKey = Const.NVL(keyTag, "key");
+    if (keyObject == null) {
+      xml.append(XmlHandler.addTagValue(keyTagKey, (String) null));
+      return;
+    }
     Class<?> keyClass = keyObject.getClass();
     HopMetadataProperty keyProperty = keyClass.getAnnotation(HopMetadataProperty.class);
-    String keyTagKey = Const.NVL(keyTag, "key");
     String keyTagGroup = "";
     if (keyProperty != null) {
       keyTagKey = Const.NVL(keyProperty.key(), keyTagKey);
@@ -580,9 +584,13 @@ public class XmlMetadataUtil {
   private static void serializeMapValueToXml(
       StringBuilder xml, String valueTag, Map.Entry<?, ?> entry) throws HopException {
     Object valueObject = entry.getValue();
+    String valueTagKey = Const.NVL(valueTag, "value");
+    if (valueObject == null) {
+      xml.append(XmlHandler.addTagValue(valueTagKey, (String) null));
+      return;
+    }
     Class<?> valueClass = valueObject.getClass();
     HopMetadataProperty keyProperty = valueClass.getAnnotation(HopMetadataProperty.class);
-    String valueTagKey = Const.NVL(valueTag, "value");
     String valueTagGroup = "";
     if (keyProperty != null) {
       valueTagKey = Const.NVL(keyProperty.key(), valueTagKey);
@@ -1507,9 +1515,12 @@ public class XmlMetadataUtil {
 
     Node keyNode = XmlHandler.getSubNode(itemNode, keyWrapper);
     if (keyNode != null && keyClass.equals(String.class)) {
-      return XmlHandler.getNodeValue(keyNode);
+      return Const.NVL(XmlHandler.getNodeValue(keyNode), "");
     }
     if (keyNode == null) {
+      if (keyClass.equals(String.class)) {
+        return "";
+      }
       keyNode = itemNode;
     }
     try {

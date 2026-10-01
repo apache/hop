@@ -174,6 +174,32 @@ class XmlMetadataUtilTest {
   }
 
   @Test
+  void testMapMapSerializationWithNullAndEmptyValues() throws Exception {
+    WithMapMap mapMap = new WithMapMap();
+    Map<String, String> groupMap = new HashMap<>();
+    groupMap.put("normal", "regular-value");
+    groupMap.put("empty", "");
+    groupMap.put("null-val", null);
+    mapMap.getAttributesMap().put("test-group", groupMap);
+
+    // Should serialize without NullPointerException
+    String xml = XmlMetadataUtil.serializeObjectToXml(mapMap);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithMapMap withCopy =
+        XmlMetadataUtil.deSerializeFromXml(node, WithMapMap.class, new MemoryMetadataProvider());
+
+    assertEquals(1, withCopy.getAttributesMap().size());
+    Map<String, String> loadedGroup = withCopy.getAttributesMap().get("test-group");
+    assertEquals("regular-value", loadedGroup.get("normal"));
+    assertEquals("", loadedGroup.get("empty"));
+    assertEquals("", loadedGroup.get("null-val"));
+
+    // And re-serializing the deserialized copy must not throw NPE either!
+    String reserialized = XmlMetadataUtil.serializeObjectToXml(withCopy);
+    assertTrue(reserialized.contains("<attributes>"));
+  }
+
+  @Test
   void testMapAsListSerialization() throws Exception {
     WithMapAsList mapList = new WithMapAsList();
     String[] groupNames = {"k1", "k2", "k3"};

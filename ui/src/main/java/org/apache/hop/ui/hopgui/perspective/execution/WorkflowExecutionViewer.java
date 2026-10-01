@@ -31,6 +31,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
@@ -42,12 +44,14 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -61,29 +65,40 @@ import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
+import org.apache.hop.ui.hopgui.EngineCompatibilityRunGate;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.workflow.dialog.WorkflowExecutionConfigurationDialog;
 import org.apache.hop.workflow.ActionResult;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -113,6 +128,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "WorkflowExecutionViewer-Toolbar";
 
   public static final String TOOLBAR_ITEM_REFRESH = "WorkflowExecutionViewer-Toolbar-10100-Refresh";
+  public static final String TOOLBAR_ITEM_REPLAY = "WorkflowExecutionViewer-Toolbar-10200-Replay";
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "WorkflowExecutionViewer-ToolBar-10500-Zoom-Level";
   public static final String TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN =
@@ -727,6 +743,169 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     refreshActionData();
     perspective.updateViewerTabImage(this);
     redraw();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_REPLAY,
+      toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.Replay.Tooltip",
+      image = "ui/images/replay.svg")
+  public void replayWorkflow() {
+    try {
+      if (workflowMeta == null) {
+        return;
+      }
+      if (!HopSecurityUi.check(Permission.RUN_EXECUTE)) {
+        return;
+      }
+
+      ExplorerPerspective explorer = HopGui.getExplorerPerspective();
+      HopGuiWorkflowGraph workflowGraph = null;
+      if (execution != null && execution.getId() != null) {
+        workflowGraph = explorer.findWorkflow(execution.getId());
+      }
+      if (workflowGraph == null && workflowMeta.getFilename() != null) {
+        TabItemHandler handler = explorer.findTabItemHandler(workflowMeta.getFilename());
+        if (handler != null && handler.getTypeHandler() instanceof HopGuiWorkflowGraph graph) {
+          workflowGraph = graph;
+        }
+      }
+
+      WorkflowMeta targetWorkflowMeta;
+      if (workflowGraph != null) {
+        targetWorkflowMeta = workflowGraph.getWorkflowMeta();
+      } else if (workflowMeta.getFilename() != null) {
+        try {
+          targetWorkflowMeta =
+              new WorkflowMeta(
+                  hopGui.getVariables(), workflowMeta.getFilename(), hopGui.getMetadataProvider());
+        } catch (Exception e) {
+          targetWorkflowMeta = workflowMeta;
+        }
+      } else {
+        targetWorkflowMeta = workflowMeta;
+      }
+
+      WorkflowExecutionConfiguration executionConfiguration = new WorkflowExecutionConfiguration();
+      executionConfiguration.setGatheringMetrics(true);
+
+      String replayConfig = findFirstReplayRunConfiguration(hopGui.getMetadataProvider());
+      if (replayConfig != null) {
+        executionConfiguration.setRunConfiguration(replayConfig);
+      }
+
+      Map<String, String> variableMap = new HashMap<>(executionConfiguration.getVariablesMap());
+      if (execution != null && execution.getVariableValues() != null) {
+        variableMap.putAll(execution.getVariableValues());
+      }
+      executionConfiguration.setVariablesMap(variableMap);
+      executionConfiguration.getUsedVariables(targetWorkflowMeta, hopGui.getVariables());
+
+      if (execution != null && execution.getParameterValues() != null) {
+        executionConfiguration.getParametersMap().putAll(execution.getParameterValues());
+      }
+
+      executionConfiguration.setLogLevel(DefaultLogLevel.getLogLevel());
+
+      WorkflowExecutionConfigurationDialog dialog =
+          new WorkflowExecutionConfigurationDialog(
+              getShell(), executionConfiguration, targetWorkflowMeta);
+      if (!dialog.open()) {
+        return;
+      }
+
+      List<EngineCompatibilityChecker.Violation> compatViolations =
+          EngineCompatibilityRunGate.checkWorkflowForRun(
+              targetWorkflowMeta,
+              executionConfiguration.getRunConfiguration(),
+              hopGui.getMetadataProvider());
+      if (!compatViolations.isEmpty()) {
+        String compatEngineId = "";
+        try {
+          WorkflowRunConfiguration wrc =
+              hopGui
+                  .getMetadataProvider()
+                  .getSerializer(WorkflowRunConfiguration.class)
+                  .load(executionConfiguration.getRunConfiguration());
+          if (wrc != null && wrc.getEngineRunConfiguration() != null) {
+            compatEngineId = wrc.getEngineRunConfiguration().getEnginePluginId();
+          }
+        } catch (Exception ignored) {
+        }
+        if (!EngineCompatibilityRunGate.confirmRunAnyway(
+            getShell(), "workflow", compatEngineId, compatViolations)) {
+          return;
+        }
+        executionConfiguration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+      }
+
+      if (workflowGraph == null) {
+        if (targetWorkflowMeta.getFilename() != null) {
+          IHopFileTypeHandler handler =
+              hopGui.fileDelegate.fileOpen(targetWorkflowMeta.getFilename());
+          if (handler instanceof HopGuiWorkflowGraph graph) {
+            workflowGraph = graph;
+          }
+        } else {
+          IHopFileTypeHandler handler = explorer.addWorkflow(targetWorkflowMeta);
+          if (handler instanceof HopGuiWorkflowGraph graph) {
+            workflowGraph = graph;
+          }
+        }
+      }
+
+      if (workflowGraph != null) {
+        explorer.setActiveFileTypeHandler(workflowGraph);
+        explorer.activate();
+
+        workflowGraph.workflowLogDelegate.addWorkflowLog();
+
+        ExtensionPointHandler.callExtensionPoint(
+            LogChannel.UI,
+            workflowGraph.getVariables(),
+            HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id,
+            executionConfiguration);
+
+        workflowGraph.start(executionConfiguration);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), CONST_ERROR, "Error replaying workflow", e);
+    }
+  }
+
+  public static String findFirstReplayRunConfiguration(IHopMetadataProvider metadataProvider) {
+    if (metadataProvider == null) {
+      return null;
+    }
+    try {
+      IHopMetadataSerializer<WorkflowRunConfiguration> serializer =
+          metadataProvider.getSerializer(WorkflowRunConfiguration.class);
+      List<WorkflowRunConfiguration> runConfigs = serializer.loadAll();
+      for (WorkflowRunConfiguration runConfig : runConfigs) {
+        IWorkflowEngineRunConfiguration engineConfig = runConfig.getEngineRunConfiguration();
+        if (engineConfig != null) {
+          String pluginId = engineConfig.getEnginePluginId();
+          if ("Replay".equalsIgnoreCase(pluginId)) {
+            return runConfig.getName();
+          }
+          if (engineConfig.getClass().getSimpleName().toLowerCase().contains("replay")) {
+            return runConfig.getName();
+          }
+          String pluginName = engineConfig.getEnginePluginName();
+          if (pluginName != null && pluginName.toLowerCase().contains("replay")) {
+            return runConfig.getName();
+          }
+        }
+      }
+      for (WorkflowRunConfiguration runConfig : runConfigs) {
+        if (runConfig.getName() != null && runConfig.getName().toLowerCase().contains("replay")) {
+          return runConfig.getName();
+        }
+      }
+    } catch (Exception e) {
+      // Ignore
+    }
+    return null;
   }
 
   @GuiToolbarElement(
