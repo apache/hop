@@ -49,6 +49,7 @@ image:hop-gui/environment/create-project-dialog.png[Project Properties Basic tab
 |Home folder|The folder where the project is located. Paths starting with `~` (e.g. `~/my-project` or `~\my-project` on Windows) automatically resolve to the user's home directory (`+${user.home}+`).|Yes|No|
 |This project is read only|When checked, Hop does not write `project-config.json` (archives, HTTP, and similar)|No|No|unchecked
 |Configuration file (relative path)|The project's configuration json, relative to the home folder.|Yes|Yes|`project-config.json`
+|Group|Optional topic stored on the project registration in `hop-config.json` (not in `project-config.json`). Projects that share a group are listed together in a submenu of the project menu. Leave empty to keep the project in the recent list.|Yes|No|
 |Description|A description for this project|No|No|
 |Company|The company this project belongs to|No|No|
 |Department|The department this project is created for|No|No|
@@ -238,6 +239,8 @@ These checks run on the JVM that enables the environment. They do not validate r
 == Switch between projects and environments
 
 Click the project indicator at the bottom left and choose a recent project from the menu, or *More projects...* to pick from a list.
+
+Projects with a group are not repeated in that recent list. Each group is its own submenu and lists every project in the group, so a long flat list becomes one entry per topic. Set the group on the project properties *Basic* tab, or when editing the project registration from *More projects...*. Projects without a group stay in the recent list (up to 15).
 
 image:hop-gui/environment/switch-project-list.png[Switch project]
 
