@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -179,15 +180,17 @@ class TextFileOutputMetaTest {
   }
 
   @Test
-  void newTransformDoesNotRightPadAndRoundTrips() throws Exception {
+  void newTransformKeepsLegacyPaddingUntilTheOptionIsChecked() throws Exception {
     TextFileOutputMeta meta = new TextFileOutputMeta();
-    assertTrue(meta.getFileSettings().isDoNotPadFields());
+    assertFalse(meta.getFileSettings().isDoNotPadFields());
+    assertFalse(meta.getFileSettings().isPadded());
+    assertTrue(meta.getFileSettings().isPaddingFields());
 
     String xml =
         XmlHandler.openTag(TransformMeta.XML_TAG)
             + XmlMetadataUtil.serializeObjectToXml(meta)
             + XmlHandler.closeTag(TransformMeta.XML_TAG);
-    assertTrue(xml.contains("<do_not_right_pad>Y</do_not_right_pad>"));
+    assertFalse(xml.contains("<do_not_right_pad>Y</do_not_right_pad>"));
 
     TextFileOutputMeta copy = new TextFileOutputMeta();
     XmlMetadataUtil.deSerializeFromXml(
@@ -195,7 +198,29 @@ class TextFileOutputMetaTest {
         TextFileOutputMeta.class,
         copy,
         new MemoryMetadataProvider());
-    assertTrue(copy.getFileSettings().isDoNotPadFields());
+    assertFalse(copy.getFileSettings().isDoNotPadFields());
+    assertTrue(copy.getFileSettings().isPaddingFields());
+  }
+
+  @Test
+  void savedTransformWithoutTheFlagStillEnablesOutputPadding() throws Exception {
+    TextFileOutputMeta meta = loadFixture();
+    assertFalse(meta.getFileSettings().isPadded());
+    assertTrue(meta.getFileSettings().isPaddingFields());
+
+    TextFileOutputMeta cloned = (TextFileOutputMeta) meta.clone();
+    assertNotSame(meta.getFileSettings(), cloned.getFileSettings());
+    assertFalse(cloned.getFileSettings().isDoNotPadFields());
+    assertTrue(cloned.getFileSettings().isPaddingFields());
+
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("f1"));
+    row.addValueMeta(new ValueMetaString("f2"));
+    meta.getFields(row, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertTrue(row.getValueMeta(0).isOutputPaddingEnabled());
+    assertEquals(100, row.getValueMeta(0).getLength());
+    assertTrue(row.getValueMeta(1).isOutputPaddingEnabled());
+    assertEquals(7, row.getValueMeta(1).getLength());
   }
 
   @Test
@@ -243,15 +268,7 @@ class TextFileOutputMetaTest {
 
   @Test
   void testLoadSave() throws Exception {
-    Path path =
-        Paths.get(Objects.requireNonNull(getClass().getResource("/text-file-output.xml")).toURI());
-    String xml = Files.readString(path);
-    TextFileOutputMeta meta = new TextFileOutputMeta();
-    XmlMetadataUtil.deSerializeFromXml(
-        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
-        TextFileOutputMeta.class,
-        meta,
-        new MemoryMetadataProvider());
+    TextFileOutputMeta meta = loadFixture();
 
     validate(meta);
 
@@ -268,6 +285,22 @@ class TextFileOutputMetaTest {
         metaCopy,
         new MemoryMetadataProvider());
     validate(metaCopy);
+  }
+
+  private static TextFileOutputMeta loadFixture() throws Exception {
+    Path path =
+        Paths.get(
+            Objects.requireNonNull(
+                    TextFileOutputMetaTest.class.getResource("/text-file-output.xml"))
+                .toURI());
+    String xml = Files.readString(path);
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        TextFileOutputMeta.class,
+        meta,
+        new MemoryMetadataProvider());
+    return meta;
   }
 
   private static void validate(TextFileOutputMeta meta) {
@@ -300,8 +333,9 @@ class TextFileOutputMetaTest {
     assertTrue(StringUtils.isEmpty(meta.getFileSettings().getDateTimeFormat()));
     assertTrue(meta.getFileSettings().isAddToResultFiles());
     assertFalse(meta.getFileSettings().isPadded());
-    // The fixture predates the option, so loading it keeps the legacy padding.
+    // The fixture predates the option. Right pad fields is off, and padding still stays on.
     assertFalse(meta.getFileSettings().isDoNotPadFields());
+    assertTrue(meta.getFileSettings().isPaddingFields());
     assertTrue(meta.getFileSettings().isFastDump());
     assertEquals("0", meta.getFileSettings().getSplitEveryRows());
 
