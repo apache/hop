@@ -174,8 +174,9 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       WorkflowMeta workflowMeta = new WorkflowMeta();
       workflowMeta.setName(BaseMessages.getString(PKG, "HopWorkflowFileType.New.Text"));
 
-      // Record the version of Hop creating this workflow
+      // Record who created this workflow and with which version of Hop
       //
+      workflowMeta.stampCreated();
       workflowMeta.setCreatedHopVersion(Const.NVL(Const.getHopVersion(), ""));
 
       // Pass the MetaStore for reference lookups
