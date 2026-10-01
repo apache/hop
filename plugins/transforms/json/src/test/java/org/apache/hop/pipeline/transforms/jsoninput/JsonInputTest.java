@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -1897,5 +1899,110 @@ class JsonInputTest {
       assertTrue(results.contains("one"));
       assertTrue(results.contains("three"));
     }
+  }
+
+  /**
+   * Issue #4373. With HOP_EMPTY_STRING_DIFFERS_FROM_NULL=Y a JSON {@code null} (and a missing path)
+   * must stay null, while {@code ""} stays an empty string. Otherwise both come out as "".
+   */
+  @Test
+  void testEmptyStringDiffersFromJsonNull() throws Exception {
+    ParsedRows parsed = readEmptyAndNullRows("Y");
+    List<Object[]> rows = parsed.rows;
+    IValueMeta tenantName = parsed.rowMeta.searchValueMeta("tenantName");
+    // {"params":{},"tenantName":"hop"} — jobNumber is absent
+    assertNull(rows.get(0)[1]);
+    assertEquals("{}", rows.get(0)[2]);
+    assertEquals("hop", rows.get(0)[3]);
+    // {"jobNumber":3,"params":{},"tenantName":null}
+    assertEquals("3", rows.get(1)[1]);
+    assertEquals("{}", rows.get(1)[2]);
+    assertNull(rows.get(1)[3]);
+    assertTrue(tenantName.isNull(rows.get(1)[3]));
+    // {"jobNumber":2,"tenantName":""} — params is absent, tenantName is empty
+    assertEquals("2", rows.get(2)[1]);
+    assertNull(rows.get(2)[2]);
+    assertEquals("", rows.get(2)[3]);
+    assertFalse(tenantName.isNull(rows.get(2)[3]));
+    // {"jobNumber":120,"params":{},"tenantName":"hop"}
+    assertEquals("120", rows.get(3)[1]);
+    assertEquals("{}", rows.get(3)[2]);
+    assertEquals("hop", rows.get(3)[3]);
+    // {"jobNumber":1,"params":{}} — tenantName is absent
+    assertEquals("1", rows.get(4)[1]);
+    assertEquals("{}", rows.get(4)[2]);
+    assertNull(rows.get(4)[3]);
+    assertTrue(tenantName.isNull(rows.get(4)[3]));
+  }
+
+  /**
+   * Default (the variable is N): an empty string is still stored as "", but it compares as null, so
+   * preview shows both as {@code <null>}. JSON null and a missing path stay null.
+   */
+  @Test
+  void testEmptyStringAndJsonNullLookTheSameByDefault() throws Exception {
+    ParsedRows parsed = readEmptyAndNullRows("N");
+    List<Object[]> rows = parsed.rows;
+    assertNull(rows.get(1)[3]);
+    assertEquals("", rows.get(2)[3]);
+    assertNull(rows.get(0)[1]);
+    assertNull(rows.get(2)[2]);
+    assertNull(rows.get(4)[3]);
+
+    IValueMeta tenantName = parsed.rowMeta.searchValueMeta("tenantName");
+    assertTrue(tenantName.isNull(rows.get(1)[3]));
+    assertTrue(tenantName.isNull(rows.get(2)[3]));
+  }
+
+  private ParsedRows readEmptyAndNullRows(String emptyDiffersFromNull) throws Exception {
+    String previous = System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL);
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, emptyDiffersFromNull);
+    try {
+      JsonInputField jobNumber = new JsonInputField("jobNumber");
+      jobNumber.setPath("$.jobNumber");
+      jobNumber.setType(IValueMeta.TYPE_STRING);
+      JsonInputField params = new JsonInputField("params");
+      params.setPath("$.params");
+      params.setType(IValueMeta.TYPE_STRING);
+      JsonInputField tenantName = new JsonInputField("tenantName");
+      tenantName.setPath("$.tenantName");
+      tenantName.setType(IValueMeta.TYPE_STRING);
+
+      JsonInputMeta meta = createSimpleMeta("content", jobNumber, params, tenantName);
+      JsonInput transform =
+          createJsonInput(
+              "content",
+              meta,
+              new Object[] {"{\"params\":{},\"tenantName\":\"hop\"}"},
+              new Object[] {"{\"jobNumber\":3,\"params\":{},\"tenantName\":null}"},
+              new Object[] {"{\"jobNumber\":2,\"tenantName\":\"\"}"},
+              new Object[] {"{\"jobNumber\":120,\"params\":{},\"tenantName\":\"hop\"}"},
+              new Object[] {"{\"jobNumber\":1,\"params\":{}}"});
+
+      ParsedRows parsed = new ParsedRows();
+      transform.addRowListener(
+          new RowAdapter() {
+            @Override
+            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+              parsed.rowMeta = rowMeta;
+              parsed.rows.add(row);
+            }
+          });
+      processRows(transform, 10);
+      assertEquals(0, transform.getErrors());
+      assertEquals(5, parsed.rows.size());
+      return parsed;
+    } finally {
+      if (previous == null) {
+        System.clearProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL);
+      } else {
+        System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, previous);
+      }
+    }
+  }
+
+  private static final class ParsedRows {
+    private final List<Object[]> rows = new ArrayList<>();
+    private IRowMeta rowMeta;
   }
 }
