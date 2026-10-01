@@ -127,6 +127,10 @@ This will show a real-time table with a continuous output of the selected transf
 |Include in test|Run the current pipeline and write the data to a data set
 |Bypass in tess|When this unit test is run, bypass this transform (replace with a dummy)
 |Remove bypass in test|Do not bypass this transform in the current pipeline during testing
+|Remove selection from test|When two or more transforms are selected, do not include those transforms in this unit test
+|Include selection in test|When two or more transforms are selected, include those transforms in this unit test
+|Bypass selection in test|When two or more transforms are selected, bypass those transforms (replace each with a dummy)
+|Remove bypass from selection|When two or more transforms are selected, do not bypass those transforms during testing
 |===
 
 == Add a Hop between transforms
