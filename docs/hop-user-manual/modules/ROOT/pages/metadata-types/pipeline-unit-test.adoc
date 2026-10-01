@@ -48,7 +48,7 @@ None/All
 |Option|Default|Description
 |Name||the name to use for this unit test
 |Description||the description to use for this unit test
-|Type of test|Development|'Development' or 'unit test'
+|Type of test|Development|Development, Unit test, or a custom type. The list includes every type already used by unit tests in the project. Development and Unit test are stored as DEVELOPMENT and UNIT_TEST; any other type is stored as entered.
 |The pipeline to test||the pipeline that will be tested by this unit test
 |Test pipeline filename (Optional)||
 |Base test path (or use HOP_UNIT_TESTS_FOLDER)||

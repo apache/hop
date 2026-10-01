@@ -198,7 +198,9 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdTestType.left = new FormAttachment(middle, 0);
     fdTestType.right = new FormAttachment(100, 0);
     wTestType.setLayoutData(fdTestType);
-    wTestType.setItems(DataSetConst.getTestTypeDescriptions());
+    wTestType.setItems(DataSetConst.getTestTypeDescriptions(metadataProvider));
+    wTestType.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineUnitTestDialog.TestType.Tooltip"));
     lastControl = wTestType;
 
     // The filename of the pipeline to test

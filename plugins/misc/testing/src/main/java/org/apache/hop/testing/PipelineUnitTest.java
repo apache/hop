@@ -68,7 +68,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
   protected List<PipelineUnitTestTweak> tweaks;
 
   @HopMetadataProperty(key = "test_type")
-  protected TestType type;
+  protected String type;
 
   @HopMetadataProperty(key = "persist_filename")
   protected String filename;
@@ -86,7 +86,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     inputDataSets = new ArrayList<>();
     goldenDataSets = new ArrayList<>();
     tweaks = new ArrayList<>();
-    type = TestType.DEVELOPMENT;
+    type = DataSetConst.TEST_TYPE_DEVELOPMENT;
     databaseReplacements = new ArrayList<>();
     variableValues = new ArrayList<>();
     basePath = "${" + DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER + "}";
@@ -100,7 +100,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
       List<PipelineUnitTestSetLocation> inputDataSets,
       List<PipelineUnitTestSetLocation> goldenDataSets,
       List<PipelineUnitTestTweak> tweaks,
-      TestType type,
+      String type,
       String filename,
       List<PipelineUnitTestDatabaseReplacement> databaseReplacements,
       boolean autoOpening) {
@@ -390,14 +390,14 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
    *
    * @return value of type
    */
-  public TestType getType() {
+  public String getType() {
     return type;
   }
 
   /**
    * @param type The type to set
    */
-  public void setType(TestType type) {
+  public void setType(String type) {
     this.type = type;
   }
 
