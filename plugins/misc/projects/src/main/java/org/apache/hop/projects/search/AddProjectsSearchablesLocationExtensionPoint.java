@@ -43,8 +43,11 @@ public class AddProjectsSearchablesLocationExtensionPoint
     addActiveProjectLocation(log, searchablesLocations);
 
     // Searched only when the user picks it. It is not part of the default combined search.
+    // The allow-list is captured here, on the thread that builds locations (the UI thread). Search
+    // itself runs later on a background thread and must not resolve the security context again.
     //
-    searchablesLocations.add(new AllProjectsSearchablesLocation());
+    searchablesLocations.add(
+        new AllProjectsSearchablesLocation(AllProjectsSearchablesLocation.allowedProjectNames()));
   }
 
   private void addActiveProjectLocation(

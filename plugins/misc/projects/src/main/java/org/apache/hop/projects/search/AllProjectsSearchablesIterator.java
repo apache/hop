@@ -36,16 +36,19 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchHelper;
 
 /**
- * Searchables from every configured project. A project that cannot be loaded is skipped so the
- * others are still searched. Nothing here enables a project: the GUI keeps its active metadata and
- * VFS providers.
+ * Searchables from the projects named in the allow-list. A project that cannot be loaded is skipped
+ * so the others are still searched. Nothing here enables a project: the GUI keeps its active
+ * metadata and VFS providers.
+ *
+ * <p>The allow-list is the one captured on the UI thread. This iterator does not ask {@code
+ * ProjectsAccessControl} again, because search runs on a background thread.
  */
 public class AllProjectsSearchablesIterator implements Iterator<ISearchable> {
 
   private final List<ISearchable> searchables;
   private final Iterator<ISearchable> iterator;
 
-  public AllProjectsSearchablesIterator(IVariables variables) {
+  public AllProjectsSearchablesIterator(IVariables variables, List<String> allowedProjectNames) {
     this.searchables = new ArrayList<>();
     Set<String> seen = new HashSet<>();
 
@@ -58,6 +61,9 @@ public class AllProjectsSearchablesIterator implements Iterator<ISearchable> {
       if (projectConfig == null || projectConfig.getProjectName() == null) {
         continue;
       }
+      if (!isAllowed(allowedProjectNames, projectConfig.getProjectName())) {
+        continue;
+      }
       try {
         collectProject(variables, projectConfig, seen);
       } catch (Exception e) {
@@ -66,6 +72,19 @@ public class AllProjectsSearchablesIterator implements Iterator<ISearchable> {
       }
     }
     this.iterator = searchables.iterator();
+  }
+
+  /** A null list allows every project. An empty list allows none. Comparison ignores case. */
+  static boolean isAllowed(List<String> allowedProjectNames, String projectName) {
+    if (allowedProjectNames == null) {
+      return true;
+    }
+    for (String allowed : allowedProjectNames) {
+      if (allowed != null && allowed.equalsIgnoreCase(projectName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void collectProject(IVariables variables, ProjectConfig projectConfig, Set<String> seen)
@@ -79,7 +98,7 @@ public class AllProjectsSearchablesIterator implements Iterator<ISearchable> {
     IHopMetadataProvider metadataProvider =
         HopMetadataUtil.getStandardHopMetadataProvider(projectVariables);
     Iterator<ISearchable> projectSearchables =
-        new ProjectSearchablesIterator(metadataProvider, projectVariables, projectConfig);
+        new ProjectSearchablesIterator(metadataProvider, projectVariables, projectConfig, true);
     while (projectSearchables.hasNext()) {
       ISearchable searchable = projectSearchables.next();
       if (seen.add(HopGuiSearchHelper.searchableKey(searchable))) {

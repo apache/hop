@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -40,6 +41,7 @@ import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.search.HopGuiDescribedVariableSearchable;
@@ -53,17 +55,30 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
   private List<ISearchable> searchables;
   private Iterator<ISearchable> iterator;
 
+  /**
+   * Searchables of one project. Configuration files come from the active environment only ({@code
+   * HOP_ENVIRONMENT_NAME}). All-projects search passes {@code searchAllEnvironments} so every
+   * environment of that project is included.
+   */
   public ProjectSearchablesIterator(
       IHopMetadataProvider metadataProvider, IVariables variables, ProjectConfig projectConfig)
+      throws HopException {
+    this(metadataProvider, variables, projectConfig, false);
+  }
+
+  public ProjectSearchablesIterator(
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      ProjectConfig projectConfig,
+      boolean searchAllEnvironments)
       throws HopException {
     this.projectConfig = projectConfig;
     this.searchables = new ArrayList<>();
 
     try {
-      // Every environment of the project, not only the first one.
-      //
       List<String> configurationFiles =
-          environmentConfigurationFiles(projectConfig.getProjectName());
+          environmentConfigurationFiles(
+              projectConfig.getProjectName(), variables, searchAllEnvironments);
 
       // Discover files via registered hop file types that opt into search.
       //
@@ -119,7 +134,8 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
                     variables,
                     metadataProvider);
             if (searchable != null) {
-              searchables.add(searchable);
+              searchables.add(
+                  ProjectScopedSearchable.wrap(searchable, projectConfig.getProjectName()));
             }
           } catch (Exception e) {
             LogChannel.GENERAL.logError("Error loading searchable file: " + filePath, e);
@@ -137,7 +153,7 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
           HopGuiMetadataSearchable searchable =
               new HopGuiMetadataSearchable(
                   metadataProvider, serializer, hopMetadata, serializer.getManagedClass());
-          searchables.add(searchable);
+          searchables.add(ProjectScopedSearchable.wrap(searchable, projectConfig.getProjectName()));
         }
       }
 
@@ -158,8 +174,12 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
               new DescribedVariablesConfigFile(realConfigurationFile);
           configFile.readFromFile();
           for (DescribedVariable describedVariable : configFile.getDescribedVariables()) {
+            // The resolved path, not the raw ${PROJECT_HOME}/... value. The click handler resolves
+            // again with whichever project is active, and the searchable key uses this filename.
             searchables.add(
-                new HopGuiDescribedVariableSearchable(describedVariable, configurationFile));
+                ProjectScopedSearchable.wrap(
+                    new HopGuiDescribedVariableSearchable(describedVariable, realConfigurationFile),
+                    projectConfig.getProjectName()));
           }
         }
       }
@@ -172,29 +192,60 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
   }
 
   /**
-   * Configuration files of every environment linked to the project. Order follows the environment
-   * list. Duplicate paths are skipped.
+   * Configuration files to search. All-projects search includes every environment of the project.
+   * The active project and hop-search include only the active environment ({@code
+   * HOP_ENVIRONMENT_NAME}), and only when that environment belongs to this project. Duplicate paths
+   * are skipped. Order follows the environment list.
    */
-  static List<String> environmentConfigurationFiles(String projectName) {
+  static List<String> environmentConfigurationFiles(
+      String projectName, IVariables variables, boolean allEnvironments) {
     List<String> configurationFiles = new ArrayList<>();
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     if (config == null || projectName == null) {
       return configurationFiles;
     }
-    for (LifecycleEnvironment environment : config.findEnvironmentsOfProject(projectName)) {
-      if (environment == null || environment.getConfigurationFiles() == null) {
-        continue;
-      }
-      for (String configurationFile : environment.getConfigurationFiles()) {
-        if (configurationFile == null
-            || configurationFile.isEmpty()
-            || configurationFiles.contains(configurationFile)) {
-          continue;
+    List<LifecycleEnvironment> environments;
+    if (allEnvironments) {
+      environments = config.findEnvironmentsOfProject(projectName);
+    } else {
+      environments = new ArrayList<>();
+      String environmentName = activeEnvironmentName(variables);
+      if (environmentName != null) {
+        LifecycleEnvironment environment = config.findEnvironment(environmentName);
+        if (environment != null
+            && projectName.equalsIgnoreCase(
+                StringUtils.defaultString(environment.getProjectName()))) {
+          environments.add(environment);
         }
-        configurationFiles.add(configurationFile);
       }
     }
+    for (LifecycleEnvironment environment : environments) {
+      addConfigurationFiles(configurationFiles, environment);
+    }
     return configurationFiles;
+  }
+
+  private static String activeEnvironmentName(IVariables variables) {
+    if (variables == null) {
+      return null;
+    }
+    String environmentName = variables.getVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME);
+    return StringUtils.isEmpty(environmentName) ? null : environmentName;
+  }
+
+  private static void addConfigurationFiles(
+      List<String> configurationFiles, LifecycleEnvironment environment) {
+    if (environment == null || environment.getConfigurationFiles() == null) {
+      return;
+    }
+    for (String configurationFile : environment.getConfigurationFiles()) {
+      if (configurationFile == null
+          || configurationFile.isEmpty()
+          || configurationFiles.contains(configurationFile)) {
+        continue;
+      }
+      configurationFiles.add(configurationFile);
+    }
   }
 
   @Override

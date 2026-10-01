@@ -41,7 +41,7 @@ Open search with `CTRL-F` or *Edit → Find*. Type in the search field to filter
 * `.*` — treat the query as a regular expression
 * image:icons/gear.svg[width="16px"] — open *Search settings* (limits and options; see below)
 
-The footer shows the status text and, at the bottom right, the search location. *All loaded locations* searches open files and the active project. Choose a single location to search only that one. *All projects* searches every configured project and the configuration files of its environments.
+The footer shows the status text and, at the bottom right, the search location. *All loaded locations* searches open files and the active project, including configuration files of the active environment only. Choose a single location to search only that one. *All projects* searches every configured project you are allowed to open, and the configuration files of each of its environments. Opening a hit from another project asks to switch to that project first.
 
 *Project → Search projects...* (the project indicator at the bottom left, under *Edit project...*) opens this dialog with *All projects* already selected.
 
