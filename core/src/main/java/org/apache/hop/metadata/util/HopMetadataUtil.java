@@ -112,6 +112,33 @@ public class HopMetadataUtil {
     return providers;
   }
 
+  /**
+   * Metadata locations a duplicate can be written to when the original is not stored in the active
+   * project. The active project (the last provider) is first.
+   *
+   * @param provider the metadata provider of the project, possibly a {@link MultiMetadataProvider}
+   * @param sourceProviderName {@link IHopMetadata#getMetadataProviderName()} of the original, or
+   *     null
+   * @return provider descriptions, active project first, or an empty list when there is nothing to
+   *     choose (a single location, or the original already belongs to the active project)
+   */
+  public static List<String> duplicateProviderChoices(
+      IHopMetadataProvider provider, String sourceProviderName) {
+    List<IHopMetadataProvider> providers = getProviders(provider);
+    if (providers.size() < 2) {
+      return Collections.emptyList();
+    }
+    String activeProject = providers.get(providers.size() - 1).getDescription();
+    if (StringUtils.isEmpty(sourceProviderName) || sourceProviderName.equals(activeProject)) {
+      return Collections.emptyList();
+    }
+    List<String> choices = new ArrayList<>();
+    for (int i = providers.size() - 1; i >= 0; i--) {
+      choices.add(providers.get(i).getDescription());
+    }
+    return choices;
+  }
+
   public static <T extends IHopMetadata> HopMetadata getHopMetadataAnnotation(
       Class<T> managedClass) {
     return managedClass.getAnnotation(HopMetadata.class);
