@@ -36,6 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -376,6 +377,33 @@ class CheckSumTest {
     assertEquals(
         "4c4f6770ff94f952815606008f2023efd5cd5957333661dbb8732adb78b92622fc6f972dfe6c5eb2caff43132742f0c2a6d8feafd9af361018d191a02387837a",
         results.getWritten().get(0)[1]);
+  }
+
+  @Test
+  void testHashCodeMatchesRowMetaHash() throws Exception {
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("name"));
+    inputRowMeta.addValueMeta(new ValueMetaInteger("id"));
+    inputRowMeta.addValueMeta(new ValueMetaNumber("amount"));
+    inputRowMeta.addValueMeta(new ValueMetaBinary("payload"));
+    Object[] input = new Object[] {"abc", 5L, 10.8d, new byte[] {1, 2, 3}};
+
+    CheckSumMeta checkSumMeta = new CheckSumMeta();
+    checkSumMeta.setPrefix("CUST");
+    checkSumMeta.setSeparator("|");
+    checkSumMeta.setSuffix("END");
+    checkSumMeta.setFields(
+        List.of(new Field("name"), new Field("id"), new Field("amount"), new Field("payload")));
+
+    MockRowListener results =
+        executeHexTest(CheckSumMeta.CheckSumType.HASHCODE, input, inputRowMeta, checkSumMeta);
+    assertEquals(1, results.getWritten().size());
+    assertEquals((long) inputRowMeta.hashCode(input), results.getWritten().get(0)[4]);
+
+    Object[] nulls = new Object[] {null, null, null, null};
+    results = executeHexTest(CheckSumMeta.CheckSumType.HASHCODE, nulls, inputRowMeta, checkSumMeta);
+    assertEquals(1, results.getWritten().size());
+    assertEquals((long) inputRowMeta.hashCode(nulls), results.getWritten().get(0)[4]);
   }
 
   @Test

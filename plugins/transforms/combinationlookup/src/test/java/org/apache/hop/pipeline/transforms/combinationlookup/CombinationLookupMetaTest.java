@@ -31,14 +31,18 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 class CombinationLookupMetaTest {
   private static final Class<?> PKG = CombinationLookupMeta.class;
@@ -53,8 +57,28 @@ class CombinationLookupMetaTest {
 
   @Test
   void testSerialization() throws Exception {
-    TransformSerializationTestUtil.testSerialization(
-        "/combination-lookup-transform.xml", CombinationLookupMeta.class);
+    CombinationLookupMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/combination-lookup-transform.xml", CombinationLookupMeta.class);
+    assertNull(meta.getHashFieldInStream());
+  }
+
+  @Test
+  void hashFieldInStreamRoundTrips() throws Exception {
+    CombinationLookupMeta meta = new CombinationLookupMeta();
+    meta.setHashFieldInStream("row_hash");
+    String xml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + meta.getXml()
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+
+    Document document = XmlHandler.loadXmlString(xml);
+    Node node = XmlHandler.getSubNode(document, TransformMeta.XML_TAG);
+    CombinationLookupMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, CombinationLookupMeta.class, new MemoryMetadataProvider());
+
+    assertEquals("row_hash", copy.getHashFieldInStream());
   }
 
   /**
