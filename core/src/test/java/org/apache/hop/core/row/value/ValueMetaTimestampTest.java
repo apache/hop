@@ -100,6 +100,47 @@ class ValueMetaTimestampTest {
   }
 
   @Test
+  void testCompatibleConversionToDateReturnsPlainDate() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
+
+    Date fromTimestamp = (Date) valueMetaDate.convertDataCompatible(valueMetaTimestamp, timestamp);
+    assertEquals(Date.class, fromTimestamp.getClass());
+    assertEquals(timestamp.getTime(), fromTimestamp.getTime());
+    assertNotSame(timestamp, fromTimestamp);
+
+    // A Date field can already hold a Timestamp, for example after a JDBC read.
+    Date fromDateField = (Date) valueMetaDate.convertDataCompatible(valueMetaDate, timestamp);
+    assertEquals(Date.class, fromDateField.getClass());
+    assertEquals(timestamp.getTime(), fromDateField.getTime());
+    assertNotSame(timestamp, fromDateField);
+
+    assertNull(valueMetaDate.convertDataCompatible(valueMetaTimestamp, null));
+
+    Date plain = new Date(1_756_369_253_123L);
+    assertSame(plain, valueMetaDate.convertDataCompatible(valueMetaDate, plain));
+
+    java.sql.Date sqlDate = new java.sql.Date(1_756_369_253_123L);
+    Date fromSql = (Date) valueMetaDate.convertDataCompatible(valueMetaDate, sqlDate);
+    assertEquals(Date.class, fromSql.getClass());
+    assertEquals(sqlDate.getTime(), fromSql.getTime());
+    assertNotSame(sqlDate, fromSql);
+  }
+
+  @Test
+  void testConvertDataOfDateFieldHoldingTimestampReturnsPlainDate() throws Exception {
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
+
+    Date date = (Date) valueMetaDate.convertData(valueMetaDate, timestamp);
+
+    assertEquals(Date.class, date.getClass());
+    assertEquals(timestamp.getTime(), date.getTime());
+    assertNotSame(timestamp, date);
+  }
+
+  @Test
   void testTimestampConversionRemainsUnchanged() throws Exception {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");

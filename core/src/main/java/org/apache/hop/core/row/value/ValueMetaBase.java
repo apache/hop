@@ -4491,10 +4491,7 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_NONE, TYPE_STRING -> meta2.getString(data2);
       case TYPE_NUMBER -> meta2.getNumber(data2);
       case TYPE_INTEGER -> meta2.getInteger(data2);
-      case TYPE_DATE -> {
-        Date date = meta2.getDate(data2);
-        yield date == null || date.getClass() == Date.class ? date : new Date(date.getTime());
-      }
+      case TYPE_DATE -> toDate(meta2.getDate(data2));
       case TYPE_BIGNUMBER -> meta2.getBigNumber(data2);
       case TYPE_BOOLEAN -> meta2.getBoolean(data2);
       case TYPE_BINARY -> meta2.getBinary(data2);
@@ -4518,13 +4515,25 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_STRING -> meta2.getCompatibleString(data2);
       case TYPE_NUMBER -> meta2.getNumber(data2);
       case TYPE_INTEGER -> meta2.getInteger(data2);
-      case TYPE_DATE -> meta2.getDate(data2);
+      case TYPE_DATE -> toDate(meta2.getDate(data2));
       case TYPE_BIGNUMBER -> meta2.getBigNumber(data2);
       case TYPE_BOOLEAN -> meta2.getBoolean(data2);
       case TYPE_BINARY -> meta2.getBinary(data2);
       case TYPE_JSON -> meta2.getJson(data2);
       default -> throw new HopValueException(this + CONST_CANNOT_CONVERT + getType());
     };
+  }
+
+  /**
+   * A conversion to Date must not keep a {@link java.sql.Timestamp} or {@link java.sql.Date}. Both
+   * extend {@link Date}, and JDBC treats those subclasses differently. An instance that is already
+   * a plain {@code Date} is returned as-is. Timestamp fields do not use this method.
+   */
+  private static Date toDate(Date date) {
+    if (date == null || date.getClass() == Date.class) {
+      return date;
+    }
+    return new Date(date.getTime());
   }
 
   /**
