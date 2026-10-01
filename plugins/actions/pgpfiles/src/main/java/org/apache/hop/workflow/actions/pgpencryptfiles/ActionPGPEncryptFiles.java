@@ -514,6 +514,18 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     String realDestinationFileFolderName = resolve(destinationFileFolderName);
     String realWildcard = resolve(wildcard);
 
+    // Signing has no recipient, so the user ID is not used here. It never was: it went to gpg as
+    // -r, which GnuPG ignores for anything but encryption. Saying so out loud beats both the old
+    // silence and quietly promoting it to the signing key, which would change what an existing
+    // workflow signs with. Logged once per row, not once per file.
+    if (actionType == ActionType.SIGN
+        && Utils.isEmpty(realLocalUser)
+        && !Utils.isEmpty(realUserId)) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "ActionPGPEncryptFiles.Log.UserIdIgnoredWhenSigning", realUserId));
+    }
+
     try {
       sourceFileFolder = HopVfs.getFileObject(realSourceFileFolderName, getVariables());
       destinationFileFolder = HopVfs.getFileObject(realDestinationFileFolderName, getVariables());
@@ -1285,15 +1297,6 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
     switch (actionType) {
       case SIGN:
-        // Signing has no recipient, so the user ID is not used here. It never was: it went to gpg
-        // as -r, which GnuPG ignores for anything but encryption. Saying so out loud beats both
-        // the old silence and quietly promoting it to the signing key, which would change what an
-        // existing workflow signs with.
-        if (Utils.isEmpty(localUser) && !Utils.isEmpty(userID)) {
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "ActionPGPEncryptFiles.Log.UserIdIgnoredWhenSigning", userID));
-        }
         gpg.signFile(sourceFile, localUser, destinationFile, isAsciiMode());
         break;
       case SIGN_AND_ENCRYPT:
