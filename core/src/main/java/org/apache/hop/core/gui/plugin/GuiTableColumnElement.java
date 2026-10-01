@@ -17,25 +17,28 @@
 
 package org.apache.hop.core.gui.plugin;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  TEXT,
-  /**
-   * Multi-line text widget ({@code SWT.MULTI}). Height in lines is set via {@link
-   * GuiWidgetElement#multiLineTextHeight()}.
-   */
-  MULTI_LINE_TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  BUTTON, // Push button
-  LINK, // A URL style link (underlined text)
-  COMPOSITE, // Painted on a method which can add widgets to a composite
-  /**
-   * Data grid bound to a {@code List} field. Columns come from {@link GuiTableColumn} on the row
-   * class.
-   */
-  TABLE,
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * One column of a {@link GuiElementType#TABLE} widget, captured when the GUI registry scans a
+ * {@link GuiTableColumn}. SWT-free so the registry can live in core.
+ */
+@Getter
+@Setter
+public class GuiTableColumnElement {
+
+  private String id;
+  private String order;
+  private String label;
+  private String toolTip;
+  private GuiTableColumnType type;
+  private String fieldName;
+  private Class<?> fieldClass;
+  private String getterMethod;
+  private String setterMethod;
+  private boolean variables;
+  private boolean password;
+  private int width = -1;
+  private String comboValuesMethod;
 }

@@ -17,25 +17,20 @@
 
 package org.apache.hop.core.gui.plugin;
 
-public enum GuiElementType {
-  NONE, // To disable default options
+/** Cell editor used by a {@link GuiTableColumn}. Mapped to a table column by the UI layer. */
+public enum GuiTableColumnType {
+  /** A text cell. The annotated field must be a {@link String}. */
   TEXT,
+
   /**
-   * Multi-line text widget ({@code SWT.MULTI}). Height in lines is set via {@link
-   * GuiWidgetElement#multiLineTextHeight()}.
+   * A combo cell. An enum field is read-only and uses {@link Enum#name()}. A {@link String} field
+   * is editable; its items come from {@link GuiTableColumn#comboValuesMethod()}.
    */
-  MULTI_LINE_TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
   COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  BUTTON, // Push button
-  LINK, // A URL style link (underlined text)
-  COMPOSITE, // Painted on a method which can add widgets to a composite
+
   /**
-   * Data grid bound to a {@code List} field. Columns come from {@link GuiTableColumn} on the row
-   * class.
+   * A yes/no cell ({@code Y} / {@code N}). The annotated field must be {@code boolean} or {@link
+   * Boolean}.
    */
-  TABLE,
+  CHECKBOX
 }
