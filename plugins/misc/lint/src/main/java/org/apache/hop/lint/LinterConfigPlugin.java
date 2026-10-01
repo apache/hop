@@ -53,7 +53,7 @@ import picocli.CommandLine;
  * Rules.
  */
 @ConfigPlugin(id = "linter-config", description = "Configure linter rules and settings")
-@GuiPlugin(description = "Linter Configuration GUI")
+@GuiPlugin(description = "Linter")
 public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
   private static final ILogChannel log = LogChannel.GENERAL;
@@ -256,7 +256,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.Enabled.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.Enabled.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.Enabled.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-enabled"},
       description = "Enable or disable the linter (default: true)")
@@ -267,7 +268,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.LintOnEdit.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.LintOnEdit.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.LintOnEdit.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-on-edit"},
       description = "Lint files while they are being edited (default: true)")
@@ -278,7 +280,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.ShowIndicators.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.ShowIndicators.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.ShowIndicators.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-problems-bar"},
       description = "Show the lint problems bar (default: true)")
@@ -289,7 +292,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-show-ignored-markers"},
       description = "Mark transforms and actions whose findings are ignored (default: true)")
@@ -312,7 +316,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommit.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PreCommit.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PreCommit.ToolTip",
+      defaultValue = "false")
   @CommandLine.Option(
       names = {"--lint-block-commits"},
       description = "Block git commits from Hop Gui on lint failures (default: false)")
@@ -323,7 +328,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.ToolTip",
+      defaultValue = "false")
   @CommandLine.Option(
       names = {"--lint-block-on-warnings"},
       description = "Block commits on warnings, not only errors (default: false)")
@@ -334,7 +340,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-commit-metadata"},
       description = "Lint metadata files when checking a commit (default: true)")
@@ -345,7 +352,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PipelineVerify.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PipelineVerify.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PipelineVerify.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-in-pipeline-verify"},
       description = "Add lint findings to pipeline Verify (default: true)")
@@ -356,7 +364,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.WorkflowVerify.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.WorkflowVerify.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.WorkflowVerify.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-in-workflow-verify"},
       description = "Add lint findings to workflow Verify (default: true)")
@@ -367,7 +376,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.NativeChecks.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.NativeChecks.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.NativeChecks.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-native-checks"},
       description = "Include Hop's own checks alongside lint findings (default: true)")

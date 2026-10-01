@@ -298,7 +298,11 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <arguments>-P=-assemblies -DskipTests</arguments>
+                    <!-- config-doc=false: the generated configuration documentation is already
+                         committed and checked by CI on every merge, so a release has nothing to
+                         regenerate. Leaving it on would either do nothing or quietly put
+                         unreviewed documentation changes into the release commit. -->
+                    <arguments>-P=-assemblies -Dconfig-doc=false -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -707,6 +711,24 @@
             </activation>
             <modules>
                 <module>assemblies</module>
+            </modules>
+        </profile>
+        <!-- Regenerates the configuration perspective's option tables in docs/ from the
+             @ConfigPlugin and @GuiWidgetElement annotations, so a build that changes an option
+             also updates the page describing it. Separate from the assemblies profile because
+             the CI build switches that one off. Disable with -Dconfig-doc=false. The module
+             depends on every module declaring a @ConfigPlugin, so the reactor builds it after
+             them and the incremental build pulls it in whenever one of them changes. -->
+        <profile>
+            <id>config-doc</id>
+            <activation>
+                <property>
+                    <name>config-doc</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <modules>
+                <module>config-doc</module>
             </modules>
         </profile>
         <!-- Selenium tests that drive Hop Web in a container. Opt-in: they need Docker
