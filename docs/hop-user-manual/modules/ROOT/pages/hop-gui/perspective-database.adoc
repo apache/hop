@@ -82,7 +82,7 @@ image::hop-gui/database/database-perspective-configuration-options.png[Database 
 
 The same workbench can run outside the perspective, like Search:
 
-* *Float* on the connection toolbar (or **Tools → Database window**) opens a non-modal window you can put on another monitor while you stay in Data orchestration.
+* *Float* on the connection toolbar (or **Tools → Database window**) opens a non-modal window you can put on another monitor while you keep editing in the File Explorer.
 * *Dock* opens it as a tab in the bottom dock (next to the terminal and search results).
 *+* on that panel's tab bar does the same.
 

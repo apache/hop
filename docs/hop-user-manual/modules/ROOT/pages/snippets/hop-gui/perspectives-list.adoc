@@ -14,15 +14,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-* image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
+* image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File Explorer]
 
 * image:icons/execution.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
 
 * image:icons/gear.svg[width="24px"] xref:hop-gui/perspective-configuration.adoc[Configuration]
 
 * image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
-
-* image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File explorer]
 
 * image:icons/database.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database] (also as a floating window or bottom-dock tab)
 

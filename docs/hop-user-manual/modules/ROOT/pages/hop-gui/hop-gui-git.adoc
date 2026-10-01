@@ -85,7 +85,7 @@ Click on a file that is under version control (black or blue).
 The file explorer will show the git status for this file: the file or folder, status, branch and a revisions table (list of previous commits).
 Select one of the available commits to show the changed files to show the changed files for that revision.
 Select any of the files in the revision from the 'Changed files' list to show the git diff information on the right hand side.
-For workflows and pipelines, click 'Visual diff' to open the file in the Data Orchestration perspective.
+For workflows and pipelines, click 'Visual diff' to open the before and after versions of the file in new tabs.
 Hop will show an additional icon in the upper right corner of the action or transform icon to indicate the git change that was made (green for added or yellow for changed)
 
 image::hop-gui/git-visual-diff.png[Git visual diff,width="65%"]
