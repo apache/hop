@@ -37,7 +37,7 @@ That value replaces the default in the scripts.
 xref:installation-configuration.adoc#JvmMemorySettings[JVM memory settings] shows the values the scripts accept.
 
 On the local engine, rows stream from one transform to the next.
-Each hop buffers up to the row set size, ten thousand rows by default (`Row set size` on the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[local pipeline engine], or the variable `HOP_PIPELINE_ROWSET_SIZE`).
+Each hop buffers up to the row set size, ten thousand rows by default (`Row set size` on the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[local pipeline engine]).
 A streaming pipeline's heap follows the width of one row times that buffer, not the size of the source, unless a transform accumulates.
 
 These transforms do keep data:
@@ -56,9 +56,9 @@ These transforms do keep data:
   One request is sent per input row.
 
 The default `local` run configuration also records execution information with the `first-last` data profile (the first and last 100 rows of each transform).
-xref:hop-server/index.adoc[Hop Server] keeps log lines in memory until you set `HOP_SERVER_MAX_LOG_LINES` and `HOP_SERVER_MAX_LOG_TIMEOUT`.
-The default for both is unlimited.
-See the xref:docker-container.adoc[Docker] page for those variables.
+xref:hop-server/index.adoc[Hop Server] keeps every log line in memory for one day by default (`max_log_lines` is 0, `max_log_timeout_minutes` is 1440).
+Set `max_log_lines` in the server configuration to cap it, see xref:hop-server/index.adoc#_cleanup_settings_and_where_they_come_from[Cleanup settings].
+In the xref:docker-container.adoc[Docker] image, `HOP_SERVER_MAX_LOG_LINES` and `HOP_SERVER_MAX_LOG_TIMEOUT` set the same two values.
 
 Disk for the client itself is the unzipped tree: `lib/core`, `lib/jdbc`, `lib/swt` and `plugins/`.
 `lib/core` is on the classpath of every tool.
