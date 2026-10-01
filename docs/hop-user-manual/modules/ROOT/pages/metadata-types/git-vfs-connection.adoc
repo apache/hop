@@ -94,7 +94,7 @@ It is separate from the xref:metadata-types/git-connection.adoc[Git Connection],
 |Where the working copy is kept. Empty uses a folder under the system temporary directory, which suits a container and is a poor choice for a long-running server. The folder is keyed by the URL, the revision and the base path, so two connections do not share a checkout
 
 |Fetch on every use
-|Fetch again the first time the connection is used in a run. Leave this off for a deployment: a revision that does not change is already the checkout on disk. Turn it on while a branch is moving
+|Fetch again the first time the connection is used in a run, not once per file. Leave this off for a deployment: a revision that does not change is already the checkout on disk. Turn it on while a branch is moving. A long-running server picks up later commits with *Maximum checkout age*
 
 |Maximum checkout age (minutes)
 |Fetch again once a checkout is older than this. Applies when *Fetch on every use* is off. Empty never fetches on age alone

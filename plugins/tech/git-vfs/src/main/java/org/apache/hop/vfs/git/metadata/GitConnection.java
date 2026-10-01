@@ -324,12 +324,14 @@ public class GitConnection extends HopMetadataBase
   private String cacheFolder;
 
   /**
-   * Fetch the revision again on every first use, rather than reusing the checkout of an earlier
-   * run.
+   * Fetch the revision again the first time this JVM uses the checkout, rather than reusing a
+   * checkout left by an earlier run.
    *
    * <p>Off, the default, is what a deployment wants: the revision is fixed, so a checkout which is
    * already there is the same one the fetch would produce. On is what a developer wants while
-   * watching a branch move.
+   * watching a branch move. It does not fetch on every file of the run. A long-running server that
+   * should pick up later commits sets a maximum checkout age instead, which only applies when this
+   * is off.
    */
   @GuiWidgetElement(
       id = "30100-always-fetch",

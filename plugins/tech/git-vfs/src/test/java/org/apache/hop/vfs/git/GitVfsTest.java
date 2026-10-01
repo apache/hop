@@ -257,6 +257,51 @@ class GitVfsTest {
       assertTrue(
           Files.isRegularFile(second.resolve("workflows/daily.hwf")),
           "the reused checkout should still hold the repository");
+      assertTrue(
+          Files.isRegularFile(GitCheckout.lockFile(first)),
+          "checking out takes a file lock and releases it");
+      assertFalse(
+          GitCheckout.lockFile(first).startsWith(first),
+          "the lock file sits beside the checkout so replacing the checkout does not delete it");
+      try (var held = GitCheckout.lockCheckout(first)) {
+        assertNotNull(held);
+      }
+    }
+
+    @Test
+    @DisplayName("Fetch on every use clones once for the run, not once per file")
+    void fetchOnEveryUseClonesOnceForTheRun() throws Exception {
+      GitConnection cached = connection("ops", TestRepository.branch(), "");
+      cached.setAlwaysFetch(true);
+      register("ops", cached);
+      GitCheckout checkout = new GitCheckout(new Variables(), cached);
+      try {
+        assertEquals("second version", read(resolve("ops:///workflows/daily.hwf")));
+
+        // The remote moved. A clone per file would show that. A clone per run must not.
+        repository.commitFile("workflows/daily.hwf", "third version");
+
+        FileObject file = resolve("ops:///workflows/daily.hwf");
+        assertTrue(file.exists());
+        assertTrue(file.isReadable());
+        assertEquals("second version", read(file));
+        assertEquals("second version".length(), file.getContent().getSize());
+        assertTrue(resolve("ops:///workflows/").isFolder());
+        assertTrue(namesOf(resolve("ops:///")).contains("workflows"));
+        Path workingCopy = checkout.getWorkingCopy();
+        assertEquals(workingCopy, new GitCheckout(new Variables(), cached).getWorkingCopy());
+        assertEquals(
+            "second version", Files.readString(workingCopy.resolve("workflows/daily.hwf")));
+
+        GitCheckout.forgetFetchedCheckout(workingCopy);
+
+        assertEquals(
+            "third version",
+            read(resolve("ops:///workflows/daily.hwf")),
+            "a new run fetches again");
+      } finally {
+        GitCheckout.forgetFetchedCheckout(checkout.checkoutFolder(repository.url()));
+      }
     }
   }
 

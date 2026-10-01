@@ -107,6 +107,13 @@ public class TestRepository implements AutoCloseable {
     return git.getRepository().resolve("v1").getName();
   }
 
+  /** Commit a new version of one file on the branch that is currently checked out. */
+  public void commitFile(String relativePath, String content) throws Exception {
+    write(folder.resolve(relativePath), content);
+    git.add().addFilepattern(relativePath).call();
+    commit(git, "update " + relativePath);
+  }
+
   /** The folder holding the {@code .git} directory: the "remote" to clone from. */
   public String url() {
     return folder.toUri().toString();

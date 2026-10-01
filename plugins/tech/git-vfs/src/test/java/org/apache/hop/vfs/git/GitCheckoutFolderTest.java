@@ -17,9 +17,15 @@
 package org.apache.hop.vfs.git;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.file.Files;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.git.metadata.GitConnection;
 import org.junit.jupiter.api.DisplayName;
@@ -102,6 +108,84 @@ class GitCheckoutFolderTest {
     assertTrue(
         resolved.startsWith(cacheRoot.normalize()),
         "the checkout escaped the cache root: " + resolved);
+  }
+
+  @Test
+  @DisplayName("The checkout lock is exclusive, and releasing it lets the next caller take it")
+  void theCheckoutLockIsExclusive() throws Exception {
+    java.nio.file.Path checkout = cacheRoot.resolve("ops/checkout");
+
+    // FileChannel.lock, not a monitor: a second lock in this JVM is rejected while the first is
+    // held, and it blocks a second process instead. Releasing it is what lets that process in.
+    try (var first = GitCheckout.lockCheckout(checkout)) {
+      assertNotNull(first);
+      assertThrows(
+          OverlappingFileLockException.class,
+          () -> {
+            try (var second = GitCheckout.lockCheckout(checkout)) {
+              assertNotNull(second);
+            }
+          });
+      assertEquals("checkout.lock", GitCheckout.lockFile(checkout).getFileName().toString());
+      assertEquals(checkout.getParent(), GitCheckout.lockFile(checkout).getParent());
+    }
+
+    try (var again = GitCheckout.lockCheckout(checkout)) {
+      assertNotNull(again);
+    }
+  }
+
+  @Test
+  @DisplayName("Losing the move to a complete checkout keeps that checkout")
+  void losingTheMoveToACompleteCheckoutKeepsIt() throws Exception {
+    java.nio.file.Path checkout = cacheRoot.resolve("kept");
+    Files.createDirectories(checkout.resolve(".git"));
+    Files.writeString(checkout.resolve(GitCheckout.READY_MARKER), "kept-revision");
+    Files.writeString(checkout.resolve("workflows.txt"), "original");
+
+    java.nio.file.Path staging = Files.createTempDirectory(cacheRoot, "staging");
+    Files.writeString(staging.resolve("workflows.txt"), "replacement");
+
+    GitCheckout git = new GitCheckout(new Variables(), connection("ops", "main", "/"));
+
+    // A non-empty checkout makes the move fail. That is the second process, which got there first.
+    assertFalse(git.moveIntoPlace(staging, checkout));
+
+    assertEquals("original", Files.readString(checkout.resolve("workflows.txt")));
+    assertEquals("kept-revision", Files.readString(checkout.resolve(GitCheckout.READY_MARKER)));
+    assertTrue(
+        Files.isDirectory(staging), "the caller drops a staging folder that was not installed");
+  }
+
+  @Test
+  @DisplayName("An unfinished checkout does not excuse a move that failed")
+  void anUnfinishedCheckoutDoesNotExcuseAFailedMove() throws Exception {
+    java.nio.file.Path checkout = cacheRoot.resolve("half");
+    Files.createDirectories(checkout);
+    Files.writeString(checkout.resolve("half.txt"), "half");
+
+    java.nio.file.Path staging = Files.createTempDirectory(cacheRoot, "staging");
+    Files.writeString(staging.resolve("full.txt"), "full");
+
+    GitCheckout git = new GitCheckout(new Variables(), connection("ops", "main", "/"));
+
+    assertThrows(IOException.class, () -> git.moveIntoPlace(staging, checkout));
+    assertEquals("half", Files.readString(checkout.resolve("half.txt")));
+    assertTrue(Files.isDirectory(staging));
+  }
+
+  @Test
+  @DisplayName("A move into an empty location installs the staging folder")
+  void aMoveIntoAnEmptyLocationInstallsTheStagingFolder() throws Exception {
+    java.nio.file.Path checkout = cacheRoot.resolve("fresh");
+    java.nio.file.Path staging = Files.createTempDirectory(cacheRoot, "staging");
+    Files.writeString(staging.resolve("workflows.txt"), "fresh");
+
+    GitCheckout git = new GitCheckout(new Variables(), connection("ops", "main", "/"));
+
+    assertTrue(git.moveIntoPlace(staging, checkout));
+    assertEquals("fresh", Files.readString(checkout.resolve("workflows.txt")));
+    assertFalse(Files.exists(staging));
   }
 
   @Test

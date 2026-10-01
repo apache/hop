@@ -19,16 +19,21 @@ package org.apache.hop.vfs.git;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -71,7 +76,8 @@ import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder;
  * <p>The checkout is cached under a folder derived from the URL, the revision and the base path, so
  * a second read of the same revision costs nothing and two connections never collide. Concurrent
  * callers asking for the same checkout are serialized: whichever gets there first clones, the rest
- * wait and then find the finished checkout.
+ * wait and then find the finished checkout. Threads of this JVM share one lock. Other processes
+ * share a file lock on the checkout, because the in-memory lock does not reach them.
  */
 public class GitCheckout {
 
@@ -86,6 +92,13 @@ public class GitCheckout {
 
   /** A checkout being written right now, so a second thread waits for it rather than racing. */
   private static final Object CHECKOUT_LOCK = new Object();
+
+  /**
+   * Checkout folders this JVM has already fetched for a connection that fetches on first use. A
+   * later file in the same run must not clone again. A new JVM starts empty; tests can forget one
+   * folder to pretend that boundary.
+   */
+  private static final Set<String> FETCHED_THIS_JVM = ConcurrentHashMap.newKeySet();
 
   static {
     // The JDK HTTP client picks up a JVM-wide Authenticator other libraries install, and then an
@@ -117,11 +130,15 @@ public class GitCheckout {
     }
 
     Path checkout = checkoutFolder(url);
+    // The file lock is taken inside the in-memory one. The other order deadlocks: one thread can
+    // hold the file and wait for the monitor while another holds the monitor and waits for the
+    // file. Other processes only take the file, so they cannot form that cycle.
     synchronized (CHECKOUT_LOCK) {
-      try {
+      try (CheckoutLock ignored = lockCheckout(checkout)) {
         if (needsFetch(checkout)) {
           materialize(checkout, url);
         }
+        noteFetched(checkout);
       } catch (GitCheckoutException e) {
         throw e;
       } catch (Exception e) {
@@ -260,16 +277,18 @@ public class GitCheckout {
   /**
    * Whether the checkout has to be (re)built.
    *
-   * <p>Absent, or left half written by a crash, it has to be. A finished one only has to be fetched
-   * again when the connection says so, or when it has been sitting around longer than it is allowed
-   * to.
+   * <p>Absent, or left half written by a crash, it has to be. A finished one is fetched again the
+   * first time this JVM uses it when the connection fetches on first use, or when it has been
+   * sitting around longer than it is allowed to. The age is what a long-running server uses to
+   * refresh; fetching on first use does not also apply it.
    */
   private boolean needsFetch(Path checkout) throws IOException {
     if (!isComplete(checkout)) {
       return true;
     }
     if (connection.isAlwaysFetch()) {
-      return true;
+      // Once per JVM for this folder, not once per file.
+      return !FETCHED_THIS_JVM.contains(fetchedKey(checkout));
     }
     Integer minutes = cacheMinutes();
     if (minutes == null) {
@@ -302,22 +321,43 @@ public class GitCheckout {
     // Built beside the checkout rather than in it: a half written clone must never be mistaken for
     // a finished one, and the move below is what makes it finished.
     Path staging = Files.createTempDirectory(parent, checkout.getFileName() + "-staging");
-    boolean moved = false;
+    boolean installed = false;
     try {
       fetchInto(staging, url);
       deleteQuietly(checkout);
+      installed = moveIntoPlace(staging, checkout);
+      if (installed) {
+        // Last, and only now: a checkout without this file is one this class rebuilds.
+        Files.writeString(checkout.resolve(READY_MARKER), resolvedRevision());
+      }
+    } finally {
+      if (!installed) {
+        deleteQuietly(staging);
+      }
+    }
+  }
+
+  /**
+   * Move a finished staging folder onto {@code checkout}.
+   *
+   * @return {@code true} when {@code staging} is now the checkout; {@code false} when a complete
+   *     checkout was already there and this move lost to it
+   */
+  boolean moveIntoPlace(Path staging, Path checkout) throws IOException {
+    try {
       try {
         Files.move(staging, checkout, StandardCopyOption.ATOMIC_MOVE);
       } catch (java.nio.file.AtomicMoveNotSupportedException e) {
         Files.move(staging, checkout);
       }
-      moved = true;
-      // Last, and only now: a checkout without this file is one this class rebuilds.
-      Files.writeString(checkout.resolve(READY_MARKER), resolvedRevision());
-    } finally {
-      if (!moved) {
-        deleteQuietly(staging);
+      return true;
+    } catch (IOException e) {
+      // The other process moved its copy in first, or the checkout could not be removed because a
+      // reader still has it open. A finished one is the copy to serve. An unfinished one is not.
+      if (isComplete(checkout)) {
+        return false;
       }
+      throw e;
     }
   }
 
@@ -682,6 +722,39 @@ public class GitCheckout {
     }
   }
 
+  /** Remember a checkout this JVM has already fetched, so the next file does not clone again. */
+  private void noteFetched(Path checkout) {
+    if (connection.isAlwaysFetch() && isComplete(checkout)) {
+      FETCHED_THIS_JVM.add(fetchedKey(checkout));
+    }
+  }
+
+  /**
+   * Drops one folder from the set fetched in this JVM. Tests use it as the boundary of a new run.
+   */
+  static void forgetFetchedCheckout(Path checkout) {
+    FETCHED_THIS_JVM.remove(fetchedKey(checkout));
+  }
+
+  private static String fetchedKey(Path checkout) {
+    return checkout.toAbsolutePath().normalize().toString();
+  }
+
+  /**
+   * The lock file beside a checkout, {@code <checkout>.lock}. It stays outside the working copy so
+   * replacing that copy does not delete the lock under the process that holds it.
+   */
+  static Path lockFile(Path checkout) {
+    Path name = checkout.getFileName();
+    String fileName = (name == null ? "checkout" : name.toString()) + ".lock";
+    Path parent = checkout.getParent();
+    return parent == null ? Paths.get(fileName) : parent.resolve(fileName);
+  }
+
+  static CheckoutLock lockCheckout(Path checkout) throws IOException {
+    return CheckoutLock.acquire(checkout);
+  }
+
   private void deleteQuietly(Path path) {
     if (path == null || !Files.exists(path)) {
       return;
@@ -695,6 +768,57 @@ public class GitCheckout {
       }
     } catch (Exception e) {
       // Best effort: a leftover staging folder costs at worst a rebuild on the next run.
+    }
+  }
+
+  /**
+   * An exclusive {@link FileChannel#lock()} on one checkout. Another JVM blocks in {@code lock()}
+   * until this is released. A second {@code lock()} in this JVM does not wait: the JDK rejects the
+   * overlap, which is why threads here take {@link #CHECKOUT_LOCK} first.
+   */
+  static final class CheckoutLock implements AutoCloseable {
+    private final FileChannel channel;
+    private final FileLock lock;
+
+    private CheckoutLock(FileChannel channel, FileLock lock) {
+      this.channel = channel;
+      this.lock = lock;
+    }
+
+    static CheckoutLock acquire(Path checkout) throws IOException {
+      Path file = lockFile(checkout);
+      Path parent = file.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+      FileChannel channel =
+          FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+      boolean acquired = false;
+      try {
+        FileLock fileLock = channel.lock();
+        CheckoutLock checkoutLock = new CheckoutLock(channel, fileLock);
+        acquired = true;
+        return checkoutLock;
+      } finally {
+        if (!acquired) {
+          try {
+            channel.close();
+          } catch (IOException e) {
+            // The failure from lock() is the one to report. A close error would hide it.
+          }
+        }
+      }
+    }
+
+    @Override
+    public void close() throws IOException {
+      try {
+        if (lock.isValid()) {
+          lock.release();
+        }
+      } finally {
+        channel.close();
+      }
     }
   }
 
