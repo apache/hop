@@ -25,7 +25,7 @@ under the License.
 
 Call DB procedure runs a stored procedure or function once for every incoming row. With no incoming hop it runs once.
 
-The call can return a scalar function value, `OUT` and `INOUT` parameters, and the rows of the procedure's first result set. Later result sets are read and discarded so procedure errors still surface. An empty first result set produces no output row for that input row. `OUT` values are copied onto every result row. `INOUT` values replace the incoming field of the same name.
+The call can return a scalar function value and `OUT` or `INOUT` parameters, or the rows of the procedure's first result set. Row mode does not accept `OUT` or `INOUT` arguments. Some databases only return those values after the result set has been consumed, and reading them first discards the rows. Hop reports that combination from the transform check and stops at runtime instead of returning no rows. Later result sets are read and discarded so procedure errors still surface. An empty first result set produces no output row for that input row. With a scalar result type, `OUT` values are added to the row and `INOUT` values replace the incoming field of the same name.
 
 A procedure that only returns a result set can also be called from xref:pipeline/transforms/tableinput.adoc[Table Input]. MySQL and MariaDB accept a `CALL` statement. Many other JDBC drivers accept the call escape:
 
@@ -34,7 +34,7 @@ A procedure that only returns a result set can also be called from xref:pipeline
 {call list_customers()}
 ----
 
-PostgreSQL functions are usually read with `SELECT * FROM procedure_name(...)`. Use Table Input when the call is ordinary SQL and you only need the result set. Use Call DB procedure when the procedure needs `IN`, `OUT`, or `INOUT` arguments from the stream, or when you want one call per incoming row together with output parameters.
+PostgreSQL functions are usually read with `SELECT * FROM procedure_name(...)`. Use Table Input when the call is ordinary SQL and you only need the result set. Use Call DB procedure when the procedure needs `IN`, `OUT`, or `INOUT` arguments from the stream, or when you want one call per incoming row. Output parameters and result rows are separate choices; do not combine them.
 
 == Options
 
@@ -51,7 +51,7 @@ The dialog is split into *General*, *Parameters*, and *Fields* tabs.
 |Find procedure|Lists the procedures JDBC reports for the selected connection. Some drivers return none; type the name when the list is empty.
 |Enable auto commit|When auto commit is off, Hop commits once after the last row is processed.
 |Result name|Name of the function return value. Leave this blank when the procedure has no scalar return. Ignored when the result type is Row; the stored name is kept if you switch back.
-|Result type|Hop type of the function return value, or *Row* to output the rows of the first result set.
+|Result type|Hop type of the function return value, or *Row* to output the rows of the first result set. *Row* cannot be combined with `OUT` or `INOUT` arguments.
 |===
 
 === Parameters
@@ -60,19 +60,19 @@ The dialog is split into *General*, *Parameters*, and *Fields* tabs.
 |===
 |Option|Description
 |Name|Argument name. For `IN` and `INOUT` this is also the incoming stream field.
-|Direction|`IN` (input only), `OUT` (output only), or `INOUT` (the incoming value is sent and replaced with the returned value).
+|Direction|`IN` (input only), `OUT` (output only), or `INOUT` (the incoming value is sent and replaced with the returned value). `OUT` and `INOUT` are not allowed when the result type is *Row*.
 |Type|Hop type of the argument. Output parameters need this so Hop knows what the driver returns.
 |Get Fields|Button on the dialog. Fills the grid from the incoming stream and sets each direction to `IN`. Remove the rows you do not need.
 |===
 
 === Fields
 
-This tab is available when the result type is *Row*. The listed columns are appended to the incoming row, before any `OUT` parameters. Columns that are missing from the result set are null. Only the columns you list are added; an empty list still emits one output row per result row, with the incoming fields and output parameters.
+This tab is available when the result type is *Row*. The listed columns are appended to the incoming row. Columns that are missing from the result set are null. Only the columns you list are added; an empty list still emits one output row per result row, with the incoming fields.
 
 [options="header"]
 |===
 |Option|Description
-|Get fields|Reads the column names, types, format, length, and precision of the first result set, in the same way xref:pipeline/transforms/tableinput.adoc[Table Input] reads query fields. Hop asks the driver for callable-statement metadata first. When the driver has none, Hop executes the procedure with null values for `IN` and `INOUT` arguments, limits the read to one row when the driver allows it, and rolls the connection back when the driver allows that. A procedure that commits itself can still change data.
+|Get fields|Reads the column names, types, format, length, and precision of the first result set, in the same way xref:pipeline/transforms/tableinput.adoc[Table Input] reads query fields. Hop asks the driver for callable-statement metadata first and does not run the procedure when that metadata is available. When the driver has none, Hop asks for confirmation and then executes the procedure with null values for `IN` and `INOUT` arguments, limits the read to one row when the driver allows it, and rolls the connection back when the driver allows that. A procedure that commits itself, or a driver that refuses to turn auto-commit off, can still change data.
 |Name|Output field name. Matched to the result-set column by label, then by name, ignoring case. Variables are resolved.
 |Type|Hop type of the output field.
 |Format|Optional conversion mask.

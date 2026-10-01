@@ -4685,9 +4685,30 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
+   * Result-set columns of {@code procedure} when the driver can describe them before execution.
+   * Returns {@code null} when it cannot. Does not execute the procedure and does not bind
+   * arguments. Callers that still need the columns must ask the user and then call {@link
+   * #getProcedureResultFields}.
+   */
+  public IRowMeta describeProcedureResultFields(
+      String procedure, String[] arg, String[] argdir, int[] argtype) throws HopDatabaseException {
+    String[] names = arg == null ? new String[0] : arg;
+    String[] directions = argdir == null ? new String[0] : argdir;
+    int[] types = argtype == null ? new int[0] : argtype;
+    try {
+      setProcLookup(procedure, names, directions, types, null, IValueMeta.TYPE_NONE);
+      return procedureMetadataBeforeExecute();
+    } finally {
+      closeProcedureStatement();
+    }
+  }
+
+  /**
    * Result-set layout of {@code procedure} without a scalar function return. Uses statement
    * metadata when the driver provides it, otherwise executes the call with null input arguments and
-   * reads the first result set. The caller decides whether that execution is rolled back.
+   * reads the first result set. The caller decides whether that execution is rolled back. Call
+   * {@link #describeProcedureResultFields} first when the caller must ask before this runs the
+   * procedure.
    */
   public IRowMeta getProcedureResultFields(
       String procedure, String[] arg, String[] argdir, int[] argtype) throws HopDatabaseException {

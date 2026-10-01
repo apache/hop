@@ -225,6 +225,27 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
     return names;
   }
 
+  /**
+   * Row mode cannot read OUT or INOUT values. {@link
+   * org.apache.hop.core.database.Database#callProcedure} reads them before the result set, and SQL
+   * Server and Sybase then discard the rows.
+   */
+  public boolean hasRowResultOutputArgument() {
+    if (!isResultRows() || arguments == null) {
+      return false;
+    }
+    for (ProcArgument argument : arguments) {
+      if (argument == null || argument.getDirection() == null) {
+        continue;
+      }
+      String direction = argument.getDirection();
+      if (direction.equalsIgnoreCase("OUT") || direction.equalsIgnoreCase("INOUT")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** Result columns with a name. Empty names are not part of the output row. */
   public List<DBProcField> activeResultFields() {
     List<DBProcField> active = new ArrayList<>();
@@ -298,6 +319,14 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
 
     CheckResult cr;
     String errorMessage = "";
+
+    if (hasRowResultOutputArgument()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "DBProcMeta.CheckResult.RowResultOutputArguments"),
+              transformMeta));
+    }
 
     DatabaseMeta databaseMeta = null;
 

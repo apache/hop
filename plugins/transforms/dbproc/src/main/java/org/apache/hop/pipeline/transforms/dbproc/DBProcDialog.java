@@ -447,8 +447,17 @@ public class DBProcDialog extends BaseTransformDialog {
         // itself can still change data.
       }
       try {
-        IRowMeta fields = db.getProcedureResultFields(procedure, names, directions, types);
-        if (fields == null || fields.isEmpty()) {
+        IRowMeta described = db.describeProcedureResultFields(procedure, names, directions, types);
+        IRowMeta fields =
+            DBProcResultFieldLookup.fields(
+                described,
+                this::confirmProcedureExecution,
+                () -> db.getProcedureResultFields(procedure, names, directions, types));
+        // Null means the user declined. An empty row is a call that returned no result set.
+        if (fields == null) {
+          return;
+        }
+        if (fields.isEmpty()) {
           showMessage(
               "DBProcDialog.NoResultSet.DialogTitle",
               "DBProcDialog.NoResultSet.DialogMessage",
@@ -590,6 +599,14 @@ public class DBProcDialog extends BaseTransformDialog {
     if (label != null && !label.isDisposed()) {
       label.setEnabled(enabled);
     }
+  }
+
+  private boolean confirmProcedureExecution() {
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText(BaseMessages.getString(PKG, "DBProcDialog.ConfirmProcedureExecution.DialogTitle"));
+    box.setMessage(
+        BaseMessages.getString(PKG, "DBProcDialog.ConfirmProcedureExecution.DialogMessage"));
+    return box.open() == SWT.YES;
   }
 
   private void showMessage(String titleKey, String messageKey, int style) {

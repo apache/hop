@@ -16,22 +16,32 @@
  */
 package org.apache.hop.pipeline.transforms.dbproc;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -225,5 +235,158 @@ class DBProcMetaTest {
     assertEquals(0, indexes[0]);
     assertEquals(-1, indexes[1]);
     assertEquals(1, indexes[2]);
+  }
+
+  @Test
+  void checkRejectsOutAndInOutArgumentsWhenTheResultIsRows() {
+    String message =
+        BaseMessages.getString(DBProcMeta.class, "DBProcMeta.CheckResult.RowResultOutputArguments");
+    assertEquals(
+        "Result type Row cannot be combined with OUT or INOUT arguments. Reading those values"
+            + " before the result set makes some databases discard the rows.",
+        message);
+
+    DBProcMeta rows = rowMetaWithArgument("total", "OUT");
+    assertTrue(rows.hasRowResultOutputArgument());
+    assertTrue(hasRemark(check(rows), message));
+
+    rows.getArguments().get(0).setDirection("InOut");
+    assertTrue(rows.hasRowResultOutputArgument());
+    assertTrue(hasRemark(check(rows), message));
+
+    rows.getArguments().get(0).setDirection("IN");
+    assertFalse(rows.hasRowResultOutputArgument());
+    assertFalse(hasRemark(check(rows), message));
+
+    DBProcMeta scalar = rowMetaWithArgument("total", "OUT");
+    scalar.setResultType("Integer");
+    assertFalse(scalar.hasRowResultOutputArgument());
+    assertFalse(hasRemark(check(scalar), message));
+
+    DBProcMeta blank = rowMetaWithArgument("total", null);
+    assertFalse(blank.hasRowResultOutputArgument());
+    assertFalse(hasRemark(check(blank), message));
+  }
+
+  @Test
+  void rowModeRejectsOutputArgumentsBeforeTheProcedureRuns() {
+    String message =
+        BaseMessages.getString(DBProcMeta.class, "DBProc.Exception.RowResultOutputArguments");
+    assertEquals(
+        "Result type Row cannot be combined with OUT or INOUT arguments. Reading those values"
+            + " before the result set makes some databases discard the rows.",
+        message);
+
+    DBProcMeta rows = rowMetaWithArgument("total", "Out");
+    HopTransformException rejected =
+        assertThrows(
+            HopTransformException.class, () -> DBProc.rejectRowResultOutputArguments(rows));
+    assertEquals(message, rejected.getSuperMessage());
+
+    rows.getArguments().get(0).setDirection("INOUT");
+    assertThrows(HopTransformException.class, () -> DBProc.rejectRowResultOutputArguments(rows));
+
+    rows.getArguments().get(0).setDirection("IN");
+    assertDoesNotThrow(() -> DBProc.rejectRowResultOutputArguments(rows));
+
+    rows.getArguments().get(0).setDirection("OUT");
+    rows.setResultType("Number");
+    assertDoesNotThrow(() -> DBProc.rejectRowResultOutputArguments(rows));
+    assertDoesNotThrow(() -> DBProc.rejectRowResultOutputArguments(null));
+  }
+
+  @Test
+  void resultFieldLookupSkipsConfirmationWhenTheDriverDescribedTheResultSet() throws Exception {
+    IRowMeta described = new RowMeta();
+    described.addValueMeta(new ValueMetaString("id"));
+    AtomicBoolean asked = new AtomicBoolean();
+    AtomicBoolean executed = new AtomicBoolean();
+
+    assertSame(
+        described,
+        DBProcResultFieldLookup.fields(
+            described,
+            () -> {
+              asked.set(true);
+              return false;
+            },
+            () -> {
+              executed.set(true);
+              return new RowMeta();
+            }));
+    assertFalse(asked.get());
+    assertFalse(executed.get());
+    assertEquals(
+        DBProcResultFieldLookup.Choice.DESCRIBE_WITHOUT_RUNNING,
+        DBProcResultFieldLookup.choose(true, () -> true));
+  }
+
+  @Test
+  void resultFieldLookupRunsOnlyAfterTheUserConfirms() throws Exception {
+    AtomicBoolean executed = new AtomicBoolean();
+    IRowMeta fromProcedure = new RowMeta();
+    fromProcedure.addValueMeta(new ValueMetaString("id"));
+
+    assertNull(
+        DBProcResultFieldLookup.fields(
+            null,
+            () -> false,
+            () -> {
+              executed.set(true);
+              return fromProcedure;
+            }));
+    assertFalse(executed.get());
+    assertNull(DBProcResultFieldLookup.fields(null, null, () -> fromProcedure));
+
+    assertSame(
+        fromProcedure,
+        DBProcResultFieldLookup.fields(
+            null,
+            () -> true,
+            () -> {
+              executed.set(true);
+              return fromProcedure;
+            }));
+    assertTrue(executed.get());
+    assertEquals(
+        DBProcResultFieldLookup.Choice.EXECUTE, DBProcResultFieldLookup.choose(false, () -> true));
+    assertEquals(
+        DBProcResultFieldLookup.Choice.CANCELLED,
+        DBProcResultFieldLookup.choose(false, () -> false));
+  }
+
+  private static DBProcMeta rowMetaWithArgument(String name, String direction) {
+    DBProcMeta meta = new DBProcMeta();
+    meta.setResultType(DBProcMeta.RESULT_TYPE_ROW);
+    DBProcMeta.ProcArgument argument = new DBProcMeta.ProcArgument();
+    argument.setName(name);
+    argument.setDirection(direction);
+    argument.setType("Integer");
+    meta.getArguments().add(argument);
+    return meta;
+  }
+
+  private static List<ICheckResult> check(DBProcMeta meta) {
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        new RowMeta(),
+        new String[] {"in"},
+        new String[0],
+        null,
+        new Variables(),
+        new MemoryMetadataProvider());
+    return remarks;
+  }
+
+  private static boolean hasRemark(List<ICheckResult> remarks, String text) {
+    for (ICheckResult remark : remarks) {
+      if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR && text.equals(remark.getText())) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -1000,6 +1000,58 @@ class DatabaseTest {
   }
 
   @Test
+  void describeProcedureResultFieldsUsesStatementMetadataWithoutExecuting() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSetMetaData metadata = columnMetadata("customer", Types.VARCHAR);
+    when(statement.getMetaData()).thenReturn(metadata);
+    Database db = procedureDatabase(statement);
+
+    IRowMeta fields =
+        db.describeProcedureResultFields(
+            "list_customers", new String[0], new String[0], new int[0]);
+
+    assertEquals(1, fields.size());
+    assertEquals("customer", fields.getValueMeta(0).getName());
+    assertTrue(fields.getValueMeta(0).isString());
+    verify(statement, never()).execute();
+    verify(statement).close();
+  }
+
+  @Test
+  void describeProcedureResultFieldsDoesNotExecuteWhenMetadataIsMissing() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    when(statement.getMetaData()).thenReturn(null);
+    Database db = procedureDatabase(statement);
+
+    assertNull(
+        db.describeProcedureResultFields(
+            "list_customers",
+            new String[] {"id"},
+            new String[] {"IN"},
+            new int[] {IValueMeta.TYPE_INTEGER}));
+
+    verify(statement, never()).execute();
+    verify(statement, never()).setMaxRows(1);
+    verify(statement).close();
+  }
+
+  @Test
+  void describeProcedureResultFieldsDoesNotExecuteWhenTheDriverHasNoColumns() throws Exception {
+    CallableStatement statement = mock(CallableStatement.class);
+    ResultSetMetaData metadata = mock(ResultSetMetaData.class);
+    when(statement.getMetaData()).thenReturn(metadata);
+    when(metadata.getColumnCount()).thenReturn(0);
+    Database db = procedureDatabase(statement);
+
+    assertNull(
+        db.describeProcedureResultFields(
+            "list_customers", new String[0], new String[0], new int[0]));
+
+    verify(statement, never()).execute();
+    verify(statement).close();
+  }
+
+  @Test
   void getProcedureResultFieldsUsesStatementMetadataWithoutExecuting() throws Exception {
     CallableStatement statement = mock(CallableStatement.class);
     ResultSetMetaData metadata = columnMetadata("customer", Types.VARCHAR);

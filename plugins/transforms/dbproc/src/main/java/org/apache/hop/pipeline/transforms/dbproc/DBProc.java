@@ -104,7 +104,19 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
         resultType);
   }
 
+  /**
+   * Stops a row-mode call that also has OUT or INOUT arguments. Those values are read before the
+   * result set, which makes some databases discard the rows.
+   */
+  static void rejectRowResultOutputArguments(DBProcMeta meta) throws HopTransformException {
+    if (meta != null && meta.hasRowResultOutputArgument()) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "DBProc.Exception.RowResultOutputArguments"));
+    }
+  }
+
   private void runProc(IRowMeta rowMeta, Object[] rowData) throws HopException {
+    rejectRowResultOutputArguments(meta);
     prepareProcedure(rowMeta);
     boolean scalar = scalarResult();
     data.db.setProcValues(rowMeta, rowData, data.argnrs, meta.argumentDirections(), scalar);
