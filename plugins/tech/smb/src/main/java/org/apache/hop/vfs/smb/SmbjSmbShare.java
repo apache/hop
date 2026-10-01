@@ -168,6 +168,16 @@ final class SmbjSmbShare implements SmbShare {
     // true starts the stream at the current end of the file.
     return new FilterOutputStream(file.getOutputStream(append)) {
       @Override
+      public void write(byte[] b, int off, int len) throws IOException {
+        out.write(b, off, len);
+      }
+
+      @Override
+      public void write(byte[] b) throws IOException {
+        out.write(b, 0, b.length);
+      }
+
+      @Override
       public void close() throws IOException {
         try {
           super.close();
@@ -223,6 +233,7 @@ final class SmbjSmbShare implements SmbShare {
     if (entry == null) {
       throw new SmbErrors.SmbNotFoundException(sharePath);
     }
+    mkdirs(parent(newSharePath));
     try {
       if (entry.directory()) {
         try (Directory directory =

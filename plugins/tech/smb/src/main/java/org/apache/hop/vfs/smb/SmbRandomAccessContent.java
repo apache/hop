@@ -16,7 +16,6 @@
  */
 package org.apache.hop.vfs.smb;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,25 +98,6 @@ final class SmbRandomAccessContent extends AbstractRandomAccessStreamContent {
     }
     random.write(b, off, len, filePointer);
     filePointer += len;
-  }
-
-  @Override
-  public InputStream getInputStream() throws IOException {
-    // The inherited stream tracks the file pointer. A detached copy would not.
-    long size = Math.max(0, length() - filePointer);
-    if (size > Integer.MAX_VALUE) {
-      return super.getInputStream();
-    }
-    byte[] data = new byte[(int) size];
-    int offset = 0;
-    while (offset < data.length) {
-      int read = random.read(data, offset, data.length - offset, filePointer + offset);
-      if (read < 0) {
-        break;
-      }
-      offset += read;
-    }
-    return new ByteArrayInputStream(data, 0, offset);
   }
 
   private final class OffsetInputStream extends InputStream {

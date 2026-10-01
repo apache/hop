@@ -42,7 +42,7 @@ public final class SmbConnectionTester {
             domain,
             username,
             context)) {
-      share.children("");
+      share.children(SmbPaths.sharePath(settings.basePath(), ""));
     }
     return BaseMessages.getString(
         PKG, "Smb.Test.Ok", settings.host(), Integer.toString(settings.port()), settings.share());

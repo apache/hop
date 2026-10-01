@@ -57,9 +57,12 @@ import org.eclipse.swt.widgets.MessageBox;
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/smb-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_SMB_CONNECTION,
+    supportsGlobalReplace = true,
     classLoaderGroup = "vfs-smb")
 public class SmbConnection extends HopMetadataBase
     implements Serializable, IHopMetadata, IVfsBrowseLocation, IGuiPluginCompositeWidgetsListener {
+
+  private static final long serialVersionUID = 1L;
 
   private static final Class<?> PKG = SmbConnection.class;
 

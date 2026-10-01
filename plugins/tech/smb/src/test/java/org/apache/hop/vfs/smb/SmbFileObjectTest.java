@@ -46,7 +46,8 @@ class SmbFileObjectTest {
       folder.createFolder();
       FileObject file = manager.resolveFile("finance:///reports/daily.csv");
       file.createFile();
-      assertEquals(null, share.bytes("reports\\daily.csv"));
+      assertArrayEquals(new byte[0], share.bytes("reports\\daily.csv"));
+      assertTrue(file.exists());
       write(file, "alpha");
       assertArrayEquals(bytes("alpha"), share.bytes("reports\\daily.csv"));
       try (InputStream in = file.getContent().getInputStream()) {
@@ -72,12 +73,18 @@ class SmbFileObjectTest {
       assertEquals(1, children.length);
       assertTrue(children[0].getName().getBaseName().equals("daily.csv"));
 
-      FileObject renamed = manager.resolveFile("finance:///reports/moved.csv");
+      FileObject relative = folder.resolveFile("relative.csv");
+      assertEquals("finance:///reports/relative.csv", relative.getName().getURI());
+
+      FileObject renamed = manager.resolveFile("finance:///reports/archive/moved.csv");
       file.moveTo(renamed);
       assertFalse(manager.resolveFile("finance:///reports/daily.csv").exists());
       assertTrue(renamed.exists());
       renamed.delete();
       assertFalse(renamed.exists());
+
+      assertFalse(manager.resolveFile("finance:///").delete());
+      assertThrows(FileSystemException.class, () -> manager.resolveFile("finance:///").deleteAll());
     }
   }
 

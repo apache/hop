@@ -40,6 +40,15 @@ public class SmbFileNameParser extends AbstractFileNameParser {
       throws FileSystemException {
     StringBuilder name = new StringBuilder();
     String scheme = UriParser.extractScheme(uri, name);
+    if (scheme == null) {
+      if (base == null) {
+        throw new FileSystemException("vfs.provider/absolute-uri.error", uri);
+      }
+      scheme = base.getScheme();
+      if (name.isEmpty() || name.charAt(0) != '/') {
+        name.insert(0, base.getPath().endsWith("/") ? base.getPath() : base.getPath() + "/");
+      }
+    }
     UriParser.canonicalizePath(name, 0, name.length(), this);
     UriParser.fixSeparators(name);
     while (name.length() > 0 && name.charAt(0) == '/') {

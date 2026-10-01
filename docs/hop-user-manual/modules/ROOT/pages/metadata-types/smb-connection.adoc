@@ -30,12 +30,19 @@ Nothing is mounted on the operating system, and SMB1 is not used.
 
 See xref:vfs/smb-vfs.adoc[SMB] for how paths are written.
 
+image::metadata-types/smb-connection.png[SMB connection editor on the Server tab, with name finance, width="90%"]
+
+The name at the top of the editor is the URL scheme.
+The tabs are Server, Authentication, and Security.
+*Test connection* opens the share with the current settings.
+
 == Server
 
 [options="header"]
 |===
 |Option|Description
-|Hostname|Server name. For Azure Files this is `account.file.core.windows.net`.
+|Description|Optional note about this connection. It is not part of the URL.
+|Hostname|Server name. A variable such as `${FINANCE_FILE_SERVER}` is resolved at runtime. For Azure Files this is `account.file.core.windows.net`.
 |Port|TCP port. Default `445`.
 |Share|Share name, without a leading slash.
 |Folder in the share|Optional folder. Every path on this connection stays under that folder.

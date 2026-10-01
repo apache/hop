@@ -43,6 +43,12 @@ final class SmbErrors {
   }
 
   static IOException io(Throwable error) {
+    if (notFound(error)) {
+      if (error instanceof SmbNotFoundException notFound) {
+        return notFound;
+      }
+      return new SmbNotFoundException(error.getMessage(), error);
+    }
     if (error instanceof IOException ioException) {
       return ioException;
     }
@@ -55,8 +61,14 @@ final class SmbErrors {
 
   /** The path is not on the share. Distinct from access denied. */
   static final class SmbNotFoundException extends IOException {
+    private static final long serialVersionUID = 1L;
+
     SmbNotFoundException(String sharePath) {
       super(sharePath == null || sharePath.isEmpty() ? "SMB path not found" : sharePath);
+    }
+
+    SmbNotFoundException(String sharePath, Throwable cause) {
+      super(sharePath == null || sharePath.isEmpty() ? "SMB path not found" : sharePath, cause);
     }
   }
 }

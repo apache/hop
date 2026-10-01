@@ -222,6 +222,7 @@ final class MemorySmbShare implements SmbShare {
     if (node == null || node.denied) {
       throw new SmbErrors.SmbNotFoundException(sharePath);
     }
+    mkdirs(parent(newSharePath));
     nodes.remove(sharePath);
     nodes.put(newSharePath, node);
     String prefix = sharePath + "\\";

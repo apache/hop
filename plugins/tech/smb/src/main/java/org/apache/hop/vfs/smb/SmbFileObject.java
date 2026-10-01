@@ -91,18 +91,6 @@ public class SmbFileObject extends AbstractFileObject<SmbFileSystem> {
     return fs().share().openRead(sharePath());
   }
 
-  /**
-   * HopVfs.getOutputStream() calls createFile() and then getOutputStream(). The default createFile
-   * opens and closes an output stream, which would create an empty file and then open a second one.
-   * Mark the type only. The bytes go out on the stream.
-   */
-  @Override
-  public void createFile() throws FileSystemException {
-    if (!exists()) {
-      injectType(FileType.FILE);
-    }
-  }
-
   @Override
   protected OutputStream doGetOutputStream(boolean append) throws Exception {
     return fs().share().openWrite(sharePath(), append);
@@ -123,6 +111,9 @@ public class SmbFileObject extends AbstractFileObject<SmbFileSystem> {
 
   @Override
   protected void doDelete() throws Exception {
+    if (getName().getPath().equals("/")) {
+      throw new FileSystemException("vfs.provider/delete-root.error", getName());
+    }
     fs().share().delete(sharePath());
     doDetach();
   }

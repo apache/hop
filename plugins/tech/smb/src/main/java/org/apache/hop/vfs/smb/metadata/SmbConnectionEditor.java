@@ -151,7 +151,7 @@ public class SmbConnectionEditor extends MetadataEditor<SmbConnection> {
   @Override
   public void getWidgetsContent(SmbConnection meta) {
     meta.setName(wName.getText());
-    guiCompositeWidgets.getWidgetsContents(metadata, GUI_PLUGIN_ELEMENT_PARENT_ID);
+    guiCompositeWidgets.getWidgetsContents(meta, GUI_PLUGIN_ELEMENT_PARENT_ID);
   }
 
   @Override

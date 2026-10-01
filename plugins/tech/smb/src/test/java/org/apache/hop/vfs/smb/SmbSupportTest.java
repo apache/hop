@@ -61,6 +61,31 @@ class SmbSupportTest {
   }
 
   @Test
+  void parsesRelativeUriWithBase() throws Exception {
+    SmbFileName base =
+        (SmbFileName)
+            SmbFileNameParser.getInstance().parseUri(null, null, "finance:///reports/2026");
+    SmbFileName child =
+        (SmbFileName) SmbFileNameParser.getInstance().parseUri(null, base, "daily.csv");
+    assertEquals("finance", child.getScheme());
+    assertEquals("/reports/2026/daily.csv", child.getPath());
+
+    SmbFileName sibling =
+        (SmbFileName) SmbFileNameParser.getInstance().parseUri(null, base, "../annual.csv");
+    assertEquals("finance", sibling.getScheme());
+    assertEquals("/reports/annual.csv", sibling.getPath());
+
+    SmbFileName absolute =
+        (SmbFileName) SmbFileNameParser.getInstance().parseUri(null, base, "/direct.csv");
+    assertEquals("finance", absolute.getScheme());
+    assertEquals("/direct.csv", absolute.getPath());
+
+    assertThrows(
+        Exception.class,
+        () -> SmbFileNameParser.getInstance().parseUri(null, null, "relative.csv"));
+  }
+
+  @Test
   void ntlmIdentity() {
     assertEquals(new SmbIdentity("", "alice"), SmbIdentity.parse("", "alice"));
     assertEquals(new SmbIdentity("CORP", "alice"), SmbIdentity.parse("", "CORP\\alice"));
