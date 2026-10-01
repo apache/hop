@@ -613,6 +613,19 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       data.jsonKeyGroupItems = null;
     }
 
+    // The file was not finished, for example after an error: flush what was written and close any
+    // open array or object, so the partial file is at least well-formed.
+    if (data.fileGenerator != null) {
+      try {
+        data.fileGenerator.close();
+      } catch (IOException e) {
+        logError(BaseMessages.getString(PKG, "JsonOutput.Error.ClosingFile", e.toString()));
+        setErrors(1);
+      }
+      data.fileGenerator = null;
+      data.pendingFileItem = null;
+    }
+
     closeFile();
     super.dispose();
   }
