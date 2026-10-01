@@ -41,12 +41,12 @@ class DataSetDefaultsTest {
   }
 
   @Test
-  void usesPipelineDirectoryWhenDatasetsFolderIsNotConfigured() {
+  void leavesFolderEmptyWhenDatasetsFolderIsNotConfigured() {
     DataSet dataSet = new DataSet();
     DataSetDefaults.apply(dataSet, "C:\\proj\\pipe.hpl", "Check", new Variables(), null);
 
     assertEquals("ds-pipe-Check", dataSet.getName());
-    assertEquals("C:/proj", dataSet.getFolderName());
+    assertNull(dataSet.getFolderName());
     assertEquals("ds-pipe-Check.csv", dataSet.getBaseFilename());
   }
 
@@ -64,7 +64,7 @@ class DataSetDefaultsTest {
   }
 
   @Test
-  void blankDatasetsFolderFallsBackToPipelineDirectory() {
+  void blankDatasetsFolderLeavesFolderEmpty() {
     Variables variables = new Variables();
     variables.setVariable(DataSet.VARIABLE_HOP_DATASETS_FOLDER, "  ");
 
@@ -72,7 +72,7 @@ class DataSetDefaultsTest {
     DataSetDefaults.apply(dataSet, "/tmp/pipe/load.hpl", null, variables, null);
 
     assertEquals("ds-load", dataSet.getName());
-    assertEquals("/tmp/pipe", dataSet.getFolderName());
+    assertNull(dataSet.getFolderName());
     assertEquals("ds-load.csv", dataSet.getBaseFilename());
   }
 
@@ -82,7 +82,7 @@ class DataSetDefaultsTest {
     DataSetDefaults.apply(dataSet, "dir/a:b.hpl", "in/out", new Variables(), null);
 
     assertEquals("ds-a-b-in-out", dataSet.getName());
-    assertEquals("dir", dataSet.getFolderName());
+    assertNull(dataSet.getFolderName());
     assertEquals("ds-a-b-in-out.csv", dataSet.getBaseFilename());
   }
 

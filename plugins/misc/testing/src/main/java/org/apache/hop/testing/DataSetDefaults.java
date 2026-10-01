@@ -29,9 +29,10 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
  *
  * <p>Name pattern: {@code ds-<pipeline file>-<transform>}. The pipeline part is the file name
  * without its directory or extension, and the transform part is omitted when unknown. The folder is
- * the datasets-folder variable expression when that variable is set, otherwise the pipeline
- * directory. A value that is already set is left alone, except the constructor placeholder base
- * file name, which is replaced when a name is known. A second call does not replace suggestions.
+ * the datasets-folder variable expression when that variable is set. Otherwise it stays empty, so
+ * no machine-specific path is stored and the folder is resolved when the data set is used. A value
+ * that is already set is left alone, except the constructor placeholder base file name, which is
+ * replaced when a name is known. A second call does not replace suggestions.
  */
 public final class DataSetDefaults {
 
@@ -59,7 +60,7 @@ public final class DataSetDefaults {
     }
 
     if (StringUtils.isEmpty(dataSet.getFolderName())) {
-      String folder = defaultFolder(variables, pipelineFilename);
+      String folder = defaultFolder(variables);
       if (StringUtils.isNotEmpty(folder)) {
         dataSet.setFolderName(folder);
       }
@@ -95,27 +96,8 @@ public final class DataSetDefaults {
     return StringUtils.isBlank(stem) ? null : stem;
   }
 
-  static String pipelineDirectory(String pipelineFilename) {
-    if (StringUtils.isBlank(pipelineFilename)) {
-      return null;
-    }
-    String normalized = pipelineFilename.trim().replace('\\', '/');
-    int slash = normalized.lastIndexOf('/');
-    if (slash < 0) {
-      return null;
-    }
-    if (slash == 0) {
-      return "/";
-    }
-    return normalized.substring(0, slash);
-  }
-
-  static String defaultFolder(IVariables variables, String pipelineFilename) {
-    String configured = datasetsFolderExpression(variables);
-    if (configured != null) {
-      return configured;
-    }
-    return pipelineDirectory(pipelineFilename);
+  static String defaultFolder(IVariables variables) {
+    return datasetsFolderExpression(variables);
   }
 
   /**
