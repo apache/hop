@@ -41,7 +41,7 @@ The following parameters are applicable to all language model selections.
 | Name of the transform. Must be unique within a single pipeline.
 
 | AI Provider (optional)
-| Named xref:metadata-types/ai-provider.adoc[AI Provider] metadata from the Metadata perspective. Connection fields (provider type, base URL, API key, model name, timeout, temperature) overlay the inline values below. Empty provider fields keep the inline values. Input/output mapping, mock mode, proxy and retries stay on this transform. Leave blank to use only the inline fields. Requires the `hop-tech-ai` plugin. Do not paste live API keys on this transform or on the provider: use an environment variable or a xref:metadata-types/variable-resolver/index.adoc[variable resolver].
+| Named xref:metadata-types/ai-provider.adoc[AI Provider] metadata from the Metadata perspective. When set, the provider's connection settings (provider type, base URL, API key, chat model, timeout, temperature) take precedence over the inline values below, which are only used for fields the provider leaves empty. See <<ai-provider-precedence>>. Input/output mapping, mock mode, proxy and retries stay on this transform. Leave blank to use only the inline fields. Requires the `hop-tech-ai` plugin. Do not paste live API keys on this transform or on the provider: use an environment variable or a xref:metadata-types/variable-resolver/index.adoc[variable resolver].
 
 | Input JSON Chat
 | When enabled, uses the chat completion JSON format (system, assistant, user messages). When disabled, treats the input as plain text. See "Chat Completion" section for more details.
@@ -70,6 +70,42 @@ The following parameters are applicable to all language model selections.
 | Model API
 | Defines the API used for communication with the endpoint (e.g., via OpenAI, Anthropic, Ollama, Hugging Face, Mistral). **Note:** The Open AI API option can be used with any Open AI compatible endpoint/server.  For example, vLLM (Kwon et al., 2023).
 |===
+
+[[ai-provider-precedence]]
+=== AI Provider and inline settings
+
+When *AI Provider* is set, the transform starts from its own settings and then copies the provider's connection settings over them. The provider wins wherever it has a value; an inline value is only a fallback for a field the provider leaves empty.
+
+[cols="2,4",options="header"]
+|===
+| Setting | Which value is used
+
+| Model API
+| Always the provider's type. The *Model API* selected on the transform is ignored. OpenAI, Grok, Gemini and Custom providers use the OpenAI API.
+
+| Base URL
+| The provider's *Base URL* if set, otherwise the inline base URL (for Ollama, the endpoint) of the provider's model type.
+
+| API key
+| The provider's *API key* if set, otherwise the inline key (for Hugging Face, the access token) of the provider's model type.
+
+| Model name
+| The provider's `CHAT` model: its `CHAT` row under *Models per role*, or else its *Model name*. If both are empty, the inline model name of the provider's model type. For Hugging Face, the provider's *Base URL* is used as the model id when it has no model name.
+
+| Temperature
+| The provider's *Temperature* if set, otherwise the inline temperature. A provider temperature always overrides the inline one, even when the inline value was chosen on purpose. Once the provider field holds anything, including a variable that resolves to nothing, it counts as set: a value that is not a number is sent as `0.3`, not replaced by the inline temperature.
+
+| Timeout
+| The provider's *Timeout (seconds)* if it resolves to a whole number, otherwise the inline timeout.
+|===
+
+Variables in provider fields are resolved first, so apart from *Temperature*, a field holding a variable that resolves to an empty value counts as empty. Empty provider fields fall back to the inline values, not to the defaults listed for each provider type on the xref:metadata-types/ai-provider.adoc[AI Provider] page.
+
+The inline fallbacks come from the provider's model type, not from the *Model API* selected on the transform. With an Anthropic provider, for example, an empty provider *Model name* falls back to the inline Anthropic model name, even when the transform itself was set up for OpenAI.
+
+All other options always come from the transform: mock mode, parallelism and the input and output fields, and the model-specific options such as Top P, Top K, maximum tokens, response format, proxy, retries and logging. The model-specific ones are read from the transform's fields for the provider's model type.
+
+To tune the temperature per transform while sharing one provider, leave *Temperature* empty on the provider and set it on each transform.
 
 === Model-Specific Options
 

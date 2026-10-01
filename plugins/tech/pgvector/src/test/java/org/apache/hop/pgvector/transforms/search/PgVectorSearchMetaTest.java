@@ -61,7 +61,10 @@ class PgVectorSearchMetaTest {
     original.setResultChunkIndexField("hit_idx");
     original.setResultContentField("hit_content");
     original.setResultScoreField("hit_score");
-    original.setFilters(List.of(new PgVectorSearchFilter("source_type", "wanted_type")));
+    original.setFilters(
+        List.of(
+            new PgVectorSearchFilter("source_type", "wanted_type"),
+            new PgVectorSearchFilter("category", "wanted_category", true)));
 
     PgVectorSearchMeta copy = roundTrip(original);
 
@@ -78,9 +81,12 @@ class PgVectorSearchMetaTest {
     assertEquals(original.getResultChunkIndexField(), copy.getResultChunkIndexField());
     assertEquals(original.getResultContentField(), copy.getResultContentField());
     assertEquals(original.getResultScoreField(), copy.getResultScoreField());
-    assertEquals(1, copy.getFilters().size());
+    assertEquals(2, copy.getFilters().size());
     assertEquals("source_type", copy.getFilters().get(0).getColumnName());
     assertEquals("wanted_type", copy.getFilters().get(0).getStreamField());
+    assertEquals(false, copy.getFilters().get(0).isSkipIfEmpty());
+    assertEquals("category", copy.getFilters().get(1).getColumnName());
+    assertEquals(true, copy.getFilters().get(1).isSkipIfEmpty());
   }
 
   /** The matched chunk index is a number in the table, so it must be a number in the stream too. */
@@ -157,6 +163,24 @@ class PgVectorSearchMetaTest {
     Document document = XmlHandler.loadXmlString(xml);
     return XmlMetadataUtil.deSerializeFromXml(
         XmlHandler.getSubNode(document, "transform"), PgVectorSearchMeta.class, null);
+  }
+
+  @Test
+  void cloneKeepsTheSkipIfEmptyFlag() {
+    PgVectorSearchMeta meta = new PgVectorSearchMeta();
+    meta.setDefault();
+    meta.setFilters(List.of(new PgVectorSearchFilter("category", "wanted_category", true)));
+
+    PgVectorSearchMeta copy = (PgVectorSearchMeta) meta.clone();
+
+    assertTrue(copy.getFilters().get(0).isSkipIfEmpty());
+  }
+
+  /** Filters written before the option existed keep applying to every row. */
+  @Test
+  void filtersAreNotSkippedByDefault() {
+    assertEquals(false, new PgVectorSearchFilter().isSkipIfEmpty());
+    assertEquals(false, new PgVectorSearchFilter("category", "wanted_category").isSkipIfEmpty());
   }
 
   /** Matches Hop's Database Lookup: rows are passed on unless the option is explicitly enabled. */
