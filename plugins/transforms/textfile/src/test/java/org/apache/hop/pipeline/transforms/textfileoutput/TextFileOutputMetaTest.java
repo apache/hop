@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -37,7 +38,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -177,16 +180,95 @@ class TextFileOutputMetaTest {
   }
 
   @Test
-  void testLoadSave() throws Exception {
-    Path path =
-        Paths.get(Objects.requireNonNull(getClass().getResource("/text-file-output.xml")).toURI());
-    String xml = Files.readString(path);
+  void newTransformKeepsLegacyPaddingUntilTheOptionIsChecked() throws Exception {
     TextFileOutputMeta meta = new TextFileOutputMeta();
+    assertFalse(meta.getFileSettings().isDoNotPadFields());
+    assertFalse(meta.getFileSettings().isPadded());
+    assertTrue(meta.getFileSettings().isPaddingFields());
+
+    String xml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(meta)
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    assertFalse(xml.contains("<do_not_right_pad>Y</do_not_right_pad>"));
+
+    TextFileOutputMeta copy = new TextFileOutputMeta();
     XmlMetadataUtil.deSerializeFromXml(
         XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
         TextFileOutputMeta.class,
-        meta,
+        copy,
         new MemoryMetadataProvider());
+    assertFalse(copy.getFileSettings().isDoNotPadFields());
+    assertTrue(copy.getFileSettings().isPaddingFields());
+  }
+
+  @Test
+  void savedTransformWithoutTheFlagStillEnablesOutputPadding() throws Exception {
+    TextFileOutputMeta meta = loadFixture();
+    assertFalse(meta.getFileSettings().isPadded());
+    assertTrue(meta.getFileSettings().isPaddingFields());
+
+    TextFileOutputMeta cloned = (TextFileOutputMeta) meta.clone();
+    assertNotSame(meta.getFileSettings(), cloned.getFileSettings());
+    assertFalse(cloned.getFileSettings().isDoNotPadFields());
+    assertTrue(cloned.getFileSettings().isPaddingFields());
+
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("f1"));
+    row.addValueMeta(new ValueMetaString("f2"));
+    meta.getFields(row, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertTrue(row.getValueMeta(0).isOutputPaddingEnabled());
+    assertEquals(100, row.getValueMeta(0).getLength());
+    assertTrue(row.getValueMeta(1).isOutputPaddingEnabled());
+    assertEquals(7, row.getValueMeta(1).getLength());
+  }
+
+  @Test
+  void outputPaddingFollowsDoNotRightPadFields() throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    TextFileField field = new TextFileField();
+    field.setName("name");
+    field.setType(IValueMeta.TYPE_STRING);
+    field.setLength(10);
+    meta.getOutputFields().add(field);
+
+    meta.getFileSettings().setDoNotPadFields(false);
+    RowMeta legacy = new RowMeta();
+    legacy.addValueMeta(new ValueMetaString("name"));
+    meta.getFields(legacy, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertTrue(legacy.getValueMeta(0).isOutputPaddingEnabled());
+    assertEquals(10, legacy.getValueMeta(0).getLength());
+
+    meta.getFileSettings().setDoNotPadFields(true);
+    meta.getFileSettings().setPadded(false);
+    RowMeta noPad = new RowMeta();
+    noPad.addValueMeta(new ValueMetaString("name"));
+    meta.getFields(noPad, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertFalse(noPad.getValueMeta(0).isOutputPaddingEnabled());
+  }
+
+  @Test
+  void rightPadFieldsPadsWhenDoNotRightPadIsAlsoSelected() throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    TextFileField field = new TextFileField();
+    field.setName("name");
+    field.setType(IValueMeta.TYPE_STRING);
+    field.setLength(10);
+    meta.getOutputFields().add(field);
+    meta.getFileSettings().setDoNotPadFields(true);
+    meta.getFileSettings().setPadded(true);
+
+    assertTrue(meta.getFileSettings().isPaddingFields());
+
+    RowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("name"));
+    meta.getFields(row, "out", null, null, new Variables(), new MemoryMetadataProvider());
+    assertTrue(row.getValueMeta(0).isOutputPaddingEnabled());
+  }
+
+  @Test
+  void testLoadSave() throws Exception {
+    TextFileOutputMeta meta = loadFixture();
 
     validate(meta);
 
@@ -203,6 +285,22 @@ class TextFileOutputMetaTest {
         metaCopy,
         new MemoryMetadataProvider());
     validate(metaCopy);
+  }
+
+  private static TextFileOutputMeta loadFixture() throws Exception {
+    Path path =
+        Paths.get(
+            Objects.requireNonNull(
+                    TextFileOutputMetaTest.class.getResource("/text-file-output.xml"))
+                .toURI());
+    String xml = Files.readString(path);
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        TextFileOutputMeta.class,
+        meta,
+        new MemoryMetadataProvider());
+    return meta;
   }
 
   private static void validate(TextFileOutputMeta meta) {
@@ -235,6 +333,9 @@ class TextFileOutputMetaTest {
     assertTrue(StringUtils.isEmpty(meta.getFileSettings().getDateTimeFormat()));
     assertTrue(meta.getFileSettings().isAddToResultFiles());
     assertFalse(meta.getFileSettings().isPadded());
+    // The fixture predates the option. Right pad fields is off, and padding still stays on.
+    assertFalse(meta.getFileSettings().isDoNotPadFields());
+    assertTrue(meta.getFileSettings().isPaddingFields());
     assertTrue(meta.getFileSettings().isFastDump());
     assertEquals("0", meta.getFileSettings().getSplitEveryRows());
 

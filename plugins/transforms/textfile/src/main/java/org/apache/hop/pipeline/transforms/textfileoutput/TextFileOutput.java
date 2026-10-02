@@ -598,7 +598,9 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
               e);
         }
       }
-      if (length > string.length()) {
+      // Saved transforms and a new transform pad, as before. Do not right-pad fields opts out,
+      // unless Right pad fields is selected.
+      if (length > string.length() && meta.getFileSettings().isPaddingFields()) {
         // we need to pad this
 
         // not all encoding use single characters, so we need to cope
@@ -674,6 +676,9 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         boolean writeEnclosures = false;
 
         if (v.isString()) {
+          // Quoting stays tied to the Right pad fields checkbox. isPaddingFields() is also true
+          // for saved transforms that never selected that checkbox, and using it here would drop
+          // enclosures from existing files.
           if (meta.isEnclosureForced() && !meta.getFileSettings().isPadded()) {
             writeEnclosures = true;
           } else if (!meta.isEnclosureFixDisabled()

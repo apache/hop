@@ -160,6 +160,18 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         injectionKeyDescription = "TextFileOutput.Injection.RIGHT_PAD_FIELDS")
     private boolean padded;
 
+    /**
+     * Skip padding fields with spaces up to their length. Absent from saved transforms and
+     * unchecked on a new one, so both keep the historical padding. Right pad fields still pads when
+     * this is checked.
+     */
+    @HopMetadataProperty(
+        key = "do_not_right_pad",
+        defaultBoolean = false,
+        injectionKey = "DO_NOT_RIGHT_PAD_FIELDS",
+        injectionKeyDescription = "TextFileOutput.Injection.DO_NOT_RIGHT_PAD_FIELDS")
+    private boolean doNotPadFields;
+
     /** Flag: Fast dump data without field formatting */
     @HopMetadataProperty(
         key = "fast_dump",
@@ -187,6 +199,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       dateInFilename = false;
       timeInFilename = false;
       padded = false;
+      // Checked only when the user opts out. A new transform and a saved one both leave this
+      // off, so they keep the padding Hop has always applied.
+      doNotPadFields = false;
       fastDump = false;
       addToResultFiles = true;
       fileAppended = false;
@@ -203,11 +218,24 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       this.fileAppended = f.fileAppended;
       this.fileName = f.fileName;
       this.padded = f.padded;
+      this.doNotPadFields = f.doNotPadFields;
       this.partNrInFilename = f.partNrInFilename;
       this.specifyingFormat = f.specifyingFormat;
       this.splitEveryRows = f.splitEveryRows;
       this.timeInFilename = f.timeInFilename;
       this.transformNrInFilename = f.transformNrInFilename;
+    }
+
+    /**
+     * Short values are padded out to the field length.
+     *
+     * <p>Saved transforms omit Do not right-pad fields, and a new transform leaves it unchecked.
+     * Both keep the padding Hop has always applied, whether or not Right pad fields was selected.
+     * Checking Do not right-pad fields stops that padding, unless Right pad fields is also
+     * selected. Right pad fields always pads.
+     */
+    public boolean isPaddingFields() {
+      return padded || !doNotPadFields;
     }
   }
 
@@ -451,16 +479,15 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         v.setDecimalSymbol(field.getDecimalSymbol());
         v.setGroupingSymbol(field.getGroupingSymbol());
         v.setCurrencySymbol(field.getCurrencySymbol());
-        v.setOutputPaddingEnabled(getFileSettings().isPadded());
         v.setTrimType(field.getTrimType());
         v.setRoundingType(field.getRoundingType());
         if (!Utils.isEmpty(getEncoding())) {
           v.setStringEncoding(getEncoding());
         }
 
-        // enable output padding by default to be compatible with v2.5.x
-        //
-        v.setOutputPaddingEnabled(true);
+        // v2.5 compatibility: pad unless the user checked Do not right-pad fields and did not
+        // select Right pad fields. Saved transforms and a new transform take the pad path.
+        v.setOutputPaddingEnabled(getFileSettings().isPaddingFields());
       }
     }
   }
