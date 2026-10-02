@@ -119,6 +119,16 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 | Set Null to #N/A | By default, Null values will create a blank cell during the calculation. Use this option to insert `#N/A` in the cell
 |===
 
+== Fast evaluation
+
+The Formula transform evaluates formulas with a plain-Java fast evaluator when the formula only uses the supported subset below. Any other formula is evaluated by the Apache POI/Excel evaluator instead, with the same result.
+
+The fast evaluator supports the functions `IF`, `AND`, `OR`, `NOT`, `ABS`, `ISBLANK`, `ISNA`, `LEN` and `TRIM`, the operators `+`, `-`, `*`, `/` and the string concatenation operator `&`, the comparisons `=`, `<>`, `<`, `<=`, `>` and `>=`, field references like `[field]`, and number, string and boolean literals (`TRUE`/`FALSE`).
+
+Any formula using anything else - for example `TEXT()`, `DATE()`, `NOW()`, `SUM()`, `CONCAT()` or `CONCATENATE()` - falls back to the Apache POI/Excel evaluation.
+
+The fast evaluation is enabled by default. It can be disabled per pipeline with the Hop variable `HOP_FORMULA_FAST_PATH_ENABLED=false`, or globally with the system property `-Dorg.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled=false`.
+
 == Formula Editor
 
 The Formula Editor is opened when you click on the Formula field in the options table (or go there through tab navigation).
