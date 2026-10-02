@@ -28,6 +28,11 @@ The Text File Output transform is used to export data to text file format.
 This is commonly used to generate Comma Separated Values (CSV files) that can be read by spreadsheet applications.
 
 It is also possible to generate fixed width files by setting lengths on the fields in the fields tab.
+Short values are padded out to those lengths. Existing pipelines keep that output, and a new transform does too.
+Check *Do not right-pad fields* to write the value as it is. Values longer than the field length are still shortened.
+*Right pad fields* always pads, including when *Do not right-pad fields* is checked, and disables that option while it is selected.
+
+Output is buffered. Open files are flushed on an interval so slow-arriving rows show up without waiting for that buffer to fill. The interval is xref:variables.adoc[HOP_FILE_OUTPUT_MAX_STREAM_LIFE], in milliseconds. The default is 5 seconds. A value of 0 uses that default. Set a positive number of milliseconds to change the interval. A negative value, for example -1, disables the interval flush.
 
 You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually. If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
@@ -97,7 +102,15 @@ To use Unicode specify UTF-8 or UTF-16.
 |Compression|Allows you to compress the file and specify the type of compression, either .zip or .gzip, to use when compressing the output.
 
 Note: Only one file is placed in a single compressed archive.
-|Right pad fields|Add spaces to the end of the fields (or remove characters at the end) until they have the length specific on the Fields tab.
+|Right pad fields|Add spaces to the end of the fields until they have the length specified on the Fields tab.
+This always pads.
+While it is selected, Do not right-pad fields is disabled.
+|Do not right-pad fields|Do not add spaces to the end of fields to reach the length on the Fields tab.
+Values that are longer than that length are still shortened.
+This option is disabled while Right pad fields is selected.
+Right pad fields still pads in that case.
+Existing pipelines and new transforms leave this unchecked, so they keep padding.
+Check it when those trailing spaces are not wanted.
 |Fast data dump (no formatting)|Improves the performance when dumping large amounts of data to a text file by not including any formatting information.
 Field formats are ignored, so a Boolean is written as `true` or `false`.
 |Split every ... rows|Specify a number of rows to split the file into chunks of that many rows. 

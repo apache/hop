@@ -263,6 +263,8 @@ image:hop-gui/environment/switch-environment-list.png[Switch environment]
 
 Click the project indicator at the bottom left, then choose *Edit project...* to re-open the project properties dialog described above.
 
+Choose *Search projects...* from the same menu to search pipelines, workflows, metadata and variables across every configured project and environment, not only the project that is open. A project the current user is not allowed to open is left out. Opening a result from another project asks to switch to that project before the file is opened. The active project search (Ctrl+F and hop-search) still uses only the active environment's configuration files.
+
 Choose *Delete project...* from the same menu to remove the project from the Hop configuration.
 
 == Edit, duplicate and delete environments

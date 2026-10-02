@@ -51,6 +51,12 @@ Once done you will see a `googleCloud` entry in the central `hop-config.json` fi
 }
 ----
 
+== Options
+
+The options below are the ones in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective]. Each is also settable with `hop-conf`.
+
+include::partial$config/GoogleCloudStorageConfigPlugin.adoc[]
+
 == Usage and testing
 
 To test if the configuration works type use File/Open in the GUI and type in gs:// as a file location.

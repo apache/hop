@@ -141,7 +141,7 @@ class GpgArgumentPassingTest {
   @Test
   void signAndEncryptFilePassesFilenamesLiterally() throws Exception {
     for (String name : HOSTILE_NAMES) {
-      gpg().signAndEncryptFile(name, "user@example.org", "sealed-" + name, true);
+      gpg().signAndEncryptFile(name, "user@example.org", null, "sealed-" + name, true);
       assertPassedLiterally(name, "signAndEncryptFile source");
       assertPassedLiterally("sealed-" + name, "signAndEncryptFile destination");
       assertRecipient("user@example.org", "signAndEncryptFile");
@@ -199,7 +199,7 @@ class GpgArgumentPassingTest {
 
   @Test
   void signAndEncryptStringSendsThePassphraseOverStdin() throws Exception {
-    gpg().signAndEncrypt("some data", "user@example.org", PASSPHRASE);
+    gpg().signAndEncrypt("some data", "user@example.org", null, PASSPHRASE);
     assertPassphraseOnStdinOnly("signAndEncrypt");
   }
 
@@ -220,15 +220,60 @@ class GpgArgumentPassingTest {
     assertEquals("", recordedStdin(), "nothing must be written to stdin without a passphrase");
   }
 
+  /**
+   * Signing has no recipient. Until Hop 2.20 the key named on a SIGN row was passed as {@code -r},
+   * which GnuPG accepts and ignores for anything but encryption, so the choice had no effect.
+   */
   @Test
-  void anEmptyUserIdOmitsTheRecipientFlagWhenSigning() throws Exception {
-    gpg().signFile("plain.txt", "", "plain.txt.asc", true);
+  void signingNamesTheKeyWithTheLocalUserFlag() throws Exception {
+    gpg().signFile("plain.txt", "signer@example.org", "plain.txt.asc", true);
+    assertLocalUser("signer@example.org", "signFile");
     assertFalse(
         recordedArguments().contains("-r"),
-        "an empty user id must not be passed to GnuPG as an empty recipient");
+        "signing has no recipient, so the key must not be passed as one: " + recordedArguments());
+  }
 
-    gpg().signFile("plain.txt", "user@example.org", "plain.txt.asc", true);
-    assertRecipient("user@example.org", "signFile");
+  @Test
+  void anEmptySigningKeyIsOmittedRatherThanPassedEmpty() throws Exception {
+    gpg().signFile("plain.txt", "", "plain.txt.asc", true);
+    List<String> args = recordedArguments();
+    assertFalse(args.contains("-u"), "an empty signing key must not reach GnuPG: " + args);
+    assertFalse(args.contains("-r"), "signing must never pass a recipient: " + args);
+  }
+
+  /**
+   * Sealing to one key and signing with another is the whole point of having both options: the two
+   * user IDs have to land on their own flags and stay distinct.
+   */
+  @Test
+  void signAndEncryptCarriesTheRecipientAndTheSigningKeySeparately() throws Exception {
+    gpg()
+        .signAndEncryptFile(
+            "plain.txt", "recipient@example.org", "signer@example.org", "sealed.asc", true);
+    assertRecipient("recipient@example.org", "signAndEncryptFile");
+    assertLocalUser("signer@example.org", "signAndEncryptFile");
+  }
+
+  @Test
+  void signAndEncryptWithoutASigningKeyLeavesTheChoiceToGnuPg() throws Exception {
+    gpg().signAndEncryptFile("plain.txt", "recipient@example.org", null, "sealed.asc", true);
+    assertRecipient("recipient@example.org", "signAndEncryptFile");
+    assertFalse(
+        recordedArguments().contains("-u"),
+        "no signing key must mean no -u, so GnuPG falls back to its default key");
+  }
+
+  @Test
+  void signAndEncryptStringCarriesTheSigningKey() throws Exception {
+    gpg().signAndEncrypt("some data", "recipient@example.org", "signer@example.org", PASSPHRASE);
+    assertRecipient("recipient@example.org", "signAndEncrypt");
+    assertLocalUser("signer@example.org", "signAndEncrypt");
+  }
+
+  @Test
+  void signStringCarriesTheSigningKey() throws Exception {
+    gpg().sign("some data", "signer@example.org", PASSPHRASE);
+    assertLocalUser("signer@example.org", "sign");
   }
 
   /**
@@ -244,7 +289,7 @@ class GpgArgumentPassingTest {
         "encryptFile must refuse an empty recipient");
     assertThrows(
         HopException.class,
-        () -> gpg.signAndEncryptFile("plain.txt", "", "sealed.asc", false),
+        () -> gpg.signAndEncryptFile("plain.txt", "", null, "sealed.asc", false),
         "signAndEncryptFile must refuse an empty recipient");
     assertThrows(
         HopException.class,
@@ -252,7 +297,7 @@ class GpgArgumentPassingTest {
         "encrypt must refuse an empty recipient");
     assertThrows(
         HopException.class,
-        () -> gpg.signAndEncrypt("some data", "", PASSPHRASE),
+        () -> gpg.signAndEncrypt("some data", "", null, PASSPHRASE),
         "signAndEncrypt must refuse an empty recipient");
 
     assertFalse(Files.exists(record), "GnuPG must not be started without a recipient");
@@ -322,7 +367,7 @@ class GpgArgumentPassingTest {
     gpg().encrypt("some data", payload);
     assertFalse(Files.exists(marker), "encrypt executed a command from a key id");
 
-    gpg().signAndEncrypt("some data", payload, PASSPHRASE);
+    gpg().signAndEncrypt("some data", payload, null, PASSPHRASE);
     assertFalse(Files.exists(marker), "signAndEncrypt executed a command from a key id");
 
     assertPassedLiterally(payload, "the payload");
@@ -372,6 +417,15 @@ class GpgArgumentPassingTest {
         args.get(args.indexOf("--pinentry-mode") + 1),
         what + " must request the loopback pinentry: " + args);
     assertEquals(PASSPHRASE, recordedStdin(), what + " must write the passphrase to stdin");
+  }
+
+  private void assertLocalUser(String expected, String what) throws IOException {
+    List<String> args = recordedArguments();
+    assertTrue(args.contains("-u"), what + " must pass a signing key: " + args);
+    assertEquals(
+        expected,
+        args.get(args.indexOf("-u") + 1),
+        what + " must pass the signing key as its own argument following -u: " + args);
   }
 
   private void assertRecipient(String expected, String what) throws IOException {

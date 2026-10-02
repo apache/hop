@@ -68,6 +68,12 @@ Please open the following address in your browser:
 Open that URL in a browser and authenticate the given client ID.
 You'll then get a token in the configured `tokens folder` with which you can work.
 
+== Options
+
+The options below are the ones in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective]. Each is also settable with `hop-conf`.
+
+include::partial$config/GoogleDriveConfigPlugin.adoc[]
+
 == Usage and testing
 
 To test if the configuration works you can simply put a small CSV file in Google Drive and then use File/Open in Hop GUI.

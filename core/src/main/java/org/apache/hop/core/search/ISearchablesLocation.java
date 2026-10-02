@@ -26,6 +26,25 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 public interface ISearchablesLocation {
   String getLocationDescription();
 
+  /**
+   * Stable id used to select this location again. Defaults to the description.
+   *
+   * @return the location id
+   */
+  default String getLocationId() {
+    return getLocationDescription();
+  }
+
+  /**
+   * Whether the combined search of loaded locations includes this location. A location that walks
+   * every configured project returns false and is searched only when the user selects it.
+   *
+   * @return true to include this location in the default combined search
+   */
+  default boolean isIncludedInDefaultSearch() {
+    return true;
+  }
+
   Iterator<ISearchable> getSearchables(IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException;
 }

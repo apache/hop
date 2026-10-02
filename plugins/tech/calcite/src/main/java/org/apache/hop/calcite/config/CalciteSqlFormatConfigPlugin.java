@@ -47,7 +47,9 @@ import picocli.CommandLine;
 @ConfigPlugin(
     id = "CalciteSqlFormatConfigPlugin",
     description = "Apache Calcite SQL formatter options",
-    category = ConfigPlugin.CATEGORY_CONFIG)
+    category = ConfigPlugin.CATEGORY_CONFIG,
+    configKey = CalciteSqlFormatConfig.HOP_CONFIG_KEY,
+    configClass = CalciteSqlFormatConfig.class)
 @GuiPlugin(description = "i18n::CalciteSqlFormatConfigPlugin.Name")
 public class CalciteSqlFormatConfigPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {

@@ -40,6 +40,7 @@
         <module>dropbox</module>
         <module>elastic</module>
         <module>ftp</module>
+        <module>git-vfs</module>
         <module>google</module>
         <module>hadoop</module>
         <module>minio</module>
