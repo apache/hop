@@ -46,4 +46,36 @@ class ClosureGeneratorMetaTest {
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
+
+  @Test
+  void testCheckReportsOkWhenFieldsExistAndErrorWhenMissing() {
+    ClosureGeneratorMeta meta = new ClosureGeneratorMeta();
+    meta.setParentIdFieldName("parent_id");
+    meta.setChildIdFieldName("child_id");
+
+    org.apache.hop.core.row.IRowMeta prev = new org.apache.hop.core.row.RowMeta();
+    prev.addValueMeta(new org.apache.hop.core.row.value.ValueMetaInteger("parent_id"));
+    prev.addValueMeta(new org.apache.hop.core.row.value.ValueMetaInteger("child_id"));
+
+    java.util.List<org.apache.hop.core.ICheckResult> remarks = new java.util.ArrayList<>();
+    meta.check(remarks, null, null, prev, new String[0], new String[0], null, null, null);
+
+    org.junit.jupiter.api.Assertions.assertEquals(2, remarks.size());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        org.apache.hop.core.ICheckResult.TYPE_RESULT_OK, remarks.get(0).getType());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        org.apache.hop.core.ICheckResult.TYPE_RESULT_OK, remarks.get(1).getType());
+
+    // When fields are missing
+    remarks.clear();
+    meta.setParentIdFieldName("missing_parent");
+    meta.setChildIdFieldName("missing_child");
+    meta.check(remarks, null, null, prev, new String[0], new String[0], null, null, null);
+
+    org.junit.jupiter.api.Assertions.assertEquals(2, remarks.size());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR, remarks.get(1).getType());
+  }
 }
