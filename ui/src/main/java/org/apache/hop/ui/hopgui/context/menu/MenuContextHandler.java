@@ -70,6 +70,12 @@ public class MenuContextHandler implements IGuiContextHandler {
         continue;
       }
 
+      // An item with children is a submenu: the menu opens it, and as an action it did nothing.
+      // Its children are listed under its label as their category.
+      if (!registry.findChildGuiMenuItems(rootMenuId, item.getId()).isEmpty()) {
+        continue;
+      }
+
       String parentId = item.getParentId();
       if (parentId != null) {
         GuiMenuItem parentMenuItem = registry.findGuiMenuItem(rootMenuId, parentId);
