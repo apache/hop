@@ -32,6 +32,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
+import org.apache.hop.pipeline.transforms.maskfields.MaskFieldsMeta;
 import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
@@ -70,6 +71,15 @@ class BeamPipelineEngineSupportsTest {
   @Test
   void uniqueRowsByHashSetMetaIsHardBanned() {
     assertTrue(engine.supports(pluginWithMainType(UniqueRowsByHashSetMeta.class)).isUnsupported());
+  }
+
+  @Test
+  void maskFieldsMetaIsHardBanned() {
+    EngineCompatibility verdict = engine.supports(pluginWithMainType(MaskFieldsMeta.class));
+    assertTrue(verdict.isUnsupported(), "MaskFieldsMeta should be UNSUPPORTED");
+    assertEquals(
+        HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(MaskFieldsMeta.class),
+        verdict.getReason());
   }
 
   @Test

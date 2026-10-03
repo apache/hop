@@ -1,0 +1,79 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Replace values in selected fields using a reusable masking pattern.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+
+= image:transforms/icons/maskfields.svg[Mask fields transform Icon, role="image-doc-icon"] Mask fields
+
+== Description
+
+Mask fields replaces the values of the fields you list. Each field names a xref:metadata-types/masking-pattern.adoc[Masking pattern], and the pattern decides what is written.
+
+The field keeps its name and its type. A string stays a string, and a number stays a number.
+
+Null and empty values are left as they are when the pattern builds a token or picks from a list. A missing value does not become a person. *SET_NULL* and *SET_EMPTY* always write.
+
+The same pattern shares one mapping. `Matt` in two fields that use `First name` becomes the same token. Use a second pattern when those fields need different tokens.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+
+|Transform name
+|Name of the transform. This name has to be unique in a single pipeline.
+
+|Info transform
+|Transform that delivers replacement values for patterns whose value source is *LIST*. Connect it with an info hop. The pattern names the field to read.
+
+|Get fields
+|Adds a row for each incoming field.
+
+|Field
+|Field whose value is replaced.
+
+|Masking pattern
+|Name of a Masking pattern metadata item.
+|===
+
+== What a pattern writes
+
+*SYNTHETIC* builds `prefix + token + suffix` for a string. The token is a *SEQUENCE* (an integer that starts at *Sequence start* and steps by one) or a *UUID*. A number field can take a sequence only, with an empty prefix and suffix. A date cannot take a generated token.
+
+*LIST* takes values from the info transform. With *NONE*, the transform walks the list from the top on every row and wraps. With *MEMORY* or *DATABASE*, a new source value takes the next list entry, wrapping when the list is shorter than the number of distinct values, and that choice is kept. A later row with the same source value gets the same entry. That is how a short list of countries stays usable for grouping.
+
+*SET_NULL* writes null. *SET_EMPTY* writes a blank string and applies to string fields only.
+
+== Remembering values
+
+*NONE* assigns a value on every row. A new run starts again.
+
+*MEMORY* keeps the mapping for this pipeline execution. The next run starts again, so tokens from the previous run can be issued again.
+
+*DATABASE* keeps the mapping in the table named on the pattern. A second table, that name plus `_seq`, stores the next sequence number. Both tables are created when they are missing. The map table has `pattern_name`, `source_key` and `masked_value`, with a primary key on the pattern name and the source key.
+
+The map table stores the original value, so it is itself personal data. Put it on a connection you protect, separate from the masked output.
+
+The transform runs as one copy and cannot be partitioned. The database store is what shares a mapping across pipelines.
+
+== Related
+
+* xref:pipeline/transforms/fake.adoc[Fake data] and xref:pipeline/transforms/datagrid.adoc[Data grid] can feed the info hop.
+* xref:metadata-types/masking-pattern.adoc[Masking pattern]

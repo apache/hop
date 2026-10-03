@@ -1,0 +1,15 @@
+{
+  "name": "First name",
+  "description": "Replace a first name with the next value from the info stream, and keep that choice for the rest of the run.",
+  "piiClassification": "Direct identifier",
+  "valueSource": "LIST",
+  "token": "SEQUENCE",
+  "prefix": "",
+  "suffix": "",
+  "sequenceStart": "1",
+  "listField": "replacement",
+  "storage": "MEMORY",
+  "connection": "",
+  "schemaName": "",
+  "tableName": ""
+}
