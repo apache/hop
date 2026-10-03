@@ -36,9 +36,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -71,6 +74,7 @@ import picocli.CommandLine.Parameters;
 @Command(
     name = "lint",
     mixinStandardHelpOptions = true,
+    versionProvider = HopVersionProvider.class,
     description =
         "Check pipelines, workflows and metadata against the lint rules. Exits 1 when a finding "
             + "reaches the --fail-on threshold (ERROR by default) or warnings exceed "
@@ -115,8 +119,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
       names = {"-s", "--severity"},
       paramLabel = "<severity>",
       description =
-          "Report only findings at this severity: ${COMPLETION-CANDIDATES}. Narrows the report "
-              + "only; --fail-on decides the exit code.")
+          "Report only findings at this severity or above: ${COMPLETION-CANDIDATES}. Narrows the "
+              + "report only; --fail-on decides the exit code.")
   private LintSeverity.Level severityFilter;
 
   @Option(
@@ -199,6 +203,11 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
   @SuppressWarnings("java:S4507")
   @Override
   public Integer call() {
+    // Hop's console logging writes to the stdout it saw at start-up, not to System.out, so moving
+    // System.out does not move it. Stdout carries the report, which a CI job redirects to a file or
+    // pipes to jq; everything else goes to stderr.
+    PrintStream logOut = HopLogStore.OriginalSystemOut;
+    HopLogStore.OriginalSystemOut = HopLogStore.OriginalSystemErr;
     try {
       return run();
     } catch (Exception e) {
@@ -207,6 +216,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
         e.printStackTrace();
       }
       return 1;
+    } finally {
+      HopLogStore.OriginalSystemOut = logOut;
     }
   }
 
@@ -286,21 +297,58 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
       if (reportOwnsStdout) {
         System.setOut(stdout);
       }
-      outputResults(filterForDisplay(results));
+      report(results, exitCode != 0);
       return exitCode;
     } finally {
       System.setOut(stdout);
     }
   }
 
-  /** Apply {@code --severity}, which narrows the report only. */
-  private List<LintResult> filterForDisplay(List<LintResult> results) {
+  /**
+   * Apply {@code --severity}, which narrows the report only, to the severity given and above:
+   * {@code -s WARNING} on a project with errors has to show the errors.
+   */
+  List<LintResult> filterForDisplay(List<LintResult> results) {
     if (severityFilter == null) {
       return results;
     }
     return results.stream()
-        .filter(result -> severityFilter.name().equals(result.getSeverity()))
+        .filter(result -> atOrAbove(result.getSeverity(), severityFilter))
         .collect(Collectors.toList());
+  }
+
+  /** A severity this build does not know is shown rather than hidden. */
+  private static boolean atOrAbove(String severity, LintSeverity.Level minimum) {
+    for (LintSeverity.Level level : LintSeverity.Level.values()) {
+      if (level.name().equalsIgnoreCase(severity)) {
+        return level.ordinal() <= minimum.ordinal();
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Print the report after {@code --severity}, and say what that left out, the way the baseline
+   * does. Hiding findings without a word made a failing run read "No lint issues found."
+   */
+  private void report(List<LintResult> results, boolean failing) {
+    List<LintResult> shown = filterForDisplay(results);
+    int hidden = results.size() - shown.size();
+    if (hidden > 0 && !quiet) {
+      System.err.println(hidden + " finding(s) below " + severityFilter + " hidden by --severity.");
+      LintSeverity.FailOn threshold = LintSeverity.parseFailOn(failOn);
+      if (failing
+          && shown.stream()
+              .noneMatch(r -> LintSeverity.meetsFailOnThreshold(r.getSeverity(), threshold))) {
+        System.err.println(
+            "Failing: the findings at --fail-on "
+                + failOn
+                + " are below --severity "
+                + severityFilter
+                + " and not shown.");
+      }
+    }
+    outputResults(shown, hidden);
   }
 
   /**
@@ -497,10 +545,14 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     }
   }
 
-  /** Version from the jar manifest, so it cannot drift from the build the way a literal does. */
+  /** The Hop version, as {@code hop --version} and {@code hop lint --version} print it. */
   private static String toolVersion() {
-    String version = LintCommand.class.getPackage().getImplementationVersion();
-    return version != null ? version : "development build";
+    String[] version = new HopVersionProvider().getVersion();
+    if (version.length > 0 && !Utils.isEmpty(version[0])) {
+      return version[0];
+    }
+    String lintVersion = LintCommand.class.getPackage().getImplementationVersion();
+    return lintVersion != null ? lintVersion : "development build";
   }
 
   private int runPreCommit() throws Exception {
@@ -514,7 +566,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     }
 
     initializeHopEnvironment();
-    List<File> stagedFiles = PreCommitLintService.readStagedFiles(stagedFileList);
+    List<File> stagedFiles =
+        PreCommitLintService.readStagedFiles(stagedFileList, new File(userDirectory()));
     if (stagedFiles.isEmpty()) {
       if (!quiet) {
         System.out.println("No staged Hop files to lint.");
@@ -559,7 +612,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     // on findings that were already there before the change.
     List<LintResult> results = applyBaseline(result.getResults());
 
-    outputResults(filterForDisplay(results));
+    report(results, shouldFail(results, LintSeverity.parseFailOn(failOn)));
 
     if (shouldFail(results, LintSeverity.parseFailOn(failOn))) {
       long blocking =
@@ -639,20 +692,18 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
   }
 
   /**
-   * Keep Hop's engine logging off stdout when stdout is carrying a report.
+   * {@code --quiet} reports findings only, so Hop's progress logging goes too. Warnings about the
+   * configuration, such as a rule id that does not exist, are logged at the minimal level and stay.
    *
-   * <p>Hop logs to the console by default. That is fine for the text report, but {@code -f sarif}
-   * piped to another tool has to be a valid document, and interleaved log lines make it garbage. An
-   * explicit {@code --output} file keeps the two streams apart, so logging is left alone there.
+   * <p>The general log channel exists before this command runs and read the default level when it
+   * was created, so it has to be set on its own; setting the default alone changed nothing.
    */
   private void quietenHopLogging() {
-    boolean reportOwnsStdout = format != LintReportFormat.TEXT && outputFile == null;
-    if (verbose) {
+    if (verbose || !quiet) {
       return;
     }
-    if (quiet || reportOwnsStdout) {
-      DefaultLogLevel.setLogLevel(LogLevel.NOTHING);
-    }
+    DefaultLogLevel.setLogLevel(LogLevel.MINIMAL);
+    LogChannel.GENERAL.setLogLevel(LogLevel.MINIMAL);
   }
 
   private void loadConfiguration(HopLinter linter, String targetPath) throws IOException {
@@ -793,14 +844,21 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
    * working when Hop is upgraded or moved, and so the same hook can be committed to a repository
    * that several people clone.
    */
-  private String hookScript() {
+  String hookScript() {
+    // git lists staged files relative to the repository root, and the hop launcher changes to the
+    // Hop installation before it starts Java, so the paths are made absolute here. The trap
+    // removes the list however the script ends; the last command's status is the hook's.
     return """
         #!/bin/sh
-        set -e
-        STAGED_LIST="$(mktemp)"
-        git diff --cached --name-only --diff-filter=ACM > "$STAGED_LIST"
-        if ! grep -E '\\.(hpl|hwf)$|/metadata/.*\\.json$' "$STAGED_LIST" > /dev/null 2>&1; then
-          rm -f "$STAGED_LIST"
+        ROOT="$(git rev-parse --show-toplevel)" || exit 1
+        STAGED_LIST="$(mktemp)" || exit 1
+        trap 'rm -f "$STAGED_LIST"' EXIT
+        git diff --cached --name-only --diff-filter=ACM | while IFS= read -r FILE; do
+          case "$FILE" in
+            *.hpl|*.hwf|metadata/*.json|*/metadata/*.json) printf '%s/%s\\n' "$ROOT" "$FILE" ;;
+          esac
+        done > "$STAGED_LIST"
+        if [ ! -s "$STAGED_LIST" ]; then
           exit 0
         fi
         HOP="${HOP_HOME:-}/hop"
@@ -809,24 +867,30 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
         fi
         if [ -z "$HOP" ] || [ ! -x "$HOP" ]; then
           echo "The hop launcher was not found. Set HOP_HOME, or put hop on the PATH." >&2
-          rm -f "$STAGED_LIST"
           exit 1
         fi
-        "$HOP" lint --pre-commit --staged-file "$STAGED_LIST" \
+        "$HOP" lint --pre-commit --staged-file "$STAGED_LIST" \\
           ${HOP_LINT_FAIL_ON:+--fail-on "$HOP_LINT_FAIL_ON"}
-        STATUS=$?
-        rm -f "$STAGED_LIST"
-        exit $STATUS
         """;
   }
 
-  private void outputResults(List<LintResult> results) {
+  /**
+   * @param hidden how many findings {@code --severity} left out, so an empty text report does not
+   *     claim there were none
+   */
+  private void outputResults(List<LintResult> results, int hidden) {
     String report;
     try {
-      report = LintReportWriter.render(format, results, toolVersion(), reportBaseDirectory());
+      if (format == LintReportFormat.TEXT && results.isEmpty() && hidden > 0) {
+        report = "No findings at " + severityFilter + " or above.\n";
+      } else if (format == LintReportFormat.TEXT) {
+        report = LintReportWriter.renderText(results, !quiet);
+      } else {
+        report = LintReportWriter.render(format, results, toolVersion(), reportBaseDirectory());
+      }
     } catch (Exception e) {
       System.err.println("Error rendering the " + format.getId() + " report: " + e.getMessage());
-      report = LintReportWriter.renderText(results);
+      report = LintReportWriter.renderText(results, !quiet);
     }
 
     if (outputFile != null) {
