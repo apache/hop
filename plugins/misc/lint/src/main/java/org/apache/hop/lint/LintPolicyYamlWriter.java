@@ -22,13 +22,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.core.util.Utils;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Adds an exclusion or a suppression to a project's {@code hop-lint.yml} from the user interface.
+ * Adds an exclusion, a suppression or a rule to a project's {@code hop-lint.yml} from the user
+ * interface.
  *
  * <p>The file is edited as text rather than parsed and rewritten. A project's lint configuration is
  * meant to be read and hand-edited — the documentation says as much — and round-tripping it through
@@ -44,6 +48,8 @@ public final class LintPolicyYamlWriter {
 
   private static final String EXCLUDE_KEY = "exclude";
   private static final String SUPPRESS_KEY = "suppress";
+  private static final String RULES_KEY = "rules";
+  private static final int DEFAULT_RULE_INDENT = 2;
 
   private LintPolicyYamlWriter() {}
 
@@ -212,6 +218,288 @@ public final class LintPolicyYamlWriter {
     }
     Files.writeString(yamlFile, updated, StandardCharsets.UTF_8);
     return removed;
+  }
+
+  /**
+   * Write one rule's entry under {@code rules:}, in place of the entry that is there.
+   *
+   * <p>The rule manager used to write the whole file from its list of rules, which deleted the
+   * {@code exclude} and {@code suppress} sections with their reasons, every comment, and the order
+   * the rules were written in, whatever rule was changed. Only the lines of this one rule are
+   * replaced now, and the save is refused unless everything else in the file reads back the same.
+   *
+   * @param ruleId the rule's key under {@code rules:}, matched ignoring case
+   * @param entry the keys to write for it; null or empty removes the entry
+   */
+  public static void putRule(Path yamlFile, String ruleId, Map<String, Object> entry)
+      throws IOException {
+    if (isBlank(ruleId)) {
+      throw new IOException("A rule needs an id");
+    }
+    String original =
+        Files.exists(yamlFile) ? Files.readString(yamlFile, StandardCharsets.UTF_8) : "";
+    String updated = replaceRule(original, ruleId, entry);
+    if (updated.equals(original)) {
+      return;
+    }
+    if (yamlFile.getParent() != null) {
+      Files.createDirectories(yamlFile.getParent());
+    }
+    Files.writeString(yamlFile, updated, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Remove one rule's entry from {@code rules:}, leaving the rest of the file as it was.
+   *
+   * @return true when an entry was removed
+   */
+  public static boolean removeRule(Path yamlFile, String ruleId) throws IOException {
+    if (!Files.exists(yamlFile) || isBlank(ruleId)) {
+      return false;
+    }
+    String original = Files.readString(yamlFile, StandardCharsets.UTF_8);
+    String updated = replaceRule(original, ruleId, null);
+    if (updated.equals(original)) {
+      return false;
+    }
+    Files.writeString(yamlFile, updated, StandardCharsets.UTF_8);
+    return true;
+  }
+
+  /** The file with this rule's entry replaced, added or, for a null or empty entry, removed. */
+  static String replaceRule(String original, String ruleId, Map<String, Object> entry)
+      throws IOException {
+    Map<?, ?> before = loadMapping(original);
+    boolean remove = entry == null || entry.isEmpty();
+
+    List<String> lines = new ArrayList<>(List.of(original.split("\n", -1)));
+    int keyLine = indexOfRulesKey(lines);
+
+    String updated;
+    if (keyLine < 0) {
+      if (remove) {
+        return original;
+      }
+      updated = insert(original, RULES_KEY, renderRule(ruleId, entry, DEFAULT_RULE_INDENT));
+    } else {
+      int blockEnd = endOfBlock(lines, keyLine);
+      int indent = childIndent(lines, keyLine + 1, blockEnd);
+      int start = indexOfRule(lines, keyLine + 1, blockEnd, indent, ruleId);
+
+      List<String> rendered = remove ? List.of() : renderRule(ruleId, entry, indent);
+      if (start < 0) {
+        if (remove) {
+          return original;
+        }
+        lines.addAll(blockEnd, rendered);
+      } else {
+        int end = endOfRule(lines, start, blockEnd, indent);
+        lines.subList(start, end).clear();
+        lines.addAll(start, rendered);
+        // A rules: key with nothing under it reads as an oversight, so the last entry takes the
+        // key with it, as the last suppression does.
+        if (remove && !hasContent(lines, keyLine + 1, endOfBlock(lines, keyLine))) {
+          lines.remove(keyLine);
+        }
+      }
+      updated = String.join("\n", lines);
+    }
+
+    verifyRuleEdit(before, loadMapping(updated), ruleId, remove ? null : entry);
+    return updated;
+  }
+
+  /**
+   * The line holding {@code rules:}, or -1. An empty inline {@code rules: {}} is turned into a
+   * block key so an entry can go under it; any other inline form is left for the user to edit.
+   */
+  private static int indexOfRulesKey(List<String> lines) throws IOException {
+    for (int i = 0; i < lines.size(); i++) {
+      String line = lines.get(i);
+      if (!line.startsWith(RULES_KEY + ":")) {
+        continue;
+      }
+      String rest = stripComment(line.substring(RULES_KEY.length() + 1)).trim();
+      if (rest.isEmpty()) {
+        return i;
+      }
+      if (rest.equals("{}")) {
+        lines.set(i, RULES_KEY + ":");
+        return i;
+      }
+      throw new IOException("hop-lint.yml writes its rules inline; edit the rule there by hand");
+    }
+    return -1;
+  }
+
+  /** The indentation of the rule keys under {@code rules:}, as the file already uses it. */
+  private static int childIndent(List<String> lines, int from, int to) {
+    for (int i = from; i < to; i++) {
+      if (isContent(lines.get(i))) {
+        return indentOf(lines.get(i));
+      }
+    }
+    return DEFAULT_RULE_INDENT;
+  }
+
+  private static int indexOfRule(List<String> lines, int from, int to, int indent, String ruleId) {
+    for (int i = from; i < to; i++) {
+      String line = lines.get(i);
+      if (!isContent(line) || indentOf(line) != indent) {
+        continue;
+      }
+      String trimmed = line.trim();
+      int colon = keyEnd(trimmed);
+      if (colon > 0 && ruleId.equalsIgnoreCase(unquoteKey(trimmed.substring(0, colon)))) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Where a rule's lines end: at the next key of the same depth. Blank lines and comments just
+   * above that key describe it, not this rule, so they stay.
+   */
+  private static int endOfRule(List<String> lines, int start, int blockEnd, int indent) {
+    int end = blockEnd;
+    for (int i = start + 1; i < blockEnd; i++) {
+      if (isContent(lines.get(i)) && indentOf(lines.get(i)) <= indent) {
+        end = i;
+        break;
+      }
+    }
+    while (end - 1 > start) {
+      String line = lines.get(end - 1);
+      if (line.isBlank() || (line.trim().startsWith("#") && indentOf(line) <= indent)) {
+        end--;
+      } else {
+        break;
+      }
+    }
+    return end;
+  }
+
+  private static List<String> renderRule(String ruleId, Map<String, Object> entry, int indent) {
+    DumperOptions options = new DumperOptions();
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    options.setIndent(Math.max(2, Math.min(indent, 10)));
+    Map<String, Object> wrapper = new LinkedHashMap<>();
+    wrapper.put(ruleId, entry);
+    String prefix = " ".repeat(indent);
+    List<String> rendered = new ArrayList<>();
+    for (String line : new Yaml(options).dump(wrapper).split("\n")) {
+      if (!line.isEmpty()) {
+        rendered.add(prefix + line);
+      }
+    }
+    return rendered;
+  }
+
+  /**
+   * Refuse to save unless the rule reads back as written and nothing else in the file changed. Text
+   * editing keeps the user's file intact; this makes sure it also kept it correct.
+   */
+  private static void verifyRuleEdit(
+      Map<?, ?> before, Map<?, ?> after, String ruleId, Map<String, Object> entry)
+      throws IOException {
+    for (Object key : union(before.keySet(), after.keySet())) {
+      if (!RULES_KEY.equals(key) && !Objects.equals(before.get(key), after.get(key))) {
+        throw new IOException("Editing a rule would have changed '" + key + "' in hop-lint.yml");
+      }
+    }
+    Map<?, ?> rulesBefore = asMap(before.get(RULES_KEY));
+    Map<?, ?> rulesAfter = asMap(after.get(RULES_KEY));
+    for (Object key : union(rulesBefore.keySet(), rulesAfter.keySet())) {
+      if (String.valueOf(key).equalsIgnoreCase(ruleId)) {
+        continue;
+      }
+      if (!Objects.equals(rulesBefore.get(key), rulesAfter.get(key))) {
+        throw new IOException(
+            "Editing rule " + ruleId + " would have changed rule " + key + " in hop-lint.yml");
+      }
+    }
+    Object written = rulesAfter.get(ruleId);
+    Object expected = entry == null ? null : new Yaml().load(new Yaml().dump(entry));
+    if (!Objects.equals(expected, written)) {
+      throw new IOException("Rule " + ruleId + " did not survive the edit, change it by hand");
+    }
+  }
+
+  private static Map<?, ?> loadMapping(String text) throws IOException {
+    Object parsed;
+    try {
+      parsed = new Yaml().load(text);
+    } catch (Exception e) {
+      throw new IOException("hop-lint.yml cannot be read: " + e.getMessage(), e);
+    }
+    if (parsed == null) {
+      return Map.of();
+    }
+    if (!(parsed instanceof Map)) {
+      throw new IOException("hop-lint.yml is not a YAML mapping, change the rule by hand");
+    }
+    return (Map<?, ?>) parsed;
+  }
+
+  private static Map<?, ?> asMap(Object value) {
+    return value instanceof Map<?, ?> map ? map : Map.of();
+  }
+
+  private static List<Object> union(java.util.Collection<?> first, java.util.Collection<?> second) {
+    List<Object> keys = new ArrayList<>(first);
+    for (Object key : second) {
+      if (!keys.contains(key)) {
+        keys.add(key);
+      }
+    }
+    return keys;
+  }
+
+  private static boolean hasContent(List<String> lines, int from, int to) {
+    for (int i = from; i < to; i++) {
+      if (isContent(lines.get(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isContent(String line) {
+    String trimmed = line.trim();
+    return !trimmed.isEmpty() && !trimmed.startsWith("#");
+  }
+
+  private static int indentOf(String line) {
+    int indent = 0;
+    while (indent < line.length() && line.charAt(indent) == ' ') {
+      indent++;
+    }
+    return indent;
+  }
+
+  /** The position of the colon ending a mapping key, skipping one inside a quoted key. */
+  private static int keyEnd(String trimmed) {
+    if (trimmed.startsWith("\"") || trimmed.startsWith("'")) {
+      int close = trimmed.indexOf(trimmed.charAt(0), 1);
+      return close < 0 ? -1 : trimmed.indexOf(':', close);
+    }
+    return trimmed.indexOf(':');
+  }
+
+  private static String unquoteKey(String key) {
+    String trimmed = key.trim();
+    if (trimmed.length() >= 2
+        && (trimmed.startsWith("\"") && trimmed.endsWith("\"")
+            || trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+      return trimmed.substring(1, trimmed.length() - 1);
+    }
+    return trimmed;
+  }
+
+  private static String stripComment(String value) {
+    int hash = value.indexOf(" #");
+    return hash < 0 ? value : value.substring(0, hash);
   }
 
   /**

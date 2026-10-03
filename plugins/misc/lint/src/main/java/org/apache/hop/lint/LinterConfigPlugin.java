@@ -17,6 +17,9 @@
 package org.apache.hop.lint;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -406,9 +409,6 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     if (written.isEmpty()) {
       return false;
     }
-    if (!Utils.isEmpty(configFilePath)) {
-      saveConfiguration();
-    }
     log.logBasic("Linter configuration updated");
     return true;
   }
@@ -569,32 +569,29 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     return exportToYaml(getCustomRules());
   }
 
-  /** Save configuration to the specified file path */
-  public boolean saveConfiguration() {
-    return saveProjectRules(getCustomRules());
+  /**
+   * Write one rule's state to the project's hop-lint.yml, leaving every other line of it alone.
+   *
+   * @param rule the rule as the rule manager now has it
+   * @param previousId the id it was saved under before, when that differs; that entry is removed
+   * @throws IOException when the file cannot be changed safely; nothing is written then
+   */
+  public void saveProjectRule(CustomLintRule rule, String previousId) throws IOException {
+    Path path = Paths.get(resolveProjectConfigPath());
+    String ruleId = rule.generateRuleId();
+    if (!Utils.isEmpty(previousId) && !previousId.equalsIgnoreCase(ruleId)) {
+      LintPolicyYamlWriter.removeRule(path, previousId);
+    }
+    LintPolicyYamlWriter.putRule(path, ruleId, ProjectLintYamlExporter.entryFor(rule));
+    log.logBasic("Saved lint rule " + ruleId + " to " + path);
   }
 
-  /** Save project hop-lint.yml from the rule manager's desired effective state. */
-  public boolean saveProjectRules(List<CustomLintRule> desiredRules) {
-    try {
-      String yamlContent = exportToYaml(desiredRules);
-      if (yamlContent == null) {
-        return false;
-      }
-      String savePath = resolveProjectConfigPath();
-      File parentDir = new File(savePath).getParentFile();
-      if (parentDir != null && !parentDir.exists()) {
-        parentDir.mkdirs();
-      }
-      java.nio.file.Files.write(
-          java.nio.file.Paths.get(savePath),
-          yamlContent.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-      log.logBasic("Linter configuration saved to: " + savePath);
-      return true;
-    } catch (Exception e) {
-      log.logError("Error saving linter configuration: " + e.getMessage(), e);
+  /** Remove a project rule's entry from the project's hop-lint.yml. */
+  public void removeProjectRule(String ruleId) throws IOException {
+    Path path = Paths.get(resolveProjectConfigPath());
+    if (LintPolicyYamlWriter.removeRule(path, ruleId)) {
+      log.logBasic("Removed lint rule " + ruleId + " from " + path);
     }
-    return false;
   }
 
   private String resolveProjectConfigPath() {
