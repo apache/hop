@@ -154,7 +154,7 @@ class BeamOutputCompressionPipelineTest extends SingleTransformPipelineTestBase 
 
   @Test
   void gzipOutputIsActuallyGzippedAndStillReadable() throws Exception {
-    PipelineMeta pipelineMeta = pipelineWithCompression("GZIP", ".gz");
+    PipelineMeta pipelineMeta = pipelineWithCompression("GZIP", ".csv.gz");
 
     Map<String, byte[]> bytesByFile = runAndGetOutputBytesByFile(pipelineMeta);
 
@@ -162,6 +162,9 @@ class BeamOutputCompressionPipelineTest extends SingleTransformPipelineTestBase 
     for (Map.Entry<String, byte[]> entry : bytesByFile.entrySet()) {
       byte[] bytes = entry.getValue();
       assertTrue(bytes.length > 0, "empty shard " + entry.getKey());
+      assertFalse(entry.getKey().contains(".gz.gz"), "doubled gzip suffix: " + entry.getKey());
+      assertTrue(
+          entry.getKey().endsWith(".csv.gz"), "expected one .csv.gz suffix: " + entry.getKey());
 
       // The whole point of the feature: the bytes on disk are a gzip member.
       assertEquals((byte) 0x1f, bytes[0], "missing gzip magic in " + entry.getKey());
@@ -199,12 +202,15 @@ class BeamOutputCompressionPipelineTest extends SingleTransformPipelineTestBase 
 
   @Test
   void autoCompressionFollowsTheFileSuffix() throws Exception {
-    // AUTO derives the codec from the suffix, so a .gz suffix is enough.
-    PipelineMeta pipelineMeta = pipelineWithCompression("AUTO", ".gz");
+    // AUTO derives the codec from the suffix. The codec suffix is not written twice.
+    PipelineMeta pipelineMeta = pipelineWithCompression("AUTO", ".csv.gz");
 
     Map<String, byte[]> bytesByFile = runAndGetOutputBytesByFile(pipelineMeta);
 
     for (Map.Entry<String, byte[]> entry : bytesByFile.entrySet()) {
+      assertFalse(entry.getKey().contains(".gz.gz"), "doubled gzip suffix: " + entry.getKey());
+      assertTrue(
+          entry.getKey().endsWith(".csv.gz"), "expected one .csv.gz suffix: " + entry.getKey());
       assertEquals(
           (byte) 0x1f,
           entry.getValue()[0],

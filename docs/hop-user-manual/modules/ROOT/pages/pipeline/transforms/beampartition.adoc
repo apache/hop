@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam partition transform splits the stream into partitions so that following steps can be grouped per key.
+:description: The Beam partition transform assigns each row to a partition, then flattens the partitions back into one stream.
 :page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-engines-beam
 
@@ -35,25 +35,22 @@ a possibly different order.
 
 === What partitioning is for
 
-On a distributed runner, steps that group data, such as a Beam window transform that windows on a
-key, normally have to shuffle the rows so that everything sharing a key ends up in the same place.
-That shuffle is the expensive part.
+On a distributed runner, a transform that groups rows, such as a Beam window on a key, shuffles so
+that rows sharing a key end up in the same place.
 
-Deciding up front which partition a row belongs to lets the runner place rows without shuffling, as
-long as the grouping that follows is grouped by the same field.
-
-So partition on the same field you group by. Partitioning on one field and grouping on another buys
-nothing and still pays for the shuffle.
+This transform does not remove that shuffle. It assigns each row to a partition and then flattens
+the partitions back into one stream. A following GroupByKey still shuffles, whether or not it
+groups on the same field.
 
 === Choosing a partitioning type
 
 Single partition sends every row to one partition.
-That serialises all the processing that follows, so it is only useful when something downstream has
-to see all rows in a fixed, sequential order.
+It does not serialise the processing that follows. After this transform the rows are one stream
+again, and the runner schedules the rest of the pipeline as it would without this transform.
 It is the default, which means a pipeline saved without a partitioning type does not partition.
 
-Keyed partitions on the value of a field: rows with the same value always land in the same
-partition.
+Keyed partitions on the value of a field: rows with the same value are sent to the same partition,
+then flattened back into that one stream with every other partition.
 
 NOTE: The partition is chosen by hashing the key, so rows are spread over the partitions in no
 particular order and not evenly. Two keys can share a partition, and some partitions can be
@@ -84,4 +81,5 @@ large number of workers.
 After partitioning, Beam hands back one collection per partition.
 Hop recombines them into a single stream before the next transform, because the partition of a given
 row is only decided while the pipeline runs and the next transform cannot branch on it.
-That means partitioning on its own does not filter or split the stream; it only decides placement.
+That means partitioning on its own does not filter or split the stream, and the partition does not
+stick for the transform that follows.

@@ -22,10 +22,29 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.io.GenerateSequence;
+import org.apache.beam.sdk.runners.TransformHierarchy;
+import org.apache.beam.sdk.transforms.Create;
+import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.core.coder.HopRowCoder;
+import org.apache.hop.beam.engines.direct.BeamDirectPipelineRunConfiguration;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.addsequence.AddSequenceMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -85,5 +104,113 @@ class BeamAddSequenceTransformHandlerTest {
     assertEquals("5", meta.getIncrementBy());
     assertEquals("999", meta.getMaxValue());
     assertFalse(meta.isDatabaseUsed());
+  }
+
+  @Test
+  void databaseModeUsesTheGenericHandler() throws Exception {
+    Pipeline pipeline = Pipeline.create();
+    String graph = handledGraph(pipeline, boundedRows(pipeline), true);
+
+    assertFalse(graph.contains("AddSequenceFn"), graph);
+    assertFalse(graph.contains("GroupByKey"), graph);
+  }
+
+  @Test
+  void unboundedInputUsesTheGenericHandler() throws Exception {
+    Pipeline pipeline = Pipeline.create();
+    String graph = handledGraph(pipeline, unboundedRows(pipeline), false);
+
+    assertFalse(graph.contains("AddSequenceFn"), graph);
+    assertFalse(graph.contains("GroupByKey"), graph);
+  }
+
+  @Test
+  void boundedCounterUsesTheSequenceFunction() throws Exception {
+    Pipeline pipeline = Pipeline.create();
+    String graph = handledGraph(pipeline, boundedRows(pipeline), false);
+
+    assertTrue(graph.contains("AddSequenceFn"), graph);
+  }
+
+  private static String handledGraph(
+      Pipeline pipeline, PCollection<HopRow> input, boolean databaseUsed) throws Exception {
+    AddSequenceMeta meta = new AddSequenceMeta();
+    meta.setValueName("seq");
+    meta.setStartAt("1");
+    meta.setIncrementBy("1");
+    meta.setMaxValue("10");
+    meta.setCounterUsed(!databaseUsed);
+    meta.setDatabaseUsed(databaseUsed);
+    if (databaseUsed) {
+      meta.setConnection("customers");
+      meta.setSequenceName("seq_id");
+    }
+
+    Map<String, PCollection<HopRow>> collections = new HashMap<>();
+    new BeamAddSequenceTransformHandler()
+        .handleTransform(
+            LogChannel.GENERAL,
+            new Variables(),
+            "direct",
+            new BeamDirectPipelineRunConfiguration(),
+            null,
+            new MemoryMetadataProvider(),
+            new PipelineMeta(),
+            new TransformMeta("Sequence", "seq", meta),
+            collections,
+            pipeline,
+            new RowMeta(),
+            List.of(),
+            input,
+            null);
+
+    assertNotNull(collections.get("seq"));
+    return graphText(pipeline);
+  }
+
+  /** Pipeline.toString() is only the pipeline id. The applied transforms carry the real names. */
+  private static String graphText(Pipeline pipeline) {
+    StringBuilder graph = new StringBuilder();
+    pipeline.traverseTopologically(
+        new Pipeline.PipelineVisitor.Defaults() {
+          @Override
+          public CompositeBehavior enterCompositeTransform(TransformHierarchy.Node node) {
+            append(node);
+            return CompositeBehavior.ENTER_TRANSFORM;
+          }
+
+          @Override
+          public void visitPrimitiveTransform(TransformHierarchy.Node node) {
+            append(node);
+          }
+
+          private void append(TransformHierarchy.Node node) {
+            if (node.getTransform() == null) {
+              return;
+            }
+            graph.append(node.getFullName()).append(' ');
+            graph.append(node.getTransform().getClass().getName()).append(' ');
+            graph.append(node.getTransform()).append('\n');
+          }
+        });
+    return graph.toString();
+  }
+
+  private static PCollection<HopRow> boundedRows(Pipeline pipeline) {
+    return pipeline.apply(Create.of(new HopRow(new Object[] {"a"})).withCoder(new HopRowCoder()));
+  }
+
+  private static PCollection<HopRow> unboundedRows(Pipeline pipeline) {
+    return pipeline
+        .apply(GenerateSequence.from(0))
+        .apply(ParDo.of(new LongToHopRowFn()))
+        .setCoder(new HopRowCoder());
+  }
+
+  private static class LongToHopRowFn extends DoFn<Long, HopRow> {
+    @ProcessElement
+    public void process(ProcessContext context) {
+      context.output(new HopRow(new Object[] {context.element().toString()}));
+    }
   }
 }

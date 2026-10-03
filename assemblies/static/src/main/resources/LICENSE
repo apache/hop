@@ -517,9 +517,6 @@ This product bundles batik-xml 1.19, which is available under a
 This product bundles bcjmail-jdk18on 1.84, which is available under a
 "Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
 
-This product bundles bcprov-jdk15on 1.70, which is available under a
-"Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
-
 This product bundles bcprov-jdk18on 1.85.2, which is available under a
 "Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
 

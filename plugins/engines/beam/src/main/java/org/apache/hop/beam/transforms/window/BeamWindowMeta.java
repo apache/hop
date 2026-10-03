@@ -251,32 +251,7 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
               + "'");
     }
 
-    // Set an allowed lateness
-    //
-    if (StringUtils.isNotEmpty(allowedLateness)) {
-      long seconds = Const.toInt(variables.resolve(allowedLateness), -1);
-      if (seconds >= 0) {
-        window = window.withAllowedLateness(Duration.standardSeconds(seconds));
-      }
-    }
-
-    // Discard fired panes?
-    //
-    if (discardingFiredPanes) {
-      window = window.discardingFiredPanes();
-    }
-
-    // Types of triggers
-    //
-    if (triggeringType != null) {
-      switch (triggeringType) {
-        case None:
-          break;
-        case RepeatedlyForeverAfterWatermarkPastEndOfWindow:
-          window = window.triggering(Repeatedly.forever(AfterWatermark.pastEndOfWindow()));
-          break;
-      }
-    }
+    window = applyWindowOptions(variables, window);
 
     // Finally apply the window to the input
     //
@@ -308,11 +283,14 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
                   new HopKeyFn(transformMeta.getName(), JsonRowMeta.toJson(rowMeta), keyIndex));
       PCollection<KV<String, HopRow>> keyed = input.apply(withKeys);
 
-      // The windowing is the same either way; only the element type it is applied to changes, so
-      // reuse the existing WindowFn rather than rebuilding the windowing from the settings.
+      // WindowFn does not carry the trigger, allowed lateness or discarding mode. GroupByKey on a
+      // global window fails without that trigger, so the keyed window gets the same options.
+      //
       Window<KV<String, HopRow>> keyedWindow =
-          Window.into(
-              (WindowFn<? super KV<String, HopRow>, ?>) (WindowFn<?, ?>) window.getWindowFn());
+          applyWindowOptions(
+              variables,
+              Window.into(
+                  (WindowFn<? super KV<String, HopRow>, ?>) (WindowFn<?, ?>) window.getWindowFn()));
 
       transformPCollection =
           keyed
@@ -350,6 +328,28 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
             + ", gets data from "
             + previousTransforms.size()
             + " previous transform(s)");
+  }
+
+  private <T> Window<T> applyWindowOptions(IVariables variables, Window<T> window) {
+    if (StringUtils.isNotEmpty(allowedLateness)) {
+      long seconds = Const.toInt(variables.resolve(allowedLateness), -1);
+      if (seconds >= 0) {
+        window = window.withAllowedLateness(Duration.standardSeconds(seconds));
+      }
+    }
+    if (discardingFiredPanes) {
+      window = window.discardingFiredPanes();
+    }
+    if (triggeringType != null) {
+      switch (triggeringType) {
+        case None:
+          break;
+        case RepeatedlyForeverAfterWatermarkPastEndOfWindow:
+          window = window.triggering(Repeatedly.forever(AfterWatermark.pastEndOfWindow()));
+          break;
+      }
+    }
+    return window;
   }
 
   /**

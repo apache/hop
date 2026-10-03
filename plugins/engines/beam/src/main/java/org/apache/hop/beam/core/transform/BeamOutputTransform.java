@@ -112,17 +112,16 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
         }
         write = write.to(outputPrefix);
       }
-      if (StringUtils.isNotEmpty(fileSuffix)) {
-        write = write.withSuffix(fileSuffix);
-      }
-
       // #2337: TextIO can write compressed files.  Beam's AUTO is read-only ("AUTO is not supported
       // for writing"), so for a write we resolve it to the codec the file suffix implies instead
       // of passing it through.  With no suffix there is nothing to infer, so AUTO degrades to no
       // compression rather than failing the job.
       //
+      // DefaultFilenamePolicy appends the codec suffix again after withSuffix, so a suffix that
+      // already ends in that extension (.csv.gz with GZIP) would be written as .csv.gz.gz.
+      //
+      Compression codec = null;
       if (StringUtils.isNotEmpty(compression)) {
-        Compression codec;
         try {
           codec = resolveCompression(compression, fileSuffix);
         } catch (IllegalArgumentException e) {
@@ -135,9 +134,13 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
                   + "DEFLATE or SNAPPY.",
               e);
         }
-        if (codec != null) {
-          write = write.withCompression(codec);
-        }
+      }
+      String suffix = stripSuggestedSuffix(fileSuffix, codec);
+      if (StringUtils.isNotEmpty(suffix)) {
+        write = write.withSuffix(suffix);
+      }
+      if (codec != null) {
+        write = write.withCompression(codec);
       }
 
       // For streaming data sources...
@@ -186,6 +189,21 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
       }
     }
     return null;
+  }
+
+  /**
+   * Drop the codec suffix from the configured file suffix. Beam appends {@link
+   * Compression#getSuggestedSuffix()} itself when the write is compressed.
+   */
+  private static String stripSuggestedSuffix(String fileSuffix, Compression codec) {
+    if (codec == null || StringUtils.isEmpty(fileSuffix)) {
+      return fileSuffix;
+    }
+    String suggested = codec.getSuggestedSuffix();
+    if (StringUtils.isNotEmpty(suggested) && fileSuffix.endsWith(suggested)) {
+      return fileSuffix.substring(0, fileSuffix.length() - suggested.length());
+    }
+    return fileSuffix;
   }
 
   /**

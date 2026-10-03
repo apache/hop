@@ -43,11 +43,3 @@ Foundation (http://www.apache.org/).
 
 This product includes software developed by
 Joda.org (http://www.joda.org/).
-
-This product bundles the Snowflake JDBC driver under the Apache License, Version 2.0.
-See: https://github.com/snowflakedb/snowflake-jdbc
-
-The Beam engine also bundles OpenCSV under the Apache License, Version 2.0,
-Bouncy Castle bcprov-jdk18on under the MIT license (pulled in by Hadoop),
-and Bouncy Castle bcprov-jdk15on under the Bouncy Castle Licence (pulled in by
-SnowflakeIO). Those two Bouncy Castle jars both use the org.bouncycastle packages.

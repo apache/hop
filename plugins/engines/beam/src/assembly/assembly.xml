@@ -87,8 +87,22 @@
                 <exclude>org.apache.spark:spark-network-shuffle_2.12</exclude>
                 <exclude>org.apache.spark:spark-unsafe_2.12</exclude>
                 <exclude>org.apache.spark:spark-tags_2.12</exclude>
+                <!-- snowflake-jdbc embeds com.github.luben.zstd.Zstd. Keep that jar, and the
+                     Snowflake IO jar that loads it, off the shared lib/core classpath. -->
+                <exclude>org.apache.beam:beam-sdks-java-io-snowflake</exclude>
+                <exclude>net.snowflake:snowflake-jdbc</exclude>
             </excludes>
             <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
+
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>org.apache.beam:beam-sdks-java-io-snowflake:jar</include>
+                <include>net.snowflake:snowflake-jdbc:jar</include>
+            </includes>
+            <outputDirectory>plugins/engines/beam/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

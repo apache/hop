@@ -1168,21 +1168,6 @@
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-mqtt</artifactId>
         </dependency>
-
-        <!-- #2357: ParquetIO for the Beam Parquet transforms. It ships separately from
-             beam-sdks-java-core, which is why the Parquet transforms were unavailable on Beam. -->
-        <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-io-parquet</artifactId>
-            <exclusions>
-                <!-- Transitive and unused here, and it conflicts with the jackson version this
-                     plugin already manages. -->
-                <exclusion>
-                    <groupId>com.google.j2objc</groupId>
-                    <artifactId>j2objc-annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- #2378: Snowflake COPY through GCS. JDBC version comes from hop-libs-jdbc (4.3.0),
              not Beam's 4.0.2. Snowpipe's ingest SDK is omitted because this transform does not
              call it. -->
@@ -1765,6 +1750,22 @@
                 <exclusion>
                     <groupId>org.xerial.snappy</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- ParquetIO is only referenced by ParquetIOViabilityTest. Test scope keeps
+             the Parquet jars out of the Beam assembly. -->
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-parquet</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <!-- Transitive and unused here, and it conflicts with the jackson version this
+                     plugin already manages. -->
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

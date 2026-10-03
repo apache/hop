@@ -154,13 +154,14 @@ class AddSequencePipelineTest extends SingleTransformPipelineTestBase {
   }
 
   @Test
-  void rowsPastTheMaximumAreNotEmitted() throws Exception {
-    // A max of 105 admits 100 and 105 only, so 98 of the 100 rows drop out.
+  void theSequenceWrapsBackToTheStartAfterTheMaximum() throws Exception {
+    // Start at 100, step 5, max 105: 100, 105, then back to 100. Counter does not drop rows.
     PipelineMeta pipelineMeta = sequencePipeline(100, 5, "105");
 
     List<String> lines = runAndGetOutputLines(pipelineMeta);
 
-    assertEquals(2, lines.size(), "only the values up to the maximum should be emitted");
+    assertEquals(
+        EXPECTED_ROWS, lines.size(), "a maximum wraps the counter instead of dropping rows");
     Set<String> values = new TreeSet<>(sequenceValues(lines));
     assertEquals(Set.of("100", "105"), values);
   }

@@ -50,9 +50,9 @@ import org.apache.hop.pipeline.transforms.addsequence.AddSequenceMeta;
 /**
  * Issue #2379: a Beam handler for the Add Sequence transform.
  *
- * <p>Without this the transform falls through to {@link BeamGenericTransformHandler}, which runs
- * the real Hop transform inside a {@code ParDo} on every worker, so every worker produces its own
- * sequence starting at the same number.
+ * <p>A bounded counter is one {@code GroupByKey} and one stateful {@code DoFn}, so every worker
+ * shares a single sequence. Database mode and unbounded input cannot use that {@code GroupByKey}.
+ * They go through {@link BeamGenericTransformHandler}, which is what ran this transform before.
  */
 public class BeamAddSequenceTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
@@ -97,16 +97,27 @@ public class BeamAddSequenceTransformHandler extends BeamBaseTransformHandler
     AddSequenceMeta meta = new AddSequenceMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
-    // The database-backed and counter-backed modes of the transform cannot be expressed on Beam:
-    // a DB sequence lives outside the pipeline, and a Hop counter is a local-engine concept with no
-    // distributed equivalent.  Refuse loudly rather than silently emitting duplicate values.
-    if (meta.isDatabaseUsed()) {
-      throw new HopException(
-          "The Add Sequence transform '"
-              + transformMeta.getName()
-              + "' uses a database sequence, which is not available on Beam.  Switch it to the "
-              + "increment-by mode (clear the 'use database' and 'use counter' options) and set "
-              + "'Start at'.");
+    // GroupByKey cannot run on an unbounded global window, and a database sequence is the Hop
+    // transform's own connection. Both keep the generic handler.
+    //
+    if (meta.isDatabaseUsed() || input.isBounded() == PCollection.IsBounded.UNBOUNDED) {
+      new BeamGenericTransformHandler()
+          .handleTransform(
+              log,
+              variables,
+              runConfigurationName,
+              runConfiguration,
+              dataSamplersJson,
+              metadataProvider,
+              pipelineMeta,
+              transformMeta,
+              transformCollectionMap,
+              pipeline,
+              rowMeta,
+              previousTransforms,
+              input,
+              parentLogChannelId);
+      return;
     }
 
     long startAt = Const.toLong(variables.resolve(meta.getStartAt()), 1L);

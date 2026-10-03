@@ -47,8 +47,8 @@ import org.apache.hop.pipeline.Pipeline;
  * <p>The input is a {@code KV} because a stateful {@code ParDo} requires one; the key is always
  * null and carries no information, only the fact that everything belongs to one key.
  *
- * <p>{@code maxValue} is applied here rather than by truncating the output, so a row past the limit
- * is dropped, which is what the local transform does.
+ * <p>A maximum wraps the same way as {@code org.apache.hop.core.Counter}. Once the following value
+ * would pass the maximum, that following value restarts at {@code startAt}. Rows are not dropped.
  */
 public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
 
@@ -66,7 +66,6 @@ public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
   private final Counter numErrors = Metrics.counter("main", "BeamAddSequenceErrors");
   private final Counter inputCounter;
   private final Counter writtenCounter;
-  private final Counter droppedCounter;
 
   private transient IRowMeta rowMeta;
   private transient IValueMeta valueMeta;
@@ -94,7 +93,6 @@ public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
     this.maxValue = maxValue;
     this.inputCounter = Metrics.counter(Pipeline.METRIC_NAME_INPUT, transformName);
     this.writtenCounter = Metrics.counter(Pipeline.METRIC_NAME_WRITTEN, transformName);
-    this.droppedCounter = Metrics.counter(Pipeline.METRIC_NAME_REJECTED, transformName);
   }
 
   @Setup
@@ -118,15 +116,18 @@ public class AddSequenceFn extends DoFn<KV<Void, HopRow>, HopRow> {
     try {
       inputCounter.inc();
 
-      Long current = counter.read();
-      long value = (current == null) ? startAt : current + incrementBy;
-      counter.write(value);
-
-      if (maxValue > 0 && value > maxValue) {
-        // The local transform stops emitting once the maximum is reached.
-        droppedCounter.inc();
-        return;
+      // Counter.getAndNext returns the current value, then stores the following one, wrapping
+      // that following value back to the start once it passes the maximum.
+      //
+      Long stored = counter.read();
+      long value = stored == null ? startAt : stored;
+      long next = value + incrementBy;
+      if (incrementBy > 0 && maxValue > startAt && next > maxValue) {
+        next = startAt;
+      } else if (incrementBy < 0 && maxValue < startAt && next < maxValue) {
+        next = startAt;
       }
+      counter.write(next);
 
       HopRow row = context.element().getValue();
       Object[] output = RowDataUtil.resizeArray(row.getRow(), rowMeta.size());
