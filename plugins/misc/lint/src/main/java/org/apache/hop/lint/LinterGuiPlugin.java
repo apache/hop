@@ -99,7 +99,9 @@ public class LinterGuiPlugin {
       }
 
       String projectPath = variables.getVariable("PROJECT_HOME");
-      String projectName = variables.getVariable("PROJECT_NAME");
+      // HOP_PROJECT_NAME is what the projects plugin sets; nothing sets PROJECT_NAME, so every
+      // run was reported as "Unknown Project".
+      String projectName = variables.getVariable("HOP_PROJECT_NAME");
 
       if (Utils.isEmpty(projectPath)) {
         // No project loaded, show error message
@@ -122,7 +124,8 @@ public class LinterGuiPlugin {
       final String finalProjectPath = projectPath;
       final IVariables finalVariables = variables;
       final HopGui finalHopGui = hopGui;
-      final String finalProjectName = projectName != null ? projectName : "Unknown Project";
+      final String finalProjectName =
+          !Utils.isEmpty(projectName) ? projectName : new java.io.File(projectPath).getName();
 
       // Run linter in background thread
       BackgroundThreadFacade.start(
@@ -143,9 +146,6 @@ public class LinterGuiPlugin {
                 return;
               }
 
-              // Generate rule summary
-              Map<String, HopLinter.RuleSummary> ruleSummary = linter.generateRuleSummary(results);
-
               // Process and display results on UI thread
               Display.getDefault()
                   .asyncExec(
@@ -156,8 +156,7 @@ public class LinterGuiPlugin {
                           LintProblemsBarManager.getInstance().refreshAllOpenEditors();
 
                           LinterGuiPlugin plugin = new LinterGuiPlugin();
-                          plugin.displayResults(
-                              finalHopGui, results, ruleSummary, totalLintTime, finalProjectName);
+                          plugin.displayResults(results, totalLintTime, finalProjectName);
                         } catch (Exception e) {
                           LogChannel.GENERAL.logError(
                               "Error displaying results: " + e.getMessage(), e);
@@ -208,33 +207,20 @@ public class LinterGuiPlugin {
   }
 
   /**
-   * Display the linting results to the user
+   * Report a project lint in the Hop log. The findings themselves are in Show Lint Results and on
+   * the canvas.
    *
-   * @param hopGui The HopGui instance
-   * @param results List of lint results
-   * @param ruleSummary Summary of results by rule
-   * @param executionTimeMs Total execution time in milliseconds
-   * @param projectName Name of the project that was linted
+   * <p>Each run also wrote a hop-lint-results_&lt;timestamp&gt;.txt into the project root. They
+   * piled up, were picked up by a plain "git add .", and carried whatever the findings said.
    */
-  private void displayResults(
-      HopGui hopGui,
-      List<LintResult> results,
-      Map<String, HopLinter.RuleSummary> ruleSummary,
-      long executionTimeMs,
-      String projectName) {
-    // Write detailed results to file instead of console
-    String projectPath = writeResultsToFile(results, ruleSummary, executionTimeMs, projectName);
-
-    // Log summary to the Hop log
+  private void displayResults(List<LintResult> results, long executionTimeMs, String projectName) {
     LogChannel.GENERAL.logBasic("=== LINT RESULTS FOR PROJECT: " + projectName + " ===");
     LogChannel.GENERAL.logBasic("Execution time: " + formatExecutionTime(executionTimeMs));
-    LogChannel.GENERAL.logBasic("Detailed results written to: " + projectPath);
 
     if (results.isEmpty()) {
       LogChannel.GENERAL.logBasic(
           "✓ No issues found! Your project follows all configured best practices.");
     } else {
-      // Group results by severity
       Map<String, List<LintResult>> resultsBySeverity =
           results.stream().collect(Collectors.groupingBy(LintResult::getSeverity));
 
@@ -248,157 +234,7 @@ public class LinterGuiPlugin {
     }
 
     LogChannel.GENERAL.logBasic("=== END LINT RESULTS ===");
-
-    if (results.isEmpty()) {
-      LintResultsUi.logSummary(results, projectName);
-    } else {
-      LintResultsUi.logSummary(results, projectName);
-    }
-  }
-
-  /**
-   * Write detailed lint results to a file in the project root
-   *
-   * @param results All lint results
-   * @param ruleSummary Summary by rule
-   * @param executionTimeMs Execution time
-   * @param projectName Project name
-   * @return Path to the results file
-   */
-  private String writeResultsToFile(
-      List<LintResult> results,
-      Map<String, HopLinter.RuleSummary> ruleSummary,
-      long executionTimeMs,
-      String projectName) {
-    try {
-      // Get project path from HopGui variables
-      HopGui hopGui = HopGui.peekInstance();
-      IVariables variables = hopGui.getVariables();
-      String projectPath = variables.getVariable("PROJECT_HOME");
-
-      if (Utils.isEmpty(projectPath)) {
-        // Fallback to current working directory
-        projectPath = System.getProperty("user.dir");
-      }
-
-      // Create results file with timestamp
-      String timestamp =
-          java.time.LocalDateTime.now()
-              .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-      String fileName = "hop-lint-results_" + timestamp + ".txt";
-      java.io.File resultsFile = new java.io.File(projectPath, fileName);
-
-      // Write results to file
-      try (java.io.PrintWriter writer =
-          new java.io.PrintWriter(
-              new java.io.FileWriter(resultsFile, java.nio.charset.StandardCharsets.UTF_8))) {
-
-        writer.println("=== HOP LINT CHECKER RESULTS ===");
-        writer.println("Project: " + projectName);
-        writer.println("Execution time: " + formatExecutionTime(executionTimeMs));
-        writer.println(
-            "Generated: "
-                + java.time.LocalDateTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        writer.println();
-
-        // Write rule summary
-        writer.println("RULE SUMMARY:");
-        ruleSummary.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .forEach(entry -> writer.println("  " + entry.getValue().toString()));
-        writer.println();
-
-        if (results.isEmpty()) {
-          writer.println("✓ No issues found! Your project follows all configured best practices.");
-        } else {
-          // Group results by severity
-          Map<String, List<LintResult>> resultsBySeverity =
-              results.stream().collect(Collectors.groupingBy(LintResult::getSeverity));
-
-          int errorCount = resultsBySeverity.getOrDefault("ERROR", List.of()).size();
-          int warningCount = resultsBySeverity.getOrDefault("WARNING", List.of()).size();
-
-          writer.println("SUMMARY:");
-          writer.println("  Total issues: " + results.size());
-          writer.println("  Errors: " + errorCount);
-          writer.println("  Warnings: " + warningCount);
-          writer.println();
-
-          // Write detailed results
-          writer.println("DETAILED RESULTS:");
-          writer.println();
-
-          // Write errors first
-          List<LintResult> errors = resultsBySeverity.get("ERROR");
-          if (errors != null && !errors.isEmpty()) {
-            writer.println("ERRORS:");
-            for (LintResult error : errors) {
-              writer.println(
-                  "  [ERROR] "
-                      + error.getRuleId()
-                      + " - "
-                      + error.getRuleName()
-                      + ": "
-                      + error.getMessage()
-                      + " (File: "
-                      + error.getFileName()
-                      + ")");
-            }
-            writer.println();
-          }
-
-          // Write warnings
-          List<LintResult> warnings = resultsBySeverity.get("WARNING");
-          if (warnings != null && !warnings.isEmpty()) {
-            writer.println("WARNINGS:");
-            for (LintResult warning : warnings) {
-              writer.println(
-                  "  [WARNING] "
-                      + warning.getRuleId()
-                      + " - "
-                      + warning.getRuleName()
-                      + ": "
-                      + warning.getMessage()
-                      + " (File: "
-                      + warning.getFileName()
-                      + ")");
-            }
-            writer.println();
-          }
-
-          // Write any other severity levels
-          for (Map.Entry<String, List<LintResult>> entry : resultsBySeverity.entrySet()) {
-            if (!"ERROR".equals(entry.getKey()) && !"WARNING".equals(entry.getKey())) {
-              writer.println(entry.getKey() + ":");
-              for (LintResult result : entry.getValue()) {
-                writer.println(
-                    "  ["
-                        + result.getSeverity()
-                        + "] "
-                        + result.getRuleId()
-                        + " - "
-                        + result.getRuleName()
-                        + ": "
-                        + result.getMessage()
-                        + " (File: "
-                        + result.getFileName()
-                        + ")");
-              }
-              writer.println();
-            }
-          }
-        }
-
-        writer.println("=== END LINT RESULTS ===");
-      }
-
-      return resultsFile.getAbsolutePath();
-
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError("Error writing results to file: " + e.getMessage(), e);
-      return "Error writing to file: " + e.getMessage();
-    }
+    LintResultsUi.logSummary(results, projectName);
   }
 
   /**

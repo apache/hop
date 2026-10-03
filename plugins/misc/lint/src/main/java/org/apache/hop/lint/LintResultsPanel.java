@@ -47,6 +47,8 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
 
   private LintResultsManager resultsManager;
   private Tree resultsTree;
+  private LintResultGrouping.SortKey sortKey = LintResultGrouping.SortKey.FILE;
+  private boolean sortAscending = true;
   private Text detailsText;
   private Label statusLabel;
   private String fileFilter;
@@ -140,6 +142,13 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
     fileColumn.setText(BaseMessages.getString(PKG, "LintResultsPanel.Column.File"));
     fileColumn.setWidth(200);
 
+    ruleColumn.addListener(SWT.Selection, e -> sortOn(ruleColumn, LintResultGrouping.SortKey.RULE));
+    messageColumn.addListener(
+        SWT.Selection, e -> sortOn(messageColumn, LintResultGrouping.SortKey.MESSAGE));
+    fileColumn.addListener(SWT.Selection, e -> sortOn(fileColumn, LintResultGrouping.SortKey.FILE));
+    resultsTree.setSortColumn(fileColumn);
+    resultsTree.setSortDirection(SWT.UP);
+
     // Details panel
     Group detailsGroup = new Group(sashForm, SWT.NONE);
     detailsGroup.setText(BaseMessages.getString(PKG, "LintResultsPanel.Group.Details"));
@@ -219,81 +228,50 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
                       displayedResults.size(), scope, errorCount, warningCount));
 
               Map<String, List<LintResult>> resultsBySeverity = groupBySeverity(displayedResults);
-
-              // Add error group
-              if (resultsBySeverity.containsKey("ERROR")) {
-                TreeItem errorGroup = new TreeItem(resultsTree, SWT.NONE);
-                errorGroup.setText(
-                    new String[] {
-                      "ERROR", "", "Errors (" + resultsBySeverity.get("ERROR").size() + ")", ""
-                    });
-                errorGroup.setExpanded(true);
-
-                for (LintResult result : resultsBySeverity.get("ERROR")) {
-                  TreeItem item = new TreeItem(errorGroup, SWT.NONE);
-                  item.setText(
-                      new String[] {
-                        result.getSeverity(),
-                        result.getRuleId(),
-                        result.getMessage(),
-                        LintEditorGraphHelper.displayName(result.getFileName())
-                      });
-                  item.setData(result);
-                }
-              }
-
-              // Add warning group
-              if (resultsBySeverity.containsKey("WARNING")) {
-                TreeItem warningGroup = new TreeItem(resultsTree, SWT.NONE);
-                warningGroup.setText(
-                    new String[] {
-                      "WARNING",
-                      "",
-                      "Warnings (" + resultsBySeverity.get("WARNING").size() + ")",
-                      ""
-                    });
-                warningGroup.setExpanded(true);
-
-                for (LintResult result : resultsBySeverity.get("WARNING")) {
-                  TreeItem item = new TreeItem(warningGroup, SWT.NONE);
-                  item.setText(
-                      new String[] {
-                        result.getSeverity(),
-                        result.getRuleId(),
-                        result.getMessage(),
-                        LintEditorGraphHelper.displayName(result.getFileName())
-                      });
-                  item.setData(result);
-                }
-              }
-
-              // Add other severity groups
-              for (Map.Entry<String, List<LintResult>> entry : resultsBySeverity.entrySet()) {
-                if (!"ERROR".equals(entry.getKey()) && !"WARNING".equals(entry.getKey())) {
-                  TreeItem group = new TreeItem(resultsTree, SWT.NONE);
-                  group.setText(
-                      new String[] {
-                        entry.getKey(),
-                        "",
-                        entry.getKey() + " (" + entry.getValue().size() + ")",
-                        ""
-                      });
-                  group.setExpanded(true);
-
-                  for (LintResult result : entry.getValue()) {
-                    TreeItem item = new TreeItem(group, SWT.NONE);
-                    item.setText(
-                        new String[] {
-                          result.getSeverity(),
-                          result.getRuleId(),
-                          result.getMessage(),
-                          result.getFileName()
-                        });
-                    item.setData(result);
-                  }
-                }
+              List<String> severities = new java.util.ArrayList<>(resultsBySeverity.keySet());
+              severities.sort(LintResultGrouping.severityOrder());
+              for (String severity : severities) {
+                addSeverityGroup(severity, resultsBySeverity.get(severity));
               }
             });
+  }
+
+  private void addSeverityGroup(String severity, List<LintResult> results) {
+    String label =
+        switch (severity) {
+          case "ERROR" -> "Errors";
+          case "WARNING" -> "Warnings";
+          default -> severity;
+        };
+    TreeItem group = new TreeItem(resultsTree, SWT.NONE);
+    group.setText(new String[] {severity, "", label + " (" + results.size() + ")", ""});
+
+    List<LintResult> sorted = new java.util.ArrayList<>(results);
+    sorted.sort(LintResultGrouping.order(sortKey, sortAscending));
+    for (LintResult result : sorted) {
+      TreeItem item = new TreeItem(group, SWT.NONE);
+      item.setText(
+          new String[] {
+            result.getSeverity(),
+            result.getRuleId(),
+            result.getMessage(),
+            LintEditorGraphHelper.displayName(result.getFileName())
+          });
+      item.setData(result);
+    }
+    group.setExpanded(true);
+  }
+
+  /**
+   * Sort on a column, or turn the order round when it is already the one sorted on. The severity
+   * groups keep their order: errors first.
+   */
+  private void sortOn(TreeColumn column, LintResultGrouping.SortKey key) {
+    sortAscending = key != sortKey || !sortAscending;
+    sortKey = key;
+    resultsTree.setSortColumn(column);
+    resultsTree.setSortDirection(sortAscending ? SWT.UP : SWT.DOWN);
+    refreshResults();
   }
 
   private List<LintResult> getDisplayedResults() {

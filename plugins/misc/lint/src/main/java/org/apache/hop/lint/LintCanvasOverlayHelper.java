@@ -251,18 +251,27 @@ public final class LintCanvasOverlayHelper {
   }
 
   /**
-   * A muted outline on an element whose findings have been accepted.
+   * Mark a transform or action whose findings were ignored on purpose.
    *
-   * <p>Deliberately quiet: no badge, no colour that competes with a real finding. It exists so that
-   * the absence of a warning reads as a decision rather than as a check that never ran.
+   * <p>A dashed outline set off from the icon, with a greyed-out info badge in the corner where an
+   * error badge would sit, in grey so it does not compete with a real finding. The solid 1px grey
+   * outline it replaces was all but the border every transform has, so an ignored transform looked
+   * like any other.
    */
   public static void drawIgnoredOverlay(IGc gc, int x, int y, int iconSize, boolean selected) {
     if (gc == null) {
       return;
     }
     gc.setLineWidth(selected ? 2 : 1);
-    gc.setForeground(IGc.EColor.GRAY);
-    gc.drawRoundRectangle(x - 2, y - 2, iconSize + 3, iconSize + 3, 8, 8);
+    gc.setForeground(IGc.EColor.DARKGRAY);
+    gc.setLineStyle(IGc.ELineStyle.DASH);
+    gc.drawRoundRectangle(x - 5, y - 5, iconSize + 9, iconSize + 9, 10, 10);
+    gc.setLineStyle(IGc.ELineStyle.SOLID);
+    try {
+      gc.drawImage(IGc.EImage.INFO_DISABLED, x - 8, y + iconSize - 8, gc.getMagnification());
+    } catch (Exception ignored) {
+      // Icon drawing is best-effort on the canvas overlay
+    }
   }
 
   public static void drawOverlay(
