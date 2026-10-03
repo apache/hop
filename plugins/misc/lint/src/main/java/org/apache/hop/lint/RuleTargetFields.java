@@ -225,6 +225,7 @@ public class RuleTargetFields {
       return Arrays.asList(
           RuleCondition.NOT_EMPTY,
           RuleCondition.NOT_NULL,
+          RuleCondition.IS_EMPTY,
           RuleCondition.NO_HARDCODED,
           RuleCondition.MATCHES_PATTERN,
           RuleCondition.NOT_MATCHES_PATTERN,
