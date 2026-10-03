@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -32,13 +33,17 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -195,5 +200,70 @@ class VariablesTest {
 
     assertEquals(provider, child.findExecutionMetadataProvider());
     assertNull(new Variables().findExecutionMetadataProvider());
+  }
+
+  /**
+   * An environment entry whose name is not also a system property, so that what it resolves to is
+   * unambiguous.
+   */
+  private static Map.Entry<String, String> environmentEntryNotShadowedBySystemProperty() {
+    Set<String> systemPropertyNames = System.getProperties().stringPropertyNames();
+    return System.getenv().entrySet().stream()
+        .filter(entry -> !systemPropertyNames.contains(entry.getKey()))
+        .filter(entry -> StringUtils.isNotEmpty(entry.getValue()))
+        .findFirst()
+        .orElse(null);
+  }
+
+  @AfterEach
+  void clearEnvironmentImportFlag() {
+    System.clearProperty(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES);
+  }
+
+  /** The operating system environment stays out of the variable space unless it is asked for. */
+  @Test
+  void environmentIsNotImportedByDefault() {
+    Map.Entry<String, String> entry = environmentEntryNotShadowedBySystemProperty();
+    assumeTrue(entry != null, "no usable environment variable to test with");
+
+    Variables variables = new Variables();
+    variables.initializeFrom(null);
+
+    assertNull(variables.getVariable(entry.getKey()));
+  }
+
+  /** With the flag on, ${NAME} resolves an exported environment variable (#8495). */
+  @Test
+  void environmentIsImportedWhenEnabled() {
+    Map.Entry<String, String> entry = environmentEntryNotShadowedBySystemProperty();
+    assumeTrue(entry != null, "no usable environment variable to test with");
+    System.setProperty(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES, "Y");
+
+    Variables variables = new Variables();
+    variables.initializeFrom(null);
+
+    assertEquals(entry.getValue(), variables.getVariable(entry.getKey()));
+    assertEquals(entry.getValue(), variables.resolve("${" + entry.getKey() + "}"));
+  }
+
+  /**
+   * The environment has the lowest precedence, so a name that is also set with -D keeps the value
+   * it resolves to today.
+   */
+  @Test
+  void systemPropertiesWinOverTheEnvironment() {
+    Map.Entry<String, String> entry = environmentEntryNotShadowedBySystemProperty();
+    assumeTrue(entry != null, "no usable environment variable to test with");
+    assumeTrue(!"overridden-by-minus-D".equals(entry.getValue()));
+    System.setProperty(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES, "Y");
+    System.setProperty(entry.getKey(), "overridden-by-minus-D");
+    try {
+      Variables variables = new Variables();
+      variables.initializeFrom(null);
+
+      assertEquals("overridden-by-minus-D", variables.getVariable(entry.getKey()));
+    } finally {
+      System.clearProperty(entry.getKey());
+    }
   }
 }
