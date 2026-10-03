@@ -80,8 +80,19 @@ final class SmbjSmbShare implements SmbShare {
       String domain,
       String username,
       AuthenticationContext context) {
+    this(new SMBClient(config), host, port, shareName, domain, username, context);
+  }
+
+  SmbjSmbShare(
+      SMBClient client,
+      String host,
+      int port,
+      String shareName,
+      String domain,
+      String username,
+      AuthenticationContext context) {
     this.log = LogChannel.GENERAL;
-    this.client = new SMBClient(config);
+    this.client = client;
     this.host = host;
     this.port = port;
     this.shareName = shareName;
@@ -267,29 +278,19 @@ final class SmbjSmbShare implements SmbShare {
 
   @Override
   public void close() {
-    closeQuietly(disk);
-    closeQuietly(session);
-    closeQuietly(connection);
+    dropSession();
     try {
       client.close();
     } catch (Exception e) {
       logError("Unable to close the SMB client for " + host, e);
     }
-    disk = null;
-    session = null;
-    connection = null;
   }
 
   private synchronized DiskShare disk() throws IOException {
     if (disk != null && disk.isConnected()) {
       return disk;
     }
-    closeQuietly(disk);
-    closeQuietly(session);
-    closeQuietly(connection);
-    disk = null;
-    session = null;
-    connection = null;
+    dropSession();
     Connection opened = null;
     Session authenticated = null;
     try {
@@ -365,6 +366,19 @@ final class SmbjSmbShare implements SmbShare {
     if (HopLogStore.isInitialized()) {
       log.logError(message, error);
     }
+  }
+
+  // Leased directories close through the open share. Connection.close() does it too late.
+  private synchronized void dropSession() {
+    if (connection != null && disk != null && disk.isConnected()) {
+      closeQuietly(connection.getLeaseManager());
+    }
+    closeQuietly(disk);
+    closeQuietly(session);
+    closeQuietly(connection);
+    disk = null;
+    session = null;
+    connection = null;
   }
 
   private static void closeQuietly(AutoCloseable closeable) {

@@ -29,11 +29,6 @@
     <name>Hop Plugins Technology SMB</name>
     <description>SMB2/SMB3 VFS plugin. Named connections only. No SMB1.</description>
 
-    <properties>
-        <!-- Already in lib/core. Do not unpack a second copy into this plugin. -->
-        <hop.libcore.exclude1>org.bouncycastle:bcprov-jdk18on</hop.libcore.exclude1>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.hierynomus</groupId>
@@ -53,7 +48,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.85.2</version>
+            <version>1.86</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
