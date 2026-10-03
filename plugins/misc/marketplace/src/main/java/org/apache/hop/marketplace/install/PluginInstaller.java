@@ -242,7 +242,7 @@ public class PluginInstaller {
       if (StringUtils.isBlank(relative)) {
         continue;
       }
-      Path path = hopHome.resolve(relative);
+      Path path = activationTarget(relative);
       if (!Files.exists(path)) {
         return false;
       }
@@ -310,7 +310,7 @@ public class PluginInstaller {
     try {
       for (String relative : relativePaths) {
         Path from = stageRoot.resolve(relative);
-        Path to = hopHome.resolve(relative);
+        Path to = activationTarget(relative);
         if (Files.isDirectory(from)) {
           Files.createDirectories(to);
         } else if (Files.isRegularFile(from)) {
@@ -378,6 +378,38 @@ public class PluginInstaller {
   static boolean isSharedCorePath(String relative) {
     String normalized = relative.replace('\\', '/');
     return normalized.equals("lib/core") || normalized.startsWith("lib/core/");
+  }
+
+  /** Web layout keeps shared jars in {@code WEB-INF/lib} instead of {@code lib/core}. */
+  private Path activationTarget(String relative) {
+    Path standard = hopHome.resolve(relative);
+    String normalized = relative == null ? "" : relative.replace('\\', '/');
+    if (!normalized.startsWith("lib/core/") || normalized.endsWith("/")) {
+      return standard;
+    }
+    Path webLib = webInfLib();
+    if (webLib == null) {
+      return standard;
+    }
+    Path name = Path.of(normalized).getFileName();
+    return name == null ? standard : webLib.resolve(name);
+  }
+
+  private Path webInfLib() {
+    Path fromCwd =
+        Path.of(System.getProperty("user.dir", "."))
+            .resolve("WEB-INF")
+            .resolve("lib")
+            .toAbsolutePath()
+            .normalize();
+    if (Files.isDirectory(fromCwd)) {
+      return fromCwd;
+    }
+    Path fromHome = hopHome.resolve("webapps").resolve("ROOT").resolve("WEB-INF").resolve("lib");
+    if (Files.isDirectory(fromHome)) {
+      return fromHome;
+    }
+    return null;
   }
 
   /**

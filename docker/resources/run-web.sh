@@ -99,13 +99,6 @@ install_marketplace_plugins() {
     return 0
   fi
 
-  # webapps/ROOT/hop still has classpath lib/core/*, and those jars live in WEB-INF/lib.
-  # Do not exit: the web container has to start even when the CLI cannot install plugins.
-  if [ -d "${DEPLOYMENT_PATH}/WEB-INF/lib" ] && [ ! -d "${DEPLOYMENT_PATH}/lib/core" ]; then
-    log "WARNING: the web image cannot run ${DEPLOYMENT_PATH}/hop (classpath lib/core/* is not this layout; classes are in WEB-INF/lib). Marketplace plugins were not installed. The web container will continue to start. Use the client image, install the plugins when building a derived image, or mount a plugins folder listed in HOP_PLUGIN_BASE_FOLDERS."
-    return 0
-  fi
-
   if [ -n "${env_file}" ]; then
     log "Applying Hop marketplace environment file: ${env_file}"
     if ! "${DEPLOYMENT_PATH}"/hop marketplace apply -f "${env_file}"; then

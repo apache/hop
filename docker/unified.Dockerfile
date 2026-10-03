@@ -256,7 +256,8 @@ RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
     # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' /build/hop-web-prepared/webapps/ROOT/config/hop-config.json
 
-# Set the correct classpath for hop scripts
+# Set the correct classpath for hop scripts. hop (no suffix) is the marketplace entrypoint.
+RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop
 RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-run.sh
 RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-conf.sh
 RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-search.sh

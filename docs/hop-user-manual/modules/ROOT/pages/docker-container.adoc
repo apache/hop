@@ -492,7 +492,7 @@ docker run -it --rm \
 
 Plugins written only into the container filesystem are not kept when the container is removed. They are kept when that install directory is a mounted volume, or when the install happened while building an image.
 
-The Hop web image cannot run the `hop` command (`webapps/ROOT/hop` still expects `lib/core/*`, and those jars are in `WEB-INF/lib`). If `HOP_PLUGINS_DOWNLOAD` is set there, the entrypoint logs that and continues to start Tomcat. It does not stop the container. Install web plugins with the client image or a derived image, and mount the plugins folder the web image scans (`HOP_PLUGIN_BASE_FOLDERS`).
+The Hop web image installs marketplace plugins at startup as well. The image rewrites the `hop` classpath the same way as `hop-run.sh`, so it includes `WEB-INF/lib` (where the Hop jars live) as well as `lib/core`. Shared jars from a plugin are installed into `WEB-INF/lib` so Tomcat and `hop` both load them. Plugin folders still follow `HOP_PLUGIN_BASE_FOLDERS`.
 
 Building a derived image is optional. It avoids the download on every start when a custom image is acceptable:
 

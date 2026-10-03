@@ -741,6 +741,34 @@ class PluginInstallerTest {
     }
   }
 
+  @Test
+  void webLayoutInstallsSharedJarIntoWebInfLibAndSkipsWhenItRemains() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    AtomicInteger hits = new AtomicInteger();
+    HttpServer server = zipServer(zipBytes, hits);
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("tomcat");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      Path webLib = hopHome.resolve("webapps/ROOT/WEB-INF/lib");
+      Files.createDirectories(webLib);
+      MarketplaceConfig config = localRepoConfig(server.getAddress().getPort());
+      PluginInstaller installer = new PluginInstaller(new LogChannel("test"), hopHome, config);
+      MavenCoordinates coords = new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0");
+
+      installer.install(coords, true);
+      assertTrue(Files.isRegularFile(webLib.resolve("shared.jar")));
+      assertEquals("shared-lib", Files.readString(webLib.resolve("shared.jar")));
+      assertFalse(Files.exists(hopHome.resolve("lib/core/shared.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+
+      installer.install(coords, true);
+      assertEquals(1, hits.get(), "a shared jar in WEB-INF/lib still satisfies the receipt");
+    } finally {
+      server.stop(0);
+    }
+  }
+
   private static void marketplaceEnv(Map<String, String> values) {
     MarketplaceRepository.setEnvironmentForTesting(values::get);
   }
