@@ -29,6 +29,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,9 +109,18 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         return false;
       }
 
-      if (data.isWriteToFile) {
-        if (!meta.getFileSettings().isDoNotOpenNewFileInit() && !openNewFile()) {
-          logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+      if (data.isWriteToFile && !meta.getFileSettings().isDoNotOpenNewFileInit()) {
+        try {
+          if (!openNewFile()) {
+            logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+            stopAll();
+            setErrors(1);
+            return false;
+          }
+        } catch (HopTransformException e) {
+          // The NDJSON append check names the boundary. Do not replace it with a generic open
+          // failure.
+          logError(e.getSuperMessage());
           stopAll();
           setErrors(1);
           return false;
@@ -470,9 +480,9 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     if (meta.isJsonPrettified()) {
       data.fileGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
     }
-    if (!Utils.isEmpty(meta.getJsonBloc())) {
+    if (!Utils.isEmpty(data.realBlocName)) {
       data.fileGenerator.writeStartObject();
-      data.fileGenerator.writeFieldName(meta.getJsonBloc());
+      data.fileGenerator.writeFieldName(data.realBlocName);
     }
     if (array) {
       data.fileGenerator.writeStartArray();
@@ -493,13 +503,12 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         data.fileGenerator.setPrettyPrinter(null);
         data.fileGenerator.setRootValueSeparator(null);
       }
-      String block = resolve(meta.getJsonBloc());
-      if (!Utils.isEmpty(block)) {
+      if (!Utils.isEmpty(data.realBlocName)) {
         data.fileGenerator.writeStartObject();
-        data.fileGenerator.writeFieldName(block);
+        data.fileGenerator.writeFieldName(data.realBlocName);
       }
       data.fileGenerator.writeTree(item);
-      if (!Utils.isEmpty(block)) {
+      if (!Utils.isEmpty(data.realBlocName)) {
         data.fileGenerator.writeEndObject();
       }
       data.fileGenerator.writeRaw('\n');
@@ -533,7 +542,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       if (data.fileItemCount > 1 || meta.isUseArrayWithSingleInstance()) {
         data.fileGenerator.writeEndArray();
       }
-      if (!Utils.isEmpty(meta.getJsonBloc())) {
+      if (!Utils.isEmpty(data.realBlocName)) {
         data.fileGenerator.writeEndObject();
       }
       data.fileGenerator.close();
@@ -569,10 +578,10 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     ObjectNode theNode = new ObjectNode(nc);
     Object listValue = meta.isUseArrayWithSingleInstance() ? jsonItemsList : jsonItemsList.get(0);
     try {
-      if (!Utils.isEmpty(meta.getJsonBloc())) {
+      if (!Utils.isEmpty(data.realBlocName)) {
         // TBD Try to understand if this can have a performance impact and do it better...
         theNode.set(
-            meta.getJsonBloc(),
+            data.realBlocName,
             mapper.readTree(
                 mapper.writeValueAsString(jsonItemsList.size() > 1 ? jsonItemsList : listValue)));
         if (meta.isJsonPrettified()) {
@@ -670,17 +679,14 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       data.jsonKeyGroupItems = null;
     }
 
-    // A cancelled or failed row can leave the generator open. Close it before the writer.
-    // Do not finish the group: a partial file is not an atomic write.
-    if (data.fileGenerator != null) {
+    // The parked item is a finished row or group. Write it, then close the file. Do not finish
+    // the group that is still being built. End-of-input has already set the count to 0.
+    if (data.fileItemCount > 0) {
       try {
-        data.fileGenerator.close();
-      } catch (IOException e) {
+        finishFile();
+      } catch (HopTransformException e) {
         logError(BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", e.toString()));
         setErrors(1);
-      } finally {
-        data.fileGenerator = null;
-        data.pendingFileItem = null;
       }
     }
 
@@ -737,7 +743,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
   }
 
-  public boolean openNewFile() {
+  public boolean openNewFile() throws HopTransformException {
 
     if (data.writer != null) return true;
     boolean retval = false;
@@ -780,6 +786,8 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
       retval = true;
 
+    } catch (NdJsonAppendBoundaryException e) {
+      throw new HopTransformException(e.getMessage(), e);
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpeningFile", e.toString()));
     }
@@ -803,7 +811,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       try (var stream = HopVfs.getInputStream(file)) {
         stream.skipNBytes(size - 1);
         if (stream.read() != '\n') {
-          throw new IOException(
+          throw new NdJsonAppendBoundaryException(
               BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonAppendBoundary", filename));
         }
       }
@@ -846,5 +854,14 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
 
     return retval;
+  }
+
+  /** Append was refused before the output stream existed, so the existing file is unchanged. */
+  private static final class NdJsonAppendBoundaryException extends IOException {
+    @Serial private static final long serialVersionUID = 1L;
+
+    private NdJsonAppendBoundaryException(String message) {
+      super(message);
+    }
   }
 }

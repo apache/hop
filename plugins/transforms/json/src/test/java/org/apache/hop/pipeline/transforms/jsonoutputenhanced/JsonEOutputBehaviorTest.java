@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -406,8 +409,128 @@ class JsonEOutputBehaviorTest {
     meta.getFileSettings().setFileAppended(true);
     try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"new"})) {
       assertTrue(h.transform.init());
-      assertThrows(HopException.class, h.transform::processRow);
+      HopException error = assertThrows(HopException.class, h.transform::processRow);
+      assertTrue(error.getMessage().contains("must end with LF"), error.getMessage());
+      assertFalse(error.getMessage().contains("Could not open file"), error.getMessage());
+      assertFalse(error.getMessage().contains("Error opening new file"), error.getMessage());
+      assertFalse(error.getMessage().contains("Error writing"), error.getMessage());
+      verify(h.helper.iLogChannel, never())
+          .logError(argThat((String message) -> message.contains("Could not open file")));
     }
     assertEquals(existing, read(base + "/out.json"));
+  }
+
+  @Test
+  void ndjsonAppendBoundaryIsReportedWhenTheFileIsOpenedAtInit() throws Exception {
+    String existing = payload("old");
+    try (FileObject folder = HopVfs.getFileObject(base)) {
+      folder.createFolder();
+    }
+    try (var out = HopVfs.getOutputStream(base + "/out.json", false)) {
+      out.write(existing.getBytes(StandardCharsets.UTF_8));
+    }
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.setNewlineDelimited(true);
+    meta.getFileSettings().setFileAppended(true);
+    meta.getFileSettings().setDoNotOpenNewFileInit(false);
+    try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"new"})) {
+      assertFalse(h.transform.init());
+      verify(h.helper.iLogChannel)
+          .logError(
+              argThat((String message) -> message != null && message.contains("must end with LF")));
+      verify(h.helper.iLogChannel, never())
+          .logError(argThat((String message) -> message.contains("Could not open file")));
+      verify(h.helper.iLogChannel, never())
+          .logError(argThat((String message) -> message.contains("Error opening new file")));
+    }
+    assertEquals(existing, read(base + "/out.json"));
+  }
+
+  @Test
+  void disposeWritesParkedItemAndSkipsTheOpenGroup() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.getFileSettings().setDoNotOpenNewFileInit(false);
+    JsonEOutputKeyField key = new JsonEOutputKeyField("grp");
+    key.setElementName("group");
+    meta.getKeyFields().add(key);
+    try (Harness h =
+        new Harness(
+            meta, rowMeta("grp", "payload"), new Object[] {"a", "x"}, new Object[] {"b", "y"})) {
+      assertTrue(h.transform.init());
+      assertNotNull(h.data.writer);
+      assertTrue(h.transform.processRow());
+      assertEquals(0, h.data.fileItemCount);
+      assertTrue(h.transform.processRow());
+      assertEquals(1, h.data.fileItemCount);
+      assertNotNull(h.data.pendingFileItem);
+      assertNull(h.data.fileGenerator);
+      h.transform.dispose();
+      assertNull(h.data.writer);
+      assertNull(h.data.pendingFileItem);
+      assertEquals(0, h.data.fileItemCount);
+      assertEquals(0L, h.transform.getErrors());
+    }
+    JsonNode file = parse(read(base + "/out.json"));
+    assertEquals("a", file.get("group").asText());
+    assertEquals("x", file.get("rows").get("payload").asText());
+    assertFalse(file.toString().contains("\"b\""), file.toString());
+    assertFalse(file.toString().contains("\"y\""), file.toString());
+  }
+
+  @Test
+  void disposeClosesAFileOpenedAtInitWithNoItems() throws Exception {
+    JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.WRITE_TO_FILE);
+    meta.getFileSettings().setDoNotOpenNewFileInit(false);
+    try (Harness h = new Harness(meta, rowMeta("payload"))) {
+      assertTrue(h.transform.init());
+      assertNotNull(h.data.writer);
+      assertEquals(0, h.data.fileItemCount);
+      h.transform.dispose();
+      assertNull(h.data.writer);
+      assertEquals(0L, h.transform.getErrors());
+    }
+    assertEquals("", read(base + "/out.json"));
+  }
+
+  @Test
+  void resolvedBlockNameMatchesTheFileAndTheOutputField() throws Exception {
+    JsonEOutputMeta regular = meta(JsonEOutputMeta.OperationType.BOTH);
+    regular.setJsonBloc("${BLOC}");
+    regular.getFileSettings().setFileName(base + "/regular");
+    try (Harness h = new Harness(regular, rowMeta("payload"), new Object[] {"x"})) {
+      h.transform.setVariable("BLOC", "wrapper");
+      h.run();
+      assertEquals("wrapper", h.data.realBlocName);
+      JsonNode field = parse(h.written.get(0).getString("rows", null));
+      JsonNode file = parse(read(base + "/regular.json"));
+      assertEquals(field, file);
+      assertEquals("x", field.get("wrapper").get("payload").asText());
+      assertNull(field.get("${BLOC}"));
+    }
+
+    JsonEOutputMeta ndjson = meta(JsonEOutputMeta.OperationType.BOTH);
+    ndjson.setJsonBloc("${BLOC}");
+    ndjson.setNewlineDelimited(true);
+    ndjson.getFileSettings().setFileName(base + "/lines");
+    try (Harness h = new Harness(ndjson, rowMeta("payload"), new Object[] {"y"})) {
+      h.transform.setVariable("BLOC", "wrapper");
+      h.run();
+      JsonNode field = parse(h.written.get(0).getString("rows", null));
+      List<String> lines = read(base + "/lines.json").lines().toList();
+      assertEquals(1, lines.size());
+      assertEquals(field, parse(lines.get(0)));
+      assertEquals("y", field.get("wrapper").get("payload").asText());
+      assertNull(field.get("${BLOC}"));
+    }
+
+    JsonEOutputMeta literal = meta(JsonEOutputMeta.OperationType.BOTH);
+    literal.setJsonBloc("plain");
+    literal.getFileSettings().setFileName(base + "/literal");
+    try (Harness h = new Harness(literal, rowMeta("payload"), new Object[] {"z"})) {
+      h.run();
+      JsonNode field = parse(h.written.get(0).getString("rows", null));
+      assertEquals(field, parse(read(base + "/literal.json")));
+      assertEquals("z", field.get("plain").get("payload").asText());
+    }
   }
 }
