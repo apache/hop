@@ -38,7 +38,7 @@
         <asm.version>9.10.1</asm.version>
         <avro.version>1.12.1</avro.version>
         <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
-        <bcprov-jdk18on.version>1.85.2</bcprov-jdk18on.version>
+        <bcprov-jdk18on.version>1.86</bcprov-jdk18on.version>
         <caffeine.version>3.2.4</caffeine.version>
         <checker-qual.version>3.55.1</checker-qual.version>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
