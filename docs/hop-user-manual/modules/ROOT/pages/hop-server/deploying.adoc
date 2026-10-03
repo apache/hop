@@ -62,7 +62,9 @@ Environment configuration is applied *on the client*; variables travel with the 
 
 `<metadata_folder>` in `hop-server.xml` is the older, lower-level hook.
 Prefer enabling a project so `+${PROJECT_HOME}+`, metadata inheritance and environment variables all work.
-When both a project and `<metadata_folder>` are set, both providers sit on the metadata stack.
+When both a project and `<metadata_folder>` are set, both providers sit on the metadata stack, and on a name clash the object in `<metadata_folder>` is used.
+
+How the server's own metadata and variables combine with the ones a client sends is described in xref:hop-server/server-metadata-and-variables.adoc[Metadata and variables on Hop Server].
 
 == Choose a pattern
 

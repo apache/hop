@@ -45,6 +45,8 @@ This page describes the options that are specific to the remote workflow engine.
 |The configuration to use on the remote Hop Server.
 In most configurations, this will be a local (locally on the server) runtime configuration.
 In rare cases you might want to run on yet another server using another remote workflow configuration.
+The name is looked up in the metadata this client sends along first, then in the server's.
+See xref:hop-server/server-metadata-and-variables.adoc[Metadata and variables on Hop Server].
 
 |Server poll delay (ms)
 |The delay in milliseconds between periodic polls to the remote server.
@@ -85,7 +87,7 @@ For every folder that is referenced a new variable will be defined and set in th
 By default, the path set for this variable will be the same as on the executing (local) machine.
 On the server this might not make a lot of sense.
 For this reason you can specify a reference source folder like `+${PROJECT_HOME}+` in combination with a target folder like `/server/`.
-In that example variable `DATA_PATH_1` will get value `/server/files/`.
+In that example variable `DATA_PATH_1` will get value `/server/files`.
 This in turn allows you to transfer required files in advance or map a folder into a docker container and so on.
 It gives you flexibility when executing remotely while having ease of development on your client.
 
