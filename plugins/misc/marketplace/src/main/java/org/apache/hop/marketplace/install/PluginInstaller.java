@@ -121,6 +121,17 @@ public class PluginInstaller {
       IInstallListener listener)
       throws HopException {
     IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
+    InstallReceipt already = satisfiedInstall(coordinates);
+    if (already != null) {
+      already.setAlreadyPresent(true);
+      log.logBasic(
+          "Plugin "
+              + coordinates.gav()
+              + " is already installed (receipt "
+              + already.getVersion()
+              + "); skipping download.");
+      return already;
+    }
     Path downloadDir = hopHome.resolve(STAGING_DIR).resolve(".download");
     Path zipFile =
         downloadDir.resolve(coordinates.artifactId() + "-" + coordinates.version() + ".zip");
@@ -197,6 +208,49 @@ public class PluginInstaller {
     } catch (IOException e) {
       throw new HopException("Failed to install plugin " + coordinates.gav(), e);
     }
+  }
+
+  /**
+   * A repeated install can skip the download when the receipt names this version and every file it
+   * recorded is still on disk.
+   */
+  private InstallReceipt satisfiedInstall(MavenCoordinates coordinates) throws HopException {
+    InstallReceipt receipt = readReceipt(hopHome, coordinates.artifactId());
+    if (receipt == null || receipt.isPendingActivation()) {
+      return null;
+    }
+    if (!coordinates.version().equals(receipt.getVersion())) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(receipt.getGroupId())
+        && !receipt.getGroupId().equals(coordinates.groupId())) {
+      return null;
+    }
+    if (!receiptFilesPresent(receipt)) {
+      return null;
+    }
+    return receipt;
+  }
+
+  private boolean receiptFilesPresent(InstallReceipt receipt) {
+    List<String> paths = receipt.getPaths();
+    if (paths == null || paths.isEmpty()) {
+      return false;
+    }
+    boolean file = false;
+    for (String relative : paths) {
+      if (StringUtils.isBlank(relative)) {
+        continue;
+      }
+      Path path = hopHome.resolve(relative);
+      if (!Files.exists(path)) {
+        return false;
+      }
+      if (Files.isRegularFile(path)) {
+        file = true;
+      }
+    }
+    return file;
   }
 
   private List<MarketplaceRepository> resolveRepositories(

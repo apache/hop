@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -162,9 +163,19 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     @Option(
         names = {"--repo-url"},
         description =
-            "Maven repository base URL to download from (e.g. corporate Artifactory or Nexus). "
-                + "When specified, takes precedence over configured repositories.")
+            "Maven repository base URL to try first (corporate Artifactory, Nexus, or a plain"
+                + " Maven repository). Other configured repositories are still used when the"
+                + " plugin is not there. Pass --repo <id> (not a URL) to use only one repository.")
     private String repoUrl;
+
+    @Option(
+        names = {"--repo-id"},
+        description =
+            "Repository id created for --repo-url. Defaults to the HOP_PLUGINS_REPO_ID"
+                + " environment variable, or corporate-repo. Credentials are read from"
+                + " HOP_MARKETPLACE_<ID>_USERNAME, HOP_MARKETPLACE_<ID>_PASSWORD and"
+                + " HOP_MARKETPLACE_<ID>_TOKEN.")
+    private String adHocRepoId;
 
     @Option(
         names = {"--username"},
@@ -174,13 +185,22 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     @Option(
         names = {"--password"},
         description =
-            "Optional Basic auth password or bearer token for the repository specified in --repo-url")
+            "Optional Basic auth password or bearer token for the repository specified in"
+                + " --repo-url. Prefer HOP_MARKETPLACE_<ID>_PASSWORD or _TOKEN so the secret is"
+                + " not on the process command line.")
     private String password;
 
     @Option(
         names = {"--auth-type"},
         description = "Authentication type for --repo-url: auto (default), none, basic or token")
     private String authType;
+
+    @Option(
+        names = {"--repo-type"},
+        description =
+            "Browse API for --repo-url: auto (default), nexus, forgejo, jfrog, or maven. maven is"
+                + " a plain repository that cannot be browsed; pass groupId:artifactId:version.")
+    private String repoType;
 
     @Override
     public void run() {
@@ -201,27 +221,12 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           repoId = null;
         }
 
-        if (StringUtils.isNotBlank(repoUrl)) {
-          String adhocId = "adhoc-repo";
-          int counter = 1;
-          while (config.findRepository(adhocId) != null) {
-            adhocId = "adhoc-repo-" + counter++;
-          }
-          MarketplaceRepository adHoc =
-              new MarketplaceRepository(adhocId, "Ad-hoc Repository", repoUrl, true);
-          if (StringUtils.isNotBlank(username)) {
-            adHoc.setUsername(username);
-          }
-          if (StringUtils.isNotBlank(password)) {
-            adHoc.setPassword(password);
-          }
-          if (StringUtils.isNotBlank(authType)) {
-            adHoc.setAuthType(authType);
-          }
-          adHoc.setBrowse(true);
-          config.getRepositories().add(0, adHoc);
-          config.ensureValidPrimary();
-          repoId = adhocId;
+        MarketplaceRepository adHoc = registerAdHocRepository(config);
+        // --repo <id> stays exclusive. --repo-url is preferred and still falls back, including
+        // when --repo was only the URL we just turned into the ad-hoc repository.
+        String forceRepoId = null;
+        if (StringUtils.isNotBlank(repoId) && (adHoc == null || !repoId.equals(adHoc.getId()))) {
+          forceRepoId = repoId;
         }
 
         Path hopHome = HopHome.resolve();
@@ -236,6 +241,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           PluginDiscovery.InstallTarget target =
               PluginDiscovery.resolveInstall(
                   coordinate, config.getGroupId(), resolveDefaultVersion(config), config, log);
+          if (adHoc != null && forceRepoId == null) {
+            rejectUnresolvedShortName(coordinate, target, adHoc);
+          }
           printResolution(coordinate, target);
           targets.add(target);
         }
@@ -250,8 +258,12 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             // Prints "[2/5] hop-tech-parquet"; silent for a single install.
             progress.item(gav.artifactId(), i, targets.size());
             try {
+              String preferred = target.preferredRepoId();
+              if (adHoc != null && forceRepoId == null) {
+                preferred = adHoc.getId();
+              }
               InstallReceipt receipt =
-                  installer.install(gav, true, repoId, target.preferredRepoId(), progress);
+                  installer.install(gav, true, forceRepoId, preferred, progress);
               installed++;
               System.out.println(installedMessage(gav, receipt, hopHome, targets.size() == 1));
             } catch (Exception e) {
@@ -315,6 +327,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
 
     private static String installedMessage(
         MavenCoordinates gav, InstallReceipt receipt, Path hopHome, boolean single) {
+      if (receipt.isAlreadyPresent()) {
+        return "Plugin " + gav.gav() + " is already installed under " + hopHome + ".";
+      }
       return "Plugin "
           + gav.gav()
           + " installed under "
@@ -324,6 +339,89 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
               : "")
           // For a batch the restart hint belongs on the summary line, not on every plugin.
           + (single ? ". Restart Hop to load it." : ".");
+    }
+
+    /**
+     * Default id is {@code corporate-repo}, matching {@code HOP_PLUGINS_REPO_ID}. An id that is
+     * already configured is reused so credential variable names stay stable across starts.
+     */
+    private MarketplaceRepository registerAdHocRepository(MarketplaceConfig config) {
+      if (StringUtils.isBlank(repoUrl)) {
+        return null;
+      }
+      String id = resolveAdHocRepoId();
+      MarketplaceRepository adHoc = config.findRepository(id);
+      if (adHoc == null) {
+        adHoc = new MarketplaceRepository(id, "Ad-hoc Repository", repoUrl, false);
+        if (config.getRepositories() == null) {
+          config.setRepositories(new ArrayList<>());
+        }
+        config.getRepositories().add(0, adHoc);
+      } else {
+        adHoc.setUrl(repoUrl);
+        adHoc.setEnabled(true);
+      }
+      if (StringUtils.isNotBlank(username)) {
+        adHoc.setUsername(username);
+      }
+      if (StringUtils.isNotBlank(password)) {
+        adHoc.setPassword(password);
+      }
+      if (StringUtils.isNotBlank(authType)) {
+        adHoc.setAuthType(authType);
+      }
+      applyRepoType(adHoc, repoType);
+      return adHoc;
+    }
+
+    private String resolveAdHocRepoId() {
+      if (StringUtils.isNotBlank(adHocRepoId)) {
+        return adHocRepoId.trim();
+      }
+      String fromEnv = System.getenv("HOP_PLUGINS_REPO_ID");
+      if (StringUtils.isNotBlank(fromEnv)) {
+        return fromEnv.trim();
+      }
+      return "corporate-repo";
+    }
+
+    static void applyRepoType(MarketplaceRepository repo, String repoType) {
+      String type = StringUtils.trimToEmpty(repoType);
+      if (type.isEmpty() || MarketplaceRepository.BROWSER_AUTO.equalsIgnoreCase(type)) {
+        repo.setBrowserType(MarketplaceRepository.BROWSER_AUTO);
+        repo.setBrowse(repo.supportsBrowseApi());
+        return;
+      }
+      if ("maven".equalsIgnoreCase(type) || "none".equalsIgnoreCase(type)) {
+        repo.setBrowserType(MarketplaceRepository.BROWSER_AUTO);
+        repo.setBrowse(false);
+        return;
+      }
+      repo.setBrowserType(type.toLowerCase(Locale.ROOT));
+      repo.setBrowse(true);
+    }
+
+    /**
+     * A short name against a repository that cannot be browsed must not be rewritten to {@code
+     * org.apache.hop:artifact:version}. A full {@code groupId:artifactId:version} is unchanged, and
+     * a name that discovery already resolved (the Apache catalog, for example) is kept.
+     */
+    static void rejectUnresolvedShortName(
+        String coordinate, PluginDiscovery.InstallTarget target, MarketplaceRepository adHoc)
+        throws HopException {
+      if (adHoc == null || target == null || target.discovered() || adHoc.canBrowse()) {
+        return;
+      }
+      String trimmed = coordinate == null ? "" : coordinate.trim();
+      if (trimmed.split(":", -1).length >= 3) {
+        return;
+      }
+      throw new HopException(
+          "Repository '"
+              + adHoc.getId()
+              + "' cannot be browsed, so '"
+              + coordinate
+              + "' cannot be resolved. Pass groupId:artifactId:version.");
     }
   }
 

@@ -19,8 +19,13 @@ package org.apache.hop.marketplace.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.marketplace.catalog.PluginDiscovery;
+import org.apache.hop.marketplace.config.MarketplaceRepository;
+import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 
@@ -78,6 +83,57 @@ class InstallCommandParsingTest {
     assertEquals("testuser", parsed.matchedOptionValue("--username", null));
     assertEquals("testpass", parsed.matchedOptionValue("--password", null));
     assertEquals("basic", parsed.matchedOptionValue("--auth-type", null));
+  }
+
+  @Test
+  void repoIdAndRepoTypeOptionsAreParsed() {
+    CommandLine commandLine = new CommandLine(new MarketplaceCommand.InstallCommand());
+    CommandLine.ParseResult parsed =
+        commandLine.parseArgs(
+            "--repo-url",
+            "https://maven.example/releases/",
+            "--repo-id",
+            "corporate-repo",
+            "--repo-type",
+            "maven",
+            "com.acme:acme-plugin:1.0.0");
+    assertEquals("corporate-repo", parsed.matchedOptionValue("--repo-id", null));
+    assertEquals("maven", parsed.matchedOptionValue("--repo-type", null));
+  }
+
+  @Test
+  void shortNameOnUnbrowsableRepositoryAsksForFullCoordinates() {
+    MarketplaceRepository repo =
+        new MarketplaceRepository("corporate-repo", "https://maven.example/releases/");
+    repo.setBrowse(false);
+    PluginDiscovery.InstallTarget target =
+        new PluginDiscovery.InstallTarget(
+            new MavenCoordinates("org.apache.hop", "acme-plugin", "1.0.0"), null);
+    HopException ex =
+        assertThrows(
+            HopException.class,
+            () ->
+                MarketplaceCommand.InstallCommand.rejectUnresolvedShortName(
+                    "acme-plugin:1.0.0", target, repo));
+    assertTrue(ex.getMessage().contains("cannot be browsed"));
+    assertTrue(ex.getMessage().contains("groupId:artifactId:version"));
+  }
+
+  @Test
+  void fullCoordinateAndDiscoveredNameAreAcceptedWhenRepositoryCannotBeBrowsed() throws Exception {
+    MarketplaceRepository repo =
+        new MarketplaceRepository("corporate-repo", "https://maven.example/releases/");
+    repo.setBrowse(false);
+    MarketplaceCommand.InstallCommand.rejectUnresolvedShortName(
+        "com.acme:acme-plugin:1.0.0",
+        new PluginDiscovery.InstallTarget(
+            new MavenCoordinates("com.acme", "acme-plugin", "1.0.0"), null),
+        repo);
+    MarketplaceCommand.InstallCommand.rejectUnresolvedShortName(
+        "hop-tech-parquet",
+        new PluginDiscovery.InstallTarget(
+            new MavenCoordinates("org.apache.hop", "hop-tech-parquet", "2.20.0"), null, true),
+        repo);
   }
 
   @Test

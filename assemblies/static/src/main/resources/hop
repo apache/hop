@@ -127,6 +127,32 @@ if [ -d "plugins/engines/beam" ]; then
   CLASSPATH="${CLASSPATH}:plugins/engines/beam/*"
 fi
 
+# Shared jars installed beside an extra plugins folder (HOP_PLUGIN_BASE_FOLDERS) are not under
+# this install's lib/core. The folder name must be "plugins"; its parent holds lib/core.
+if [ -n "${HOP_PLUGIN_BASE_FOLDERS:-}" ]; then
+  _hop_plugin_rest="${HOP_PLUGIN_BASE_FOLDERS}"
+  while [ -n "${_hop_plugin_rest}" ]; do
+    _hop_plugin_folder="${_hop_plugin_rest%%,*}"
+    case "${_hop_plugin_rest}" in
+      *,*) _hop_plugin_rest="${_hop_plugin_rest#*,}" ;;
+      *) _hop_plugin_rest="" ;;
+    esac
+    _hop_plugin_folder="${_hop_plugin_folder#"${_hop_plugin_folder%%[![:space:]]*}"}"
+    _hop_plugin_folder="${_hop_plugin_folder%"${_hop_plugin_folder##*[![:space:]]}"}"
+    [ -z "${_hop_plugin_folder}" ] && continue
+    if [ "$(basename "${_hop_plugin_folder}")" = "plugins" ]; then
+      _hop_plugin_home="$(dirname "${_hop_plugin_folder}")"
+      if [ -d "${_hop_plugin_home}/lib/core" ]; then
+        case ":${CLASSPATH}:" in
+          *":${_hop_plugin_home}/lib/core/*:"*) ;;
+          *) CLASSPATH="${_hop_plugin_home}/lib/core/*:${CLASSPATH}" ;;
+        esac
+      fi
+    fi
+  done
+  unset _hop_plugin_rest _hop_plugin_folder _hop_plugin_home
+fi
+
 # The JVM runs from the Hop installation, so user.dir is never where the user typed the command.
 # Pass the directory they were in, for subcommands which take a path from them.
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Dhop.origin.dir="${ORIGINDIR}" -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.hop.Hop "$@"

@@ -451,37 +451,60 @@ NOTE: `HOP_DRIVERS_DOWNLOAD` is available from Hop version 2.19.
 [[DownloadingMarketplacePlugins]]
 == Downloading Marketplace plugins
 
-The Docker container can install optional or third-party plugins from the Hop marketplace or a corporate Maven repository (e.g. Sonatype Nexus, JFrog Artifactory) on startup *before* Hop starts.
+The Docker container can install optional or third-party plugins from the Hop marketplace or a corporate Maven repository (e.g. Sonatype Nexus, JFrog Artifactory) on startup *before* Hop starts. The stock image does this at runtime, so a custom image is not required. A repeated start skips a plugin when its receipt version matches and its files are still present. Every coordinate is installed by one `hop marketplace install` invocation.
 
 Set `HOP_PLUGINS_DOWNLOAD` to a comma-separated list of plugin coordinates. Each entry can be:
 
-* An artifact id or short name (e.g. `hop-tech-parquet`, `datavault`).
-* An artifact id with version (e.g. `hopper-edw:0.10.0`).
+* An artifact id or short name (e.g. `hop-tech-parquet`, `datavault`), when a browsable repository or the Apache catalog can resolve it.
+* An artifact id with version (e.g. `hopper-edw:0.10.0`), with the same limitation.
 * Full Maven coordinates (e.g. `org.hopper:hopper-edw:0.10.0`).
 
-If the plugins are hosted on a corporate Artifactory or custom Maven repository rather than the default Hop repositories (ASF and Maven Central), provide the base repository URL with `HOP_PLUGINS_MAVEN_REPO`.
+`HOP_PLUGINS_MAVEN_REPO` is the repository to try first. The configured Apache and Maven Central repositories are still used when a plugin is not in that repository, so a private plugin and an Apache optional plugin can be requested together. Pass a full `groupId:artifactId:version` for the private one when that repository cannot be browsed.
 
-.Install a plugin from a custom repository in a container
-[source,shell]
-----
-docker run -it --rm \
-  --env HOP_PLUGINS_DOWNLOAD="org.hopper:hopper-edw:0.10.0" \
-  --env HOP_PLUGINS_MAVEN_REPO="https://repository.data-hopper.com/repository/hop-community-plugins/" \
-  --env HOP_PROJECT_FOLDER=/project \
-  --env HOP_PROJECT_NAME=my-project \
-  --env HOP_FILE_PATH='${PROJECT_HOME}/main.hpl' \
-  --env HOP_RUN_CONFIG=local \
-  --mount type=bind,source=/path/to/project,target=/project \
-  apache/hop
-----
+A repository that cannot be browsed (a plain Maven repository, or `HOP_PLUGINS_REPO_TYPE=maven`) does not accept a short name. The install fails and asks for `groupId:artifactId:version` instead of guessing `org.apache.hop`. `HOP_PLUGINS_REPO_TYPE` selects the browse API: `auto` (default), `nexus`, `forgejo`, `jfrog`, or `maven`. `auto` infers Nexus, Artifactory, or Forgejo from the URL.
 
-If your corporate repository requires authentication, specify credentials:
+`HOP_PLUGINS_REPO_ID` is the id of that repository (default `corporate-repo`). The entrypoint does not put the password on the `hop` command line. It exports `HOP_MARKETPLACE_<ID>_USERNAME` and either `HOP_MARKETPLACE_<ID>_PASSWORD` or, when the auth type is `token`, `HOP_MARKETPLACE_<ID>_TOKEN`. For the default id those names are `HOP_MARKETPLACE_CORPORATE_REPO_USERNAME`, `HOP_MARKETPLACE_CORPORATE_REPO_PASSWORD` and `HOP_MARKETPLACE_CORPORATE_REPO_TOKEN`. Any other id is uppercased, and every character that is not a letter or digit becomes an underscore. You can set those variables yourself instead of `HOP_PLUGINS_REPO_USERNAME` and `HOP_PLUGINS_REPO_PASSWORD`.
 
 * `HOP_PLUGINS_REPO_USERNAME`: Basic auth username.
 * `HOP_PLUGINS_REPO_PASSWORD`: Basic auth password or bearer token.
 * `HOP_PLUGINS_REPO_AUTH_TYPE`: `auto` (default), `none`, `basic`, or `token`.
 
-Alternatively, standard marketplace environment variables (`HOP_MARKETPLACE_USERNAME`, `HOP_MARKETPLACE_PASSWORD`) are also picked up automatically.
+The global `HOP_MARKETPLACE_USERNAME` and `HOP_MARKETPLACE_PASSWORD` variables are also picked up.
+
+.Install a private plugin and an Apache plugin, keeping them on a volume
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_PLUGINS_DOWNLOAD="org.hopper:hopper-edw:0.10.0,hop-tech-parquet" \
+  --env HOP_PLUGINS_MAVEN_REPO="https://repository.data-hopper.com/repository/hop-community-plugins/" \
+  --env HOP_PLUGINS_REPO_ID=data-hopper \
+  --env HOP_PLUGIN_BASE_FOLDERS=/opt/hop/plugins,/files/plugins \
+  --env HOP_PROJECT_FOLDER=/project \
+  --env HOP_PROJECT_NAME=my-project \
+  --env HOP_FILE_PATH='${PROJECT_HOME}/main.hpl' \
+  --env HOP_RUN_CONFIG=local \
+  --mount type=bind,source=/path/to/project,target=/project \
+  --mount type=volume,source=hop-plugins,target=/files/plugins \
+  apache/hop
+----
+
+`HOP_PLUGIN_BASE_FOLDERS` replaces the default `plugins` folder. Include the image plugins path and the mounted path, as in the example. The install is written to the first writable directory in that list that is not the image install itself. Shared `lib/core` jars are written next to that plugins folder and added to the classpath of `hop`, `hop-run` and `hop-server`.
+
+Plugins written only into the container filesystem are not kept when the container is removed. They are kept when that install directory is a mounted volume, or when the install happened while building an image.
+
+The Hop web image cannot run the `hop` command (`webapps/ROOT/hop` still expects `lib/core/*`, and those jars are in `WEB-INF/lib`). If `HOP_PLUGINS_DOWNLOAD` is set there, the entrypoint logs that and continues to start Tomcat. It does not stop the container. Install web plugins with the client image or a derived image, and mount the plugins folder the web image scans (`HOP_PLUGIN_BASE_FOLDERS`).
+
+Building a derived image is optional. It avoids the download on every start when a custom image is acceptable:
+
+[source,dockerfile]
+----
+FROM apache/hop:2.20.0
+RUN /opt/hop/hop marketplace install \
+    org.hopper:hopper-edw:0.10.0 \
+    org.apache.hop:hop-tech-parquet:2.20.0 \
+    --repo-url https://repository.data-hopper.com/repository/hop-community-plugins/ \
+    --repo-id data-hopper
+----
 
 If you maintain a declarative Hop environment install spec (`hop-env.yaml`) or repository definition (`hop-marketplace-repo.yaml`), you can point to it directly using `HOP_PLUGINS_ENV_FILE`:
 
@@ -493,9 +516,7 @@ docker run -it --rm \
   apache/hop
 ----
 
-The downloaded plugins are unpacked into the container's `plugins/` directory and loaded during startup.
-
-NOTE: `HOP_PLUGINS_DOWNLOAD` is available from Hop version 2.19.
+NOTE: `HOP_PLUGINS_DOWNLOAD` is available from Hop version 2.20.
 
 == Custom Entrypoint Extension Shell Script
 

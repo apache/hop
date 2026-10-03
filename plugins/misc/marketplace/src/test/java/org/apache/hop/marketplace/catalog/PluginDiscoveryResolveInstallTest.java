@@ -18,6 +18,7 @@
 package org.apache.hop.marketplace.catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,6 +62,7 @@ class PluginDiscoveryResolveInstallTest {
             "org.example:foo:9.9.9", "org.apache.hop", "2.19.0-SNAPSHOT", null, null);
     assertEquals("org.example:foo:9.9.9", target.coordinates().gav());
     assertNull(target.preferredRepoId());
+    assertFalse(target.discovered());
   }
 
   @Test
@@ -70,6 +72,7 @@ class PluginDiscoveryResolveInstallTest {
             "totally-unknown-plugin", "org.apache.hop", "2.19.0-SNAPSHOT", null, null);
     assertEquals(
         "org.apache.hop:totally-unknown-plugin:2.19.0-SNAPSHOT", target.coordinates().gav());
+    assertFalse(target.discovered());
   }
 
   private static OptionalPluginInfo plugin(String artifactId, String version, String source) {
