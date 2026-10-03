@@ -38,6 +38,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -88,7 +89,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   public static final String WIDGET_CACHED = "cached";
   public static final String WIDGET_CACHE_SIZE = "cacheSize";
   public static final String WIDGET_SQL_FROM_FILE = "sqlFromFile";
-  public static final String WIDGET_BROWSE_SQL_FILE = "browseSqlFromFile";
   public static final String WIDGET_ROW_LIMIT = "rowLimit";
   public static final String WIDGET_OUTER_JOIN = "outerJoin";
   public static final String WIDGET_REPLACE_VARIABLES = "replaceVariables";
@@ -152,7 +152,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   @GuiWidgetElement(
       id = WIDGET_SQL_FROM_FILE,
       order = "0100",
-      type = GuiElementType.TEXT,
+      type = GuiElementType.FILENAME,
+      typeFilename = SqlFilename.class,
       label = "i18n::DatabaseJoinMeta.SqlFromFile.Label",
       toolTip = "i18n::DatabaseJoinMeta.SqlFromFile.Tooltip",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -164,25 +165,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       injectionKey = "SQL_FROM_FILE",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.SqlFromFile")
   private String sqlFromFile;
-
-  /**
-   * Annotated so the SQL tab shows a Browse button. The file dialog is opened from {@code
-   * DatabaseJoinDialog} so it can load the file into the SQL editor and mark the editor read-only,
-   * and so it can run on the transform dialog shell.
-   */
-  @GuiWidgetElement(
-      id = WIDGET_BROWSE_SQL_FILE,
-      order = "0200",
-      type = GuiElementType.BUTTON,
-      label = "i18n::DatabaseJoinMeta.BrowseSqlFromFile.Label",
-      toolTip = "i18n::DatabaseJoinMeta.BrowseSqlFromFile.Tooltip",
-      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
-      groupType = GuiWidgetGroupType.TABS,
-      group = GROUP_SQL,
-      groupOrder = GROUP_SQL_ORDER)
-  public void browseSqlFromFile(Object object) {
-    // no-op: DatabaseJoinDialog.browseSqlFromFile() handles the click
-  }
 
   /** Number of rows to return (0=ALL) */
   @GuiWidgetElement(
@@ -894,5 +876,27 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  /** Filters for the SQL file field. The widget's own Browse button opens the dialog once. */
+  public static class SqlFilename implements ITypeFilename {
+
+    @Override
+    public String getDefaultFileExtension() {
+      return ".sql";
+    }
+
+    @Override
+    public String[] getFilterExtensions() {
+      return new String[] {"*.sql", "*"};
+    }
+
+    @Override
+    public String[] getFilterNames() {
+      return new String[] {
+        BaseMessages.getString(PKG, "DatabaseJoinDialog.SqlFiles"),
+        BaseMessages.getString("System.FileType.AllFiles")
+      };
+    }
   }
 }

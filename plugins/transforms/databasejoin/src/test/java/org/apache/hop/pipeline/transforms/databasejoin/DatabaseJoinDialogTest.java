@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.databasejoin;
 
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,21 +27,32 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -202,6 +214,217 @@ class DatabaseJoinDialogTest extends SwtBotTestBase {
         });
   }
 
+  /** Changing a number and pressing OK must store it. Text widgets read back a String. */
+  @Test
+  void okStoresEditedCacheSizeAndRowLimit() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setConnection(CONNECTION);
+    meta.setSql(SQL);
+    meta.setCached(true);
+    meta.setCacheSize(3);
+    meta.setRowLimit(4);
+
+    withDialog(
+        openerFor(meta),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+
+          textWithLabel(dialog, "DatabaseJoinMeta.CacheSize.Label").setText("15");
+          selectTab(dialog, TAB_SQL);
+          textWithLabel(dialog, "DatabaseJoinMeta.RowLimit.Label").setText("25");
+          dialog.button(buttonLabel("System.Button.OK")).click();
+        });
+
+    assertEquals(15, meta.getCacheSize(), "OK must store the cache size typed into the field");
+    assertEquals(25, meta.getRowLimit(), "OK must store the row limit typed into the field");
+  }
+
+  /**
+   * The editor used to be attached to the bottom of the tab, so the line/column readout and the
+   * resolved-parameter table were laid out below the client area. SWTBot still found the table.
+   */
+  @Test
+  void theSqlTabKeepsTheEditorReadoutAndResolvedParametersInsideTheTab() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setConnection(CONNECTION);
+    meta.setSql(SQL);
+
+    withDialog(
+        openerFor(meta),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+          selectTab(dialog, TAB_SQL);
+
+          Rectangle[] bounds = new Rectangle[4];
+          display.syncExec(
+              () -> {
+                Shell shell = dialogShell();
+                shell.setSize(1000, 900);
+                shell.layout(true, true);
+
+                CTabItem sqlTab = sqlTabItem(dialog);
+                Control tabBody = sqlTab.getControl();
+                tabBody.getParent().layout(true, true);
+                shell.layout(true, true);
+
+                Rectangle tabArea = displayBounds(tabBody);
+                Rectangle editor = null;
+                Rectangle readout = null;
+                Rectangle table = null;
+                for (Control control : controlsUnder(tabBody)) {
+                  if (control instanceof StyledText && editor == null) {
+                    editor = displayBounds(control);
+                  } else if (control instanceof Table && table == null) {
+                    table = displayBounds(control);
+                  } else if (control instanceof Label label && isPositionReadout(label.getText())) {
+                    readout = displayBounds(control);
+                  }
+                }
+                bounds[0] = tabArea;
+                bounds[1] = editor;
+                bounds[2] = readout;
+                bounds[3] = table;
+              });
+
+          Rectangle tabArea = bounds[0];
+          Rectangle editor = bounds[1];
+          Rectangle readout = bounds[2];
+          Rectangle table = bounds[3];
+          assertNotNull(editor, "expected the SQL editor on the SQL tab");
+          assertNotNull(readout, "expected the line/column readout on the SQL tab");
+          assertNotNull(table, "expected the resolved-parameter table on the SQL tab");
+          assertTrue(contains(tabArea, editor), "editor " + editor + " outside tab " + tabArea);
+          assertTrue(contains(tabArea, readout), "readout " + readout + " outside tab " + tabArea);
+          assertTrue(contains(tabArea, table), "table " + table + " outside tab " + tabArea);
+          assertTrue(
+              editor.y + editor.height <= readout.y,
+              "the editor must end at the readout, editor " + editor + " readout " + readout);
+          assertTrue(
+              readout.y + readout.height <= table.y,
+              "the readout must sit above the table, readout " + readout + " table " + table);
+
+          dialog.button(buttonLabel("System.Button.Cancel")).click();
+        });
+  }
+
+  /**
+   * A variable connection is only resolved at runtime. OK warns and still saves, and a missing
+   * connection does not write the widgets before the check, so Cancel drops the edits.
+   */
+  @Test
+  void okWarnsAndSavesAVariableConnection() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setConnection(CONNECTION);
+    meta.setSql(SQL);
+    meta.setRowLimit(7);
+
+    withDialog(
+        openerFor(meta),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+          dialog.ccomboBox(0).setText("${DB}");
+          selectTab(dialog, TAB_SQL);
+          textWithLabel(dialog, "DatabaseJoinMeta.RowLimit.Label").setText("11");
+          dialog.button(buttonLabel("System.Button.OK")).click();
+
+          SWTBot error = bot.shell(ERROR_TITLE).activate().bot();
+          error.button(buttonLabel("System.Button.OK")).click();
+
+          assertFalse(shellIsOpen(dialog), "a variable connection must close after the warning");
+        });
+
+    assertEquals(
+        "${DB}", meta.getConnection(), "OK must keep a connection name that is a variable");
+    assertEquals(11, meta.getRowLimit(), "OK must save the other edits along with the variable");
+    assertEquals(SQL, meta.getSql());
+  }
+
+  @Test
+  void okDoesNotKeepEditsWhenTheConnectionIsInvalid() {
+    DatabaseJoinMeta meta = new DatabaseJoinMeta();
+    meta.setSql(SQL);
+    meta.setRowLimit(7);
+
+    withDialog(
+        openerFor(meta),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+          selectTab(dialog, TAB_SQL);
+          textWithLabel(dialog, "DatabaseJoinMeta.RowLimit.Label").setText("99");
+          dialog.button(buttonLabel("System.Button.OK")).click();
+
+          SWTBot error = bot.shell(ERROR_TITLE).activate().bot();
+          error.button(buttonLabel("System.Button.OK")).click();
+
+          assertTrue(shellIsOpen(dialog), "an unknown connection must leave the dialog open");
+          dialog.button(buttonLabel("System.Button.Cancel")).click();
+        });
+
+    assertEquals(
+        7, meta.getRowLimit(), "Cancel after a rejected OK must drop the edited row limit");
+    assertEquals(SQL, meta.getSql());
+  }
+
+  private SWTBotText textWithLabel(SWTBot dialog, String key) {
+    return dialog.textWithLabel(BaseMessages.getString(PKG, key));
+  }
+
+  private boolean isPositionReadout(String text) {
+    String sample = BaseMessages.getString(PKG, "DatabaseJoinDialog.Position.Label", "1", "0");
+    int marker = sample.indexOf('1');
+    String prefix = marker > 0 ? sample.substring(0, marker) : "Line ";
+    return text != null && text.startsWith(prefix);
+  }
+
+  private CTabItem sqlTabItem(SWTBot dialog) {
+    CTabFolder folder = tabFolder(dialog);
+    for (CTabItem item : folder.getItems()) {
+      if (TAB_SQL.equals(item.getText().trim())) {
+        return item;
+      }
+    }
+    throw new AssertionError("expected a '" + TAB_SQL + "' tab");
+  }
+
+  private static Shell dialogShell() {
+    for (Shell shell : display.getShells()) {
+      if (SHELL_TITLE.equals(shell.getText()) && !shell.isDisposed()) {
+        return shell;
+      }
+    }
+    throw new AssertionError("the '" + SHELL_TITLE + "' dialog is not open");
+  }
+
+  private static Rectangle displayBounds(Control control) {
+    Rectangle bounds = control.getBounds();
+    Point origin = control.getParent().toDisplay(bounds.x, bounds.y);
+    return new Rectangle(origin.x, origin.y, bounds.width, bounds.height);
+  }
+
+  private static boolean contains(Rectangle outer, Rectangle inner) {
+    return inner.width > 0
+        && inner.height > 0
+        && outer.contains(inner.x, inner.y)
+        && outer.contains(inner.x + inner.width - 1, inner.y + inner.height - 1);
+  }
+
+  private static List<Control> controlsUnder(Control parent) {
+    List<Control> found = new ArrayList<>();
+    collectControls(parent, found);
+    return found;
+  }
+
+  private static void collectControls(Control parent, List<Control> found) {
+    if (parent instanceof Composite composite) {
+      for (Control child : composite.getChildren()) {
+        if (!child.isDisposed()) {
+          found.add(child);
+          collectControls(child, found);
+        }
+      }
+    }
+  }
+
   private boolean shellIsOpen(SWTBot dialog) {
     for (SWTBotShell shell : dialog.shells()) {
       if (SHELL_TITLE.equals(shell.getText()) && shell.isOpen()) {
@@ -284,6 +507,15 @@ class DatabaseJoinDialogTest extends SwtBotTestBase {
     assertNotNull(pluginId, "Database join transform must be registered via HopEnvironment.init()");
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.addTransform(new TransformMeta(pluginId, TRANSFORM_NAME, meta));
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    DatabaseMeta database = new DatabaseMeta();
+    database.setName(CONNECTION);
+    try {
+      provider.getSerializer(DatabaseMeta.class).save(database);
+    } catch (HopException e) {
+      throw new IllegalStateException(e);
+    }
+    pipelineMeta.setMetadataProvider(provider);
     return pipelineMeta;
   }
 }

@@ -38,6 +38,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -50,6 +51,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCCombo;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -139,6 +141,30 @@ class WriteToLogDialogTest extends SwtBotTestBase {
           meta.getLogLevel(),
           "selecting '" + labels[level.ordinal()] + "' (" + localeCode + ") must store " + level);
     }
+  }
+
+  /** "Nr of rows to print" is an int behind a text widget. OK must store the edited number. */
+  @Test
+  void okStoresAnEditedRowLimit() {
+    WriteToLogMeta meta = new WriteToLogMeta();
+    meta.setLimitRows(true);
+    meta.setLimitRowsNumber(5);
+    PipelineMeta pipelineMeta = pipelineWith(meta);
+
+    withDialog(
+        parent -> new WriteToLogDialog(parent, new Variables(), meta, pipelineMeta).open(),
+        bot -> {
+          SWTBot dialog = bot.shell(SHELL_TITLE).activate().bot();
+          SWTBotText rows =
+              dialog.textWithLabel(
+                  BaseMessages.getString(
+                      WriteToLogMeta.class, "WriteToLogMeta.LimitRowsNumber.Label"));
+          assertEquals("5", rows.getText());
+          rows.setText("42");
+          dialog.button(buttonLabel("System.Button.OK")).click();
+        });
+
+    assertEquals(42, meta.getLimitRowsNumber(), "OK must store the edited row limit");
   }
 
   @Test
