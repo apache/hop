@@ -1829,6 +1829,21 @@ public class GuiCompositeWidgets {
             return;
           }
 
+          // Text, combo and metadata widgets read back a String. int and long setters reject that
+          // and the field keeps its old value. String setters are left alone.
+          //
+          if (value instanceof String text
+              && (parameterType == int.class || parameterType == long.class)) {
+            String trimmed = text.trim();
+            // Keep the two assignments separate. A ternary of int and long widens the int to long,
+            // and reflection then rejects that Long for an int setter.
+            if (parameterType == int.class) {
+              value = Const.toInt(trimmed, 0);
+            } else {
+              value = Const.toLong(trimmed, 0L);
+            }
+          }
+
           if (value != null && !isAssignable(parameterType, value.getClass())) {
             LogChannel.UI.logError(
                 "Value of type "
