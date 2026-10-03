@@ -87,6 +87,14 @@ public class PipelineExecutorMeta
   @HopMetadataProperty(key = "wait_timeout")
   private String waitTimeout;
 
+  /** Number of retries when child pipeline execution fails. */
+  @HopMetadataProperty(key = "retry_attempts", groupKey = "retry")
+  private String retryAttempts;
+
+  /** Delay between retries in milliseconds. */
+  @HopMetadataProperty(key = "retry_delay", groupKey = "retry")
+  private String retryDelay;
+
   /** Flag that indicate that pipeline name is specified in a stream's field */
   @HopMetadataProperty(key = "filenameInField")
   private boolean filenameInField;
@@ -257,6 +265,20 @@ public class PipelineExecutorMeta
     if (value != null) {
       setInheritingAllVariables("Y".equalsIgnoreCase(value));
     }
+
+    // Load retry options from nested <retry> group.
+    Node retryNode = XmlHandler.getSubNode(node, "retry");
+    if (retryNode == null) {
+      return;
+    }
+    String retryAttemptsValue = XmlHandler.getTagValue(retryNode, "retry_attempts");
+    if (retryAttemptsValue != null) {
+      setRetryAttempts(retryAttemptsValue);
+    }
+    String retryDelayValue = XmlHandler.getTagValue(retryNode, "retry_delay");
+    if (retryDelayValue != null) {
+      setRetryDelay(retryDelayValue);
+    }
   }
 
   @Override
@@ -287,6 +309,8 @@ public class PipelineExecutorMeta
     executionLogTextField = "ExecutionLogText";
     executionLogChannelIdField = "ExecutionLogChannelId";
     resultFilesFileNameField = "FileName";
+    retryAttempts = "0";
+    retryDelay = "";
   }
 
   void prepareExecutionResultsFields(IRowMeta row, TransformMeta nextTransform)
