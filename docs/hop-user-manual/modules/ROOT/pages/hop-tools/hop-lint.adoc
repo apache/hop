@@ -164,7 +164,7 @@ This writes a `pre-commit` hook into the current repository's `.git/hooks`.
 The hook lints the staged Hop files and blocks the commit when they fail.
 It is a copy, so run `hop lint --install-hook` again after upgrading Hop to pick up changes to it.
 
-Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Linter -> Block Git Commits*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.
+Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Plugins -> Linter -> Block Git Commits on Lint Failures*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.
 
 As with git's own `pre-commit` hook, only commits you author are checked.
 Reverting a file and cherry-picking a file are not, because both replay content that is already in the history — and reverting is often how you fix a lint failure in the first place.
