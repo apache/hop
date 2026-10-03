@@ -17,6 +17,7 @@
 
 package org.apache.hop.marketplace.install;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -38,6 +39,9 @@ public class InstallReceipt {
 
   private List<String> paths = new ArrayList<>();
   private boolean pendingActivation;
+
+  /** Set when {@code install} returned this receipt without downloading again. Not persisted. */
+  @JsonIgnore private boolean alreadyPresent;
 
   public InstallReceipt() {
     // Jackson
