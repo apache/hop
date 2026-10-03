@@ -96,9 +96,10 @@ public class DialogBoxWithButtons {
     BaseTransformDialog.positionBottomButtons(
         shell, buttons.toArray(new Button[0]), formMargin, wLabel);
 
-    BaseTransformDialog.setSize(shell);
     shell.addListener(SWT.Close, e -> dispose());
     BaseTransformDialog.setSize(shell);
+
+    PropsUi.setTheme(shell);
 
     shell.open();
 

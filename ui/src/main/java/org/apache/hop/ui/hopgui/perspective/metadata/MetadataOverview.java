@@ -131,6 +131,9 @@ public class MetadataOverview extends Composite {
 
     scrolledComposite.setContent(content);
     scrolledComposite.setMinSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+    PropsUi.setTheme(scrolledComposite);
+
     content.layout();
     scrolledComposite.layout();
   }

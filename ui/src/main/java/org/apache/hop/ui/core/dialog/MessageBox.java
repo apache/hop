@@ -78,7 +78,6 @@ public class MessageBox extends Dialog {
 
     int shellStyle = style & (SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL);
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | shellStyle);
-    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHop());
     shell.setText(Const.NVL(text, ""));
 
@@ -92,7 +91,6 @@ public class MessageBox extends Dialog {
     int margin = PropsUi.getMargin();
 
     Composite composite = new Composite(shell, SWT.NONE);
-    PropsUi.setLook(composite);
     composite.setLayout(new GridLayout());
     GridLayout gridLayout = new GridLayout();
     gridLayout.numColumns = 2;
@@ -102,7 +100,6 @@ public class MessageBox extends Dialog {
     // The message...
     //
     Label wMessage = new Label(composite, SWT.LEFT | SWT.WRAP);
-    PropsUi.setLook(wMessage);
     wMessage.setText(message);
     wMessage.setLayoutData(new GridData(GridData.FILL_BOTH));
 
@@ -184,6 +181,8 @@ public class MessageBox extends Dialog {
 
     BaseTransformDialog.setSize(shell);
 
+    PropsUi.setTheme(shell);
+
     // If minimum size is set, use it directly instead of packing
     if (minimumWidth > 0 || minimumHeight > 0) {
       shell.layout();
@@ -203,6 +202,8 @@ public class MessageBox extends Dialog {
         shell.getDisplay().sleep();
       }
     }
+
+    // BaseDialog.defaultShellHandling(shell, c -> ok(), c -> dispose());
 
     return returnValue;
   }

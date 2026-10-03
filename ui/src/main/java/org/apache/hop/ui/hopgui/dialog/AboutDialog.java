@@ -256,6 +256,8 @@ public class AboutDialog extends Dialog {
     shell.setSize(width, collapsedHeight);
     shell.setMinimumSize(width, collapsedHeight);
 
+    PropsUi.setTheme(shell);
+
     shell.open();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {

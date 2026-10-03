@@ -75,6 +75,9 @@ public class ProgressMonitorDialog {
     addCancelButtonIfNeeded(cancelable, margin);
     BaseTransformDialog.setSize(shell);
     addShellCloseHandler();
+
+    PropsUi.setTheme(shell);
+
     shell.open();
 
     Cursor oldCursor = shell.getCursor();
@@ -92,6 +95,7 @@ public class ProgressMonitorDialog {
         new Shell(parent, SWT.RESIZE | SWT.APPLICATION_MODAL | (cancelable ? SWT.CLOSE : SWT.NONE));
     shell.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.Shell.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setMinimumSize(500, 200);
     PropsUi.setLook(shell);
     display = shell.getDisplay();
 

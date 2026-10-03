@@ -36,7 +36,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
@@ -316,26 +315,7 @@ public class EnterMappingDialog extends Dialog {
 
     getData();
 
-    // Set the size as well...
-    //
-    BaseTransformDialog.setSize(shell);
-
-    // Shell closed?
-    //
-    shell.addListener(SWT.Close, e -> cancel());
-
-    // Open the shell
-    //
-    shell.open();
-
-    // Handle the event loop until we're done with this shell...
-    //
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, e -> ok(), e -> cancel());
 
     return mappings;
   }

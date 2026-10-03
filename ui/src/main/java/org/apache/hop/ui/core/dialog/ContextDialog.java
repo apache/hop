@@ -580,6 +580,8 @@ public class ContextDialog extends Dialog {
       ContextDialogSvgFacade.register(wCanvas, this);
     }
 
+    PropsUi.setTheme(shell);
+
     // Show the dialog now
     //
     shell.open();

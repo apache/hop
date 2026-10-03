@@ -203,7 +203,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
           new CLabel(toolBar, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
       label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-      PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
+      PropsUi.setTheme(label, Props.WIDGET_STYLE_TOOLBAR);
       label.pack();
       labelSeparator.setWidth(label.getSize().x);
       labelSeparator.setControl(label);
@@ -247,7 +247,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
           new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
       label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-      PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
+      PropsUi.setTheme(label, Props.WIDGET_STYLE_TOOLBAR);
       label.pack();
     }
 
@@ -284,7 +284,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     Canvas canvas = new Canvas(parent, SWT.NONE);
     canvas.setLayoutData(new RowData(width, height));
     canvas.setBackground(parent.getBackground());
-    PropsUi.setLook(canvas, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(canvas, Props.WIDGET_STYLE_TOOLBAR);
     canvas.addPaintListener(
         new PaintListener() {
           @Override
@@ -309,7 +309,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     label.setText(Const.NVL(toolbarItem.getLabel(), ""));
     label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-    PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(label, Props.WIDGET_STYLE_TOOLBAR);
     label.pack();
     register(toolbarItem, label);
     Listener listener = getListener(toolbarItem);
@@ -326,7 +326,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
                 | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
     combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     combo.setItems(getComboItems(toolbarItem));
-    PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(combo, Props.WIDGET_STYLE_TOOLBAR);
     combo.pack();
     int width = calculateComboWidth(combo) + toolbarItem.getExtraWidth();
     combo.setLayoutData(new RowData(width, SWT.DEFAULT));
@@ -346,7 +346,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
                 | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
     text.setText(Const.NVL(toolbarItem.getDefaultText(), ""));
     text.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(text, Props.WIDGET_STYLE_TOOLBAR);
     text.pack();
     int width = 200 + toolbarItem.getExtraWidth();
     text.setLayoutData(new RowData(width, SWT.DEFAULT));
@@ -359,7 +359,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
 
   private void addWebToolbarGap(Composite parent) {
     Label spacer = new Label(parent, SWT.NONE);
-    PropsUi.setLook(spacer, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(spacer, Props.WIDGET_STYLE_TOOLBAR);
     spacer.setLayoutData(new RowData(PropsUi.getMargin() * 2, 1));
   }
 
@@ -395,7 +395,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         new Button(parent, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-    PropsUi.setLook(checkbox, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(checkbox, Props.WIDGET_STYLE_TOOLBAR);
     checkbox.pack();
     checkbox.setLayoutData(
         new RowData(checkbox.getSize().x + toolbarItem.getExtraWidth(), SWT.DEFAULT));
@@ -412,7 +412,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     layout.horizontalSpacing = 2;
     layout.verticalSpacing = 0;
     composite.setLayout(layout);
-    PropsUi.setLook(composite, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(composite, Props.WIDGET_STYLE_TOOLBAR);
 
     Label imageLabel = new Label(composite, SWT.NONE);
     if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
@@ -451,7 +451,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
 
     Label textLabel = new Label(composite, SWT.NONE);
     textLabel.setText("");
-    PropsUi.setLook(textLabel, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(textLabel, Props.WIDGET_STYLE_TOOLBAR);
     if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
       textLabel.setToolTipText(toolbarItem.getToolTip());
     }
@@ -492,7 +492,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         new CLabel(toolBar, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     label.setText(Const.NVL(toolbarItem.getLabel(), ""));
     label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-    PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(label, Props.WIDGET_STYLE_TOOLBAR);
     label.pack();
     labelSeparator.setWidth(label.getSize().x);
     labelSeparator.setControl(label);
@@ -513,7 +513,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
                 | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
     combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     combo.setItems(getComboItems(toolbarItem));
-    PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(combo, Props.WIDGET_STYLE_TOOLBAR);
     combo.pack();
     comboSeparator.setWidth(
         calculateComboWidth(combo)
@@ -525,7 +525,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     combo.addListener(SWT.DefaultSelection, listener);
     toolItemMap.put(toolbarItem.getId(), comboSeparator);
     register(toolbarItem, combo);
-    PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(combo, Props.WIDGET_STYLE_TOOLBAR);
   }
 
   private void addToolbarText(GuiToolbarItem toolbarItem, ToolBar toolBar) {
@@ -538,7 +538,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     layout.marginHeight = 0;
     layout.marginRight = gap;
     wrapper.setLayout(layout);
-    PropsUi.setLook(wrapper, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(wrapper, Props.WIDGET_STYLE_TOOLBAR);
 
     Text text =
         new Text(
@@ -549,7 +549,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
                 | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
     text.setText(Const.NVL(toolbarItem.getDefaultText(), ""));
     text.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(text, Props.WIDGET_STYLE_TOOLBAR);
     text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
     Listener listener = getListener(toolbarItem);
@@ -574,7 +574,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         new Button(toolBar, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-    PropsUi.setLook(checkbox, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(checkbox, Props.WIDGET_STYLE_TOOLBAR);
     checkbox.pack();
     checkboxSeparator.setWidth(
         checkbox.getSize().x + toolbarItem.getExtraWidth()); // extra room for widget decorations
@@ -658,7 +658,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     layout.horizontalSpacing = 4;
     layout.verticalSpacing = 0;
     composite.setLayout(layout);
-    PropsUi.setLook(composite, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(composite, Props.WIDGET_STYLE_TOOLBAR);
 
     // Create the image label
     Label imageLabel = new Label(composite, SWT.NONE);
@@ -713,7 +713,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     // Create the text label (initially empty, will be set later if needed)
     Label textLabel = new Label(composite, SWT.NONE);
     textLabel.setText("");
-    PropsUi.setLook(textLabel, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setTheme(textLabel, Props.WIDGET_STYLE_TOOLBAR);
     if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
       textLabel.setToolTipText(toolbarItem.getToolTip());
     }

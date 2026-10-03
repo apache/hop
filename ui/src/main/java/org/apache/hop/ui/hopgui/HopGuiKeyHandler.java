@@ -139,8 +139,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
    * after that, when a dialog or metadata editor rebuilds part of its content (e.g. the OAuth 2
    * fields of a REST connection when the authentication type changes), have no key listener of
    * their own, so keyboard shortcuts like Ctrl+S do nothing while such a widget has the focus.
-   * {@link #attachTo(Widget)} handles those, called from {@code PropsUi.setLook()} when the widget
-   * is created and, on the desktop, when a widget receives the focus.
+   * {@link #attachTo(Widget)} handles those, called from {@code PropsUi.setLook()} and {@code
+   * PropsUi.setTheme()} when the widget is created and, on the desktop, when a widget receives the
+   * focus.
    *
    * @param display the display to listen to for focus changes
    * @param shell the shell whose widgets are handled

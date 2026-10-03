@@ -160,6 +160,8 @@ public class MessageDialogWithToggle {
           }
         });
 
+    PropsUi.setTheme(shell);
+
     shell.open();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {

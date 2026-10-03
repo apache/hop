@@ -42,6 +42,7 @@ import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -56,6 +57,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
@@ -66,6 +68,12 @@ import org.eclipse.swt.widgets.Widget;
  */
 public class PropsUi extends Props {
   private static final String OS = System.getProperty("os.name").toLowerCase();
+
+  /**
+   * Style passed to {@link #setTheme(Widget, int)} when it is not the default. The theme walk reads
+   * it back so a fixed-width editor or toolbar field keeps the style it was given.
+   */
+  private static final String WIDGET_STYLE_KEY = PropsUi.class.getName() + ".widgetStyle";
 
   private double nativeZoomFactor;
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
@@ -775,7 +783,84 @@ public class PropsUi extends Props {
     setProperty(METRICS_PANEL_DYNAMIC_COLUMN_RESIZE, dynamic ? YES : NO);
   }
 
+  /**
+   * @deprecated Colors and fonts are applied once by {@link #setTheme(Widget)} on the shell. This
+   *     still attaches the keyboard handler, because Hop Web only delivers keys for a widget that
+   *     already has a listener when it is rendered.
+   */
+  @Deprecated(since = "2.20.0", forRemoval = true)
   public static void setLook(Widget widget) {
+    attachKeyHandler(widget);
+  }
+
+  /**
+   * @deprecated Prefer {@link #setTheme(Widget)}. An explicit fixed-width style is remembered and
+   *     applied, so a later theme walk does not replace it with the default font.
+   */
+  @Deprecated(since = "2.20.0", forRemoval = true)
+  public static void setLook(final Widget widget, int style) {
+    // One control, not the tree. Callers pass FIXED, TAB or TOOLBAR for a control that is created
+    // after the shell was themed (a new script tab, a toolbar item). The style is remembered so a
+    // later theme walk does not replace a fixed-width font with the default font.
+    setTheme(widget, style);
+  }
+
+  /** Set theme colors and font on the widget and all its children. */
+  public static void setTheme(final Widget widget) {
+    if (widget == null || widget.isDisposed()) {
+      return;
+    }
+
+    setTheme(widget, styleFor(widget));
+
+    if (widget instanceof Composite composite) {
+      for (Control control : composite.getChildren()) {
+        setTheme(control);
+      }
+    }
+  }
+
+  public static void setTheme(final Widget widget, int style) {
+    attachKeyHandler(widget);
+    if (widget == null || widget.isDisposed()) {
+      return;
+    }
+    if (style != WIDGET_STYLE_DEFAULT) {
+      widget.setData(WIDGET_STYLE_KEY, style);
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      setThemeOnWeb(widget, style);
+      return;
+    }
+    if (OsHelper.isWindows()) {
+      setThemeOnWindows(widget, style);
+    } else if (OsHelper.isMac()) {
+      setThemeOnMac(widget, style);
+    } else {
+      setThemeOnLinux(widget, style);
+    }
+  }
+
+  /**
+   * Handle the keyboard shortcuts of widgets that are created after their shell was set up, e.g.
+   * when a metadata editor rebuilds a section. In Hop Web the key listener has to be there when the
+   * widget is rendered or RAP never sends its key events to the server.
+   */
+  private static void attachKeyHandler(Widget widget) {
+    if (widget == null || widget.isDisposed()) {
+      return;
+    }
+    HopGuiKeyHandler.getInstance().attachTo(widget);
+  }
+
+  private static int styleFor(Widget widget) {
+    Object explicit = widget.getData(WIDGET_STYLE_KEY);
+    if (explicit instanceof Integer style) {
+      return style;
+    }
+    if (inheritsFixedFont(widget)) {
+      return WIDGET_STYLE_FIXED;
+    }
     int style = WIDGET_STYLE_DEFAULT;
     if (widget instanceof Table) {
       style = WIDGET_STYLE_TABLE;
@@ -796,38 +881,31 @@ public class PropsUi extends Props {
         style = WIDGET_STYLE_PUSH_BUTTON;
       }
     }
-
-    setLook(widget, style);
-
-    if (widget instanceof Composite composite) {
-      for (Control child : composite.getChildren()) {
-        setLook(child);
-      }
-    }
+    return style;
   }
 
-  public static void setLook(final Widget widget, int style) {
-    // Handle the keyboard shortcuts of widgets that are created after their shell was set up, e.g.
-    // when a metadata editor rebuilds a section. In Hop Web the key listener has to be there when
-    // the widget is rendered or RAP never sends its key events to the server.
-    //
-    HopGuiKeyHandler.getInstance().attachTo(widget);
+  /**
+   * Script, SQL and the other fixed-width editors are marked on the editor composite. The text
+   * inside that composite is a separate control, and the theme walk would otherwise give it the
+   * default font.
+   */
+  private static boolean inheritsFixedFont(Widget widget) {
+    if (!(widget instanceof Text) && !(widget instanceof StyledText)) {
+      return false;
+    }
+    if (!(widget instanceof Control control)) {
+      return false;
+    }
+    Composite parent = control.getParent();
+    return parent != null && !parent.isDisposed() && isFixedStyle(parent.getData(WIDGET_STYLE_KEY));
+  }
 
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      setLookOnWeb(widget, style);
-      return;
-    }
-    if (OsHelper.isWindows()) {
-      setLookOnWindows(widget, style);
-    } else if (OsHelper.isMac()) {
-      setLookOnMac(widget, style);
-    } else {
-      setLookOnLinux(widget, style);
-    }
+  private static boolean isFixedStyle(Object style) {
+    return style instanceof Integer value && value == WIDGET_STYLE_FIXED;
   }
 
   /** Hop Web (RAP) specific look. Keeps web theme logic separate from OS-specific setLookOn*. */
-  protected static void setLookOnWeb(final Widget widget, int style) {
+  protected static void setThemeOnWeb(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = gui.getWidgetBackGroundColor();
@@ -939,7 +1017,7 @@ public class PropsUi extends Props {
     }
   }
 
-  protected static void setLookOnWindows(final Widget widget, int style) {
+  protected static void setThemeOnWindows(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = gui.getWidgetBackGroundColor();
@@ -1016,7 +1094,7 @@ public class PropsUi extends Props {
     }
   }
 
-  protected static void setLookOnMac(final Widget widget, int style) {
+  protected static void setThemeOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = null;
@@ -1078,7 +1156,7 @@ public class PropsUi extends Props {
     }
   }
 
-  protected static void setLookOnLinux(final Widget widget, int style) {
+  protected static void setThemeOnLinux(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = GuiResource.getInstance().getWidgetBackGroundColor();

@@ -31,7 +31,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -557,7 +556,6 @@ public class TableView extends Composite {
 
     // Create table, add columns & rows...
     table = new Table(this, style | SWT.MULTI);
-    PropsUi.setLook(table);
     table.setLinesVisible(true);
 
     fdTable = new FormData();
@@ -1615,7 +1613,6 @@ public class TableView extends Composite {
       fdToolBar.top = new FormAttachment(0, 0);
       fdToolBar.right = new FormAttachment(100, 0);
       toolbar.setLayoutData(fdToolBar);
-      PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
       toolbarWidgets.createToolbarWidgets(toolBarContainer, ID_TOOLBAR, removeToolItems);
       toolbar.pack();
@@ -2263,7 +2260,7 @@ public class TableView extends Composite {
                 | SWT.V_SCROLL
                 | SWT.BORDER
                 | (viewOnly ? SWT.READ_ONLY : SWT.NONE));
-    PropsUi.setLook(multi);
+    PropsUi.setTheme(multi);
     // Enter closing the editor is surprising in a multi-line box, so spell the keys out.
     multi.setToolTipText(
         BaseMessages.getString(
@@ -2405,7 +2402,7 @@ public class TableView extends Composite {
       return;
     }
     webNewlineHint = new Label(this, SWT.LEFT);
-    PropsUi.setLook(webNewlineHint);
+    PropsUi.setTheme(webNewlineHint);
     webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
     FormData fdHint = new FormData();
     fdHint.left = new FormAttachment(0, 0);
@@ -3337,7 +3334,7 @@ public class TableView extends Composite {
     final Composite editorParent;
     if (expandable) {
       inlineEditorHolder = new Composite(table, SWT.NONE);
-      PropsUi.setLook(inlineEditorHolder);
+      PropsUi.setTheme(inlineEditorHolder);
       FormLayout holderLayout = new FormLayout();
       holderLayout.marginWidth = 0;
       holderLayout.marginHeight = 0;
@@ -3442,7 +3439,7 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     }
-    PropsUi.setLook(text);
+    PropsUi.setTheme(text);
 
     Control editorControl = text;
     if (expandable) {
@@ -3500,7 +3497,7 @@ public class TableView extends Composite {
   private void addExpandIcon(
       Composite holder, TableItem row, int rowNr, int colNr, ColumnInfo colinfo) {
     Label expandLabel = new Label(holder, SWT.NONE);
-    PropsUi.setLook(expandLabel);
+    PropsUi.setTheme(expandLabel);
     expandLabel.setImage(GuiResource.getInstance().getImageMaximizePanel());
     expandLabel.setToolTipText(
         BaseMessages.getString(
@@ -3654,7 +3651,7 @@ public class TableView extends Composite {
       } else {
         comboVar.setItems(opt);
       }
-      PropsUi.setLook(comboVar);
+      PropsUi.setTheme(comboVar);
       comboVar.addTraverseListener(lsTraverse);
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       comboVar.addModifyListener(lsModCombo);
@@ -3688,7 +3685,7 @@ public class TableView extends Composite {
       safelyDisposeControl(combo);
       String cellValue = item.getText(colNr);
       combo = new Combo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
-      PropsUi.setLook(combo);
+      PropsUi.setTheme(combo);
       combo.addTraverseListener(lsTraverse);
       combo.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       combo.addModifyListener(lsModCombo);
@@ -3738,7 +3735,7 @@ public class TableView extends Composite {
     }
 
     button = new Button(table, SWT.PUSH);
-    PropsUi.setLook(button);
+    PropsUi.setTheme(button);
     String buttonText = columns[colNr - 1].getButtonText();
     if (buttonText != null) {
       button.setText(buttonText);

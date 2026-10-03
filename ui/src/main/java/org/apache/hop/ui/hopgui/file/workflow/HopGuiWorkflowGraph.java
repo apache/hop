@@ -5220,6 +5220,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       extraViewTabFolder.setSelection(0);
     }
 
+    PropsUi.setTheme(extraViewTabFolder);
+
     toolBarWidgets.setToolbarItemToolTip(
         TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
         TranslateUtil.translate(
