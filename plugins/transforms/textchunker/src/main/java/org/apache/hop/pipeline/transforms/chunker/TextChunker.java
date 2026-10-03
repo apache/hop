@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.chunker.chunking.ChunkingStrategy;
 import org.apache.hop.pipeline.transforms.chunker.chunking.ChunkingStrategyFactory;
 import org.apache.hop.pipeline.transforms.chunker.chunking.ChunkingStrategyType;
+import org.apache.hop.pipeline.transforms.chunker.chunking.ParagraphChunkingStrategy;
 import org.apache.hop.pipeline.transforms.chunker.chunking.StructureChunkingStrategy;
 import org.apache.hop.pipeline.transforms.chunker.document.ContentType;
 import org.apache.hop.pipeline.transforms.chunker.document.ContentTypeResolver;
@@ -78,6 +79,10 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
       data.chunkOverlap = 0;
     }
     strategy = ChunkingStrategyFactory.createStrategy(meta.getChunkingStrategy());
+    if (strategy instanceof ParagraphChunkingStrategy paragraphStrategy) {
+      paragraphStrategy.setSeparator(
+          ParagraphChunkingStrategy.decodeEscapes(resolve(meta.getParagraphSeparator())));
+    }
     logBasic(
         BaseMessages.getString(
             PKG, "TextChunker.Log.Initialized", String.valueOf(meta.getChunkingStrategy())));
