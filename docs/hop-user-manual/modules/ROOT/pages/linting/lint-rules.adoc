@@ -94,6 +94,9 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |`NOT_EMPTY`, `NOT_NULL`
 |has a value
 
+|`IS_EMPTY`
+|has no value
+
 |`NOT_EMPTY_COLLECTION`
 |is a collection with at least one entry
 
@@ -140,7 +143,7 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |Whether any other file in the project calls this pipeline or workflow. Only a project lint can answer this, see <<project-rules>>
 
 |`hasDefaultName`
-|The transform or action still carries its auto-generated name
+|The transform or action still carries the name Hop Gui gave it: the plugin's name, such as `Table input`, followed by a number when that name was taken, as in `Dummy (do nothing) 2`. The plugin name is the one of the language Hop runs in. A workflow's Start action never counts
 
 |`isDummy`
 |The transform is a Dummy
@@ -183,15 +186,22 @@ Some problems are only worth reporting when several things are wrong together, a
       - TableInput
     allOf:
       - targetField: sql
-        condition: MATCHES_PATTERN
+        condition: NOT_MATCHES_PATTERN
         conditionValue: "(?is).*\\bselect\\s+\\*.*"
       - targetField: rowLimit
-        condition: NOT_EMPTY
+        condition: NOT_MATCHES_PATTERN
+        conditionValue: "^\\s*0*\\s*$"
     name: "Unbounded SELECT *"
     description: "A Table Input that selects every column and sets no row limit"
 ----
 
-`allOf` reports only when *every* clause is broken, `anyOf` when *at least one* is.
+As everywhere else, each condition says what is *required*, and the rule reports when that is not met.
+`allOf` reports only when *every* condition is not met, `anyOf` when *at least one* is not.
+The rule above reports a Table Input whose SQL selects every column *and* whose row limit is empty or `0`, which Hop reads as no limit.
+
+To report something that is set, require it to be empty: a plain `http://` URL with a login is `url` `MATCHES_PATTERN` `^https://.*` (not met for `http://`) together with `httpLogin` `IS_EMPTY` (not met when a login is set), under `allOf`.
+
+A rule with `allOf` or `anyOf` and a `target` is a rule definition even without `type: custom`.
 Each clause names its own field, condition and value, and the finding says which clauses were broken and what the values actually were.
 
 A rule with neither block behaves exactly as before, so nothing that was written against the single-condition form needs changing.

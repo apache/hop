@@ -399,7 +399,20 @@ public final class YamlRulePackParser {
     if ("custom".equals(type)) {
       return true;
     }
-    return ruleData.containsKey("target") && ruleData.containsKey("condition");
+    if (!ruleData.containsKey("target")) {
+      return false;
+    }
+    // A composed rule has its conditions inside allOf or anyOf rather than at the top. Without
+    // type: custom it was taken for an override of a rule that does not exist, and dropped.
+    if (ruleData.containsKey("condition")) {
+      return true;
+    }
+    for (RuleCombinator combinator : RuleCombinator.values()) {
+      if (ruleData.containsKey(combinator.getYamlKey())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static boolean isNativeRuleDefinition(Map<String, Object> ruleData) {
