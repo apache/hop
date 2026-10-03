@@ -158,7 +158,13 @@ public class CustomRuleExecutor {
         }
         if (evaluateCondition(
             clause.getCondition(), clauseValue, clause.getConditionValue(), rule)) {
-          violated.add(clause.describe() + " (actual: " + describeValue(clauseValue) + ")");
+          violated.add(
+              clause.describe()
+                  + " (actual: "
+                  + describeValue(
+                      clauseValue,
+                      holdsASecret(rule, clause.getCondition(), clause.getTargetField()))
+                  + ")");
         } else if (rule.getCombinator() == RuleCombinator.ALL_OF && rule.isComposed()) {
           // allOf needs every clause broken, so one satisfied clause ends it.
           return results;
@@ -207,7 +213,10 @@ public class CustomRuleExecutor {
       boolean violatesRule = rule.isComposed() ? !violated.isEmpty() : violated.size() == 1;
 
       if (violatesRule) {
-        String message = generateErrorMessage(rule, fieldValue);
+        String message =
+            generateErrorMessage(
+                rule,
+                holdsASecret(rule, rule.getCondition(), rule.getTargetField()) ? null : fieldValue);
         if (rule.isComposed()) {
           message =
               message
@@ -795,9 +804,12 @@ public class CustomRuleExecutor {
   }
 
   /** A field value as it should read inside a composed rule's message. */
-  private static String describeValue(Object value) {
+  private static String describeValue(Object value, boolean secret) {
     if (value == null) {
       return "null";
+    }
+    if (secret) {
+      return "hidden";
     }
     String text = value.toString();
     return text.length() > 60 ? text.substring(0, 57) + "..." : text;
@@ -940,23 +952,54 @@ public class CustomRuleExecutor {
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
   }
 
+  /**
+   * Whether the value a clause reads is a secret, and so must stay out of the finding.
+   *
+   * <p>A finding's message ends up in CI build logs, JSON and SARIF reports and the GUI. DB-001
+   * used to report a hardcoded database password as "(current value: secret123)", decrypting an
+   * {@code Encrypted} one on the way, so the rule meant to catch exposed passwords exposed them.
+   * {@code NO_HARDCODED} only ever looks at secrets; any other condition on a field named like one
+   * is treated the same, with the default name patterns as well as the rule's own.
+   */
+  private static boolean holdsASecret(
+      CustomLintRule rule, RuleCondition condition, String fieldName) {
+    if (condition == RuleCondition.NO_HARDCODED) {
+      return true;
+    }
+    if (Utils.isEmpty(fieldName)) {
+      return false;
+    }
+    String name = fieldName.toLowerCase();
+    for (List<String> patterns :
+        List.of(DEFAULT_SECRET_FIELD_PATTERNS, getPasswordFieldPatterns(rule))) {
+      for (String pattern : patterns) {
+        if (!Utils.isEmpty(pattern) && name.endsWith(pattern.trim().toLowerCase())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static final List<String> DEFAULT_SECRET_FIELD_PATTERNS =
+      Arrays.asList(
+          "password",
+          "pwd",
+          "passwd",
+          "secret",
+          "secretKey",
+          "credential",
+          "credentials",
+          "apiKey",
+          "apikey",
+          "secretAccessKey",
+          "token",
+          "accessToken",
+          "authToken");
+
   /** Get password field patterns from rule parameters or return defaults */
   private static List<String> getPasswordFieldPatterns(CustomLintRule rule) {
-    List<String> defaultPatterns =
-        Arrays.asList(
-            "password",
-            "pwd",
-            "passwd",
-            "secret",
-            "secretKey",
-            "credential",
-            "credentials",
-            "apiKey",
-            "apikey",
-            "secretAccessKey",
-            "token",
-            "accessToken",
-            "authToken");
+    List<String> defaultPatterns = DEFAULT_SECRET_FIELD_PATTERNS;
 
     if (rule.getAdditionalParameters() != null) {
       Object patternsObj = rule.getAdditionalParameters().get("fieldPatterns");
