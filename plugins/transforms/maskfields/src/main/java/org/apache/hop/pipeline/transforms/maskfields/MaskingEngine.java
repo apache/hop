@@ -140,7 +140,8 @@ public class MaskingEngine {
         binding.pattern.getName(),
         key,
         store -> {
-          int index = Math.floorMod(store.count(binding.pattern.getName()), values.size());
+          int index =
+              Math.floorMod(store.allocateSequence(binding.pattern.getName(), 0), values.size());
           return values.get(index);
         });
   }

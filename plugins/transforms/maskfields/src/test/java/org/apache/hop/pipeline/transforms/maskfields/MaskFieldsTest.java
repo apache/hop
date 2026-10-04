@@ -20,16 +20,20 @@ package org.apache.hop.pipeline.transforms.maskfields;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -143,6 +147,33 @@ class MaskFieldsTest {
     assertEquals("Ada", output.getRowWait(1, TimeUnit.SECONDS)[0]);
     assertEquals("Bea", output.getRowWait(1, TimeUnit.SECONDS)[0]);
     assertEquals("Ada", output.getRowWait(1, TimeUnit.SECONDS)[0]);
+    transform.dispose();
+  }
+
+  @Test
+  void processRowRejectsIncompatibleFieldTypeAtRuntime() throws Exception {
+    MaskingPattern pattern = new MaskingPattern();
+    pattern.setName("Uuid");
+    pattern.setValueSource(MaskingValueSource.SYNTHETIC);
+    pattern.setToken(MaskingToken.UUID);
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    provider.getSerializer(MaskingPattern.class).save(pattern);
+
+    MaskFieldsMeta meta = new MaskFieldsMeta();
+    meta.getFields().add(new MaskField("birth_date", "Uuid"));
+    MaskFields transform = createTransform(meta);
+    transform.setMetadataProvider(provider);
+    assertTrue(transform.init());
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaDate("birth_date"));
+    BlockingRowSet input = input("people", rowMeta, new Object[] {new Date()});
+    BlockingRowSet output = output(rowMeta);
+    transform.addRowSetToInputRowSets(input);
+    transform.addRowSetToOutputRowSets(output);
+
+    HopException e = assertThrows(HopException.class, transform::processRow);
+    assertTrue(e.getMessage().contains("birth_date"));
     transform.dispose();
   }
 

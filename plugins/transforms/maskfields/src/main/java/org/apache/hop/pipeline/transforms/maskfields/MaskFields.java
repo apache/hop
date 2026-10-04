@@ -26,6 +26,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
@@ -114,6 +115,7 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
     }
     if (data.outputRowMeta == null) {
       data.outputRowMeta = getInputRowMeta().clone();
+      validateTypes(data.outputRowMeta);
     }
     try {
       data.engine.apply(data.outputRowMeta, row);
@@ -126,6 +128,25 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
     }
     putRow(data.outputRowMeta, row);
     return true;
+  }
+
+  private void validateTypes(IRowMeta rowMeta) throws HopException {
+    for (Binding binding : data.engine.getBindings()) {
+      int index = rowMeta.indexOfValue(binding.fieldName);
+      if (index >= 0) {
+        IValueMeta valueMeta = rowMeta.getValueMeta(index);
+        String problem = MaskingRules.incompatibility(valueMeta, binding.pattern);
+        if (problem != null) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG,
+                  "MaskFields.Check.Incompatible",
+                  binding.fieldName,
+                  binding.pattern.getName(),
+                  problem));
+        }
+      }
+    }
   }
 
   @Override

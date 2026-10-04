@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.maskfields.store;
 
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -48,6 +50,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
   private final DatabaseMeta databaseMeta;
   private final String schemaName;
   private final String tableName;
+  private final Map<String, Map<String, String>> cache = new ConcurrentHashMap<>();
 
   private Database database;
   private String mapTable;
@@ -90,16 +93,24 @@ public class DatabaseMaskingStore implements IMaskingStore {
   @Override
   public synchronized String findOrCreate(
       String patternName, String sourceKey, MaskAllocator allocator) throws HopException {
+    Map<String, String> patternCache =
+        cache.computeIfAbsent(patternName, k -> new ConcurrentHashMap<>());
+    String cached = patternCache.get(sourceKey);
+    if (cached != null) {
+      return cached;
+    }
     ensureOpen();
     try {
       String existing = lookup(patternName, sourceKey);
       if (existing != null) {
         database.commit();
+        patternCache.put(sourceKey, existing);
         return existing;
       }
       String created = allocator.allocate(this);
       insertMap(patternName, sourceKey, created);
       database.commit();
+      patternCache.put(sourceKey, created);
       return created;
     } catch (HopException e) {
       rollbackQuietly();
@@ -107,6 +118,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
         String winner = lookup(patternName, sourceKey);
         if (winner != null) {
           database.commit();
+          patternCache.put(sourceKey, winner);
           return winner;
         }
       }
@@ -151,6 +163,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
 
   @Override
   public synchronized void close() {
+    cache.clear();
     if (database != null) {
       database.disconnect();
       database = null;
@@ -167,9 +180,9 @@ public class DatabaseMaskingStore implements IMaskingStore {
         "CREATE TABLE "
             + mapTable
             + " ("
-            + columnDefinition(stringColumn(COLUMN_PATTERN, 255))
+            + columnDefinition(stringColumn(COLUMN_PATTERN, 128))
             + ", "
-            + columnDefinition(stringColumn(COLUMN_SOURCE, 2000))
+            + columnDefinition(stringColumn(COLUMN_SOURCE, 255))
             + ", "
             + columnDefinition(stringColumn(COLUMN_MASKED, 2000))
             + ", PRIMARY KEY ("
@@ -189,7 +202,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
         "CREATE TABLE "
             + sequenceTable
             + " ("
-            + columnDefinition(stringColumn(COLUMN_PATTERN, 255))
+            + columnDefinition(stringColumn(COLUMN_PATTERN, 128))
             + ", "
             + columnDefinition(next)
             + ", PRIMARY KEY ("

@@ -66,6 +66,27 @@ class DatabaseMaskingStoreTest {
     }
   }
 
+  @Test
+  void sequenceStartingAtZeroForList() throws Exception {
+    String databaseName =
+        "mem:mask" + UUID.randomUUID().toString().replace("-", "") + ";DB_CLOSE_DELAY=-1";
+    DatabaseMeta databaseMeta =
+        new DatabaseMeta("mask-h2", "H2", "Native", "", databaseName, "", "sa", "");
+    Variables variables = new Variables();
+
+    DatabaseMaskingStore store =
+        new DatabaseMaskingStore(
+            (ILoggingObject) null, variables, databaseMeta, (String) null, "mask_list_map");
+    store.open();
+    try {
+      assertEquals(0L, store.allocateSequence("Country", 0));
+      assertEquals(1L, store.allocateSequence("Country", 0));
+      assertEquals(2L, store.allocateSequence("Country", 0));
+    } finally {
+      store.close();
+    }
+  }
+
   private static String allocate(DatabaseMaskingStore store, String source) throws Exception {
     return store.findOrCreate(
         "First name", source, current -> "first-name-" + current.allocateSequence("First name", 1));

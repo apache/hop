@@ -113,10 +113,15 @@ public class MaskFieldsDialog extends BaseTransformDialog {
         }
       }
       if (previous != null) {
+        boolean added = false;
         for (IValueMeta valueMeta : previous.getValueMetaList()) {
           if (present.add(valueMeta.getName())) {
             input.getFields().add(new MaskField(valueMeta.getName(), ""));
+            added = true;
           }
+        }
+        if (added) {
+          input.setChanged();
         }
       }
     } catch (HopException e) {

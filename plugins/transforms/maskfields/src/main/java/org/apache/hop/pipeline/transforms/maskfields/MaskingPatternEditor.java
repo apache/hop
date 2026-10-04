@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -168,9 +169,15 @@ public class MaskingPatternEditor extends MetadataEditor<MaskingPattern> {
 
   private <E extends Enum<E>> E readEnum(String widgetId, Class<E> type) {
     Control control = widgets.getWidgetsMap().get(widgetId);
-    if (control instanceof Combo combo && StringUtils.isNotEmpty(combo.getText())) {
+    String text = null;
+    if (control instanceof Combo combo) {
+      text = combo.getText();
+    } else if (control instanceof ComboVar comboVar) {
+      text = comboVar.getText();
+    }
+    if (StringUtils.isNotEmpty(text)) {
       try {
-        return Enum.valueOf(type, combo.getText());
+        return Enum.valueOf(type, text);
       } catch (IllegalArgumentException e) {
         return null;
       }
