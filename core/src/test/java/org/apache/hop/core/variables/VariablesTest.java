@@ -19,6 +19,7 @@ package org.apache.hop.core.variables;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +41,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -203,16 +206,26 @@ class VariablesTest {
   }
 
   /**
-   * An environment entry whose name is not also a system property, so that what it resolves to is
-   * unambiguous.
+   * An environment entry that nothing else defines, so that what it resolves to is unambiguous.
+   * Names are sorted so the same entry is chosen on every run.
    */
-  private static Map.Entry<String, String> environmentEntryNotShadowedBySystemProperty() {
-    Set<String> systemPropertyNames = System.getProperties().stringPropertyNames();
+  private static Map.Entry<String, String> environmentEntryNotDefinedElsewhere() {
+    Set<String> definedNames = new HashSet<>(System.getProperties().stringPropertyNames());
+    for (DescribedVariable describedVariable : HopConfig.getInstance().getDescribedVariables()) {
+      definedNames.add(describedVariable.getName());
+    }
     return System.getenv().entrySet().stream()
-        .filter(entry -> !systemPropertyNames.contains(entry.getKey()))
+        .filter(entry -> !definedNames.contains(entry.getKey()))
         .filter(entry -> StringUtils.isNotEmpty(entry.getValue()))
-        .findFirst()
+        .min(Map.Entry.comparingByKey())
         .orElse(null);
+  }
+
+  /** The flag must not already be exported, or the process environment decides these tests. */
+  private static void assumeFlagNotExported() {
+    assumeTrue(
+        System.getenv(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES) == null,
+        Const.HOP_IMPORT_ENVIRONMENT_VARIABLES + " is exported in this environment");
   }
 
   @AfterEach
@@ -223,7 +236,8 @@ class VariablesTest {
   /** The operating system environment stays out of the variable space unless it is asked for. */
   @Test
   void environmentIsNotImportedByDefault() {
-    Map.Entry<String, String> entry = environmentEntryNotShadowedBySystemProperty();
+    assumeFlagNotExported();
+    Map.Entry<String, String> entry = environmentEntryNotDefinedElsewhere();
     assumeTrue(entry != null, "no usable environment variable to test with");
 
     Variables variables = new Variables();
@@ -235,7 +249,8 @@ class VariablesTest {
   /** With the flag on, ${NAME} resolves an exported environment variable (#8495). */
   @Test
   void environmentIsImportedWhenEnabled() {
-    Map.Entry<String, String> entry = environmentEntryNotShadowedBySystemProperty();
+    assumeFlagNotExported();
+    Map.Entry<String, String> entry = environmentEntryNotDefinedElsewhere();
     assumeTrue(entry != null, "no usable environment variable to test with");
     System.setProperty(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES, "Y");
 
@@ -252,7 +267,8 @@ class VariablesTest {
    */
   @Test
   void systemPropertiesWinOverTheEnvironment() {
-    Map.Entry<String, String> entry = environmentEntryNotShadowedBySystemProperty();
+    assumeFlagNotExported();
+    Map.Entry<String, String> entry = environmentEntryNotDefinedElsewhere();
     assumeTrue(entry != null, "no usable environment variable to test with");
     assumeTrue(!"overridden-by-minus-D".equals(entry.getValue()));
     System.setProperty(Const.HOP_IMPORT_ENVIRONMENT_VARIABLES, "Y");
@@ -265,5 +281,47 @@ class VariablesTest {
     } finally {
       System.clearProperty(entry.getKey());
     }
+  }
+
+  /** Nothing set anywhere: off. */
+  @Test
+  void environmentImportIsOffWhenNothingIsSet() {
+    assertFalse(Variables.isEnvironmentImported(null, null, null));
+  }
+
+  /**
+   * The container case after HopEnvironment has started: it copied the default N from hop-config
+   * onto the system properties, and the flag is exported as Y. The export must win (#8638).
+   */
+  @Test
+  void exportedFlagWinsOverTheSeededDefault() {
+    assertTrue(Variables.isEnvironmentImported("N", "Y", "N"));
+  }
+
+  /** Before HopEnvironment has started nothing is seeded, and an exported flag is enough. */
+  @Test
+  void exportedFlagIsEnoughBeforeHopEnvironmentStarts() {
+    assertTrue(Variables.isEnvironmentImported(null, "Y", null));
+  }
+
+  /** HopEnvironment seeds an empty string when hop-config has the name without a value. */
+  @Test
+  void exportedFlagWinsOverASeededEmptyValue() {
+    assertTrue(Variables.isEnvironmentImported(null, "Y", ""));
+  }
+
+  /** The environment overrides hop-config, as in HopResolvedSettings. */
+  @Test
+  void exportedFlagOverridesHopConfig() {
+    assertFalse(Variables.isEnvironmentImported("Y", "N", "Y"));
+    assertTrue(Variables.isEnvironmentImported("Y", null, "Y"));
+  }
+
+  /** A -D that differs from hop-config is an explicit override and wins over the environment. */
+  @Test
+  void minusDWinsOverTheEnvironment() {
+    assertTrue(Variables.isEnvironmentImported("N", "N", "Y"));
+    assertFalse(Variables.isEnvironmentImported("Y", "Y", "N"));
+    assertTrue(Variables.isEnvironmentImported(null, null, "Y"));
   }
 }
