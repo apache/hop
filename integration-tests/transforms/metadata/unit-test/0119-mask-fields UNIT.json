@@ -1,0 +1,83 @@
+{
+  "database_replacements": [],
+  "autoOpening": false,
+  "description": "Mask personal fields with reusable masking patterns",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "firstName",
+          "data_set_field": "firstName"
+        },
+        {
+          "transform_field": "lastName",
+          "data_set_field": "lastName"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "houseNr",
+          "data_set_field": "houseNr"
+        },
+        {
+          "transform_field": "bus",
+          "data_set_field": "bus"
+        },
+        {
+          "transform_field": "zipCode",
+          "data_set_field": "zipCode"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "countryCode",
+          "data_set_field": "countryCode"
+        },
+        {
+          "transform_field": "telHome",
+          "data_set_field": "telHome"
+        },
+        {
+          "transform_field": "telCell",
+          "data_set_field": "telCell"
+        }
+      ],
+      "field_order": [
+        "id",
+        "firstName",
+        "lastName",
+        "street",
+        "houseNr",
+        "bus",
+        "zipCode",
+        "city",
+        "state",
+        "countryCode",
+        "telHome",
+        "telCell"
+      ],
+      "data_set_name": "golden-0119-mask-fields",
+      "transform_name": "Result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0119-mask-fields UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0119-mask-fields.hpl"
+}

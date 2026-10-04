@@ -1,0 +1,5 @@
+id,firstName,lastName,street,houseNr,bus,zipCode,city,state,countryCode,telHome,telCell
+1,fn1000,ln20000,st1,hn1,,zc1,cy1,sc1,cc1,tel9000000,tel9000000
+2,fn1001,ln20000,st1,hn2,,zc1,cy1,sc1,cc1,tel9000001,tel9000001
+3,fn1002,ln20001,st1,hn3,,zc1,cy1,sc1,cc1,tel9000002,tel9000002
+4,fn1003,ln20001,st1,hn4,,zc1,cy1,sc1,cc1,tel9000003,tel9000003

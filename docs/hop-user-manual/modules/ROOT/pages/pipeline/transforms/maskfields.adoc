@@ -27,9 +27,11 @@ Mask fields replaces the values of the fields you list. Each field names a xref:
 
 The field keeps its name and its type. A string stays a string, and a number stays a number.
 
-Null and empty values are left as they are when the pattern builds a token or picks from a list. A missing value does not become a person. *SET_NULL* and *SET_EMPTY* always write.
+Null and empty values are left as they are when the pattern builds a token. A missing value does not become a person. *SET_NULL* and *SET_EMPTY* always write.
 
 The same pattern shares one mapping. `Matt` in two fields that use `First name` becomes the same token. Use a second pattern when those fields need different tokens.
+
+image::transforms/maskfields/maskfields-dialog.png[Mask fields dialog,width="60%"]
 
 == Options
 
@@ -40,24 +42,22 @@ The same pattern shares one mapping. `Matt` in two fields that use `First name` 
 |Transform name
 |Name of the transform. This name has to be unique in a single pipeline.
 
-|Info transform
-|Transform that delivers replacement values for patterns whose value source is *LIST*. Connect it with an info hop. The pattern names the field to read.
-
 |Get fields
 |Adds a row for each incoming field.
 
-|Field
-|Field whose value is replaced.
+|Edit masking rule
+|A masking rule is a Masking pattern, edited in the metadata perspective. With a row selected, edits that row's rule, or creates one when the row has none. With no row selected, opens the Masking pattern type in the metadata perspective.
 
-|Masking pattern
-|Name of a Masking pattern metadata item.
+|Field
+|Field whose value is replaced. A row with no masking rule is left unchanged.
+
+|Masking rule
+|Name of a Masking pattern metadata item. Leave this empty to skip the field.
 |===
 
 == What a pattern writes
 
 *SYNTHETIC* builds `prefix + token + suffix` for a string. The token is a *SEQUENCE* (an integer that starts at *Sequence start* and steps by one) or a *UUID*. A number field can take a sequence only, with an empty prefix and suffix. A date cannot take a generated token.
-
-*LIST* takes values from the info transform. With *NONE*, the transform walks the list from the top on every row and wraps. With *MEMORY* or *DATABASE*, a new source value takes the next list entry, wrapping when the list is shorter than the number of distinct values, and that choice is kept. A later row with the same source value gets the same entry. That is how a short list of countries stays usable for grouping.
 
 *SET_NULL* writes null. *SET_EMPTY* writes a blank string and applies to string fields only.
 
@@ -71,9 +71,8 @@ The same pattern shares one mapping. `Matt` in two fields that use `First name` 
 
 The map table stores the original value, so it is itself personal data. Put it on a connection you protect, separate from the masked output.
 
-The transform runs as one copy and cannot be partitioned. The database store is what shares a mapping across pipelines.
+Copies and partitions of one pipeline share one runtime, so a remembered value stays the same and a sequence does not start over on each copy. Which row receives which new sequence number follows whichever copy runs first. Beam and native Spark each run a worker in its own JVM, so they stay unsupported. The database store is what shares a mapping across pipelines.
 
 == Related
 
-* xref:pipeline/transforms/fake.adoc[Fake data] and xref:pipeline/transforms/datagrid.adoc[Data grid] can feed the info hop.
 * xref:metadata-types/masking-pattern.adoc[Masking pattern]

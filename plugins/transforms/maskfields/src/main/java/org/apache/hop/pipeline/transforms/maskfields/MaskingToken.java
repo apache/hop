@@ -17,10 +17,32 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+
 /** The varying part of a synthetic replacement. */
-public enum MaskingToken {
+public enum MaskingToken implements IEnumHasCodeAndDescription {
   /** An integer that starts at the pattern's sequence start and steps by one. */
-  SEQUENCE,
+  SEQUENCE(
+      "SEQUENCE", BaseMessages.getString(MaskingToken.class, "MaskingToken.Sequence.Description")),
   /** A random UUID. String fields only. */
-  UUID
+  UUID("UUID", BaseMessages.getString(MaskingToken.class, "MaskingToken.Uuid.Description"));
+
+  private final String code;
+  private final String description;
+
+  MaskingToken(String code, String description) {
+    this.code = code;
+    this.description = description;
+  }
+
+  @Override
+  public String getCode() {
+    return code;
+  }
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
 }

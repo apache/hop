@@ -48,11 +48,6 @@ public final class MaskingRules {
     if (type == IValueMeta.TYPE_BOOLEAN || type == IValueMeta.TYPE_BINARY) {
       return BaseMessages.getString(PKG, "MaskingRules.OnlyNull");
     }
-    if (source == MaskingValueSource.LIST) {
-      return StringUtils.isEmpty(pattern.getListField())
-          ? BaseMessages.getString(PKG, "MaskingRules.ListField")
-          : null;
-    }
     if (type == IValueMeta.TYPE_DATE || type == IValueMeta.TYPE_TIMESTAMP) {
       return BaseMessages.getString(PKG, "MaskingRules.NoSyntheticDate");
     }

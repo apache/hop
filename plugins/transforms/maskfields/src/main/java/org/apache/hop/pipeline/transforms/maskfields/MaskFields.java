@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -31,12 +31,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.maskfields.MaskingEngine.Binding;
-import org.apache.hop.pipeline.transforms.maskfields.store.DatabaseMaskingStore;
 import org.apache.hop.pipeline.transforms.maskfields.store.IMaskingStore;
-import org.apache.hop.pipeline.transforms.maskfields.store.MemoryMaskingStore;
 
 /** Replaces field values using masking patterns. */
 public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
@@ -58,23 +57,18 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
     if (!super.init()) {
       return false;
     }
-    TransformMeta transform = getTransformMeta();
-    if (transform != null && (transform.getCopies(this) > 1 || transform.isPartitioned())) {
-      logError(BaseMessages.getString(PKG, "MaskFields.Error.Copies"));
-      return false;
-    }
-    Map<String, IMaskingStore> stores = new LinkedHashMap<>();
+    MaskingRuntime.Lease lease = MaskingRuntime.getInstance().acquire(executionId());
+    data.lease = lease;
     try {
       List<Binding> bindings = new ArrayList<>();
       Map<String, MaskingPattern> patterns = new LinkedHashMap<>();
+      String transformName = getTransformMeta() == null ? "" : getTransformMeta().getName();
       if (meta.getFields() != null) {
         for (MaskField field : meta.getFields()) {
-          if (field == null || StringUtils.isEmpty(field.getFieldName())) {
+          if (field == null
+              || StringUtils.isEmpty(field.getFieldName())
+              || StringUtils.isEmpty(field.getPatternName())) {
             continue;
-          }
-          if (StringUtils.isEmpty(field.getPatternName())) {
-            throw new HopException(
-                BaseMessages.getString(PKG, "MaskFields.Check.NoPattern", field.getFieldName()));
           }
           MaskingPattern pattern = patterns.get(field.getPatternName());
           if (pattern == null) {
@@ -82,7 +76,7 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
             patterns.put(field.getPatternName(), pattern);
           }
           long start = parseStart(pattern);
-          IMaskingStore store = storeFor(pattern, stores);
+          IMaskingStore store = storeFor(pattern, lease);
           bindings.add(
               new Binding(
                   field.getFieldName(),
@@ -90,13 +84,19 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
                   resolve(pattern.getPrefix()),
                   resolve(pattern.getSuffix()),
                   start,
-                  store));
+                  store,
+                  sharedSequence(lease, transformName, field, pattern, start)));
         }
       }
-      data.engine = new MaskingEngine(bindings, new ArrayList<>(stores.values()));
+      data.engine = new MaskingEngine(bindings);
+      IPipelineEngine<PipelineMeta> pipeline = getPipeline();
+      if (pipeline != null) {
+        pipeline.addExecutionFinishedListener(engine -> lease.release());
+      }
       return true;
     } catch (HopException e) {
-      closeStores(stores);
+      lease.release();
+      data.lease = null;
       logError(e.getMessage(), e);
       return false;
     }
@@ -104,10 +104,6 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
 
   @Override
   public boolean processRow() throws HopException {
-    if (first) {
-      first = false;
-      readLists();
-    }
     Object[] row = getRow();
     if (row == null) {
       setOutputDone();
@@ -155,48 +151,11 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
       data.engine.close();
       data.engine = null;
     }
+    if (data.lease != null) {
+      data.lease.release();
+      data.lease = null;
+    }
     super.dispose();
-  }
-
-  private void readLists() throws HopException {
-    List<Binding> lists = new ArrayList<>();
-    for (Binding binding : data.engine.getBindings()) {
-      if (binding.pattern.getValueSource() == MaskingValueSource.LIST) {
-        lists.add(binding);
-      }
-    }
-    if (lists.isEmpty()) {
-      return;
-    }
-    if (StringUtils.isEmpty(meta.getInfoTransformName())) {
-      throw new HopException(BaseMessages.getString(PKG, "MaskFields.Check.NoInfo"));
-    }
-    IRowSet rowSet = findInputRowSet(meta.getInfoTransformName());
-    if (rowSet == null) {
-      throw new HopException(BaseMessages.getString(PKG, "MaskFields.Check.NoInfo"));
-    }
-    Object[] infoRow;
-    while ((infoRow = getRowFrom(rowSet)) != null) {
-      IRowMeta infoMeta = rowSet.getRowMeta();
-      for (Binding binding : lists) {
-        String listField = resolve(binding.pattern.getListField());
-        int index = infoMeta.indexOfValue(listField);
-        if (index < 0) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "MaskFields.Error.ListFieldMissing", listField));
-        }
-        String text = infoMeta.getValueMeta(index).getString(infoRow[index]);
-        if (StringUtils.isNotEmpty(text)) {
-          binding.listValues.add(text);
-        }
-      }
-    }
-    for (Binding binding : lists) {
-      if (binding.listValues.isEmpty()) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "MaskFields.Error.EmptyList", binding.pattern.getName()));
-      }
-    }
   }
 
   private MaskingPattern loadRequired(String name) throws HopException {
@@ -229,7 +188,29 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
     }
   }
 
-  private IMaskingStore storeFor(MaskingPattern pattern, Map<String, IMaskingStore> stores)
+  private AtomicLong sharedSequence(
+      MaskingRuntime.Lease lease,
+      String transformName,
+      MaskField field,
+      MaskingPattern pattern,
+      long start) {
+    if (pattern.remembers()
+        || pattern.getValueSource() != MaskingValueSource.SYNTHETIC
+        || pattern.getToken() == MaskingToken.UUID) {
+      return null;
+    }
+    return lease.sequence(transformName, field.getFieldName(), start);
+  }
+
+  private String executionId() {
+    IPipelineEngine<PipelineMeta> pipeline = getPipeline();
+    if (pipeline != null && StringUtils.isNotEmpty(pipeline.getLogChannelId())) {
+      return pipeline.getLogChannelId();
+    }
+    return "mask-fields-" + System.identityHashCode(this);
+  }
+
+  private IMaskingStore storeFor(MaskingPattern pattern, MaskingRuntime.Lease lease)
       throws HopException {
     if (!pattern.remembers()
         || pattern.getValueSource() == MaskingValueSource.SET_NULL
@@ -237,7 +218,7 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
       return null;
     }
     if (pattern.getStorage() == MaskingStorage.MEMORY) {
-      return stores.computeIfAbsent("memory", key -> new MemoryMaskingStore());
+      return lease.memory();
     }
     String connectionName = resolve(pattern.getConnection());
     String schema = resolve(pattern.getSchemaName());
@@ -246,22 +227,13 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
       throw new HopException(
           BaseMessages.getString(PKG, "MaskFields.Check.NoConnection", pattern.getName()));
     }
-    String storeKey = connectionName + "\t" + schema + "\t" + table;
-    IMaskingStore existing = stores.get(storeKey);
-    if (existing != null) {
-      return existing;
-    }
     DatabaseMeta databaseMeta = loadConnection(connectionName, pattern.getName());
-    DatabaseMaskingStore store = new DatabaseMaskingStore(this, this, databaseMeta, schema, table);
     try {
-      store.open();
+      return lease.database(this, this, databaseMeta, schema, table);
     } catch (HopException e) {
-      store.close();
       throw new HopException(
           BaseMessages.getString(PKG, "MaskFields.Error.OpenStore", pattern.getName()), e);
     }
-    stores.put(storeKey, store);
-    return store;
   }
 
   private DatabaseMeta loadConnection(String name, String patternName) throws HopException {
@@ -273,11 +245,5 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
           BaseMessages.getString(PKG, "MaskFields.Check.MissingConnection", name, patternName));
     }
     return databaseMeta;
-  }
-
-  private static void closeStores(Map<String, IMaskingStore> stores) {
-    for (IMaskingStore store : stores.values()) {
-      store.close();
-    }
   }
 }

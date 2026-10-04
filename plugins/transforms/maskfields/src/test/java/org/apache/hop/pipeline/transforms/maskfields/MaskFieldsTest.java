@@ -18,12 +18,10 @@
 package org.apache.hop.pipeline.transforms.maskfields;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -37,7 +35,6 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,46 +104,35 @@ class MaskFieldsTest {
   }
 
   @Test
-  void processRowReadsTheInfoList() throws Exception {
+  void processRowLeavesAFieldWithoutARuleUnchanged() throws Exception {
     MaskingPattern pattern = new MaskingPattern();
     pattern.setName("First name");
-    pattern.setValueSource(MaskingValueSource.LIST);
-    pattern.setStorage(MaskingStorage.MEMORY);
-    pattern.setListField("replacement");
+    pattern.setValueSource(MaskingValueSource.SYNTHETIC);
+    pattern.setToken(MaskingToken.SEQUENCE);
+    pattern.setStorage(MaskingStorage.NONE);
+    pattern.setPrefix("first-name-");
+    pattern.setSequenceStart("1");
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
     provider.getSerializer(MaskingPattern.class).save(pattern);
 
     MaskFieldsMeta meta = new MaskFieldsMeta();
-    meta.setInfoTransformName("Replacements");
     meta.getFields().add(new MaskField("name", "First name"));
+    meta.getFields().add(new MaskField("city", ""));
     MaskFields transform = createTransform(meta);
     transform.setMetadataProvider(provider);
-
-    TransformMeta source = mock(TransformMeta.class);
-    when(source.getName()).thenReturn("Replacements");
-    when(source.isPartitioned()).thenReturn(false);
-    when(source.getCopies(any())).thenReturn(1);
-    when(mockHelper.pipelineMeta.findTransform("Replacements")).thenReturn(source);
     assertTrue(transform.init());
 
-    RowMeta people = new RowMeta();
-    people.addValueMeta(new ValueMetaString("name"));
-    RowMeta replacements = new RowMeta();
-    replacements.addValueMeta(new ValueMetaString("replacement"));
-    transform.addRowSetToInputRowSets(
-        input("Replacements", replacements, new Object[] {"Ada"}, new Object[] {"Bea"}));
-    transform.addRowSetToInputRowSets(
-        input(
-            "People", people, new Object[] {"Matt"}, new Object[] {"Ann"}, new Object[] {"Matt"}));
-    BlockingRowSet output = output(people);
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    rowMeta.addValueMeta(new ValueMetaString("city"));
+    BlockingRowSet input = input("people", rowMeta, new Object[] {"Matt", "Gent"});
+    BlockingRowSet output = output(rowMeta);
+    transform.addRowSetToInputRowSets(input);
     transform.addRowSetToOutputRowSets(output);
 
     assertTrue(transform.processRow());
-    assertTrue(transform.processRow());
-    assertTrue(transform.processRow());
-    assertEquals("Ada", output.getRowWait(1, TimeUnit.SECONDS)[0]);
-    assertEquals("Bea", output.getRowWait(1, TimeUnit.SECONDS)[0]);
-    assertEquals("Ada", output.getRowWait(1, TimeUnit.SECONDS)[0]);
+    assertArrayEquals(
+        new Object[] {"first-name-1", "Gent"}, output.getRowWait(1, TimeUnit.SECONDS));
     transform.dispose();
   }
 

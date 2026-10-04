@@ -17,14 +17,39 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+
 /** Where a masking pattern gets the value it writes. */
-public enum MaskingValueSource {
+public enum MaskingValueSource implements IEnumHasCodeAndDescription {
   /** Prefix, a sequence or UUID, and a suffix. */
-  SYNTHETIC,
-  /** A value taken from the info transform. */
-  LIST,
+  SYNTHETIC(
+      "SYNTHETIC",
+      BaseMessages.getString(MaskingValueSource.class, "MaskingValueSource.Synthetic.Description")),
   /** Always null. */
-  SET_NULL,
+  SET_NULL(
+      "SET_NULL",
+      BaseMessages.getString(MaskingValueSource.class, "MaskingValueSource.SetNull.Description")),
   /** Always an empty string. String fields only. */
-  SET_EMPTY
+  SET_EMPTY(
+      "SET_EMPTY",
+      BaseMessages.getString(MaskingValueSource.class, "MaskingValueSource.SetEmpty.Description"));
+
+  private final String code;
+  private final String description;
+
+  MaskingValueSource(String code, String description) {
+    this.code = code;
+    this.description = description;
+  }
+
+  @Override
+  public String getCode() {
+    return code;
+  }
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
 }

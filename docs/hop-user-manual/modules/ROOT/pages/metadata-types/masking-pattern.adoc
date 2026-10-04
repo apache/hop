@@ -26,6 +26,8 @@ A Masking pattern describes how xref:pipeline/transforms/maskfields.adoc[Mask fi
 
 Patterns are stored as JSON under `metadata/masking-pattern/`.
 
+image::metadata-types/masking-pattern-first-name.jpg[Masking pattern first-name,width="75%"]
+
 == Properties
 
 [options="header"]
@@ -42,7 +44,7 @@ Patterns are stored as JSON under `metadata/masking-pattern/`.
 |A label for people working with the metadata. Suggested values are Direct identifier, Quasi-identifier, Sensitive and Special category. You can type another term. The transform does not read this value.
 
 |Value source
-|*SYNTHETIC* builds a token. *LIST* takes values from the info transform. *SET_NULL* clears the field. *SET_EMPTY* writes a blank string.
+|*SYNTHETIC* builds a token. *SET_NULL* clears the field. *SET_EMPTY* writes a blank string.
 
 |Token
 |*SEQUENCE* or *UUID*. Used by *SYNTHETIC*.
@@ -55,9 +57,6 @@ Patterns are stored as JSON under `metadata/masking-pattern/`.
 
 |Sequence start
 |First integer. The default is 1.
-
-|List field
-|Field on the info transform that holds the replacement values. Used by *LIST*.
 
 |Remember values
 |*NONE* assigns a new value every row. *MEMORY* keeps the mapping for one run. *DATABASE* keeps it in a table across runs.

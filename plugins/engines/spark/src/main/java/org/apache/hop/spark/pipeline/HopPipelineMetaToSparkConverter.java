@@ -98,7 +98,7 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.JOIN_ROWS_PLUGIN_ID,
           "Join Rows is not supported on the native Spark engine. A cartesian product needs every row of every input in one place, but every partition would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use Merge Join on that field instead.",
           SparkConst.MASK_FIELDS_PLUGIN_ID,
-          "Mask fields is not supported on the native Spark engine. It keeps a mapping of each value and reads one info stream to completion, which does not hold when every partition keeps its own mapping.");
+          "Mask fields is not supported on the native Spark engine. Every partition keeps its own mapping and sequence, so the same source value would not stay the same token.");
 
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;

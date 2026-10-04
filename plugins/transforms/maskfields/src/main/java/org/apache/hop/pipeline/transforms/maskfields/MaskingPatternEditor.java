@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
@@ -139,7 +140,6 @@ public class MaskingPatternEditor extends MetadataEditor<MaskingPattern> {
 
     Set<String> hidden = new HashSet<>();
     boolean synthetic = source == MaskingValueSource.SYNTHETIC;
-    boolean list = source == MaskingValueSource.LIST;
     boolean removal =
         source == MaskingValueSource.SET_NULL || source == MaskingValueSource.SET_EMPTY;
     if (!synthetic) {
@@ -149,9 +149,6 @@ public class MaskingPatternEditor extends MetadataEditor<MaskingPattern> {
       hidden.add(MaskingPattern.WIDGET_SEQUENCE_START);
     } else if (token != MaskingToken.SEQUENCE) {
       hidden.add(MaskingPattern.WIDGET_SEQUENCE_START);
-    }
-    if (!list) {
-      hidden.add(MaskingPattern.WIDGET_LIST_FIELD);
     }
     if (removal) {
       hidden.add(MaskingPattern.WIDGET_STORAGE);
@@ -176,6 +173,16 @@ public class MaskingPatternEditor extends MetadataEditor<MaskingPattern> {
       text = comboVar.getText();
     }
     if (StringUtils.isNotEmpty(text)) {
+      if (IEnumHasCodeAndDescription.class.isAssignableFrom(type)) {
+        @SuppressWarnings("unchecked")
+        Class<? extends IEnumHasCodeAndDescription> coded =
+            (Class<? extends IEnumHasCodeAndDescription>) type;
+        @SuppressWarnings("unchecked")
+        E byDescription = (E) IEnumHasCodeAndDescription.lookupDescription(coded, text, null);
+        if (byDescription != null) {
+          return byDescription;
+        }
+      }
       try {
         return Enum.valueOf(type, text);
       } catch (IllegalArgumentException e) {

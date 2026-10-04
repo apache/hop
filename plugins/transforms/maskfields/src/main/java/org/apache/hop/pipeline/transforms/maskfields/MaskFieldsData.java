@@ -25,4 +25,5 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class MaskFieldsData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public MaskingEngine engine;
+  public MaskingRuntime.Lease lease;
 }

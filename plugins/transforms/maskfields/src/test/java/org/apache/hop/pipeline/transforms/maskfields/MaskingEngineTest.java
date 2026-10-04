@@ -80,34 +80,6 @@ class MaskingEngineTest {
   }
 
   @Test
-  void listMemoryWrapsAndKeepsTheFirstChoice() throws Exception {
-    MaskingPattern pattern = listPattern(MaskingStorage.MEMORY);
-    MemoryMaskingStore store = new MemoryMaskingStore();
-    Binding binding = binding("country", pattern, store);
-    binding.listValues.addAll(List.of("North", "South"));
-    MaskingEngine engine = engine(binding);
-    RowMeta rowMeta = stringRow("country");
-
-    assertEquals("North", apply(engine, rowMeta, "BE")[0]);
-    assertEquals("South", apply(engine, rowMeta, "NL")[0]);
-    assertEquals("North", apply(engine, rowMeta, "FR")[0]);
-    assertEquals("North", apply(engine, rowMeta, "BE")[0]);
-  }
-
-  @Test
-  void listWithoutMemoryWalksTheListOnEveryRow() throws Exception {
-    MaskingPattern pattern = listPattern(MaskingStorage.NONE);
-    Binding binding = binding("country", pattern, null);
-    binding.listValues.addAll(List.of("North", "South"));
-    MaskingEngine engine = engine(binding);
-    RowMeta rowMeta = stringRow("country");
-
-    assertEquals("North", apply(engine, rowMeta, "BE")[0]);
-    assertEquals("South", apply(engine, rowMeta, "BE")[0]);
-    assertEquals("North", apply(engine, rowMeta, "BE")[0]);
-  }
-
-  @Test
   void setNullAndSetEmpty() throws Exception {
     MaskingPattern clear = new MaskingPattern();
     clear.setName("Clear");
@@ -135,15 +107,6 @@ class MaskingEngineTest {
     return pattern;
   }
 
-  private static MaskingPattern listPattern(MaskingStorage storage) {
-    MaskingPattern pattern = new MaskingPattern();
-    pattern.setName("Country");
-    pattern.setValueSource(MaskingValueSource.LIST);
-    pattern.setStorage(storage);
-    pattern.setListField("replacement");
-    return pattern;
-  }
-
   private static Binding binding(String field, MaskingPattern pattern, MemoryMaskingStore store) {
     long start = 1L;
     if (pattern.getSequenceStart() != null && !pattern.getSequenceStart().isBlank()) {
@@ -153,7 +116,7 @@ class MaskingEngineTest {
   }
 
   private static MaskingEngine engine(Binding... bindings) {
-    return new MaskingEngine(List.of(bindings), List.of());
+    return new MaskingEngine(List.of(bindings));
   }
 
   private static RowMeta stringRow(String... names) {

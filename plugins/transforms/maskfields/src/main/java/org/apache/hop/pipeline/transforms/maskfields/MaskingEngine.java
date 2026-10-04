@@ -17,10 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -37,12 +35,10 @@ public class MaskingEngine {
   private static final Class<?> PKG = MaskingEngine.class;
 
   private final List<Binding> bindings;
-  private final List<IMaskingStore> stores;
   private final ValueMetaString maskedString = new ValueMetaString("masked");
 
-  public MaskingEngine(List<Binding> bindings, List<IMaskingStore> stores) {
+  public MaskingEngine(List<Binding> bindings) {
     this.bindings = bindings;
-    this.stores = stores;
   }
 
   public List<Binding> getBindings() {
@@ -69,9 +65,7 @@ public class MaskingEngine {
   }
 
   public void close() {
-    for (IMaskingStore store : stores) {
-      store.close();
-    }
+    // The runtime owns the stores. Closing them here would drop state other copies still use.
   }
 
   private Object mask(Binding binding, IValueMeta valueMeta, Object value)
@@ -87,9 +81,6 @@ public class MaskingEngine {
     String key = valueMeta.getString(value);
     if (StringUtils.isEmpty(key)) {
       return value;
-    }
-    if (source == MaskingValueSource.LIST) {
-      return toField(valueMeta, listValue(binding, key));
     }
     return toField(valueMeta, syntheticValue(binding, valueMeta, key));
   }
@@ -109,7 +100,9 @@ public class MaskingEngine {
     if (binding.pattern.getToken() == MaskingToken.UUID) {
       return UUID.randomUUID().toString();
     }
-    return Long.toString(binding.localSequence.getAndIncrement());
+    AtomicLong counter =
+        binding.sharedSequence == null ? binding.localSequence : binding.sharedSequence;
+    return Long.toString(counter.getAndIncrement());
   }
 
   private String nextToken(Binding binding, IMaskingStore store) throws HopException {
@@ -124,26 +117,6 @@ public class MaskingEngine {
       return binding.prefix + token + binding.suffix;
     }
     return token;
-  }
-
-  private String listValue(Binding binding, String key) throws HopException {
-    List<String> values = binding.listValues;
-    if (values.isEmpty()) {
-      throw new HopException(
-          BaseMessages.getString(PKG, "MaskFields.Error.EmptyList", binding.pattern.getName()));
-    }
-    if (!binding.pattern.remembers()) {
-      int index = Math.floorMod(binding.roundRobin.getAndIncrement(), values.size());
-      return values.get(index);
-    }
-    return binding.store.findOrCreate(
-        binding.pattern.getName(),
-        key,
-        store -> {
-          int index =
-              Math.floorMod(store.allocateSequence(binding.pattern.getName(), 0), values.size());
-          return values.get(index);
-        });
   }
 
   private Object toField(IValueMeta target, String masked) throws HopValueException {
@@ -161,9 +134,8 @@ public class MaskingEngine {
     final String suffix;
     final long sequenceStart;
     final IMaskingStore store;
-    final List<String> listValues = new ArrayList<>();
-    final AtomicInteger roundRobin = new AtomicInteger();
     final AtomicLong localSequence;
+    final AtomicLong sharedSequence;
 
     public Binding(
         String fieldName,
@@ -172,13 +144,25 @@ public class MaskingEngine {
         String suffix,
         long sequenceStart,
         IMaskingStore store) {
+      this(fieldName, pattern, prefix, suffix, sequenceStart, store, null);
+    }
+
+    public Binding(
+        String fieldName,
+        MaskingPattern pattern,
+        String prefix,
+        String suffix,
+        long sequenceStart,
+        IMaskingStore store,
+        AtomicLong sharedSequence) {
       this.fieldName = fieldName;
       this.pattern = pattern;
       this.prefix = prefix == null ? "" : prefix;
       this.suffix = suffix == null ? "" : suffix;
       this.sequenceStart = sequenceStart;
       this.store = store;
-      this.localSequence = new AtomicLong(sequenceStart);
+      this.sharedSequence = sharedSequence;
+      this.localSequence = sharedSequence == null ? new AtomicLong(sequenceStart) : null;
     }
   }
 }

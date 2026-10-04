@@ -87,35 +87,13 @@ class MaskFieldsMetaTest {
   }
 
   @Test
-  void rejectsMoreThanOneCopy() throws Exception {
-    MaskFieldsMeta meta = new MaskFieldsMeta();
-    TransformMeta transform = new TransformMeta();
-    transform.setName("Mask");
-    transform.setCopies(2);
-    List<ICheckResult> remarks = new ArrayList<>();
-    meta.check(
-        remarks,
-        null,
-        transform,
-        new RowMeta(),
-        new String[] {"in"},
-        new String[0],
-        null,
-        new Variables(),
-        new MemoryMetadataProvider());
-    assertTrue(messages(remarks).stream().anyMatch(text -> text.contains("single copy")));
-  }
-
-  @Test
   void roundTripsTheTransformAndThePattern() throws Exception {
     MaskFieldsMeta meta = new MaskFieldsMeta();
-    meta.setInfoTransformName("Replacements");
     meta.getFields().add(new MaskField("name", "First name"));
     String xml = meta.getXml();
     Node node = XmlHandler.loadXmlString("<transform>" + xml + "</transform>").getDocumentElement();
     MaskFieldsMeta copy = new MaskFieldsMeta();
     copy.loadXml(node, new MemoryMetadataProvider());
-    assertEquals("Replacements", copy.getInfoTransformName());
     assertEquals("name", copy.getFields().get(0).getFieldName());
     assertEquals("First name", copy.getFields().get(0).getPatternName());
 

@@ -51,6 +51,8 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.DialogOkContent;
@@ -1056,10 +1058,11 @@ public class GuiCompositeWidgets {
 
   /**
    * See if the annotated field is an enum. If this is the case we can take the combo values from
-   * the enum names.
+   * the enum. An {@link IEnumHasCodeAndDescription} contributes its description. Any other enum
+   * contributes {@code toString()}.
    *
    * @param fieldClass The field class
-   * @return The list of enum names or null if this is not an enum
+   * @return The list of combo labels or null if this is not an enum
    */
   private String[] getEnumValues(Class<?> fieldClass) {
     try {
@@ -1067,7 +1070,7 @@ public class GuiCompositeWidgets {
         Object[] enumConstants = fieldClass.getEnumConstants();
         String[] values = new String[enumConstants.length];
         for (int i = 0; i < values.length; i++) {
-          values[i] = enumConstants[i].toString();
+          values[i] = enumChoiceLabel(enumConstants[i], false);
         }
         return values;
       } else {
@@ -1081,6 +1084,21 @@ public class GuiCompositeWidgets {
           "Error finding enum values of field class: " + fieldClass.getName(), e);
       return null;
     }
+  }
+
+  /**
+   * Label shown for an enum. A description is the label a person picks. Otherwise a combo keeps
+   * {@code toString()} and a table cell keeps the constant name, which is what each wrote before.
+   */
+  private String enumChoiceLabel(Object enumConstant, boolean constantNameFallback) {
+    if (enumConstant instanceof IEnumHasCodeAndDescription coded
+        && StringUtils.isNotEmpty(coded.getDescription())) {
+      return coded.getDescription();
+    }
+    if (constantNameFallback && enumConstant instanceof Enum<?> enumerated) {
+      return enumerated.name();
+    }
+    return enumConstant == null ? "" : Const.NVL(enumConstant.toString(), "");
   }
 
   private Control getCheckboxControl(
@@ -1592,12 +1610,14 @@ public class GuiCompositeWidgets {
             button.setSelection(Boolean.TRUE.equals(value));
             break;
           case COMBO:
+            String comboText =
+                value instanceof Enum<?> ? enumChoiceLabel(value, false) : stringValue;
             if (guiElements.isVariablesEnabled()) {
               ComboVar comboVar = (ComboVar) control;
-              comboVar.setText(stringValue);
+              comboVar.setText(comboText);
             } else {
               Combo combo = (Combo) control;
-              combo.setText(stringValue);
+              combo.setText(comboText);
             }
             break;
           case METADATA:
@@ -1795,7 +1815,7 @@ public class GuiCompositeWidgets {
               return;
             }
             try {
-              value = Enum.valueOf((Class<Enum>) parameterType, constantName);
+              value = enumConstant(parameterType, constantName);
             } catch (IllegalArgumentException e) {
               LogChannel.UI.logDebug(
                   "Ignoring value '"
@@ -2048,7 +2068,7 @@ public class GuiCompositeWidgets {
     Object[] constants = fieldClass.getEnumConstants();
     String[] names = new String[constants.length];
     for (int i = 0; i < constants.length; i++) {
-      names[i] = ((Enum<?>) constants[i]).name();
+      names[i] = enumChoiceLabel(constants[i], true);
     }
     return names;
   }
@@ -2131,8 +2151,8 @@ public class GuiCompositeWidgets {
     if (value instanceof Boolean flag) {
       return flag ? "Y" : "N";
     }
-    if (value instanceof Enum<?> enumValue) {
-      return enumValue.name();
+    if (value instanceof Enum<?>) {
+      return enumChoiceLabel(value, true);
     }
     return Const.NVL(value.toString(), "");
   }
@@ -2257,6 +2277,19 @@ public class GuiCompositeWidgets {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private Object enumConstant(Class<?> parameterType, String text) {
+    if (IEnumHasCodeAndDescription.class.isAssignableFrom(parameterType)) {
+      Class<? extends IEnumHasCodeAndDescription> coded =
+          (Class<? extends IEnumHasCodeAndDescription>) parameterType;
+      IEnumHasCodeAndDescription byDescription =
+          IEnumHasCodeAndDescription.lookupDescription(coded, text, null);
+      if (byDescription != null) {
+        return byDescription;
+      }
+      IEnumHasCode byCode = IEnumHasCode.lookupCode(coded, text, null);
+      if (byCode != null) {
+        return byCode;
+      }
+    }
     return Enum.valueOf((Class) parameterType, text);
   }
 

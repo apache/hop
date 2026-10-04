@@ -56,7 +56,6 @@ public class MaskingPattern extends HopMetadataBase implements IHopMetadata {
   public static final String WIDGET_PREFIX = "prefix";
   public static final String WIDGET_SUFFIX = "suffix";
   public static final String WIDGET_SEQUENCE_START = "sequenceStart";
-  public static final String WIDGET_LIST_FIELD = "listField";
   public static final String WIDGET_STORAGE = "storage";
   public static final String WIDGET_CONNECTION = "connection";
   public static final String WIDGET_SCHEMA = "schemaName";
@@ -161,19 +160,6 @@ public class MaskingPattern extends HopMetadataBase implements IHopMetadata {
       label = "i18n::MaskingPattern.SequenceStart.Label",
       toolTip = "i18n::MaskingPattern.SequenceStart.Tooltip")
   private String sequenceStart = "1";
-
-  @HopMetadataProperty
-  @GuiWidgetElement(
-      id = WIDGET_LIST_FIELD,
-      order = "0800",
-      type = GuiElementType.TEXT,
-      parentId = GUI_WIDGETS_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = GROUP_RULE,
-      groupOrder = "20",
-      label = "i18n::MaskingPattern.ListField.Label",
-      toolTip = "i18n::MaskingPattern.ListField.Tooltip")
-  private String listField = "";
 
   @HopMetadataProperty
   @GuiWidgetElement(

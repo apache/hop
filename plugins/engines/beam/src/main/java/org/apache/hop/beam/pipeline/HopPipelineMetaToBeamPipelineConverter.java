@@ -109,7 +109,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
           JoinRowsMeta.class,
           "Join Rows is not supported on Beam.  A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing.  Add the same constant field to both inputs and use a Merge Join on that field instead.",
           MaskFieldsMeta.class,
-          "Mask fields is not supported on Beam. It keeps a mapping of each value and reads one info stream to completion, which does not hold across workers.");
+          "Mask fields is not supported on Beam. Each worker keeps its own mapping and sequence, so the same source value would not stay the same token.");
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;

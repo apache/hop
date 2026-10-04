@@ -26,7 +26,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -45,13 +44,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.stream.IStream;
-import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
-import org.apache.hop.pipeline.transform.stream.Stream;
-import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 @Getter
 @Setter
@@ -70,34 +63,23 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
   private static final Class<?> PKG = MaskFieldsMeta.class;
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "MaskFields.Dialog";
-  public static final String WIDGET_INFO_TRANSFORM = "infoTransformName";
-  public static final String WIDGET_GET_FIELDS = "getFields";
+  public static final String WIDGET_EDIT_RULE = "editRule";
   public static final String WIDGET_FIELDS = "fields";
 
-  @HopMetadataProperty(key = "from")
-  @GuiWidgetElement(
-      id = WIDGET_INFO_TRANSFORM,
-      order = "0100",
-      type = GuiElementType.TEXT,
-      variables = false,
-      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "i18n::MaskFields.Group.Fields",
-      label = "i18n::MaskFields.InfoTransform.Label",
-      toolTip = "i18n::MaskFields.InfoTransform.Tooltip")
-  private String infoTransformName = "";
+  /** Column index of the masking rule in the fields table. 0 is the row number. */
+  public static final int RULE_COLUMN = 2;
 
   @GuiWidgetElement(
-      id = WIDGET_GET_FIELDS,
+      id = WIDGET_EDIT_RULE,
       order = "0200",
       type = GuiElementType.BUTTON,
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       groupType = GuiWidgetGroupType.BOXES,
       group = "i18n::MaskFields.Group.Fields",
-      label = "i18n::MaskFields.GetFields.Label",
-      toolTip = "i18n::MaskFields.GetFields.Tooltip")
-  public void getFieldsButton(Object sourceObject) {
-    // The dialog listener adds the incoming fields before this method runs.
+      label = "i18n::MaskFields.EditRule.Label",
+      toolTip = "i18n::MaskFields.EditRule.Tooltip")
+  public void editMaskingRule(Object sourceObject) {
+    // The dialog edits the selected rule, creates one, or opens the metadata type.
   }
 
   @HopMetadataProperty(key = "field", groupKey = "fields")
@@ -118,7 +100,6 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
 
   @Override
   public void setDefault() {
-    infoTransformName = "";
     fields = new ArrayList<>();
   }
 
@@ -153,59 +134,6 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
   }
 
   @Override
-  public boolean excludeFromRowLayoutVerification() {
-    return true;
-  }
-
-  @Override
-  public void handleStreamSelection(IStream stream) {
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    if (infoStreams.isEmpty() || !infoStreams.contains(stream)) {
-      return;
-    }
-    TransformMeta selected = stream.getTransformMeta();
-    if (selected != null) {
-      setInfoTransformName(selected.getName());
-      stream.setSubject(selected.getName());
-    }
-  }
-
-  @Override
-  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    for (IStream stream : infoStreams) {
-      String lookupName = stream.getSubject();
-      if (StringUtils.isNotBlank(infoTransformName)) {
-        lookupName = infoTransformName;
-        stream.setSubject(infoTransformName);
-      }
-      stream.setTransformMeta(TransformMeta.findTransform(transforms, Const.trim(lookupName)));
-    }
-  }
-
-  @Override
-  public ITransformIOMeta getTransformIOMeta() {
-    ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
-    if (ioMeta == null) {
-      ioMeta = new TransformIOMeta(true, true, false, false, false, false);
-      ioMeta.addStream(
-          new Stream(
-              StreamType.INFO,
-              null,
-              BaseMessages.getString(PKG, "MaskFields.InfoStream.Description"),
-              StreamIcon.INFO,
-              infoTransformName));
-      setTransformIOMeta(ioMeta);
-    }
-    return ioMeta;
-  }
-
-  @Override
-  public void resetTransformIoMeta() {
-    // Keep the info stream declared above.
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -219,13 +147,8 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
     if (input == null || input.length == 0) {
       error(remarks, transformMeta, "MaskFields.Check.NoInput");
     }
-    if (transformMeta != null
-        && (transformMeta.getCopies(variables) > 1 || transformMeta.isPartitioned())) {
-      error(remarks, transformMeta, "MaskFields.Check.Copies");
-    }
 
     Set<String> seen = new HashSet<>();
-    boolean needsList = false;
     if (fields != null) {
       for (MaskField field : fields) {
         if (field == null || StringUtils.isEmpty(field.getFieldName())) {
@@ -239,24 +162,12 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
           error(remarks, transformMeta, "MaskFields.Check.MissingField", fieldName);
         }
         if (StringUtils.isEmpty(field.getPatternName())) {
-          error(remarks, transformMeta, "MaskFields.Check.NoPattern", fieldName);
           continue;
         }
         MaskingPattern pattern = loadQuietly(metadataProvider, field.getPatternName());
         if (pattern == null) {
           error(remarks, transformMeta, "MaskFields.Check.MissingPattern", field.getPatternName());
           continue;
-        }
-        if (pattern.getValueSource() == MaskingValueSource.LIST) {
-          needsList = true;
-          if (info != null && info.indexOfValue(pattern.getListField()) < 0) {
-            error(
-                remarks,
-                transformMeta,
-                "MaskFields.Check.ListFieldMissing",
-                pattern.getListField(),
-                pattern.getName());
-          }
         }
         if (prev != null) {
           IValueMeta valueMeta = prev.searchValueMeta(fieldName);
@@ -275,13 +186,6 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
         }
         checkDatabase(remarks, transformMeta, variables, metadataProvider, pattern);
       }
-    }
-
-    if (needsList && StringUtils.isEmpty(infoTransformName)) {
-      error(remarks, transformMeta, "MaskFields.Check.NoInfo");
-    }
-    if (!needsList && StringUtils.isNotEmpty(infoTransformName)) {
-      warning(remarks, transformMeta, "MaskFields.Check.InfoUnused");
     }
   }
 
@@ -339,11 +243,5 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
             ICheckResult.TYPE_RESULT_ERROR,
             BaseMessages.getString(PKG, key, (Object[]) args),
             transformMeta));
-  }
-
-  private void warning(List<ICheckResult> remarks, TransformMeta transformMeta, String key) {
-    remarks.add(
-        new CheckResult(
-            ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(PKG, key), transformMeta));
   }
 }
