@@ -114,6 +114,24 @@ class RestNoInputRowsTest {
   }
 
   @Test
+  void aDisabledIncomingHopDoesNotTurnTheTransformIntoAStartingPoint() throws Exception {
+    RecordingRest rest =
+        build(
+            true,
+            false,
+            meta -> {
+              meta.setUrlInField(true);
+              meta.setUrlField("urlField");
+            });
+
+    assertTrue(rest.init());
+    assertFalse(rest.processRow());
+
+    assertEquals(0, RestNoInputRowsTest.requestCount(rest));
+    assertTrue(rest.emittedRows.isEmpty());
+  }
+
+  @Test
   void anOptionThatNeedsAFieldIsRejectedWithoutAnIncomingHop() throws Exception {
     RecordingRest rest =
         build(
@@ -152,6 +170,14 @@ class RestNoInputRowsTest {
    */
   private RecordingRest build(boolean withIncomingHop, java.util.function.Consumer<RestMeta> tweak)
       throws HopException {
+    return build(withIncomingHop, true, tweak);
+  }
+
+  private RecordingRest build(
+      boolean withIncomingHop,
+      boolean incomingHopEnabled,
+      java.util.function.Consumer<RestMeta> tweak)
+      throws HopException {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("TestRest");
 
@@ -181,7 +207,9 @@ class RestNoInputRowsTest {
       // layout, and that is what decides whether this transform waits for rows.
       TransformMeta upstream = new TransformMeta("upstream", new DummyMeta());
       pipelineMeta.addTransform(upstream);
-      pipelineMeta.addPipelineHop(new PipelineHopMeta(upstream, restTransformMeta));
+      PipelineHopMeta incomingHop = new PipelineHopMeta(upstream, restTransformMeta);
+      incomingHop.setEnabled(incomingHopEnabled);
+      pipelineMeta.addPipelineHop(incomingHop);
     }
     return rest;
   }
