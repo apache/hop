@@ -2187,10 +2187,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     if (super.init()) {
 
-      // Decided from the pipeline layout rather than from what arrives at runtime: a hop that
-      // happens to carry zero rows must stay a no-op, while no hop at all means this transform
-      // starts the work itself.
-      data.readsRows = !Utils.isEmpty(getPipelineMeta().findPreviousTransforms(getTransformMeta()));
+      // Decided from the pipeline layout rather than from what arrives at runtime: an incoming hop,
+      // including a disabled one, must keep this transform from becoming a starting point.
+      data.readsRows = getPipelineMeta().findPipelineHopTo(getTransformMeta()) != null;
 
       // use the information from the selection line if we have one.
       data.connectionName = resolve(meta.getConnectionName());
