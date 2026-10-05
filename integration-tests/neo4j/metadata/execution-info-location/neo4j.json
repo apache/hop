@@ -1,0 +1,13 @@
+{
+  "executionInfoLocation": {
+    "neo4j-location": {
+      "pluginName": "Neo4j location",
+      "pluginId": "neo4j-location",
+      "connection": "Test"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "neo4j",
+  "description": "Writes execution information to the Test Neo4j connection",
+  "dataLoggingInterval": "5000"
+}

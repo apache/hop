@@ -20,6 +20,8 @@ package org.apache.hop.neo4j.logging.util;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +51,9 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 
 public class LoggingCore {
+
+  /** The format Neo4j logging stores the registration date of an execution in. */
+  public static final String REGISTRATION_DATE_FORMAT = "yyyy/MM/dd'T'HH:mm:ss";
 
   public static final boolean isEnabled(IVariables space) {
     String connectionName = space.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
@@ -90,7 +95,7 @@ public class LoggingCore {
         execPars.put("root", loggingObject.getLogChannelId().equals(rootLogChannelId));
         execPars.put(
             "registrationDate",
-            new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss")
+            new SimpleDateFormat(REGISTRATION_DATE_FORMAT)
                 .format(loggingObject.getRegistrationDate()));
 
         StringBuilder execCypher = new StringBuilder();
@@ -236,15 +241,35 @@ public class LoggingCore {
     return value.asBoolean();
   }
 
+  /**
+   * The Neo4j execution information location stores dates as a local date time, Neo4j logging
+   * stores the registration date as a string in {@link #REGISTRATION_DATE_FORMAT}. Both write
+   * Execution nodes, so either can show up here.
+   */
   public static Date getDateValue(Node node, String name) {
     Value value = node.get(name);
     if (value == null || value.isNull()) {
       return null;
     }
-    LocalDateTime localDateTime = value.asLocalDateTime();
-    if (localDateTime == null) {
+    return switch (value.type().name()) {
+      case "LOCAL_DATE_TIME" -> toDate(value.asLocalDateTime());
+      case "DATE_TIME" -> Date.from(value.asZonedDateTime().toInstant());
+      case "STRING" -> parseRegistrationDate(value.asString());
+      default -> null;
+    };
+  }
+
+  private static Date parseRegistrationDate(String registrationDate) {
+    try {
+      return toDate(
+          LocalDateTime.parse(
+              registrationDate, DateTimeFormatter.ofPattern(REGISTRATION_DATE_FORMAT)));
+    } catch (DateTimeParseException e) {
       return null;
     }
+  }
+
+  private static Date toDate(LocalDateTime localDateTime) {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }
 
