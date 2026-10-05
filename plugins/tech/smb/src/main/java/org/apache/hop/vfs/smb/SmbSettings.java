@@ -46,6 +46,10 @@ public record SmbSettings(
   static final int DEFAULT_PORT = 445;
   static final int DEFAULT_TIMEOUT_SECONDS = 60;
 
+  // The reader thread blocks in a socket read between packets. A positive SO_TIMEOUT makes that
+  // idle read a failed connection, and the cleanup then runs on the reader thread.
+  static final int DEFAULT_SOCKET_TIMEOUT_SECONDS = 0;
+
   public static SmbSettings resolve(SmbConnection connection, IVariables variables) {
     String name = Const.NVL(connection.getName(), "");
     String host = variables.resolve(Const.NVL(connection.getHostname(), "")).trim();
@@ -64,9 +68,9 @@ public record SmbSettings(
             name,
             "call timeout");
     int socketTimeout =
-        positiveInt(
+        nonNegativeInt(
             variables.resolve(connection.getSocketTimeoutSeconds()),
-            DEFAULT_TIMEOUT_SECONDS,
+            DEFAULT_SOCKET_TIMEOUT_SECONDS,
             name,
             "socket timeout");
     SmbAuthType authType =
@@ -105,18 +109,31 @@ public record SmbSettings(
   }
 
   private static int positiveInt(String raw, int fallback, String name, String field) {
+    return number(raw, fallback, name, field, false);
+  }
+
+  private static int nonNegativeInt(String raw, int fallback, String name, String field) {
+    return number(raw, fallback, name, field, true);
+  }
+
+  private static int number(
+      String raw, int fallback, String name, String field, boolean allowZero) {
     if (raw == null || raw.isBlank()) {
       return fallback;
     }
     try {
       int value = Integer.parseInt(raw.trim());
-      if (value <= 0) {
+      if (value < 0 || (!allowZero && value == 0)) {
         throw new NumberFormatException(field);
       }
       return value;
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException(
-          BaseMessages.getString(PKG, "Smb.Error.PositiveNumber", name, field));
+          BaseMessages.getString(
+              PKG,
+              allowZero ? "Smb.Error.NonNegativeNumber" : "Smb.Error.PositiveNumber",
+              name,
+              field));
     }
   }
 }

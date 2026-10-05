@@ -14,5 +14,5 @@
   "encryptData": false,
   "dfsEnabled": false,
   "callTimeoutSeconds": "60",
-  "socketTimeoutSeconds": "60"
+  "socketTimeoutSeconds": "0"
 }

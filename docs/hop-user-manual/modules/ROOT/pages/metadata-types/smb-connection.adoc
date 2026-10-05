@@ -73,5 +73,5 @@ A variable such as `${SMB_PASSWORD}` is resolved at runtime.
 |Encrypt session|Require SMB3 encryption.
 |Follow DFS referrals|Follow Distributed File System referrals. Leave off unless the share is a DFS root.
 |Call timeout|Read, write, and transact timeout in seconds. Default 60.
-|Socket timeout|How long a socket read may block, in seconds. Default 60.
+|Socket timeout|How long the background reader waits for the next packet, in seconds. 0 waits until the server sends one or drops the connection. Leave this at 0. A positive value closes a quiet session.
 |===

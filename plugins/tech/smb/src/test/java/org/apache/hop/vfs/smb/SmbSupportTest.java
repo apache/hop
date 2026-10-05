@@ -168,6 +168,22 @@ class SmbSupportTest {
     assertFalse(config.isSigningRequired());
     assertFalse(config.isEncryptData());
     assertFalse(config.isDfsEnabled());
+    assertEquals(60_000L, config.getReadTimeout());
+    assertEquals(0, config.getSoTimeout());
+  }
+
+  @Test
+  void socketTimeoutZeroLeavesTheReaderWaiting() {
+    Variables variables = new Variables();
+    SmbConnection connection = connection();
+    connection.setSocketTimeoutSeconds("0");
+    assertEquals(0, SmbSettings.resolve(connection, variables).toClientConfig().getSoTimeout());
+
+    connection.setSocketTimeoutSeconds("  ");
+    assertEquals(0, SmbSettings.resolve(connection, variables).toClientConfig().getSoTimeout());
+
+    connection.setSocketTimeoutSeconds("-1");
+    assertThrows(IllegalArgumentException.class, () -> SmbSettings.resolve(connection, variables));
   }
 
   @Test

@@ -296,14 +296,14 @@ public class SmbConnection extends HopMetadataBase
       group = GROUP_SECURITY,
       groupOrder = "030")
   @HopMetadataProperty
-  private String socketTimeoutSeconds = "60";
+  private String socketTimeoutSeconds = "0";
 
   public SmbConnection() {
     this.port = "445";
     this.authType = SmbAuthType.NTLM;
     this.minimumDialect = SmbDialect.SMB_2_0_2;
     this.callTimeoutSeconds = "60";
-    this.socketTimeoutSeconds = "60";
+    this.socketTimeoutSeconds = "0";
   }
 
   @Override
