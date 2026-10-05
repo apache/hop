@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -389,15 +390,50 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     }
     repopulatingItems = true;
     try {
-      String previous = wCombo.getText();
+      CCombo combo = wCombo.getCComboWidget();
+      if (combo.isDisposed()) {
+        return;
+      }
+      String previous = Const.NVL(wCombo.getText(), "");
       List<String> elementNames = manager.getSerializer().listObjectNames();
       Collections.sort(elementNames);
-      wCombo.setItems(elementNames.toArray(new String[0]));
-      if (!wCombo.getCComboWidget().isDisposed()) {
-        wCombo.setText(Const.NVL(previous, ""));
+      String[] items = elementNames.toArray(new String[0]);
+      // Selecting a run configuration tab refreshes these lists. On Windows, CCombo.setText
+      // notifies Modify even when the string is unchanged, and the editors treat that as an
+      // unsaved edit (issue #8758). Skip the write when nothing changed, and keep listeners
+      // detached while the list is rebuilt so a read-only combo can be restored quietly.
+      if (Arrays.equals(items, wCombo.getItems()) && previous.equals(combo.getText())) {
+        return;
+      }
+      Listener[] modifyListeners = combo.getListeners(SWT.Modify);
+      Listener[] selectionListeners = combo.getListeners(SWT.Selection);
+      setListeners(combo, SWT.Modify, modifyListeners, false);
+      setListeners(combo, SWT.Selection, selectionListeners, false);
+      try {
+        wCombo.setItems(items);
+        if (!combo.isDisposed()) {
+          wCombo.setText(previous);
+        }
+      } finally {
+        setListeners(combo, SWT.Modify, modifyListeners, true);
+        setListeners(combo, SWT.Selection, selectionListeners, true);
       }
     } finally {
       repopulatingItems = false;
+    }
+  }
+
+  /** Adds or removes the listeners captured around a programmatic combo refresh. */
+  private static void setListeners(CCombo combo, int eventType, Listener[] listeners, boolean add) {
+    if (combo.isDisposed() || listeners == null) {
+      return;
+    }
+    for (Listener listener : listeners) {
+      if (add) {
+        combo.addListener(eventType, listener);
+      } else {
+        combo.removeListener(eventType, listener);
+      }
     }
   }
 
