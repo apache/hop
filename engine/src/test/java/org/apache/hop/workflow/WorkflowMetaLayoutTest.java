@@ -17,11 +17,14 @@
 
 package org.apache.hop.workflow;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.layout.LayeredGraphLayout;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.junit.jupiter.api.Test;
@@ -38,6 +41,11 @@ public class WorkflowMetaLayoutTest {
 
   private void hop(WorkflowMeta meta, ActionMeta from, ActionMeta to) {
     meta.addWorkflowHop(new WorkflowHopMeta(from, to));
+  }
+
+  private void assertOnGrid(Point p, int gridSize) {
+    assertEquals(0, Math.floorMod(p.x, gridSize), "x not on grid: " + p.x);
+    assertEquals(0, Math.floorMod(p.y, gridSize), "y not on grid: " + p.y);
   }
 
   @Test
@@ -81,6 +89,70 @@ public class WorkflowMetaLayoutTest {
               + to.x
               + ")");
     }
+  }
+
+  @Test
+  public void testPositionsAlignToDefaultGrid() {
+    WorkflowMeta meta = new WorkflowMeta();
+    ActionMeta a = action("a");
+    ActionMeta b = action("b");
+    ActionMeta c = action("c");
+    a.setLocation(101, 203); // deliberately off-grid origins
+    b.setLocation(302, 51);
+    c.setLocation(17, 19);
+    meta.addAction(a);
+    meta.addAction(b);
+    meta.addAction(c);
+    hop(meta, a, b);
+    hop(meta, b, c);
+
+    WorkflowMetaLayout.layout(meta);
+
+    for (int i = 0; i < meta.nrActions(); i++) {
+      assertOnGrid(meta.getAction(i).getLocation(), 16);
+    }
+  }
+
+  @Test
+  public void testSubsetAnchoredLayoutStaysOnGrid() {
+    WorkflowMeta meta = new WorkflowMeta();
+    ActionMeta a = action("a");
+    ActionMeta b = action("b");
+    ActionMeta other = action("other");
+    a.setLocation(1001, 2003); // off-grid
+    b.setLocation(3011, 61);
+    other.setLocation(77, 88);
+    meta.addAction(a);
+    meta.addAction(b);
+    meta.addAction(other);
+    hop(meta, a, b);
+
+    WorkflowMetaLayout.layout(meta, new LayeredGraphLayout.Options(), Arrays.asList(a, b));
+
+    assertOnGrid(a.getLocation(), 16);
+    assertOnGrid(b.getLocation(), 16);
+
+    // The unselected action must not have moved.
+    assertEquals(77, other.getLocation().x);
+    assertEquals(88, other.getLocation().y);
+  }
+
+  @Test
+  public void testLargeGridStartsOneCellInsideCanvas() {
+    WorkflowMeta meta = new WorkflowMeta();
+    ActionMeta a = action("a");
+    ActionMeta b = action("b");
+    meta.addAction(a);
+    meta.addAction(b);
+    hop(meta, a, b);
+
+    // A grid larger than the margins used to round the first position down to (0,0).
+    WorkflowMetaLayout.layout(meta, new LayeredGraphLayout.Options().setGridSize(128));
+
+    assertEquals(128, a.getLocation().x); // first position: grid cell 1:1, not the origin
+    assertEquals(128, a.getLocation().y);
+    assertOnGrid(b.getLocation(), 128);
+    assertTrue(b.getLocation().x > a.getLocation().x);
   }
 
   @Test

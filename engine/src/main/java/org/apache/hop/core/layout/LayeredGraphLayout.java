@@ -59,8 +59,12 @@ public final class LayeredGraphLayout {
   public static final int MARGIN_X = 50;
   public static final int MARGIN_Y = 50;
 
-  /** Hop snaps icon positions to a 16px grid. Keep spacing a multiple of this. */
-  private static final int GRID = 16;
+  /**
+   * The grid size the computed positions are snapped to. Hop snaps icon positions to the canvas
+   * grid during manual moves, so auto-layout must use the same lattice. A grid size of 1 or less
+   * disables snapping.
+   */
+  public static final int DEFAULT_GRID_SIZE = 16;
 
   /** The direction in which the graph flows from roots towards leaves. */
   public enum Direction {
@@ -77,6 +81,7 @@ public final class LayeredGraphLayout {
     private int nodeSpacing = DEFAULT_Y_SPACING;
     private int crossingIterations = DEFAULT_ITERATIONS;
     private boolean moveNotes = true;
+    private int gridSize = DEFAULT_GRID_SIZE;
 
     public Direction getDirection() {
       return direction;
@@ -127,6 +132,20 @@ public final class LayeredGraphLayout {
 
     public Options setMoveNotes(boolean moveNotes) {
       this.moveNotes = moveNotes;
+      return this;
+    }
+
+    /**
+     * The grid size the computed positions are snapped to. Use the same value as the canvas grid
+     * the GUI snaps manual moves to, so auto-layout and manual alignment agree. A value of 1 or
+     * less disables snapping.
+     */
+    public int getGridSize() {
+      return gridSize;
+    }
+
+    public Options setGridSize(int gridSize) {
+      this.gridSize = gridSize;
       return this;
     }
   }
@@ -194,13 +213,16 @@ public final class LayeredGraphLayout {
     final Point[] computed = new Point[n];
     layout(n, edges, options, (node, x, y) -> computed[node] = new Point(x, y));
 
-    // Translate so the arranged block lands where the nodes used to be.
+    // Translate so the arranged block lands where the nodes used to be. Snap the translation to
+    // the grid so anchored results stay aligned with it, and keep the block at least one grid
+    // cell inside the canvas: never on the grid origin (0,0) or off-canvas to the top or left.
     int dx = 0;
     int dy = 0;
     if (anchorToOriginal) {
       Point computedMin = topLeftOfPoints(computed);
-      dx = origin.x - computedMin.x;
-      dy = origin.y - computedMin.y;
+      int gridSize = options.getGridSize();
+      dx = Math.max(snap(origin.x - computedMin.x, gridSize), gridSize - computedMin.x);
+      dy = Math.max(snap(origin.y - computedMin.y, gridSize), gridSize - computedMin.y);
     }
 
     // Capture node positions before/after so notes can follow the node they're closest to.
@@ -232,9 +254,10 @@ public final class LayeredGraphLayout {
         }
         int nearest = nearestNode(p.x, p.y, beforeX, beforeY, threshold);
         if (nearest >= 0) {
+          int gridSize = options.getGridSize();
           note.setLocation(
-              p.x + (afterX[nearest] - beforeX[nearest]),
-              p.y + (afterY[nearest] - beforeY[nearest]));
+              snap(p.x + (afterX[nearest] - beforeX[nearest]), gridSize),
+              snap(p.y + (afterY[nearest] - beforeY[nearest]), gridSize));
         }
       }
     }
@@ -455,8 +478,15 @@ public final class LayeredGraphLayout {
     }
 
     // Spacing along the flow direction (between layers) and perpendicular (between nodes).
-    int flowSpace = snap(options.getLayerSpacing());
-    int crossSpace = snap(options.getNodeSpacing());
+    // Everything is snapped to the grid but never rounds down to zero: with a grid larger than
+    // the margins, the first position would otherwise collapse onto the grid origin (0,0) and
+    // consecutive layers would overlap. The first position always sits at least one full grid
+    // cell inside the canvas.
+    int grid = Math.max(1, options.getGridSize());
+    int flowSpace = Math.max(snap(options.getLayerSpacing(), grid), grid);
+    int crossSpace = Math.max(snap(options.getNodeSpacing(), grid), grid);
+    int marginX = Math.max(snap(MARGIN_X, grid), grid);
+    int marginY = Math.max(snap(MARGIN_Y, grid), grid);
     Direction direction = options.getDirection();
     boolean horizontal = direction == Direction.LEFT_RIGHT || direction == Direction.RIGHT_LEFT;
     boolean reversed = direction == Direction.RIGHT_LEFT || direction == Direction.BOTTOM_TOP;
@@ -493,9 +523,9 @@ public final class LayeredGraphLayout {
         int along = flowIndex * flowSpace;
         int cross = crossIndex * crossSpace;
 
-        int x = horizontal ? MARGIN_X + along : MARGIN_X + cross;
-        int y = horizontal ? MARGIN_Y + cross : MARGIN_Y + along;
-        sink.setPosition(node, snap(x), snap(y));
+        int x = horizontal ? marginX + along : marginX + cross;
+        int y = horizontal ? marginY + cross : marginY + along;
+        sink.setPosition(node, snap(x, grid), snap(y, grid));
       }
     }
   }
@@ -574,7 +604,13 @@ public final class LayeredGraphLayout {
     return (((long) u) << 32) | (v & 0xffffffffL);
   }
 
-  private static int snap(int value) {
-    return Math.round((float) value / GRID) * GRID;
+  /**
+   * Snaps {@code value} to the nearest multiple of {@code grid}; values of 1 or less pass through.
+   */
+  private static int snap(int value, int grid) {
+    if (grid <= 1) {
+      return value;
+    }
+    return Math.round((float) value / grid) * grid;
   }
 }
