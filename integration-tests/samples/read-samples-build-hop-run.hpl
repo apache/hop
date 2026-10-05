@@ -571,6 +571,10 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>ssh-pri-key.hpl</item>
         <item>requires SSH private key and reachable SSH host</item>
       </line>
+      <line>
+        <item>structured-extract-basic.hpl</item>
+        <item>requires an AI provider named ollama-local</item>
+      </line>
     </data>
     <distribute>Y</distribute>
     <copies>1</copies>
