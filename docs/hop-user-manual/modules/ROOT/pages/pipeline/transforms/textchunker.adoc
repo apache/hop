@@ -54,7 +54,7 @@ The transform has no dependency on an AI provider or a model. It is plain text p
 |Split on a fixed character count, backing off to the nearest word boundary so words are not cut in half. Overlap carries the tail of each chunk into the next, which keeps a sentence that straddles a boundary retrievable from both sides.
 
 |Paragraph
-|Split on paragraph breaks, packing whole paragraphs up to the chunk size. A paragraph longer than the chunk size falls back to character splitting.
+|Split on paragraph breaks, packing whole paragraphs up to the chunk size. A paragraph longer than the chunk size falls back to character splitting. By default a paragraph break is a blank line (any `\LF`, `\CR` or `\CRLF` line ending); the optional *Paragraph separator* option replaces it with a literal separator.
 
 |Structure
 |Parse the document into a heading tree and emit one chunk per section, prefixing each with a breadcrumb of its heading path so an isolated chunk still says where it came from. A section larger than the chunk size falls back to character splitting within that section.
@@ -90,6 +90,7 @@ The Hop-native parsers make a pipeline, a workflow or a metadata file retrievabl
 |Source document ID field|Optional field holding the identifier of the source document. When empty, a row counter is used.
 |Output chunk field|Output field that receives the chunk text.
 |Chunking strategy|Character, Paragraph or Structure, as described above.
+|Paragraph separator|Optional literal separator for the Paragraph strategy, for example `<PARA>`. The separator is matched as-is, not as a regular expression. When empty, paragraphs are separated by blank lines. Supports variables and the escape sequences `` `\n` ``, `` `\r` ``, `` `\t` `` and `` `\\` `` so line breaks and tabs can be typed in the field, e.g. `` `\n\n` ``. Only used by the Paragraph strategy: the transform reports a warning in the pipeline checks when it is set for another strategy.
 |Content type|Document format used by the Structure strategy.
 |Content type field|Optional field naming the content type per row, for a stream that mixes formats.
 |Chunk size|Maximum chunk size in characters. For Paragraph and Structure this is a ceiling that triggers the character fallback.
