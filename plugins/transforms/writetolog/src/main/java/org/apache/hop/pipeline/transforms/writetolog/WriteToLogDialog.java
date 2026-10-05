@@ -41,7 +41,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -59,10 +58,9 @@ public class WriteToLogDialog extends BaseTransformDialog {
   private final WriteToLogMeta input;
 
   /**
-   * Hand-built on purpose. The combo has to show the translated {@link LogLevel} descriptions and
-   * map the selection back by position. An annotated {@code GuiElementType.COMBO} derives its items
-   * from {@code Enum.toString()} and stores the selected label, which is neither translated nor
-   * round-trippable - see {@link WriteToLogDialogTest} for the case that guards this.
+   * Hand-built. The combo shows the translated {@link LogLevel} descriptions and maps the selection
+   * back by position. An annotated combo stores {@code Enum.toString()}, which is neither the
+   * translated label nor a value {@code Enum.valueOf} can read back.
    */
   private CCombo wLoglevel;
 
@@ -98,9 +96,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
             WriteToLogMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
             input,
             w -> {
-              // Extra-group builders run during createCompositeWidgets, before
-              // addScrolledComposite returns. Keep the field assigned so they can look up the
-              // widgets already placed on the same tab.
+              // Extra-group builders run inside this call, before the field is assigned.
               widgets = w;
               w.registerExtraGroup(
                   BaseMessages.getString(PKG, "WriteToLog.Tab.Options"),
@@ -126,13 +122,6 @@ public class WriteToLogDialog extends BaseTransformDialog {
               enableFields();
             }
           }
-
-          @Override
-          public void persistContents(GuiCompositeWidgets compositeWidgets) {
-            persistLogLevel();
-            persistLogMessage();
-            persistFields();
-          }
         });
 
     populateLogLevel();
@@ -149,9 +138,9 @@ public class WriteToLogDialog extends BaseTransformDialog {
   }
 
   /**
-   * The log level combo, added to the Options tab. Extra-group contents share the tab composite
-   * with the annotated fields, so the row has to be hung below the last of them - anchoring it to
-   * the top of the composite draws it on top of the first annotated row.
+   * Log level combo on the Options tab. It shares that tab with the annotated fields, so the row
+   * hangs below the last of them. Anchoring it to the top of the composite draws it on top of the
+   * first annotated row.
    */
   private void addLogLevel(Composite parent) {
     Label wlLoglevel = new Label(parent, SWT.RIGHT);
@@ -178,10 +167,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
     wLoglevel.addListener(SWT.Selection, e -> input.setChanged());
   }
 
-  /**
-   * The Message tab: the log message template and the fields it can reference. The two belong on
-   * one tab because picking a field and referencing it in the template is a single task.
-   */
+  /** Message tab: the log message template and the fields it can reference. */
   private void addMessage(Composite parent) {
     Label wlLogMessage = new Label(parent, SWT.NONE);
     wlLogMessage.setText(BaseMessages.getString(PKG, "WriteToLogDialog.LogMessage.Label"));
@@ -204,8 +190,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
     fdLogMessage.left = new FormAttachment(0, 0);
     fdLogMessage.top = new FormAttachment(wlLogMessage, margin);
     fdLogMessage.right = new FormAttachment(100, 0);
-    // A preferred height, not a fixed one: the field grid below keeps the rest of the tab, so the
-    // editor grows with the dialog instead of fighting it for space.
+    // Preferred height. The field grid below keeps the rest of the tab.
     fdLogMessage.height = (int) (200 * props.getZoomFactor());
     wLogMessage.setLayoutData(fdLogMessage);
 
@@ -254,7 +239,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
   }
 
   private void persistLogLevel() {
-    // The combo holds the translated descriptions in enum order: map by position, not by label.
+    // Descriptions are translated, so the stored value is the enum at this position.
     int logLevelIndex = wLoglevel.getSelectionIndex();
     if (logLevelIndex < 0 || logLevelIndex >= LogLevel.values().length) {
       input.setLogLevel(LogLevel.BASIC);
@@ -305,8 +290,6 @@ public class WriteToLogDialog extends BaseTransformDialog {
   }
 
   private void setComboBoxes() {
-    // Something was changed in the row.
-    //
     if (colinf == null) {
       return;
     }
@@ -314,9 +297,6 @@ public class WriteToLogDialog extends BaseTransformDialog {
   }
 
   private void searchPrevTransformFields() {
-    //
-    // Search the fields in the background
-    //
     BackgroundThreadFacade.start(
         () -> {
           TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
@@ -366,9 +346,8 @@ public class WriteToLogDialog extends BaseTransformDialog {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        ITableItemInsertListener insertListener = (tableItem, v) -> true;
         BaseTransformDialog.getFieldsFromPrevious(
-            r, wFields, 1, new int[] {1}, new int[] {}, -1, -1, insertListener);
+            r, wFields, 1, new int[] {1}, new int[] {}, -1, -1, null);
       }
     } catch (HopException ke) {
       new ErrorDialog(
@@ -389,7 +368,7 @@ public class WriteToLogDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    transformName = wTransformName.getText(); // return value
+    transformName = wTransformName.getText();
 
     widgets.getWidgetsContents(input, WriteToLogMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
     persistLogLevel();
