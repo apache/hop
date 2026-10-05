@@ -26,9 +26,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,6 +42,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -263,5 +267,48 @@ class WorkflowActionEvalTableContentTest {
     action.setConnection("another-connection");
 
     assertNull(action.getDatabase(), "The previously resolved connection has to be discarded");
+  }
+
+  @Test
+  void testCheck() {
+    List<ICheckResult> remarks = new ArrayList<>();
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    Variables variables = new Variables();
+
+    // 1. When connection and tableName are blank, expect error remarks
+    action.setConnection("");
+    action.setTableName("");
+    action.setUseCustomSql(false);
+    action.check(remarks, workflowMeta, variables, null);
+    assertTrue(
+        remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "Expected errors when connection and table name are blank");
+
+    // 2. When connection and tableName are provided, expect only OK remarks (no WaitForSQL error)
+    remarks.clear();
+    action.setConnection("my_connection");
+    action.setTableName("my_table");
+    action.setUseCustomSql(false);
+    action.check(remarks, workflowMeta, variables, null);
+    assertTrue(
+        remarks.stream().noneMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "Expected no errors when connection and table name are set");
+
+    // 3. When custom SQL is used and customSql is blank, expect error
+    remarks.clear();
+    action.setUseCustomSql(true);
+    action.setCustomSql("");
+    action.check(remarks, workflowMeta, variables, null);
+    assertTrue(
+        remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "Expected error when custom SQL is enabled but customSql is blank");
+
+    // 4. When custom SQL is used and customSql is provided, expect no error
+    remarks.clear();
+    action.setCustomSql("SELECT count(*) FROM my_table");
+    action.check(remarks, workflowMeta, variables, null);
+    assertTrue(
+        remarks.stream().noneMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "Expected no errors when connection and customSql are set");
   }
 }
