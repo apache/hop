@@ -147,38 +147,48 @@ public class HopFlightProducer extends NoOpFlightProducer {
             "Stream name '" + streamName + "' could not be found in the metadata as a data stream");
       }
       IDataStream dataStream = dataStreamMeta.getDataStream();
-      if (!(dataStream instanceof ArrowFlightDataStream flightDataStream)) {
+      if (!(dataStream instanceof ArrowFlightDataStream storedDataStream)) {
         throw new HopException(
             "Make sure to reference an Arrow Flight data stream in data stream element '"
                 + streamName
                 + "'.");
       }
-      flightDataStream.initialize(variables, metadataProvider, true, dataStreamMeta);
-      IRowMeta rowMeta = flightDataStream.buildExpectedRowMeta();
-      Schema expectedSchema = flightDataStream.buildExpectedSchema();
-
-      int bufferSize =
-          Const.toInt(
-              variables.resolve(flightDataStream.getBufferSize()),
-              ArrowFlightDataStream.DEFAULT_MAX_BUFFER_SIZE);
-      int batchSize = Const.toInt(variables.resolve(flightDataStream.getBatchSize()), 500);
-
-      // We use a very large queue because we don't ever want to block while writing.
-      // We over-size it by 5000 rows and then throw an error if we reach that.
+      // acceptPut calls this from a gRPC thread. The metadata object can be the instance a
+      // client in this JVM is writing with, and initialize() replaces its allocator and row
+      // buffer and sets the writing flag. Read the configuration from a copy.
       //
-      IRowSet rowSet = new BlockingRowSet(bufferSize + BUFFER_SIZE_OVERSHOOT);
+      ArrowFlightDataStream flightDataStream = storedDataStream.clone();
+      try {
+        flightDataStream.initialize(variables, metadataProvider, true, dataStreamMeta);
+        IRowMeta rowMeta = flightDataStream.buildExpectedRowMeta();
+        Schema expectedSchema = flightDataStream.buildExpectedSchema();
 
-      String hostname = Const.NVL(variables.resolve(flightDataStream.getHostname()), "0.0.0.0");
-      int port = Const.toInt(variables.resolve(flightDataStream.getPort()), 33333);
-      // The endpoint we hand back needs the same scheme clients use to reach this server.
-      //
-      Location location =
-          flightDataStream.isTls()
-              ? Location.forGrpcTls(hostname, port)
-              : Location.forGrpcInsecure(hostname, port);
-      buffer =
-          new FlightStreamBuffer(expectedSchema, rowMeta, rowSet, bufferSize, batchSize, location);
-      streamMap.put(streamName, buffer);
+        int bufferSize =
+            Const.toInt(
+                variables.resolve(flightDataStream.getBufferSize()),
+                ArrowFlightDataStream.DEFAULT_MAX_BUFFER_SIZE);
+        int batchSize = Const.toInt(variables.resolve(flightDataStream.getBatchSize()), 500);
+
+        // We use a very large queue because we don't ever want to block while writing.
+        // We over-size it by 5000 rows and then throw an error if we reach that.
+        //
+        IRowSet rowSet = new BlockingRowSet(bufferSize + BUFFER_SIZE_OVERSHOOT);
+
+        String hostname = Const.NVL(variables.resolve(flightDataStream.getHostname()), "0.0.0.0");
+        int port = Const.toInt(variables.resolve(flightDataStream.getPort()), 33333);
+        // The endpoint we hand back needs the same scheme clients use to reach this server.
+        //
+        Location location =
+            flightDataStream.isTls()
+                ? Location.forGrpcTls(hostname, port)
+                : Location.forGrpcInsecure(hostname, port);
+        buffer =
+            new FlightStreamBuffer(
+                expectedSchema, rowMeta, rowSet, bufferSize, batchSize, location);
+        streamMap.put(streamName, buffer);
+      } finally {
+        flightDataStream.close();
+      }
     }
     return buffer;
   }

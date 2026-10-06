@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import java.util.List;
 import org.apache.hop.arrow.flight.ArrowFlightSecurity;
 import org.apache.hop.arrow.flight.ArrowFlightServer;
+import org.apache.hop.arrow.flight.ExpectedFlightRejection;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -51,6 +52,7 @@ class ArrowFlightDataStreamAuthenticationTest {
   private static final String SCHEMA_NAME = "secured-schema";
   private static final String USERNAME = "hop";
   private static final String PASSWORD = "s3cr3t";
+  private static final String LOOPBACK = "127.0.0.1";
 
   private final IVariables variables = new Variables();
   private final ILogChannel log = mock(ILogChannel.class);
@@ -74,8 +76,7 @@ class ArrowFlightDataStreamAuthenticationTest {
       reader.close();
     }
     if (server != null) {
-      server.shutdown();
-      server.getFlightServer().awaitTermination();
+      server.close();
     }
   }
 
@@ -97,7 +98,7 @@ class ArrowFlightDataStreamAuthenticationTest {
 
     ArrowFlightDataStream dataStream = new ArrowFlightDataStream();
     dataStream.setSchemaDefinitionName(SCHEMA_NAME);
-    dataStream.setHostname("localhost");
+    dataStream.setHostname(LOOPBACK);
     dataStream.setUsername(USERNAME);
     dataStream.setPassword(password);
 
@@ -110,7 +111,7 @@ class ArrowFlightDataStreamAuthenticationTest {
     security.setUsername(USERNAME);
     security.setPassword(PASSWORD);
 
-    server = new ArrowFlightServer("localhost", 0, security, variables, metadataProvider, log);
+    server = new ArrowFlightServer(LOOPBACK, 0, security, variables, metadataProvider, log);
     server.start();
     dataStream.setPort(Integer.toString(server.getFlightServer().getPort()));
 
@@ -129,8 +130,10 @@ class ArrowFlightDataStreamAuthenticationTest {
         metadataProvider.getSerializer(SchemaDefinition.class).load(SCHEMA_NAME).getRowMeta();
 
     // Write a handful of rows. This authenticates and then does a doPut.
+    // The metadata object stays configuration: the writer is a copy, so the server can read
+    // that configuration without sharing the writer's allocator, buffer, or client.
     //
-    writer = (ArrowFlightDataStream) dataStreamMeta.getDataStream();
+    writer = ((ArrowFlightDataStream) dataStreamMeta.getDataStream()).clone();
     writer.initialize(variables, metadataProvider, true, dataStreamMeta);
     writer.setRowMeta(rowMeta);
     for (int i = 0; i < 5; i++) {
@@ -141,8 +144,7 @@ class ArrowFlightDataStreamAuthenticationTest {
     // Read them back. This authenticates again and then does a getFlightInfo and a doGet.
     //
     DataStreamMeta readMeta = loadStreamMeta();
-    reader = (ArrowFlightDataStream) readMeta.getDataStream();
-    reader.setPort(Integer.toString(server.getFlightServer().getPort()));
+    reader = ((ArrowFlightDataStream) readMeta.getDataStream()).clone();
     reader.initialize(variables, metadataProvider, false, readMeta);
 
     IRowMeta readRowMeta = reader.getRowMeta();
@@ -163,9 +165,11 @@ class ArrowFlightDataStreamAuthenticationTest {
     IRowMeta rowMeta =
         metadataProvider.getSerializer(SchemaDefinition.class).load(SCHEMA_NAME).getRowMeta();
 
-    writer = (ArrowFlightDataStream) dataStreamMeta.getDataStream();
+    writer = ((ArrowFlightDataStream) dataStreamMeta.getDataStream()).clone();
     writer.initialize(variables, metadataProvider, true, dataStreamMeta);
 
-    assertThrows(HopException.class, () -> writer.setRowMeta(rowMeta));
+    ExpectedFlightRejection.run(
+        "data stream password does not match the Flight server",
+        () -> assertThrows(HopException.class, () -> writer.setRowMeta(rowMeta)));
   }
 }
