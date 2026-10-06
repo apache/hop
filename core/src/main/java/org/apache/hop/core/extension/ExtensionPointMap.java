@@ -43,29 +43,35 @@ public class ExtensionPointMap {
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+  /**
+   * One listener for the life of this singleton. {@link PluginRegistry#reset()} drops every
+   * listener; {@link #reset()} puts this same instance back. A fresh listener on every reset would
+   * stack, and each one would be notified.
+   */
+  private final IPluginTypeListener pluginListener =
+      new IPluginTypeListener() {
+
+        @Override
+        public void pluginAdded(Object serviceObject) {
+          addExtensionPoint((IPlugin) serviceObject);
+        }
+
+        @Override
+        public void pluginRemoved(Object serviceObject) {
+          removeExtensionPoint((IPlugin) serviceObject);
+        }
+
+        @Override
+        public void pluginChanged(Object serviceObject) {
+          removeExtensionPoint((IPlugin) serviceObject);
+          addExtensionPoint((IPlugin) serviceObject);
+        }
+      };
+
   private ExtensionPointMap(PluginRegistry pluginRegistry) {
     this.registry = pluginRegistry;
     extensionPointPluginMap = HashBasedTable.create();
-    registry.addPluginListener(
-        ExtensionPointPluginType.class,
-        new IPluginTypeListener() {
-
-          @Override
-          public void pluginAdded(Object serviceObject) {
-            addExtensionPoint((IPlugin) serviceObject);
-          }
-
-          @Override
-          public void pluginRemoved(Object serviceObject) {
-            removeExtensionPoint((IPlugin) serviceObject);
-          }
-
-          @Override
-          public void pluginChanged(Object serviceObject) {
-            removeExtensionPoint((IPlugin) serviceObject);
-            addExtensionPoint((IPlugin) serviceObject);
-          }
-        });
+    registry.addPluginListener(ExtensionPointPluginType.class, pluginListener);
 
     List<IPlugin> extensionPointPlugins = registry.getPlugins(ExtensionPointPluginType.class);
     for (IPlugin extensionPointPlugin : extensionPointPlugins) {
@@ -242,26 +248,9 @@ public class ExtensionPointMap {
     lock.writeLock().lock();
     try {
       extensionPointPluginMap.clear();
-      registry.addPluginListener(
-          ExtensionPointPluginType.class,
-          new IPluginTypeListener() {
-
-            @Override
-            public void pluginAdded(Object serviceObject) {
-              addExtensionPoint((IPlugin) serviceObject);
-            }
-
-            @Override
-            public void pluginRemoved(Object serviceObject) {
-              removeExtensionPoint((IPlugin) serviceObject);
-            }
-
-            @Override
-            public void pluginChanged(Object serviceObject) {
-              removeExtensionPoint((IPlugin) serviceObject);
-              addExtensionPoint((IPlugin) serviceObject);
-            }
-          });
+      // HashSet.add of the same instance is a no-op when the listener is already registered, and
+      // puts it back after PluginRegistry.reset() has cleared the listener set.
+      registry.addPluginListener(ExtensionPointPluginType.class, pluginListener);
     } finally {
       lock.writeLock().unlock();
     }
