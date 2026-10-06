@@ -18,15 +18,13 @@
 package org.apache.hop.git;
 
 import java.util.List;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 
@@ -53,8 +51,8 @@ public class WorkflowRevisionDelegate extends BaseRevisionDelegate {
   }
 
   @Override
-  protected String getFilename() {
-    return workflowGraph.getWorkflowMeta().getFilename();
+  protected AbstractMeta getMeta() {
+    return workflowGraph.getWorkflowMeta();
   }
 
   @Override
@@ -75,20 +73,16 @@ public class WorkflowRevisionDelegate extends BaseRevisionDelegate {
     return super.createRevisionsTab(tabFolder);
   }
 
-  /** Refreshes the workflow revisions with the git history of the workflow file. */
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "i18n::System.Button.Refresh",
       image = "ui/images/refresh.svg")
-  @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
     super.refresh();
   }
 
-  /** Compares the workflow currently being edited with the selected revision as text. */
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -100,7 +94,6 @@ public class WorkflowRevisionDelegate extends BaseRevisionDelegate {
     super.showTextDiff();
   }
 
-  /** Compares the workflow currently being edited with the selected revision graphically. */
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -111,7 +104,6 @@ public class WorkflowRevisionDelegate extends BaseRevisionDelegate {
     super.showVisualDiff();
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void showGraphDiff(String relativePath, String commitIdNew, String commitIdOld)
       throws HopException {

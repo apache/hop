@@ -23,10 +23,12 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.git.config.GitConfigSingleton;
@@ -44,6 +46,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -51,7 +54,8 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 
 /** Base class sharing the revisions tab between the pipeline and the workflow graphs. */
@@ -64,8 +68,17 @@ public abstract class BaseRevisionDelegate {
   private GuiToolbarWidgets toolBarWidgets;
   private TableView wRevisions;
 
-  /** The revisions shown in the table, in the very same order as its rows. */
-  private final List<ObjectRevision> revisions = new ArrayList<>();
+  /** Shown instead of the table as long as there is no revision to list. */
+  private Label wMessage;
+
+  /**
+   * The file the rows were loaded for. Commit ids are repository-wide, so the commits of another
+   * file must never be compared with the file being edited.
+   */
+  private String loadedFilename;
+
+  /** Identifies the last refresh, so a slow history walk never overwrites a more recent one. */
+  private int refreshId;
 
   protected BaseRevisionDelegate(HopGui hopGui) {
     super();
@@ -75,8 +88,8 @@ public abstract class BaseRevisionDelegate {
   /** The toolbar root id declared by the subclass, used to create the toolbar widgets. */
   protected abstract String getToolbarParentId();
 
-  /** The pipeline or workflow filename to get the revisions of, null when it isn't saved yet. */
-  protected abstract String getFilename();
+  /** The pipeline or workflow being edited, its filename is null when it isn't saved yet. */
+  protected abstract AbstractMeta getMeta();
 
   /** Whether the pipeline or workflow being edited holds changes which aren't written to disk. */
   protected abstract boolean hasChanges();
@@ -95,11 +108,8 @@ public abstract class BaseRevisionDelegate {
   protected abstract void showGraphDiff(String relativePath, String commitIdNew, String commitIdOld)
       throws HopException;
 
-  /** Creates the revisions tab in the given tab folder. */
   protected CTabItem createRevisionsTab(CTabFolder tabFolder) {
-
-    // There are no revisions to show if Git plugin is disabled or the project is not a Git
-    // repository
+    // There are no revisions to show
     if (!GitConfigSingleton.getConfig().isEnabled()
         || GitGuiPlugin.getInstance().getGit() == null) {
       return null;
@@ -164,72 +174,176 @@ public abstract class BaseRevisionDelegate {
     wRevisions.getTable().addListener(SWT.Selection, event -> enableToolbarItems());
     PropsUi.setLook(wRevisions);
 
-    this.refresh();
+    // Takes the place of the table, only one of them is visible at a time
+    wMessage = new Label(composite, SWT.WRAP);
+    wMessage.setLayoutData(
+        new FormDataBuilder()
+            .left(0, PropsUi.getMargin())
+            .right(100, -PropsUi.getMargin())
+            .top(toolBar, PropsUi.getMargin())
+            .bottom()
+            .result());
+    PropsUi.setLook(wMessage);
 
-    // The history can be empty, or not available at all, keep the actions consistent with it
-    enableToolbarItems();
+    // The listener is called before the new filename is set, and not always in the UI thread
+    Display display = composite.getDisplay();
+    AbstractMeta meta = getMeta();
+    IFilenameChangedListener filenameListener =
+        (object, oldFilename, newFilename) -> {
+          if (!display.isDisposed()) {
+            display.asyncExec(this::refresh);
+          }
+        };
+    meta.addFilenameChangedListener(filenameListener);
+
+    // Using the toolbar registers this delegate in the key handler, which is never told that the
+    // tab is gone and would keep the whole graph in memory after the file is closed.
+    composite.addListener(
+        SWT.Dispose,
+        event -> {
+          meta.removeFilenameChangedListener(filenameListener);
+          HopGuiKeyHandler.getInstance().removeParentObjectToHandle(this);
+        });
+
+    this.refresh();
 
     return tab;
   }
 
-  /** Refreshes the revisions table with the git history of the current file. */
+  /**
+   * Reloads the git history of the current file. The history is read in a background thread, as
+   * this tab is created along with the execution results, which have to stay responsive.
+   */
   public void refresh() {
-    String fileName = getFilename();
-    if (fileName == null) {
+    if (wRevisions == null || wRevisions.isDisposed()) {
       return;
     }
 
-    // Without a git project there is no revision to show
+    String filename = getMeta().getFilename();
+    int currentRefreshId = ++refreshId;
+    loadedFilename = filename;
+    wRevisions.removeAll();
+    enableToolbarItems();
+
+    if (filename == null) {
+      showMessage(BaseMessages.getString(PKG, "Revisions.Message.NotSaved"));
+      return;
+    }
+
     UIGit git = GitGuiPlugin.getInstance().getGit();
     if (git == null) {
+      showMessage(BaseMessages.getString(PKG, "Revisions.Message.NoRepository"));
       return;
     }
 
-    Shell shell = hopGui.getShell();
-
+    String relativePath;
     try {
-      shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+      relativePath = calculateRelativePath(git.getDirectory(), filename);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error locating file '" + filename + "' in git repository", e);
+      showMessage(
+          BaseMessages.getString(
+              PKG, "Revisions.Message.Error", filename, Const.NVL(e.getMessage(), e.toString())));
+      return;
+    }
+    if (relativePath == null) {
+      showMessage(
+          BaseMessages.getString(
+              PKG, "Revisions.Message.OutsideRepository", filename, git.getDirectory()));
+      return;
+    }
 
-      // The git repository needs a relative path
-      String relativePath = calculateRelativePath(git.getDirectory(), fileName);
-      List<ObjectRevision> fileRevisions = git.getRevisions(relativePath);
-      wRevisions.setRedraw(false);
+    showMessage(BaseMessages.getString(PKG, "Revisions.Message.Loading"));
+
+    Display display = wRevisions.getDisplay();
+    Thread thread =
+        new Thread(
+            () -> {
+              List<ObjectRevision> fileRevisions = new ArrayList<>();
+              Exception error = null;
+              try {
+                fileRevisions = git.getRevisions(relativePath);
+              } catch (Exception e) {
+                error = e;
+              }
+              List<ObjectRevision> loadedRevisions = fileRevisions;
+              Exception loadError = error;
+              if (!display.isDisposed()) {
+                display.asyncExec(
+                    () -> showRevisions(currentRefreshId, git, loadedRevisions, loadError));
+              }
+            },
+            "Git revisions of " + relativePath);
+    thread.setDaemon(true);
+    thread.start();
+  }
+
+  private void showRevisions(
+      int loadedRefreshId, UIGit git, List<ObjectRevision> fileRevisions, Exception error) {
+    // The tab can be closed, or the file renamed, while the history was being read
+    if (wRevisions.isDisposed() || loadedRefreshId != refreshId) {
+      return;
+    }
+
+    if (error != null) {
+      LogChannel.UI.logError("Error getting git revisions of file '" + loadedFilename + "'", error);
+      showMessage(
+          BaseMessages.getString(
+              PKG,
+              "Revisions.Message.Error",
+              loadedFilename,
+              Const.NVL(error.getMessage(), error.toString())));
+      return;
+    }
+
+    int count = 0;
+    wRevisions.setRedraw(false);
+    try {
       wRevisions.removeAll();
-      revisions.clear();
       for (ObjectRevision revision : fileRevisions) {
         if (UIGit.WORKINGTREE.equals(revision.getRevisionId())) {
           continue;
         }
-        revisions.add(revision);
 
         TableItem item = new TableItem(wRevisions.table, SWT.NONE);
+        // The row order changes when a column is sorted, and the commit id is shortened in the
+        // table: the row has to carry its own revision, which TableView keeps with it on a sort.
+        item.setData(revision);
         item.setText(1, Const.NVL(revision.getComment(), ""));
         item.setText(2, Const.NVL(revision.getLogin(), ""));
         item.setText(3, getDateString(revision.getCreationDate()));
         item.setText(4, git.getShortenedName(revision.getRevisionId()));
+        count++;
       }
       wRevisions.optimizeTableView();
 
       // Preselect the most recent revision so the diff actions always have a subject
-      if (wRevisions.table.getItemCount() > 0) {
+      if (count > 0) {
         wRevisions.table.setSelection(0);
       }
-
-      // A programmatic selection doesn't fire an event, update the actions ourselves
-      enableToolbarItems();
-    } catch (Exception e) {
-      LogChannel.UI.logError("Error refreshing revisions", e);
     } finally {
       // Always restore the redraw, otherwise the table stays frozen after an error
       wRevisions.setRedraw(true);
-      shell.setCursor(null);
     }
+
+    if (count > 0) {
+      wMessage.setVisible(false);
+      wRevisions.setVisible(true);
+    } else {
+      showMessage(BaseMessages.getString(PKG, "Revisions.Message.NoRevisions"));
+    }
+
+    // A programmatic selection doesn't fire an event, update the actions ourselves
+    enableToolbarItems();
   }
 
-  /**
-   * Opens a side by side text comparison of the selected revision with the file currently being
-   * edited. The working tree side stays editable, like in the git perspective.
-   */
+  private void showMessage(String message) {
+    wMessage.setText(message);
+    wRevisions.setVisible(false);
+    wMessage.setVisible(true);
+  }
+
+  /** The working tree side of the comparison stays editable, like in the git perspective. */
   public void showTextDiff() {
     try {
       RevisionDiff diff = getSelectedRevisionDiff();
@@ -239,14 +353,10 @@ public abstract class BaseRevisionDelegate {
             .showTextFileDiff(diff.relativePath(), diff.commitIdNew(), diff.commitIdOld());
       }
     } catch (Exception e) {
-      showDiffError("Revisions.ShowTextDiff.Error.Message", getFilename(), e);
+      showDiffError("Revisions.ShowTextDiff.Error.Message", getMeta().getFilename(), e);
     }
   }
 
-  /**
-   * Opens a graphical comparison of the selected revision with the file currently being edited, the
-   * same way the git perspective does for a selected commit.
-   */
   public void showVisualDiff() {
     try {
       RevisionDiff diff = getSelectedRevisionDiff();
@@ -255,7 +365,7 @@ public abstract class BaseRevisionDelegate {
         showGraphDiff(diff.relativePath(), diff.commitIdNew(), diff.commitIdOld());
       }
     } catch (Exception e) {
-      showDiffError("Revisions.ShowVisualDiff.Error.Message", getFilename(), e);
+      showDiffError("Revisions.ShowVisualDiff.Error.Message", getMeta().getFilename(), e);
     }
   }
 
@@ -267,42 +377,51 @@ public abstract class BaseRevisionDelegate {
    * @throws HopException when the path of the file can't be resolved in the git repository
    */
   private RevisionDiff getSelectedRevisionDiff() throws HopException {
-    String fileName = getFilename();
-    if (fileName == null) {
-      return null;
-    }
-
-    // Without a git project there is no revision to compare
+    String filename = getMeta().getFilename();
     UIGit git = GitGuiPlugin.getInstance().getGit();
-    if (git == null) {
+    if (filename == null || git == null) {
       return null;
     }
 
-    if (!isRevisionSelected()) {
+    // The rows still list the commits of the previous file, reload instead of comparing them
+    if (!filename.equals(loadedFilename)) {
+      refresh();
+      return null;
+    }
+
+    ObjectRevision revision = getSelectedRevision();
+    if (revision == null) {
       return null;
     }
 
     try {
-      String relativePath = calculateRelativePath(git.getDirectory(), fileName);
-      String revisionId = revisions.get(wRevisions.table.getSelectionIndex()).getRevisionId();
-      return new RevisionDiff(relativePath, UIGit.WORKINGTREE, revisionId);
+      String relativePath = calculateRelativePath(git.getDirectory(), filename);
+      if (relativePath == null) {
+        return null;
+      }
+      return new RevisionDiff(relativePath, UIGit.WORKINGTREE, revision.getRevisionId());
     } catch (HopFileException | FileSystemException e) {
       throw new HopException(
-          "Unable to locate file '" + fileName + "' in git repository " + git.getDirectory(), e);
+          "Unable to locate file '" + filename + "' in git repository " + git.getDirectory(), e);
     }
   }
 
-  /** Enables the diff actions only as long as a revision is selected in the table. */
   private void enableToolbarItems() {
-    boolean selected = isRevisionSelected();
+    boolean selected = getSelectedRevision() != null;
     for (String itemId : getSelectionToolbarItemIds()) {
       toolBarWidgets.enableToolbarItem(itemId, selected);
     }
   }
 
-  private boolean isRevisionSelected() {
-    int index = wRevisions.table.getSelectionIndex();
-    return index >= 0 && index < revisions.size();
+  private ObjectRevision getSelectedRevision() {
+    if (wRevisions == null || wRevisions.isDisposed()) {
+      return null;
+    }
+    TableItem[] selection = wRevisions.table.getSelection();
+    if (selection.length == 1 && selection[0].getData() instanceof ObjectRevision revision) {
+      return revision;
+    }
+    return null;
   }
 
   /**
@@ -327,10 +446,16 @@ public abstract class BaseRevisionDelegate {
         e);
   }
 
+  /**
+   * @return the path git knows the file by, null when the file is outside of the repository
+   */
   private String calculateRelativePath(String rootFolder, String filename)
       throws HopFileException, FileSystemException {
     FileObject root = HopVfs.getFileObject(rootFolder);
     FileObject file = HopVfs.getFileObject(filename);
+    if (!root.getName().isDescendent(file.getName())) {
+      return null;
+    }
     return root.getName().getRelativeName(file.getName());
   }
 

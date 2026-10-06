@@ -18,15 +18,13 @@
 package org.apache.hop.git;
 
 import java.util.List;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 
@@ -53,8 +51,8 @@ public class PipelineRevisionDelegate extends BaseRevisionDelegate {
   }
 
   @Override
-  protected String getFilename() {
-    return pipelineGraph.getPipelineMeta().getFilename();
+  protected AbstractMeta getMeta() {
+    return pipelineGraph.getPipelineMeta();
   }
 
   @Override
@@ -75,20 +73,16 @@ public class PipelineRevisionDelegate extends BaseRevisionDelegate {
     return super.createRevisionsTab(tabFolder);
   }
 
-  /** Refreshes the pipeline revisions with the git history of the pipeline file. */
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "i18n::System.Button.Refresh",
       image = "ui/images/refresh.svg")
-  @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
     super.refresh();
   }
 
-  /** Compares the pipeline currently being edited with the selected revision as text. */
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -100,7 +94,6 @@ public class PipelineRevisionDelegate extends BaseRevisionDelegate {
     super.showTextDiff();
   }
 
-  /** Compares the pipeline currently being edited with the selected revision graphically. */
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -111,7 +104,6 @@ public class PipelineRevisionDelegate extends BaseRevisionDelegate {
     super.showVisualDiff();
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void showGraphDiff(String relativePath, String commitIdNew, String commitIdOld)
       throws HopException {
