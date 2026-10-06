@@ -45,8 +45,16 @@ public final class PluginDiscovery {
   /**
    * Resolved install target: Maven coordinates plus an optional preferred repository id (from
    * discovery {@code source}) tried first in the install fallback chain.
+   *
+   * @param discovered true when the coordinate came from a catalog or browse hit, false when it is
+   *     a literal parse (including the {@code org.apache.hop} fallback)
    */
-  public record InstallTarget(MavenCoordinates coordinates, String preferredRepoId) {}
+  public record InstallTarget(
+      MavenCoordinates coordinates, String preferredRepoId, boolean discovered) {
+    public InstallTarget(MavenCoordinates coordinates, String preferredRepoId) {
+      this(coordinates, preferredRepoId, false);
+    }
+  }
 
   /**
    * Full marketplace discovery: bundled Apache optional catalog plus every enabled repository with
@@ -193,7 +201,8 @@ public final class PluginDiscovery {
       preferredRepo = chosen.getSource();
     }
 
-    return new InstallTarget(new MavenCoordinates(groupId, artifactId, version), preferredRepo);
+    return new InstallTarget(
+        new MavenCoordinates(groupId, artifactId, version), preferredRepo, true);
   }
 
   /**

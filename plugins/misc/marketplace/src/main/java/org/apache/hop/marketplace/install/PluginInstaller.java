@@ -36,6 +36,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
@@ -57,15 +58,16 @@ public class PluginInstaller {
   private final MavenRepositoryClient client;
 
   public PluginInstaller(ILogChannel log, Path hopHome, MarketplaceConfig config) {
-    this.log = log;
-    this.hopHome = hopHome;
-    this.config = config;
-    this.client = new MavenRepositoryClient(log);
+    this(
+        log != null ? log : new LogChannel("PluginInstaller"),
+        hopHome,
+        config,
+        new MavenRepositoryClient(log != null ? log : new LogChannel("PluginInstaller")));
   }
 
   PluginInstaller(
       ILogChannel log, Path hopHome, MarketplaceConfig config, MavenRepositoryClient client) {
-    this.log = log;
+    this.log = log != null ? log : new LogChannel("PluginInstaller");
     this.hopHome = hopHome;
     this.config = config;
     this.client = client;
@@ -119,6 +121,17 @@ public class PluginInstaller {
       IInstallListener listener)
       throws HopException {
     IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
+    InstallReceipt already = satisfiedInstall(coordinates);
+    if (already != null) {
+      already.setAlreadyPresent(true);
+      log.logBasic(
+          "Plugin "
+              + coordinates.gav()
+              + " is already installed (receipt "
+              + already.getVersion()
+              + "); skipping download.");
+      return already;
+    }
     Path downloadDir = hopHome.resolve(STAGING_DIR).resolve(".download");
     Path zipFile =
         downloadDir.resolve(coordinates.artifactId() + "-" + coordinates.version() + ".zip");
@@ -197,6 +210,49 @@ public class PluginInstaller {
     }
   }
 
+  /**
+   * A repeated install can skip the download when the receipt names this version and every file it
+   * recorded is still on disk.
+   */
+  private InstallReceipt satisfiedInstall(MavenCoordinates coordinates) throws HopException {
+    InstallReceipt receipt = readReceipt(hopHome, coordinates.artifactId());
+    if (receipt == null || receipt.isPendingActivation()) {
+      return null;
+    }
+    if (!coordinates.version().equals(receipt.getVersion())) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(receipt.getGroupId())
+        && !receipt.getGroupId().equals(coordinates.groupId())) {
+      return null;
+    }
+    if (!receiptFilesPresent(receipt)) {
+      return null;
+    }
+    return receipt;
+  }
+
+  private boolean receiptFilesPresent(InstallReceipt receipt) {
+    List<String> paths = receipt.getPaths();
+    if (paths == null || paths.isEmpty()) {
+      return false;
+    }
+    boolean file = false;
+    for (String relative : paths) {
+      if (StringUtils.isBlank(relative)) {
+        continue;
+      }
+      Path path = activationTarget(relative);
+      if (!Files.exists(path)) {
+        return false;
+      }
+      if (Files.isRegularFile(path)) {
+        file = true;
+      }
+    }
+    return file;
+  }
+
   private List<MarketplaceRepository> resolveRepositories(
       String forceRepoId, String preferredRepoId) throws HopException {
     if (StringUtils.isNotBlank(forceRepoId)) {
@@ -254,7 +310,7 @@ public class PluginInstaller {
     try {
       for (String relative : relativePaths) {
         Path from = stageRoot.resolve(relative);
-        Path to = hopHome.resolve(relative);
+        Path to = activationTarget(relative);
         if (Files.isDirectory(from)) {
           Files.createDirectories(to);
         } else if (Files.isRegularFile(from)) {
@@ -322,6 +378,38 @@ public class PluginInstaller {
   static boolean isSharedCorePath(String relative) {
     String normalized = relative.replace('\\', '/');
     return normalized.equals("lib/core") || normalized.startsWith("lib/core/");
+  }
+
+  /** Web layout keeps shared jars in {@code WEB-INF/lib} instead of {@code lib/core}. */
+  private Path activationTarget(String relative) {
+    Path standard = hopHome.resolve(relative);
+    String normalized = relative == null ? "" : relative.replace('\\', '/');
+    if (!normalized.startsWith("lib/core/") || normalized.endsWith("/")) {
+      return standard;
+    }
+    Path webLib = webInfLib();
+    if (webLib == null) {
+      return standard;
+    }
+    Path name = Path.of(normalized).getFileName();
+    return name == null ? standard : webLib.resolve(name);
+  }
+
+  private Path webInfLib() {
+    Path fromCwd =
+        Path.of(System.getProperty("user.dir", "."))
+            .resolve("WEB-INF")
+            .resolve("lib")
+            .toAbsolutePath()
+            .normalize();
+    if (Files.isDirectory(fromCwd)) {
+      return fromCwd;
+    }
+    Path fromHome = hopHome.resolve("webapps").resolve("ROOT").resolve("WEB-INF").resolve("lib");
+    if (Files.isDirectory(fromHome)) {
+      return fromHome;
+    }
+    return null;
   }
 
   /**

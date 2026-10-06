@@ -256,7 +256,8 @@ RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
     # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' /build/hop-web-prepared/webapps/ROOT/config/hop-config.json
 
-# Set the correct classpath for hop scripts
+# Set the correct classpath for hop scripts. hop (no suffix) is the marketplace entrypoint.
+RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop
 RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-run.sh
 RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-conf.sh
 RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-search.sh
@@ -293,6 +294,14 @@ ENV HOP_SHARED_JDBC_FOLDERS=
 ENV HOP_DRIVERS_DOWNLOAD=
 ENV HOP_DRIVERS_ACCEPT_LICENSE=
 ENV HOP_DRIVERS_MAVEN_REPO=
+ENV HOP_PLUGINS_DOWNLOAD=
+ENV HOP_PLUGINS_MAVEN_REPO=
+ENV HOP_PLUGINS_REPO_ID=
+ENV HOP_PLUGINS_REPO_USERNAME=
+ENV HOP_PLUGINS_REPO_PASSWORD=
+ENV HOP_PLUGINS_REPO_AUTH_TYPE=
+ENV HOP_PLUGINS_REPO_TYPE=
+ENV HOP_PLUGINS_ENV_FILE=
 ENV HOP_PROJECT_NAME=
 ENV HOP_PROJECT_DIRECTORY=
 ENV HOP_PROJECT_FOLDER=
@@ -372,6 +381,14 @@ ENV HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"
 ENV HOP_DRIVERS_DOWNLOAD=
 ENV HOP_DRIVERS_ACCEPT_LICENSE=
 ENV HOP_DRIVERS_MAVEN_REPO=
+ENV HOP_PLUGINS_DOWNLOAD=
+ENV HOP_PLUGINS_MAVEN_REPO=
+ENV HOP_PLUGINS_REPO_ID=
+ENV HOP_PLUGINS_REPO_USERNAME=
+ENV HOP_PLUGINS_REPO_PASSWORD=
+ENV HOP_PLUGINS_REPO_AUTH_TYPE=
+ENV HOP_PLUGINS_REPO_TYPE=
+ENV HOP_PLUGINS_ENV_FILE=
 ENV HOP_GUI_ZOOM_FACTOR=1.0
 ENV HOP_PROJECT_FOLDER=
 ENV HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
