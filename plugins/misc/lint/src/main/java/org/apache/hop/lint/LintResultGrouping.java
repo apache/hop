@@ -19,6 +19,7 @@ package org.apache.hop.lint;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,8 +117,14 @@ public final class LintResultGrouping {
    * found, which moved a file's findings to the bottom each time it was linted again.
    */
   public static Comparator<LintResult> order(SortKey key, boolean ascending) {
+    // Resolving a path goes through VFS, so each path is resolved once per comparator and not on
+    // every comparison. It also gives the same path the same key throughout a sort.
+    Map<String, String> fileNames = new HashMap<>();
     Comparator<LintResult> byFile =
-        Comparator.comparing((LintResult r) -> fileName(r), String.CASE_INSENSITIVE_ORDER)
+        Comparator.comparing(
+                (LintResult r) ->
+                    fileNames.computeIfAbsent(text(r.getFileName()), path -> fileName(path)),
+                String.CASE_INSENSITIVE_ORDER)
             .thenComparing(r -> text(r.getFileName()), String.CASE_INSENSITIVE_ORDER);
     Comparator<LintResult> byRule =
         Comparator.comparing((LintResult r) -> text(r.getRuleId()), String.CASE_INSENSITIVE_ORDER);
@@ -144,8 +151,7 @@ public final class LintResultGrouping {
         .thenComparing(severity -> text(severity), String.CASE_INSENSITIVE_ORDER);
   }
 
-  private static String fileName(LintResult result) {
-    String path = text(result.getFileName());
+  private static String fileName(String path) {
     return path.isEmpty() ? path : new File(LintPathUtils.normalizePath(path)).getName();
   }
 
