@@ -542,6 +542,9 @@ docker run -it --rm \
 `docker run --env-file` takes everything after the first `=` literally, quotes included, so do not wrap values in quotes.
 A line with only a variable name, for example `AWS_SECRET_ACCESS_KEY`, copies that variable from the shell that runs `docker run`.
 
+The sample is for `docker run --env-file` only.
+Do not use it as a Docker Compose `env_file`: Compose strips quotes and expands `${...}`, which breaks the quoted Azure key and `HOP_FILE_PATH`.
+
 [options="header"]
 |===
 |File system |Environment variables |`HOP_CONFIG_OPTIONS`
@@ -581,6 +584,21 @@ The result contains a space, so quote it as shown above.
 
 Google Drive needs a token that is created by an interactive browser login.
 Log in once with Hop GUI on a desktop, then mount the credentials file and the tokens folder into the container.
+The credentials file can stay on the read-only `/keys` mount.
+Hop writes to the tokens folder, so mount it read-write and make it owned by uid 501, the `hop` user in the image:
+
+[source,bash]
+----
+chown -R 501 /path/to/google-drive-tokens
+
+docker run -it --rm \
+  --env-file hop.env \
+  -v /path/to/keys:/keys:ro \
+  -v /path/to/google-drive-tokens:/home/hop/google-drive-tokens \
+  apache/hop:<tag>
+----
+
+with `--google-drive-credentials-file=/keys/google-drive-credentials.json --google-drive-tokens-folder=/home/hop/google-drive-tokens` in `HOP_CONFIG_OPTIONS`.
 
 === Named connections
 
@@ -597,6 +615,7 @@ Set them in the environment configuration file (`HOP_ENVIRONMENT_CONFIG_FILE_NAM
 
 Anyone who can run `docker inspect` on the container can read its environment variables, including the values in `HOP_CONFIG_OPTIONS`.
 `hop-conf` also writes those values to `hop-config.json` inside the container.
+The values in `HOP_CONFIG_OPTIONS` also end up in the container log (`docker logs`): the start-up script prints the variable, and the Azure key is logged when it is set.
 
 * Prefer mounted, read-only key files over keys in environment variables.
 * Leave secrets out of the environment file and copy them from your shell, as described above.
