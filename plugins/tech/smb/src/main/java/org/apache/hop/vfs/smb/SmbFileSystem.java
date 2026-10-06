@@ -1,0 +1,87 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.hop.vfs.smb;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import org.apache.commons.vfs2.Capability;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.provider.AbstractFileName;
+import org.apache.commons.vfs2.provider.AbstractFileSystem;
+
+/**
+ * One named connection. The SMB session lives on {@link #share} and is closed with the file system.
+ */
+public class SmbFileSystem extends AbstractFileSystem {
+
+  public static final List<Capability> CAPABILITIES =
+      Arrays.asList(
+          Capability.CREATE,
+          Capability.DELETE,
+          Capability.RENAME,
+          Capability.GET_TYPE,
+          Capability.LIST_CHILDREN,
+          Capability.READ_CONTENT,
+          Capability.WRITE_CONTENT,
+          Capability.APPEND_CONTENT,
+          Capability.URI,
+          Capability.GET_LAST_MODIFIED,
+          Capability.RANDOM_ACCESS_READ,
+          Capability.RANDOM_ACCESS_WRITE,
+          Capability.RANDOM_ACCESS_SET_LENGTH);
+
+  private final SmbShare share;
+  private final String basePath;
+
+  public SmbFileSystem(
+      FileName rootName, FileSystemOptions fileSystemOptions, SmbShare share, String basePath) {
+    super(rootName, null, fileSystemOptions);
+    this.share = share;
+    this.basePath = basePath == null ? "" : basePath;
+  }
+
+  SmbShare share() {
+    return share;
+  }
+
+  String toSharePath(FileName name) throws IOException {
+    return SmbPaths.sharePath(basePath, name.getPath());
+  }
+
+  @Override
+  protected void addCapabilities(Collection<Capability> caps) {
+    caps.addAll(CAPABILITIES);
+  }
+
+  @Override
+  protected FileObject createFile(AbstractFileName name) {
+    return new SmbFileObject(name, this);
+  }
+
+  @Override
+  protected void doCloseCommunicationLink() {
+    try {
+      share.close();
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+}

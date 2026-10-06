@@ -53,6 +53,7 @@
         <module>redis</module>
         <module>salesforce</module>
         <module>sftp</module>
+        <module>smb</module>
         <module>vault</module>
         <module>webdav</module>
     </modules>
