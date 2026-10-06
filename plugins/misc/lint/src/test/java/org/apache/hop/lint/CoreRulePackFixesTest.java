@@ -145,6 +145,9 @@ public class CoreRulePackFixesTest {
   public void sql002ReportsOnlyAnUnboundedSelectStar() {
     assertTrue(sql002Reports("SELECT * FROM customers", "0"), "SELECT *, no limit");
     assertTrue(sql002Reports("select *\nfrom customers", ""), "SELECT *, empty limit");
+    assertTrue(sql002Reports("SELECT * FROM customers", null), "SELECT *, limit never set");
+    assertTrue(sql002Reports("SELECT * FROM customers", "-1"), "SELECT *, negative limit");
+    assertTrue(sql002Reports("SELECT * FROM customers", "+0"), "SELECT *, limit +0");
     assertFalse(sql002Reports("SELECT * FROM customers", "100"), "SELECT *, limit 100");
     assertFalse(sql002Reports("SELECT * FROM customers", "${LIMIT}"), "limit from a variable");
     assertFalse(sql002Reports("SELECT id, name FROM customers", "0"), "named columns");

@@ -137,7 +137,7 @@ rules:
     targetField: hasDefaultName
     condition: MUST_BE_FALSE
     name: "Default Transform Name"
-    description: "Auto-generated names such as 'Transform 1' make logs and error messages hard to trace back to the pipeline"
+    description: "Names Hop Gui assigns, such as 'Table input' or 'Table input 2', make logs and error messages hard to trace back to the pipeline"
 
   # ------------------------------------------------------------------
   # Hop's own verify remarks.
@@ -305,7 +305,7 @@ rules:
 
   # A worked example of a rule that checks more than one thing. Each condition says what is
   # required, and allOf reports only when every one of them is not met: here, when the SQL selects
-  # every column and the row limit is empty or 0, which Hop reads as no limit. anyOf would report
+  # every column and the row limit is unset, 0 or negative, which Hop reads as no limit. anyOf would report
   # when either was not met. Each clause names its own field, condition and value.
   SQL-002:
     type: custom
@@ -320,7 +320,7 @@ rules:
         conditionValue: "(?is).*\\bselect\\s+\\*.*"
       - targetField: rowLimit
         condition: NOT_MATCHES_PATTERN
-        conditionValue: "^\\s*0*\\s*$"
+        conditionValue: "^\\s*([+-]?0*|-\\d+)\\s*$"
     name: "Unbounded SELECT *"
     description: "A Table Input that selects every column and sets no row limit reads more than it needs, and breaks when the table gains a column"
 

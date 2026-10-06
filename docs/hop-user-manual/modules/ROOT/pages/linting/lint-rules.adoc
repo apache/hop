@@ -190,14 +190,14 @@ Some problems are only worth reporting when several things are wrong together, a
         conditionValue: "(?is).*\\bselect\\s+\\*.*"
       - targetField: rowLimit
         condition: NOT_MATCHES_PATTERN
-        conditionValue: "^\\s*0*\\s*$"
+        conditionValue: "^\\s*([+-]?0*|-\\d+)\\s*$"
     name: "Unbounded SELECT *"
     description: "A Table Input that selects every column and sets no row limit"
 ----
 
 As everywhere else, each condition says what is *required*, and the rule reports when that is not met.
 `allOf` reports only when *every* condition is not met, `anyOf` when *at least one* is not.
-The rule above reports a Table Input whose SQL selects every column *and* whose row limit is empty or `0`, which Hop reads as no limit.
+The rule above reports a Table Input whose SQL selects every column *and* whose row limit is unset, `0` or negative, which Hop reads as no limit.
 
 To report something that is set, require it to be empty: a plain `http://` URL with a login is `url` `MATCHES_PATTERN` `^https://.*` (not met for `http://`) together with `httpLogin` `IS_EMPTY` (not met when a login is set), under `allOf`.
 
@@ -308,7 +308,7 @@ Hop's core rule pack is deliberately small. A rule is enabled by default only wh
 
 |`NAMING-004`
 |WARNING
-|A transform still carrying its auto-generated name
+|A transform still carrying the name Hop Gui gave it, such as `Table input` or `Table input 2`
 
 |`HOP-CHECK`
 |WARNING

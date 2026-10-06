@@ -1070,7 +1070,12 @@ public class CustomRuleExecutor {
       // fire on it. Hop returns null for an unset description, which is exactly the case
       // "description NOT_EMPTY" exists to catch; treating null as passing made those rules
       // fire only on a description explicitly set to "".
-      return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      if (condition != RuleCondition.NOT_MATCHES_PATTERN) {
+        return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      }
+      // A pattern that forbids blank values, such as SQL-002's "no row limit", must also see an
+      // unset value, so NOT_MATCHES_PATTERN reads null as "".
+      fieldValue = "";
     }
 
     // Handle null condition value for conditions that don't need it
@@ -1095,8 +1100,9 @@ public class CustomRuleExecutor {
         return Utils.isEmpty(fieldValue.toString());
 
       case IS_EMPTY:
-        // The opposite of NOT_EMPTY, so that a clause can require that a field is not set, as in
-        // "a plain http:// URL with no login": url NOT_MATCHES_PATTERN https, httpLogin IS_EMPTY.
+        // The opposite of NOT_EMPTY, so that a clause can require that a field is not set. Under
+        // allOf, url MATCHES_PATTERN ^https://.* and httpLogin IS_EMPTY report a plain http:// URL
+        // with a login.
         return !Utils.isEmpty(fieldValue.toString());
 
       case NOT_NULL:
