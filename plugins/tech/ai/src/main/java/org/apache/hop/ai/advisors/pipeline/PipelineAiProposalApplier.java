@@ -29,12 +29,15 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.w3c.dom.Document;
 
 /** Previews and applies validated AI proposals to an open pipeline. */
 public final class PipelineAiProposalApplier {
@@ -69,9 +72,29 @@ public final class PipelineAiProposalApplier {
     }
     IHopMetadataProvider provider =
         metadataProvider != null ? metadataProvider : pipelineMeta.getMetadataProvider();
+    // Apply the whole batch to a copy first. A proposal that fails half way then leaves the open
+    // pipeline as it was, rather than with only the first proposals applied.
+    PipelineMeta copy = copyForDryRun(pipelineMeta, provider);
+    if (copy != null) {
+      for (AiProposal proposal : proposals) {
+        applyOne(copy, proposal, null, false, provider);
+      }
+    }
     for (int i = 0; i < proposals.size(); i++) {
       boolean chainUndo = hopGui != null && i < proposals.size() - 1;
       applyOne(pipelineMeta, proposals.get(i), hopGui, chainUndo, provider);
+    }
+  }
+
+  /** A copy through XML, or null when the pipeline cannot be copied (the dry run is skipped). */
+  public static PipelineMeta copyForDryRun(
+      PipelineMeta pipelineMeta, IHopMetadataProvider provider) {
+    try {
+      Document document =
+          XmlHandler.loadXmlString(pipelineMeta.getXml(Variables.getADefaultVariableSpace()));
+      return new PipelineMeta(XmlHandler.getSubNode(document, PipelineMeta.XML_TAG), provider);
+    } catch (Exception e) {
+      return null;
     }
   }
 

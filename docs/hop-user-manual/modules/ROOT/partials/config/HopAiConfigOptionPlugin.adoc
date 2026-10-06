@@ -23,34 +23,36 @@ These options are stored under `pass:c[hopAiConfig]` in `hop-config.json`.
 |===
 |Option|Description|Default
 
-|pass:c[Enable AI advisory]
-|pass:c[When disabled, AI Help is hidden and no prompts are sent. Default is off. Before applying AI changes, work on a Git feature branch so you can revert the project if needed.]
+|pass:c[Enable the AI Assistant]
+|pass:c[When disabled, the AI Assistant is hidden and no prompts are sent. Default is off. Before applying AI changes, work on a Git feature branch so you can revert the project if needed.]
 |`pass:c[false]`
 
 |pass:c[Default AI provider]
-|pass:c[Named AI Provider metadata used by GUI advisors. Pipelines can still pick a different provider. Accepts variables.]
+|pass:c[Named AI Provider metadata used by the AI Assistant. Pipelines can still pick a different provider. Accepts variables.]
 |
 
 |pass:c[Allow sending full XML]
 |pass:c[Second gate for the session "Include full XML" checkbox. Off by default. Full XML is large and can contain SQL, filenames and notes. Leave this off unless you need it, and only after secrets live in environment variables or a keystore.]
 |`pass:c[false]`
 
+|pass:c[Keep conversations after Hop GUI closes]
+|pass:c[Saves the AI Assistant sessions of each project as plain text (questions, answers, proposals and options, not the context that was sent) in the audit folder, ${HOP_AUDIT_FOLDER}, next to the other things Hop GUI remembers per project. That folder is on your machine and outside the project, so the conversations do not end up in version control. Uncheck to start every Hop GUI session without conversations.]
+|`pass:c[true]`
+
 |pass:c[Extra context]
 a|pass:c[Standing notes sent with every AI Assistant question. The default reminds the model that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different types, and that Hop is not Kettle. Add project conventions here. Accepts variables.]
 
 .Default
-[listing]
-----
-Hop metadata names are case-sensitive.
-Pipeline run configurations and workflow run configurations are different metadata types.
-Do not guess names of existing metadata, transforms, or actions that are not in the prompt context. New objects the user asked to create should use the names they gave.
-Variables use ${NAME}. Prefer variables or a resolver for secrets.
-Hop uses pipelines (.hpl) and workflows (.hwf) with transforms and actions, not Kettle transformations, jobs, steps, or job entries.
-----
+[%hardbreaks]
+`pass:c[Hop metadata names are case-sensitive.]`
+`pass:c[Pipeline run configurations and workflow run configurations are different metadata types.]`
+`pass:c[Do not guess names of existing metadata, transforms, or actions that are not in the prompt context. New objects the user asked to create should use the names they gave.]`
+`pass:c[Variables use ${NAME}. Prefer variables or a resolver for secrets.]`
+`pass:c[Hop uses pipelines (.hpl) and workflows (.hwf) with transforms and actions, not Kettle transformations, jobs, steps, or job entries.]`
 |_(with the description)_
 
 |pass:c[Context files]
-|pass:c[One VFS path per line. Files that exist are appended to the system prompt; missing files are skipped. Default is ${PROJECT_HOME}/AGENTS.md. Variables are resolved. Accepts variables.]
-|`pass:c[${PROJECT_HOME}/AGENTS.md]`
+|pass:c[One VFS path per line. Files that exist are appended to the system prompt as instructions the assistant follows; missing files are skipped. Variables are resolved. Empty by default. Only list files you wrote for the AI Assistant, for example ${PROJECT_HOME}/ai-assistant.md: an AGENTS.md is usually written for coding agents, and a file from someone elses project can steer the assistant. Accepts variables.]
+|
 
 |===

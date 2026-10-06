@@ -33,10 +33,27 @@ import org.apache.hop.core.variables.IVariables;
  * @param apiKey the resolved key, empty when the provider type needs none
  * @param timeout the request timeout, or null to leave the client's own default
  * @param temperature the sampling temperature, or null when not set
+ * @param contextSize the context window in tokens, or null when unknown
+ * @param maxOutputTokens the answer length limit in tokens, or null for the provider's default
  * @param backend the provider type, which says how to talk to the endpoint
  */
 public record AiProviderSettings(
-    String baseUrl, String apiKey, Duration timeout, Double temperature, IAiProvider backend) {
+    String baseUrl,
+    String apiKey,
+    Duration timeout,
+    Double temperature,
+    Integer contextSize,
+    Integer maxOutputTokens,
+    IAiProvider backend) {
+
+  /**
+   * Ollama's own default window (2048 or 4096 depending on the version) does not hold a typical
+   * advisor prompt, and it truncates silently. 16k holds one with room for history and the answer.
+   */
+  public static final int DEFAULT_OLLAMA_CONTEXT_SIZE = 16_384;
+
+  /** Anthropic requires a limit. Its old default here, 1024, cut answers and proposals short. */
+  public static final int DEFAULT_ANTHROPIC_MAX_OUTPUT_TOKENS = 4_096;
 
   /** The {@code hopModelType} of the backend, never null, so it can be switched on directly. */
   public String type() {
@@ -48,10 +65,10 @@ public record AiProviderSettings(
     if (provider == null) {
       throw new HopException("An AI provider is required");
     }
-    IAiProvider backend = provider.getProvider();
-    if (backend == null) {
-      throw new HopException("AI provider type is not set on '" + provider.getName() + "'");
+    if (!provider.hasProviderType()) {
+      throw new HopException(AiChatFactory.missingTypeMessage(provider));
     }
+    IAiProvider backend = provider.getProvider();
     String baseUrl = variables.resolve(provider.getBaseUrl());
     if (Utils.isEmpty(baseUrl)) {
       baseUrl = backend.getDefaultBaseUrl();
@@ -61,7 +78,48 @@ public record AiProviderSettings(
         variables.resolve(provider.getApiKey()),
         parseTimeout(variables.resolve(provider.getTimeoutSeconds())),
         parseDouble(variables.resolve(provider.getTemperature())),
+        contextSize(provider, variables),
+        maxOutputTokens(provider, variables),
         backend);
+  }
+
+  /** The configured context size, or the Ollama default, or null when nothing is known. */
+  public static Integer contextSize(AiProvider provider, IVariables variables) {
+    Integer configured = parsePositiveInt(resolve(variables, provider.getContextSize()));
+    if (configured != null) {
+      return configured;
+    }
+    return "OLLAMA".equals(provider.getHopModelType()) ? DEFAULT_OLLAMA_CONTEXT_SIZE : null;
+  }
+
+  /** The configured answer limit, or the Anthropic default, or null for the provider's own. */
+  public static Integer maxOutputTokens(AiProvider provider, IVariables variables) {
+    Integer configured = parsePositiveInt(resolve(variables, provider.getMaxOutputTokens()));
+    if (configured != null) {
+      return configured;
+    }
+    return "ANTHROPIC".equals(provider.getHopModelType())
+        ? DEFAULT_ANTHROPIC_MAX_OUTPUT_TOKENS
+        : null;
+  }
+
+  static Integer parsePositiveInt(String text) {
+    if (Utils.isEmpty(text)) {
+      return null;
+    }
+    try {
+      int value = Integer.parseInt(text.trim());
+      return value > 0 ? value : null;
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private static String resolve(IVariables variables, String value) {
+    if (value == null) {
+      return "";
+    }
+    return variables != null ? variables.resolve(value) : value;
   }
 
   /**

@@ -67,7 +67,11 @@ public final class PipelineAiProposalValidator {
       IHopMetadataProvider metadataProvider) {
     AiProposalTypes type = AiProposalTypes.of(proposal);
     if (type == null) {
-      return blocked(proposal, "Missing or unknown proposal type");
+      return blocked(
+          proposal,
+          Utils.isEmpty(proposal.getType())
+              ? "The proposal has no type"
+              : "Unknown proposal type: " + proposal.getType());
     }
     if (!type.isPipelineType()) {
       return blocked(proposal, "Not a pipeline proposal type: " + type);
@@ -83,7 +87,7 @@ public final class PipelineAiProposalValidator {
       case DELETE_PIPELINE_HOP -> validateDeletePipelineHop(pipelineMeta, proposal);
       case SET_TRANSFORM_LOCATION -> validateSetTransformLocation(pipelineMeta, proposal);
       case ADD_PIPELINE_NOTE -> validateAddPipelineNote(proposal);
-      case CONFIGURE_TRANSFORM -> validateConfigureTransform(pipelineMeta, proposal);
+      case CONFIGURE_TRANSFORM -> validateConfigureTransform(pipelineMeta, proposal, reservedNames);
       case CLIPBOARD_TRANSFORMS -> validateClipboardTransforms(proposal);
       case REPLACE_TRANSFORM -> validateReplaceTransform(pipelineMeta, proposal);
       case CLIPBOARD_METADATA, SAVE_METADATA ->
@@ -124,12 +128,14 @@ public final class PipelineAiProposalValidator {
   }
 
   private static AiProposalValidation validateConfigureTransform(
-      PipelineMeta pipelineMeta, AiProposal proposal) {
+      PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames) {
     String transformName = proposal.parameter("transformName");
     if (Utils.isEmpty(transformName)) {
       return blocked(proposal, "transformName is required");
     }
-    if (pipelineMeta.findTransform(transformName) == null) {
+    // A transform added earlier in the same list exists by the time this one is applied.
+    if (pipelineMeta.findTransform(transformName) == null
+        && !reservedNames.contains(transformName.trim())) {
       return blocked(proposal, "Transform not found: " + transformName);
     }
     if (!AiTransformConfigSupport.hasConfig(proposal)) {
@@ -190,6 +196,12 @@ public final class PipelineAiProposalValidator {
     if (fromName.trim().equals(toName.trim())) {
       return blocked(proposal, "Hop cannot connect a transform to itself");
     }
+    // A pipeline cannot loop: the reverse hop, already there or proposed earlier, would.
+    if ((from != null && to != null && pipelineMeta.findPipelineHop(to, from) != null)
+        || reservedNames.contains("hop:" + toName + "->" + fromName)) {
+      return blocked(proposal, "This hop and " + toName + " -> " + fromName + " would form a loop");
+    }
+    reservedNames.add("hop:" + fromName + "->" + toName);
     if (from != null && to != null && pipelineMeta.findPipelineHop(from, to) != null) {
       return warning(proposal, "Hop already exists");
     }

@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /technology/ai/
 :language: en_US
-:description: Apache Hop AI advisory: named providers, pluggable advisors, and a multi-session workbench. Off by default.
+:description: Apache Hop AI Assistant: named providers, pluggable advisors, and a multi-session workbench. Off by default.
 
 = AI
 
@@ -32,7 +32,7 @@ AI is *disabled until you turn it on*.
 * xref:metadata-types/ai-provider.adoc[AI Provider] metadata — named model + credentials
 * Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, extra context notes, context files (default `+${PROJECT_HOME}/AGENTS.md+`), optional full XML
 * xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] workbench — perspective, floating window, and bottom dock
-* Pipeline AI Help and Workflow AI Help — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits, clipboard XML/JSON, and metadata saves
+* The pipeline and workflow assistants — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits, clipboard XML/JSON, and metadata saves
 * Language Model Chat can optionally use a named AI Provider for connection fields; inline keys remain as fallback
 
 == Privacy
@@ -48,9 +48,9 @@ See xref:hop-gui/perspective-ai-advisor.adoc#version-control[Version control] on
   Put them in xref:projects/projects-environments.adoc[environment] configuration files as variables, or better in a keystore read with a xref:metadata-types/variable-resolver/index.adoc[variable resolver].
   See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information] and xref:best-practices/index.adoc[Best practices: security].
 * API keys stay on xref:metadata-types/ai-provider.adoc[AI Provider] metadata and are never copied into advisor prompts. Still prefer `+${AI_API_KEY}+` or a resolver expression instead of a pasted key.
-* Prompts redact XML/JSON fields named password, token, api-key and similar. That does not catch literals in SQL, notes or logs.
-* Session *context inclusion* checkboxes control extra payload (check results, plugin catalog, execution log, full XML, selected metadata). Use only what the question needs: xref:hop-gui/perspective-ai-advisor.adoc#context-inclusions[Context inclusions].
-* Extra context notes and listed context files (for example a project `AGENTS.md`) are sent on every turn when present. Keep secrets out of those files.
+* Prompts mask every value Hop stores encrypted (password fields), fields named like secrets (password, passphrase, secret key, token, API key, …) and passwords in URLs. That does not catch literals in SQL, notes or logs.
+* Session *context inclusion* checkboxes control extra payload (transform settings, check results, plugin catalog, execution log, full XML, selected metadata). Use only what the question needs: xref:hop-gui/perspective-ai-advisor.adoc#context-inclusions[Context inclusions].
+* Extra context notes and listed context files are sent on every turn as instructions. No context files are listed by default; only add files you wrote for the assistant, and keep secrets out of them.
 * Advisor plugins may also ship `ai-context.md` next to the plugin JAR (Hop's AI plugin does). Those notes are always sent for that advisor.
 * Full pipeline or workflow XML is not sent unless both the session checkbox *and* Configuration → *Allow sending full XML* are on.
 * Delete `plugins/tech/ai` to remove the GUI, metadata type and advisors.

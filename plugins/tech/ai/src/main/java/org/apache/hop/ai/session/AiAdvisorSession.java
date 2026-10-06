@@ -18,9 +18,11 @@
 package org.apache.hop.ai.session;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -30,6 +32,7 @@ import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.engine.AiProposalPreview;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * One advisory conversation. Lives in {@link AiAdvisorSessionStore} so perspective, dialog and dock
@@ -51,9 +54,23 @@ public class AiAdvisorSession {
   private String artifactName = "";
   private String artifactKind = "";
   private String focusNodeName = "";
+
+  /**
+   * The file of the pipeline or workflow, kept when its tab closes and {@link #getArtifact()} is
+   * let go, so the session is found again when the file is reopened.
+   */
+  private String artifactFilename;
+
+  /** The project the session was started in; see {@link AiAdvisorSessionStore#getSessions()}. */
+  private String scope;
+
   private Object artifact;
   private Supplier<String> logSupplier;
   private Map<String, Boolean> inclusions = new LinkedHashMap<>();
+
+  /** Inclusions the user switched on or off, which the assistant then leaves alone. */
+  private Set<String> userChosenInclusions = new HashSet<>();
+
   private List<AiAdvisorMetadataSelection> metadataSelections = new ArrayList<>();
   private Map<String, Object> attributes = new LinkedHashMap<>();
   private Map<String, List<String>> inclusionSelections = new LinkedHashMap<>();
@@ -117,7 +134,7 @@ public class AiAdvisorSession {
     if (areaLabel != null && !areaLabel.isBlank()) {
       return areaLabel;
     }
-    return "General";
+    return BaseMessages.getString(AiAdvisorSession.class, "AiAdvisorSession.Area.General");
   }
 
   public String displayTitle() {
@@ -127,6 +144,6 @@ public class AiAdvisorSession {
     if (artifactName != null && !artifactName.isBlank()) {
       return artifactName;
     }
-    return "New session";
+    return BaseMessages.getString(AiAdvisorSession.class, "AiAdvisorSession.Title.New");
   }
 }

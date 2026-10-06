@@ -41,12 +41,13 @@ public final class AiM2PromptSupport {
     if (summaries == null || summaries.isEmpty()) {
       return;
     }
-    prompt.append("User applied these graph changes since the previous turn:\n");
+    StringBuilder applied = new StringBuilder();
     for (String summary : summaries) {
       if (!Utils.isEmpty(summary)) {
-        prompt.append("- ").append(summary).append('\n');
+        applied.append("- ").append(summary).append('\n');
       }
     }
-    prompt.append('\n');
+    // The user applied these proposals to the graph since the previous question.
+    AiTextUtil.appendSection(prompt, "applied_changes", applied.toString());
   }
 }

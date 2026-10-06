@@ -34,9 +34,9 @@ public class AiProviderModel {
   @HopMetadataProperty(key = "model_name", injectionKey = "MODEL_NAME")
   @GuiTableColumn(
       order = "20",
-      type = GuiTableColumnType.TEXT,
+      type = GuiTableColumnType.COMBO,
       label = "i18n::AiProviderEditor.Models.Column.ModelName",
-      variables = false)
+      comboValuesMethod = "getModelNameChoices")
   private String modelName = "";
 
   public AiProviderModel() {}

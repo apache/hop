@@ -688,7 +688,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
    * and the undo/redo chords of an editor that keeps its own history.
    */
   private static boolean isNativeTextEditingKey(int keyCode, int stateMask, char character) {
-    if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
+    // With SHIFT these are app shortcuts (Ctrl/Cmd+Shift+A opens the AI Assistant, +C the
+    // configuration), not copy, cut, paste or select all.
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0 && (stateMask & SWT.SHIFT) == 0) {
       char key = Character.toLowerCase((char) keyCode);
       if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
         return true;

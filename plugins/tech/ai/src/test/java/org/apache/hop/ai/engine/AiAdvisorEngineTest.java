@@ -26,8 +26,14 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
+import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.advisor.AiProposalValidation;
+import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorTurn;
+import org.apache.hop.ai.ui.AiAdvisorSessionPane;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.jupiter.api.Test;
 
 class AiAdvisorEngineTest {
@@ -91,5 +97,81 @@ class AiAdvisorEngineTest {
     assertFalse(session.getAttributes().containsKey("mutated"));
     assertEquals(
         List.of("SRC_ORDERS", "SRC_CUSTOMER"), session.getInclusionSelections().get("catalog"));
+  }
+
+  @Test
+  void previewShowsTheNextQuestionWithoutConsumingAnything() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("orders");
+    AiAdvisorSession session = new AiAdvisorSession();
+    session.setArtifact(pipelineMeta);
+    AiAdvisorTurn answered = new AiAdvisorTurn();
+    answered.setUserPrompt("What does it do?");
+    answered.setAssistantAdvice("It copies orders.");
+    session.addTurn(answered);
+    session.getPendingAppliedSummaries().add("ADD_TRANSFORM: Check (Dummy)");
+
+    String preview =
+        AiAdvisorEngine.preview(
+            session, new PipelineAiAdvisor(), new Variables(), null, null, "Why did it fail?");
+
+    assertTrue(preview.contains("<question>\nWhy did it fail?\n</question>"), preview);
+    assertTrue(preview.contains("<applied_changes>"), preview);
+    assertTrue(preview.contains("1 earlier question(s)"), preview);
+    assertTrue(preview.contains("Answer in the language of the user's question."), preview);
+    assertEquals(1, session.getPendingAppliedSummaries().size(), "a preview must not consume");
+    assertEquals(1, session.getTurns().size(), "a preview must not add a turn");
+  }
+
+  @Test
+  void deletesAndReplacementsAreOptIn() {
+    List<AiProposal> proposals =
+        List.of(
+            proposal("DELETE_TRANSFORM"), proposal("ADD_TRANSFORM"), proposal("REPLACE_ACTION"));
+    List<AiProposalValidation> validations =
+        List.of(new AiProposalValidation(), new AiProposalValidation(), new AiProposalValidation());
+    AiAdvisorSessionPane.markOptIn(proposals, validations);
+    assertTrue(validations.get(0).isOptIn());
+    assertFalse(validations.get(1).isOptIn());
+    assertTrue(validations.get(2).isOptIn());
+  }
+
+  private static AiProposal proposal(String type) {
+    AiProposal proposal = new AiProposal();
+    proposal.setType(type);
+    return proposal;
+  }
+
+  @Test
+  void historyReplaysTheAnswerWithACleanProposalBlock() {
+    // Without the block a small model learns to end with an empty example; with its original,
+    // broken block it repeats the mistakes. It gets the proposals as they were read.
+    AiAdvisorSession session = new AiAdvisorSession();
+    AiAdvisorTurn earlier = new AiAdvisorTurn();
+    earlier.setUserPrompt("Add a Dummy");
+    earlier.setAssistantAdvice("Here is the proposal:");
+    earlier.setRawAnswer(
+        "Here is the proposal:\n```hop_proposals\n{\"proposals\":[{\"type\":\"A|B\"}]}\n```");
+    AiProposal add = proposal("ADD_TRANSFORM");
+    add.getParameters().put("transformPluginId", "Dummy");
+    earlier.getProposals().add(add);
+    session.addTurn(earlier);
+    AiAdvisorTurn current = new AiAdvisorTurn();
+    current.setUserPrompt("And another one");
+    session.addTurn(current);
+
+    List<ChatMessage> history = AiAdvisorEngine.historyFrom(session);
+    String answer = ((AiMessage) history.get(1)).text();
+    assertTrue(answer.contains("```hop_proposals"), answer);
+    assertTrue(answer.contains("\"transformPluginId\":\"Dummy\""), answer);
+    assertFalse(answer.contains("A|B"), answer);
+  }
+
+  @Test
+  void answersThatTalkAboutProposalsAreNoticed() {
+    assertTrue(AiAdvisorEngine.mentionsProposals("Add a new ADD_TRANSFORM proposal for Dummy."));
+    assertTrue(AiAdvisorEngine.mentionsProposals("see the hop_proposals block"));
+    assertTrue(AiAdvisorEngine.mentionsProposals("- **transformPluginId**: `Dummy`"));
+    assertFalse(AiAdvisorEngine.mentionsProposals("This pipeline reads orders."));
   }
 }

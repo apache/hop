@@ -44,7 +44,7 @@ import picocli.CommandLine;
 @Setter
 @ConfigPlugin(
     id = "HopAiConfigOptionPlugin",
-    description = "Configuration options for Hop AI advisory",
+    description = "Configuration options for the Hop AI Assistant",
     category = ConfigPlugin.CATEGORY_CONFIG,
     classLoaderGroup = "hop-ai",
     configKey = HopAiConfig.HOP_CONFIG_KEY,
@@ -63,7 +63,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "i18n::HopAiConfigOptionPlugin.GitWarning.Label",
       toolTip = "i18n::HopAiConfigOptionPlugin.GitWarning.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
-      group = "AI Advisory")
+      group = "i18n::HopAiConfigOptionPlugin.Group")
   public void gitWarning(Event event) {
     // Notice text only; LINK is the widget type this form can show without a value field.
   }
@@ -77,10 +77,10 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "i18n::HopAiConfigOptionPlugin.AiEnabled.Label",
       toolTip = "i18n::HopAiConfigOptionPlugin.AiEnabled.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
-      group = "AI Advisory")
+      group = "i18n::HopAiConfigOptionPlugin.Group")
   @CommandLine.Option(
       names = {"--hop-ai-enabled"},
-      description = "Enable AI advisory in Hop GUI",
+      description = "Enable the AI Assistant in Hop GUI",
       negatable = true)
   private Boolean aiEnabled;
 
@@ -93,7 +93,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "i18n::HopAiConfigOptionPlugin.DefaultProvider.Label",
       toolTip = "i18n::HopAiConfigOptionPlugin.DefaultProvider.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
-      group = "AI Advisory")
+      group = "i18n::HopAiConfigOptionPlugin.Group")
   @CommandLine.Option(
       names = {"--hop-ai-default-provider"},
       description = "Default AI provider metadata name")
@@ -108,12 +108,28 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "i18n::HopAiConfigOptionPlugin.AllowFullXml.Label",
       toolTip = "i18n::HopAiConfigOptionPlugin.AllowFullXml.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
-      group = "AI Advisory")
+      group = "i18n::HopAiConfigOptionPlugin.Group")
   @CommandLine.Option(
       names = {"--hop-ai-allow-full-xml"},
       description = "Allow advisors to send full pipeline or workflow XML",
       negatable = true)
   private Boolean allowSendFullXml;
+
+  @GuiWidgetElement(
+      id = "0310-ai-keep-conversations",
+      order = "0310",
+      parentId = PARENT,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::HopAiConfigOptionPlugin.KeepConversations.Label",
+      toolTip = "i18n::HopAiConfigOptionPlugin.KeepConversations.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::HopAiConfigOptionPlugin.Group")
+  @CommandLine.Option(
+      names = {"--hop-ai-keep-conversations"},
+      description = "Keep AI Assistant conversations when Hop GUI closes",
+      negatable = true)
+  private Boolean keepConversations;
 
   @GuiWidgetElement(
       id = "0400-ai-extra-context",
@@ -125,7 +141,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "i18n::HopAiConfigOptionPlugin.ExtraContext.Label",
       toolTip = "i18n::HopAiConfigOptionPlugin.ExtraContext.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
-      group = "AI Advisory")
+      group = "i18n::HopAiConfigOptionPlugin.Group")
   private String extraContext;
 
   @GuiWidgetElement(
@@ -138,7 +154,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "i18n::HopAiConfigOptionPlugin.ExtraContextFiles.Label",
       toolTip = "i18n::HopAiConfigOptionPlugin.ExtraContextFiles.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
-      group = "AI Advisory")
+      group = "i18n::HopAiConfigOptionPlugin.Group")
   private String extraContextFiles;
 
   public static HopAiConfigOptionPlugin getInstance() {
@@ -155,6 +171,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
     instance.aiEnabled = config.isAiEnabled();
     instance.defaultProviderName = config.getDefaultProviderName();
     instance.allowSendFullXml = config.isAllowSendFullXml();
+    instance.keepConversations = config.isKeepConversations();
     instance.extraContext = config.getExtraContext();
     instance.extraContextFiles = config.getExtraContextFiles();
     return instance;
@@ -172,7 +189,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       boolean changed = false;
       if (aiEnabled != null && config.isAiEnabled() != aiEnabled) {
         config.setAiEnabled(aiEnabled);
-        log.logBasic(aiEnabled ? "Enabled Hop AI advisory" : "Disabled Hop AI advisory");
+        log.logBasic(aiEnabled ? "Enabled the Hop AI Assistant" : "Disabled the Hop AI Assistant");
         changed = true;
       }
       if (defaultProviderName != null
@@ -182,6 +199,10 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       }
       if (allowSendFullXml != null && config.isAllowSendFullXml() != allowSendFullXml) {
         config.setAllowSendFullXml(allowSendFullXml);
+        changed = true;
+      }
+      if (keepConversations != null && config.isKeepConversations() != keepConversations) {
+        config.setKeepConversations(keepConversations);
         changed = true;
       }
       if (changed) {
@@ -221,6 +242,9 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
     }
     if (allowSendFullXml != null) {
       config.setAllowSendFullXml(allowSendFullXml);
+    }
+    if (keepConversations != null) {
+      config.setKeepConversations(keepConversations);
     }
     if (extraContext != null) {
       config.setExtraContext(extraContext);

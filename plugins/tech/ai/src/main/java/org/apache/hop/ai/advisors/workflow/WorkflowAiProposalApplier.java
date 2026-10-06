@@ -30,11 +30,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.w3c.dom.Document;
 
 /** Previews and applies validated AI proposals to an open workflow. */
 public final class WorkflowAiProposalApplier {
@@ -81,9 +83,29 @@ public final class WorkflowAiProposalApplier {
     IHopMetadataProvider provider =
         metadataProvider != null ? metadataProvider : workflowMeta.getMetadataProvider();
     IVariables vars = variables != null ? variables : Variables.getADefaultVariableSpace();
+    // Apply the whole batch to a copy first. A proposal that fails half way then leaves the open
+    // workflow as it was, rather than with only the first proposals applied.
+    WorkflowMeta copy = copyForDryRun(workflowMeta, provider, vars);
+    if (copy != null) {
+      for (AiProposal proposal : proposals) {
+        applyOne(copy, proposal, null, false, provider, vars);
+      }
+    }
     for (int i = 0; i < proposals.size(); i++) {
       boolean chainUndo = hopGui != null && i < proposals.size() - 1;
       applyOne(workflowMeta, proposals.get(i), hopGui, chainUndo, provider, vars);
+    }
+  }
+
+  /** A copy through XML, or null when the workflow cannot be copied (the dry run is skipped). */
+  public static WorkflowMeta copyForDryRun(
+      WorkflowMeta workflowMeta, IHopMetadataProvider provider, IVariables variables) {
+    try {
+      Document document = XmlHandler.loadXmlString(workflowMeta.getXml(variables));
+      return new WorkflowMeta(
+          XmlHandler.getSubNode(document, WorkflowMeta.XML_TAG), provider, variables);
+    } catch (Exception e) {
+      return null;
     }
   }
 

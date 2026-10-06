@@ -18,6 +18,7 @@
 package org.apache.hop.ai.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +34,14 @@ import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
+import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
+import org.apache.hop.ai.advisors.workflow.WorkflowAiAdvisor;
 import org.apache.hop.ai.config.HopAiConfig;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiAdvisorExtraContext;
 import org.apache.hop.ai.engine.AiClipboardProposals;
+import org.apache.hop.ai.engine.AiMetadataBackup;
 import org.apache.hop.ai.engine.AiMetadataProposalSupport;
 import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.ai.engine.AiProposalTypes;
@@ -49,12 +53,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -65,10 +71,12 @@ import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -77,7 +85,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 
 /** Chat UI for the selected {@link AiAdvisorSession}. */
@@ -103,6 +113,17 @@ public class AiAdvisorSessionPane extends Composite {
   private final Map<String, Button> inclusionButtons = new LinkedHashMap<>();
   private final Map<String, Button> inclusionPickers = new LinkedHashMap<>();
   private Label wlStatus;
+  private Composite questionArea;
+
+  /** Position in the earlier questions while browsing with Up and Down; -1 is the draft. */
+  private int historyIndex = -1;
+
+  private String historyDraft = "";
+  private boolean showingHistory;
+  private FormData questionData;
+  private FormData statusData;
+  private Link wFocus;
+  private FormData focusData;
   private AiAdvisorTranscriptPanel transcript;
   private Text wPrompt;
   private Button wSend;
@@ -120,50 +141,203 @@ public class AiAdvisorSessionPane extends Composite {
     int margin = PropsUi.getMargin();
     GuiResource gui = GuiResource.getInstance();
 
-    Label wQuestion = new Label(this, SWT.CENTER);
-    wQuestion.setImage(
-        gui.getImage("ui/images/help.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE));
-    wQuestion.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Prompt.Question.Tooltip"));
-    PropsUi.setLook(wQuestion);
+    Control top = createHeader(margin);
 
-    wSend = new Button(this, SWT.PUSH | SWT.FLAT);
+    // Question at the bottom, transcript above it. The question field grows with its text, from
+    // three lines up to twelve or 40% of the pane, like the input of most chat tools; past that it
+    // scrolls. When space is short the transcript gives way, not the question.
+    questionArea = new Composite(this, SWT.NONE);
+    questionData = new FormDataBuilder().left().right().bottom().result();
+    questionArea.setLayoutData(questionData);
+
+    transcript = new AiAdvisorTranscriptPanel(this);
+    transcript.setUndoMetadata(this::undoMetadataForTurn);
+    transcript.setLayoutData(
+        new FormDataBuilder()
+            .left()
+            .right()
+            .top(top, margin)
+            .bottom(questionArea, -margin)
+            .result());
+
+    PropsUi.setLook(questionArea);
+    FormLayout questionLayout = new FormLayout();
+    questionLayout.marginTop = margin;
+    questionArea.setLayout(questionLayout);
+
+    // Messages about the question (what is missing, what went wrong) sit right above it.
+    wlStatus = new Label(questionArea, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wlStatus);
+    statusData = new FormDataBuilder().left().right().top().result();
+    wlStatus.setLayoutData(statusData);
+
+    wSend = new Button(questionArea, SWT.PUSH | SWT.FLAT);
     wSend.setImage(
         gui.getImage("ui/images/logo_icon.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE));
     wSend.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Send.Tooltip"));
     wSend.addListener(SWT.Selection, e -> onSendOrCancel());
 
-    wPrompt = new Text(this, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+    wPrompt = new Text(questionArea, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
     applyPromptFieldLook(wPrompt);
     wPrompt.setMessage(BaseMessages.getString(PKG, "AiAdvisor.Prompt.Message"));
     if (!EnvironmentUtils.getInstance().isWeb()) {
       wPrompt.addPaintListener(e -> paintPromptHint(wPrompt, e));
     }
     wPrompt.setLayoutData(
-        new FormDataBuilder()
-            .left(wQuestion, margin)
-            .right(wSend, -margin)
-            .bottom()
-            .height((int) (70 * PropsUi.getNativeZoomFactor()))
-            .result());
+        new FormDataBuilder().left().right(wSend, -margin).top(wlStatus, margin).bottom().result());
     installSendShortcut(wPrompt);
+    wPrompt.addListener(SWT.KeyDown, this::browseHistory);
+    wPrompt.addListener(
+        SWT.Modify,
+        e -> {
+          if (!showingHistory) {
+            // Typing makes this the draft again; Up starts from the newest question.
+            historyIndex = -1;
+          }
+        });
+    wSend.setLayoutData(new FormDataBuilder().right().top(wPrompt, 0, SWT.CENTER).result());
 
-    wQuestion.setLayoutData(new FormDataBuilder().left().bottom(wPrompt, 0, SWT.CENTER).result());
-    wSend.setLayoutData(new FormDataBuilder().right().bottom(wPrompt, 0, SWT.CENTER).result());
+    wPrompt.addListener(SWT.Modify, e -> sizeQuestionArea());
+    addListener(SWT.Resize, e -> sizeQuestionArea());
+    setStatus("");
+  }
 
-    Control top = createHeader(margin);
+  /**
+   * Up on the first line shows the previous question of this session, Down on the last line the
+   * next one, and past the newest the text that was being typed. As in shells and chat tools.
+   */
+  private void browseHistory(Event event) {
+    if (session == null
+        || (event.stateMask & SWT.MODIFIER_MASK) != 0
+        || (event.keyCode != SWT.ARROW_UP && event.keyCode != SWT.ARROW_DOWN)) {
+      return;
+    }
+    List<String> questions = earlierQuestions(session);
+    if (questions.isEmpty()) {
+      return;
+    }
+    if (event.keyCode == SWT.ARROW_UP) {
+      if (wPrompt.getCaretLineNumber() != 0 || historyIndex >= questions.size() - 1) {
+        return;
+      }
+      if (historyIndex < 0) {
+        historyDraft = wPrompt.getText();
+      }
+      historyIndex++;
+      showQuestion(questions.get(historyIndex));
+    } else {
+      if (historyIndex < 0 || wPrompt.getCaretLineNumber() != wPrompt.getLineCount() - 1) {
+        return;
+      }
+      historyIndex--;
+      showQuestion(historyIndex < 0 ? historyDraft : questions.get(historyIndex));
+    }
+    event.doit = false;
+  }
 
-    wlStatus = new Label(this, SWT.LEFT | SWT.WRAP);
-    PropsUi.setLook(wlStatus);
-    wlStatus.setLayoutData(new FormDataBuilder().left().right().top(top, margin).result());
+  /** The questions of a session, newest first, without repeats of the same text in a row. */
+  static List<String> earlierQuestions(AiAdvisorSession session) {
+    List<String> questions = new ArrayList<>();
+    List<AiAdvisorTurn> turns = session.getTurns();
+    for (int i = turns.size() - 1; i >= 0; i--) {
+      String question = turns.get(i).getUserPrompt();
+      if (!Utils.isEmpty(question)
+          && (questions.isEmpty() || !questions.get(questions.size() - 1).equals(question))) {
+        questions.add(question);
+      }
+    }
+    return questions;
+  }
 
-    transcript = new AiAdvisorTranscriptPanel(this);
-    transcript.setLayoutData(
-        new FormDataBuilder()
-            .left()
-            .right()
-            .top(wlStatus, margin)
-            .bottom(wPrompt, -margin)
-            .result());
+  private void showQuestion(String text) {
+    showingHistory = true;
+    try {
+      wPrompt.setText(Const.NVL(text, ""));
+      wPrompt.setSelection(wPrompt.getCharCount());
+    } finally {
+      showingHistory = false;
+    }
+  }
+
+  static final int QUESTION_MIN_LINES = 3;
+  static final int QUESTION_MAX_LINES = 12;
+  static final int QUESTION_MAX_PERCENT = 40;
+
+  /** Fit the question area to its text, within the limits above. */
+  void sizeQuestionArea() {
+    if (questionArea == null || questionArea.isDisposed() || wPrompt.isDisposed()) {
+      return;
+    }
+    int lineHeight = Math.max(wPrompt.getLineHeight(), 10);
+    int trim = wPrompt.computeTrim(0, 0, 0, 0).height;
+    int width = Math.max(wPrompt.getSize().x, 100);
+    int text = wPrompt.computeSize(width, SWT.DEFAULT).y;
+    int minimum = QUESTION_MIN_LINES * lineHeight + trim;
+    int maximum =
+        Math.max(
+            minimum,
+            Math.min(
+                QUESTION_MAX_LINES * lineHeight + trim,
+                getClientArea().height * QUESTION_MAX_PERCENT / 100));
+    int prompt = Math.max(minimum, Math.min(text, maximum));
+    int status =
+        wlStatus.isVisible() ? wlStatus.computeSize(getClientArea().width, SWT.DEFAULT).y : 0;
+    int height = prompt + status + 2 * PropsUi.getMargin();
+    if (questionData.height != height) {
+      questionData.height = height;
+      layout(true, true);
+    }
+  }
+
+  /** A form layout without margins, for panels nested in this one, which has its own. */
+  private static FormLayout innerFormLayout() {
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = 0;
+    layout.marginHeight = 0;
+    return layout;
+  }
+
+  private void updateFocus() {
+    if (wFocus == null || wFocus.isDisposed()) {
+      return;
+    }
+    String focus = session != null ? session.getFocusNodeName() : null;
+    boolean show = !Utils.isEmpty(focus);
+    if (show) {
+      String kind =
+          "workflow".equals(session.getArtifactKind())
+              ? BaseMessages.getString(PKG, "AiAdvisor.Focus.Action")
+              : BaseMessages.getString(PKG, "AiAdvisor.Focus.Transform");
+      wFocus.setText(
+          BaseMessages.getString(PKG, "AiAdvisor.Focus.Label", kind, focus.replace("&", "&&")));
+      wFocus.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Focus.Tooltip"));
+    }
+    focusData.height = show ? SWT.DEFAULT : 0;
+    wFocus.setVisible(show);
+    layout(true, true);
+  }
+
+  private void clearFocus() {
+    if (session == null) {
+      return;
+    }
+    session.setFocusNodeName("");
+    updateFocus();
+    updateSharingSummary();
+    store.fireChanged();
+  }
+
+  /** An empty status line takes no space, so it does not leave a gap above the transcript. */
+  private void setStatus(String text) {
+    if (wlStatus == null || wlStatus.isDisposed()) {
+      return;
+    }
+    String value = Const.NVL(text, "");
+    wlStatus.setText(value);
+    statusData.height = value.isEmpty() ? 0 : SWT.DEFAULT;
+    wlStatus.setVisible(!value.isEmpty());
+    layout(true, true);
+    sizeQuestionArea();
   }
 
   /**
@@ -312,8 +486,10 @@ public class AiAdvisorSessionPane extends Composite {
 
     wAdvisor = new Combo(this, SWT.READ_ONLY | SWT.BORDER);
     PropsUi.setLook(wAdvisor);
+    // Assistant, scenario and provider share one row, so a small bottom dock keeps room for the
+    // conversation.
     wAdvisor.setLayoutData(
-        new FormDataBuilder().left(wlAdvisor, margin).top().right(50, -margin).result());
+        new FormDataBuilder().left(wlAdvisor, margin).top().right(30, -margin).result());
     wAdvisor.addListener(
         SWT.Selection,
         e -> {
@@ -329,7 +505,8 @@ public class AiAdvisorSessionPane extends Composite {
 
     wScenario = new Combo(this, SWT.READ_ONLY | SWT.BORDER);
     PropsUi.setLook(wScenario);
-    wScenario.setLayoutData(new FormDataBuilder().left(wlScenario, margin).top().right().result());
+    wScenario.setLayoutData(
+        new FormDataBuilder().left(wlScenario, margin).top().right(55, -margin).result());
     wScenario.addListener(
         SWT.Selection,
         e -> {
@@ -354,7 +531,12 @@ public class AiAdvisorSessionPane extends Composite {
             BaseMessages.getString(PKG, "AiAdvisor.Provider.Label"),
             BaseMessages.getString(PKG, "AiAdvisor.Provider.Tooltip"),
             true);
-    wProvider.setLayoutData(new FormDataBuilder().left().right().top(wAdvisor, margin).result());
+    wProvider.setLayoutData(
+        new FormDataBuilder()
+            .left(wScenario, margin)
+            .right()
+            .top(wAdvisor, 0, SWT.CENTER)
+            .result());
     wProvider.addModifyListener(
         e -> {
           if (updatingUi || session == null) {
@@ -365,18 +547,29 @@ public class AiAdvisorSessionPane extends Composite {
             return;
           }
           session.setProviderName(name);
+          if (providerExists(name)) {
+            store.setLastProviderName(name);
+          }
           store.fireChanged();
         });
 
+    // Shown when AI Help was opened on a transform or action; its settings go with each question.
+    wFocus = new Link(this, SWT.NONE);
+    PropsUi.setLook(wFocus);
+    focusData = new FormDataBuilder().left().right().top(wProvider, margin).result();
+    focusData.height = 0;
+    wFocus.setLayoutData(focusData);
+    wFocus.setVisible(false);
+    wFocus.addListener(SWT.Selection, e -> clearFocus());
+
     sharingPanel = new Composite(this, SWT.NONE);
     PropsUi.setLook(sharingPanel);
-    sharingPanel.setLayout(PropsUi.getInstance().createFormLayout());
-    sharingPanel.setLayoutData(
-        new FormDataBuilder().left().right().top(wProvider, margin).result());
+    sharingPanel.setLayout(innerFormLayout());
+    sharingPanel.setLayoutData(new FormDataBuilder().left().right().top(wFocus, margin).result());
 
     sharingHeader = new Composite(sharingPanel, SWT.NONE);
     PropsUi.setLook(sharingHeader);
-    sharingHeader.setLayout(PropsUi.getInstance().createFormLayout());
+    sharingHeader.setLayout(innerFormLayout());
     sharingHeader.setLayoutData(new FormDataBuilder().left().right().top().result());
     sharingHeader.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_HAND));
     sharingHeader.addListener(SWT.MouseDown, e -> toggleSharingPanel());
@@ -387,13 +580,26 @@ public class AiAdvisorSessionPane extends Composite {
     wSharingToggle.addListener(SWT.Selection, e -> toggleSharingPanel());
     wSharingToggle.setLayoutData(new FormDataBuilder().left().top().result());
 
+    // Tooltips cannot hold a link, so the way to the explanation sits on the line itself.
+    Link wSharingHelp = new Link(sharingHeader, SWT.NONE);
+    wSharingHelp.setText(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Explain.Link"));
+    PropsUi.setLook(wSharingHelp);
+    wSharingHelp.setLayoutData(
+        new FormDataBuilder().right().top(wSharingToggle, 0, SWT.CENTER).result());
+    wSharingHelp.addListener(
+        SWT.Selection,
+        e ->
+            HelpUtils.openHelp(
+                getShell(),
+                Const.getDocUrl("hop-gui/perspective-ai-advisor.html#context-inclusions")));
+
     wlSharing = new Label(sharingHeader, SWT.LEFT | SWT.WRAP);
     PropsUi.setLook(wlSharing);
     wlSharing.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Toggle.Tooltip"));
     wlSharing.setLayoutData(
         new FormDataBuilder()
             .left(wSharingToggle, margin)
-            .right()
+            .right(wSharingHelp, -2 * margin)
             .top(wSharingToggle, 0, SWT.CENTER)
             .result());
     wlSharing.addListener(SWT.MouseDown, e -> toggleSharingPanel());
@@ -461,13 +667,30 @@ public class AiAdvisorSessionPane extends Composite {
     if (wlSharing == null || wlSharing.isDisposed()) {
       return;
     }
-    List<String> parts = new ArrayList<>();
-    parts.add(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Question"));
+    // What the user chose comes first, so the focused node and the opt-in items stand out. The
+    // items that always go along are summed up as "the basics" and listed in the tooltip.
+    List<String> chosen = new ArrayList<>();
+    Map<String, String> chosenExplanations = new HashMap<>();
+    if (session != null && !Utils.isEmpty(session.getFocusNodeName())) {
+      String focus =
+          BaseMessages.getString(PKG, "AiAdvisor.Sharing.Focus", session.getFocusNodeName());
+      chosen.add(focus);
+      chosenExplanations.put(focus, BaseMessages.getString(PKG, "AiAdvisor.Sharing.Explain.Focus"));
+    }
+    for (AiAdvisorInclusion inclusion : currentInclusions) {
+      if (!inclusionEnabled(inclusion.getId()) || isBlockedByConfig(inclusion.getId())) {
+        continue;
+      }
+      String summary = summaryFor(inclusion);
+      chosen.add(summary);
+    }
+    List<String> basics = new ArrayList<>();
+    basics.add(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Question"));
     IAiAdvisor advisor = loadSelectedAdvisor();
     if (advisor != null) {
       for (String baseline : advisor.listBaselineSharing()) {
         if (!Utils.isEmpty(baseline)) {
-          parts.add(baseline);
+          basics.add(baseline);
         }
       }
     }
@@ -478,19 +701,53 @@ public class AiAdvisorSessionPane extends Composite {
               host.getVariables(),
               BaseMessages.getString(PKG, "AiAdvisor.Sharing.ExtraNotes"))) {
         if (!Utils.isEmpty(extra)) {
-          parts.add(extra);
+          basics.add(extra);
         }
       }
     }
-    for (AiAdvisorInclusion inclusion : currentInclusions) {
-      if (!inclusionEnabled(inclusion.getId())) {
-        continue;
-      }
-      parts.add(summaryFor(inclusion));
-    }
+    String prefix = BaseMessages.getString(PKG, "AiAdvisor.Sharing.Prefix");
     wlSharing.setText(
-        formatSharingLine(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Prefix"), parts));
+        chosen.isEmpty()
+            ? prefix + BaseMessages.getString(PKG, "AiAdvisor.Sharing.BasicsOnly")
+            : formatSharingLine(prefix, chosen)
+                + BaseMessages.getString(PKG, "AiAdvisor.Sharing.Basics"));
+    StringBuilder tooltip =
+        new StringBuilder(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Tooltip.Header"));
+    for (String item : chosen) {
+      tooltip.append("\n\u2022 ").append(item);
+      String explanation = chosenExplanations.get(item);
+      if (!Utils.isEmpty(explanation)) {
+        tooltip.append(": ").append(explanation);
+      }
+    }
+    for (String item : basics) {
+      tooltip.append("\n\u2022 ").append(item).append(": ").append(explainBasic(item));
+    }
+    tooltip.append("\n\n").append(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Tooltip.Footer"));
+    wlSharing.setToolTipText(tooltip.toString());
     sharingHeader.layout(true, true);
+  }
+
+  /** What an item that always goes along is, in a few words, for the Sharing tooltip. */
+  static String explainBasic(String item) {
+    Map<String, String> known = new HashMap<>();
+    known.put(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Question"), "Question");
+    known.put(BaseMessages.getString(PKG, "AiAdvisor.Sharing.ExtraNotes"), "ExtraNotes");
+    for (Class<?> advisor : new Class<?>[] {PipelineAiAdvisor.class, WorkflowAiAdvisor.class}) {
+      String prefix = advisor.getSimpleName();
+      known.put(BaseMessages.getString(advisor, prefix + ".Sharing.Baseline"), "Structure");
+      known.put(
+          BaseMessages.getString(advisor, prefix + ".Sharing.MetadataTypes"), "MetadataTypes");
+      known.put(BaseMessages.getString(advisor, prefix + ".Sharing.DatabasePlugins"), "Databases");
+    }
+    String key = known.get(item);
+    if (key != null) {
+      return BaseMessages.getString(PKG, "AiAdvisor.Sharing.Explain." + key);
+    }
+    if ("ai-context.md".equals(item) || item.endsWith("-advisor.md")) {
+      return BaseMessages.getString(PKG, "AiAdvisor.Sharing.Explain.PluginNotes", item);
+    }
+    return BaseMessages.getString(PKG, "AiAdvisor.Sharing.Explain.ContextFile");
   }
 
   static String formatSharingLine(String prefix, List<String> parts) {
@@ -499,6 +756,15 @@ public class AiAdvisorSessionPane extends Composite {
       return head.trim();
     }
     return head + String.join(", ", parts);
+  }
+
+  /**
+   * Full XML also needs Configuration → Plugins → AI Assistant → Allow sending full XML. While that
+   * is off the checkbox cannot send anything, so it is disabled and left out of the Sharing line.
+   */
+  static boolean isBlockedByConfig(String inclusionId) {
+    return AiAdvisorInclusions.XML.equals(inclusionId)
+        && !HopAiConfigSingleton.getConfig().isAllowSendFullXml();
   }
 
   private boolean inclusionEnabled(String id) {
@@ -539,31 +805,111 @@ public class AiAdvisorSessionPane extends Composite {
   }
 
   public void showSession(AiAdvisorSession session) {
+    if (this.session != session) {
+      historyIndex = -1;
+    }
     this.session = session;
     updatingUi = true;
     try {
       reloadAdvisors();
       reloadProviders();
       if (session == null) {
-        setEnabled(false);
-        wlStatus.setText(BaseMessages.getString(PKG, "AiAdvisor.Status.NoSession"));
+        // Only the controls are disabled: the hints in the status line and the transcript stay
+        // readable.
+        setInputEnabled(false);
+        updateFocus();
+        setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.NoSession"));
         transcript.showSession(null);
         updateSendButton();
         return;
       }
-      setEnabled(true);
+      setInputEnabled(true);
       selectAdvisor(session.getAdvisorPluginId());
       reloadScenariosAndInclusions();
       selectScenario(session.getScenarioId());
       applyInclusionsFromSession();
+      includeLogAfterARun();
+      updateFocus();
       updateMetadataSelectButton();
       updateInclusionPickerButtons();
-      wlStatus.setText(Const.NVL(session.getStatusMessage(), ""));
+      setStatus(
+          Utils.isEmpty(session.getStatusMessage()) && advisorPlugins.isEmpty()
+              ? noAdvisorMessage()
+              : Const.NVL(session.getStatusMessage(), ""));
       transcript.showSession(session, this::reviewProposalsForTurn);
       updateSendButton();
+      startWorkingLine(session);
     } finally {
       updatingUi = false;
     }
+  }
+
+  /**
+   * While the model works, the line right above the question counts the seconds, so the user sees
+   * at the same place every time that the request is alive. It stops when the answer is in, or when
+   * this pane shows another session.
+   */
+  private void startWorkingLine(AiAdvisorSession target) {
+    if (target == null || !target.isWorking() || target.getTurns().isEmpty()) {
+      return;
+    }
+    AiAdvisorTurn turn = target.getTurns().get(target.getTurns().size() - 1);
+    long started =
+        turn.getStartedAtMillis() > 0 ? turn.getStartedAtMillis() : System.currentTimeMillis();
+    Runnable tick =
+        new Runnable() {
+          @Override
+          public void run() {
+            if (isDisposed() || session != target || !target.isWorking()) {
+              return;
+            }
+            setStatus(
+                AiAdvisorTranscriptPanel.workingText(
+                    turn, (System.currentTimeMillis() - started) / 1000));
+            getDisplay().timerExec(1000, this);
+          }
+        };
+    tick.run();
+  }
+
+  /**
+   * Once the pipeline or workflow has run, its log is what most questions are about, so the log
+   * option switches on by itself, visibly. Not when the user set the option in this session.
+   */
+  private void includeLogAfterARun() {
+    if (session == null
+        || session.getLogSupplier() == null
+        || session.getUserChosenInclusions().contains(AiAdvisorInclusions.LOGS)
+        || Boolean.TRUE.equals(session.getInclusions().get(AiAdvisorInclusions.LOGS))) {
+      return;
+    }
+    Button check = inclusionButtons.get(AiAdvisorInclusions.LOGS);
+    if (check == null || check.isDisposed()) {
+      return;
+    }
+    String log = session.getLogSupplier().get();
+    if (Utils.isEmpty(log) || log.isBlank()) {
+      return;
+    }
+    check.setSelection(true);
+    session.getInclusions().put(AiAdvisorInclusions.LOGS, true);
+    updateSharingSummary();
+  }
+
+  private void setInputEnabled(boolean enabled) {
+    for (Control control : new Control[] {wAdvisor, wScenario, wProvider, sharingPanel, wPrompt}) {
+      if (control != null && !control.isDisposed()) {
+        control.setEnabled(enabled);
+      }
+    }
+  }
+
+  /** Why no advisor is offered: none is installed, or none works without a pipeline or workflow. */
+  private String noAdvisorMessage() {
+    if (session != null && session.getArtifact() == null && !AiAdvisorPlugins.list().isEmpty()) {
+      return BaseMessages.getString(PKG, "AiAdvisor.Status.NotBound");
+    }
+    return BaseMessages.getString(PKG, "AiAdvisor.Status.NoAdvisor");
   }
 
   private void advisorChanged() {
@@ -613,19 +959,46 @@ public class AiAdvisorSessionPane extends Composite {
 
   private void reloadProviders() {
     try {
+      // Hop GUI replaces its metadata provider when another project opens. The field keeps the
+      // one it was created with, which lists the providers of the project open back then.
+      wProvider.setMetadataProvider(host.getMetadataProvider());
       wProvider.fillItems();
     } catch (HopException e) {
       // Combo stays empty; Send explains.
     }
     HopAiConfig config = HopAiConfigSingleton.getConfig();
     if (session != null && Utils.isEmpty(session.getProviderName())) {
-      session.setProviderName(Const.NVL(config.getDefaultProviderName(), ""));
+      // The configured default, else the provider used last in this Hop GUI.
+      String provider = config.getDefaultProviderName();
+      if (Utils.isEmpty(provider) || !providerExists(provider)) {
+        provider = store.getLastProviderName();
+      }
+      session.setProviderName(providerExists(provider) ? provider : "");
     }
-    if (session != null && !Utils.isEmpty(session.getProviderName())) {
+    if (session != null && providerExists(session.getProviderName())) {
       wProvider.setText(session.getProviderName());
     } else if (wProvider.getItemCount() == 1) {
       wProvider.select(0);
+      if (session != null) {
+        session.setProviderName(wProvider.getText());
+      }
+    } else {
+      // A name from another project, or a provider that was deleted or renamed. Leaving it in the
+      // combo would make Edit fail on an element that does not exist.
+      wProvider.setText("");
     }
+  }
+
+  private boolean providerExists(String name) {
+    if (Utils.isEmpty(name)) {
+      return false;
+    }
+    for (String item : wProvider.getItems()) {
+      if (name.equals(item)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void reloadScenariosAndInclusions() {
@@ -668,11 +1041,20 @@ public class AiAdvisorSessionPane extends Composite {
               : inclusion.isDefaultSelected();
       check.setSelection(selected);
       String id = inclusion.getId();
+      if (isBlockedByConfig(id)) {
+        check.setSelection(false);
+        check.setEnabled(false);
+        check.setToolTipText(
+            check.getToolTipText()
+                + "\n\n"
+                + BaseMessages.getString(PKG, "AiAdvisor.Sharing.XmlBlocked.Tooltip"));
+      }
       check.addListener(
           SWT.Selection,
           e -> {
             if (session != null) {
               session.getInclusions().put(id, check.getSelection());
+              session.getUserChosenInclusions().add(id);
             }
             if (check.getSelection() && session != null) {
               if (AiAdvisorInclusions.METADATA.equals(id)
@@ -707,10 +1089,50 @@ public class AiAdvisorSessionPane extends Composite {
         inclusionPickers.put(id, picker);
       }
     }
+    Button preview = new Button(inclusionsComposite, SWT.PUSH);
+    preview.setText(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Preview.Label"));
+    preview.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Sharing.Preview.Tooltip"));
+    PropsUi.setLook(preview);
+    preview.addListener(SWT.Selection, e -> previewPayload());
+
     updateMetadataSelectButton();
     updateInclusionPickerButtons();
     updateSharingSummary();
     applySharingPanelExpanded();
+  }
+
+  /** Show exactly what the next question would send, without sending it. */
+  private void previewPayload() {
+    if (session == null) {
+      return;
+    }
+    try {
+      // Log widgets are SWT; read them here on the UI thread, as a send does.
+      String logExcerpt = session.getLogSupplier() != null ? session.getLogSupplier().get() : null;
+      String text =
+          AiAdvisorEngine.preview(
+              session,
+              loadSelectedAdvisor(),
+              host.getVariables(),
+              host.getMetadataProvider(),
+              logExcerpt,
+              wPrompt.getText());
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              getShell(),
+              BaseMessages.getString(PKG, "AiAdvisor.Sharing.Preview.Title"),
+              BaseMessages.getString(PKG, "AiAdvisor.Sharing.Preview.Message"),
+              text,
+              true);
+      dialog.setReadOnly();
+      dialog.open();
+    } catch (Exception ex) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "AiAdvisor.Sharing.Preview.Title"),
+          BaseMessages.getString(PKG, "AiAdvisor.Sharing.Preview.Error"),
+          ex instanceof HopException ? ex : new HopException(ex));
+    }
   }
 
   private void openMetadataPicker() {
@@ -756,7 +1178,7 @@ public class AiAdvisorSessionPane extends Composite {
     List<AiAdvisorInclusionChoice> choices =
         advisor.listInclusionChoices(inclusion.getId(), pickerRequest());
     if (choices == null || choices.isEmpty()) {
-      wlStatus.setText(BaseMessages.getString(PKG, "AiAdvisor.Inclusion.Select.Empty"));
+      setStatus(BaseMessages.getString(PKG, "AiAdvisor.Inclusion.Select.Empty"));
       Button check = inclusionButtons.get(inclusion.getId());
       if (check != null) {
         check.setSelection(false);
@@ -901,13 +1323,13 @@ public class AiAdvisorSessionPane extends Composite {
     }
     for (Map.Entry<String, Button> entry : inclusionButtons.entrySet()) {
       Boolean value = session.getInclusions().get(entry.getKey());
-      if (value != null) {
+      if (value != null && !isBlockedByConfig(entry.getKey())) {
         entry.getValue().setSelection(value);
       }
     }
   }
 
-  private void onSendOrCancel() {
+  void onSendOrCancel() {
     if (session != null && session.isWorking()) {
       cancelInFlight();
       return;
@@ -915,13 +1337,23 @@ public class AiAdvisorSessionPane extends Composite {
     send();
   }
 
+  /**
+   * Stop waiting for the answer. The session is free for a new question at once; whether the HTTP
+   * request itself stops depends on the provider's client, and its answer is ignored if it comes.
+   */
   private void cancelInFlight() {
     if (session == null || !session.isWorking()) {
       return;
     }
     session.requestCancel();
-    session.setStatusMessage(BaseMessages.getString(PKG, "AiAdvisor.Status.Cancelled"));
-    wlStatus.setText(session.getStatusMessage());
+    List<AiAdvisorTurn> turns = session.getTurns();
+    if (!turns.isEmpty()) {
+      recordResult(session, turns.get(turns.size() - 1), null, null, true);
+    }
+    setStatus(Const.NVL(session.getStatusMessage(), ""));
+    transcript.showSession(session, this::reviewProposalsForTurn);
+    updateSendButton();
+    store.fireChanged();
   }
 
   private void updateSendButton() {
@@ -937,7 +1369,8 @@ public class AiAdvisorSessionPane extends Composite {
           gui.getImage(
               "ui/images/logo_icon.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE));
       wSend.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Send.Tooltip"));
-      wSend.setEnabled(HopAiConfigSingleton.getConfig().isAiEnabled() && session != null);
+      // Stays clickable when AI is off or something is missing: Send then says what to do.
+      wSend.setEnabled(session != null);
     }
   }
 
@@ -947,58 +1380,99 @@ public class AiAdvisorSessionPane extends Composite {
     }
     HopAiConfig config = HopAiConfigSingleton.getConfig();
     if (!config.isAiEnabled()) {
-      wlStatus.setText(BaseMessages.getString(PKG, "AiAdvisor.Status.Disabled"));
+      setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.Disabled"));
       return;
     }
     String prompt = wPrompt.getText();
-    if (Utils.isEmpty(prompt)) {
+    if (Utils.isEmpty(prompt) || prompt.isBlank()) {
+      setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.NoQuestion"));
+      wPrompt.setFocus();
       return;
     }
     IAiAdvisor advisor = loadSelectedAdvisor();
     if (advisor == null) {
-      wlStatus.setText(BaseMessages.getString(PKG, "AiAdvisor.Status.NoAdvisor"));
+      setStatus(noAdvisorMessage());
+      return;
+    }
+    if (!providerExists(wProvider.getText())) {
+      setStatus(
+          BaseMessages.getString(
+              PKG,
+              wProvider.getItemCount() == 0
+                  ? "AiAdvisor.Status.NoProviderDefined"
+                  : "AiAdvisor.Status.NoProviderSelected"));
       return;
     }
     session.setAdvisorPluginId(selectedAdvisorId());
     session.setScenarioId(selectedScenarioId());
     session.setProviderName(wProvider.getText());
+    includeLogAfterARun();
     for (Map.Entry<String, Button> entry : inclusionButtons.entrySet()) {
-      session.getInclusions().put(entry.getKey(), entry.getValue().getSelection());
+      // A blocked option keeps the user's choice for when the configuration allows it again.
+      if (!isBlockedByConfig(entry.getKey())) {
+        session.getInclusions().put(entry.getKey(), entry.getValue().getSelection());
+      }
     }
 
     AiAdvisorTurn turn = new AiAdvisorTurn();
     turn.setUserPrompt(prompt);
+    turn.setStartedAtMillis(System.currentTimeMillis());
     session.addTurn(turn);
     session.setCancelled(false);
     session.setWorking(true);
-    session.setStatusMessage(BaseMessages.getString(PKG, "AiAdvisor.Status.Working"));
+    // The transcript shows a live waiting line; the status line is for problems.
+    session.setStatusMessage("");
     wPrompt.setText("");
     updateSendButton();
-    wlStatus.setText(session.getStatusMessage());
+    setStatus(session.getStatusMessage());
     transcript.showSession(session, this::reviewProposalsForTurn);
     store.fireChanged();
 
     AiAdvisorSession target = session;
-    // Log widgets are SWT; read them on this UI thread before the background worker starts.
-    final String logExcerpt =
-        target.getLogSupplier() != null ? target.getLogSupplier().get() : null;
+    // Build the question here on the UI thread: the log widgets are SWT, and the pipeline or
+    // workflow may be edited while the model works. Only the model call runs in the background.
+    AiAdvisorEngine.Prepared prepared;
+    try {
+      String logExcerpt = target.getLogSupplier() != null ? target.getLogSupplier().get() : null;
+      prepared =
+          AiAdvisorEngine.prepare(
+              target, advisor, host.getVariables(), host.getMetadataProvider(), logExcerpt);
+    } catch (Exception e) {
+      completeTurn(target, turn, null, e);
+      return;
+    }
+    turn.setEstimatedPromptTokens(prepared.estimatedTokens());
+    turn.setProviderLabel(prepared.provider().getName());
+    startWorkingLine(target);
+    IVariables variables = host.getVariables();
+    Display display = getDisplay();
     Thread worker =
         BackgroundThreadFacade.start(
             () -> {
+              AiAdvisorResponse response = null;
+              Throwable error = null;
               try {
-                AiAdvisorResponse response =
-                    AiAdvisorEngine.advise(
-                        target,
-                        advisor,
-                        host.getVariables(),
-                        host.getMetadataProvider(),
-                        logExcerpt);
-                host.asyncExec(() -> completeTurn(target, turn, response, null));
+                response = AiAdvisorEngine.execute(target, advisor, variables, prepared);
               } catch (Throwable t) {
                 if (t instanceof InterruptedException) {
                   Thread.currentThread().interrupt();
                 }
-                host.asyncExec(() -> completeTurn(target, turn, null, t));
+                error = t;
+              }
+              AiAdvisorResponse result = response;
+              Throwable failure = error;
+              Thread self = Thread.currentThread();
+              // Record the answer even when this window was closed in the meantime: the session
+              // is shared with the other views and would otherwise stay "working" for good.
+              if (!display.isDisposed()) {
+                display.asyncExec(
+                    () -> {
+                      // After Stop, or once a newer question runs, this answer is no longer
+                      // wanted and must not touch the session.
+                      if (target.getWorkerThread() == self) {
+                        completeTurn(target, turn, result, failure);
+                      }
+                    });
               }
             },
             "hop-ai-advisor");
@@ -1008,17 +1482,54 @@ public class AiAdvisorSessionPane extends Composite {
   private void completeTurn(
       AiAdvisorSession target, AiAdvisorTurn turn, AiAdvisorResponse response, Throwable error) {
     boolean cancelled = target.isCancelled();
+    recordResult(target, turn, response, error, cancelled);
+    store.fireChanged();
+    if (isDisposed()) {
+      return;
+    }
+    if (session == target) {
+      setStatus(Const.NVL(target.getStatusMessage(), ""));
+      transcript.showSession(target, this::reviewProposalsForTurn);
+      updateSendButton();
+    }
+    if (error != null && !cancelled) {
+      new ErrorDialog(
+          host.getShell(),
+          BaseMessages.getString(PKG, "AiAdvisor.Send.Error.Title"),
+          BaseMessages.getString(PKG, "AiAdvisor.Send.Error.Message"),
+          error);
+    }
+  }
+
+  /** Put the outcome of a question on the session; needs no widget of this pane. */
+  static void recordResult(
+      AiAdvisorSession target,
+      AiAdvisorTurn turn,
+      AiAdvisorResponse response,
+      Throwable error,
+      boolean cancelled) {
     target.setWorking(false);
     target.setWorkerThread(null);
     if (cancelled) {
       target.setStatusMessage(BaseMessages.getString(PKG, "AiAdvisor.Status.Cancelled"));
+      if (Utils.isEmpty(turn.getAssistantAdvice())) {
+        turn.setErrorMessage(target.getStatusMessage());
+      }
     } else if (error != null) {
       String message = userVisibleError(error);
       turn.setErrorMessage(message);
       target.setStatusMessage(message);
     } else if (response != null) {
       turn.setAssistantAdvice(response.getMarkdownAdvice());
+      if (Utils.isEmpty(turn.getAssistantAdvice())
+          && response.getProposals() != null
+          && !response.getProposals().isEmpty()) {
+        // Some models answer a change request with the proposals only.
+        turn.setAssistantAdvice(BaseMessages.getString(PKG, "AiAdvisor.Transcript.ProposalsOnly"));
+      }
+      turn.setRawAnswer(response.getRawResponse());
       turn.setProposalBlockPresent(response.isProposalBlockPresent());
+      turn.setProposalParseError(response.getProposalParseError());
       turn.setInputTokenCount(response.getInputTokenCount());
       turn.setOutputTokenCount(response.getOutputTokenCount());
       turn.setDurationMs(response.getDurationMs());
@@ -1030,19 +1541,6 @@ public class AiAdvisorSessionPane extends Composite {
       } else {
         target.setStatusMessage(BaseMessages.getString(PKG, "AiAdvisor.Status.WithProposals"));
       }
-    }
-    if (session == target) {
-      wlStatus.setText(Const.NVL(target.getStatusMessage(), ""));
-      transcript.showSession(target, this::reviewProposalsForTurn);
-      updateSendButton();
-    }
-    store.fireChanged();
-    if (error != null && !cancelled) {
-      new ErrorDialog(
-          host.getShell(),
-          BaseMessages.getString(PKG, "AiAdvisor.Send.Error.Title"),
-          BaseMessages.getString(PKG, "AiAdvisor.Send.Error.Message"),
-          error);
     }
   }
 
@@ -1057,7 +1555,7 @@ public class AiAdvisorSessionPane extends Composite {
     }
     IAiAdvisor advisor = loadSelectedAdvisor();
     if (advisor == null) {
-      wlStatus.setText(BaseMessages.getString(PKG, "AiAdvisor.Status.NoAdvisor"));
+      setStatus(noAdvisorMessage());
       return;
     }
     AiAdvisorRequest request = new AiAdvisorRequest();
@@ -1072,6 +1570,7 @@ public class AiAdvisorSessionPane extends Composite {
     request.getAttributes().put(AiAdvisorRequest.ATTR_HOP_GUI, host.getHopGui());
 
     List<AiProposalValidation> validation = advisor.validateProposals(request, proposals);
+    markOptIn(proposals, validation);
     AiAdvisorProposalReviewDialog reviewDialog =
         new AiAdvisorProposalReviewDialog(
             host.getShell(),
@@ -1088,10 +1587,18 @@ public class AiAdvisorSessionPane extends Composite {
     if (selected.isEmpty()) {
       return;
     }
+    if (!confirmOverwrites(selected)) {
+      return;
+    }
     try {
+      // A bad metadata save must not leave the graph changed: check the saves first.
+      AiMetadataProposalSupport.checkAll(selected, host.getMetadataProvider());
       advisor.applyProposals(request, selected);
       int copied = AiClipboardProposals.copy(selected);
-      int saved = AiMetadataProposalSupport.saveAll(selected, host.getMetadataProvider());
+      List<AiMetadataBackup> backups =
+          AiMetadataProposalSupport.saveAll(selected, host.getMetadataProvider());
+      turn.getMetadataBackups().addAll(backups);
+      int saved = backups.size();
       session.recordApplied(turn, selected, advisor);
       advisor.afterApply(request, selected);
       refreshBoundGraph();
@@ -1099,7 +1606,7 @@ public class AiAdvisorSessionPane extends Composite {
         fireMetadataChanged();
       }
       session.setStatusMessage(appliedStatusMessage(selected, copied, saved));
-      wlStatus.setText(Const.NVL(session.getStatusMessage(), ""));
+      setStatus(Const.NVL(session.getStatusMessage(), ""));
       transcript.showSession(session, this::reviewProposalsForTurn);
       store.fireChanged();
     } catch (Exception ex) {
@@ -1107,6 +1614,67 @@ public class AiAdvisorSessionPane extends Composite {
           host.getShell(),
           BaseMessages.getString(PKG, "AiAdvisor.Apply.Error.Title"),
           BaseMessages.getString(PKG, "AiAdvisor.Apply.Error.Message"),
+          ex instanceof HopException ? ex : new HopException(ex));
+    }
+  }
+
+  /** Deletes and replacements are opt-in for every advisor, whatever its validator says. */
+  public static void markOptIn(List<AiProposal> proposals, List<AiProposalValidation> validations) {
+    for (int i = 0; i < proposals.size() && i < validations.size(); i++) {
+      AiProposalTypes type = AiProposalTypes.of(proposals.get(i));
+      AiProposalValidation validation = validations.get(i);
+      if (type != null && type.isOptIn() && validation != null) {
+        validation.setOptIn(true);
+      }
+    }
+  }
+
+  private boolean confirmOverwrites(List<AiProposal> selected) {
+    List<String> overwritten = new ArrayList<>();
+    for (AiProposal proposal : selected) {
+      if (AiMetadataProposalSupport.exists(proposal, host.getMetadataProvider())) {
+        overwritten.add(
+            "- "
+                + Const.NVL(proposal.parameter("typeKey"), "")
+                + " "
+                + Const.NVL(
+                    AiMetadataProposalSupport.targetName(proposal, host.getMetadataProvider()),
+                    ""));
+      }
+    }
+    if (overwritten.isEmpty()) {
+      return true;
+    }
+    MessageBox box = new MessageBox(host.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    box.setText(BaseMessages.getString(PKG, "AiAdvisor.Overwrite.Title"));
+    box.setMessage(
+        BaseMessages.getString(PKG, "AiAdvisor.Overwrite.Message", String.join("\n", overwritten)));
+    return box.open() == SWT.YES;
+  }
+
+  private void undoMetadataForTurn(int turnIndex) {
+    if (session == null || turnIndex < 0 || turnIndex >= session.getTurns().size()) {
+      return;
+    }
+    AiAdvisorTurn turn = session.getTurns().get(turnIndex);
+    if (turn.getMetadataBackups().isEmpty()) {
+      return;
+    }
+    try {
+      AiMetadataProposalSupport.revert(turn.getMetadataBackups(), host.getMetadataProvider());
+      int count = turn.getMetadataBackups().size();
+      turn.getMetadataBackups().clear();
+      fireMetadataChanged();
+      session.setStatusMessage(
+          BaseMessages.getString(PKG, "AiAdvisor.Status.MetadataUndone", count));
+      setStatus(Const.NVL(session.getStatusMessage(), ""));
+      transcript.showSession(session, this::reviewProposalsForTurn);
+      store.fireChanged();
+    } catch (Exception ex) {
+      new ErrorDialog(
+          host.getShell(),
+          BaseMessages.getString(PKG, "AiAdvisor.Apply.Error.Title"),
+          BaseMessages.getString(PKG, "AiAdvisor.UndoMetadata.Error.Message"),
           ex instanceof HopException ? ex : new HopException(ex));
     }
   }

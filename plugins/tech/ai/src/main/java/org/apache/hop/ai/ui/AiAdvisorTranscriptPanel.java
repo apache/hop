@@ -20,6 +20,7 @@ package org.apache.hop.ai.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntConsumer;
+import lombok.Setter;
 import org.apache.hop.ai.engine.AiAdvisorMarkdown;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorTurn;
@@ -87,6 +88,9 @@ public class AiAdvisorTranscriptPanel extends Composite {
     installWheelForwarding();
   }
 
+  /** Restores the metadata a turn's applied proposals saved; the argument is the turn index. */
+  @Setter private IntConsumer undoMetadata;
+
   public void showSession(AiAdvisorSession session) {
     showSession(session, null);
   }
@@ -98,8 +102,15 @@ public class AiAdvisorTranscriptPanel extends Composite {
     bodies.clear();
     if (session == null || session.getTurns().isEmpty()) {
       Composite block = appendBlock(Role.SYSTEM);
-      appendHeading(
-          block, Role.SYSTEM, BaseMessages.getString(PKG, "AiAdvisor.Transcript.Empty"), null);
+      String empty;
+      if (session == null) {
+        empty = "AiAdvisor.Transcript.NoSession";
+      } else if (session.getArtifact() == null) {
+        empty = "AiAdvisor.Transcript.NotLinked";
+      } else {
+        empty = "AiAdvisor.Transcript.Empty";
+      }
+      appendHeading(block, Role.SYSTEM, BaseMessages.getString(PKG, empty), null);
       appendNote(block, Role.SYSTEM, BaseMessages.getString(PKG, "AiAdvisor.GitWarning"));
     } else {
       List<AiAdvisorTurn> turns = session.getTurns();
@@ -144,10 +155,11 @@ public class AiAdvisorTranscriptPanel extends Composite {
           if (responseBlock == null) {
             responseBlock = appendBlock(Role.ASSISTANT);
           }
-          appendNote(
-              responseBlock,
-              Role.ASSISTANT,
-              BaseMessages.getString(PKG, "AiAdvisor.Review.Dropped"));
+          String dropped = BaseMessages.getString(PKG, "AiAdvisor.Review.Dropped");
+          if (!Utils.isEmpty(turn.getProposalParseError())) {
+            dropped += " " + turn.getProposalParseError();
+          }
+          appendNote(responseBlock, Role.ASSISTANT, dropped);
         }
         if (turn.getAppliedSummaries() != null && !turn.getAppliedSummaries().isEmpty()) {
           Composite block = appendBlock(Role.SYSTEM);
@@ -156,10 +168,55 @@ public class AiAdvisorTranscriptPanel extends Composite {
               Role.SYSTEM,
               BaseMessages.getString(
                   PKG, "AiAdvisor.Transcript.Applied", turn.getAppliedSummaries().size()));
+          if (!turn.getMetadataBackups().isEmpty() && undoMetadata != null) {
+            int turnIndex = i;
+            appendReviewButton(
+                block,
+                BaseMessages.getString(
+                    PKG, "AiAdvisor.UndoMetadata.Label", turn.getMetadataBackups().size()),
+                () -> undoMetadata.accept(turnIndex));
+          }
         }
       }
     }
     refreshScroll(true);
+  }
+
+  /**
+   * Words to show while the model works. They say nothing about what the model does, but a line
+   * that changes shows the request is alive, and the seconds show how long it takes.
+   */
+  static final String[] WORKING_KEYS = {
+    "AiAdvisor.Working.1",
+    "AiAdvisor.Working.2",
+    "AiAdvisor.Working.3",
+    "AiAdvisor.Working.4",
+    "AiAdvisor.Working.5",
+    "AiAdvisor.Working.6",
+    "AiAdvisor.Working.7",
+    "AiAdvisor.Working.8"
+  };
+
+  static final int WORKING_WORD_SECONDS = 3;
+
+  static String workingText(AiAdvisorTurn turn, long seconds) {
+    String word =
+        BaseMessages.getString(
+            PKG, WORKING_KEYS[(int) ((seconds / WORKING_WORD_SECONDS) % WORKING_KEYS.length)]);
+    if (turn.getEstimatedPromptTokens() == null || Utils.isEmpty(turn.getProviderLabel())) {
+      return BaseMessages.getString(PKG, "AiAdvisor.Working.Text", word, seconds);
+    }
+    return BaseMessages.getString(
+        PKG,
+        "AiAdvisor.Working.TextWithSize",
+        word,
+        seconds,
+        formatTokens(turn.getEstimatedPromptTokens()),
+        turn.getProviderLabel());
+  }
+
+  static String formatTokens(int tokens) {
+    return tokens < 1000 ? Integer.toString(tokens) : String.format("%.1fk", tokens / 1000.0);
   }
 
   private Composite appendBlock(Role role) {

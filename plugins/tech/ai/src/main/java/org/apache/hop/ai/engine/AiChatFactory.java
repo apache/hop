@@ -28,9 +28,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hop.ai.metadata.AiModelRole;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.provider.IAiProvider;
+import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelFacade;
@@ -44,15 +46,20 @@ public final class AiChatFactory {
 
   private AiChatFactory() {}
 
+  static String missingTypeMessage(AiProvider provider) {
+    return BaseMessages.getString(
+        AiChatFactory.class, "AiChatFactory.MissingType", provider.getName());
+  }
+
   public static LanguageModelChatMeta toLanguageModelChatMeta(
       AiProvider provider, IVariables variables) throws HopException {
     if (provider == null) {
       throw new HopException("AI provider metadata is missing");
     }
-    IAiProvider backend = provider.getProvider();
-    if (backend == null) {
-      throw new HopException("AI provider type is not set on '" + provider.getName() + "'");
+    if (!provider.hasProviderType()) {
+      throw new HopException(missingTypeMessage(provider));
     }
+    IAiProvider backend = provider.getProvider();
     LanguageModelChatMeta meta = new LanguageModelChatMeta();
     meta.setDefault();
     meta.setMock(false);
@@ -101,10 +108,10 @@ public final class AiChatFactory {
       IVariables variables,
       boolean useProviderDefaults)
       throws HopException {
-    IAiProvider backend = provider.getProvider();
-    if (backend == null) {
-      throw new HopException("AI provider type is not set on '" + provider.getName() + "'");
+    if (!provider.hasProviderType()) {
+      throw new HopException(missingTypeMessage(provider));
     }
+    IAiProvider backend = provider.getProvider();
     meta.setModelType(backend.getHopModelType());
 
     String baseUrl = resolve(variables, provider.getBaseUrl());
@@ -119,6 +126,8 @@ public final class AiChatFactory {
     boolean hasTemperature = !Utils.isEmpty(provider.getTemperature());
     double temperature = parseTemperature(resolve(variables, provider.getTemperature()));
     Integer timeout = parseTimeout(resolve(variables, provider.getTimeoutSeconds()));
+    Integer contextSize = AiProviderSettings.contextSize(provider, variables);
+    Integer maxOutputTokens = AiProviderSettings.maxOutputTokens(provider, variables);
     boolean applyTemperature = useProviderDefaults || hasTemperature;
 
     String hopType = backend.getHopModelType();
@@ -138,6 +147,9 @@ public final class AiChatFactory {
       if (timeout != null) {
         meta.setAnthropicTimeout(timeout);
       }
+      if (maxOutputTokens != null) {
+        meta.setAnthropicMaxTokens(maxOutputTokens);
+      }
     } else if ("OLLAMA".equals(hopType)) {
       if (!Utils.isEmpty(baseUrl)) {
         meta.setOllamaImageEndpoint(baseUrl);
@@ -150,6 +162,12 @@ public final class AiChatFactory {
       }
       if (timeout != null) {
         meta.setOllamaTimeout(timeout);
+      }
+      if (contextSize != null) {
+        meta.setOllamaNumCtx(contextSize);
+      }
+      if (maxOutputTokens != null) {
+        meta.setOllamaNumPredict(maxOutputTokens);
       }
     } else if ("MISTRAL".equals(hopType)) {
       if (!Utils.isEmpty(baseUrl)) {
@@ -167,6 +185,9 @@ public final class AiChatFactory {
       if (timeout != null) {
         meta.setMistralTimeout(timeout);
       }
+      if (maxOutputTokens != null) {
+        meta.setMistralMaxTokens(maxOutputTokens);
+      }
     } else if ("HUGGING_FACE".equals(hopType)) {
       if (!Utils.isEmpty(apiKey)) {
         meta.setHuggingFaceAccessToken(apiKey);
@@ -183,6 +204,9 @@ public final class AiChatFactory {
       if (timeout != null) {
         meta.setHuggingFaceTimeout(timeout);
       }
+      if (maxOutputTokens != null) {
+        meta.setHuggingFaceMaxNewTokens(maxOutputTokens);
+      }
     } else {
       if (!Utils.isEmpty(baseUrl)) {
         meta.setOpenAiBaseUrl(baseUrl);
@@ -198,6 +222,9 @@ public final class AiChatFactory {
       }
       if (timeout != null) {
         meta.setOpenAiTimeout(timeout);
+      }
+      if (maxOutputTokens != null) {
+        meta.setOpenAiMaxTokens(maxOutputTokens);
       }
     }
   }
@@ -220,8 +247,33 @@ public final class AiChatFactory {
       String userPrompt,
       List<ChatMessage> conversationHistory)
       throws HopException {
+    return generateResult(
+        provider, variables, systemPrompt, userPrompt, conversationHistory, false);
+  }
+
+  /**
+   * @param jsonOnly ask the provider to answer with valid JSON only, where it supports that (Ollama
+   *     and OpenAI). Small models write broken JSON in free text far more often.
+   */
+  public static AiChatResult generateResult(
+      AiProvider provider,
+      IVariables variables,
+      String systemPrompt,
+      String userPrompt,
+      List<ChatMessage> conversationHistory,
+      boolean jsonOnly)
+      throws HopException {
     validate(provider);
     LanguageModelChatMeta meta = toLanguageModelChatMeta(provider, variables);
+    if (jsonOnly) {
+      if ("OLLAMA".equals(provider.getHopModelType())) {
+        meta.setOllamaFormat("json");
+      } else if ("MISTRAL".equals(provider.getHopModelType())) {
+        meta.setMistralResponseFormat("json_object");
+      } else if (provider.getProvider() instanceof OpenAiProvider) {
+        meta.setOpenAiResponseFormat("json_object");
+      }
+    }
     LanguageModelFacade facade = new LanguageModelFacade(variables, meta);
     List<ChatMessage> messages = new ArrayList<>();
     messages.add(new SystemMessage(systemPrompt));
@@ -261,10 +313,11 @@ public final class AiChatFactory {
     if (Utils.isEmpty(response)) {
       throw new HopException("The AI provider returned an empty response.");
     }
-    String model =
-        Utils.isEmpty(provider.getModelName())
-            ? provider.getProvider().getDefaultModelName()
-            : provider.getModelName();
+    // The model that answered: a CHAT row in Models per role replaces Model name.
+    String model = resolve(variables, provider.resolveModelName(AiModelRole.CHAT));
+    if (Utils.isEmpty(model)) {
+      model = provider.getProvider().getDefaultModelName();
+    }
     return "Connected to "
         + provider.getPluginName()
         + " (model: "
@@ -281,10 +334,10 @@ public final class AiChatFactory {
       throw new HopException(
           "The Hop Language Model Chat plugin is not installed. Add hop-transform-languagemodelchat to your Hop assembly.");
     }
-    IAiProvider backend = provider.getProvider();
-    if (backend == null) {
-      throw new HopException("Please select an AI provider type.");
+    if (!provider.hasProviderType()) {
+      throw new HopException(missingTypeMessage(provider));
     }
+    IAiProvider backend = provider.getProvider();
     if (backend.requiresApiKey() && Utils.isEmpty(provider.getApiKey())) {
       throw new HopException("Please configure an API key for the AI provider.");
     }

@@ -18,7 +18,6 @@
 package org.apache.hop.ai.advisor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -56,37 +55,63 @@ public final class AiProposalParser {
     List<AiProposal> proposals = new ArrayList<>();
     boolean blockPresent = false;
     Matcher matcher = PROPOSAL_BLOCK.matcher(rawResponse);
+    String error = null;
     while (matcher.find()) {
       blockPresent = true;
       advice = advice.replace(matcher.group(0), "").trim();
-      proposals.addAll(parseProposalJson(matcher.group(1)));
+      try {
+        proposals.addAll(parseProposalJson(matcher.group(1)));
+      } catch (IllegalArgumentException e) {
+        error = e.getMessage();
+      }
     }
     response.setProposalBlockPresent(blockPresent);
+    response.setProposalParseError(error);
     response.setMarkdownAdvice(advice.trim());
     response.setProposals(proposals);
     return response;
   }
 
+  /**
+   * @throws IllegalArgumentException with a short reason when the block is not a proposals object
+   */
   private static List<AiProposal> parseProposalJson(String jsonText) {
     List<AiProposal> proposals = new ArrayList<>();
     if (Utils.isEmpty(jsonText)) {
-      return proposals;
+      throw new IllegalArgumentException("The hop_proposals block is empty.");
     }
+    JsonNode root;
     try {
-      ObjectMapper mapper = HopJson.newMapper();
-      JsonNode root = mapper.readTree(jsonText.trim());
-      JsonNode array = root.path("proposals");
-      if (!array.isArray()) {
-        return proposals;
-      }
-      for (JsonNode node : array) {
-        AiProposal proposal = toProposal(node);
-        if (proposal != null) {
-          proposals.add(proposal);
+      root = HopJson.newMapper().readTree(jsonText.trim());
+    } catch (Exception e) {
+      String reason = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+      int newline = reason.indexOf('\n');
+      throw new IllegalArgumentException(
+          "The hop_proposals block is not valid JSON: "
+              + (newline > 0 ? reason.substring(0, newline) : reason));
+    }
+    JsonNode array = root == null ? null : root.path("proposals");
+    if (array == null || !array.isArray()) {
+      throw new IllegalArgumentException(
+          "The hop_proposals block has no \"proposals\" array at the top level.");
+    }
+    for (JsonNode node : array) {
+      AiProposal proposal = toProposal(node);
+      if (proposal != null) {
+        // Small models copy a list of allowed types into one proposal ("ADD_TRANSFORM|ADD_HOP").
+        // That can never be applied; reading it as unreadable gets it corrected.
+        String type = proposal.getType();
+        if (type != null && (type.contains("|") || type.contains(","))) {
+          throw new IllegalArgumentException(
+              "Proposal '"
+                  + (Utils.isEmpty(proposal.getDescription()) ? type : proposal.getDescription())
+                  + "' has several types ("
+                  + type
+                  + "). Give each proposal exactly one type: adding a transform and its hop takes"
+                  + " two proposals.");
         }
+        proposals.add(proposal);
       }
-    } catch (Exception ignored) {
-      // Malformed blocks are dropped; advice text is still shown.
     }
     return proposals;
   }
@@ -95,10 +120,8 @@ public final class AiProposalParser {
     if (node == null || node.isNull()) {
       return null;
     }
+    // An item without a type is kept: the validator blocks it and the user sees why.
     String typeValue = node.path("type").asText("");
-    if (Utils.isEmpty(typeValue)) {
-      return null;
-    }
     AiProposal proposal = new AiProposal();
     String id = node.path("id").asText("");
     proposal.setId(Utils.isEmpty(id) ? null : id);

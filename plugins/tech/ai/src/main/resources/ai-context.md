@@ -7,7 +7,7 @@
     A Pipeline action that runs a pipeline must name a Pipeline Run Configuration, not a workflow one.
     
     Do not guess names of existing metadata, transforms, or actions that are not listed in the prompt context.
-    New objects the user asked to create should use the names they gave. Plugin ids must come from the catalog JSON when it is present.
+    New objects the user asked to create should use the names they gave. Plugin ids must come from the plugin catalog when it is present.
     
     Variable expressions use `${NAME}`. Prefer variables or a resolver for secrets; never ask the user to paste a live API key.
     

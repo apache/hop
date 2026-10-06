@@ -82,23 +82,39 @@ public class WorkflowAiGuiPlugin {
     }
   }
 
-  private static void openAiAdvisor(HopGuiWorkflowGraph workflowGraph, String focusActionName) {
+  /**
+   * A session request for this workflow, as AI Help opens it. Also used to start a new session for
+   * the open workflow, or to link a session to it.
+   *
+   * @return the request, or null when the graph has no workflow
+   */
+  public static AiAdvisorOpenRequest newRequest(
+      HopGuiWorkflowGraph workflowGraph, String focusActionName) {
     WorkflowMeta workflowMeta = workflowGraph.getWorkflowMeta();
     if (workflowMeta == null) {
-      return;
+      return null;
     }
     AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
     request.setAdvisorPluginId(WorkflowAiAdvisor.ID);
     request.setLocation(AiAdvisorLocations.WORKFLOW_GRAPH);
     request.setAreaLabel(
         BaseMessages.getString(WorkflowAiGuiPlugin.class, "WorkflowAiGuiPlugin.Area.Label"));
-    request.setPreferFloatingWindow(true);
     request.setArtifact(workflowMeta);
     request.setArtifactName(workflowMeta.getName());
     request.setArtifactKind("workflow");
     request.setTitle(workflowMeta.getName());
     request.setFocusNodeName(focusActionName);
     request.setLogSupplier(() -> AiAdvisorLogSupport.readWorkflowLog(workflowGraph));
+    AiAdvisorViews.releaseWhenClosed(workflowGraph, workflowGraph.getHopGui(), workflowMeta);
+    return request;
+  }
+
+  private static void openAiAdvisor(HopGuiWorkflowGraph workflowGraph, String focusActionName) {
+    AiAdvisorOpenRequest request = newRequest(workflowGraph, focusActionName);
+    if (request == null) {
+      return;
+    }
+    request.setPreferFloatingWindow(true);
     AiAdvisorViews.openSession(workflowGraph.getHopGui(), request);
   }
 }

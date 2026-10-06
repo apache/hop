@@ -67,7 +67,11 @@ public final class WorkflowAiProposalValidator {
       IHopMetadataProvider metadataProvider) {
     AiProposalTypes type = AiProposalTypes.of(proposal);
     if (type == null) {
-      return blocked(proposal, "Missing or unknown proposal type");
+      return blocked(
+          proposal,
+          Utils.isEmpty(proposal.getType())
+              ? "The proposal has no type"
+              : "Unknown proposal type: " + proposal.getType());
     }
     if (!type.isWorkflowType()) {
       return blocked(proposal, "Not a workflow proposal type: " + type);
@@ -83,7 +87,7 @@ public final class WorkflowAiProposalValidator {
       case DELETE_WORKFLOW_HOP -> validateDeleteWorkflowHop(workflowMeta, proposal);
       case SET_ACTION_LOCATION -> validateSetActionLocation(workflowMeta, proposal);
       case ADD_WORKFLOW_NOTE -> validateAddWorkflowNote(proposal);
-      case CONFIGURE_ACTION -> validateConfigureAction(workflowMeta, proposal);
+      case CONFIGURE_ACTION -> validateConfigureAction(workflowMeta, proposal, reservedNames);
       case CLIPBOARD_ACTIONS -> validateClipboardActions(proposal);
       case REPLACE_ACTION -> validateReplaceAction(workflowMeta, proposal);
       case CLIPBOARD_METADATA, SAVE_METADATA ->
@@ -116,12 +120,13 @@ public final class WorkflowAiProposalValidator {
   }
 
   private static AiProposalValidation validateConfigureAction(
-      WorkflowMeta workflowMeta, AiProposal proposal) {
+      WorkflowMeta workflowMeta, AiProposal proposal, Set<String> reservedNames) {
     String actionName = proposal.parameter("actionName");
     if (Utils.isEmpty(actionName)) {
       return blocked(proposal, "actionName is required");
     }
-    if (workflowMeta.findAction(actionName) == null) {
+    // An action added earlier in the same list exists by the time this one is applied.
+    if (workflowMeta.findAction(actionName) == null && !reservedNames.contains(actionName.trim())) {
       return blocked(proposal, "Action not found: " + actionName);
     }
     if (!AiTransformConfigSupport.hasConfig(proposal)) {

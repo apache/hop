@@ -93,6 +93,19 @@ public enum AiProposalTypes {
   }
 
   /**
+   * Proposals that remove or replace existing work. The review leaves them unselected so the user
+   * has to choose them.
+   */
+  public boolean isOptIn() {
+    return this == DELETE_TRANSFORM
+        || this == DELETE_PIPELINE_HOP
+        || this == REPLACE_TRANSFORM
+        || this == DELETE_ACTION
+        || this == DELETE_WORKFLOW_HOP
+        || this == REPLACE_ACTION;
+  }
+
+  /**
    * Types the workbench copies or saves after {@code applyProposals}. Pipeline/workflow appliers
    * skip these so mixed selections do not throw.
    */

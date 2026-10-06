@@ -19,6 +19,7 @@ package org.apache.hop.ai.advisors.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -66,6 +67,30 @@ class PipelineAiProposalApplierTest {
     assertNotNull(renamed);
     assertEquals("Dummy", renamed.getTransformPluginId());
     assertEquals(1, pipelineMeta.nrPipelineHops());
+  }
+
+  @Test
+  void aFailingProposalLeavesThePipelineUntouched() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta input = new TransformMeta("Dummy", "Input", new DummyMeta());
+    input.setLocation(100, 100);
+    pipelineMeta.addTransform(input);
+
+    AiProposal add =
+        proposal(
+            "ADD_TRANSFORM",
+            Map.of(
+                "transformPluginId", "Dummy",
+                "name", "Check",
+                "locationX", "250",
+                "locationY", "100"));
+    AiProposal badHop =
+        proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "Check", "toTransform", "Missing"));
+
+    assertThrows(
+        Exception.class, () -> PipelineAiProposalApplier.apply(pipelineMeta, List.of(add, badHop)));
+    assertNull(pipelineMeta.findTransform("Check"), "the first proposal must not stay applied");
+    assertEquals(1, pipelineMeta.nrTransforms());
   }
 
   @Test

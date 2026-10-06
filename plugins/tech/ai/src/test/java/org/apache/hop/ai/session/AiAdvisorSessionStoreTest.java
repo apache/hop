@@ -18,11 +18,15 @@
 package org.apache.hop.ai.session;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
+import org.apache.hop.core.file.IHasFilename;
 import org.junit.jupiter.api.Test;
 
 class AiAdvisorSessionStoreTest {
@@ -40,6 +44,86 @@ class AiAdvisorSessionStoreTest {
     AiAdvisorSession second = store.open(request);
     assertSame(first, second);
     assertEquals(1, store.getSessions().size());
+  }
+
+  @Test
+  void savingANewPipelineKeepsItsSession() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    Artifact pipeline = new Artifact(null);
+    AiAdvisorSession first = store.open(pipelineRequest(pipeline, "New pipeline"));
+
+    // The first save gives the pipeline a file and with it a new name.
+    pipeline.filename = "/project/orders.hpl";
+    AiAdvisorSession second = store.open(pipelineRequest(pipeline, "orders"));
+
+    assertSame(first, second);
+    assertEquals(1, store.getSessions().size());
+    assertEquals("orders", second.getTitle());
+    assertEquals("orders", second.getArtifactName());
+  }
+
+  @Test
+  void pipelinesWithTheSameNameGetTheirOwnSession() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorSession first =
+        store.open(pipelineRequest(new Artifact("/project/a/orders.hpl"), "orders"));
+    AiAdvisorSession second =
+        store.open(pipelineRequest(new Artifact("/project/b/orders.hpl"), "orders"));
+    AiAdvisorSession unsaved1 = store.open(pipelineRequest(new Artifact(null), "New pipeline"));
+    AiAdvisorSession unsaved2 = store.open(pipelineRequest(new Artifact(null), "New pipeline"));
+
+    assertNotSame(first, second);
+    assertNotSame(unsaved1, unsaved2);
+    assertEquals(4, store.getSessions().size());
+  }
+
+  @Test
+  void reopeningAFileKeepsItsSession() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorSession first =
+        store.open(pipelineRequest(new Artifact("/project/orders.hpl"), "orders"));
+    // Closing and reopening the tab loads a new pipeline object for the same file.
+    Artifact reopened = new Artifact("/project/orders.hpl");
+    AiAdvisorSession second = store.open(pipelineRequest(reopened, "orders"));
+
+    assertSame(first, second);
+    assertSame(reopened, second.getArtifact());
+  }
+
+  @Test
+  void openingOnThePipelineClearsAnEarlierTransformFocus() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    Artifact pipeline = new Artifact("/project/orders.hpl");
+    AiAdvisorOpenRequest onTransform = pipelineRequest(pipeline, "orders");
+    onTransform.setFocusNodeName("Table input");
+    AiAdvisorSession session = store.open(onTransform);
+    assertEquals("Table input", session.getFocusNodeName());
+
+    store.open(pipelineRequest(pipeline, "orders"));
+    assertEquals("", session.getFocusNodeName());
+  }
+
+  private static AiAdvisorOpenRequest pipelineRequest(Artifact artifact, String name) {
+    AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
+    request.setAdvisorPluginId("pipeline-advisor");
+    request.setLocation(AiAdvisorLocations.PIPELINE_GRAPH);
+    request.setArtifact(artifact);
+    request.setArtifactName(name);
+    request.setTitle(name);
+    return request;
+  }
+
+  private static final class Artifact implements IHasFilename {
+    private String filename;
+
+    private Artifact(String filename) {
+      this.filename = filename;
+    }
+
+    @Override
+    public String getFilename() {
+      return filename;
+    }
   }
 
   @Test
@@ -146,5 +230,67 @@ class AiAdvisorSessionStoreTest {
         });
     store.fireChanged();
     assertEquals(1, count[0]);
+  }
+
+  @Test
+  void sessionsBelongToTheProjectTheyWereStartedIn() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    String[] project = {"sales"};
+    store.scope = () -> project[0];
+    AiAdvisorSession sales =
+        store.open(pipelineRequest(new Artifact("/sales/orders.hpl"), "orders"));
+
+    project[0] = "finance";
+    assertTrue(store.getSessions().isEmpty(), "the other project's sessions are not shown");
+    assertNull(store.getActiveSession());
+    AiAdvisorSession finance =
+        store.open(pipelineRequest(new Artifact("/finance/orders.hpl"), "orders"));
+    assertNotSame(sales, finance);
+
+    project[0] = "sales";
+    assertEquals(List.of(sales), store.getSessions());
+    assertSame(sales, store.getActiveSession(), "falls back to a session of this project");
+  }
+
+  @Test
+  void removingASessionCancelsItsRequest() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorSession session = store.open(pipelineRequest(new Artifact("/p.hpl"), "p"));
+    session.setWorking(true);
+    store.remove(session.getId());
+    assertTrue(session.isCancelled());
+  }
+
+  @Test
+  void closingTheFileReleasesItAndReopeningFindsTheConversation() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    Artifact open = new Artifact("/project/orders.hpl");
+    AiAdvisorSession session = store.open(pipelineRequest(open, "orders"));
+    session.setLogSupplier(() -> "log");
+
+    store.release(open);
+    assertNull(session.getArtifact(), "a closed file is not kept in memory");
+    assertNull(session.getLogSupplier());
+
+    Artifact reopened = new Artifact("/project/orders.hpl");
+    assertSame(session, store.open(pipelineRequest(reopened, "orders")));
+    assertSame(reopened, session.getArtifact());
+  }
+
+  @Test
+  void anUnlinkedSessionCanBeLinkedToTheOpenFile() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorOpenRequest general = new AiAdvisorOpenRequest();
+    general.setReuseExisting(false);
+    general.setTitle("New session");
+    AiAdvisorSession session = store.open(general);
+    assertEquals(AiAdvisorLocations.PERSPECTIVE, session.getLocation());
+
+    Artifact pipeline = new Artifact("/project/orders.hpl");
+    store.link(session, pipelineRequest(pipeline, "orders"));
+    assertSame(pipeline, session.getArtifact());
+    assertEquals(AiAdvisorLocations.PIPELINE_GRAPH, session.getLocation());
+    assertEquals("pipeline-advisor", session.getAdvisorPluginId());
+    assertEquals("orders", session.getTitle());
   }
 }

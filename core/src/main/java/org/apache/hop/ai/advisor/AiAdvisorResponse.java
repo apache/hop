@@ -33,6 +33,12 @@ public class AiAdvisorResponse {
   /** True when the raw text contained a {@code hop_proposals} fence, even if it did not parse. */
   private boolean proposalBlockPresent;
 
+  /**
+   * Why a {@code hop_proposals} block could not be read, for example invalid JSON, or null when it
+   * was read or there was none.
+   */
+  private String proposalParseError;
+
   /** Prompt tokens reported by the provider, if any. */
   private Integer inputTokenCount;
 

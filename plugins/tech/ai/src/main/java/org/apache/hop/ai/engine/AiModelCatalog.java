@@ -56,7 +56,7 @@ public final class AiModelCatalog {
 
   public static List<String> listModelNames(AiProvider provider, IVariables variables)
       throws HopException {
-    if (provider == null || provider.getProvider() == null) {
+    if (provider == null || !provider.hasProviderType()) {
       throw new HopException("Please select an AI provider type.");
     }
     IAiProvider backend = provider.getProvider();

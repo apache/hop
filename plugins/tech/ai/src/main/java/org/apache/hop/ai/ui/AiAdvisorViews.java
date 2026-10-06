@@ -25,9 +25,11 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -107,6 +109,47 @@ public class AiAdvisorViews {
         container -> createDockedWorkbench(container, hopGui));
   }
 
+  private static final String PREFERRED_VIEW = "AiAssistant.PreferredView";
+  private static final String DOCK_OPEN = "AiAssistant.DockOpen";
+
+  /** Set once Hop GUI starts to close, so the dock tab closing with it is not taken as a choice. */
+  private static volatile boolean exiting;
+
+  /**
+   * Open the AI Assistant tab in the bottom dock again when it was open when Hop GUI last closed,
+   * like the rest of the layout.
+   */
+  public static void restoreDock(HopGui hopGui) {
+    if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+      return;
+    }
+    // The shell's Dispose event comes before its children are disposed.
+    hopGui.getShell().addListener(SWT.Dispose, e -> exiting = true);
+    if ("Y".equals(PropsUi.getInstance().getCustomParameter(DOCK_OPEN, "N"))) {
+      hopGui.getShell().getDisplay().asyncExec(() -> openDock(hopGui));
+    }
+  }
+
+  /** Remember whether the user last moved the assistant to the dock or to a floating window. */
+  public static void rememberView(IAiAdvisorWorkbenchHost.ViewKind kind) {
+    PropsUi.getInstance().setCustomParameter(PREFERRED_VIEW, kind.name());
+  }
+
+  static boolean prefersDock() {
+    return IAiAdvisorWorkbenchHost.ViewKind.DOCK
+        .name()
+        .equals(PropsUi.getInstance().getCustomParameter(PREFERRED_VIEW, ""));
+  }
+
+  /** Close the AI Assistant tab in the bottom dock, if it is open. */
+  public static void closeDock(HopGui hopGui) {
+    if (!isDockOpen(hopGui)) {
+      return;
+    }
+    HopGuiBottomDock dock = hopGui.getTerminalPanel();
+    dock.closeTab(null, dock.findToolTab(DOCK_TOOL_ID));
+  }
+
   public static boolean isDockOpen(HopGui hopGui) {
     if (hopGui == null) {
       return false;
@@ -132,6 +175,9 @@ public class AiAdvisorViews {
       openDialog(hopGui);
     } else if (isDockOpen(hopGui)) {
       openDock(hopGui);
+    } else if (shouldOpenFloatingWindow(request) && prefersDock()) {
+      // The user moved the assistant to the bottom dock before: open it there again.
+      openDock(hopGui);
     } else if (shouldOpenFloatingWindow(request)) {
       openDialog(hopGui);
     } else {
@@ -154,6 +200,30 @@ public class AiAdvisorViews {
             hopGui, () -> !container.isDisposed(), () -> openDock(hopGui), null);
     AiAdvisorWorkbench workbench = new AiAdvisorWorkbench(container, host);
     workbench.setLayoutData(new FormDataBuilder().fullSize().result());
+    PropsUi.getInstance().setCustomParameter(DOCK_OPEN, "Y");
+    workbench.addDisposeListener(
+        e -> {
+          if (!exiting) {
+            PropsUi.getInstance().setCustomParameter(DOCK_OPEN, "N");
+          }
+        });
     return workbench;
+  }
+
+  private static final String RELEASE_KEY = AiAdvisorViews.class.getName() + ".release";
+
+  /**
+   * When the tab of a pipeline or workflow closes, its sessions let go of it and of its log, so the
+   * closed file is not kept in memory or sent with the next question.
+   */
+  public static void releaseWhenClosed(Control graph, HopGui hopGui, Object artifact) {
+    if (graph == null || graph.isDisposed() || hopGui == null || artifact == null) {
+      return;
+    }
+    if (graph.getData(RELEASE_KEY) == artifact) {
+      return;
+    }
+    graph.setData(RELEASE_KEY, artifact);
+    graph.addDisposeListener(e -> AiAdvisorSessionStore.get(hopGui).release(artifact));
   }
 }

@@ -80,10 +80,10 @@ That is how privacy-sensitive installs remove AI.
 |Constant |When Hop uses it
 
 |`pipeline-graph`
-|Pipeline canvas and pipeline toolbar *AI Help*
+|Pipeline canvas and pipeline toolbar *AI Assistant*
 
 |`workflow-graph`
-|Workflow canvas and workflow toolbar *AI Help*
+|Workflow canvas and workflow toolbar *AI Assistant*
 
 |`perspective`
 |`CTRL-SHIFT-A`, *New session*, Tools menu
@@ -309,19 +309,24 @@ public class DataVaultAiAdvisor implements IAiAdvisor {
       throw new HopException("No Data Vault model is bound to this session.");
     }
     String system = loadPreambleAndScenario(request.getScenarioId());
+    // Context goes in tagged blocks, the question last. The preamble tells the model the blocks
+    // are data gathered by Hop, not instructions, and not to mention them in its answer.
     StringBuilder user = new StringBuilder();
-    user.append("User question:\n").append(request.getUserPrompt()).append("\n\n");
-    user.append("Model structure JSON:\n").append(serializeStructure(model)).append("\n\n");
+    section(user, "model_structure", serializeStructure(model));
     if (request.inclusionEnabled("checks")) {
-      user.append("Check results JSON:\n").append(serializeChecks(model, request)).append("\n\n");
+      section(user, "check_results", serializeChecks(model, request));
     }
     if (request.inclusionEnabled("catalog")) {
-      user.append("Catalog sources: ")
-          .append(request.selectedInclusionIds("catalog"))
-          .append("\n\n");
+      section(user, "catalog_sources", String.valueOf(request.selectedInclusionIds("catalog")));
     }
     // Workbench appends selected metadata when inclusion id is "metadata".
+    section(user, "question", request.getUserPrompt());
     return new AiAdvisorPrompt(system, user.toString());
+  }
+
+  private static void section(StringBuilder prompt, String tag, String content) {
+    prompt.append('<').append(tag).append(">\n").append(content).append("\n</").append(tag);
+    prompt.append(">\n\n");
   }
 }
 ----
@@ -386,7 +391,8 @@ Default-off inclusions (full XML, logs, metadata) are the ones that can leak sec
 
 |`followUp`
 |`true` after a successful prior turn.
-Large context (catalog, XML, logs) is usually first-turn only; you decide.
+The conversation history only carries earlier questions and answers, not the context sent with them.
+Send what is checked on every turn, as Hop's own advisors do, so a follow-up question still has the context and a new execution log reaches the model.
 
 |`attributes`
 |Copied from the session (which came from `AiAdvisorOpenRequest.attributes`).
@@ -407,7 +413,7 @@ After `buildPrompt` returns, the workbench appends standing notes to the *system
   * The same paths on the plugin classpath (JAR root) if the folder file is missing
   * The folder file *wins* when both exist, so an install can edit notes without rebuilding
 . `IAiAdvisor.getStandingContext()` when non-empty (computed notes; prefer files)
-. Configuration → *Extra context* and *Context files* (default `+${PROJECT_HOME}/AGENTS.md+`)
+. Configuration → *Extra context* and *Context files* (empty by default)
 
 Missing files are skipped. Your `buildPrompt` does not load these.
 
@@ -454,7 +460,7 @@ Third-party advisor plugins:
 If `plugins/tech/ai` is removed, `openAiAdvisorSession` is still a silent no-op; the third-party advisor plugin still loads.
 
 The workbench combo lists advisors whose `locations()` match the session (plus advisors with empty locations).
-A `data-vault-graph` session does not offer Pipeline AI Help.
+A `data-vault-graph` session does not offer the pipeline assistant.
 The unbound perspective lists every advisor.
 
 Do not put hopper-edw location ids in `AiAdvisorLocations`.

@@ -113,6 +113,12 @@ public final class AiChatModelFactory {
     if (settings.temperature() != null) {
       builder.temperature(settings.temperature());
     }
+    if (settings.contextSize() != null) {
+      builder.numCtx(settings.contextSize());
+    }
+    if (settings.maxOutputTokens() != null) {
+      builder.numPredict(settings.maxOutputTokens());
+    }
     return builder.build();
   }
 
@@ -134,6 +140,9 @@ public final class AiChatModelFactory {
     }
     if (settings.temperature() != null) {
       builder.temperature(settings.temperature());
+    }
+    if (settings.maxOutputTokens() != null) {
+      builder.maxTokens(settings.maxOutputTokens());
     }
     return builder.build();
   }

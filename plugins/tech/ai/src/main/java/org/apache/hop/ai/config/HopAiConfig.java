@@ -27,8 +27,12 @@ public class HopAiConfig {
 
   public static final String HOP_CONFIG_KEY = "hopAiConfig";
 
-  /** Default context-file list: include a project AGENTS.md when it exists. */
-  public static final String DEFAULT_EXTRA_CONTEXT_FILES = "${PROJECT_HOME}/AGENTS.md";
+  /**
+   * Default context-file list: none. A project's AGENTS.md is usually written for coding agents,
+   * and whatever a listed file says goes into the system prompt as instructions, so adding one is
+   * the user's choice.
+   */
+  public static final String DEFAULT_EXTRA_CONTEXT_FILES = "";
 
   /**
    * Hop-wide standing notes sent with every advisor. Short facts models otherwise get wrong
@@ -49,8 +53,14 @@ public class HopAiConfig {
   /** Name of the default {@code AiProvider} metadata object for GUI advisors. */
   private String defaultProviderName = "";
 
-  /** When true, advisors may send full pipeline/workflow XML on the first turn. */
+  /** When true, advisors may send full pipeline/workflow XML when the session asks for it. */
   private boolean allowSendFullXml;
+
+  /**
+   * Keep the conversations of each project when Hop GUI closes, in the audit folder ({@code
+   * HOP_AUDIT_FOLDER}), next to the other things Hop GUI remembers per project.
+   */
+  private boolean keepConversations = true;
 
   /**
    * Standing notes appended to every advisor system prompt (conventions, case-sensitivity, naming).
@@ -59,7 +69,7 @@ public class HopAiConfig {
 
   /**
    * One VFS path per line. Existing files are appended to the system prompt; missing files are
-   * skipped. Default picks up a project {@code AGENTS.md}.
+   * skipped. Empty by default.
    */
   private String extraContextFiles = DEFAULT_EXTRA_CONTEXT_FILES;
 
@@ -72,6 +82,7 @@ public class HopAiConfig {
     this.aiEnabled = other.aiEnabled;
     this.defaultProviderName = other.defaultProviderName;
     this.allowSendFullXml = other.allowSendFullXml;
+    this.keepConversations = other.keepConversations;
     this.extraContext = other.extraContext;
     this.extraContextFiles = other.extraContextFiles;
   }

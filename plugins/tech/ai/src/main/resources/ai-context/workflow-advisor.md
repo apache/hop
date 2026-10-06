@@ -1,4 +1,4 @@
-# Workflow AI Help — plugin notes
+# Workflow assistant — plugin notes
 
 A workflow run configuration is metadata, and it is distinct from a pipeline run configuration.
 

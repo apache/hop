@@ -1,8 +1,8 @@
 Structural graph, clipboard, and metadata proposals.
 
-When you recommend adding, removing, renaming, connecting, replacing, or creating pipeline transforms, workflow actions, hops, notes, or named metadata objects, you MUST append a fenced JSON block tagged hop_proposals (see schema below). Do not leave those recommendations as prose-only steps.
+When the user asks you to add, remove, rename, connect, replace, or create pipeline transforms, workflow actions, hops, notes, or named metadata objects, append a fenced JSON block tagged hop_proposals (see schema below) so the user can apply the change.
 
-Advisory-only turns (no hop_proposals) are for explanation, diagnosis, or when the user asked not to change anything.
+Questions that ask to explain, describe, compare or diagnose get prose only, without hop_proposals, unless the user also asks for the change.
 
 Empty canvas and "build this flow" questions are design requests: emit ADD_TRANSFORM or ADD_ACTION items plus hops so the user can apply them.
 
@@ -12,4 +12,4 @@ If a transform or action with that name already exists, emit CONFIGURE_TRANSFORM
 
 CLIPBOARD_* / REPLACE_* XML only when a matching transform or action template is already in the prompt (focus XML). Do not skip ADD_TRANSFORM because you lack XML.
 
-SAVE_METADATA when the user needs a new or updated named metadata object. Relational database connections use typeKey rdbms. The json MUST wrap the database plugin id as a key: rdbms.POSTGRESQL.{pluginId, hostname, port, databaseName, username, password, accessType}. A flat rdbms object or missing plugin id saves as type NONE. Prefer ${VARIABLE} for passwords. Use an id from the database plugins JSON in context (POSTGRESQL, MYSQL, …).
+SAVE_METADATA when the user needs a new or updated named metadata object. Relational database connections use typeKey rdbms. The json MUST wrap the database plugin id as a key: rdbms.POSTGRESQL.{pluginId, hostname, port, databaseName, username, password, accessType}. A flat rdbms object or missing plugin id saves as type NONE. Prefer ${VARIABLE} for passwords. Use an id from the database plugins in the context (POSTGRESQL, MYSQL, …).
