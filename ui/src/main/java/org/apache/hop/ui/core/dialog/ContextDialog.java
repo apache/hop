@@ -117,6 +117,10 @@ public class ContextDialog extends Dialog {
   private Shell shell;
   private Text wSearch;
   private Label wlTooltip;
+
+  /** Why each filtered item matched the current search; empty when there is no search text. */
+  private final Map<Item, GuiAction.Match> matches = new IdentityHashMap<>();
+
   private Canvas wCanvas;
   private ScrolledComposite wScrolledComposite;
 
@@ -436,7 +440,8 @@ public class ContextDialog extends Dialog {
     FormData fdlTooltip = new FormData();
     fdlTooltip.left = new FormAttachment(0, 0);
     fdlTooltip.right = new FormAttachment(100, 0);
-    fdlTooltip.top = new FormAttachment(100, -(int) (props.getZoomFactor() * 50));
+    // Room for the "matched on" line, the description and the usage hints below it.
+    fdlTooltip.top = new FormAttachment(100, -(int) (props.getZoomFactor() * 66));
     fdlTooltip.bottom = new FormAttachment(100, 0);
     wTooltipComposite.setLayoutData(fdlTooltip);
 
@@ -1526,7 +1531,8 @@ public class ContextDialog extends Dialog {
     } else {
 
       this.selectedItem = selectedItem;
-      wlTooltip.setText(selectedItem.getAction().getDisplayTooltip());
+      wlTooltip.setText(
+          describeMatch(matches.get(selectedItem)) + selectedItem.getAction().getDisplayTooltip());
       selectedItem.setSelected(true);
 
       // See if we need to show the selected item.
@@ -1614,6 +1620,26 @@ public class ContextDialog extends Dialog {
     return candidate.startsWith(wanted) ? 0.9 : 0.8;
   }
 
+  /**
+   * The first line of the information area: which field put the item in the list, e.g. "Matched on
+   * keyword: select". Nothing when there is no search or the name matched, since that is obvious.
+   */
+  static String describeMatch(GuiAction.Match match) {
+    if (match == null || match.source() == GuiAction.MatchSource.NAME) {
+      return "";
+    }
+    String text = StringUtils.normalizeSpace(Const.NVL(match.matchedText(), ""));
+    String line =
+        switch (match.source()) {
+          case DESCRIPTION -> BaseMessages.getString(PKG, "ContextDialog.MatchedOn.Description");
+          case TYPE -> BaseMessages.getString(PKG, "ContextDialog.MatchedOn.Type", text);
+          case KEYWORD -> BaseMessages.getString(PKG, "ContextDialog.MatchedOn.Keyword", text);
+          case CATEGORY -> BaseMessages.getString(PKG, "ContextDialog.MatchedOn.Category", text);
+          default -> "";
+        };
+    return line + "\n";
+  }
+
   public void filter(String text) {
 
     if (text == null) {
@@ -1621,6 +1647,7 @@ public class ContextDialog extends Dialog {
     }
 
     filteredItems.clear();
+    matches.clear();
     if (StringUtils.isEmpty(text)) {
       filteredItems.addAll(items);
     } else {
@@ -1628,18 +1655,24 @@ public class ContextDialog extends Dialog {
       // "Exact match" is on, keep the matches and sort them best-first.
       boolean nameOnly = isExactMatch();
       SearchMatcher matcher = new SearchMatcher(text, false, false, true);
-      Map<Item, Double> scores = new IdentityHashMap<>();
       for (Item item : items) {
-        double score =
-            nameOnly
-                ? exactMatchScore(item.getAction().getName(), text)
-                : item.getAction().matchScore(matcher);
-        if (score > 0.0) {
-          scores.put(item, score);
+        GuiAction.Match match;
+        if (nameOnly) {
+          double score = exactMatchScore(item.getAction().getName(), text);
+          match =
+              score > 0.0
+                  ? new GuiAction.Match(
+                      score, GuiAction.MatchSource.NAME, item.getAction().getName())
+                  : null;
+        } else {
+          match = item.getAction().match(matcher);
+        }
+        if (match != null) {
+          matches.put(item, match);
           filteredItems.add(item);
         }
       }
-      filteredItems.sort((a, b) -> Double.compare(scores.get(b), scores.get(a)));
+      filteredItems.sort((a, b) -> Double.compare(matches.get(b).score(), matches.get(a).score()));
     }
 
     // An item called exactly what was typed comes first, whatever it scored.

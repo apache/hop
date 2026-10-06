@@ -134,20 +134,82 @@ public class GuiAction {
    * @return the best relevance score in {@code [0,1]}
    */
   public double matchScore(SearchMatcher matcher) {
+    Match match = match(matcher);
+    return match == null ? 0.0 : match.score();
+  }
+
+  /** The field of an action that a search matched on. */
+  public enum MatchSource {
+    NAME,
+    DESCRIPTION,
+    TYPE,
+    KEYWORD,
+    CATEGORY
+  }
+
+  /**
+   * Why an action matched a search.
+   *
+   * @param score the weighted relevance score in {@code (0,1]}
+   * @param source the field that gave the best score
+   * @param matchedText the value of that field, e.g. the keyword that matched
+   */
+  public record Match(double score, MatchSource source, String matchedText) {}
+
+  /**
+   * Score this action against a prepared matcher and tell which field gave the best score, so the
+   * user can see why an action is in the list. When several fields score the same, the first one
+   * (name, description, type, keyword, category) is reported.
+   *
+   * @param matcher the shared search matcher built from the user's filter text
+   * @return the best match, or null if nothing matched
+   */
+  public Match match(SearchMatcher matcher) {
     // Weight the fields so a hit on the name ranks above a hit on a tooltip/type, which in turn
     // ranks above a hit on a keyword or category. This keeps the most relevant actions (those whose
     // name matches) at the top and stops loosely-related keyword/category hits from crowding in.
-    double best = matcher.score(name);
-    best = Math.max(best, 0.9 * matcher.score(tooltip));
+    Match best = better(null, matcher.score(name), MatchSource.NAME, name);
+    best = better(best, 0.9 * matcher.score(tooltip), MatchSource.DESCRIPTION, tooltip);
     if (type != null) {
-      best = Math.max(best, 0.9 * matcher.score(type.name()));
+      best = better(best, 0.9 * matcher.score(type.name()), MatchSource.TYPE, type.name());
     }
     if (keywords != null) {
       for (String keyword : keywords) {
-        best = Math.max(best, 0.8 * matcher.score(keyword));
+        double score = 0.8 * matcher.score(keyword);
+        if (score > 0.0) {
+          best = better(best, score, MatchSource.KEYWORD, matchingPart(matcher, keyword));
+        }
       }
     }
-    return Math.max(best, 0.7 * matcher.score(category));
+    return better(best, 0.7 * matcher.score(category), MatchSource.CATEGORY, category);
+  }
+
+  /**
+   * Keywords are often a single comma separated string ("sql,query,database,select,jdbc"). Report
+   * the part that matched best rather than the whole list, or the whole string when the match spans
+   * several parts.
+   */
+  private static String matchingPart(SearchMatcher matcher, String keyword) {
+    if (keyword == null || !keyword.contains(",")) {
+      return keyword;
+    }
+    String best = keyword;
+    double bestScore = 0.0;
+    for (String part : keyword.split(",")) {
+      double score = matcher.score(part);
+      if (score > bestScore) {
+        bestScore = score;
+        best = part.trim();
+      }
+    }
+    return best;
+  }
+
+  private static Match better(Match best, double score, MatchSource source, String text) {
+    if (score > 0.0 && (best == null || score > best.score())) {
+      return new Match(score, source, text);
+    }
+    return best;
   }
 
   @Override
