@@ -43,7 +43,7 @@ The available options to work with files and the available git operations in thi
 |image:getting-started/icons/collapse-all.svg[width="24px"]|Collapse all folders|Hide all nested folders in the directory tree.|
 |image:icons/delete.svg[width="24px"]|Delete Selected File|Deletes the selected file.|DEL
 |image:icons/rename.svg[width="24px"]|Rename the selected file|Makes the selected file name editable to allow renaming.|F2
-|image:icons/refresh.svg[width="24px"]|Refresh|Refreshes the projects folder and file structure.|
+|image:icons/refresh.svg[width="24px"]|Refresh|Refreshes the projects folder and file structure.|F5
 |image:getting-started/icons/hide.svg[width="24px"]|Show or hide files|Show or hide files or directories.|
 |image:icons/git-info.svg[width="24px"]|Git info|Populates the file explorer's git dialog with version information for the selected file.|
 |image:icons/git-add.svg[width="24px"]|Git Add|Add the selected file to version control.|

@@ -22,7 +22,7 @@ under the License.
 
 * image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
 
-* image:icons/database.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database] (also as a floating window or bottom-dock tab)
+* image:icons/database-perspective.svg[width="24px"] xref:hop-gui/perspective-database.adoc[Database] (also as a floating window or bottom-dock tab)
 
 * image:icons/ai-provider.svg[width="24px"] xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] (also as a floating window or bottom-dock tab; off by default)
 
