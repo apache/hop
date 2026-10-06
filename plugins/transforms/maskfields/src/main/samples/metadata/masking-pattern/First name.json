@@ -1,0 +1,14 @@
+{
+  "name": "First name",
+  "description": "Replace a first name with first-name- and a sequence, and keep that choice for the rest of the run.",
+  "piiClassification": "Direct identifier",
+  "valueSource": "SYNTHETIC",
+  "token": "SEQUENCE",
+  "prefix": "first-name-",
+  "suffix": "",
+  "sequenceStart": "1",
+  "storage": "MEMORY",
+  "connection": "",
+  "schemaName": "",
+  "tableName": ""
+}

@@ -64,6 +64,7 @@ class TextChunkerMetaTest {
     original.setChunkCountField("total");
     original.setContentType(ContentType.ASCIIDOC);
     original.setContentTypeField("source_type");
+    original.setParagraphSeparator("<PARA>");
 
     TextChunkerMeta copy = roundTrip(original);
 
@@ -80,6 +81,30 @@ class TextChunkerMetaTest {
     assertEquals(original.getChunkCountField(), copy.getChunkCountField());
     assertEquals(original.getContentType(), copy.getContentType());
     assertEquals(original.getContentTypeField(), copy.getContentTypeField());
+    assertEquals(original.getParagraphSeparator(), copy.getParagraphSeparator());
+  }
+
+  /** A separator configured for a non-paragraph strategy is dead config and must be flagged. */
+  @Test
+  void checkWarnsWhenTheParagraphSeparatorIsSetForAnotherStrategy() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+    meta.setParagraphSeparator("<PARA>");
+
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("body"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), prev, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().toLowerCase().contains("separator")),
+        "a separator set for the Character strategy must produce a warning");
   }
 
   /** Chunk index, start position and total count are numbers, not strings. */

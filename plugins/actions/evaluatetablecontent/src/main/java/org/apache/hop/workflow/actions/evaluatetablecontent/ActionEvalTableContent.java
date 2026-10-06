@@ -392,8 +392,24 @@ public class ActionEvalTableContent extends ActionBase {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "WaitForSQL",
+            "connection",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+
+    if (useCustomSql) {
+      ActionValidatorUtils.andValidator()
+          .validate(
+              this,
+              "customSql",
+              remarks,
+              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    } else {
+      ActionValidatorUtils.andValidator()
+          .validate(
+              this,
+              "tableName",
+              remarks,
+              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    }
   }
 }

@@ -115,7 +115,7 @@ public class ClosureGeneratorMeta
     CheckResult cr;
 
     IValueMeta parentValueMeta = prev.searchValueMeta(parentIdFieldName);
-    if (parentValueMeta != null) {
+    if (parentValueMeta == null) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -132,7 +132,7 @@ public class ClosureGeneratorMeta
     }
 
     IValueMeta childValueMeta = prev.searchValueMeta(childIdFieldName);
-    if (childValueMeta != null) {
+    if (childValueMeta == null) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

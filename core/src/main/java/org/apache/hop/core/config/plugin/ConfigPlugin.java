@@ -37,6 +37,7 @@ public @interface ConfigPlugin {
   String CATEGORY_DOC = "doc";
   String CATEGORY_PYTHON = "python";
   String CATEGORY_NAMING = "naming";
+  String CATEGORY_LINT = "lint";
   String CATEGORY_GUI = "gui";
   String CATEGORY_EXPORT = "export";
 

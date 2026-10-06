@@ -29,18 +29,30 @@ public final class EffectiveRuleSet {
   private final List<CustomLintRule> rules;
   private final LinterConfig config;
   private final LintPolicy policy;
+  private final List<String> warnings;
 
   public EffectiveRuleSet(List<CustomLintRule> rules, LinterConfig config) {
     this(rules, config, LintPolicy.empty());
   }
 
   public EffectiveRuleSet(List<CustomLintRule> rules, LinterConfig config, LintPolicy policy) {
+    this(rules, config, policy, List.of());
+  }
+
+  public EffectiveRuleSet(
+      List<CustomLintRule> rules, LinterConfig config, LintPolicy policy, List<String> warnings) {
+    this.warnings = warnings != null ? List.copyOf(warnings) : List.of();
     this.rules =
         rules != null
             ? Collections.unmodifiableList(new ArrayList<>(rules))
             : Collections.emptyList();
     this.config = config != null ? config : new LinterConfig();
     this.policy = policy != null ? policy : LintPolicy.empty();
+  }
+
+  /** Problems with the project's hop-lint.yml that did not stop it loading, such as unknown ids. */
+  public List<String> getWarnings() {
+    return warnings;
   }
 
   /** What the project excludes from linting, and which findings it has accepted. */

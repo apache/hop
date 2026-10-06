@@ -87,6 +87,11 @@ public class CustomRuleExecutor {
     }
   }
 
+  /** Whether a project index is in place for the rules evaluated on this thread. */
+  public static boolean hasProjectIndex() {
+    return PROJECT_INDEX.get().isPopulated();
+  }
+
   /**
    * Make the file being linted available to the rules evaluated on this thread.
    *

@@ -1,0 +1,14 @@
+{
+  "sequenceStart": "1",
+  "piiClassification": "Quasi-identifier",
+  "prefix": "st",
+  "description": "",
+  "storage": "MEMORY",
+  "schemaName": "",
+  "suffix": "",
+  "tableName": "",
+  "token": "SEQUENCE",
+  "name": "street",
+  "connection": "",
+  "valueSource": "SYNTHETIC"
+}

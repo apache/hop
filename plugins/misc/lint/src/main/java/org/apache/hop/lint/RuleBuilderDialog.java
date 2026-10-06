@@ -28,6 +28,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -60,12 +61,16 @@ public class RuleBuilderDialog extends Dialog {
   private Button enabledCheck;
   private Combo combinatorCombo;
   private Table clauseTable;
+  private Button addClauseButton;
   private Button removeClauseButton;
 
   /**
    * The clauses being edited. Always at least one; a rule which checks one thing has exactly one.
    */
   private final List<RuleClause> editingClauses = new ArrayList<>();
+
+  /** What the condition combo offers, in the order it shows them. */
+  private List<RuleCondition> conditionChoices = new ArrayList<>();
 
   /** Guards the widget listeners while the widgets are being loaded from a clause. */
   private boolean loadingClause = false;
@@ -161,7 +166,7 @@ public class RuleBuilderDialog extends Dialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            updateFieldCombo();
+            updateFieldCombo(null);
           }
         });
     FormData targetData = new FormData();
@@ -219,7 +224,7 @@ public class RuleBuilderDialog extends Dialog {
     clauseTableData.height = 90;
     clauseTable.setLayoutData(clauseTableData);
 
-    Button addClauseButton = new Button(shell, SWT.PUSH);
+    addClauseButton = new Button(shell, SWT.PUSH);
     addClauseButton.setText(BaseMessages.getString(PKG, "RuleBuilderDialog.Button.AddClause"));
     addClauseButton.addSelectionListener(
         new SelectionAdapter() {
@@ -262,7 +267,7 @@ public class RuleBuilderDialog extends Dialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            updateConditionCombo();
+            updateConditionCombo(null);
             captureWidgetsIntoSelectedClause();
           }
         });
@@ -323,8 +328,10 @@ public class RuleBuilderDialog extends Dialog {
     severityLabel.setLayoutData(severityLabelData);
 
     severityCombo = new Combo(shell, SWT.DROP_DOWN | SWT.READ_ONLY);
-    severityCombo.setItems(new String[] {"ERROR", "WARNING"});
-    severityCombo.select(1); // Default to WARNING
+    for (LintSeverity.Level level : LintSeverity.Level.values()) {
+      severityCombo.add(level.name());
+    }
+    severityCombo.select(LintSeverity.Level.WARNING.ordinal());
     FormData severityData = new FormData();
     severityData.left = new FormAttachment(severityLabel, margin);
     severityData.right = new FormAttachment(100, -margin);
@@ -383,54 +390,89 @@ public class RuleBuilderDialog extends Dialog {
     }
     if (rule.getTarget() != null) {
       targetCombo.select(rule.getTarget().ordinal());
-      updateFieldCombo();
+      updateFieldCombo(null);
     }
+    // Selected by index: setText does nothing on a read-only combo, which left WARNING showing for
+    // an INFO rule and saved it as WARNING.
     if (rule.getSeverity() != null) {
-      severityCombo.setText(rule.getSeverity());
+      int severityIndex = severityCombo.indexOf(rule.getSeverity().trim().toUpperCase());
+      if (severityIndex >= 0) {
+        severityCombo.select(severityIndex);
+      }
     }
     enabledCheck.setSelection(rule.isEnabled());
     loadClausesFromRule();
+
+    // A native rule, such as HOP-CHECK, says how Hop's own verify remarks are reported. It has no
+    // target, field or condition, and the editor refused to save it, even a severity change.
+    if (rule.isNativeVerify()) {
+      for (Control control :
+          new Control[] {
+            targetCombo,
+            combinatorCombo,
+            clauseTable,
+            addClauseButton,
+            removeClauseButton,
+            fieldCombo,
+            conditionCombo,
+            valueText
+          }) {
+        control.setEnabled(false);
+      }
+    }
   }
 
-  private void updateFieldCombo() {
+  /**
+   * @param currentField the field the clause being shown reads, kept in the list even when the
+   *     editor would not have offered it
+   */
+  private void updateFieldCombo(String currentField) {
     fieldCombo.removeAll();
     conditionCombo.removeAll();
+    conditionChoices = new ArrayList<>();
 
     int targetIndex = targetCombo.getSelectionIndex();
     if (targetIndex >= 0) {
       RuleTarget target = RuleTarget.values()[targetIndex];
-      List<String> fields = RuleTargetFields.getFieldsForTarget(target);
-      for (String field : fields) {
+      for (String field : RuleTargetFields.getFieldChoices(target, currentField)) {
         fieldCombo.add(field);
       }
     }
   }
 
-  private void updateConditionCombo() {
+  /**
+   * @param currentCondition the condition the clause being shown uses, kept in the list even when
+   *     the editor would not have offered it for this field
+   */
+  private void updateConditionCombo(RuleCondition currentCondition) {
     conditionCombo.removeAll();
+    conditionChoices = new ArrayList<>();
 
     String selectedField = fieldCombo.getText();
     if (!Utils.isEmpty(selectedField)) {
-      List<RuleCondition> conditions = RuleTargetFields.getCompatibleConditions(selectedField);
-      for (RuleCondition condition : conditions) {
+      conditionChoices = RuleTargetFields.getConditionChoices(selectedField, currentCondition);
+      for (RuleCondition condition : conditionChoices) {
         conditionCombo.add(condition.getDisplayName());
       }
     }
   }
 
-  private void updateValueField() {
+  private RuleCondition selectedCondition() {
     int conditionIndex = conditionCombo.getSelectionIndex();
-    if (conditionIndex >= 0) {
-      String selectedField = fieldCombo.getText();
-      List<RuleCondition> conditions = RuleTargetFields.getCompatibleConditions(selectedField);
-      if (conditionIndex < conditions.size()) {
-        RuleCondition condition = conditions.get(conditionIndex);
-        valueLabel.setVisible(condition.requiresValue());
-        valueText.setVisible(condition.requiresValue());
+    if (conditionIndex < 0 || conditionIndex >= conditionChoices.size()) {
+      return null;
+    }
+    return conditionChoices.get(conditionIndex);
+  }
 
-        if (condition.requiresValue()) {
-          valueText.setToolTipText(condition.getDescription());
-        }
+  private void updateValueField() {
+    RuleCondition condition = selectedCondition();
+    if (condition != null) {
+      valueLabel.setVisible(condition.requiresValue());
+      valueText.setVisible(condition.requiresValue());
+
+      if (condition.requiresValue()) {
+        valueText.setToolTipText(condition.getDescription());
       }
     }
     shell.layout(true, true);
@@ -449,6 +491,9 @@ public class RuleBuilderDialog extends Dialog {
       showError("Rule name is required");
       return false;
     }
+    if (rule.isNativeVerify()) {
+      return true;
+    }
     if (targetCombo.getSelectionIndex() < 0) {
       showError("Target type must be selected");
       return false;
@@ -463,27 +508,25 @@ public class RuleBuilderDialog extends Dialog {
     }
 
     // Check if condition requires a value
-    String selectedField = fieldCombo.getText();
-    List<RuleCondition> conditions = RuleTargetFields.getCompatibleConditions(selectedField);
-    int conditionIndex = conditionCombo.getSelectionIndex();
-    if (conditionIndex < conditions.size()) {
-      RuleCondition condition = conditions.get(conditionIndex);
-      if (condition.requiresValue() && Utils.isEmpty(valueText.getText())) {
-        showError("Value is required for this condition");
-        return false;
-      }
+    RuleCondition condition = selectedCondition();
+    if (condition != null && condition.requiresValue() && Utils.isEmpty(valueText.getText())) {
+      showError("Value is required for this condition");
+      return false;
     }
 
     return true;
   }
 
   private void saveRule() {
-    captureWidgetsIntoSelectedClause();
-
     rule.setName(nameText.getText());
     rule.setDescription(descriptionText.getText());
     rule.setSeverity(severityCombo.getText());
     rule.setEnabled(enabledCheck.getSelection());
+    if (rule.isNativeVerify()) {
+      return;
+    }
+
+    captureWidgetsIntoSelectedClause();
     rule.setTarget(RuleTarget.values()[targetCombo.getSelectionIndex()]);
     rule.setCombinator(
         combinatorCombo.getSelectionIndex() == 1 ? RuleCombinator.ANY_OF : RuleCombinator.ALL_OF);
@@ -543,21 +586,16 @@ public class RuleBuilderDialog extends Dialog {
     RuleClause clause = editingClauses.get(index);
     loadingClause = true;
     try {
-      updateFieldCombo();
+      updateFieldCombo(clause.getTargetField());
       if (clause.getTargetField() != null) {
         int fieldIndex = fieldCombo.indexOf(clause.getTargetField());
         if (fieldIndex >= 0) {
           fieldCombo.select(fieldIndex);
         }
       }
-      updateConditionCombo();
+      updateConditionCombo(clause.getCondition());
       if (clause.getCondition() != null) {
-        for (int i = 0; i < conditionCombo.getItemCount(); i++) {
-          if (conditionCombo.getItem(i).equals(clause.getCondition().getDisplayName())) {
-            conditionCombo.select(i);
-            break;
-          }
-        }
+        conditionCombo.select(conditionChoices.indexOf(clause.getCondition()));
       }
       updateValueField();
       valueText.setText(clause.getConditionValue() == null ? "" : clause.getConditionValue());
@@ -577,10 +615,9 @@ public class RuleBuilderDialog extends Dialog {
     }
     RuleClause clause = editingClauses.get(index);
     clause.setTargetField(fieldCombo.getText());
-    List<RuleCondition> conditions = RuleTargetFields.getCompatibleConditions(fieldCombo.getText());
-    int conditionIndex = conditionCombo.getSelectionIndex();
-    if (conditionIndex >= 0 && conditionIndex < conditions.size()) {
-      clause.setCondition(conditions.get(conditionIndex));
+    RuleCondition condition = selectedCondition();
+    if (condition != null) {
+      clause.setCondition(condition);
     }
     clause.setConditionValue(valueText.getText());
     refreshClauseTable();

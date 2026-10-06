@@ -179,10 +179,10 @@ limitations under the License.
     </action>
     <action>
       <name>Wait for delivery and ingestion</name>
-      <description/>
+      <description>Marquez accepts the lineage POST and then indexes the dataset. The following GET can 404 until that index exists.</description>
       <type>DELAY</type>
       <attributes/>
-      <maximumTimeout>15</maximumTimeout>
+      <maximumTimeout>45</maximumTimeout>
       <scaletime>0</scaletime>
       <parallel>N</parallel>
       <xloc>720</xloc>

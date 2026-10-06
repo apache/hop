@@ -94,6 +94,11 @@ public class HopPipelineMetaToBeamPipelineConverter {
    * Transform meta classes that Beam refuses to run at all, mapped to the user-facing reason. The
    * runtime check in {@link #validateTransformBeamUsage} consults this map; {@code
    * BeamPipelineEngine.supports} surfaces the same reason at design time.
+   *
+   * <p>Only classes that {@code dependencies.xml} already puts on the Beam plugin class loader
+   * belong here. A class literal is resolved when this class is initialized, so a transform that is
+   * not on that loader (Mask fields) is banned by plugin id in {@link #HARD_BANNED_PLUGIN_IDS}
+   * instead.
    */
   public static final Map<Class<?>, String> HARD_BANNED_META_TYPES =
       Map.of(
@@ -107,6 +112,16 @@ public class HopPipelineMetaToBeamPipelineConverter {
           "Unique Rows By Hashset is not supported on Beam.  Every worker keeps its own hash set, so duplicates spread over different workers would survive.  Use a Memory Group By to get distinct rows.",
           JoinRowsMeta.class,
           "Join Rows is not supported on Beam.  A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing.  Add the same constant field to both inputs and use a Merge Join on that field instead.");
+
+  /**
+   * Plugin ids Beam refuses to run, mapped to the user-facing reason. Used for transforms that are
+   * not on the Beam plugin class loader. Keep in lockstep with {@code BeamPipelineEngine.supports}
+   * and {@link #validateTransformBeamUsage}.
+   */
+  public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
+      Map.of(
+          BeamConst.STRING_MASK_FIELDS_PLUGIN_ID,
+          "Mask fields is not supported on Beam. Each worker keeps its own mapping and sequence, so the same source value would not stay the same token.");
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;
@@ -530,7 +545,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
 
         // Generic transform
         //
-        validateTransformBeamUsage(transformMeta.getTransform());
+        validateTransformBeamUsage(transformMeta);
 
         // Lookup all the previous transforms for this one, excluding info transforms like
         // StreamLookup...
@@ -645,7 +660,18 @@ public class HopPipelineMetaToBeamPipelineConverter {
     }
   }
 
-  private void validateTransformBeamUsage(ITransformMeta meta) throws HopException {
+  private void validateTransformBeamUsage(TransformMeta transformMeta) throws HopException {
+    if (transformMeta == null) {
+      return;
+    }
+    String pluginId = transformMeta.getTransformPluginId();
+    if (pluginId != null) {
+      String pluginBan = HARD_BANNED_PLUGIN_IDS.get(pluginId);
+      if (pluginBan != null) {
+        throw new HopException(pluginBan);
+      }
+    }
+    ITransformMeta meta = transformMeta.getTransform();
     if (meta == null) {
       return;
     }

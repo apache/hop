@@ -1755,6 +1755,9 @@ public abstract class BeamPipelineEngine extends Variables
    * the converter does, so the answer at design time matches what actually happens at run time.
    *
    * <ol>
+   *   <li>Plugin id on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_PLUGIN_IDS}
+   *       list → UNSUPPORTED with the canonical user-facing reason. This path does not load the
+   *       transform class.
    *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
    *       list → UNSUPPORTED with the canonical user-facing reason.
    *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
@@ -1775,6 +1778,15 @@ public abstract class BeamPipelineEngine extends Variables
     if (transformPlugin == null) {
       return EngineCompatibility.unknown();
     }
+    String[] ids = transformPlugin.getIds();
+    if (ids != null) {
+      for (String id : ids) {
+        String ban = HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get(id);
+        if (ban != null) {
+          return EngineCompatibility.unsupported(ban);
+        }
+      }
+    }
     Class<?> mainType = transformPlugin.getMainType();
     if (mainType != null) {
       String banReason =
@@ -1786,7 +1798,6 @@ public abstract class BeamPipelineEngine extends Variables
         return EngineCompatibility.supported();
       }
     }
-    String[] ids = transformPlugin.getIds();
     if (ids != null) {
       for (String id : ids) {
         if (HopPipelineMetaToBeamPipelineConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {

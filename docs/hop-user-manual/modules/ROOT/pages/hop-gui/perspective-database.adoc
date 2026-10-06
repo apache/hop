@@ -19,7 +19,7 @@ under the License.
 
 = Database perspective
 
-Icon: image:icons/database.svg[width="24px"]
+Icon: image:icons/database-perspective.svg[width="24px"]
 
 Keyboard shortcut: `CTRL-SHIFT-D` (macOS: `Cmd-Shift-D`)
 

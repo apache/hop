@@ -66,6 +66,7 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
   public static final String WIDGET_CONTENT_TYPE = "TEXT_CHUNKER_CONTENT_TYPE";
   public static final String WIDGET_CONTENT_TYPE_FIELD = "TEXT_CHUNKER_CONTENT_TYPE_FIELD";
   public static final String WIDGET_CHUNKING_STRATEGY = "TEXT_CHUNKER_CHUNKING_STRATEGY";
+  public static final String WIDGET_PARAGRAPH_SEPARATOR = "TEXT_CHUNKER_PARAGRAPH_SEPARATOR";
   public static final String WIDGET_INCLUDE_METADATA = "TEXT_CHUNKER_INCLUDE_METADATA";
   public static final String WIDGET_CHUNK_INDEX_FIELD = "TEXT_CHUNKER_CHUNK_INDEX_FIELD";
   public static final String WIDGET_CHUNK_START_POS_FIELD = "TEXT_CHUNKER_CHUNK_START_POS_FIELD";
@@ -113,6 +114,23 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
       group = GROUP_CHUNKING)
   @HopMetadataProperty(key = "chunkingStrategy", injectionKey = "CHUNKING_STRATEGY")
   private ChunkingStrategyType chunkingStrategy = ChunkingStrategyType.CHARACTER;
+
+  /**
+   * Optional custom paragraph separator for the PARAGRAPH strategy. Empty means paragraphs are
+   * separated by blank lines. Supports variables and the escape sequences \n, \r, \t and \\.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_PARAGRAPH_SEPARATOR,
+      order = "0450",
+      type = GuiElementType.TEXT,
+      label = "i18n::TextChunker.paragraphSeparator.Label",
+      toolTip = "i18n::TextChunker.paragraphSeparator.Tooltip",
+      variables = true,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CHUNKING)
+  @HopMetadataProperty(key = "paragraphSeparator", injectionKey = "PARAGRAPH_SEPARATOR")
+  private String paragraphSeparator = "";
 
   /**
    * The maximum size for each chunk (characters for CHARACTER strategy, approximate for PARAGRAPH).
@@ -268,6 +286,7 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     inputField = "";
     outputChunkField = "chunk_text";
     chunkingStrategy = ChunkingStrategyType.CHARACTER;
+    paragraphSeparator = "";
     chunkSize = "1000";
     chunkOverlap = "200";
     includeMetadata = true;
@@ -404,6 +423,10 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
 
     if (chunkingStrategy == ChunkingStrategyType.PARAGRAPH && resolvedOverlap > 0) {
       warning(remarks, transformMeta, "TextChunker.Validation.ParagraphOverlapIgnored");
+    }
+
+    if (!Utils.isEmpty(paragraphSeparator) && chunkingStrategy != ChunkingStrategyType.PARAGRAPH) {
+      warning(remarks, transformMeta, "TextChunker.Validation.ParagraphSeparatorIgnored");
     }
   }
 

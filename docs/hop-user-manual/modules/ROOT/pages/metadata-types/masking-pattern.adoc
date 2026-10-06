@@ -1,0 +1,72 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /metadata-types/
+:language: en_US
+:description: A reusable rule for replacing personal data in a field.
+
+= Masking pattern
+
+== Description
+
+A Masking pattern describes how xref:pipeline/transforms/maskfields.adoc[Mask fields] replaces the values of a field. The transform only assigns a pattern to each field. The same pattern can be used in more than one pipeline.
+
+Patterns are stored as JSON under `metadata/masking-pattern/`.
+
+image::metadata-types/masking-pattern-first-name.jpg[Masking pattern first-name,width="75%"]
+
+== Properties
+
+[options="header"]
+|===
+|Property|Description
+
+|Name
+|Name shown in the transform.
+
+|Description
+|What this pattern is for.
+
+|PII classification
+|A label for people working with the metadata. Suggested values are Direct identifier, Quasi-identifier, Sensitive and Special category. You can type another term. The transform does not read this value.
+
+|Value source
+|*SYNTHETIC* builds a token. *SET_NULL* clears the field. *SET_EMPTY* writes a blank string.
+
+|Token
+|*SEQUENCE* or *UUID*. Used by *SYNTHETIC*.
+
+|Prefix
+|Text written before the token on a string field, for example `first-name-`.
+
+|Suffix
+|Text written after the token on a string field.
+
+|Sequence start
+|First integer. The default is 1.
+
+|Remember values
+|*NONE* assigns a new value every row. *MEMORY* keeps the mapping for one run. *DATABASE* keeps it in a table across runs.
+
+|Connection
+|Database connection for *DATABASE*.
+
+|Schema
+|Schema of the mapping table. Empty uses the connection default.
+
+|Table
+|Mapping table. A second table with the suffix `_seq` stores the next sequence number. Both are created when they are missing. The map table stores the original value and is itself personal data.
+|===

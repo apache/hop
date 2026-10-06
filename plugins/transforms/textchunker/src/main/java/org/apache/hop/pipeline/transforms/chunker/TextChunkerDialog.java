@@ -133,13 +133,15 @@ public class TextChunkerDialog extends BaseTransformDialog {
   private void enableFields() {
     // fromString accepts the constant name and the old display text, so this follows the widget
     // whatever it holds rather than assuming one spelling.
-    boolean structure =
+    ChunkingStrategyType strategy =
         ChunkingStrategyType.fromString(
-                comboText(
-                    TextChunkerMeta.WIDGET_CHUNKING_STRATEGY, input.getChunkingStrategy().name()))
-            == ChunkingStrategyType.STRUCTURE;
+            comboText(
+                TextChunkerMeta.WIDGET_CHUNKING_STRATEGY, input.getChunkingStrategy().name()));
+    boolean structure = strategy == ChunkingStrategyType.STRUCTURE;
     setEnabled(TextChunkerMeta.WIDGET_CONTENT_TYPE, structure);
     setEnabled(TextChunkerMeta.WIDGET_CONTENT_TYPE_FIELD, structure);
+    setEnabled(
+        TextChunkerMeta.WIDGET_PARAGRAPH_SEPARATOR, strategy == ChunkingStrategyType.PARAGRAPH);
 
     boolean metadata =
         isChecked(TextChunkerMeta.WIDGET_INCLUDE_METADATA, input.isIncludeMetadata());

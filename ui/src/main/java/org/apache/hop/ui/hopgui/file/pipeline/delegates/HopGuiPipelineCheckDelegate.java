@@ -30,6 +30,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -70,6 +71,12 @@ public class HopGuiPipelineCheckDelegate {
   @Getter private CTabItem pipelineCheckTab;
   @Getter private GuiToolbarWidgets toolBarWidgets;
   private Tree wTree;
+
+  /**
+   * What the tab shows. Detaching or docking the results view builds the tab again, empty; the
+   * remarks are put back from here.
+   */
+  private List<ICheckResult> shownRemarks = List.of();
 
   /**
    * Check pipeline and transforms
@@ -151,6 +158,10 @@ public class HopGuiPipelineCheckDelegate {
     fdTree.bottom = new FormAttachment(100, 0);
     wTree.setLayoutData(fdTree);
     wTree.addListener(SWT.DefaultSelection, this::edit);
+
+    if (!shownRemarks.isEmpty()) {
+      refresh(shownRemarks);
+    }
   }
 
   @GuiToolbarElement(
@@ -257,9 +268,13 @@ public class HopGuiPipelineCheckDelegate {
    * @param remarks the remarks to show
    */
   public void refresh(List<ICheckResult> remarks) {
+    shownRemarks = List.copyOf(remarks);
     wTree.setRedraw(false);
     wTree.removeAll();
 
+    // Remarks about the pipeline as a whole sit together at the top, under its name. Added at the
+    // top level in arrival order, they landed between two groups and read as belonging to one.
+    TreeItem pipelineItem = null;
     Map<ICheckResultSource, TreeItem> mapSourceItems = new HashMap<>();
     for (ICheckResult cr : remarks) {
       // Ignore OK result
@@ -268,7 +283,12 @@ public class HopGuiPipelineCheckDelegate {
       ICheckResultSource source = cr.getSourceInfo();
       TreeItem item = mapSourceItems.get(source);
       if (source == null) {
-        item = new TreeItem(wTree, SWT.NONE);
+        if (pipelineItem == null) {
+          pipelineItem = new TreeItem(wTree, SWT.NONE, 0);
+          pipelineItem.setText(pipelineLabel());
+          pipelineItem.setImage(GuiResource.getInstance().getImagePipeline());
+        }
+        item = new TreeItem(pipelineItem, SWT.NONE);
       } else if (item == null) {
         TreeItem parentItem = new TreeItem(wTree, SWT.NONE);
         parentItem.setText(source.getName());
@@ -297,7 +317,17 @@ public class HopGuiPipelineCheckDelegate {
         item.setImage(image);
       }
     }
+    if (pipelineItem != null) {
+      pipelineItem.setExpanded(true);
+    }
     wTree.setRedraw(true);
+  }
+
+  private String pipelineLabel() {
+    String name = pipelineGraph.getPipelineMeta().getName();
+    return Utils.isEmpty(name)
+        ? BaseMessages.getString(PKG, "PipelineGraph.Check.PipelineRemarks")
+        : name;
   }
 
   private Image getImage(ICheckResult cr) {

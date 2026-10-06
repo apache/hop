@@ -1,0 +1,12 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "safe_mode": false,
+      "transactional": false
+    }
+  },
+  "defaultSelection": false,
+  "name": "local-neo4j",
+  "description": "Runs workflows locally and writes execution information to Neo4j",
+  "executionInfoLocationName": "neo4j"
+}

@@ -42,6 +42,11 @@ public class PipelineMetaLayoutTest {
     meta.addPipelineHop(new PipelineHopMeta(from, to));
   }
 
+  private void assertOnGrid(Point p, int gridSize) {
+    assertEquals(0, Math.floorMod(p.x, gridSize), "x not on grid: " + p.x);
+    assertEquals(0, Math.floorMod(p.y, gridSize), "y not on grid: " + p.y);
+  }
+
   @Test
   public void testLayoutNoOverlapAndLeftToRight() {
     PipelineMeta meta = new PipelineMeta();
@@ -107,11 +112,12 @@ public class PipelineMetaLayoutTest {
 
     PipelineMetaLayout.layout(meta, new LayeredGraphLayout.Options());
 
-    // The near note moved by the same delta as transform 'a'.
+    // The near note follows transform 'a' and, like a manual move, lands on the grid.
     aDx = a.getLocation().x - aDx;
     aDy = a.getLocation().y - aDy;
-    assertEquals(110 + aDx, nearNote.getLocation().x);
-    assertEquals(110 + aDy, nearNote.getLocation().y);
+    assertOnGrid(nearNote.getLocation(), 16);
+    assertTrue(Math.abs(nearNote.getLocation().x - (110 + aDx)) <= 8);
+    assertTrue(Math.abs(nearNote.getLocation().y - (110 + aDy)) <= 8);
 
     // The far note was left untouched.
     assertEquals(9000, farNote.getLocation().x);
@@ -183,14 +189,147 @@ public class PipelineMetaLayoutTest {
     assertEquals(77, other.getLocation().x);
     assertEquals(88, other.getLocation().y);
 
-    // The arranged block is anchored to the top-left of where the subset was (minX=1000, minY=50).
+    // The arranged block is anchored near the top-left of where the subset was (minX=1000,
+    // minY=50), snapped to the grid so later manual moves stay aligned with it.
     int minX = Math.min(a.getLocation().x, b.getLocation().x);
     int minY = Math.min(a.getLocation().y, b.getLocation().y);
-    assertEquals(1000, minX);
-    assertEquals(50, minY);
+    assertOnGrid(a.getLocation(), 16);
+    assertOnGrid(b.getLocation(), 16);
+    assertTrue(Math.abs(minX - 1000) <= 8);
+    assertTrue(Math.abs(minY - 50) <= 8);
 
     // And it still reads left-to-right.
     assertTrue(b.getLocation().x > a.getLocation().x, "subset not left-to-right");
+  }
+
+  @Test
+  public void testPositionsAlignToDefaultGrid() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta a = transform("a");
+    TransformMeta b = transform("b");
+    TransformMeta c = transform("c");
+    a.setLocation(101, 203); // deliberately off-grid origins
+    b.setLocation(302, 51);
+    c.setLocation(17, 19);
+    meta.addTransform(a);
+    meta.addTransform(b);
+    meta.addTransform(c);
+    hop(meta, a, b);
+    hop(meta, b, c);
+
+    PipelineMetaLayout.layout(meta);
+
+    for (int i = 0; i < meta.nrTransforms(); i++) {
+      assertOnGrid(meta.getTransform(i).getLocation(), 16);
+    }
+  }
+
+  @Test
+  public void testPositionsAlignToCustomGridSize() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta a = transform("a");
+    TransformMeta b = transform("b");
+    TransformMeta c = transform("c");
+    meta.addTransform(a);
+    meta.addTransform(b);
+    meta.addTransform(c);
+    hop(meta, a, b);
+    hop(meta, b, c);
+
+    PipelineMetaLayout.layout(
+        meta,
+        new LayeredGraphLayout.Options().setLayerSpacing(151).setNodeSpacing(97).setGridSize(10));
+
+    for (int i = 0; i < meta.nrTransforms(); i++) {
+      assertOnGrid(meta.getTransform(i).getLocation(), 10);
+    }
+  }
+
+  @Test
+  public void testGridSizeOneDisablesSnapping() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta a = transform("a");
+    TransformMeta b = transform("b");
+    TransformMeta c = transform("c");
+    meta.addTransform(a);
+    meta.addTransform(b);
+    meta.addTransform(c);
+    hop(meta, a, b);
+    hop(meta, b, c);
+
+    PipelineMetaLayout.layout(
+        meta, new LayeredGraphLayout.Options().setLayerSpacing(151).setGridSize(1));
+
+    // Raw margins and spacing: nothing is rounded to a grid.
+    assertEquals(50, a.getLocation().x);
+    assertEquals(50, a.getLocation().y);
+    assertEquals(201, b.getLocation().x);
+    assertEquals(50, b.getLocation().y);
+    assertEquals(352, c.getLocation().x);
+    assertEquals(50, c.getLocation().y);
+  }
+
+  @Test
+  public void testSubsetAnchoredLayoutStaysOnGrid() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta a = transform("a");
+    TransformMeta b = transform("b");
+    TransformMeta other = transform("other");
+    a.setLocation(1001, 2003); // off-grid
+    b.setLocation(3011, 61);
+    other.setLocation(77, 88);
+    meta.addTransform(a);
+    meta.addTransform(b);
+    meta.addTransform(other);
+    hop(meta, a, b);
+
+    PipelineMetaLayout.layout(meta, new LayeredGraphLayout.Options(), Arrays.asList(a, b));
+
+    assertOnGrid(a.getLocation(), 16);
+    assertOnGrid(b.getLocation(), 16);
+
+    // The unselected transform must not have moved.
+    assertEquals(77, other.getLocation().x);
+    assertEquals(88, other.getLocation().y);
+  }
+
+  @Test
+  public void testLargeGridStartsOneCellInsideCanvas() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta a = transform("a");
+    TransformMeta b = transform("b");
+    meta.addTransform(a);
+    meta.addTransform(b);
+    hop(meta, a, b);
+
+    // A grid larger than the margins used to round the first position down to (0,0).
+    PipelineMetaLayout.layout(meta, new LayeredGraphLayout.Options().setGridSize(128));
+
+    assertEquals(128, a.getLocation().x); // first position: grid cell 1:1, not the origin
+    assertEquals(128, a.getLocation().y);
+    assertOnGrid(b.getLocation(), 128);
+    assertTrue(b.getLocation().x > a.getLocation().x);
+  }
+
+  @Test
+  public void testSubsetNearCornerStaysOneCellInsideCanvas() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta a = transform("a");
+    TransformMeta b = transform("b");
+    a.setLocation(5, 5);
+    b.setLocation(200, 10);
+    meta.addTransform(a);
+    meta.addTransform(b);
+    hop(meta, a, b);
+
+    PipelineMetaLayout.layout(meta, new LayeredGraphLayout.Options(), Arrays.asList(a, b));
+
+    // The anchored block never lands on the grid origin or off-canvas.
+    assertOnGrid(a.getLocation(), 16);
+    assertOnGrid(b.getLocation(), 16);
+    assertTrue(a.getLocation().x >= 16);
+    assertTrue(a.getLocation().y >= 16);
+    assertTrue(b.getLocation().x > a.getLocation().x);
   }
 
   @Test

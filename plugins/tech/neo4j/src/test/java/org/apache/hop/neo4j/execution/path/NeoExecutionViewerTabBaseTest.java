@@ -37,6 +37,26 @@ class NeoExecutionViewerTabBaseTest {
   }
 
   @Test
+  void lineageCypherFindsTheRootByItsMissingParentRelationship() {
+    String cypher = NeoExecutionViewerTabBase.buildPathToRootCypher(true);
+
+    // Neo4j logging nodes have no parentId, and shortestPath fails when start and end coincide
+    assertTrue(cypher.contains("WHERE NOT ()-[:EXECUTES]->(top)"));
+    assertFalse(cypher.contains("parentId IS NULL"));
+    assertFalse(cypher.contains("shortestPath"));
+  }
+
+  @Test
+  void pathCyphersSkipTheNodesOfNeo4jLogging() {
+    assertTrue(
+        NeoExecutionViewerTabBase.buildPathToRootCypher(true)
+            .contains("all(n IN nodes(p) WHERE n.type IS NULL)"));
+    assertTrue(
+        NeoExecutionViewerTabBase.buildPathToFailedCypher()
+            .contains("all(n IN nodes(p) WHERE n.type IS NULL)"));
+  }
+
+  @Test
   void errorPathCypherUsesALeafPredicateAndBooleanFailed() {
     String cypher = NeoExecutionViewerTabBase.buildPathToFailedCypher();
 

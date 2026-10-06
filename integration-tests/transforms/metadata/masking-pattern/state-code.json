@@ -1,0 +1,14 @@
+{
+  "sequenceStart": "1",
+  "piiClassification": "Sensitive",
+  "prefix": "sc",
+  "description": "",
+  "storage": "MEMORY",
+  "schemaName": "",
+  "suffix": "",
+  "tableName": "",
+  "token": "SEQUENCE",
+  "name": "state-code",
+  "connection": "",
+  "valueSource": "SYNTHETIC"
+}

@@ -45,6 +45,9 @@ public class BeamConst {
   public static final String STRING_BEAM_KAFKA_PRODUCE_PLUGIN_ID = "BeamKafkaProduce";
   public static final String STRING_BEAM_ROW_GENERATOR_PLUGIN_ID = "RowGenerator";
 
+  /** Mask fields. Banned by plugin id so the Beam engine does not have to load the transform. */
+  public static final String STRING_MASK_FIELDS_PLUGIN_ID = "MaskFields";
+
   public static final String STRING_HOP_BEAM = "Hop Beam";
 
   public static final String STRING_TRANSFORM_FLAG_BATCH = "Batch";
