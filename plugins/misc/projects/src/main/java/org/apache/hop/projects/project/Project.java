@@ -64,6 +64,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.environment.EmbeddedEnvironment;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -113,6 +114,13 @@ public class Project extends ConfigFile implements IConfigFile {
    */
   private List<ParentProjectFolder> parentProjectFolders;
 
+  /**
+   * Lifecycle environment definitions checked in with the project. Names, descriptions, and
+   * placeholder variable defaults only. Real values and configuration files stay on the computer
+   * that runs Hop.
+   */
+  private List<EmbeddedEnvironment> embeddedEnvironments;
+
   @JsonIgnore private MultiMetadataProvider metadataProvider;
   @JsonIgnore private List<Path> pipelinePaths;
   @JsonIgnore private List<Path> workflowPaths;
@@ -128,6 +136,7 @@ public class Project extends ConfigFile implements IConfigFile {
     autoExportMetadata = false;
     autoExportMetadataFilename = "";
     parentProjectFolders = new ArrayList<>();
+    embeddedEnvironments = new ArrayList<>();
   }
 
   public Project(String configFilename) {
@@ -192,10 +201,32 @@ public class Project extends ConfigFile implements IConfigFile {
           project.parentProjectFolders != null
               ? new ArrayList<>(project.parentProjectFolders)
               : new ArrayList<>();
+      this.embeddedEnvironments =
+          project.embeddedEnvironments != null
+              ? new ArrayList<>(project.embeddedEnvironments)
+              : new ArrayList<>();
     } catch (Exception e) {
       throw new HopException(
           "Error saving project configuration to file '" + configFilename + "'", e);
     }
+  }
+
+  /**
+   * Find an embedded environment by its exact name.
+   *
+   * @param name environment name
+   * @return the definition, or null when there is none with that name
+   */
+  public EmbeddedEnvironment findEmbeddedEnvironment(String name) {
+    if (name == null || embeddedEnvironments == null) {
+      return null;
+    }
+    for (EmbeddedEnvironment environment : embeddedEnvironments) {
+      if (environment != null && name.equals(environment.getName())) {
+        return environment;
+      }
+    }
+    return null;
   }
 
   public void modifyVariables(

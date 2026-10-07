@@ -36,7 +36,7 @@ image:hop-gui/environment/add-project-menu.png[Add project menu]
 
 *From version control* checks out a project from a Git repository instead.
 
-The project properties fields are grouped on four tabs: *Basic*, *Folders*, *Parent project*, and *Variables*.
+The project properties fields are grouped on five tabs: *Basic*, *Folders*, *Parent project*, *Variables*, and *Environments*.
 
 image:hop-gui/environment/create-project-dialog.png[Project Properties Basic tab,width="90%"]
 
@@ -106,6 +106,29 @@ image:hop-gui/environment/create-project-dialog-variables-tab.png[Project Proper
 |Property|Description|Variables Supported|Mandatory|Default
 |Project variables to set|A list of variable names, values and variable descriptions to use with this project|No|No|
 |===
+
+== Embedded environments
+
+The *Environments* tab stores zero, one, or more lifecycle environment definitions in `project-config.json`.
+These definitions are meant to be checked in with the project.
+Each one has a name, a description, and three lists of variables.
+A variable name belongs to only one of the three lists.
+The definition does not contain configuration files.
+
+The *Default value* of a variable is a placeholder, for example `change-to-your-password` or `specify the folder on the system where the files are`.
+Do not put a real password, host, or path in the project file.
+
+.Embedded environment variable lists
+[cols="20%,80%",options="header"]
+|===
+|List|What it is for
+|Variables|Optional variables. The default is documentation for people who use the project.
+|Mandatory|Variables a person has to fill in on their own computer. The default is still only a placeholder.
+|Secrets|Secret variables such as passwords and tokens. The default is a placeholder, not the secret.
+|===
+
+*Add*, *Edit...*, and *Delete* change the list.
+*Edit...* sets the name, the description, and the three variable lists.
 
 After creating a project the user interface will switch to it and ask if you want to create an environment.
 

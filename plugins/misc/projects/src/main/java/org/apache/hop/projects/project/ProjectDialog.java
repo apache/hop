@@ -18,6 +18,7 @@
 package org.apache.hop.projects.project;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
@@ -35,6 +36,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.environment.EmbeddedEnvironment;
+import org.apache.hop.projects.environment.EmbeddedEnvironmentValidator;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectRenameBlockedException;
@@ -104,6 +107,13 @@ public class ProjectDialog extends Dialog {
   private Button wEnforceHomeExecution;
   private TableView wVariables;
   private TableView wParentFolders;
+  private TableView wEnvironments;
+  private Button wAddEnvironment;
+  private Button wEditEnvironment;
+  private Button wDeleteEnvironment;
+
+  /** Working copy of the embedded environments. Applied to the project on OK. */
+  private final List<EmbeddedEnvironment> embeddedEnvironments = new ArrayList<>();
 
   private final IVariables variables;
 
@@ -194,6 +204,7 @@ public class ProjectDialog extends Dialog {
     createFoldersTab(wTabFolder, margin);
     createParentProjectTab(wTabFolder, margin);
     createVariablesTab(wTabFolder, margin);
+    createEnvironmentsTab(wTabFolder, margin);
 
     wParentProject.addModifyListener(
         e -> {
@@ -686,6 +697,154 @@ public class ProjectDialog extends Dialog {
     wVariables.setLayoutData(fdVariables);
   }
 
+  private void createEnvironmentsTab(CTabFolder folder, int margin) {
+    Composite comp = createTab(folder, "ProjectDialog.Tab.Environments");
+
+    Label explanation = new Label(comp, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(explanation);
+    explanation.setText(BaseMessages.getString(PKG, "ProjectDialog.Environments.Explanation"));
+    FormData fdExplanation = new FormData();
+    fdExplanation.left = new FormAttachment(0, 0);
+    fdExplanation.right = new FormAttachment(100, 0);
+    fdExplanation.top = new FormAttachment(0, 0);
+    explanation.setLayoutData(fdExplanation);
+
+    wAddEnvironment = new Button(comp, SWT.PUSH);
+    wAddEnvironment.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.AddEnvironment"));
+    wAddEnvironment.addListener(SWT.Selection, event -> addEmbeddedEnvironment());
+    wEditEnvironment = new Button(comp, SWT.PUSH);
+    wEditEnvironment.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.EditEnvironment"));
+    wEditEnvironment.addListener(SWT.Selection, event -> editEmbeddedEnvironment());
+    wDeleteEnvironment = new Button(comp, SWT.PUSH);
+    wDeleteEnvironment.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Button.DeleteEnvironment"));
+    wDeleteEnvironment.addListener(SWT.Selection, event -> deleteEmbeddedEnvironment());
+    BaseTransformDialog.positionBottomButtons(
+        comp, new Button[] {wAddEnvironment, wEditEnvironment, wDeleteEnvironment}, margin, null);
+
+    ColumnInfo[] columnInfo =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ProjectDialog.Environments.Column.Name"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "ProjectDialog.Environments.Column.Description"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true),
+        };
+    wEnvironments =
+        new TableView(
+            variables,
+            comp,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE,
+            columnInfo,
+            1,
+            true,
+            null,
+            props,
+            true,
+            null,
+            false,
+            false);
+    PropsUi.setLook(wEnvironments);
+    FormData fdEnvironments = new FormData();
+    fdEnvironments.left = new FormAttachment(0, 0);
+    fdEnvironments.right = new FormAttachment(100, 0);
+    fdEnvironments.top = new FormAttachment(explanation, margin);
+    fdEnvironments.bottom = new FormAttachment(wAddEnvironment, -margin);
+    wEnvironments.setLayoutData(fdEnvironments);
+    wEnvironments.table.addListener(SWT.DefaultSelection, event -> editEmbeddedEnvironment());
+  }
+
+  private void addEmbeddedEnvironment() {
+    if (!environmentsEditable()) {
+      return;
+    }
+    EmbeddedEnvironment created = new EmbeddedEnvironment();
+    EmbeddedEnvironmentDialog dialog =
+        new EmbeddedEnvironmentDialog(shell, created, environmentNamesExcept(-1), variables);
+    if (dialog.open() != null) {
+      embeddedEnvironments.add(created);
+      refreshEmbeddedEnvironments(embeddedEnvironments.size() - 1);
+      needingProjectRefresh = true;
+    }
+  }
+
+  private void editEmbeddedEnvironment() {
+    if (!environmentsEditable()) {
+      return;
+    }
+    int index = wEnvironments.getSelectionIndex();
+    if (index < 0 || index >= embeddedEnvironments.size()) {
+      return;
+    }
+    EmbeddedEnvironment editing = embeddedEnvironments.get(index).copy();
+    EmbeddedEnvironmentDialog dialog =
+        new EmbeddedEnvironmentDialog(shell, editing, environmentNamesExcept(index), variables);
+    if (dialog.open() != null) {
+      embeddedEnvironments.set(index, editing);
+      refreshEmbeddedEnvironments(index);
+      needingProjectRefresh = true;
+    }
+  }
+
+  private void deleteEmbeddedEnvironment() {
+    if (!environmentsEditable()) {
+      return;
+    }
+    int index = wEnvironments.getSelectionIndex();
+    if (index < 0 || index >= embeddedEnvironments.size()) {
+      return;
+    }
+    EmbeddedEnvironment selected = embeddedEnvironments.get(index);
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText(BaseMessages.getString(PKG, "ProjectDialog.Environments.Delete.Header"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "ProjectDialog.Environments.Delete.Message", Const.NVL(selected.getName(), "")));
+    if ((box.open() & SWT.YES) == 0) {
+      return;
+    }
+    embeddedEnvironments.remove(index);
+    refreshEmbeddedEnvironments(Math.min(index, embeddedEnvironments.size() - 1));
+    needingProjectRefresh = true;
+  }
+
+  private boolean environmentsEditable() {
+    return wAddEnvironment != null && wAddEnvironment.isEnabled();
+  }
+
+  /** Names of every embedded environment except the row being edited. {@code -1} excludes none. */
+  private List<String> environmentNamesExcept(int exceptIndex) {
+    List<String> names = new ArrayList<>();
+    for (int i = 0; i < embeddedEnvironments.size(); i++) {
+      if (i == exceptIndex) {
+        continue;
+      }
+      String name = embeddedEnvironments.get(i).getName();
+      if (StringUtils.isNotEmpty(name)) {
+        names.add(name);
+      }
+    }
+    return names;
+  }
+
+  private void refreshEmbeddedEnvironments(int selectIndex) {
+    wEnvironments.table.removeAll();
+    for (EmbeddedEnvironment environment : embeddedEnvironments) {
+      wEnvironments.add(
+          Const.NVL(environment.getName(), ""), Const.NVL(environment.getDescription(), ""));
+    }
+    wEnvironments.setRowNums();
+    wEnvironments.optWidth(true);
+    if (selectIndex >= 0 && selectIndex < wEnvironments.table.getItemCount()) {
+      wEnvironments.table.select(selectIndex);
+    }
+  }
+
   /**
    * Automatically select read-only when the home folder is a VFS archive URI (zip/jar/tar/...). The
    * user can still uncheck the option, or check it manually for other cases (http://, read-only
@@ -722,6 +881,14 @@ public class ProjectDialog extends Dialog {
     wEnforceHomeExecution.setEnabled(editable);
     wVariables.setEnabled(editable);
     wVariables.setReadonly(!editable);
+    if (wEnvironments != null) {
+      wEnvironments.setEnabled(editable);
+    }
+    if (wAddEnvironment != null) {
+      wAddEnvironment.setEnabled(editable);
+      wEditEnvironment.setEnabled(editable);
+      wDeleteEnvironment.setEnabled(editable);
+    }
     updateAutoExportMetadataWidgets();
     updateParentFolderWidgets();
   }
@@ -1005,6 +1172,10 @@ public class ProjectDialog extends Dialog {
         }
       }
 
+      if (!validateEmbeddedEnvironments()) {
+        return;
+      }
+
       getInfo(project, projectConfig);
       returnValue = projectConfig.getProjectName();
       dispose();
@@ -1103,6 +1274,16 @@ public class ProjectDialog extends Dialog {
     }
     wParentFolders.setRowNums();
     wParentFolders.optWidth(true);
+
+    embeddedEnvironments.clear();
+    if (project.getEmbeddedEnvironments() != null) {
+      for (EmbeddedEnvironment environment : project.getEmbeddedEnvironments()) {
+        if (environment != null) {
+          embeddedEnvironments.add(environment.copy());
+        }
+      }
+    }
+    refreshEmbeddedEnvironments(-1);
   }
 
   private void getInfo(Project project, ProjectConfig projectConfig) throws HopException {
@@ -1152,6 +1333,12 @@ public class ProjectDialog extends Dialog {
       project.getParentProjectFolders().add(parentFolder);
     }
 
+    List<EmbeddedEnvironment> environments = new ArrayList<>();
+    for (EmbeddedEnvironment environment : embeddedEnvironments) {
+      environments.add(environment.copy());
+    }
+    project.setEmbeddedEnvironments(environments);
+
     if (StringUtils.isNotEmpty(projectConfig.getProjectHome())
         && StringUtils.isNotEmpty(projectConfig.configFilename)) {
       try {
@@ -1170,6 +1357,50 @@ public class ProjectDialog extends Dialog {
         throw new HopException(e);
       }
     }
+  }
+
+  /**
+   * @return false when the definitions cannot be saved. Read-only projects skip the check because
+   *     the project file is not written.
+   */
+  private boolean validateEmbeddedEnvironments() {
+    if (wReadOnly.getSelection()) {
+      return true;
+    }
+    for (EmbeddedEnvironment environment : embeddedEnvironments) {
+      EmbeddedEnvironmentValidator.normalize(environment);
+      if (EmbeddedEnvironmentValidator.missingName(environment)) {
+        showEnvironmentError(
+            "ProjectDialog.Environments.MissingName.Header",
+            "ProjectDialog.Environments.MissingName.Message");
+        return false;
+      }
+      String duplicateVariable = EmbeddedEnvironmentValidator.duplicateVariableName(environment);
+      if (duplicateVariable != null) {
+        showEnvironmentError(
+            "ProjectDialog.Environments.DuplicateVariable.Header",
+            "ProjectDialog.Environments.DuplicateVariable.Message",
+            duplicateVariable);
+        return false;
+      }
+    }
+    String duplicateName =
+        EmbeddedEnvironmentValidator.duplicateEnvironmentName(embeddedEnvironments);
+    if (duplicateName != null) {
+      showEnvironmentError(
+          "ProjectDialog.Environments.DuplicateName.Header",
+          "ProjectDialog.Environments.DuplicateName.Message",
+          duplicateName);
+      return false;
+    }
+    return true;
+  }
+
+  private void showEnvironmentError(String headerKey, String messageKey, String... args) {
+    MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+    box.setText(BaseMessages.getString(PKG, headerKey));
+    box.setMessage(BaseMessages.getString(PKG, messageKey, (Object[]) args));
+    box.open();
   }
 
   private static boolean isYes(String value) {

@@ -38,6 +38,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.environment.EmbeddedEnvironment;
+import org.apache.hop.projects.environment.EmbeddedEnvironmentVariable;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -90,6 +92,81 @@ public class ProjectTest {
     } finally {
       tempFile.delete();
     }
+  }
+
+  @Test
+  public void testEmbeddedEnvironmentsRoundTrip() throws Exception {
+    File tempFile = Files.createTempFile("project-config-environments", ".json").toFile();
+    tempFile.deleteOnExit();
+
+    try {
+      Project project = new Project(tempFile.getAbsolutePath());
+      assertTrue(project.getEmbeddedEnvironments().isEmpty());
+      project.saveToFile();
+
+      String emptyJson = Files.readString(tempFile.toPath());
+      assertFalse(emptyJson.contains("embeddedEnvironments"));
+
+      Project emptyRead = new Project(tempFile.getAbsolutePath());
+      emptyRead.readFromFile();
+      assertTrue(emptyRead.getEmbeddedEnvironments().isEmpty());
+      assertNull(emptyRead.findEmbeddedEnvironment("dev"));
+
+      EmbeddedEnvironment environment = new EmbeddedEnvironment();
+      environment.setName("dev");
+      environment.setDescription("Developer workstation");
+      environment
+          .getVariables()
+          .add(new EmbeddedEnvironmentVariable("LOG_LEVEL", "Basic", "Hop log level"));
+      environment
+          .getMandatoryVariables()
+          .add(
+              new EmbeddedEnvironmentVariable("DB_HOST", "specify the database host", "JDBC host"));
+      environment
+          .getSecretVariables()
+          .add(
+              new EmbeddedEnvironmentVariable(
+                  "DB_PASSWORD", "change-to-your-password", "JDBC password"));
+      project.getEmbeddedEnvironments().add(environment);
+      project.saveToFile();
+
+      String json = Files.readString(tempFile.toPath());
+      assertTrue(json.contains("\"defaultValue\""));
+      assertTrue(json.contains("\"mandatoryVariables\""));
+      assertTrue(json.contains("\"secretVariables\""));
+      assertFalse(json.contains("\"configurationFiles\""));
+
+      Project read = new Project(tempFile.getAbsolutePath());
+      read.readFromFile();
+      assertEquals(1, read.getEmbeddedEnvironments().size());
+      EmbeddedEnvironment found = read.findEmbeddedEnvironment("dev");
+      assertEquals("Developer workstation", found.getDescription());
+      assertEquals("LOG_LEVEL", found.getVariables().get(0).getName());
+      assertEquals("Basic", found.getVariables().get(0).getDefaultValue());
+      assertEquals("DB_HOST", found.getMandatoryVariables().get(0).getName());
+      assertEquals(
+          "specify the database host", found.getMandatoryVariables().get(0).getDefaultValue());
+      assertEquals("DB_PASSWORD", found.getSecretVariables().get(0).getName());
+      assertEquals("change-to-your-password", found.getSecretVariables().get(0).getDefaultValue());
+      assertNull(read.findEmbeddedEnvironment("Dev"));
+    } finally {
+      tempFile.delete();
+    }
+  }
+
+  @Test
+  public void testMissingEmbeddedEnvironmentsKeyLoadsEmpty() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-no-environments");
+    writeMinimalConfig(tempRoot, null);
+
+    ProjectConfig projectConfig =
+        new ProjectConfig(
+            "no-environments", tempRoot.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    registerProject(projectConfig);
+
+    Project project = projectConfig.loadProject(new Variables());
+    assertTrue(project.getEmbeddedEnvironments().isEmpty());
+    assertNull(project.findEmbeddedEnvironment("dev"));
   }
 
   @Test
