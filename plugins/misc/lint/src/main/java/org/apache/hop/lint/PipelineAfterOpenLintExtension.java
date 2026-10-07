@@ -34,9 +34,10 @@ public class PipelineAfterOpenLintExtension implements IExtensionPoint<PipelineM
       org.apache.hop.core.variables.IVariables variables,
       PipelineMeta pipelineMeta)
       throws HopException {
-    if (pipelineMeta != null) {
-      LintEditorGraphHelper.scheduleAttachForFilename(pipelineMeta.getFilename());
-      BackgroundLintService.getInstance().scheduleFileLint(pipelineMeta.getFilename(), true);
+    if (pipelineMeta == null || !LinterConfigPlugin.getInstance().isLinterEnabled()) {
+      return;
     }
+    LintEditorGraphHelper.scheduleAttachForFilename(pipelineMeta.getFilename());
+    BackgroundLintService.getInstance().scheduleFileLint(pipelineMeta.getFilename(), true);
   }
 }

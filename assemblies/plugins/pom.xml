@@ -758,6 +758,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-smb</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-vault</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1203,6 +1209,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-mapping</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-maskfields</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1740,6 +1752,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-elastic</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-git-vfs</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

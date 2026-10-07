@@ -20,19 +20,30 @@ package org.apache.hop.execution.database;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.databases.h2.H2DatabaseMeta;
 import org.apache.hop.execution.DefaultExecutionSelector;
@@ -100,7 +111,7 @@ class CachingDatabaseExecutionInfoLocationTest {
             new LoggingObject("CachingDatabaseExecutionInfoLocationTest"), variables, databaseMeta);
     db.connect();
     try {
-      db.execStatements(ddl);
+      db.execStatements(createTableDdl(ddl));
     } finally {
       db.disconnect();
     }
@@ -253,10 +264,124 @@ class CachingDatabaseExecutionInfoLocationTest {
   }
 
   @Test
+  void persistReopensAClosedJdbcConnection() throws Exception {
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(sampleEntry(id, "Before", ExecutionType.Workflow, false, "Running"));
+
+    Connection closed = location.getDatabase().getConnection();
+    closed.close();
+    assertTrue(closed.isClosed());
+
+    location.persistCacheEntry(sampleEntry(id, "Before", ExecutionType.Workflow, true, "Finished"));
+
+    Connection reopened = location.getDatabase().getConnection();
+    assertNotSame(closed, reopened);
+    assertFalse(reopened.isClosed());
+    assertNull(location.getDatabase().getConnectionGroup());
+    assertTrue(reopened.getAutoCommit());
+
+    CacheEntry loaded = location.loadCacheEntry(id);
+    assertNotNull(loaded);
+    assertTrue(loaded.getExecutionState().isFailed());
+    assertTrue(loaded.getExecutionState().getStatusDescription().startsWith("Finished"));
+  }
+
+  @Test
+  void initializeCancelsThePreviousTimerAndDropsTheClosedConnection() throws Exception {
+    Timer firstTimer = location.getCacheTimer();
+    assertNotNull(firstTimer);
+    Connection firstConnection = location.getDatabase().getConnection();
+    firstConnection.close();
+
+    location.initialize(variables, metadataProvider);
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            firstTimer.schedule(
+                new TimerTask() {
+                  @Override
+                  public void run() {
+                    // Cancelled timers reject new tasks.
+                  }
+                },
+                10_000L));
+    assertNotSame(firstTimer, location.getCacheTimer());
+    assertFalse(location.getDatabase().getConnection().isClosed());
+    assertNull(location.getDatabase().getConnectionGroup());
+
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(
+        sampleEntry(id, "AfterReinit", ExecutionType.Workflow, false, "Finished"));
+    assertNotNull(location.loadCacheEntry(id));
+  }
+
+  @Test
+  void closeIsIdempotentAndStopsTheCacheTimer() throws Exception {
+    Timer timer = location.getCacheTimer();
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(
+        sampleEntry(id, "ToClose", ExecutionType.Pipeline, false, "Finished"));
+
+    location.close();
+    location.close();
+
+    assertNull(location.getDatabase());
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            timer.schedule(
+                new TimerTask() {
+                  @Override
+                  public void run() {
+                    // Cancelled timers reject new tasks.
+                  }
+                },
+                10_000L));
+
+    HopException exception =
+        assertThrows(
+            HopException.class,
+            () ->
+                location.persistCacheEntry(
+                    sampleEntry(
+                        UUID.randomUUID().toString(),
+                        "AfterClose",
+                        ExecutionType.Workflow,
+                        false,
+                        "Running")));
+    assertTrue(
+        exception.getMessage().toLowerCase().contains("closed")
+            || (exception.getCause() != null
+                && exception.getCause().getMessage() != null
+                && exception.getCause().getMessage().toLowerCase().contains("closed")));
+  }
+
+  @Test
+  void recognizesClosedConnectionFailures() {
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
+            new SQLException("This connection has been closed.", "08003")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
+            new SQLException("syntax error", "42000")));
+    SQLException nested = new SQLException("An error occurred executing SQL");
+    nested.initCause(new SQLException("This connection has been closed."));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
+            new HopException("wrapper", nested)));
+  }
+
+  @Test
   void buildDdlContainsIndexes() throws Exception {
     String ddl = location.buildDdl(variables);
     assertTrue(ddl.toLowerCase().contains("create"));
     assertTrue(ddl.contains("idx_hop_exec_start") || ddl.toLowerCase().contains("index"));
+    assertTrue(ddl.contains(CachingDatabaseExecutionInfoLocation.COL_PROJECT_ID));
+    assertTrue(ddl.contains("idx_hop_exec_project"));
+    assertTrue(ddl.contains(CachingDatabaseExecutionInfoLocation.DDL_EXISTING_TABLE_MARKER));
+    assertTrue(ddl.toLowerCase().contains("alter table"));
+    assertTrue(ddl.toLowerCase().contains(CachingDatabaseExecutionInfoLocation.COL_STATE_JSON));
     assertTrue(
         ddl.contains(CachingDatabaseExecutionInfoLocation.COL_JSON)
             || ddl.toLowerCase().contains("json")
@@ -264,6 +389,410 @@ class CachingDatabaseExecutionInfoLocationTest {
             || ddl.toLowerCase().contains("varchar")
             || ddl.toLowerCase().contains("text")
             || ddl.toLowerCase().contains("character"));
+  }
+
+  @Test
+  void legacyTableWithoutProjectIdColumnStillWorks() throws Exception {
+    location.close();
+    String table =
+        databaseMeta.getQuotedSchemaTableCombination(
+            variables, "", CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    Database db =
+        new Database(
+            new LoggingObject("CachingDatabaseExecutionInfoLocationTest"), variables, databaseMeta);
+    db.connect();
+    try {
+      db.execStatement(
+          "ALTER TABLE "
+              + table
+              + " DROP COLUMN "
+              + databaseMeta.quoteField(CachingDatabaseExecutionInfoLocation.COL_PROJECT_ID));
+    } finally {
+      db.disconnect();
+    }
+
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+    location.initialize(variables, metadataProvider);
+    assertFalse(location.isProjectIdColumnPresent());
+
+    String id = UUID.randomUUID().toString();
+    CacheEntry entry = sampleEntry(id, "Legacy", ExecutionType.Pipeline, false, "Finished");
+    entry.setProjectId("sales");
+    entry.getExecution().setProjectId("sales");
+    location.persistCacheEntry(entry);
+
+    CacheEntry loaded = location.loadCacheEntry(id);
+    assertNotNull(loaded);
+    assertEquals("sales", loaded.getProjectId());
+
+    Set<DatedId> ids = new HashSet<>();
+    location.retrieveIds(false, ids, 100, IExecutionSelector.ALL);
+    assertEquals(1, ids.size());
+  }
+
+  @Test
+  void retrieveIdsFiltersByProjectIdAndKeepsLegacyRows() throws Exception {
+    String salesId = UUID.randomUUID().toString();
+    String otherId = UUID.randomUUID().toString();
+    String legacyId = UUID.randomUUID().toString();
+
+    CacheEntry sales = sampleEntry(salesId, "SalesPipe", ExecutionType.Pipeline, false, "Finished");
+    sales.setProjectId("sales");
+    sales.getExecution().setProjectId("sales");
+    CacheEntry other =
+        sampleEntry(otherId, "FinancePipe", ExecutionType.Pipeline, false, "Finished");
+    other.setProjectId("finance");
+    other.getExecution().setProjectId("finance");
+    CacheEntry legacy = sampleEntry(legacyId, "OldPipe", ExecutionType.Pipeline, false, "Finished");
+
+    location.persistCacheEntry(sales);
+    location.persistCacheEntry(other);
+    location.persistCacheEntry(legacy);
+
+    location.clearCaches();
+    Set<DatedId> all = new HashSet<>();
+    location.retrieveIds(false, all, 100, IExecutionSelector.ALL);
+    assertEquals(3, all.size());
+
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+    location.close();
+    location.initialize(variables, metadataProvider);
+    assertTrue(location.isProjectIdColumnPresent());
+
+    location.clearCaches();
+    Set<DatedId> filtered = new HashSet<>();
+    location.retrieveIds(false, filtered, 100, IExecutionSelector.ALL);
+    assertEquals(2, filtered.size());
+    assertTrue(filtered.stream().anyMatch(dated -> salesId.equals(dated.getId())));
+    assertTrue(filtered.stream().anyMatch(dated -> legacyId.equals(dated.getId())));
+    assertTrue(filtered.stream().noneMatch(dated -> otherId.equals(dated.getId())));
+
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "");
+    location.close();
+    location.initialize(variables, metadataProvider);
+    CacheEntry again = sampleEntry(salesId, "SalesPipe", ExecutionType.Pipeline, true, "Finished");
+    location.persistCacheEntry(again);
+    CacheEntry loaded = location.loadCacheEntry(salesId);
+    assertNotNull(loaded);
+    assertEquals("sales", loaded.getProjectId());
+    assertEquals("sales", loaded.getExecution().getProjectId());
+  }
+
+  private static String createTableDdl(String ddl) {
+    int marker = ddl.indexOf(CachingDatabaseExecutionInfoLocation.DDL_EXISTING_TABLE_MARKER);
+    return marker < 0 ? ddl : ddl.substring(0, marker);
+  }
+
+  @Test
+  void lruCacheEvictionEnforcesMaxSize() throws Exception {
+    location.setMaxCacheSize("2");
+    location.initialize(variables, metadataProvider);
+
+    String id1 = UUID.randomUUID().toString();
+    String id2 = UUID.randomUUID().toString();
+    String id3 = UUID.randomUUID().toString();
+
+    Execution exec1 = new Execution();
+    exec1.setId(id1);
+    exec1.setName("Exec1");
+    exec1.setExecutionType(ExecutionType.Pipeline);
+    exec1.setExecutionStartDate(new Date());
+    exec1.setRegistrationDate(new Date());
+
+    Execution exec2 = new Execution();
+    exec2.setId(id2);
+    exec2.setName("Exec2");
+    exec2.setExecutionType(ExecutionType.Pipeline);
+    exec2.setExecutionStartDate(new Date());
+    exec2.setRegistrationDate(new Date());
+
+    Execution exec3 = new Execution();
+    exec3.setId(id3);
+    exec3.setName("Exec3");
+    exec3.setExecutionType(ExecutionType.Pipeline);
+    exec3.setExecutionStartDate(new Date());
+    exec3.setRegistrationDate(new Date());
+
+    location.registerExecution(exec1);
+    location.registerExecution(exec2);
+    assertEquals(2, location.getCache().size());
+    assertTrue(location.getCache().containsKey(id1));
+    assertTrue(location.getCache().containsKey(id2));
+
+    // Registering the 3rd execution should evict the oldest (id1)
+    location.registerExecution(exec3);
+    assertEquals(2, location.getCache().size());
+    assertFalse(location.getCache().containsKey(id1));
+    assertTrue(location.getCache().containsKey(id2));
+    assertTrue(location.getCache().containsKey(id3));
+
+    // Evicted entry was persisted and can still be retrieved
+    Execution loaded1 = location.getExecution(id1);
+    assertNotNull(loaded1);
+    assertEquals("Exec1", loaded1.getName());
+  }
+
+  @Test
+  void closeClearsCacheMap() throws Exception {
+    String id = UUID.randomUUID().toString();
+    Execution exec = new Execution();
+    exec.setId(id);
+    exec.setName("ToClose");
+    exec.setExecutionType(ExecutionType.Pipeline);
+    exec.setExecutionStartDate(new Date());
+    exec.setRegistrationDate(new Date());
+
+    location.registerExecution(exec);
+    assertFalse(location.getCache().isEmpty());
+
+    location.close();
+    assertTrue(location.getCache().isEmpty());
+  }
+
+  @Test
+  void retrieveIdsWithChildrenLoadsChildrenCorrectly() throws Exception {
+    String parentId = UUID.randomUUID().toString();
+    String childId = UUID.randomUUID().toString();
+
+    CacheEntry parent =
+        sampleEntry(parentId, "ParentPipeline", ExecutionType.Pipeline, false, "Finished");
+
+    Execution child = new Execution();
+    child.setId(childId);
+    child.setParentId(parentId);
+    child.setName("ChildPipeline");
+    child.setExecutionType(ExecutionType.Pipeline);
+    child.setExecutionStartDate(new Date());
+    child.setRegistrationDate(new Date());
+
+    parent.addChildExecution(child);
+    location.persistCacheEntry(parent);
+
+    // Clear memory cache so retrieveIds loads from DB
+    location.clearCaches();
+
+    Set<DatedId> ids = new HashSet<>();
+    location.retrieveIds(true, ids, 100, IExecutionSelector.ALL);
+    assertEquals(2, ids.size());
+    Set<String> idStrings = new HashSet<>();
+    ids.forEach(d -> idStrings.add(d.getId()));
+    assertTrue(idStrings.contains(parentId));
+    assertTrue(idStrings.contains(childId));
+  }
+
+  @Test
+  void singleWriterUpdateDoesNotReloadOrRewriteTheDocument() throws Exception {
+    CountingLocation counting = new CountingLocation();
+    counting.setConnectionName("h2-exec");
+    counting.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    counting.setPersistenceDelay("60000");
+    counting.setMaxCacheAge("86400000");
+    counting.setDatabaseMeta(databaseMeta);
+    counting.initialize(variables, metadataProvider);
+    try {
+      String id = UUID.randomUUID().toString();
+      CacheEntry entry = sampleEntry(id, "Live", ExecutionType.Pipeline, false, "Running");
+      entry.getExecution().setMetadataJson("{\"project\":true}");
+      entry.getExecution().setExecutorXml("<pipeline/>");
+      entry.setSingleWriter(true);
+
+      counting.persistCacheEntry(entry);
+      assertNull(entry.getExecution().getMetadataJson());
+      assertNull(entry.getExecution().getExecutorXml());
+      assertTrue(entry.isHeavyDocumentStored());
+      assertEquals(0, counting.loads);
+
+      entry.getExecutionState().setStatusDescription("StillRunning");
+      entry.getExecution().setMetadataJson("SHOULD-NOT-BE-WRITTEN");
+      counting.persistCacheEntry(entry);
+      assertEquals(0, counting.loads);
+      assertEquals(
+          "StillRunning",
+          readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATUS_DESCRIPTION));
+
+      String storedDocument = readColumn(id, CachingDatabaseExecutionInfoLocation.COL_JSON);
+      String storedState = readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATE_JSON);
+      assertFalse(storedDocument.contains("SHOULD-NOT-BE-WRITTEN"));
+      assertFalse(storedDocument.contains("StillRunning"));
+      assertTrue(storedState.contains("StillRunning"));
+      assertFalse(storedState.contains("SHOULD-NOT-BE-WRITTEN"));
+      assertFalse(storedState.contains("<pipeline/>"));
+
+      CacheEntry loaded = counting.loadCacheEntry(id);
+      assertEquals("{\"project\":true}", loaded.getExecution().getMetadataJson());
+      assertEquals("<pipeline/>", loaded.getExecution().getExecutorXml());
+      assertEquals("StillRunning", loaded.getExecutionState().getStatusDescription());
+    } finally {
+      counting.close();
+    }
+  }
+
+  @Test
+  void anExistingTableWithoutTheStateColumnIsNotAltered() throws Exception {
+    String table =
+        databaseMeta.getQuotedSchemaTableCombination(
+            variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    try (Database db = new Database(new LoggingObject("drop-state"), variables, databaseMeta)) {
+      db.connect();
+      String sql =
+          databaseMeta.getDropColumnStatement(
+              table,
+              new ValueMetaString(CachingDatabaseExecutionInfoLocation.COL_STATE_JSON),
+              "",
+              false,
+              "",
+              false);
+      db.execStatement(sql);
+    }
+
+    CachingDatabaseExecutionInfoLocation migrated = new CachingDatabaseExecutionInfoLocation();
+    migrated.setConnectionName("h2-exec");
+    migrated.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    migrated.setPersistenceDelay("60000");
+    migrated.setMaxCacheAge("86400000");
+    migrated.setDatabaseMeta(databaseMeta);
+    migrated.initialize(variables, metadataProvider);
+    try {
+      assertFalse(
+          migrated.database.checkColumnExists(
+              null,
+              CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME,
+              CachingDatabaseExecutionInfoLocation.COL_STATE_JSON));
+
+      String id = UUID.randomUUID().toString();
+      migrated.persistCacheEntry(
+          sampleEntry(id, "Legacy", ExecutionType.Pipeline, false, "Running"));
+      assertEquals(
+          "Running", readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATUS_DESCRIPTION));
+    } finally {
+      migrated.close();
+    }
+  }
+
+  @Test
+  void aTableWithoutTheStateColumnKeepsRewritingTheDocument() throws Exception {
+    String table =
+        databaseMeta.getQuotedSchemaTableCombination(
+            variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    try (Database db =
+        new Database(new LoggingObject("drop-state-rewrite"), variables, databaseMeta)) {
+      db.connect();
+      db.execStatement(
+          databaseMeta.getDropColumnStatement(
+              table,
+              new ValueMetaString(CachingDatabaseExecutionInfoLocation.COL_STATE_JSON),
+              "",
+              false,
+              "",
+              false));
+    }
+
+    CachingDatabaseExecutionInfoLocation legacy = new CachingDatabaseExecutionInfoLocation();
+    legacy.setConnectionName("h2-exec");
+    legacy.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    legacy.setPersistenceDelay("60000");
+    legacy.setMaxCacheAge("86400000");
+    legacy.setDatabaseMeta(databaseMeta);
+    legacy.initialize(variables, metadataProvider);
+    try {
+      String id = UUID.randomUUID().toString();
+      CacheEntry entry = sampleEntry(id, "Legacy", ExecutionType.Pipeline, false, "Running");
+      entry.getExecution().setMetadataJson("{\"project\":true}");
+      entry.getExecution().setExecutorXml("<pipeline/>");
+      entry.setSingleWriter(true);
+      legacy.persistCacheEntry(entry);
+
+      entry.getExecutionState().setStatusDescription("Finished");
+      entry.getExecutionState().setLoggingText("FINAL-LOG-LINE");
+      entry.setDirty(true);
+      legacy.persistCacheEntry(entry);
+
+      // The state has nowhere else to go, so the document has to carry it.
+      CacheEntry reloaded = legacy.loadCacheEntry(id);
+      assertEquals("Finished", reloaded.getExecutionState().getStatusDescription());
+      assertEquals("FINAL-LOG-LINE", reloaded.getExecutionState().getLoggingText());
+
+      // Rewriting the document must not drop what was only stored on the first save.
+      assertEquals("{\"project\":true}", reloaded.getExecution().getMetadataJson());
+      assertEquals("<pipeline/>", reloaded.getExecution().getExecutorXml());
+
+      assertEquals(
+          "Finished", readColumn(id, CachingDatabaseExecutionInfoLocation.COL_STATUS_DESCRIPTION));
+    } finally {
+      legacy.close();
+    }
+  }
+
+  @Test
+  void closeDropsTheConnectionWhenTheFinalFlushFails() throws Exception {
+    FailingFlushLocation failing = new FailingFlushLocation();
+    failing.setConnectionName("h2-exec");
+    failing.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    failing.setPersistenceDelay("60000");
+    failing.setMaxCacheAge("86400000");
+    failing.setDatabaseMeta(databaseMeta);
+    failing.initialize(variables, metadataProvider);
+    try {
+      String id = UUID.randomUUID().toString();
+      Execution execution = new Execution();
+      execution.setId(id);
+      execution.setName("Flush");
+      execution.setExecutionType(ExecutionType.Pipeline);
+      execution.setRegistrationDate(new Date());
+      failing.registerExecution(execution);
+      assertNotNull(failing.getCache().get(id));
+      failing.getCache().get(id).setDirty(true);
+      failing.failPersist = true;
+
+      assertThrows(HopException.class, failing::close);
+      assertNull(failing.database);
+    } finally {
+      failing.failPersist = false;
+      failing.close();
+    }
+  }
+
+  private static final class FailingFlushLocation extends CachingDatabaseExecutionInfoLocation {
+    private boolean failPersist;
+
+    @Override
+    protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
+      if (failPersist) {
+        throw new HopException("flush failed");
+      }
+      super.persistCacheEntry(cacheEntry);
+    }
+  }
+
+  private static final class CountingLocation extends CachingDatabaseExecutionInfoLocation {
+    private int loads;
+
+    @Override
+    protected CacheEntry loadCacheEntry(String executionId) throws HopException {
+      loads++;
+      return super.loadCacheEntry(executionId);
+    }
+  }
+
+  private String readColumn(String id, String column) throws Exception {
+    try (Database db = new Database(new LoggingObject("status-check"), variables, databaseMeta)) {
+      db.connect();
+      String table =
+          databaseMeta.getQuotedSchemaTableCombination(
+              variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+      String sql =
+          "SELECT "
+              + databaseMeta.quoteField(column)
+              + " FROM "
+              + table
+              + " WHERE "
+              + databaseMeta.quoteField(CachingDatabaseExecutionInfoLocation.COL_ID)
+              + " = ?";
+      IRowMeta params = new RowMeta();
+      params.addValueMeta(new ValueMetaString("id"));
+      RowMetaAndData row = db.getOneRow(sql, params, new Object[] {id});
+      return row.getString(0, null);
+    }
   }
 
   private static CacheEntry sampleEntry(

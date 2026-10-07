@@ -249,7 +249,7 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <row_threshold>0</row_threshold>
-    <message>The Language Model Chat transform did not return a usable answer from Ollama</message>
+    <message>Embed text did not return an embedding of the expected shape. The row logged above shows what came back.</message>
     <always_log_rows>Y</always_log_rows>
     <abort_option>ABORT_WITH_ERROR</abort_option>
     <attributes/>

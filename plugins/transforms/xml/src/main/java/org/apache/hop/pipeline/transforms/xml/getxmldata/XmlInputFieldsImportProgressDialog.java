@@ -110,6 +110,8 @@ public class XmlInputFieldsImportProgressDialog {
     this.fields = null;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public RowMetaAndData[] open(IVariables variables) {
     IRunnableWithProgress op =
         monitor -> {

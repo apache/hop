@@ -143,6 +143,11 @@ public class LintResultsManager {
 
   /** Update results for a single file without clearing other file results. */
   public synchronized void updateResultsForFile(String filePath, List<LintResult> results) {
+    // One choke point for every producer. An in-flight pass must not publish after the linter was
+    // switched off and clearResults() has already run.
+    if (!LinterConfigPlugin.getInstance().isLinterEnabled()) {
+      return;
+    }
     String normalizedPath = LintPathUtils.normalizePath(filePath);
 
     // Capture the previous results for this file so we only notify (and trigger canvas/Explorer

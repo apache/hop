@@ -39,7 +39,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Setter
 @GuiPlugin
 @HopMetadata(
-    key = "DatabricksConnection",
+    key = "databricks-connection",
+    legacyKeys = {"DatabricksConnection"},
     name = "i18n::DatabricksConnection.Name",
     description = "i18n::DatabricksConnection.Description",
     image = "databricks-connection.svg",

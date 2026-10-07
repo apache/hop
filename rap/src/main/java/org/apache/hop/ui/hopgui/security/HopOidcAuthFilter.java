@@ -301,6 +301,8 @@ public class HopOidcAuthFilter implements Filter {
     response.sendRedirect(contextPath + HopLoginPage.PATH_LOGIN + "?logout=1");
   }
 
+  // HopLoginPage sanitizes the redirect and HTML-escapes every value it renders
+  @SuppressWarnings("javasecurity:S5131")
   private void showLoginPage(
       HttpServletRequest request,
       HttpServletResponse response,

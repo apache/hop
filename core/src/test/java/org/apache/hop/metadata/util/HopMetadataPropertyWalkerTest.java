@@ -73,6 +73,17 @@ class HopMetadataPropertyWalkerTest {
     String connection = "hidden";
   }
 
+  static class UnsetConnectionMeta {
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    String connection;
+
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    String other = "set";
+
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.VFS_SFTP_CONNECTION)
+    String sftp;
+  }
+
   static class SftpAndRdbmsMeta {
     @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
     String rdbms = "Warehouse";
@@ -121,6 +132,45 @@ class HopMetadataPropertyWalkerTest {
             new UnannotatedConnectionMeta(), HopMetadataPropertyType.RDBMS_CONNECTION);
 
     assertTrue(found.isEmpty());
+  }
+
+  /** A field that was never set is null, and by default a collect is about values, not fields. */
+  @Test
+  void unsetConnectionFieldsAreSkippedByDefault() {
+    List<StringProperty> found =
+        HopMetadataPropertyWalker.collectStrings(
+            new UnsetConnectionMeta(), HopMetadataPropertyType.RDBMS_CONNECTION);
+
+    assertEquals(1, found.size());
+    assertEquals("set", found.get(0).value());
+  }
+
+  /**
+   * A check that reports an unset property has to see the null fields, and only those of the type
+   * it asked for.
+   */
+  @Test
+  void unsetConnectionFieldsAreCollectedWhenAskedFor() {
+    List<StringProperty> found =
+        HopMetadataPropertyWalker.collectStrings(
+            new UnsetConnectionMeta(), HopMetadataPropertyType.RDBMS_CONNECTION, true);
+
+    assertEquals(2, found.size());
+    assertTrue(
+        found.stream().anyMatch(p -> "connection".equals(p.key()) && p.value() == null),
+        found.toString());
+    assertTrue(found.stream().anyMatch(p -> "set".equals(p.value())));
+  }
+
+  /** Collecting unset fields must not start descending into nulls or lose the set ones. */
+  @Test
+  void unsetCollectionStillWalksNestedObjects() {
+    List<StringProperty> found =
+        HopMetadataPropertyWalker.collectStrings(
+            new NestedMeta(), HopMetadataPropertyType.RDBMS_CONNECTION, true);
+
+    assertEquals(
+        List.of("primary", "second", "third"), found.stream().map(StringProperty::value).toList());
   }
 
   @Test

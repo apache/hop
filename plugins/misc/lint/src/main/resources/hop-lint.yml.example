@@ -38,11 +38,17 @@ rules:
     severity: ERROR
     parameters: {}
 
-  # Hop's own transform and action checks — everything reported as [HOP-CHECK].
-  # The core pack reports them as warnings, because check() works from the row
-  # stream Hop infers at design time and is wrong wherever fields arrive at
-  # runtime. Put the severity back to ERROR to treat them as the transform
-  # meant them, or set enabled: false to leave them to the Verify button.
+  # Hop's own transform and action checks. A check that reports an error code
+  # is reported under that code, and answers to HOP-CHECK as well, so a rule or
+  # a suppression written against either one holds. A check with no code is
+  # reported as [HOP-CHECK].
+  #
+  # The severity here is a cap, not a setting: check() works from the row stream
+  # Hop infers at design time and is wrong wherever fields arrive at runtime, so
+  # a remark is never raised above this, and a comment stays a comment. Raise it
+  # to ERROR to let checks report as the transform meant them, or set
+  # enabled: false to leave them to the Verify button. A rule naming a plugin
+  # (appliesTo) or one check (messageKey) sets the severity outright instead.
   HOP-CHECK:
     enabled: true
     severity: WARNING

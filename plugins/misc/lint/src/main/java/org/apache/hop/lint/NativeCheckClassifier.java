@@ -18,6 +18,8 @@ package org.apache.hop.lint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.util.Utils;
@@ -43,8 +45,16 @@ import org.apache.hop.workflow.action.ActionMeta;
  */
 public final class NativeCheckClassifier {
 
-  /** What a matching rule says should happen to a remark. */
-  public record Classification(String severity, String ruleId) {}
+  /**
+   * What a matching rule says should happen to a remark.
+   *
+   * @param narrowed whether the rule names a plugin or a check, rather than every remark
+   */
+  public record Classification(
+      String severity, String ruleId, boolean narrowed, String blanketRuleId) {}
+
+  /** Where MessageFormat left a value out: {@code {0}}, {@code {1}}, and so on. */
+  private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\d+\\}");
 
   private final List<CustomLintRule> rules;
 
@@ -78,12 +88,43 @@ public final class NativeCheckClassifier {
     }
     CustomLintRule match = bestMatch(remark);
     if (match == null) {
-      return new Classification(LintSeverity.fromCheckResultType(remark.getType()), null);
+      return new Classification(
+          LintSeverity.fromCheckResultType(remark.getType()), null, false, null);
     }
     if (!match.isEnabled()) {
       return null;
     }
-    return new Classification(match.getSeverity(), match.generateRuleId());
+    boolean narrowed = isNarrowed(match);
+    String severity =
+        narrowed
+            ? match.getSeverity()
+            : capped(LintSeverity.fromCheckResultType(remark.getType()), match.getSeverity());
+    // A narrowed rule takes the id, so the rule that covers every remark would otherwise stop
+    // naming this finding, and a project's existing suppression of it would quietly lapse the
+    // moment that project named the check. It is carried along as another name.
+    return new Classification(
+        severity, match.generateRuleId(), narrowed, narrowed ? blanketRuleId() : null);
+  }
+
+  /**
+   * The remark's own severity, lowered to the cap if it is above it.
+   *
+   * <p>A rule covering every remark caps them: it cannot know that any one of them deserves more
+   * than the transform gave it, so a comment stays a comment. A rule naming a plugin or a check is
+   * a decision about those remarks, and its severity is reported as it stands.
+   */
+  private static String capped(String severity, String cap) {
+    return rank(severity) > rank(cap) ? cap : severity;
+  }
+
+  private static int rank(String severity) {
+    if ("ERROR".equalsIgnoreCase(severity)) {
+      return 2;
+    }
+    if ("WARNING".equalsIgnoreCase(severity)) {
+      return 1;
+    }
+    return 0;
   }
 
   /**
@@ -104,6 +145,25 @@ public final class NativeCheckClassifier {
       }
     }
     return bestScore < 0 ? null : best;
+  }
+
+  /**
+   * The id of the rule that covers every remark, or null when no such rule is in force.
+   *
+   * <p>A rule naming neither a plugin nor a check applies to anything put in front of it, so the
+   * first one is the one a blanket configuration was written against.
+   */
+  private String blanketRuleId() {
+    for (CustomLintRule rule : rules) {
+      if (!isNarrowed(rule)) {
+        return rule.generateRuleId();
+      }
+    }
+    return null;
+  }
+
+  private static boolean isNarrowed(CustomLintRule rule) {
+    return !rule.getAppliesTo().isEmpty() || !Utils.isEmpty(rule.getMessageKey());
   }
 
   /** How specifically the rule matches, or -1 when it does not apply. */
@@ -134,6 +194,10 @@ public final class NativeCheckClassifier {
    * is not installed, or the key was renamed — matches nothing rather than everything, so a stale
    * rule loses its narrowing instead of silencing every remark.
    *
+   * <p>Most checks fill values into their message. Resolved without them, the message keeps a
+   * {@code {0}} where each value goes, so it is matched as a pattern: the words must appear in
+   * order, and each placeholder stands for whatever the check filled in.
+   *
    * @param text the remark as the transform built it, usually a heading followed by detail lines
    * @param messageKey {@code <i18n package>:<key>}, the same form Hop's own plugin annotations use
    * @param bundleClass the class whose class loader holds the bundle, or null
@@ -152,7 +216,39 @@ public final class NativeCheckClassifier {
     if (Utils.isEmpty(message)) {
       return false;
     }
-    return text.contains(message.trim());
+    Pattern pattern = patternOf(message.trim());
+    return pattern != null && pattern.matcher(text).find();
+  }
+
+  /**
+   * The resolved message as a pattern, or null when it holds no words to match.
+   *
+   * <p>BaseMessages formats every message, with or without values, so quoting is already undone and
+   * a value that was not given is printed as {@code {n}}. A message made of placeholders alone
+   * would match every remark, and is refused for the same reason as an unresolved key.
+   */
+  private static Pattern patternOf(String message) {
+    StringBuilder regex = new StringBuilder();
+    boolean hasWords = false;
+    int start = 0;
+    Matcher placeholder = PLACEHOLDER.matcher(message);
+    while (placeholder.find()) {
+      hasWords |= appendLiteral(regex, message.substring(start, placeholder.start()));
+      // Lazy, and across lines: values such as an exception message often carry line breaks.
+      regex.append("(?s:.*?)");
+      start = placeholder.end();
+    }
+    hasWords |= appendLiteral(regex, message.substring(start));
+    return hasWords ? Pattern.compile(regex.toString()) : null;
+  }
+
+  /** Append the text as a literal, and say whether it holds a letter or digit. */
+  private static boolean appendLiteral(StringBuilder regex, String literal) {
+    if (literal.isEmpty()) {
+      return false;
+    }
+    regex.append(Pattern.quote(literal));
+    return literal.codePoints().anyMatch(Character::isLetterOrDigit);
   }
 
   /**

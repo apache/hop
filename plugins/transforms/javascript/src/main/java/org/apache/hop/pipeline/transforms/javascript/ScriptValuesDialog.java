@@ -221,7 +221,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         .cancel(e -> cancel())
         .build();
 
-    lsMod = e -> input.setChanged();
+    // Keep the listener from createShell(). It ignores events while loading, so filling the
+    // widgets does not mark the transform changed. Replacing it did, and Cancel then warned.
     changed = input.hasChanged();
 
     Control lastControl = wSpacer;
@@ -590,10 +591,12 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     IContentEditorWidget editor =
         ContentEditorFacade.createContentEditor(item.getParent(), "javascript");
+    // setText() notifies modify listeners on the next event-loop turn, which is after open()
+    // has restored the original changed flag. Loading a tab then looked like an edit.
     if ((strScript != null) && !strScript.isEmpty()) {
-      editor.setText(strScript);
+      editor.setTextSuppressModify(strScript);
     } else {
-      editor.setText(
+      editor.setTextSuppressModify(
           BaseMessages.getString(PKG, "ScriptValuesDialogMod.ScriptHere.Label")
               + Const.CR
               + Const.CR);

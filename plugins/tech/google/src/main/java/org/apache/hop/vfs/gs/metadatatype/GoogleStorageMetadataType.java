@@ -19,6 +19,7 @@ package org.apache.hop.vfs.gs.metadatatype;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -27,7 +28,8 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
-    key = "GoogleStorageConnectionDefinition",
+    key = "google-storage-connection",
+    legacyKeys = {"GoogleStorageConnectionDefinition"},
     name = "i18n::GoogleStorageMetadataType.Name",
     description = "i18n::GoogleStorageMetadataType.Description",
     image = "ui/images/authentication.svg",
@@ -38,7 +40,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Getter
 @Setter
 public class GoogleStorageMetadataType extends HopMetadataBase
-    implements Serializable, IHopMetadata {
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   private static final Class<?> PKG = GoogleStorageMetadataType.class;
   @HopMetadataProperty private String description;

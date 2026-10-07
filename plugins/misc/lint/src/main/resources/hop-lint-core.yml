@@ -158,9 +158,9 @@ rules:
     description: >
       Every remark Hop's own transform and action checks produce. They work from the row stream
       inferred at design time, which is right for a plain pipeline and wrong wherever fields
-      arrive at runtime, so the linter reports them as warnings rather than letting them fail a
-      build. Set severity to ERROR to treat them as the transform meant them, or disable this
-      rule to leave Hop's verify remarks to the Verify button.
+      arrive at runtime, so the linter caps them at warning rather than letting them fail a
+      build; a comment stays a comment. Set severity to ERROR to treat them as the transform meant
+      them, or disable this rule to leave Hop's verify remarks to the Verify button.
 
   # No narrowed rule ships enabled or disabled here. A check that is simply wrong is fixed in the
   # transform, which is what #8294 did for the two in Select Values; silencing it from a rule pack

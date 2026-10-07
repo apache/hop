@@ -38,6 +38,7 @@ import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -70,11 +71,16 @@ public class PropsUi extends Props {
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
+  private static final String SHOW_CANVAS_TOOL_TIP_PREFIX = "ShowCanvasToolTip";
   private static final String RESOLVE_VARIABLES_IN_TOOLTIPS = "ResolveVariablesInToolTips";
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
   private static final String HIDE_MENU_BAR = "HideMenuBar";
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
+
+  /** Absent means the embedded terminal stays on. */
+  public static final String STRING_EMBEDDED_TERMINAL_ENABLED = "EmbeddedTerminalEnabled";
+
   private static final String AUTO_LAYOUT_DIRECTION = "AutoLayoutDirection";
   private static final String AUTO_LAYOUT_LAYER_SPACING = "AutoLayoutLayerSpacing";
   private static final String AUTO_LAYOUT_NODE_SPACING = "AutoLayoutNodeSpacing";
@@ -546,6 +552,18 @@ public class PropsUi extends Props {
   public boolean openLastFile() {
     String open = getProperty(STRING_OPEN_LAST_FILE);
     return !NO.equalsIgnoreCase(open);
+  }
+
+  public void setEmbeddedTerminalEnabled(boolean enabled) {
+    setProperty(STRING_EMBEDDED_TERMINAL_ENABLED, enabled ? YES : NO);
+  }
+
+  /**
+   * True unless the user has turned the embedded terminal off. Hop Web and {@code
+   * disabledGuiElements.xml} are applied separately by {@code HopGuiBottomDock}.
+   */
+  public boolean isEmbeddedTerminalEnabled() {
+    return !NO.equalsIgnoreCase(getProperty(STRING_EMBEDDED_TERMINAL_ENABLED));
   }
 
   public void setReloadingFilesOnChange(boolean reload) {
@@ -1253,6 +1271,18 @@ public class PropsUi extends Props {
     setProperty(SHOW_TOOL_TIPS, show ? YES : NO);
   }
 
+  /**
+   * Whether the pipeline and workflow canvas show one kind of tooltip. Every kind is on by default;
+   * {@link #showToolTips()} switches all of them off at once.
+   */
+  public boolean isCanvasToolTipShown(CanvasToolTip toolTip) {
+    return YES.equalsIgnoreCase(getProperty(SHOW_CANVAS_TOOL_TIP_PREFIX + toolTip.getCode(), YES));
+  }
+
+  public void setCanvasToolTipShown(CanvasToolTip toolTip, boolean show) {
+    setProperty(SHOW_CANVAS_TOOL_TIP_PREFIX + toolTip.getCode(), show ? YES : NO);
+  }
+
   public boolean resolveVariablesInToolTips() {
     return YES.equalsIgnoreCase(getProperty(RESOLVE_VARIABLES_IN_TOOLTIPS, YES));
   }
@@ -1359,7 +1389,9 @@ public class PropsUi extends Props {
         .setLayerSpacing(getAutoLayoutLayerSpacing())
         .setNodeSpacing(getAutoLayoutNodeSpacing())
         .setCrossingIterations(getAutoLayoutCrossingIterations())
-        .setMoveNotes(isAutoLayoutMoveNotes());
+        .setMoveNotes(isAutoLayoutMoveNotes())
+        // Auto-layout must snap to the same grid as manual moves to keep items aligned.
+        .setGridSize(getCanvasGridSize());
   }
 
   /**

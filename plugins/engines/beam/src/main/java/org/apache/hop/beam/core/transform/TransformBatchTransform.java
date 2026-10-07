@@ -529,8 +529,9 @@ public class TransformBatchTransform extends TransformTransform {
             rowListener =
                 new RowAdapter() {
                   @Override
-                  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
-                    resultRows.add(row);
+                  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
+                      throws HopTransformException {
+                    resultRows.add(HopBeamUtil.toNormalStorage(rowMeta, row));
                   }
                 };
             transformCombi.transform.addRowListener(rowListener);
@@ -566,7 +567,7 @@ public class TransformBatchTransform extends TransformTransform {
                       throws HopTransformException {
                     // We send the target row to a specific list...
                     //
-                    targetResultRows.add(row);
+                    targetResultRows.add(HopBeamUtil.toNormalStorage(rowMeta, row));
                   }
                 });
           }

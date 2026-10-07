@@ -29,6 +29,7 @@ import java.util.function.UnaryOperator;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.marketplace.catalog.NexusRepositoryBrowser;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 
 @Getter
@@ -277,12 +278,12 @@ public class MarketplaceRepository {
   }
 
   /**
-   * Environment lookup, replaceable in tests. Package-private on purpose: credential resolution is
-   * otherwise untestable, and it is the part most likely to go subtly wrong.
+   * Environment lookup, replaceable in tests. Credential resolution is otherwise untestable, and it
+   * is the part most likely to go subtly wrong.
    */
   private static UnaryOperator<String> environment = System::getenv;
 
-  static void setEnvironmentForTesting(UnaryOperator<String> lookup) {
+  public static void setEnvironmentForTesting(UnaryOperator<String> lookup) {
     environment = lookup == null ? System::getenv : lookup;
   }
 
@@ -361,6 +362,31 @@ public class MarketplaceRepository {
    */
   public boolean credentialsFromEnvironmentOnly() {
     return StringUtils.isAllBlank(username, password) && hasCredentials();
+  }
+
+  /**
+   * True when this repository can list plugins (a catalog URL, or a browse API the URL or {@link
+   * #browserType} actually supports). A plain Maven repository is not browsable: callers must pass
+   * {@code groupId:artifactId:version} instead of a short name.
+   */
+  public boolean canBrowse() {
+    return isBrowse() && supportsBrowseApi();
+  }
+
+  /**
+   * Whether the resolved browse backend can list this repository, ignoring the {@link #browse}
+   * flag. Explicit {@code jfrog} or {@code forgejo} counts; {@code nexus} only when the URL is a
+   * Nexus {@code /repository/<name>/} base.
+   */
+  public boolean supportsBrowseApi() {
+    if (StringUtils.isNotBlank(catalogUrl)) {
+      return true;
+    }
+    return switch (effectiveBrowserType()) {
+      case BROWSER_FORGEJO, BROWSER_JFROG -> true;
+      case BROWSER_NEXUS -> NexusRepositoryBrowser.isNexusBrowseUrl(url);
+      default -> false;
+    };
   }
 
   /**

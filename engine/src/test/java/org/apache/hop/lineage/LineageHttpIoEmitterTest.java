@@ -17,6 +17,8 @@
 
 package org.apache.hop.lineage;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -84,6 +86,25 @@ class LineageHttpIoEmitterTest {
                         && e.getPayload() instanceof HttpLineagePayload p
                         && p.getUrl().equals("https://example.test/x")
                         && p.getResponseBytes() == 10L));
+  }
+
+  @Test
+  void payloadCarriesNoCredentials() {
+    // Lineage events leave the process: a password or key in the URL must not go with them.
+    HttpLineagePayload payload =
+        new HttpLineagePayload(
+            HttpDirection.CLIENT,
+            "GET",
+            "https://user:topsecret@example.test/x?api_key=k3y&q=1",
+            401,
+            null,
+            null,
+            5L,
+            false,
+            "Unauthorized for https://user:topsecret@example.test/x");
+
+    assertEquals("https://********@example.test/x?api_key=********&q=1", payload.getUrl());
+    assertFalse(payload.getMessage().contains("topsecret"), payload.getMessage());
   }
 
   @Test

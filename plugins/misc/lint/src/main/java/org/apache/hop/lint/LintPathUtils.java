@@ -17,6 +17,7 @@
 package org.apache.hop.lint;
 
 import java.io.File;
+import java.io.IOException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -72,6 +73,18 @@ public final class LintPathUtils {
     }
 
     return normalizedA.equalsIgnoreCase(normalizedB);
+  }
+
+  /** Whether a file or folder is the folder given or lies somewhere below it. */
+  public static boolean isWithin(File path, File folder) {
+    if (path == null || folder == null) {
+      return false;
+    }
+    try {
+      return path.getCanonicalFile().toPath().startsWith(folder.getCanonicalFile().toPath());
+    } catch (IOException e) {
+      return path.getAbsoluteFile().toPath().startsWith(folder.getAbsoluteFile().toPath());
+    }
   }
 
   /** Explorer passes the full VFS path as {@code path} and the basename as {@code name}. */

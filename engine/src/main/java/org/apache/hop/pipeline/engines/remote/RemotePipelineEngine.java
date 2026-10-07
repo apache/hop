@@ -131,6 +131,15 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
 
+  /**
+   * The Result the server reported when the pipeline finished: the result files and result rows the
+   * transforms produced over there. The periodic status polls leave those out (a result row set can
+   * be large), so they are fetched once, on the poll that sees the pipeline finish, and folded into
+   * {@link #getResult()}. Without it a parent workflow only ever saw the metrics of a remote
+   * pipeline and lost the files it added to the result, see issue #4826.
+   */
+  protected volatile Result remoteResult;
+
   protected RemoteHopServer hopServer;
 
   protected ILoggingObject parent;
@@ -245,6 +254,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override
   public void prepareExecution() throws HopException {
+    remoteResult = null;
     try {
       IPipelineEngineRunConfiguration engineRunConfiguration =
           pipelineRunConfiguration.getEngineRunConfiguration();
@@ -565,7 +575,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
   }
 
-  private synchronized void getPipelineStatus() throws HopRuntimeException {
+  synchronized void getPipelineStatus() throws HopRuntimeException {
     try {
       HopServerPipelineStatus pipelineStatus =
           hopServer.requestPipelineStatus(this, subject.getName(), containerId, lastLogLineNr);
@@ -630,6 +640,13 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
           engineMetrics.getComponents().add(component);
         }
 
+        // Fetch the files and rows before finished is raised: a parent waiting in
+        // waitUntilFinished() reads getResult() the moment it sees that flag.
+        //
+        if (pipelineStatus.isFinished() && remoteResult == null) {
+          remoteResult = requestRemoteResult(pipelineStatus.getLastLoggingLineNr());
+        }
+
         statusDescription = pipelineStatus.getStatusDescription();
         running = pipelineStatus.isRunning();
         finished = pipelineStatus.isFinished();
@@ -669,6 +686,31 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
               + containerId
               + "'",
           e);
+    }
+  }
+
+  /**
+   * Ask the server for the complete Result of the finished pipeline. The status polls ask for the
+   * basic variant, which carries the metrics only; this second request asks for the result files
+   * and result rows as well. A failure here is logged rather than thrown: the pipeline did finish,
+   * and raising the error from the polling timer would leave the parent waiting forever.
+   */
+  private Result requestRemoteResult(int fromLogLineNr) {
+    try {
+      HopServerPipelineStatus fullStatus =
+          hopServer.requestPipelineStatus(
+              this, subject.getName(), containerId, fromLogLineNr, true);
+      Result result = fullStatus.getResult();
+      return result == null ? new Result() : result;
+    } catch (Exception e) {
+      logChannel.logError(
+          "Unable to retrieve the result files and rows of pipeline '"
+              + subject.getName()
+              + "' from hop server '"
+              + hopServer.getName()
+              + "', the parent will not see them",
+          e);
+      return new Result();
     }
   }
 
@@ -864,6 +906,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
     result.setStopped(isStopped());
     result.setLogChannelId(getLogChannelId());
+
+    // The result files and rows only exist on the server; they arrive with the final status.
+    //
+    Result remote = remoteResult;
+    if (remote != null) {
+      result.getResultFiles().putAll(remote.getResultFiles());
+      result.setRows(remote.getRows());
+    }
 
     return result;
   }

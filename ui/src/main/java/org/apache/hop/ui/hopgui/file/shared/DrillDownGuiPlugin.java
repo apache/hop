@@ -269,6 +269,23 @@ public class DrillDownGuiPlugin {
     return workflows != null ? workflows : Map.of();
   }
 
+  /**
+   * Alt-click (Option-click on macOS) opens the running execution when the icon supports drill-down
+   * and the graph reports a run in progress. Callers check this before the pipeline error-handling
+   * Alt-click. The engine reference stays set after a run finishes, so the running check is {@code
+   * isRunning()} on the graph.
+   */
+  public static boolean altClickOpensExecution(
+      HopGuiPipelineGraph pipelineGraph, boolean supportsDrillDown) {
+    return supportsDrillDown && pipelineGraph != null && pipelineGraph.isRunning();
+  }
+
+  /** Workflow form of {@link #altClickOpensExecution(HopGuiPipelineGraph, boolean)}. */
+  public static boolean altClickOpensExecution(
+      HopGuiWorkflowGraph workflowGraph, boolean supportsDrillDown) {
+    return supportsDrillDown && workflowGraph != null && workflowGraph.isRunning();
+  }
+
   // ==================== TRANSFORM CONTEXT ====================
 
   @GuiContextAction(

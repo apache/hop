@@ -48,6 +48,7 @@ class ArrowFlightServerAuthenticationTest {
 
   private static final String USERNAME = "hop";
   private static final String PASSWORD = "s3cr3t";
+  private static final String LOOPBACK = "127.0.0.1";
 
   private final ILogChannel log = mock(ILogChannel.class);
 
@@ -64,8 +65,7 @@ class ArrowFlightServerAuthenticationTest {
       clientAllocator.close();
     }
     if (server != null) {
-      server.shutdown();
-      server.getFlightServer().awaitTermination();
+      server.close();
     }
   }
 
@@ -74,14 +74,12 @@ class ArrowFlightServerAuthenticationTest {
     //
     server =
         new ArrowFlightServer(
-            "localhost", 0, security, new Variables(), new MemoryMetadataProvider(), log);
+            LOOPBACK, 0, security, new Variables(), new MemoryMetadataProvider(), log);
     server.start();
 
     clientAllocator = new RootAllocator();
     client =
-        FlightClient.builder(
-                clientAllocator,
-                Location.forGrpcInsecure("localhost", server.getFlightServer().getPort()))
+        FlightClient.builder(clientAllocator, Location.forGrpcInsecure(LOOPBACK, server.getPort()))
             .build();
     return client;
   }
@@ -125,22 +123,30 @@ class ArrowFlightServerAuthenticationTest {
   void aServerWithCredentialsRejectsTheWrongPassword() throws Exception {
     FlightClient flightClient = startServerAndConnect(withCredentials());
 
-    FlightRuntimeException exception =
-        assertThrows(
-            FlightRuntimeException.class,
-            () -> flightClient.authenticateBasicToken(USERNAME, "wrong"));
-    assertEquals(FlightStatusCode.UNAUTHENTICATED, exception.status().code());
+    ExpectedFlightRejection.run(
+        "wrong password for user '" + USERNAME + "'",
+        () -> {
+          FlightRuntimeException exception =
+              assertThrows(
+                  FlightRuntimeException.class,
+                  () -> flightClient.authenticateBasicToken(USERNAME, "wrong"));
+          assertEquals(FlightStatusCode.UNAUTHENTICATED, exception.status().code());
+        });
   }
 
   @Test
   void aServerWithCredentialsRejectsTheWrongUsername() throws Exception {
     FlightClient flightClient = startServerAndConnect(withCredentials());
 
-    FlightRuntimeException exception =
-        assertThrows(
-            FlightRuntimeException.class,
-            () -> flightClient.authenticateBasicToken("somebody-else", PASSWORD));
-    assertEquals(FlightStatusCode.UNAUTHENTICATED, exception.status().code());
+    ExpectedFlightRejection.run(
+        "unknown user 'somebody-else'",
+        () -> {
+          FlightRuntimeException exception =
+              assertThrows(
+                  FlightRuntimeException.class,
+                  () -> flightClient.authenticateBasicToken("somebody-else", PASSWORD));
+          assertEquals(FlightStatusCode.UNAUTHENTICATED, exception.status().code());
+        });
   }
 
   @Test

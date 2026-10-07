@@ -27,6 +27,9 @@ Widget-local shortcuts (they apply to the focused field, not the whole window) a
 [options="header"]
 |===
 |Shortcut|Where|What it does
+|`CTRL-LEFT` / `CTRL-RIGHT`|Any text field. On macOS, `OPTION-LEFT` / `OPTION-RIGHT`|Move to the previous or next word. Hold Shift to extend the selection. `CMD-LEFT` / `CMD-RIGHT` on macOS still go to the start or end of the line
+|`CTRL-C` / `CMD-C`|Any text field|Copy the selection, or the current line when nothing is selected
+|`CTRL-X` / `CMD-X`|Any text field|Cut the selection, or the current line when nothing is selected. Read-only text is not cut
 |`CTRL-SPACE`|`TextVar` / `ComboVar` that accept variables|Insert a `+${variable}+`
 |`CTRL-SPACE`|Name fields that do *not* accept variables (transform/action/metadata names)|Apply a xref:metadata-types/naming-scheme.adoc[Naming Scheme] of the matching type
 |`CTRL-SHIFT-N`|Any name field, field-name cell, table name, file/folder field, or F2 tree rename|List and apply a Naming Scheme. Replaces the current identifier (values that contain `${...}` are left unchanged)

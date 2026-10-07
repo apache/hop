@@ -29,10 +29,12 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -158,5 +160,10 @@ public class MinioMetaEditor extends MetadataEditor<MinioMeta> {
   public void save() throws HopException {
     super.save();
     HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

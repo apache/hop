@@ -36,9 +36,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
+import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -47,10 +52,12 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.hop.Hop;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.lint.registry.EffectiveRuleSet;
 import org.apache.hop.lint.registry.RuleRegistry;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -71,12 +78,13 @@ import picocli.CommandLine.Parameters;
 @Command(
     name = "lint",
     mixinStandardHelpOptions = true,
+    versionProvider = HopVersionProvider.class,
     description =
         "Check pipelines, workflows and metadata against the lint rules. Exits 1 when a finding "
             + "reaches the --fail-on threshold (ERROR by default) or warnings exceed "
             + "--max-warnings.")
 @HopCommand(id = "lint", description = "Check Hop files against the lint rules")
-public class LintCommand implements Callable<Integer>, IHopCommand {
+public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetadataProvider {
 
   // Deliberately no static ILogChannel field here. Touching LogChannel loads Hop's configuration
   // during class initialisation, which prints to stdout before main() gets a chance to run — and
@@ -115,8 +123,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
       names = {"-s", "--severity"},
       paramLabel = "<severity>",
       description =
-          "Report only findings at this severity: ${COMPLETION-CANDIDATES}. Narrows the report "
-              + "only; --fail-on decides the exit code.")
+          "Report only findings at this severity or above: ${COMPLETION-CANDIDATES}. Narrows the "
+              + "report only; --fail-on decides the exit code.")
   private LintSeverity.Level severityFilter;
 
   @Option(
@@ -185,18 +193,39 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
   private IVariables commandVariables;
   private MultiMetadataProvider metadataProvider;
 
+  /** Whether -j, -e or a default project enabled a project, whose metadata then applies. */
+  private boolean projectEnabled;
+
+  /** Whether the project was asked for with -j or -e, here or on the hop command itself. */
+  private boolean projectChosen;
+
+  /** The variables as they were before a project was enabled, to fall back to. */
+  private IVariables variablesBeforeProject;
+
+  private boolean prepared;
+
   @Override
   public void initialize(
-      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider) {
+      CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
+      throws HopException {
     this.cmd = cmd;
     this.commandVariables = variables;
     this.metadataProvider = metadataProvider;
     // The hand-rolled parser upper-cased these, so "--severity warning" has to keep working.
     cmd.setCaseInsensitiveEnumValuesAllowed(true);
+    // -j and -e, from the projects plugin, as hop run and the other commands have them.
+    Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_LINT);
   }
 
+  // The stack trace is only printed when the user asks for it with --verbose
+  @SuppressWarnings("java:S4507")
   @Override
   public Integer call() {
+    // Hop's console logging writes to the stdout it saw at start-up, not to System.out, so moving
+    // System.out does not move it. Stdout carries the report, which a CI job redirects to a file or
+    // pipes to jq; everything else goes to stderr.
+    PrintStream logOut = HopLogStore.OriginalSystemOut;
+    HopLogStore.OriginalSystemOut = HopLogStore.OriginalSystemErr;
     try {
       return run();
     } catch (Exception e) {
@@ -205,6 +234,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
         e.printStackTrace();
       }
       return 1;
+    } finally {
+      HopLogStore.OriginalSystemOut = logOut;
     }
   }
 
@@ -219,17 +250,17 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     }
 
     if (!Utils.isEmpty(listFieldsFor)) {
-      initializeHopEnvironment();
+      prepare();
       return printFields(listFieldsFor);
     }
 
     if (listMetadataTypes) {
-      initializeHopEnvironment();
+      prepare();
       return printMetadataTypes();
     }
 
     if (listRules) {
-      initializeHopEnvironment();
+      prepare();
       printRuleList();
       return 0;
     }
@@ -252,7 +283,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
 
     try {
       printRunHeader(target);
-      initializeHopEnvironment();
+      prepare();
+      applyProjectTo(target);
 
       HopLinter linter = new HopLinter();
       loadConfiguration(linter, target);
@@ -284,21 +316,58 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
       if (reportOwnsStdout) {
         System.setOut(stdout);
       }
-      outputResults(filterForDisplay(results));
+      report(results, exitCode != 0);
       return exitCode;
     } finally {
       System.setOut(stdout);
     }
   }
 
-  /** Apply {@code --severity}, which narrows the report only. */
-  private List<LintResult> filterForDisplay(List<LintResult> results) {
+  /**
+   * Apply {@code --severity}, which narrows the report only, to the severity given and above:
+   * {@code -s WARNING} on a project with errors has to show the errors.
+   */
+  List<LintResult> filterForDisplay(List<LintResult> results) {
     if (severityFilter == null) {
       return results;
     }
     return results.stream()
-        .filter(result -> severityFilter.name().equals(result.getSeverity()))
+        .filter(result -> atOrAbove(result.getSeverity(), severityFilter))
         .collect(Collectors.toList());
+  }
+
+  /** A severity this build does not know is shown rather than hidden. */
+  private static boolean atOrAbove(String severity, LintSeverity.Level minimum) {
+    for (LintSeverity.Level level : LintSeverity.Level.values()) {
+      if (level.name().equalsIgnoreCase(severity)) {
+        return level.ordinal() <= minimum.ordinal();
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Print the report after {@code --severity}, and say what that left out, the way the baseline
+   * does. Hiding findings without a word made a failing run read "No lint issues found."
+   */
+  private void report(List<LintResult> results, boolean failing) {
+    List<LintResult> shown = filterForDisplay(results);
+    int hidden = results.size() - shown.size();
+    if (hidden > 0 && !quiet) {
+      System.err.println(hidden + " finding(s) below " + severityFilter + " hidden by --severity.");
+      LintSeverity.FailOn threshold = LintSeverity.parseFailOn(failOn);
+      if (failing
+          && shown.stream()
+              .noneMatch(r -> LintSeverity.meetsFailOnThreshold(r.getSeverity(), threshold))) {
+        System.err.println(
+            "Failing: the findings at --fail-on "
+                + failOn
+                + " are below --severity "
+                + severityFilter
+                + " and not shown.");
+      }
+    }
+    outputResults(shown, hidden);
   }
 
   /**
@@ -379,8 +448,9 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
    */
   private int printMetadataTypes() {
     try {
-      IVariables variables = Variables.getADefaultVariableSpace();
       String targetPath = Utils.isEmpty(target) ? userDirectory() : target;
+      applyProjectTo(targetPath);
+      IVariables variables = variables();
       IHopMetadataProvider provider = resolveMetadataProvider(new File(targetPath), variables);
       if (provider == null) {
         System.err.println("No metadata provider available; cannot list metadata types.");
@@ -495,10 +565,14 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     }
   }
 
-  /** Version from the jar manifest, so it cannot drift from the build the way a literal does. */
+  /** The Hop version, as {@code hop --version} and {@code hop lint --version} print it. */
   private static String toolVersion() {
-    String version = LintCommand.class.getPackage().getImplementationVersion();
-    return version != null ? version : "development build";
+    String[] version = new HopVersionProvider().getVersion();
+    if (version.length > 0 && !Utils.isEmpty(version[0])) {
+      return version[0];
+    }
+    String lintVersion = LintCommand.class.getPackage().getImplementationVersion();
+    return lintVersion != null ? lintVersion : "development build";
   }
 
   private int runPreCommit() throws Exception {
@@ -511,8 +585,9 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
       throw new IllegalArgumentException("--pre-commit requires --staged-file <path>");
     }
 
-    initializeHopEnvironment();
-    List<File> stagedFiles = PreCommitLintService.readStagedFiles(stagedFileList);
+    prepare();
+    List<File> stagedFiles =
+        PreCommitLintService.readStagedFiles(stagedFileList, new File(userDirectory()));
     if (stagedFiles.isEmpty()) {
       if (!quiet) {
         System.out.println("No staged Hop files to lint.");
@@ -525,8 +600,9 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
 
     // The lint target for path-relative purposes is the project the staged files live in.
     target = projectRootOf(stagedFiles.get(0));
+    applyProjectTo(stagedFiles.get(0).getPath());
 
-    IVariables variables = Variables.getADefaultVariableSpace();
+    IVariables variables = variables();
     // Without a metadata provider a pipeline will not load at all, and connection rules cannot
     // resolve — the hook would pass commits it should have blocked.
     IHopMetadataProvider metadataProvider = resolveMetadataProvider(stagedFiles.get(0), variables);
@@ -557,7 +633,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
     // on findings that were already there before the change.
     List<LintResult> results = applyBaseline(result.getResults());
 
-    outputResults(filterForDisplay(results));
+    report(results, shouldFail(results, LintSeverity.parseFailOn(failOn)));
 
     if (shouldFail(results, LintSeverity.parseFailOn(failOn))) {
       long blocking =
@@ -617,6 +693,103 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
   }
 
   /**
+   * Start Hop and apply {@code -j} / {@code -e}, once.
+   *
+   * <p>Without this the run used an empty set of variables: a Get File Names transform reading
+   * {@code ${JDBC_PROPERTIES_FOLDER}} from the project's environment reported "No files can be
+   * found to read", where Verify in Hop Gui, with the environment active, was clean. As with {@code
+   * hop run}, the default project and environment from hop-config.json are enabled when neither
+   * option is given; {@link #applyProjectTo} then decides whether they apply to what is linted.
+   */
+  private void prepare() throws HopException {
+    if (prepared) {
+      return;
+    }
+    prepared = true;
+    initializeHopEnvironment();
+    if (cmd == null) {
+      return;
+    }
+    IVariables variables = variables();
+    // "hop -j x lint" enables the project before this command runs, and leaves its name behind.
+    projectChosen =
+        !Utils.isEmpty(variables.getVariable("HOP_PROJECT_NAME"))
+            || optionGiven("-j", "--project", "-e", "--environment");
+    variablesBeforeProject = new Variables();
+    variablesBeforeProject.copyFrom(variables);
+    for (Object mixin : cmd.getMixins().values()) {
+      if (mixin instanceof IConfigOptions options
+          && options.handleOption(LogChannel.GENERAL, this, variables)) {
+        projectEnabled = true;
+      }
+    }
+  }
+
+  private boolean optionGiven(String... names) {
+    CommandLine.ParseResult parseResult = cmd.getParseResult();
+    if (parseResult == null) {
+      return false;
+    }
+    for (String name : names) {
+      if (parseResult.hasMatchedOption(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** The variables Hop was started with, with the project's and environment's on top. */
+  private IVariables variables() {
+    if (commandVariables == null) {
+      commandVariables = Variables.getADefaultVariableSpace();
+    }
+    return commandVariables;
+  }
+
+  /**
+   * Keep the enabled project's variables and metadata only where they belong: when -j or -e asked
+   * for it, or when what is linted lies inside it.
+   *
+   * <p>A stock hop-config.json has a default project. Applied to everything, it made {@code hop
+   * lint /path/to/other-project} and the pre-commit hook read the default project's connections
+   * instead of the other project's own {@code metadata/} folder, and report connections that exist
+   * as missing. A default project that does not contain the target is dropped, and the target's own
+   * metadata folder is used as before.
+   */
+  private void applyProjectTo(String path) {
+    if (!projectEnabled) {
+      return;
+    }
+    String projectHome = variables().getVariable("PROJECT_HOME");
+    boolean contains =
+        !Utils.isEmpty(projectHome)
+            && !Utils.isEmpty(path)
+            && LintPathUtils.isWithin(new File(path), new File(projectHome));
+    if (contains) {
+      return;
+    }
+    if (projectChosen) {
+      System.err.println(
+          "Warning: "
+              + path
+              + " is outside the project in use ("
+              + projectHome
+              + "); its variables and metadata apply.");
+      return;
+    }
+    commandVariables = variablesBeforeProject;
+    projectEnabled = false;
+    if (verbose) {
+      System.out.println(
+          "Not using the default project ("
+              + projectHome
+              + "): it does not contain "
+              + path
+              + ". Choose a project with -j or -e.");
+    }
+  }
+
+  /**
    * Bring up Hop far enough to load pipelines and workflows properly.
    *
    * <p>This is not optional bookkeeping. Without it {@code LogChannel.GENERAL} throws "Central Log
@@ -637,20 +810,18 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
   }
 
   /**
-   * Keep Hop's engine logging off stdout when stdout is carrying a report.
+   * {@code --quiet} reports findings only, so Hop's progress logging goes too. Warnings about the
+   * configuration, such as a rule id that does not exist, are logged at the minimal level and stay.
    *
-   * <p>Hop logs to the console by default. That is fine for the text report, but {@code -f sarif}
-   * piped to another tool has to be a valid document, and interleaved log lines make it garbage. An
-   * explicit {@code --output} file keeps the two streams apart, so logging is left alone there.
+   * <p>The general log channel exists before this command runs and read the default level when it
+   * was created, so it has to be set on its own; setting the default alone changed nothing.
    */
   private void quietenHopLogging() {
-    boolean reportOwnsStdout = format != LintReportFormat.TEXT && outputFile == null;
-    if (verbose) {
+    if (verbose || !quiet) {
       return;
     }
-    if (quiet || reportOwnsStdout) {
-      DefaultLogLevel.setLogLevel(LogLevel.NOTHING);
-    }
+    DefaultLogLevel.setLogLevel(LogLevel.MINIMAL);
+    LogChannel.GENERAL.setLogLevel(LogLevel.MINIMAL);
   }
 
   private void loadConfiguration(HopLinter linter, String targetPath) throws IOException {
@@ -673,33 +844,30 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
 
   private List<LintResult> runLinting(HopLinter linter, String targetPath) throws Exception {
     File targetFile = new File(targetPath);
-    IVariables variables = Variables.getADefaultVariableSpace();
+    IVariables variables = variables();
     IHopMetadataProvider metadataProvider = resolveMetadataProvider(targetFile, variables);
 
     if (targetFile.isFile()) {
       if (verbose) {
         System.out.println("Linting file: " + targetPath);
       }
-      return new ArrayList<>(linter.processFile(targetFile, metadataProvider, variables));
+      // A file in a project is judged against the whole project, so it can be reported as
+      // called by nothing; outside one there is nothing to judge it against.
+      CustomRuleExecutor.setProjectIndex(
+          linter.buildProjectIndex(targetPath, metadataProvider, variables));
+      try {
+        return new ArrayList<>(linter.processFile(targetFile, metadataProvider, variables));
+      } finally {
+        CustomRuleExecutor.setProjectIndex(null);
+      }
     }
     if (targetFile.isDirectory()) {
       if (verbose) {
         System.out.println("Linting directory: " + targetPath);
       }
-      // Index the project's references first, so that rules which depend on the project as a whole
-      // — whether a pipeline is called by anything, whether a connection is used — have something
-      // to read. Only a directory lint can build this; a single file has no project to see.
-      List<String> projectFiles = linter.findHopFiles(targetPath);
-      LintProjectIndex index = LintProjectIndex.build(projectFiles, metadataProvider, variables);
-      if (verbose) {
-        System.out.println("Indexed " + index.getIndexedFiles().size() + " file(s) for references");
-      }
-      CustomRuleExecutor.setProjectIndex(index);
-      try {
-        return new ArrayList<>(linter.run(targetPath, metadataProvider, variables, null));
-      } finally {
-        CustomRuleExecutor.setProjectIndex(null);
-      }
+      // The run indexes the project's references itself, for the rules that need the project
+      // as a whole: whether a pipeline is called by anything, whether a connection is used.
+      return new ArrayList<>(linter.run(targetPath, metadataProvider, variables, null));
     }
     throw new IllegalArgumentException("Target does not exist: " + targetPath);
   }
@@ -713,6 +881,15 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
    * about it: point the linter at a pipeline deep in a project and it still finds the project.
    */
   private IHopMetadataProvider resolveMetadataProvider(File target, IVariables variables) {
+    // An enabled project brings its own metadata, parent projects included, from wherever its
+    // configuration says it lives.
+    if (projectEnabled && metadataProvider != null) {
+      if (verbose) {
+        System.out.println(
+            "Using the metadata of project home: " + variables.getVariable("PROJECT_HOME"));
+      }
+      return metadataProvider;
+    }
     File metadataFolder = findMetadataFolder(target);
     if (metadataFolder == null) {
       if (verbose) {
@@ -791,14 +968,21 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
    * working when Hop is upgraded or moved, and so the same hook can be committed to a repository
    * that several people clone.
    */
-  private String hookScript() {
+  String hookScript() {
+    // git lists staged files relative to the repository root, and the hop launcher changes to the
+    // Hop installation before it starts Java, so the paths are made absolute here. The trap
+    // removes the list however the script ends; the last command's status is the hook's.
     return """
         #!/bin/sh
-        set -e
-        STAGED_LIST="$(mktemp)"
-        git diff --cached --name-only --diff-filter=ACM > "$STAGED_LIST"
-        if ! grep -E '\\.(hpl|hwf)$|/metadata/.*\\.json$' "$STAGED_LIST" > /dev/null 2>&1; then
-          rm -f "$STAGED_LIST"
+        ROOT="$(git rev-parse --show-toplevel)" || exit 1
+        STAGED_LIST="$(mktemp)" || exit 1
+        trap 'rm -f "$STAGED_LIST"' EXIT
+        git diff --cached --name-only --diff-filter=ACM | while IFS= read -r FILE; do
+          case "$FILE" in
+            *.hpl|*.hwf|metadata/*.json|*/metadata/*.json) printf '%s/%s\\n' "$ROOT" "$FILE" ;;
+          esac
+        done > "$STAGED_LIST"
+        if [ ! -s "$STAGED_LIST" ]; then
           exit 0
         fi
         HOP="${HOP_HOME:-}/hop"
@@ -807,24 +991,30 @@ public class LintCommand implements Callable<Integer>, IHopCommand {
         fi
         if [ -z "$HOP" ] || [ ! -x "$HOP" ]; then
           echo "The hop launcher was not found. Set HOP_HOME, or put hop on the PATH." >&2
-          rm -f "$STAGED_LIST"
           exit 1
         fi
-        "$HOP" lint --pre-commit --staged-file "$STAGED_LIST" \
+        "$HOP" lint --pre-commit --staged-file "$STAGED_LIST" \\
           ${HOP_LINT_FAIL_ON:+--fail-on "$HOP_LINT_FAIL_ON"}
-        STATUS=$?
-        rm -f "$STAGED_LIST"
-        exit $STATUS
         """;
   }
 
-  private void outputResults(List<LintResult> results) {
+  /**
+   * @param hidden how many findings {@code --severity} left out, so an empty text report does not
+   *     claim there were none
+   */
+  private void outputResults(List<LintResult> results, int hidden) {
     String report;
     try {
-      report = LintReportWriter.render(format, results, toolVersion(), reportBaseDirectory());
+      if (format == LintReportFormat.TEXT && results.isEmpty() && hidden > 0) {
+        report = "No findings at " + severityFilter + " or above.\n";
+      } else if (format == LintReportFormat.TEXT) {
+        report = LintReportWriter.renderText(results, !quiet);
+      } else {
+        report = LintReportWriter.render(format, results, toolVersion(), reportBaseDirectory());
+      }
     } catch (Exception e) {
       System.err.println("Error rendering the " + format.getId() + " report: " + e.getMessage());
-      report = LintReportWriter.renderText(results);
+      report = LintReportWriter.renderText(results, !quiet);
     }
 
     if (outputFile != null) {

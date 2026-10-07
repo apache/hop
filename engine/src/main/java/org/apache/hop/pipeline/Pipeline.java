@@ -1558,38 +1558,44 @@ public abstract class Pipeline
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
+    HopException listenerException = null;
     synchronized (executionFinishedListeners) {
-      if (executionFinishedListeners.isEmpty()) {
-        return;
-      }
-      // prevent Exception from one listener to block others execution
-      List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
-      for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
-          executionFinishedListeners) {
-        try {
-          listener.finished(this);
-        } catch (HopException e) {
-          badGuys.add(e);
+      if (!executionFinishedListeners.isEmpty()) {
+        // prevent Exception from one listener to block others execution
+        List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
+        for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+            executionFinishedListeners) {
+          try {
+            listener.finished(this);
+          } catch (HopException e) {
+            badGuys.add(e);
+          }
         }
-      }
-      if (!badGuys.isEmpty()) {
-        // FIFO
-        throw new HopException(badGuys.get(0));
+        if (!badGuys.isEmpty()) {
+          // FIFO
+          listenerException = badGuys.get(0);
+        }
       }
     }
 
-    // Now the status and everything else is set correctly. We've completed the pipeline.
-    //
-    pipelineCompleted();
+    try {
+      // Now the status and everything else is set correctly. We've completed the pipeline.
+      //
+      pipelineCompleted();
 
-    // Also call an extension point in case plugins want to play along
-    //
-    ExtensionPointHandler.callExtensionPoint(
-        log, this, HopExtensionPoint.PipelineCompleted.id, this);
+      // Also call an extension point in case plugins want to play along
+      //
+      ExtensionPointHandler.callExtensionPoint(
+          log, this, HopExtensionPoint.PipelineCompleted.id, this);
+    } finally {
+      // Only now: everything above can still touch files of this namespace, and closing it
+      // invalidates every file object resolved through it - the result files carry those.
+      releaseVfsNamespace();
+    }
 
-    // Only now: everything above can still touch files of this namespace, and closing it
-    // invalidates every file object resolved through it - the result files carry those.
-    releaseVfsNamespace();
+    if (listenerException != null) {
+      throw listenerException;
+    }
   }
 
   public void pipelineCompleted() throws HopException {

@@ -1,0 +1,31 @@
+{
+  "variables" : [ {
+    "name" : "SMB_HOSTNAME",
+    "value" : "samba",
+    "description" : "Compose service name of the signing Samba server"
+  }, {
+    "name" : "SMB_ENCRYPTED_HOSTNAME",
+    "value" : "samba-encrypted",
+    "description" : "Compose service name of the Samba server that requires encryption"
+  }, {
+    "name" : "SMB_PORT",
+    "value" : "445",
+    "description" : ""
+  }, {
+    "name" : "SMB_USER",
+    "value" : "hop",
+    "description" : ""
+  }, {
+    "name" : "SMB_PASSWORD",
+    "value" : "hop-it-password",
+    "description" : "Matches the Samba container. A variable is not encrypted into the connection JSON."
+  }, {
+    "name" : "SMB_BAD_PASSWORD",
+    "value" : "not-the-password",
+    "description" : ""
+  }, {
+    "name" : "SMB_SHARE",
+    "value" : "data",
+    "description" : ""
+  } ]
+}

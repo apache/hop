@@ -42,19 +42,43 @@ To emit lineage, the `openlineage-dbt` package must be installed as well; it pro
 
 == Options
 
+The options are organized on four tabs. The action name is above them and applies to all of them.
+
+=== dbt project
+
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Action name|The name of the workflow action.
 |dbt project|The xref:metadata-types/dbt-project.adoc[dbt Project] metadata object to run against.
 |Operation|The dbt sub-command to run: `run`, `build`, `test`, `seed`, `snapshot`, `compile` or `source-freshness`.
 |Target|The dbt target (`--target`). Overrides the default target of the dbt project when set.
+|===
+
+=== Selection
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
 |--select|Passed to dbt as `--select`, using dbt's node selection syntax. Several selectors can be given in one value, separated by spaces.
 |--exclude|Passed to dbt as `--exclude`.
+|--full-refresh|Passed to dbt as `--full-refresh`. dbt only accepts the flag for `run`, `build` and `seed`, so it is left out for the other operations.
+|===
+
+=== Execution
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
 |--threads|Passed to dbt as `--threads`. Left empty, dbt uses the thread count from `profiles.yml`.
 |Timeout in seconds|Wall-clock limit for the dbt run. When it is reached, dbt and the processes it started are stopped and the action fails. Empty or `0` waits for dbt however long it takes.
-|--full-refresh|Passed to dbt as `--full-refresh`. dbt only accepts the flag for `run`, `build` and `seed`, so it is left out for the other operations.
 |Emit OpenLineage|Run dbt through `dbt-ol` and point it at the collector Hop's own lineage sink uses. See <<Lineage>>.
+|===
+
+=== Variables
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
 |Variables (--vars)|Name/value pairs passed to dbt as `--vars`. See <<dbt variables>>.
 |Environment variables|Name/value pairs added to the environment of the dbt process. This is where credentials belong: the values are secret-resolved and masked in the log.
 |===

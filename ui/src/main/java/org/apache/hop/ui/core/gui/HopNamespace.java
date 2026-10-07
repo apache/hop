@@ -105,10 +105,17 @@ public class HopNamespace {
     return NAMESPACE_BY_DISPLAY.get(display);
   }
 
-  /** Remember the namespace for the session on this thread. Only call with a user interface. */
+  /**
+   * Remember the namespace for the session on this thread. Only call with a user interface. A null
+   * or blank value clears it: that is "no project", and the map cannot store null.
+   */
   private static void rememberForCurrentDisplay(String namespace) {
     Display display = SessionDisplay.current();
     if (display == null || display.isDisposed()) {
+      return;
+    }
+    if (Utils.isEmpty(namespace)) {
+      NAMESPACE_BY_DISPLAY.remove(display);
       return;
     }
     if (!NAMESPACE_BY_DISPLAY.containsKey(display)) {

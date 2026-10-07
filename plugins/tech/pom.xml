@@ -40,6 +40,7 @@
         <module>dropbox</module>
         <module>elastic</module>
         <module>ftp</module>
+        <module>git-vfs</module>
         <module>google</module>
         <module>hadoop</module>
         <module>minio</module>
@@ -52,6 +53,7 @@
         <module>redis</module>
         <module>salesforce</module>
         <module>sftp</module>
+        <module>smb</module>
         <module>vault</module>
         <module>webdav</module>
     </modules>

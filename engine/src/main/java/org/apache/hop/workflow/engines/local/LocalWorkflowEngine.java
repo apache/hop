@@ -68,6 +68,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
   private ExecutionInfoLocation executionInfoLocation;
   private Timer executionInfoTimer;
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   public LocalWorkflowEngine() {
     super();
@@ -260,7 +261,17 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
           startExecutionInfoTimer();
         });
 
-    return super.startExecution();
+    try {
+      return super.startExecution();
+    } finally {
+      // Finished listeners are not guaranteed to run to the end: an earlier listener that throws
+      // skips stopExecutionInfoTimer(), and the cache timer then keeps writing. Close here too.
+      try {
+        stopExecutionInfoTimer();
+      } catch (Exception e) {
+        log.logError("Error closing execution information location after workflow execution", e);
+      }
+    }
   }
 
   /** This method looks up the execution information location specified in the run configuration. */
@@ -376,7 +387,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
-    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
 
@@ -392,12 +402,13 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               // Update the workflow execution state regularly
               //
               ExecutionState executionState =
-                  ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, lastLogLineNr.get())
+                  ExecutionStateBuilder.fromExecutor(
+                          LocalWorkflowEngine.this, executionInfoLastLogLineNr.get())
                       .build();
               rebindSparkTransformOwnerParent(executionState);
               iLocation.updateExecutionState(executionState);
               if (executionState.getLastLogLineNr() != null) {
-                lastLogLineNr.set(executionState.getLastLogLineNr());
+                executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
               }
             } catch (Exception e) {
               log.logError(
@@ -456,6 +467,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
         iLocation.registerExecution(
             ExecutionBuilder.of()
                 .withId(action.getLogChannel().getLogChannelId())
+                .withName(actionMeta.getName())
                 .withParentId(workflow.getLogChannelId())
                 .withExecutionStartDate(new Date())
                 .withRegistrationDate(new Date())
@@ -503,26 +515,35 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     }
   }
 
-  public void stopExecutionInfoTimer() throws HopException {
+  public synchronized void stopExecutionInfoTimer() throws HopException {
     ExecutorUtil.cleanup(executionInfoTimer);
+    executionInfoTimer = null;
 
-    if (executionInfoLocation == null) {
+    ExecutionInfoLocation location = executionInfoLocation;
+    // Claim it so the finished listener and the startExecution() finally do not both flush and
+    // close, and so a second run cannot observe this location while it is being closed.
+    executionInfoLocation = null;
+    if (location == null || location.getExecutionInfoLocation() == null) {
       return;
     }
 
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
     try {
-      IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
-
       // Register one final last state of the workflow
       //
       ExecutionState executionState =
-          ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, -1).build();
+          ExecutionStateBuilder.fromExecutor(
+                  LocalWorkflowEngine.this, executionInfoLastLogLineNr.get())
+              .build();
+      if (executionState.getLastLogLineNr() != null) {
+        executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
+      }
       rebindSparkTransformOwnerParent(executionState);
       iLocation.updateExecutionState(executionState);
     } finally {
       // Nothing more needs to be done. We can now close the location.
       //
-      executionInfoLocation.getExecutionInfoLocation().close();
+      iLocation.close();
     }
   }
 }

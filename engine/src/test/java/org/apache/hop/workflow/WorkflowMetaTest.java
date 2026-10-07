@@ -295,6 +295,31 @@ class WorkflowMetaTest {
   }
 
   @Test
+  void testGetXmlPersistsNameSynchronizedWithFilename() throws Exception {
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setName("New workflow");
+    meta.setNameSynchronizedWithFilename(true);
+    meta.setFilename("/tmp/parameters_and_variables/Test Workflow.hwf");
+
+    String xml = meta.getXml(new Variables());
+
+    assertTrue(xml.contains("<name>Test Workflow</name>"));
+    assertFalse(xml.contains("<name>New workflow</name>"));
+  }
+
+  @Test
+  void testGetXmlKeepsExplicitNameWhenNotSynchronized() throws Exception {
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setName("Custom name");
+    meta.setNameSynchronizedWithFilename(false);
+    meta.setFilename("/tmp/Test Workflow.hwf");
+
+    String xml = meta.getXml(new Variables());
+
+    assertTrue(xml.contains("<name>Custom name</name>"));
+  }
+
+  @Test
   void testSetInternalHopVariablesWithoutFilename() {
     WorkflowMeta meta = new WorkflowMeta();
     meta.setNameSynchronizedWithFilename(false);
@@ -452,17 +477,19 @@ class WorkflowMetaTest {
   @Test
   void loadingDropsAHopThatNamesAnActionNotInTheFile() throws Exception {
     String xml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<workflow>\n"
-            + "  <name>fuzzymatch</name>\n"
-            + "  <actions>\n"
-            + "    <action><name>Start</name><type>ActionFake</type></action>\n"
-            + "    <action><name>Run Fuzzy match tests</name><type>ActionFake</type></action>\n"
-            + "  </actions>\n"
-            + "  <hops>\n"
-            + "    <hop><from>Start</from><to>Run Group By tests</to><enabled>Y</enabled></hop>\n"
-            + "  </hops>\n"
-            + "</workflow>";
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <workflow>
+          <name>fuzzymatch</name>
+          <actions>
+            <action><name>Start</name><type>ActionFake</type></action>
+            <action><name>Run Fuzzy match tests</name><type>ActionFake</type></action>
+          </actions>
+          <hops>
+            <hop><from>Start</from><to>Run Group By tests</to><enabled>Y</enabled></hop>
+          </hops>
+        </workflow>
+        """;
 
     // Dropping the hop is logged, and logging needs a log store to write to.
     HopLogStore.init();
@@ -508,17 +535,19 @@ class WorkflowMetaTest {
   @Test
   void loadingKeepsDisabledHops() throws Exception {
     String xml =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<workflow>\n"
-            + "  <name>disabled</name>\n"
-            + "  <actions>\n"
-            + "    <action><name>Start</name><type>ActionFake</type></action>\n"
-            + "    <action><name>Second</name><type>ActionFake</type></action>\n"
-            + "  </actions>\n"
-            + "  <hops>\n"
-            + "    <hop><from>Start</from><to>Second</to><enabled>N</enabled></hop>\n"
-            + "  </hops>\n"
-            + "</workflow>";
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <workflow>
+          <name>disabled</name>
+          <actions>
+            <action><name>Start</name><type>ActionFake</type></action>
+            <action><name>Second</name><type>ActionFake</type></action>
+          </actions>
+          <hops>
+            <hop><from>Start</from><to>Second</to><enabled>N</enabled></hop>
+          </hops>
+        </workflow>
+        """;
 
     WorkflowMeta loaded = new WorkflowMeta();
     loaded.loadXml(

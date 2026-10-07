@@ -99,6 +99,18 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static final List<IDatabaseTypeRule> TYPE_RULES =
       DatabaseTypes.rules()
+          // A table column declared NUMERIC, DECIMAL or NUMBER is an exact number, whatever the
+          // driver makes of the row it is on: INTEGER for a whole number, NUMERIC for a null,
+          // VARCHAR for text. The prepared statement says NUMERIC for all of them, and a Database
+          // Join takes its fields from one and its values from the other. Matched on the declared
+          // name, which is the same on both, rather than on the JDBC type. See issue #3633.
+          .readNativeMatching(SqliteNumericValues.DECLARED_TYPE)
+          .where(column -> !Utils.isEmpty(column.getTableName()))
+          .bind(SqliteNumericValues.BINDING)
+          .as(
+              IValueMeta.TYPE_BIGNUMBER,
+              column -> column.getPrecision() > 0 ? column.getPrecision() : -1,
+              column -> column.getPrecision() > 0 ? column.getScale() : -1)
           // Dynamic typing means a binary column is as likely to hold text.
           .read(Types.BINARY, Types.BLOB, Types.VARBINARY, Types.LONGVARBINARY)
           .where(

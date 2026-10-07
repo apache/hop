@@ -154,7 +154,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
       case IValueMeta.TYPE_BINARY:
         {
           byte[] bytes = (byte[]) object;
-          out.write(bytes.length);
+          out.writeInt(bytes.length);
           out.write(bytes);
         }
         break;
@@ -241,7 +241,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
       case IValueMeta.TYPE_BINARY:
         {
           byte[] bytes = new byte[in.readInt()];
-          in.read(bytes);
+          in.readFully(bytes);
           return bytes;
         }
 
@@ -249,7 +249,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
         {
           String hostname = (String) read(in, IValueMeta.TYPE_STRING);
           byte[] addr = new byte[in.readInt() == 1 ? 4 : 16];
-          in.read(addr);
+          in.readFully(addr);
           return InetAddress.getByAddress(hostname, addr);
         }
 

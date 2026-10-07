@@ -75,6 +75,91 @@ install_jdbc_drivers() {
   done
 }
 
+# Download Marketplace plugins on container start, before Hop is launched.
+# Driven by environment variables:
+#   HOP_PLUGINS_DOWNLOAD        comma-separated plugin coordinates, installed in one hop process:
+#                               short names, artifactId, artifactId:version, or groupId:artifactId:version
+#                               e.g. "org.hopper:hopper-edw:0.10.0,org.apache.hop:hop-tech-parquet:2.20.0"
+#   HOP_PLUGINS_MAVEN_REPO      optional Maven/Artifactory/Nexus base URL, tried first. Other
+#                               configured repositories are still used when a plugin is not there.
+#   HOP_PLUGINS_REPO_ID         repository id for that URL (default: corporate-repo). Credential
+#                               variables are HOP_MARKETPLACE_<ID>_USERNAME, _PASSWORD and _TOKEN.
+#   HOP_PLUGINS_REPO_USERNAME   optional username, exported as HOP_MARKETPLACE_<ID>_USERNAME
+#   HOP_PLUGINS_REPO_PASSWORD   optional password or token. Exported as _PASSWORD, or _TOKEN when
+#                               the auth type is token. Never passed as --password.
+#   HOP_PLUGINS_REPO_AUTH_TYPE  optional authentication type: auto (default), none, basic, token
+#   HOP_PLUGINS_REPO_TYPE       optional browse API: auto (default), nexus, forgejo, jfrog, or maven
+#   HOP_PLUGINS_ENV_FILE        optional install spec file or URL (hop-env.yaml / hop-marketplace-repo.yaml)
+#   HOP_PLUGIN_BASE_FOLDERS     optional writable plugins directory. The first one that is not the
+#                               image's own plugins folder receives the install.
+install_marketplace_plugins() {
+  local env_file="${HOP_PLUGINS_ENV_FILE:-}"
+  if [ -n "${env_file}" ]; then
+    log "Applying Hop marketplace environment file: ${env_file}"
+    if ! "${DEPLOYMENT_PATH}"/hop marketplace apply -f "${env_file}"; then
+      log "Error: failed to apply marketplace environment file '${env_file}'"
+      exitWithCode 8
+    fi
+  fi
+
+  local plugins="${HOP_PLUGINS_DOWNLOAD:-}"
+  if [ -z "${plugins}" ]; then
+    return 0
+  fi
+
+  local repo_id="${HOP_PLUGINS_REPO_ID:-corporate-repo}"
+  local repo_prefix
+  repo_prefix="$(printf '%s' "${repo_id}" | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')"
+
+  local install_args=()
+  local repo_url="${HOP_PLUGINS_MAVEN_REPO:-}"
+  if [ -n "${repo_url}" ]; then
+    install_args+=("--repo-url=${repo_url}" "--repo-id=${repo_id}")
+  fi
+
+  local repo_type="${HOP_PLUGINS_REPO_TYPE:-}"
+  if [ -n "${repo_type}" ]; then
+    install_args+=("--repo-type=${repo_type}")
+  fi
+
+  local auth_type="${HOP_PLUGINS_REPO_AUTH_TYPE:-}"
+  if [ -n "${auth_type}" ]; then
+    install_args+=("--auth-type=${auth_type}")
+  fi
+
+  # MarketplaceRepository reads these. They must not be placed on the hop command line.
+  if [ -n "${HOP_PLUGINS_REPO_USERNAME:-}" ]; then
+    export "HOP_MARKETPLACE_${repo_prefix}_USERNAME=${HOP_PLUGINS_REPO_USERNAME}"
+  fi
+  if [ -n "${HOP_PLUGINS_REPO_PASSWORD:-}" ]; then
+    case "${auth_type}" in
+    token | TOKEN | Token)
+      export "HOP_MARKETPLACE_${repo_prefix}_TOKEN=${HOP_PLUGINS_REPO_PASSWORD}"
+      ;;
+    *)
+      export "HOP_MARKETPLACE_${repo_prefix}_PASSWORD=${HOP_PLUGINS_REPO_PASSWORD}"
+      ;;
+    esac
+  fi
+
+  local specs=()
+  local spec
+  for spec in ${plugins//,/ }; do
+    spec="$(echo "${spec}" | tr -d '[:space:]')"
+    [ -z "${spec}" ] && continue
+    specs+=("${spec}")
+  done
+  if [ ${#specs[@]} -eq 0 ]; then
+    return 0
+  fi
+
+  log "Installing marketplace plugins: ${plugins}"
+  if ! "${DEPLOYMENT_PATH}"/hop marketplace install "${specs[@]}" "${install_args[@]}"; then
+    log "Error: failed to install marketplace plugins: ${plugins}"
+    exitWithCode 8
+  fi
+}
+
 #   write the hop-server config to a configuration file
 #   to avoid the password of the server being shown in ps
 #
@@ -157,6 +242,9 @@ fi
 
 # Download requested JDBC drivers (HOP_DRIVERS_DOWNLOAD) before Hop starts.
 install_jdbc_drivers
+
+# Download requested Marketplace plugins (HOP_PLUGINS_DOWNLOAD) before Hop starts.
+install_marketplace_plugins
 
 # Set empty defaults on the Hop command options.
 #

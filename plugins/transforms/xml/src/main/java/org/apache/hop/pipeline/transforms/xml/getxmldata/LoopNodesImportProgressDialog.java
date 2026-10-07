@@ -90,6 +90,8 @@ public class LoopNodesImportProgressDialog {
     this.nr = 0;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public String[] open(IVariables variables) {
     IRunnableWithProgress op =
         monitor -> {

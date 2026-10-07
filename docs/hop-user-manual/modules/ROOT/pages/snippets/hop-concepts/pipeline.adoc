@@ -14,7 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-Pipelines are the actual data workers.
-Operations in a Pipeline read, modify, enrich, clean and write data.
-A pipeline starts with one or more xref:pipeline/pipeline-sources.adoc[pipeline sources] and runs every transform in parallel.
-Orchestration of Pipelines is done through othere Pipelines and/or Workflows.
+Pipelines are the **data workers** of Apache Hop.
+Operations in a pipeline read, transform, enrich, clean, validate, and write data.
+A pipeline starts with one or more xref:pipeline/pipeline-sources.adoc[pipeline sources] and runs every transform in **parallel**.
+Data travels between transforms along hops through in-memory row buffers, ensuring high throughput and automatic back-pressure.
+See xref:pipeline/pipelines.adoc[Pipelines] for detailed execution mechanics, engines, and production scenarios.

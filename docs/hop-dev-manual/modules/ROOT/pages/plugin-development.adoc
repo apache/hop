@@ -20,6 +20,8 @@ under the License.
 
 This page explains how to develop new plugins with references to make development easy.
 
+For detailed tutorials and concrete codebase examples for 15 primary plugin types (transforms, actions, metadata, databases, GUI, file types, variable resolvers, extension points, commands, and more), see xref:sdk/plugins/index.adoc[**Plugin Development Guide**].
+
 For contributing **toolbar buttons** and other GUI-only extensions (`@GuiPlugin`, `@GuiToolbarElement`, `@GuiToolbarElementFilter`), see xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars].
 That page covers the TextComposite and TableView extension points (SQL formatters, JSON tools, table export, and similar).
 

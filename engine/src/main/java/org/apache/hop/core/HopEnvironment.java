@@ -281,26 +281,38 @@ public class HopEnvironment {
   }
 
   /**
-   * Strong reference to prevent java.util.logging.LogManager from garbage-collecting the logger.
+   * Verbose third-party JUL loggers that are defaulted to WARNING. The JUL LogManager only holds
+   * weak references to loggers: a level set on a logger nobody references is lost at the next
+   * garbage collection. That is why these are kept in a static field.
+   *
+   * <ul>
+   *   <li>org.apache.hc.client5.http.wire: raw HTTP byte dumps (#8340)
+   *   <li>com.microsoft.sqlserver.jdbc: MS SQL Server driver INFO messages, such as "Discarding
+   *       extra metadata which can be a result of SHOWPLAN settings", written to stderr (#7297)
+   * </ul>
    */
   @SuppressWarnings("java:S3985")
-  private static final java.util.logging.Logger JUL_WIRE_LOGGER =
-      java.util.logging.Logger.getLogger("org.apache.hc.client5.http.wire");
+  private static final List<java.util.logging.Logger> JUL_VERBOSE_LOGGERS =
+      List.of(
+          java.util.logging.Logger.getLogger("org.apache.hc.client5.http.wire"),
+          java.util.logging.Logger.getLogger("com.microsoft.sqlserver.jdbc"));
 
   /**
    * Default verbose third-party loggers to a non-debug level to prevent dumping raw network bytes
-   * to the console while preserving explicitly configured debug settings.
+   * or driver chatter to the console while preserving explicitly configured levels.
    */
-  private static void silenceVerboseThirdPartyLoggers() {
+  static void silenceVerboseThirdPartyLoggers() {
     String wireLoggerName = "org.apache.hc.client5.http.wire";
 
-    // Silence JUL logger to prevent verbose byte dumps on backends printing via java.util.logging
-    try {
-      if (JUL_WIRE_LOGGER.getLevel() == null) {
-        JUL_WIRE_LOGGER.setLevel(java.util.logging.Level.WARNING);
+    // Silence JUL loggers which would otherwise print to stderr via the default ConsoleHandler
+    for (java.util.logging.Logger julLogger : JUL_VERBOSE_LOGGERS) {
+      try {
+        if (julLogger.getLevel() == null) {
+          julLogger.setLevel(java.util.logging.Level.WARNING);
+        }
+      } catch (Exception ignored) {
+        // Ignore if JUL cannot be configured
       }
-    } catch (Exception ignored) {
-      // Ignore if JUL cannot be configured
     }
 
     // Configure Log4j2 if present on the classpath, preserving any explicit configuration

@@ -1,0 +1,5 @@
+id,one_zero,y_n,true_false,yes_no,ja_nee,no_format
+1,true,1,Y,Ja,yes,Y
+2,false,0,N,Nee,no,N
+3,true,0,Y,Nee,yes,Y
+4,,,,,,

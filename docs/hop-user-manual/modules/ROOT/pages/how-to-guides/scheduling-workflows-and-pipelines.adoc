@@ -160,6 +160,7 @@ LOG=/var/log/hop/nightly-$(date +%Y%m%d-%H%M%S).log
 
 `chmod +x /usr/local/bin/run-hop-nightly.sh` and run it once by hand before you schedule it.
 `--logfile` (`-lf`) *overwrites* the file, which is why the name includes a timestamp.
+Pass `--logfile-append` (`-lfa`) as well when several runs should share one file, for example one log per day.
 It adds a file listener *alongside* the console logger, so hop-run still writes to stdout unless you redirect it as above.
 cron mails on any output, not on a non-zero exit, and without that redirect a successful run would mail the whole log.
 

@@ -322,10 +322,12 @@ public class WriteToLogDialog extends BaseTransformDialog {
     input.setLimitRows(wLimitRows.getSelection());
     input.setLimitRowsNumber(Const.toInt(wLimitRowsNumber.getText(), 0));
 
-    if (wLoglevel.getSelectionIndex() < 0) {
+    // The combo holds the translated descriptions in enum order: map by position, not by label.
+    int logLevelIndex = wLoglevel.getSelectionIndex();
+    if (logLevelIndex < 0 || logLevelIndex >= LogLevel.values().length) {
       input.setLogLevel(LogLevel.BASIC);
     } else {
-      input.setLogLevel(LogLevel.lookupCode(wLoglevel.getText()));
+      input.setLogLevel(LogLevel.values()[logLevelIndex]);
     }
 
     if (!Utils.isEmpty(wLogMessage.getText())) {

@@ -36,6 +36,68 @@ public final class SqlQueryClassifier {
       Set.of("SELECT", "SHOW", "EXPLAIN", "DESCRIBE", "DESC", "VALUES", "TABLE");
 
   /**
+   * Verbs which can change the layout of a table or a view. {@code TRUNCATE} is deliberately
+   * absent: it removes rows, not columns.
+   */
+  private static final Set<String> SCHEMA_CHANGE_VERBS =
+      Set.of("CREATE", "ALTER", "DROP", "RENAME");
+
+  /**
+   * Keywords which are allowed between the verb and the object type, so that {@code CREATE OR
+   * REPLACE VIEW}, {@code CREATE OR ALTER VIEW} and {@code DROP TABLE IF EXISTS} are recognised as
+   * well as the plain forms. A modifier may carry a value ({@code ALGORITHM=MERGE}, {@code
+   * DEFINER=`root`@`localhost`}). Treating a statement as a schema change when it is not only costs
+   * a cache clear, so this list errs on the generous side.
+   */
+  private static final Set<String> SCHEMA_CHANGE_MODIFIERS =
+      Set.of(
+          "OR",
+          "REPLACE",
+          "ALTER",
+          "TEMP",
+          "TEMPORARY",
+          "GLOBAL",
+          "LOCAL",
+          "UNLOGGED",
+          "MATERIALIZED",
+          "EXTERNAL",
+          "VIRTUAL",
+          "FOREIGN",
+          "IF",
+          "NOT",
+          "EXISTS",
+          // Oracle: CREATE OR REPLACE FORCE EDITIONABLE VIEW, CREATE PUBLIC SYNONYM
+          "FORCE",
+          "NOFORCE",
+          "EDITIONABLE",
+          "NONEDITIONABLE",
+          "EDITIONING",
+          "PUBLIC",
+          // MySQL / MariaDB, as SHOW CREATE VIEW and mysqldump write it:
+          // CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW
+          "ALGORITHM",
+          "UNDEFINED",
+          "MERGE",
+          "TEMPTABLE",
+          "DEFINER",
+          "SQL",
+          "SECURITY",
+          "INVOKER",
+          // PostgreSQL: CREATE RECURSIVE VIEW
+          "RECURSIVE",
+          // Snowflake: CREATE TRANSIENT TABLE, CREATE SECURE VIEW, CREATE DYNAMIC TABLE, ...
+          "TRANSIENT",
+          "SECURE",
+          "DYNAMIC",
+          "HYBRID",
+          // Teradata: CREATE MULTISET TABLE, CREATE VOLATILE TABLE
+          "MULTISET",
+          "VOLATILE");
+
+  /** Object types whose layout is reflected in cached row metadata. */
+  private static final Set<String> SCHEMA_CHANGE_OBJECTS = Set.of("TABLE", "VIEW", "SYNONYM");
+
+  /**
    * First keywords of a complete statement. Leftover clauses after a semicolon ({@code WHERE},
    * {@code AND}, {@code ORDER}, …) are not in this set.
    */
@@ -151,6 +213,72 @@ public final class SqlQueryClassifier {
       first = keywordAt(sql, indexAfterCteList(sql, i));
     }
     return first;
+  }
+
+  /**
+   * Whether a statement changes the layout of a table or a view, which makes any row metadata
+   * cached for that connection unreliable.
+   *
+   * @param sql one statement, comments allowed
+   * @return {@code true} for statements such as {@code ALTER TABLE ...}, {@code DROP TABLE IF
+   *     EXISTS ...} or {@code CREATE OR REPLACE VIEW ...}
+   */
+  public static boolean isSchemaChange(String sql) {
+    if (Utils.isEmpty(sql)) {
+      return false;
+    }
+    int i = skipTrivia(sql, 0);
+    String keyword = keywordAt(sql, i);
+    if (keyword == null || !SCHEMA_CHANGE_VERBS.contains(keyword)) {
+      return false;
+    }
+    i = skipKeyword(sql, i);
+    while ((keyword = keywordAt(sql, i)) != null) {
+      if (SCHEMA_CHANGE_OBJECTS.contains(keyword)) {
+        return true;
+      }
+      if (!SCHEMA_CHANGE_MODIFIERS.contains(keyword)) {
+        return false;
+      }
+      i = skipOptionValue(sql, skipKeyword(sql, i));
+    }
+    return false;
+  }
+
+  /**
+   * Skips the {@code = value} of a modifier such as {@code ALGORITHM=MERGE} or {@code
+   * DEFINER=`root`@`localhost`}, if there is one. The value is a keyword, a number or a quoted
+   * identifier, optionally followed by {@code @host} (a MySQL account) or {@code ()} ({@code
+   * CURRENT_USER()}).
+   */
+  private static int skipOptionValue(String sql, int i) {
+    int j = skipTrivia(sql, i);
+    if (j >= sql.length() || sql.charAt(j) != '=') {
+      return i;
+    }
+    j = skipValue(sql, skipTrivia(sql, j + 1));
+    int k = skipTrivia(sql, j);
+    if (k < sql.length() && sql.charAt(k) == '@') {
+      j = skipValue(sql, skipTrivia(sql, k + 1));
+      k = skipTrivia(sql, j);
+    }
+    if (k + 1 < sql.length() && sql.charAt(k) == '(' && sql.charAt(k + 1) == ')') {
+      j = k + 2;
+    }
+    return j;
+  }
+
+  private static int skipValue(String sql, int i) {
+    if (i >= sql.length()) {
+      return i;
+    }
+    if (isQuote(sql.charAt(i))) {
+      return skipQuoted(sql, i);
+    }
+    while (i < sql.length() && (isIdentPart(sql.charAt(i)) || sql.charAt(i) == '.')) {
+      i++;
+    }
+    return i;
   }
 
   /**

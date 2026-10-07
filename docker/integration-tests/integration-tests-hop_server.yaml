@@ -25,20 +25,20 @@ services:
         condition: service_healthy
       hop_server_no_cross_site_check:
         condition: service_healthy
-      minio:
+      seaweedfs:
         condition: service_healthy
     links:
       - hop_server
       - hop_server_no_cross_site_check
-      - minio
+      - seaweedfs
 
   hop_server:
     image: apache/hop:Development
     depends_on:
-      minio:
+      seaweedfs:
         condition: service_healthy
     links:
-      - minio
+      - seaweedfs
     build:
       context: ../../.
       dockerfile: docker/Dockerfile
@@ -94,19 +94,18 @@ services:
 
   # Storage behind the "export-only-storage" VFS connection of main-0014. That connection lives in
   # the client project's metadata-client-only folder, so it only ever reaches the server inside the
-  # export ZIP - which is what the test is about.
-  minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
-    hostname: minio
+  # export ZIP - which is what the test is about. SeaweedFS serves the S3 API on 8333; the admin
+  # identity comes from the AWS_* variables. The connection is still of the Minio type: that plugin
+  # speaks plain S3 and works against any compatible store.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    hostname: seaweedfs
     environment:
-      MINIO_REGION: "local"
-      MINIO_REGION_NAME: "local"
-      MINIO_SCHEME: "http"
-      MINIO_ROOT_USER: "ApacheHopAccessKey"
-      MINIO_ROOT_PASSWORD: "ApacheHopSecretKey"
-    command: server /data --console-address ":9001"
+      AWS_ACCESS_KEY_ID: "ApacheHopAccessKey"
+      AWS_SECRET_ACCESS_KEY: "ApacheHopSecretKey"
+    command: server -s3 -dir=/data -volume.max=0 -master.volumeSizeLimitMB=64
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:8333/healthz"]
       interval: 10s
       timeout: 10s
       retries: 12

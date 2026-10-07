@@ -54,12 +54,36 @@ class HopWebEntryPointTest {
       "PAGE_UP",
       "PAGE_DOWN",
       "CTRL+ARROW_LEFT",
+      "CTRL+ARROW_UP",
       "CTRL+S"
     };
 
     String[] cancelledShortcuts = HopWebEntryPoint.buildCancelledKeyboardShortcuts(activeShortcuts);
 
-    assertArrayEquals(new String[] {"CTRL+ARROW_LEFT", "CTRL+S"}, cancelledShortcuts);
+    assertArrayEquals(new String[] {"CTRL+ARROW_UP", "CTRL+S"}, cancelledShortcuts);
+  }
+
+  @Test
+  void doesNotCancelWordNavigationKeys() {
+    // These stay active for the canvas, but the browser must keep them so a text field can move
+    // or select by word. Vertical modifier arrows are still cancelled.
+    String[] activeShortcuts = {
+      "CTRL+ARROW_LEFT",
+      "CTRL+ARROW_RIGHT",
+      "CTRL+SHIFT+ARROW_LEFT",
+      "CTRL+SHIFT+ARROW_RIGHT",
+      "ALT+ARROW_LEFT",
+      "ALT+ARROW_RIGHT",
+      "ALT+SHIFT+ARROW_LEFT",
+      "ALT+SHIFT+ARROW_RIGHT",
+      "CTRL+ARROW_UP",
+      "ALT+ARROW_UP",
+      "CTRL+S"
+    };
+
+    String[] cancelledShortcuts = HopWebEntryPoint.buildCancelledKeyboardShortcuts(activeShortcuts);
+
+    assertArrayEquals(new String[] {"CTRL+ARROW_UP", "ALT+ARROW_UP", "CTRL+S"}, cancelledShortcuts);
   }
 
   @Test
@@ -104,10 +128,12 @@ class HopWebEntryPointTest {
   void refusesBareLetterShortcuts() {
     // RAP cancels the browser's handling of every key it is told about, so a bare "z" - the
     // pipeline canvas shortcut that opens a referenced object - took the letter z away from every
-    // text field in Hop Web.
+    // text field in Hop Web. Bare "x" (open execution) is the same kind of shortcut.
     KeyboardShortcut shortcut = mock(KeyboardShortcut.class);
     when(shortcut.getKeyCode()).thenReturn((int) 'z');
+    assertNull(new HopWebEntryPoint().convertToRapFormat(shortcut));
 
+    when(shortcut.getKeyCode()).thenReturn((int) 'x');
     assertNull(new HopWebEntryPoint().convertToRapFormat(shortcut));
   }
 

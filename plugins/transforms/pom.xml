@@ -104,6 +104,7 @@
         <module>ldap</module>
         <module>loadfileinput</module>
         <module>mapping</module>
+        <module>maskfields</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
         <module>mergerows</module>

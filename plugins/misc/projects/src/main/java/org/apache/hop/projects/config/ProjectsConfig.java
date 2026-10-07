@@ -30,7 +30,7 @@ import org.apache.hop.projects.project.ProjectConfig;
 
 @Getter
 @Setter
-@JsonIgnoreProperties(value = {"openingLastProjectAtStartup"})
+@JsonIgnoreProperties(value = {"openingLastProjectAtStartup", "environmentsForActiveProject"})
 public class ProjectsConfig {
 
   public static final String HOP_CONFIG_PROJECTS_CONFIG_KEY = "projectsConfig";
@@ -40,7 +40,6 @@ public class ProjectsConfig {
 
   private boolean projectMandatory;
   private boolean environmentMandatory;
-  private boolean environmentsForActiveProject;
   private boolean sortByNameLastUsedProjects;
   private boolean clearingDbCacheWhenSwitching;
   private String defaultProject;
@@ -75,7 +74,6 @@ public class ProjectsConfig {
     standardParentProject = config.standardParentProject;
     standardProjectsFolder = config.standardProjectsFolder;
     defaultProjectConfigFile = config.defaultProjectConfigFile;
-    environmentsForActiveProject = config.environmentsForActiveProject;
     clearingDbCacheWhenSwitching = config.clearingDbCacheWhenSwitching;
     sortByNameLastUsedProjects = config.sortByNameLastUsedProjects;
   }
@@ -102,7 +100,7 @@ public class ProjectsConfig {
     List<LifecycleEnvironment> list = new ArrayList<>();
     lifecycleEnvironments.forEach(
         e -> {
-          if (e.getProjectName().equals(projectName)) {
+          if (projectName != null && projectName.equalsIgnoreCase(e.getProjectName())) {
             list.add(e);
           }
         });
@@ -130,8 +128,13 @@ public class ProjectsConfig {
    * @param projectConfig updated registration (may have a new projectName)
    */
   public void updateProjectConfig(String originalName, ProjectConfig projectConfig) {
-    if (StringUtils.isEmpty(originalName)
-        || originalName.equalsIgnoreCase(projectConfig.getProjectName())) {
+    if (StringUtils.isEmpty(originalName)) {
+      addProjectConfig(projectConfig);
+      return;
+    }
+    renameProjectReferences(originalName, projectConfig.getProjectName());
+    if (originalName.equalsIgnoreCase(projectConfig.getProjectName())) {
+      // Same registration, possibly with a different case
       addProjectConfig(projectConfig);
       return;
     }
@@ -170,13 +173,58 @@ public class ProjectsConfig {
         new ProjectConfig(projectName, null, null)); // Only considers the name
   }
 
+  /**
+   * Remove a project registration. The default project and standard parent project settings are
+   * cleared when they point to the removed project, so they never name a project that doesn't
+   * exist.
+   *
+   * @param projectName the name of the project to remove
+   * @return the removed project registration or null if it wasn't found
+   */
   public ProjectConfig removeProjectConfig(String projectName) {
     int index = indexOfProjectConfig(projectName);
     if (index >= 0) {
+      renameProjectReferences(projectName, null);
       return projectConfigurations.remove(index);
     } else {
       return null;
     }
+  }
+
+  /**
+   * Point the default project, standard parent project and lifecycle environments to a renamed
+   * project. When the project is removed (newName is null) the default and standard parent project
+   * settings are cleared but the environments are left alone: an environment without a project is
+   * available for every project.
+   *
+   * @param oldName the previous name of the project
+   * @param newName the new name of the project, null when the project is removed
+   */
+  public void renameProjectReferences(String oldName, String newName) {
+    if (StringUtils.isEmpty(oldName)) {
+      return;
+    }
+    if (oldName.equalsIgnoreCase(defaultProject)) {
+      defaultProject = newName;
+    }
+    if (oldName.equalsIgnoreCase(standardParentProject)) {
+      standardParentProject = newName;
+    }
+    if (StringUtils.isNotEmpty(newName)) {
+      for (LifecycleEnvironment environment : lifecycleEnvironments) {
+        if (oldName.equalsIgnoreCase(environment.getProjectName())) {
+          environment.setProjectName(newName);
+        }
+      }
+    }
+  }
+
+  /**
+   * @return the standard parent project for new projects or null if no project with that name is
+   *     registered
+   */
+  public String findRegisteredStandardParentProject() {
+    return findProjectConfig(standardParentProject) == null ? null : standardParentProject;
   }
 
   public List<String> listProjectConfigNames() {
@@ -218,19 +266,6 @@ public class ProjectsConfig {
   public List<String> listEnvironmentNames() {
     List<String> names = new ArrayList<>();
     lifecycleEnvironments.stream().forEach(env -> names.add(env.getName()));
-    Collections.sort(names);
-    return names;
-  }
-
-  public List<String> listEnvironmentNamesForProject(String projectName) {
-    List<String> names = new ArrayList<>();
-    lifecycleEnvironments.forEach(
-        env -> {
-          if (env.getProjectName().equals(projectName)) {
-            names.add(env.getName());
-          }
-        });
-
     Collections.sort(names);
     return names;
   }

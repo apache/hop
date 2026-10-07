@@ -75,6 +75,8 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // this also waits for a previous transform to be

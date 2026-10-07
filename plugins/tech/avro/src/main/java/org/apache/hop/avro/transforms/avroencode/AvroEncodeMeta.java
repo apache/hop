@@ -43,7 +43,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "avro_encode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/avro-encode.html",
-    keywords = "i18n::AvroEncodeMeta.keyword")
+    keywords = "i18n::AvroEncodeMeta.keyword",
+    excludedEngines = {"SparkPipelineEngine"})
 public class AvroEncodeMeta extends BaseTransformMeta<AvroEncode, AvroEncodeData> {
   private static final Class<?> PKG = AvroEncodeMeta.class;
 

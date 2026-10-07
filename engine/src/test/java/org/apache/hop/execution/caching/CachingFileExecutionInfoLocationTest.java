@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionDataBuilder;
@@ -115,6 +119,53 @@ class CachingFileExecutionInfoLocationTest {
     } finally {
       location.close();
     }
+  }
+
+  @Test
+  void getExecutionIdsFiltersByProjectIdAndKeepsLegacyRows() throws Exception {
+    Path root = tempDir.resolve("project-id");
+    Variables variables = new Variables();
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(variables, null);
+    try {
+      location.registerExecution(execution("sales-run", "sales"));
+      location.registerExecution(execution("finance-run", "finance"));
+      location.registerExecution(execution("legacy-run", null));
+      location.clearCaches();
+
+      List<String> filtered = location.getExecutionIds(false, 20);
+      assertTrue(filtered.contains("sales-run"));
+      assertTrue(filtered.contains("legacy-run"));
+      assertFalse(filtered.contains("finance-run"));
+    } finally {
+      location.close();
+    }
+
+    CachingFileExecutionInfoLocation unfiltered = new CachingFileExecutionInfoLocation();
+    unfiltered.setRootFolder(root.toAbsolutePath().toString());
+    unfiltered.initialize(new Variables(), null);
+    try {
+      List<String> all = unfiltered.getExecutionIds(false, 20);
+      assertTrue(all.contains("sales-run"));
+      assertTrue(all.contains("legacy-run"));
+      assertTrue(all.contains("finance-run"));
+    } finally {
+      unfiltered.close();
+    }
+  }
+
+  private static Execution execution(String id, String projectId) {
+    Execution execution = new Execution();
+    execution.setId(id);
+    execution.setName(id);
+    execution.setExecutionType(ExecutionType.Pipeline);
+    execution.setExecutionStartDate(new Date());
+    execution.setRegistrationDate(new Date());
+    execution.setProjectId(projectId);
+    return execution;
   }
 
   @Test
@@ -344,6 +395,34 @@ class CachingFileExecutionInfoLocationTest {
       assertFalse(withChildren.contains(ExecutionDataBuilder.ALL_TRANSFORMS));
     } finally {
       reader.close();
+    }
+  }
+
+  @Test
+  void loadCacheEntryReadsAStringLongerThanTheJacksonDefault() throws Exception {
+    Path root = tempDir.resolve("large-string");
+    String id = "large-exec";
+    int length = StreamReadConstraints.DEFAULT_MAX_STRING_LEN + 1;
+    String name = "n".repeat(length);
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      CacheEntry marker = new CacheEntry();
+      marker.setId(id);
+      String filename = marker.calculateFilename(location.actualRootFolder);
+      String json = "{\"id\":\"" + id + "\",\"name\":\"" + name + "\"}";
+      try (OutputStream out = HopVfs.getOutputStream(filename, false, new Variables())) {
+        out.write(json.getBytes(StandardCharsets.UTF_8));
+      }
+
+      CacheEntry loaded = location.loadCacheEntry(id);
+      assertNotNull(loaded);
+      assertEquals(id, loaded.getId());
+      assertEquals(length, loaded.getName().length());
+    } finally {
+      location.close();
     }
   }
 }

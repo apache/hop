@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.file.ReferencedFileOpener;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -70,6 +71,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected TextVar wPath;
 
   protected Button wbBrowse;
+  protected Button wbOpen;
 
   protected Group gLogFile;
 
@@ -241,12 +243,21 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
     wbBrowse.setLayoutData(fdBrowse);
 
+    wbOpen = new Button(shell, SWT.PUSH);
+    ReferencedFileOpener.configureOpenButton(wbOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.right = new FormAttachment(wbBrowse, -5);
+    fdOpen.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
+    wbOpen.setLayoutData(fdOpen);
+    wbOpen.addListener(SWT.Selection, e -> openReferencedFile());
+
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPath);
+    wPath.addModifyListener(lsMod);
     FormData fdPath = new FormData();
     fdPath.left = new FormAttachment(0, 0);
     fdPath.top = new FormAttachment(wlPath, 5);
-    fdPath.right = new FormAttachment(wbBrowse, -5);
+    fdPath.right = new FormAttachment(wbOpen, -5);
     wPath.setLayoutData(fdPath);
 
     Label wlRunConfiguration = new Label(shell, SWT.LEFT);
@@ -638,6 +649,19 @@ public abstract class ActionBaseDialog extends ActionDialog {
             shell, "Error", "Error extracting name from filename '" + filename + "'", e);
       }
     }
+  }
+
+  private void openReferencedFile() {
+    ReferencedFileOpener.openFromDialog(
+        shell,
+        variables,
+        wPath.getText(),
+        ReferencedFileOpener.isDialogModified(
+            getAction().hasChanged(), wPath.getText(), getAction().getFilename()),
+        () -> {
+          ok();
+          return isDisposed() ? getAction().getFilename() : null;
+        });
   }
 
   protected abstract void ok();

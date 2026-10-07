@@ -90,6 +90,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       this.type = type + ">";
     }
 
+    // Safe: the stack trace goes to the local stderr only, never to a remote client
+    @SuppressWarnings("java:S4507")
     @Override
     public void run() {
       try {
@@ -622,6 +624,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
     return false;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public void dispose() {
 

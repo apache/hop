@@ -203,6 +203,9 @@ public enum HopExtensionPoint {
   HopImportRewriteMetadata(
       "Imported files and connections have been written; rewrite metadata names (HopImportBase)"),
   HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
+  HopImportCreateProject(
+      "Register a project for an import target folder: {folder} or {folder, project name}"),
+  ProjectHome("Calculates the home folder of a project: {project name, home folder}"),
   ;
 
   public String id;

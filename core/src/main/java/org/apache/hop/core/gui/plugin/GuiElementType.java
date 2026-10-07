@@ -33,4 +33,9 @@ public enum GuiElementType {
   BUTTON, // Push button
   LINK, // A URL style link (underlined text)
   COMPOSITE, // Painted on a method which can add widgets to a composite
+  /**
+   * Data grid bound to a {@code List} field. Columns come from {@link GuiTableColumn} on the row
+   * class.
+   */
+  TABLE,
 }

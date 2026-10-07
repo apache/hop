@@ -36,7 +36,9 @@
     <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
     <proxy_host>proxy</proxy_host>
     <proxy_port>8080</proxy_port>
-    <non_proxy_hosts/>
+    <proxy_username>proxyuser</proxy_username>
+    <proxy_password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</proxy_password>
+    <non_proxy_hosts>localhost|127.*</non_proxy_hosts>
     <addfilenameresult>Y</addfilenameresult>
     <reply_variable>HTTP_REPLY</reply_variable>
     <headers>

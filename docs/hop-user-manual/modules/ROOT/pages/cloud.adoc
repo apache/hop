@@ -64,7 +64,7 @@ A Hop project is a folder: `project-config.json`, a `metadata/` folder, pipeline
 See xref:projects/index.adoc[Projects and environments].
 
 Something has to put that folder inside the runtime.
-The three patterns on xref:hop-server/deploying.adoc[Deploying Hop Server] are not Hop Server specific — they are the three ways a project reaches *any* runtime, server or not:
+The patterns on xref:hop-server/deploying.adoc[Deploying Hop Server] are not Hop Server specific — they are the ways a project reaches *any* runtime, server or not:
 
 * *Baked into an image.* CI builds a container image that contains the project, and the platform pulls that image.
 The build is the deployment; a run is immutable and reproducible.
@@ -72,10 +72,11 @@ See xref:hop-server/deploy-project-image.adoc[Project in a Docker image].
 * *Fetched at start-up.* The image is the stock `apache/hop` image and the project is pulled in when the container starts — from git, from object storage, or from a mounted volume.
 `HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH` exists for exactly this: a script that runs before Hop starts.
 See xref:hop-server/deploy-git-checkout.adoc[Git checkout on the server].
+The same stock image can install JDBC drivers and marketplace plugins as it starts, and open the pipelines and workflows through a xref:hop-server/deploying.adoc#StandardApacheHopContainer[Git VFS connection], with no clone script and no derived image.
 * *Sent by a client.* A xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote run configuration] with *Export linked resources to server* ships a ZIP to a server that owns no files.
 See xref:hop-server/deploy-export-resources.adoc[Remote run with export resources].
 
-Baking the project into an image is the optimal choice on a container platform, because it is the only one of the three where the running unit is fully described by an image tag.
+Baking the project into an image is the optimal choice on a container platform, because it is the only one of these where the running unit is fully described by an image tag.
 Fetching at start-up is attractive when many small projects share one image, at the cost of a network dependency on every start.
 
 Data files are a separate question from project files.
@@ -254,7 +255,7 @@ If your provider is not in these lists, the question to ask is which standard it
 == See also
 
 * xref:docker-container.adoc[Hop in Docker] — the image, its environment variables and its two run modes
-* xref:hop-server/deploying.adoc[Deploying Hop Server] — the three ways a project reaches a server, compared
+* xref:hop-server/deploying.adoc[Deploying Hop Server] — the ways a project reaches a server, compared
 * xref:projects/index.adoc[Projects and environments] — what belongs in the project and what belongs in the environment
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location] — where run history is kept
 * xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workflows and pipelines] — cron, systemd, Jenkins, Kubernetes CronJob, Airflow

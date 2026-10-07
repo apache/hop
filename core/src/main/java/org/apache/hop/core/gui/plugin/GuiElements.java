@@ -89,8 +89,18 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private String namingSchemeType;
 
+  /** Row class of a {@link GuiElementType#TABLE}, taken from {@code List<Row>}. */
+  private Class<?> tableRowClass;
+
+  /** Columns of a {@link GuiElementType#TABLE}, sorted by {@code order}. Empty for other types. */
+  private List<GuiTableColumnElement> tableColumns;
+
+  /** Preferred height of a {@link GuiElementType#TABLE}, in rows (at least 1, default 5). */
+  private int tableRows = 5;
+
   public GuiElements() {
     children = new ArrayList<>();
+    tableColumns = new ArrayList<>();
     groupType = GuiWidgetGroupType.NONE;
   }
 
@@ -130,6 +140,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.buttonMethod = null;
     this.namingSchemeType = resolveNamingSchemeType(guiElement, field);
     copyGroup(guiElement, fieldPackageName, field.getDeclaringClass());
+    if (guiElement.type() == GuiElementType.TABLE) {
+      GuiTableColumns.apply(this, guiElement, field);
+    }
   }
 
   /**
@@ -712,5 +725,37 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   public void setNamingSchemeType(String namingSchemeType) {
     this.namingSchemeType = namingSchemeType;
+  }
+
+  public Class<?> getTableRowClass() {
+    return tableRowClass;
+  }
+
+  public void setTableRowClass(Class<?> tableRowClass) {
+    this.tableRowClass = tableRowClass;
+  }
+
+  public List<GuiTableColumnElement> getTableColumns() {
+    return tableColumns;
+  }
+
+  public void setTableColumns(List<GuiTableColumnElement> tableColumns) {
+    this.tableColumns = tableColumns == null ? new ArrayList<>() : tableColumns;
+  }
+
+  /**
+   * Preferred height of a {@link GuiElementType#TABLE}, in rows. Values below 1 become 5.
+   *
+   * @return value of tableRows
+   */
+  public int getTableRows() {
+    return tableRows;
+  }
+
+  /**
+   * @param tableRows The tableRows to set (values below 1 become 5)
+   */
+  public void setTableRows(int tableRows) {
+    this.tableRows = tableRows < 1 ? 5 : tableRows;
   }
 }

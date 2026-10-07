@@ -21,7 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.SqlScriptStatement;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -31,10 +37,18 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class H2DatabaseMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  final String sequenceName = "sequence_name";
+
   H2DatabaseMeta nativeMeta;
 
   @BeforeEach
@@ -99,6 +113,8 @@ class H2DatabaseMetaTest {
 
     assertTrue(nativeMeta.isFetchSizeSupported());
     assertEquals("FOO.BAR", nativeMeta.getSchemaTableCombination("FOO", "BAR"));
+    assertTrue(nativeMeta.isReleaseSavepoint());
+    assertTrue(nativeMeta.isSupportsSequences());
     assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertTrue(nativeMeta.isSupportsAutoInc());
     assertTrue(nativeMeta.isSupportsGetBlob());
@@ -216,9 +232,8 @@ class H2DatabaseMetaTest {
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 26, 8), "", true, "BAR", false));
 
-    String lineSep = System.getProperty("line.separator");
     assertEquals(
-        "ALTER TABLE FOO DROP BAR" + lineSep,
+        "ALTER TABLE FOO DROP BAR" + System.lineSeparator(),
         nativeMeta.getDropColumnStatement(
             "FOO", new ValueMetaString("BAR", 15, 0), "", false, "", true));
 
@@ -274,5 +289,84 @@ class H2DatabaseMetaTest {
     assertEquals(
         "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
         nativeMeta.getSqlInsertAutoIncUnknownDimensionRow("FOO", "FOOKEY", "FOOVERSION"));
+  }
+
+  @Test
+  void testShowIsTreatedAsAResultsQuery() {
+    List<SqlScriptStatement> sqlScriptStatements =
+        new H2DatabaseMeta().getSqlScriptStatements("show annotations from service");
+    assertTrue(sqlScriptStatements.getFirst().isQuery());
+  }
+
+  @Test
+  void testSupportsSequence() {
+    assertEquals(
+        "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SEQUENCES WHERE UPPER(SEQUENCE_NAME) = 'SEQUENCE_NAME'",
+        nativeMeta.getSqlSequenceExists(sequenceName));
+    assertEquals(
+        "SELECT NEXT VALUE FOR " + sequenceName, nativeMeta.getSqlNextSequenceValue(sequenceName));
+    assertEquals(
+        "SELECT CURRENT VALUE FOR " + sequenceName,
+        nativeMeta.getSqlCurrentSequenceValue(sequenceName));
+  }
+
+  /** An in-memory database of its own per test, which lives as long as the connection. */
+  private Database database(String name) {
+    DatabaseMeta databaseMeta = new DatabaseMeta();
+    databaseMeta.setIDatabase(new H2DatabaseMeta());
+    databaseMeta.setName(name);
+    databaseMeta.setDBName("mem:" + name);
+    databaseMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    databaseMeta.setUsername("sa");
+    return new Database(
+        new SimpleLoggingObject(name, LoggingObjectType.GENERAL, null),
+        new Variables(),
+        databaseMeta);
+  }
+
+  @Test
+  void sequencesAreCreatedListedAndRead() throws Exception {
+    try (Database db = database("sequences")) {
+      db.connect();
+      db.execStatement(db.getCreateSequenceStatement(null, "SEQ_ONE", 1L, 1L, 999L, false));
+
+      assertTrue(db.checkSequenceExists("SEQ_ONE"), "the sequence just created is found");
+      assertFalse(db.checkSequenceExists("SEQ_MISSING"), "one never created is not invented");
+      assertTrue(
+          Arrays.asList(db.getSequences()).contains("SEQ_ONE"),
+          "the picker lists it: " + Arrays.toString(db.getSequences()));
+
+      assertEquals(Long.valueOf(1L), db.getNextSequenceValue("SEQ_ONE", "id"));
+      assertEquals(Long.valueOf(2L), db.getNextSequenceValue("SEQ_ONE", "id"));
+    }
+  }
+
+  /** A maximum of -1 stands for an unbounded sequence; H2 rejects the MAXVALUE -1 it replaces. */
+  @Test
+  void sequenceWithoutAMaximumIsCreated() throws Exception {
+    try (Database db = database("unbounded")) {
+      db.connect();
+      String sql = db.getCreateSequenceStatement(null, "SEQ_UNBOUNDED", "1", "1", "-1", false);
+      assertTrue(sql.contains("NOMAXVALUE"), "an unbounded sequence has no maximum: " + sql);
+
+      db.execStatement(sql);
+      assertEquals(Long.valueOf(1L), db.getNextSequenceValue("SEQ_UNBOUNDED", "id"));
+    }
+  }
+
+  /** A schema tells two sequences of the same name apart. */
+  @Test
+  void sequencesAreLookedUpWithinTheirSchema() throws Exception {
+    try (Database db = database("schemas")) {
+      db.connect();
+      db.execStatement("CREATE SCHEMA SIDE");
+      db.execStatement(db.getCreateSequenceStatement("SIDE", "SEQ_TWO", 5L, 1L, 999L, false));
+
+      assertTrue(db.checkSequenceExists("SIDE", "SEQ_TWO"), "found in the schema holding it");
+      assertFalse(
+          db.checkSequenceExists("PUBLIC", "SEQ_TWO"), "and not in the one that does not hold it");
+
+      assertEquals(Long.valueOf(5L), db.getNextSequenceValue("SIDE", "SEQ_TWO", "id"));
+    }
   }
 }

@@ -19,12 +19,16 @@ package org.apache.hop.vfs.hdfs;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.hop.core.vfs.VfsFileAttributes;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.vfs.hdfs.client.HdfsFileStatus;
 import org.apache.hop.vfs.hdfs.client.HdfsWebHdfsClient;
@@ -101,6 +105,25 @@ public class HdfsFileObject extends AbstractFileObject<HdfsFileSystem> {
   @Override
   protected long doGetLastModifiedTime() {
     return status == null ? 0 : status.getModificationTime();
+  }
+
+  /**
+   * Owner and permission come from the file status already loaded by {@link #doAttach()} or {@link
+   * #doListChildren()}. This does not call the namenode again.
+   */
+  @Override
+  protected Map<String, Object> doGetAttributes() {
+    if (status == null) {
+      return Map.of();
+    }
+    Map<String, Object> attributes = new HashMap<>();
+    if (StringUtils.isNotEmpty(status.getOwner())) {
+      attributes.put(VfsFileAttributes.OWNER, status.getOwner());
+    }
+    if (StringUtils.isNotEmpty(status.getPermission())) {
+      attributes.put(VfsFileAttributes.PERMISSIONS, status.getPermission());
+    }
+    return attributes;
   }
 
   @Override

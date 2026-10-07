@@ -127,6 +127,10 @@ This will show a real-time table with a continuous output of the selected transf
 |Include in test|Run the current pipeline and write the data to a data set
 |Bypass in tess|When this unit test is run, bypass this transform (replace with a dummy)
 |Remove bypass in test|Do not bypass this transform in the current pipeline during testing
+|Remove selection from test|When two or more transforms are selected, do not include those transforms in this unit test
+|Include selection in test|When two or more transforms are selected, include those transforms in this unit test
+|Bypass selection in test|When two or more transforms are selected, bypass those transforms (replace each with a dummy)
+|Remove bypass from selection|When two or more transforms are selected, do not bypass those transforms during testing
 |===
 
 == Add a Hop between transforms
@@ -177,12 +181,14 @@ The Pipeline tab allows you to specify general properties about the pipeline inc
 |Pipeline filename| The filename of the pipeline
 |Description|Short description of the pipeline
 |Extended description| Long extended description of the pipeline
-|Status| Draft or production status
+|Status| Draft or production status. Deprecated: nothing in Hop acts on this value and it will be removed in a future release.
 |Version|Description of the version
-|Created by| Displays the original creator of the pipeline
+|Created by| The user that created the pipeline. Only recorded when Hop knows who that is, such as an authenticated Hop web session, and shows `-` otherwise.
 |Created at|Displays the date and time when the pipeline was created.
-|Last modified by| Displays the last user that modified the pipeline
-|Last modified at|Displays the date and time when the pipeline was last modified.
+|Last modified by| The user that last modified the pipeline, recorded under the same conditions as `Created by`.
+|Last modified at|Displays the date and time of the last save that changed the pipeline. A save that does not change anything leaves this untouched.
+|Created with|The version of Hop that created the pipeline. Empty for pipelines created before Hop started recording this.
+|Last modified with|The version of Hop that last saved a change to the pipeline.
 |===
 
 The parameters tab allows you to specify parameters specific for the pipeline.

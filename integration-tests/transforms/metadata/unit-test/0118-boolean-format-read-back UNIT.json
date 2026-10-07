@@ -1,0 +1,52 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "one_zero",
+          "data_set_field": "one_zero"
+        },
+        {
+          "transform_field": "y_n",
+          "data_set_field": "y_n"
+        },
+        {
+          "transform_field": "true_false",
+          "data_set_field": "true_false"
+        },
+        {
+          "transform_field": "yes_no",
+          "data_set_field": "yes_no"
+        },
+        {
+          "transform_field": "ja_nee",
+          "data_set_field": "ja_nee"
+        },
+        {
+          "transform_field": "no_format",
+          "data_set_field": "no_format"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-boolean-formats"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0118-boolean-format-read-back UNIT",
+  "description": "Reads back the file written by 0118-boolean-format-text-file-output as text and compares it to the expected Boolean formats",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0118-boolean-format-read-back.hpl",
+  "test_type": "UNIT_TEST"
+}

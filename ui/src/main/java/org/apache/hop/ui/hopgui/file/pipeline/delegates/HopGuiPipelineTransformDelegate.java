@@ -529,6 +529,12 @@ public class HopGuiPipelineTransformDelegate {
    */
   public TransformMeta insertTransform(
       PipelineMeta pipelineMeta, PipelineHopMeta hop, TransformMeta transformMeta) {
+    if (pipelineMeta.isMultipleCopiesTargetSplit(
+        hop, transformMeta, pipelineGraph.getVariables())) {
+      pipelineGraph.showMultipleCopiesNotAllowedDialog();
+      return null;
+    }
+
     TransformMeta fromTransform = hop.getFromTransform();
     TransformMeta toTransform = hop.getToTransform();
 

@@ -198,6 +198,8 @@ public class UIGit extends VCS {
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public String getCommitId(String revstr) {
     ObjectId id = null;
     try {
@@ -261,6 +263,8 @@ public class UIGit extends VCS {
    * @param mode
    * @return
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private List<String> getBranches(ListMode mode) {
     try {
       return git.branchList().setListMode(mode).call().stream()
@@ -563,6 +567,8 @@ public class UIGit extends VCS {
     return getUnstagedFiles(null);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<UIFile> getUnstagedFiles(String path) {
     List<UIFile> files = new ArrayList<>();
     Status status = null;
@@ -589,6 +595,8 @@ public class UIGit extends VCS {
     return files;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<UIFile> getStagedFiles() {
     List<UIFile> files = new ArrayList<>();
     Status status = null;
@@ -605,6 +613,8 @@ public class UIGit extends VCS {
     return files;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<UIFile> getStagedFiles(String oldCommitId, String newCommitId) {
     List<UIFile> files = new ArrayList<>();
     try {
@@ -1604,6 +1614,8 @@ public class UIGit extends VCS {
     return list.toString();
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private boolean hasUncommittedChanges() {
     try {
       return git.status().call().hasUncommittedChanges();
@@ -1691,6 +1703,8 @@ public class UIGit extends VCS {
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public boolean isClean() {
     try {
       return git.status().call().isClean();
@@ -1700,6 +1714,8 @@ public class UIGit extends VCS {
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<String> getTags() {
     try {
       return git.tagList().call().stream()
@@ -1766,6 +1782,8 @@ public class UIGit extends VCS {
     credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public RevCommit resolve(String commitId) {
     ObjectId id = null;
     try {

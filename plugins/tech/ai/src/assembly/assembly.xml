@@ -43,6 +43,10 @@
                 <include>ai-context/*.md</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <!-- Project jar only. Do not copy provided langchain4j / Language Model Chat jars to lib/core:

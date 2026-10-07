@@ -39,6 +39,33 @@ The dialog is split into *SQL*, *Options*, and *Fields* tabs.
 
 These features make Table Input ideal for dynamic and reusable data retrieval logic.
 
+=== Calling a stored procedure
+
+A procedure that returns rows can be read with ordinary SQL in this transform.
+
+MySQL and MariaDB accept `CALL`:
+
+[source,sql]
+----
+CALL list_customers();
+----
+
+PostgreSQL functions are usually selected like a table:
+
+[source,sql]
+----
+SELECT * FROM list_customers();
+----
+
+Many other JDBC drivers accept the call escape:
+
+[source,sql]
+----
+{call list_customers()}
+----
+
+xref:pipeline/transforms/calldbproc.adoc[Call DB procedure] runs the procedure once per incoming row and can also return a scalar value and `OUT` or `INOUT` parameters. Use it when those arguments come from the stream. Use Table Input when the call is SQL and you only need the result set.
+
 == Getting Started: Generate a Basic SQL Query
 
 You can auto-generate a query using the `Get SQL select statement` button.

@@ -38,6 +38,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -147,6 +148,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       // Merge child maps from the on-disk file so samples/children written by other processes
       // are not wiped when this process flushes parent metrics/state.
       mergeChildrenFromDisk(cacheEntry);
+      cacheEntry.prepareForPersist();
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
       cacheEntry.writeToDisk(actualRootFolder, variables);
@@ -174,6 +176,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       mergeMap(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
       mergeMap(onDisk.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
       mergeMap(onDisk.getChildExecutionData(), cacheEntry.getChildExecutionData());
+      cacheEntry.keepStoredProjectId(onDisk);
     } catch (Exception e) {
       // Best-effort: still write our in-memory view if merge fails
       LogChannel.GENERAL.logError(
@@ -208,7 +211,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
       return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(
@@ -250,6 +253,9 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         CacheEntry entry = findCacheEntry(id);
         if (entry == null) {
           // Not much loaded from disk or cache
+          continue;
+        }
+        if (!matchesActiveProject(entry)) {
           continue;
         }
         if (!activeSelector.isSelected(entry.getExecution())) {

@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -602,6 +603,8 @@ public class ActionShell extends ActionBase implements ILegacyXml {
           // Now we have to make this file executable...
           // On Unix-like systems this is done using the command "/bin/chmod +x filename"
           //
+          // Safe: the shell action runs commands from the operator's own PATH by design
+          @SuppressWarnings("java:S4036")
           ProcessBuilder procBuilder = new ProcessBuilder("chmod", "+x", tempFilename);
           Process proc = procBuilder.start();
           // Eat/log stderr/stdout all messages in a different thread...
@@ -665,12 +668,23 @@ public class ActionShell extends ActionBase implements ILegacyXml {
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
 
     ActionValidatorUtils.andValidator().validate(this, "workDirectory", remarks, ctx);
-    ActionValidatorUtils.andValidator()
-        .validate(
-            this,
-            "filename",
-            remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    // The script is either typed on the Script tab or read from a file.
+    if (insertScript) {
+      if (StringUtils.isBlank(script)) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "ActionShell.NoScriptSpecified"),
+                this));
+      }
+    } else {
+      ActionValidatorUtils.andValidator()
+          .validate(
+              this,
+              "filename",
+              remarks,
+              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    }
 
     if (setLogfile) {
       ActionValidatorUtils.andValidator()

@@ -53,8 +53,6 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       return false;
     }
 
-    List<Integer> normFieldList;
-
     if (first) { // INITIALISE
 
       first = false;
@@ -62,9 +60,19 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-      data.typeToFieldIndex = new HashMap<>();
+      data.typeToPlacements = new HashMap<>();
       String typeValue;
       int dataFieldNr;
+
+      // The normalised fields are the last ones of the output row, in this order.
+      //
+      List<String> normNames = meta.getNormalisedFieldNames();
+      int firstNormIndex = data.outputRowMeta.size() - normNames.size();
+
+      String duplicate = meta.getDuplicateMapping();
+      if (duplicate != null) {
+        throw new HopException(duplicate);
+      }
 
       // Get a unique list of occurrences...
       //
@@ -80,15 +88,9 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
           data.maxlen = typeValue.length();
         }
 
-        // This next section creates a map of arraylist objects. The key is the Type in the
-        // Normaliser
-        // and the ArrayList is the list of indexes on the row of all fields that get normalized
-        // under that Type.
-        // This eliminates the inner loop that iterated over all the fields finding the fields
-        // associated with the Type.
-        // On a test data set with 2500 fields and about 36000 input rows (outputting over 22m
-        // rows), the time went from
-        // 12min to about 1min 35sec.
+        // For every type, the fields that get normalised under it and where each one goes: into
+        // the normalised field it names, whatever order the fields are listed in.
+        //
         dataFieldNr = data.inputRowMeta.indexOfValue(field.getName());
         if (dataFieldNr < 0) {
           logError(
@@ -98,12 +100,17 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
           stopAll();
           return false;
         }
-        normFieldList = data.typeToFieldIndex.get(typeValue);
-        if (normFieldList == null) {
-          normFieldList = new ArrayList<>();
-          data.typeToFieldIndex.put(typeValue, normFieldList);
-        }
-        normFieldList.add(dataFieldNr);
+        int outputIndex = firstNormIndex + normNames.indexOf(field.getNorm());
+        IValueMeta source = data.inputRowMeta.getValueMeta(dataFieldNr);
+        IValueMeta target = data.outputRowMeta.getValueMeta(outputIndex);
+        boolean copy =
+            source.getType() == target.getType()
+                && source.getStorageType() == target.getStorageType();
+        data.typeToPlacements
+            .computeIfAbsent(typeValue, k -> new ArrayList<>())
+            .add(
+                new NormaliserData.Placement(
+                    dataFieldNr, outputIndex, source, copy ? null : target));
       }
 
       // Which fields are not impacted? We can just copy these, leave them alone.
@@ -159,11 +166,17 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
 
       // Then add the normalized fields...
       //
-      normFieldList = data.typeToFieldIndex.get(typeValue);
-      int normFieldListSz = normFieldList.size();
-      for (Integer integer : normFieldList) {
-        value = r[integer];
-        outputRowData[outputIndex++] = value;
+      for (NormaliserData.Placement placement : data.typeToPlacements.get(typeValue)) {
+        value = r[placement.inputIndex()];
+        IValueMeta target = placement.target();
+        if (target != null) {
+          // Either the same type in another storage, or text for a field of mixed types.
+          value =
+              target.getType() == placement.source().getType()
+                  ? placement.source().convertToNormalStorageType(value)
+                  : target.convertData(placement.source(), value);
+        }
+        outputRowData[placement.outputIndex()] = value;
       }
 
       // The row is constructed, now give it to the next transform(s)...

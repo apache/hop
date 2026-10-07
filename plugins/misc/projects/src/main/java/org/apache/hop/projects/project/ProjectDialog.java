@@ -37,6 +37,7 @@ import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.util.Defaults;
+import org.apache.hop.projects.util.ProjectRenameBlockedException;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -83,11 +84,13 @@ public class ProjectDialog extends Dialog {
   private final PropsUi props;
 
   private TextVar wName;
+  private Text wProjectId;
   private TextVar wHome;
   private Button wReadOnly;
   private ComboVar wParentProject;
   private TextVar wConfigFile;
   private Button wbConfigFile;
+  private ComboVar wGroup;
   private Text wDescription;
   private Text wCompany;
   private Text wDepartment;
@@ -107,6 +110,11 @@ public class ProjectDialog extends Dialog {
   @Getter @Setter private boolean needingProjectRefresh;
 
   private final boolean editMode;
+
+  /** Create mode only: project id tracks the name until the user edits the id. */
+  private boolean projectIdFollowsName;
+
+  private boolean updatingProjectId;
 
   public ProjectDialog(
       Shell parent,
@@ -248,6 +256,40 @@ public class ProjectDialog extends Dialog {
     wName.setLayoutData(fdName);
     Control lastControl = wName;
 
+    Label wlProjectId = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlProjectId);
+    wlProjectId.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectId"));
+    wlProjectId.setToolTipText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectId.Tooltip"));
+    FormData fdlProjectId = new FormData();
+    fdlProjectId.left = new FormAttachment(0, 0);
+    fdlProjectId.right = new FormAttachment(middle, 0);
+    fdlProjectId.top = new FormAttachment(lastControl, margin);
+    wlProjectId.setLayoutData(fdlProjectId);
+    wProjectId = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wProjectId);
+    wProjectId.setToolTipText(BaseMessages.getString(PKG, "ProjectDialog.Label.ProjectId.Tooltip"));
+    FormData fdProjectId = new FormData();
+    fdProjectId.left = new FormAttachment(middle, margin);
+    fdProjectId.right = new FormAttachment(100, 0);
+    fdProjectId.top = new FormAttachment(wlProjectId, 0, SWT.CENTER);
+    wProjectId.setLayoutData(fdProjectId);
+    wName.addModifyListener(
+        e -> {
+          if (projectIdFollowsName) {
+            updatingProjectId = true;
+            wProjectId.setText(wName.getText());
+            updatingProjectId = false;
+          }
+        });
+    wProjectId.addModifyListener(
+        e -> {
+          if (!updatingProjectId) {
+            projectIdFollowsName = false;
+          }
+        });
+    lastControl = wProjectId;
+
     Label wlHome = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlHome);
     wlHome.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.HomeFolder"));
@@ -310,6 +352,25 @@ public class ProjectDialog extends Dialog {
     fdConfigFile.top = new FormAttachment(wlConfigFile, 0, SWT.CENTER);
     wConfigFile.setLayoutData(fdConfigFile);
     lastControl = wConfigFile;
+
+    Label wlGroup = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlGroup);
+    wlGroup.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Group"));
+    wlGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectDialog.Label.Group.Tooltip"));
+    FormData fdlGroup = new FormData();
+    fdlGroup.left = new FormAttachment(0, 0);
+    fdlGroup.right = new FormAttachment(middle, 0);
+    fdlGroup.top = new FormAttachment(lastControl, margin);
+    wlGroup.setLayoutData(fdlGroup);
+    wGroup = new ComboVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wGroup);
+    wGroup.setToolTipText(BaseMessages.getString(PKG, "ProjectDialog.Label.Group.Tooltip"));
+    FormData fdGroup = new FormData();
+    fdGroup.left = new FormAttachment(middle, margin);
+    fdGroup.right = new FormAttachment(100, 0);
+    fdGroup.top = new FormAttachment(wlGroup, 0, SWT.CENTER);
+    wGroup.setLayoutData(fdGroup);
+    lastControl = wGroup;
 
     lastControl =
         addLabeledText(
@@ -648,6 +709,7 @@ public class ProjectDialog extends Dialog {
     boolean editable = !wReadOnly.getSelection();
 
     wbConfigFile.setEnabled(editable);
+    wProjectId.setEnabled(editable);
     wParentProject.setEnabled(editable);
     wDescription.setEnabled(editable);
     wCompany.setEnabled(editable);
@@ -682,6 +744,14 @@ public class ProjectDialog extends Dialog {
 
   private void browseHomeFolder(Event event) {
     String homeFolder = BaseDialog.presentDirectoryDialog(shell, wHome, variables);
+
+    if (homeFolder != null) {
+      String resolvedHome = variables.resolve(homeFolder);
+      if (StringUtils.isNotEmpty(resolvedHome)) {
+        homeFolder = resolvedHome;
+        wHome.setText(resolvedHome);
+      }
+    }
 
     try {
       if (homeFolder != null && StringUtils.isEmpty(wName.getText())) {
@@ -842,44 +912,64 @@ public class ProjectDialog extends Dialog {
 
       if (wParentProject.getText() != null
           && !wParentProject.getText().isEmpty()
-          && projectName.equals(wParentProject.getText())) {
+          && projectName.equalsIgnoreCase(wParentProject.getText())) {
         throw new HopException(
             CONST_PROJECT + projectName + "' cannot be set as a parent project of itself");
       }
 
+      // Project names are unique regardless of case, a case-only rename is fine
+      //
       ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
-      List<String> prjs = prjsCfg.listProjectConfigNames();
-
-      if (StringUtils.isEmpty(oriProjectName)
-          || (StringUtils.isNotEmpty(oriProjectName) && !projectName.equals(oriProjectName))) {
-        for (String prj : prjs) {
-          if (projectName.equals(prj)) {
-            throw new HopException(
-                CONST_PROJECT + projectName + "' already exists. Project name must be unique!");
-          }
-        }
+      ProjectConfig sameName = prjsCfg.findProjectConfig(projectName);
+      if (sameName != null
+          && (StringUtils.isEmpty(oriProjectName)
+              || !sameName.getProjectName().equalsIgnoreCase(oriProjectName))) {
+        throw new HopException(
+            CONST_PROJECT
+                + projectName
+                + "' already exists as '"
+                + sameName.getProjectName()
+                + "'. Project names must be unique, regardless of case!");
       }
 
       HopGui hopGui = HopGui.getInstance();
+      if (!Utils.isEmpty(wParentProject.getText())
+          && !ProjectsUtil.projectExists(wParentProject.getText())) {
+        // The parent project was deleted or renamed: offer to drop the reference
+        //
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
+        box.setText(
+            BaseMessages.getString(PKG, "ProjectDialog.MissingParentProject.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "ProjectDialog.MissingParentProject.Dialog.Message",
+                wParentProject.getText()));
+        if (box.open() != SWT.YES) {
+          wParentProject.setFocus();
+          return;
+        }
+        wParentProject.setText("");
+      }
+
       if (!Utils.isEmpty(wParentProject.getText())) {
-
-        boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
-        if (!parentPrjExists)
-          throw new HopException(
-              CONST_PROJECT
-                  + wParentProject.getText()
-                  + "' cannot be set as parent project because it does not exists!");
-
         ProjectConfig parentPrjCfg = prjsCfg.findProjectConfig(wParentProject.getText());
         Project parentPrj = parentPrjCfg.loadProject(hopGui.getVariables());
-        if (parentPrj.getParentProjectName() != null
-            && parentPrj.getParentProjectName().equals(projectName))
+        String grandParentName = parentPrj.getParentProjectName();
+        // Empty means "no parent". A new project also has an empty original name, and the
+        // default project stores parentProjectName as "". Comparing those two empty strings
+        // would look like a cycle.
+        if (StringUtils.isNotEmpty(grandParentName)
+            && (grandParentName.equalsIgnoreCase(projectName)
+                || (StringUtils.isNotEmpty(oriProjectName)
+                    && grandParentName.equalsIgnoreCase(oriProjectName)))) {
           throw new HopException(
               CONST_PROJECT
                   + projectName
                   + "' cannot reference '"
                   + wParentProject.getText()
                   + "' as parent project because we are going to create a circular reference!");
+        }
       }
 
       if (this.editMode && !oriProjectName.equals(projectName)) {
@@ -894,14 +984,24 @@ public class ProjectDialog extends Dialog {
         int anwser = box.open();
         if ((anwser & SWT.NO) != 0) {
           wName.setText(oriProjectName);
+          projectName = oriProjectName;
         }
       }
 
-      if (!oriProjectName.equals(projectName)) {
-        List<String> refs = ProjectsUtil.getParentProjectReferences(oriProjectName);
-
-        if (!refs.isEmpty()) {
-          ProjectsUtil.changeParentProjectReferences(oriProjectName, projectName);
+      // Verify that the projects using this one as their parent can follow the rename. The
+      // rename itself is saved by the caller, all or nothing, once the dialog is closed.
+      //
+      if (this.editMode
+          && StringUtils.isNotEmpty(oriProjectName)
+          && !oriProjectName.equals(projectName)) {
+        try {
+          ProjectsUtil.checkProjectRename(oriProjectName, projectName, variables, hopGui.getLog());
+        } catch (ProjectRenameBlockedException e) {
+          MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          box.setText(BaseMessages.getString(PKG, "ProjectRename.Blocked.Header"));
+          box.setMessage(e.getUserMessage());
+          box.open();
+          return;
         }
       }
 
@@ -933,11 +1033,25 @@ public class ProjectDialog extends Dialog {
     wName.setText(Const.NVL(projectConfig.getProjectName(), ""));
     wHome.setText(Const.NVL(projectConfig.getProjectHome(), ""));
     wConfigFile.setText(Const.NVL(projectConfig.getConfigFilename(), ""));
+    wGroup.setText(Const.NVL(projectConfig.getGroup(), ""));
+    List<String> groups = ProjectsConfigSingleton.getConfig().listProjectGroups();
+    wGroup.setItems(groups.toArray(new String[0]));
     wReadOnly.setSelection(
         projectConfig.isReadOnly()
             || ProjectConfig.isArchiveUri(variables.resolve(projectConfig.getProjectHome())));
 
     wDescription.setText(Const.NVL(project.getDescription(), ""));
+    String storedProjectId = StringUtils.trimToNull(project.getProjectId());
+    // New projects suggest the project name. Editing an existing project must not fill it in:
+    // saving the dialog would otherwise start filtering execution information.
+    projectIdFollowsName = !editMode && storedProjectId == null;
+    String shownProjectId = storedProjectId;
+    if (projectIdFollowsName) {
+      shownProjectId = StringUtils.defaultString(projectConfig.getProjectName());
+    }
+    updatingProjectId = true;
+    wProjectId.setText(Const.NVL(shownProjectId, ""));
+    updatingProjectId = false;
     wCompany.setText(Const.NVL(project.getCompany(), ""));
     wDepartment.setText(Const.NVL(project.getDepartment(), ""));
     wVersion.setText(Const.NVL(project.getVersion(), ""));
@@ -996,9 +1110,11 @@ public class ProjectDialog extends Dialog {
     projectConfig.setProjectName(wName.getText());
     projectConfig.setProjectHome(sanitizePath(wHome.getText()));
     projectConfig.setConfigFilename(wConfigFile.getText());
+    projectConfig.setGroup(StringUtils.trimToEmpty(wGroup.getText()));
     projectConfig.setReadOnly(wReadOnly.getSelection());
 
     project.setParentProjectName(wParentProject.getText());
+    project.setProjectId(StringUtils.trimToNull(wProjectId.getText()));
     project.setDescription(wDescription.getText());
     project.setCompany(wCompany.getText());
     project.setDepartment(wDepartment.getText());

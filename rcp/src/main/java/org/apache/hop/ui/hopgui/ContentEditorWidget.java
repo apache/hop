@@ -300,13 +300,16 @@ public class ContentEditorWidget implements IContentEditorWidget {
           ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, sourceViewer.isEditable());
     }
 
-    // Update the HopGui main menu items...
+    // Update the HopGui main menu items. There is no main menu when the editor is built outside a
+    // running Hop GUI, so skip it the same way as a missing toolbar.
     GuiMenuWidgets mainMenuWidgets = HopGui.getInstance().getMainMenuWidgets();
-    mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_UNDO, canUndo);
-    mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_REDO, canRedo);
-    mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_CUT, canCut);
-    mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_COPY, canCopy);
-    mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_PASTE, canPaste);
+    if (mainMenuWidgets != null) {
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_UNDO, canUndo);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_REDO, canRedo);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_CUT, canCut);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_COPY, canCopy);
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_EDIT_PASTE, canPaste);
+    }
   }
 
   private void addToolbar() {

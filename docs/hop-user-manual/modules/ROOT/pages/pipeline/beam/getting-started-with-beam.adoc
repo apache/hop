@@ -156,6 +156,11 @@ The transforms are in general split into a different types described below.
 
 Important to remember is that Beam pipelines try to solve every action in an 'embarrassingly parallel' way. This means that every transform can and usually will run in more than 1 copy.  On large clusters you should expect a lot of copies of the same code to run at any given time.
 
+The number from xref:pipeline/specify-copies.adoc[Specify copies] and a xref:pipeline/partitioning.adoc[partition schema] do not set that parallelism.
+Both are applied only by the local Hop pipeline engine.
+On Beam, including Flink, a numeric copy count is not a thread count.
+The copies field carries the `SINGLE_BEAM` and `BATCH` flags described below.
+
 === Beam specific transforms
 
 There are a number of Beam specific transforms available which only work on the provided Beam pipeline execution engines.
@@ -191,6 +196,7 @@ Each of these transforms would therefore only ever see the slice of the data one
 * xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/groupby.adoc[Group By] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/sort.adoc[Sort Rows]
+* xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)] : Add the same constant field to both inputs and use a `Merge Join` on that field instead
 
 The Hop GUI knows about this list: when you set the canvas palette filter to a Beam engine these transforms are hidden, and running a pipeline that still contains one is blocked with the reason shown above.
 

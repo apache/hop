@@ -126,7 +126,7 @@ jobs:
         continue-on-error: true
         run: |
           set -uo pipefail
-          suites=$(curl -fsSL --max-time 60 \
+          suites=$(curl -fsSL --proto '=https' --proto-redir '=https' --max-time 60 \
             "$IT_REPORT_ROOT/api/json?tree=suites\[name\]" | tr ',' '\n' |
             sed -n 's/.*"name":"\([^"]*\)".*/\1/p' | sort -u)
           if [ -z "$suites" ]; then

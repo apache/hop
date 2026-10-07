@@ -138,6 +138,34 @@ class ConditionTest {
     assertEquals(Function.LARGER_EQUAL, condition.getFunction());
   }
 
+  /**
+   * Issue #8596: an empty {@code <rightvalue/>} tag loads as an empty string, which must still be
+   * treated as "compare with the constant" and not as a field named "".
+   */
+  @Test
+  void emptyRightValueNameShowsConstant() throws Exception {
+    String xml =
+        "<condition>"
+            + "<negated>N</negated>"
+            + "<leftvalue>deviation</leftvalue>"
+            + "<function>&lt;</function>"
+            + "<rightvalue/>"
+            + "<value>"
+            + "<name>constant</name>"
+            + "<type>Number</type>"
+            + "<text>-0.1</text>"
+            + "<length>-1</length>"
+            + "<precision>-1</precision>"
+            + "<isnull>N</isnull>"
+            + "</value>"
+            + "</condition>";
+    Condition condition = new Condition(xml);
+
+    assertTrue(condition.toString().contains("deviation < [-0.1]"), condition.toString());
+    assertEquals(1, condition.getUsedFields().length);
+    assertEquals("deviation", condition.getUsedFields()[0]);
+  }
+
   @Test
   void dateConstantWithMatchingMaskEvaluates() throws Exception {
     Condition condition = dateLessThanConstant("2022-01-01", "yyyy-MM-dd");

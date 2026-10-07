@@ -60,6 +60,7 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     SHA256("SHA-256", BaseMessages.getString(PKG, "CheckSumMeta.Type.SHA256")),
     SHA384("SHA-384", BaseMessages.getString(PKG, "CheckSumMeta.Type.SHA384")),
     SHA512("SHA-512", BaseMessages.getString(PKG, "CheckSumMeta.Type.SHA512")),
+    HASHCODE("HASHCODE", BaseMessages.getString(PKG, "CheckSumMeta.Type.HASHCODE")),
     ;
 
     private String code;
@@ -104,6 +105,16 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
      */
     public String getDescription() {
       return description;
+    }
+
+    /** CRC32, ADLER32 and the Combination lookup/update hash are returned as an integer. */
+    public boolean isIntegerResult() {
+      return this == CRC32 || this == ADLER32 || this == HASHCODE;
+    }
+
+    /** Message digests can be returned as a string, hexadecimal or binary value. */
+    public boolean isDigest() {
+      return this == MD5 || this == SHA1 || this == SHA256 || this == SHA384 || this == SHA512;
     }
   }
 
@@ -224,7 +235,7 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     // Output field (String)
     if (!Utils.isEmpty(resultFieldName)) {
       IValueMeta v = null;
-      if (checkSumType == CheckSumType.CRC32 || checkSumType == CheckSumType.ADLER32) {
+      if (checkSumType != null && checkSumType.isIntegerResult()) {
         v = new ValueMetaInteger(variables.resolve(resultFieldName));
       } else {
         v =

@@ -565,6 +565,8 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
    * <p>So, we DON'T skip line only if the previous char is new line indicator AND we are not
    * between '\r\n'.
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private boolean needToSkipRow() {
     try {
       // first we move pointer to the last byte of the previous transform

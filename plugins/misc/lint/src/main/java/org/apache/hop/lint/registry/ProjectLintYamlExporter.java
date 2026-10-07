@@ -34,23 +34,13 @@ public final class ProjectLintYamlExporter {
 
   public static String export(List<CustomLintRule> desiredRules) {
     try {
-      Map<String, CustomLintRule> packDefaults = new LinkedHashMap<>();
-      for (CustomLintRule rule : RuleRegistry.getInstance().resolve(null).getRules()) {
-        packDefaults.put(rule.generateRuleId(), rule);
-      }
+      Map<String, CustomLintRule> packDefaults = packDefaults();
 
       Map<String, Object> rulesMap = new LinkedHashMap<>();
       for (CustomLintRule desired : desiredRules) {
-        String ruleId = desired.generateRuleId();
-        CustomLintRule packDefault = packDefaults.get(ruleId);
-        if (desired.getPackOwner() == RulePackOwner.PROJECT || packDefault == null) {
-          rulesMap.put(ruleId, toFullCustomRuleMap(desired));
-        } else if (structurallyDiffersFromPackDefault(desired, packDefault)) {
-          // The project has redefined the rule rather than tuned it. Written in full, it replaces
-          // the pack rule of that id instead of layering on top of it.
-          rulesMap.put(ruleId, toFullCustomRuleMap(desired));
-        } else if (differsFromPackDefault(desired, packDefault)) {
-          rulesMap.put(ruleId, toOverrideMap(desired, packDefault));
+        Map<String, Object> entry = entryFor(desired, packDefaults);
+        if (entry != null) {
+          rulesMap.put(desired.generateRuleId(), entry);
         }
       }
 
@@ -64,6 +54,43 @@ public final class ProjectLintYamlExporter {
     } catch (Exception e) {
       throw new IllegalStateException("Failed to export project hop-lint.yml", e);
     }
+  }
+
+  /**
+   * What the project's {@code hop-lint.yml} has to say about one rule, so the rule manager can
+   * write that rule alone and leave the rest of the file as the user wrote it.
+   *
+   * @return the keys to write under the rule's id, or null when the rule is the pack's own and the
+   *     project need say nothing about it
+   */
+  public static Map<String, Object> entryFor(CustomLintRule desired) {
+    return entryFor(desired, packDefaults());
+  }
+
+  private static Map<String, Object> entryFor(
+      CustomLintRule desired, Map<String, CustomLintRule> packDefaults) {
+    CustomLintRule packDefault = packDefaults.get(desired.generateRuleId());
+    if (desired.getPackOwner() == RulePackOwner.PROJECT || packDefault == null) {
+      return toFullCustomRuleMap(desired);
+    }
+    if (structurallyDiffersFromPackDefault(desired, packDefault)) {
+      // The project has redefined the rule rather than tuned it. Written in full, it replaces the
+      // pack rule of that id instead of layering on top of it.
+      return toFullCustomRuleMap(desired);
+    }
+    if (differsFromPackDefault(desired, packDefault)) {
+      return toOverrideMap(desired, packDefault);
+    }
+    return null;
+  }
+
+  /** The rules as the packs define them, before any project changes them. */
+  private static Map<String, CustomLintRule> packDefaults() {
+    Map<String, CustomLintRule> packDefaults = new LinkedHashMap<>();
+    for (CustomLintRule rule : RuleRegistry.getInstance().resolve(null).getRules()) {
+      packDefaults.put(rule.generateRuleId(), rule);
+    }
+    return packDefaults;
   }
 
   private static boolean differsFromPackDefault(
@@ -165,7 +192,10 @@ public final class ProjectLintYamlExporter {
       // Omitted when empty so an unrestricted rule round-trips to the same YAML it came from.
       ruleConfig.put("appliesTo", new ArrayList<>(rule.getAppliesTo()));
     }
-    ruleConfig.put("parameters", new HashMap<>(rule.getAdditionalParameters()));
+    if (!rule.getAdditionalParameters().isEmpty()) {
+      // Omitted when empty, like appliesTo: "parameters: {}" on every rule was noise in the diff.
+      ruleConfig.put("parameters", new HashMap<>(rule.getAdditionalParameters()));
+    }
     return ruleConfig;
   }
 

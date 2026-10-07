@@ -17,39 +17,60 @@ under the License.
 [[HopConcepts]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: Getting Started (3/9): before going into the details of workflows and pipelines, we'll walk through the core terminology used in Hop.
+:description: Getting Started (3/9): before going into the details of workflows and pipelines, we'll walk through the core terminology and architecture used in Hop.
 
 = Hop Concepts
 
 == Core Concepts
 
-Before we dive deeper, let's take a minute to familiarize ourselves with the Hop lingo.
+Before we dive into building, let's take a minute to understand the mental model behind Apache Hop.
 
-**Metadata** is by far the most important concept in all of Hop.
-Every item we'll cover below is defined as metadata.
-All interactions between Hop and other components in your data architecture are done through metadata.
-_Metadata is at the core of **everything** in Hop_.
-
-
-* **Pipelines** are collections of **transforms**, connected by **hops**.
-All transforms in a pipeline run in parallel.
-
-* **Workflows** are collections of **actions**, connected by **hops**.
-All actions in a workflow run sequentially by default.
-
-* **Metadata items** are the definitions you create once and reuse everywhere: relational database connections, xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[run configurations], xref:metadata-types/hop-server.adoc[Hop Servers], xref:metadata-types/data-set.adoc[data sets], xref:metadata-types/pipeline-unit-test.adoc[unit tests], and many more.
-A pipeline refers to a database connection by name; the connection itself is defined once, in the project.
-Change it in one place and everything that uses it follows.
+**Metadata** is at the core of literally everything in Hop.
+Pipelines, workflows, relational database connections, run configurations, unit tests, and servers are all defined as metadata objects.
+You define a metadata item once (for example, a database connection called `CRM`) and reference it everywhere by name.
+When a credential or host changes, you update it once in your project metadata and every pipeline and workflow automatically adopts the change.
 See the xref:metadata-types/index.adoc[full list of metadata types].
 
-* **Projects** are logical collections of hop code and configuration.
-**Environments** contain the environment-specific (e.g. dev, uat, prd) metadata.
+== Pipelines vs. Workflows: At a Glance
 
-* **Fields** are the typed columns on a data row.
-**Parameters** are named inputs on a pipeline or workflow.
-**Variables** are named string values in a scope.
-They look similar in the UI but they do not behave the same way — see xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+The most critical architectural concept in Hop is the distinction between **Pipelines** and **Workflows**.
+They may look visually similar in the GUI canvas with icons connected by arrows, but they operate completely differently:
+
+[options="header", cols="25%,37%,38%"]
+|===
+|Concept |Pipeline (`.hpl`) |Workflow (`.hwf`)
+|**Primary Role** |**Data Worker** (Processes & transforms rows) |**Orchestrator** (Coordinates jobs & tasks)
+|**Building Blocks** |xref:pipeline/transforms.adoc[Transforms] |xref:workflow/actions.adoc[Actions]
+|**Execution Mode** |**Parallel** (All transforms run simultaneously) |**Sequential** (Actions run one after another)
+|**What Flows on Hops** |Real **data rows** streaming through in-memory buffers |**Control flow / Exit status** (Success or Failure)
+|**Starting Points** |One or more xref:pipeline/pipeline-sources.adoc[pipeline sources] |Exactly one xref:workflow/actions/start.adoc[Start] action
+|**Back-Pressure** |Automatic (upstream pauses if downstream is slow) |N/A (state machine progresses step by step)
+|**Typical Operations** |Reading tables, filtering, joining streams, cleaning rows |Checking prerequisites, running pipelines, alerting
+|===
+
+The diagram below illustrates how Workflows serve as the orchestration control plane, firing parallel Pipelines as the data processing engine across your infrastructure:
+
+image::concepts/hop-architecture-overview.svg[Apache Hop Architecture Overview - Workflows and Pipelines,opts=inline]
 
 include::../snippets/hop-concepts/item-types.adoc[]
 
 include::../snippets/hop-concepts/hop-projects-environments.adoc[]
+
+== Fields, Parameters, and Variables
+
+In Hop, values belong to three distinct categories:
+
+* **Fields**: The named and typed columns on a data row in a pipeline (e.g. `customer_id` as an Integer, `order_date` as a Date). Fields travel across hops between transforms.
+* **Parameters**: Named inputs declared on a pipeline or workflow. They allow you to pass external values into a job at runtime (for example, passing a specific date or processing batch ID).
+* **Variables**: Named environment and system variables (e.g. `+${PROJECT_HOME}+` or `+${JAVA_HOME}+`). Variables are resolved in text fields and paths across Hop.
+
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for a comprehensive guide on their scopes and behaviors.
+
+== Where to Go Next
+
+Now that you know the vocabulary:
+
+* Continue with the xref:getting-started/hop-gui.adoc[Hop Gui Overview] to explore the user interface.
+* Or dive deeper into the dedicated architecture guides:
+** xref:pipeline/pipelines.adoc[Pipelines Deep Dive] — Learn about parallel streaming, in-memory row buffers, execution engines, and real-world scenarios.
+** xref:workflow/workflows.adoc[Workflows Deep Dive] — Learn about orchestration, conditional decision hops, and backtracking path exploration.

@@ -32,6 +32,7 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.lint.registry.EffectiveRuleSet;
@@ -195,6 +196,21 @@ public class HopLinter {
     List<LintResult> allResults = new ArrayList<>();
     long startTime = System.currentTimeMillis();
 
+    if (variables == null) {
+      variables = Variables.getADefaultVariableSpace();
+    }
+    // Lint Project in Hop Gui called this without an index, so the rules that need the whole
+    // project (STRUCT-004 and STRUCT-005, unreferenced pipelines and workflows) were skipped there
+    // while the CLI, which built its own, reported them.
+    boolean ownIndex = false;
+    if (!CustomRuleExecutor.hasProjectIndex()) {
+      LintProjectIndex index = buildProjectIndex(projectPath, metadataProvider, variables);
+      if (index != null) {
+        CustomRuleExecutor.setProjectIndex(index);
+        ownIndex = true;
+      }
+    }
+
     try {
       log.logBasic("Starting linter with project path: " + projectPath);
 
@@ -219,12 +235,6 @@ public class HopLinter {
               + " Hop files to analyze (discovery took "
               + fileDiscoveryTime
               + "ms)");
-
-      // Create default variables if not provided
-      if (variables == null) {
-        log.logBasic("Variables is null, creating default variable space");
-        variables = Variables.getADefaultVariableSpace();
-      }
 
       // Process each file
       long fileProcessingStart = System.currentTimeMillis();
@@ -317,9 +327,43 @@ public class HopLinter {
               "ERROR",
               "Failed to complete linting: " + e.getMessage(),
               "system"));
+    } finally {
+      if (ownIndex) {
+        CustomRuleExecutor.setProjectIndex(null);
+      }
     }
 
     return allResults;
+  }
+
+  /**
+   * The references in the project a lint target belongs to, for the rules that need the whole
+   * project to answer.
+   *
+   * <p>The index covers {@code PROJECT_HOME} when the target lies inside it, so a folder or a file
+   * is judged against everything that could call it, not only its neighbours. Outside a project a
+   * folder is indexed on its own; a single file outside a project gets no index, and those rules
+   * stay quiet rather than guess.
+   *
+   * @return the index, or null when the target has no project to index
+   */
+  public LintProjectIndex buildProjectIndex(
+      String targetPath, IHopMetadataProvider metadataProvider, IVariables variables) {
+    File target = new File(targetPath).getAbsoluteFile();
+    String root = null;
+    String projectHome = variables == null ? null : variables.getVariable("PROJECT_HOME");
+    if (!Utils.isEmpty(projectHome) && LintPathUtils.isWithin(target, new File(projectHome))) {
+      root = new File(projectHome).getAbsolutePath();
+    } else if (target.isDirectory()) {
+      root = target.getPath();
+    }
+    if (root == null) {
+      return null;
+    }
+    LintProjectIndex index =
+        LintProjectIndex.build(findHopFiles(root), metadataProvider, variables);
+    log.logDetailed("Indexed " + index.getIndexedFiles().size() + " file(s) under " + root);
+    return index;
   }
 
   /**
@@ -511,11 +555,10 @@ public class HopLinter {
     List<LintResult> results = new ArrayList<>(fromNativeRemarks(remarks, fileName));
 
     if (shouldIncludeLintInPipelineVerify()) {
-      results.addAll(
-          LintCheckResultAdapter.fromCheckResults(
-              LintCheckResultAdapter.toCheckResults(
-                  runPolicyRules(pipelineMeta, fileName), pipelineMeta),
-              fileName));
+      // As they are, the way the command line reports them. Round tripping them through Hop's own
+      // remarks would report each one as Hop's, under the source's name and with the rule id
+      // prefixed to the message, and keep deduplication from telling the two apart.
+      results.addAll(runPolicyRules(pipelineMeta, fileName));
     }
 
     return applyPolicy(results, fileName);
@@ -540,11 +583,8 @@ public class HopLinter {
     List<LintResult> results = new ArrayList<>(fromNativeRemarks(remarks, fileName));
 
     if (shouldIncludeLintInWorkflowVerify()) {
-      results.addAll(
-          LintCheckResultAdapter.fromCheckResults(
-              WorkflowCheckResultAdapter.toCheckResults(
-                  runPolicyRules(workflowMeta, fileName), workflowMeta),
-              fileName));
+      // As they are, for the same reason as the pipeline path above.
+      results.addAll(runPolicyRules(workflowMeta, fileName));
     }
 
     return applyPolicy(results, fileName);

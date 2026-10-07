@@ -75,6 +75,13 @@ public class Project extends ConfigFile implements IConfigFile {
 
   @JsonIgnore private String configFilename;
   private String description;
+
+  /**
+   * Optional id copied onto execution information. Empty means a shared execution store is not
+   * filtered (2.19.0 behavior). Not inherited from the parent project.
+   */
+  private String projectId;
+
   private String company;
   private String department;
   private String version;
@@ -169,6 +176,7 @@ public class Project extends ConfigFile implements IConfigFile {
       Project project = objectMapper.readValue(inputStream, Project.class);
 
       this.description = project.description;
+      this.projectId = project.projectId;
       this.company = project.company;
       this.department = project.department;
       this.version = project.version;
@@ -247,6 +255,10 @@ public class Project extends ConfigFile implements IConfigFile {
     //
     variables.setVariable(
         Defaults.VARIABLE_HOP_PROJECT_NAME, Const.NVL(projectConfig.getProjectName(), ""));
+    // Always set, including to empty, so a project without an id does not keep a parent's value.
+    variables.setVariable(
+        Defaults.VARIABLE_HOP_PROJECT_ID,
+        StringUtils.defaultString(StringUtils.trimToNull(projectId)));
     variables.setVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME, Const.NVL(environmentName, ""));
 
     // To allow circular logic where an environment file is relative to the project home
@@ -344,7 +356,7 @@ public class Project extends ConfigFile implements IConfigFile {
       return;
     }
 
-    if (parentProjectName.equals(projectName)) {
+    if (parentProjectName.equalsIgnoreCase(projectName)) {
       throw new HopException(
           "Parent project '" + parentProjectName + "' can not be the same as the project itself");
     }
@@ -381,7 +393,7 @@ public class Project extends ConfigFile implements IConfigFile {
             realParentProjectName = variables.resolve(parentProject.parentProjectName);
             // See if we've had this one before...
             if (StringUtils.isNotEmpty(realParentProjectName)
-                && projectsList.contains(realParentProjectName)) {
+                && projectsList.stream().anyMatch(realParentProjectName::equalsIgnoreCase)) {
               throw new HopException(
                   "There is a loop in the parent projects hierarchy: project "
                       + realParentProjectName
@@ -468,6 +480,8 @@ public class Project extends ConfigFile implements IConfigFile {
    * @throws IOException
    * @throws HopFileException
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public List<String> getTransformTypes(IVariables variables) throws IOException, HopFileException {
     // build a map of all pipelines and transforms in the project.
     buildPipelineMap(variables);

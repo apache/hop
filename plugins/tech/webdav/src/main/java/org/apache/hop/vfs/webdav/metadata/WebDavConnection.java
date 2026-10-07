@@ -19,6 +19,7 @@ package org.apache.hop.vfs.webdav.metadata;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -35,7 +36,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Getter
 @Setter
 @HopMetadata(
-    key = "WebDavConnectionDefinition",
+    key = "webdav-connection",
+    legacyKeys = {"WebDavConnectionDefinition"},
     name = "i18n::WebDavConnection.Name",
     description = "i18n::WebDavConnection.Description",
     image = "ui/images/authentication.svg",
@@ -43,7 +45,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     documentationUrl = "/metadata-types/webdav-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_WEBDAV_CONNECTION,
     classLoaderGroup = "vfs-webdav")
-public class WebDavConnection extends HopMetadataBase implements Serializable, IHopMetadata {
+public class WebDavConnection extends HopMetadataBase
+    implements Serializable, IHopMetadata, IVfsBrowseLocation {
 
   @HopMetadataProperty private String description;
 

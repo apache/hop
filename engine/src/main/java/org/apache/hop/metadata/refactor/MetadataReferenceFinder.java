@@ -586,7 +586,7 @@ public class MetadataReferenceFinder {
    * Finds all pipeline and workflow files under the given root paths that contain a reference to
    * the given metadata element name (for the given metadata type key).
    *
-   * @param metadataKey metadata type key (e.g. "rdbms", "restconnection")
+   * @param metadataKey metadata type key (e.g. "rdbms", "rest-connection")
    * @param elementName the metadata element name to search for (e.g. connection name)
    * @param searchRootPaths root paths to search recursively for .hpl and .hwf files
    * @return list of files with at least one reference, and the count per file

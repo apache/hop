@@ -26,6 +26,10 @@ This runner allows you to run Hop pipelines on https://flink.apache.org[Apache F
 
 The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner.
 
+Hop xref:pipeline/specify-copies.adoc[copies] and xref:pipeline/partitioning.adoc[partition schemas] are not applied on this runner.
+Flink decides how many tasks process each transform.
+Use the parallelism option below, not the copy count or partition schema in the pipeline.
+
 The Flink Runner and Flink are suitable for large scale, continuous jobs, and provide:
 
 * A streaming-first runtime that supports both batch processing and data streaming programs
@@ -83,6 +87,19 @@ Set this to BATCH_FORCED if pipelines get blocked, see https://issues.apache.org
 |Hop streaming transforms buffer size|The internal buffer size to use.|
 |Fat jar file location|Fat jar location.|
 |===
+
+== Job id
+
+Beam does not return the Flink job id on the pipeline result. Hop chooses the id before submitting the job. After `prepareExecution()` it is available from the engine:
+
+[source,java]
+----
+if (pipeline instanceof BeamFlinkPipelineEngine flinkEngine) {
+  String jobId = flinkEngine.getFlinkJobId();
+}
+----
+
+The same value is written to the pipeline log. When the run configuration has an execution information location, it is stored as `flink.job.id` and shown on the execution viewer info tab. A master of `[collection]` does not submit a cluster job, so no id is assigned.
 
 == Running with Flink Run
 

@@ -37,6 +37,9 @@ The result is stored in a String field with the specified name.
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline
+|REST connection|Optional.
+The name of a xref:metadata-types/rest-connection.adoc[REST connection] that supplies the client for this transform: the proxy, the credentials, the TLS settings and the timeouts.
+When one is selected, those fields below are not used, and the URL may be a path that is resolved against the connection's base URL.
 |URL|The base URL string
 |Accept URL from field?|Enable this option if you want to get the URL from a previous transform.
 Enabling this will also allow you to specify the name of the input field.
@@ -51,6 +54,11 @@ Enabling this will also allow you to specify the name of the input field.
 |HTTP Password|The password to be passed during HTTP (Basic) authentication
 |Proxy Host|The hostname of the Proxy Server to be used
 |Proxy Port|The port number of the Proxy Server to be used
+|Proxy username|The user name for a proxy that requires authentication.
+The credentials of the web server are never offered to the proxy, and vice versa.
+|Proxy password|The password that goes with the proxy user name.
+|Ignore proxy for hosts|Target hosts to reach directly instead of through the proxy.
+Separate the entries with `\|` and use `*` as a wildcard, for example `localhost\|127.*\|*.internal.example.com`.
 |Parameters|Area where you define the parameter name-value pairs to pass on the URL
 |Custom HTTP Headers|Area where you define optional HTTP headers
 |===

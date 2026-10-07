@@ -226,7 +226,7 @@ The same workbench can run outside the perspective, like the Database perspectiv
 
 * *AI Help* on a pipeline or workflow toolbar (and canvas *Basic → AI Help*) opens that floating window so the graph stays visible.
 * *Float* on the session toolbar (or **Tools → AI Assistant window**) opens a non-modal window you can put beside the canvas and the execution log.
-* *Dock* opens it as a tab in the bottom dock.
+* *Dock* opens it as a tab in the bottom dock, in the same panel as the terminal, search, database, and VFS file explorer.
 
 image::hop-gui/ai-advisor/ai-advisor-floating-window.jpg[AI Assistant floating over a failed workflow and its execution log,width="90%"]
 

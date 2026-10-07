@@ -18,6 +18,8 @@
 
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -40,6 +42,7 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -66,6 +69,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.FontDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -115,6 +119,7 @@ public class ConfigGuiOptionsTab {
   private Button wEnableInfiniteMove;
   private Button wDisableZoomScrolling;
   private Button wMetricsOnTransforms;
+  private final Map<CanvasToolTip, Button> wCanvasToolTips = new EnumMap<>(CanvasToolTip.class);
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
   private Button wShowTextCompositeToolbar;
@@ -214,6 +219,8 @@ public class ConfigGuiOptionsTab {
       }
       wDrawBorderAroundCanvasNames.setSelection(props.isBorderDrawnAroundCanvasNames());
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
+      wCanvasToolTips.forEach(
+          (toolTip, button) -> button.setSelection(props.isCanvasToolTipShown(toolTip)));
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
       if (wShowTextCompositeToolbar != null && !wShowTextCompositeToolbar.isDisposed()) {
@@ -795,6 +802,10 @@ public class ConfigGuiOptionsTab {
             props.isShowingMetricsAboveRunningTransforms(),
             lastCanvasControl,
             margin);
+    lastCanvasControl = wMetricsOnTransforms;
+
+    // The tooltips of the canvas, one checkbox per kind, in a group of their own
+    createCanvasToolTipsGroup(canvasContent, lastCanvasControl, margin);
 
     // Create the expand item
     ExpandItem canvasItem = new ExpandItem(canvasExpandBar, SWT.NONE);
@@ -1390,6 +1401,8 @@ public class ConfigGuiOptionsTab {
     props.setInfiniteCanvasMoveEnabled(wEnableInfiniteMove.getSelection());
     props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
     props.setShowingMetricsAboveRunningTransforms(wMetricsOnTransforms.getSelection());
+    wCanvasToolTips.forEach(
+        (toolTip, button) -> props.setCanvasToolTipShown(toolTip, button.getSelection()));
     // On macOS (and other non-Windows), dark mode follows system; persist system theme, not
     // checkbox. In Web environment, isSystemDarkTheme() is not available.
     boolean previousDarkMode = props.isDarkMode();
@@ -1705,6 +1718,43 @@ public class ConfigGuiOptionsTab {
     expandBar.addListener(SWT.Expand, relayout);
     expandBar.addListener(SWT.Collapse, relayout);
     return expandBar;
+  }
+
+  /**
+   * A titled group below {@code above} with one checkbox per kind of canvas tooltip. A {@link
+   * Group} inside the ExpandBar content works on the desktop and in Hop Web alike, and keeps the
+   * eight checkboxes apart from the other canvas options.
+   */
+  private void createCanvasToolTipsGroup(Composite parent, Control above, int margin) {
+    PropsUi props = PropsUi.getInstance();
+
+    Group group = new Group(parent, SWT.NONE);
+    PropsUi.setLook(group);
+    group.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.CanvasToolTips.Label"));
+    group.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.CanvasToolTips.ToolTip"));
+    FormLayout groupLayout = new FormLayout();
+    groupLayout.marginWidth = PropsUi.getFormMargin();
+    groupLayout.marginHeight = PropsUi.getFormMargin();
+    group.setLayout(groupLayout);
+    FormData fdGroup = new FormData();
+    fdGroup.left = new FormAttachment(0, 0);
+    fdGroup.right = new FormAttachment(100, 0);
+    fdGroup.top = new FormAttachment(above, 2 * margin);
+    group.setLayoutData(fdGroup);
+
+    Control last = null;
+    for (CanvasToolTip toolTip : CanvasToolTip.values()) {
+      Button button =
+          createCheckbox(
+              group,
+              toolTip.getLabelKey(),
+              toolTip.getToolTipKey(),
+              props.isCanvasToolTipShown(toolTip),
+              last,
+              margin);
+      wCanvasToolTips.put(toolTip, button);
+      last = button;
+    }
   }
 
   private Button createCheckbox(

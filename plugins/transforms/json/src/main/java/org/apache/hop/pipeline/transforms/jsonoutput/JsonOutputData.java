@@ -69,6 +69,12 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
 
   public int nrRowsInBloc;
 
+  /**
+   * The last input row seen. When the input ends in the middle of a block, the remaining rows are
+   * flushed on this row so the output row keeps its input field values (#2958).
+   */
+  public Object[] lastRow;
+
   /** */
   public JsonOutputData() {
     super();

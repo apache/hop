@@ -32,6 +32,17 @@ public @interface HopMetadata {
   String key();
 
   /**
+   * Keys this metadata type was known under before it was renamed, for example to bring it in line
+   * with the lower-case, dash-separated naming convention. Objects stored under a legacy key (a
+   * JSON sub-folder named after it, or a serialized metadata export) are still found and loaded.
+   * Saving an object always writes it under {@link #key()} and removes the legacy copy, so projects
+   * migrate one object at a time as they are edited.
+   *
+   * @return the previous keys of this metadata type, most recent first
+   */
+  String[] legacyKeys() default {};
+
+  /**
    * The key for this hop metadata object. It will be translated into a sub-folder for the JSON
    * serializer
    *

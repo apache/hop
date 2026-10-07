@@ -1,0 +1,98 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Developing variable resolver plugins in Apache Hop: integrating external secrets managers and vaults via the #{resolver/path} syntax.
+[[Sdk-Plugins-VariableResolvers]]
+= Variable Resolvers
+
+A variable resolver fetches dynamic configuration values or sensitive credentials on the fly from an external store: AWS Secrets Manager, Azure Key Vault, Google Secret Manager, HashiCorp Vault, or another pipeline.
+This enables Hop workflows to use `#{resolver-name/secret-path}` syntax without hardcoding secrets in metadata or file configurations.
+
+== Implementing a Variable Resolver
+
+Annotate your resolver class with `@VariableResolverPlugin` and implement `IVariableResolver`:
+
+[source,java]
+----
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.resolver.IVariableResolver;
+import org.apache.hop.core.variables.resolver.VariableResolver;
+import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+@VariableResolverPlugin(
+    id = "custom-vault",
+    name = "Custom Vault Resolver",
+    description = "Resolves credentials from an external enterprise vault"
+)
+@GuiPlugin
+@Getter
+@Setter
+public class CustomVaultVariableResolver implements IVariableResolver {
+
+  @GuiWidgetElement(
+      id = "vault_url",
+      type = GuiElementType.TEXT,
+      label = "Vault Base URL",
+      parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID
+  )
+  @HopMetadataProperty(key = "vault_url")
+  private String vaultUrl;
+
+  @GuiWidgetElement(
+      id = "vault_token",
+      type = GuiElementType.TEXT,
+      password = true,
+      label = "Vault Token",
+      parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID
+  )
+  @HopMetadataProperty(key = "vault_token", password = true)
+  private String vaultToken;
+
+  @Override
+  public void init() {
+    // Validate connection to vault server
+  }
+
+  @Override
+  public String resolve(String secretPath, IVariables variables) throws HopException {
+    // Query external vault using secretPath and return the secret value
+    return fetchSecretFromVault(vaultUrl, vaultToken, secretPath);
+  }
+}
+----
+
+== Key Architectural Rules
+
+* **Metadata Binding:** Variable resolver configuration is stored inside a `Variable Resolver` metadata object. Decorate fields with `@HopMetadataProperty` for JSON persistence and `@GuiWidgetElement` with `parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID` to automatically appear in the GUI configuration dialog.
+* **Provider Context:** Variable resolution occurs in the context of the running pipeline or workflow's `IHopMetadataProvider`. Never rely on static global metadata singletons, or execution on remote Hop Servers will fail to locate the resolver configuration.
+
+== Concrete Codebase Examples
+
+* `plugins/tech/azure/src/main/java/org/apache/hop/core/variables/resolver/AzureKeyVaultVariableResolver.java`: Azure Key Vault secret resolution.
+* `plugins/tech/google/src/main/java/org/apache/hop/core/variables/resolver/GooleSecretManagerVariableResolver.java`: Google Secret Manager integration. The class name is spelled that way in the repository.
+* `plugins/resolvers/pipeline/src/main/java/org/apache/hop/resolvers/pipeline/VariableResolverPipeline.java`: Resolving variables dynamically by executing a pipeline.
+
+== See also
+
+* xref:plugin-types/metadata-configuration.adoc[Metadata and configuration]
+* xref:annotation-derived-widgets.adoc[Annotation derived widgets]

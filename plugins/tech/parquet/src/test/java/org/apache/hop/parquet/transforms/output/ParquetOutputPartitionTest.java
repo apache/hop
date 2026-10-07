@@ -315,6 +315,108 @@ class ParquetOutputPartitionTest {
   }
 
   @Test
+  void overwriteAllOnAFreshFolderJustWrites() throws Exception {
+    ParquetOutputMeta meta = partitionedMeta("region");
+    meta.setFilenameBase(tempDir.resolve("fresh").toString());
+    meta.setWriteMode(ParquetWriteMode.OverwriteAll);
+
+    runRows(meta, new Object[] {1L, "EU", "2026"});
+
+    assertEquals(List.of("region=EU"), names(childFolders(tempDir.resolve("fresh"))));
+  }
+
+  @Test
+  void aFullPartitionRollsOverToANewPart() throws Exception {
+    ParquetOutputMeta meta = partitionedMeta("region");
+    meta.setFilenameBase(tempDir.resolve("sales").toString());
+    meta.setFilenameIncludingSplitNr(true);
+    meta.setFileSplitSize("2");
+
+    runRows(
+        meta,
+        new Object[] {1L, "EU", "2026"},
+        new Object[] {2L, "EU", "2026"},
+        new Object[] {3L, "EU", "2026"},
+        new Object[] {4L, "US", "2026"});
+
+    // Three EU rows with two per part: two files; the single US row: one file.
+    assertEquals(2, listFiles(tempDir.resolve("sales/region=EU")).size());
+    assertEquals(1, listFiles(tempDir.resolve("sales/region=US")).size());
+  }
+
+  @Test
+  void partitionFileNamesCarryTheConfiguredParts() throws Exception {
+    ParquetOutputMeta meta = partitionedMeta("region");
+    meta.setFilenameBase(tempDir.resolve("sales").toString());
+    meta.setFilenameIncludingDate(true);
+    meta.setFilenameIncludingTime(true);
+    meta.setFilenameIncludingDateTime(true);
+    meta.setFilenameDateTimeFormat("yyyy");
+    meta.setFilenameCompressionBeforeExtension(false);
+    meta.setCompressionCodec(CompressionCodecName.GZIP);
+
+    runRows(meta, new Object[] {1L, "EU", "2026"});
+
+    String name = onlyFile(tempDir.resolve("sales/region=EU")).getFileName().toString();
+    // part-<yyyyMMdd>-<HHmmss>-<yyyy>-<copy>-<nr>-<run token>.parquet.gz
+    assertTrue(name.matches("part-\\d{8}-\\d{6}-\\d{4}-00-0000-[0-9a-f]{8}\\.parquet\\.gz"), name);
+  }
+
+  @Test
+  void aPartitionFieldListedInTheOutputFieldsIsStillLeftOutOfTheFile() throws Exception {
+    ParquetOutputMeta meta = partitionedMeta("region");
+    meta.setFilenameBase(tempDir.resolve("sales").toString());
+    meta.getFields().add(new ParquetField("id", "id"));
+    meta.getFields().add(new ParquetField("region", "region"));
+
+    runRows(meta, new Object[] {1L, "EU", "2026"});
+
+    IRowMeta schema =
+        ParquetTestUtil.readSchema(onlyFile(tempDir.resolve("sales/region=EU")).toString());
+    assertEquals(List.of("id"), List.of(schema.getFieldNames()));
+  }
+
+  @Test
+  void blankPartitionFieldNamesAreIgnored() throws Exception {
+    ParquetOutputMeta meta = partitionedMeta("region", " ");
+    meta.setFilenameBase(tempDir.resolve("sales").toString());
+
+    runRows(meta, new Object[] {1L, "EU", "2026"});
+
+    assertEquals(List.of("region=EU"), names(childFolders(tempDir.resolve("sales"))));
+  }
+
+  @Test
+  void beamBundleHooksCloseAndReopenPartitionFiles() throws Exception {
+    ParquetOutputMeta meta = partitionedMeta("region");
+    meta.setFilenameBase(tempDir.resolve("sales").toString());
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = spy(createTransform(meta, data));
+    output.setInputRowMeta(salesRowMeta());
+    assertTrue(output.init());
+    doNothing().when(output).putRow(any(), any());
+
+    // Nothing open yet: both hooks are no-ops.
+    output.finishBundle();
+    output.batchComplete();
+
+    List<Object[]> remaining = new ArrayList<>();
+    remaining.add(new Object[] {1L, "EU", "2026"});
+    doAnswer(invocation -> remaining.isEmpty() ? null : remaining.remove(0)).when(output).getRow();
+    assertTrue(output.processRow());
+    output.finishBundle();
+    assertTrue(data.partitionWriters.isEmpty());
+    assertEquals(1, listFiles(tempDir.resolve("sales/region=EU")).size());
+
+    // The next row after a bundle boundary opens a fresh file for the same partition.
+    remaining.add(new Object[] {2L, "EU", "2026"});
+    assertTrue(output.processRow());
+    output.finishBundle();
+    assertEquals(2, listFiles(tempDir.resolve("sales/region=EU")).size());
+  }
+
+  @Test
   void withoutPartitionFieldsNothingChanges() throws Exception {
     ParquetOutputMeta meta = new ParquetOutputMeta();
     meta.setFilenameBase(tempDir.resolve("flat").toString());

@@ -38,6 +38,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -84,6 +85,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
 import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
@@ -150,6 +152,14 @@ public class PipelineMeta extends AbstractMeta
 
   /** The transforms fields cache. */
   protected Map<String, IRowMeta> transformFieldsCache;
+
+  /**
+   * The {@link DbCache} generation the transform fields cache was filled against. Transforms like
+   * Table Input derive their output fields from the database cache, so clearing that cache has to
+   * invalidate the fields we cached here as well. Without this, clearing the database cache only
+   * takes effect after the pipeline is reloaded.
+   */
+  protected int transformFieldsCacheDbGeneration;
 
   /** The loop cache. */
   protected Map<String, Boolean> loopCache;
@@ -286,6 +296,7 @@ public class PipelineMeta extends AbstractMeta
     maxUndo = Const.MAX_UNDO;
     undoPosition = -1;
     transformFieldsCache = new HashMap<>();
+    transformFieldsCacheDbGeneration = DbCache.getInstance().getGeneration();
     loopCache = new HashMap<>();
     previousTransformCache = new HashMap<>();
     super.clear();
@@ -772,6 +783,93 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
+   * Named target streams (Filter Rows true/false, Switch/Case, and similar) deliver rows to copy 0
+   * of the target only. A transform that is such a target cannot run in multiple copies.
+   *
+   * @param transformMeta transform that would be started in multiple copies
+   * @return {@code false} when an enabled previous hop comes from a transform that names it as a
+   *     target stream
+   */
+  public boolean allowsMultipleCopies(TransformMeta transformMeta) {
+    if (transformMeta == null) {
+      return true;
+    }
+    for (TransformMeta previous : findPreviousTransforms(transformMeta)) {
+      if (namesTarget(previous, transformMeta)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @return {@code true} when the copies string resolves to an integer greater than one. Unresolved
+   *     variables and partitioning are ignored, matching the copies dialog.
+   */
+  public boolean hasMultipleCopies(TransformMeta transformMeta, IVariables variables) {
+    if (transformMeta == null || Utils.isEmpty(transformMeta.getCopiesString())) {
+      return false;
+    }
+    IVariables space = variables != null ? variables : Variables.getADefaultVariableSpace();
+    return Const.toInt(space.resolve(transformMeta.getCopiesString()), -1) > 1;
+  }
+
+  /**
+   * @return {@code true} when {@code hop} connects a named target stream to a transform that
+   *     already runs in multiple copies
+   */
+  public boolean isMultipleCopiesTargetHop(PipelineHopMeta hop, IVariables variables) {
+    if (hop == null
+        || !hop.isEnabled()
+        || hop.getFromTransform() == null
+        || hop.getToTransform() == null) {
+      return false;
+    }
+    return hasMultipleCopies(hop.getToTransform(), variables)
+        && namesTarget(hop.getFromTransform(), hop.getToTransform());
+  }
+
+  /**
+   * Splitting {@code hop} redirects the source transform's target streams from the current
+   * destination onto {@code inserted}.
+   *
+   * @return {@code true} when that redirect would land on a transform that already runs in multiple
+   *     copies
+   */
+  public boolean isMultipleCopiesTargetSplit(
+      PipelineHopMeta hop, TransformMeta inserted, IVariables variables) {
+    if (hop == null || hop.getFromTransform() == null || hop.getToTransform() == null) {
+      return false;
+    }
+    return hasMultipleCopies(inserted, variables)
+        && namesTarget(hop.getFromTransform(), hop.getToTransform());
+  }
+
+  private boolean namesTarget(TransformMeta source, TransformMeta target) {
+    if (source == null || target == null || Utils.isEmpty(target.getName())) {
+      return false;
+    }
+    ITransformMeta meta = source.getTransform();
+    if (meta == null) {
+      return false;
+    }
+    ITransformIOMeta ioMeta = meta.getTransformIOMeta();
+    if (ioMeta == null) {
+      return false;
+    }
+    String[] targetNames = ioMeta.getTargetTransformNames();
+    if (targetNames == null) {
+      return false;
+    }
+    for (String targetName : targetNames) {
+      if (!Utils.isEmpty(targetName) && targetName.equalsIgnoreCase(target.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Previous transforms on enabled main hops into {@code transformMeta}: not info, not error.
    * {@link #findPreviousTransforms(TransformMeta, boolean)} with {@code info=false} still includes
    * error-hop predecessors.
@@ -1210,6 +1308,8 @@ public class PipelineMeta extends AbstractMeta
       return row;
     }
 
+    discardTransformFieldsCacheIfDatabaseCacheCleared();
+
     String fromToCacheEntry = calculateFieldsCacheEntryKey(transformMeta, targetTransform);
     IRowMeta rowMeta = transformFieldsCache.get(fromToCacheEntry);
     if (rowMeta != null) {
@@ -1618,6 +1718,7 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public String getXml(IVariables variables) throws HopException {
+    persistSynchronizedName();
     return XmlHandler.getLicenseHeader(variables)
         + XmlFormatter.format(
             XmlHandler.aroundTag(XML_TAG, XmlMetadataUtil.serializeObjectToXml(this)));
@@ -3449,6 +3550,20 @@ public class PipelineMeta extends AbstractMeta
   /** Clears the transform fields cache. */
   private void clearTransformFieldsCache() {
     transformFieldsCache.clear();
+    transformFieldsCacheDbGeneration = DbCache.getInstance().getGeneration();
+  }
+
+  /**
+   * Drop the cached transform fields when the database cache was cleared since we filled them.
+   * Transforms which read their layout from the database (Table Input, Table Output, Database
+   * Lookup, ...) go through {@link DbCache}, so a stale entry here survives clearing that cache and
+   * keeps showing the old columns until the pipeline is reloaded.
+   */
+  private void discardTransformFieldsCacheIfDatabaseCacheCleared() {
+    int currentGeneration = DbCache.getInstance().getGeneration();
+    if (currentGeneration != transformFieldsCacheDbGeneration) {
+      clearTransformFieldsCache();
+    }
   }
 
   /** Clears the loop cache. */

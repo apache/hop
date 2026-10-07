@@ -24,6 +24,7 @@ import static org.apache.hop.core.Condition.Operator.NONE;
 import static org.apache.hop.core.Condition.Operator.lookupType;
 
 import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
@@ -968,7 +969,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
           stype = " (" + v.createValueMeta().getTypeDesc() + ")";
         }
 
-        if (condition.getRightValueName() != null) {
+        if (StringUtils.isNotEmpty(condition.getRightValueName())) {
           gc.drawText(
               rightval,
               sizeRightval.x + 1 + offsetx,
@@ -982,7 +983,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
               sizeRightval.x + 1 + offsetx,
               sizeRightval.y + 1 + offsety,
               SWT.DRAW_TRANSPARENT);
-          if (condition.getRightValueName() == null) {
+          if (StringUtils.isEmpty(condition.getRightValueName())) {
             gc.setForeground(black);
           }
         }
@@ -991,7 +992,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
           gc.drawText(
               re, sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
         } else {
-          String nothing = condition.getRightValueName() == null ? "<value>" : "";
+          String nothing = StringUtils.isEmpty(condition.getRightValueName()) ? "<value>" : "";
           gc.setForeground(gray);
           gc.drawText(
               nothing,

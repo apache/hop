@@ -277,15 +277,15 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
       return;
     }
     boolean editable = isEditable();
-    boolean hasSelection = getSelectionCount() > 0;
+    // Copy and cut stay available with an empty selection: they then use the current line.
     // This runs on every Modify/Selection event: never consult the clipboard here. On desktop
     // that is a system IPC per keystroke, on Hop Web a blocking browser round trip (see #8498).
     boolean canPaste = editable;
 
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_UNDO, canUndo());
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_REDO, canRedo());
-    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT, editable && hasSelection);
-    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY, hasSelection);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT, editable);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY, true);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_PASTE, canPaste);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL, getCharCount() > 0);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FIND, true);
@@ -718,24 +718,33 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     addListener(
         SWT.KeyDown,
         event -> {
-          if (isSupportUnoRedo()
-              && event.keyCode == 'z'
-              && (event.stateMask & SWT.MOD1) != 0
-              && (event.stateMask & SWT.MOD2) != 0) {
+          if ((event.stateMask & SWT.MOD1) == 0) {
+            return;
+          }
+          // Letters stay lowercase with Shift held on some platforms and not on others.
+          char key = Character.toLowerCase((char) (event.keyCode & SWT.KEY_MASK));
+          boolean shift = (event.stateMask & SWT.MOD2) != 0;
+          // Consume undo/redo. Otherwise the same chord also undoes the pipeline or workflow
+          // and moves focus back to the graph.
+          if (isSupportUnoRedo() && key == 'y' && !shift) {
             redo();
             updateToolbar();
-          } else if (isSupportUnoRedo()
-              && event.keyCode == 'z'
-              && (event.stateMask & SWT.MOD1) != 0) {
+            event.doit = false;
+          } else if (isSupportUnoRedo() && key == 'z' && shift) {
+            redo();
+            updateToolbar();
+            event.doit = false;
+          } else if (isSupportUnoRedo() && key == 'z') {
             undo();
             updateToolbar();
-          } else if (event.keyCode == 'a' && (event.stateMask & SWT.MOD1) != 0) {
+            event.doit = false;
+          } else if (key == 'a') {
             selectAll();
             updateToolbar();
-          } else if (event.keyCode == 'f' && (event.stateMask & SWT.MOD1) != 0) {
+          } else if (key == 'f') {
             find();
             event.doit = false;
-          } else if (event.keyCode == 'h' && (event.stateMask & SWT.MOD1) != 0) {
+          } else if (key == 'h') {
             findAndReplace();
             event.doit = false;
           }
@@ -747,13 +756,9 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     addMenuDetectListener(
         event -> {
           pasteItem.setEnabled(checkPaste());
-          if (getSelectionCount() > 0) {
-            cutItem.setEnabled(true);
-            copyItem.setEnabled(true);
-          } else {
-            cutItem.setEnabled(false);
-            copyItem.setEnabled(false);
-          }
+          // An empty selection copies or cuts the current line, so copy stays enabled.
+          copyItem.setEnabled(true);
+          cutItem.setEnabled(isEditable());
           findReplaceItem.setEnabled(isEditable());
           updateToolbar();
         });

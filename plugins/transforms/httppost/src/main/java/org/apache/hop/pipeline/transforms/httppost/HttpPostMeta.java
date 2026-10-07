@@ -34,6 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::HTTPPOST.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::HttpPostMeta.keyword",
-    documentationUrl = "/pipeline/transforms/httppost.html")
+    documentationUrl = "/pipeline/transforms/httppost.html",
+    classLoaderGroup = "rest")
 public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   private static final Class<?> PKG = HttpPostMeta.class;
 
@@ -92,6 +94,16 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.requestEntity")
   private String requestEntity;
 
+  /**
+   * Optional REST connection supplying the client: proxy, credentials, TLS and timeouts. When one
+   * is selected the transform's own authentication, proxy and SSL fields are not read.
+   */
+  @HopMetadataProperty(
+      key = "connection_name",
+      injectionKeyDescription = "HTTPPOST.Injection.connectionName",
+      hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+  private String connectionName;
+
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.encoding")
   private String encoding;
 
@@ -112,6 +124,21 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.proxyPort")
   private String proxyPort;
 
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.proxyUsername")
+  private String proxyUsername;
+
+  @HopMetadataProperty(
+      password = true,
+      injectionKeyDescription = "HTTPPOST.Injection.proxyPassword")
+  private String proxyPassword;
+
+  /**
+   * Target hosts reached directly instead of through the proxy, in JDK {@code http.nonProxyHosts}
+   * syntax: entries separated by {@code |}, each optionally using {@code *} as a wildcard.
+   */
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.nonProxyHosts")
+  private String nonProxyHosts;
+
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.httpLogin")
   private String httpLogin;
 
@@ -125,6 +152,36 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
 
   public HttpPostMeta() {
     super(); // allocate BaseTransformMeta
+  }
+
+  /**
+   * Returns the first lookup-field group, or an empty one when the list is missing or empty.
+   * Pipelines saved without a {@code <lookup>} element leave {@link #lookupFields} empty.
+   *
+   * <p>This is a pure read: the empty group is not added to the list. The metadata is shared by all
+   * copies of the transform and read by dialogs that may be cancelled, so reading it must never
+   * change it. Writers replace the whole list (see the dialog's ok()).
+   */
+  public HttpPostLookupField getFirstLookupField() {
+    if (lookupFields == null || lookupFields.isEmpty()) {
+      return new HttpPostLookupField();
+    }
+    return lookupFields.getFirst();
+  }
+
+  /**
+   * Returns the first result-field group, or an empty one when the list is missing or empty. Like
+   * {@link #getFirstLookupField()}, this never changes the list.
+   *
+   * <p>The empty group names no fields at all. The no-argument constructor is not used for it
+   * because it defaults the status-code field to "result", which would add an output field nobody
+   * configured.
+   */
+  public HttpPostResultField getFirstResultField() {
+    if (resultFields == null || resultFields.isEmpty()) {
+      return new HttpPostResultField(null, null, null, null);
+    }
+    return resultFields.getFirst();
   }
 
   @Override
@@ -149,21 +206,22 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (!Utils.isEmpty(resultFields.get(0).getName())) {
-      IValueMeta v = new ValueMetaString(resultFields.get(0).getName());
+    HttpPostResultField resultField = getFirstResultField();
+    if (!Utils.isEmpty(resultField.getName())) {
+      IValueMeta v = new ValueMetaString(resultField.getName());
       inputRowMeta.addValueMeta(v);
     }
 
-    if (!Utils.isEmpty(resultFields.get(0).getCode())) {
-      IValueMeta v = new ValueMetaInteger(resultFields.get(0).getCode());
+    if (!Utils.isEmpty(resultField.getCode())) {
+      IValueMeta v = new ValueMetaInteger(resultField.getCode());
       inputRowMeta.addValueMeta(v);
     }
-    if (!Utils.isEmpty(resultFields.get(0).getResponseTimeFieldName())) {
+    if (!Utils.isEmpty(resultField.getResponseTimeFieldName())) {
       IValueMeta v =
-          new ValueMetaInteger(variables.resolve(resultFields.get(0).getResponseTimeFieldName()));
+          new ValueMetaInteger(variables.resolve(resultField.getResponseTimeFieldName()));
       inputRowMeta.addValueMeta(v);
     }
-    String headerFieldName = variables.resolve(resultFields.get(0).getResponseHeaderFieldName());
+    String headerFieldName = variables.resolve(resultField.getResponseHeaderFieldName());
     if (!Utils.isEmpty(headerFieldName)) {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);
@@ -213,7 +271,7 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
       } else {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "HTTPPOSTMeta.CheckResult.UrlfieldOk"),
                 transformMeta);
       }

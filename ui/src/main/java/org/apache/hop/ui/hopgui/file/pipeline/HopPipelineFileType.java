@@ -169,8 +169,9 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(BaseMessages.getString(PKG, "HopPipelineFileType.New.Text"));
 
-      // Record the version of Hop creating this pipeline
+      // Record who created this pipeline and with which version of Hop
       //
+      pipelineMeta.stampCreated();
       pipelineMeta.setCreatedHopVersion(Const.NVL(Const.getHopVersion(), ""));
 
       // Pass the MetadataProvider for reference lookups

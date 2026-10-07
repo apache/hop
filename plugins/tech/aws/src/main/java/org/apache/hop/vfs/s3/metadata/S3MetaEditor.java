@@ -28,6 +28,7 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -579,5 +580,10 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
   public void save() throws HopException {
     super.save();
     HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

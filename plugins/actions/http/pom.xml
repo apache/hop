@@ -29,4 +29,16 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Actions HTTP</name>
 
+    <dependencies>
+        <!--
+          The action can take its whole client configuration (proxy, credentials, TLS, timeouts)
+          from a named REST connection, so it shares that metadata type's class loader group.
+        -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

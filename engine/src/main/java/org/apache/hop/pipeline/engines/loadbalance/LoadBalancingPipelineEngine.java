@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.engines.loadbalance;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -54,6 +55,7 @@ public class LoadBalancingPipelineEngine extends RemotePipelineEngine {
   private LoadBalancingCoordinator<LoadBalancingPipelineRunConfiguration> coordinator;
   private LoadBalancingAssignment assignment;
   private ExecutionInfoLocation executionInfoLocation;
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   public LoadBalancingPipelineEngine() {
     super();
@@ -206,6 +208,16 @@ public class LoadBalancingPipelineEngine extends RemotePipelineEngine {
     }
   }
 
+  /** Lines since the previous update. A full snapshot would be appended to lines already stored. */
+  private ExecutionState captureExecutionState() {
+    ExecutionState state =
+        ExecutionStateBuilder.fromExecutor(this, executionInfoLastLogLineNr.get()).build();
+    if (state.getLastLogLineNr() != null) {
+      executionInfoLastLogLineNr.set(state.getLastLogLineNr());
+    }
+    return state;
+  }
+
   private void registerLoadBalancingExecutionInformation(
       ServerHealthSnapshot snapshot, int attempt) {
     try {
@@ -215,7 +227,7 @@ public class LoadBalancingPipelineEngine extends RemotePipelineEngine {
       }
       IExecutionInfoLocation location = executionInfoLocation.getExecutionInfoLocation();
       location.registerExecution(ExecutionBuilder.fromExecutor(this).build());
-      ExecutionState state = ExecutionStateBuilder.fromExecutor(this, -1).build();
+      ExecutionState state = captureExecutionState();
       Map<String, String> details =
           state.getDetails() == null ? new HashMap<>() : state.getDetails();
       details.put(DETAIL_ASSIGNED_SERVER, selectedHopServerName);
@@ -267,7 +279,7 @@ public class LoadBalancingPipelineEngine extends RemotePipelineEngine {
       }
       if (executionInfoLocation != null) {
         IExecutionInfoLocation location = executionInfoLocation.getExecutionInfoLocation();
-        ExecutionState state = ExecutionStateBuilder.fromExecutor(this, -1).build();
+        ExecutionState state = captureExecutionState();
         Map<String, String> details =
             state.getDetails() == null ? new HashMap<>() : state.getDetails();
         if (assignment != null) {

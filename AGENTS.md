@@ -115,6 +115,14 @@ Hand-built SWT is for things annotations cannot express (canvas, custom painters
 
 Listeners (`IGuiPluginCompositeWidgetsListener`) are for enable/disable and `setChanged()`, not for creating the fields.
 
+# Enums in Hop GUI and Hop Web
+
+An enum that appears in a Hop GUI or Hop Web control (a combo, a table column, a set of options) implements `org.apache.hop.metadata.api.IEnumHasCodeAndDescription`.
+
+- `getCode()` is the stable value stored in metadata. For a new enum that is the constant name. Do not change a code that projects already store.
+- `getDescription()` is the label a person sees. Load it with `BaseMessages` from the enum's `messages_en_US.properties`. `GuiCompositeWidgets` lists that description in a combo or table cell and writes the selection back by looking up the description, then the code, then the constant name.
+- Do not override `toString()` to return the description. `toString()` stays the constant name.
+
 # Hop i18n resource bundles
 
 Values defined in resource bundles (resource files in `messages/messages\*.properties` files) need to be properly escaped and quoted.  This means that variables expressions like `${VARIABLE}` really need to be surrounded with single quotes like this: `'${VARIABLE}'`.
@@ -123,3 +131,11 @@ Values defined in resource bundles (resource files in `messages/messages\*.prope
 
 Apache Hop and related projects should use Lombok for all classes to avoid cluttering classes with boilerplate getter/setter methods.
 
+# Metadata type keys
+
+The `key` of `@HopMetadata` is the metadata plugin ID and the name of the folder its objects are stored in (`metadata/<key>/<name>.json`). It is also written into serialized metadata exports and matched against `disabledGuiElements`. Treat it as a public, persisted identifier.
+
+- **New metadata types:** the key is lower-case and dash-separated (kebab-case) and names what the type is, for example `mail-server-connection` or `pipeline-run-configuration`. Never use PascalCase or the Java class name. Check this on every new or changed `@HopMetadata` annotation, including in reviews.
+- **Renaming a key:** never change an existing key without moving the old one to `legacyKeys`, for example `key = "mail-server-connection", legacyKeys = {"MailServerConnection"}`. Objects in the old folder keep loading, and each one moves to the new folder the next time it is saved. Without `legacyKeys`, existing projects silently lose those objects.
+- **Code that works with type keys or metadata files** must go through `HopMetadataUtil.getAllKeys()` / `matchesKey()` or `JsonMetadataSerializer.findFilename()`, not `annotation.key()` alone. Otherwise objects still in a legacy folder are missed.
+- `rdbms` predates this convention and stays as it is.

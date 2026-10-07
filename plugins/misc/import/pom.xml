@@ -35,6 +35,14 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Registers the "naming-scheme" metadata type so the import dialog's naming-scheme
+             selector exists in the SWTBot layout test. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-naming</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Only to verify that a Kettle SFTPPut step imports into a real SFTP connection. -->
         <dependency>
             <groupId>org.apache.hop</groupId>

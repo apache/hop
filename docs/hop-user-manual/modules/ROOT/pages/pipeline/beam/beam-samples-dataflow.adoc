@@ -83,7 +83,7 @@ image:beam/run-samples/hop-dataflow-run-config-variables.png[Dataflow Run Config
 
 **INFO**: As mentioned in the introduction, distributed engines like Google Dataflow only make sense when you need to process large amounts of data. Working with small files like the customers file we're about to process doesn't make any sense in a real-world scenario. Working with small amounts of data will always be a lot faster in the native local or remote pipeline run configuration.
 
-You now have everything in place to run your first pipeline in Google Dataflow. Go back to the data orchestration perspective and open beam/pipelines/switch-case.hpl from the samples project.
+You now have everything in place to run your first pipeline in Google Dataflow. Go back to the File Explorer perspective and open beam/pipelines/switch-case.hpl from the samples project.
 
 The Beam file input and Beam file output transforms at the start of the pipeline are special Beam transforms. Both point to Beam File Definitions that you can find in the metadata perspective. The only thing these transforms do is specify a file layout and a path (the +${DATA_DIR}+ variable you changed earlier) where Dataflow can find the input files to read from and output files to write to. The rest of this pipeline is Just Another Pipeline.
 

@@ -25,23 +25,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.sun.net.httpserver.HttpServer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import picocli.CommandLine;
 
 class PluginInstallerTest {
 
@@ -344,6 +354,42 @@ class PluginInstallerTest {
   }
 
   @Test
+  void installCommandWithRepoUrlInstallsFromAdHocRepository() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = zipServer(zipBytes);
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-adhoc-install");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      int port = server.getAddress().getPort();
+
+      String originalUserDir = System.getProperty("user.dir");
+      try {
+        System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
+        MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+        CommandLine cl = new CommandLine(cmd);
+        cl.parseArgs("--repo-url", localUrl(port), "org.apache.hop:hop-test-plugin:1.0.0");
+        cmd.run();
+
+        Path pluginJar = hopHome.resolve("plugins/tech/test/plugin.jar");
+        assertTrue(Files.isRegularFile(pluginJar));
+        assertTrue(
+            Files.isRegularFile(
+                hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
+        assertEquals(
+            "corporate-repo",
+            PluginInstaller.readReceipt(hopHome, "hop-test-plugin").getRepositoryId());
+      } finally {
+        if (originalUserDir != null) {
+          System.setProperty("user.dir", originalUserDir);
+        }
+      }
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
   void cancelDuringDownloadInstallsNothingAndDoesNotTryOtherRepositories() throws Exception {
     byte[] zipBytes = buildPluginZip();
     HttpServer server = zipServer(zipBytes);
@@ -389,6 +435,378 @@ class PluginInstallerTest {
     }
   }
 
+  @Test
+  void secondInstallSkipsWhenReceiptMatchesAndFilesRemain() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    AtomicInteger hits = new AtomicInteger();
+    HttpServer server = zipServer(zipBytes, hits);
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-skip");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      MarketplaceConfig config = localRepoConfig(server.getAddress().getPort());
+      PluginInstaller installer = new PluginInstaller(new LogChannel("test"), hopHome, config);
+      MavenCoordinates coords = new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0");
+
+      installer.install(coords, true);
+      installer.install(coords, true);
+      assertEquals(
+          1, hits.get(), "a matching receipt with its files present must not download again");
+
+      Files.delete(hopHome.resolve("plugins/tech/test/plugin.jar"));
+      installer.install(coords, true);
+      assertEquals(2, hits.get(), "a missing receipt file must be installed again");
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void preferredRepositoryIsTriedFirstAndFallsBack() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = zipServer(zipBytes);
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-preferred");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      config
+          .getRepositories()
+          .add(
+              new MarketplaceRepository(
+                  "corporate-repo", "http://127.0.0.1:" + port + "/missing/", false));
+      config.getRepositories().add(new MarketplaceRepository("central", localUrl(port), true));
+
+      InstallReceipt receipt =
+          new PluginInstaller(new LogChannel("test"), hopHome, config)
+              .install(
+                  new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"),
+                  true,
+                  null,
+                  "corporate-repo");
+      assertEquals("central", receipt.getRepositoryId());
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void forcedRepositoryDoesNotFallBack() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = zipServer(zipBytes);
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-forced");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      config
+          .getRepositories()
+          .add(new MarketplaceRepository("only", "http://127.0.0.1:" + port + "/missing/", true));
+      config.getRepositories().add(new MarketplaceRepository("other", localUrl(port), false));
+
+      assertThrows(
+          HopException.class,
+          () ->
+              new PluginInstaller(new LogChannel("test"), hopHome, config)
+                  .install(
+                      new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"),
+                      true,
+                      "only",
+                      null));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/plugin.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installCommandWithRepoUrlUsesBasicAuthAndRejectsAnonymous() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    AtomicInteger anonymous = new AtomicInteger();
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    String path = "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip";
+    String expectedBasic =
+        "Basic "
+            + Base64.getEncoder().encodeToString("admin:s3cret".getBytes(StandardCharsets.UTF_8));
+    server.createContext(
+        path,
+        exchange -> {
+          String auth = exchange.getRequestHeaders().getFirst("Authorization");
+          if (!expectedBasic.equals(auth)) {
+            anonymous.incrementAndGet();
+            exchange.sendResponseHeaders(401, -1);
+            exchange.close();
+            return;
+          }
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-basic-url");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      String originalUserDir = System.getProperty("user.dir");
+      try {
+        System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
+        withIsolatedMarketplaceConfig(
+            () -> {
+              marketplaceEnv(Map.of());
+              MarketplaceCommand.InstallCommand anonymousCmd =
+                  new MarketplaceCommand.InstallCommand();
+              CommandLine anonymousLine = new CommandLine(anonymousCmd);
+              anonymousLine.parseArgs(
+                  "--repo-url", localUrl(port), "org.apache.hop:hop-test-plugin:1.0.0");
+              PrintStream originalErr = System.err;
+              ByteArrayOutputStream err = new ByteArrayOutputStream();
+              System.setErr(new PrintStream(err, true, StandardCharsets.UTF_8));
+              try {
+                CommandLine.ExecutionException failure =
+                    assertThrows(CommandLine.ExecutionException.class, anonymousCmd::run);
+                assertTrue(failure.getMessage().contains("hop-test-plugin"), failure.getMessage());
+              } finally {
+                System.setErr(originalErr);
+              }
+              assertTrue(
+                  err.toString(StandardCharsets.UTF_8).contains("401"),
+                  err.toString(StandardCharsets.UTF_8));
+              assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/plugin.jar")));
+              assertTrue(anonymous.get() > 0);
+
+              marketplaceEnv(
+                  Map.of(
+                      "HOP_MARKETPLACE_CORPORATE_REPO_USERNAME",
+                      "admin",
+                      "HOP_MARKETPLACE_CORPORATE_REPO_PASSWORD",
+                      "s3cret"));
+              MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+              CommandLine cl = new CommandLine(cmd);
+              cl.parseArgs(
+                  "--repo-url",
+                  localUrl(port),
+                  "--repo-id",
+                  "corporate-repo",
+                  "--auth-type",
+                  "basic",
+                  "org.apache.hop:hop-test-plugin:1.0.0");
+              cmd.run();
+            });
+        assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+        assertEquals(
+            "corporate-repo",
+            PluginInstaller.readReceipt(hopHome, "hop-test-plugin").getRepositoryId());
+      } finally {
+        MarketplaceRepository.setEnvironmentForTesting(null);
+        if (originalUserDir != null) {
+          System.setProperty("user.dir", originalUserDir);
+        }
+      }
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installCommandWithRepoUrlUsesBearerToken() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    String path = "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip";
+    server.createContext(
+        path,
+        exchange -> {
+          String auth = exchange.getRequestHeaders().getFirst("Authorization");
+          if (!"Bearer s3cret-token".equals(auth)) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.close();
+            return;
+          }
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-token-url");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      String originalUserDir = System.getProperty("user.dir");
+      try {
+        System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
+        withIsolatedMarketplaceConfig(
+            () -> {
+              marketplaceEnv(Map.of("HOP_MARKETPLACE_CORPORATE_REPO_TOKEN", "s3cret-token"));
+              MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+              CommandLine cl = new CommandLine(cmd);
+              cl.parseArgs(
+                  "--repo-url",
+                  localUrl(port),
+                  "--repo-id",
+                  "corporate-repo",
+                  "--auth-type",
+                  "token",
+                  "org.apache.hop:hop-test-plugin:1.0.0");
+              cmd.run();
+            });
+        assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      } finally {
+        MarketplaceRepository.setEnvironmentForTesting(null);
+        if (originalUserDir != null) {
+          System.setProperty("user.dir", originalUserDir);
+        }
+      }
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installCommandRejectsShortNameWhenRepositoryCannotBeBrowsed() throws Exception {
+    Path hopHome = tempDir.resolve("hop-short-name");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    String originalUserDir = System.getProperty("user.dir");
+    try {
+      System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
+      withIsolatedMarketplaceConfig(
+          () -> {
+            marketplaceEnv(Map.of());
+            MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+            CommandLine cl = new CommandLine(cmd);
+            cl.parseArgs(
+                "--repo-url",
+                "http://127.0.0.1:9/maven/releases/",
+                "--repo-type",
+                "maven",
+                "zz-no-such-plugin-8723:1.0.0");
+            CommandLine.ExecutionException failure =
+                assertThrows(CommandLine.ExecutionException.class, cmd::run);
+            assertTrue(failure.getMessage().contains("cannot be browsed"), failure.getMessage());
+            assertTrue(
+                failure.getMessage().contains("groupId:artifactId:version"), failure.getMessage());
+          });
+    } finally {
+      MarketplaceRepository.setEnvironmentForTesting(null);
+      if (originalUserDir != null) {
+        System.setProperty("user.dir", originalUserDir);
+      }
+    }
+  }
+
+  @Test
+  void installCommandWritesIntoConfiguredPluginFolder() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = zipServer(zipBytes);
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path image = tempDir.resolve("image-home");
+      Path volume = tempDir.resolve("volume-home");
+      Files.createDirectories(image.resolve("plugins"));
+      Files.createDirectories(volume.resolve("plugins"));
+      String originalUserDir = System.getProperty("user.dir");
+      String originalFolders = System.getProperty("HOP_PLUGIN_BASE_FOLDERS");
+      try {
+        System.setProperty("user.dir", image.toAbsolutePath().toString());
+        System.setProperty(
+            "HOP_PLUGIN_BASE_FOLDERS", image.resolve("plugins") + "," + volume.resolve("plugins"));
+        withIsolatedMarketplaceConfig(
+            () -> {
+              MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+              CommandLine cl = new CommandLine(cmd);
+              cl.parseArgs("--repo-url", localUrl(port), "org.apache.hop:hop-test-plugin:1.0.0");
+              cmd.run();
+            });
+        assertTrue(Files.isRegularFile(volume.resolve("plugins/tech/test/plugin.jar")));
+        assertTrue(Files.isRegularFile(volume.resolve("lib/core/shared.jar")));
+        assertFalse(Files.exists(image.resolve("plugins/tech/test/plugin.jar")));
+      } finally {
+        if (originalUserDir != null) {
+          System.setProperty("user.dir", originalUserDir);
+        }
+        if (originalFolders == null) {
+          System.clearProperty("HOP_PLUGIN_BASE_FOLDERS");
+        } else {
+          System.setProperty("HOP_PLUGIN_BASE_FOLDERS", originalFolders);
+        }
+      }
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void webLayoutInstallsSharedJarIntoWebInfLibAndSkipsWhenItRemains() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    AtomicInteger hits = new AtomicInteger();
+    HttpServer server = zipServer(zipBytes, hits);
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("tomcat");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      Path webLib = hopHome.resolve("webapps/ROOT/WEB-INF/lib");
+      Files.createDirectories(webLib);
+      MarketplaceConfig config = localRepoConfig(server.getAddress().getPort());
+      PluginInstaller installer = new PluginInstaller(new LogChannel("test"), hopHome, config);
+      MavenCoordinates coords = new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0");
+
+      installer.install(coords, true);
+      assertTrue(Files.isRegularFile(webLib.resolve("shared.jar")));
+      assertEquals("shared-lib", Files.readString(webLib.resolve("shared.jar")));
+      assertFalse(Files.exists(hopHome.resolve("lib/core/shared.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+
+      installer.install(coords, true);
+      assertEquals(1, hits.get(), "a shared jar in WEB-INF/lib still satisfies the receipt");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  private static void marketplaceEnv(Map<String, String> values) {
+    MarketplaceRepository.setEnvironmentForTesting(values::get);
+  }
+
+  private static void withIsolatedMarketplaceConfig(ThrowingRunnable action) throws Exception {
+    HopConfig hopConfig = HopConfig.getInstance();
+    Field field = ConfigFile.class.getDeclaredField("configMap");
+    field.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Map<String, Object> map = (Map<String, Object>) field.get(hopConfig);
+    Object previous = map.get(MarketplaceConfig.CONFIG_KEY);
+    Map<String, Object> closed = new LinkedHashMap<>();
+    closed.put("id", "closed");
+    closed.put("url", "http://127.0.0.1:1/");
+    closed.put("enabled", true);
+    closed.put("primary", true);
+    closed.put("browse", false);
+    Map<String, Object> marketplace = new LinkedHashMap<>();
+    marketplace.put("enabled", true);
+    marketplace.put("groupId", "org.apache.hop");
+    marketplace.put("repositories", List.of(closed));
+    map.put(MarketplaceConfig.CONFIG_KEY, marketplace);
+    try {
+      action.run();
+    } finally {
+      if (previous == null) {
+        map.remove(MarketplaceConfig.CONFIG_KEY);
+      } else {
+        map.put(MarketplaceConfig.CONFIG_KEY, previous);
+      }
+    }
+  }
+
+  @FunctionalInterface
+  private interface ThrowingRunnable {
+    void run() throws Exception;
+  }
+
   /** Captures the phase sequence and byte counts an install reports. */
   private static class RecordingInstallListener implements IInstallListener {
     private final List<Phase> phases = new ArrayList<>();
@@ -431,10 +849,17 @@ class PluginInstallerTest {
   }
 
   private static HttpServer zipServer(byte[] zipBytes) throws IOException {
+    return zipServer(zipBytes, null);
+  }
+
+  private static HttpServer zipServer(byte[] zipBytes, AtomicInteger hits) throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     server.createContext(
         "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip",
         exchange -> {
+          if (hits != null) {
+            hits.incrementAndGet();
+          }
           exchange.getResponseHeaders().add("Content-Type", "application/zip");
           exchange.sendResponseHeaders(200, zipBytes.length);
           exchange.getResponseBody().write(zipBytes);

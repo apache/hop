@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,8 +40,12 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -157,6 +162,235 @@ class HopGuiKeyHandlerTest {
       spaceOnCanvas.character = ' ';
       keyHandler.keyPressed(spaceOnCanvas);
       assertEquals(1, graph.spaces, "Space on the canvas still runs the graph shortcut");
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  /** Stands in for HopGui align / distribute shortcuts, which share chords with word movement. */
+  public static class AlignGraph {
+    public int alignLeft;
+    public int distributeRight;
+    public int previousFile;
+    public int copies;
+
+    @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
+    @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
+    public void alignLeft() {
+      alignLeft++;
+    }
+
+    @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+    @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+    public void distributeRight() {
+      distributeRight++;
+    }
+
+    @GuiKeyboardShortcut(control = true, alt = true, key = SWT.ARROW_LEFT)
+    @GuiOsxKeyboardShortcut(command = true, alt = true, key = SWT.ARROW_LEFT)
+    public void previousFile() {
+      previousFile++;
+    }
+
+    @GuiKeyboardShortcut(control = true, key = 'c')
+    @GuiOsxKeyboardShortcut(command = true, key = 'c')
+    public void copySelected() {
+      copies++;
+    }
+  }
+
+  @Test
+  void horizontalWordKeysStayInTextWidgets() {
+    AlignGraph graph = new AlignGraph();
+    registerShortcutsLikeHopGuiEnvironment(AlignGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      KeyEvent inText = keyEvent(mock(Text.class), SWT.ARROW_LEFT, SWT.CONTROL);
+      keyHandler.keyPressed(inText);
+      assertEquals(0, graph.alignLeft, "Ctrl+Left in a text field must not align");
+      assertTrue(inText.doit, "Ctrl+Left must stay with the text widget");
+
+      KeyEvent shiftInText = keyEvent(mock(Text.class), SWT.ARROW_RIGHT, SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shiftInText);
+      assertTrue(shiftInText.doit, "Shift+Ctrl+Right selects by word and must not be consumed");
+
+      KeyEvent commandInText = keyEvent(mock(Text.class), SWT.ARROW_LEFT, SWT.COMMAND);
+      keyHandler.keyPressed(commandInText);
+      assertEquals(0, graph.alignLeft);
+      assertTrue(commandInText.doit, "Command+Left stays in the text field (line edge on macOS)");
+
+      KeyEvent altInText = keyEvent(mock(Text.class), SWT.ARROW_RIGHT, SWT.ALT);
+      keyHandler.keyPressed(altInText);
+      assertEquals(0, graph.distributeRight, "Alt+Right in a text field must not distribute");
+      assertTrue(altInText.doit);
+
+      KeyEvent onCanvas = canvasKey(SWT.ARROW_LEFT, SWT.CONTROL);
+      keyHandler.keyPressed(onCanvas);
+      assertEquals(1, graph.alignLeft, "Ctrl+Left on the canvas still aligns");
+      assertFalse(onCanvas.doit);
+
+      KeyEvent fileNav = keyEvent(mock(Text.class), SWT.ARROW_LEFT, SWT.CONTROL | SWT.ALT);
+      keyHandler.keyPressed(fileNav);
+      assertEquals(1, graph.previousFile, "Ctrl+Alt+Left is file navigation, not word movement");
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  @Test
+  void emptySelectionCopyDoesNotCopyTheGraph() {
+    AlignGraph graph = new AlignGraph();
+    registerShortcutsLikeHopGuiEnvironment(AlignGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      Text text = mock(Text.class);
+      when(text.getSelectionCount()).thenReturn(3);
+      KeyEvent selected = keyEvent(text, 'c', SWT.CONTROL);
+      keyHandler.keyPressed(selected);
+      assertEquals(0, graph.copies, "Ctrl+C in a text field must not copy the graph");
+      assertTrue(selected.doit, "A selection is copied by the widget itself");
+      verify(text, never()).copy();
+
+      Text empty = mock(Text.class);
+      when(empty.getText()).thenReturn("ab\ncd");
+      when(empty.getCaretPosition()).thenReturn(0);
+      when(empty.getEditable()).thenReturn(true);
+      KeyEvent line = keyEvent(empty, 'c', SWT.CONTROL);
+      keyHandler.keyPressed(line);
+      assertEquals(0, graph.copies);
+      assertFalse(line.doit, "Copying the current line consumes the key");
+      verify(empty).setSelection(0, 3);
+      verify(empty).copy();
+      verify(empty).setSelection(0);
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  /** Stands in for the Edit / Select All shortcut on the graph and the main menu. */
+  public static class SelectAllGraph {
+    public int selected;
+
+    @GuiKeyboardShortcut(control = true, key = 'a')
+    @GuiOsxKeyboardShortcut(command = true, key = 'a')
+    public void selectAll() {
+      selected++;
+    }
+  }
+
+  @Test
+  void selectAllStaysInTextWidgets() {
+    SelectAllGraph graph = new SelectAllGraph();
+    registerShortcutsLikeHopGuiEnvironment(SelectAllGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      Text text = mock(Text.class);
+      KeyEvent ctrl = keyEvent(text, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(ctrl);
+      assertEquals(0, graph.selected, "Ctrl+A in a text field must not select the graph");
+      assertFalse(ctrl.doit, "Selecting the text consumes the key");
+      verify(text).selectAll();
+
+      KeyEvent command = keyEvent(text, 'A', SWT.COMMAND);
+      keyHandler.keyPressed(command);
+      assertEquals(0, graph.selected, "Command+A selects the field on macOS");
+      assertFalse(command.doit);
+      verify(text, times(2)).selectAll();
+
+      Combo combo = mock(Combo.class);
+      when(combo.getText()).thenReturn("field");
+      KeyEvent comboKey = keyEvent(combo, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(comboKey);
+      assertEquals(0, graph.selected);
+      assertFalse(comboKey.doit);
+      verify(combo).setSelection(new Point(0, 5));
+
+      CCombo ccombo = mock(CCombo.class);
+      when(ccombo.getText()).thenReturn("ab");
+      KeyEvent ccomboKey = keyEvent(ccombo, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(ccomboKey);
+      assertFalse(ccomboKey.doit);
+      verify(ccombo).setSelection(new Point(0, 2));
+
+      StyledText styled = mock(StyledText.class);
+      KeyEvent styledKey = keyEvent(styled, 'a', SWT.CONTROL);
+      keyHandler.keyPressed(styledKey);
+      assertFalse(styledKey.doit, "StyledText has no Ctrl+A binding of its own");
+      verify(styled).selectAll();
+
+      KeyEvent shifted = keyEvent(text, 'a', SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shifted);
+      assertEquals(0, graph.selected, "Ctrl+Shift+A must not select the graph");
+      assertTrue(shifted.doit, "Ctrl+Shift+A is not select-all");
+      verify(text, times(2)).selectAll();
+
+      KeyEvent onCanvas = canvasKey('a', SWT.CONTROL);
+      keyHandler.keyPressed(onCanvas);
+      assertEquals(1, graph.selected, "Ctrl+A on the canvas still selects the graph");
+      assertFalse(onCanvas.doit);
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  /** Stands in for the Edit / Undo shortcut on the graph and the main menu. */
+  public static class HistoryGraph {
+    public int undos;
+    public int redos;
+
+    @GuiKeyboardShortcut(control = true, key = 'z')
+    @GuiOsxKeyboardShortcut(command = true, key = 'z')
+    public void undo() {
+      undos++;
+    }
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
+    public void redo() {
+      redos++;
+    }
+  }
+
+  @Test
+  void undoRedoStayInEditorsThatKeepTheirOwnHistory() {
+    HistoryGraph graph = new HistoryGraph();
+    registerShortcutsLikeHopGuiEnvironment(HistoryGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      StyledText editor = mock(StyledText.class);
+      when(editor.getData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY)).thenReturn(Boolean.TRUE);
+
+      KeyEvent undo = keyEvent(editor, 'z', SWT.CONTROL);
+      keyHandler.keyPressed(undo);
+      assertEquals(0, graph.undos, "Ctrl+Z in a script editor must not undo the graph");
+      assertTrue(undo.doit, "The editor performs undo; this handler must not consume the key");
+
+      KeyEvent upper = keyEvent(editor, 'Z', SWT.CONTROL);
+      keyHandler.keyPressed(upper);
+      assertEquals(0, graph.undos, "Ctrl+Z must match regardless of key-code case");
+
+      KeyEvent redo = keyEvent(editor, 'y', SWT.CONTROL);
+      keyHandler.keyPressed(redo);
+      assertEquals(0, graph.redos);
+      assertTrue(redo.doit, "Ctrl+Y stays with the editor");
+
+      KeyEvent shiftRedo = keyEvent(editor, 'z', SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shiftRedo);
+      assertEquals(0, graph.redos, "Ctrl+Shift+Z in a script editor must not redo the graph");
+      assertTrue(shiftRedo.doit);
+
+      KeyEvent outside = keyEvent(mock(StyledText.class), 'z', SWT.CONTROL);
+      keyHandler.keyPressed(outside);
+      assertEquals(1, graph.undos, "Ctrl+Z outside that editor still undoes the graph");
+      assertFalse(outside.doit);
     } finally {
       keyHandler.removeParentObjectToHandle(graph);
     }

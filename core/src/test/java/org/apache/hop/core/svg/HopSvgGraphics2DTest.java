@@ -19,6 +19,8 @@ package org.apache.hop.core.svg;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -111,5 +113,50 @@ class HopSvgGraphics2DTest {
     assertTrue(xml.contains("y=\"40\""), xml);
     assertFalse(xml.contains("'Dialog'"), xml);
     assertFalse(xml.contains("'SansSerif'"), xml);
+  }
+
+  /**
+   * A string no font on this JVM has glyphs for (CJK on a JVM without a CJK font, #8528) is not
+   * pinned: the only width known for it is that of missing-glyph boxes, so the browser must lay it
+   * out itself. U+0378 is unassigned, so no font on any platform has a glyph for it.
+   */
+  @Test
+  void testDrawStringDoesNotPinUndisplayableText() throws Exception {
+    HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
+    Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 10);
+    graphics2D.setFont(font);
+    String text = "Table\u0378input";
+    assertTrue(font.canDisplayUpTo(text) >= 0, "test needs an undisplayable character");
+    assertNull(HopSvgGraphics2D.measuringFont(font, text));
+    graphics2D.drawString(text, 20, 40);
+    String xml = graphics2D.toXml();
+
+    assertTrue(xml.contains("<text"), xml);
+    assertFalse(xml.contains("textLength"), xml);
+    assertTrue(xml.contains("x=\"20\""), xml);
+    assertTrue(xml.contains("y=\"40\""), xml);
+  }
+
+  /**
+   * Text the canvas font lacks glyphs for is measured with the logical SansSerif font, which falls
+   * back through the platform font configuration, when that font can display it. A physical font
+   * that has the glyphs is kept as is.
+   */
+  @Test
+  void testMeasuringFontFallsBackToLogicalFont() {
+    Font physical = new Font(Font.SANS_SERIF, Font.BOLD, 10).deriveFont(10.5f);
+    assertSame(physical, HopSvgGraphics2D.measuringFont(physical, "Table input"));
+    assertSame(physical, HopSvgGraphics2D.measuringFont(physical, ""));
+    assertNull(HopSvgGraphics2D.measuringFont(null, "Table input"));
+
+    // Whether the JVM has a CJK font depends on the platform; whichever the answer, the outcome is
+    // either a logical font of the same style and size or no font at all, never the boxes.
+    String cjk = "\u8868\u8f93\u5165";
+    Font measuring = HopSvgGraphics2D.measuringFont(new Font("DejaVu Sans", Font.BOLD, 10), cjk);
+    if (measuring != null) {
+      assertEquals(-1, measuring.canDisplayUpTo(cjk));
+      assertEquals(Font.BOLD, measuring.getStyle());
+      assertEquals(10, measuring.getSize());
+    }
   }
 }

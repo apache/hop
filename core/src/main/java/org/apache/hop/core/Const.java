@@ -356,6 +356,9 @@ public class Const {
   /** An array of number conversion formats */
   private static String[] numberFormats;
 
+  /** The Boolean conversion formats: the text for true and for false, separated by a slash */
+  private static final String[] BOOLEAN_FORMATS = {"true/false", "Y/N", "1/0", "yes/no"};
+
   /**
    * Generalized date/time format: Wherever dates are used, date and time values are organized from
    * the most to the least significant. see also method StringUtil.getFormattedDateTime()
@@ -808,13 +811,14 @@ public class Const {
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_COUNT = "HOP_FILE_OUTPUT_MAX_STREAM_COUNT";
 
   /**
-   * This variable contains the number of milliseconds between flushes of all open files in the Text
-   * File Output transform.
+   * Milliseconds between flushes of all open files in the Text File Output transform. {@code 0}
+   * selects the transform default of 5000. A negative value, for example {@code -1}, disables the
+   * interval flush.
    */
   @Variable(
-      value = "0",
+      value = "5000",
       description =
-          "This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.")
+          "This project variable is used by the Text File Output transform. It defines how many milliseconds to wait between flushes of files opened by the transform. Output is buffered, so slow input stays invisible until the buffer fills or the file is closed. The default is 5000 (5 seconds). A value of 0 uses that default. Set a positive number of milliseconds to change the interval. A negative value, for example -1, disables the interval flush.")
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_LIFE = "HOP_FILE_OUTPUT_MAX_STREAM_LIFE";
 
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */
@@ -2017,6 +2021,8 @@ public class Const {
       } else {
         BufferedReader br;
         try {
+          // Safe: resolving "hostname" through the PATH of the operator who started Hop is intended
+          @SuppressWarnings("java:S4036")
           Process pr = Runtime.getRuntime().exec("hostname");
           br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
           String line;
@@ -2992,6 +2998,14 @@ public class Const {
    */
   public static String[] getConversionFormats() {
     return (String[]) ArrayUtils.addAll(Const.getDateFormats(), Const.getNumberFormats());
+  }
+
+  /**
+   * @return The Boolean conversion formats, each holding the text for true and for false separated
+   *     by a slash (for example {@code Y/N})
+   */
+  public static String[] getBooleanFormats() {
+    return BOOLEAN_FORMATS.clone();
   }
 
   /**

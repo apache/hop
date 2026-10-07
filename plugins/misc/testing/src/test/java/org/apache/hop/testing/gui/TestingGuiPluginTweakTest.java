@@ -18,6 +18,7 @@
 package org.apache.hop.testing.gui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,8 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 /**
- * Unit tests for multi-transform unit-test tweak application (issue #2742). Covers pure helpers in
- * {@link TestingGuiPlugin} that do not require a HopGui instance.
+ * Unit tests for multi-transform unit-test tweak application (issues #2742 and #5371). Covers pure
+ * helpers in {@link TestingGuiPlugin} that do not require a HopGui instance.
  */
 class TestingGuiPluginTweakTest {
 
@@ -159,6 +160,64 @@ class TestingGuiPluginTweakTest {
     assertNull(unitTest.findTweak("A"));
     assertNull(unitTest.findTweak("B"));
     assertTrue(unitTest.getTweaks().isEmpty());
+  }
+
+  @Test
+  void singleTweakActionHiddenWhenSeveralTransformsAreSelected() {
+    PipelineUnitTestTweak bypass = new PipelineUnitTestTweak(PipelineTweak.BYPASS_TRANSFORM, "A");
+
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, null, PipelineTweak.REMOVE_TRANSFORM, true, 2));
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, bypass, PipelineTweak.BYPASS_TRANSFORM, false, 3));
+    assertTrue(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, null, PipelineTweak.REMOVE_TRANSFORM, true, 1));
+    assertTrue(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, bypass, PipelineTweak.BYPASS_TRANSFORM, false, 1));
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            true, bypass, PipelineTweak.REMOVE_TRANSFORM, false, 1));
+    assertFalse(
+        TestingGuiPlugin.showSingleUnitTestTweak(
+            false, null, PipelineTweak.BYPASS_TRANSFORM, true, 1));
+  }
+
+  @Test
+  void bulkTweakActionsShownOnlyForAnActiveTestAndAMultiSelection() {
+    assertTrue(TestingGuiPlugin.showBulkUnitTestTweak(true, 2));
+    assertFalse(TestingGuiPlugin.showBulkUnitTestTweak(true, 1));
+    assertFalse(TestingGuiPlugin.showBulkUnitTestTweak(true, 0));
+    assertFalse(TestingGuiPlugin.showBulkUnitTestTweak(false, 4));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_TRANSFORM));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_BYPASS_TRANSFORM));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_INCLUDE_TRANSFORM));
+    assertTrue(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_BULK_REMOVE_BYPASS_TRANSFORM));
+    assertFalse(
+        TestingGuiPlugin.isBulkUnitTestTweakAction(
+            TestingGuiPlugin.ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM));
+  }
+
+  @Test
+  void selectedTransformCountIgnoresUnselectedTransforms() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(transform("A", true));
+    pipelineMeta.addTransform(transform("B", true));
+    pipelineMeta.addTransform(transform("C", false));
+
+    assertEquals(2, TestingGuiPlugin.selectedTransformCount(pipelineMeta));
+    assertEquals(0, TestingGuiPlugin.selectedTransformCount(null));
   }
 
   @Test

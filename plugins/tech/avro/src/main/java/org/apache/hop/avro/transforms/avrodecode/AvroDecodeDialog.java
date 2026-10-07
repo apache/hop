@@ -17,23 +17,21 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.avro.transforms.avrodecode.AvroDecodeFieldFinder.FieldRow;
 import org.apache.hop.avro.transforms.avroinput.AvroFileInputMeta;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -48,6 +46,7 @@ import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -83,7 +82,16 @@ public class AvroDecodeDialog extends BaseTransformDialog {
   public String open() {
     createShell(BaseMessages.getString(PKG, "AvroDecodeDialog.Shell.Title"));
 
-    buildButtonBar().ok(e -> ok()).get(e -> getFields()).cancel(e -> cancel()).build();
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "AvroDecodeDialog.GetFieldsFromFile.Button"),
+            e -> getFieldsFromFile())
+        .custom(
+            BaseMessages.getString(PKG, "AvroDecodeDialog.GetFieldsFromJson.Button"),
+            e -> getFieldsFromJson())
+        .cancel(e -> cancel())
+        .build();
 
     Label wlSourceField = new Label(shell, SWT.RIGHT);
     wlSourceField.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.SourceField.Label"));
@@ -244,137 +252,146 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void getFields() {
+  private void getFieldsFromFile() {
     try {
-
-      Map<String, Schema.Field> fieldsMap = new HashMap<>();
-
-      // If we have a source field name we can see if it's an Avro Record type with a schema...
-      //
-      String fieldName = wSourceField.getText();
-      if (StringUtils.isNotEmpty(fieldName)) {
-        IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
-        IValueMeta valueMeta = fields.searchValueMeta(fieldName);
-        if (valueMeta != null && valueMeta.getType() == IValueMeta.TYPE_AVRO) {
-          Schema schema = ((ValueMetaAvroRecord) valueMeta).getSchema();
-          if (schema != null) {
-            for (Schema.Field field : schema.getFields()) {
-              fieldsMap.put(field.name(), field);
-            }
-          }
-        }
+      Schema schema = schemaFromSelectedSourceField();
+      if (schema == null) {
+        schema = readSchemaFromAvroFile();
       }
+      addFieldsFromSchema(schema);
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "AvroDecodeDialog.GetFields.Error.Title"),
+          BaseMessages.getString(PKG, "AvroDecodeDialog.GetFields.Error.Message"),
+          e);
+    }
+  }
 
-      // If there's no metadata in the fields map, ask for an Avro field to get the schema from
-      //
-      if (fieldsMap.isEmpty()) {
-        String filename =
-            BaseDialog.presentFileDialog(
-                shell,
-                new String[] {"*.avro", "*.*"},
-                new String[] {"Avro files", "All files"},
-                true);
-        if (filename != null) {
-          // Read the file
-          // Grab the schema
-          // Add all the fields to wFields
-          //
-          PipelineMeta pipelineMeta = new PipelineMeta();
-          pipelineMeta.setName("Get Avro file details");
-
-          // We'll inject the filename to minimize dependencies
-          //
-          InjectorMeta injector = new InjectorMeta();
-          injector
-              .getInjectorFields()
-              .add(new InjectorField(CONST_FILENAME, "String", "500", "-1"));
-          TransformMeta injectorMeta = new TransformMeta("Filename", injector);
-          injectorMeta.setLocation(50, 50);
-          pipelineMeta.addTransform(injectorMeta);
-
-          // The Avro File Input transform
-          //
-          AvroFileInputMeta fileInput = new AvroFileInputMeta();
-          fileInput.setDataFilenameField(CONST_FILENAME);
-          fileInput.setOutputFieldName("avro");
-          fileInput.setRowsLimit("1");
-          TransformMeta fileInputMeta = new TransformMeta("Avro", fileInput);
-          fileInputMeta.setLocation(250, 50);
-          pipelineMeta.addTransform(fileInputMeta);
-          pipelineMeta.addPipelineHop(new PipelineHopMeta(injectorMeta, fileInputMeta));
-
-          LocalPipelineEngine pipeline =
-              new LocalPipelineEngine(pipelineMeta, variables, loggingObject);
-          pipeline.setMetadataProvider(metadataProvider);
-          pipeline.prepareExecution();
-          pipeline.setPreview(true);
-
-          RowProducer rowProducer = pipeline.addRowProducer("Filename", 0);
-
-          IEngineComponent avroComponent = pipeline.findComponent("Avro", 0);
-
-          avroComponent.addRowListener(
-              new RowAdapter() {
-                private boolean first = true;
-
-                @Override
-                public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                    throws HopTransformException {
-                  if (first) {
-                    first = false;
-
-                    int index = rowMeta.indexOfValue("avro");
-                    ValueMetaAvroRecord avroMeta =
-                        (ValueMetaAvroRecord) rowMeta.getValueMeta(index);
-                    Object avroValue = row[index];
-
-                    try {
-                      GenericRecord genericRecord = avroMeta.getGenericRecord(avroValue);
-                      Schema schema = genericRecord.getSchema();
-                      List<Schema.Field> fields = schema.getFields();
-                      for (Schema.Field field : fields) {
-                        fieldsMap.put(field.name(), field);
-                      }
-                    } catch (Exception e) {
-                      throw new HopTransformException(e);
-                    }
-                  }
-                }
-              });
-
-          pipeline.startThreads();
-          rowProducer.putRow(
-              new RowMetaBuilder().addString(CONST_FILENAME).build(),
-              new Object[] {variables.resolve(filename)});
-          rowProducer.finished();
-
-          pipeline.waitUntilFinished();
-        }
-      }
-
-      if (fieldsMap.isEmpty()) {
-        // Sorry, we can't do anything...
+  private void getFieldsFromJson() {
+    try {
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              shell,
+              BaseMessages.getString(PKG, "AvroDecodeDialog.GetFieldsFromJson.Title"),
+              BaseMessages.getString(PKG, "AvroDecodeDialog.GetFieldsFromJson.Message"),
+              "",
+              true);
+      String json = dialog.open();
+      if (StringUtils.isBlank(json)) {
         return;
       }
-
-      List<String> names = new ArrayList<>(fieldsMap.keySet());
-      names.sort(Comparator.comparing(String::toLowerCase));
-      for (String name : names) {
-        Schema.Field field = fieldsMap.get(name);
-        String typeDesc = StringUtil.initCap(field.schema().getType().name().toLowerCase());
-        int hopType = AvroDecode.getStandardHopType(field);
-        String hopTypeDesc = ValueMetaFactory.getValueMetaName(hopType);
-
-        TableItem item = new TableItem(wFields.table, SWT.NONE);
-        item.setText(1, Const.NVL(field.name(), ""));
-        item.setText(2, typeDesc);
-        item.setText(3, Const.NVL(field.name(), ""));
-        item.setText(4, hopTypeDesc);
-      }
-      wFields.optimizeTableView();
-
+      addFieldsFromSchema(AvroDecodeFieldFinder.schemaFromJson(json));
     } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting fields", e);
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "AvroDecodeDialog.GetFields.Error.Title"),
+          BaseMessages.getString(PKG, "AvroDecodeDialog.GetFields.Error.Message"),
+          e);
     }
+  }
+
+  /**
+   * Schema already attached to the selected source field, when that field is an Avro record. Avro
+   * Encode does this. Avro File Input and Kafka do not.
+   */
+  private Schema schemaFromSelectedSourceField() throws HopException {
+    String fieldName = wSourceField.getText();
+    if (StringUtils.isEmpty(fieldName)) {
+      return null;
+    }
+    IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
+    IValueMeta valueMeta = fields.searchValueMeta(fieldName);
+    if (!(valueMeta instanceof ValueMetaAvroRecord avroValueMeta)) {
+      return null;
+    }
+    Schema schema = avroValueMeta.getSchema();
+    if (schema == null || schema.getType() != Schema.Type.RECORD || schema.getFields().isEmpty()) {
+      return null;
+    }
+    return schema;
+  }
+
+  private Schema readSchemaFromAvroFile() throws HopException {
+    String filename =
+        BaseDialog.presentFileDialog(
+            shell, new String[] {"*.avro", "*.*"}, new String[] {"Avro files", "All files"}, true);
+    if (filename == null) {
+      return null;
+    }
+
+    PipelineMeta previewPipeline = new PipelineMeta();
+    previewPipeline.setName("Get Avro file details");
+
+    InjectorMeta injector = new InjectorMeta();
+    injector.getInjectorFields().add(new InjectorField(CONST_FILENAME, "String", "500", "-1"));
+    TransformMeta injectorMeta = new TransformMeta("Filename", injector);
+    injectorMeta.setLocation(50, 50);
+    previewPipeline.addTransform(injectorMeta);
+
+    AvroFileInputMeta fileInput = new AvroFileInputMeta();
+    fileInput.setDataFilenameField(CONST_FILENAME);
+    fileInput.setOutputFieldName("avro");
+    fileInput.setRowsLimit("1");
+    TransformMeta fileInputMeta = new TransformMeta("Avro", fileInput);
+    fileInputMeta.setLocation(250, 50);
+    previewPipeline.addTransform(fileInputMeta);
+    previewPipeline.addPipelineHop(new PipelineHopMeta(injectorMeta, fileInputMeta));
+
+    LocalPipelineEngine pipeline =
+        new LocalPipelineEngine(previewPipeline, variables, loggingObject);
+    pipeline.setMetadataProvider(metadataProvider);
+    pipeline.prepareExecution();
+    pipeline.setPreview(true);
+
+    RowProducer rowProducer = pipeline.addRowProducer("Filename", 0);
+    IEngineComponent avroComponent = pipeline.findComponent("Avro", 0);
+    AtomicReference<Schema> schemaRef = new AtomicReference<>();
+    avroComponent.addRowListener(
+        new RowAdapter() {
+          private boolean first = true;
+
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+            if (!first) {
+              return;
+            }
+            first = false;
+            int index = rowMeta.indexOfValue("avro");
+            ValueMetaAvroRecord avroMeta = (ValueMetaAvroRecord) rowMeta.getValueMeta(index);
+            try {
+              GenericRecord genericRecord = avroMeta.getGenericRecord(row[index]);
+              schemaRef.set(genericRecord.getSchema());
+            } catch (Exception e) {
+              throw new HopTransformException(e);
+            }
+          }
+        });
+
+    pipeline.startThreads();
+    rowProducer.putRow(
+        new RowMetaBuilder().addString(CONST_FILENAME).build(),
+        new Object[] {variables.resolve(filename)});
+    rowProducer.finished();
+    pipeline.waitUntilFinished();
+    return schemaRef.get();
+  }
+
+  private void addFieldsFromSchema(Schema schema) throws HopException {
+    if (schema == null) {
+      return;
+    }
+    List<FieldRow> rows = AvroDecodeFieldFinder.rowsForSchema(schema);
+    if (rows.isEmpty()) {
+      return;
+    }
+    for (FieldRow row : rows) {
+      TableItem item = new TableItem(wFields.table, SWT.NONE);
+      item.setText(1, Const.NVL(row.sourceField(), ""));
+      item.setText(2, Const.NVL(row.sourceAvroType(), ""));
+      item.setText(3, Const.NVL(row.targetFieldName(), ""));
+      item.setText(4, Const.NVL(row.targetType(), ""));
+    }
+    wFields.optimizeTableView();
   }
 }

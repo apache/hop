@@ -31,6 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.api.IOptionalDatabaseConnection;
 import org.apache.hop.metadata.util.HopMetadataPropertyWalker;
 import org.apache.hop.metadata.util.HopMetadataPropertyWalker.StringProperty;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -44,12 +45,21 @@ import org.apache.hop.workflow.action.ActionMeta;
  *
  * <p>This is an existence check only. It never opens a JDBC connection. Names that still contain a
  * variable token after resolving the current {@link IVariables} are skipped, because the name
- * cannot be decided at design time.
+ * cannot be decided at design time. A metadata object that implements {@link
+ * IOptionalDatabaseConnection} can say that a connection field is unused for the current settings;
+ * that field is left out of this check.
  */
 public final class ReferencedDatabaseConnectionChecker {
 
   public static final String ERROR_NOT_ASSIGNED = "CONNECTION_NOT_ASSIGNED";
   public static final String ERROR_DOES_NOT_EXIST = "CONNECTION_DOES_NOT_EXIST";
+
+  /**
+   * The name still holds a variable after resolving, so nothing can be looked up. This checker
+   * never reports it: at design time such a name cannot be decided. A transform that went on to
+   * load the connection anyway, and got nothing, knows more and may report it under this code.
+   */
+  public static final String ERROR_NOT_RESOLVED = "CONNECTION_NOT_RESOLVED";
 
   /**
    * The connection could not be looked up at all, so nothing is known about it. Reported at INFO:
@@ -146,9 +156,15 @@ public final class ReferencedDatabaseConnectionChecker {
       return remarks;
     }
 
+    // Ask for the unset fields too. A connection that was never assigned is null, not empty - that
+    // is the field default on a new transform or action - and it is exactly what ERROR_NOT_ASSIGNED
+    // is about, so it has to be seen here rather than left to each transform's own check.
     for (StringProperty property :
         HopMetadataPropertyWalker.collectStrings(
-            metadataObject, HopMetadataPropertyType.RDBMS_CONNECTION)) {
+            metadataObject, HopMetadataPropertyType.RDBMS_CONNECTION, true)) {
+      if (!isConnectionUsed(metadataObject, property.key())) {
+        continue;
+      }
       ICheckResult remark =
           checkConnectionName(
               property.value(), ownerKind, ownerName, source, variables, serializer);
@@ -157,6 +173,29 @@ public final class ReferencedDatabaseConnectionChecker {
       }
     }
     return remarks;
+  }
+
+  /**
+   * A connection field is required unless the metadata object says the current settings do not use
+   * it. A failure in that callback is treated as required, so a broken plugin still reports a
+   * missing connection.
+   */
+  private static boolean isConnectionUsed(Object metadataObject, String key) {
+    if (!(metadataObject instanceof IOptionalDatabaseConnection optional)) {
+      return true;
+    }
+    try {
+      return optional.isDatabaseConnectionUsed(key);
+    } catch (RuntimeException e) {
+      if (HopLogStore.isInitialized()) {
+        LogChannel.GENERAL.logDebug(
+            "Could not decide whether connection '"
+                + key
+                + "' is used, so it is still checked: "
+                + e.getMessage());
+      }
+      return true;
+    }
   }
 
   /**

@@ -21,17 +21,25 @@ under the License.
 
 = Your first workflow
 
-A pipeline moves rows.
-A workflow decides *what runs, in what order, and what happens when something fails*.
+== Why and When to Use a Workflow
 
-That difference is the point of this chapter.
-We'll build a workflow that runs the pipeline from the xref:getting-started/hop-gui-pipelines.adoc[previous chapter] and reports a different message depending on the outcome.
+Where pipelines do the heavy lifting of moving and transforming individual data rows, **workflows** manage the big picture.
+A workflow is your process coordinator: it decides *what tasks run, in what order, and what happens when something succeeds or fails*.
 
-Remember from xref:getting-started/hop-concepts.adoc[Concepts]:
+In a production data platform, you almost never run a pipeline completely isolated in a vacuum.
+Before a pipeline processes data, you might need to check if a database is reachable or whether an incoming file has arrived on an SFTP server.
+After the pipeline finishes, you might want to archive the input files, write an audit log, or send an email alert if an unexpected error occurred.
+Workflows handle all of these orchestration tasks.
 
-* A **workflow** is a sequence of **actions** connected by **hops**, with a start point and one or more end points.
-* Unlike transforms in a pipeline, actions run **one after another**, not in parallel.
-* A **hop** in a workflow can be conditional: it decides which action runs next based on whether the previous one succeeded.
+Key things to remember before you build:
+
+* **Actions are the steps**: Each action performs an atomic job (e.g. running a pipeline, checking a file, sending an email).
+* **Sequential execution**: Unlike transforms in a pipeline, actions run **one after another in sequence** by default.
+* **Conditional decision routing**: Hops in a workflow are conditional gateways. You can follow different branches depending on whether an action succeeded (green hop) or failed (red hop).
+
+TIP: For an architectural deep dive into how workflows execute, the backtracking algorithm, and execution engines (Local, Remote, Load-Balancing), see the xref:workflow/workflows.adoc[Workflows guide].
+
+In this chapter, we will build a workflow that orchestrates the pipeline you created in the xref:getting-started/hop-gui-pipelines.adoc[previous chapter] and takes different paths depending on whether the pipeline succeeded or failed.
 
 == Create a workflow
 

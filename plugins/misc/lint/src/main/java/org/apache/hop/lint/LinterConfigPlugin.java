@@ -17,6 +17,9 @@
 package org.apache.hop.lint;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +42,10 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
@@ -50,7 +56,7 @@ import picocli.CommandLine;
  * Rules.
  */
 @ConfigPlugin(id = "linter-config", description = "Configure linter rules and settings")
-@GuiPlugin(description = "Linter Configuration GUI")
+@GuiPlugin(description = "Linter")
 public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
   private static final ILogChannel log = LogChannel.GENERAL;
@@ -130,6 +136,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
    */
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {
+    boolean enabledBefore = isLinterEnabled();
     for (String widgetId : compositeWidgets.getWidgetsMap().keySet()) {
       Control control = compositeWidgets.getWidgetsMap().get(widgetId);
       switch (widgetId) {
@@ -158,6 +165,9 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       }
     }
     saveToHopConfig();
+    if (enabledBefore != isLinterEnabled()) {
+      applyEnabledState();
+    }
   }
 
   /**
@@ -188,6 +198,55 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     return options;
   }
 
+  /**
+   * Drop marks the Explorer and open editors are still showing, or lint the project again.
+   *
+   * <p>Called after the new value has been saved. Reading the option back has to see it: the
+   * Explorer painter and the background service load a fresh instance rather than this one.
+   */
+  void applyEnabledState() {
+    if (!isLinterEnabled()) {
+      LintResultsManager.getInstance().clearResults();
+      try {
+        LintProblemsBarManager.getInstance().refreshAllOpenEditors();
+      } catch (Exception | LinkageError e) {
+        log.logDetailed("No open editor to clear lint marks from: " + e.getMessage());
+      }
+      return;
+    }
+    try {
+      HopGui hopGui = HopGui.peekInstance();
+      if (hopGui == null) {
+        return;
+      }
+      attachOpenEditors();
+      BackgroundLintService.getInstance()
+          .lintProjectAsync(getProjectPath(), hopGui.getMetadataProvider(), hopGui.getVariables());
+    } catch (Exception | LinkageError e) {
+      log.logDetailed("Could not lint the project after enabling the linter: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Editors opened while the linter was off never registered a Problems bar. Re-enabling lints the
+   * project, but the bar only comes back once those graphs are attached.
+   */
+  private static void attachOpenEditors() {
+    try {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      if (perspective == null) {
+        return;
+      }
+      for (TabItemHandler item : perspective.getItems()) {
+        if (item.getTypeHandler() instanceof HopGuiAbstractGraph graph && !graph.isDisposed()) {
+          EditorLintSupport.onNewGraph(graph);
+        }
+      }
+    } catch (Exception | LinkageError e) {
+      log.logDetailed("Could not attach the problems bar to open editors: " + e.getMessage());
+    }
+  }
+
   private static void putIfSet(Map<String, Object> options, String key, Object value) {
     if (value != null) {
       options.put(key, value);
@@ -200,7 +259,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.Enabled.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.Enabled.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.Enabled.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-enabled"},
       description = "Enable or disable the linter (default: true)")
@@ -211,7 +271,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.LintOnEdit.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.LintOnEdit.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.LintOnEdit.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-on-edit"},
       description = "Lint files while they are being edited (default: true)")
@@ -222,7 +283,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.ShowIndicators.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.ShowIndicators.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.ShowIndicators.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-problems-bar"},
       description = "Show the lint problems bar (default: true)")
@@ -233,7 +295,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-show-ignored-markers"},
       description = "Mark transforms and actions whose findings are ignored (default: true)")
@@ -256,7 +319,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommit.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PreCommit.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PreCommit.ToolTip",
+      defaultValue = "false")
   @CommandLine.Option(
       names = {"--lint-block-commits"},
       description = "Block git commits from Hop Gui on lint failures (default: false)")
@@ -267,7 +331,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.ToolTip",
+      defaultValue = "false")
   @CommandLine.Option(
       names = {"--lint-block-on-warnings"},
       description = "Block commits on warnings, not only errors (default: false)")
@@ -278,7 +343,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-commit-metadata"},
       description = "Lint metadata files when checking a commit (default: true)")
@@ -289,7 +355,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PipelineVerify.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.PipelineVerify.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.PipelineVerify.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-in-pipeline-verify"},
       description = "Add lint findings to pipeline Verify (default: true)")
@@ -300,7 +367,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.WorkflowVerify.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.WorkflowVerify.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.WorkflowVerify.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-in-workflow-verify"},
       description = "Add lint findings to workflow Verify (default: true)")
@@ -311,7 +379,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.NativeChecks.Label",
-      toolTip = "i18n::LinterConfigPlugin.Option.NativeChecks.ToolTip")
+      toolTip = "i18n::LinterConfigPlugin.Option.NativeChecks.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--lint-native-checks"},
       description = "Include Hop's own checks alongside lint findings (default: true)")
@@ -339,9 +408,6 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     Map<String, Object> written = saveToHopConfig();
     if (written.isEmpty()) {
       return false;
-    }
-    if (!Utils.isEmpty(configFilePath)) {
-      saveConfiguration();
     }
     log.logBasic("Linter configuration updated");
     return true;
@@ -503,32 +569,29 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     return exportToYaml(getCustomRules());
   }
 
-  /** Save configuration to the specified file path */
-  public boolean saveConfiguration() {
-    return saveProjectRules(getCustomRules());
+  /**
+   * Write one rule's state to the project's hop-lint.yml, leaving every other line of it alone.
+   *
+   * @param rule the rule as the rule manager now has it
+   * @param previousId the id it was saved under before, when that differs; that entry is removed
+   * @throws IOException when the file cannot be changed safely; nothing is written then
+   */
+  public void saveProjectRule(CustomLintRule rule, String previousId) throws IOException {
+    Path path = Paths.get(resolveProjectConfigPath());
+    String ruleId = rule.generateRuleId();
+    if (!Utils.isEmpty(previousId) && !previousId.equalsIgnoreCase(ruleId)) {
+      LintPolicyYamlWriter.removeRule(path, previousId);
+    }
+    LintPolicyYamlWriter.putRule(path, ruleId, ProjectLintYamlExporter.entryFor(rule));
+    log.logBasic("Saved lint rule " + ruleId + " to " + path);
   }
 
-  /** Save project hop-lint.yml from the rule manager's desired effective state. */
-  public boolean saveProjectRules(List<CustomLintRule> desiredRules) {
-    try {
-      String yamlContent = exportToYaml(desiredRules);
-      if (yamlContent == null) {
-        return false;
-      }
-      String savePath = resolveProjectConfigPath();
-      File parentDir = new File(savePath).getParentFile();
-      if (parentDir != null && !parentDir.exists()) {
-        parentDir.mkdirs();
-      }
-      java.nio.file.Files.write(
-          java.nio.file.Paths.get(savePath),
-          yamlContent.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-      log.logBasic("Linter configuration saved to: " + savePath);
-      return true;
-    } catch (Exception e) {
-      log.logError("Error saving linter configuration: " + e.getMessage(), e);
+  /** Remove a project rule's entry from the project's hop-lint.yml. */
+  public void removeProjectRule(String ruleId) throws IOException {
+    Path path = Paths.get(resolveProjectConfigPath());
+    if (LintPolicyYamlWriter.removeRule(path, ruleId)) {
+      log.logBasic("Removed lint rule " + ruleId + " from " + path);
     }
-    return false;
   }
 
   private String resolveProjectConfigPath() {

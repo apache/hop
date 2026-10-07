@@ -340,8 +340,8 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     try {
       URI uri = new URI(filename);
       return new File(uri);
-    } catch (URISyntaxException ex) {
-      // Ignore errors
+    } catch (URISyntaxException | IllegalArgumentException ex) {
+      // Not a file:// URI but a plain path such as /tmp/archive.zip or C:\archive.zip
     }
     return new File(filename);
   }
@@ -372,7 +372,10 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
         // and we weed to update entries
         // Let's create a temp file
         File fileZip = getFile(localrealZipfilename);
-        tempFile = File.createTempFile(fileZip.getName(), null);
+        // Create the temporary file next to the zip file, not in the shared system temp folder: the
+        // rename below then stays on the same file system and no other user can claim the name.
+        tempFile =
+            File.createTempFile(fileZip.getName(), null, fileZip.getAbsoluteFile().getParentFile());
         // delete it, otherwise we cannot rename existing zip to it.
         tempFile.delete();
 

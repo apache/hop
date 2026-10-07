@@ -332,6 +332,8 @@
           language: langForEditor,
           theme: self._theme,
           readOnly: self._readOnly,
+          // Copy or cut the current line when nothing is selected, same as the other text fields.
+          emptySelectionClipboard: true,
           automaticLayout: true,
           scrollBeyondLastLine: false,
           minimap: { enabled: true },

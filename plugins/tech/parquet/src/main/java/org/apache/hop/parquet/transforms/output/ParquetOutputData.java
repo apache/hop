@@ -22,8 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.avro.Schema;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -36,7 +34,6 @@ import org.apache.parquet.schema.MessageType;
 public class ParquetOutputData extends BaseTransformData implements ITransformData {
   public List<Integer> sourceFieldIndexes;
   public List<ParquetField> outputFields;
-  public Configuration conf;
   public ParquetProperties props;
   public String filename;
   public OutputStream outputStream;
@@ -49,9 +46,8 @@ public class ParquetOutputData extends BaseTransformData implements ITransformDa
   public int rowGroupSize;
   public int pageSize;
   public int dictionaryPageSize;
-  public Schema avroSchema;
 
-  /** The Parquet schema, built once and shared by every partition file. */
+  /** The Parquet schema, built once and shared by every split or partition file. */
   public MessageType messageType;
 
   /** Indexes of the input fields the output is partitioned by, in the configured order. */

@@ -24,7 +24,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.UnitTestResult;
 
 @Transform(
@@ -50,7 +49,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTes
   private String testNameInputField;
 
   @HopMetadataProperty(key = TAG_TYPE_TO_EXECUTE)
-  private TestType typeToExecute;
+  private String typeToExecute;
 
   @HopMetadataProperty(key = TAG_PIPELINE_NAME_FIELD)
   private String pipelineNameField;
@@ -127,14 +126,14 @@ public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTes
    *
    * @return value of typeToExecute
    */
-  public TestType getTypeToExecute() {
+  public String getTypeToExecute() {
     return typeToExecute;
   }
 
   /**
    * @param typeToExecute The typeToExecute to set
    */
-  public void setTypeToExecute(TestType typeToExecute) {
+  public void setTypeToExecute(String typeToExecute) {
     this.typeToExecute = typeToExecute;
   }
 

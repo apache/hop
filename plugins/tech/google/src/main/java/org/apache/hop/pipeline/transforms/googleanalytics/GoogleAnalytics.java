@@ -72,6 +72,8 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public boolean init() {
 
@@ -145,6 +147,8 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
     return false;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private void readResponse() {
     List<DimensionHeader> dimensionHeaders;
     RunReportResponse response = analyticsData.runReport(getRequest());
@@ -225,6 +229,8 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
     return super.subStatuses();
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public void dispose() {
     try {

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -137,7 +136,9 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
+import org.apache.hop.ui.hopgui.file.shared.ExecutionGuiSession;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
@@ -444,6 +445,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private Timer redrawTimer;
 
+  /** Ties the canvas redraw timer to the workflow currently shown. */
+  private final ExecutionGuiSession executionGuiSession = new ExecutionGuiSession();
+
   public HopGuiWorkflowGraph(
       Composite parent,
       final HopGui hopGui,
@@ -734,6 +738,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return;
     }
 
+    boolean alt = (event.stateMask & SWT.ALT) != 0;
     boolean control = (event.stateMask & SWT.MOD1) != 0;
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
 
@@ -836,6 +841,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 avoidContextDialog = false;
               }
             }
+          } else if (event.button == 1
+              && alt
+              && DrillDownGuiPlugin.altClickOpensExecution(
+                  this,
+                  currentAction.getAction() != null
+                      && currentAction.getAction().supportsDrillDown())) {
+            // Opening the execution is asynchronous, so claim this release. Otherwise mouseUp
+            // also opens the action context dialog.
+            avoidContextDialog = true;
+            openExecution(currentAction);
+            return;
           } else if (canEditGraph() && (event.button == 2 || (event.button == 1 && shift))) {
             // SHIFT CLICK is start of drag to create a new hop
             //
@@ -1420,9 +1436,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Show a short tooltip
       //
       toolTip.setVisible(false);
-      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-      showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
-      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      if (isToolTipShown(CanvasToolTip.NOTICE)) {
+        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+        showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+        toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      }
 
       return;
     }
@@ -3934,7 +3952,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     StringBuilder tip = new StringBuilder();
     AreaOwner areaOwner = getVisibleAreaOwner(x, y);
-    if (areaOwner != null && areaOwner.getAreaType() != null) {
+    if (isAreaToolTipShown(areaOwner)) {
       ActionMeta actionCopy;
       switch (areaOwner.getAreaType()) {
         case NOTE_LINK:
@@ -3987,10 +4005,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           break;
 
         case CUSTOM:
-          String message = (String) areaOwner.getOwner();
-          tip.append(message);
-          tipImage = null;
-          GuiResource.getInstance().getImagePipeline();
+          // A plain message is shown as is; anything else, such as the debug level bee, is
+          // described by the plugin that drew it.
+          //
+          if (areaOwner.getOwner() instanceof String message) {
+            tip.append(message);
+          }
+          tipImage = callAreaHoverExtension(x, y, screenX, screenY, areaOwner, tip);
           break;
 
         case ACTION_RESULT_FAILURE, ACTION_RESULT_SUCCESS:
@@ -4063,7 +4084,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           ActionMeta actionMetaInfo = (ActionMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
-          if (actionMetaInfo.isDeprecated()) { // only need tooltip if action is deprecated
+          if (actionMetaInfo.isDeprecated() && isToolTipShown(CanvasToolTip.DEPRECATION)) {
             tip.append(BaseMessages.getString(PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Title"))
                 .append(Const.CR);
             String tipNext =
@@ -4089,7 +4110,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                       actionMetaInfo.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-          } else if (!Utils.isEmpty(actionMetaInfo.getDescription())) {
+          } else if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && !Utils.isEmpty(actionMetaInfo.getDescription())) {
             tip.append(actionMetaInfo.getDescription());
           }
           break;
@@ -4100,28 +4122,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         default:
           // For plugins...
           //
-          try {
-            HopGuiTooltipExtension tooltipExt =
-                new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
-            ExtensionPointHandler.callExtensionPoint(
-                hopGui.getLog(),
-                variables,
-                HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
-                tooltipExt);
-            tipImage = tooltipExt.tooltipImage;
-          } catch (Exception ex) {
-            hopGui
-                .getLog()
-                .logError(
-                    "Error calling extension point "
-                        + HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
-                    ex);
-          }
+          tipImage = callAreaHoverExtension(x, y, screenX, screenY, areaOwner, tip);
           break;
       }
     }
 
-    if (hi != null && tip.isEmpty()) {
+    if (hi != null && tip.isEmpty() && isToolTipShown(CanvasToolTip.HOP)) {
       // Set the tooltip for the hop:
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo")).append(Const.CR);
       tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry"))
@@ -4159,6 +4165,34 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  /**
+   * Lets plugins describe an area they drew on the canvas: they append to the tip and may set an
+   * image.
+   *
+   * @return the image the plugins set for the tooltip, or null
+   */
+  private Image callAreaHoverExtension(
+      int x, int y, int screenX, int screenY, AreaOwner areaOwner, StringBuilder tip) {
+    try {
+      HopGuiTooltipExtension tooltipExt =
+          new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          variables,
+          HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
+          tooltipExt);
+      return tooltipExt.tooltipImage;
+    } catch (Exception ex) {
+      hopGui
+          .getLog()
+          .logError(
+              "Error calling extension point "
+                  + HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(),
+              ex);
+      return null;
+    }
+  }
+
   public void launchStuff(ActionMeta actionCopy) {
     String[] references = actionCopy.getAction().getReferencedObjectDescriptions();
     if (!Utils.isEmpty(references)) {
@@ -4187,7 +4221,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public synchronized void setWorkflow(IWorkflowEngine<WorkflowMeta> workflow) {
-    this.workflow = workflow;
+    if (executionGuiSession != null) {
+      executionGuiSession.adopt(workflow, () -> this.workflow = workflow);
+    } else {
+      this.workflow = workflow;
+    }
   }
 
   public void paintControl(PaintEvent e) {
@@ -4838,9 +4876,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       boolean fileExist = HopVfs.fileExists(workflowMeta.getFilename());
 
-      // Record the version of Hop saving this workflow
+      // Record who saved this workflow, when, and with which version of Hop
       //
-      workflowMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+      if (workflowMeta.needsModificationStamp(fileExist)) {
+        workflowMeta.stampModified();
+        workflowMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+      }
 
       String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);
@@ -5392,13 +5433,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           ExtensionPointHandler.callExtensionPoint(
               log, variables, HopExtensionPoint.HopGuiWorkflowMetaExecutionStart.id, workflowMeta);
 
-          workflow =
+          setWorkflow(
               WorkflowEngineFactory.createWorkflowEngine(
                   variables,
                   variables.resolve(executionConfiguration.getRunConfiguration()),
                   hopGui.getMetadataProvider(),
                   runWorkflowMeta,
-                  hopGuiLoggingObject);
+                  hopGuiLoggingObject));
 
           workflow.setLogLevel(executionConfiguration.getLogLevel());
           workflow.setGatheringMetrics(executionConfiguration.isGatheringMetrics());
@@ -5454,6 +5495,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
 
           log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.StartingWorkflow"));
+
+          // Listeners before the thread and the timer. A workflow that finishes in between would
+          // otherwise leave the redraw timer running.
+          //
+          workflow.addExecutionFinishedListener(this::onWorkflowFinished);
+          workflow.addExecutionStoppedListener(this::onWorkflowStopped);
+
           workflowThread = new Thread(() -> workflow.startExecution());
           workflowThread.start();
 
@@ -5463,11 +5511,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           startRedrawTimer();
 
           updateGui();
-
-          // Attach a listener to notify us that the workflow has finished.
-          //
-          workflow.addExecutionFinishedListener(e -> HopGuiWorkflowGraph.this.workflowFinished());
-          workflow.addExecutionStoppedListener(e -> HopGuiWorkflowGraph.this.workflowStopped());
           // Show the execution results views
           //
           addAllTabs();
@@ -5477,7 +5520,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               BaseMessages.getString(PKG, "WorkflowLog.Dialog.CanNotOpenWorkflow.Title"),
               BaseMessages.getString(PKG, "WorkflowLog.Dialog.CanNotOpenWorkflow.Message"),
               e);
-          workflow = null;
+          setWorkflow(null);
         }
       } else {
         MessageBox m = new MessageBox(hopShell(), SWT.OK | SWT.ICON_WARNING);
@@ -5520,27 +5563,36 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** This gets called at the very end, when everything is done. */
   protected void workflowFinished() {
-    // Do a final check to see if it all ended...
-    //
-    if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {
+    onWorkflowFinished(workflow);
+  }
+
+  private void onWorkflowFinished(IWorkflowEngine<WorkflowMeta> finished) {
+    if (!executionGuiSession.isCurrentEngine(finished)) {
+      return;
+    }
+    if (finished.isInitialized() && finished.isFinished()) {
       log.logBasic(
           BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded", workflowMeta.getName()));
     }
-
-    stopRedrawTimer();
-
     updateGui();
+    executionGuiSession.stopIfCurrent(finished, this::stopRedrawTimer);
   }
 
   protected void workflowStopped() {
-    if (workflow != null && workflow.isInitialized() && workflow.isStopped()) {
+    onWorkflowStopped(workflow);
+  }
+
+  private void onWorkflowStopped(IWorkflowEngine<WorkflowMeta> stopped) {
+    if (!executionGuiSession.isCurrentEngine(stopped)) {
+      return;
+    }
+    if (stopped.isInitialized() && stopped.isStopped()) {
       log.logBasic(
           BaseMessages.getString(
               PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped", workflowMeta.getName()));
     }
-
-    stopRedrawTimer();
     updateGui();
+    executionGuiSession.stopIfCurrent(stopped, this::stopRedrawTimer);
   }
 
   @Override
@@ -5715,6 +5767,32 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
       }
     }
+  }
+
+  /**
+   * Hover the icon and press {@code x}: open the running child execution. Same action as the "Open
+   * execution" context menu and as Alt-click while a run is active.
+   */
+  @GuiKeyboardShortcut(key = 'x')
+  @GuiOsxKeyboardShortcut(key = 'x')
+  public void openExecution() {
+    if (lastMove == null) {
+      return;
+    }
+    hideToolTips();
+    openExecution(workflowMeta.getAction(lastMove.x, lastMove.y, iconSize));
+  }
+
+  private void openExecution(ActionMeta actionMeta) {
+    if (actionMeta == null
+        || actionMeta.getAction() == null
+        || !actionMeta.getAction().supportsDrillDown()) {
+      return;
+    }
+    Point click = lastMove != null ? lastMove : new Point(0, 0);
+    new DrillDownGuiPlugin()
+        .openActionExecution(
+            new HopGuiWorkflowActionContext(workflowMeta, actionMeta, this, click));
   }
 
   @Override
@@ -6011,9 +6089,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     if (isRunning) {
       // Add listeners for when the workflow finishes (only if still running)
-      workflow.addExecutionFinishedListener(e -> HopGuiWorkflowGraph.this.workflowFinished());
+      workflow.addExecutionFinishedListener(this::onWorkflowFinished);
 
-      workflow.addExecutionStoppedListener(e -> HopGuiWorkflowGraph.this.workflowStopped());
+      workflow.addExecutionStoppedListener(this::onWorkflowStopped);
 
       // Start the redraw timer to continuously update the GUI
       startRedrawTimer();
@@ -6028,26 +6106,36 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private void startRedrawTimer() {
-    redrawTimer = new Timer("WorkflowGraph auto refresh: " + workflow.getWorkflowName());
-    TimerTask timerTask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (!hopDisplay().isDisposed()) {
-              hopDisplay()
-                  .asyncExec(
-                      () -> {
-                        if (!HopGuiWorkflowGraph.this.canvas.isDisposed()
-                            && perspective.isActive()
-                            && HopGuiWorkflowGraph.this.isVisible()) {
-                          updateGui();
-                        }
-                      });
-            }
+    ExecutionGuiSession.Snapshot snapshot = executionGuiSession.current();
+    if (!(snapshot.engine() instanceof IWorkflowEngine<?> engine)) {
+      return;
+    }
+    executionGuiSession.scheduleWhileCurrent(
+        snapshot,
+        "WorkflowGraph auto refresh: " + engine.getWorkflowName(),
+        ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH,
+        () -> !engine.isFinished(),
+        timer -> {
+          ExecutorUtil.cleanup(redrawTimer);
+          redrawTimer = timer;
+        },
+        () -> {
+          if (hopDisplay().isDisposed()) {
+            return;
           }
-        };
-
-    redrawTimer.schedule(timerTask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH);
+          hopDisplay()
+              .asyncExec(
+                  () -> {
+                    if (!executionGuiSession.isCurrent(engine, snapshot.generation())) {
+                      return;
+                    }
+                    if (!HopGuiWorkflowGraph.this.canvas.isDisposed()
+                        && perspective.isActive()
+                        && HopGuiWorkflowGraph.this.isVisible()) {
+                      updateGui();
+                    }
+                  });
+        });
   }
 
   protected void stopRedrawTimer() {

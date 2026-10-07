@@ -243,8 +243,12 @@ public final class HopLoginPage {
       return fallback;
     }
     String r = redirect.trim();
-    // Block open redirects
-    if (r.startsWith("http://") || r.startsWith("https://") || r.startsWith("//")) {
+    // Block open redirects. Browsers treat a backslash as a slash, so "/\host" means "//host".
+    if (r.startsWith("http://")
+        || r.startsWith("https://")
+        || r.startsWith("//")
+        || r.indexOf('\\') >= 0
+        || r.chars().anyMatch(Character::isISOControl)) {
       return fallback;
     }
     if (!r.startsWith("/")) {
@@ -258,6 +262,16 @@ public final class HopLoginPage {
       return fallback;
     }
     return r;
+  }
+
+  /** Replaces control characters (CR, LF, ...) so user input cannot forge extra log lines. */
+  public static String sanitizeForLog(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    StringBuilder sb = new StringBuilder(raw.length());
+    raw.codePoints().forEach(c -> sb.appendCodePoint(Character.isISOControl(c) ? '_' : c));
+    return sb.toString();
   }
 
   static String escapeHtml(String raw) {

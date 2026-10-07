@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -118,6 +117,7 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMetaLayout;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.TransformCopyCompletion;
 import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -197,7 +197,9 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelega
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.PipelineRenamedExtension;
+import org.apache.hop.ui.hopgui.file.shared.CanvasToolTip;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
+import org.apache.hop.ui.hopgui.file.shared.ExecutionGuiSession;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
@@ -392,6 +394,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /** True once pointer has moved past {@link #ICON_DRAG_THRESHOLD_PX} and drag has started. */
   private boolean iconDragCommitted;
 
+  /** Screen position of the current press, used to tell a click from a drag on mouse-up. */
+  private Point mouseDownScreen;
+
+  /**
+   * The press landed on a transform or hop output-rows badge. The rows open on release only for
+   * that press, and only when the pointer did not travel into a drag (issue #8595).
+   */
+  private boolean outputDataPressed;
+
+  /**
+   * The output-rows dialog is on screen. It runs its own event loop, which delivers any click made
+   * while it is up; that click must not move transforms or open a second copy of the dialog.
+   */
+  private boolean showingOutputRows;
+
   /**
    * Display filters used while placing a transform dragged from the context dialog (issue #3111).
    * Create happens on mouse-up (drop), not on drag-start.
@@ -496,6 +513,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private StreamType candidateHopType;
 
   Timer redrawTimer;
+
+  /** Ties redraw and metrics timers to the engine currently shown. */
+  private final ExecutionGuiSession executionGuiSession = new ExecutionGuiSession();
 
   @Setter private HopPipelineFileType<PipelineMeta> fileType;
   private boolean doubleClick;
@@ -771,6 +791,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDoubleClick(MouseEvent event) {
+    if (showingOutputRows) {
+      return;
+    }
 
     if (!PropsUi.getInstance().useDoubleClick()) {
       return;
@@ -836,6 +859,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDown(MouseEvent event) {
+    if (showingOutputRows) {
+      return;
+    }
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
       mouseHover(event);
@@ -853,9 +879,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     Point real = screen2real(event.x, event.y);
     lastClick = new Point(real.x, real.y);
+    mouseDownScreen = new Point(event.x, event.y);
     lastButton = event.button;
     dragSelection = false;
     iconDragStartScreen = null;
+    outputDataPressed = false;
 
     // Hide the tooltip!
     hideToolTips();
@@ -954,10 +982,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
 
         case TRANSFORM_OUTPUT_DATA:
+          // The rows open on mouse-up, and only if this press does not become a drag. The badge
+          // covers the corner of the icon, so a press here also arms a move: otherwise grabbing
+          // that corner cannot drag the transform, and the release still opens the rows.
+          //
+          outputDataPressed = true;
+          if (canEditGraph() && event.button == 1 && !shift && !control) {
+            armIconDrag((TransformMeta) areaOwner.getParent(), event, real);
+          }
+          redraw();
           done = true;
           break;
 
         case HOP_OUTPUT_DATA:
+          // A hop badge is a button, not a drag handle. Drop any transform press so the release
+          // cannot finish a move and open the rows.
+          //
+          outputDataPressed = true;
+          currentTransform = null;
+          selectedTransform = null;
+          iconDragStartScreen = null;
+          iconDragCommitted = false;
+          dragSelection = false;
           done = true;
           break;
 
@@ -1011,6 +1057,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 avoidContextDialog = false;
               }
             }
+          } else if (event.button == 1
+              && alt
+              && DrillDownGuiPlugin.altClickOpensExecution(
+                  this,
+                  currentTransform.getTransform() != null
+                      && currentTransform.getTransform().supportsDrillDown())) {
+            // Opening the execution is asynchronous, so claim this release. Otherwise mouseUp
+            // also opens the transform context dialog.
+            avoidContextDialog = true;
+            openExecution(currentTransform);
+            return;
           } else if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
             // ALT-Click: edit error handling
             //
@@ -1025,29 +1082,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else if (canEditGraph()) {
             // Defer entering drag mode until pointer moves past threshold (avoids drag when
             // clicking on name or making a small movement). Read-only sessions never arm drag.
-            iconDragStartScreen = new Point(event.x, event.y);
-            iconDragCommitted = false;
-            previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
-
-            Point p = currentTransform.getLocation();
-            iconOffset = new Point(real.x - p.x, real.y - p.y);
-
-            // The RAP/web client does not deliver mouse-move events while a button is held, so the
-            // movement threshold in mouseMove() can never fire during a press. Arm the drag right
-            // away on mouse-down so the transform follows the cursor and is dropped on mouse-up;
-            // native SWT keeps the threshold behaviour to distinguish a click from a drag.
-            if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
-              iconDragCommitted = true;
-              markPositionUndoPoint();
-              dragSelection = true;
-              canvas.setData("mode", "drag");
-              selectedTransforms = pipelineMeta.getSelectedTransforms();
-              selectedTransform = currentTransform;
-              pipelineGridDelegate.onPipelineSelectionChanged();
-              for (ITransformSelectionListener listener : currentTransformListeners) {
-                listener.onUpdateSelection(currentTransform);
-              }
-            }
+            armIconDrag(currentTransform, event, real);
           }
           redraw();
           done = true;
@@ -1204,6 +1239,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp(MouseEvent e) {
+    if (showingOutputRows) {
+      return;
+    }
+    // A preview badge opens its rows only for the press that landed on it. Cleared before any
+    // return below, including the ones that finish a drag.
+    boolean previewPress = outputDataPressed && e.button == 1;
+    outputDataPressed = false;
+
     // Track if we just completed a resize operation
     boolean wasResizing = false;
 
@@ -1334,14 +1377,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_OUTPUT_DATA:
-          if (showTransformOutputData(areaOwner)) {
-            lastButton = 0;
-            return;
-          }
-          break;
         case HOP_OUTPUT_DATA:
-          if (showHopOutputData(areaOwner)) {
-            lastButton = 0;
+          // The badge sits on the corner of the icon and part way along the hop, so the release of
+          // a move often lands on it. That release ends the move. A click, the pointer having
+          // stayed within the drag threshold, is what opens the rows (issue #8595).
+          //
+          if (previewPress && opensPreviewRows(e)) {
+            showPreviewRows(areaOwner);
             return;
           }
           break;
@@ -1397,7 +1439,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (selectedTransform != null && startHopTransform == null) {
       if (e.button == 1) {
         Point realClick = screen2real(e.x, e.y);
-        if (lastClick.x == realClick.x && lastClick.y == realClick.y) {
+        // A drag that ends where it started is still a drag. Hop Web arms that flag on mouse-down,
+        // so there the coordinates alone distinguish a click.
+        if (lastClick.x == realClick.x && lastClick.y == realClick.y && !dragWasCommitted()) {
           // Flip selection when control is pressed!
           if (control) {
             selectedTransform.flipSelected();
@@ -1552,6 +1596,115 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     lastButton = 0;
   }
 
+  /**
+   * Arms a transform move from a press on its icon or on its output-rows badge. The drag itself
+   * starts only after the pointer passes {@link #ICON_DRAG_THRESHOLD_PX}, except on Hop Web, which
+   * never delivers mouse-move events while a button is held.
+   */
+  private void armIconDrag(TransformMeta transform, MouseEvent event, Point real) {
+    currentTransform = transform;
+    iconDragStartScreen = new Point(event.x, event.y);
+    iconDragCommitted = false;
+    previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
+
+    Point p = currentTransform.getLocation();
+    iconOffset = new Point(real.x - p.x, real.y - p.y);
+
+    // The RAP/web client does not deliver mouse-move events while a button is held, so the
+    // movement threshold in mouseMove() can never fire during a press. Arm the drag right away on
+    // mouse-down so the transform follows the cursor and is dropped on mouse-up; native SWT keeps
+    // the threshold behaviour to distinguish a click from a drag.
+    boolean shift = (event.stateMask & SWT.SHIFT) != 0;
+    boolean control = (event.stateMask & SWT.MOD1) != 0;
+    if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
+      iconDragCommitted = true;
+      markPositionUndoPoint();
+      dragSelection = true;
+      canvas.setData("mode", "drag");
+      selectedTransforms = pipelineMeta.getSelectedTransforms();
+      selectedTransform = currentTransform;
+      pipelineGridDelegate.onPipelineSelectionChanged();
+      for (ITransformSelectionListener listener : currentTransformListeners) {
+        listener.onUpdateSelection(currentTransform);
+      }
+    }
+  }
+
+  /**
+   * A stationary release on the badge that was pressed. A drag, a hop or a lasso that ends on the
+   * badge does not qualify: releasing the mouse after one of those ends the gesture and nothing
+   * more.
+   */
+  private boolean opensPreviewRows(MouseEvent event) {
+    if (startHopTransform != null || selectionRegion != null || movedPastDragThreshold(event)) {
+      return false;
+    }
+    // On the desktop a committed drag is a move even when the pointer is back where it started.
+    // Hop Web arms the drag on mouse-down, so there the distance above is the whole check.
+    return !dragWasCommitted();
+  }
+
+  /** The press moved far enough to be a drag. Hop Web sets the flag before any movement. */
+  private boolean dragWasCommitted() {
+    return iconDragCommitted && !EnvironmentUtils.getInstance().isWeb();
+  }
+
+  private boolean movedPastDragThreshold(MouseEvent event) {
+    if (mouseDownScreen == null) {
+      return false;
+    }
+    int dx = event.x - mouseDownScreen.x;
+    int dy = event.y - mouseDownScreen.y;
+    return dx * dx + dy * dy > (long) ICON_DRAG_THRESHOLD_PX * ICON_DRAG_THRESHOLD_PX;
+  }
+
+  /**
+   * Opens the rows for the badge under the pointer. The dialog runs its own event loop, so the drag
+   * is dropped first: a click that loop dispatches would otherwise still be the move that just
+   * ended, and would open the rows again.
+   */
+  private void showPreviewRows(AreaOwner areaOwner) {
+    endPreviewPress();
+    if (areaOwner.getAreaType() == AreaType.HOP_OUTPUT_DATA) {
+      showHopOutputData(areaOwner);
+    } else {
+      showTransformOutputData(areaOwner);
+    }
+  }
+
+  /**
+   * Drops the press that opened the output rows, without changing what is selected on the graph.
+   */
+  private void endPreviewPress() {
+    selectedTransform = null;
+    currentTransform = null;
+    selectedNote = null;
+    selectedTransforms = null;
+    selectedNotes = null;
+    dragSelection = false;
+    iconDragStartScreen = null;
+    iconDragCommitted = false;
+    iconOffset = null;
+    splitHop = false;
+    if (lastHopSplit != null) {
+      lastHopSplit.setSplit(false);
+      lastHopSplit = null;
+    }
+    startHopTransform = null;
+    endHopTransform = null;
+    endHopLocation = null;
+    candidate = null;
+    clickedPipelineHop = null;
+    clickedHopBadge = false;
+    selectionRegion = null;
+    lastButton = 0;
+    avoidContextDialog = false;
+    canvas.setData("mode", "null");
+    canvas.setData(START_HOP_NODE, null);
+    canvas.setData("resizeDirection", null);
+    resetPositionUndoMark();
+  }
+
   @GuiContextAction(
       id = "pipeline-graph-transform-1000-view-output",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
@@ -1598,72 +1751,79 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private boolean showOutputDataDialog(String titleName, String messageName, RowBuffer rowBuffer) {
-    if (rowBuffer != null) {
-      synchronized (rowBuffer.getBuffer()) {
-        if (!rowBuffer.isEmpty()) {
-          try {
-            String title =
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
-            String message =
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
-            String prefix = "";
+    if (rowBuffer == null) {
+      return false;
+    }
+    // Already inside this dialog's event loop: the click that got us here is not another preview.
+    if (showingOutputRows) {
+      return true;
+    }
+    synchronized (rowBuffer.getBuffer()) {
+      if (!rowBuffer.isEmpty()) {
+        showingOutputRows = true;
+        try {
+          String title =
+              BaseMessages.getString(
+                  PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
+          String message =
+              BaseMessages.getString(
+                  PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
+          String prefix = "";
 
-            if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
-              PipelineRunConfiguration pipelineRunConfiguration =
-                  pipeline.getPipelineRunConfiguration();
-              if (pipelineRunConfiguration.getEngineRunConfiguration()
-                  instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
-                String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
-                if (StringUtils.isNotEmpty(sampleTypeInGui)) {
-                  try {
-                    SampleType sampleType = SampleType.valueOf(sampleTypeInGui);
-                    switch (sampleType) {
-                      case None:
-                        break;
-                      case First:
-                        prefix =
-                            BaseMessages.getString(
-                                PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
-                        break;
-                      case Last:
-                        prefix =
-                            BaseMessages.getString(
-                                PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
-                        break;
-                      case Random:
-                        prefix +=
-                            BaseMessages.getString(
-                                PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
-                        break;
-                      default:
-                        break;
-                    }
-                  } catch (Exception ex) {
-                    LogChannel.UI.logError("Unknown sample type: " + sampleTypeInGui);
+          if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
+            PipelineRunConfiguration pipelineRunConfiguration =
+                pipeline.getPipelineRunConfiguration();
+            if (pipelineRunConfiguration.getEngineRunConfiguration()
+                instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
+              String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
+              if (StringUtils.isNotEmpty(sampleTypeInGui)) {
+                try {
+                  SampleType sampleType = SampleType.valueOf(sampleTypeInGui);
+                  switch (sampleType) {
+                    case None:
+                      break;
+                    case First:
+                      prefix =
+                          BaseMessages.getString(
+                              PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
+                      break;
+                    case Last:
+                      prefix =
+                          BaseMessages.getString(
+                              PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
+                      break;
+                    case Random:
+                      prefix +=
+                          BaseMessages.getString(
+                              PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
+                      break;
+                    default:
+                      break;
                   }
+                } catch (Exception ex) {
+                  LogChannel.UI.logError("Unknown sample type: " + sampleTypeInGui);
                 }
               }
             }
-
-            new ShowRowsDialog(
-                    hopGui.getActiveShell(),
-                    variables,
-                    title,
-                    prefix + message,
-                    rowBuffer.getRowMeta(),
-                    rowBuffer.getBuffer())
-                .open();
-          } catch (Exception ex) {
-            new ErrorDialog(
-                hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
           }
+
+          new ShowRowsDialog(
+                  hopGui.getActiveShell(),
+                  variables,
+                  title,
+                  prefix + message,
+                  rowBuffer.getRowMeta(),
+                  rowBuffer.getBuffer())
+              .open();
+        } catch (Exception ex) {
+          new ErrorDialog(
+              hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
+        } finally {
+          showingOutputRows = false;
         }
       }
-      return true;
     }
-    return false;
+    return true;
   }
 
   /**
@@ -1702,10 +1862,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Show a short tooltip
       //
       toolTip.setVisible(false);
-      toolTip.setAutoHide(true);
-      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-      showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
-      toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      if (isToolTipShown(CanvasToolTip.NOTICE)) {
+        toolTip.setAutoHide(true);
+        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+        showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
+        toolTip.hideAfter(TRANSIENT_TOOLTIP_MILLIS);
+      }
 
       return;
     }
@@ -1794,6 +1956,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private void menuDetect(Event event) {
     // No SWT menu hangs off the canvas, and in Hop Web the browser's own menu is unwanted.
     event.doit = false;
+    if (showingOutputRows) {
+      return;
+    }
     if (!PropsUi.getInstance().useRightClickForContextDialog()) {
       return;
     }
@@ -2426,6 +2591,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void splitHop(PipelineHopMeta hop) {
+    if (pipelineMeta.isMultipleCopiesTargetSplit(hop, currentTransform, getVariables())) {
+      if (hop != null) {
+        hop.setSplit(false);
+      }
+      if (lastHopSplit == hop) {
+        lastHopSplit = null;
+      }
+      showMultipleCopiesNotAllowedDialog();
+      splitHop = false;
+      return;
+    }
+
     int id = 0;
     if (!hopGui.getProps().getAutoSplit()) {
       MessageDialogWithToggle md =
@@ -2456,6 +2633,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseMove(MouseEvent event) {
+    if (showingOutputRows) {
+      return;
+    }
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
     boolean doRedraw = false;
 
@@ -3002,6 +3182,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         pipelineHopDelegate.newHop(pipelineMeta, candidate);
         break;
       case TARGET:
+        // Named targets receive rows on copy 0 only. Refuse before the target is recorded.
+        if (pipelineMeta.hasMultipleCopies(candidate.getToTransform(), getVariables())) {
+          showMultipleCopiesNotAllowedDialog();
+          break;
+        }
         // We connect a target of the source transform to an output transform...
         //
         stream.setTransformMeta(candidate.getToTransform());
@@ -3431,6 +3616,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     dragSelection = false;
     iconDragStartScreen = null;
     iconDragCommitted = false;
+    outputDataPressed = false;
     canvas.setData("mode", "null");
     canvas.setData(START_HOP_NODE, null);
     startHopTransform = null;
@@ -3883,13 +4069,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       int copies = Const.toInt(hopGui.getVariables().resolve(cop), -1);
       if (copies > 1 && !multipleOK) {
         cop = "1";
-
-        modalMessageDialog(
-            BaseMessages.getString(
-                PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Title"),
-            BaseMessages.getString(
-                PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Message"),
-            SWT.YES | SWT.ICON_WARNING);
+        showMultipleCopiesNotAllowedDialog();
       }
       String cps = transformMeta.getCopiesString();
       if (cps == null || !cps.equals(cop)) {
@@ -4621,25 +4801,31 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private boolean checkNumberOfCopies(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
-    boolean enabled = true;
-    List<TransformMeta> prevTransforms = pipelineMeta.findPreviousTransforms(transformMeta);
-    for (TransformMeta prevTransform : prevTransforms) {
-      // See what the target transforms are.
-      // If one of the target transforms is our original transform, we can't start multiple copies
-      //
-      String[] targetTransforms =
-          prevTransform.getTransform().getTransformIOMeta().getTargetTransformNames();
-      if (targetTransforms != null) {
-        for (int t = 0; t < targetTransforms.length && enabled; t++) {
-          if (!Utils.isEmpty(targetTransforms[t])
-              && targetTransforms[t].equalsIgnoreCase(transformMeta.getName())) {
-            enabled = false;
-            break;
-          }
-        }
-      }
+    return pipelineMeta.allowsMultipleCopies(transformMeta);
+  }
+
+  /**
+   * When a transform runs in more than one copy, say how many of those copies have finished. A
+   * single copy keeps the icon tooltip unchanged.
+   */
+  private void appendCopyCompletionTip(StringBuilder tip, TransformMeta transformMeta) {
+    if (pipeline == null || transformMeta == null) {
+      return;
     }
-    return enabled;
+    TransformCopyCompletion.Summary summary =
+        TransformCopyCompletion.of(pipeline.getComponentCopies(transformMeta.getName()));
+    if (summary.total() <= 1) {
+      return;
+    }
+    if (!tip.isEmpty()) {
+      tip.append(Const.CR);
+    }
+    tip.append(
+        BaseMessages.getString(
+            PKG,
+            "HopGuiPipelineGraph.TransformCopiesFinished.Tooltip",
+            Integer.toString(summary.finished()),
+            Integer.toString(summary.total())));
   }
 
   private void setToolTip(int x, int y, int screenX, int screenY) {
@@ -4659,7 +4845,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     StringBuilder tip = new StringBuilder();
     AreaOwner areaOwner = getVisibleAreaOwner(x, y);
-    if (areaOwner != null && areaOwner.getAreaType() != null) {
+    if (isAreaToolTipShown(areaOwner)) {
       AreaType areaType = areaOwner.getAreaType();
       switch (areaType) {
         case NOTE_LINK:
@@ -4793,7 +4979,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
-          if (iconTransformMeta.isDeprecated()) {
+          if (iconTransformMeta.isDeprecated() && isToolTipShown(CanvasToolTip.DEPRECATION)) {
             tip.append(
                     BaseMessages.getString(PKG, "PipelineGraph.DeprecatedTransform.Tooltip.Title"))
                 .append(Const.CR);
@@ -4818,17 +5004,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       iconTransformMeta.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-          } else if (!Utils.isEmpty(iconTransformMeta.getDescription())) {
+          } else if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && !Utils.isEmpty(iconTransformMeta.getDescription())) {
             tip.append(iconTransformMeta.getDescription());
           }
           ITransformMeta sourceMeta = iconTransformMeta.getTransform();
-          if (sourceMeta != null && sourceMeta.canStartWithoutInput()) {
+          if (isToolTipShown(CanvasToolTip.DESCRIPTION)
+              && sourceMeta != null
+              && sourceMeta.canStartWithoutInput()) {
             if (tip.length() > 0) {
               tip.append(Const.CR);
             }
             tip.append(
                 BaseMessages.getString(PKG, "HopGuiPipelineGraph.PipelineSource.TooltipSuffix"));
           }
+          appendCopyCompletionTip(tip, iconTransformMeta);
           break;
         case TRANSFORM_OUTPUT_DATA:
           RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
@@ -4877,7 +5067,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (hi != null && tip.isEmpty()) { // We clicked on a HOP!
+    boolean hopTipShown = hi != null && isToolTipShown(CanvasToolTip.HOP);
+    if (hopTipShown && tip.isEmpty()) { // We clicked on a HOP!
       // Set the tooltip for the hop:
       tip.append(Const.CR)
           .append(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo"))
@@ -4893,7 +5084,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (newTip == null) {
       hideHoverToolTip();
-      if (hi != null) { // We clicked on a HOP!
+      if (hopTipShown) { // We clicked on a HOP!
 
         // Set the tooltip for the hop:
         newTip =
@@ -5543,9 +5734,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       boolean fileExist = HopVfs.fileExists(pipelineMeta.getFilename());
 
-      // Record the version of Hop saving this pipeline
+      // Record who saved this pipeline, when, and with which version of Hop
       //
-      pipelineMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+      if (pipelineMeta.needsModificationStamp(fileExist)) {
+        pipelineMeta.stampModified();
+        pipelineMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+      }
 
       String xml = pipelineMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(pipelineMeta.getFilename(), false);
@@ -6074,6 +6268,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (handlePipelineMetaChanges(pipelineMeta)) {
 
       // If the pipeline is not running, start the pipeline...
+      // Stopped counts as not running. Beam leaves a successful run unfinished, and a failed
+      // preparation only stops the engine, so "not finished" would block the next Run.
       //
       if (!isRunning()) {
         try {
@@ -6108,12 +6304,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           //
           pipelineMeta.clearCaches();
 
-          pipeline =
+          setDisplayedPipeline(
               PipelineEngineFactory.createPipelineEngine(
                   variables,
                   variables.resolve(pipelineRunConfigurationName),
                   hopGui.getMetadataProvider(),
-                  pipelineMeta);
+                  pipelineMeta));
           DrillDownGuiPlugin.bindToHopGui(pipeline, hopGui.getId());
 
           // Set the variables from the execution configuration
@@ -6155,7 +6351,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
 
         } catch (HopException e) {
-          pipeline = null;
+          setDisplayedPipeline(null);
           new ErrorDialog(
               hopShell(),
               BaseMessages.getString(PKG, "PipelineLog.Dialog.ErrorOpeningPipeline.Title"),
@@ -6187,10 +6383,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           updateGui();
 
-          // Update the GUI at the end of the pipeline
+          // Update the GUI at the end of the pipeline. Ignore the event when this engine is no
+          // longer the one on screen (a restart overlapped its shutdown). The work stays outside
+          // the session lock: it can take the graph lock or open a dialog.
           //
-          pipeline.addExecutionFinishedListener(e -> pipelineFinished());
-          pipeline.addExecutionStoppedListener(e -> pipelineStopped());
+          final IPipelineEngine<PipelineMeta> engine = pipeline;
+          engine.addExecutionFinishedListener(this::runPipelineFinished);
+          engine.addExecutionStoppedListener(this::runPipelineStopped);
         }
       } else {
         modalMessageDialog(
@@ -6216,6 +6415,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           e);
     }
 
+    stopRedrawTimer();
+    checkErrorVisuals();
     updateGui();
   }
 
@@ -6223,6 +6424,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     log.logBasic(
         BaseMessages.getString(
             PKG, "PipelineLog.Log.ProcessingOfPipelineStopped", pipelineMeta.getName()));
+    stopRedrawTimer();
+    checkErrorVisuals();
     updateGui();
   }
 
@@ -6304,7 +6507,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Create a new pipeline to execution
         //
         pipelineMeta.clearCaches();
-        pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
+        setDisplayedPipeline(
+            new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject()));
         DrillDownGuiPlugin.bindToHopGui(pipeline, hopGui.getId());
         pipeline.setPreview(true);
         pipeline.setVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "Y");
@@ -6509,16 +6713,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private synchronized void startThreads() {
+    final IPipelineEngine<PipelineMeta> engine = pipeline;
+    if (engine == null) {
+      return;
+    }
     try {
       // Add a listener to the pipeline.
       // If the pipeline is done, we want to do the end processing, etc.
+      // A listener from an engine that is no longer on screen must not stop the new run's timers.
       //
-      pipeline.addExecutionFinishedListener(
-          p -> {
-            checkPipelineEnded();
-            checkErrorVisuals();
-            stopRedrawTimer();
-          });
+      engine.addExecutionFinishedListener(this::runPipelineMetricsFinished);
 
       hopGui
           .getDisplay()
@@ -6527,14 +6731,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   new Thread(
                           () -> {
                             try {
-                              pipeline.startThreads();
-                              pipeline.waitUntilFinished();
+                              engine.startThreads();
+                              engine.waitUntilFinished();
                             } catch (Exception e) {
-                              pipeline
+                              engine
                                   .getLogChannel()
                                   .logError("Error starting transform threads", e);
-                              checkErrorVisuals();
-                              stopRedrawTimer();
+                              stopPipelineTimersIfCurrent(engine);
                             }
                           })
                       .start());
@@ -6543,13 +6746,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       updateGui();
     } catch (Exception e) {
-      if (pipeline != null) {
-        pipeline.getLogChannel().logError("Error starting transform threads", e);
-      } else {
-        log.logError("Error starting transform threads", e);
-      }
-      checkErrorVisuals();
-      stopRedrawTimer();
+      engine.getLogChannel().logError("Error starting transform threads", e);
+      stopPipelineTimersIfCurrent(engine);
     }
   }
 
@@ -6564,8 +6762,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return;
     }
 
-    // Set the pipeline instance
-    this.pipeline = runningPipeline;
+    // Set the pipeline instance. Adopt it before timers and listeners so a previous engine's
+    // finished event cannot own the refresh anymore.
+    //
+    setDisplayedPipeline(runningPipeline);
 
     // Add all the execution result tabs (logging, metrics, etc.)
     addAllTabs();
@@ -6595,14 +6795,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (isRunning) {
       // Add listeners for when the pipeline finishes (only if still running)
-      pipeline.addExecutionFinishedListener(
-          p -> {
-            checkPipelineEnded();
-            checkErrorVisuals();
-            stopRedrawTimer();
-          });
+      pipeline.addExecutionFinishedListener(this::runPipelineMetricsFinished);
 
-      pipeline.addExecutionStoppedListener(e -> pipelineStopped());
+      pipeline.addExecutionStoppedListener(this::runPipelineStopped);
 
       // Start the redraw timer to continuously update the GUI
       startRedrawTimer();
@@ -6618,28 +6813,83 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void startRedrawTimer() {
-
-    redrawTimer = new Timer("HopGuiPipelineGraph: redraw timer");
-    TimerTask timtask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (!hopDisplay().isDisposed()) {
-              hopDisplay()
-                  .asyncExec(
-                      () -> {
-                        if (!HopGuiPipelineGraph.this.canvas.isDisposed()
-                            && perspective.isActive()
-                            && HopGuiPipelineGraph.this.isVisible()) {
-                          HopGuiPipelineGraph.this.canvas.redraw();
-                          HopGuiPipelineGraph.this.updateGui();
-                        }
-                      });
-            }
+    ExecutionGuiSession.Snapshot snapshot = executionGuiSession.current();
+    if (!(snapshot.engine() instanceof IPipelineEngine<?> engine)) {
+      return;
+    }
+    executionGuiSession.scheduleWhileCurrent(
+        snapshot,
+        "HopGuiPipelineGraph: redraw timer",
+        ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH,
+        () -> !engine.isFinished(),
+        timer -> {
+          ExecutorUtil.cleanup(redrawTimer);
+          redrawTimer = timer;
+        },
+        () -> {
+          if (hopDisplay().isDisposed()) {
+            return;
           }
-        };
+          hopDisplay()
+              .asyncExec(
+                  () -> {
+                    if (!executionGuiSession.isCurrent(engine, snapshot.generation())) {
+                      return;
+                    }
+                    if (!HopGuiPipelineGraph.this.canvas.isDisposed()
+                        && perspective.isActive()
+                        && HopGuiPipelineGraph.this.isVisible()) {
+                      HopGuiPipelineGraph.this.canvas.redraw();
+                      HopGuiPipelineGraph.this.updateGui();
+                    }
+                  });
+        });
+  }
 
-    redrawTimer.schedule(timtask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH);
+  /**
+   * Publish {@code engine} as the pipeline on screen, together with the session the timers check.
+   */
+  private void setDisplayedPipeline(IPipelineEngine<PipelineMeta> engine) {
+    if (executionGuiSession != null) {
+      executionGuiSession.adopt(engine, () -> this.pipeline = engine);
+    } else {
+      this.pipeline = engine;
+    }
+  }
+
+  public ExecutionGuiSession getExecutionGuiSession() {
+    return executionGuiSession;
+  }
+
+  /** Extension-point finish hook. Runs outside the session lock because it may open a dialog. */
+  private void runPipelineFinished(IPipelineEngine<PipelineMeta> finished) {
+    if (executionGuiSession.isCurrentEngine(finished)) {
+      pipelineFinished();
+    }
+  }
+
+  private void runPipelineStopped(IPipelineEngine<PipelineMeta> stopped) {
+    if (executionGuiSession.isCurrentEngine(stopped)) {
+      pipelineStopped();
+    }
+  }
+
+  /** Metrics refresh for a pipeline that just finished. The timer stop is the only locked part. */
+  private void runPipelineMetricsFinished(IPipelineEngine<PipelineMeta> finished) {
+    if (!executionGuiSession.isCurrentEngine(finished)) {
+      return;
+    }
+    checkPipelineEnded();
+    checkErrorVisuals();
+    executionGuiSession.stopIfCurrent(finished, this::stopRedrawTimer);
+  }
+
+  private void stopPipelineTimersIfCurrent(IPipelineEngine<PipelineMeta> engine) {
+    if (!executionGuiSession.isCurrentEngine(engine)) {
+      return;
+    }
+    checkErrorVisuals();
+    executionGuiSession.stopIfCurrent(engine, this::stopRedrawTimer);
   }
 
   protected void stopRedrawTimer() {
@@ -6678,14 +6928,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void checkErrorVisuals() {
-    if (pipeline.getErrors() > 0) {
+    if (pipeline != null) {
       // Get the logging text and filter it out. Store it in the transformLogMap...
       // Use non-empty placeholder when log is null/empty so the transform is still marked red
       // (e.g. invalid copies transform never ran init so has no log output).
       //
       transformLogMap = new HashMap<>();
       for (IEngineComponent component : pipeline.getComponents()) {
-        if (component.getErrors() > 0) {
+        if (component != null && component.getErrors() > 0) {
           String logText = component.getLogText();
           transformLogMap.put(
               component.getName(),
@@ -6695,13 +6945,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   : logText);
         }
       }
-
+      if (transformLogMap.isEmpty()) {
+        transformLogMap = null;
+      }
     } else {
       transformLogMap = null;
     }
     // Redraw the canvas to show the error icons etc.
     //
-    hopDisplay().asyncExec(this::redraw);
+    hopDisplay()
+        .asyncExec(
+            () -> {
+              if (canvas != null && !canvas.isDisposed()) {
+                canvas.redraw();
+              }
+            });
   }
 
   public synchronized void showLastPreviewResults() {
@@ -6988,6 +7246,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     messageBox.setMessage(message);
     messageBox.setText(title);
     messageBox.open();
+  }
+
+  public void showMultipleCopiesNotAllowedDialog() {
+    modalMessageDialog(
+        BaseMessages.getString(PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Title"),
+        BaseMessages.getString(PKG, "PipelineGraph.Dialog.MultipleCopiesAreNotAllowedHere.Message"),
+        SWT.YES | SWT.ICON_WARNING);
   }
 
   /**
@@ -7339,6 +7604,32 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
     }
+  }
+
+  /**
+   * Hover the icon and press {@code x}: open the running child execution. Same action as the "Open
+   * execution" context menu and as Alt-click while a run is active.
+   */
+  @GuiKeyboardShortcut(key = 'x')
+  @GuiOsxKeyboardShortcut(key = 'x')
+  public void openExecution() {
+    if (lastMove == null) {
+      return;
+    }
+    hideToolTips();
+    openExecution(pipelineMeta.getTransform(lastMove.x, lastMove.y, iconSize));
+  }
+
+  private void openExecution(TransformMeta transformMeta) {
+    if (transformMeta == null
+        || transformMeta.getTransform() == null
+        || !transformMeta.getTransform().supportsDrillDown()) {
+      return;
+    }
+    Point click = lastMove != null ? lastMove : new Point(0, 0);
+    new DrillDownGuiPlugin()
+        .openTransformExecution(
+            new HopGuiPipelineTransformContext(pipelineMeta, transformMeta, this, click));
   }
 
   @Override

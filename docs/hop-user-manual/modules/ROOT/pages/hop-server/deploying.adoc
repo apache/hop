@@ -16,7 +16,7 @@ under the License.
 ////
 [[DeployingHopServer]]
 :imagesdir: ../../assets/images
-:description: How to get a Hop project onto a Hop Server: bake it into a Docker image, send it from a client with export resources, or check it out with git on the host.
+:description: How to get a Hop project onto a Hop Server: bake it into a Docker image, send it from a client with export resources, check it out with git on the host, or run the stock apache/hop image and read the project through a Git VFS connection.
 
 = Deploying Hop Server
 
@@ -26,15 +26,17 @@ See xref:how-to-guides/scheduling-workflows-and-pipelines.adoc[Scheduling workfl
 
 This page is the deployment story: after you develop a project, how does a running Hop Server get the files and the configuration it needs?
 
-The same three patterns are how a project reaches any runtime, not only a server.
+The same four patterns are how a project reaches any runtime, not only a server.
 For the wider picture -- containers, schedulers, secrets, object storage and run history on a cloud platform -- see xref:cloud.adoc[Running Apache Hop in the cloud].
 
-There are three patterns that cover almost every production setup:
+There are four patterns that cover almost every production setup:
 
 * xref:hop-server/deploy-project-image.adoc[Project in a Docker image] -- CI builds an image that contains the project.
 You can roll that image as a long-lived Hop Server, but you often do not need to: a scheduler can start a *short-lived* copy, run one pipeline or workflow, and exit.
 * xref:hop-server/deploy-export-resources.adoc[Remote run with export resources] -- the client owns the project and sends a ZIP to a "dumb" server.
 * xref:hop-server/deploy-git-checkout.adoc[Git checkout on the server] -- the host has a clone; updating is `git pull`.
+* <<StandardApacheHopContainer,Standard apache/hop container>> -- the published image, unchanged.
+JDBC drivers and marketplace plugins are installed when the container starts, and the pipelines and workflows are read from git through a named VFS connection.
 
 == What you deploy
 
@@ -53,6 +55,7 @@ The official Docker image does this from `HOP_PROJECT_*` / `HOP_ENVIRONMENT_*` v
 On a host you register the project and environment once with xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], then start the server with `-e`.
 The environment already references its project, so you do not pass `-j` as well.
 This is how xref:hop-server/deploy-project-image.adoc[the image] and xref:hop-server/deploy-git-checkout.adoc[the git checkout] work.
+The <<StandardApacheHopContainer,standard container>> is the same shape with a smaller folder: the enabled project holds the Git connection and the metadata the run needs, and `HOP_FILE_PATH` points at a file inside the repository.
 Environment configuration files must be present *on the server*.
 
 * *As a payload from the client*.
@@ -66,45 +69,183 @@ When both a project and `<metadata_folder>` are set, both providers sit on the m
 
 == Choose a pattern
 
-[cols="1,2,2,2",options="header"]
+[cols="1,2,2,2,2",options="header"]
 |===
-| |Project in a Docker image |Export resources from a client |Git checkout on the server
+| |Project in a Docker image |Export resources from a client |Git checkout on the server |Standard `apache/hop` container
 
 |Who owns the project files
 |The image (immutable per build)
 |The client (Airflow, hop-run, Hop Gui)
 |The server host (working tree)
+|The git remote.
+The container holds a small project (the connection and the metadata) and checks the repository out when a file is opened
 
 |How you update
 |Rebuild and roll the container
 |Change the client project; the next run sends a new ZIP
 |`git pull` (restart only for environment or server config)
+|Change the revision on the connection.
+A moving branch is fetched again when the connection says so
 
 |Environment configuration
 |Mounted or injected on the *server*
 |Applied on the *client*
 |Files on the *server*, usually outside the clone
+|Mounted or injected on the *server*
 
 |Extra files (JDBC, plugins, `.properties`, JSON schemas)
 |`COPY` into the image or a volume
 |*Not sent.* Must already exist on the server, or be rewritten with the named-resource folder mapping
 |Present in the clone or installed on the host
+|Downloaded at start, or mounted.
+See <<StandardApacheHopContainer>>
 
 |File paths
 |`+${PROJECT_HOME}+` is real on the server
 |Paths are rewritten; see the xref:hop-server/deploy-export-resources.adoc[export resources caveats]
 |`+${PROJECT_HOME}+` is the clone directory
+|The file you run is a Git VFS URL such as `ops:///workflows/daily.hwf`.
+`+${PROJECT_HOME}+` is the small local project, not the repository
 
 |Best for
 |Enterprise CI/CD, Kubernetes, OpenShift; the same image as a short-lived job *or* a long-lived server
 |Orchestrators that already have the project; a server that should not own files
 |Smaller or ops-friendly hosts with git access
+|A platform where building and rolling a custom image is the expensive step
 
 |Poor fit
-|You cannot rebuild images
+|You cannot rebuild images.
+Use <<StandardApacheHopContainer>> instead
 |Heavy file I/O, extra config files, large data files
 |You cannot (or must not) run `git pull` on production hosts
+|Projects that open their files through `+${PROJECT_HOME}+`, or metadata that has to be read from inside the repository
 |===
+
+[[StandardApacheHopContainer]]
+== Standard apache/hop container
+
+The published `apache/hop` image can take the place of a derived image.
+A Jenkins, GitHub Actions or GitLab CI job usually builds that derived image to add JDBC drivers, install a few marketplace plugins, and clone the project.
+Here the entrypoint installs the drivers and the plugins before Hop starts, and a xref:metadata-types/git-vfs-connection.adoc[Git repository] connection checks the project out when Hop opens a file.
+
+The checkout is read-only by default.
+A write changes the working copy on disk, and nothing is committed or pushed.
+
+This needs Hop 2.20, which is where `HOP_PLUGINS_DOWNLOAD` and the Git VFS plugin arrive together.
+`HOP_DRIVERS_DOWNLOAD` is already in 2.19.
+
+=== Drivers and plugins
+
+Set `HOP_DRIVERS_DOWNLOAD` to a comma-separated list of driver ids, and `HOP_DRIVERS_ACCEPT_LICENSE=true` when one of them is a restricted driver (Oracle, MySQL, MariaDB, DB2, ...).
+`HOP_DRIVERS_MAVEN_REPO` points the download at an internal Nexus or Artifactory.
+See xref:docker-container.adoc#DownloadingJDBCDrivers[Downloading JDBC drivers].
+A jar that `hop driver list` does not know is still a file you mount.
+
+Set `HOP_PLUGINS_DOWNLOAD` to the marketplace plugins the run needs.
+The Git driver is one of them: `hop-tech-git-vfs`.
+The stock image does not contain it.
+A private plugin and that Apache plugin can be listed together; `HOP_PLUGINS_MAVEN_REPO` is tried first and the other configured repositories are still used.
+See xref:docker-container.adoc#DownloadingMarketplacePlugins[Downloading Marketplace plugins].
+
+A later start skips a plugin whose receipt version is already on disk.
+Drivers are downloaded on every start.
+`lib/jdbc` and the plugins directory have to be writable.
+On a read-only root filesystem, point `HOP_SHARED_JDBC_FOLDERS` and `HOP_PLUGIN_BASE_FOLDERS` at a volume.
+
+=== The project you mount
+
+Set `HOP_PROJECT_FOLDER` to a real directory.
+Hop resolves that home before it loads named VFS connections, and the Git scheme exists only after the connection has been read from a folder Hop can already open.
+
+Mount a small project that holds the connection and the metadata the run needs.
+The pipelines and workflows stay in the remote repository.
+The mount in the example is read-only, so `project-config.json` has to be in it already.
+The entrypoint keeps that file (`--project-keep-config-file`).
+A missing file would be created with *Enforce executions in project home* turned on, and hop-run would then refuse `ops:///workflows/daily.hwf` because that path is outside `/bootstrap`.
+
+[source,json]
+----
+{
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "parentProjectName" : "default",
+  "enforcingExecutionInHome" : false
+}
+----
+
+`parentProjectName` set to `default` picks up the `local` run configuration shipped in the image.
+The `metadata/` directory inside the git repository is a different folder.
+Hop reads metadata from the bootstrap project (and from that `default` parent), which is where database connections the pipeline uses belong.
+
+[source,bash]
+----
+docker run --rm \
+  -e HOP_DRIVERS_DOWNLOAD="oracle,mariadb:3.4.1" \
+  -e HOP_DRIVERS_ACCEPT_LICENSE=true \
+  -e HOP_PLUGINS_DOWNLOAD="hop-tech-git-vfs" \
+  -e HOP_PROJECT_FOLDER=/bootstrap \
+  -e HOP_PROJECT_NAME=bootstrap \
+  -e HOP_ENVIRONMENT_NAME=prod \
+  -e HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/prod.json \
+  -e HOP_FILE_PATH='ops:///workflows/daily.hwf' \
+  -e HOP_RUN_CONFIG=local \
+  -v /etc/hop/bootstrap:/bootstrap:ro \
+  -v /etc/hop/environments/prod.json:/config/prod.json:ro \
+  -v /etc/hop/secrets/deploy-key:/run/secrets/deploy-key:ro \
+  -v /etc/hop/secrets/known_hosts:/run/secrets/known_hosts:ro \
+  apache/hop:<version>
+----
+
+`/bootstrap` also needs `metadata/git-vfs-connection/ops.json`.
+`HOP_RUN_CONFIG=local` resolves through the `default` parent, so you only add a run configuration file when the run should use a different one.
+
+Omit `HOP_FILE_PATH` and `HOP_RUN_CONFIG` and the same container starts Hop Server instead of hop-run.
+The server still needs the bootstrap project, the connection and the key.
+
+The connection for an SSH deploy key, GitHub or GitLab, looks like this.
+`authType` is the name of the enum value.
+`name` is the VFS scheme.
+
+[source,json]
+----
+{
+  "name" : "ops",
+  "repositoryUrl" : "git@git.example.com:data/your-project.git",
+  "revision" : "a1b2c3d4e5f6789012345678901234567890abcd",
+  "authType" : "DEPLOY_KEY",
+  "privateKeyFile" : "/run/secrets/deploy-key",
+  "sshUser" : "git",
+  "knownHostsFile" : "/run/secrets/known_hosts",
+  "readOnly" : true
+}
+----
+
+A GitLab deploy token is the same file with `authType` set to `USERNAME_PASSWORD`, an `https://` repository URL, the token's user name, and the token as the password.
+The token needs the `read_repository` scope.
+Leave the token out of the URL.
+
+Pin `revision` to a commit id.
+Leave the checkout folder empty on a short-lived container: the working copy goes under the temporary directory and disappears with the container.
+A long-lived server should set a checkout folder and a maximum checkout age, so a later commit on a branch is picked up without a restart.
+See xref:metadata-types/git-vfs-connection.adoc[Git repository].
+
+Mount a `known_hosts` file, as in the example.
+`acceptUnknownHosts` set to `true` is the alternative when the host key cannot be supplied.
+A fresh container has no `~/.ssh/known_hosts`, and the connection refuses the server until one of those two is set.
+
+=== What the paths mean
+
+`ops:///workflows/daily.hwf` is that file in the repository the connection named `ops` checked out.
+
+`+${PROJECT_HOME}+` is `/bootstrap`, the folder you mounted.
+A pipeline stored as `+${PROJECT_HOME}+/pipelines/load.hpl` resolves against that folder.
+
+A path relative to the file that is running stays on the git scheme.
+For a workflow opened as `ops:///workflows/daily.hwf`, `+${Internal.Entry.Current.Folder}+` is the `workflows` directory inside the checkout, so a workflow that refers to its neighbours that way keeps reading the repository.
+
+A project that reaches its files through `+${PROJECT_HOME}+` still wants xref:hop-server/deploy-project-image.adoc[an image] or xref:hop-server/deploy-git-checkout.adoc[a checkout].
+
+The container needs the git host on every start.
+The connection names the revision, and the image tag names the Hop version.
 
 == You often do not need a Hop Server
 
@@ -114,6 +255,7 @@ There is no long-lived Hop Server to keep alive, upgrade or authenticate.
 The official `apache/hop` image does both jobs.
 Set `HOP_FILE_PATH` and `HOP_RUN_CONFIG` and the entrypoint runs xref:hop-run/index.adoc[hop-run] and exits.
 Omit them and it starts Hop Server.
+On the <<StandardApacheHopContainer,stock image>>, `HOP_FILE_PATH` can be a Git VFS URL.
 
 Because the container disappears when the run finishes, send xref:metadata-types/execution-information-location.adoc[execution information] somewhere that outlives it: a mounted volume (file or caching-file location), a relational database, OpenSearch, Neo4j or Elastic.
 You can inspect those runs later from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective] in Hop Gui.

@@ -67,6 +67,8 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
 
   private Button wDelimiterIsRegex;
 
+  private Button wExcludeSplitField;
+
   public SplitFieldToRowsDialog(
       Shell parent,
       IVariables variables,
@@ -123,6 +125,26 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
           }
         });
 
+    Label wlExcludeSplitField = new Label(shell, SWT.RIGHT);
+    wlExcludeSplitField.setText(
+        BaseMessages.getString(PKG, "SplitFieldToRowsDialog.ExcludeSplitField.Label"));
+    PropsUi.setLook(wlExcludeSplitField);
+    FormData fdlExcludeSplitField = new FormData();
+    fdlExcludeSplitField.left = new FormAttachment(0, 0);
+    fdlExcludeSplitField.top = new FormAttachment(wSplitField, margin);
+    fdlExcludeSplitField.right = new FormAttachment(middle, -margin);
+    wlExcludeSplitField.setLayoutData(fdlExcludeSplitField);
+    wExcludeSplitField = new Button(shell, SWT.CHECK);
+    wExcludeSplitField.setToolTipText(
+        BaseMessages.getString(PKG, "SplitFieldToRowsDialog.ExcludeSplitField.Tooltip"));
+    PropsUi.setLook(wExcludeSplitField);
+    FormData fdExcludeSplitField = new FormData();
+    fdExcludeSplitField.left = new FormAttachment(middle, 0);
+    fdExcludeSplitField.top = new FormAttachment(wlExcludeSplitField, 0, SWT.CENTER);
+    fdExcludeSplitField.right = new FormAttachment(100, 0);
+    wExcludeSplitField.setLayoutData(fdExcludeSplitField);
+    wExcludeSplitField.addSelectionListener(new ComponentSelectionListener(input));
+
     // Delimiter line
     Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText(BaseMessages.getString(PKG, "SplitFieldToRowsDialog.Delimiter.Label"));
@@ -130,7 +152,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     FormData fdlDelimiter = new FormData();
     fdlDelimiter.left = new FormAttachment(0, 0);
     fdlDelimiter.right = new FormAttachment(middle, -margin);
-    fdlDelimiter.top = new FormAttachment(wSplitField, margin);
+    fdlDelimiter.top = new FormAttachment(wExcludeSplitField, margin);
     wlDelimiter.setLayoutData(fdlDelimiter);
     wDelimiter = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDelimiter.setText("");
@@ -138,7 +160,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     wDelimiter.addModifyListener(lsMod);
     FormData fdDelimiter = new FormData();
     fdDelimiter.left = new FormAttachment(middle, 0);
-    fdDelimiter.top = new FormAttachment(wSplitField, margin);
+    fdDelimiter.top = new FormAttachment(wExcludeSplitField, margin);
     fdDelimiter.right = new FormAttachment(100, 0);
     wDelimiter.setLayoutData(fdDelimiter);
 
@@ -320,6 +342,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     wValName.setText(Const.NVL(input.getNewFieldname(), ""));
     wInclRownum.setSelection(input.isIncludeRowNumber());
     wDelimiterIsRegex.setSelection(input.isIsDelimiterRegex());
+    wExcludeSplitField.setSelection(input.isExcludeSplitField());
     if (input.getRowNumberField() != null) {
       wInclRownumField.setText(input.getRowNumberField());
     }
@@ -346,6 +369,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     input.setRowNumberField(wInclRownumField.getText());
     input.setResetRowNumber(wResetRownum.getSelection());
     input.setIsDelimiterRegex(wDelimiterIsRegex.getSelection());
+    input.setExcludeSplitField(wExcludeSplitField.getSelection());
     dispose();
   }
 }

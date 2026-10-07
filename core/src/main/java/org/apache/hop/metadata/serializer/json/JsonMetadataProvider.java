@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.serializer.json;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
@@ -32,6 +34,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.BaseMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 
 @Getter
 @Setter
@@ -83,16 +86,25 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
               + " it needs to have annotation "
               + HopMetadata.class.getName());
     }
-    String classFolder = Const.NVL(hopMetadata.key(), hopMetadata.name());
-    String serializerBaseFolderName =
-        baseFolder
-            + (baseFolder.endsWith(Const.FILE_SEPARATOR) ? "" : Const.FILE_SEPARATOR)
-            + classFolder;
+    // The current key names the folder to save in, legacy keys name folders we still read from.
+    //
+    List<String> keys = HopMetadataUtil.getAllKeys(hopMetadata);
+    String serializerBaseFolderName = calculateTypeFolder(keys.get(0));
+    List<String> legacyFolders = new ArrayList<>();
+    for (String legacyKey : keys.subList(1, keys.size())) {
+      legacyFolders.add(calculateTypeFolder(legacyKey));
+    }
 
     String description = TranslateUtil.translate(hopMetadata.name(), managedClass);
 
     return new JsonMetadataSerializer<>(
-        this, serializerBaseFolderName, managedClass, variables, description);
+        this, serializerBaseFolderName, legacyFolders, managedClass, variables, description);
+  }
+
+  private String calculateTypeFolder(String key) {
+    return baseFolder
+        + (baseFolder.endsWith(Const.FILE_SEPARATOR) ? "" : Const.FILE_SEPARATOR)
+        + key;
   }
 
   /**

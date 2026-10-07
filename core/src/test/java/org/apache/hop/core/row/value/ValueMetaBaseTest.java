@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -301,6 +302,154 @@ class ValueMetaBaseTest {
     assertFalse(ValueMetaBase.convertStringToBoolean("Yeah"));
     assertFalse(ValueMetaBase.convertStringToBoolean("False"));
     assertFalse(ValueMetaBase.convertStringToBoolean("NOT false"));
+  }
+
+  @Test
+  void testBooleanToStringWithoutMaskFollowsLength() throws HopValueException {
+    // Without a mask, the length decides (#5958): 3 or more prints true/false, anything else Y/N
+    assertEquals("Y", new ValueMetaBoolean("b").getString(true));
+    assertEquals("N", new ValueMetaBoolean("b", 1, -1).getString(false));
+    assertEquals("true", new ValueMetaBoolean("b", 4, -1).getString(true));
+    assertEquals("false", new ValueMetaBoolean("b", 4, -1).getString(false));
+  }
+
+  @Test
+  void testBooleanToStringWithMask() throws HopValueException {
+    ValueMetaBoolean shortField = new ValueMetaBoolean("b");
+    ValueMetaBoolean longField = new ValueMetaBoolean("b", 4, -1);
+    for (String mask : Const.getBooleanFormats()) {
+      String[] texts = mask.split("/");
+      shortField.setConversionMask(mask);
+      longField.setConversionMask(mask);
+      // The mask wins over the length, so both fields print the same
+      assertEquals(texts[0], shortField.getString(true), mask);
+      assertEquals(texts[1], shortField.getString(false), mask);
+      assertEquals(texts[0], longField.getString(true), mask);
+      assertEquals(texts[1], longField.getString(false), mask);
+    }
+
+    ValueMetaBoolean custom = new ValueMetaBoolean("b");
+    custom.setConversionMask("Ja/Nee");
+    assertEquals("Ja", custom.getString(true));
+    assertEquals("Nee", custom.getString(false));
+    assertNull(custom.getString(null));
+  }
+
+  @Test
+  void testBooleanToBinaryStringWithMask() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("yes/no");
+    assertArrayEquals("yes".getBytes(), field.getBinaryString(true));
+    assertArrayEquals("no".getBytes(), field.getBinaryString(false));
+  }
+
+  @Test
+  void testNonBooleanMaskIsIgnored() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    // Yes/yes: the same word twice ignoring case, which reading could not tell apart
+    for (String mask : new String[] {"yyyy/MM/dd", "#.##", "/N", "Y/", "/", " / ", "Yes/yes"}) {
+      field.setConversionMask(mask);
+      assertEquals("Y", field.getString(true), mask);
+      assertEquals("N", field.getString(false), mask);
+    }
+  }
+
+  @Test
+  void testStringToBooleanWithMask() throws HopValueException {
+    ValueMetaString string = new ValueMetaString("s");
+    string.setConversionMask("Ja/Nee");
+    assertTrue(string.getBoolean("Ja"));
+    assertTrue(string.getBoolean("ja"));
+    assertFalse(string.getBoolean("NEE"));
+    // Text outside the mask falls back to the standard rules
+    assertTrue(string.getBoolean("Y"));
+    assertTrue(string.getBoolean("true"));
+    assertFalse(string.getBoolean("maybe"));
+    assertNull(string.getBoolean(""));
+
+    // A mask whose true text is not in the standard rules, e.g. T/F
+    string.setConversionMask("T/F");
+    assertTrue(string.getBoolean("t"));
+    assertFalse(string.getBoolean("F"));
+  }
+
+  @Test
+  void testBooleanMaskTextsAreTrimmed() throws HopValueException {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("Ja / Nein");
+    assertEquals("Ja", field.getString(true));
+    assertEquals("Nein", field.getString(false));
+
+    // What was written reads back, also once a reader trimmed it
+    ValueMetaString string = new ValueMetaString("s");
+    string.setConversionMask("Ja / Nein");
+    assertTrue(string.getBoolean("Ja"));
+    assertFalse(string.getBoolean("Nein"));
+    assertFalse(string.getBoolean(" nein "));
+  }
+
+  /**
+   * Typed text becomes a Boolean through a String value whose conversion metadata is the Boolean:
+   * the Enter Value dialog, a condition's value, a sorted table cell. The mask is on the Boolean.
+   */
+  @Test
+  void testStringToBooleanUsesTheMaskOfTheConversionMetadata() throws HopValueException {
+    for (String[] mask :
+        new String[][] {{"Ja/Nee", "Ja", "Nee"}, {"T/F", "T", "F"}, {"on/off", "on", "off"}}) {
+      ValueMetaBoolean booleanMeta = new ValueMetaBoolean("b");
+      booleanMeta.setConversionMask(mask[0]);
+      ValueMetaString stringMeta = new ValueMetaString("s");
+      stringMeta.setConversionMetadata(booleanMeta);
+
+      assertEquals(Boolean.TRUE, stringMeta.convertDataUsingConversionMetaData(mask[1]), mask[0]);
+      assertEquals(Boolean.FALSE, stringMeta.convertDataUsingConversionMetaData(mask[2]), mask[0]);
+    }
+  }
+
+  /**
+   * A Boolean read lazily keeps the bytes of the file. They are only written as they are while the
+   * format still matches: another mask, or another length without one, converts them.
+   */
+  @Test
+  void testBinaryStringBooleanFollowsAChangedMask() throws Exception {
+    ValueMetaBoolean field = new ValueMetaBoolean("b");
+    field.setConversionMask("Y/N");
+    IValueMeta storage = ValueMetaFactory.cloneValueMeta(field, IValueMeta.TYPE_STRING);
+    field.setStorageMetadata(storage);
+    field.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+
+    // Same mask as when it was read: the bytes go out unchanged
+    byte[] yes = "Y".getBytes();
+    assertSame(yes, field.getBinaryString(yes));
+
+    field.setConversionMask("Ja/Nee");
+    assertArrayEquals("Ja".getBytes(), field.getBinaryString("Y".getBytes()));
+    assertArrayEquals("Nee".getBytes(), field.getBinaryString("N".getBytes()));
+
+    // No mask on either side: the length decides the text, so a new length converts too
+    ValueMetaBoolean read = new ValueMetaBoolean("b", 1, -1);
+    IValueMeta readStorage = ValueMetaFactory.cloneValueMeta(read, IValueMeta.TYPE_STRING);
+    read.setStorageMetadata(readStorage);
+    read.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    assertSame(yes, read.getBinaryString(yes));
+
+    ValueMetaBoolean longer = new ValueMetaBoolean("b", 5, -1);
+    longer.setStorageMetadata(readStorage);
+    longer.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    assertArrayEquals("true".getBytes(), longer.getBinaryString("Y".getBytes()));
+  }
+
+  @Test
+  void testConvertDataFromStringToBooleanWithMask() throws Exception {
+    ValueMetaBoolean target = new ValueMetaBoolean("b");
+    target.setConversionMask("on/off");
+    IValueMeta convertMeta = ValueMetaFactory.cloneValueMeta(target, IValueMeta.TYPE_STRING);
+    assertEquals(
+        Boolean.TRUE,
+        target.convertDataFromString("on", convertMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+    assertEquals(
+        Boolean.FALSE,
+        target.convertDataFromString(" OFF ", convertMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
   }
 
   @Test

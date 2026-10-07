@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0002-lint-rule-granularity</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Issue #8536: a project can raise, lower or silence one of Hop's own verify checks instead of all of them.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/09/09 08:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/09/09 08:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Lint with rule granularity configurations</name>
+      <description>Runs hop lint over one subject with several configurations and checks the rule ids and severities reported.</description>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+# Issue #8536: a project can address one of Hop's own verify checks.
+#
+# Every remark from Hop's check() methods used to be reported under one rule id, HOP-CHECK, so a
+# project could raise, lower or silence all of them or none of them. A check that reports an error
+# code is now reported under that code, and still answers to the rule that classified it, so a
+# configuration written before this keeps working.
+#
+# Note on ${} below: Hop resolves its own variables in this script before running it, so only Hop
+# variables are written with braces. Shell variables are written without them.
+
+set -u
+
+PROJECT_DIR="${PROJECT_HOME}"
+
+# Finding the hop CLI: hop-run.sh and hop-gui.sh both start the JVM from the Hop installation, so
+# ${user.dir} is the install folder - /opt/hop in the test image, the client folder when this
+# workflow is run from Hop GUI.
+HOP_CLI="${user.dir}/hop"
+if [ ! -x "$HOP_CLI" ]; then
+  echo "FAIL: no hop CLI at $HOP_CLI. The linter cannot be tested without it."
+  exit 1
+fi
+echo "Using hop CLI: $HOP_CLI"
+
+export HOP_CONFIG_FOLDER="$PROJECT_DIR"
+
+REPORT_DIR="$PROJECT_DIR/output"
+mkdir -p "$REPORT_DIR"
+
+failures=0
+
+# Run hop lint over $1 into report $2, optionally with the configuration $3. hop lint exits 1 when
+# a finding reaches --fail-on, so only an exit code above 1 means the linter failed to run.
+run_lint() {
+  subject="$1"
+  report="$2"
+  config="${3:-}"
+  rm -f "$report"
+  if [ -n "$config" ]; then
+    "$HOP_CLI" lint "$subject" -c "$PROJECT_DIR/files/$config" --format json --output "$report"
+  else
+    "$HOP_CLI" lint "$subject" --format json --output "$report"
+  fi
+  rc=$?
+  if [ $rc -gt 1 ]; then
+    echo "FAIL: hop lint could not lint $subject (exit code $rc)"
+    return 1
+  fi
+  if [ ! -s "$report" ]; then
+    echo "FAIL: hop lint wrote no report for $subject"
+    return 1
+  fi
+  return 0
+}
+
+# The rule ids a report holds, sorted, on one line.
+rule_ids() {
+  grep '"ruleId"' "$1" | sed -e 's/.*"ruleId" : "//' -e 's/".*//' | sort | tr '\n' ' '
+}
+
+# $1 label, $2 report, $3 the rule ids expected, sorted and space separated with a trailing space.
+expect_ids() {
+  actual=$(rule_ids "$2")
+  if [ "$actual" != "$3" ]; then
+    echo "FAIL: $1"
+    echo "      expected rule ids : $3"
+    echo "      actual rule ids   : $actual"
+    echo "----- report -----"
+    cat "$2"
+    echo "------------------"
+    failures=$((failures + 1))
+    return 1
+  fi
+  echo "OK: $1"
+  return 0
+}
+
+# The subject holds one coded check (the connection does not exist), one coded comment (the
+# transform can start without input), and two findings from the linter's own rules.
+MIXED="$PROJECT_DIR/subject/mixed-remarks.hpl"
+
+echo "=== A check that has an error code is reported under it ==="
+REPORT="$REPORT_DIR/lint-8536-default.json"
+if run_lint "$MIXED" "$REPORT"; then
+  expect_ids "coded checks report under their own code" "$REPORT" \
+    "CAN_START_WITHOUT_INPUT CONNECTION_DOES_NOT_EXIST TRANS-002 TRANS-002 "
+  # The blanket native rule caps a remark, it does not set it: a comment stays a comment. Reported
+  # at the rule's own severity this would be a warning, and the summary would say info 0.
+  if grep -q '"info" : 1' "$REPORT"; then
+    echo "OK: the blanket rule caps severity rather than setting it."
+  else
+    echo "FAIL: the comment-level check was not reported at info."
+    echo "----- report -----"
+    cat "$REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== One check is addressed by its code, and the others are left alone ==="
+REPORT="$REPORT_DIR/lint-8536-by-code.json"
+if run_lint "$MIXED" "$REPORT" "lint-suppress-by-code.yml"; then
+  expect_ids "suppressing one code silences that check only" "$REPORT" \
+    "CAN_START_WITHOUT_INPUT TRANS-002 TRANS-002 "
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== A configuration naming the classifying rule still covers the check ==="
+REPORT="$REPORT_DIR/lint-8536-by-alias.json"
+if run_lint "$MIXED" "$REPORT" "lint-suppress-by-alias.yml"; then
+  # HOP-CHECK still means every remark from Hop's own checks, which is what it meant before.
+  expect_ids "suppressing HOP-CHECK silences Hop's checks, not the linter's rules" "$REPORT" \
+    "TRANS-002 TRANS-002 "
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== A rule narrowed by messageKey names a check whose message takes values ==="
+REPORT="$REPORT_DIR/lint-8536-by-message-key.json"
+if run_lint "$PROJECT_DIR/subject/missing-connection.hwf" "$REPORT" "lint-raise-by-message-key.yml"; then
+  if expect_ids "the narrowed rule reports the check" "$REPORT" "MISSING-CONNECTION-IS-FATAL "; then
+    # A narrowed rule is a decision about that check, so its severity is reported as it stands
+    # rather than capped.
+    if grep -q '"errors" : 1' "$REPORT"; then
+      echo "OK: a narrowed rule sets the severity."
+    else
+      echo "FAIL: the narrowed rule did not raise the check to error."
+      echo "----- report -----"
+      cat "$REPORT"
+      echo "------------------"
+      failures=$((failures + 1))
+    fi
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== A connection the transform cannot resolve is still reported ==="
+# The pipeline check leaves a name that still holds a variable alone: at design time it cannot be
+# decided. The transform tried to load it and got nothing, so it is the only thing that can say so.
+UNRESOLVED="$PROJECT_DIR/subject/unresolved-connection.hpl"
+REPORT="$REPORT_DIR/lint-8536-unresolved.json"
+if run_lint "$UNRESOLVED" "$REPORT"; then
+  if grep -q '"ruleId" : "CONNECTION_NOT_RESOLVED"' "$REPORT"; then
+    echo "OK: the unresolved connection is reported under its own code."
+  else
+    echo "FAIL: nothing reported the connection this transform could not resolve."
+    echo "----- report -----"
+    cat "$REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== That check can be made to fail a build ==="
+# The blanket rule caps Hop's own remarks at warning, so a project that wants this one to stop a
+# build names the check and sets its severity. Naming one check is what this issue is about.
+REPORT="$REPORT_DIR/lint-8536-unresolved-fatal.json"
+if run_lint "$UNRESOLVED" "$REPORT" "lint-unresolved-is-fatal.yml"; then
+  if grep -q '"ruleId" : "UNRESOLVED-CONNECTION-IS-FATAL"' "$REPORT" \
+    &amp;&amp; grep -q '"errors" : 1' "$REPORT"; then
+    echo "OK: a named check reports at the severity the project gave it."
+  else
+    echo "FAIL: the project could not raise that one check to error."
+    echo "----- report -----"
+    cat "$REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+echo "=== Naming a check does not undo a suppression already in force ==="
+# The narrowed rule takes the rule id, so without the blanket rule kept as another name a
+# suppression written before the project named that check would quietly stop applying.
+REPORT="$REPORT_DIR/lint-8536-alias-with-narrowed-rule.json"
+if run_lint "$UNRESOLVED" "$REPORT" "lint-alias-with-narrowed-rule.yml"; then
+  if grep -q "CONNECTION" "$REPORT" || grep -q "UNRESOLVED-CONNECTION-IS-FATAL" "$REPORT"; then
+    echo "FAIL: naming the check brought back a finding the project had accepted."
+    echo "----- report -----"
+    cat "$REPORT"
+    echo "------------------"
+    failures=$((failures + 1))
+  else
+    echo "OK: the suppression still holds after the project named the check."
+  fi
+else
+  failures=$((failures + 1))
+fi
+
+if [ $failures -ne 0 ]; then
+  echo "$failures lint assertion(s) failed."
+  exit 1
+fi
+
+echo "All lint assertions passed."
+exit 0
+</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>320</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>The Hop linter cannot address Hop's own verify checks individually. See issue #8536.</message>
+      <parallel>N</parallel>
+      <xloc>560</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Lint with rule granularity configurations</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Lint with rule granularity configurations</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

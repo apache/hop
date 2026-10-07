@@ -38,6 +38,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -45,6 +46,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -313,19 +315,24 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
 
     DatabaseMeta databaseMeta = null;
 
-    try {
-      databaseMeta =
-          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-    } catch (HopException e) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(
-                  PKG,
-                  "TableInputMeta.CheckResult.DatabaseMetaError",
-                  variables.resolve(connection)),
-              transformMeta);
-      remarks.add(cr);
+    String resolvedConnection = variables.resolve(connection);
+    // An unset connection is null, the field default on a new transform. Loading it would only
+    // raise "you need to specify the name...", and the remark that came out of that said the same
+    // thing as the pipeline check (ReferencedDatabaseConnectionChecker, CONNECTION_NOT_ASSIGNED)
+    // without carrying its code, so it could not be suppressed or baselined. Leave the unset
+    // connection to that check.
+    if (!Utils.isEmpty(resolvedConnection)) {
+      try {
+        databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(resolvedConnection);
+      } catch (HopException e) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "TableInputMeta.CheckResult.DatabaseMetaError", resolvedConnection),
+                transformMeta);
+        remarks.add(cr);
+      }
     }
 
     if (databaseMeta != null) {
@@ -383,11 +390,20 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       } finally {
         db.close();
       }
-    } else {
+    } else if (!Utils.isEmpty(resolvedConnection)
+        && StringUtil.containsVariableToken(resolvedConnection)) {
+      // A connection that is not set, or not in the project, is reported by the pipeline check
+      // (ReferencedDatabaseConnectionChecker) for every transform, so reporting it here too would
+      // tell the user the same thing twice. The one case that check leaves alone is a name that
+      // still holds a variable after resolving: it cannot decide such a name at design time. This
+      // transform can, because it tried to load the connection with the variables this check ran
+      // with and got nothing back.
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              "Please select or create a connection to use",
+              ReferencedDatabaseConnectionChecker.ERROR_NOT_RESOLVED,
+              BaseMessages.getString(
+                  PKG, "TableInputMeta.CheckResult.ConnectionNotResolved", resolvedConnection),
               transformMeta);
       remarks.add(cr);
     }

@@ -38,6 +38,9 @@ public class BareBonesBrowserLaunch {
    *
    * @param url A web address (URL) of a web page (ex: "http://www.google.com/")
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client, and the
+  // browser is looked up on the PATH of the desktop user who is signing in, which is intended
+  @SuppressWarnings({"java:S4507", "java:S4036"})
   public static void openURL(String url) {
     try { // attempt to use Desktop library from JDK 1.6+
       Class<?> d = Class.forName("java.awt.Desktop");

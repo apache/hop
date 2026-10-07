@@ -48,9 +48,29 @@ Use 0 rows to scan the entire file.
 |Fallback charset|Charset to use while scanning the file
 |Delimiter candidates|List of delimiters to try while detecting the file layout.
 Tab, semicolon, comma are provided by default.
-|Enclosure candidates|List of delimiters to try while detecting the file layout.
+|Enclosure candidates|List of enclosure characters to try while detecting the file layout.
 Double and single quote are provided by default.
 |===
+
+== Detection rules
+
+=== Enclosures
+
+An enclosure opens a field when it is the first character of the field.
+It closes the field when it is followed by the delimiter or the end of the line.
+Inside an enclosed field:
+
+* delimiters are part of the value: `"Smith, Bob"` is one field.
+* a doubled enclosure is an escaped enclosure: `"BOB ""ROBERT"" SMITH"`.
+* any other enclosure is part of the value as well: `"BOB "ROBERT" SMITH"` is one field.
+
+An enclosure in the middle of a field that is not enclosed, such as `5" pipe`, does not open a field, and the line does not fit that enclosure.
+The same goes for a line that ends inside an enclosed field: fields spanning several lines are not supported.
+
+=== Numbers
+
+A number column gets the precision of the value with the most decimals, read with the detected decimal symbol.
+The suggested mask keeps all of those decimals: `123.58` and `90524.10` give the mask `#.00` and a precision of 2.
 
 == Output Fields
 
@@ -58,6 +78,7 @@ The fields returned by this transform are
 
 * charset
 * delimiter
+* enclosure
 * field_count
 * skip_header_lines
 * skip_footer_lines

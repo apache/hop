@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -44,8 +47,26 @@ public class HttpPostData extends BaseTransformData implements ITransformData {
 
   public String realProxyHost;
   public int realProxyPort;
+  public String realProxyUsername;
+  public String realProxyPassword;
+  public String realNonProxyHosts;
   public String realHttpLogin;
   public String realHttpPassword;
+
+  /** The selected REST connection, or null when the transform configures its own client. */
+  public RestConnection restConnection;
+
+  /**
+   * The client built from {@link #restConnection}, kept for the whole transform: it carries its own
+   * connection pool, so building one per row would create and discard a pool per row.
+   */
+  public CloseableHttpClient restConnectionClient;
+
+  /**
+   * Writes the connection's credentials onto requests, but only for requests to the connection's
+   * base URL host: a row or field URL naming another host gets none.
+   */
+  public RestAuthenticator restAuthenticator;
 
   public int realSocketTimeout;
   public int realConnectionTimeout;

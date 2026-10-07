@@ -350,8 +350,12 @@ public class SelectProjectsDialog extends Dialog {
     ProjectConfigDialog editDialog = new ProjectConfigDialog(shell, projectConfig, variables);
     if (editDialog.open()) {
       try {
-        config.updateProjectConfig(editDialog.getOriginalName(), projectConfig);
-        ProjectsConfigSingleton.saveConfig();
+        ProjectsUtil.saveProjectConfig(
+            editDialog.getOriginalName(),
+            projectConfig,
+            variables,
+            LogChannel.UI,
+            ProjectsConfigSingleton::saveConfig);
         refreshTable();
         selectProjectByName(projectConfig.getProjectName());
         updateButtons();

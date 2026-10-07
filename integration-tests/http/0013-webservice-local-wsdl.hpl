@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0013-webservice-local-wsdl</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Issue #4813: the WSDL is a file in the project, addressed through ${PROJECT_HOME}. It used to be read as an http URL only, so a plain path failed. The service itself is still the castlemock mock the WSDL points to.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/09/23 10:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/09/23 10:00:00.000</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Generate rows</from>
+      <to>Web services lookup</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Web services lookup</from>
+      <to>check reply</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Web services lookup</from>
+      <to>no reply</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check reply</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no reply</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Generate rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>body</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>this is a body</nullif>
+      </field>
+    </fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Web services lookup</name>
+    <type>WebServiceLookup</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <wsURL>${PROJECT_HOME}/wsdl/BookService.wsdl</wsURL>
+    <wsOperation>AddBook</wsOperation>
+    <wsOperationRequest/>
+    <wsOperationNamespace>http://www.cleverbuilder.com/BookService/</wsOperationNamespace>
+    <wsInFieldContainer/>
+    <wsInFieldArgument/>
+    <wsOutFieldContainer>Book</wsOutFieldContainer>
+    <wsOutFieldArgument>Book</wsOutFieldArgument>
+    <proxyHost/>
+    <proxyPort/>
+    <httpLogin>admin</httpLogin>
+    <httpPassword>admin</httpPassword>
+    <callTransform>1</callTransform>
+    <passingInputData>Y</passingInputData>
+    <compatible>N</compatible>
+    <repeating_element/>
+    <reply_as_string>Y</reply_as_string>
+    <fieldsIn>
+      <field>
+        <name>body</name>
+        <wsName>Book</wsName>
+        <xsdType>Book</xsdType>
+      </field>
+    </fieldsIn>
+    <fieldsOut>
+      <field>
+        <name>reply</name>
+        <wsName>AddBookResponse</wsName>
+        <xsdType>string</xsdType>
+      </field>
+    </fieldsOut>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>check reply</name>
+    <type>FilterRows</type>
+    <description>Fails unless the reply of the mocked AddBook operation came back.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>Y</negated>
+        <leftvalue>reply</leftvalue>
+        <function>CONTAINS</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>AddBookResponse</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask></mask>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no reply</name>
+    <type>DetectEmptyStream</type>
+    <description>Fails when the web service gave no row at all.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>688</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

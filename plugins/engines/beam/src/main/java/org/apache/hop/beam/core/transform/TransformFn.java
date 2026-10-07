@@ -395,7 +395,7 @@ public class TransformFn extends TransformBaseFn {
             @Override
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
-              resultRows.add(new HopRow(row, rowMeta.size()));
+              resultRows.add(new HopRow(HopBeamUtil.toNormalStorage(rowMeta, row), rowMeta.size()));
             }
           };
       transformCombi.transform.addRowListener(rowListener);
@@ -427,7 +427,7 @@ public class TransformFn extends TransformBaseFn {
             public void rowReadEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
               // We send the target row to a specific list...
               //
-              targetResultRows.add(row);
+              targetResultRows.add(HopBeamUtil.toNormalStorage(rowMeta, row));
             }
           });
     }

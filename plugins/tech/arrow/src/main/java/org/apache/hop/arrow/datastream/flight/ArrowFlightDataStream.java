@@ -333,29 +333,36 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
 
   @Override
   public void close() {
-    if (readVectorSchemaRoot != null) {
-      readVectorSchemaRoot.close();
-    }
-    if (vectorSchemaRoot != null) {
-      vectorSchemaRoot.close();
-    }
-    if (rootAllocator != null) {
-      rootAllocator.close();
-    }
+    // The stream and the client still hold buffers. Close them before the vectors and the
+    // allocator, or BaseAllocator.close() reports the outstanding memory as a leak.
+    //
     if (readFlightStream != null) {
       try {
         readFlightStream.close();
       } catch (Exception e) {
         // Ignore
       }
+      readFlightStream = null;
     }
-
     if (flightClient != null) {
       try {
         flightClient.close();
       } catch (Exception e) {
         // Ignore
       }
+      flightClient = null;
+    }
+    if (readVectorSchemaRoot != null) {
+      readVectorSchemaRoot.close();
+      readVectorSchemaRoot = null;
+    }
+    if (vectorSchemaRoot != null) {
+      vectorSchemaRoot.close();
+      vectorSchemaRoot = null;
+    }
+    if (rootAllocator != null) {
+      rootAllocator.close();
+      rootAllocator = null;
     }
   }
 

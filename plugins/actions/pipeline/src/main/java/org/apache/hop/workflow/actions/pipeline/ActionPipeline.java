@@ -77,6 +77,9 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class;
 
+  /** Plugin id of the "Copy rows to result" transform. */
+  private static final String ROWS_TO_RESULT_PLUGIN_ID = "RowsToResult";
+
   public static final class ParameterDefinition {
     @HopMetadataProperty(key = "pass_all_parameters")
     private boolean passingAllParameters = true;
@@ -662,9 +665,18 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     result.clear(); // clear only the numbers, NOT the files or rows.
     result.add(newResult);
 
-    if (!Utils.isEmpty(newResult.getRows())) {
-      result.setRows(newResult.getRows());
+    // A pipeline that copies rows to the result replaces the previous rows, even when it copied
+    // none. Only a pipeline without such a transform passes the previous rows on unchanged.
+    //
+    if (!Utils.isEmpty(newResult.getRows()) || producesResultRows(pipeline.getPipelineMeta())) {
+      result.setRows(newResult.getRows() == null ? new ArrayList<>() : newResult.getRows());
     }
+  }
+
+  static boolean producesResultRows(PipelineMeta pipelineMeta) {
+    return pipelineMeta != null
+        && pipelineMeta.getTransforms().stream()
+            .anyMatch(t -> ROWS_TO_RESULT_PLUGIN_ID.equals(t.getTransformPluginId()));
   }
 
   public PipelineMeta getPipelineMeta(IHopMetadataProvider metadataProvider, IVariables variables)

@@ -18,14 +18,26 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
@@ -60,6 +72,79 @@ class HttpPostMetaTest {
 
     meta.setDefault();
     assertEquals(Const.UTF_8, meta.getEncoding());
+  }
+
+  @Test
+  void testCheckWithUrlInField() {
+    HttpPostMeta meta = new HttpPostMeta();
+    meta.setUrlInField(true);
+    meta.setUrlField("url");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    IRowMeta prev = new RowMeta();
+    String[] input = new String[] {"Generate rows"};
+
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta(),
+        prev,
+        input,
+        new String[0],
+        new RowMeta(),
+        new Variables(),
+        null);
+
+    long errorCount =
+        remarks.stream().filter(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR).count();
+    assertEquals(0, errorCount);
+    String urlFieldOk =
+        BaseMessages.getString(HttpPostMeta.class, "HTTPPOSTMeta.CheckResult.UrlfieldOk");
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r -> r.getType() == ICheckResult.TYPE_RESULT_OK && urlFieldOk.equals(r.getText())));
+  }
+
+  @Test
+  void testFirstLookupFieldWhenListEmptyDoesNotChangeTheMeta() {
+    HttpPostMeta meta = new HttpPostMeta();
+    assertTrue(meta.getLookupFields().isEmpty());
+
+    HttpPostLookupField lookupField = meta.getFirstLookupField();
+    assertNotNull(lookupField);
+    assertTrue(lookupField.getArgumentField().isEmpty());
+    assertTrue(lookupField.getQueryField().isEmpty());
+    assertTrue(meta.getLookupFields().isEmpty());
+  }
+
+  @Test
+  void testFirstResultFieldWhenListEmptyDoesNotChangeTheMeta() {
+    HttpPostMeta meta = new HttpPostMeta();
+    assertTrue(meta.getResultFields().isEmpty());
+
+    assertNotNull(meta.getFirstResultField());
+    assertTrue(meta.getResultFields().isEmpty());
+  }
+
+  @Test
+  void testFirstFieldsReturnTheStoredGroups() {
+    HttpPostMeta meta = new HttpPostMeta();
+    meta.setDefault();
+
+    assertSame(meta.getLookupFields().get(0), meta.getFirstLookupField());
+    assertSame(meta.getResultFields().get(0), meta.getFirstResultField());
+  }
+
+  @Test
+  void testGetFieldsWithEmptyResultListAddsNothing() throws Exception {
+    HttpPostMeta meta = new HttpPostMeta();
+    IRowMeta rowMeta = new RowMeta();
+
+    meta.getFields(rowMeta, "HTTP Post", null, null, new Variables(), null);
+
+    assertTrue(rowMeta.isEmpty());
+    assertTrue(meta.getResultFields().isEmpty());
   }
 
   public static final class HttpPostLookupFieldValidator

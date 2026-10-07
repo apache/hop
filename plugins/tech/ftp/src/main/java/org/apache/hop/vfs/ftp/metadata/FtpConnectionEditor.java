@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
 import org.apache.hop.vfs.ftp.FtpClientFactory;
 import org.apache.hop.vfs.ftp.FtpDataChannelProtection;
 import org.apache.hop.vfs.ftp.FtpSecurityMode;
@@ -669,5 +670,10 @@ public class FtpConnectionEditor extends MetadataEditor<FtpConnection> {
     // connection is picked up right away.
     //
     HopVfs.refresh(hopGui.getVariables());
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    return VfsFileExplorerViews.exploreButton(parent, this);
   }
 }

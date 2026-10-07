@@ -136,7 +136,7 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
 
             LifecycleEnvironment lastEnvironment = null;
             if (cliLifecycleEnvironment != null
-                && lastProjectName.equals(cliLifecycleEnvironment.getProjectName())) {
+                && lastProjectName.equalsIgnoreCase(cliLifecycleEnvironment.getProjectName())) {
               lastEnvironment = cliLifecycleEnvironment;
             } else {
               List<AuditEvent> envEvents =
@@ -149,7 +149,8 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
 
               for (AuditEvent envEvent : envEvents) {
                 LifecycleEnvironment environment = config.findEnvironment(envEvent.getName());
-                if (environment != null && lastProjectName.equals(environment.getProjectName())) {
+                if (environment != null
+                    && lastProjectName.equalsIgnoreCase(environment.getProjectName())) {
                   lastEnvironment = environment;
                   break;
                 }

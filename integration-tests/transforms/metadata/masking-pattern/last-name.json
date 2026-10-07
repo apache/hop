@@ -1,0 +1,14 @@
+{
+  "sequenceStart": "20000",
+  "piiClassification": "Direct identifier",
+  "prefix": "ln",
+  "description": "",
+  "storage": "MEMORY",
+  "schemaName": "",
+  "suffix": "",
+  "tableName": "",
+  "token": "SEQUENCE",
+  "name": "last-name",
+  "connection": "",
+  "valueSource": "SYNTHETIC"
+}

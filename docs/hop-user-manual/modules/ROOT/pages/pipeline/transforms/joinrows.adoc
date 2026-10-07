@@ -17,13 +17,38 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Join Rows transform allows you to produce combinations (Cartesian product) of all rows in the input streams.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/joinrows.svg[Join Rows transform Icon, role="image-doc-icon"] Join Rows
 
 == Description
 
-The Join Rows (cartesian product) transform allows you to combine/join multiple input streams (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) without joining on keys. It works best with one row from each stream. You can add a  condition to only join when a condition is met.
+The Join Rows (cartesian product) transform allows you to combine/join multiple input streams (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) without joining on keys.
+Every row of one stream is combined with every row of the other streams, so the number of output rows is the product of the number of rows of all streams.
+You can add a condition to only write the combinations that meet it.
+
+The transform works like a lookup:
+
+. It first reads all the rows of the other streams, the ones that are not the main stream.
+It writes them to temporary files, and keeps a stream in memory as well when it has no more than *Max. cache size* rows.
+. Then it reads the main stream one row at a time, and writes the combinations of that row with all the rows of the other streams before it reads the next main row.
+
+The rows of the main stream are never kept, so make the largest stream the main stream.
+Since the other streams are read completely before the first main row is joined, they can't depend on the main stream.
+When one of the streams has no rows, the transform writes no rows at all.
+
+[WARNING]
+====
+This transform is not supported on the distributed pipeline engines: neither the Beam engines nor the native Spark engine.
+A cartesian product needs every row of every input in one place, and these engines spread the rows over many workers, bundles or partitions, so combinations would go missing.
+The Hop GUI hides the transform when the canvas palette filter is set to one of these engines, and running a pipeline that still contains it is refused, both in the GUI and with `hop-run`.
+
+To build a cartesian product on these engines, add the same constant field to both inputs with an xref:pipeline/transforms/addconstant.adoc[Add Constants] transform and join them with a xref:pipeline/transforms/mergejoin.adoc[Merge Join] on that field.
+See xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam] and xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#transforms-not-supported-on-native-spark[Transforms not supported on Native Spark].
+====
+
+NOTE: The transform gives the same result on the xref:pipeline/pipeline-run-configurations/single-threaded-pipeline-engine.adoc[single threaded engine] as on the Hop engine.
+That engine runs the previous transforms first, so all the rows of the other streams are there when Join Rows starts.
 
 == Options
 
@@ -31,9 +56,9 @@ The Join Rows (cartesian product) transform allows you to combine/join multiple 
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
-|Temp directory|Specify the name of the directory where the system stores temporary files in case you want to combine more then the cached number of rows.
+|Temp directory|Specify the name of the directory where the system stores temporary files in case you want to combine more than the cached number of rows.
 |TMP-file prefix|This is the prefix of the temporary files that will be generated.
-|Max. cache size|The number of rows to cache before the system reads data from temporary files; required when you want to combine large row sets that do not fit into memory.
-|Main transform to read from|Specifies the transform from which to read most of the data; while the data from other transforms are cached or spooled to disk, the data from this transform is not.
+|Max. cache size|The maximum number of rows of a stream to keep in memory. A stream with more rows is read back from its temporary file for every main row; required when you want to combine large row sets that do not fit into memory.
+|Main transform to read from|The main stream: the transform from which to read most of the data. The rows of the other transforms are cached or spooled to disk, the rows of this transform are not. When left empty, the first input stream is the main stream.
 |The Condition(s)|You can enter a complex condition to limit the number of output row.
 |===

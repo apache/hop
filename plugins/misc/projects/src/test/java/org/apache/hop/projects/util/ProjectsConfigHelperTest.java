@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -327,6 +328,12 @@ public class ProjectsConfigHelperTest {
         variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
     assertEquals("test_val", variables.getVariable("TEST_ENV_VAR"));
     assertEquals("my-env", variables.getVariable(Defaults.VARIABLE_HOP_ENVIRONMENT_NAME));
+
+    DescribedVariablesConfigFile environmentFile =
+        new DescribedVariablesConfigFile(confFile.toString());
+    environmentFile.readFromFile();
+    assertEquals("my environment config", environmentFile.getDescription());
+    assertEquals("test_val", environmentFile.findDescribedVariableValue("TEST_ENV_VAR"));
   }
 
   @Test

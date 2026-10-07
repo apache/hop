@@ -18,6 +18,7 @@
 package org.apache.hop.lint;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -28,6 +29,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -46,8 +48,10 @@ public class LintSuppressionInEditorTest {
   @TempDir private Path projectDir;
 
   /**
-   * Two transforms with no hop between them. Hop's own check reports each as unused, with no
-   * transform plugin needed, so the finding under test is a native remark rather than a lint rule.
+   * Two transforms with no hop between them, whose plugins are not installed. Hop's own check
+   * reports each as unused, which {@code TRANS-002} says too, so deduplication keeps the lint
+   * finding. It also reports each plugin as missing, which no lint rule says: that remark is the
+   * native finding under test.
    */
   private PipelineMeta pipelineWithUnusedTransforms(String fileName) {
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -57,11 +61,13 @@ public class LintSuppressionInEditorTest {
     TransformMeta source = new TransformMeta();
     source.setName("Fonte Sql");
     source.setTransformPluginId("TableInput");
+    source.setTransform(new Missing("Fonte Sql", "TableInput"));
     pipelineMeta.addTransform(source);
 
     TransformMeta target = new TransformMeta();
     target.setName("Salva S3");
     target.setTransformPluginId("TextFileOutput");
+    target.setTransform(new Missing("Salva S3", "TextFileOutput"));
     pipelineMeta.addTransform(target);
 
     return pipelineMeta;
@@ -173,7 +179,7 @@ public class LintSuppressionInEditorTest {
 
   /**
    * The blanket native rule names no plugin and no message, so it matches every check result put in
-   * front of it. The linter's own findings travel through {@code ICheckResult} on this path, and
+   * front of it. The verify tab shows the linter's own findings as {@code ICheckResult}s, and
    * classifying them along with Hop's remarks would rename every one of them to {@code HOP-CHECK} -
    * silently collapsing the rule ids a project writes its suppressions against.
    */
@@ -189,6 +195,49 @@ public class LintSuppressionInEditorTest {
         results.stream()
             .anyMatch(r -> "TRANS-002".equals(r.getRuleId()) && "Salva S3".equals(sourceName(r))),
         "the orphaned-transform finding on Salva S3 lost its rule id: " + results);
+  }
+
+  /**
+   * A lint rule's finding is the linter's, in the editor as on the command line.
+   *
+   * <p>It was not: the editor turned policy findings into Hop remarks and read them back, which
+   * reported each as Hop's own, named after the transform rather than the rule, and with {@code
+   * [TRANS-002] Orphaned Transform: } written into its message.
+   */
+  @Test
+  public void policyFindingsAreReportedAsTheLintersInTheEditor() throws Exception {
+    List<LintResult> orphaned =
+        lintAsEditor().stream().filter(r -> "TRANS-002".equals(r.getRuleId())).toList();
+
+    assertEquals(2, orphaned.size(), "expected one finding per transform: " + orphaned);
+    for (LintResult result : orphaned) {
+      assertEquals(LintResult.Origin.LINT, result.getOrigin(), result.toString());
+      assertEquals("Orphaned Transform", result.getRuleName(), result.toString());
+      assertFalse(result.getMessage().startsWith("["), result.toString());
+    }
+  }
+
+  /**
+   * The editor and the linter's own entry point report the same findings for the same pipeline.
+   *
+   * <p>They did not: the editor labelled its lint findings as Hop's, so deduplication could not see
+   * that Hop's "not used" remark and {@code TRANS-002} were one finding, and reported both.
+   */
+  @Test
+  public void editorReportsWhatTheLinterReports() throws Exception {
+    String fileName = projectDir.resolve("template.hpl").toString();
+    List<LintResult> linter =
+        new HopLinter()
+            .lintHopObject(pipelineWithUnusedTransforms(fileName), fileName, null, variables);
+
+    assertEquals(describe(linter), describe(lintAsEditor()));
+  }
+
+  private List<String> describe(List<LintResult> results) {
+    return results.stream()
+        .map(r -> r.getOrigin() + " " + r.getRuleId() + " " + sourceName(r) + " " + r.getMessage())
+        .sorted()
+        .toList();
   }
 
   private long countOfRule(List<LintResult> results, String ruleId) {

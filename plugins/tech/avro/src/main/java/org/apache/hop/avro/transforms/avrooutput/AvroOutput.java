@@ -19,8 +19,8 @@ package org.apache.hop.avro.transforms.avrooutput;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -382,20 +382,16 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
   private void createFileAndSchema() throws HopException {
     try {
+      // Build the schema once: Beam calls this again at the start of every bundle
       if (meta.isCreateSchemaFile()) {
-        if (isDetailed()) {
-          logDetailed("Generating Avro schema.");
+        if (data.avroSchema == null) {
+          if (isDetailed()) {
+            logDetailed("Generating Avro schema.");
+          }
+          writeSchemaFile();
         }
-        writeSchemaFile();
-      } else {
-        if (isDetailed()) {
-          logDetailed("Reading Avro schema from file.");
-        }
-        try {
-          data.avroSchema = new Schema.Parser().parse(new File(meta.getSchemaFileName()));
-        } catch (Exception e) {
-          logError("Error parsing schema file", e);
-        }
+      } else if (data.avroSchema == null) {
+        data.avroSchema = readSchemaFile();
       }
       data.datumWriter = new GenericDatumWriter<>(data.avroSchema);
 
@@ -428,6 +424,27 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     }
   }
 
+  /**
+   * Reads the Avro schema from the (variable-resolved) schema filename. Uses Hop VFS so the schema
+   * can live in a project folder, on a cloud file system, etc.
+   */
+  Schema readSchemaFile() throws HopException {
+    String schemaFileName = resolve(meta.getSchemaFileName());
+    if (Utils.isEmpty(schemaFileName)) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AvroOutput.Exception.SchemaFileNameNotSet"));
+    }
+    if (isDetailed()) {
+      logDetailed("Reading Avro schema from file [" + schemaFileName + "]");
+    }
+    try (InputStream inputStream = HopVfs.getInputStream(schemaFileName, variables)) {
+      return new Schema.Parser().parse(inputStream);
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AvroOutput.Exception.ReadingSchemaFile", schemaFileName), e);
+    }
+  }
+
   private void closeOutput() throws HopException {
     if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD].equals(
         meta.getOutputType())) {
@@ -446,7 +463,6 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       closeFile();
     }
     data.datumWriter = null;
-    data.avroSchema = null;
   }
 
   public Object getValue(
@@ -600,7 +616,6 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         }
       }
       data.datumWriter = null;
-      data.avroSchema = null;
 
       retval = true;
     } catch (Exception e) {

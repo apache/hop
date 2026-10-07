@@ -45,6 +45,8 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public boolean processRow() throws HopException {
 

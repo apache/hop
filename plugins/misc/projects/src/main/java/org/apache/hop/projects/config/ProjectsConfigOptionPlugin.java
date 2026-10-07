@@ -49,7 +49,9 @@ import picocli.CommandLine;
 
 @ConfigPlugin(
     id = "ProjectsConfigOptionPlugin",
-    description = "Configuration options for the global projects plugin")
+    description = "Configuration options for the global projects plugin",
+    configKey = ProjectsConfig.HOP_CONFIG_PROJECTS_CONFIG_KEY,
+    configClass = ProjectsConfig.class)
 @GuiPlugin(
     description = "i18n::ProjectConfig.Tab.Name" // label in options dialog
     )
@@ -67,8 +69,6 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_DEFAULT_ENVIRONMENT = "10040-default-environment";
   private static final String WIDGET_ID_STANDARD_PARENT_PROJECT = "10050-standard-parent-project";
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
-  private static final String WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT =
-      "10070-restrict-environments-to-active-project";
   private static final String WIDGET_ID_CLEAR_DB_CACHE = "10080-clear-db-cache";
   private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
       "10070-default-project-config-filename";
@@ -79,17 +79,19 @@ public class ProjectsConfigOptionPlugin
       id = WIDGET_ID_ENABLE_PROJECTS,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::ProjectConfig.EnableProjectPlugin.Message")
+      label = "i18n::ProjectConfig.EnableProjectPlugin.Message",
+      toolTip = "i18n::ProjectConfig.EnableProjectPlugin.Description")
   @CommandLine.Option(
       names = {"-pn", "--projects-enabled"},
       description = "Enable or disable the projects plugin")
-  private Boolean projectsEnabled;
+  private Boolean enabled;
 
   @GuiWidgetElement(
       id = WIDGET_ID_PROJECT_MANDATORY,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::ProjectConfig.ProjectMandatory.Message")
+      label = "i18n::ProjectConfig.ProjectMandatory.Message",
+      toolTip = "i18n::ProjectConfig.ProjectMandatory.Description")
   @CommandLine.Option(
       names = {"-py", "--project-mandatory"},
       description = "Make it mandatory to reference a project")
@@ -99,7 +101,8 @@ public class ProjectsConfigOptionPlugin
       id = WIDGET_ID_ENVIRONMENT_MANDATORY,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::ProjectConfig.EnvironmentMandatory.Message")
+      label = "i18n::ProjectConfig.EnvironmentMandatory.Message",
+      toolTip = "i18n::ProjectConfig.EnvironmentMandatory.Description")
   @CommandLine.Option(
       names = {"-ey", "--environment-mandatory"},
       description = "Make it mandatory to reference an environment")
@@ -111,7 +114,8 @@ public class ProjectsConfigOptionPlugin
       type = GuiElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       variables = true,
-      label = "i18n::ProjectConfig.DefaultProject.Message")
+      label = "i18n::ProjectConfig.DefaultProject.Message",
+      toolTip = "i18n::ProjectConfig.DefaultProject.Description")
   @CommandLine.Option(
       names = {"-dp", "--default-project"},
       description = "The default project to use when none is specified")
@@ -122,7 +126,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "i18n::ProjectConfig.DefaultEnvironment.Message")
+      label = "i18n::ProjectConfig.DefaultEnvironment.Message",
+      toolTip = "i18n::ProjectConfig.DefaultEnvironment.Description")
   @CommandLine.Option(
       names = {"-de", "--default-environment"},
       description = "The name of the default environment to use when none is specified")
@@ -134,7 +139,8 @@ public class ProjectsConfigOptionPlugin
       type = GuiElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       variables = true,
-      label = "i18n::ProjectConfig.ParentProject.Message")
+      label = "i18n::ProjectConfig.ParentProject.Message",
+      toolTip = "i18n::ProjectConfig.ParentProject.Description")
   @CommandLine.Option(
       names = {"-sp", "--standard-parent-project"},
       description =
@@ -146,7 +152,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FOLDER,
       variables = true,
-      label = "i18n::ProjectConfig.StdProjectFolder.Message")
+      label = "i18n::ProjectConfig.StdProjectFolder.Message",
+      toolTip = "i18n::ProjectConfig.StdProjectFolder.Description")
   @CommandLine.Option(
       names = {"-sj", "--standard-projects-folder"},
       description = "The standard projects folder for new projects")
@@ -157,21 +164,22 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "i18n::ProjectConfig.StdProjectFilename.Message")
+      label = "i18n::ProjectConfig.StdProjectFilename.Message",
+      toolTip = "i18n::ProjectConfig.StdProjectFilename.Description")
   @CommandLine.Option(
       names = {"-dc", "--default-projects-folder"},
       description = "The project configuration filename for new projects")
   private String defaultProjectConfigFile;
 
-  @GuiWidgetElement(
-      id = WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT,
-      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.CHECKBOX,
-      variables = false,
-      label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message")
+  /**
+   * No longer has any effect: since 2.17 the environment menu in the status bar always lists the
+   * environments of the active project, plus the environments that are not linked to any project.
+   * The option is still accepted so that existing hop-conf scripts keep working.
+   */
   @CommandLine.Option(
       names = {"-eap", "--environments-for-active-project"},
-      description = "Restrict environment list to active project")
+      hidden = true,
+      description = "Deprecated, no longer has any effect")
   private Boolean environmentsForActiveProject;
 
   @GuiWidgetElement(
@@ -179,7 +187,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "i18n::ProjectConfig.ClearDbCache.Message")
+      label = "i18n::ProjectConfig.ClearDbCache.Message",
+      toolTip = "i18n::ProjectConfig.ClearDbCache.Description")
   @CommandLine.Option(
       names = {"-cdb", "--clear-db-when-env-switching"},
       description = "Clear database cache when switching project/environment")
@@ -190,7 +199,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "i18n::ProjectConfig.SortByNameLastUsedProjects.Message")
+      label = "i18n::ProjectConfig.SortByNameLastUsedProjects.Message",
+      toolTip = "i18n::ProjectConfig.SortByNameLastUsedProjects.Description")
   @Getter
   @Setter
   private Boolean sortByNameLastUsedProjects;
@@ -204,7 +214,7 @@ public class ProjectsConfigOptionPlugin
     ProjectsConfigOptionPlugin instance = new ProjectsConfigOptionPlugin();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    instance.projectsEnabled = config.isEnabled();
+    instance.enabled = config.isEnabled();
     instance.defaultProject = config.getDefaultProject();
     instance.defaultEnvironment = config.getDefaultEnvironment();
     instance.projectMandatory = config.isProjectMandatory();
@@ -212,7 +222,6 @@ public class ProjectsConfigOptionPlugin
     instance.standardParentProject = config.getStandardParentProject();
     instance.standardProjectsFolder = config.getStandardProjectsFolder();
     instance.defaultProjectConfigFile = config.getDefaultProjectConfigFile();
-    instance.environmentsForActiveProject = config.isEnvironmentsForActiveProject();
     instance.sortByNameLastUsedProjects = config.isSortByNameLastUsedProjects();
     instance.clearingDbCacheWhenSwitching = config.isClearingDbCacheWhenSwitching();
     return instance;
@@ -225,9 +234,9 @@ public class ProjectsConfigOptionPlugin
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     try {
       boolean changed = false;
-      if (projectsEnabled != null) {
-        config.setEnabled(projectsEnabled);
-        if (projectsEnabled) {
+      if (enabled != null) {
+        config.setEnabled(enabled);
+        if (enabled) {
           log.logBasic("Enabled the projects system");
         } else {
           log.logBasic("Disabled the projects system");
@@ -286,14 +295,16 @@ public class ProjectsConfigOptionPlugin
                 + "'");
         changed = true;
       }
+      // Handled, so a script passing only this option does not get the usage printed, but
+      // nothing to save: there is no setting behind it any more.
+      //
+      boolean handled = false;
       if (environmentsForActiveProject != null) {
-        config.setEnvironmentsForActiveProject(environmentsForActiveProject);
-        if (environmentsForActiveProject) {
-          log.logBasic("Only listing environments for the active project");
-        } else {
-          log.logBasic("Listing all environments, regardless of the active project");
-        }
-        changed = true;
+        log.logBasic(
+            "Option --environments-for-active-project is deprecated and has no effect: the"
+                + " environment menu always lists the environments of the active project, plus"
+                + " the environments that are not linked to any project");
+        handled = true;
       }
       if (clearingDbCacheWhenSwitching != null) {
         config.setClearingDbCacheWhenSwitching(clearingDbCacheWhenSwitching);
@@ -311,7 +322,7 @@ public class ProjectsConfigOptionPlugin
       if (changed) {
         ProjectsConfigSingleton.saveConfig();
       }
-      return changed;
+      return changed || handled;
     } catch (Exception e) {
       throw new HopException("Error handling projects plugin configuration options", e);
     }
@@ -339,8 +350,8 @@ public class ProjectsConfigOptionPlugin
       Control control = compositeWidgets.getWidgetsMap().get(widgetId);
       switch (widgetId) {
         case WIDGET_ID_ENABLE_PROJECTS:
-          projectsEnabled = ((Button) control).getSelection();
-          ProjectsConfigSingleton.getConfig().setEnabled(projectsEnabled);
+          enabled = ((Button) control).getSelection();
+          ProjectsConfigSingleton.getConfig().setEnabled(enabled);
           break;
         case WIDGET_ID_PROJECT_MANDATORY:
           projectMandatory = ((Button) control).getSelection();
@@ -403,11 +414,6 @@ public class ProjectsConfigOptionPlugin
         case WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME:
           defaultProjectConfigFile = ((TextVar) control).getText();
           ProjectsConfigSingleton.getConfig().setDefaultProjectConfigFile(defaultProjectConfigFile);
-          break;
-        case WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT:
-          environmentsForActiveProject = ((Button) control).getSelection();
-          ProjectsConfigSingleton.getConfig()
-              .setEnvironmentsForActiveProject(environmentsForActiveProject);
           break;
         case WIDGET_ID_SORT_BY_NAME_LAST_USED_PROJECTS:
           sortByNameLastUsedProjects = ((Button) control).getSelection();

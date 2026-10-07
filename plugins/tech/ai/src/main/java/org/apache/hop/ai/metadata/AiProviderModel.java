@@ -17,15 +17,26 @@
 package org.apache.hop.ai.metadata;
 
 import java.util.Objects;
+import org.apache.hop.core.gui.plugin.GuiTableColumn;
+import org.apache.hop.core.gui.plugin.GuiTableColumnType;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** One model served by an {@link AiProvider}, for one {@link AiModelRole}. */
 public class AiProviderModel {
 
   @HopMetadataProperty(key = "role", injectionKey = "MODEL_ROLE")
+  @GuiTableColumn(
+      order = "10",
+      type = GuiTableColumnType.COMBO,
+      label = "i18n::AiProviderEditor.Models.Column.Role")
   private AiModelRole role = AiModelRole.CHAT;
 
   @HopMetadataProperty(key = "model_name", injectionKey = "MODEL_NAME")
+  @GuiTableColumn(
+      order = "20",
+      type = GuiTableColumnType.TEXT,
+      label = "i18n::AiProviderEditor.Models.Column.ModelName",
+      variables = false)
   private String modelName = "";
 
   public AiProviderModel() {}

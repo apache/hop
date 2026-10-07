@@ -514,18 +514,22 @@ public abstract class HopImportBase implements IHopImport {
     this.targetConfigFilename = targetConfigFilename;
   }
 
+  @Override
   public String getDefaultPipelineRunConfiguration() {
     return defaultPipelineRunConfiguration;
   }
 
+  @Override
   public void setDefaultPipelineRunConfiguration(String defaultPipelineRunConfiguration) {
     this.defaultPipelineRunConfiguration = defaultPipelineRunConfiguration;
   }
 
+  @Override
   public String getDefaultWorkflowRunConfiguration() {
     return defaultWorkflowRunConfiguration;
   }
 
+  @Override
   public void setDefaultWorkflowRunConfiguration(String defaultWorkflowRunConfiguration) {
     this.defaultWorkflowRunConfiguration = defaultWorkflowRunConfiguration;
   }
@@ -616,6 +620,27 @@ public abstract class HopImportBase implements IHopImport {
 
   public UnaryOperator<String> getConnectionNameMapper() {
     return connectionNameMapper != null ? connectionNameMapper : UnaryOperator.identity();
+  }
+
+  /**
+   * The home folder of the project named {@code projectName}, as the {@code ProjectHome} extension
+   * point resolves it.
+   *
+   * <p>Returns {@code fallback} when nothing resolved it - there is no projects plugin - and throws
+   * when the project is not registered. Callers that treat an unknown project as "not a project
+   * yet" pass {@code null} and catch; callers that want to keep the folder they already have pass
+   * it as the fallback.
+   *
+   * @param projectName the project to look up
+   * @param fallback the folder to return when no extension point answered
+   */
+  public static String projectHome(
+      ILogChannel log, IVariables variables, String projectName, String fallback)
+      throws HopException {
+    Object[] objects = new Object[] {projectName, fallback};
+    ExtensionPointHandler.callExtensionPoint(
+        log, variables, HopExtensionPoint.ProjectHome.id, objects);
+    return (String) objects[1];
   }
 
   /**

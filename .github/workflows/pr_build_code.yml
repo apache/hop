@@ -84,14 +84,39 @@ jobs:
             ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
             ${{ runner.os }}-m2-
             ${{ runner.os }}-
+      # Source checks resolve no dependencies, so they skip GIB's upstream modules. Without
+      # this, buildUpstreamMode=impacted would pull in every plugin as an upstream of the
+      # assemblies (these steps do not pass -Dassemblies=false).
       - name: RAT Check
-        run: mvn clean apache-rat:check -Dgib.disable=$GIB_DISABLE
+        run: mvn clean apache-rat:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Checkstyle
-        run: mvn clean checkstyle:check -Dgib.disable=$GIB_DISABLE
+        run: mvn clean checkstyle:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Spotless check
-        run: mvn spotless:check -Dgib.disable=$GIB_DISABLE
+        run: mvn spotless:check -Dgib.disable=$GIB_DISABLE -Dgib.buildUpstream=false
       - name: Build with Maven
         run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true -Dgib.disable=$GIB_DISABLE --file pom.xml
+      # The build regenerates the configuration perspective's option tables from the
+      # @ConfigPlugin and @GuiWidgetElement annotations. If that leaves the working tree
+      # dirty, the committed page no longer matches the code it documents.
+      - name: Configuration documentation is up to date
+        run: |
+          CONFIG_DOCS=docs/hop-user-manual/modules/ROOT/partials/config
+          # --porcelain, not diff: a newly added configuration plugin writes a new .adoc, and an
+          # untracked file is invisible to git diff.
+          if [ -n "$(git status --porcelain -- $CONFIG_DOCS)" ]; then
+            echo "The configuration perspective's generated option tables are out of date."
+            echo "A configuration option was added, removed or changed without regenerating"
+            echo "the page that documents it."
+            echo
+            echo "To fix, from a full build of your branch:"
+            echo "    mvn clean install -DskipTests"
+            echo "and commit the result under $CONFIG_DOCS."
+            echo
+            git status --short -- $CONFIG_DOCS
+            git diff -- $CONFIG_DOCS
+            exit 1
+          fi
+          echo "Generated configuration documentation matches the code."
 
   # Add a UI and run the UI tests only
   ui-tests:
@@ -110,8 +135,12 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Cache Maven packages
-        uses: actions/cache@v6
+      # Restore only: this job runs `package` and installs nothing, and it finishes before
+      # the build job. Saving here took the shared key first, so the build job's installed
+      # repository was never cached ("Unable to reserve cache"). Keep path and keys in sync
+      # with the build job, or the restore misses.
+      - name: Restore Maven packages
+        uses: actions/cache/restore@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}

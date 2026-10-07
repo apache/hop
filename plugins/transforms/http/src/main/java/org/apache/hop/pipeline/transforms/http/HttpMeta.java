@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -45,7 +46,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::HTTP.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::HttpMeta.keyword",
-    documentationUrl = "/pipeline/transforms/http.html")
+    documentationUrl = "/pipeline/transforms/http.html",
+    classLoaderGroup = "rest")
 @Getter
 @Setter
 public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
@@ -90,6 +92,17 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
   private String closeIdleConnectionsTime;
 
   /** URL / service to be called */
+  /**
+   * Optional REST connection supplying the client: proxy, credentials, TLS and timeouts. When one
+   * is selected the transform's own authentication, proxy and SSL fields are not read.
+   */
+  @HopMetadataProperty(
+      key = "connection_name",
+      injectionKey = "CONNECTION_NAME",
+      injectionKeyDescription = "HttpMeta.Injection.CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+  private String connectionName;
+
   @HopMetadataProperty(
       key = "url",
       injectionKey = "URL",
@@ -132,6 +145,29 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
       injectionKey = "PROXY_PORT",
       injectionKeyDescription = "HttpMeta.Injection.PROXY_PORT")
   private String proxyPort;
+
+  @HopMetadataProperty(
+      key = "proxyUsername",
+      injectionKey = "PROXY_USERNAME",
+      injectionKeyDescription = "HttpMeta.Injection.PROXY_USERNAME")
+  private String proxyUsername;
+
+  @HopMetadataProperty(
+      key = "proxyPassword",
+      injectionKey = "PROXY_PASSWORD",
+      injectionKeyDescription = "HttpMeta.Injection.PROXY_PASSWORD",
+      password = true)
+  private String proxyPassword;
+
+  /**
+   * Target hosts reached directly instead of through the proxy, in JDK {@code http.nonProxyHosts}
+   * syntax: entries separated by {@code |}, each optionally using {@code *} as a wildcard.
+   */
+  @HopMetadataProperty(
+      key = "nonProxyHosts",
+      injectionKey = "NON_PROXY_HOSTS",
+      injectionKeyDescription = "HttpMeta.Injection.NON_PROXY_HOSTS")
+  private String nonProxyHosts;
 
   @HopMetadataProperty(
       key = "httpLogin",
@@ -235,7 +271,7 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
       } else {
         cr =
             new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "HTTPMeta.CheckResult.UrlfieldOk"),
                 transformMeta);
       }

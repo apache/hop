@@ -68,6 +68,8 @@ public class JdbcTokenServlet extends BaseHttpServlet implements IHopServerPlugi
     return "JDBC token";
   }
 
+  // I/O errors writing the response are left to the servlet container
+  @SuppressWarnings("java:S1989")
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {

@@ -165,4 +165,45 @@ public class LintPolicyTest {
   private String relative(LintResult result) {
     return LintPolicy.relativise(result.getFileName(), ROOT);
   }
+
+  /**
+   * A check with its own error code is reported under it, and a suppression can name that one
+   * check. One written against HOP-CHECK before the check had a code still applies.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
+   */
+  @Test
+  public void aSuppressionMayNameTheCheckOrTheRuleThatClassifiedIt() {
+    LintResult finding = missingConnection("a.hpl", "Table input");
+
+    assertTrue(
+        new LintPolicy(
+                List.of(),
+                List.of(new LintPolicy.Suppression("CONNECTION_DOES_NOT_EXIST", null, null, "ok")))
+            .isSuppressed(finding, ROOT));
+    assertTrue(
+        new LintPolicy(
+                List.of(), List.of(new LintPolicy.Suppression("HOP-CHECK", null, null, "ok")))
+            .isSuppressed(finding, ROOT),
+        "an existing suppression naming HOP-CHECK must keep working");
+    assertFalse(
+        new LintPolicy(
+                List.of(),
+                List.of(new LintPolicy.Suppression("CONNECTION_DOES_NOT_EXIST", null, null, "ok")))
+            .isSuppressed(finding("HOP-CHECK", "a.hpl", "Table input"), ROOT),
+        "naming one check must leave Hop's other remarks alone");
+  }
+
+  /** Hop's missing-connection check, reported under its own code after HOP-CHECK classified it. */
+  private LintResult missingConnection(String relativePath, String sourceName) {
+    return new LintResult(
+        "CONNECTION_DOES_NOT_EXIST",
+        sourceName,
+        "WARNING",
+        "Database connection 'warehouse' assigned on transform 'Table input' does not exist",
+        ROOT.resolve(relativePath).toString(),
+        LintSourceRef.transform(sourceName),
+        LintResult.Origin.HOP_NATIVE,
+        "HOP-CHECK");
+  }
 }

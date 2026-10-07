@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.normaliser;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -112,6 +113,67 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     this.normaliserFields = new ArrayList<>();
   }
 
+  /** The names of the normalised fields, in output order: in the order they first appear. */
+  public List<String> getNormalisedFieldNames() {
+    List<String> names = new ArrayList<>();
+    for (NormaliserField field : normaliserFields) {
+      if (!names.contains(field.getNorm())) {
+        names.add(field.getNorm());
+      }
+    }
+    return names;
+  }
+
+  /**
+   * The normalised fields, in output order.
+   *
+   * <p>A normalised field is filled from a different input field on every row it writes, so it has
+   * to describe all of them. When they share a type it takes that type, from the first of them, as
+   * it always has. When they do not, it is a String, and the transform writes the text of each
+   * value into it: a field that is declared one type and holds another on some rows fails the first
+   * transform that serializes or renders it. See issue #3636.
+   *
+   * @param inputRowMeta the fields entering the transform
+   * @return one value metadata per name of {@link #getNormalisedFieldNames()}, in the same order
+   * @throws HopTransformException when the first input field of a normalised field is missing
+   */
+  public List<IValueMeta> getNormalisedValueMetas(IRowMeta inputRowMeta)
+      throws HopTransformException {
+    List<IValueMeta> valueMetas = new ArrayList<>();
+    for (String normName : getNormalisedFieldNames()) {
+      List<NormaliserField> fields = getFieldsOf(normName);
+      IValueMeta first = inputRowMeta.searchValueMeta(fields.get(0).getName());
+      if (first == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "NormaliserMeta.Exception.UnableToFindField", fields.get(0).getName()));
+      }
+      boolean sameType = true;
+      boolean sameStorage = true;
+      for (NormaliserField field : fields) {
+        IValueMeta source = inputRowMeta.searchValueMeta(field.getName());
+        if (source != null) {
+          sameType &= source.getType() == first.getType();
+          sameStorage &= source.getStorageType() == first.getStorageType();
+        }
+      }
+
+      IValueMeta v;
+      if (!sameType) {
+        v = new ValueMetaString(normName);
+      } else {
+        v = first.clone();
+        if (!sameStorage) {
+          v.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+          v.setStorageMetadata(null);
+        }
+      }
+      v.setName(normName);
+      valueMetas.add(v);
+    }
+    return valueMetas;
+  }
+
   @Override
   public void getFields(
       IRowMeta row,
@@ -122,22 +184,16 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    // Get a unique list of the occurrences of the type
-    //
-    List<String> normOcc = new ArrayList<>();
-    List<String> fieldOcc = new ArrayList<>();
     int maxlen = 0;
-    // for (int i = 0; i < normaliserFields.length; i++) {
     for (NormaliserField field : normaliserFields) {
-      if (!normOcc.contains(field.getNorm())) {
-        normOcc.add(field.getNorm());
-        fieldOcc.add(field.getName());
-      }
-
       if (field.getValue().length() > maxlen) {
         maxlen = field.getValue().length();
       }
     }
+
+    // Take the normalised fields from the input before adding anything to it.
+    //
+    List<IValueMeta> normalisedValueMetas = getNormalisedValueMetas(row);
 
     // Then add the type field!
     //
@@ -146,21 +202,9 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     typefieldValue.setLength(maxlen);
     row.addValueMeta(typefieldValue);
 
-    // Loop over the distinct list of fieldNorm[i]
     // Add the new fields that need to be created.
-    // Use the same data type as the original fieldname...
     //
-    for (int i = 0; i < normOcc.size(); i++) {
-      String normname = normOcc.get(i);
-      String fieldname = fieldOcc.get(i);
-      IValueMeta v = row.searchValueMeta(fieldname);
-      if (v != null) {
-        v = v.clone();
-      } else {
-        throw new HopTransformException(
-            BaseMessages.getString(PKG, "NormaliserMeta.Exception.UnableToFindField", fieldname));
-      }
-      v.setName(normname);
+    for (IValueMeta v : normalisedValueMetas) {
       v.setOrigin(name);
       row.addValueMeta(v);
     }
@@ -226,6 +270,16 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
                 transformMeta);
       }
       remarks.add(cr);
+
+      for (String normName : getNormalisedFieldNames()) {
+        if (hasMixedTypes(prev, normName)) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_WARNING,
+                  BaseMessages.getString(PKG, "NormaliserMeta.CheckResult.MixedTypes", normName),
+                  transformMeta));
+        }
+      }
     } else {
       errorMessage =
           BaseMessages.getString(
@@ -233,6 +287,11 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
               + Const.CR;
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
+    }
+
+    String duplicate = getDuplicateMapping();
+    if (duplicate != null) {
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, duplicate, transformMeta));
     }
 
     // See if we have input streams leading to this transform!
@@ -251,5 +310,49 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  /** The fields filling a normalised field, in the order they are listed. */
+  private List<NormaliserField> getFieldsOf(String normName) {
+    return normaliserFields.stream()
+        .filter(field -> Objects.equals(normName, field.getNorm()))
+        .toList();
+  }
+
+  /** True when the input fields filling this normalised field are not all of one type. */
+  private boolean hasMixedTypes(IRowMeta inputRowMeta, String normName) {
+    return getFieldsOf(normName).stream()
+            .map(field -> inputRowMeta.searchValueMeta(field.getName()))
+            .filter(Objects::nonNull)
+            .map(IValueMeta::getType)
+            .distinct()
+            .count()
+        > 1;
+  }
+
+  /**
+   * Two input fields filling the same normalised field on the same row leave no room for one of
+   * them.
+   *
+   * @return a description of the first such pair, or null when there is none
+   */
+  public String getDuplicateMapping() {
+    for (int i = 0; i < normaliserFields.size(); i++) {
+      NormaliserField one = normaliserFields.get(i);
+      for (int j = i + 1; j < normaliserFields.size(); j++) {
+        NormaliserField other = normaliserFields.get(j);
+        if (Objects.equals(one.getValue(), other.getValue())
+            && Objects.equals(one.getNorm(), other.getNorm())) {
+          return BaseMessages.getString(
+              PKG,
+              "NormaliserMeta.CheckResult.DuplicateMapping",
+              one.getName(),
+              other.getName(),
+              one.getNorm(),
+              one.getValue());
+        }
+      }
+    }
+    return null;
   }
 }

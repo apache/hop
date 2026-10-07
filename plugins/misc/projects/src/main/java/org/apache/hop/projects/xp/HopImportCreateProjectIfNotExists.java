@@ -36,14 +36,29 @@ import org.apache.hop.projects.project.ProjectConfig;
     id = "HopImportCreateProject",
     description = "Creates a new project for a project path specified in Hop Import",
     extensionPointId = "HopImportCreateProject")
-public class HopImportCreateProjectIfNotExists implements IExtensionPoint<String> {
+public class HopImportCreateProjectIfNotExists implements IExtensionPoint<Object> {
 
   static final String IMPORT_PROJECT_NAME = "Hop Import Project";
 
+  /**
+   * The payload is either the project path on its own (the import dialog, which always registers
+   * the same "Hop Import Project"), or an {@code Object[]} of {project path, project name} for
+   * {@code hop-import --project}.
+   */
   @Override
-  public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, String projectPath)
+  public void callExtensionPoint(ILogChannel iLogChannel, IVariables variables, Object payload)
       throws HopException {
-    createImportProject(variables, projectPath, true);
+    String projectPath;
+    String projectName = IMPORT_PROJECT_NAME;
+    if (payload instanceof Object[] objects) {
+      projectPath = objects.length > 0 ? (String) objects[0] : null;
+      if (objects.length > 1 && StringUtils.isNotBlank((String) objects[1])) {
+        projectName = (String) objects[1];
+      }
+    } else {
+      projectPath = (String) payload;
+    }
+    createImportProject(variables, projectPath, projectName, true);
   }
 
   /**
@@ -56,7 +71,8 @@ public class HopImportCreateProjectIfNotExists implements IExtensionPoint<String
    * @return the registered project config, or {@code null} when {@code projectPath} is empty
    */
   static ProjectConfig createImportProject(
-      IVariables variables, String projectPath, boolean persistHopConfig) throws HopException {
+      IVariables variables, String projectPath, String projectName, boolean persistHopConfig)
+      throws HopException {
     if (StringUtil.isEmpty(projectPath)) {
       return null;
     }
@@ -67,7 +83,10 @@ public class HopImportCreateProjectIfNotExists implements IExtensionPoint<String
       defaultProjectConfigFilename = ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME;
     }
     ProjectConfig projectConfig =
-        new ProjectConfig(IMPORT_PROJECT_NAME, projectPath, defaultProjectConfigFilename);
+        new ProjectConfig(
+            StringUtils.isBlank(projectName) ? IMPORT_PROJECT_NAME : projectName,
+            projectPath,
+            defaultProjectConfigFilename);
     Project project = new Project();
     project.getDescribedVariables().clear();
 

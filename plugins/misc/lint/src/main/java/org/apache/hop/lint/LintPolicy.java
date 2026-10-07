@@ -141,8 +141,10 @@ public final class LintPolicy {
     String relative = relativise(result.getFileName(), projectRoot);
     String sourceName = result.getSource() != null ? result.getSource().getName() : null;
     for (Suppression suppression : suppressions) {
-      if (suppression.matches(result.getRuleId(), relative, sourceName)) {
-        return true;
+      for (String ruleId : result.getRuleIds()) {
+        if (suppression.matches(ruleId, relative, sourceName)) {
+          return true;
+        }
       }
     }
     return false;

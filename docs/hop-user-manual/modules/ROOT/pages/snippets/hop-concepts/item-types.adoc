@@ -25,7 +25,7 @@ include::hop.adoc[]
 Pipeline::
 include::pipeline.adoc[]
 
-image::concepts/pipeline.png[Pipeline]
+image::concepts/pipeline-parallel-flow.svg[Pipeline streaming execution and back-pressure,opts=inline]
 
 Transform::
 include::transform.adoc[]
@@ -33,6 +33,4 @@ include::transform.adoc[]
 Workflow::
 include::workflow.adoc[]
 
-image::concepts/workflow.png[Workflow]
-
-
+image::concepts/workflow-backtracking-flow.svg[Workflow sequential orchestration and backtracking,opts=inline]

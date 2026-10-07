@@ -30,8 +30,10 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetCsvUtil;
+import org.apache.hop.testing.DataSetDefaults;
 import org.apache.hop.testing.DataSetField;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowRowsDialog;
@@ -49,6 +51,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -138,12 +141,23 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlFolderName.left = new FormAttachment(0, 0);
     fdlFolderName.right = new FormAttachment(100, 0);
     wlFolderName.setLayoutData(fdlFolderName);
+
+    Button wBrowseFolder = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(wBrowseFolder);
+    wBrowseFolder.setText(BaseMessages.getString(PKG, "DataSetDialog.Browse.Button"));
+    wBrowseFolder.setToolTipText(BaseMessages.getString(PKG, "DataSetDialog.Browse.Tooltip"));
+    FormData fdbFolderName = new FormData();
+    fdbFolderName.right = new FormAttachment(100, 0);
+    fdbFolderName.top = new FormAttachment(wlFolderName, margin);
+    wBrowseFolder.setLayoutData(fdbFolderName);
+    wBrowseFolder.addListener(SWT.Selection, e -> browseForFolder(parent.getShell()));
+
     wFolderName = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFolderName);
     FormData fdFolderName = new FormData();
     fdFolderName.top = new FormAttachment(wlFolderName, margin);
     fdFolderName.left = new FormAttachment(0, 0);
-    fdFolderName.right = new FormAttachment(100, 0);
+    fdFolderName.right = new FormAttachment(wBrowseFolder, -margin);
     wFolderName.setLayoutData(fdFolderName);
 
     // The table storing the set...
@@ -152,7 +166,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     PropsUi.setLook(wlBaseFilename);
     wlBaseFilename.setText(BaseMessages.getString(PKG, "DataSetDialog.BaseFilename.Label"));
     FormData fdlBaseFilename = new FormData();
-    fdlBaseFilename.top = new FormAttachment(wFolderName, margin);
+    fdlBaseFilename.top = new FormAttachment(wBrowseFolder, margin);
     fdlBaseFilename.left = new FormAttachment(0, 0);
     fdlBaseFilename.right = new FormAttachment(100, 0);
     wlBaseFilename.setLayoutData(fdlBaseFilename);
@@ -374,6 +388,25 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     getWidgetsContent(getMetadata());
 
     super.save();
+  }
+
+  private void browseForFolder(Shell shell) {
+    String path = wFolderName.getText();
+    if (StringUtil.isEmpty(path)) {
+      String configured = DataSetDefaults.datasetsFolderExpression(manager.getVariables());
+      if (configured != null) {
+        path = configured;
+      }
+    }
+    String directory =
+        BaseDialog.presentDirectoryDialog(
+            shell,
+            path,
+            BaseMessages.getString(PKG, "DataSetDialog.Browse.Message"),
+            manager.getVariables());
+    if (directory != null) {
+      wFolderName.setText(directory);
+    }
   }
 
   private void verifySettings() throws HopException {

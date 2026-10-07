@@ -1,0 +1,107 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Registering custom file types in Apache Hop: extensions, icons, file handlers, and opening files in the Hop GUI.
+[[Sdk-Plugins-FileTypes]]
+= Hop File Types
+
+A Hop file type plugin teaches the Hop GUI how to recognize, display, and open specific file extensions (such as `.hpl`, `.hwf`, `.json`, `.csv`, `.sql`, or `.parquet`).
+File types define the icon used in the Explorer perspective, the file filter masks in file-open dialogs, and the editor opened when double-clicking a file.
+
+== Implementing a File Type
+
+Annotate your class with `@HopFileTypePlugin` and extend `HopFileTypeBase`:
+
+[source,java]
+----
+import java.util.Properties;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
+import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
+
+@HopFileTypePlugin(
+    id = "CustomMarkdownFileType",
+    name = "Markdown File",
+    description = "Documentation and markdown files",
+    image = "markdown.svg"
+)
+public class MarkdownFileType extends HopFileTypeBase implements IHopFileType {
+
+  public static final String[] EXTENSIONS = new String[] {"*.md", "*.markdown"};
+
+  @Override
+  public String getName() {
+    return "Markdown";
+  }
+
+  @Override
+  public String[] getFilterExtensions() {
+    return EXTENSIONS;
+  }
+
+  @Override
+  public String[] getFilterNames() {
+    return new String[] {"Markdown Files (*.md, *.markdown)"};
+  }
+
+  @Override
+  public String getDefaultFileExtension() {
+    return "md";
+  }
+
+  @Override
+  public Properties getCapabilities() {
+    Properties capabilities = new Properties();
+    capabilities.setProperty(IHopFileType.CAPABILITY_SAVE, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_SAVE_AS, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_CLOSE, "true");
+    return capabilities;
+  }
+
+  @Override
+  public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
+      throws HopException {
+    // Create the handler for this file and open it in the perspective that edits the type.
+    return new EmptyHopFileTypeHandler();
+  }
+}
+----
+
+`HopFileTypeBase.hasCapability(String)` reads that map.
+Capability names are the `CAPABILITY_*` constants on `IHopFileType`.
+Explorer file types build the same map with `FileTypeCapabilities.getCapabilities(String...)` in `org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities`.
+
+== Key Methods
+
+* `getFilterExtensions()`: String array of wildcard patterns (e.g., `{"*.parquet"}`).
+* `openFile(HopGui, String, IVariables)`: Instantiates or activates the appropriate editor or perspective tab.
+* `hasCapability(String)`: Informs the GUI whether the file supports an operation such as save, close, or creation.
+* `getContextHandlers()`: Provides custom actions in right-click context menus in the file explorer.
+
+== Concrete Codebase Examples
+
+* `ui/src/main/java/org/apache/hop/ui/hopgui/file/pipeline/HopPipelineFileType.java`: The core file type handling `.hpl` pipeline files.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types/text/BaseTextExplorerFileType.java`: Plain text file handler in the Explorer perspective.
+* `ui/src/main/java/org/apache/hop/ui/hopgui/perspective/explorer/file/types/log/LogExplorerFileType.java`: Log viewer file type.
+
+== See also
+
+* xref:plugin-types/gui.adoc[GUI]

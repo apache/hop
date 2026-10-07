@@ -110,6 +110,9 @@ public enum HopMetadataPropertyType {
   // STATIC SCHEMA
   STATIC_SCHEMA_DEFINITION,
 
+  /** A reusable rule for replacing personal data in a field. */
+  MASKING_PATTERN,
+
   // NAMING
   NAMING_SCHEME,
 
@@ -123,6 +126,8 @@ public enum HopMetadataPropertyType {
   VFS_SFTP_CONNECTION,
   VFS_FTP_CONNECTION,
   VFS_HDFS_CONNECTION,
+  VFS_SMB_CONNECTION,
+  VFS_GIT_CONNECTION,
 
   // DATA STREAM
   DATA_STREAM,

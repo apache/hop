@@ -67,6 +67,8 @@ public class LafDelegate<E extends IHandler> {
     return h;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   private E loadHandler(Class<E> c) {
     E h = null;
     try {

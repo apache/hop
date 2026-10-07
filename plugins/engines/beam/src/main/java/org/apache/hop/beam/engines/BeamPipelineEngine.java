@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.beam.runners.core.metrics.DefaultMetricResults;
 import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.direct.DirectRunner;
@@ -180,6 +181,7 @@ public abstract class BeamPipelineEngine extends Variables
 
   private ExecutionInfoLocation executionInfoLocation;
   private Timer executionInfoTimer;
+  private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
 
   /** Plugins can use this to add additional data samplers to the pipeline. */
   protected List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers;
@@ -1182,9 +1184,21 @@ public abstract class BeamPipelineEngine extends Variables
     executionInfoTimer.schedule(sampleTask, delay, interval);
   }
 
-  protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
+  /**
+   * Lines written since the previous tick. A full snapshot ({@code -1}) would be appended on top of
+   * the lines already stored.
+   */
+  protected ExecutionState capturePipelineExecutionState() {
     ExecutionState executionState =
-        ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
+        ExecutionStateBuilder.fromExecutor(this, executionInfoLastLogLineNr.get()).build();
+    if (executionState.getLastLogLineNr() != null) {
+      executionInfoLastLogLineNr.set(executionState.getLastLogLineNr());
+    }
+    return executionState;
+  }
+
+  protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
+    ExecutionState executionState = capturePipelineExecutionState();
     iLocation.updateExecutionState(executionState);
 
     // Also update the state of the components
@@ -1209,8 +1223,7 @@ public abstract class BeamPipelineEngine extends Variables
 
     // Register one final last state of the pipeline
     //
-    ExecutionState executionState =
-        ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
+    ExecutionState executionState = capturePipelineExecutionState();
     executionInfoLocation.getExecutionInfoLocation().updateExecutionState(executionState);
 
     // Also update the state of the components
@@ -1742,6 +1755,9 @@ public abstract class BeamPipelineEngine extends Variables
    * the converter does, so the answer at design time matches what actually happens at run time.
    *
    * <ol>
+   *   <li>Plugin id on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_PLUGIN_IDS}
+   *       list → UNSUPPORTED with the canonical user-facing reason. This path does not load the
+   *       transform class.
    *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
    *       list → UNSUPPORTED with the canonical user-facing reason.
    *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
@@ -1762,6 +1778,15 @@ public abstract class BeamPipelineEngine extends Variables
     if (transformPlugin == null) {
       return EngineCompatibility.unknown();
     }
+    String[] ids = transformPlugin.getIds();
+    if (ids != null) {
+      for (String id : ids) {
+        String ban = HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get(id);
+        if (ban != null) {
+          return EngineCompatibility.unsupported(ban);
+        }
+      }
+    }
     Class<?> mainType = transformPlugin.getMainType();
     if (mainType != null) {
       String banReason =
@@ -1773,7 +1798,6 @@ public abstract class BeamPipelineEngine extends Variables
         return EngineCompatibility.supported();
       }
     }
-    String[] ids = transformPlugin.getIds();
     if (ids != null) {
       for (String id : ids) {
         if (HopPipelineMetaToBeamPipelineConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {

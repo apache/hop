@@ -16,9 +16,13 @@ under the License.
 ////
 [[Concepts]]
 :imagesdir: ../assets/images
-:description: Hop comes with a number of concepts: a variety of tools, a large number of metadata types, projects and enviromments. At the core of literally everything in Hop is metadata.
+:description: Hop comes with a number of concepts: a variety of tools, a large number of metadata types, projects and environments. At the core of literally everything in Hop is metadata.
 
 = Concepts
+
+Apache Hop is designed around a clean separation of concerns: **Workflows** orchestrate jobs and processes step by step, while **Pipelines** perform high-throughput streaming data processing in parallel.
+
+image::concepts/hop-architecture-overview.svg[Apache Hop Architecture Overview,opts=inline]
 
 include::snippets/hop-tools/hop-tools.adoc[]
 
@@ -37,9 +41,16 @@ include::snippets/hop-concepts/data-types.adoc[]
 
 xref:pipeline/formatting-values.adoc[Formatting numbers and dates] describes Format, Length, Precision, Decimal, Group and Currency — the field metadata used whenever Hop converts a value to or from a String.
 
+== Core Guides
+
+For in-depth explanations of how Hop executes and orchestrates data solutions:
+
+* xref:pipeline/pipelines.adoc[Pipelines] — Streaming parallel data workers, in-memory row buffers, automatic back-pressure, execution engines (Local, Remote, Beam, Spark), and real-world scenarios.
+* xref:workflow/workflows.adoc[Workflows] — Process orchestration, sequential execution, conditional decision hops, and backtracking path exploration.
+
 == Various
 
-The following items are an alphabetically ordered list of concepts that are used throughout Hop and will be mentioned at various locations in the Hop tools and documentation.
+The following items are concepts that are used throughout Hop and will be mentioned at various locations in the Hop tools and documentation.
 
 Fields, parameters, and variables::
 include::snippets/hop-concepts/fields-parameters-variables.adoc[]

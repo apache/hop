@@ -75,6 +75,7 @@ import org.apache.hop.projects.environment.LifecycleEnvironmentDialog;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
+import org.apache.hop.projects.search.AllProjectsSearchablesLocation;
 import org.apache.hop.projects.security.ProjectsAccessControl;
 import org.apache.hop.projects.security.ProjectsSecurityTab;
 import org.apache.hop.projects.util.ProjectsUtil;
@@ -94,6 +95,8 @@ import org.apache.hop.ui.core.widget.FileTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerLocation;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -127,6 +130,7 @@ public class ProjectsGuiPlugin {
   public static final String ID_CONTEXT_MENU_PROJECT_ADD_FROM_TEMPLATE =
       "context-menu-project-40013-add-from-template";
   public static final String ID_CONTEXT_MENU_PROJECT_EDIT = "context-menu-project-40020-edit";
+  public static final String ID_CONTEXT_MENU_PROJECT_SEARCH = "context-menu-project-40025-search";
   public static final String ID_CONTEXT_MENU_PROJECT_DELETE = "context-menu-project-40030-delete";
 
   public static final String ID_TOOLBAR_ITEM_ENVIRONMENT = "toolbar-item-20000-environment";
@@ -637,6 +641,30 @@ public class ProjectsGuiPlugin {
     }
   }
 
+  /**
+   * Remove a project from the toolbar recent list and persist that change. Called when a project
+   * registration is deleted so the project menu does not keep showing it.
+   */
+  public static void forgetLastUsedProject(String projectName) {
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+
+    getLastUsedProjects();
+    if (!lastUsedProjects.remove(projectName)) {
+      return;
+    }
+
+    try {
+      AuditList auditList = new AuditList(new ArrayList<>(lastUsedProjects));
+      AuditManager.getActive()
+          .storeList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, LAST_USED_PROJECTS_AUDIT_TYPE, auditList);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Error writing list of last used projects " + LAST_USED_PROJECTS_AUDIT_TYPE, e);
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////////
   // Environment toolbar items...
   //
@@ -719,15 +747,17 @@ public class ProjectsGuiPlugin {
           new ProjectDialog(
               hopGui.getActiveShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
-        config.addProjectConfig(projectConfig);
-
-        if (!projectName.equals(projectConfig.getProjectName())) {
-          // Project got renamed
-          projectName = projectConfig.getProjectName();
-        }
-
-        // Persist project registration (name, home, config path, read-only) in hop-config.json
-        HopConfig.getInstance().saveToFile();
+        // Persist project registration (name, home, config path, group, read-only) in
+        // hop-config.json.
+        // A rename also updates the projects using this one as their parent, all or nothing.
+        //
+        ProjectsUtil.saveProjectConfig(
+            projectName,
+            projectConfig,
+            hopGui.getVariables(),
+            hopGui.getLog(),
+            ProjectsConfigSingleton::saveConfig);
+        projectName = projectConfig.getProjectName();
 
         // Do not write project-config.json for read-only projects (archives, HTTP, ...).
         //
@@ -764,6 +794,20 @@ public class ProjectsGuiPlugin {
               PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Message", projectName),
           e);
     }
+  }
+
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_PROJECT,
+      parentId = ID_CONTEXT_MENU_PROJECT,
+      id = ID_CONTEXT_MENU_PROJECT_SEARCH,
+      label = "i18n::HopGui.Toolbar.Project.Search.Label",
+      toolTip = "i18n::HopGui.Toolbar.Project.Search.Tooltip",
+      image = "ui/images/search.svg")
+  public void searchProjects() {
+    HopGui hopGui = HopGui.getInstance();
+    new SearchEverywhereDialog(
+            hopGui.getActiveShell(), hopGui, AllProjectsSearchablesLocation.LOCATION_ID)
+        .open();
   }
 
   private static boolean askAboutProjectRefresh(HopGui hopGui) {
@@ -871,25 +915,53 @@ public class ProjectsGuiPlugin {
 
     new MenuItem(menu, SWT.SEPARATOR);
 
-    // Display the last-used projects
+    // Recent projects that have no group. Grouped projects are listed under their topic below,
+    // not in this flat list, so the menu stays short when projects share a topic.
+    // The in-memory list can briefly lag a deletion; drop names that are already gone.
     List<String> names = new ArrayList<>(getLastUsedProjects());
+    List<String> registeredNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+    if (registeredNames == null) {
+      names.clear();
+    } else {
+      names.removeIf(name -> !registeredNames.contains(name));
+    }
 
     // If the user prefers to display in alphabetical order
     if (ProjectsConfigOptionPlugin.getInstance().getSortByNameLastUsedProjects()) {
       names.sort(String::compareToIgnoreCase);
     }
+    if (names.size() > LAST_USED_PROJECTS_MAX_ENTRIES) {
+      names = new ArrayList<>(names.subList(0, LAST_USED_PROJECTS_MAX_ENTRIES));
+    }
 
     String currentProjectName = HopNamespace.getNamespace();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> recent =
+        ProjectMenuGroups.recentUngrouped(
+            names, config::findProjectConfig, LAST_USED_PROJECTS_MAX_ENTRIES);
+    for (String name : recent) {
+      addProjectMenuItem(menu, name, currentProjectName);
+    }
 
-    int count = 0;
-    for (String name : names) {
-      MenuItem item = new MenuItem(menu, SWT.NONE);
-      item.setText(name);
-      item.addListener(SWT.Selection, e -> selectProject(name));
-      if (currentProjectName.equals(name)) {
-        item.setImage(GuiResource.getInstance().getImageCheck());
+    Map<String, List<String>> groups = groupedProjectNames(config);
+    if (!recent.isEmpty() && !groups.isEmpty()) {
+      new MenuItem(menu, SWT.SEPARATOR);
+    }
+    for (Map.Entry<String, List<String>> entry : groups.entrySet()) {
+      MenuItem groupItem = new MenuItem(menu, SWT.CASCADE);
+      groupItem.setText(entry.getKey());
+      Menu subMenu = new Menu(menu);
+      groupItem.setMenu(subMenu);
+      boolean currentInGroup = false;
+      for (String name : entry.getValue()) {
+        addProjectMenuItem(subMenu, name, currentProjectName);
+        if (isCurrentProject(currentProjectName, name)) {
+          currentInGroup = true;
+        }
       }
-      if (++count == LAST_USED_PROJECTS_MAX_ENTRIES) break;
+      if (currentInGroup) {
+        groupItem.setImage(GuiResource.getInstance().getImageCheck());
+      }
     }
 
     // Add a menu to open a dialog to select it
@@ -899,6 +971,37 @@ public class ProjectsGuiPlugin {
     item.addListener(SWT.Selection, e -> selectProject());
 
     return menu;
+  }
+
+  private void addProjectMenuItem(Menu menu, String name, String currentProjectName) {
+    MenuItem item = new MenuItem(menu, SWT.NONE);
+    item.setText(name);
+    item.addListener(SWT.Selection, e -> selectProject(name));
+    if (isCurrentProject(currentProjectName, name)) {
+      item.setImage(GuiResource.getInstance().getImageCheck());
+    }
+  }
+
+  private static boolean isCurrentProject(String currentProjectName, String name) {
+    return StringUtils.isNotEmpty(currentProjectName) && currentProjectName.equalsIgnoreCase(name);
+  }
+
+  /**
+   * Group topics to show in the project menu. Projects the current user may not open are omitted.
+   */
+  private static Map<String, List<String>> groupedProjectNames(ProjectsConfig config) {
+    if (config == null || config.getProjectConfigurations() == null) {
+      return Map.of();
+    }
+    List<ProjectConfig> visible = new ArrayList<>();
+    for (ProjectConfig projectConfig : config.getProjectConfigurations()) {
+      if (projectConfig == null
+          || !ProjectsAccessControl.isProjectAllowed(projectConfig.getProjectName())) {
+        continue;
+      }
+      visible.add(projectConfig);
+    }
+    return ProjectMenuGroups.byGroup(visible);
   }
 
   private Menu createEnvironmentContextMenu() {
@@ -942,7 +1045,7 @@ public class ProjectsGuiPlugin {
       LifecycleEnvironment environment = config.findEnvironment(name);
       if (environment != null
           && (Utils.isEmpty(environment.getProjectName())
-              || currentProjectName.equals(environment.getProjectName()))) {
+              || currentProjectName.equalsIgnoreCase(environment.getProjectName()))) {
         // Create a final copy of the name variable for the lambda closure
         // This is critical for RAP/web compatibility - each menu item needs its own copy
         final String environmentName = name;
@@ -995,13 +1098,6 @@ public class ProjectsGuiPlugin {
     HopGui hopGui = HopGui.getInstance();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    if (config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)) {
-      // list all environments and select the first one if we don't have a project selected
-      List<String> allEnvironments = config.listEnvironmentNames();
-      updateEnvironmentToolItem(allEnvironments.getFirst());
-      return;
-    }
-
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       return;
@@ -1029,7 +1125,7 @@ public class ProjectsGuiPlugin {
           if (environment != null) {
             // See that the project belongs to the environment
             //
-            if (projectName.equals(environment.getProjectName())) {
+            if (projectName.equalsIgnoreCase(environment.getProjectName())) {
               // We found what we've been looking for
               break;
             } else {
@@ -1174,7 +1270,7 @@ public class ProjectsGuiPlugin {
           new ProjectConfig("", standardProjectsFolder, defaultProjectConfigFilename);
 
       Project project = new Project();
-      project.setParentProjectName(config.getStandardParentProject());
+      project.setParentProjectName(config.findRegisteredStandardParentProject());
 
       ProjectDialog projectDialog =
           new ProjectDialog(hopGui.getActiveShell(), project, projectConfig, variables, false);
@@ -1397,6 +1493,7 @@ public class ProjectsGuiPlugin {
       try {
         config.removeProjectConfig(projectName);
         ProjectsConfigSingleton.saveConfig();
+        forgetLastUsedProject(projectName);
 
         if (StringUtils.isEmpty(config.getDefaultProject())) {
           updateProjectToolItem(null);
@@ -1680,16 +1777,6 @@ public class ProjectsGuiPlugin {
     return names;
   }
 
-  /**
-   * Called by the environment menu in the toolbar
-   *
-   * @param log
-   * @param metadataProvider
-   */
-  public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    return ProjectsConfigSingleton.getConfig().listEnvironmentNames();
-  }
-
   // Add a "Navigate to project home" button to the file dialog browser toolbar
   //
   @GuiToolbarElement(
@@ -1712,6 +1799,26 @@ public class ProjectsGuiPlugin {
       if (instance != null) {
         instance.navigateTo(homeFolder, true);
       }
+    }
+  }
+
+  @GuiToolbarElement(
+      root = VfsFileExplorerLocation.NAVIGATE_TOOLBAR_PARENT_ID,
+      id = "VfsFileExplorer-Navigate-0005-ProjectHome",
+      toolTip = "i18n::FileDialog.Browse.Project.Home",
+      image = "project.svg")
+  public static void vfsExplorerProjectHome(VfsFileExplorerLocation location) {
+    if (location == null) {
+      return;
+    }
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(HopNamespace.getNamespace());
+    if (projectConfig == null) {
+      return;
+    }
+    String homeFolder = projectConfig.getProjectHome();
+    if (StringUtils.isNotEmpty(homeFolder)) {
+      location.navigateTo(homeFolder, true);
     }
   }
 
@@ -1945,6 +2052,7 @@ public class ProjectsGuiPlugin {
                         && !name.contains("HOP_PROJECTS")
                         && !name.contains("HOP_PLATFORM_OS")
                         && !name.contains("HOP_PROJECT_NAME")
+                        && !name.contains("HOP_PROJECT_ID")
                         && !name.contains("HOP_SERVER_URL")) {
                       String value = variables.getVariable(name);
                       variablesMap.put(name, value);

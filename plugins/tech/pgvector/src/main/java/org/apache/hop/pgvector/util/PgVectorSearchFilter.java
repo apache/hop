@@ -20,7 +20,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-/** Filters search results where a table column equals a value from an input stream field. */
+/**
+ * Filters search results where a table column equals a value from an input stream field.
+ *
+ * <p>By default a filter always applies, so an empty stream value is compared as is and matches
+ * nothing. With {@link #skipIfEmpty} set, the filter is left out of the query for any row whose
+ * stream value is empty, which makes it an optional narrowing rather than a required one.
+ */
 @Getter
 @Setter
 public class PgVectorSearchFilter {
@@ -31,10 +37,18 @@ public class PgVectorSearchFilter {
   @HopMetadataProperty(key = "stream", injectionKey = "STREAM")
   private String streamField;
 
+  @HopMetadataProperty(key = "skip_if_empty", injectionKey = "SKIP_IF_EMPTY")
+  private boolean skipIfEmpty;
+
   public PgVectorSearchFilter() {}
 
   public PgVectorSearchFilter(String columnName, String streamField) {
+    this(columnName, streamField, false);
+  }
+
+  public PgVectorSearchFilter(String columnName, String streamField, boolean skipIfEmpty) {
     this.columnName = columnName;
     this.streamField = streamField;
+    this.skipIfEmpty = skipIfEmpty;
   }
 }

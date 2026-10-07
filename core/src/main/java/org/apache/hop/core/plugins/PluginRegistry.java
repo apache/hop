@@ -109,6 +109,8 @@ public class PluginRegistry {
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public void removePlugin(Class<? extends IPluginType> pluginType, IPlugin plugin) {
     lock.writeLock().lock();
     try {
@@ -417,6 +419,8 @@ public class PluginRegistry {
    * @return The instantiated class
    * @throws HopPluginException In case there was a class loading problem somehow
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public <T> T loadClass(IPlugin plugin, Class<T> pluginClass) throws HopPluginException {
     if (plugin == null) {
       throw new HopPluginException(
@@ -876,6 +880,8 @@ public class PluginRegistry {
    * @throws HopPluginException In case there was a problem
    *     <p>getClassLoader();
    */
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public ClassLoader getClassLoader(IPlugin plugin) throws HopPluginException {
 
     if (plugin == null) {
@@ -1039,6 +1045,8 @@ public class PluginRegistry {
     return result;
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   public void reset() {
     lock.writeLock().lock();
     try {

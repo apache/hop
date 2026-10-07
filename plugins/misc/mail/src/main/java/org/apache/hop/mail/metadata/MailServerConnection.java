@@ -76,7 +76,8 @@ import org.eclipse.angus.mail.pop3.POP3SSLStore;
 @Getter
 @Setter
 @HopMetadata(
-    key = "MailServerConnection",
+    key = "mail-server-connection",
+    legacyKeys = {"MailServerConnection"},
     name = "i18n::MailServerConnection.name",
     description = "i18n::MailServerConnection.description",
     image = "mail.svg",
@@ -1062,6 +1063,9 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       // Do no overwrite existing file
       String targetFileName;
       if (filename == null) {
+        // Safe: the temporary file only supplies a unique name, the attachment itself is written
+        // to the target folder chosen by the user
+        @SuppressWarnings("java:S5443")
         File f = File.createTempFile("xx", ".out");
         f.deleteOnExit(); // Clean up file
         filename = f.getName();

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.search;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -25,13 +26,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchResult;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchHelper.SearchObjectGroup;
@@ -305,6 +310,86 @@ class HopGuiSearchHelperTest {
     } finally {
       SearchConfigSingleton.setConfigForTesting(new SearchConfig());
     }
+  }
+
+  @Test
+  void defaultSelectionSkipsLocationsThatOptOut() {
+    ISearchablesLocation gui = location("gui", "Current objects loaded in the Hop GUI", true);
+    ISearchablesLocation project = location("project:samples", "Project samples", true);
+    ISearchablesLocation allProjects = location("all-projects", "All projects", false);
+    List<ISearchablesLocation> locations = List.of(gui, project, allProjects);
+
+    assertEquals(List.of(gui, project), HopGuiSearchHelper.selectLocations(locations, 0));
+    assertEquals(List.of(allProjects), HopGuiSearchHelper.selectLocations(locations, 3));
+    assertEquals(List.of(gui, project), HopGuiSearchHelper.selectLocations(locations, 99));
+    assertEquals(3, HopGuiSearchHelper.indexOfLocation(locations, "all-projects"));
+    assertEquals(0, HopGuiSearchHelper.indexOfLocation(locations, null));
+    assertEquals(0, HopGuiSearchHelper.indexOfLocation(locations, "missing"));
+    assertArrayEquals(
+        new String[] {
+          "All loaded locations",
+          "Current objects loaded in the Hop GUI",
+          "Project samples",
+          "All projects"
+        },
+        HopGuiSearchHelper.locationLabels(locations, "All loaded locations"));
+  }
+
+  @Test
+  void searchingANonGuiLocationDoesNotMarkFilesAsOpen() throws Exception {
+    ISearchable openFile = pipeline("loader", "/p/loader.hpl");
+    ISearchable otherFile = pipeline("other", "/other/other.hpl");
+    HopGuiSearchLocation gui =
+        new HopGuiSearchLocation(null) {
+          @Override
+          public Iterator<ISearchable> getSearchables(
+              IHopMetadataProvider metadataProvider, IVariables variables) {
+            return List.of(openFile).iterator();
+          }
+        };
+    ISearchablesLocation other = location("all-projects", "All projects", false, otherFile);
+
+    HopGuiSearchHelper.EnumeratedSearchables onlyOther =
+        HopGuiSearchHelper.enumerateAll(List.of(other), null, null, null);
+    assertFalse(HopGuiSearchHelper.isOpenObject(otherFile, onlyOther.getSourceByKey()));
+
+    HopGuiSearchHelper.EnumeratedSearchables both =
+        HopGuiSearchHelper.enumerateAll(List.of(gui, other), null, null, null);
+    assertTrue(HopGuiSearchHelper.isOpenObject(openFile, both.getSourceByKey()));
+    assertFalse(HopGuiSearchHelper.isOpenObject(otherFile, both.getSourceByKey()));
+  }
+
+  private static ISearchablesLocation location(
+      String id, String description, boolean includedByDefault) {
+    return location(id, description, includedByDefault, null);
+  }
+
+  private static ISearchablesLocation location(
+      String id, String description, boolean includedByDefault, ISearchable searchable) {
+    return new ISearchablesLocation() {
+      @Override
+      public String getLocationDescription() {
+        return description;
+      }
+
+      @Override
+      public String getLocationId() {
+        return id;
+      }
+
+      @Override
+      public boolean isIncludedInDefaultSearch() {
+        return includedByDefault;
+      }
+
+      @Override
+      public Iterator<ISearchable> getSearchables(
+          IHopMetadataProvider metadataProvider, IVariables variables) {
+        return searchable == null
+            ? List.<ISearchable>of().iterator()
+            : List.of(searchable).iterator();
+      }
+    };
   }
 
   /** Analyser map keys are searchable object classes (not analyser classes). */

@@ -47,6 +47,8 @@ public class LoggingObject implements ILoggingObject {
     }
   }
 
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof LoggingObject)) {

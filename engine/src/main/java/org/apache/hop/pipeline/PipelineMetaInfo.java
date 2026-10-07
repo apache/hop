@@ -42,7 +42,15 @@ public class PipelineMetaInfo extends AbstractMetaInfo {
   @HopMetadataProperty(key = "transform_performance_capturing_size_limit")
   protected String transformPerformanceCapturingSizeLimit;
 
-  /** The status of the pipeline. */
+  /**
+   * The status of the pipeline: {@code 1} for draft, {@code 2} for production, {@code -1} when
+   * unset.
+   *
+   * @deprecated since 2.20, for removal. Nothing in Hop acts on the value, it has to be maintained
+   *     by hand, and it is left at {@code -1} in practice. It is still read from and written to the
+   *     file, so no existing value is lost before it is removed.
+   */
+  @Deprecated(since = "2.20", forRemoval = true)
   @HopMetadataProperty(key = "pipeline_status")
   protected int pipelineStatus;
 

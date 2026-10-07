@@ -173,6 +173,34 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   }
 
   /**
+   * Whether this kind of canvas tooltip is shown: the general tooltip option on the General tab
+   * must be on, and so must the kind's own checkbox in the Look &amp; Feel options. The general
+   * option is checked here rather than in {@link PropsUi#isCanvasToolTipShown(CanvasToolTip)},
+   * since the Look &amp; Feel checkboxes read that one and would otherwise save every kind as off.
+   */
+  protected boolean isToolTipShown(CanvasToolTip toolTip) {
+    PropsUi props = hopGui.getProps();
+    return props.showToolTips() && props.isCanvasToolTipShown(toolTip);
+  }
+
+  /**
+   * Whether any of the tooltips an area can put up is still on. The icon of a transform or action
+   * carries either a deprecation warning or a description, so it stays hoverable as long as one of
+   * the two is on; the branch that builds the text checks the exact one.
+   */
+  protected boolean isAreaToolTipShown(AreaOwner areaOwner) {
+    if (areaOwner == null || areaOwner.getAreaType() == null) {
+      return false;
+    }
+    for (CanvasToolTip toolTip : CanvasToolTip.forAreaType(areaOwner.getAreaType())) {
+      if (isToolTipShown(toolTip)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * The hide for a mouse move: takes down the tooltip of whatever was under the pointer, but not a
    * notice such as "Selection cleared". That one is not tied to the pointer and stays until its
    * timer fires or something else is shown or hidden.

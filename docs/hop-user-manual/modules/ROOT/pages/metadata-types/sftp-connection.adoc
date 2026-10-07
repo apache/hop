@@ -91,5 +91,6 @@ Use **Test connection** to log in with the settings on screen, without saving fi
 
 * Give timeouts a value in production. Without them a stalled connection makes a pipeline wait forever.
 * To check a connection, open any file dialog and browse `+YourConnectionName:///+`.
+* **Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.
 * Pick a **Connection name** which doesn't clash with the https://commons.apache.org/proper/commons-vfs/filesystems.html[built-in VFS schemes] (`file`, `ftp`, `sftp`, `http`, ...) or with other registered connections (`s3`, `azure`, `gs`, ...). Hop logs an error and skips a connection whose name is already taken.
 * The plain `+sftp://user:password@server/path+` syntax keeps working. A named connection keeps the credentials out of your pipelines and lets you point at another server per environment.
