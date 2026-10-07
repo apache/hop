@@ -428,6 +428,14 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>textfileoutput-tiny-file.hpl</item>
         <item>generates the input file required by csvinput-basic.hpl</item>
       </line>
+      <line>
+        <item>parquet-file-output.hpl</item>
+        <item>generates the Parquet file read by parquet-file-input.hpl</item>
+      </line>
+      <line>
+        <item>data-stream-output.hpl</item>
+        <item>generates the Arrow stream file read by data-stream-input.hpl</item>
+      </line>
     </data>
     <distribute>Y</distribute>
     <copies>1</copies>
@@ -574,6 +582,274 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <line>
         <item>structured-extract-basic.hpl</item>
         <item>requires an AI provider named ollama-local</item>
+      </line>
+      <line>
+        <item>call-db-procedure.hpl</item>
+        <item>requires a stored procedure in the database</item>
+      </line>
+      <line>
+        <item>get-table-names.hpl</item>
+        <item>fails on the H2 2.x metadata of the hop-samples connection (INFORMATION_SCHEMA.CONSTANTS)</item>
+      </line>
+      <line>
+        <item>http-client.hpl</item>
+        <item>requires network access to the URL</item>
+      </line>
+      <line>
+        <item>http-post.hpl</item>
+        <item>requires network access to the URL</item>
+      </line>
+      <line>
+        <item>web-services-lookup.hpl</item>
+        <item>requires network access to the web service</item>
+      </line>
+      <line>
+        <item>mail.hpl</item>
+        <item>requires mail connection sample-mail</item>
+      </line>
+      <line>
+        <item>email-messages-input.hpl</item>
+        <item>requires mail connection sample-mail</item>
+      </line>
+      <line>
+        <item>ldap-input.hpl</item>
+        <item>requires reachable LDAP server</item>
+      </line>
+      <line>
+        <item>ldap-output.hpl</item>
+        <item>requires reachable LDAP server</item>
+      </line>
+      <line>
+        <item>jms-consumer.hpl</item>
+        <item>requires JMS connection sample-jms</item>
+      </line>
+      <line>
+        <item>jms-producer.hpl</item>
+        <item>requires JMS connection sample-jms</item>
+      </line>
+      <line>
+        <item>splunk-input.hpl</item>
+        <item>requires reachable Splunk server</item>
+      </line>
+      <line>
+        <item>execution-information.hpl</item>
+        <item>requires execution info location metadata</item>
+      </line>
+      <line>
+        <item>sas-input.hpl</item>
+        <item>requires a SAS data set file</item>
+      </line>
+      <line>
+        <item>pgp-encrypt-stream.hpl</item>
+        <item>requires gpg and the PGP key of the recipient</item>
+      </line>
+      <line>
+        <item>pgp-decrypt-stream.hpl</item>
+        <item>requires gpg and a PGP private key</item>
+      </line>
+      <line>
+        <item>dataset-input.hpl</item>
+        <item>requires unit test data set metadata</item>
+      </line>
+      <line>
+        <item>dataset-output.hpl</item>
+        <item>requires unit test data set metadata</item>
+      </line>
+      <line>
+        <item>execute-unit-tests.hpl</item>
+        <item>requires unit test metadata</item>
+      </line>
+      <line>
+        <item>aws-sns-notify.hpl</item>
+        <item>requires AWS credentials</item>
+      </line>
+      <line>
+        <item>aws-sqs-reader.hpl</item>
+        <item>requires AWS credentials</item>
+      </line>
+      <line>
+        <item>redshift-bulk-loader.hpl</item>
+        <item>requires AWS credentials and a Redshift cluster</item>
+      </line>
+      <line>
+        <item>azure-event-hubs-listener.hpl</item>
+        <item>requires Azure Event Hubs and credentials</item>
+      </line>
+      <line>
+        <item>azure-event-hubs-writer.hpl</item>
+        <item>requires Azure Event Hubs and credentials</item>
+      </line>
+      <line>
+        <item>cassandra-input.hpl</item>
+        <item>requires reachable Cassandra cluster</item>
+      </line>
+      <line>
+        <item>cassandra-output.hpl</item>
+        <item>requires reachable Cassandra cluster</item>
+      </line>
+      <line>
+        <item>cassandra-sstable-output.hpl</item>
+        <item>requires Cassandra connection settings</item>
+      </line>
+      <line>
+        <item>google-sheets-input.hpl</item>
+        <item>requires Google credentials</item>
+      </line>
+      <line>
+        <item>google-sheets-output.hpl</item>
+        <item>requires Google credentials</item>
+      </line>
+      <line>
+        <item>google-analytics-4.hpl</item>
+        <item>requires Google credentials</item>
+      </line>
+      <line>
+        <item>salesforce-input.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
+        <item>salesforce-insert.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
+        <item>salesforce-update.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
+        <item>salesforce-upsert.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
+        <item>salesforce-delete.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
+        <item>pgvector-search.hpl</item>
+        <item>requires PostgreSQL with the pgvector extension</item>
+      </line>
+      <line>
+        <item>pgvector-upsert.hpl</item>
+        <item>requires PostgreSQL with the pgvector extension</item>
+      </line>
+      <line>
+        <item>sftp-put.hpl</item>
+        <item>requires reachable SFTP host and credentials</item>
+      </line>
+      <line>
+        <item>embed-text.hpl</item>
+        <item>requires AI connection with an embedding model</item>
+      </line>
+      <line>
+        <item>mssql-bulk-loader.hpl</item>
+        <item>requires a SQL Server connection named mssql</item>
+      </line>
+      <line>
+        <item>mysql-bulk-loader.hpl</item>
+        <item>requires a MySQL connection named mysql</item>
+      </line>
+      <line>
+        <item>monetdb-bulk-loader.hpl</item>
+        <item>requires a MonetDB connection named monetdb</item>
+      </line>
+      <line>
+        <item>postgresql-bulk-loader.hpl</item>
+        <item>requires a PostgreSQL connection named postgresql</item>
+      </line>
+      <line>
+        <item>oracle-bulk-loader.hpl</item>
+        <item>requires an Oracle connection named oracle</item>
+      </line>
+      <line>
+        <item>cratedb-bulk-loader.hpl</item>
+        <item>requires a CrateDB connection named cratedb</item>
+      </line>
+      <line>
+        <item>snowflake-bulk-loader.hpl</item>
+        <item>requires a Snowflake connection named snowflake</item>
+      </line>
+      <line>
+        <item>microsoft-access-output.hpl</item>
+        <item>requires an Access database file and table name</item>
+      </line>
+      <line>
+        <item>doris-bulk-loader.hpl</item>
+        <item>requires a reachable Doris frontend</item>
+      </line>
+      <line>
+        <item>teradata-fastload-bulk-loader.hpl</item>
+        <item>requires a Teradata connection named teradata</item>
+      </line>
+      <line>
+        <item>rules-executor.hpl</item>
+        <item>requires a rules definition</item>
+      </line>
+      <line>
+        <item>beam-bigquery-input.hpl</item>
+        <item>requires Beam run configuration and GCP credentials</item>
+      </line>
+      <line>
+        <item>beam-bigquery-output.hpl</item>
+        <item>requires Beam run configuration and GCP credentials</item>
+      </line>
+      <line>
+        <item>beam-bigtable-input.hpl</item>
+        <item>requires Beam run configuration and GCP credentials</item>
+      </line>
+      <line>
+        <item>beam-gcp-pubsub-publish.hpl</item>
+        <item>requires Beam run configuration and GCP credentials</item>
+      </line>
+      <line>
+        <item>beam-gcp-pubsub-subscribe.hpl</item>
+        <item>requires Beam run configuration and GCP credentials</item>
+      </line>
+      <line>
+        <item>beam-kinesis-consume.hpl</item>
+        <item>requires Beam run configuration and AWS credentials</item>
+      </line>
+      <line>
+        <item>beam-kinesis-produce.hpl</item>
+        <item>requires Beam run configuration and AWS credentials</item>
+      </line>
+      <line>
+        <item>beam-timestamp.hpl</item>
+        <item>requires Beam run configuration</item>
+      </line>
+      <line>
+        <item>beam-hive-catalog-input.hpl</item>
+        <item>requires Beam run configuration and a Hive metastore</item>
+      </line>
+      <line>
+        <item>structured-extract-basic.hpl</item>
+        <item>requires an AI provider connection, e.g. ollama</item>
+      </line>
+      <line>
+        <item>redis-input-multi-structure.hpl</item>
+        <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
+      </line>
+      <line>
+        <item>redis-output-set.hpl</item>
+        <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
+      </line>
+      <line>
+        <item>redis-output-stream.hpl</item>
+        <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
+      </line>
+      <line>
+        <item>redis-output-list.hpl</item>
+        <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
+      </line>
+      <line>
+        <item>redis-output-string.hpl</item>
+        <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
+      </line>
+      <line>
+        <item>redis-output-hash.hpl</item>
+        <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
+      </line>
+      <line>
+        <item>odata-input-northwind.hpl</item>
+        <item>requires network access to services.odata.org</item>
       </line>
     </data>
     <distribute>Y</distribute>
