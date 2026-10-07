@@ -17,9 +17,16 @@
 
 package org.apache.hop.ai.advisors.pipeline;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
@@ -33,6 +40,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -65,8 +73,9 @@ public final class PipelineAiProposalValidator {
             deletedHop(proposal.parameter("fromTransform"), proposal.parameter("toTransform")));
       }
     }
+    HopGraph hops = HopGraph.of(pipelineMeta, reservedNames);
     for (AiProposal proposal : proposals) {
-      results.add(validateOne(pipelineMeta, proposal, reservedNames, metadataProvider));
+      results.add(validateOne(pipelineMeta, proposal, reservedNames, hops, metadataProvider));
     }
     return results;
   }
@@ -75,6 +84,7 @@ public final class PipelineAiProposalValidator {
       PipelineMeta pipelineMeta,
       AiProposal proposal,
       Set<String> reservedNames,
+      HopGraph hops,
       IHopMetadataProvider metadataProvider) {
     AiProposalTypes type = AiProposalTypes.of(proposal);
     if (type == null) {
@@ -94,9 +104,11 @@ public final class PipelineAiProposalValidator {
     }
     return switch (type) {
       case ADD_TRANSFORM -> validateAddTransform(pipelineMeta, proposal, reservedNames);
-      case DELETE_TRANSFORM -> validateDeleteTransform(pipelineMeta, proposal);
-      case RENAME_TRANSFORM -> validateRenameTransform(pipelineMeta, proposal, reservedNames);
-      case ADD_PIPELINE_HOP -> validateAddPipelineHop(pipelineMeta, proposal, reservedNames);
+      case DELETE_TRANSFORM ->
+          hops.track(proposal, validateDeleteTransform(pipelineMeta, proposal));
+      case RENAME_TRANSFORM ->
+          hops.track(proposal, validateRenameTransform(pipelineMeta, proposal, reservedNames));
+      case ADD_PIPELINE_HOP -> validateAddPipelineHop(pipelineMeta, proposal, reservedNames, hops);
       case DELETE_PIPELINE_HOP -> validateDeletePipelineHop(pipelineMeta, proposal);
       case SET_TRANSFORM_LOCATION -> validateSetTransformLocation(pipelineMeta, proposal);
       case ADD_PIPELINE_NOTE -> validateAddPipelineNote(proposal);
@@ -218,7 +230,7 @@ public final class PipelineAiProposalValidator {
   }
 
   private static AiProposalValidation validateAddPipelineHop(
-      PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames) {
+      PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames, HopGraph hops) {
     String fromName = proposal.parameter("fromTransform");
     String toName = proposal.parameter("toTransform");
     if (Utils.isEmpty(fromName) || Utils.isEmpty(toName)) {
@@ -242,18 +254,16 @@ public final class PipelineAiProposalValidator {
       return blocked(
           proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.HopToItself"));
     }
-    // A pipeline cannot loop: the reverse hop, already there or proposed earlier, would. Not when
-    // the batch deletes it.
-    if ((from != null
-            && to != null
-            && pipelineMeta.findPipelineHop(to, from) != null
-            && !reservedNames.contains(deletedHop(toName, fromName)))
-        || reservedNames.contains("hop:" + toName + "->" + fromName)) {
+    // A pipeline cannot loop, through any number of hops: those of the graph that the batch keeps
+    // and those proposed earlier in it.
+    List<String> loop = hops.pathBack(fromName.trim(), toName.trim());
+    if (loop != null) {
       return blocked(
           proposal,
-          BaseMessages.getString(PKG, "PipelineAiProposalValidator.HopLoop", toName, fromName));
+          BaseMessages.getString(
+              PKG, "PipelineAiProposalValidator.HopLoop", String.join(" -> ", loop)));
     }
-    reservedNames.add("hop:" + fromName + "->" + toName);
+    hops.add(fromName.trim(), toName.trim());
     if (from != null && to != null && pipelineMeta.findPipelineHop(from, to) != null) {
       return warning(
           proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.HopExists"));
@@ -415,5 +425,92 @@ public final class PipelineAiProposalValidator {
       PipelineMeta pipelineMeta, String name, Set<String> reservedNames) {
     return pipelineMeta.findTransform(name) != null
         || (reservedNames != null && reservedNames.contains(name.trim()));
+  }
+
+  /**
+   * The hops between transform names as they will be once the batch is applied up to the proposal
+   * being checked: the graph's hops without those the batch deletes, with the transforms the batch
+   * renames or deletes so far, and the hops it adds so far.
+   */
+  private static final class HopGraph {
+    private final Map<String, Set<String>> next = new HashMap<>();
+
+    static HopGraph of(PipelineMeta pipelineMeta, Set<String> reservedNames) {
+      HopGraph graph = new HopGraph();
+      if (pipelineMeta == null) {
+        return graph;
+      }
+      for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
+        if (hop.getFromTransform() == null || hop.getToTransform() == null) {
+          continue;
+        }
+        String from = hop.getFromTransform().getName().trim();
+        String to = hop.getToTransform().getName().trim();
+        if (!reservedNames.contains(deletedHop(from, to))) {
+          graph.add(from, to);
+        }
+      }
+      return graph;
+    }
+
+    void add(String from, String to) {
+      next.computeIfAbsent(from, k -> new LinkedHashSet<>()).add(to);
+    }
+
+    /** Follow a rename or delete that passed validation. */
+    AiProposalValidation track(AiProposal proposal, AiProposalValidation validation) {
+      if (validation.isBlocked()) {
+        return validation;
+      }
+      String name = proposal.parameter("transformName").trim();
+      if (AiProposalTypes.of(proposal) == AiProposalTypes.DELETE_TRANSFORM) {
+        rename(name, null);
+      } else {
+        rename(name, proposal.parameter("newName").trim());
+      }
+      return validation;
+    }
+
+    private void rename(String oldName, String newName) {
+      Set<String> out = next.remove(oldName);
+      if (newName != null && out != null) {
+        next.computeIfAbsent(newName, k -> new LinkedHashSet<>()).addAll(out);
+      }
+      for (Set<String> targets : next.values()) {
+        if (targets.remove(oldName) && newName != null) {
+          targets.add(newName);
+        }
+      }
+    }
+
+    /**
+     * The loop a new hop from -> to would close, as from, to, ..., from; or null when there is
+     * none.
+     */
+    List<String> pathBack(String from, String to) {
+      Map<String, String> cameFrom = new LinkedHashMap<>();
+      Deque<String> queue = new ArrayDeque<>();
+      queue.add(to);
+      cameFrom.put(to, null);
+      while (!queue.isEmpty()) {
+        String current = queue.poll();
+        if (current.equals(from)) {
+          List<String> path = new ArrayList<>();
+          for (String at = current; at != null; at = cameFrom.get(at)) {
+            path.add(at);
+          }
+          Collections.reverse(path);
+          path.add(0, from);
+          return path;
+        }
+        for (String target : next.getOrDefault(current, Set.of())) {
+          if (!cameFrom.containsKey(target)) {
+            cameFrom.put(target, current);
+            queue.add(target);
+          }
+        }
+      }
+      return null;
+    }
   }
 }

@@ -32,6 +32,7 @@ import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -43,6 +44,8 @@ import org.eclipse.swt.widgets.Shell;
  * the same list so topics survive moving the workbench.
  */
 public class AiAdvisorSessionStore {
+
+  private static final Class<?> PKG = AiAdvisorSessionStore.class;
 
   static final String SHELL_DATA_KEY = AiAdvisorSessionStore.class.getName();
 
@@ -78,7 +81,12 @@ public class AiAdvisorSessionStore {
     store.persistent = true;
     shell.setData(SHELL_DATA_KEY, store);
     // A change made just before Hop GUI closes is still waiting for its delayed save.
-    shell.addListener(SWT.Dispose, e -> store.saveNow());
+    shell.addListener(
+        SWT.Dispose,
+        e -> {
+          store.stopWaitingQuestions();
+          store.saveNow();
+        });
     return store;
   }
 
@@ -426,6 +434,27 @@ public class AiAdvisorSessionStore {
           saveScheduled = false;
           saveNow();
         });
+  }
+
+  /**
+   * Hop GUI exits: a question still waiting for its answer cannot finish, as the JVM stops once the
+   * main window is gone. Its turn says so instead of staying unanswered after a restart.
+   */
+  void stopWaitingQuestions() {
+    for (AiAdvisorSession session : sessions) {
+      if (!session.isWorking()) {
+        continue;
+      }
+      session.requestCancel();
+      session.setWorking(false);
+      session.setWorkerThread(null);
+      if (!session.isEmpty()) {
+        AiAdvisorTurn turn = session.getTurns().get(session.getTurns().size() - 1);
+        if (Utils.isEmpty(turn.getAssistantAdvice())) {
+          turn.setErrorMessage(BaseMessages.getString(PKG, "AiAdvisorSessionStore.StoppedByExit"));
+        }
+      }
+    }
   }
 
   void saveNow() {

@@ -52,6 +52,12 @@ public class AiAdvisorTurn {
   /** The provider and model the question went to, shown while waiting. */
   private String providerLabel;
 
+  /**
+   * The applied-change summaries this question was sent with, taken off the session once its answer
+   * is recorded. Not kept between Hop GUI runs.
+   */
+  private List<String> sentAppliedSummaries = new ArrayList<>();
+
   private List<AiMetadataBackup> metadataBackups = new ArrayList<>();
   private Integer inputTokenCount;
   private Integer outputTokenCount;

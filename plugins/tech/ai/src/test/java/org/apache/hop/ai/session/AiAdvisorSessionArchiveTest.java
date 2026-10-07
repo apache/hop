@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
@@ -59,6 +60,7 @@ class AiAdvisorSessionArchiveTest {
                 "rdbms", "sales", "{\"name\":\"sales\"}", "{\"name\":\"sales2\"}"));
     turn.getMetadataBackups().add(new AiMetadataBackup("rdbms", "new-one", null, "{}"));
     session.addTurn(turn);
+    session.getPendingAppliedSummaries().add("ADD_TRANSFORM: Check");
 
     Map<String, Object> map = AiAdvisorSessionArchive.toMap(session);
     AiAdvisorSession restored = AiAdvisorSessionArchive.fromMap(map);
@@ -80,6 +82,10 @@ class AiAdvisorSessionArchiveTest {
     assertEquals("Check", back.getProposals().get(0).getParameters().get("name"));
     assertEquals("ADD_TRANSFORM: Check", back.getAppliedSummaries().get(0));
     assertEquals(turn.getMetadataBackups(), back.getMetadataBackups(), "undo survives a restart");
+    assertEquals(
+        List.of("ADD_TRANSFORM: Check"),
+        restored.getPendingAppliedSummaries(),
+        "the next question still tells the model what was applied");
   }
 
   @Test

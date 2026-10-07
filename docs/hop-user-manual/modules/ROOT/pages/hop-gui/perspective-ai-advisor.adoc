@@ -49,9 +49,10 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
   Only list files you wrote for the AI Assistant. A project's `AGENTS.md` is usually written for coding agents, and a file from a project you did not write can steer the assistant.
 . Leave *Allow sending full XML* unchecked unless you explicitly want questions to include the full pipeline or workflow XML.
   This is a second gate: the session checkbox cannot send XML until this option is on.
-. *When a window closes during a question* decides what happens to a question that is still waiting for its answer when you close the floating window, the dock tab or Hop GUI.
+. *When a window closes during a question* decides what happens to a question that is still waiting for its answer when you close the floating window or the dock tab.
   *Finish in the background* (the default) records the answer in the session, so you find it when you open the session again.
   *Cancel the question* stops waiting, as *Stop* does.
+  Exiting Hop GUI always stops a question that is still waiting; the session shows that it was not answered.
   Moving the assistant with *Float* or *Dock* is not a close: the question goes on in the new place.
 
 Create at least one named provider in the Metadata perspective (*AI Provider*) and use *Test* on the editor to confirm the endpoint responds.

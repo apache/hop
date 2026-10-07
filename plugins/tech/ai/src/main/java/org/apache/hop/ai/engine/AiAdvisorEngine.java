@@ -83,11 +83,10 @@ public final class AiAdvisorEngine {
       IHopMetadataProvider metadataProvider,
       String logExcerpt)
       throws HopException {
-    return execute(
-        session,
-        advisor,
-        variables,
-        prepare(session, advisor, variables, metadataProvider, logExcerpt));
+    Prepared prepared = prepare(session, advisor, variables, metadataProvider, logExcerpt);
+    AiAdvisorResponse response = execute(session, advisor, variables, prepared);
+    session.removePendingAppliedSummaries(prepared.request().getAppliedChangeSummaries());
+    return response;
   }
 
   /** What {@link #prepare} built: everything the model call needs, taken from the open file. */
@@ -439,24 +438,15 @@ public final class AiAdvisorEngine {
     return a == null ? b : b == null ? a : Long.valueOf(a + b);
   }
 
-  static AiAdvisorRequest toRequest(
-      AiAdvisorSession session,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider,
-      String logExcerpt) {
-    return toRequest(session, variables, metadataProvider, logExcerpt, true);
-  }
-
   /**
-   * @param consumeApplied false for a preview, which must leave the applied-change summaries for
-   *     the next real question
+   * The applied-change summaries are copied, not taken: they stay on the session until the answer
+   * to this question is recorded, so a question that fails or is cancelled sends them again.
    */
   static AiAdvisorRequest toRequest(
       AiAdvisorSession session,
       IVariables variables,
       IHopMetadataProvider metadataProvider,
-      String logExcerpt,
-      boolean consumeApplied) {
+      String logExcerpt) {
     AiAdvisorRequest request = new AiAdvisorRequest();
     if (session == null) {
       return request;
@@ -483,10 +473,7 @@ public final class AiAdvisorEngine {
     request.setAttributes(copyAttributes(session.getAttributes()));
     request.setInclusionSelections(copyInclusionSelections(session.getInclusionSelections()));
     request.setFollowUp(hasSuccessfulPriorTurn(session));
-    request.setAppliedChangeSummaries(
-        consumeApplied
-            ? session.consumePendingAppliedSummaries()
-            : List.copyOf(session.getPendingAppliedSummaries()));
+    request.setAppliedChangeSummaries(List.copyOf(session.getPendingAppliedSummaries()));
     if (logExcerpt != null) {
       request.setLogExcerpt(logExcerpt);
     } else if (session.getLogSupplier() != null) {
@@ -643,7 +630,7 @@ public final class AiAdvisorEngine {
     if (advisor == null) {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.NoAdvisor"));
     }
-    AiAdvisorRequest request = toRequest(session, variables, metadataProvider, logExcerpt, false);
+    AiAdvisorRequest request = toRequest(session, variables, metadataProvider, logExcerpt);
     request.setUserPrompt(Utils.isEmpty(question) ? "(your question)" : question.trim());
     request.setFollowUp(hasAnswer(session.getTurns(), session.getTurns().size()));
     AiAdvisorPrompt prompt = advisor.buildPrompt(request);

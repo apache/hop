@@ -153,6 +153,8 @@ public final class AiAdvisorSessionArchive {
       turns.add(toMap(turn));
     }
     map.put("turns", turns);
+    // Applied after the last answer: the next question still has to tell the model.
+    map.put("pendingAppliedSummaries", new ArrayList<>(session.getPendingAppliedSummaries()));
     return map;
   }
 
@@ -249,6 +251,11 @@ public final class AiAdvisorSessionArchive {
         if (item instanceof Map<?, ?> turnMap) {
           session.addTurn(turnFromMap((Map<String, Object>) turnMap));
         }
+      }
+    }
+    if (map.get("pendingAppliedSummaries") instanceof List<?> pending) {
+      for (Object summary : pending) {
+        session.getPendingAppliedSummaries().add(String.valueOf(summary));
       }
     }
     return session;

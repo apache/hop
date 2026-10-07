@@ -40,7 +40,7 @@ These options are stored under `pass:c[hopAiConfig]` in `hop-config.json`.
 |`pass:c[true]`
 
 |pass:c[When a window closes during a question]
-|pass:c[What happens to a question that is still waiting for its answer when you close the AI Assistant window or dock, or Hop GUI. Finish in the background records the answer in the session, so you find it when you open the session again. Cancel stops waiting, as Stop does, and no answer is recorded.]
+|pass:c[What happens to a question that is still waiting for its answer when you close the AI Assistant window or dock. Finish in the background records the answer in the session, so you find it when you open the session again. Cancel stops waiting, as Stop does, and no answer is recorded. Exiting Hop GUI always stops a question that is still waiting.]
 |`pass:c[Finish in the background]`
 
 |pass:c[Extra context]
@@ -56,7 +56,7 @@ a|pass:c[Standing notes sent with every AI Assistant question. The default remin
 |_(with the description)_
 
 |pass:c[Context files]
-|pass:c[One VFS path per line. Files that exist are appended to the system prompt as instructions the assistant follows; missing files are skipped. Variables are resolved. Empty by default. Only list files you wrote for the AI Assistant, for example ${PROJECT_HOME}/ai-assistant.md: an AGENTS.md is usually written for coding agents, and a file from someone elses project can steer the assistant. Accepts variables.]
+|pass:c[One VFS path per line. Files that exist are appended to the system prompt as instructions the assistant follows; missing files are skipped. Variables are resolved. Empty by default. Only list files you wrote for the AI Assistant, for example ${PROJECT_HOME}/ai-assistant.md: an AGENTS.md is usually written for coding agents, and a file from someone else's project can steer the assistant. Accepts variables.]
 |
 
 |===

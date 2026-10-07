@@ -181,6 +181,49 @@ class PipelineAiProposalValidatorTest {
     assertTrue(PipelineAiProposalValidator.validate(pipelineMeta, List.of(add)).get(0).isBlocked());
   }
 
+  @Test
+  void aLongerLoopIsBlocked() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta a = new TransformMeta("Dummy", "A", new DummyMeta());
+    TransformMeta b = new TransformMeta("Dummy", "B", new DummyMeta());
+    pipelineMeta.addTransform(a);
+    pipelineMeta.addTransform(b);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(a, b));
+    AiProposal addC =
+        proposal(
+            "ADD_TRANSFORM",
+            Map.of("transformPluginId", "Dummy", "name", "C", "locationX", "1", "locationY", "1"));
+    AiProposal bToC =
+        proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "B", "toTransform", " C "));
+    AiProposal cToA =
+        proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "C ", "toTransform", "A"));
+
+    List<AiProposalValidation> results =
+        PipelineAiProposalValidator.validate(pipelineMeta, List.of(addC, bToC, cToA));
+    assertFalse(results.get(1).isBlocked(), results.get(1).getReason());
+    assertTrue(results.get(2).isBlocked(), "C -> A closes A -> B -> C");
+    assertTrue(results.get(2).getReason().contains("C -> A -> B -> C"), results.get(2).getReason());
+  }
+
+  @Test
+  void aLoopThroughARenamedTransformIsBlocked() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta a = new TransformMeta("Dummy", "A", new DummyMeta());
+    TransformMeta b = new TransformMeta("Dummy", "B", new DummyMeta());
+    pipelineMeta.addTransform(a);
+    pipelineMeta.addTransform(b);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(a, b));
+    AiProposal rename =
+        proposal("RENAME_TRANSFORM", Map.of("transformName", "B", "newName", "Filter"));
+    AiProposal back =
+        proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "Filter", "toTransform", "A"));
+
+    List<AiProposalValidation> results =
+        PipelineAiProposalValidator.validate(pipelineMeta, List.of(rename, back));
+    assertFalse(results.get(0).isBlocked(), results.get(0).getReason());
+    assertTrue(results.get(1).isBlocked(), "Filter is B renamed, and A -> B exists");
+  }
+
   private static AiProposal proposal(String type, Map<String, String> parameters) {
     AiProposal proposal = new AiProposal();
     proposal.setType(type);

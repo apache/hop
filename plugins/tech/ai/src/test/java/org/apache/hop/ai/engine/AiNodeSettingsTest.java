@@ -73,7 +73,7 @@ class AiNodeSettingsTest {
     assertFalse(json.contains("password"), json);
     assertFalse(json.contains("2be98afc"), json);
     assertFalse(json.contains("emptyText"), json);
-    assertFalse(json.contains("lazy"), json);
+    assertTrue(json.contains("\"lazy\":false"), "an option that is off is not unset: " + json);
     assertFalse(json.contains("hidden"), json);
   }
 

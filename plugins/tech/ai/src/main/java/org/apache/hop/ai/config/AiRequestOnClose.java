@@ -20,7 +20,10 @@ package org.apache.hop.ai.config;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
-/** What happens to a question that is still running when its AI Assistant window is closed. */
+/**
+ * What happens to a question that is still running when its AI Assistant window is closed. Exiting
+ * Hop GUI always stops it.
+ */
 public enum AiRequestOnClose implements IEnumHasCodeAndDescription {
   /** The answer is still recorded in the session, and shown when the session is opened again. */
   FINISH_IN_BACKGROUND,

@@ -18,6 +18,7 @@
 package org.apache.hop.ai.session;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -36,6 +37,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class AiAdvisorSessionStoreTest {
+
+  @Test
+  void exitingHopGuiStopsAQuestionThatStillWaits() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorSession session = new AiAdvisorSession();
+    AiAdvisorTurn turn = new AiAdvisorTurn();
+    turn.setUserPrompt("Why did it fail?");
+    session.addTurn(turn);
+    session.setWorking(true);
+    store.add(session);
+
+    store.stopWaitingQuestions();
+
+    assertFalse(session.isWorking());
+    assertTrue(session.isCancelled(), "a late answer must not be recorded");
+    assertTrue(turn.getErrorMessage().contains("Hop GUI was closed"), turn.getErrorMessage());
+  }
 
   @Test
   void openReusesSessionForSameAdvisorAndArtifact() {

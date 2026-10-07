@@ -129,6 +129,18 @@ public class AiAdvisorSession {
     return copy;
   }
 
+  /**
+   * Forget the summaries a question was sent with, once its answer is recorded. Changes applied
+   * while it was waiting stay for the next question.
+   */
+  public void removePendingAppliedSummaries(List<String> sent) {
+    if (sent != null) {
+      for (String summary : sent) {
+        pendingAppliedSummaries.remove(summary);
+      }
+    }
+  }
+
   public void recordApplied(AiAdvisorTurn turn, List<AiProposal> applied) {
     recordApplied(turn, applied, null);
   }

@@ -221,10 +221,10 @@ public class AiAdvisorSessionPane extends Composite {
   }
 
   /**
-   * The window or dock closes, or Hop GUI does. With "Cancel the question" configured, questions
-   * sent from here that still wait for their answer are cancelled. By default they finish in the
-   * background and their answer is recorded in the session. Moving the assistant with Float or Dock
-   * is not a close: the sessions go on in the new view.
+   * The window or dock closes. With "Cancel the question" configured, questions sent from here that
+   * still wait for their answer are cancelled. By default they finish in the background and their
+   * answer is recorded in the session. Moving the assistant with Float or Dock is not a close: the
+   * sessions go on in the new view. When Hop GUI exits, the session store has already stopped them.
    */
   private void cancelWhenClosed() {
     boolean cancelled =
@@ -1563,6 +1563,7 @@ public class AiAdvisorSessionPane extends Composite {
       completeTurn(target, turn, null, e);
       return;
     }
+    turn.setSentAppliedSummaries(prepared.request().getAppliedChangeSummaries());
     turn.setEstimatedPromptTokens(prepared.estimatedTokens());
     turn.setProviderLabel(prepared.provider().getName());
     startWorkingLine(target);
@@ -1646,6 +1647,7 @@ public class AiAdvisorSessionPane extends Composite {
       turn.setErrorMessage(message);
       target.setStatusMessage(message);
     } else if (response != null) {
+      target.removePendingAppliedSummaries(turn.getSentAppliedSummaries());
       turn.setAssistantAdvice(response.getMarkdownAdvice());
       if (Utils.isEmpty(turn.getAssistantAdvice())
           && response.getProposals() != null

@@ -131,7 +131,8 @@ public final class AiNodeSettings {
         continue;
       }
       Object read = read(fieldValue, depth + 1);
-      if (read == null || Boolean.FALSE.equals(read)) {
+      // An option that is off is kept: its default may be on.
+      if (read == null) {
         continue;
       }
       String key = Utils.isEmpty(property.key()) ? field.getName() : property.key();
