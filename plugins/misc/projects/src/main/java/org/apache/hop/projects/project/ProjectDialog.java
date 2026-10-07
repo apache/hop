@@ -37,7 +37,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.EmbeddedEnvironment;
+import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter;
+import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.EnvironmentSource;
 import org.apache.hop.projects.environment.EmbeddedEnvironmentValidator;
+import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectRenameBlockedException;
@@ -45,6 +48,7 @@ import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -111,6 +115,7 @@ public class ProjectDialog extends Dialog {
   private Button wAddEnvironment;
   private Button wEditEnvironment;
   private Button wDeleteEnvironment;
+  private Button wImportEnvironment;
 
   /** Working copy of the embedded environments. Applied to the project on OK. */
   private final List<EmbeddedEnvironment> embeddedEnvironments = new ArrayList<>();
@@ -719,8 +724,17 @@ public class ProjectDialog extends Dialog {
     wDeleteEnvironment.setText(
         BaseMessages.getString(PKG, "ProjectDialog.Button.DeleteEnvironment"));
     wDeleteEnvironment.addListener(SWT.Selection, event -> deleteEmbeddedEnvironment());
+    wImportEnvironment = new Button(comp, SWT.PUSH);
+    wImportEnvironment.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Button.ImportEnvironment"));
+    wImportEnvironment.setToolTipText(
+        BaseMessages.getString(PKG, "ProjectDialog.Button.ImportEnvironment.Tooltip"));
+    wImportEnvironment.addListener(SWT.Selection, event -> importEmbeddedEnvironments());
     BaseTransformDialog.positionBottomButtons(
-        comp, new Button[] {wAddEnvironment, wEditEnvironment, wDeleteEnvironment}, margin, null);
+        comp,
+        new Button[] {wAddEnvironment, wEditEnvironment, wDeleteEnvironment, wImportEnvironment},
+        margin,
+        null);
 
     ColumnInfo[] columnInfo =
         new ColumnInfo[] {
@@ -813,6 +827,147 @@ public class ProjectDialog extends Dialog {
     needingProjectRefresh = true;
   }
 
+  private void importEmbeddedEnvironments() {
+    if (!environmentsEditable()) {
+      return;
+    }
+    try {
+      List<LifecycleEnvironment> available = lifecycleEnvironmentsOfThisProject();
+      if (available.isEmpty()) {
+        MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+        box.setText(BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.None.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.None.Message"));
+        box.open();
+        return;
+      }
+      List<LifecycleEnvironment> chosen = chooseLifecycleEnvironments(available);
+      if (chosen.isEmpty()) {
+        return;
+      }
+      List<EnvironmentSource> sources = EmbeddedEnvironmentImporter.read(chosen, variables);
+      ImportEmbeddedEnvironmentsDialog dialog =
+          new ImportEmbeddedEnvironmentsDialog(shell, sources, variables);
+      List<EmbeddedEnvironment> imported = dialog.open();
+      if (imported == null) {
+        return;
+      }
+      applyImportedEnvironments(imported);
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.Error.Header"),
+          BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.Error.Message"),
+          e);
+    }
+  }
+
+  private List<LifecycleEnvironment> chooseLifecycleEnvironments(
+      List<LifecycleEnvironment> available) {
+    String[] choices = new String[available.size()];
+    for (int i = 0; i < available.size(); i++) {
+      choices[i] = Const.NVL(available.get(i).getName(), "");
+    }
+    EnterSelectionDialog selectionDialog =
+        new EnterSelectionDialog(
+            shell,
+            choices,
+            BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.Select.Header"),
+            BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.Select.Message"));
+    selectionDialog.setMulti(true);
+    if (selectionDialog.open() == null) {
+      return List.of();
+    }
+    int[] indices = selectionDialog.getSelectionIndeces();
+    List<LifecycleEnvironment> chosen = new ArrayList<>();
+    if (indices == null) {
+      return chosen;
+    }
+    for (int index : indices) {
+      if (index >= 0 && index < available.size()) {
+        chosen.add(available.get(index));
+      }
+    }
+    return chosen;
+  }
+
+  /**
+   * Lifecycle environments registered for the project this dialog is editing. A name typed in the
+   * dialog and not yet saved does not change which project the environments belong to.
+   */
+  private List<LifecycleEnvironment> lifecycleEnvironmentsOfThisProject() {
+    String projectName = StringUtils.trimToNull(projectConfig.getProjectName());
+    if (projectName == null) {
+      return List.of();
+    }
+    List<LifecycleEnvironment> found =
+        ProjectsConfigSingleton.getConfig().findEnvironmentsOfProject(projectName);
+    if (found == null || found.isEmpty()) {
+      return List.of();
+    }
+    List<LifecycleEnvironment> named = new ArrayList<>();
+    for (LifecycleEnvironment environment : found) {
+      if (environment != null && StringUtils.isNotBlank(environment.getName())) {
+        named.add(environment);
+      }
+    }
+    return named;
+  }
+
+  private void applyImportedEnvironments(List<EmbeddedEnvironment> imported) {
+    List<String> existing = new ArrayList<>();
+    for (EmbeddedEnvironment environment : imported) {
+      if (environment != null && indexOfEmbeddedEnvironment(environment.getName()) >= 0) {
+        existing.add(environment.getName());
+      }
+    }
+    boolean replace = true;
+    if (!existing.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      box.setText(BaseMessages.getString(PKG, "ProjectDialog.Environments.Import.Replace.Header"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "ProjectDialog.Environments.Import.Replace.Message",
+              String.join(Const.CR, existing)));
+      replace = (box.open() & SWT.YES) != 0;
+    }
+    int lastIndex = -1;
+    for (EmbeddedEnvironment environment : imported) {
+      if (environment == null || StringUtils.isBlank(environment.getName())) {
+        continue;
+      }
+      int index = indexOfEmbeddedEnvironment(environment.getName());
+      if (index >= 0) {
+        if (!replace) {
+          continue;
+        }
+        embeddedEnvironments.set(index, environment);
+        lastIndex = index;
+      } else {
+        embeddedEnvironments.add(environment);
+        lastIndex = embeddedEnvironments.size() - 1;
+      }
+    }
+    if (lastIndex >= 0) {
+      refreshEmbeddedEnvironments(lastIndex);
+      needingProjectRefresh = true;
+    }
+  }
+
+  private int indexOfEmbeddedEnvironment(String name) {
+    if (StringUtils.isBlank(name)) {
+      return -1;
+    }
+    String trimmed = name.trim();
+    for (int i = 0; i < embeddedEnvironments.size(); i++) {
+      if (trimmed.equals(StringUtils.trimToEmpty(embeddedEnvironments.get(i).getName()))) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   private boolean environmentsEditable() {
     return wAddEnvironment != null && wAddEnvironment.isEnabled();
   }
@@ -888,6 +1043,7 @@ public class ProjectDialog extends Dialog {
       wAddEnvironment.setEnabled(editable);
       wEditEnvironment.setEnabled(editable);
       wDeleteEnvironment.setEnabled(editable);
+      wImportEnvironment.setEnabled(editable);
     }
     updateAutoExportMetadataWidgets();
     updateParentFolderWidgets();

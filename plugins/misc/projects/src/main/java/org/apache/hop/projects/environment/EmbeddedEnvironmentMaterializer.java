@@ -143,7 +143,7 @@ public final class EmbeddedEnvironmentMaterializer {
   /**
    * Create a lifecycle environment for every embedded definition that is not already registered.
    * Existing configuration files are left as they are. Nothing is saved to {@code hop-config.json};
-   * the caller registers {@link MaterializeResult#getCreated()}.
+   * the caller registers the environments in the returned {@link MaterializeResult}.
    *
    * @param config environments already on this computer
    * @param project project that holds the definitions

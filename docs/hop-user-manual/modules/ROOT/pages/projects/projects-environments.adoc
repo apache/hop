@@ -127,8 +127,11 @@ Do not put a real password, host, or path in the project file.
 |Secrets|Secret variables such as passwords and tokens. The default is a placeholder, not the secret.
 |===
 
-*Add*, *Edit...*, and *Delete* change the list.
+*Add*, *Edit...*, *Delete*, and *Import...* change the list.
 *Edit...* sets the name, the description, and the three variable lists.
+*Import...* reads one or more lifecycle environments of this project from the Hop configuration on this computer.
+For each variable in those configuration files you choose *Variable*, *Mandatory*, or *Secret*.
+The values in the configuration files are not copied into the project.
 
 When a project is added from a folder or from Git and `project-config.json` already defines environments, Hop asks whether to create those lifecycle environments on this computer.
 A project with no embedded environments still asks the generic question about creating one environment, except when the project is read only or was added from Git.
