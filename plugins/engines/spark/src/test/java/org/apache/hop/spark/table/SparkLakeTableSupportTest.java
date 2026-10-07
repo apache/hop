@@ -18,6 +18,7 @@
 package org.apache.hop.spark.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -59,12 +60,43 @@ class SparkLakeTableSupportTest {
   }
 
   @Test
-  void icebergPathSqlIdentifierQuotesUri() {
-    String id = SparkLakeTableSupport.icebergPathSqlIdentifier("/tmp/orders");
-    assertTrue(id.startsWith(SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + ".`"));
-    assertTrue(id.endsWith("`"));
-    assertTrue(id.contains("file:"));
-    assertTrue(id.contains("orders"));
+  void icebergPathTableUsesTheParentFolderAsWarehouse() {
+    SparkLakeTableSupport.IcebergPathTable table =
+        SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake/orders/");
+
+    assertEquals("s3a://bucket/lake", table.warehouse());
+    assertEquals("orders", table.tableName());
+    assertTrue(table.catalogName().startsWith(SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + "_"));
+    assertEquals(table.catalogName() + ".`orders`", table.sqlIdentifier());
+    assertEquals("`orders`", table.procedureTableRef());
+  }
+
+  @Test
+  void icebergPathTablesShareACatalogPerFolder() {
+    String orders =
+        SparkLakeTableSupport.icebergPathTable("file:///data/lake/orders").catalogName();
+    String items = SparkLakeTableSupport.icebergPathTable("file:///data/lake/items").catalogName();
+    String other =
+        SparkLakeTableSupport.icebergPathTable("file:///data/other/orders").catalogName();
+
+    assertEquals(orders, items);
+    assertNotEquals(orders, other);
+  }
+
+  @Test
+  void icebergPathSqlIdentifierQuotesTheTableName() {
+    String id = SparkLakeTableSupport.icebergPathSqlIdentifier("/tmp/my-orders");
+    assertTrue(id.startsWith(SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + "_"));
+    assertTrue(id.endsWith(".`my-orders`"));
+  }
+
+  @Test
+  void icebergPathTableNeedsAParentFolder() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SparkLakeTableSupport.icebergPathTable("s3a://bucket"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SparkLakeTableSupport.icebergPathTable("file:///t"));
   }
 
   @Test

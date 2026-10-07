@@ -107,15 +107,63 @@ public final class SparkLakeTableSupport {
   }
 
   /**
-   * Spark SQL multi-part identifier for an Iceberg path-based table under the hop path catalog:
-   * {@code hop_iceberg.`file:///path/to/table`}.
+   * An Iceberg table at a path, seen through the Hadoop catalog whose warehouse is the table's
+   * parent folder. A Hadoop catalog keeps a table of the default namespace in {@code
+   * <warehouse>/<table>}, so the table is read and written exactly at its path.
+   *
+   * <p>A quoted path in a single shared catalog, like {@code hop_iceberg.`file:///data/orders`},
+   * doesn't work: Iceberg only treats an identifier as a location when Spark creates it from {@code
+   * DataFrameReader.load(path)}. Otherwise the Hadoop catalog takes the whole URI as a table name
+   * and stores the table under its own warehouse.
    */
-  @SuppressWarnings("javabugs:S2259") // toTableLocationUri() never returns null for a resolved path
+  public record IcebergPathTable(String catalogName, String warehouse, String tableName) {
+
+    /** Spark SQL identifier of the table, e.g. {@code hop_iceberg_1a2b3c4d5e6f.`orders`}. */
+    public String sqlIdentifier() {
+      return catalogName + "." + procedureTableRef();
+    }
+
+    /** The table as named in an Iceberg procedure call of {@link #catalogName()}. */
+    public String procedureTableRef() {
+      return "`" + tableName.replace("`", "``") + "`";
+    }
+  }
+
+  /**
+   * The path catalog and table name for an Iceberg table at {@code path}. Tables in the same folder
+   * share a catalog.
+   */
+  public static IcebergPathTable icebergPathTable(String path) {
+    String uri = StringUtils.removeEnd(toTableLocationUri(path), "/");
+    int slash = uri == null ? -1 : uri.lastIndexOf('/');
+    String parent = slash < 0 ? "" : uri.substring(0, slash);
+    String name = slash < 0 ? "" : uri.substring(slash + 1);
+    if (name.isEmpty() || parent.isEmpty() || parent.endsWith(":") || parent.endsWith("/")) {
+      throw new IllegalArgumentException(
+          "Iceberg table path '" + path + "' needs a parent folder, e.g. file:///data/orders");
+    }
+    return new IcebergPathTable(
+        SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + "_" + shortHash(parent), parent, name);
+  }
+
+  private static String shortHash(String value) {
+    try {
+      byte[] digest =
+          java.security.MessageDigest.getInstance("SHA-256")
+              .digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      StringBuilder hex = new StringBuilder();
+      for (int i = 0; i < 6; i++) {
+        hex.append(String.format("%02x", digest[i]));
+      }
+      return hex.toString();
+    } catch (java.security.NoSuchAlgorithmException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  /** Spark SQL identifier for an Iceberg table at a path; see {@link IcebergPathTable}. */
   public static String icebergPathSqlIdentifier(String path) {
-    String uri = toTableLocationUri(path);
-    // Escape any backticks in the URI (unlikely) by doubling them for Spark SQL quoting
-    String escaped = uri.replace("`", "``");
-    return SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + ".`" + escaped + "`";
+    return icebergPathTable(path).sqlIdentifier();
   }
 
   public static String normalizeTimeTravelType(String type) throws HopException {
@@ -256,10 +304,11 @@ public final class SparkLakeTableSupport {
     String tableRefForCall = null;
     if (SparkLakeFormats.FORMAT_ICEBERG.equals(format)) {
       if (LakeTableInputMeta.MODE_PATH.equals(mode)) {
-        procedureCatalog = SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME;
-        tableRefForCall =
-            toTableLocationUri(
+        IcebergPathTable pathTable =
+            icebergPathTable(
                 SparkPathDialect.toSparkUri(variables.resolve(meta.getTablePath()), pathSchemeMap));
+        procedureCatalog = pathTable.catalogName();
+        tableRefForCall = pathTable.procedureTableRef();
       } else {
         String tableId = resolveTableIdentifier(meta.getTableIdentifier(), null, variables);
         String[] parts = tableId.split("\\.");
@@ -338,7 +387,7 @@ public final class SparkLakeTableSupport {
     }
 
     if (spark != null) {
-      ensureIcebergPathCatalog(spark);
+      ensureIcebergPathCatalog(spark, path);
     }
     return icebergPathSqlIdentifier(path);
   }
@@ -680,7 +729,7 @@ public final class SparkLakeTableSupport {
       String timestamp,
       String transformName)
       throws HopException {
-    ensureIcebergPathCatalog(spark);
+    ensureIcebergPathCatalog(spark, path);
     String sqlId = icebergPathSqlIdentifier(path);
     String sql = buildIcebergTimeTravelSql(sqlId, timeTravelType, version, timestamp);
     try {
@@ -741,7 +790,7 @@ public final class SparkLakeTableSupport {
       String[] partitionColumns,
       String transformName)
       throws HopException {
-    ensureIcebergPathCatalog(spark);
+    ensureIcebergPathCatalog(spark, path);
     String sqlId = icebergPathSqlIdentifier(path);
 
     try {
@@ -835,6 +884,21 @@ public final class SparkLakeTableSupport {
    * Ensure the built-in Hadoop catalog for path identifiers is registered on this session. Safe to
    * call multiple times; no-ops when already present.
    */
+  /**
+   * Registers the Hadoop catalog that serves the Iceberg table at {@code path} (see {@link
+   * IcebergPathTable}) on this session. Safe to call multiple times.
+   */
+  public static void ensureIcebergPathCatalog(SparkSession spark, String path) {
+    IcebergPathTable table = icebergPathTable(path);
+    String key = "spark.sql.catalog." + table.catalogName();
+    if (StringUtils.isNotEmpty(spark.conf().get(key, ""))) {
+      return;
+    }
+    spark.conf().set(key, SparkLakeFormats.ICEBERG_CATALOG);
+    spark.conf().set(key + ".type", "hadoop");
+    spark.conf().set(key + ".warehouse", table.warehouse());
+  }
+
   public static void ensureIcebergPathCatalog(SparkSession spark) {
     String existing = spark.conf().get(SparkLakeFormats.SPARK_CONF_ICEBERG_PATH_CATALOG, "");
     if (StringUtils.isNotEmpty(existing)) {

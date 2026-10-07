@@ -72,7 +72,7 @@ This transform is **native Spark only**. Connectors ship with the native Spark p
 * The write runs as a Spark **action** when the engine materialises the graph.
 * An empty leaf Dataset is registered so a later engine-wide `count()` does not re-write the table.
 * **Delta PATH:** `format("delta").mode(…).save(path)` (requires Delta extension + `DeltaCatalog` on the session — hop-run applies these when Delta transforms are present).
-* **Iceberg PATH:** `writeTo(hop_iceberg.\`uri\`).using("iceberg")` with the built-in `hop_iceberg` Hadoop catalog.
+* **Iceberg PATH:** `writeTo(hop_iceberg_<hash>.\`table\`).using("iceberg")`, with a Hadoop catalog whose warehouse is the table's parent folder, so the table is written at its path.
 * **Iceberg TABLE:** `writeTo(catalog.ns.table).using("iceberg")`.
 * **Delta TABLE (advanced):** `format("delta").saveAsTable(id)`.
 

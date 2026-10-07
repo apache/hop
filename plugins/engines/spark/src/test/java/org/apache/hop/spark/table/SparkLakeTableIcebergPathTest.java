@@ -18,8 +18,11 @@
 package org.apache.hop.spark.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +138,11 @@ class SparkLakeTableIcebergPathTest {
             source);
 
     assertEquals(0, map.get("ice_out").count());
+    // The table is written at its path, not under a catalog warehouse elsewhere.
+    assertTrue(
+        Files.exists(tablePath.resolve("metadata/version-hint.text")),
+        "Iceberg metadata is written under the table path");
+    assertFalse(Files.exists(warehouse), "nothing is written to the hop_iceberg warehouse");
 
     LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
