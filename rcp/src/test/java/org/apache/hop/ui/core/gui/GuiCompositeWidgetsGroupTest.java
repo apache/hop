@@ -66,6 +66,7 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
   private static final String BOXES_PARENT = "GuiCompositeWidgetsGroupTest-boxes";
   private static final String SINGLE_BOX_PARENT = "GuiCompositeWidgetsGroupTest-single-box";
   private static final String UNEVEN_PARENT = "GuiCompositeWidgetsGroupTest-uneven";
+  private static final String NUMERIC_PARENT = "GuiCompositeWidgetsGroupTest-numeric";
 
   @BeforeAll
   static void registerSampleWidgets() {
@@ -74,6 +75,7 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
     register(BoxesSample.class);
     register(SingleBoxSample.class);
     register(UnevenBoxesSample.class);
+    register(NumericSample.class);
   }
 
   @Test
@@ -95,6 +97,48 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
       widgets.getWidgetsContents(source, FLAT_PARENT);
       assertEquals("beta", source.getName());
       assertNull(source.getNote());
+    } finally {
+      shell.dispose();
+    }
+  }
+
+  /**
+   * A text widget reads back a String. int and long setters must receive the number; String not.
+   */
+  @Test
+  void textWidgetsRoundTripIntAndLongButNotStringAsNumber() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FormLayout());
+    try {
+      NumericSample source = new NumericSample();
+      source.setCount(5);
+      source.setLimit(9L);
+      source.setName("kept");
+      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
+      widgets.createCompositeWidgets(source, null, shell, NUMERIC_PARENT, null);
+      widgets.setWidgetsContents(source, shell, NUMERIC_PARENT);
+
+      TextVar count = (TextVar) widgets.getWidgetsMap().get("count");
+      TextVar limit = (TextVar) widgets.getWidgetsMap().get("limit");
+      TextVar name = (TextVar) widgets.getWidgetsMap().get("name");
+      assertEquals("5", count.getText());
+      assertEquals("9", limit.getText());
+
+      count.setText("42");
+      limit.setText("100");
+      name.setText("42");
+      widgets.getWidgetsContents(source, NUMERIC_PARENT);
+      assertEquals(42, source.getCount());
+      assertEquals(100L, source.getLimit());
+      assertEquals(
+          "42", source.getName(), "a String setter must keep the text, not a parsed number");
+
+      count.setText("nope");
+      limit.setText("");
+      widgets.getWidgetsContents(source, NUMERIC_PARENT);
+      assertEquals(0, source.getCount(), "an unparsable int falls back to 0");
+      assertEquals(0L, source.getLimit(), "an empty long falls back to 0");
+      assertEquals("42", source.getName());
     } finally {
       shell.dispose();
     }
@@ -591,6 +635,32 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
     Rectangle bounds = control.getBounds();
     Point origin = control.getParent().toDisplay(bounds.x, bounds.y);
     return new Rectangle(origin.x, origin.y, bounds.width, bounds.height);
+  }
+
+  @GuiPlugin
+  @Getter
+  @Setter
+  public static class NumericSample {
+    @GuiWidgetElement(
+        id = "count",
+        parentId = NUMERIC_PARENT,
+        type = GuiElementType.TEXT,
+        label = "Count")
+    private int count;
+
+    @GuiWidgetElement(
+        id = "limit",
+        parentId = NUMERIC_PARENT,
+        type = GuiElementType.TEXT,
+        label = "Limit")
+    private long limit;
+
+    @GuiWidgetElement(
+        id = "name",
+        parentId = NUMERIC_PARENT,
+        type = GuiElementType.TEXT,
+        label = "Name")
+    private String name;
   }
 
   @GuiPlugin
