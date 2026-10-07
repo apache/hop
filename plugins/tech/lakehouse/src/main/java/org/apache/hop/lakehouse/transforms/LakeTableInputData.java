@@ -17,10 +17,25 @@
 
 package org.apache.hop.lakehouse.transforms;
 
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.lakehouse.iceberg.IcebergRowReader;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 public class LakeTableInputData extends BaseTransformData implements ITransformData {
+
+  /** Reads this copy's share of the table on the local engine. */
+  public IcebergRowReader reader;
+
+  /** Layout of the rows the reader returns. */
+  public IRowMeta readRowMeta;
+
+  /** For each output field, its position in the rows the reader returns. Null: same layout. */
+  public int[] readIndexes;
+
+  /** Layout of the rows this transform writes. */
+  public IRowMeta outputRowMeta;
+
   public LakeTableInputData() {
     super();
   }

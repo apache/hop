@@ -42,7 +42,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::SparkLakeTableInput.Keyword",
     documentationUrl = "/pipeline/transforms/spark-lake-table-input.html",
-    supportedEngines = {LakehouseConst.SPARK_ENGINE_ID})
+    supportedEngines = {
+      LakehouseConst.SPARK_ENGINE_ID,
+      LakehouseConst.LOCAL_ENGINE_ID,
+      LakehouseConst.REMOTE_ENGINE_ID
+    })
 @Getter
 @Setter
 public class LakeTableInputMeta extends BaseTransformMeta<LakeTableInput, LakeTableInputData> {

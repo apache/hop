@@ -31,5 +31,11 @@ public final class LakehouseConst {
   /** ID of the native Spark pipeline engine plugin. */
   public static final String SPARK_ENGINE_ID = "SparkPipelineEngine";
 
+  /** ID of Hop's local pipeline engine. */
+  public static final String LOCAL_ENGINE_ID = "Local";
+
+  /** ID of the engine that runs a pipeline on a Hop server, with its local engine. */
+  public static final String REMOTE_ENGINE_ID = "Remote";
+
   private LakehouseConst() {}
 }
