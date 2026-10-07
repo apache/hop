@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>pgp-encrypt-decrypt-verify</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/10/07 10:00:00.000</created_date>
+  <modified_date>2026/10/07 10:00:00.000</modified_date>
+  <created_hop_version/>
+  <modified_hop_version/>
+  <workflow_version/>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>80</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/pgp/report.csv</filename>
+      <createParentFolder>Y</createParentFolder>
+      <appendFile>N</appendFile>
+      <content>id,amount
+1,100</content>
+      <encoding>UTF-8</encoding>
+      <name>Write file</name>
+      <description/>
+      <type>WRITE_TO_FILE</type>
+      <attributes/>
+      <xloc>272</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <fields>
+        <field>
+          <action_type>encrypt</action_type>
+          <source_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv</source_filefolder>
+          <userid>${PGP_USER_ID}</userid>
+          <destination_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv.gpg</destination_filefolder>
+          <wildcard/>
+        </field>
+      </fields>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <create_move_to_folder>N</create_move_to_folder>
+      <gpglocation>${PGP_GPG_LOCATION}</gpglocation>
+      <asciiMode>Y</asciiMode>
+      <name>Encrypt file</name>
+      <description/>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <xloc>464</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv.gpg</source_filefolder>
+          <passphrase>${PGP_PASSPHRASE}</passphrase>
+          <destination_filefolder>${java.io.tmpdir}/hop-samples/pgp/report-decrypted.csv</destination_filefolder>
+          <wildcard/>
+        </field>
+      </fields>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <create_move_to_folder>N</create_move_to_folder>
+      <gpglocation>${PGP_GPG_LOCATION}</gpglocation>
+      <name>Decrypt file</name>
+      <description/>
+      <type>PGP_DECRYPT_FILES</type>
+      <attributes/>
+      <xloc>656</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <fields>
+        <field>
+          <action_type>sign</action_type>
+          <source_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv</source_filefolder>
+          <userid>${PGP_USER_ID}</userid>
+          <destination_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv.asc</destination_filefolder>
+          <wildcard/>
+        </field>
+      </fields>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <create_move_to_folder>N</create_move_to_folder>
+      <gpglocation>${PGP_GPG_LOCATION}</gpglocation>
+      <asciiMode>Y</asciiMode>
+      <name>Sign file</name>
+      <description/>
+      <type>PGP_ENCRYPT_FILES</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <gpglocation>${PGP_GPG_LOCATION}</gpglocation>
+      <filename>${java.io.tmpdir}/hop-samples/pgp/report.csv.asc</filename>
+      <detachedfilename/>
+      <useDetachedSignature>N</useDetachedSignature>
+      <name>Verify signature</name>
+      <description/>
+      <type>PGP_VERIFY_FILES</type>
+      <attributes/>
+      <xloc>1040</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <loglevel>Basic</loglevel>
+      <logsubject/>
+      <logmessage>The file was encrypted, decrypted, signed and verified.</logmessage>
+      <name>Done</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <xloc>1232</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Write file</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Write file</from>
+      <to>Encrypt file</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Encrypt file</from>
+      <to>Decrypt file</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Decrypt file</from>
+      <to>Sign file</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sign file</from>
+      <to>Verify signature</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Verify signature</from>
+      <to>Done</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>The PGP actions use GnuPG to protect files: Encrypt files with PGP encrypts and/or signs files, Decrypt files with PGP decrypts them
+and Verify file signature with PGP checks the signature of a signed file.
+
+This sample writes a file to ${java.io.tmpdir}/hop-samples/pgp, encrypts it for the key of PGP_USER_ID, decrypts it again, then signs the file and verifies the signature.</note>
+      <markdown>N</markdown>
+      <notetype>GENERAL</notetype>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>32</yloc>
+      <width>1312</width>
+      <height>138</height>
+    </notepad>
+    <notepad>
+      <note>Requires setup: this sample needs GnuPG (gpg) installed, and a key pair in the keyring of the user running Hop. Set the PGP_GPG_LOCATION (for example /usr/bin/gpg),
+PGP_USER_ID (the user id or e-mail of the key) and PGP_PASSPHRASE variables before running it.
+This sample is excluded from the samples integration tests.</note>
+      <markdown>N</markdown>
+      <notetype>GENERAL</notetype>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>110</fontcolorred>
+      <fontcolorgreen>50</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>220</backgroundcolorgreen>
+      <backgroundcolorblue>180</backgroundcolorblue>
+      <bordercolorred>230</bordercolorred>
+      <bordercolorgreen>126</bordercolorgreen>
+      <bordercolorblue>34</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>186</yloc>
+      <width>1312</width>
+      <height>110</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

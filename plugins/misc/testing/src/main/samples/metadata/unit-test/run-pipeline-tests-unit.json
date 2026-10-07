@@ -1,0 +1,62 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "product",
+          "data_set_field": "product"
+        },
+        {
+          "transform_field": "quantity",
+          "data_set_field": "quantity"
+        },
+        {
+          "transform_field": "price",
+          "data_set_field": "price"
+        },
+        {
+          "transform_field": "total",
+          "data_set_field": "total"
+        }
+      ],
+      "field_order": [
+        "product"
+      ],
+      "transform_name": "Output",
+      "data_set_name": "run-pipeline-tests-golden"
+    }
+  ],
+  "input_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "product",
+          "data_set_field": "product"
+        },
+        {
+          "transform_field": "quantity",
+          "data_set_field": "quantity"
+        },
+        {
+          "transform_field": "price",
+          "data_set_field": "price"
+        }
+      ],
+      "field_order": [
+        "product"
+      ],
+      "transform_name": "Order lines",
+      "data_set_name": "run-pipeline-tests-input"
+    }
+  ],
+  "name": "run-pipeline-tests-unit",
+  "description": "Unit test sample, executed by the run-pipeline-tests workflow",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./actions/run-pipeline-tests-pipeline.hpl",
+  "test_type": "UNIT_TEST"
+}
