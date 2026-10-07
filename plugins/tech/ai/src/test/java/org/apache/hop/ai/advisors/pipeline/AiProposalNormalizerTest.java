@@ -195,4 +195,21 @@ class AiProposalNormalizerTest {
     assertEquals("Dummy (do nothing)", hop.parameter("toTransform"));
     assertEquals(2, hop.getParameters().size());
   }
+
+  @Test
+  void settingsNamedLikeAHopEndStaySettings() {
+    AiProposal configure = new AiProposal();
+    configure.setType("CONFIGURE_ACTION");
+    configure.getParameters().put("actionName", "dbt");
+    // The dbt action has a setting called target.
+    configure.getParameters().put("target", "prod");
+    configure.getParameters().put("plugin", "x");
+
+    AiProposalNormalizer.forWorkflow(
+        new org.apache.hop.workflow.WorkflowMeta(), List.of(configure));
+
+    assertEquals("prod", configure.parameter("target"));
+    assertEquals("x", configure.parameter("plugin"));
+    assertFalse(configure.getParameters().containsKey("toAction"));
+  }
 }

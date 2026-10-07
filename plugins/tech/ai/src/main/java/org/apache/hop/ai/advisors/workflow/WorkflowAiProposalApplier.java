@@ -121,6 +121,7 @@ public final class WorkflowAiProposalApplier {
       IHopMetadataProvider provider,
       IVariables vars)
       throws HopException {
+    boolean changedBefore = workflowMeta.hasChanged();
     int applied = 0;
     try {
       for (int i = 0; i < proposals.size(); i++) {
@@ -135,7 +136,7 @@ public final class WorkflowAiProposalApplier {
           new HopException(
               BaseMessages.getString(PKG, "WorkflowAiProposalApplier.RolledBack", applied + 1), e);
       try {
-        restore(workflowMeta, before, provider, hopGui);
+        restore(workflowMeta, before, provider, hopGui, changedBefore);
       } catch (Exception restoreError) {
         failure.addSuppressed(restoreError);
       }
@@ -145,13 +146,24 @@ public final class WorkflowAiProposalApplier {
 
   /** Put the workflow back as it was before a batch failed half way. */
   static void restore(
-      WorkflowMeta workflowMeta, String xml, IHopMetadataProvider provider, HopGui hopGui)
+      WorkflowMeta workflowMeta,
+      String xml,
+      IHopMetadataProvider provider,
+      HopGui hopGui,
+      boolean changedBefore)
       throws HopException {
     Document document = XmlHandler.loadXmlString(xml);
     workflowMeta.restoreContentFromXml(
         XmlHandler.getSubNode(document, WorkflowMeta.XML_TAG),
         workflowMeta.getFilename(),
         provider);
+    // Restoring the content clears the changed flag: put back the one it had, so unsaved edits
+    // from before the batch still ask to be saved.
+    if (changedBefore) {
+      workflowMeta.setChanged();
+    } else {
+      workflowMeta.clearChanged();
+    }
     AiProposalUndo.forgetPartialChange(hopGui, workflowMeta);
   }
 

@@ -104,6 +104,8 @@ class PipelineAiProposalApplierTest {
     input.setLocation(100, 100);
     pipelineMeta.addTransform(input);
     String before = pipelineMeta.getXml(new Variables());
+    // Unsaved edits from before the batch.
+    pipelineMeta.setChanged();
 
     AiProposal add =
         proposal(
@@ -127,6 +129,7 @@ class PipelineAiProposalApplierTest {
     assertNull(pipelineMeta.findTransform("Check"), "the first proposal must be rolled back");
     assertNotNull(pipelineMeta.findTransform("Input"));
     assertEquals(1, pipelineMeta.nrTransforms());
+    assertTrue(pipelineMeta.hasChanged(), "the unsaved edits still ask to be saved");
   }
 
   @Test

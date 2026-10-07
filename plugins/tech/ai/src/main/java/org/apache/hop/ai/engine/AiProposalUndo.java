@@ -40,5 +40,10 @@ public final class AiProposalUndo {
     if (handler instanceof ISnapshotUndoSupport support && support.isUndoMeta(meta)) {
       support.recordAfterChange(true);
     }
+    // The graph still draws the transforms or actions of before the restore.
+    if (handler != null && handler.getSubject() == meta) {
+      handler.redraw();
+      handler.updateGui();
+    }
   }
 }

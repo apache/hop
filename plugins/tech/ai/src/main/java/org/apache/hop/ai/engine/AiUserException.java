@@ -27,6 +27,8 @@ import org.apache.hop.core.exception.HopException;
  */
 public class AiUserException extends HopException {
 
+  private static final long serialVersionUID = 1L;
+
   public AiUserException(String message) {
     super(message);
   }

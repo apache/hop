@@ -22,8 +22,10 @@ package org.apache.hop.ai.engine;
  * @param typeKey the metadata type key
  * @param name the object name
  * @param previousJson the object as it was before the save, or null when the save created it
+ * @param savedJson the object as the save wrote it, to tell whether it was changed since; null when
+ *     not known (a backup kept by an earlier version)
  */
-public record AiMetadataBackup(String typeKey, String name, String previousJson) {
+public record AiMetadataBackup(String typeKey, String name, String previousJson, String savedJson) {
 
   public boolean created() {
     return previousJson == null;

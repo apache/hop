@@ -143,6 +143,44 @@ class PipelineAiProposalValidatorTest {
     assertTrue(results.get(3).getReason().contains("does not match"), results.get(3).getReason());
   }
 
+  @Test
+  void reversingAHopIsNotALoop() throws Exception {
+    for (boolean deleteFirst : new boolean[] {true, false}) {
+      PipelineMeta pipelineMeta = new PipelineMeta();
+      TransformMeta read = new TransformMeta("Dummy", "Read", new DummyMeta());
+      TransformMeta filter = new TransformMeta("Dummy", "Filter", new DummyMeta());
+      pipelineMeta.addTransform(read);
+      pipelineMeta.addTransform(filter);
+      pipelineMeta.addPipelineHop(new PipelineHopMeta(read, filter));
+      AiProposal delete =
+          proposal("DELETE_PIPELINE_HOP", Map.of("fromTransform", "Read", "toTransform", "Filter"));
+      AiProposal add =
+          proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "Filter", "toTransform", "Read"));
+      List<AiProposal> batch = deleteFirst ? List.of(delete, add) : List.of(add, delete);
+
+      for (AiProposalValidation validation :
+          PipelineAiProposalValidator.validate(pipelineMeta, batch)) {
+        assertFalse(validation.isBlocked(), validation.getReason());
+      }
+      PipelineAiProposalApplier.apply(pipelineMeta, batch);
+      assertTrue(pipelineMeta.findPipelineHop(filter, read) != null);
+      assertTrue(pipelineMeta.findPipelineHop(read, filter) == null);
+    }
+  }
+
+  @Test
+  void aNewHopBackStillMakesALoop() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta read = new TransformMeta("Dummy", "Read", new DummyMeta());
+    TransformMeta filter = new TransformMeta("Dummy", "Filter", new DummyMeta());
+    pipelineMeta.addTransform(read);
+    pipelineMeta.addTransform(filter);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(read, filter));
+    AiProposal add =
+        proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "Filter", "toTransform", "Read"));
+    assertTrue(PipelineAiProposalValidator.validate(pipelineMeta, List.of(add)).get(0).isBlocked());
+  }
+
   private static AiProposal proposal(String type, Map<String, String> parameters) {
     AiProposal proposal = new AiProposal();
     proposal.setType(type);

@@ -391,10 +391,14 @@ public class AiAdvisorSessionStore {
     return HopAiConfigSingleton.getConfig().isKeepConversations();
   }
 
-  /** Bring back the saved conversations of a project the first time its sessions are shown. */
+  /**
+   * Bring back the saved conversations of a project the first time its sessions are shown. Only
+   * once they were read is the project saved: while Keep conversations is off nothing is read, and
+   * switching it on later must not write the sessions in memory over the saved ones.
+   */
   private void loadOnce(String scopeName) {
     String key = AiAdvisorSessionArchive.group(scopeName);
-    if (!persistent || !loadedScopes.add(key) || !keepConversations()) {
+    if (!persistent || !keepConversations() || !loadedScopes.add(key)) {
       return;
     }
     try {

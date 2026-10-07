@@ -270,4 +270,23 @@ class AiMetadataProposalSupportTest {
     proposal.setParameters(parameters);
     return proposal;
   }
+
+  @Test
+  void undoTellsWhichObjectsWereChangedSinceTheSave() throws Exception {
+    TestMetadataProvider provider = new TestMetadataProvider();
+    AiProposal create =
+        proposal(
+            "SAVE_METADATA",
+            Map.of("typeKey", "test-connection", "json", "{\"name\":\"dwh\",\"hostname\":\"a\"}"));
+    List<AiMetadataBackup> backups = AiMetadataProposalSupport.saveAll(List.of(create), provider);
+    assertTrue(AiMetadataProposalSupport.changedSinceSave(backups, provider).isEmpty());
+
+    // The user fixes the host in the Metadata perspective.
+    TestConnection edited = provider.getSerializer(TestConnection.class).load("dwh");
+    edited.setHostname("b");
+    provider.getSerializer(TestConnection.class).save(edited);
+    assertEquals(
+        List.of("test-connection dwh"),
+        AiMetadataProposalSupport.changedSinceSave(backups, provider));
+  }
 }

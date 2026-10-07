@@ -163,14 +163,46 @@ public final class AiMetadataProposalSupport {
     IHopMetadataSerializer<IHopMetadata> serializer = metadataProvider.getSerializer(metadataClass);
     String previousJson = null;
     if (serializer.exists(object.getName())) {
-      IHopMetadata previous = serializer.load(object.getName());
-      previousJson =
-          new JsonMetadataParser<>(metadataClass, metadataProvider)
-              .getJsonObject(previous)
-              .toJSONString();
+      previousJson = json(metadataClass, metadataProvider, serializer.load(object.getName()));
     }
     serializer.save(object);
-    return new AiMetadataBackup(typeKey, object.getName(), previousJson);
+    String savedJson = json(metadataClass, metadataProvider, serializer.load(object.getName()));
+    return new AiMetadataBackup(typeKey, object.getName(), previousJson, savedJson);
+  }
+
+  private static String json(
+      Class<IHopMetadata> metadataClass, IHopMetadataProvider provider, IHopMetadata object)
+      throws Exception {
+    return object == null
+        ? null
+        : new JsonMetadataParser<>(metadataClass, provider).getJsonObject(object).toJSONString();
+  }
+
+  /**
+   * The objects an undo would overwrite or delete although they were changed after the assistant
+   * saved them, or deleted since. Their names, as type and name, for the user to confirm.
+   */
+  public static List<String> changedSinceSave(
+      List<AiMetadataBackup> backups, IHopMetadataProvider metadataProvider) {
+    List<String> changed = new ArrayList<>();
+    for (AiMetadataBackup backup : backups) {
+      try {
+        Class<IHopMetadata> metadataClass =
+            metadataProvider.getMetadataClassForKey(backup.typeKey());
+        IHopMetadataSerializer<IHopMetadata> serializer =
+            metadataProvider.getSerializer(metadataClass);
+        String current =
+            serializer.exists(backup.name())
+                ? json(metadataClass, metadataProvider, serializer.load(backup.name()))
+                : null;
+        if (backup.savedJson() == null || !backup.savedJson().equals(current)) {
+          changed.add(backup.typeKey() + " " + backup.name());
+        }
+      } catch (Exception e) {
+        changed.add(backup.typeKey() + " " + backup.name());
+      }
+    }
+    return changed;
   }
 
   /**

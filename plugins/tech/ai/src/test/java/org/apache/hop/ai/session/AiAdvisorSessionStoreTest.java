@@ -23,11 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
 import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
+import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.IAuditManager;
+import org.apache.hop.history.local.LocalAuditManager;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class AiAdvisorSessionStoreTest {
 
@@ -292,5 +298,34 @@ class AiAdvisorSessionStoreTest {
     assertEquals(AiAdvisorLocations.PIPELINE_GRAPH, session.getLocation());
     assertEquals("pipeline-advisor", session.getAdvisorPluginId());
     assertEquals("orders", session.getTitle());
+  }
+
+  @Test
+  void switchingKeepConversationsOnLaterKeepsTheSavedOnes(@TempDir Path audit) throws Exception {
+    IAuditManager original = AuditManager.getInstance().getActiveAuditManager();
+    boolean keep = HopAiConfigSingleton.getConfig().isKeepConversations();
+    AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager(audit.toString()));
+    try {
+      AiAdvisorSession saved = new AiAdvisorSession();
+      saved.setTitle("saved");
+      AiAdvisorSessionArchive.save("project", List.of(saved));
+
+      AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+      store.persistent = true;
+      store.scope = () -> "project";
+      HopAiConfigSingleton.getConfig().setKeepConversations(false);
+      assertTrue(store.getSessions().isEmpty(), "nothing is read while the option is off");
+      AiAdvisorSession fresh = new AiAdvisorSession();
+      fresh.setTitle("fresh");
+      store.add(fresh);
+
+      HopAiConfigSingleton.getConfig().setKeepConversations(true);
+      assertEquals(2, store.getSessions().size(), "the saved session is read now");
+      store.saveNow();
+      assertEquals(2, AiAdvisorSessionArchive.load("project").size(), "and is not overwritten");
+    } finally {
+      HopAiConfigSingleton.getConfig().setKeepConversations(keep);
+      AuditManager.getInstance().setActiveAuditManager(original);
+    }
   }
 }

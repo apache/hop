@@ -1802,6 +1802,21 @@ public class AiAdvisorSessionPane extends Composite {
     if (turn.getMetadataBackups().isEmpty()) {
       return;
     }
+    // Undo puts back what was there before the assistant saved. Changes made since are lost then,
+    // which the user decides.
+    List<String> changed =
+        AiMetadataProposalSupport.changedSinceSave(
+            turn.getMetadataBackups(), host.getMetadataProvider());
+    if (!changed.isEmpty()) {
+      MessageBox box = new MessageBox(host.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+      box.setText(BaseMessages.getString(PKG, "AiAdvisor.UndoMetadata.Changed.Title"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "AiAdvisor.UndoMetadata.Changed.Message", "- " + String.join("\n- ", changed)));
+      if (box.open() != SWT.YES) {
+        return;
+      }
+    }
     try {
       AiMetadataProposalSupport.revert(turn.getMetadataBackups(), host.getMetadataProvider());
       int count = turn.getMetadataBackups().size();

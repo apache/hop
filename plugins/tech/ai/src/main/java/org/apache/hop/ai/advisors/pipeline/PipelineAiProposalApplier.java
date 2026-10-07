@@ -109,6 +109,7 @@ public final class PipelineAiProposalApplier {
       HopGui hopGui,
       IHopMetadataProvider provider)
       throws HopException {
+    boolean changedBefore = pipelineMeta.hasChanged();
     int applied = 0;
     try {
       for (int i = 0; i < proposals.size(); i++) {
@@ -123,7 +124,7 @@ public final class PipelineAiProposalApplier {
           new HopException(
               BaseMessages.getString(PKG, "PipelineAiProposalApplier.RolledBack", applied + 1), e);
       try {
-        restore(pipelineMeta, before, provider, hopGui);
+        restore(pipelineMeta, before, provider, hopGui, changedBefore);
       } catch (Exception restoreError) {
         failure.addSuppressed(restoreError);
       }
@@ -133,13 +134,24 @@ public final class PipelineAiProposalApplier {
 
   /** Put the pipeline back as it was before a batch failed half way. */
   static void restore(
-      PipelineMeta pipelineMeta, String xml, IHopMetadataProvider provider, HopGui hopGui)
+      PipelineMeta pipelineMeta,
+      String xml,
+      IHopMetadataProvider provider,
+      HopGui hopGui,
+      boolean changedBefore)
       throws HopException {
     Document document = XmlHandler.loadXmlString(xml);
     pipelineMeta.restoreContentFromXml(
         XmlHandler.getSubNode(document, PipelineMeta.XML_TAG),
         pipelineMeta.getFilename(),
         provider);
+    // Restoring the content clears the changed flag: put back the one it had, so unsaved edits
+    // from before the batch still ask to be saved.
+    if (changedBefore) {
+      pipelineMeta.setChanged();
+    } else {
+      pipelineMeta.clearChanged();
+    }
     AiProposalUndo.forgetPartialChange(hopGui, pipelineMeta);
   }
 

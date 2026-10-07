@@ -77,6 +77,32 @@ class AiAdvisorTranscriptPanelUiTest extends SwtBotTestBase {
         });
   }
 
+  @Test
+  void anAnswerThatTalksAboutChangesWithoutProposalsSaysSo() {
+    AtomicReference<AiAdvisorTranscriptPanel> panel = new AtomicReference<>();
+    String error = "The answer describes changes, but has no proposals to review.";
+    withScene(
+        shell -> {
+          shell.setLayout(new FillLayout());
+          shell.setSize(1000, 700);
+          panel.set(new AiAdvisorTranscriptPanel(shell));
+          AiAdvisorSession session = new AiAdvisorSession();
+          AiAdvisorTurn turn = new AiAdvisorTurn();
+          turn.setUserPrompt("add a filter");
+          turn.setAssistantAdvice("I will ADD_TRANSFORM a Filter rows.");
+          turn.setProposalParseError(error);
+          session.addTurn(turn);
+          panel.get().showSession(session);
+        },
+        bot ->
+            assertTrue(
+                onUi(
+                    () ->
+                        findAll(panel.get(), org.eclipse.swt.widgets.Label.class).stream()
+                            .anyMatch(label -> label.getText().contains(error))),
+                "the reason is shown in the transcript"));
+  }
+
   private static <T> T onUi(java.util.function.Supplier<T> supplier) {
     AtomicReference<T> result = new AtomicReference<>();
     Display.getDefault().syncExec(() -> result.set(supplier.get()));

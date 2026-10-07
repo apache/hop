@@ -171,6 +171,45 @@ class AiProposalSchemaTest {
     assertFalse(AiAdvisorEngine.usesHopProposalSchema(null));
   }
 
+  @Test
+  void onlyARefusedSchemaIsAskedAgainWithoutIt() {
+    assertTrue(
+        AiAdvisorEngine.schemaRefused(
+            new org.apache.hop.core.exception.HopException(
+                "AI request failed",
+                new dev.langchain4j.exception.InvalidRequestException("format not supported"))));
+    assertTrue(
+        AiAdvisorEngine.schemaRefused(
+            new dev.langchain4j.exception.UnsupportedFeatureException("json schema")));
+    assertFalse(
+        AiAdvisorEngine.schemaRefused(
+            new org.apache.hop.core.exception.HopException(
+                "AI request failed",
+                new dev.langchain4j.exception.TimeoutException("request timed out"))));
+    assertFalse(
+        AiAdvisorEngine.schemaRefused(
+            new org.apache.hop.core.exception.HopException(
+                "AI request failed",
+                new dev.langchain4j.exception.AuthenticationException("401"))));
+    assertFalse(
+        AiAdvisorEngine.schemaRefused(new dev.langchain4j.exception.RateLimitException("429")));
+  }
+
+  @Test
+  void anEmptyRepairWithdrawsTheProposals() {
+    AiAdvisorResponse empty = new AiAdvisorResponse();
+    empty.setProposals(new java.util.ArrayList<>());
+    assertTrue(AiAdvisorEngine.withdrawn(empty), "the model confirms it meant no change");
+
+    AiAdvisorResponse failed = new AiAdvisorResponse();
+    failed.setProposalParseError("still broken");
+    assertFalse(AiAdvisorEngine.withdrawn(failed));
+
+    AiAdvisorResponse repaired = new AiAdvisorResponse();
+    repaired.setProposals(new java.util.ArrayList<>(List.of(proposal("ADD_TRANSFORM", "LOW"))));
+    assertFalse(AiAdvisorEngine.withdrawn(repaired));
+  }
+
   private static AiProposal proposal(String type, String risk) {
     AiProposal proposal = new AiProposal();
     proposal.setType(type);

@@ -53,8 +53,11 @@ class AiAdvisorSessionArchiveTest {
     proposal.getParameters().put("name", "Check");
     turn.getProposals().add(proposal);
     turn.getAppliedSummaries().add("ADD_TRANSFORM: Check");
-    turn.getMetadataBackups().add(new AiMetadataBackup("rdbms", "sales", "{\"name\":\"sales\"}"));
-    turn.getMetadataBackups().add(new AiMetadataBackup("rdbms", "new-one", null));
+    turn.getMetadataBackups()
+        .add(
+            new AiMetadataBackup(
+                "rdbms", "sales", "{\"name\":\"sales\"}", "{\"name\":\"sales2\"}"));
+    turn.getMetadataBackups().add(new AiMetadataBackup("rdbms", "new-one", null, "{}"));
     session.addTurn(turn);
 
     Map<String, Object> map = AiAdvisorSessionArchive.toMap(session);

@@ -57,6 +57,14 @@ public final class PipelineAiProposalValidator {
       return results;
     }
     Set<String> reservedNames = new HashSet<>();
+    // Hops the batch deletes are deleted first when it is applied, so a hop in the other direction
+    // can take their place: reversing a hop is not a loop.
+    for (AiProposal proposal : proposals) {
+      if (AiProposalTypes.of(proposal) == AiProposalTypes.DELETE_PIPELINE_HOP) {
+        reservedNames.add(
+            deletedHop(proposal.parameter("fromTransform"), proposal.parameter("toTransform")));
+      }
+    }
     for (AiProposal proposal : proposals) {
       results.add(validateOne(pipelineMeta, proposal, reservedNames, metadataProvider));
     }
@@ -234,8 +242,12 @@ public final class PipelineAiProposalValidator {
       return blocked(
           proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.HopToItself"));
     }
-    // A pipeline cannot loop: the reverse hop, already there or proposed earlier, would.
-    if ((from != null && to != null && pipelineMeta.findPipelineHop(to, from) != null)
+    // A pipeline cannot loop: the reverse hop, already there or proposed earlier, would. Not when
+    // the batch deletes it.
+    if ((from != null
+            && to != null
+            && pipelineMeta.findPipelineHop(to, from) != null
+            && !reservedNames.contains(deletedHop(toName, fromName)))
         || reservedNames.contains("hop:" + toName + "->" + fromName)) {
       return blocked(
           proposal,
@@ -252,6 +264,13 @@ public final class PipelineAiProposalValidator {
           proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.EnabledYesNo"));
     }
     return ok(proposal);
+  }
+
+  private static String deletedHop(String fromName, String toName) {
+    return "deleted-hop:"
+        + (fromName == null ? "" : fromName.trim())
+        + "->"
+        + (toName == null ? "" : toName.trim());
   }
 
   private static AiProposalValidation validateDeletePipelineHop(

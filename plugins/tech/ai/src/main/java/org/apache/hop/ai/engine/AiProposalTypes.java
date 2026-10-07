@@ -118,26 +118,24 @@ public enum AiProposalTypes {
   }
 
   /**
-   * The proposals in the order to apply them: deleting a transform or action also removes its hops,
-   * so a hop delete of the same batch that came after it would fail on a hop that is already gone.
-   * Hop deletes move before the first transform or action delete; the rest keeps its order.
+   * The proposals in the order to apply them: hop deletes first, the rest in the order given.
+   * Deleting a transform or action also removes its hops, so a hop delete after it would fail on a
+   * hop that is already gone; and a hop that reverses a deleted one is only valid once that one is
+   * gone. The validator checks the batch in this order too.
    */
   public static List<AiProposal> inApplyOrder(List<AiProposal> proposals) {
-    List<AiProposal> ordered = new ArrayList<>();
-    int firstNodeDelete = -1;
+    List<AiProposal> hopDeletes = new ArrayList<>();
+    List<AiProposal> rest = new ArrayList<>();
     for (AiProposal proposal : proposals) {
       AiProposalTypes type = of(proposal);
-      if ((type == DELETE_PIPELINE_HOP || type == DELETE_WORKFLOW_HOP) && firstNodeDelete >= 0) {
-        ordered.add(firstNodeDelete, proposal);
-        firstNodeDelete++;
-        continue;
+      if (type == DELETE_PIPELINE_HOP || type == DELETE_WORKFLOW_HOP) {
+        hopDeletes.add(proposal);
+      } else {
+        rest.add(proposal);
       }
-      if ((type == DELETE_TRANSFORM || type == DELETE_ACTION) && firstNodeDelete < 0) {
-        firstNodeDelete = ordered.size();
-      }
-      ordered.add(proposal);
     }
-    return ordered;
+    hopDeletes.addAll(rest);
+    return hopDeletes;
   }
 
   public static AiProposalTypes of(AiProposal proposal) {

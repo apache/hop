@@ -160,6 +160,12 @@ public class AiAdvisorTranscriptPanel extends Composite {
             dropped += " " + turn.getProposalParseError();
           }
           appendNote(responseBlock, Role.ASSISTANT, dropped);
+        } else if (!Utils.isEmpty(turn.getProposalParseError())) {
+          // The answer talks about changes but has none to review, also after asking again.
+          if (responseBlock == null) {
+            responseBlock = appendBlock(Role.ASSISTANT);
+          }
+          appendNote(responseBlock, Role.ASSISTANT, turn.getProposalParseError());
         }
         if (turn.getAppliedSummaries() != null && !turn.getAppliedSummaries().isEmpty()) {
           Composite block = appendBlock(Role.SYSTEM);

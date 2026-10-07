@@ -176,6 +176,7 @@ public final class AiAdvisorSessionArchive {
       entry.put("typeKey", backup.typeKey());
       entry.put("name", backup.name());
       entry.put("previousJson", backup.previousJson());
+      entry.put("savedJson", backup.savedJson());
       backups.add(entry);
     }
     map.put("metadataBackups", backups);
@@ -277,7 +278,12 @@ public final class AiAdvisorSessionArchive {
             && entry.get("typeKey") instanceof String typeKey
             && entry.get("name") instanceof String name) {
           turn.getMetadataBackups()
-              .add(new AiMetadataBackup(typeKey, name, (String) entry.get("previousJson")));
+              .add(
+                  new AiMetadataBackup(
+                      typeKey,
+                      name,
+                      (String) entry.get("previousJson"),
+                      (String) entry.get("savedJson")));
         }
       }
     }

@@ -166,10 +166,19 @@ public final class AiProposalNormalizer {
             : workflowMeta.getActions().stream().map(ActionMeta::getName).toList());
   }
 
+  /** Short names models use for a plugin id; only read on proposals that add a node. */
+  private static final Set<String> PLUGIN_ALIASES =
+      Set.of("pluginId", "plugin", "pluginType", "transformType", "actionType");
+
+  /**
+   * Short names for the ends of a hop; only read on hop proposals. A transform or action can have a
+   * setting with one of these names, such as the target of the dbt action.
+   */
+  private static final Set<String> HOP_END_ALIASES = Set.of("from", "source", "to", "target");
+
   private static void commonKeys(
       Map<String, String> keys, String pluginKey, String from, String to) {
-    for (String alias :
-        List.of("pluginId", "plugin", "pluginType", "transformType", "actionType")) {
+    for (String alias : PLUGIN_ALIASES) {
       keys.put(alias, pluginKey);
     }
     keys.put("from", from);
@@ -200,7 +209,16 @@ public final class AiProposalNormalizer {
       String type = proposal.getType().trim().toUpperCase(Locale.ROOT);
       proposal.setType(kind.typeFixes().getOrDefault(type, type));
       Map<String, String> parameters = proposal.getParameters();
+      String fixedType = proposal.getType();
+      boolean hop =
+          kind.hopType().equals(fixedType)
+              || kind.hopType().replace("ADD_", "DELETE_").equals(fixedType);
+      boolean add = kind.addType().equals(fixedType);
       for (Map.Entry<String, String> fix : kind.keyFixes().entrySet()) {
+        if ((HOP_END_ALIASES.contains(fix.getKey()) && !hop)
+            || (PLUGIN_ALIASES.contains(fix.getKey()) && !add)) {
+          continue;
+        }
         if (parameters.containsKey(fix.getKey()) && Utils.isEmpty(parameters.get(fix.getValue()))) {
           parameters.put(fix.getValue(), parameters.remove(fix.getKey()));
         }

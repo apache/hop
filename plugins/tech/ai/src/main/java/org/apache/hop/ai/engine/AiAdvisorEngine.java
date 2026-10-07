@@ -20,6 +20,9 @@ package org.apache.hop.ai.engine;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.exception.InvalidRequestException;
+import dev.langchain4j.exception.JsonException;
+import dev.langchain4j.exception.UnsupportedFeatureException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -189,11 +192,13 @@ public final class AiAdvisorEngine {
           parsed.getProposals() == null ? List.of() : new ArrayList<>(parsed.getProposals());
       repairProposals(
           prepared.provider(), variables, advisor, prompt, prepared.history(), chat, parsed);
-      // Keep whichever set the review can apply more of.
-      if (!before.isEmpty()
+      if (!withdrawn(parsed)
+          && !before.isEmpty()
           && blockedCount(advisor, prepared.request(), before)
               < blockedCount(advisor, prepared.request(), parsed.getProposals())) {
+        // Keep whichever set the review can apply more of.
         parsed.setProposals(new ArrayList<>(before));
+        parsed.setProposalBlockPresent(true);
       }
       if (parsed.getProposalParseError() != null
           && parsed.getProposals() != null
@@ -233,7 +238,9 @@ public final class AiAdvisorEngine {
               structured.getDurationMs());
         }
       } catch (HopException e) {
-        if (session.isCancelled() || Thread.currentThread().isInterrupted()) {
+        // Only when the provider refused the schema is asking without it any use. A timeout, a
+        // rejected key or a rate limit would fail again, after the same wait and cost.
+        if (session.isCancelled() || Thread.currentThread().isInterrupted() || !schemaRefused(e)) {
           throw e;
         }
         LogChannel.GENERAL.logBasic(
@@ -243,6 +250,25 @@ public final class AiAdvisorEngine {
     }
     return AiChatFactory.generateResult(
         provider, variables, prompt.getSystemPrompt(), prompt.getUserPrompt(), prepared.history());
+  }
+
+  /**
+   * Whether a failed structured request failed on the request itself: the provider or model does
+   * not take the schema (HTTP 400, an unsupported feature), or the answer was not the JSON asked
+   * for.
+   */
+  static boolean schemaRefused(Throwable error) {
+    for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+      if (cause instanceof InvalidRequestException
+          || cause instanceof UnsupportedFeatureException
+          || cause instanceof JsonException) {
+        return true;
+      }
+      if (cause.getCause() == cause) {
+        break;
+      }
+    }
+    return false;
   }
 
   /**
@@ -382,6 +408,15 @@ public final class AiAdvisorEngine {
     } catch (HopException e) {
       // Keep the first answer and its parse error.
     }
+  }
+
+  /**
+   * Whether the repair answered with an empty list: the model confirms it meant no change, so the
+   * proposals of the first answer are withdrawn, not kept as the better set.
+   */
+  static boolean withdrawn(AiAdvisorResponse repaired) {
+    return repaired.getProposalParseError() == null
+        && (repaired.getProposals() == null || repaired.getProposals().isEmpty());
   }
 
   /** In JSON-only mode the reply is the bare object; give it the fence the parser looks for. */
