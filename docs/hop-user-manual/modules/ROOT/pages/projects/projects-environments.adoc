@@ -130,7 +130,25 @@ Do not put a real password, host, or path in the project file.
 *Add*, *Edit...*, and *Delete* change the list.
 *Edit...* sets the name, the description, and the three variable lists.
 
-After creating a project the user interface will switch to it and ask if you want to create an environment.
+When a project is added from a folder or from Git and `project-config.json` already defines environments, Hop asks whether to create those lifecycle environments on this computer.
+A project with no embedded environments still asks the generic question about creating one environment, except when the project is read only or was added from Git.
+
+Only the *Mandatory* and *Secrets* variables are written, one configuration file per environment.
+Optional variables are applied when the environment is enabled and are not stored in that file.
+The value written at creation is the placeholder from the project.
+Replace it with the value for this computer.
+A value in the configuration file replaces the placeholder.
+A variable with the same name on the project still wins.
+
+The files are written to the folder in the project variable `+${ENVIRONMENTS_FOLDER}+` when that variable is set.
+Otherwise Hop asks for a folder.
+Keep that folder outside the project so the values are not checked in.
+A typical place is `+${HOP_CONFIG_FOLDER}/environments/+` followed by the project name.
+Set `+${ENVIRONMENTS_FOLDER}+` on the project to reuse the same folder the next time the project is added.
+An environment that already exists on this computer is left unchanged.
+An existing configuration file is not overwritten. The environment is still registered when the name is free.
+
+In the environment properties dialog, *Embedded environment* links the environment to one of these definitions by name.
 
 == Create an environment
 
@@ -159,6 +177,7 @@ image:hop-gui/environment/environment-dialog-general-tab.png[Environment Propert
 * Common build
 * ...|No|No|
 |Project|The project to which this environment belongs|No|No|The last created project
+|Embedded environment|The environment definition in the project to inherit. Required values and secrets stay in the configuration files. The other variables come from the project definition|No|No|(none)
 |Canvas text|Large text drawn in the top-right of pipeline and workflow canvases when this environment is active|Yes|No|
 |===
 

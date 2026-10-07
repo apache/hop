@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.environment;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,13 @@ public class LifecycleEnvironment implements IAttributes {
 
   private List<String> configurationFiles;
 
+  /**
+   * Name of the embedded environment in the project definition. Null when this environment is not
+   * linked. Real values stay in the configuration files.
+   */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String embeddedEnvironmentName;
+
   /** Group → (key → value); see {@link IAttributes}. */
   private Map<String, Map<String, String>> attributesMap;
 
@@ -66,6 +74,7 @@ public class LifecycleEnvironment implements IAttributes {
     this.projectName = env.projectName;
     this.canvasText = env.canvasText;
     this.configurationFiles = new ArrayList<>(env.configurationFiles);
+    this.embeddedEnvironmentName = env.embeddedEnvironmentName;
     this.attributesMap = deepCopyAttributes(env.attributesMap);
   }
 
@@ -181,6 +190,22 @@ public class LifecycleEnvironment implements IAttributes {
    */
   public void setConfigurationFiles(List<String> configurationFiles) {
     this.configurationFiles = configurationFiles;
+  }
+
+  /**
+   * Gets embeddedEnvironmentName
+   *
+   * @return value of embeddedEnvironmentName
+   */
+  public String getEmbeddedEnvironmentName() {
+    return embeddedEnvironmentName;
+  }
+
+  /**
+   * @param embeddedEnvironmentName The embedded environment name to set. Null clears the link.
+   */
+  public void setEmbeddedEnvironmentName(String embeddedEnvironmentName) {
+    this.embeddedEnvironmentName = embeddedEnvironmentName;
   }
 
   @Override

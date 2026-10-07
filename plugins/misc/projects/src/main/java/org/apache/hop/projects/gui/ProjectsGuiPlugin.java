@@ -70,6 +70,8 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigOptionPlugin;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.environment.EmbeddedEnvironment;
+import org.apache.hop.projects.environment.EmbeddedEnvironmentMaterializer;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.environment.LifecycleEnvironmentDialog;
 import org.apache.hop.projects.project.Project;
@@ -1367,9 +1369,12 @@ public class ProjectsGuiPlugin {
               wrcSerializer.save(local);
             }
           }
+        }
 
-          // Ask to put the project in a lifecycle environment
-          //
+        // Embedded definitions replace the generic question. A new project without them keeps it.
+        //
+        if (!offerEmbeddedEnvironments(hopGui.getActiveShell(), project, projectConfig, variables)
+            && !projectConfig.isReadOnly()) {
           MessageBox box =
               new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
           box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Header"));
@@ -1379,7 +1384,6 @@ public class ProjectsGuiPlugin {
                   + BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message2"));
           int answer = box.open();
           if ((answer & SWT.YES) != 0) {
-
             addNewEnvironment();
           }
         }
@@ -1600,6 +1604,138 @@ public class ProjectsGuiPlugin {
               PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Message", environmentName),
           e);
     }
+  }
+
+  /**
+   * Ask whether to create local lifecycle environments from the definitions stored in the project.
+   * Required values and secrets are written to one configuration file per environment. The project
+   * file is not changed.
+   *
+   * @return true when the project defines embedded environments, including when the user declines
+   *     or the folder dialog is cancelled. The generic environment question must not follow.
+   */
+  public static boolean offerEmbeddedEnvironments(
+      Shell shell, Project project, ProjectConfig projectConfig, IVariables variables) {
+    List<String> names = embeddedEnvironmentNames(project);
+    if (names.isEmpty()) {
+      return false;
+    }
+
+    String projectName = projectConfig == null ? "" : Const.NVL(projectConfig.getProjectName(), "");
+    String folder = EmbeddedEnvironmentMaterializer.resolveFolder(variables);
+    String message =
+        BaseMessages.getString(
+            PKG,
+            "ProjectGuiPlugin.EmbeddedEnvironments.Question.Message",
+            projectName,
+            String.join(", ", names));
+    if (folder != null) {
+      message =
+          message
+              + Const.CR
+              + Const.CR
+              + BaseMessages.getString(
+                  PKG, "ProjectGuiPlugin.EmbeddedEnvironments.Question.Folder", folder);
+    }
+
+    MessageBox question = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    question.setText(
+        BaseMessages.getString(PKG, "ProjectGuiPlugin.EmbeddedEnvironments.Question.Header"));
+    question.setMessage(message);
+    if ((question.open() & SWT.YES) == 0) {
+      return true;
+    }
+
+    if (folder == null) {
+      folder = chooseEnvironmentFolder(shell, projectName, variables);
+      if (folder == null) {
+        return true;
+      }
+    }
+
+    String projectHome = null;
+    if (projectConfig != null && variables != null) {
+      projectHome = variables.resolve(projectConfig.getProjectHome());
+    }
+    if (EmbeddedEnvironmentMaterializer.isInsideProjectHome(folder, projectHome)) {
+      MessageBox warning = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
+      warning.setText(
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.EmbeddedEnvironments.InsideProject.Header"));
+      warning.setMessage(
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.EmbeddedEnvironments.InsideProject.Message"));
+      if ((warning.open() & SWT.YES) == 0) {
+        return true;
+      }
+    }
+
+    try {
+      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+      EmbeddedEnvironmentMaterializer.MaterializeResult result =
+          EmbeddedEnvironmentMaterializer.materialize(config, project, projectName, folder);
+      for (LifecycleEnvironment created : result.getCreated()) {
+        config.addEnvironment(created);
+      }
+      if (!result.getCreated().isEmpty()) {
+        ProjectsConfigSingleton.saveConfig();
+      }
+      if (!result.getSkippedExistingNames().isEmpty()) {
+        MessageBox skipped = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+        skipped.setText(
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.EmbeddedEnvironments.Skipped.Header"));
+        skipped.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "ProjectGuiPlugin.EmbeddedEnvironments.Skipped.Message",
+                String.join(Const.CR, result.getSkippedExistingNames())));
+        skipped.open();
+      }
+      if (result.getCreated().size() == 1) {
+        LifecycleEnvironment created = result.getCreated().get(0);
+        enableHopGuiProject(projectName, project, created);
+        updateEnvironmentToolItem(created.getName());
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.EmbeddedEnvironments.Error.Header"),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.EmbeddedEnvironments.Error.Message"),
+          e);
+    }
+    return true;
+  }
+
+  private static String chooseEnvironmentFolder(
+      Shell shell, String projectName, IVariables variables) {
+    String suggestion = EmbeddedEnvironmentMaterializer.suggestedConfigFolder(projectName);
+    String resolved = variables == null ? suggestion : variables.resolve(suggestion);
+    if (StringUtils.isBlank(resolved) || resolved.contains("${")) {
+      String safe =
+          EmbeddedEnvironmentMaterializer.configFileName(
+              StringUtils.defaultIfBlank(projectName, "project"));
+      safe = safe.substring(0, safe.length() - ".json".length());
+      resolved = Const.HOP_CONFIG_FOLDER + "/environments/" + safe;
+    }
+    return BaseDialog.presentDirectoryDialog(
+        shell,
+        resolved,
+        BaseMessages.getString(PKG, "ProjectGuiPlugin.EmbeddedEnvironments.Folder.Message"),
+        variables);
+  }
+
+  /** Names of the embedded environments that are safe to show and to create. */
+  private static List<String> embeddedEnvironmentNames(Project project) {
+    List<String> names = new ArrayList<>();
+    if (project == null || project.getEmbeddedEnvironments() == null) {
+      return names;
+    }
+    for (EmbeddedEnvironment environment : project.getEmbeddedEnvironments()) {
+      if (environment != null && StringUtils.isNotBlank(environment.getName())) {
+        names.add(environment.getName().trim());
+      }
+    }
+    return names;
   }
 
   @GuiMenuElement(

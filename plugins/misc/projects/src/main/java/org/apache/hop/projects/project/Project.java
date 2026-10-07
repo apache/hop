@@ -65,6 +65,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.EmbeddedEnvironment;
+import org.apache.hop.projects.environment.EmbeddedEnvironmentVariable;
+import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -303,6 +305,11 @@ public class Project extends ConfigFile implements IConfigFile {
     //
     applyProjectVariables(variables);
 
+    // Placeholder defaults from the linked embedded environment. Configuration files below replace
+    // them, and the final applyProjectVariables() still lets a project variable win.
+    //
+    applyEmbeddedEnvironmentDefaults(variables, environmentName);
+
     // Apply the described variables from the various configuration files in the given order...
     //
     for (String configurationFile : configurationFiles) {
@@ -364,6 +371,42 @@ public class Project extends ConfigFile implements IConfigFile {
     // Keep project variables as the final values when a configuration file defines the same name.
     //
     applyProjectVariables(variables);
+  }
+
+  private void applyEmbeddedEnvironmentDefaults(IVariables variables, String environmentName) {
+    if (StringUtils.isEmpty(environmentName)) {
+      return;
+    }
+    LifecycleEnvironment lifecycleEnvironment =
+        ProjectsConfigSingleton.getConfig().findEnvironment(environmentName);
+    if (lifecycleEnvironment == null
+        || StringUtils.isEmpty(lifecycleEnvironment.getEmbeddedEnvironmentName())) {
+      return;
+    }
+    EmbeddedEnvironment embedded =
+        findEmbeddedEnvironment(lifecycleEnvironment.getEmbeddedEnvironmentName());
+    if (embedded == null) {
+      LogChannel.GENERAL.logError(
+          "Embedded environment '"
+              + lifecycleEnvironment.getEmbeddedEnvironmentName()
+              + "' is not defined in this project. Continuing without those defaults.");
+      return;
+    }
+    applyEmbeddedVariables(variables, embedded.getVariables());
+    applyEmbeddedVariables(variables, embedded.getMandatoryVariables());
+    applyEmbeddedVariables(variables, embedded.getSecretVariables());
+  }
+
+  private static void applyEmbeddedVariables(
+      IVariables variables, List<EmbeddedEnvironmentVariable> defined) {
+    if (defined == null) {
+      return;
+    }
+    for (EmbeddedEnvironmentVariable variable : defined) {
+      if (variable != null && StringUtils.isNotEmpty(variable.getName())) {
+        variables.setVariable(variable.getName(), Const.NVL(variable.getDefaultValue(), ""));
+      }
+    }
   }
 
   private void applyProjectVariables(IVariables variables) {
