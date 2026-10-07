@@ -17,7 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -30,6 +33,8 @@ public class CreditCardValidatorData extends BaseTransformData implements ITrans
   public IRowMeta outputRowMeta;
   public int NrPrevFields;
   public IRowMeta previousRowMeta;
+  public BinDatabase binDatabase;
+  public List<IValueMeta> outputFieldMetas;
 
   public CreditCardValidatorData() {
     super();
@@ -37,5 +42,6 @@ public class CreditCardValidatorData extends BaseTransformData implements ITrans
     realResultFieldname = null;
     realCardTypeFieldname = null;
     realNotValidMsgFieldname = null;
+    outputFieldMetas = new ArrayList<>();
   }
 }

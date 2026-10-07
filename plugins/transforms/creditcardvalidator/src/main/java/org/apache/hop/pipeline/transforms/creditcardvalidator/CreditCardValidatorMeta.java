@@ -17,10 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -65,8 +67,33 @@ public class CreditCardValidatorMeta
   @HopMetadataProperty(key = "onlydigits")
   private boolean onlyDigits;
 
+  @HopMetadataProperty(key = "usebindatabase")
+  private boolean useBinDatabase;
+
+  @HopMetadataProperty(key = "binfilename")
+  private String binFileName;
+
+  @HopMetadataProperty(key = "bindelimiter")
+  private String binDelimiter;
+
+  @HopMetadataProperty(key = "binenclosure")
+  private String binEnclosure;
+
+  @HopMetadataProperty(key = "binencoding")
+  private String binEncoding;
+
+  @HopMetadataProperty(key = "binheaderpresent")
+  private boolean binHeaderPresent;
+
+  @HopMetadataProperty(key = "bincsvcolumn")
+  private String binCsvColumn;
+
+  @HopMetadataProperty(key = "outputfield", groupKey = "outputfields")
+  private List<BinOutputField> outputFields;
+
   public CreditCardValidatorMeta() {
     super(); // allocate BaseTransformMeta
+    outputFields = new ArrayList<>();
   }
 
   @Override
@@ -75,6 +102,14 @@ public class CreditCardValidatorMeta
     onlyDigits = false;
     cardType = "card type";
     notValidMessage = "not valid message";
+    useBinDatabase = false;
+    binFileName = "";
+    binDelimiter = ",";
+    binEnclosure = "\"";
+    binEncoding = "UTF-8";
+    binHeaderPresent = true;
+    binCsvColumn = "";
+    outputFields = new ArrayList<>();
   }
 
   @Override
@@ -103,6 +138,19 @@ public class CreditCardValidatorMeta
       IValueMeta v = new ValueMetaString(realNotValidMessage);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
+    }
+    for (BinOutputField outputField : outputFields) {
+      String realName = variables.resolve(outputField.getName());
+      if (!Utils.isEmpty(realName) && useBinDatabase) {
+        IValueMeta v;
+        try {
+          v = outputField.createValueMeta(realName);
+        } catch (HopPluginException e) {
+          throw new HopTransformException(e);
+        }
+        v.setOrigin(name);
+        inputRowMeta.addValueMeta(v);
+      }
     }
   }
 
@@ -254,5 +302,149 @@ public class CreditCardValidatorMeta
    */
   public void setOnlyDigits(boolean onlyDigits) {
     this.onlyDigits = onlyDigits;
+  }
+
+  /**
+   * Gets useBinDatabase
+   *
+   * @return value of useBinDatabase
+   */
+  public boolean isUseBinDatabase() {
+    return useBinDatabase;
+  }
+
+  /**
+   * Sets useBinDatabase
+   *
+   * @param useBinDatabase value of useBinDatabase
+   */
+  public void setUseBinDatabase(boolean useBinDatabase) {
+    this.useBinDatabase = useBinDatabase;
+  }
+
+  /**
+   * Gets binFileName
+   *
+   * @return value of binFileName
+   */
+  public String getBinFileName() {
+    return binFileName;
+  }
+
+  /**
+   * Sets binFileName
+   *
+   * @param binFileName value of binFileName
+   */
+  public void setBinFileName(String binFileName) {
+    this.binFileName = binFileName;
+  }
+
+  /**
+   * Gets binDelimiter
+   *
+   * @return value of binDelimiter
+   */
+  public String getBinDelimiter() {
+    return binDelimiter;
+  }
+
+  /**
+   * Sets binDelimiter
+   *
+   * @param binDelimiter value of binDelimiter
+   */
+  public void setBinDelimiter(String binDelimiter) {
+    this.binDelimiter = binDelimiter;
+  }
+
+  /**
+   * Gets binEnclosure
+   *
+   * @return value of binEnclosure
+   */
+  public String getBinEnclosure() {
+    return binEnclosure;
+  }
+
+  /**
+   * Sets binEnclosure
+   *
+   * @param binEnclosure value of binEnclosure
+   */
+  public void setBinEnclosure(String binEnclosure) {
+    this.binEnclosure = binEnclosure;
+  }
+
+  /**
+   * Gets binEncoding
+   *
+   * @return value of binEncoding
+   */
+  public String getBinEncoding() {
+    return binEncoding;
+  }
+
+  /**
+   * Sets binEncoding
+   *
+   * @param binEncoding value of binEncoding
+   */
+  public void setBinEncoding(String binEncoding) {
+    this.binEncoding = binEncoding;
+  }
+
+  /**
+   * Gets binHeaderPresent
+   *
+   * @return value of binHeaderPresent
+   */
+  public boolean isBinHeaderPresent() {
+    return binHeaderPresent;
+  }
+
+  /**
+   * Sets binHeaderPresent
+   *
+   * @param binHeaderPresent value of binHeaderPresent
+   */
+  public void setBinHeaderPresent(boolean binHeaderPresent) {
+    this.binHeaderPresent = binHeaderPresent;
+  }
+
+  /**
+   * Gets binCsvColumn
+   *
+   * @return value of binCsvColumn
+   */
+  public String getBinCsvColumn() {
+    return binCsvColumn;
+  }
+
+  /**
+   * Sets binCsvColumn
+   *
+   * @param binCsvColumn value of binCsvColumn
+   */
+  public void setBinCsvColumn(String binCsvColumn) {
+    this.binCsvColumn = binCsvColumn;
+  }
+
+  /**
+   * Gets outputFields
+   *
+   * @return value of outputFields
+   */
+  public List<BinOutputField> getOutputFields() {
+    return outputFields;
+  }
+
+  /**
+   * Sets outputFields
+   *
+   * @param outputFields value of outputFields
+   */
+  public void setOutputFields(List<BinOutputField> outputFields) {
+    this.outputFields = outputFields;
   }
 }
