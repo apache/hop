@@ -75,6 +75,19 @@ public final class IcebergTables {
    */
   public static Table loadFromCatalog(
       LakeCatalog catalog, String tableIdentifier, IVariables variables) throws HopException {
+    IcebergTableTarget target = targetInCatalog(catalog, tableIdentifier, variables);
+    if (!target.exists()) {
+      throw new HopException("Table " + target.name() + " doesn't exist");
+    }
+    return target.read();
+  }
+
+  /**
+   * The table {@code tableIdentifier} in the catalog described by a lakehouse catalog metadata
+   * object, which may or may not exist yet.
+   */
+  public static IcebergTableTarget targetInCatalog(
+      LakeCatalog catalog, String tableIdentifier, IVariables variables) throws HopException {
     if (catalog == null) {
       throw new HopException("No catalog specified to look up table '" + tableIdentifier + "'");
     }
@@ -90,13 +103,13 @@ public final class IcebergTables {
           throw new HopException(
               "Catalog '" + catalog.getName() + "' (hadoop) needs a warehouse location");
         }
-        return loadFromPath(hadoopTableLocation(warehouse, identifier));
+        return IcebergTableTarget.atPath(hadoopTableLocation(warehouse, identifier));
       }
       case LakeCatalog.TYPE_REST -> {
         Catalog rest =
             CatalogUtil.loadCatalog(
                 REST_CATALOG, catalogName, restProperties(catalog, variables), null);
-        return rest.loadTable(identifier);
+        return IcebergTableTarget.inCatalog(rest, identifier);
       }
       default ->
           throw new HopException(
@@ -189,8 +202,21 @@ public final class IcebergTables {
     return properties;
   }
 
-  /** The newest metadata file of the table at {@code root}. */
+  /** The current metadata file of the table at {@code location}. */
   static String currentMetadataFile(String location) throws HopException {
+    String metadataFile = findCurrentMetadataFile(location);
+    if (metadataFile == null) {
+      throw new HopException(
+          "No Iceberg table found at '" + location + "': there is no table metadata file");
+    }
+    return metadataFile;
+  }
+
+  /**
+   * The current metadata file of the table at {@code location}, or null if there is no table there.
+   * The version hint is followed when there is one; otherwise the newest metadata file is used.
+   */
+  static String findCurrentMetadataFile(String location) throws HopException {
     String root = StringUtils.removeEnd(location, "/");
     String metadataFolder = root + "/metadata";
     try {
@@ -198,18 +224,16 @@ public final class IcebergTables {
       if (hint.exists()) {
         try (InputStream in = HopVfs.getInputStream(hint)) {
           String version = new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
-          FileObject file =
-              HopVfs.getFileObject(metadataFolder + "/v" + version + ".metadata.json");
-          if (file.exists()) {
-            return metadataFolder + "/v" + version + ".metadata.json";
+          String file = metadataFolder + "/v" + version + ".metadata.json";
+          if (HopVfs.getFileObject(file).exists()) {
+            return file;
           }
         }
       }
 
       FileObject folder = HopVfs.getFileObject(metadataFolder);
       if (!folder.exists()) {
-        throw new HopException(
-            "No Iceberg table found at '" + root + "': there is no metadata folder");
+        return null;
       }
       String newest = null;
       long newestVersion = -1;
@@ -221,13 +245,7 @@ public final class IcebergTables {
           newest = name;
         }
       }
-      if (newest == null) {
-        throw new HopException(
-            "No Iceberg table found at '" + root + "': the metadata folder has no metadata files");
-      }
-      return metadataFolder + "/" + newest;
-    } catch (HopException e) {
-      throw e;
+      return newest == null ? null : metadataFolder + "/" + newest;
     } catch (Exception e) {
       throw new HopException("Unable to find the Iceberg metadata of table '" + root + "'", e);
     }
