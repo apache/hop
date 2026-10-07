@@ -16,19 +16,22 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: Spark lake table output writes Delta Lake or Apache Iceberg tables on the native Spark pipeline engine with ACID commit semantics.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
-:page-marketplace: hop-engines-spark
+:description: Lake table output writes Apache Iceberg tables on the Hop engine and Delta Lake or Apache Iceberg tables on the native Spark engine, with ACID commit semantics.
+:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-tech-lakehouse
 
-= image:transforms/icons/spark-lake-table-output.svg[Spark lake table output transform Icon, role="image-doc-icon"] Spark lake table output
+= image:transforms/icons/spark-lake-table-output.svg[Lake table output transform Icon, role="image-doc-icon"] Lake table output
 
 == Description
 
-*Spark lake table output* writes the incoming Spark `Dataset` to a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table using table-format commit semantics on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+*Lake table output* writes the incoming rows to an https://iceberg.apache.org/[Apache Iceberg] or https://delta.io/[Delta Lake] table, using the table format's commits so readers never see a half-written run.
 
-Unlike *Spark file output* (classic file formats), the **default save mode is ErrorIfExists** so ACID tables are not overwritten by accident.
+The **default save mode is ErrorIfExists**, so an existing table isn't overwritten by accident.
 
-This transform is **native Spark only**. Connectors ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+The transform runs on two engines:
+
+* On the *Hop engine* (local and remote) it writes Apache Iceberg tables with the Iceberg Java library, through Hop VFS, and passes the rows on unchanged. See <<hop-engine>>.
+* On the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] it writes the incoming `Dataset` to a Delta Lake or Iceberg table. Connectors ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 == Options
 
@@ -51,8 +54,8 @@ This transform is **native Spark only**. Connectors ship with the native Spark p
 |Table identifier
 |TABLE mode: e.g. `lake.db.orders`.
 
-|Spark Catalog metadata name
-|Optional xref:metadata-types/spark-catalog.adoc[Spark Catalog] Hop metadata for TABLE mode.
+|Catalog metadata name
+|The xref:metadata-types/spark-catalog.adoc[lakehouse catalog] for TABLE mode. Optional on the Spark engine.
 
 |Save mode
 |`ErrorIfExists` (**default**), `Append`, `Overwrite`, or `Ignore`. Choose Overwrite or Append explicitly when you intend to replace or extend data.
@@ -61,13 +64,59 @@ This transform is **native Spark only**. Connectors ship with the native Spark p
 |Optional comma-separated partition column list.
 
 |Coalesce
-|Optional partition count before write (e.g. `1` for a single file layout — costs a shuffle).
+|Optional partition count before write (e.g. `1` for a single file layout — costs a shuffle). Spark engine only.
 
 |Extra options
-|Optional Spark write options as `key=value` lines (advanced).
+|Optional Spark write options as `key=value` lines (advanced). Spark engine only.
 |===
 
-== Behaviour
+[[hop-engine]]
+== On the Hop engine
+
+On the local and remote Hop engines the transform writes Apache Iceberg tables. Delta Lake tables give an error that asks you to use the Spark engine for now.
+
+*One commit per pipeline run*
+
+Every copy of the transform writes its own Parquet files. Nothing is visible in the table until the whole pipeline has finished:
+
+* When the pipeline ends without errors, all files of the run are committed as one Iceberg snapshot. The snapshot summary records the pipeline name (`hop.pipeline`) and the run's log channel id (`hop.run-id`).
+* When the pipeline fails or is stopped, the files are deleted and the table is left as it was. This includes a failure in a transform *after* Lake table output: the run is rolled back, like a database transaction.
+
+*Save modes*
+
+[options="header",cols="1,2,2"]
+|===
+|Save mode |Table exists |Table doesn't exist
+
+|ErrorIfExists
+|The pipeline fails, the table is left alone
+|The table is created
+
+|Append
+|The rows are added
+|The table is created
+
+|Overwrite
+|All rows of the table are replaced by the rows of this run. The run fails instead if another writer changed the table since the run started.
+|The table is created
+
+|Ignore
+|Nothing is written; the rows are still passed on
+|The table is created
+|===
+
+A new table gets its columns from the incoming rows (Integer as `long`, Number as `double`, BigNumber as `decimal` with the field's length and precision, String as `string`, Boolean as `boolean`, Date and Timestamp as `timestamp` without time zone, in UTC, Binary as `binary`) and identity partitions on the *Partition by* columns. It is created in the same commit as its first rows, so a failed run doesn't leave an empty table behind. When the table exists, the rows are matched to its columns by name.
+
+Unlike the Spark engine, Overwrite on the Hop engine keeps the table's schema and partitioning and only replaces its rows.
+
+*Where the table is*
+
+* *PATH* mode writes the table in the given Hop VFS folder, in the layout of Hadoop catalogs and of the Spark engine's PATH mode (`metadata/v<N>.metadata.json` plus `version-hint.text`). The Spark and Hop engines can read and write the same table. A folder that holds a table managed by a catalog is refused: write that table through its catalog in TABLE mode.
+* *TABLE* mode writes through the selected lakehouse catalog. The Hop engine supports the `hadoop` and `rest` catalog types.
+
+On a local file system that supports hard links (the usual case on Linux, macOS and Windows NTFS), a PATH table commit publishes the new metadata file with an operation that fails if another writer already committed that version, so several pipelines can write the same table: one of two conflicting commits fails and is retried. On other file systems, including HDFS, object stores like S3 and local file systems without hard links, a PATH table should have one writer at a time. When several pipelines write the same table at the same time there, use a REST catalog.
+
+== On the Spark engine
 
 * The write runs as a Spark **action** when the engine materialises the graph.
 * An empty leaf Dataset is registered so a later engine-wide `count()` does not re-write the table.
@@ -87,11 +136,11 @@ Use this with a template write path when landing many tables (different paths/id
 == Notes
 
 * Requires exactly one main-stream upstream hop (the data to write).
-* For upserts, use xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] instead of Overwrite.
+* For upserts on the Spark engine, use xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] instead of Overwrite.
 * Packaging, session conf, and troubleshooting: xref:pipeline/spark/lakehouse.adoc[lakehouse guide].
 
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input]
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge]

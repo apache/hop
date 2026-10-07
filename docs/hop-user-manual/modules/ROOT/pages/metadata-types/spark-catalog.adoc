@@ -16,18 +16,21 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
-:description: Spark Catalog metadata configures Spark SQL catalogs for Delta Lake and Apache Iceberg TABLE mode on the native Spark pipeline engine.
-:page-marketplace: hop-engines-spark
+:description: Lakehouse catalog metadata describes the catalog of Apache Iceberg and Delta Lake tables for the lake table transforms in TABLE mode, on the Hop engine and on the native Spark pipeline engine.
+:page-marketplace: hop-tech-lakehouse
 
-= Spark Catalog
+= Lakehouse catalog
 
 == Description
 
-*Spark Catalog* is a reusable Hop metadata type (category **Connections**) that describes a Spark SQL catalog for open table formats on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+*Lakehouse catalog* (called *Spark Catalog* in earlier versions) is a reusable Hop metadata type (category **Connections**) that describes a catalog for open table formats. Lake table transforms in **TABLE** mode reference a catalog by name.
 
-Lake Table transforms in **TABLE** mode can reference a Spark Catalog by name. Hop expands the entry into `spark.sql.catalog.<catalogName>.*` configuration when building or preparing the session (`LakeSessionPlan` / `SparkCatalogApplier`).
+* On the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] Hop expands the entry into `spark.sql.catalog.<catalogName>.*` configuration when building or preparing the session (`LakeSessionPlan` / `SparkCatalogApplier`).
+* On the Hop engine, xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] and xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output] open the catalog with the Iceberg Java library. The `hadoop` and `rest` catalog types are supported there. The REST catalog gets the *URI*, *Warehouse* and *Credential* (as `token`), plus the *Extra conf* lines as catalog properties; Spark-style keys (`spark.sql.catalog.<name>.<key>`) are accepted, so one catalog definition serves both engines. Files go through Hop VFS unless *Extra conf* sets `io-impl`.
 
-PATH-mode Iceberg tables do **not** require this metadata type — the engine registers a Hadoop catalog for the folder that holds each table (`hop_iceberg_<hash>`). Use Spark Catalog for production Iceberg warehouses, REST catalogs, and other named catalogs.
+Existing catalogs keep working: the metadata key (`spark-catalog`) hasn't changed.
+
+PATH-mode Iceberg tables do **not** require this metadata type — the engine registers a Hadoop catalog for the folder that holds each table (`hop_iceberg_<hash>`). Use a lakehouse catalog for production Iceberg warehouses, REST catalogs, and other named catalogs.
 
 Connector packaging and session matrix: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 

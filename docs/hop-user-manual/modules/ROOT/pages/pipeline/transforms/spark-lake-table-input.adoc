@@ -16,19 +16,24 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: Spark lake table input reads Delta Lake or Apache Iceberg tables on the native Spark pipeline engine, with optional time travel and projection.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
-:page-marketplace: hop-engines-spark
+:description: Lake table input reads Apache Iceberg tables on the Hop engine and Delta Lake or Apache Iceberg tables on the native Spark engine, with optional time travel and projection.
+:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-tech-lakehouse
 
-= image:transforms/icons/spark-lake-table-input.svg[Spark lake table input transform Icon, role="image-doc-icon"] Spark lake table input
+= image:transforms/icons/spark-lake-table-input.svg[Lake table input transform Icon, role="image-doc-icon"] Lake table input
 
 == Description
 
-*Spark lake table input* reads an open table format table (https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg]) as a Spark SQL `Dataset` on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+*Lake table input* reads an open table format table: https://iceberg.apache.org/[Apache Iceberg] or https://delta.io/[Delta Lake].
 
 It supports **PATH** and **TABLE** identifiers, optional field projection, and **time travel** by version/snapshot or timestamp.
 
-This transform is **not** available on the local Hop engine or on Beam engines. Connector JARs ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+The transform runs on two engines:
+
+* On the *Hop engine* (local and remote) it reads Apache Iceberg tables with the Iceberg Java library. All files are read through Hop VFS, so a table can live anywhere Hop can reach: local disk, S3, MinIO, Azure, Google Cloud Storage. See <<hop-engine>>.
+* On the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] it reads Delta Lake and Iceberg tables as a Spark SQL `Dataset`. Connector JARs ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+
+It isn't available on Beam engines.
 
 == Options
 
@@ -52,8 +57,8 @@ This transform is **not** available on the local Hop engine or on Beam engines. 
 |Table identifier
 |Used when mode is TABLE. Multi-part name: `catalog.namespace.table`.
 
-|Spark Catalog metadata name
-|Optional Hop xref:metadata-types/spark-catalog.adoc[Spark Catalog] entry to register for TABLE mode (Iceberg Hadoop/REST, …). Leave empty if the catalog is already configured on the session.
+|Catalog metadata name
+|The xref:metadata-types/spark-catalog.adoc[lakehouse catalog] to use in TABLE mode (Iceberg Hadoop/REST, …). On the Spark engine you can leave it empty if the catalog is already configured on the session.
 
 |Time travel type
 |`NONE` (current), `VERSION`, or `TIMESTAMP`.
@@ -62,10 +67,10 @@ This transform is **not** available on the local Hop engine or on Beam engines. 
 |Delta table version number or Iceberg snapshot id (when type is VERSION). Supports variables.
 
 |Time travel timestamp
-|Spark-parseable timestamp string when type is TIMESTAMP, e.g. `2024-01-15 10:30:00`.
+|Timestamp when type is TIMESTAMP, e.g. `2024-01-15 10:30:00`. The Hop engine also accepts an ISO-8601 timestamp with an offset and epoch milliseconds.
 
 |Extra options
-|Optional Spark read options as `key=value` lines (advanced).
+|Optional Spark read options as `key=value` lines (advanced). Not used on the Hop engine.
 
 |Fields
 |Optional projection. When empty, all columns are returned. When set, columns are selected/cast by name (same idea as Spark file input with a schema).
@@ -92,6 +97,24 @@ This transform is **not** available on the local Hop engine or on Beam engines. 
 
 Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `+{table}.snapshots+` (or catalog metadata) for snapshot ids.
 
+[[hop-engine]]
+== On the Hop engine
+
+On the local and remote Hop engines the transform reads Apache Iceberg tables. Delta Lake tables give an error that asks you to use the Spark engine for now.
+
+*Finding the table*
+
+* *PATH* mode reads the table in the given folder. The folder can be any Hop VFS location, for example `file:///data/orders` or `s3://lake/orders`. When the table has a `metadata/version-hint.text` file (tables written by a Hadoop catalog, by the Spark engine in PATH mode, or by Lake table output on the Hop engine) the version it names is read. Otherwise the newest metadata file is read.
+* *TABLE* mode looks the table up through the selected xref:metadata-types/spark-catalog.adoc[lakehouse catalog]. The Hop engine supports the `hadoop` and `rest` catalog types. A catalog name in front of the identifier (`lake.db.orders`) is dropped, so the same identifier works on both engines. With a REST catalog the files are read through Hop VFS, unless the catalog's extra configuration names another `io-impl`, for example `org.apache.iceberg.aws.s3.S3FileIO` for credentials vended by the catalog.
+
+*Reading*
+
+* Iceberg plans the read: it skips the files and row groups that can't match, using the statistics in the table metadata.
+* Delete files written by other engines (position and equality deletes, for example from Flink or Spark) are applied.
+* Without a field list all columns are returned, with these Hop types: booleans as Boolean, integers as Integer, floating point numbers as Number, decimals as BigNumber, dates as Date, timestamps as Timestamp, binary values as Binary and everything else as String. Timestamps without a time zone are read as UTC. With a field list the columns are returned in the order of the list and converted to the type of each field.
+* When the transform runs as several copies, the copies share the table between them. Each part of a data file is read by exactly one copy.
+* A time travel timestamp without a time zone is in the time zone of the Hop server.
+
 == Metadata injection
 
 All options support xref:pipeline/metadata-injection.adoc[metadata injection] (ETL Metadata Injection).
@@ -104,11 +127,11 @@ Typical pattern: template pipeline with Lake Table Input; injecting pipeline sup
 
 == Notes
 
-* Prefer Lake Table Input over *Spark file input* for `delta` / `iceberg` so session extensions, Iceberg PATH catalogs, and probes stay consistent.
+* On the Spark engine, prefer Lake table input over *Spark file input* for `delta` / `iceberg` so session extensions, Iceberg PATH catalogs, and probes stay consistent.
 * See the xref:pipeline/spark/lakehouse.adoc[lakehouse guide] for packaging, PATH vs TABLE, and troubleshooting.
 
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output]
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog]
