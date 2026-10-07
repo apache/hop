@@ -106,9 +106,17 @@ class TableInputTest {
     doReturn(new RowMeta()).when(db).getReturnRowMeta();
     doReturn(null).when(db).getRow(any(ResultSet.class));
     doReturn(databaseMeta).when(db).getDatabaseMeta();
+    // The no-placeholder path calls openQuery(sql, null, null, ...) so the stubs must match null:
+    // on Mockito 5, any(IRowMeta.class) / any(Object[].class) (InstanceOf) reject null; the
+    // nullable() variants accept it.
     doReturn(mock(ResultSet.class))
         .when(db)
-        .openQuery(anyString(), any(IRowMeta.class), any(Object[].class), anyInt(), anyBoolean());
+        .openQuery(
+            anyString(),
+            nullable(IRowMeta.class),
+            nullable(Object[].class),
+            anyInt(),
+            anyBoolean());
 
     PipelineMeta pipelineMeta = new PipelineMeta();
     MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
@@ -130,9 +138,7 @@ class TableInputTest {
     doNothing().when(tableInput).logDebug(any());
     doNothing().when(tableInput).logError(any());
     // doQuery() reads through data.db; make the query "open" successfully with no rows.
-    doReturn(mock(ResultSet.class))
-        .when(db)
-        .openQuery(anyString(), any(), any(), anyInt(), anyBoolean());
+    // (single stub above already matches both the null-params and bound-params paths)
   }
 
   private DatabaseMeta connectionTo(String database) {
@@ -161,6 +167,16 @@ class TableInputTest {
   }
 
   /**
+   * The transform must succeed: an empty result set makes processRow() return false immediately
+   * (done), so the meaningful assertion is that no error was recorded and the pipeline was not
+   * stopped.
+   */
+  private static void assertSucceeded(TableInput tableInput) {
+    org.junit.jupiter.api.Assertions.assertEquals(0, tableInput.getErrors());
+    verify(tableInput, never()).stopAll();
+  }
+
+  /**
    * Regression test: an incoming hop into a Table Input whose SQL has NO placeholder (e.g. a
    * header/sequencing hop) must NOT be bound to the statement. Before the fix, 2.20 collected the
    * incoming row (optional lookup) and passed it to the PreparedStatement, which fails with
@@ -175,6 +191,7 @@ class TableInputTest {
     assertQueryWithoutBind(db, "SELECT 1");
     // The header row must still be drained so upstream transforms can complete (sequencing).
     verify(tableInput, times(2)).getRow(); // one header row + the null terminator
+    assertSucceeded(tableInput);
   }
 
   /**
@@ -199,6 +216,7 @@ class TableInputTest {
             notNull(Object[].class),
             anyInt(),
             eq(false));
+    assertSucceeded(tableInput);
   }
 
   /**
@@ -225,6 +243,7 @@ class TableInputTest {
             notNull(Object[].class),
             anyInt(),
             eq(false));
+    assertSucceeded(tableInput);
   }
 
   /** A '?' inside a string literal is not a bind placeholder and must not trigger a bind. */
@@ -236,27 +255,6 @@ class TableInputTest {
     tableInput.processRow();
 
     assertQueryWithoutBind(db, "SELECT '?' AS Q FROM T WHERE X = 1");
-  }
-
-  /**
-   * Legacy sequencing contract: with an empty lookup and named parameters off, the incoming rows
-   * must be drained (so a header transform can complete) but NOT assembled as parameters and NOT
-   * bound.
-   */
-  @Test
-  void legacyEmptyLookupDrainsWithoutCollectingOrBinding() throws Exception {
-    stubHeaderRow();
-
-    tableInput.processRow();
-
-    // The header row was consumed:
-    verify(tableInput, times(2)).getRow();
-    // ... but nothing was bound:
-    verify(db, never())
-        .setValues(any(IRowMeta.class), any(Object[].class), any(PreparedStatement.class));
-    // ... and the query ran with no parameters:
-    verify(db, times(1))
-        .openQuery(
-            eq("SELECT 1"), isNull(IRowMeta.class), isNull(Object[].class), anyInt(), eq(false));
+    assertSucceeded(tableInput);
   }
 }

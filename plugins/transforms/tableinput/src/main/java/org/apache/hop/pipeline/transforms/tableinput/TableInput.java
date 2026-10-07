@@ -106,7 +106,15 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         // Oracle). Drain them without collecting.
         //
         if (Utils.isEmpty(meta.getLookup()) && !meta.isUseNamedParameters()) {
-          String resolved = resolveSql();
+          String resolved;
+          try {
+            resolved = resolveSql();
+          } catch (HopException e) {
+            logError("Could not get SQL: " + e.getMessage());
+            setErrors(1);
+            stopAll();
+            return false;
+          }
           if (TableInputSql.countPositionalPlaceholders(resolved) == 0) {
             while (getRow() != null) {
               // consume the sequencing row(s); nothing is bound
