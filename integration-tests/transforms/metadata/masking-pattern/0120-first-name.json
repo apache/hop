@@ -1,0 +1,17 @@
+{
+  "name": "0120-first-name",
+  "description": "Ignores surrounding spaces and case",
+  "piiClassification": "Direct identifier",
+  "valueSource": "SYNTHETIC",
+  "token": "SEQUENCE",
+  "prefix": "fn",
+  "suffix": "",
+  "sequenceStart": "1",
+  "storage": "MEMORY",
+  "trimKey": true,
+  "ignoreCase": true,
+  "connection": "",
+  "schemaName": "",
+  "tableName": "",
+  "hashSecret": ""
+}

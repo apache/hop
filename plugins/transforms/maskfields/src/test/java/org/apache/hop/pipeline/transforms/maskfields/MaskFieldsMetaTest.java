@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.maskfields;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -87,6 +88,55 @@ class MaskFieldsMetaTest {
   }
 
   @Test
+  void warnsAboutPlainTextKeysAndLongReplacements() throws Exception {
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    MaskingPattern plain = synthetic("Plain", MaskingToken.SEQUENCE);
+    plain.setStorage(MaskingStorage.DATABASE);
+    plain.setConnection("db");
+    plain.setTableName("mask_map");
+    save(provider, plain);
+    MaskingPattern hashed = synthetic("Hashed", MaskingToken.UUID);
+    hashed.setStorage(MaskingStorage.DATABASE);
+    hashed.setConnection("db");
+    hashed.setTableName("mask_map");
+    hashed.setHashSecret("${SECRET}");
+    hashed.setPrefix("${PREFIX}");
+    save(provider, hashed);
+
+    MaskFieldsMeta meta = new MaskFieldsMeta();
+    meta.getFields().add(new MaskField("name", "Plain"));
+    meta.getFields().add(new MaskField("city", "Hashed"));
+    RowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("name"));
+    prev.addValueMeta(new ValueMetaString("city"));
+    Variables variables = new Variables();
+    variables.setVariable("PREFIX", "x".repeat(250));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    TransformMeta transform = new TransformMeta();
+    transform.setName("Mask");
+    meta.check(
+        remarks,
+        null,
+        transform,
+        prev,
+        new String[] {"in"},
+        new String[0],
+        null,
+        variables,
+        provider);
+
+    List<String> warnings =
+        remarks.stream()
+            .filter(remark -> remark.getType() == ICheckResult.TYPE_RESULT_WARNING)
+            .map(ICheckResult::getText)
+            .toList();
+    assertEquals(2, warnings.size(), warnings.toString());
+    assertTrue(warnings.get(0).contains("Plain") && warnings.get(0).contains("plain text"));
+    assertTrue(warnings.get(1).contains("Hashed") && warnings.get(1).contains("286"));
+  }
+
+  @Test
   void roundTripsTheTransformAndThePattern() throws Exception {
     MaskFieldsMeta meta = new MaskFieldsMeta();
     meta.getFields().add(new MaskField("name", "First name"));
@@ -101,6 +151,9 @@ class MaskFieldsMetaTest {
     pattern.setPrefix("first-name-");
     pattern.setPiiClassification("Direct identifier");
     pattern.setStorage(MaskingStorage.MEMORY);
+    pattern.setTrimKey(true);
+    pattern.setIgnoreCase(true);
+    pattern.setHashSecret("s3cret");
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
     JsonMetadataParser<MaskingPattern> parser =
         new JsonMetadataParser<>(MaskingPattern.class, provider);
@@ -113,6 +166,10 @@ class MaskFieldsMetaTest {
       assertEquals("Direct identifier", loaded.getPiiClassification());
       assertEquals(MaskingStorage.MEMORY, loaded.getStorage());
       assertEquals(MaskingValueSource.SYNTHETIC, loaded.getValueSource());
+      assertTrue(loaded.isTrimKey());
+      assertTrue(loaded.isIgnoreCase());
+      assertEquals("s3cret", loaded.getHashSecret());
+      assertFalse(json.toJSONString().contains("s3cret"));
       assertNull(MaskingRules.incompatibility(new ValueMetaString("name"), loaded));
     }
   }

@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.maskfields;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -79,7 +80,11 @@ public final class MaskingRuntime {
       return state.sequences.computeIfAbsent(key, name -> new AtomicLong(start));
     }
 
-    /** One open connection for this database target, shared by every copy in the JVM. */
+    /**
+     * One open connection for this database target, shared by every copy in the JVM. The target is
+     * the resolved URL and user, so two projects with a connection of the same name that point at
+     * different databases do not share a store.
+     */
     public DatabaseMaskingStore database(
         ILoggingObject parent,
         IVariables variables,
@@ -87,7 +92,7 @@ public final class MaskingRuntime {
         String schemaName,
         String tableName)
         throws HopException {
-      String key = databaseKey(databaseMeta, schemaName, tableName);
+      String key = databaseKey(variables, databaseMeta, schemaName, tableName);
       while (true) {
         DatabaseEntry entry = databases.computeIfAbsent(key, name -> new DatabaseEntry());
         synchronized (entry) {
@@ -150,12 +155,14 @@ public final class MaskingRuntime {
     }
   }
 
-  private static String databaseKey(
-      DatabaseMeta databaseMeta, String schemaName, String tableName) {
-    String name = databaseMeta == null ? "" : databaseMeta.getName();
-    String schema = schemaName == null ? "" : schemaName;
-    String table = tableName == null ? "" : tableName;
-    return name + "\0" + schema + "\0" + table;
+  static String databaseKey(
+      IVariables variables, DatabaseMeta databaseMeta, String schemaName, String tableName)
+      throws HopException {
+    String url = Const.NVL(databaseMeta.getURL(variables), "");
+    String user = Const.NVL(variables.resolve(databaseMeta.getUsername()), "");
+    String schema = Const.NVL(schemaName, "");
+    String table = Const.NVL(tableName, "");
+    return url + "\0" + user + "\0" + schema + "\0" + table;
   }
 
   private static final class ExecutionState {

@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -44,6 +45,12 @@ public class DatabaseMaskingStore implements IMaskingStore {
   static final String COLUMN_SOURCE = "source_key";
   static final String COLUMN_MASKED = "masked_value";
   static final String COLUMN_NEXT = "next_value";
+
+  /** Length of the masked value column in a new mapping table. */
+  public static final int MASKED_LENGTH = 255;
+
+  /** Attempts of one lookup that loses a race with another process before it gives up. */
+  static final int MAX_ATTEMPTS = 5;
 
   private final ILoggingObject parent;
   private final IVariables variables;
@@ -91,8 +98,20 @@ public class DatabaseMaskingStore implements IMaskingStore {
   }
 
   @Override
+  public String findOrCreate(String patternName, String sourceKey, MaskAllocator allocator)
+      throws HopException {
+    return findOrCreate(patternName, sourceKey, null, allocator);
+  }
+
+  /**
+   * Finds or stores the replacement in one transaction. When another process stores the same source
+   * key, the next sequence row or the same replacement at the same moment, the constraint violation
+   * rolls the attempt back and the next attempt sees what that process committed.
+   */
+  @Override
   public synchronized String findOrCreate(
-      String patternName, String sourceKey, MaskAllocator allocator) throws HopException {
+      String patternName, String sourceKey, KeySupplier legacyKey, MaskAllocator allocator)
+      throws HopException {
     Map<String, String> patternCache =
         cache.computeIfAbsent(patternName, k -> new ConcurrentHashMap<>());
     String cached = patternCache.get(sourceKey);
@@ -100,54 +119,81 @@ public class DatabaseMaskingStore implements IMaskingStore {
       return cached;
     }
     ensureOpen();
-    try {
-      String existing = lookup(patternName, sourceKey);
-      if (existing != null) {
+    for (int attempt = 1; ; attempt++) {
+      try {
+        String masked = lookup(patternName, sourceKey);
+        String oldKey = masked == null && legacyKey != null ? legacyKey.get() : null;
+        if (oldKey != null && !oldKey.equals(sourceKey)) {
+          masked = lookup(patternName, oldKey);
+          if (masked != null) {
+            rekey(patternName, oldKey, sourceKey);
+          }
+        }
+        if (masked == null) {
+          masked = allocator.allocate(this);
+          insertMap(patternName, sourceKey, masked);
+        }
         database.commit();
-        patternCache.put(sourceKey, existing);
-        return existing;
-      }
-      String created = allocator.allocate(this);
-      insertMap(patternName, sourceKey, created);
-      database.commit();
-      patternCache.put(sourceKey, created);
-      return created;
-    } catch (HopException e) {
-      rollbackQuietly();
-      if (isConstraintViolation(e)) {
-        String winner = lookup(patternName, sourceKey);
-        if (winner != null) {
-          database.commit();
-          patternCache.put(sourceKey, winner);
-          return winner;
+        patternCache.put(sourceKey, masked);
+        return masked;
+      } catch (HopException e) {
+        rollbackQuietly();
+        if (!isConstraintViolation(e)) {
+          throw e;
+        }
+        if (attempt >= MAX_ATTEMPTS) {
+          // The database's message names the conflicting key, which can be the original value.
+          // Leave the cause out so that value does not reach the log.
+          throw new HopException(
+              "Unable to store a replacement for pattern '"
+                  + patternName
+                  + "' after "
+                  + MAX_ATTEMPTS
+                  + " attempts: other processes kept storing conflicting rows in "
+                  + mapTable);
         }
       }
-      throw e;
     }
   }
 
+  /**
+   * Next sequence value. The update locks the pattern's row until the caller commits, so a second
+   * process waits and then continues from the committed value.
+   */
   @Override
   public synchronized long allocateSequence(String patternName, long start) throws HopException {
     ensureOpen();
-    Long current = queryLong(selectNextSql(), oneString(), new Object[] {patternName});
-    if (current == null) {
-      exec(
-          "INSERT INTO "
-              + sequenceTable
-              + " ("
-              + quotedPattern
-              + ", "
-              + quotedNext
-              + ") VALUES (?, ?)",
-          stringAndLong(),
-          new Object[] {patternName, start + 1});
-      return start;
+    Result result =
+        database.execStatement(
+            "UPDATE "
+                + sequenceTable
+                + " SET "
+                + quotedNext
+                + " = "
+                + quotedNext
+                + " + 1 WHERE "
+                + quotedPattern
+                + " = ?",
+            oneString(),
+            new Object[] {patternName});
+    if (result.getNrLinesUpdated() > 0) {
+      Long next = queryLong(selectNextSql(), oneString(), new Object[] {patternName});
+      if (next == null) {
+        throw new HopException("The sequence row for pattern '" + patternName + "' disappeared");
+      }
+      return next - 1;
     }
     exec(
-        "UPDATE " + sequenceTable + " SET " + quotedNext + " = ? WHERE " + quotedPattern + " = ?",
-        longAndString(),
-        new Object[] {current + 1, patternName});
-    return current;
+        "INSERT INTO "
+            + sequenceTable
+            + " ("
+            + quotedPattern
+            + ", "
+            + quotedNext
+            + ") VALUES (?, ?)",
+        stringAndLong(),
+        new Object[] {patternName, start + 1});
+    return start;
   }
 
   @Override
@@ -175,7 +221,9 @@ public class DatabaseMaskingStore implements IMaskingStore {
       return;
     }
     // Primary-key columns have to be NOT NULL. The generic CREATE TABLE leaves them nullable, and
-    // H2 rejects a primary key on a nullable column.
+    // H2 rejects a primary key on a nullable column. The unique key stops two source values from
+    // sharing a replacement, which keeps the masked value short enough to index on every database.
+    // Tables created by earlier versions keep their layout.
     database.execStatement(
         "CREATE TABLE "
             + mapTable
@@ -184,11 +232,15 @@ public class DatabaseMaskingStore implements IMaskingStore {
             + ", "
             + columnDefinition(stringColumn(COLUMN_SOURCE, 255))
             + ", "
-            + columnDefinition(stringColumn(COLUMN_MASKED, 2000))
+            + columnDefinition(stringColumn(COLUMN_MASKED, MASKED_LENGTH))
             + ", PRIMARY KEY ("
             + quotedPattern
             + ", "
             + quotedSource
+            + "), UNIQUE ("
+            + quotedPattern
+            + ", "
+            + quotedMasked
             + "))");
   }
 
@@ -247,6 +299,21 @@ public class DatabaseMaskingStore implements IMaskingStore {
             + ") VALUES (?, ?, ?)",
         threeStrings(),
         new Object[] {patternName, sourceKey, masked});
+  }
+
+  private void rekey(String patternName, String oldKey, String newKey) throws HopException {
+    exec(
+        "UPDATE "
+            + mapTable
+            + " SET "
+            + quotedSource
+            + " = ? WHERE "
+            + quotedPattern
+            + " = ? AND "
+            + quotedSource
+            + " = ?",
+        rekeyParameters(),
+        new Object[] {newKey, patternName, oldKey});
   }
 
   private String selectNextSql() {
@@ -342,16 +409,17 @@ public class DatabaseMaskingStore implements IMaskingStore {
     return meta;
   }
 
-  private static IRowMeta stringAndLong() {
-    RowMeta meta = oneString();
-    meta.addValueMeta(new ValueMetaInteger(COLUMN_NEXT));
+  private static RowMeta rekeyParameters() {
+    RowMeta meta = new RowMeta();
+    meta.addValueMeta(new ValueMetaString(COLUMN_SOURCE));
+    meta.addValueMeta(new ValueMetaString(COLUMN_PATTERN));
+    meta.addValueMeta(new ValueMetaString("old_" + COLUMN_SOURCE));
     return meta;
   }
 
-  private static IRowMeta longAndString() {
-    RowMeta meta = new RowMeta();
+  private static IRowMeta stringAndLong() {
+    RowMeta meta = oneString();
     meta.addValueMeta(new ValueMetaInteger(COLUMN_NEXT));
-    meta.addValueMeta(new ValueMetaString(COLUMN_PATTERN));
     return meta;
   }
 }

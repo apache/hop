@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-0120-mask-fields-normalize.csv",
+  "name": "golden-0120-mask-fields-normalize",
+  "description": "Masked values from 0120-mask-fields-normalize",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "firstName"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "customerNr"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "customerNrPlain"
+    }
+  ],
+  "folder_name": ""
+}

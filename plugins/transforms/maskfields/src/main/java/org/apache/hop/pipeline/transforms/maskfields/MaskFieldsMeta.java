@@ -45,6 +45,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.maskfields.store.DatabaseMaskingStore;
 
 @Getter
 @Setter
@@ -68,6 +69,11 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
 
   /** Column index of the masking rule in the fields table. 0 is the row number. */
   public static final int RULE_COLUMN = 2;
+
+  /** Longest token a pattern can write: a UUID, or the digits of the largest sequence value. */
+  private static final int UUID_LENGTH = 36;
+
+  private static final int LONG_DIGITS = Long.toString(Long.MAX_VALUE).length();
 
   @GuiWidgetElement(
       id = WIDGET_EDIT_RULE,
@@ -207,6 +213,22 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
     if (StringUtils.isEmpty(pattern.getTableName())) {
       error(remarks, transformMeta, "MaskFields.Check.NoTable", pattern.getName());
     }
+    if (StringUtils.isEmpty(pattern.getHashSecret())) {
+      warning(remarks, transformMeta, "MaskFields.Check.PlainTextKeys", pattern.getName());
+    }
+    int longest =
+        resolved(variables, pattern.getPrefix()).length()
+            + (pattern.getToken() == MaskingToken.UUID ? UUID_LENGTH : LONG_DIGITS)
+            + resolved(variables, pattern.getSuffix()).length();
+    if (longest > DatabaseMaskingStore.MASKED_LENGTH) {
+      warning(
+          remarks,
+          transformMeta,
+          "MaskFields.Check.MaskedTooLong",
+          pattern.getName(),
+          Integer.toString(longest),
+          Integer.toString(DatabaseMaskingStore.MASKED_LENGTH));
+    }
     if (metadataProvider == null) {
       return;
     }
@@ -234,6 +256,20 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
     } catch (HopException e) {
       return null;
     }
+  }
+
+  private static String resolved(IVariables variables, String value) {
+    String text = variables == null ? value : variables.resolve(value);
+    return text == null ? "" : text;
+  }
+
+  private void warning(
+      List<ICheckResult> remarks, TransformMeta transformMeta, String key, String... args) {
+    remarks.add(
+        new CheckResult(
+            ICheckResult.TYPE_RESULT_WARNING,
+            BaseMessages.getString(PKG, key, (Object[]) args),
+            transformMeta));
   }
 
   private void error(

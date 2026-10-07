@@ -57,6 +57,9 @@ public class MaskingPattern extends HopMetadataBase implements IHopMetadata {
   public static final String WIDGET_SUFFIX = "suffix";
   public static final String WIDGET_SEQUENCE_START = "sequenceStart";
   public static final String WIDGET_STORAGE = "storage";
+  public static final String WIDGET_TRIM_KEY = "trimKey";
+  public static final String WIDGET_IGNORE_CASE = "ignoreCase";
+  public static final String WIDGET_HASH_SECRET = "hashSecret";
   public static final String WIDGET_CONNECTION = "connection";
   public static final String WIDGET_SCHEMA = "schemaName";
   public static final String WIDGET_TABLE = "tableName";
@@ -175,6 +178,32 @@ public class MaskingPattern extends HopMetadataBase implements IHopMetadata {
       toolTip = "i18n::MaskingPattern.Storage.Tooltip")
   private MaskingStorage storage = MaskingStorage.NONE;
 
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_TRIM_KEY,
+      order = "0910",
+      type = GuiElementType.CHECKBOX,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_STORAGE,
+      groupOrder = "30",
+      label = "i18n::MaskingPattern.TrimKey.Label",
+      toolTip = "i18n::MaskingPattern.TrimKey.Tooltip")
+  private boolean trimKey;
+
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_IGNORE_CASE,
+      order = "0920",
+      type = GuiElementType.CHECKBOX,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_STORAGE,
+      groupOrder = "30",
+      label = "i18n::MaskingPattern.IgnoreCase.Label",
+      toolTip = "i18n::MaskingPattern.IgnoreCase.Tooltip")
+  private boolean ignoreCase;
+
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   @GuiWidgetElement(
       id = WIDGET_CONNECTION,
@@ -214,6 +243,20 @@ public class MaskingPattern extends HopMetadataBase implements IHopMetadata {
       label = "i18n::MaskingPattern.Table.Label",
       toolTip = "i18n::MaskingPattern.Table.Tooltip")
   private String tableName = "";
+
+  @HopMetadataProperty(password = true)
+  @GuiWidgetElement(
+      id = WIDGET_HASH_SECRET,
+      order = "1300",
+      type = GuiElementType.TEXT,
+      password = true,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_STORAGE,
+      groupOrder = "30",
+      label = "i18n::MaskingPattern.HashSecret.Label",
+      toolTip = "i18n::MaskingPattern.HashSecret.Tooltip")
+  private String hashSecret = "";
 
   public MaskingPattern() {}
 

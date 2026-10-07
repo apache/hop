@@ -45,10 +45,17 @@ public class MaskingEngine {
     return bindings;
   }
 
+  /**
+   * Masks the bound fields of the row in place. When a field fails, that field and every bound
+   * field after it are set to null before the error is thrown, so an error row never carries an
+   * original value.
+   */
   public void apply(IRowMeta rowMeta, Object[] row) throws HopException {
-    for (Binding binding : bindings) {
+    for (int i = 0; i < bindings.size(); i++) {
+      Binding binding = bindings.get(i);
       int index = rowMeta.indexOfValue(binding.fieldName);
       if (index < 0) {
+        clearFrom(rowMeta, row, i + 1);
         throw new HopException(
             BaseMessages.getString(PKG, "MaskFields.Error.FieldMissing", binding.fieldName));
       }
@@ -56,10 +63,23 @@ public class MaskingEngine {
       try {
         row[index] = mask(binding, valueMeta, row[index]);
       } catch (HopValueException e) {
+        clearFrom(rowMeta, row, i);
         throw new HopException(
             BaseMessages.getString(
                 PKG, "MaskFields.Error.Convert", binding.fieldName, binding.pattern.getName()),
             e);
+      } catch (HopException | RuntimeException e) {
+        clearFrom(rowMeta, row, i);
+        throw e;
+      }
+    }
+  }
+
+  private void clearFrom(IRowMeta rowMeta, Object[] row, int first) {
+    for (int i = first; i < bindings.size(); i++) {
+      int index = rowMeta.indexOfValue(bindings.get(i).fieldName);
+      if (index >= 0 && index < row.length) {
+        row[index] = null;
       }
     }
   }
@@ -78,21 +98,22 @@ public class MaskingEngine {
     if (source == MaskingValueSource.SET_EMPTY) {
       return "";
     }
-    String key = valueMeta.getString(value);
-    if (StringUtils.isEmpty(key)) {
+    String normalized = binding.key.normalize(valueMeta, value);
+    if (StringUtils.isEmpty(normalized)) {
       return value;
     }
-    return toField(valueMeta, syntheticValue(binding, valueMeta, key));
+    return toField(valueMeta, syntheticValue(binding, valueMeta, value, normalized));
   }
 
-  private String syntheticValue(Binding binding, IValueMeta valueMeta, String key)
-      throws HopException {
+  private String syntheticValue(
+      Binding binding, IValueMeta valueMeta, Object value, String normalized) throws HopException {
     if (!binding.pattern.remembers()) {
       return formatSynthetic(binding, valueMeta, nextToken(binding));
     }
     return binding.store.findOrCreate(
         binding.pattern.getName(),
-        key,
+        binding.key.storeKey(normalized),
+        () -> MaskingKey.legacyKey(valueMeta, value),
         store -> formatSynthetic(binding, valueMeta, nextToken(binding, store)));
   }
 
@@ -136,6 +157,7 @@ public class MaskingEngine {
     final IMaskingStore store;
     final AtomicLong localSequence;
     final AtomicLong sharedSequence;
+    final MaskingKey key;
 
     public Binding(
         String fieldName,
@@ -155,6 +177,18 @@ public class MaskingEngine {
         long sequenceStart,
         IMaskingStore store,
         AtomicLong sharedSequence) {
+      this(fieldName, pattern, prefix, suffix, sequenceStart, store, sharedSequence, null);
+    }
+
+    public Binding(
+        String fieldName,
+        MaskingPattern pattern,
+        String prefix,
+        String suffix,
+        long sequenceStart,
+        IMaskingStore store,
+        AtomicLong sharedSequence,
+        MaskingKey key) {
       this.fieldName = fieldName;
       this.pattern = pattern;
       this.prefix = prefix == null ? "" : prefix;
@@ -163,6 +197,7 @@ public class MaskingEngine {
       this.store = store;
       this.sharedSequence = sharedSequence;
       this.localSequence = sharedSequence == null ? new AtomicLong(sequenceStart) : null;
+      this.key = key == null ? MaskingKey.plain() : key;
     }
   }
 }
