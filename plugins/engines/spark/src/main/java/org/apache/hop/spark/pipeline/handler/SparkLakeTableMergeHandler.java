@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lakehouse.transforms.LakeTableMergeMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -31,7 +32,6 @@ import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.table.SparkLakeActionSupport;
 import org.apache.hop.spark.table.SparkLakeTableSupport;
 import org.apache.hop.spark.table.SparkMergeSqlBuilder;
-import org.apache.hop.spark.transforms.table.SparkLakeTableMergeMeta;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -71,7 +71,7 @@ public class SparkLakeTableMergeHandler extends SparkBaseTransformHandler {
               + "' requires exactly one upstream Dataset (source rows for USING).");
     }
 
-    SparkLakeTableMergeMeta meta = new SparkLakeTableMergeMeta();
+    LakeTableMergeMeta meta = new LakeTableMergeMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
     String pathSchemeMap = runConfiguration != null ? runConfiguration.getPathSchemeMap() : null;

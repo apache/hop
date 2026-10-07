@@ -120,6 +120,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Lake table transform metadata and the catalog metadata type -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-lakehouse</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Transform metadata for native shuffle-aware handlers (driver-side only) -->
         <dependency>
             <groupId>org.apache.hop</groupId>

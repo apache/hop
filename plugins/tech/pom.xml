@@ -43,6 +43,7 @@
         <module>git-vfs</module>
         <module>google</module>
         <module>hadoop</module>
+        <module>lakehouse</module>
         <module>minio</module>
         <module>mongodb</module>
         <module>neo4j</module>
