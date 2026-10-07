@@ -37,7 +37,7 @@ class EmbeddedEnvironmentTest {
         .getVariables()
         .add(new EmbeddedEnvironmentVariable("  LOG_LEVEL  ", "  Basic  ", "  level  "));
     environment.getVariables().add(new EmbeddedEnvironmentVariable("  ", "ignored", "ignored"));
-    environment.getMandatoryVariables().add(null);
+    environment.getVariables().add(null);
 
     EmbeddedEnvironmentValidator.normalize(environment);
 
@@ -47,29 +47,28 @@ class EmbeddedEnvironmentTest {
     assertEquals("LOG_LEVEL", environment.getVariables().get(0).getName());
     assertEquals("Basic", environment.getVariables().get(0).getDefaultValue());
     assertEquals("level", environment.getVariables().get(0).getDescription());
-    assertTrue(environment.getMandatoryVariables().isEmpty());
+    assertFalse(environment.getVariables().get(0).isMandatory());
+    assertFalse(environment.getVariables().get(0).isSecret());
   }
 
   @Test
-  void duplicateVariableNameSpansTheThreeLists() {
+  void legacySecretWithTheSameNameIsADuplicate() {
     EmbeddedEnvironment environment = environmentNamed("dev");
     environment.getVariables().add(new EmbeddedEnvironmentVariable("DB_HOST", "localhost", null));
-    environment
-        .getSecretVariables()
-        .add(new EmbeddedEnvironmentVariable(" DB_HOST ", "change-to-your-password", null));
+    environment.setSecretVariables(
+        List.of(new EmbeddedEnvironmentVariable(" DB_HOST ", "change-to-your-password", null)));
+
+    EmbeddedEnvironmentValidator.normalize(environment);
 
     assertEquals("DB_HOST", EmbeddedEnvironmentValidator.duplicateVariableName(environment));
+    assertTrue(environment.getVariables().get(1).isSecret());
   }
 
   @Test
   void duplicateVariableNameInsideOneList() {
     EmbeddedEnvironment environment = environmentNamed("dev");
-    environment
-        .getMandatoryVariables()
-        .add(new EmbeddedEnvironmentVariable("DB_PORT", "5432", null));
-    environment
-        .getMandatoryVariables()
-        .add(new EmbeddedEnvironmentVariable("DB_PORT", "5433", null));
+    environment.getVariables().add(new EmbeddedEnvironmentVariable("DB_PORT", "5432", null, true));
+    environment.getVariables().add(new EmbeddedEnvironmentVariable("DB_PORT", "5433", null, true));
 
     assertEquals("DB_PORT", EmbeddedEnvironmentValidator.duplicateVariableName(environment));
   }
@@ -79,14 +78,17 @@ class EmbeddedEnvironmentTest {
     EmbeddedEnvironment environment = environmentNamed("dev");
     environment.getVariables().add(new EmbeddedEnvironmentVariable("LOG_LEVEL", "Basic", null));
     environment
-        .getMandatoryVariables()
-        .add(new EmbeddedEnvironmentVariable("DB_HOST", "specify the database host", null));
+        .getVariables()
+        .add(new EmbeddedEnvironmentVariable("DB_HOST", "specify the database host", null, true));
     environment
-        .getSecretVariables()
-        .add(new EmbeddedEnvironmentVariable("DB_PASSWORD", "change-to-your-password", null));
+        .getVariables()
+        .add(
+            new EmbeddedEnvironmentVariable(
+                "DB_PASSWORD", "change-to-your-password", null, true, true));
 
     assertNull(EmbeddedEnvironmentValidator.duplicateVariableName(environment));
     assertFalse(EmbeddedEnvironmentValidator.missingName(environment));
+    assertTrue(environment.getVariables().get(2).isSecret());
   }
 
   @Test
@@ -119,14 +121,18 @@ class EmbeddedEnvironmentTest {
   @Test
   void copyDoesNotShareVariableLists() {
     EmbeddedEnvironment environment = environmentNamed("dev");
-    environment
-        .getSecretVariables()
-        .add(new EmbeddedEnvironmentVariable("TOKEN", "change-to-your-token", "API token"));
+    environment.setSecretVariables(
+        List.of(
+            new EmbeddedEnvironmentVariable("TOKEN", "change-to-your-token", "API token", true)));
 
     EmbeddedEnvironment copy = environment.copy();
-    copy.getSecretVariables().get(0).setDefaultValue("other");
+    copy.getVariables().get(0).setDefaultValue("other");
+    copy.getVariables().get(0).setMandatory(false);
+    copy.getVariables().get(0).setSecret(false);
 
-    assertEquals("change-to-your-token", environment.getSecretVariables().get(0).getDefaultValue());
+    assertEquals("change-to-your-token", environment.getVariables().get(0).getDefaultValue());
+    assertTrue(environment.getVariables().get(0).isMandatory());
+    assertTrue(environment.getVariables().get(0).isSecret());
   }
 
   private static EmbeddedEnvironment environmentNamed(String name) {

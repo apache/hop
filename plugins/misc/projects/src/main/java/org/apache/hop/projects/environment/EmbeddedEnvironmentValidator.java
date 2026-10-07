@@ -38,11 +38,10 @@ public final class EmbeddedEnvironmentValidator {
     if (environment == null) {
       return;
     }
+    environment.absorbLegacyVariables();
     environment.setName(StringUtils.trimToNull(environment.getName()));
     environment.setDescription(StringUtils.trimToNull(environment.getDescription()));
     environment.setVariables(normalizeVariables(environment.getVariables()));
-    environment.setMandatoryVariables(normalizeVariables(environment.getMandatoryVariables()));
-    environment.setSecretVariables(normalizeVariables(environment.getSecretVariables()));
   }
 
   /**
@@ -54,15 +53,15 @@ public final class EmbeddedEnvironmentValidator {
   }
 
   /**
-   * @param environment definition whose three lists are checked together
+   * @param environment definition whose variables are checked
    * @return the first variable name that appears more than once, or null
    */
   public static String duplicateVariableName(EmbeddedEnvironment environment) {
-    if (environment == null) {
+    if (environment == null || environment.getVariables() == null) {
       return null;
     }
     Set<String> seen = new HashSet<>();
-    for (EmbeddedEnvironmentVariable variable : allVariables(environment)) {
+    for (EmbeddedEnvironmentVariable variable : environment.getVariables()) {
       if (variable == null || StringUtils.isBlank(variable.getName())) {
         continue;
       }
@@ -111,21 +110,6 @@ public final class EmbeddedEnvironmentValidator {
       }
     }
     return false;
-  }
-
-  private static List<EmbeddedEnvironmentVariable> allVariables(EmbeddedEnvironment environment) {
-    List<EmbeddedEnvironmentVariable> all = new ArrayList<>();
-    addAll(all, environment.getVariables());
-    addAll(all, environment.getMandatoryVariables());
-    addAll(all, environment.getSecretVariables());
-    return all;
-  }
-
-  private static void addAll(
-      List<EmbeddedEnvironmentVariable> target, List<EmbeddedEnvironmentVariable> source) {
-    if (source != null) {
-      target.addAll(source);
-    }
   }
 
   private static List<EmbeddedEnvironmentVariable> normalizeVariables(

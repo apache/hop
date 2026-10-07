@@ -49,6 +49,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -114,8 +115,10 @@ public class ProjectDialog extends Dialog {
   private TableView wEnvironments;
   private Button wAddEnvironment;
   private Button wEditEnvironment;
+  private Button wCopyEnvironment;
   private Button wDeleteEnvironment;
   private Button wImportEnvironment;
+  private Button wImplementEnvironment;
 
   /** Working copy of the embedded environments. Applied to the project on OK. */
   private final List<EmbeddedEnvironment> embeddedEnvironments = new ArrayList<>();
@@ -720,6 +723,11 @@ public class ProjectDialog extends Dialog {
     wEditEnvironment = new Button(comp, SWT.PUSH);
     wEditEnvironment.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.EditEnvironment"));
     wEditEnvironment.addListener(SWT.Selection, event -> editEmbeddedEnvironment());
+    wCopyEnvironment = new Button(comp, SWT.PUSH);
+    wCopyEnvironment.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.CopyEnvironment"));
+    wCopyEnvironment.setToolTipText(
+        BaseMessages.getString(PKG, "ProjectDialog.Button.CopyEnvironment.Tooltip"));
+    wCopyEnvironment.addListener(SWT.Selection, event -> copyEmbeddedEnvironment());
     wDeleteEnvironment = new Button(comp, SWT.PUSH);
     wDeleteEnvironment.setText(
         BaseMessages.getString(PKG, "ProjectDialog.Button.DeleteEnvironment"));
@@ -730,9 +738,22 @@ public class ProjectDialog extends Dialog {
     wImportEnvironment.setToolTipText(
         BaseMessages.getString(PKG, "ProjectDialog.Button.ImportEnvironment.Tooltip"));
     wImportEnvironment.addListener(SWT.Selection, event -> importEmbeddedEnvironments());
+    wImplementEnvironment = new Button(comp, SWT.PUSH);
+    wImplementEnvironment.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Button.ImplementEnvironment"));
+    wImplementEnvironment.setToolTipText(
+        BaseMessages.getString(PKG, "ProjectDialog.Button.ImplementEnvironment.Tooltip"));
+    wImplementEnvironment.addListener(SWT.Selection, event -> implementEmbeddedEnvironments());
     BaseTransformDialog.positionBottomButtons(
         comp,
-        new Button[] {wAddEnvironment, wEditEnvironment, wDeleteEnvironment, wImportEnvironment},
+        new Button[] {
+          wAddEnvironment,
+          wEditEnvironment,
+          wCopyEnvironment,
+          wDeleteEnvironment,
+          wImportEnvironment,
+          wImplementEnvironment
+        },
         margin,
         null);
 
@@ -825,6 +846,123 @@ public class ProjectDialog extends Dialog {
     embeddedEnvironments.remove(index);
     refreshEmbeddedEnvironments(Math.min(index, embeddedEnvironments.size() - 1));
     needingProjectRefresh = true;
+  }
+
+  private void copyEmbeddedEnvironment() {
+    if (!environmentsEditable()) {
+      return;
+    }
+    int index = wEnvironments.getSelectionIndex();
+    if (index < 0 || index >= embeddedEnvironments.size()) {
+      return;
+    }
+    EmbeddedEnvironment selected = embeddedEnvironments.get(index);
+    String sourceName = Const.NVL(selected.getName(), "");
+    String typed = suggestedCopyName(sourceName);
+    while (true) {
+      EnterStringDialog dialog =
+          new EnterStringDialog(
+              shell,
+              typed,
+              BaseMessages.getString(PKG, "ProjectDialog.Environments.Copy.Header"),
+              BaseMessages.getString(PKG, "ProjectDialog.Environments.Copy.Message", sourceName));
+      dialog.setMandatory(true);
+      typed = dialog.open();
+      if (typed == null) {
+        return;
+      }
+      String name = typed.trim();
+      if (name.isEmpty()) {
+        showEnvironmentError(
+            "ProjectDialog.Environments.MissingName.Header",
+            "ProjectDialog.Environments.MissingName.Message");
+        typed = "";
+        continue;
+      }
+      if (EmbeddedEnvironmentValidator.nameTaken(name, environmentNamesExcept(-1))) {
+        showEnvironmentError(
+            "ProjectDialog.Environments.DuplicateName.Header",
+            "ProjectDialog.Environments.DuplicateName.Message",
+            name);
+        typed = name;
+        continue;
+      }
+      EmbeddedEnvironment copy = selected.copy();
+      copy.setName(name);
+      embeddedEnvironments.add(copy);
+      refreshEmbeddedEnvironments(embeddedEnvironments.size() - 1);
+      needingProjectRefresh = true;
+      return;
+    }
+  }
+
+  /** A name that is not already used, starting from {@code sourceName + " 2"}. */
+  private String suggestedCopyName(String sourceName) {
+    String base = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(sourceName), "environment");
+    int suffix = 2;
+    String candidate = base + " " + suffix;
+    while (EmbeddedEnvironmentValidator.nameTaken(candidate, environmentNamesExcept(-1))) {
+      suffix++;
+      candidate = base + " " + suffix;
+    }
+    return candidate;
+  }
+
+  /**
+   * Create local lifecycle environments from the definitions in this dialog. This is the same
+   * question and the same files as when a project with an existing configuration is added.
+   */
+  private void implementEmbeddedEnvironments() {
+    if (!validateEmbeddedEnvironments()) {
+      return;
+    }
+    String projectName = StringUtils.trimToEmpty(wName.getText());
+    if (projectName.isEmpty()) {
+      showEnvironmentError(
+          "ProjectDialog.Environments.Implement.MissingProjectName.Header",
+          "ProjectDialog.Environments.Implement.MissingProjectName.Message");
+      return;
+    }
+
+    Project implementing = new Project();
+    List<EmbeddedEnvironment> environments = new ArrayList<>();
+    for (EmbeddedEnvironment environment : embeddedEnvironments) {
+      EmbeddedEnvironment copy = environment.copy();
+      EmbeddedEnvironmentValidator.normalize(copy);
+      if (!EmbeddedEnvironmentValidator.missingName(copy)) {
+        environments.add(copy);
+      }
+    }
+    if (environments.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "ProjectDialog.Environments.Implement.None.Header"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "ProjectDialog.Environments.Implement.None.Message"));
+      box.open();
+      return;
+    }
+    implementing.setEmbeddedEnvironments(environments);
+
+    ProjectConfig config =
+        new ProjectConfig(projectName, sanitizePath(wHome.getText()), wConfigFile.getText());
+    Variables space = new Variables();
+    space.initializeFrom(HopGui.getInstance().getVariables());
+    List<String> shownVariables = new ArrayList<>();
+    for (int i = 0; i < wVariables.nrNonEmpty(); i++) {
+      TableItem item = wVariables.getNonEmpty(i);
+      if (StringUtils.isNotEmpty(item.getText(1))) {
+        shownVariables.add(item.getText(1));
+        space.setVariable(item.getText(1), Const.NVL(item.getText(2), ""));
+      }
+    }
+    // Opening the dialog copied the saved project variables into Hop GUI. Drop any that the table
+    // no longer lists, so a changed ENVIRONMENTS_FOLDER is the one that is used.
+    for (DescribedVariable variable : project.getDescribedVariables()) {
+      if (variable.getName() != null && !shownVariables.contains(variable.getName())) {
+        space.setVariable(variable.getName(), null);
+      }
+    }
+    ProjectsGuiPlugin.offerEmbeddedEnvironments(shell, implementing, config, space);
   }
 
   private void importEmbeddedEnvironments() {
@@ -1042,6 +1180,7 @@ public class ProjectDialog extends Dialog {
     if (wAddEnvironment != null) {
       wAddEnvironment.setEnabled(editable);
       wEditEnvironment.setEnabled(editable);
+      wCopyEnvironment.setEnabled(editable);
       wDeleteEnvironment.setEnabled(editable);
       wImportEnvironment.setEnabled(editable);
     }

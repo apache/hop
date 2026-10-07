@@ -1657,7 +1657,7 @@ public class ProjectsGuiPlugin {
     if (projectConfig != null && variables != null) {
       projectHome = variables.resolve(projectConfig.getProjectHome());
     }
-    if (EmbeddedEnvironmentMaterializer.isInsideProjectHome(folder, projectHome)) {
+    if (EmbeddedEnvironmentMaterializer.isInsideProjectHome(variables, folder, projectHome)) {
       MessageBox warning = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
       warning.setText(
           BaseMessages.getString(
@@ -1673,7 +1673,8 @@ public class ProjectsGuiPlugin {
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       EmbeddedEnvironmentMaterializer.MaterializeResult result =
-          EmbeddedEnvironmentMaterializer.materialize(config, project, projectName, folder);
+          EmbeddedEnvironmentMaterializer.materialize(
+              variables, config, project, projectName, folder);
       for (LifecycleEnvironment created : result.getCreated()) {
         config.addEnvironment(created);
       }

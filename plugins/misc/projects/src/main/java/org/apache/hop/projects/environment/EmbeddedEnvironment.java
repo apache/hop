@@ -17,8 +17,11 @@
 
 package org.apache.hop.projects.environment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,8 +29,8 @@ import lombok.Setter;
 /**
  * Lifecycle environment definition stored in {@code project-config.json}.
  *
- * <p>Holds the name, description, and placeholder variable defaults that are shared through version
- * control. Configuration files and real values stay on the computer that runs Hop.
+ * <p>Holds the name, description, and variable defaults that are shared through version control.
+ * Configuration files stay on the computer that runs Hop.
  */
 @Getter
 @Setter
@@ -38,26 +41,90 @@ public class EmbeddedEnvironment {
 
   private String description;
 
-  /** Optional variables. Applied as defaults. Not written to a local configuration file. */
+  /**
+   * Variables for this environment. A variable with {@code mandatory} or {@code secret} set is
+   * written to the local configuration file. The others are applied as defaults only.
+   */
   private List<EmbeddedEnvironmentVariable> variables = new ArrayList<>();
 
-  /** Values a person must fill in. Written to the local configuration file when one is created. */
-  private List<EmbeddedEnvironmentVariable> mandatoryVariables = new ArrayList<>();
+  /**
+   * {@code mandatoryVariables} from project files written before mandatory was a flag on each
+   * variable. Folded into {@code variables} by {@link #absorbLegacyVariables()}.
+   */
+  @JsonIgnore
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private List<EmbeddedEnvironmentVariable> legacyMandatoryVariables;
 
-  /** Secrets. Written to the local configuration file when one is created. Placeholders only. */
-  private List<EmbeddedEnvironmentVariable> secretVariables = new ArrayList<>();
+  /**
+   * {@code secretVariables} from project files written before secret was a flag on each variable.
+   * Folded into {@code variables} by {@link #absorbLegacyVariables()}.
+   */
+  @JsonIgnore
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private List<EmbeddedEnvironmentVariable> legacySecretVariables;
 
   /**
    * @return a deep copy
    */
   public EmbeddedEnvironment copy() {
+    absorbLegacyVariables();
     EmbeddedEnvironment copy = new EmbeddedEnvironment();
     copy.name = name;
     copy.description = description;
     copy.variables = copyVariables(variables);
-    copy.mandatoryVariables = copyVariables(mandatoryVariables);
-    copy.secretVariables = copyVariables(secretVariables);
     return copy;
+  }
+
+  /**
+   * Accept a project file that still stores mandatory variables in their own list. Each of those
+   * variables is appended to {@code variables} with {@code mandatory} set.
+   */
+  @JsonProperty(value = "mandatoryVariables", access = JsonProperty.Access.WRITE_ONLY)
+  public void setMandatoryVariables(List<EmbeddedEnvironmentVariable> legacyMandatoryVariables) {
+    this.legacyMandatoryVariables = legacyMandatoryVariables;
+  }
+
+  /**
+   * Accept a project file that still stores secrets in their own list. Each of those variables is
+   * appended to {@code variables} with {@code secret} set.
+   */
+  @JsonProperty(value = "secretVariables", access = JsonProperty.Access.WRITE_ONLY)
+  public void setSecretVariables(List<EmbeddedEnvironmentVariable> legacySecretVariables) {
+    this.legacySecretVariables = legacySecretVariables;
+  }
+
+  /**
+   * Move {@code mandatoryVariables} and {@code secretVariables} into {@code variables}. Safe to
+   * call more than once. Mandatory entries are appended first.
+   */
+  public void absorbLegacyVariables() {
+    absorb(legacyMandatoryVariables, false, true);
+    legacyMandatoryVariables = null;
+    absorb(legacySecretVariables, true, false);
+    legacySecretVariables = null;
+  }
+
+  private void absorb(List<EmbeddedEnvironmentVariable> legacy, boolean secret, boolean mandatory) {
+    if (legacy == null || legacy.isEmpty()) {
+      return;
+    }
+    if (variables == null) {
+      variables = new ArrayList<>();
+    }
+    for (EmbeddedEnvironmentVariable variable : legacy) {
+      if (variable == null) {
+        continue;
+      }
+      if (secret) {
+        variable.setSecret(true);
+      }
+      if (mandatory) {
+        variable.setMandatory(true);
+      }
+      variables.add(variable);
+    }
   }
 
   private static List<EmbeddedEnvironmentVariable> copyVariables(
@@ -72,7 +139,11 @@ public class EmbeddedEnvironment {
       }
       copy.add(
           new EmbeddedEnvironmentVariable(
-              variable.getName(), variable.getDefaultValue(), variable.getDescription()));
+              variable.getName(),
+              variable.getDefaultValue(),
+              variable.getDescription(),
+              variable.isMandatory(),
+              variable.isSecret()));
     }
     return copy;
   }

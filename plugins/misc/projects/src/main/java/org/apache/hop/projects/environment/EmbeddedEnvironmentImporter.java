@@ -31,17 +31,10 @@ import org.apache.hop.core.vfs.HopVfs;
 
 /**
  * Builds embedded environment definitions from lifecycle environments already stored in the Hop
- * configuration. Variable values are read only to decide whether a variable looks like a secret.
- * They are not copied into the project file.
+ * configuration. The value of each variable is copied in as its default. A later configuration file
+ * replaces an earlier value for the same name.
  */
 public final class EmbeddedEnvironmentImporter {
-
-  /** Which of the three embedded lists a variable is imported into. */
-  public enum Kind {
-    VARIABLE,
-    MANDATORY,
-    SECRET
-  }
 
   private EmbeddedEnvironmentImporter() {}
 
@@ -83,9 +76,10 @@ public final class EmbeddedEnvironmentImporter {
 
   /**
    * @param name environment name
-   * @param description environment description, a placeholder default is not taken from the files
-   * @param assignments variables and the list each one belongs to
-   * @return a normalized embedded environment. Default values are left empty.
+   * @param description environment description
+   * @param assignments variables, including whether each one is a secret, and the default copied
+   *     from the configuration file
+   * @return a normalized embedded environment
    */
   public static EmbeddedEnvironment toEmbeddedEnvironment(
       String name, String description, List<VariableAssignment> assignments) {
@@ -97,15 +91,15 @@ public final class EmbeddedEnvironmentImporter {
         if (assignment == null || StringUtils.isBlank(assignment.getName())) {
           continue;
         }
-        EmbeddedEnvironmentVariable variable =
-            new EmbeddedEnvironmentVariable(
-                assignment.getName(), null, assignment.getDescription());
-        Kind kind = assignment.getKind() == null ? Kind.VARIABLE : assignment.getKind();
-        switch (kind) {
-          case MANDATORY -> environment.getMandatoryVariables().add(variable);
-          case SECRET -> environment.getSecretVariables().add(variable);
-          default -> environment.getVariables().add(variable);
-        }
+        environment
+            .getVariables()
+            .add(
+                new EmbeddedEnvironmentVariable(
+                    assignment.getName(),
+                    assignment.getDefaultValue(),
+                    assignment.getDescription(),
+                    assignment.isMandatory(),
+                    assignment.isSecret()));
       }
     }
     EmbeddedEnvironmentValidator.normalize(environment);
@@ -147,22 +141,25 @@ public final class EmbeddedEnvironmentImporter {
       return;
     }
     String name = variable.getName().trim();
-    Kind kind =
-        EnvironmentConfigFileSummary.looksLikeSecret(name, variable.getValue())
-            ? Kind.SECRET
-            : Kind.VARIABLE;
+    boolean secret = EnvironmentConfigFileSummary.looksLikeSecret(name, variable.getValue());
+    String value = StringUtils.trimToNull(variable.getValue());
     VariableAssignment existing = byName.get(name);
     if (existing == null) {
       byName.put(
           name,
-          new VariableAssignment(name, StringUtils.trimToNull(variable.getDescription()), kind));
+          new VariableAssignment(
+              name, StringUtils.trimToNull(variable.getDescription()), secret, false, value));
       return;
     }
     if (existing.description == null) {
       existing.description = StringUtils.trimToNull(variable.getDescription());
     }
-    if (kind == Kind.SECRET) {
-      existing.kind = Kind.SECRET;
+    // Later files override, the same way configuration files are applied.
+    if (value != null) {
+      existing.defaultValue = value;
+    }
+    if (secret) {
+      existing.secret = true;
     }
   }
 
@@ -187,19 +184,33 @@ public final class EmbeddedEnvironmentImporter {
   }
 
   /**
-   * A variable to place in one of the three lists. {@code kind} is a suggestion until the user
-   * confirms it. The description may be updated while files are merged.
+   * One imported variable. {@code secret} and {@code mandatory} are suggestions until the user
+   * confirms them. The description and default may be updated while files are merged. A later
+   * non-blank value replaces the default. A blank value does not.
    */
   @Getter
   public static final class VariableAssignment {
     private final String name;
     private String description;
-    private Kind kind;
+    private boolean secret;
+    private boolean mandatory;
+    private String defaultValue;
 
-    public VariableAssignment(String name, String description, Kind kind) {
+    public VariableAssignment(String name, String description, boolean secret) {
+      this(name, description, secret, false, null);
+    }
+
+    public VariableAssignment(String name, String description, boolean secret, boolean mandatory) {
+      this(name, description, secret, mandatory, null);
+    }
+
+    public VariableAssignment(
+        String name, String description, boolean secret, boolean mandatory, String defaultValue) {
       this.name = name;
       this.description = description;
-      this.kind = kind == null ? Kind.VARIABLE : kind;
+      this.secret = secret;
+      this.mandatory = mandatory;
+      this.defaultValue = StringUtils.trimToNull(defaultValue);
     }
   }
 }

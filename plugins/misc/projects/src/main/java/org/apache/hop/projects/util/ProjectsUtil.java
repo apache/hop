@@ -476,9 +476,14 @@ public class ProjectsUtil {
         try {
           saver.save();
         } catch (HopException saveException) {
+          // The rename is already undone in memory. The thrown exception carries the original
+          // failure, so the log only records that this extra save was caught.
           log.logError(
-              "Unable to save the restored registration of project '" + currentName + "'",
-              saveException);
+              "Caught an error saving the restored registration of project '"
+                  + currentName
+                  + "' ("
+                  + describeCause(saveException)
+                  + ").");
         }
         String message =
             notRestored.isEmpty()
@@ -564,13 +569,16 @@ public class ProjectsUtil {
         child.project().setParentProjectName(parentProjectName);
         child.project().saveToFile();
       } catch (Exception e) {
+        // The caller reports the projects that could not be restored. Log that the error was
+        // caught, without the stack trace.
         log.logError(
-            "Unable to restore parent project '"
+            "Caught an error restoring parent project '"
                 + parentProjectName
                 + "' of project '"
                 + child.name()
-                + "'",
-            e);
+                + "' ("
+                + describeCause(e)
+                + ").");
         notRestored.add(child.name());
       }
     }
@@ -602,9 +610,13 @@ public class ProjectsUtil {
     try {
       return projectConfig.loadProject(variables);
     } catch (Exception e) {
+      // A project that cannot be read is skipped. The stack trace is not useful here.
       log.logError(
-          "Unable to load project '" + projectConfig.getProjectName() + "' from its configuration",
-          e);
+          "Caught an error loading project '"
+              + projectConfig.getProjectName()
+              + "' ("
+              + describeCause(e)
+              + "). That project was skipped.");
       return null;
     }
   }

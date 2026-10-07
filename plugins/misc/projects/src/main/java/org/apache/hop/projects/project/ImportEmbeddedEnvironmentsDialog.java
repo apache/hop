@@ -26,7 +26,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.environment.EmbeddedEnvironment;
 import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter;
 import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.EnvironmentSource;
-import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.Kind;
 import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.VariableAssignment;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.ui.core.ConstUi;
@@ -49,8 +48,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 /**
- * Asks how each variable from the selected lifecycle environments should be stored: as a variable,
- * as mandatory, or as a secret. Values from the configuration files are not shown or copied.
+ * Asks how each variable from the selected lifecycle environments should be stored. The value from
+ * the configuration file is copied in as the default and can be edited before it is saved.
  */
 public class ImportEmbeddedEnvironmentsDialog extends Dialog {
   private static final Class<?> PKG = ImportEmbeddedEnvironmentsDialog.class;
@@ -163,7 +162,9 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
       List<VariableAssignment> forSource = new ArrayList<>();
       for (Row row : edited) {
         if (source.getName().equals(row.environmentName)) {
-          forSource.add(new VariableAssignment(row.name, row.description, row.kind));
+          forSource.add(
+              new VariableAssignment(
+                  row.name, row.description, row.secret, row.mandatory, row.defaultValue));
         }
       }
       environments.add(
@@ -184,8 +185,6 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
   }
 
   private ColumnInfo[] columns() {
-    String[] kinds =
-        new String[] {kindLabel(Kind.VARIABLE), kindLabel(Kind.MANDATORY), kindLabel(Kind.SECRET)};
     ColumnInfo environment =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Environment"),
@@ -204,13 +203,34 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             false);
-    ColumnInfo kind =
+    ColumnInfo defaultValue =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Kind"),
+            BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Default"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    defaultValue.setUsingVariables(true);
+    defaultValue.setToolTip(
+        BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Default.Tooltip"));
+    ColumnInfo mandatory =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Mandatory"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            kinds,
+            new String[] {"Y", "N"},
             true);
-    return new ColumnInfo[] {environment, name, description, kind};
+    mandatory.setUsingVariables(false);
+    mandatory.setToolTip(
+        BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Mandatory.Tooltip"));
+    ColumnInfo secret =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Secret"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {"Y", "N"},
+            true);
+    secret.setUsingVariables(false);
+    secret.setToolTip(
+        BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Column.Secret.Tooltip"));
+    return new ColumnInfo[] {environment, name, description, defaultValue, mandatory, secret};
   }
 
   private void fillRows(List<Row> rows) {
@@ -220,7 +240,9 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
       item.setText(1, Const.NVL(row.environmentName, ""));
       item.setText(2, Const.NVL(row.name, ""));
       item.setText(3, Const.NVL(row.description, ""));
-      item.setText(4, kindLabel(row.kind));
+      item.setText(4, Const.NVL(row.defaultValue, ""));
+      item.setText(5, row.mandatory ? "Y" : "N");
+      item.setText(6, row.secret ? "Y" : "N");
     }
     wVariables.setRowNums();
     wVariables.optWidth(true);
@@ -238,7 +260,9 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
               item.getText(1),
               item.getText(2),
               StringUtils.trimToNull(item.getText(3)),
-              kindOf(item.getText(4))));
+              StringUtils.trimToNull(item.getText(4)),
+              "Y".equals(item.getText(5)),
+              "Y".equals(item.getText(6))));
     }
     return rows;
   }
@@ -252,24 +276,36 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
                 source.getName(),
                 assignment.getName(),
                 assignment.getDescription(),
-                assignment.getKind()));
+                assignment.getDefaultValue(),
+                assignment.isMandatory(),
+                assignment.isSecret()));
       }
     }
     return rows;
   }
 
-  /** One table row: the environment it belongs to and the list the user chose. */
+  /** One table row: the environment it belongs to, and whether it is mandatory or a secret. */
   private static final class Row {
     private final String environmentName;
     private final String name;
     private final String description;
-    private final Kind kind;
+    private final String defaultValue;
+    private final boolean mandatory;
+    private final boolean secret;
 
-    private Row(String environmentName, String name, String description, Kind kind) {
+    private Row(
+        String environmentName,
+        String name,
+        String description,
+        String defaultValue,
+        boolean mandatory,
+        boolean secret) {
       this.environmentName = environmentName;
       this.name = name;
       this.description = description;
-      this.kind = kind;
+      this.defaultValue = defaultValue;
+      this.mandatory = mandatory;
+      this.secret = secret;
     }
   }
 
@@ -295,25 +331,5 @@ public class ImportEmbeddedEnvironmentsDialog extends Dialog {
       text.append(Const.CR).append("...");
     }
     return text.toString();
-  }
-
-  private static String kindLabel(Kind kind) {
-    Kind resolved = kind == null ? Kind.VARIABLE : kind;
-    return switch (resolved) {
-      case MANDATORY ->
-          BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Kind.Mandatory");
-      case SECRET -> BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Kind.Secret");
-      default -> BaseMessages.getString(PKG, "ImportEmbeddedEnvironmentsDialog.Kind.Variable");
-    };
-  }
-
-  private static Kind kindOf(String label) {
-    if (kindLabel(Kind.MANDATORY).equals(label)) {
-      return Kind.MANDATORY;
-    }
-    if (kindLabel(Kind.SECRET).equals(label)) {
-      return Kind.SECRET;
-    }
-    return Kind.VARIABLE;
   }
 }

@@ -207,6 +207,11 @@ public class Project extends ConfigFile implements IConfigFile {
           project.embeddedEnvironments != null
               ? new ArrayList<>(project.embeddedEnvironments)
               : new ArrayList<>();
+      for (EmbeddedEnvironment environment : this.embeddedEnvironments) {
+        if (environment != null) {
+          environment.absorbLegacyVariables();
+        }
+      }
     } catch (Exception e) {
       throw new HopException(
           "Error saving project configuration to file '" + configFilename + "'", e);
@@ -392,9 +397,8 @@ public class Project extends ConfigFile implements IConfigFile {
               + "' is not defined in this project. Continuing without those defaults.");
       return;
     }
+    embedded.absorbLegacyVariables();
     applyEmbeddedVariables(variables, embedded.getVariables());
-    applyEmbeddedVariables(variables, embedded.getMandatoryVariables());
-    applyEmbeddedVariables(variables, embedded.getSecretVariables());
   }
 
   private static void applyEmbeddedVariables(

@@ -128,6 +128,42 @@ class EmbeddedEnvironmentMaterializerTest {
   }
 
   @Test
+  void configFilePathResolvesVariablesBeforeBuildingTheFilename() throws Exception {
+    Path config = tempRoot.resolve("config");
+    Path expected =
+        config
+            .resolve("environments")
+            .resolve("retail-example")
+            .resolve("retail-example-docker-postgres.json");
+    IVariables variables = new Variables();
+    variables.setVariable("HOP_CONFIG_FOLDER", config.toString());
+
+    String path =
+        EmbeddedEnvironmentMaterializer.configFilePath(
+            variables,
+            "${HOP_CONFIG_FOLDER}/environments/retail-example/",
+            "retail-example-docker-postgres");
+
+    try (FileObject expectedFile = HopVfs.getFileObject(expected.toString())) {
+      assertEquals(expectedFile.getName().getPath(), path);
+    }
+    assertFalse(path.contains("${"));
+    assertFalse(path.contains(new File(System.getProperty("user.dir")).getName() + "/${"));
+  }
+
+  @Test
+  void configFilePathRefusesAFolderWhoseVariableDoesNotResolve() {
+    IVariables variables = new Variables();
+    HopException error =
+        assertThrows(
+            HopException.class,
+            () ->
+                EmbeddedEnvironmentMaterializer.configFilePath(
+                    variables, "${HOP_CONFIG_FOLDER}/environments/retail-example", "dev"));
+    assertTrue(error.getMessage().contains("still contains a variable"));
+  }
+
+  @Test
   void insideProjectHomeMatchesTheHomeAndItsChildren() throws Exception {
     Path home = tempRoot.resolve("proj");
     Path extra = tempRoot.resolve("proj-extra");
@@ -146,17 +182,45 @@ class EmbeddedEnvironmentMaterializerTest {
   }
 
   @Test
+  void insideProjectHomeResolvesTheFolder() throws Exception {
+    Path home = tempRoot.resolve("proj");
+    Path config = tempRoot.resolve("config");
+    Path child = home.resolve("environments");
+    Files.createDirectories(child);
+    Files.createDirectories(config);
+    IVariables variables = new Variables();
+    variables.setVariable("HOP_CONFIG_FOLDER", config.toString());
+    variables.setVariable("PROJECT_HOME", home.toString());
+
+    assertFalse(
+        EmbeddedEnvironmentMaterializer.isInsideProjectHome(
+            variables,
+            "${HOP_CONFIG_FOLDER}/environments/retail-example",
+            System.getProperty("user.dir")));
+    assertTrue(
+        EmbeddedEnvironmentMaterializer.isInsideProjectHome(
+            variables, "${PROJECT_HOME}/environments", "${PROJECT_HOME}"));
+    assertFalse(
+        EmbeddedEnvironmentMaterializer.isInsideProjectHome(
+            variables, "${MISSING}/environments", home.toString()));
+  }
+
+  @Test
   void variablesToStoreKeepsMandatoryAndSecretsOnly() {
     EmbeddedEnvironment environment = sampleEnvironment("dev");
+    environment
+        .getVariables()
+        .add(new EmbeddedEnvironmentVariable("API_TOKEN", "change-me", "token", false, true));
     List<DescribedVariable> stored = EmbeddedEnvironmentMaterializer.variablesToStore(environment);
 
-    assertEquals(2, stored.size());
+    assertEquals(3, stored.size());
     assertEquals("DB_HOST", stored.get(0).getName());
     assertEquals("specify the database host", stored.get(0).getValue());
     assertEquals("JDBC host", stored.get(0).getDescription());
     assertEquals("DB_PASSWORD", stored.get(1).getName());
     assertEquals("change-to-your-password", stored.get(1).getValue());
     assertEquals("JDBC password", stored.get(1).getDescription());
+    assertEquals("API_TOKEN", stored.get(2).getName());
     assertTrue(EmbeddedEnvironmentMaterializer.variablesToStore(null).isEmpty());
   }
 
@@ -164,8 +228,8 @@ class EmbeddedEnvironmentMaterializerTest {
   void materializeWritesMandatoryAndSecrets() throws Exception {
     EmbeddedEnvironment environment = sampleEnvironment("dev");
     environment
-        .getMandatoryVariables()
-        .add(new EmbeddedEnvironmentVariable("EMPTY_DEFAULT", null, null));
+        .getVariables()
+        .add(new EmbeddedEnvironmentVariable("EMPTY_DEFAULT", null, null, true));
     Project project = new Project();
     project.getEmbeddedEnvironments().add(environment);
     project.getEmbeddedEnvironments().add(new EmbeddedEnvironment());
@@ -197,11 +261,13 @@ class EmbeddedEnvironmentMaterializerTest {
     List<DescribedVariable> stored = configFile.getDescribedVariables();
     assertEquals(3, stored.size());
     assertEquals("DB_HOST", stored.get(0).getName());
-    assertEquals("EMPTY_DEFAULT", stored.get(1).getName());
-    assertEquals("", stored.get(1).getValue());
-    assertEquals("", stored.get(1).getDescription());
-    assertEquals("DB_PASSWORD", stored.get(2).getName());
-    assertEquals("change-to-your-password", stored.get(2).getValue());
+    assertEquals("specify the database host", stored.get(0).getValue());
+    assertEquals("JDBC host", stored.get(0).getDescription());
+    assertEquals("DB_PASSWORD", stored.get(1).getName());
+    assertEquals("change-to-your-password", stored.get(1).getValue());
+    assertEquals("EMPTY_DEFAULT", stored.get(2).getName());
+    assertEquals("", stored.get(2).getValue());
+    assertEquals("", stored.get(2).getDescription());
 
     assertTrue(
         EmbeddedEnvironmentMaterializer.materialize(null, null, "warehouse", tempRoot.toString())
@@ -249,6 +315,34 @@ class EmbeddedEnvironmentMaterializerTest {
     reread.readFromFile();
     assertEquals("real-password", reread.findDescribedVariableValue("DB_PASSWORD"));
     assertFalse(Files.readString(Path.of(path)).contains("change-to-your-password"));
+  }
+
+  @Test
+  void materializeResolvesTheFolderAndKeepsTheVariableInTheReference() throws Exception {
+    Path config = tempRoot.resolve("config");
+    IVariables variables = new Variables();
+    variables.setVariable("HOP_CONFIG_FOLDER", config.toString());
+    Project project = new Project();
+    project.getEmbeddedEnvironments().add(sampleEnvironment("retail-example-docker-postgres"));
+
+    MaterializeResult result =
+        EmbeddedEnvironmentMaterializer.materialize(
+            variables,
+            new ProjectsConfig(),
+            project,
+            "retail-example",
+            "${HOP_CONFIG_FOLDER}/environments/retail-example/");
+
+    assertEquals(1, result.getCreated().size());
+    String stored = result.getCreated().get(0).getConfigurationFiles().get(0);
+    assertEquals(
+        "${HOP_CONFIG_FOLDER}/environments/retail-example/retail-example-docker-postgres.json",
+        stored);
+    assertTrue(fileExists(variables.resolve(stored)));
+    assertFalse(
+        fileExists(
+            System.getProperty("user.dir")
+                + "/${HOP_CONFIG_FOLDER}/environments/retail-example/retail-example-docker-postgres.json"));
   }
 
   @Test
@@ -351,13 +445,15 @@ class EmbeddedEnvironmentMaterializerTest {
         .getVariables()
         .add(new EmbeddedEnvironmentVariable("LOG_LEVEL", "FromDefinition", "Hop log level"));
     environment
-        .getMandatoryVariables()
-        .add(new EmbeddedEnvironmentVariable("DB_HOST", "specify the database host", "JDBC host"));
-    environment
-        .getSecretVariables()
+        .getVariables()
         .add(
             new EmbeddedEnvironmentVariable(
-                "DB_PASSWORD", "change-to-your-password", "JDBC password"));
+                "DB_HOST", "specify the database host", "JDBC host", true));
+    environment
+        .getVariables()
+        .add(
+            new EmbeddedEnvironmentVariable(
+                "DB_PASSWORD", "change-to-your-password", "JDBC password", true, true));
     return environment;
   }
 

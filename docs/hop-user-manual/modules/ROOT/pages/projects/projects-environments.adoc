@@ -111,36 +111,42 @@ image:hop-gui/environment/create-project-dialog-variables-tab.png[Project Proper
 
 The *Environments* tab stores zero, one, or more lifecycle environment definitions in `project-config.json`.
 These definitions are meant to be checked in with the project.
-Each one has a name, a description, and three lists of variables.
-A variable name belongs to only one of the three lists.
+Each one has a name, a description, and a list of variables.
+Each variable has a *Mandatory* flag and a *Secret* flag.
+A mandatory variable is one a person has to set on their own computer.
+A secret is a password, token, or similar value.
+Both flags can be set on the same variable.
 The definition does not contain configuration files.
 
-The *Default value* of a variable is a placeholder, for example `change-to-your-password` or `specify the folder on the system where the files are`.
-Do not put a real password, host, or path in the project file.
+The *Default value* of a variable is checked in with the project.
+A value that is the same on every computer, such as a log level or a host name, can be stored as it is.
+Use a placeholder such as `change-to-your-password` when the real value should stay on one computer.
+Clear a real secret before you save when it should stay on this computer.
 
-.Embedded environment variable lists
-[cols="20%,80%",options="header"]
-|===
-|List|What it is for
-|Variables|Optional variables. The default is documentation for people who use the project.
-|Mandatory|Variables a person has to fill in on their own computer. The default is still only a placeholder.
-|Secrets|Secret variables such as passwords and tokens. The default is a placeholder, not the secret.
-|===
-
-*Add*, *Edit...*, *Delete*, and *Import...* change the list.
-*Edit...* sets the name, the description, and the three variable lists.
+*Add*, *Edit...*, *Copy...*, *Delete*, and *Import...* change the list.
+*Edit...* sets the name, the description, and the variables.
+*Copy...* asks for a new name and copies the description and the variables.
 *Import...* reads one or more lifecycle environments of this project from the Hop configuration on this computer.
-For each variable in those configuration files you choose *Variable*, *Mandatory*, or *Secret*.
-The values in the configuration files are not copied into the project.
+For each variable in those configuration files you set *Secret* and *Mandatory*.
+The value from the configuration file is copied in as the *Default value*, including a secret.
+You can change or clear that default before it is saved in the project.
+When the same name appears in more than one configuration file, the last value that is not blank is kept.
+A blank value does not clear an earlier one.
+The first description that is not blank is kept.
+
+*Implement* creates the lifecycle environments on this computer from the definitions in the list.
+It asks the same question as when a project is added.
+The project file is saved when you click OK.
 
 When a project is added from a folder or from Git and `project-config.json` already defines environments, Hop asks whether to create those lifecycle environments on this computer.
 A project with no embedded environments still asks the generic question about creating one environment, except when the project is read only or was added from Git.
 
-Only the *Mandatory* and *Secrets* variables are written, one configuration file per environment.
-Optional variables are applied when the environment is enabled and are not stored in that file.
-The value written at creation is the placeholder from the project.
-Replace it with the value for this computer.
-A value in the configuration file replaces the placeholder.
+Every variable marked *Secret* or *Mandatory* is written, one configuration file per environment.
+A variable that is neither is applied when the environment is enabled and is not stored in that file.
+A secret is written whether or not it is mandatory.
+The value written for each of those variables is its default from the project, including a placeholder such as `change-to-your-password`.
+Replace it on this computer when that default is only a placeholder.
+A value in the configuration file replaces the default.
 A variable with the same name on the project still wins.
 
 The files are written to the folder in the project variable `+${ENVIRONMENTS_FOLDER}+` when that variable is set.

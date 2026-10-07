@@ -30,12 +30,14 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.project.Project;
+import org.apache.hop.projects.util.PathVariableReplacer;
 
 /**
  * Creates local lifecycle environments from the embedded definitions in a project.
  *
- * <p>The configuration file for an environment receives mandatory variables and secrets only.
- * Optional variables stay in the project and are applied when the environment is enabled.
+ * <p>The configuration file for an environment receives every variable marked mandatory or secret,
+ * in list order. A variable that is neither stays in the project and is applied when the
+ * environment is enabled.
  */
 public final class EmbeddedEnvironmentMaterializer {
 
@@ -88,14 +90,31 @@ public final class EmbeddedEnvironmentMaterializer {
   }
 
   /**
-   * @param folder folder that will hold the file
+   * @param folder folder that will hold the file. Variables must already be resolved.
    * @param environmentName environment name
    * @return path of {@code <folder>/<name>.json}
    * @throws HopException when the folder cannot be resolved
    */
   public static String configFilePath(String folder, String environmentName) throws HopException {
+    return configFilePath(null, folder, environmentName);
+  }
+
+  /**
+   * Resolve variables in {@code folder} before asking VFS for the file. A folder such as {@code
+   * ${HOP_CONFIG_FOLDER}/environments/project} is absolute once the variable is resolved. Leaving
+   * the variable in the string makes VFS treat it as a path relative to the working directory.
+   *
+   * @param variables variable space, or null when {@code folder} is already resolved
+   * @param folder folder that will hold the file
+   * @param environmentName environment name
+   * @return resolved path of {@code <folder>/<name>.json}
+   * @throws HopException when the folder cannot be resolved
+   */
+  public static String configFilePath(IVariables variables, String folder, String environmentName)
+      throws HopException {
     String fileName = configFileName(environmentName);
-    try (FileObject parent = HopVfs.getFileObject(folder)) {
+    String resolvedFolder = resolvedFolder(variables, folder);
+    try (FileObject parent = HopVfs.getFileObject(resolvedFolder)) {
       FileObject file = parent.resolveFile(fileName);
       String scheme = file.getName().getScheme();
       if (scheme == null || "file".equalsIgnoreCase(scheme)) {
@@ -114,7 +133,28 @@ public final class EmbeddedEnvironmentMaterializer {
    * @return true when {@code folder} is the project home or a folder inside it
    */
   public static boolean isInsideProjectHome(String folder, String projectHome) {
-    if (StringUtils.isBlank(folder) || StringUtils.isBlank(projectHome)) {
+    return isInsideProjectHome(null, folder, projectHome);
+  }
+
+  /**
+   * Resolve both folders before comparing them. An unresolved {@code ${HOP_CONFIG_FOLDER}} would
+   * otherwise be compared as a path under the working directory.
+   *
+   * @param variables variable space, or null when both folders are already resolved
+   * @param folder candidate folder
+   * @param projectHome project home folder
+   * @return true when {@code folder} is the project home or a folder inside it
+   */
+  public static boolean isInsideProjectHome(
+      IVariables variables, String folder, String projectHome) {
+    if (variables != null) {
+      folder = variables.resolve(folder);
+      projectHome = variables.resolve(projectHome);
+    }
+    if (StringUtils.isBlank(folder)
+        || StringUtils.isBlank(projectHome)
+        || folder.contains("${")
+        || projectHome.contains("${")) {
       return false;
     }
     try (FileObject home = HopVfs.getFileObject(projectHome);
@@ -128,15 +168,19 @@ public final class EmbeddedEnvironmentMaterializer {
   }
 
   /**
-   * Mandatory variables and secrets, in that order. Optional variables are not included.
+   * Variables marked mandatory or secret, in list order. A variable that is neither is left out. A
+   * secret is stored whether or not it is mandatory.
    *
    * @param environment embedded definition
    * @return variables to store in the local configuration file
    */
   public static List<DescribedVariable> variablesToStore(EmbeddedEnvironment environment) {
     List<DescribedVariable> stored = new ArrayList<>();
-    addVariables(stored, environment == null ? null : environment.getMandatoryVariables());
-    addVariables(stored, environment == null ? null : environment.getSecretVariables());
+    if (environment == null) {
+      return stored;
+    }
+    environment.absorbLegacyVariables();
+    addVariables(stored, environment.getVariables());
     return stored;
   }
 
@@ -148,12 +192,35 @@ public final class EmbeddedEnvironmentMaterializer {
    * @param config environments already on this computer
    * @param project project that holds the definitions
    * @param projectName project the new environments belong to
-   * @param folder folder for the configuration files
+   * @param folder folder for the configuration files. Variables must already be resolved.
    * @return what was created and what was left alone
    * @throws HopException when a configuration file cannot be written
    */
   public static MaterializeResult materialize(
       ProjectsConfig config, Project project, String projectName, String folder)
+      throws HopException {
+    return materialize(null, config, project, projectName, folder);
+  }
+
+  /**
+   * Same as {@link #materialize(ProjectsConfig, Project, String, String)}, resolving variables in
+   * {@code folder} before the file is written. The path stored on the lifecycle environment keeps a
+   * variable such as {@code ${HOP_CONFIG_FOLDER}} when one matches the resolved folder.
+   *
+   * @param variables variable space, or null when {@code folder} is already resolved
+   * @param config environments already on this computer
+   * @param project project that holds the definitions
+   * @param projectName project the new environments belong to
+   * @param folder folder for the configuration files
+   * @return what was created and what was left alone
+   * @throws HopException when a configuration file cannot be written
+   */
+  public static MaterializeResult materialize(
+      IVariables variables,
+      ProjectsConfig config,
+      Project project,
+      String projectName,
+      String folder)
       throws HopException {
     MaterializeResult result = new MaterializeResult();
     if (project == null || project.getEmbeddedEnvironments() == null) {
@@ -170,13 +237,14 @@ public final class EmbeddedEnvironmentMaterializer {
         result.skippedExistingNames.add(embedded.getName());
         continue;
       }
-      String path = configFilePath(folder, embedded.getName());
-      if (!writeConfigFileIfMissing(path, embedded)) {
+      String resolvedPath = configFilePath(variables, folder, embedded.getName());
+      if (!writeConfigFileIfMissing(resolvedPath, embedded)) {
         result.keptExistingFiles.add(embedded.getName());
       }
+      String reference = configurationFileReference(variables, resolvedPath);
       LifecycleEnvironment environment =
           new LifecycleEnvironment(
-              embedded.getName(), "", projectName, new ArrayList<>(List.of(path)));
+              embedded.getName(), "", projectName, new ArrayList<>(List.of(reference)));
       environment.setEmbeddedEnvironmentName(embedded.getName());
       result.created.add(environment);
     }
@@ -185,7 +253,7 @@ public final class EmbeddedEnvironmentMaterializer {
 
   /**
    * @param path configuration file path
-   * @param embedded definition whose mandatory variables and secrets are written
+   * @param embedded definition whose mandatory and secret variables are written
    * @return true when a new file was written, false when a file was already there
    * @throws HopException when the file cannot be written
    */
@@ -217,12 +285,42 @@ public final class EmbeddedEnvironmentMaterializer {
       if (variable == null || StringUtils.isBlank(variable.getName())) {
         continue;
       }
+      if (!variable.isMandatory() && !variable.isSecret()) {
+        continue;
+      }
       stored.add(
           new DescribedVariable(
               variable.getName().trim(),
               Const.NVL(variable.getDefaultValue(), ""),
               Const.NVL(variable.getDescription(), "")));
     }
+  }
+
+  /**
+   * Folder to pass to VFS. Variables are resolved first so {@code ${HOP_CONFIG_FOLDER}} is not
+   * treated as a relative directory name.
+   */
+  private static String resolvedFolder(IVariables variables, String folder) throws HopException {
+    String resolved = variables == null || folder == null ? folder : variables.resolve(folder);
+    if (resolved != null && resolved.contains("${")) {
+      throw new HopException(
+          "Folder '"
+              + folder
+              + "' still contains a variable after resolution. The configuration file was not written.");
+    }
+    return resolved;
+  }
+
+  /**
+   * Path recorded on the lifecycle environment. The file itself is written to {@code resolvedPath}.
+   * A matching path variable, for example {@code ${HOP_CONFIG_FOLDER}}, is put back so the
+   * reference stays the same kind of path the directory dialog returns.
+   */
+  private static String configurationFileReference(IVariables variables, String resolvedPath) {
+    if (variables == null || StringUtils.isBlank(resolvedPath)) {
+      return resolvedPath;
+    }
+    return PathVariableReplacer.replacePathWithVariable(variables, resolvedPath);
   }
 
   private static String withTrailingSlash(String path) {
@@ -233,7 +331,7 @@ public final class EmbeddedEnvironmentMaterializer {
     return normalized;
   }
 
-  /** Environments created by {@link #materialize} and the ones that were left alone. */
+  /** Environments created by materialize and the ones that were left alone. */
   @Getter
   public static final class MaterializeResult {
     private final List<LifecycleEnvironment> created = new ArrayList<>();

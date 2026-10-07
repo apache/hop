@@ -40,13 +40,10 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
@@ -54,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-/** Edits one embedded environment: name, description, and the three variable lists. */
+/** Edits one embedded environment: name, description, and variables. */
 public class EmbeddedEnvironmentDialog extends Dialog {
   private static final Class<?> PKG = EmbeddedEnvironmentDialog.class;
 
@@ -67,8 +64,6 @@ public class EmbeddedEnvironmentDialog extends Dialog {
   private TextVar wName;
   private Text wDescription;
   private TableView wVariables;
-  private TableView wMandatoryVariables;
-  private TableView wSecretVariables;
 
   private EmbeddedEnvironment returnValue;
 
@@ -89,6 +84,7 @@ public class EmbeddedEnvironmentDialog extends Dialog {
    *     constructor is updated only when the user confirms.
    */
   public EmbeddedEnvironment open() {
+    environment.absorbLegacyVariables();
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
     shell.setImage(
@@ -120,34 +116,18 @@ public class EmbeddedEnvironmentDialog extends Dialog {
     Control last = addName(margin, middle);
     last = addDescription(margin, middle, last);
 
-    CTabFolder tabs = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(tabs);
-    FormData fdTabs = new FormData();
-    fdTabs.left = new FormAttachment(0, 0);
-    fdTabs.top = new FormAttachment(last, margin);
-    fdTabs.right = new FormAttachment(100, 0);
-    fdTabs.bottom = new FormAttachment(wOk, -margin * 2);
-    tabs.setLayoutData(fdTabs);
-
+    int size = environment.getVariables() == null ? 0 : environment.getVariables().size();
     wVariables =
-        addVariableTab(
-            tabs,
-            "EmbeddedEnvironmentDialog.Tab.Variables",
-            environment.getVariables(),
-            "EmbeddedEnvironmentDialog.Tab.Variables.Tooltip");
-    wMandatoryVariables =
-        addVariableTab(
-            tabs,
-            "EmbeddedEnvironmentDialog.Tab.Mandatory",
-            environment.getMandatoryVariables(),
-            "EmbeddedEnvironmentDialog.Tab.Mandatory.Tooltip");
-    wSecretVariables =
-        addVariableTab(
-            tabs,
-            "EmbeddedEnvironmentDialog.Tab.Secrets",
-            environment.getSecretVariables(),
-            "EmbeddedEnvironmentDialog.Tab.Secrets.Tooltip");
-    tabs.setSelection(0);
+        new TableView(
+            variables, shell, SWT.BORDER, variableColumns(), Math.max(size, 3), event -> {}, props);
+    PropsUi.setLook(wVariables);
+    FormData fdVariables = new FormData();
+    fdVariables.left = new FormAttachment(0, 0);
+    fdVariables.top = new FormAttachment(last, margin);
+    fdVariables.right = new FormAttachment(100, 0);
+    fdVariables.bottom = new FormAttachment(wOk, -margin * 2);
+    wVariables.setLayoutData(fdVariables);
+    fillVariables(wVariables, environment.getVariables());
 
     wName.setText(Const.NVL(environment.getName(), ""));
     wDescription.setText(Const.NVL(environment.getDescription(), ""));
@@ -201,35 +181,6 @@ public class EmbeddedEnvironmentDialog extends Dialog {
     return wDescription;
   }
 
-  private TableView addVariableTab(
-      CTabFolder folder, String tabKey, List<EmbeddedEnvironmentVariable> rows, String tooltipKey) {
-    CTabItem tab = new CTabItem(folder, SWT.NONE);
-    tab.setText(BaseMessages.getString(PKG, tabKey));
-    tab.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
-    Composite comp = new Composite(folder, SWT.NONE);
-    PropsUi.setLook(comp);
-    FormLayout layout = new FormLayout();
-    layout.marginWidth = PropsUi.getFormMargin();
-    layout.marginHeight = PropsUi.getFormMargin();
-    comp.setLayout(layout);
-    tab.setControl(comp);
-
-    int size = rows == null ? 0 : rows.size();
-    ColumnInfo[] columnInfo = variableColumns();
-    TableView table =
-        new TableView(
-            variables, comp, SWT.BORDER, columnInfo, Math.max(size, 3), event -> {}, props);
-    PropsUi.setLook(table);
-    FormData fdTable = new FormData();
-    fdTable.left = new FormAttachment(0, 0);
-    fdTable.right = new FormAttachment(100, 0);
-    fdTable.top = new FormAttachment(0, 0);
-    fdTable.bottom = new FormAttachment(100, 0);
-    table.setLayoutData(fdTable);
-    fillVariables(table, rows);
-    return table;
-  }
-
   private ColumnInfo[] variableColumns() {
     ColumnInfo[] columnInfo =
         new ColumnInfo[] {
@@ -248,12 +199,28 @@ public class EmbeddedEnvironmentDialog extends Dialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false,
               false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "EmbeddedEnvironmentDialog.Column.Mandatory"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {"Y", "N"},
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "EmbeddedEnvironmentDialog.Column.Secret"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {"Y", "N"},
+              true),
         };
     columnInfo[0].setUsingVariables(true);
     columnInfo[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     columnInfo[1].setUsingVariables(true);
     columnInfo[1].setToolTip(
         BaseMessages.getString(PKG, "EmbeddedEnvironmentDialog.Column.Default.Tooltip"));
+    columnInfo[3].setUsingVariables(false);
+    columnInfo[3].setToolTip(
+        BaseMessages.getString(PKG, "EmbeddedEnvironmentDialog.Column.Mandatory.Tooltip"));
+    columnInfo[4].setUsingVariables(false);
+    columnInfo[4].setToolTip(
+        BaseMessages.getString(PKG, "EmbeddedEnvironmentDialog.Column.Secret.Tooltip"));
     return columnInfo;
   }
 
@@ -267,6 +234,8 @@ public class EmbeddedEnvironmentDialog extends Dialog {
       item.setText(1, Const.NVL(variable.getName(), ""));
       item.setText(2, Const.NVL(variable.getDefaultValue(), ""));
       item.setText(3, Const.NVL(variable.getDescription(), ""));
+      item.setText(4, variable.isMandatory() ? "Y" : "N");
+      item.setText(5, variable.isSecret() ? "Y" : "N");
     }
     table.setRowNums();
     table.optWidth(true);
@@ -279,7 +248,13 @@ public class EmbeddedEnvironmentDialog extends Dialog {
       if (StringUtils.isBlank(item.getText(1))) {
         continue;
       }
-      rows.add(new EmbeddedEnvironmentVariable(item.getText(1), item.getText(2), item.getText(3)));
+      rows.add(
+          new EmbeddedEnvironmentVariable(
+              item.getText(1),
+              item.getText(2),
+              item.getText(3),
+              "Y".equals(item.getText(4)),
+              "Y".equals(item.getText(5))));
     }
     return rows;
   }
@@ -289,8 +264,6 @@ public class EmbeddedEnvironmentDialog extends Dialog {
     edited.setName(wName.getText());
     edited.setDescription(wDescription.getText());
     edited.setVariables(readVariables(wVariables));
-    edited.setMandatoryVariables(readVariables(wMandatoryVariables));
-    edited.setSecretVariables(readVariables(wSecretVariables));
     EmbeddedEnvironmentValidator.normalize(edited);
 
     if (EmbeddedEnvironmentValidator.missingName(edited)) {
@@ -318,8 +291,6 @@ public class EmbeddedEnvironmentDialog extends Dialog {
     environment.setName(edited.getName());
     environment.setDescription(edited.getDescription());
     environment.setVariables(edited.getVariables());
-    environment.setMandatoryVariables(edited.getMandatoryVariables());
-    environment.setSecretVariables(edited.getSecretVariables());
     returnValue = environment;
     dispose();
   }

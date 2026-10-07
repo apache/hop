@@ -18,6 +18,7 @@
 package org.apache.hop.projects.environment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,7 +35,6 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.EnvironmentSource;
-import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.Kind;
 import org.apache.hop.projects.environment.EmbeddedEnvironmentImporter.VariableAssignment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +60,7 @@ class EmbeddedEnvironmentImporterTest {
   }
 
   @Test
-  void readClassifiesSecretsAndDropsValues() throws Exception {
+  void readCopiesConfigurationValuesAsDefaults() throws Exception {
     String configPath = writeConfig("dev.json", variables());
     LifecycleEnvironment environment =
         new LifecycleEnvironment("dev", "Developer workstation", "warehouse", List.of(configPath));
@@ -78,22 +78,35 @@ class EmbeddedEnvironmentImporterTest {
     assertEquals("Developer workstation", source.getDescription());
     assertTrue(source.getUnreadableFiles().isEmpty());
     assertEquals(List.of("LOG_LEVEL", "DB_HOST", "DB_PASSWORD", "DB_TOKEN"), names(source));
-    assertEquals(Kind.VARIABLE, kind(source, "LOG_LEVEL"));
-    assertEquals(Kind.VARIABLE, kind(source, "DB_HOST"));
-    assertEquals(Kind.SECRET, kind(source, "DB_PASSWORD"));
-    assertEquals(Kind.SECRET, kind(source, "DB_TOKEN"));
+    assertFalse(secret(source, "LOG_LEVEL"));
+    assertFalse(secret(source, "DB_HOST"));
+    assertTrue(secret(source, "DB_PASSWORD"));
+    assertTrue(secret(source, "DB_TOKEN"));
     assertEquals("Hop log level", description(source, "LOG_LEVEL"));
+    assertEquals("Basic", defaultValue(source, "LOG_LEVEL"));
+    assertEquals("db.example", defaultValue(source, "DB_HOST"));
+    assertEquals("real-password", defaultValue(source, "DB_PASSWORD"));
+    assertEquals(Encr.PASSWORD_ENCRYPTED_PREFIX + "abc", defaultValue(source, "DB_TOKEN"));
 
     EmbeddedEnvironment embedded =
         EmbeddedEnvironmentImporter.toEmbeddedEnvironment(
             source.getName(), source.getDescription(), source.getVariables());
-    assertNull(embedded.getVariables().get(0).getDefaultValue());
+    assertEquals(4, embedded.getVariables().size());
+    assertEquals("Basic", embedded.getVariables().get(0).getDefaultValue());
     assertEquals("LOG_LEVEL", embedded.getVariables().get(0).getName());
+    assertFalse(embedded.getVariables().get(0).isSecret());
+    assertEquals("db.example", embedded.getVariables().get(1).getDefaultValue());
     assertEquals("DB_HOST", embedded.getVariables().get(1).getName());
-    assertEquals("DB_PASSWORD", embedded.getSecretVariables().get(0).getName());
-    assertNull(embedded.getSecretVariables().get(0).getDefaultValue());
-    assertEquals("DB_TOKEN", embedded.getSecretVariables().get(1).getName());
-    assertTrue(embedded.getMandatoryVariables().isEmpty());
+    assertFalse(embedded.getVariables().get(1).isSecret());
+    assertEquals("real-password", embedded.getVariables().get(2).getDefaultValue());
+    assertEquals("DB_PASSWORD", embedded.getVariables().get(2).getName());
+    assertTrue(embedded.getVariables().get(2).isSecret());
+    assertEquals(
+        Encr.PASSWORD_ENCRYPTED_PREFIX + "abc", embedded.getVariables().get(3).getDefaultValue());
+    assertEquals("DB_TOKEN", embedded.getVariables().get(3).getName());
+    assertTrue(embedded.getVariables().get(3).isSecret());
+    assertFalse(embedded.getVariables().get(1).isMandatory());
+    assertFalse(embedded.getVariables().get(2).isMandatory());
   }
 
   @Test
@@ -101,12 +114,17 @@ class EmbeddedEnvironmentImporterTest {
     IVariables variables = new Variables();
     variables.setVariable("ENV_DIR", tempRoot.toString());
     String first =
-        writeConfig("first.json", List.of(new DescribedVariable("DB_HOST", "db.example", "")));
+        writeConfig(
+            "first.json",
+            List.of(
+                new DescribedVariable("DB_HOST", "db.example", ""),
+                new DescribedVariable("DATA_FOLDER", " /data ", "Data folder")));
     String second =
         writeConfig(
             "second.json",
             List.of(
                 new DescribedVariable("DB_HOST", "other", "JDBC host"),
+                new DescribedVariable("DATA_FOLDER", "   ", "later description"),
                 new DescribedVariable(
                     "API_KEY", Encr.PASSWORD_ENCRYPTED_PREFIX + "abc", "API key")));
     LifecycleEnvironment environment =
@@ -118,23 +136,31 @@ class EmbeddedEnvironmentImporterTest {
 
     assertNull(source.getDescription());
     assertEquals(List.of("${ENV_DIR}/missing.json"), source.getUnreadableFiles());
-    assertEquals(Kind.VARIABLE, kind(source, "DB_HOST"));
+    assertFalse(secret(source, "DB_HOST"));
     assertEquals("JDBC host", description(source, "DB_HOST"));
-    assertEquals(Kind.SECRET, kind(source, "API_KEY"));
+    assertEquals("other", defaultValue(source, "DB_HOST"));
+    assertEquals("Data folder", description(source, "DATA_FOLDER"));
+    assertEquals("/data", defaultValue(source, "DATA_FOLDER"));
+    assertTrue(secret(source, "API_KEY"));
+    assertEquals(Encr.PASSWORD_ENCRYPTED_PREFIX + "abc", defaultValue(source, "API_KEY"));
 
     EmbeddedEnvironment embedded =
         EmbeddedEnvironmentImporter.toEmbeddedEnvironment(
             source.getName(),
             source.getDescription(),
             List.of(
-                new VariableAssignment("DB_HOST", "JDBC host", Kind.MANDATORY),
-                new VariableAssignment("API_KEY", "API key", Kind.SECRET),
-                new VariableAssignment("  ", "ignored", Kind.VARIABLE)));
-    assertEquals(1, embedded.getMandatoryVariables().size());
-    assertEquals("DB_HOST", embedded.getMandatoryVariables().get(0).getName());
-    assertNull(embedded.getMandatoryVariables().get(0).getDefaultValue());
-    assertEquals("API_KEY", embedded.getSecretVariables().get(0).getName());
-    assertTrue(embedded.getVariables().isEmpty());
+                new VariableAssignment("DB_HOST", "JDBC host", false, true, " other "),
+                new VariableAssignment("API_KEY", "API key", true, true),
+                new VariableAssignment("  ", "ignored", false)));
+    assertEquals(2, embedded.getVariables().size());
+    assertEquals("DB_HOST", embedded.getVariables().get(0).getName());
+    assertEquals("other", embedded.getVariables().get(0).getDefaultValue());
+    assertTrue(embedded.getVariables().get(0).isMandatory());
+    assertFalse(embedded.getVariables().get(0).isSecret());
+    assertEquals("API_KEY", embedded.getVariables().get(1).getName());
+    assertNull(embedded.getVariables().get(1).getDefaultValue());
+    assertTrue(embedded.getVariables().get(1).isMandatory());
+    assertTrue(embedded.getVariables().get(1).isSecret());
   }
 
   private List<DescribedVariable> variables() {
@@ -162,12 +188,16 @@ class EmbeddedEnvironmentImporterTest {
     return names;
   }
 
-  private static Kind kind(EnvironmentSource source, String name) {
-    return assignment(source, name).getKind();
+  private static boolean secret(EnvironmentSource source, String name) {
+    return assignment(source, name).isSecret();
   }
 
   private static String description(EnvironmentSource source, String name) {
     return assignment(source, name).getDescription();
+  }
+
+  private static String defaultValue(EnvironmentSource source, String name) {
+    return assignment(source, name).getDefaultValue();
   }
 
   private static VariableAssignment assignment(EnvironmentSource source, String name) {

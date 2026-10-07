@@ -23,8 +23,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * A variable declared on an embedded environment. {@code defaultValue} is a placeholder checked in
- * with the project, not a live value.
+ * A variable declared on an embedded environment. {@code defaultValue} is checked in with the
+ * project.
  */
 @Getter
 @Setter
@@ -37,4 +37,19 @@ public class EmbeddedEnvironmentVariable {
   private String defaultValue;
 
   private String description;
+
+  /** True when a person has to set this variable on their own computer. */
+  private boolean mandatory;
+
+  /** True when this value is a secret, such as a password or a token. */
+  private boolean secret;
+
+  public EmbeddedEnvironmentVariable(String name, String defaultValue, String description) {
+    this(name, defaultValue, description, false, false);
+  }
+
+  public EmbeddedEnvironmentVariable(
+      String name, String defaultValue, String description, boolean mandatory) {
+    this(name, defaultValue, description, mandatory, false);
+  }
 }
