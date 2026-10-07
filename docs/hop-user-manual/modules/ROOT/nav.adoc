@@ -334,6 +334,7 @@ under the License.
 *** xref:pipeline/transforms/vcardinput.adoc[vCard Input]
 *** xref:pipeline/transforms/vcardoutput.adoc[vCard Output]
 *** xref:pipeline/transforms/verticabulkloader.adoc[Vertica Bulk Loader]
+*** xref:pipeline/transforms/watchfiles.adoc[Watch Files]
 *** xref:pipeline/transforms/webservices.adoc[Web services lookup]
 *** xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor]
 *** xref:pipeline/transforms/workflow-logging.adoc[Workflow logging]
