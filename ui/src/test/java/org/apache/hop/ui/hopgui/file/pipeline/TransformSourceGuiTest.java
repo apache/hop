@@ -58,9 +58,8 @@ class TransformSourceGuiTest {
     TransformSourceGui.labelCreateAction(action, plugin);
 
     assertFalse(action.getKeywords().contains(TransformSourceSupport.SEARCH_KEYWORD));
-    assertTrue(
-        action.getTooltip() == null
-            || !action.getTooltip().contains("Can start without incoming hops"));
+    assertTrue(action.getTooltipHints().isEmpty());
+    assertFalse(action.getDisplayTooltip().contains("Can start without incoming hops"));
   }
 
   @Test

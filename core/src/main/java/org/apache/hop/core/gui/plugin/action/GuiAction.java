@@ -20,6 +20,7 @@ package org.apache.hop.core.gui.plugin.action;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.search.SearchMatcher;
 
@@ -28,6 +29,13 @@ public class GuiAction {
   private GuiActionType type;
   private String name;
   private String tooltip;
+
+  /**
+   * Usage hints shown below the tooltip (e.g. "Click-drag to select and position"). Unlike the
+   * tooltip they describe the dialog rather than the action, so they are never searched.
+   */
+  private List<String> tooltipHints;
+
   private String image;
   private IGuiActionLambda actionLambda;
   private String guiPluginClassName;
@@ -39,6 +47,7 @@ public class GuiAction {
 
   public GuiAction() {
     this.keywords = new ArrayList<>();
+    this.tooltipHints = new ArrayList<>();
   }
 
   /**
@@ -110,6 +119,7 @@ public class GuiAction {
     for (String keyword : guiAction.getKeywords()) {
       keywords.add(keyword);
     }
+    tooltipHints.addAll(guiAction.getTooltipHints());
     this.category = guiAction.category;
     this.categoryOrder = guiAction.categoryOrder;
     this.classLoader = guiAction.getClassLoader();
@@ -252,6 +262,44 @@ public class GuiAction {
    */
   public void setTooltip(String tooltip) {
     this.tooltip = tooltip;
+  }
+
+  /**
+   * Gets the usage hints shown below the tooltip. They are not searched.
+   *
+   * @return value of tooltipHints
+   */
+  public List<String> getTooltipHints() {
+    return tooltipHints;
+  }
+
+  /**
+   * @param tooltipHints The usage hints to set
+   */
+  public void setTooltipHints(List<String> tooltipHints) {
+    this.tooltipHints = tooltipHints;
+  }
+
+  /**
+   * The text to show for this action: the tooltip followed by each usage hint on its own line.
+   *
+   * @return the tooltip and hints, never null
+   */
+  public String getDisplayTooltip() {
+    StringBuilder text = new StringBuilder(StringUtils.trimToEmpty(tooltip));
+    if (tooltipHints != null) {
+      for (String hint : tooltipHints) {
+        String trimmed = StringUtils.trimToEmpty(hint);
+        if (trimmed.isEmpty()) {
+          continue;
+        }
+        if (!text.isEmpty()) {
+          text.append('\n');
+        }
+        text.append(trimmed);
+      }
+    }
+    return text.toString();
   }
 
   /**
