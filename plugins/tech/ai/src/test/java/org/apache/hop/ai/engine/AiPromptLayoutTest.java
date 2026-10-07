@@ -27,8 +27,11 @@ import static org.mockito.Mockito.when;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
+import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
 
 /** Prompt layout and size: sections, the plugin catalog and the context window check. */
@@ -84,10 +87,27 @@ class AiPromptLayoutTest {
         () ->
             AiAdvisorEngine.checkPromptFits(
                 "local", 16_384, null, "s".repeat(8_000), "u".repeat(20_000), List.of()));
-    assertDoesNotThrow(
+  }
+
+  @Test
+  void aHostedProviderWithoutContextSizeIsCheckedAgainstItsTypesBudget() {
+    AiProvider hosted = new AiProvider();
+    hosted.setProvider(new OpenAiProvider());
+    assertEquals(
+        AiProviderSettings.DEFAULT_HOSTED_CONTEXT_BUDGET,
+        AiProviderSettings.contextBudget(hosted, new Variables()));
+    assertThrows(
+        HopException.class,
         () ->
             AiAdvisorEngine.checkPromptFits(
-                "hosted", null, null, "s", "u".repeat(10_000_000), List.of()));
+                "hosted",
+                AiProviderSettings.contextBudget(hosted, new Variables()),
+                null,
+                "s",
+                "u".repeat(10_000_000),
+                List.of()));
+    hosted.setContextSize("1000000");
+    assertEquals(1_000_000, AiProviderSettings.contextBudget(hosted, new Variables()));
   }
 
   @Test

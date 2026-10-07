@@ -22,6 +22,7 @@ import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * The connection settings shared by every model a provider serves.
@@ -63,10 +64,11 @@ public record AiProviderSettings(
   public static AiProviderSettings of(AiProvider provider, IVariables variables)
       throws HopException {
     if (provider == null) {
-      throw new HopException("An AI provider is required");
+      throw new AiUserException(
+          BaseMessages.getString(AiProviderSettings.class, "AiChatFactory.NoProvider"));
     }
     if (!provider.hasProviderType()) {
-      throw new HopException(AiChatFactory.missingTypeMessage(provider));
+      throw new AiUserException(AiChatFactory.missingTypeMessage(provider));
     }
     IAiProvider backend = provider.getProvider();
     String baseUrl = variables.resolve(provider.getBaseUrl());
@@ -91,6 +93,30 @@ public record AiProviderSettings(
     }
     return "OLLAMA".equals(provider.getHopModelType()) ? DEFAULT_OLLAMA_CONTEXT_SIZE : null;
   }
+
+  /**
+   * The window a question is checked against before it is sent: the context size, or when that is
+   * not known (a hosted provider without the field set), a generous figure for the provider type.
+   * It is only a budget for the check; it is not sent to the provider.
+   */
+  public static int contextBudget(AiProvider provider, IVariables variables) {
+    Integer known = contextSize(provider, variables);
+    if (known != null) {
+      return known;
+    }
+    return "ANTHROPIC".equals(provider.getHopModelType())
+        ? DEFAULT_ANTHROPIC_CONTEXT_BUDGET
+        : DEFAULT_HOSTED_CONTEXT_BUDGET;
+  }
+
+  /** The context window of current Anthropic models. */
+  public static final int DEFAULT_ANTHROPIC_CONTEXT_BUDGET = 200_000;
+
+  /**
+   * The context window of current hosted models of OpenAI, Mistral, Gemini and most OpenAI
+   * compatible servers. Older or smaller models have less; set Context size for those.
+   */
+  public static final int DEFAULT_HOSTED_CONTEXT_BUDGET = 128_000;
 
   /** The configured answer limit, or the Anthropic default, or null for the provider's own. */
   public static Integer maxOutputTokens(AiProvider provider, IVariables variables) {

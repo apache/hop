@@ -41,6 +41,22 @@
             <version>${jandex.version}</version>
         </dependency>
 
+        <!-- Configuration classes are instantiated to read their defaults. Some refer to hop-core
+             types, such as an enum that implements IEnumHasCodeAndDescription, so hop-core itself
+             has to be on the classpath; what it depends on does not. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- The hop-* dependencies below are not used in code. They are the modules that declare a
              @ConfigPlugin, and they are here so the reactor builds this one after all of them: the
              generator reads the whole tree's build output, so running it earlier would document a

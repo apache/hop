@@ -30,7 +30,9 @@ import org.apache.hop.ai.advisor.AiAdvisorResponse;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.ai.advisor.IAiAdvisor;
+import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
 import org.apache.hop.ai.advisors.pipeline.PipelineAiProposalApplier;
+import org.apache.hop.ai.advisors.workflow.WorkflowAiAdvisor;
 import org.apache.hop.ai.advisors.workflow.WorkflowAiProposalApplier;
 import org.apache.hop.ai.config.HopAiConfig;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
@@ -40,6 +42,7 @@ import org.apache.hop.ai.session.AiAdvisorTurn;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -119,10 +122,10 @@ public final class AiAdvisorEngine {
       throws HopException {
     HopAiConfig config = HopAiConfigSingleton.getConfig();
     if (!config.isAiEnabled()) {
-      throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Disabled"));
+      throw new AiUserException(BaseMessages.getString(PKG, "AiAdvisorEngine.Disabled"));
     }
     if (advisor == null) {
-      throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.NoAdvisor"));
+      throw new AiUserException(BaseMessages.getString(PKG, "AiAdvisorEngine.NoAdvisor"));
     }
     AiProvider provider = loadProvider(session, metadataProvider);
     AiAdvisorRequest request = toRequest(session, variables, metadataProvider, logExcerpt);
@@ -133,7 +136,7 @@ public final class AiAdvisorEngine {
     List<ChatMessage> history = historyFrom(session);
     checkPromptFits(
         provider.getName(),
-        AiProviderSettings.contextSize(provider, variables),
+        AiProviderSettings.contextBudget(provider, variables),
         AiProviderSettings.maxOutputTokens(provider, variables),
         prompt.getSystemPrompt(),
         prompt.getUserPrompt(),
@@ -149,13 +152,7 @@ public final class AiAdvisorEngine {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Cancelled"));
     }
     AiAdvisorPrompt prompt = prepared.prompt();
-    AiChatResult chat =
-        AiChatFactory.generateResult(
-            prepared.provider(),
-            variables,
-            prompt.getSystemPrompt(),
-            prompt.getUserPrompt(),
-            prepared.history());
+    AiChatResult chat = ask(session, advisor, prepared, variables);
     if (session.isCancelled() || Thread.currentThread().isInterrupted()) {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Cancelled"));
     }
@@ -175,6 +172,10 @@ public final class AiAdvisorEngine {
       // The answer talks about proposals or names proposal types, but holds none: small models
       // sometimes describe the change and leave the block out or empty.
       parsed.setProposalParseError(BaseMessages.getString(PKG, "AiAdvisorEngine.ProposalsMissing"));
+    }
+    if (parsed.getProposalParseError() == null && usesHopProposalSchema(advisor)) {
+      // Proposals outside the schema (an unknown type, a made-up risk level, no parameters).
+      parsed.setProposalParseError(AiProposalSchema.check(parsed.getProposals()));
     }
     if (parsed.getProposalParseError() == null) {
       // Proposals that would be blocked in the review: tell the model why, once.
@@ -202,6 +203,62 @@ public final class AiAdvisorEngine {
       }
     }
     return parsed;
+  }
+
+  /**
+   * Send the question. With Structured answers on the provider, the answer is held to {@link
+   * AiProposalSchema} where the provider type allows it, and turned back into the usual text. When
+   * the provider refuses the schema, the question is asked again without it.
+   */
+  static AiChatResult ask(
+      AiAdvisorSession session, IAiAdvisor advisor, Prepared prepared, IVariables variables)
+      throws HopException {
+    AiProvider provider = prepared.provider();
+    AiAdvisorPrompt prompt = prepared.prompt();
+    if (provider.isStructuredAnswers() && usesHopProposalSchema(advisor)) {
+      try {
+        AiChatResult structured =
+            AiChatFactory.generateStructured(
+                provider,
+                variables,
+                structuredSystemPrompt(prompt.getSystemPrompt()),
+                prompt.getUserPrompt(),
+                prepared.history(),
+                AiProposalSchema.schema());
+        if (structured != null) {
+          return new AiChatResult(
+              AiProposalSchema.toAnswerText(structured.getText()),
+              structured.getInputTokenCount(),
+              structured.getOutputTokenCount(),
+              structured.getDurationMs());
+        }
+      } catch (HopException e) {
+        if (session.isCancelled() || Thread.currentThread().isInterrupted()) {
+          throw e;
+        }
+        LogChannel.GENERAL.logBasic(
+            BaseMessages.getString(
+                PKG, "AiAdvisorEngine.StructuredFailed", provider.getName(), e.getMessage()));
+      }
+    }
+    return AiChatFactory.generateResult(
+        provider, variables, prompt.getSystemPrompt(), prompt.getUserPrompt(), prepared.history());
+  }
+
+  /**
+   * Whether the advisor's proposals are the Hop pipeline and workflow types of {@link
+   * AiProposalSchema}. Advisors of other plugins have types of their own (CREATE_HUB, …), which the
+   * schema would reject.
+   */
+  static boolean usesHopProposalSchema(IAiAdvisor advisor) {
+    return advisor instanceof PipelineAiAdvisor || advisor instanceof WorkflowAiAdvisor;
+  }
+
+  /** The instructions with the answer format of {@link AiProposalSchema} added. */
+  static String structuredSystemPrompt(String systemPrompt) throws HopException {
+    return systemPrompt
+        + "\n\n"
+        + AiPromptLoader.load(AiM2PromptSupport.PROMPT_ROOT, "structured-answer.txt");
   }
 
   /**
@@ -427,17 +484,18 @@ public final class AiAdvisorEngine {
       name = HopAiConfigSingleton.getConfig().getDefaultProviderName();
     }
     if (Utils.isEmpty(name)) {
-      throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.NoProvider"));
+      throw new AiUserException(BaseMessages.getString(PKG, "AiAdvisorEngine.NoProvider"));
     }
     AiProvider provider;
     try {
       provider = metadataProvider.getSerializer(AiProvider.class).load(name);
     } catch (HopException e) {
-      throw new HopException(
+      throw new AiUserException(
           BaseMessages.getString(PKG, "AiAdvisorEngine.ProviderNotLoaded", name), e);
     }
     if (provider == null) {
-      throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.ProviderNotFound", name));
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiAdvisorEngine.ProviderNotFound", name));
     }
     return provider;
   }
@@ -499,19 +557,16 @@ public final class AiAdvisorEngine {
    * would drop the start of it without a word, which loses the instructions and the context, and
    * hosted providers reject it. Only clear overflows are stopped: the estimate is rough.
    *
-   * @param contextSize the window in tokens, or null when it is not known, which skips the check
+   * @param contextSize the window in tokens; see {@link AiProviderSettings#contextBudget}
    */
   static void checkPromptFits(
       String providerName,
-      Integer contextSize,
+      int contextSize,
       Integer maxOutputTokens,
       String systemPrompt,
       String userPrompt,
       List<ChatMessage> history)
       throws HopException {
-    if (contextSize == null) {
-      return;
-    }
     int tokens = estimateTokens(systemPrompt) + estimateTokens(userPrompt);
     for (ChatMessage message : history) {
       if (message instanceof UserMessage user && user.hasSingleText()) {
@@ -525,7 +580,7 @@ public final class AiAdvisorEngine {
             ? maxOutputTokens
             : Math.min(DEFAULT_ANSWER_RESERVE, contextSize / 4);
     if (tokens + reserve > contextSize) {
-      throw new HopException(
+      throw new AiUserException(
           BaseMessages.getString(
               PKG,
               "AiAdvisorEngine.PromptTooLarge",
@@ -558,6 +613,9 @@ public final class AiAdvisorEngine {
     request.setFollowUp(hasAnswer(session.getTurns(), session.getTurns().size()));
     AiAdvisorPrompt prompt = advisor.buildPrompt(request);
     AiAdvisorExtraContext.apply(prompt, advisor, variables);
+    if (usesHopProposalSchema(advisor) && usesStructuredAnswers(session, metadataProvider)) {
+      prompt.setSystemPrompt(structuredSystemPrompt(prompt.getSystemPrompt()));
+    }
     List<ChatMessage> history = historyFrom(session.getTurns(), session.getTurns().size());
     int historyTokens = 0;
     for (ChatMessage message : history) {
@@ -583,6 +641,16 @@ public final class AiAdvisorEngine {
         + estimateTokens(prompt.getUserPrompt())
         + " tokens) ===\n"
         + prompt.getUserPrompt();
+  }
+
+  /** For the preview: whether the session's provider asks for structured answers. */
+  private static boolean usesStructuredAnswers(
+      AiAdvisorSession session, IHopMetadataProvider metadataProvider) {
+    try {
+      return loadProvider(session, metadataProvider).isStructuredAnswers();
+    } catch (HopException e) {
+      return false;
+    }
   }
 
   private static String messageText(ChatMessage message) {

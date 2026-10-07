@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.core.Const;
@@ -57,6 +58,8 @@ public final class AiProposalNormalizer {
       String pluginIdKey,
       String fromKey,
       String toKey,
+      String nodeKey,
+      Set<String> nodeTypes,
       Class<? extends IPluginType> pluginType,
       Function<String, Point> locationOf) {}
 
@@ -92,6 +95,13 @@ public final class AiProposalNormalizer {
             "transformPluginId",
             "fromTransform",
             "toTransform",
+            "transformName",
+            Set.of(
+                "DELETE_TRANSFORM",
+                "RENAME_TRANSFORM",
+                "CONFIGURE_TRANSFORM",
+                "SET_TRANSFORM_LOCATION",
+                "REPLACE_TRANSFORM"),
             TransformPluginType.class,
             name -> {
               TransformMeta transform =
@@ -136,6 +146,13 @@ public final class AiProposalNormalizer {
             "actionPluginId",
             "fromAction",
             "toAction",
+            "actionName",
+            Set.of(
+                "DELETE_ACTION",
+                "RENAME_ACTION",
+                "CONFIGURE_ACTION",
+                "SET_ACTION_LOCATION",
+                "REPLACE_ACTION"),
             ActionPluginType.class,
             name -> {
               ActionMeta action = workflowMeta == null ? null : workflowMeta.findAction(name);
@@ -189,6 +206,11 @@ public final class AiProposalNormalizer {
         }
       }
     }
+    for (AiProposal proposal : proposals) {
+      if (proposal != null && kind.nodeTypes().contains(proposal.getType())) {
+        nameTheNode(proposal, kind.nodeKey(), existingNames);
+      }
+    }
     Map<String, Point> placed = new HashMap<>();
     for (AiProposal proposal : proposals) {
       if (proposal == null || !kind.addType().equals(proposal.getType())) {
@@ -233,6 +255,86 @@ public final class AiProposalNormalizer {
   }
 
   /**
+   * A proposal on an existing transform or action that names it in another way than with {@code
+   * transformName} / {@code actionName}: as {@code name}, as a parameter key without a value (
+   * <code>{"Dummy": ""}</code>), or with the copy number a log line adds ({@code concat.0}). Only
+   * when the node exists.
+   */
+  static void nameTheNode(AiProposal proposal, String nodeKey, List<String> existingNames) {
+    Map<String, String> parameters = proposal.getParameters();
+    String current = parameters.get(nodeKey);
+    if (!Utils.isEmpty(current)) {
+      String existing = existingName(current, existingNames);
+      if (existing != null) {
+        parameters.put(nodeKey, existing);
+      }
+      return;
+    }
+    String byName = existingName(parameters.get("name"), existingNames);
+    if (byName != null) {
+      parameters.remove("name");
+      parameters.put(nodeKey, byName);
+      return;
+    }
+    for (Map.Entry<String, String> parameter : new ArrayList<>(parameters.entrySet())) {
+      String asKey = existingName(parameter.getKey(), existingNames);
+      if (asKey != null && Utils.isEmpty(parameter.getValue())) {
+        parameters.remove(parameter.getKey());
+        parameters.put(nodeKey, asKey);
+        return;
+      }
+    }
+  }
+
+  /**
+   * A hop written as <code>{"concat.0": "", "Dummy": ""}</code>: two parameters without a value
+   * whose keys are nodes are its ends, in that order. Small models write a {"name", "value"} pair
+   * this way.
+   */
+  private static void endsWrittenAsKeys(AiProposal proposal, Kind kind, List<String> names) {
+    Map<String, String> parameters = proposal.getParameters();
+    if (!Utils.isEmpty(parameters.get(kind.fromKey()))
+        || !Utils.isEmpty(parameters.get(kind.toKey()))) {
+      return;
+    }
+    List<String> keys = new ArrayList<>();
+    List<String> ends = new ArrayList<>();
+    for (Map.Entry<String, String> parameter : parameters.entrySet()) {
+      String node = existingName(parameter.getKey(), names);
+      if (node != null && Utils.isEmpty(parameter.getValue())) {
+        keys.add(parameter.getKey());
+        ends.add(node);
+      }
+    }
+    if (ends.size() != 2) {
+      return;
+    }
+    keys.forEach(parameters::remove);
+    parameters.put(kind.fromKey(), ends.get(0));
+    parameters.put(kind.toKey(), ends.get(1));
+  }
+
+  /**
+   * The existing node a name means: the same name, the name without the copy number of a log line
+   * ({@code concat.0}), or the one name that only differs in case and spaces. Null otherwise.
+   */
+  static String existingName(String name, List<String> existingNames) {
+    if (Utils.isEmpty(name)) {
+      return null;
+    }
+    if (existingNames.contains(name)) {
+      return name;
+    }
+    String withoutCopy = name.replaceFirst("\\.\\d+$", "");
+    if (!withoutCopy.equals(name) && existingNames.contains(withoutCopy)) {
+      return withoutCopy;
+    }
+    List<String> similar =
+        existingNames.stream().filter(existing -> simple(existing).equals(simple(name))).toList();
+    return similar.size() == 1 ? similar.get(0) : null;
+  }
+
+  /**
    * Hops that name a node by its plugin id, or by a slightly different name, point at the node that
    * is clearly meant: one with that exact name, else the one added here with that plugin id, else
    * the one whose name only differs in case and spaces. Only when exactly one fits.
@@ -253,13 +355,23 @@ public final class AiProposalNormalizer {
         }
       }
     }
+    // Hops to delete name their ends the same way as hops to add.
+    String deleteHopType = kind.hopType().replace("ADD_", "DELETE_");
     for (AiProposal proposal : proposals) {
-      if (proposal == null || !kind.hopType().equals(proposal.getType())) {
+      if (proposal == null
+          || !(kind.hopType().equals(proposal.getType())
+              || deleteHopType.equals(proposal.getType()))) {
         continue;
       }
+      endsWrittenAsKeys(proposal, kind, names);
       for (String key : List.of(kind.fromKey(), kind.toKey())) {
         String end = proposal.parameter(key);
         if (Utils.isEmpty(end) || names.contains(end)) {
+          continue;
+        }
+        String withoutCopy = end.replaceFirst("\\.\\d+$", "");
+        if (!withoutCopy.equals(end) && names.contains(withoutCopy)) {
+          proposal.getParameters().put(key, withoutCopy);
           continue;
         }
         String resolved = null;

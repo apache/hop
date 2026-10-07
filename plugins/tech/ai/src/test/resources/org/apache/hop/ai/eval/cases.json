@@ -278,6 +278,204 @@
         "language": "en",
         "validTypes": true
       }
+    },
+    {
+      "id": "workflow-explain-en",
+      "workflow": "load",
+      "turns": [
+        {
+          "question": "What does this workflow do?"
+        }
+      ],
+      "expect": {
+        "proposals": "none",
+        "language": "en",
+        "mentions": [
+          "load_orders"
+        ]
+      }
+    },
+    {
+      "id": "workflow-explain-nl",
+      "workflow": "load",
+      "turns": [
+        {
+          "question": "Wat doet deze workflow? Leg het kort uit."
+        }
+      ],
+      "expect": {
+        "proposals": "none",
+        "language": "nl",
+        "mentions": [
+          "load_orders"
+        ]
+      }
+    },
+    {
+      "id": "workflow-diagnose-log",
+      "workflow": "check-then-load",
+      "turns": [
+        {
+          "question": "Why did my last run fail?",
+          "scenario": "workflow-error-diagnosis",
+          "log": "2026/10/05 10:12:01 - check-then-load - Starting action [Check orders file]\n2026/10/05 10:12:01 - Check orders file - File [/data/in/orders.csv] does not exist.\n2026/10/05 10:12:01 - check-then-load - Finished action [Check orders file] (result=[false])\n2026/10/05 10:12:01 - check-then-load - Workflow execution finished with errors"
+        }
+      ],
+      "expect": {
+        "proposals": "none",
+        "language": "en",
+        "mentions": [
+          "orders.csv"
+        ]
+      }
+    },
+    {
+      "id": "workflow-add-action",
+      "workflow": "load",
+      "turns": [
+        {
+          "question": "Add a Dummy action called Notify between Load orders and Success, so the success path goes through it.",
+          "scenario": "workflow-design"
+        }
+      ],
+      "expect": {
+        "proposals": "some",
+        "language": "en",
+        "validTypes": true
+      }
+    },
+    {
+      "id": "rename-transform",
+      "pipeline": "csv-dummy",
+      "turns": [
+        {
+          "question": "can you rename the transform \"Output\" to \"My Output\" for me?"
+        }
+      ],
+      "expect": {
+        "proposals": "some",
+        "language": "en",
+        "validTypes": true,
+        "types": [
+          "RENAME_TRANSFORM"
+        ]
+      }
+    },
+    {
+      "id": "delete-two-transforms",
+      "pipeline": "orders",
+      "turns": [
+        {
+          "question": "can you delete the transforms \"Big orders only\" and \"Write big orders\"?"
+        }
+      ],
+      "expect": {
+        "proposals": "some",
+        "language": "en",
+        "validTypes": true,
+        "types": [
+          "DELETE_TRANSFORM",
+          "DELETE_PIPELINE_HOP"
+        ],
+        "requiredTypes": {
+          "DELETE_TRANSFORM": 2
+        }
+      }
+    },
+    {
+      "id": "run-configuration-is-not-proposed",
+      "pipeline": "copy",
+      "turns": [
+        {
+          "question": "create a new local pipeline run configuration \"local-new\""
+        }
+      ],
+      "expect": {
+        "proposals": "none",
+        "language": "en",
+        "mentions": [
+          "Metadata perspective"
+        ]
+      }
     }
-  ]
+  ],
+  "workflows": {
+    "load": {
+      "actions": [
+        {
+          "name": "Start",
+          "pluginId": "SPECIAL"
+        },
+        {
+          "name": "Load orders",
+          "pluginId": "PIPELINE",
+          "filename": "${PROJECT_HOME}/load_orders.hpl"
+        },
+        {
+          "name": "Success",
+          "pluginId": "SUCCESS"
+        },
+        {
+          "name": "Abort load",
+          "pluginId": "ABORT"
+        }
+      ],
+      "hops": [
+        [
+          "Start",
+          "Load orders",
+          "unconditional"
+        ],
+        [
+          "Load orders",
+          "Success",
+          "success"
+        ],
+        [
+          "Load orders",
+          "Abort load",
+          "failure"
+        ]
+      ]
+    },
+    "check-then-load": {
+      "actions": [
+        {
+          "name": "Start",
+          "pluginId": "SPECIAL"
+        },
+        {
+          "name": "Check orders file",
+          "pluginId": "FILE_EXISTS",
+          "filename": "/data/in/orders.csv"
+        },
+        {
+          "name": "Load orders",
+          "pluginId": "PIPELINE",
+          "filename": "${PROJECT_HOME}/load_orders.hpl"
+        },
+        {
+          "name": "Success",
+          "pluginId": "SUCCESS"
+        }
+      ],
+      "hops": [
+        [
+          "Start",
+          "Check orders file",
+          "unconditional"
+        ],
+        [
+          "Check orders file",
+          "Load orders",
+          "success"
+        ],
+        [
+          "Load orders",
+          "Success",
+          "success"
+        ]
+      ]
+    }
+  }
 }

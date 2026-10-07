@@ -35,9 +35,9 @@ Open it as:
 
 It is *off by default*. Nothing is sent to a language model until you enable it and create an xref:metadata-types/ai-provider.adoc[AI Provider].
 
-See xref:technology/ai/index.adoc[AI technology] for providers, privacy, and how other plugins add advisors.
+See xref:technology/ai/index.adoc[AI technology] for providers, privacy, and how other plugins add assistants.
 
-image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspective: session list, advisor and provider, transcript, and question field,width="90%"]
+image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspective: session list, assistant and provider, transcript, and question field,width="90%"]
 
 == Enable the AI Assistant
 
@@ -49,6 +49,10 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
   Only list files you wrote for the AI Assistant. A project's `AGENTS.md` is usually written for coding agents, and a file from a project you did not write can steer the assistant.
 . Leave *Allow sending full XML* unchecked unless you explicitly want questions to include the full pipeline or workflow XML.
   This is a second gate: the session checkbox cannot send XML until this option is on.
+. *When a window closes during a question* decides what happens to a question that is still waiting for its answer when you close the floating window, the dock tab or Hop GUI.
+  *Finish in the background* (the default) records the answer in the session, so you find it when you open the session again.
+  *Cancel the question* stops waiting, as *Stop* does.
+  Moving the assistant with *Float* or *Dock* is not a close: the question goes on in the new place.
 
 Create at least one named provider in the Metadata perspective (*AI Provider*) and use *Test* on the editor to confirm the endpoint responds.
 Put the API key in an xref:projects/projects-environments.adoc[environment] variable or a xref:metadata-types/variable-resolver/index.adoc[variable resolver], not as a literal in the metadata JSON. See <<secrets-and-personal-information>>.
@@ -93,20 +97,22 @@ Questions, answers, proposals and the session options are saved as plain text; t
 What you type in a question is saved as you typed it, so do not paste secrets or personal data into questions, or turn the option off.
 When you close a pipeline or workflow, its session lets go of it; open the file again to continue the conversation.
 Closing a session that has a conversation asks for confirmation first, and stops a question that is still running.
+Closing the window or dock tab during a question lets it finish in the background, unless *When a window closes during a question* is set to *Cancel the question*.
 
 == Using the workbench
 
 Each session has:
 
-* *Assistant* — the pipeline or workflow assistant (other plugins add assistants for their own file types; the combo only lists advisors that match this session)
+* *Assistant* — the pipeline or workflow assistant (other plugins add assistants for their own file types; the combo only lists the assistants that match this session)
 * *Scenario* — General, transform/action selection, error diagnosis, or design
-* *Provider* — named xref:metadata-types/ai-provider.adoc[AI Provider] metadata
+* *Provider* — named xref:metadata-types/ai-provider.adoc[AI Provider] metadata. A new session takes the *Default AI provider* of the configuration, or else the provider you picked last in this project, also after Hop GUI restarts
 * *Sharing* — a one-line summary of what this send includes: what you chose first (the focused node, settings, catalog, log, …), then *the basics* that always go along. Hover it for the full list. Expand it to opt in to extra context (see <<context-inclusions>>). Most extras start off; the *plugin catalog* is on by default so proposed transform/action ids match installed plugins. *Select metadata…* chooses which named metadata objects to send. Other plugins may add a *Select…* button beside an inclusion (for example catalog sources).
 * a transcript and a question field at the bottom (pastel input, Hop logo to send; `Ctrl-Enter` / `Cmd-Enter` also sends). Drag the bar between them to give either more room.
 * when the session was opened on a transform or action, a line under *Provider* names it: its settings go with each question. *Clear* removes the focus so you ask about the whole pipeline or workflow
 
 Every question sends the context that is checked at that moment, including follow-up questions.
-When you run the pipeline again and ask why it failed, the new execution log is sent.
+After the pipeline or workflow has run, *Include execution log excerpt* switches on by itself, visibly in the *Sharing* line, and the log of the latest run is sent.
+When you switch it off, that holds until the next run: a new run brings a new log, and the option switches on again.
 The previous questions and answers of the session are sent as conversation history.
 
 [[context-inclusions]]
@@ -126,6 +132,7 @@ The collapsed *Sharing* line lists what you chose first and sums up the items th
 Before a question is sent, the assistant estimates its size: the instructions, the checked context, the conversation history and room for the answer.
 When that clearly exceeds the *Context size* of the xref:metadata-types/ai-provider.adoc[AI Provider], the question is not sent and the transcript explains what to uncheck.
 This matters most for local Ollama models, which would otherwise drop the start of the prompt without a word.
+For a hosted provider without a *Context size*, the question is checked against 200000 tokens for Anthropic and 128000 for the others.
 
 The assistant answers in the language of your question.
 
@@ -135,7 +142,7 @@ Regardless of the checkboxes, every turn includes:
 
 * your question
 * a compact *structure* of the open file (transform or action names, plugin ids, hops, optional focus node)
-* *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `+${PROJECT_HOME}/AGENTS.md+` exist)
+* *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `+${PROJECT_HOME}/ai-assistant.md+` exist)
 * plugin notes from `ai-context.md`, and `ai-context/pipeline-advisor.md` or `ai-context/workflow-advisor.md`, in the AI plugin folder (`plugins/tech/ai`). Hop ships facts there that small models often get wrong, such as case-sensitive metadata names and run-configuration types. You can read and edit them; other plugins can add their own
 
 Every turn also includes a short *summary* (file name, counts, parameter *names* — not values), *metadata type keys* (for example `rdbms`), and *database plugin ids* (`POSTGRESQL`, `MYSQL`, …) so `SAVE_METADATA` can set the connection type.
@@ -169,9 +176,9 @@ That is usually enough for "what does this graph do?", hop problems, and naming 
 |The saved topology XML (SQL, filenames, notes, field mappings). Highest token cost and highest leak risk. Use only when the structure and settings are not enough to answer, and only after secrets are variables rather than literals.
 
 |Include execution log excerpt
-|Off
+|Off, on after a run
 |Every turn while checked
-|A truncated excerpt of the last execution log. Needed for runtime errors. Logs can contain row samples, paths and *resolved* values. Leave *off* unless you are diagnosing a failed run.
+|A truncated excerpt of the log of the latest run. Switches on by itself after a run; when you switch it off, that holds until the next run. Needed for runtime errors. Logs can contain row samples, paths and *resolved* values. Leave *off* unless you are diagnosing a failed run.
 
 |Include selected metadata
 |Off
@@ -218,14 +225,13 @@ Check only the elements the current question needs, then OK.
 |On (only if needed)
 
 |Follow-up after the first answer
-|Leave as-is
-|Ignored
-|Ignored
-|Ignored
+|As needed
+|As needed
+|As needed
+|As needed
 |===
 
-Follow-up turns already drop the catalog, XML and log excerpt even if those boxes stay checked.
-Uncheck them anyway so the next *new* session does not send them by accident.
+Follow-up questions send what is checked, like the first one. Uncheck what the next question does not need.
 
 [[secrets-and-personal-information]]
 == Secrets and personal information
@@ -276,11 +282,12 @@ The example above is a typical error-diagnosis session: the workflow graph and L
 When you ask for a change (build, add, connect, fix, create …), the model appends proposals to its answer.
 Questions that only ask to explain or diagnose get a written answer without proposals.
 The transcript then shows **Review N proposed change(s)**.
-When the proposals in an answer cannot be read, the assistant asks the model once to correct them; if that fails too, the transcript says why.
+When the proposals in an answer cannot be read, or do not follow the proposal schema (a known type, a risk level of LOW, MEDIUM or HIGH, and parameters), the assistant asks the model once to correct them; if that fails too, the transcript says why.
+With *Structured answers* on the xref:metadata-types/ai-provider.adoc[AI Provider], the provider holds the model to that schema, so the proposals cannot come back broken.
 
-. The first column says per proposal whether it is applied: *✔ Apply*, *Skip* or *Blocked*. Click it, or double-click the row, to switch; *All* and *None* do every row. Blocked items show the validation reason. Proposals that delete or replace something, or overwrite an existing metadata object, start unchecked: select them yourself.
+. The first column says per proposal whether it is applied: *✔ Apply*, *Skip* or *Blocked*. Click it, or double-click the row, to switch; *All* and *None* do every row. Blocked items show the validation reason. Proposals that delete or replace something, change the settings of an existing transform or action, overwrite an existing metadata object, or that the model itself rates HIGH risk, start unchecked: select them yourself.
 . Click a row to read its preview: whether it will be applied, any warning, its type, risk and parameters.
-. Click **Apply selected**. The selection is applied as a whole: when one proposal fails, none of them is applied. Graph edits update the open pipeline or workflow and register undo. Clipboard proposals copy Hop XML/JSON so you can paste on the canvas (Ctrl-V). `SAVE_METADATA` writes the metadata object, after a confirmation when it replaces an existing one; *Undo metadata changes* in the transcript restores what was replaced and removes what was created. Work on a Git feature branch first so you can revert if needed.
+. Click **Apply selected**. The selection is applied as a whole: when one proposal fails, none of them is applied. The pipeline or workflow is put back as it was and metadata objects saved by the selection are restored. Graph edits update the open pipeline or workflow and register undo. Clipboard proposals copy Hop XML/JSON so you can paste on the canvas (Ctrl-V). `SAVE_METADATA` writes the metadata object, after a confirmation when it replaces an existing one; *Undo metadata changes* in the transcript restores what was replaced and removes what was created, also after Hop GUI restarts when conversations are kept. Work on a Git feature branch first so you can revert if needed.
 . Follow-up turns include summaries of what you applied.
 
 Supported pipeline types: add/delete/rename transform, add/delete hop, set location, add note, copy transform XML to the clipboard, replace an existing transform from XML.
@@ -290,7 +297,8 @@ Both sessions also accept copy-metadata-JSON and save-metadata proposals.
 `ADD_TRANSFORM` and `ADD_ACTION` load the plugin with **defaults only**. Field mappings, SQL and connection names are not applied that way.
 
 To change an existing node's configuration, apply `REPLACE_TRANSFORM` / `REPLACE_ACTION` (plugin type must match; name and canvas location stay). To add a fully configured node, apply `CLIPBOARD_TRANSFORMS` / `CLIPBOARD_ACTIONS` and paste on the canvas. `SAVE_METADATA` creates or overwrites a named metadata object; it is not undone with graph Undo but with *Undo metadata changes* in the transcript.
-Proposals cannot save metadata that decides where prompts, secrets, logs or execution go: AI providers, variable resolvers, pipeline and workflow run configurations, Hop servers, execution information locations, pipeline and workflow logs, pipeline probes and web services. Create or change those yourself in the Metadata perspective.
+Proposals can only save the metadata a user typically asks the assistant to create: relational database connections, Cassandra, MongoDB and Neo4j connections, Neo4j graph models, data sets, unit tests, file definitions, schema definitions and partition schemas.
+Other metadata can decide where prompts, secrets, files, logs or execution go (AI providers, variable resolvers, run configurations, Hop servers, logging, web services, VFS and Git connections, …). Create or change it yourself in the Metadata perspective.
 
 == Privacy and removal
 

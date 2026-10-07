@@ -65,4 +65,12 @@ class AiM2PromptSupportTest {
       assertFalse(preamble.contains("MUST include a hop_proposals"), root);
     }
   }
+
+  @Test
+  void theInstructionsNameTheMetadataAProposalCanSave() throws Exception {
+    String supplement = AiM2PromptSupport.buildSupplement();
+    assertTrue(supplement.contains("partition, rdbms, schema-definition, unit-test"), supplement);
+    assertTrue(supplement.contains("Metadata perspective"), supplement);
+    assertFalse(supplement.contains("{types}"), supplement);
+  }
 }

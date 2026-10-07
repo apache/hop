@@ -23,15 +23,61 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.ai.engine.AiAdvisorMetadataContextTest.TestMetadataProvider;
 import org.apache.hop.core.exception.HopException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AiMetadataProposalSupportTest {
+
+  @BeforeEach
+  void allowTheTestType() {
+    Set<String> keys = new HashSet<>(AiMetadataProposalSupport.SAVABLE_TYPE_KEYS);
+    keys.add("test-connection");
+    AiMetadataProposalSupport.savableTypeKeys = keys;
+  }
+
+  @AfterEach
+  void restoreTheAllowedTypes() {
+    AiMetadataProposalSupport.savableTypeKeys = AiMetadataProposalSupport.SAVABLE_TYPE_KEYS;
+  }
+
+  @Test
+  void typesOffTheListCannotBeSaved() {
+    AiMetadataProposalSupport.savableTypeKeys = AiMetadataProposalSupport.SAVABLE_TYPE_KEYS;
+    AiProposalValidation validation =
+        AiMetadataProposalSupport.validate(
+            proposal(
+                "SAVE_METADATA",
+                Map.of("typeKey", "test-connection", "json", "{\"name\":\"crm\"}")),
+            new TestMetadataProvider());
+    assertTrue(validation.isBlocked());
+    assertTrue(validation.getReason().contains("test-connection"), validation.getReason());
+  }
+
+  @Test
+  void aFailingSaveUndoesTheSavesBeforeIt() throws Exception {
+    TestMetadataProvider provider = new TestMetadataProvider();
+    AiProposal first =
+        proposal(
+            "SAVE_METADATA", Map.of("typeKey", "test-connection", "json", "{\"name\":\"first\"}"));
+    // Valid JSON, but no name: the save itself fails.
+    AiProposal nameless =
+        proposal(
+            "SAVE_METADATA", Map.of("typeKey", "test-connection", "json", "{\"hostname\":\"db\"}"));
+
+    assertThrows(
+        HopException.class,
+        () -> AiMetadataProposalSupport.saveAll(List.of(first, nameless), provider));
+    assertFalse(provider.getSerializer(TestConnection.class).exists("first"));
+  }
 
   @Test
   void savesJsonAndHonorsNameOverride() throws Exception {

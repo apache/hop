@@ -17,6 +17,8 @@
 
 package org.apache.hop.ai.engine;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.core.util.Utils;
@@ -93,16 +95,18 @@ public enum AiProposalTypes {
   }
 
   /**
-   * Proposals that remove or replace existing work. The review leaves them unselected so the user
-   * has to choose them.
+   * Proposals that remove, replace or overwrite existing work. The review leaves them unselected so
+   * the user has to choose them.
    */
   public boolean isOptIn() {
     return this == DELETE_TRANSFORM
         || this == DELETE_PIPELINE_HOP
         || this == REPLACE_TRANSFORM
+        || this == CONFIGURE_TRANSFORM
         || this == DELETE_ACTION
         || this == DELETE_WORKFLOW_HOP
-        || this == REPLACE_ACTION;
+        || this == REPLACE_ACTION
+        || this == CONFIGURE_ACTION;
   }
 
   /**
@@ -111,6 +115,29 @@ public enum AiProposalTypes {
    */
   public boolean isWorkbenchOwned() {
     return isClipboardType() || this == SAVE_METADATA;
+  }
+
+  /**
+   * The proposals in the order to apply them: deleting a transform or action also removes its hops,
+   * so a hop delete of the same batch that came after it would fail on a hop that is already gone.
+   * Hop deletes move before the first transform or action delete; the rest keeps its order.
+   */
+  public static List<AiProposal> inApplyOrder(List<AiProposal> proposals) {
+    List<AiProposal> ordered = new ArrayList<>();
+    int firstNodeDelete = -1;
+    for (AiProposal proposal : proposals) {
+      AiProposalTypes type = of(proposal);
+      if ((type == DELETE_PIPELINE_HOP || type == DELETE_WORKFLOW_HOP) && firstNodeDelete >= 0) {
+        ordered.add(firstNodeDelete, proposal);
+        firstNodeDelete++;
+        continue;
+      }
+      if ((type == DELETE_TRANSFORM || type == DELETE_ACTION) && firstNodeDelete < 0) {
+        firstNodeDelete = ordered.size();
+      }
+      ordered.add(proposal);
+    }
+    return ordered;
   }
 
   public static AiProposalTypes of(AiProposal proposal) {

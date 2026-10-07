@@ -106,6 +106,11 @@ public class PipelineAiGuiPlugin {
     request.setTitle(pipelineMeta.getName());
     request.setFocusNodeName(focusTransformName);
     request.setLogSupplier(() -> AiAdvisorLogSupport.readPipelineLog(pipelineGraph));
+    request.setRunIdSupplier(
+        () ->
+            pipelineGraph.getPipeline() != null
+                ? pipelineGraph.getPipeline().getLogChannelId()
+                : null);
     AiAdvisorViews.releaseWhenClosed(pipelineGraph, pipelineGraph.getHopGui(), pipelineMeta);
     return request;
   }

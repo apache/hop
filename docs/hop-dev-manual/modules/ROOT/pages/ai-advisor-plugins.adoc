@@ -178,7 +178,7 @@ public class VaultAiGuiPlugin {
 |`@AiAdvisorPlugin` id to select in the workbench combo.
 
 |`location`
-|Free-form id. Session reuse keys on this plus advisor id and artifact name.
+|Free-form id. Session reuse keys on this plus advisor id and the artifact itself (see `reuseExisting`).
 
 |`areaLabel`
 |Session-tree group ("Pipelines", "Data Vault", "Lineage"). Falls back to "General" when empty.
@@ -205,9 +205,13 @@ Keep SWT widgets *off* this object; pass a `logSupplier` for logs.
 |Optional `Supplier<String>` read on the UI thread before the background call.
 Use it for execution logs that live in SWT widgets.
 
+|`runIdSupplier`
+|Optional `Supplier<String>` that identifies the latest run, for example the log channel id of the pipeline or workflow engine, or returns null before the first run.
+When the user switched the log inclusion off, that choice holds until this value changes: the log of a new run is switched on again.
+
 |`reuseExisting`
 |Default `true`.
-The store reuses a session with the same advisor id, location and artifact name.
+The store reuses a session with the same advisor id and location for the same artifact object, then for the same file name (`IHasFilename`), and only for a request without an artifact by name.
 
 |`attributes`
 |A `Map<String,Object>` copied onto the session (new session: replace; reuse: merge, incoming keys win).
@@ -441,6 +445,34 @@ After `applyProposals` succeeds the workbench calls `afterApply` on the UI threa
 Custom file types should still implement `afterApply` for undo using `request.getAttributes().get(AiAdvisorRequest.ATTR_HOP_GUI)` and `request.getArtifact()`.
 
 Chat-only advisors leave apply / afterApply / summarize as the defaults.
+
+The review applies a selection all or nothing: when `applyProposals` throws, the workbench restores the metadata objects saved for that selection and shows the error.
+Restore your own artifact in `applyProposals` before you throw, as the pipeline and workflow appliers do.
+Proposals with `riskLevel` `HIGH` start unchecked in the review, whatever the advisor's validator says.
+
+The proposal schema check and *Structured answers* (an option on the AI Provider) only apply to the pipeline and workflow assistants, whose proposal types are fixed.
+Answers of other advisors are parsed from text as before.
+
+[[evaluation]]
+=== Check prompt changes with the evaluation set
+
+`AiAdvisorEvaluation` in the tests of `plugins/tech/ai` asks the pipeline and workflow assistants a fixed set of questions with a real model and checks the answers: the language, no proposals when only an explanation was asked for, valid proposals when a change was asked for, a SQL comment that tries to give instructions, the log of a new run.
+The cases are in `src/test/resources/org/apache/hop/ai/eval/cases.json`. A case can expect no proposals or some, the language of the answer, words the answer mentions, proposals the review would not block (`validTypes`), the only proposal types that fit the question (`types`), and a minimum number of proposals of a type (`requiredTypes`).
+It is not part of the normal build. Run it once with a small local model and once with a hosted one:
+
+[source,bash]
+----
+HOP_AI_EVAL_PROVIDER=ollama HOP_AI_EVAL_MODEL=phi3:latest HOP_AI_EVAL_CONTEXT_SIZE=16384 \
+  ./mvnw -pl plugins/tech/ai test -Dtest=AiAdvisorEvaluation -Dsurefire.failIfNoSpecifiedTests=false
+
+HOP_AI_EVAL_PROVIDER=openai HOP_AI_EVAL_MODEL=gpt-4o-mini HOP_AI_EVAL_API_KEY=... \
+  ./mvnw -pl plugins/tech/ai test -Dtest=AiAdvisorEvaluation -Dsurefire.failIfNoSpecifiedTests=false
+----
+
+Add `HOP_AI_EVAL_STRUCTURED=Y` to run with *Structured answers*, and `HOP_AI_EVAL_CASES=explain-en,diagnose-log` to run a few cases.
+The report with every answer is written to `target/ai-eval/<provider>-<model>.md`, with the result per case in a `.json` file next to it.
+When `src/test/resources/org/apache/hop/ai/eval/baseline/` holds a results file of the same name, the report lists the cases that passed there and fail now. Copy a new results file there when a change is accepted.
+Answers vary between runs: read the report, and run a failing case again before you conclude a prompt change broke it.
 
 == Classloading
 

@@ -136,6 +136,28 @@ class AiAdvisorEngineTest {
     assertTrue(validations.get(2).isOptIn());
   }
 
+  @Test
+  void settingsChangesAndHighRiskProposalsAreOptIn() {
+    AiProposal highRiskAdd = proposal("ADD_TRANSFORM");
+    highRiskAdd.setRiskLevel("HIGH");
+    AiProposal lowRiskAdd = proposal("ADD_TRANSFORM");
+    lowRiskAdd.setRiskLevel("LOW");
+    List<AiProposal> proposals =
+        List.of(
+            proposal("CONFIGURE_TRANSFORM"), proposal("CONFIGURE_ACTION"), highRiskAdd, lowRiskAdd);
+    List<AiProposalValidation> validations =
+        List.of(
+            new AiProposalValidation(),
+            new AiProposalValidation(),
+            new AiProposalValidation(),
+            new AiProposalValidation());
+    AiAdvisorSessionPane.markOptIn(proposals, validations);
+    assertTrue(validations.get(0).isOptIn());
+    assertTrue(validations.get(1).isOptIn());
+    assertTrue(validations.get(2).isOptIn());
+    assertFalse(validations.get(3).isOptIn());
+  }
+
   private static AiProposal proposal(String type) {
     AiProposal proposal = new AiProposal();
     proposal.setType(type);

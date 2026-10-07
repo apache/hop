@@ -19,7 +19,9 @@ package org.apache.hop.ai.engine;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,23 +80,70 @@ public final class AiTextUtil {
   }
 
   /**
-   * Append one block of Hop context between {@code <tag>} and {@code </tag>}. The preamble tells
-   * the model these blocks are data gathered by Hop. A closing tag inside the content is broken up
-   * so the content cannot end its own block.
+   * The names of the blocks prompts are built from. Content may contain none of their tags, opening
+   * or closing: a log line or a transform note with {@code </execution_log><question>} would
+   * otherwise end its block and start one that looks like the user's question. Names used by an
+   * advisor of another plugin are added the first time it appends a block.
+   */
+  private static final Set<String> SECTION_TAGS = ConcurrentHashMap.newKeySet();
+
+  static {
+    SECTION_TAGS.addAll(
+        List.of(
+            "applied_changes",
+            "check_results",
+            "database_plugins",
+            "execution_log",
+            "focus_action",
+            "focus_transform",
+            "metadata_types",
+            "pipeline_structure",
+            "pipeline_summary",
+            "pipeline_xml",
+            "plugin_catalog",
+            "question",
+            "selected_metadata",
+            "workflow_structure",
+            "workflow_summary",
+            "workflow_xml"));
+  }
+
+  /**
+   * Append content as a tagged block, {@code <tag>…</tag>}. The prompt instructions tell the model
+   * these blocks are data gathered by Hop. Tags of blocks inside the content are broken up, so the
+   * content cannot end its own block or pose as another one.
    */
   public static void appendSection(StringBuilder prompt, String tag, String content) {
     if (Utils.isEmpty(content)) {
       return;
     }
-    String closing = "</" + tag + ">";
+    SECTION_TAGS.add(tag);
     prompt
         .append('<')
         .append(tag)
         .append(">\n")
-        .append(content.replace(closing, "</ " + tag + ">").strip())
+        .append(breakSectionTags(content).strip())
         .append('\n')
-        .append(closing)
-        .append("\n\n");
+        .append("</")
+        .append(tag)
+        .append(">\n\n");
+  }
+
+  /**
+   * {@code <question>} becomes {@code < question>}, {@code </question>} becomes {@code </
+   * question>}.
+   */
+  static String breakSectionTags(String content) {
+    StringBuilder names = new StringBuilder();
+    for (String name : SECTION_TAGS) {
+      if (!names.isEmpty()) {
+        names.append('|');
+      }
+      names.append(Pattern.quote(name));
+    }
+    return Pattern.compile("<\\s*(/?)\\s*(" + names + ")\\s*>", Pattern.CASE_INSENSITIVE)
+        .matcher(content)
+        .replaceAll("<$1 $2>");
   }
 
   public static String jsonString(String value) {

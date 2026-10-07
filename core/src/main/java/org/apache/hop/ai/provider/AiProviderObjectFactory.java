@@ -22,10 +22,13 @@ import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 
 /** Instantiates {@link IAiProvider} plugins by id when deserializing AI provider metadata. */
 public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
+
+  private static final Class<?> PKG = AiProviderObjectFactory.class;
 
   /**
    * The id written by earlier versions that saved a provider without its plugin id. Such a file
@@ -43,7 +46,8 @@ public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
     IPlugin plugin = registry.findPluginWithId(AiProviderPluginType.class, id);
     if (plugin == null) {
       HopMissingPluginsException missing =
-          new HopMissingPluginsException("AI provider plugin not found: " + id);
+          new HopMissingPluginsException(
+              BaseMessages.getString(PKG, "AiProviderObjectFactory.PluginNotFound", id));
       missing.addMissingPluginDetails(AiProviderPluginType.class, id);
       throw missing;
     }
@@ -58,7 +62,9 @@ public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
   @Override
   public String getObjectId(Object object) throws HopException {
     if (!(object instanceof IAiProvider provider)) {
-      throw new HopException("Object is not an IAiProvider but " + object.getClass().getName());
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "AiProviderObjectFactory.NotAProvider", object.getClass().getName()));
     }
     String pluginId = provider.getPluginId();
     if (Utils.isEmpty(pluginId)) {
@@ -70,8 +76,7 @@ public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
       }
     }
     if (Utils.isEmpty(pluginId)) {
-      throw new HopException(
-          "The AI provider has no provider type. Select a provider type before saving.");
+      throw new HopException(BaseMessages.getString(PKG, "AiProviderObjectFactory.NoType"));
     }
     return pluginId;
   }

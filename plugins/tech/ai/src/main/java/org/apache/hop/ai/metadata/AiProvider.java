@@ -67,6 +67,7 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   public static final String WIDGET_TEMPERATURE = "0500-temperature";
   public static final String WIDGET_CONTEXT_SIZE = "0510-context-size";
   public static final String WIDGET_MAX_OUTPUT_TOKENS = "0520-max-output-tokens";
+  public static final String WIDGET_STRUCTURED_ANSWERS = "0530-structured-answers";
   public static final String WIDGET_MODELS = "0600-models";
 
   @HopMetadataProperty(key = "provider")
@@ -171,6 +172,24 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   private String maxOutputTokens = "";
 
   /**
+   * Have the AI Assistant's answers follow a JSON schema, where the provider type can hold a model
+   * to one (Ollama, OpenAI, Anthropic, Mistral). Off by default until it is checked with the
+   * evaluation set for the models in use.
+   */
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_STRUCTURED_ANSWERS,
+      order = "0530",
+      type = GuiElementType.CHECKBOX,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
+      groupOrder = "20",
+      label = "i18n::AiProvider.StructuredAnswers.Label",
+      toolTip = "i18n::AiProvider.StructuredAnswers.Tooltip")
+  private boolean structuredAnswers;
+
+  /**
    * Models this provider serves, one entry per {@link AiModelRole}. A transform resolves the role
    * it needs, so one provider can back a chat transform, an embedding transform and a reranker at
    * once.
@@ -206,6 +225,7 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
     this.temperature = other.temperature;
     this.contextSize = other.contextSize;
     this.maxOutputTokens = other.maxOutputTokens;
+    this.structuredAnswers = other.structuredAnswers;
     for (AiProviderModel model : other.models) {
       this.models.add(new AiProviderModel(model));
     }

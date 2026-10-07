@@ -31,12 +31,15 @@ import org.apache.hop.ai.engine.AiTransformConfigSupport;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 /** Validates AI workflow proposals against the open graph before the user applies them. */
 public final class WorkflowAiProposalValidator {
+
+  private static final Class<?> PKG = WorkflowAiProposalValidator.class;
 
   private WorkflowAiProposalValidator() {}
 
@@ -70,14 +73,16 @@ public final class WorkflowAiProposalValidator {
       return blocked(
           proposal,
           Utils.isEmpty(proposal.getType())
-              ? "The proposal has no type"
-              : "Unknown proposal type: " + proposal.getType());
+              ? BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NoType")
+              : BaseMessages.getString(
+                  PKG, "WorkflowAiProposalValidator.UnknownType", proposal.getType()));
     }
     if (!type.isWorkflowType()) {
-      return blocked(proposal, "Not a workflow proposal type: " + type);
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NotOwnType", type));
     }
     if (workflowMeta == null) {
-      return blocked(proposal, "No workflow is open");
+      return blocked(proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NoGraph"));
     }
     return switch (type) {
       case ADD_ACTION -> validateAddAction(workflowMeta, proposal, reservedNames);
@@ -92,7 +97,9 @@ public final class WorkflowAiProposalValidator {
       case REPLACE_ACTION -> validateReplaceAction(workflowMeta, proposal);
       case CLIPBOARD_METADATA, SAVE_METADATA ->
           AiMetadataProposalSupport.validate(proposal, metadataProvider);
-      default -> blocked(proposal, "Unsupported proposal type");
+      default ->
+          blocked(
+              proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.UnsupportedType"));
     };
   }
 
@@ -101,19 +108,25 @@ public final class WorkflowAiProposalValidator {
     String pluginId = proposal.parameter("actionPluginId");
     String name = proposal.parameter("name");
     if (Utils.isEmpty(pluginId)) {
-      return blocked(proposal, "actionPluginId is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.PluginIdRequired"));
     }
     if (Utils.isEmpty(name)) {
-      return blocked(proposal, "name is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NameRequired"));
     }
     if (PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, pluginId) == null) {
-      return blocked(proposal, "Unknown action plugin: " + pluginId);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.UnknownPlugin", pluginId));
     }
     if (workflowMeta.findAction(name) != null || reservedNames.contains(name.trim())) {
-      return blocked(proposal, "Action name already exists: " + name);
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NameExists", name));
     }
     if (!AiProposalParamSupport.parseLocation(proposal).isValid()) {
-      return blocked(proposal, "locationX and locationY must be integers");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.LocationNotIntegers"));
     }
     reservedNames.add(name.trim());
     return ok(proposal);
@@ -123,14 +136,18 @@ public final class WorkflowAiProposalValidator {
       WorkflowMeta workflowMeta, AiProposal proposal, Set<String> reservedNames) {
     String actionName = proposal.parameter("actionName");
     if (Utils.isEmpty(actionName)) {
-      return blocked(proposal, "actionName is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNameRequired"));
     }
     // An action added earlier in the same list exists by the time this one is applied.
     if (workflowMeta.findAction(actionName) == null && !reservedNames.contains(actionName.trim())) {
-      return blocked(proposal, "Action not found: " + actionName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNotFound", actionName));
     }
     if (!AiTransformConfigSupport.hasConfig(proposal)) {
-      return blocked(proposal, "No configuration parameters");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NoConfiguration"));
     }
     return ok(proposal);
   }
@@ -139,10 +156,13 @@ public final class WorkflowAiProposalValidator {
       WorkflowMeta workflowMeta, AiProposal proposal) {
     String actionName = proposal.parameter("actionName");
     if (Utils.isEmpty(actionName)) {
-      return blocked(proposal, "actionName is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNameRequired"));
     }
     if (workflowMeta.findAction(actionName) == null) {
-      return blocked(proposal, "Action not found: " + actionName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNotFound", actionName));
     }
     return ok(proposal);
   }
@@ -152,17 +172,22 @@ public final class WorkflowAiProposalValidator {
     String actionName = proposal.parameter("actionName");
     String newName = proposal.parameter("newName");
     if (Utils.isEmpty(actionName)) {
-      return blocked(proposal, "actionName is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNameRequired"));
     }
     if (Utils.isEmpty(newName)) {
-      return blocked(proposal, "newName is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NewNameRequired"));
     }
     if (workflowMeta.findAction(actionName) == null) {
-      return blocked(proposal, "Action not found: " + actionName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNotFound", actionName));
     }
     if (!actionName.trim().equals(newName.trim())
         && (workflowMeta.findAction(newName) != null || reservedNames.contains(newName.trim()))) {
-      return blocked(proposal, "Action name already exists: " + newName);
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.NameExists", newName));
     }
     reservedNames.add(newName.trim());
     return ok(proposal);
@@ -173,29 +198,38 @@ public final class WorkflowAiProposalValidator {
     String fromName = proposal.parameter("fromAction");
     String toName = proposal.parameter("toAction");
     if (Utils.isEmpty(fromName) || Utils.isEmpty(toName)) {
-      return blocked(proposal, "fromAction and toAction are required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.HopEndsRequired"));
     }
     if (!actionExists(workflowMeta, fromName, reservedNames)) {
-      return blocked(proposal, "From action not found: " + fromName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.FromActionNotFound", fromName));
     }
     if (!actionExists(workflowMeta, toName, reservedNames)) {
-      return blocked(proposal, "To action not found: " + toName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ToActionNotFound", toName));
     }
     ActionMeta from = workflowMeta.findAction(fromName);
     ActionMeta to = workflowMeta.findAction(toName);
     if (fromName.trim().equals(toName.trim())) {
-      return blocked(proposal, "Hop cannot connect an action to itself");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.HopToItself"));
     }
     if (from != null && to != null && workflowMeta.findWorkflowHop(from, to) != null) {
-      return warning(proposal, "Hop already exists");
+      return warning(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.HopExists"));
     }
     if (!Utils.isEmpty(proposal.parameter("unconditional"))
         && !AiProposalParamSupport.isYesNo(proposal.parameter("unconditional"))) {
-      return blocked(proposal, "unconditional must be Y or N");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.UnconditionalYesNo"));
     }
     if (!Utils.isEmpty(proposal.parameter("evaluation"))
         && !AiProposalParamSupport.isYesNo(proposal.parameter("evaluation"))) {
-      return blocked(proposal, "evaluation must be Y or N");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.EvaluationYesNo"));
     }
     return ok(proposal);
   }
@@ -205,15 +239,19 @@ public final class WorkflowAiProposalValidator {
     String fromName = proposal.parameter("fromAction");
     String toName = proposal.parameter("toAction");
     if (Utils.isEmpty(fromName) || Utils.isEmpty(toName)) {
-      return blocked(proposal, "fromAction and toAction are required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.HopEndsRequired"));
     }
     ActionMeta from = workflowMeta.findAction(fromName);
     ActionMeta to = workflowMeta.findAction(toName);
     if (from == null || to == null) {
-      return blocked(proposal, "Hop endpoints not found");
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.HopEndpointsNotFound"));
     }
     if (workflowMeta.findWorkflowHop(from, to) == null) {
-      return blocked(proposal, "Hop not found");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.HopNotFound"));
     }
     return ok(proposal);
   }
@@ -222,13 +260,17 @@ public final class WorkflowAiProposalValidator {
       WorkflowMeta workflowMeta, AiProposal proposal) {
     String actionName = proposal.parameter("actionName");
     if (Utils.isEmpty(actionName)) {
-      return blocked(proposal, "actionName is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNameRequired"));
     }
     if (workflowMeta.findAction(actionName) == null) {
-      return blocked(proposal, "Action not found: " + actionName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNotFound", actionName));
     }
     if (!AiProposalParamSupport.parseLocation(proposal).isValid()) {
-      return blocked(proposal, "locationX and locationY must be integers");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.LocationNotIntegers"));
     }
     return ok(proposal);
   }
@@ -240,20 +282,25 @@ public final class WorkflowAiProposalValidator {
       return blocked(proposal, error);
     }
     if (AiProposalXmlSupport.containsSecrets(xml)) {
-      return warning(proposal, "XML contains password-like fields");
+      return warning(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.XmlSecrets"));
     }
-    return warning(proposal, "Copies XML to the clipboard. Paste on the canvas (Ctrl-V).");
+    return warning(
+        proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ClipboardPaste"));
   }
 
   private static AiProposalValidation validateReplaceAction(
       WorkflowMeta workflowMeta, AiProposal proposal) {
     String actionName = proposal.parameter("actionName");
     if (Utils.isEmpty(actionName)) {
-      return blocked(proposal, "actionName is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNameRequired"));
     }
     ActionMeta existing = workflowMeta.findAction(actionName);
     if (existing == null) {
-      return blocked(proposal, "Action not found: " + actionName);
+      return blocked(
+          proposal,
+          BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ActionNotFound", actionName));
     }
     String xml = AiProposalXmlSupport.xmlParam(proposal);
     String error = AiProposalXmlSupport.validateWorkflowXml(xml);
@@ -266,23 +313,31 @@ public final class WorkflowAiProposalValidator {
       if (!ids.isEmpty() && !Utils.isEmpty(existingId) && !existingId.equals(ids.get(0))) {
         return blocked(
             proposal,
-            "XML plugin id " + ids.get(0) + " does not match existing action " + existingId);
+            BaseMessages.getString(
+                PKG, "WorkflowAiProposalValidator.PluginIdMismatch", ids.get(0), existingId));
       }
     } catch (Exception e) {
-      return blocked(proposal, "Invalid action XML");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.InvalidXml"));
     }
     if (AiProposalXmlSupport.containsSecrets(xml)) {
-      return warning(proposal, "Replaces action XML; payload contains password-like fields");
+      return warning(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.ReplaceSecrets"));
     }
-    return warning(proposal, "Replaces the configuration of " + actionName);
+    return warning(
+        proposal,
+        BaseMessages.getString(
+            PKG, "WorkflowAiProposalValidator.ReplaceConfiguration", actionName));
   }
 
   private static AiProposalValidation validateAddWorkflowNote(AiProposal proposal) {
     if (Utils.isEmpty(proposal.parameter("text"))) {
-      return blocked(proposal, "text is required");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.TextRequired"));
     }
     if (!AiProposalParamSupport.parseLocation(proposal).isValid()) {
-      return blocked(proposal, "locationX and locationY must be integers");
+      return blocked(
+          proposal, BaseMessages.getString(PKG, "WorkflowAiProposalValidator.LocationNotIntegers"));
     }
     return ok(proposal);
   }

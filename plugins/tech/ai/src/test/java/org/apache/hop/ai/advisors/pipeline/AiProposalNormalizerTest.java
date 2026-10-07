@@ -24,6 +24,8 @@ import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
+import org.apache.hop.ai.engine.AiProposalNormalizer;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -138,5 +140,59 @@ class AiProposalNormalizerTest {
 
     assertEquals("Dummy (do nothing)", hop.parameter("toTransform"));
     assertFalse(validations.get(0).isBlocked(), validations.get(0).getReason());
+  }
+
+  @Test
+  void theTransformAProposalIsAboutIsFoundWhenItIsNamedAnotherWay() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(new TransformMeta("Dummy", "My Dummy", new DummyMeta()));
+    pipelineMeta.addTransform(new TransformMeta("Dummy", "concat", new DummyMeta()));
+
+    // As phi3 wrote them: "name" instead of transformName, the name as a key, a log copy number.
+    AiProposal byName = new AiProposal();
+    byName.setType("DELETE_TRANSFORM");
+    byName.getParameters().put("transformPluginId", "Dummy");
+    byName.getParameters().put("name", "My Dummy");
+    AiProposal asKey = new AiProposal();
+    asKey.setType("DELETE_TRANSFORM");
+    asKey.getParameters().put("My Dummy", "");
+    AiProposal copyNumber = new AiProposal();
+    copyNumber.setType("RENAME_TRANSFORM");
+    copyNumber.getParameters().put("transformName", "concat.0");
+    copyNumber.getParameters().put("newName", "Concatenate");
+    AiProposal hop = new AiProposal();
+    hop.setType("DELETE_PIPELINE_HOP");
+    hop.getParameters().put("fromTransform", "concat.0");
+    hop.getParameters().put("toTransform", "My Dummy");
+    AiProposal unknown = new AiProposal();
+    unknown.setType("DELETE_TRANSFORM");
+    unknown.getParameters().put("name", "Not there");
+
+    AiProposalNormalizer.forPipeline(
+        pipelineMeta, List.of(byName, asKey, copyNumber, hop, unknown));
+
+    assertEquals("My Dummy", byName.parameter("transformName"));
+    assertEquals("My Dummy", asKey.parameter("transformName"));
+    assertFalse(asKey.getParameters().containsKey("My Dummy"));
+    assertEquals("concat", copyNumber.parameter("transformName"));
+    assertEquals("concat", hop.parameter("fromTransform"));
+    assertEquals("", Const.NVL(unknown.parameter("transformName"), ""), "only existing ones");
+  }
+
+  @Test
+  void aHopWithItsEndsWrittenAsKeysIsRead() {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(new TransformMeta("Dummy", "concat", new DummyMeta()));
+    pipelineMeta.addTransform(new TransformMeta("Dummy", "Dummy (do nothing)", new DummyMeta()));
+    AiProposal hop = new AiProposal();
+    hop.setType("DELETE_PIPELINE_HOP");
+    hop.getParameters().put("concat.0", "");
+    hop.getParameters().put("Dummy (do nothing)", "");
+
+    AiProposalNormalizer.forPipeline(pipelineMeta, List.of(hop));
+
+    assertEquals("concat", hop.parameter("fromTransform"));
+    assertEquals("Dummy (do nothing)", hop.parameter("toTransform"));
+    assertEquals(2, hop.getParameters().size());
   }
 }

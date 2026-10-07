@@ -141,6 +141,26 @@ public class AiAdvisorViews {
         .equals(PropsUi.getInstance().getCustomParameter(PREFERRED_VIEW, ""));
   }
 
+  /** Set while Float or Dock closes the view the assistant moved away from. */
+  private static boolean moving;
+
+  /**
+   * Close the view the assistant moved away from. Its sessions go on in the new view, so this is
+   * not a close that cancels a running question.
+   */
+  static void closeAfterMove(Runnable close) {
+    moving = true;
+    try {
+      close.run();
+    } finally {
+      moving = false;
+    }
+  }
+
+  static boolean isMoving() {
+    return moving;
+  }
+
   /** Close the AI Assistant tab in the bottom dock, if it is open. */
   public static void closeDock(HopGui hopGui) {
     if (!isDockOpen(hopGui)) {

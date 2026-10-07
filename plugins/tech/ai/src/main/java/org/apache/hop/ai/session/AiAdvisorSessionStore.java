@@ -18,6 +18,7 @@
 package org.apache.hop.ai.session;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,8 +56,11 @@ public class AiAdvisorSessionStore {
   private final Set<String> loadedScopes = new HashSet<>();
   private boolean saveScheduled;
 
-  /** The provider picked last, for new sessions when no default provider is configured. */
-  private String lastProviderName;
+  /**
+   * The provider picked last in each project, for new sessions when no default provider is
+   * configured. Remembered in the audit folder.
+   */
+  private final Map<String, String> lastProviderNames = new HashMap<>();
 
   private boolean firing;
 
@@ -121,12 +125,36 @@ public class AiAdvisorSessionStore {
     return active;
   }
 
+  /** The provider picked last in the open project, or null. */
   public String getLastProviderName() {
-    return lastProviderName;
+    String key = AiAdvisorSessionArchive.group(scope.get());
+    if (!lastProviderNames.containsKey(key)) {
+      String saved = null;
+      if (persistent) {
+        try {
+          saved = AiAdvisorSessionArchive.loadLastProvider(key);
+        } catch (Exception e) {
+          LogChannel.UI.logError("Unable to read the last used AI provider", e);
+        }
+      }
+      lastProviderNames.put(key, saved);
+    }
+    return lastProviderNames.get(key);
   }
 
   public void setLastProviderName(String lastProviderName) {
-    this.lastProviderName = lastProviderName;
+    String key = AiAdvisorSessionArchive.group(scope.get());
+    if (Objects.equals(lastProviderNames.get(key), lastProviderName)) {
+      return;
+    }
+    lastProviderNames.put(key, lastProviderName);
+    if (persistent) {
+      try {
+        AiAdvisorSessionArchive.saveLastProvider(key, lastProviderName);
+      } catch (Exception e) {
+        LogChannel.UI.logError("Unable to remember the last used AI provider", e);
+      }
+    }
   }
 
   public String getActiveSessionId() {
@@ -230,6 +258,7 @@ public class AiAdvisorSessionStore {
         }
         session.setArtifact(null);
         session.setLogSupplier(null);
+        session.setRunIdSupplier(null);
         changed = true;
       }
     }
@@ -259,6 +288,9 @@ public class AiAdvisorSessionStore {
       if (request.getLogSupplier() != null) {
         existing.setLogSupplier(request.getLogSupplier());
       }
+      if (request.getRunIdSupplier() != null) {
+        existing.setRunIdSupplier(request.getRunIdSupplier());
+      }
       mergeAttributes(existing, request);
       activeSessionId = existing.getId();
       fireChanged();
@@ -277,6 +309,7 @@ public class AiAdvisorSessionStore {
       session.setArtifact(request.getArtifact());
       session.setArtifactFilename(filenameOf(request.getArtifact()));
       session.setLogSupplier(request.getLogSupplier());
+      session.setRunIdSupplier(request.getRunIdSupplier());
       session.setAttributes(copyAttributes(request.getAttributes()));
     }
     return add(session);
@@ -301,6 +334,7 @@ public class AiAdvisorSessionStore {
     session.setArtifactName(nvl(request.getArtifactName()));
     session.setArtifactKind(nvl(request.getArtifactKind()));
     session.setLogSupplier(request.getLogSupplier());
+    session.setRunIdSupplier(request.getRunIdSupplier());
     session.setFocusNodeName(nvl(request.getFocusNodeName()));
     if (session.isEmpty() || Utils.isEmpty(session.getTitle())) {
       session.setTitle(nvl(request.getTitle()));

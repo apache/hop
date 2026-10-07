@@ -111,7 +111,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       group = "i18n::HopAiConfigOptionPlugin.Group")
   @CommandLine.Option(
       names = {"--hop-ai-allow-full-xml"},
-      description = "Allow advisors to send full pipeline or workflow XML",
+      description = "Allow the AI Assistant to send full pipeline or workflow XML",
       negatable = true)
   private Boolean allowSendFullXml;
 
@@ -130,6 +130,23 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       description = "Keep AI Assistant conversations when Hop GUI closes",
       negatable = true)
   private Boolean keepConversations;
+
+  @GuiWidgetElement(
+      id = "0320-ai-request-on-close",
+      order = "0320",
+      parentId = PARENT,
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::HopAiConfigOptionPlugin.RequestOnClose.Label",
+      toolTip = "i18n::HopAiConfigOptionPlugin.RequestOnClose.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::HopAiConfigOptionPlugin.Group")
+  @CommandLine.Option(
+      names = {"--hop-ai-request-on-close"},
+      description =
+          "What happens to a running AI Assistant question when its window closes:"
+              + " FINISH_IN_BACKGROUND or CANCEL")
+  private AiRequestOnClose requestOnClose;
 
   @GuiWidgetElement(
       id = "0400-ai-extra-context",
@@ -172,6 +189,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
     instance.defaultProviderName = config.getDefaultProviderName();
     instance.allowSendFullXml = config.isAllowSendFullXml();
     instance.keepConversations = config.isKeepConversations();
+    instance.requestOnClose = config.getRequestOnClose();
     instance.extraContext = config.getExtraContext();
     instance.extraContextFiles = config.getExtraContextFiles();
     return instance;
@@ -203,6 +221,10 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       }
       if (keepConversations != null && config.isKeepConversations() != keepConversations) {
         config.setKeepConversations(keepConversations);
+        changed = true;
+      }
+      if (requestOnClose != null && config.getRequestOnClose() != requestOnClose) {
+        config.setRequestOnClose(requestOnClose);
         changed = true;
       }
       if (changed) {
@@ -245,6 +267,9 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
     }
     if (keepConversations != null) {
       config.setKeepConversations(keepConversations);
+    }
+    if (requestOnClose != null) {
+      config.setRequestOnClose(requestOnClose);
     }
     if (extraContext != null) {
       config.setExtraContext(extraContext);

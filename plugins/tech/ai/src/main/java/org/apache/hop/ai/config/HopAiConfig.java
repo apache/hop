@@ -62,6 +62,9 @@ public class HopAiConfig {
    */
   private boolean keepConversations = true;
 
+  /** What happens to a running question when its window closes. */
+  private AiRequestOnClose requestOnClose = AiRequestOnClose.FINISH_IN_BACKGROUND;
+
   /**
    * Standing notes appended to every advisor system prompt (conventions, case-sensitivity, naming).
    */
@@ -75,6 +78,11 @@ public class HopAiConfig {
 
   public HopAiConfig() {}
 
+  /** Never null, also for a configuration saved before the option existed. */
+  public AiRequestOnClose getRequestOnClose() {
+    return requestOnClose == null ? AiRequestOnClose.FINISH_IN_BACKGROUND : requestOnClose;
+  }
+
   public HopAiConfig(HopAiConfig other) {
     if (other == null) {
       return;
@@ -83,6 +91,7 @@ public class HopAiConfig {
     this.defaultProviderName = other.defaultProviderName;
     this.allowSendFullXml = other.allowSendFullXml;
     this.keepConversations = other.keepConversations;
+    this.requestOnClose = other.requestOnClose;
     this.extraContext = other.extraContext;
     this.extraContextFiles = other.extraContextFiles;
   }

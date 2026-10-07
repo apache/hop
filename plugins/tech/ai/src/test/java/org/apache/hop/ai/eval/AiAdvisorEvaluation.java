@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,8 +35,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorResponse;
+import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
+import org.apache.hop.ai.advisors.workflow.WorkflowAiAdvisor;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.metadata.AiProvider;
@@ -61,11 +64,15 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 /**
- * Runs the pipeline AI advisor against a real model and checks the answers.
+ * Runs the pipeline and workflow AI advisors against a real model and checks the answers.
  *
  * <p>Not part of the normal build: the class name does not match the surefire patterns, and it only
  * runs when a provider is configured. Use it to check prompt changes against the models people use:
@@ -78,11 +85,18 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
  *
  * <p>Settings: {@code HOP_AI_EVAL_PROVIDER} (a provider plugin id: ollama, openai, anthropic,
  * mistral, gemini, grok, custom-openai, huggingface), {@code HOP_AI_EVAL_MODEL}, and optionally
- * {@code HOP_AI_EVAL_BASE_URL}, {@code HOP_AI_EVAL_API_KEY} and {@code HOP_AI_EVAL_CONTEXT_SIZE}.
- * {@code HOP_AI_EVAL_CASES} limits the run to a comma-separated list of case ids.
+ * {@code HOP_AI_EVAL_BASE_URL}, {@code HOP_AI_EVAL_API_KEY}, {@code HOP_AI_EVAL_CONTEXT_SIZE},
+ * {@code HOP_AI_EVAL_MAX_OUTPUT_TOKENS} (small local models can write until the window is full
+ * without it) and {@code HOP_AI_EVAL_TIMEOUT} in seconds (default 300). {@code HOP_AI_EVAL_CASES}
+ * limits the run to a comma-separated list of case ids. {@code HOP_AI_EVAL_STRUCTURED=Y} switches
+ * on Structured answers on the provider, to compare a model with and without it.
  *
- * <p>The report, with every answer, is written to {@code target/ai-eval/}. Answers vary between
- * runs, so read the report rather than relying on a single pass or fail.
+ * <p>The report, with every answer, is written to {@code target/ai-eval/}, with a JSON file of the
+ * result per case next to it. Answers vary between runs, so read the report rather than relying on
+ * a single pass or fail. To see what a prompt change did, compare with a baseline: the results of
+ * an earlier run, kept in {@code src/test/resources/org/apache/hop/ai/eval/baseline/} under the
+ * same file name. The report lists the cases that passed in the baseline and fail now. {@code
+ * HOP_AI_EVAL_BASELINE} points to another results file.
  */
 @EnabledIfEnvironmentVariable(named = "HOP_AI_EVAL_PROVIDER", matches = ".+")
 class AiAdvisorEvaluation {
@@ -97,6 +111,19 @@ class AiAdvisorEvaluation {
           "en", List.of(" the ", " and ", " is ", " this ", " to ", " with "),
           "es", List.of(" el ", " la ", " los ", " que ", " para ", " con ", " una "),
           "nl", List.of(" het ", " een ", " van ", " deze ", " naar ", " met ", " wordt "));
+
+  /** An action with the settings an explanation needs, under any plugin id. */
+  @Getter
+  @Setter
+  public static class EvalActionMeta extends ActionDummy {
+    @HopMetadataProperty private String filename;
+    @HopMetadataProperty private String connection;
+    @HopMetadataProperty private String sql;
+
+    public EvalActionMeta(String name) {
+      super(name);
+    }
+  }
 
   /** A transform with the settings an explanation needs, under any plugin id. */
   @Getter
@@ -126,7 +153,13 @@ class AiAdvisorEvaluation {
     provider.setApiKey(Utils.isEmpty(env("HOP_AI_EVAL_API_KEY")) ? "" : env("HOP_AI_EVAL_API_KEY"));
     provider.setContextSize(
         Utils.isEmpty(env("HOP_AI_EVAL_CONTEXT_SIZE")) ? "" : env("HOP_AI_EVAL_CONTEXT_SIZE"));
-    provider.setTimeoutSeconds("300");
+    provider.setTimeoutSeconds(
+        Utils.isEmpty(env("HOP_AI_EVAL_TIMEOUT")) ? "300" : env("HOP_AI_EVAL_TIMEOUT"));
+    provider.setMaxOutputTokens(
+        Utils.isEmpty(env("HOP_AI_EVAL_MAX_OUTPUT_TOKENS"))
+            ? ""
+            : env("HOP_AI_EVAL_MAX_OUTPUT_TOKENS"));
+    provider.setStructuredAnswers("Y".equalsIgnoreCase(env("HOP_AI_EVAL_STRUCTURED")));
     metadataProvider.getSerializer(AiProvider.class).save(provider);
 
     JsonNode root;
@@ -145,7 +178,9 @@ class AiAdvisorEvaluation {
         .append(provider.getPluginId())
         .append(", model: ")
         .append(provider.getModelName())
+        .append(provider.isStructuredAnswers() ? ", structured answers" : "")
         .append("\n\n");
+    Map<String, Boolean> results = new LinkedHashMap<>();
     int passed = 0;
     int total = 0;
     for (JsonNode testCase : root.path("cases")) {
@@ -158,10 +193,15 @@ class AiAdvisorEvaluation {
       String answer = "";
       AiAdvisorResponse response = null;
       try {
-        pipeline = buildPipeline(root.path("pipelines").path(testCase.path("pipeline").asText()));
-        AiAdvisorSession session = newSession(pipeline);
+        boolean workflowCase = testCase.has("workflow");
+        advisor = workflowCase ? new WorkflowAiAdvisor() : new PipelineAiAdvisor();
+        artifact =
+            workflowCase
+                ? buildWorkflow(root.path("workflows").path(testCase.path("workflow").asText()))
+                : buildPipeline(root.path("pipelines").path(testCase.path("pipeline").asText()));
+        AiAdvisorSession session = newSession(advisor, artifact);
         for (JsonNode turnNode : testCase.path("turns")) {
-          response = ask(session, turnNode, metadataProvider);
+          response = ask(session, advisor, turnNode, metadataProvider);
         }
         answer = response == null ? "" : response.getMarkdownAdvice();
         check(testCase.path("expect"), response, answer, failures);
@@ -171,6 +211,7 @@ class AiAdvisorEvaluation {
       if (failures.isEmpty()) {
         passed++;
       }
+      results.put(id, failures.isEmpty());
       report
           .append("## ")
           .append(id)
@@ -188,6 +229,11 @@ class AiAdvisorEvaluation {
             .append('/')
             .append(response.getOutputTokenCount())
             .append('\n');
+        if (response.getProposals() != null && !response.getProposals().isEmpty()) {
+          List<String> types = new ArrayList<>();
+          response.getProposals().forEach(proposal -> types.add(proposal.getType()));
+          report.append("- proposal types: ").append(types).append('\n');
+        }
       }
       report.append("\n```\n").append(answer).append("\n```\n\n");
     }
@@ -196,17 +242,74 @@ class AiAdvisorEvaluation {
     Path dir = Path.of("target", "ai-eval");
     Files.createDirectories(dir);
     String model = provider.getModelName().replaceAll("[^A-Za-z0-9._-]", "_");
-    Path file = dir.resolve(provider.getPluginId() + "-" + model + ".md");
+    String name =
+        provider.getPluginId()
+            + "-"
+            + model
+            + (provider.isStructuredAnswers() ? "-structured" : "");
+    appendBaselineComparison(report, name, results);
+    Path file = dir.resolve(name + ".md");
     Files.writeString(file, report.toString(), StandardCharsets.UTF_8);
+    new ObjectMapper()
+        .writerWithDefaultPrettyPrinter()
+        .writeValue(dir.resolve(name + ".json").toFile(), results);
     System.out.println("AI advisor evaluation report: " + file.toAbsolutePath());
 
     assertTrue(passed == total, "Passed " + passed + " of " + total + ", see " + file);
   }
 
+  /**
+   * The cases that passed in the baseline and fail now. The baseline is the results file of an
+   * earlier run of the same provider and model.
+   */
+  private static void appendBaselineComparison(
+      StringBuilder report, String name, Map<String, Boolean> results) throws Exception {
+    JsonNode baseline = null;
+    String path = env("HOP_AI_EVAL_BASELINE");
+    if (!Utils.isEmpty(path)) {
+      baseline = new ObjectMapper().readTree(Path.of(path).toFile());
+    } else {
+      try (InputStream in =
+          AiAdvisorEvaluation.class.getResourceAsStream("baseline/" + name + ".json")) {
+        if (in != null) {
+          baseline = new ObjectMapper().readTree(in);
+        }
+      }
+    }
+    if (baseline == null) {
+      report.append("\nNo baseline for ").append(name).append(".\n");
+      return;
+    }
+    List<String> regressions = new ArrayList<>();
+    List<String> fixed = new ArrayList<>();
+    for (Map.Entry<String, Boolean> result : results.entrySet()) {
+      JsonNode before = baseline.get(result.getKey());
+      if (before == null) {
+        continue;
+      }
+      if (before.asBoolean() && !result.getValue()) {
+        regressions.add(result.getKey());
+      } else if (!before.asBoolean() && result.getValue()) {
+        fixed.add(result.getKey());
+      }
+    }
+    report
+        .append("\nCompared with the baseline: ")
+        .append(regressions.isEmpty() ? "no regressions" : "regressions: " + regressions)
+        .append(fixed.isEmpty() ? "" : "; now passing: " + fixed)
+        .append(".\n");
+  }
+
   private static AiAdvisorResponse ask(
-      AiAdvisorSession session, JsonNode turnNode, MemoryMetadataProvider metadataProvider)
+      AiAdvisorSession session,
+      IAiAdvisor advisor,
+      JsonNode turnNode,
+      MemoryMetadataProvider metadataProvider)
       throws Exception {
-    String scenario = turnNode.path("scenario").asText("pipeline-general");
+    String scenario =
+        turnNode
+            .path("scenario")
+            .asText(advisor instanceof WorkflowAiAdvisor ? "workflow-general" : "pipeline-general");
     session.setScenarioId(scenario);
     String log = turnNode.path("log").asText(null);
     session.getInclusions().put(AiAdvisorInclusions.LOGS, log != null);
@@ -214,14 +317,15 @@ class AiAdvisorEvaluation {
     turn.setUserPrompt(turnNode.path("question").asText());
     session.addTurn(turn);
     AiAdvisorResponse response =
-        AiAdvisorEngine.advise(
-            session, new PipelineAiAdvisor(), new Variables(), metadataProvider, log);
+        AiAdvisorEngine.advise(session, advisor, new Variables(), metadataProvider, log);
     turn.setAssistantAdvice(response.getMarkdownAdvice());
     return response;
   }
 
-  /** The pipeline of the case being checked. */
-  private PipelineMeta pipeline;
+  /** The advisor and the pipeline or workflow of the case being checked. */
+  private IAiAdvisor advisor;
+
+  private Object artifact;
 
   private void check(
       JsonNode expect, AiAdvisorResponse response, String answer, List<String> failures) {
@@ -249,13 +353,44 @@ class AiAdvisorEvaluation {
         // Not checked.
       }
     }
+    if (expect.has("types") && response.getProposals() != null) {
+      // The kinds of change the question asks for; anything else is the wrong change.
+      List<String> allowed = new ArrayList<>();
+      expect.path("types").forEach(type -> allowed.add(type.asText()));
+      for (org.apache.hop.ai.advisor.AiProposal proposal : response.getProposals()) {
+        if (!allowed.contains(proposal.getType())) {
+          failures.add("unexpected proposal type " + proposal.getType() + ", expected " + allowed);
+        }
+      }
+    }
+    // How many proposals of a type the question needs at least, such as two deletes.
+    expect
+        .path("requiredTypes")
+        .fields()
+        .forEachRemaining(
+            required -> {
+              long count =
+                  response.getProposals() == null
+                      ? 0
+                      : response.getProposals().stream()
+                          .filter(proposal -> required.getKey().equals(proposal.getType()))
+                          .count();
+              if (count < required.getValue().asInt()) {
+                failures.add(
+                    count
+                        + " "
+                        + required.getKey()
+                        + " proposals, expected at least "
+                        + required.getValue().asInt());
+              }
+            });
     if (expect.path("validTypes").asBoolean(false) && response.getProposals() != null) {
       // What the user sees in the review: the proposals after the advisor's own clean-up.
       org.apache.hop.ai.advisor.AiAdvisorRequest request =
           new org.apache.hop.ai.advisor.AiAdvisorRequest();
-      request.setArtifact(pipeline);
+      request.setArtifact(artifact);
       List<org.apache.hop.ai.advisor.AiProposalValidation> validations =
-          new PipelineAiAdvisor().validateProposals(request, response.getProposals());
+          advisor.validateProposals(request, response.getProposals());
       for (int i = 0; i < validations.size(); i++) {
         if (validations.get(i).isBlocked()) {
           failures.add(
@@ -305,12 +440,15 @@ class AiAdvisorEvaluation {
     return best;
   }
 
-  private static AiAdvisorSession newSession(PipelineMeta pipeline) {
+  private static AiAdvisorSession newSession(IAiAdvisor advisor, Object artifact) {
+    boolean workflow = advisor instanceof WorkflowAiAdvisor;
     AiAdvisorSession session = new AiAdvisorSession();
-    session.setAdvisorPluginId(PipelineAiAdvisor.ID);
-    session.setLocation(AiAdvisorLocations.PIPELINE_GRAPH);
-    session.setArtifact(pipeline);
-    session.setArtifactName(pipeline.getName());
+    session.setAdvisorPluginId(workflow ? WorkflowAiAdvisor.ID : PipelineAiAdvisor.ID);
+    session.setLocation(
+        workflow ? AiAdvisorLocations.WORKFLOW_GRAPH : AiAdvisorLocations.PIPELINE_GRAPH);
+    session.setArtifact(artifact);
+    session.setArtifactName("eval");
+    session.setArtifactKind(workflow ? "workflow" : "pipeline");
     session.setProviderName("eval");
     session.getInclusions().put(AiAdvisorInclusions.SETTINGS, true);
     session.getInclusions().put(AiAdvisorInclusions.CATALOG, true);
@@ -340,6 +478,46 @@ class AiAdvisorEvaluation {
           new PipelineHopMeta(byName.get(hop.get(0).asText()), byName.get(hop.get(1).asText())));
     }
     return pipeline;
+  }
+
+  /**
+   * A workflow from the cases file: actions with a plugin id and settings, and hops as {@code
+   * [from, to, "success" | "failure" | "unconditional"]}.
+   */
+  private static WorkflowMeta buildWorkflow(JsonNode spec) {
+    WorkflowMeta workflow = new WorkflowMeta();
+    workflow.setName("eval");
+    Map<String, ActionMeta> byName = new HashMap<>();
+    int x = 100;
+    for (JsonNode node : spec.path("actions")) {
+      EvalActionMeta action = new EvalActionMeta(node.path("name").asText());
+      action.setPluginId(node.path("pluginId").asText());
+      action.setFilename(node.path("filename").asText(null));
+      action.setConnection(node.path("connection").asText(null));
+      action.setSql(node.path("sql").asText(null));
+      ActionMeta actionMeta = new ActionMeta(action);
+      actionMeta.setLocation(x, 100);
+      x += 150;
+      workflow.addAction(actionMeta);
+      byName.put(actionMeta.getName(), actionMeta);
+    }
+    for (JsonNode hop : spec.path("hops")) {
+      WorkflowHopMeta hopMeta =
+          new WorkflowHopMeta(byName.get(hop.get(0).asText()), byName.get(hop.get(1).asText()));
+      switch (hop.path(2).asText("success")) {
+        case "unconditional" -> hopMeta.setUnconditional();
+        case "failure" -> {
+          hopMeta.setUnconditional(false);
+          hopMeta.setEvaluation(false);
+        }
+        default -> {
+          hopMeta.setUnconditional(false);
+          hopMeta.setEvaluation(true);
+        }
+      }
+      workflow.addWorkflowHop(hopMeta);
+    }
+    return workflow;
   }
 
   private static void registerProviders() throws Exception {

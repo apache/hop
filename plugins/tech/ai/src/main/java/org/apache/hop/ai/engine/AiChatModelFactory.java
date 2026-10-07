@@ -16,8 +16,10 @@
  */
 package org.apache.hop.ai.engine;
 
+import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.apache.hop.ai.metadata.AiModelRole;
@@ -26,6 +28,7 @@ import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /**
@@ -37,6 +40,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  * what this hands back.
  */
 public final class AiChatModelFactory {
+
+  private static final Class<?> PKG = AiChatModelFactory.class;
 
   private AiChatModelFactory() {}
 
@@ -69,21 +74,18 @@ public final class AiChatModelFactory {
       model = settings.backend().getDefaultModelName();
     }
     if (Utils.isEmpty(model)) {
-      throw new HopException(
-          "No chat model is configured. Set one on this transform, or on AI provider '"
-              + provider.getName()
-              + "'.");
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiChatModelFactory.NoModel", provider.getName()));
     }
 
     return switch (settings.type()) {
       case "OLLAMA" -> ollamaModel(settings, model);
       case "OPEN_AI" -> openAiModel(settings, model);
+      case "ANTHROPIC" -> anthropicModel(settings, model);
+      case "MISTRAL" -> mistralModel(settings, model);
       default ->
           throw new HopException(
-              "Provider type '"
-                  + settings.type()
-                  + "' cannot be driven directly yet. Use an Ollama or OpenAI compatible"
-                  + " provider.");
+              BaseMessages.getString(PKG, "AiChatModelFactory.UnsupportedType", settings.type()));
     };
   }
 
@@ -97,9 +99,9 @@ public final class AiChatModelFactory {
 
   /*
    * supportedCapabilities() is not a probe of the provider: langchain4j reports back only what the
-   * builder was given. Ollama and OpenAI itself declare JSON schema support. Other OpenAI
-   * compatible endpoints (Gemini, Grok, custom servers) differ in which schema keywords they accept,
-   * so they declare nothing and get the fields in the prompt instead.
+   * builder was given. Ollama, OpenAI itself, Anthropic and Mistral declare JSON schema support.
+   * Other OpenAI compatible endpoints (Gemini, Grok, custom servers) differ in which schema
+   * keywords they accept, so they declare nothing and get the fields in the prompt instead.
    */
   private static ChatModel ollamaModel(AiProviderSettings settings, String model) {
     OllamaChatModel.OllamaChatModelBuilder builder =
@@ -118,6 +120,50 @@ public final class AiChatModelFactory {
     }
     if (settings.maxOutputTokens() != null) {
       builder.numPredict(settings.maxOutputTokens());
+    }
+    return builder.build();
+  }
+
+  /** Anthropic holds the model to a schema with its structured outputs. It requires a limit. */
+  private static ChatModel anthropicModel(AiProviderSettings settings, String model) {
+    AnthropicChatModel.AnthropicChatModelBuilder builder =
+        AnthropicChatModel.builder()
+            .modelName(model)
+            .apiKey(settings.apiKey())
+            .supportedCapabilities(Capability.RESPONSE_FORMAT_JSON_SCHEMA)
+            .maxTokens(
+                settings.maxOutputTokens() != null
+                    ? settings.maxOutputTokens()
+                    : AiProviderSettings.DEFAULT_ANTHROPIC_MAX_OUTPUT_TOKENS);
+    if (!Utils.isEmpty(settings.baseUrl())) {
+      builder.baseUrl(settings.baseUrl());
+    }
+    if (settings.timeout() != null) {
+      builder.timeout(settings.timeout());
+    }
+    if (settings.temperature() != null) {
+      builder.temperature(settings.temperature());
+    }
+    return builder.build();
+  }
+
+  private static ChatModel mistralModel(AiProviderSettings settings, String model) {
+    MistralAiChatModel.MistralAiChatModelBuilder builder =
+        MistralAiChatModel.builder()
+            .modelName(model)
+            .apiKey(settings.apiKey())
+            .supportedCapabilities(Capability.RESPONSE_FORMAT_JSON_SCHEMA);
+    if (!Utils.isEmpty(settings.baseUrl())) {
+      builder.baseUrl(settings.baseUrl());
+    }
+    if (settings.timeout() != null) {
+      builder.timeout(settings.timeout());
+    }
+    if (settings.temperature() != null) {
+      builder.temperature(settings.temperature());
+    }
+    if (settings.maxOutputTokens() != null) {
+      builder.maxTokens(settings.maxOutputTokens());
     }
     return builder.build();
   }

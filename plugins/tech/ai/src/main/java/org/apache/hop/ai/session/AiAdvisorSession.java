@@ -66,6 +66,16 @@ public class AiAdvisorSession {
 
   private Object artifact;
   private Supplier<String> logSupplier;
+
+  /** The latest run of the pipeline or workflow; see {@code AiAdvisorOpenRequest}. */
+  private Supplier<String> runIdSupplier;
+
+  /**
+   * The run that was the latest when the user last switched Logs on or off. That choice holds until
+   * the next run: a new log is what a question after a run is usually about.
+   */
+  private String logChoiceRunId;
+
   private Map<String, Boolean> inclusions = new LinkedHashMap<>();
 
   /** Inclusions the user switched on or off, which the assistant then leaves alone. */
@@ -80,6 +90,16 @@ public class AiAdvisorSession {
   private boolean working;
   private volatile boolean cancelled;
   private volatile Thread workerThread;
+
+  /** The id of the latest run, or null when there was none or it is not known. */
+  public String currentRunId() {
+    Supplier<String> supplier = runIdSupplier;
+    try {
+      return supplier == null ? null : supplier.get();
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
 
   public boolean isEmpty() {
     return turns.isEmpty();

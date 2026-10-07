@@ -96,7 +96,7 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 
 == Options
 
-The editor shows *Name* and *Provider* at the top, and the other options on three tabs: *Connection* (base URL, API key, timeout), *Model* (model name, temperature, context size, max output tokens) and *Models per role*.
+The editor shows *Name* and *Provider* at the top, and the other options on three tabs: *Connection* (base URL, API key, timeout), *Model* (model name, temperature, context size, max output tokens, structured answers) and *Models per role*.
 Saving checks that a provider type is selected and that the numbers are valid; values that use a variable are checked when the provider is used.
 
 |===
@@ -127,7 +127,7 @@ Saving checks that a provider type is selected and that the numbers are valid; v
 |How many tokens the model can read at once: prompt, conversation history and answer together.
 The AI Assistant estimates the size of every question before sending it and stops with an explanation when it clearly does not fit.
 For Ollama this also sets the context window the model is loaded with (`num_ctx`).
-Leave it empty for 16384 with Ollama, and for the provider's own limit with the other types (no check is done then).
+Leave it empty for 16384 with Ollama. For the other types an empty field is not sent; questions are then checked against 200000 tokens for Anthropic and 128000 for the others. Set the real window of the model if it is smaller.
 Ollama's own default (2048 or 4096, depending on the version) is too small for a typical assistant question and is cut silently, so set a value here rather than relying on the server.
 A larger window uses more memory on the Ollama server.
 
@@ -135,6 +135,14 @@ A larger window uses more memory on the Ollama server.
 |The longest answer the model may write, in tokens.
 Leave it empty for the provider's default, which is 4096 for Anthropic (Anthropic requires a value).
 A value that is too low cuts answers and proposals short.
+
+|Structured answers
+|Off by default.
+When checked, the AI Assistant asks the provider to hold the model to a JSON schema: the answer text plus a list of proposals with a known type, a risk level and their parameters.
+The proposals then cannot come back broken, which helps small models most.
+Works with Ollama, OpenAI, Anthropic and Mistral. Other types (Gemini, Grok, custom OpenAI-compatible servers, Hugging Face) answer as usual.
+When the provider refuses the schema, the question is asked again without it and the log says so.
+Some models write shorter answers this way: compare with and without it on the models you use, for example with the evaluation set described in xref:technology/ai/index.adoc[AI technology].
 |===
 
 When Language Model Chat points at an AI Provider, extra transform options (proxy, retries, mock, I/O fields) are not taken from the provider.

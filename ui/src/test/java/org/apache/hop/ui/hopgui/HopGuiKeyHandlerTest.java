@@ -171,6 +171,7 @@ class HopGuiKeyHandlerTest {
   public static class PerspectiveShortcuts {
     public int assistant;
     public int selectAll;
+    public int shiftedPaste;
 
     @GuiKeyboardShortcut(control = true, shift = true, key = 'a', global = true)
     @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'a', global = true)
@@ -182,6 +183,12 @@ class HopGuiKeyHandlerTest {
     @GuiOsxKeyboardShortcut(command = true, key = 'a')
     public void selectAllInGraph() {
       selectAll++;
+    }
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'v', global = true)
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'v', global = true)
+    public void shiftedPaste() {
+      shiftedPaste++;
     }
   }
 
@@ -199,6 +206,9 @@ class HopGuiKeyHandlerTest {
 
       keyHandler.keyPressed(keyEvent(mock(Text.class), 'a', SWT.CONTROL));
       assertEquals(0, shortcuts.selectAll, "Ctrl+A in a text field still selects the text");
+
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'v', SWT.CONTROL | SWT.SHIFT));
+      assertEquals(0, shortcuts.shiftedPaste, "Ctrl+Shift+V in a text field stays with the field");
     } finally {
       keyHandler.removeParentObjectToHandle(shortcuts);
     }

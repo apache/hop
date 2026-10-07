@@ -21,13 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.engine.AiProposalXmlSupportTest;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
@@ -94,6 +98,38 @@ class PipelineAiProposalApplierTest {
   }
 
   @Test
+  void aProposalThatFailsAfterTheDryRunIsRolledBack() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta input = new TransformMeta("Dummy", "Input", new DummyMeta());
+    input.setLocation(100, 100);
+    pipelineMeta.addTransform(input);
+    String before = pipelineMeta.getXml(new Variables());
+
+    AiProposal add =
+        proposal(
+            "ADD_TRANSFORM",
+            Map.of(
+                "transformPluginId", "Dummy",
+                "name", "Check",
+                "locationX", "250",
+                "locationY", "100"));
+    AiProposal badHop =
+        proposal("ADD_PIPELINE_HOP", Map.of("fromTransform", "Check", "toTransform", "Missing"));
+
+    // Without the dry run, as when the pipeline could not be copied.
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () ->
+                PipelineAiProposalApplier.applyOrRestore(
+                    pipelineMeta, before, List.of(add, badHop), null, null));
+    assertTrue(e.getMessage().contains("Proposal 2"), e.getMessage());
+    assertNull(pipelineMeta.findTransform("Check"), "the first proposal must be rolled back");
+    assertNotNull(pipelineMeta.findTransform("Input"));
+    assertEquals(1, pipelineMeta.nrTransforms());
+  }
+
+  @Test
   void addHopWithoutEndpointThrows() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     TransformMeta input = new TransformMeta("TableInput", "Input", null);
@@ -134,5 +170,24 @@ class PipelineAiProposalApplierTest {
     proposal.setDescription(type);
     proposal.setParameters(parameters);
     return proposal;
+  }
+
+  @Test
+  void deletingATransformAndThenItsHopWorks() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    TransformMeta input = new TransformMeta("Dummy", "Input", new DummyMeta());
+    TransformMeta output = new TransformMeta("Dummy", "Output", new DummyMeta());
+    pipelineMeta.addTransform(input);
+    pipelineMeta.addTransform(output);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(input, output));
+
+    // As models write it: the transform first, then the hop that deleting it already removes.
+    AiProposal delete = proposal("DELETE_TRANSFORM", Map.of("transformName", "Output"));
+    AiProposal hop =
+        proposal("DELETE_PIPELINE_HOP", Map.of("fromTransform", "Input", "toTransform", "Output"));
+    PipelineAiProposalApplier.apply(pipelineMeta, List.of(delete, hop));
+
+    assertNull(pipelineMeta.findTransform("Output"));
+    assertEquals(0, pipelineMeta.nrPipelineHops());
   }
 }

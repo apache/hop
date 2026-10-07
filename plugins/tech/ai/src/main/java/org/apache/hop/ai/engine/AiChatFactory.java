@@ -20,6 +20,12 @@ package org.apache.hop.ai.engine;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.Capability;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
+import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
 import java.util.ArrayList;
@@ -44,22 +50,22 @@ public final class AiChatFactory {
       "You are a health-check endpoint. Reply with exactly OK and nothing else.";
   private static final String HEALTH_USER = "health";
 
+  private static final Class<?> PKG = AiChatFactory.class;
+
   private AiChatFactory() {}
 
   static String missingTypeMessage(AiProvider provider) {
-    return BaseMessages.getString(
-        AiChatFactory.class, "AiChatFactory.MissingType", provider.getName());
+    return BaseMessages.getString(PKG, "AiChatFactory.MissingType", provider.getName());
   }
 
   public static LanguageModelChatMeta toLanguageModelChatMeta(
       AiProvider provider, IVariables variables) throws HopException {
     if (provider == null) {
-      throw new HopException("AI provider metadata is missing");
+      throw new AiUserException(BaseMessages.getString(PKG, "AiChatFactory.NoProvider"));
     }
     if (!provider.hasProviderType()) {
-      throw new HopException(missingTypeMessage(provider));
+      throw new AiUserException(missingTypeMessage(provider));
     }
-    IAiProvider backend = provider.getProvider();
     LanguageModelChatMeta meta = new LanguageModelChatMeta();
     meta.setDefault();
     meta.setMock(false);
@@ -78,19 +84,20 @@ public final class AiChatFactory {
       IHopMetadataProvider metadataProvider)
       throws HopException {
     if (source == null) {
-      throw new HopException("Language Model Chat metadata is missing");
+      throw new HopException(BaseMessages.getString(PKG, "AiChatFactory.NoChatMeta"));
     }
     if (providerName == null || providerName.isBlank()) {
       return source;
     }
     if (metadataProvider == null) {
       throw new HopException(
-          "No metadata provider is available to load AI Provider '" + providerName + "'");
+          BaseMessages.getString(PKG, "AiChatFactory.NoMetadataProvider", providerName));
     }
     String name = resolve(variables, providerName);
     AiProvider provider = metadataProvider.getSerializer(AiProvider.class).load(name);
     if (provider == null) {
-      throw new HopException("AI provider '" + name + "' was not found.");
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiChatFactory.ProviderNotFound", name));
     }
     LanguageModelChatMeta copy = (LanguageModelChatMeta) source.clone();
     applyConnection(copy, provider, variables, false);
@@ -109,7 +116,7 @@ public final class AiChatFactory {
       boolean useProviderDefaults)
       throws HopException {
     if (!provider.hasProviderType()) {
-      throw new HopException(missingTypeMessage(provider));
+      throw new AiUserException(missingTypeMessage(provider));
     }
     IAiProvider backend = provider.getProvider();
     meta.setModelType(backend.getHopModelType());
@@ -294,10 +301,68 @@ public final class AiChatFactory {
           positive(usage != null ? usage.outputTokenCount() : null),
           durationMs);
     } catch (Exception e) {
-      throw new HopException("AI request failed: " + e.getMessage(), e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiChatFactory.RequestFailed", e.getMessage()), e);
     } catch (Error e) {
       // ServiceConfigurationError (langchain4j SPI) is an Error, not an Exception.
-      throw new HopException("AI request failed: " + e.getMessage(), e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiChatFactory.RequestFailed", e.getMessage()), e);
+    }
+  }
+
+  /**
+   * Ask with the answer held to a JSON schema. The model is built by {@link AiChatModelFactory},
+   * which knows which provider types accept a schema.
+   *
+   * @return the answer, or null when this provider type cannot hold a model to a schema; the caller
+   *     then asks without one
+   */
+  public static AiChatResult generateStructured(
+      AiProvider provider,
+      IVariables variables,
+      String systemPrompt,
+      String userPrompt,
+      List<ChatMessage> conversationHistory,
+      JsonSchema schema)
+      throws HopException {
+    validate(provider);
+    ChatModel model;
+    try {
+      model = AiChatModelFactory.createChatModel(provider, "", variables);
+    } catch (HopException e) {
+      // A provider type the factory cannot drive, such as Hugging Face.
+      return null;
+    }
+    if (!model.supportedCapabilities().contains(Capability.RESPONSE_FORMAT_JSON_SCHEMA)) {
+      return null;
+    }
+    List<ChatMessage> messages = new ArrayList<>();
+    messages.add(new SystemMessage(systemPrompt));
+    if (conversationHistory != null) {
+      messages.addAll(conversationHistory);
+    }
+    messages.add(new UserMessage(userPrompt));
+    ChatRequest request =
+        ChatRequest.builder()
+            .messages(messages)
+            .responseFormat(
+                ResponseFormat.builder().type(ResponseFormatType.JSON).jsonSchema(schema).build())
+            .build();
+    long started = System.nanoTime();
+    try {
+      ChatResponse response = model.chat(request);
+      long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+      String text =
+          response != null && response.aiMessage() != null ? response.aiMessage().text() : "";
+      TokenUsage usage = response != null ? response.tokenUsage() : null;
+      return new AiChatResult(
+          text == null ? "" : text,
+          positive(usage != null ? usage.inputTokenCount() : null),
+          positive(usage != null ? usage.outputTokenCount() : null),
+          durationMs);
+    } catch (Exception | Error e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiChatFactory.RequestFailed", e.getMessage()), e);
     }
   }
 
@@ -311,35 +376,31 @@ public final class AiChatFactory {
   public static String healthCheck(AiProvider provider, IVariables variables) throws HopException {
     String response = generate(provider, variables, HEALTH_SYSTEM, HEALTH_USER, null);
     if (Utils.isEmpty(response)) {
-      throw new HopException("The AI provider returned an empty response.");
+      throw new HopException(BaseMessages.getString(PKG, "AiChatFactory.EmptyResponse"));
     }
     // The model that answered: a CHAT row in Models per role replaces Model name.
     String model = resolve(variables, provider.resolveModelName(AiModelRole.CHAT));
     if (Utils.isEmpty(model)) {
       model = provider.getProvider().getDefaultModelName();
     }
-    return "Connected to "
-        + provider.getPluginName()
-        + " (model: "
-        + model
-        + "). Response: "
-        + response.trim();
+    return BaseMessages.getString(
+        PKG, "AiChatFactory.Connected", provider.getPluginName(), model, response.trim());
   }
 
   public static void validate(AiProvider provider) throws HopException {
     if (provider == null) {
-      throw new HopException("AI provider metadata is missing");
+      throw new AiUserException(BaseMessages.getString(PKG, "AiChatFactory.NoProvider"));
     }
     if (!AiLanguageModelAvailability.isAvailable()) {
-      throw new HopException(
-          "The Hop Language Model Chat plugin is not installed. Add hop-transform-languagemodelchat to your Hop assembly.");
+      throw new AiUserException(BaseMessages.getString(PKG, "AiChatFactory.NoChatPlugin"));
     }
     if (!provider.hasProviderType()) {
-      throw new HopException(missingTypeMessage(provider));
+      throw new AiUserException(missingTypeMessage(provider));
     }
     IAiProvider backend = provider.getProvider();
     if (backend.requiresApiKey() && Utils.isEmpty(provider.getApiKey())) {
-      throw new HopException("Please configure an API key for the AI provider.");
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiChatFactory.NoApiKey", provider.getName()));
     }
   }
 

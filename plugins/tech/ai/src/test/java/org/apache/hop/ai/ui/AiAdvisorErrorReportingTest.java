@@ -18,9 +18,11 @@
 package org.apache.hop.ai.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ServiceConfigurationError;
+import org.apache.hop.ai.engine.AiUserException;
 import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +43,18 @@ class AiAdvisorErrorReportingTest {
             "AI request failed: not a subtype", new ServiceConfigurationError("not a subtype"));
     assertEquals(
         "AI request failed: not a subtype", AiAdvisorSessionPane.userVisibleError(wrapped));
+  }
+
+  @Test
+  void explainedProblemsGetNoErrorDialog() {
+    AiUserException notFound = new AiUserException("AI provider 'ollama' was not found.");
+    assertTrue(AiAdvisorSessionPane.isExplained(notFound));
+    assertTrue(
+        AiAdvisorSessionPane.isExplained(new HopException("wrapped", notFound)),
+        "also when wrapped");
+    assertFalse(AiAdvisorSessionPane.isExplained(new HopException("AI request failed: 401")));
+    assertEquals(
+        "AI provider 'ollama' was not found.", AiAdvisorSessionPane.userVisibleError(notFound));
   }
 
   @Test

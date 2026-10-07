@@ -105,6 +105,11 @@ public class WorkflowAiGuiPlugin {
     request.setTitle(workflowMeta.getName());
     request.setFocusNodeName(focusActionName);
     request.setLogSupplier(() -> AiAdvisorLogSupport.readWorkflowLog(workflowGraph));
+    request.setRunIdSupplier(
+        () ->
+            workflowGraph.getWorkflow() != null
+                ? workflowGraph.getWorkflow().getLogChannelId()
+                : null);
     AiAdvisorViews.releaseWhenClosed(workflowGraph, workflowGraph.getHopGui(), workflowMeta);
     return request;
   }

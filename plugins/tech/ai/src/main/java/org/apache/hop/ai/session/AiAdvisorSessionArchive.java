@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.engine.AiMetadataBackup;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.history.AuditManager;
@@ -94,6 +95,32 @@ public final class AiAdvisorSessionArchive {
     return sessions;
   }
 
+  static final String LAST_PROVIDER_NAME = "last-provider";
+
+  /**
+   * Remember the provider picked last in a project, for new sessions when no default provider is
+   * configured. Kept even when conversations are not: it holds only a name.
+   */
+  public static void saveLastProvider(String scope, String providerName) throws HopException {
+    Map<String, Object> state = new LinkedHashMap<>();
+    state.put("name", providerName == null ? "" : providerName);
+    AuditManager.getActive()
+        .storeState(group(scope), AUDIT_TYPE, new AuditState(LAST_PROVIDER_NAME, state));
+  }
+
+  /** The provider picked last in a project, or null when none was remembered. */
+  public static String loadLastProvider(String scope) throws HopException {
+    AuditState state =
+        AuditManager.getActive().retrieveState(group(scope), AUDIT_TYPE, LAST_PROVIDER_NAME);
+    if (state == null
+        || state.getStateMap() == null
+        || !(state.getStateMap().get("name") instanceof String name)
+        || Utils.isEmpty(name)) {
+      return null;
+    }
+    return name;
+  }
+
   static String group(String scope) {
     return Utils.isEmpty(scope) ? DEFAULT_GROUP : scope;
   }
@@ -141,6 +168,17 @@ public final class AiAdvisorSessionArchive {
     map.put("outputTokenCount", turn.getOutputTokenCount());
     map.put("durationMs", turn.getDurationMs());
     map.put("appliedSummaries", new ArrayList<>(turn.getAppliedSummaries()));
+    // Undo of saved metadata stays possible after a restart. The earlier version is kept as the
+    // metadata JSON stores it, passwords encoded.
+    List<Map<String, Object>> backups = new ArrayList<>();
+    for (AiMetadataBackup backup : turn.getMetadataBackups()) {
+      Map<String, Object> entry = new LinkedHashMap<>();
+      entry.put("typeKey", backup.typeKey());
+      entry.put("name", backup.name());
+      entry.put("previousJson", backup.previousJson());
+      backups.add(entry);
+    }
+    map.put("metadataBackups", backups);
     List<Map<String, Object>> proposals = new ArrayList<>();
     for (AiProposal proposal : turn.getProposals()) {
       Map<String, Object> entry = new LinkedHashMap<>();
@@ -231,6 +269,16 @@ public final class AiAdvisorSessionArchive {
     if (map.get("appliedSummaries") instanceof List<?> applied) {
       for (Object summary : applied) {
         turn.getAppliedSummaries().add(String.valueOf(summary));
+      }
+    }
+    if (map.get("metadataBackups") instanceof List<?> backups) {
+      for (Object item : backups) {
+        if (item instanceof Map<?, ?> entry
+            && entry.get("typeKey") instanceof String typeKey
+            && entry.get("name") instanceof String name) {
+          turn.getMetadataBackups()
+              .add(new AiMetadataBackup(typeKey, name, (String) entry.get("previousJson")));
+        }
       }
     }
     if (map.get("proposals") instanceof List<?> proposals) {

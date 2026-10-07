@@ -23,6 +23,7 @@ import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.engine.AiActionPluginSupport;
 import org.apache.hop.ai.engine.AiProposalParamSupport;
 import org.apache.hop.ai.engine.AiProposalTypes;
+import org.apache.hop.ai.engine.AiProposalUndo;
 import org.apache.hop.ai.engine.AiProposalXmlSupport;
 import org.apache.hop.ai.engine.AiTransformConfigSupport;
 import org.apache.hop.core.NotePadMeta;
@@ -31,6 +32,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowHopMeta;
@@ -40,6 +42,8 @@ import org.w3c.dom.Document;
 
 /** Previews and applies validated AI proposals to an open workflow. */
 public final class WorkflowAiProposalApplier {
+
+  private static final Class<?> PKG = WorkflowAiProposalApplier.class;
 
   private WorkflowAiProposalApplier() {}
 
@@ -75,33 +79,96 @@ public final class WorkflowAiProposalApplier {
       IVariables variables)
       throws HopException {
     if (workflowMeta == null) {
-      throw new HopException("No workflow is open");
+      throw new HopException(BaseMessages.getString(PKG, "WorkflowAiProposalApplier.NoWorkflow"));
     }
     if (proposals == null || proposals.isEmpty()) {
       return;
     }
+    proposals = AiProposalTypes.inApplyOrder(proposals);
     IHopMetadataProvider provider =
         metadataProvider != null ? metadataProvider : workflowMeta.getMetadataProvider();
     IVariables vars = variables != null ? variables : Variables.getADefaultVariableSpace();
-    // Apply the whole batch to a copy first. A proposal that fails half way then leaves the open
-    // workflow as it was, rather than with only the first proposals applied.
-    WorkflowMeta copy = copyForDryRun(workflowMeta, provider, vars);
+    // All or nothing. The workflow as it is now is kept to put back when a proposal fails half
+    // way; without it nothing is applied.
+    String before;
+    try {
+      before = workflowMeta.getXml(vars);
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "WorkflowAiProposalApplier.CannotCopy"), e);
+    }
+    // A dry run on a copy finds most failures before the open workflow is touched. The copy can
+    // fail where the workflow itself is fine (a plugin that cannot load its XML); the rollback
+    // below still covers that case.
+    WorkflowMeta copy = copyForDryRun(before, provider, vars);
     if (copy != null) {
       for (AiProposal proposal : proposals) {
         applyOne(copy, proposal, null, false, provider, vars);
       }
     }
-    for (int i = 0; i < proposals.size(); i++) {
-      boolean chainUndo = hopGui != null && i < proposals.size() - 1;
-      applyOne(workflowMeta, proposals.get(i), hopGui, chainUndo, provider, vars);
+    applyOrRestore(workflowMeta, before, proposals, hopGui, provider, vars);
+  }
+
+  /**
+   * Apply the proposals to the open workflow. When one fails, the workflow is put back as {@code
+   * before} and none of them stays applied.
+   */
+  static void applyOrRestore(
+      WorkflowMeta workflowMeta,
+      String before,
+      List<AiProposal> proposals,
+      HopGui hopGui,
+      IHopMetadataProvider provider,
+      IVariables vars)
+      throws HopException {
+    int applied = 0;
+    try {
+      for (int i = 0; i < proposals.size(); i++) {
+        boolean chainUndo = hopGui != null && i < proposals.size() - 1;
+        applyOne(workflowMeta, proposals.get(i), hopGui, chainUndo, provider, vars);
+        applied++;
+      }
+    } catch (Exception e) {
+      // The failing proposal may have changed the workflow before it failed, so put it back even
+      // when it was the first.
+      HopException failure =
+          new HopException(
+              BaseMessages.getString(PKG, "WorkflowAiProposalApplier.RolledBack", applied + 1), e);
+      try {
+        restore(workflowMeta, before, provider, hopGui);
+      } catch (Exception restoreError) {
+        failure.addSuppressed(restoreError);
+      }
+      throw failure;
     }
+  }
+
+  /** Put the workflow back as it was before a batch failed half way. */
+  static void restore(
+      WorkflowMeta workflowMeta, String xml, IHopMetadataProvider provider, HopGui hopGui)
+      throws HopException {
+    Document document = XmlHandler.loadXmlString(xml);
+    workflowMeta.restoreContentFromXml(
+        XmlHandler.getSubNode(document, WorkflowMeta.XML_TAG),
+        workflowMeta.getFilename(),
+        provider);
+    AiProposalUndo.forgetPartialChange(hopGui, workflowMeta);
   }
 
   /** A copy through XML, or null when the workflow cannot be copied (the dry run is skipped). */
   public static WorkflowMeta copyForDryRun(
       WorkflowMeta workflowMeta, IHopMetadataProvider provider, IVariables variables) {
     try {
-      Document document = XmlHandler.loadXmlString(workflowMeta.getXml(variables));
+      return copyForDryRun(workflowMeta.getXml(variables), provider, variables);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  private static WorkflowMeta copyForDryRun(
+      String xml, IHopMetadataProvider provider, IVariables variables) {
+    try {
+      Document document = XmlHandler.loadXmlString(xml);
       return new WorkflowMeta(
           XmlHandler.getSubNode(document, WorkflowMeta.XML_TAG), provider, variables);
     } catch (Exception e) {
@@ -132,7 +199,9 @@ public final class WorkflowAiProposalApplier {
       case CONFIGURE_ACTION -> configureAction(workflowMeta, proposal, hopGui, chainUndo);
       case REPLACE_ACTION ->
           replaceAction(workflowMeta, proposal, hopGui, chainUndo, metadataProvider, variables);
-      default -> throw new HopException("Unsupported proposal type: " + type);
+      default ->
+          throw new HopException(
+              BaseMessages.getString(PKG, "WorkflowAiProposalApplier.UnsupportedType", type));
     }
   }
 
@@ -162,7 +231,8 @@ public final class WorkflowAiProposalApplier {
       throws HopException {
     ActionMeta existing = requireAction(workflowMeta, proposal.parameter("actionName"));
     if (existing.getAction() == null) {
-      throw new HopException("Action has no metadata: " + existing.getName());
+      throw new HopException(
+          BaseMessages.getString(PKG, "WorkflowAiProposalApplier.NoMetadata", existing.getName()));
     }
     ActionMeta before = (ActionMeta) existing.clone();
     AiTransformConfigSupport.apply(existing.getAction(), proposal);
@@ -249,7 +319,9 @@ public final class WorkflowAiProposalApplier {
     ActionMeta to = requireAction(workflowMeta, proposal.parameter("toAction"));
     WorkflowHopMeta hop = workflowMeta.findWorkflowHop(from, to);
     if (hop == null) {
-      throw new HopException("Hop not found: " + from.getName() + " -> " + to.getName());
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "WorkflowAiProposalApplier.HopNotFound", from.getName(), to.getName()));
     }
     int hopIndex = workflowMeta.indexOfWorkflowHop(hop);
     if (hopGui != null) {
@@ -336,7 +408,8 @@ public final class WorkflowAiProposalApplier {
       throws HopException {
     ActionMeta action = workflowMeta.findAction(name);
     if (action == null) {
-      throw new HopException("Action not found: " + name);
+      throw new HopException(
+          BaseMessages.getString(PKG, "WorkflowAiProposalApplier.ActionNotFound", name));
     }
     return action;
   }

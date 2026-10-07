@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
 import org.apache.hop.ai.advisor.AiProposal;
+import org.apache.hop.ai.engine.AiMetadataBackup;
 import org.junit.jupiter.api.Test;
 
 class AiAdvisorSessionArchiveTest {
@@ -52,6 +53,8 @@ class AiAdvisorSessionArchiveTest {
     proposal.getParameters().put("name", "Check");
     turn.getProposals().add(proposal);
     turn.getAppliedSummaries().add("ADD_TRANSFORM: Check");
+    turn.getMetadataBackups().add(new AiMetadataBackup("rdbms", "sales", "{\"name\":\"sales\"}"));
+    turn.getMetadataBackups().add(new AiMetadataBackup("rdbms", "new-one", null));
     session.addTurn(turn);
 
     Map<String, Object> map = AiAdvisorSessionArchive.toMap(session);
@@ -73,6 +76,7 @@ class AiAdvisorSessionArchiveTest {
     assertEquals(4200L, back.getDurationMs());
     assertEquals("Check", back.getProposals().get(0).getParameters().get("name"));
     assertEquals("ADD_TRANSFORM: Check", back.getAppliedSummaries().get(0));
+    assertEquals(turn.getMetadataBackups(), back.getMetadataBackups(), "undo survives a restart");
   }
 
   @Test

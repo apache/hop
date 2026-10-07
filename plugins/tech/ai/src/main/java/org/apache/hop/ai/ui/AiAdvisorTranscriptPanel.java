@@ -429,6 +429,12 @@ public class AiAdvisorTranscriptPanel extends Composite {
       getDisplay().asyncExec(() -> refreshScroll(toBottom));
       return;
     }
+    // The scroller gives the content its width only on its own next layout. Until then, as when a
+    // window opens on a session, the content is narrower: the texts would wrap in that width and
+    // keep the height of it until the next resize.
+    if (content.getSize().x != clientWidth) {
+      content.setSize(clientWidth, Math.max(content.getSize().y, 1));
+    }
     // First pass: let GridLayout assign real widths.
     for (Control body : bodies) {
       if (body.isDisposed()) {

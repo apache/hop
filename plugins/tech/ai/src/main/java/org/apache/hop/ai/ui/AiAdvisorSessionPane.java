@@ -18,11 +18,15 @@
 package org.apache.hop.ai.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.apache.hop.ai.advisor.AiAdvisorInclusion;
 import org.apache.hop.ai.advisor.AiAdvisorInclusionChoice;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
@@ -36,6 +40,7 @@ import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
 import org.apache.hop.ai.advisors.workflow.WorkflowAiAdvisor;
+import org.apache.hop.ai.config.AiRequestOnClose;
 import org.apache.hop.ai.config.HopAiConfig;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
@@ -45,6 +50,7 @@ import org.apache.hop.ai.engine.AiMetadataBackup;
 import org.apache.hop.ai.engine.AiMetadataProposalSupport;
 import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.ai.engine.AiProposalTypes;
+import org.apache.hop.ai.engine.AiUserException;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorSessionStore;
@@ -130,12 +136,22 @@ public class AiAdvisorSessionPane extends Composite {
   private Button wMetadataSelect;
   private final List<IPlugin> advisorPlugins = new ArrayList<>();
   private final SendShortcutGuard sendShortcutGuard = new SendShortcutGuard();
+
+  /** Sessions with a question sent from this view, for {@link #cancelWhenClosed()}. */
+  private final Set<AiAdvisorSession> sentFromHere =
+      Collections.newSetFromMap(new IdentityHashMap<>());
+
   private boolean updatingUi;
 
   public AiAdvisorSessionPane(Composite parent, IAiAdvisorWorkbenchHost host) {
+    this(parent, host, AiAdvisorSessionStore.get(host.getHopGui()));
+  }
+
+  AiAdvisorSessionPane(
+      Composite parent, IAiAdvisorWorkbenchHost host, AiAdvisorSessionStore store) {
     super(parent, SWT.NONE);
     this.host = host;
-    this.store = AiAdvisorSessionStore.get(host.getHopGui());
+    this.store = store;
     PropsUi.setLook(this);
     setLayout(PropsUi.getInstance().createFormLayout());
     int margin = PropsUi.getMargin();
@@ -145,7 +161,8 @@ public class AiAdvisorSessionPane extends Composite {
 
     // Question at the bottom, transcript above it. The question field grows with its text, from
     // three lines up to twelve or 40% of the pane, like the input of most chat tools; past that it
-    // scrolls. When space is short the transcript gives way, not the question.
+    // scrolls. When space is short, as in a low bottom dock, the transcript keeps a few lines and
+    // the question field gives way, down to one line.
     questionArea = new Composite(this, SWT.NONE);
     questionData = new FormDataBuilder().left().right().bottom().result();
     questionArea.setLayoutData(questionData);
@@ -199,7 +216,51 @@ public class AiAdvisorSessionPane extends Composite {
 
     wPrompt.addListener(SWT.Modify, e -> sizeQuestionArea());
     addListener(SWT.Resize, e -> sizeQuestionArea());
+    addListener(SWT.Dispose, e -> cancelWhenClosed());
     setStatus("");
+  }
+
+  /**
+   * The window or dock closes, or Hop GUI does. With "Cancel the question" configured, questions
+   * sent from here that still wait for their answer are cancelled. By default they finish in the
+   * background and their answer is recorded in the session. Moving the assistant with Float or Dock
+   * is not a close: the sessions go on in the new view.
+   */
+  private void cancelWhenClosed() {
+    boolean cancelled =
+        cancelOnClose(
+            sentFromHere,
+            HopAiConfigSingleton.getConfig().getRequestOnClose(),
+            AiAdvisorViews.isMoving());
+    sentFromHere.clear();
+    if (cancelled) {
+      store.fireChanged();
+    }
+  }
+
+  /**
+   * Cancel the questions of these sessions that still wait for an answer, when the configuration
+   * says so and the view is not just moving.
+   *
+   * @return whether a question was cancelled
+   */
+  static boolean cancelOnClose(
+      Collection<AiAdvisorSession> sessions, AiRequestOnClose onClose, boolean moving) {
+    if (moving || onClose != AiRequestOnClose.CANCEL) {
+      return false;
+    }
+    boolean cancelled = false;
+    for (AiAdvisorSession sent : sessions) {
+      if (sent.isWorking()) {
+        sent.requestCancel();
+        List<AiAdvisorTurn> turns = sent.getTurns();
+        if (!turns.isEmpty()) {
+          recordResult(sent, turns.get(turns.size() - 1), null, null, true);
+        }
+        cancelled = true;
+      }
+    }
+    return cancelled;
   }
 
   /**
@@ -263,6 +324,9 @@ public class AiAdvisorSessionPane extends Composite {
   static final int QUESTION_MAX_LINES = 12;
   static final int QUESTION_MAX_PERCENT = 40;
 
+  /** Lines of the transcript that stay visible when the pane is low. */
+  static final int TRANSCRIPT_MIN_LINES = 4;
+
   /** Fit the question area to its text, within the limits above. */
   void sizeQuestionArea() {
     if (questionArea == null || questionArea.isDisposed() || wPrompt.isDisposed()) {
@@ -272,21 +336,48 @@ public class AiAdvisorSessionPane extends Composite {
     int trim = wPrompt.computeTrim(0, 0, 0, 0).height;
     int width = Math.max(wPrompt.getSize().x, 100);
     int text = wPrompt.computeSize(width, SWT.DEFAULT).y;
+    int status =
+        wlStatus.isVisible() ? wlStatus.computeSize(getClientArea().width, SWT.DEFAULT).y : 0;
+    int margins = 2 * PropsUi.getMargin();
+    int headerBottom =
+        sharingPanel != null && !sharingPanel.isDisposed()
+            ? sharingPanel.getBounds().y + sharingPanel.getBounds().height + PropsUi.getMargin()
+            : 0;
+    int prompt =
+        promptHeight(
+            text,
+            lineHeight,
+            trim,
+            getClientArea().height,
+            getClientArea().height - headerBottom - status - margins);
+    int height = prompt + status + margins;
+    if (questionData.height != height) {
+      questionData.height = height;
+      layout(true, true);
+    }
+  }
+
+  /**
+   * The height of the question field: its text, between three and twelve lines and at most 40% of
+   * the pane, but never so high that the transcript has less than {@link #TRANSCRIPT_MIN_LINES}
+   * lines. The field keeps at least one line.
+   *
+   * @param below the height left under the header for the question field and the transcript
+   */
+  static int promptHeight(int text, int lineHeight, int trim, int paneHeight, int below) {
     int minimum = QUESTION_MIN_LINES * lineHeight + trim;
     int maximum =
         Math.max(
             minimum,
             Math.min(
-                QUESTION_MAX_LINES * lineHeight + trim,
-                getClientArea().height * QUESTION_MAX_PERCENT / 100));
+                QUESTION_MAX_LINES * lineHeight + trim, paneHeight * QUESTION_MAX_PERCENT / 100));
     int prompt = Math.max(minimum, Math.min(text, maximum));
-    int status =
-        wlStatus.isVisible() ? wlStatus.computeSize(getClientArea().width, SWT.DEFAULT).y : 0;
-    int height = prompt + status + 2 * PropsUi.getMargin();
-    if (questionData.height != height) {
-      questionData.height = height;
-      layout(true, true);
+    if (paneHeight <= 0) {
+      // Not laid out yet; sized again on the first resize.
+      return prompt;
     }
+    int roomLeft = below - TRANSCRIPT_MIN_LINES * lineHeight;
+    return Math.max(lineHeight + trim, Math.min(prompt, roomLeft));
   }
 
   /** A form layout without margins, for panels nested in this one, which has its own. */
@@ -456,6 +547,19 @@ public class AiAdvisorSessionPane extends Composite {
     void release() {
       armed = false;
     }
+  }
+
+  /** Whether the error is a problem its message alone explains; see {@link AiUserException}. */
+  static boolean isExplained(Throwable error) {
+    for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+      if (cause instanceof AiUserException) {
+        return true;
+      }
+      if (cause.getCause() == cause) {
+        break;
+      }
+    }
+    return false;
   }
 
   static String userVisibleError(Throwable error) {
@@ -874,11 +978,15 @@ public class AiAdvisorSessionPane extends Composite {
 
   /**
    * Once the pipeline or workflow has run, its log is what most questions are about, so the log
-   * option switches on by itself, visibly. Not when the user set the option in this session.
+   * option switches on by itself, visibly. Not when the user set the option since the latest run:
+   * that choice holds until the next run.
    */
   private void includeLogAfterARun() {
-    if (session == null
-        || session.getLogSupplier() == null
+    if (session == null) {
+      return;
+    }
+    forgetLogChoiceOfEarlierRun(session);
+    if (session.getLogSupplier() == null
         || session.getUserChosenInclusions().contains(AiAdvisorInclusions.LOGS)
         || Boolean.TRUE.equals(session.getInclusions().get(AiAdvisorInclusions.LOGS))) {
       return;
@@ -894,6 +1002,16 @@ public class AiAdvisorSessionPane extends Composite {
     check.setSelection(true);
     session.getInclusions().put(AiAdvisorInclusions.LOGS, true);
     updateSharingSummary();
+  }
+
+  /** A choice for the Logs option made before the latest run no longer holds. */
+  static void forgetLogChoiceOfEarlierRun(AiAdvisorSession session) {
+    String runId = session.currentRunId();
+    if (runId != null
+        && session.getUserChosenInclusions().contains(AiAdvisorInclusions.LOGS)
+        && !runId.equals(session.getLogChoiceRunId())) {
+      session.getUserChosenInclusions().remove(AiAdvisorInclusions.LOGS);
+    }
   }
 
   private void setInputEnabled(boolean enabled) {
@@ -1055,6 +1173,9 @@ public class AiAdvisorSessionPane extends Composite {
             if (session != null) {
               session.getInclusions().put(id, check.getSelection());
               session.getUserChosenInclusions().add(id);
+              if (AiAdvisorInclusions.LOGS.equals(id)) {
+                session.setLogChoiceRunId(session.currentRunId());
+              }
             }
             if (check.getSelection() && session != null) {
               if (AiAdvisorInclusions.METADATA.equals(id)
@@ -1429,6 +1550,7 @@ public class AiAdvisorSessionPane extends Composite {
     store.fireChanged();
 
     AiAdvisorSession target = session;
+    sentFromHere.add(target);
     // Build the question here on the UI thread: the log widgets are SWT, and the pipeline or
     // workflow may be edited while the model works. Only the model call runs in the background.
     AiAdvisorEngine.Prepared prepared;
@@ -1462,8 +1584,9 @@ public class AiAdvisorSessionPane extends Composite {
               AiAdvisorResponse result = response;
               Throwable failure = error;
               Thread self = Thread.currentThread();
-              // Record the answer even when this window was closed in the meantime: the session
-              // is shared with the other views and would otherwise stay "working" for good.
+              // Record the answer even when this window was closed in the meantime (unless the
+              // configuration cancels it on close): the session is shared with the other views
+              // and would otherwise stay "working" for good.
               if (!display.isDisposed()) {
                 display.asyncExec(
                     () -> {
@@ -1482,6 +1605,7 @@ public class AiAdvisorSessionPane extends Composite {
   private void completeTurn(
       AiAdvisorSession target, AiAdvisorTurn turn, AiAdvisorResponse response, Throwable error) {
     boolean cancelled = target.isCancelled();
+    sentFromHere.remove(target);
     recordResult(target, turn, response, error, cancelled);
     store.fireChanged();
     if (isDisposed()) {
@@ -1492,7 +1616,9 @@ public class AiAdvisorSessionPane extends Composite {
       transcript.showSession(target, this::reviewProposalsForTurn);
       updateSendButton();
     }
-    if (error != null && !cancelled) {
+    if (error != null && !cancelled && !isExplained(error)) {
+      // The status line already says what to do about an explained problem. Other failures, such
+      // as a network or authentication error from the provider, get the details as well.
       new ErrorDialog(
           host.getShell(),
           BaseMessages.getString(PKG, "AiAdvisor.Send.Error.Title"),
@@ -1591,13 +1717,23 @@ public class AiAdvisorSessionPane extends Composite {
       return;
     }
     try {
-      // A bad metadata save must not leave the graph changed: check the saves first.
+      // All or nothing: the metadata saves undo themselves when one fails, and are undone when the
+      // graph changes fail. The graph changes roll themselves back.
       AiMetadataProposalSupport.checkAll(selected, host.getMetadataProvider());
-      advisor.applyProposals(request, selected);
-      int copied = AiClipboardProposals.copy(selected);
       List<AiMetadataBackup> backups =
           AiMetadataProposalSupport.saveAll(selected, host.getMetadataProvider());
+      try {
+        advisor.applyProposals(request, selected);
+      } catch (Exception e) {
+        try {
+          AiMetadataProposalSupport.revert(backups, host.getMetadataProvider());
+        } catch (Exception revertError) {
+          e.addSuppressed(revertError);
+        }
+        throw e;
+      }
       turn.getMetadataBackups().addAll(backups);
+      int copied = AiClipboardProposals.copy(selected);
       int saved = backups.size();
       session.recordApplied(turn, selected, advisor);
       advisor.afterApply(request, selected);
@@ -1618,12 +1754,18 @@ public class AiAdvisorSessionPane extends Composite {
     }
   }
 
-  /** Deletes and replacements are opt-in for every advisor, whatever its validator says. */
+  /**
+   * Deletes, replacements, settings changes and whatever the model itself rates HIGH risk are
+   * opt-in for every advisor, whatever its validator says.
+   */
   public static void markOptIn(List<AiProposal> proposals, List<AiProposalValidation> validations) {
     for (int i = 0; i < proposals.size() && i < validations.size(); i++) {
-      AiProposalTypes type = AiProposalTypes.of(proposals.get(i));
+      AiProposal proposal = proposals.get(i);
+      AiProposalTypes type = AiProposalTypes.of(proposal);
       AiProposalValidation validation = validations.get(i);
-      if (type != null && type.isOptIn() && validation != null) {
+      if (validation != null
+          && ((type != null && type.isOptIn())
+              || "HIGH".equalsIgnoreCase(Const.NVL(proposal.getRiskLevel(), "").trim()))) {
         validation.setOptIn(true);
       }
     }

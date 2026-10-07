@@ -38,6 +38,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -48,26 +49,30 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 /** Validates and saves CLIPBOARD_METADATA / SAVE_METADATA hop_proposals. */
 public final class AiMetadataProposalSupport {
 
+  private static final Class<?> PKG = AiMetadataProposalSupport.class;
+
   public static final int MAX_JSON_CHARS = 100_000;
 
   /**
-   * Metadata types a proposal may not save. A silent change to one of these redirects where
-   * prompts, secrets, logs or execution go, or exposes pipelines over HTTP. The user creates or
-   * changes them in the Metadata perspective.
+   * The metadata types a proposal may save: connections and data definitions a user typically asks
+   * the assistant to create. Everything else, such as run configurations, servers, AI providers,
+   * variable resolvers, logging, web services, VFS and Git connections, can redirect where prompts,
+   * secrets, files, logs or execution go. The user creates or changes those in the Metadata
+   * perspective. Matched on the type's own key, so a legacy key in a proposal does not get around
+   * it.
    */
-  static final Set<String> PROTECTED_TYPE_KEYS =
+  static final Set<String> SAVABLE_TYPE_KEYS =
       Set.of(
-          "ai-provider",
-          "variable-resolver",
-          "pipeline-run-configuration",
-          "workflow-run-configuration",
-          "server",
-          "execution-info-location",
-          "pipeline-log",
-          "workflow-log",
-          "pipeline-probe",
-          "web-service",
-          "async-web-service");
+          "rdbms",
+          "cassandra-connection",
+          "mongodb-connection",
+          "neo4j-connection",
+          "neo4j-graph-model",
+          "dataset",
+          "unit-test",
+          "file-definition",
+          "schema-definition",
+          "partition");
 
   private AiMetadataProposalSupport() {}
 
@@ -82,23 +87,24 @@ public final class AiMetadataProposalSupport {
       return result;
     }
     if (AiProposalXmlSupport.containsSecrets(jsonParam(proposal))) {
-      result.setWarning("JSON contains password-like fields");
+      result.setWarning(BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Secrets"));
     } else if (AiProposalTypes.of(proposal) == AiProposalTypes.CLIPBOARD_METADATA) {
-      result.setWarning("Copies JSON to the clipboard");
+      result.setWarning(BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Clipboard"));
     } else {
       String name = Const.NVL(targetName(proposal, metadataProvider), "");
       String typeKey = Const.NVL(firstParameter(proposal, "typeKey", "metadataType"), "");
       if (exists(proposal, metadataProvider)) {
         result.setWarning(
-            "Overwrites the existing "
-                + typeKey
-                + " '"
-                + name
-                + "'. You can undo it from the transcript.");
+            BaseMessages.getString(
+                PKG, "AiMetadataProposalSupport.Warning.Overwrite", typeKey, name));
         result.setOptIn(true);
+      } else if (name.isEmpty()) {
+        result.setWarning(
+            BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Save", typeKey));
       } else {
         result.setWarning(
-            "Saves metadata object " + (name.isEmpty() ? typeKey : name + " (" + typeKey + ")"));
+            BaseMessages.getString(
+                PKG, "AiMetadataProposalSupport.Warning.SaveNamed", name, typeKey));
       }
     }
     return result;
@@ -205,6 +211,8 @@ public final class AiMetadataProposalSupport {
   }
 
   /**
+   * Save every SAVE_METADATA proposal, or none: when one save fails, the ones before it are undone.
+   *
    * @return what each save replaced, in save order, for {@link #revert(List, IHopMetadataProvider)}
    */
   public static List<AiMetadataBackup> saveAll(
@@ -213,18 +221,32 @@ public final class AiMetadataProposalSupport {
     if (selected == null || provider == null) {
       return backups;
     }
-    for (AiProposal proposal : selected) {
-      if (AiProposalTypes.of(proposal) == AiProposalTypes.SAVE_METADATA) {
-        backups.add(save(proposal, provider));
+    try {
+      for (AiProposal proposal : selected) {
+        if (AiProposalTypes.of(proposal) == AiProposalTypes.SAVE_METADATA) {
+          backups.add(save(proposal, provider));
+        }
       }
+    } catch (Exception e) {
+      HopException failure =
+          new HopException(BaseMessages.getString(PKG, "AiMetadataProposalSupport.SaveFailed"), e);
+      try {
+        revert(backups, provider);
+      } catch (Exception revertError) {
+        failure.addSuppressed(revertError);
+      }
+      throw failure;
     }
     return backups;
   }
 
-  /** Matched on the type's own key, so a legacy key in the proposal does not get around it. */
-  static boolean isProtected(Class<? extends IHopMetadata> metadataClass) {
+  /** The allowed type keys; tests add their own test type. */
+  static Set<String> savableTypeKeys = SAVABLE_TYPE_KEYS;
+
+  /** Whether a proposal may save objects of this type; see {@link #SAVABLE_TYPE_KEYS}. */
+  static boolean isSavable(Class<? extends IHopMetadata> metadataClass) {
     HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(metadataClass);
-    return annotation != null && PROTECTED_TYPE_KEYS.contains(annotation.key());
+    return annotation != null && savableTypeKeys.contains(annotation.key());
   }
 
   static String validateError(AiProposal proposal, IHopMetadataProvider metadataProvider) {
@@ -254,11 +276,8 @@ public final class AiMetadataProposalSupport {
     try {
       Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
       if (AiProposalTypes.of(proposal) == AiProposalTypes.SAVE_METADATA
-          && isProtected(metadataClass)) {
-        return "AI proposals cannot save "
-            + typeKey
-            + " metadata: it controls where prompts, secrets, logs or execution go. Create or"
-            + " change it yourself in the Metadata perspective.";
+          && !isSavable(metadataClass)) {
+        return BaseMessages.getString(PKG, "AiMetadataProposalSupport.NotSavable", typeKey);
       }
       parseObject(metadataClass, metadataProvider, json);
     } catch (Exception e) {

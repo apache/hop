@@ -39,6 +39,10 @@ These options are stored under `pass:c[hopAiConfig]` in `hop-config.json`.
 |pass:c[Saves the AI Assistant sessions of each project as plain text (questions, answers, proposals and options, not the context that was sent) in the audit folder, ${HOP_AUDIT_FOLDER}, next to the other things Hop GUI remembers per project. That folder is on your machine and outside the project, so the conversations do not end up in version control. Uncheck to start every Hop GUI session without conversations.]
 |`pass:c[true]`
 
+|pass:c[When a window closes during a question]
+|pass:c[What happens to a question that is still waiting for its answer when you close the AI Assistant window or dock, or Hop GUI. Finish in the background records the answer in the session, so you find it when you open the session again. Cancel stops waiting, as Stop does, and no answer is recorded.]
+|`pass:c[Finish in the background]`
+
 |pass:c[Extra context]
 a|pass:c[Standing notes sent with every AI Assistant question. The default reminds the model that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different types, and that Hop is not Kettle. Add project conventions here. Accepts variables.]
 

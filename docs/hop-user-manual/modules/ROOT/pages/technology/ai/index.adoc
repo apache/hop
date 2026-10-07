@@ -30,7 +30,7 @@ AI is *disabled until you turn it on*.
 == What ships
 
 * xref:metadata-types/ai-provider.adoc[AI Provider] metadata — named model + credentials
-* Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, extra context notes, context files (default `+${PROJECT_HOME}/AGENTS.md+`), optional full XML
+* Configuration perspective → *Plugins* → *AI Assistant* — master enable, default provider, extra context notes, context files (none by default), optional full XML, what happens to a running question when its window closes
 * xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant] workbench — perspective, floating window, and bottom dock
 * The pipeline and workflow assistants — toolbar and context-menu entry points, including review-and-apply `hop_proposals` graph edits, clipboard XML/JSON, and metadata saves
 * Language Model Chat can optionally use a named AI Provider for connection fields; inline keys remain as fallback
@@ -51,7 +51,7 @@ See xref:hop-gui/perspective-ai-advisor.adoc#version-control[Version control] on
 * Prompts mask every value Hop stores encrypted (password fields), fields named like secrets (password, passphrase, secret key, token, API key, …) and passwords in URLs. That does not catch literals in SQL, notes or logs.
 * Session *context inclusion* checkboxes control extra payload (transform settings, check results, plugin catalog, execution log, full XML, selected metadata). Use only what the question needs: xref:hop-gui/perspective-ai-advisor.adoc#context-inclusions[Context inclusions].
 * Extra context notes and listed context files are sent on every turn as instructions. No context files are listed by default; only add files you wrote for the assistant, and keep secrets out of them.
-* Advisor plugins may also ship `ai-context.md` next to the plugin JAR (Hop's AI plugin does). Those notes are always sent for that advisor.
+* Assistant (advisor) plugins may also ship `ai-context.md` next to the plugin JAR (Hop's AI plugin does). Those notes are always sent for that assistant.
 * Full pipeline or workflow XML is not sent unless both the session checkbox *and* Configuration → *Allow sending full XML* are on.
 * Delete `plugins/tech/ai` to remove the GUI, metadata type and advisors.
 * Hide individual widgets with xref:hop-gui/disable-ui-elements.adoc[disabledGuiElements.xml].
