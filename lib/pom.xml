@@ -93,7 +93,7 @@
         <kaml.version>0.104.0</kaml.version>
         <kotlin.version>1.9.25</kotlin.version>
         <log4j.version>2.26.1</log4j.version>
-        <lz4-java.version>1.11.2</lz4-java.version>
+        <lz4-java.version>1.11.4</lz4-java.version>
         <maven-resolver-provider.version>3.9.16</maven-resolver-provider.version>
         <maven-resolver.version>1.9.27</maven-resolver.version>
         <msal4j-persistence.version>1.3.0</msal4j-persistence.version>
