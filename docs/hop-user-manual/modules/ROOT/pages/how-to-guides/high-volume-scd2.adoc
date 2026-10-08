@@ -205,9 +205,19 @@ On a first load, bulk load the stream into the target table. The example at the 
 
 === Incremental load
 
-Most new versions can still be bulk loaded. The row that was current and now has a successor needs its `to_ts` corrected. Do that at the end of the pipeline with xref:pipeline/transforms/update.adoc[Update].
+Include the current target row for each business key as one of the sorted sources, as described above. After the timeline is rebuilt, split the stream on the end date.
 
-When that single-row update is slow and the database can merge a staged set, use xref:pipeline/transforms/filterrows.adoc[Filter rows] to set those rows aside, write them to a separate file, and bulk load them as well.
+Bulk load every row that still ends at `9999-12-31`. That row is a new current version.
+
+The other rows already have a real end date. Update those in place with xref:pipeline/transforms/update.adoc[Update]:
+
+* The lookup keys are `business_key` and `from_ts`. Together they identify the version that is already stored.
+* The field to update is `to_ts`.
+* Send a row to this update only when its end date is not `9999-12-31`. That is a version whose open end was closed because a later change arrived.
+
+When one business key gets several changes in the same run, a new version can already have a closed `to_ts` and still be absent from the table. Insert that row as well. The update applies to a `business_key` and `from_ts` that are already stored.
+
+When that update is slow and the database can merge a staged set, use xref:pipeline/transforms/filterrows.adoc[Filter rows] to set aside the rows whose end date is not `9999-12-31`, write them to a separate file, and bulk load them as well.
 
 == Example: a customer dimension from four satellites
 
@@ -251,7 +261,7 @@ image:how-to-guides/high-volume-scd2/initial-load-pipeline.png[Initial load of a
 |Table Output. Bulk loads the first version of the dimension.
 |===
 
-An incremental run of the same dimension adds the current target rows as a fifth sorted input and finishes by updating `to_ts` on the rows that were already stored.
+An incremental run of the same dimension adds the current target rows as a fifth sorted input. It bulk-loads rows that still end at `9999-12-31`, and updates `to_ts` on the stored version matched by `business_key` and `from_ts` when the new end date is not `9999-12-31`.
 
 == Link a fact to the SCD2 row and to a current SCD1
 
