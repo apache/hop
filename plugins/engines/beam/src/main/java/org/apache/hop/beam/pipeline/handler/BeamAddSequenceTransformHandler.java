@@ -97,10 +97,13 @@ public class BeamAddSequenceTransformHandler extends BeamBaseTransformHandler
     AddSequenceMeta meta = new AddSequenceMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
-    // GroupByKey cannot run on an unbounded global window, and a database sequence is the Hop
-    // transform's own connection. Both keep the generic handler.
+    // GroupByKey cannot run on an unbounded global window, a database sequence is the Hop
+    // transform's own connection, and a configuration transform is an info stream that only the
+    // generic handler passes on. All three keep the generic handler.
     //
-    if (meta.isDatabaseUsed() || input.isBounded() == PCollection.IsBounded.UNBOUNDED) {
+    if (meta.isDatabaseUsed()
+        || meta.isConfigurationFromTransform()
+        || input.isBounded() == PCollection.IsBounded.UNBOUNDED) {
       new BeamGenericTransformHandler()
           .handleTransform(
               log,

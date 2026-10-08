@@ -125,6 +125,15 @@ class BeamAddSequenceTransformHandlerTest {
   }
 
   @Test
+  void configurationTransformUsesTheGenericHandler() throws Exception {
+    Pipeline pipeline = Pipeline.create();
+    String graph = handledGraph(pipeline, boundedRows(pipeline), false, "Sequence settings");
+
+    assertFalse(graph.contains("AddSequenceFn"), graph);
+    assertFalse(graph.contains("GroupByKey"), graph);
+  }
+
+  @Test
   void boundedCounterUsesTheSequenceFunction() throws Exception {
     Pipeline pipeline = Pipeline.create();
     String graph = handledGraph(pipeline, boundedRows(pipeline), false);
@@ -134,6 +143,15 @@ class BeamAddSequenceTransformHandlerTest {
 
   private static String handledGraph(
       Pipeline pipeline, PCollection<HopRow> input, boolean databaseUsed) throws Exception {
+    return handledGraph(pipeline, input, databaseUsed, null);
+  }
+
+  private static String handledGraph(
+      Pipeline pipeline,
+      PCollection<HopRow> input,
+      boolean databaseUsed,
+      String configurationTransform)
+      throws Exception {
     AddSequenceMeta meta = new AddSequenceMeta();
     meta.setValueName("seq");
     meta.setStartAt("1");
@@ -145,6 +163,7 @@ class BeamAddSequenceTransformHandlerTest {
       meta.setConnection("customers");
       meta.setSequenceName("seq_id");
     }
+    meta.setConfigurationTransform(configurationTransform);
 
     Map<String, PCollection<HopRow>> collections = new HashMap<>();
     new BeamAddSequenceTransformHandler()
