@@ -160,7 +160,7 @@ limitations under the License.
         <field>
           <action_type>sign</action_type>
           <source_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv</source_filefolder>
-          <userid>${PGP_USER_ID}</userid>
+          <local_user>${PGP_USER_ID}</local_user>
           <destination_filefolder>${java.io.tmpdir}/hop-samples/pgp/report.csv.asc</destination_filefolder>
           <wildcard/>
         </field>

@@ -88,12 +88,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <message>The script ended with an error.</message>
       <loglevel>Error</loglevel>
-      <logsubject/>
-      <logmessage>The script ended with an error.</logmessage>
       <name>Script failed</name>
       <description/>
-      <type>WRITE_TO_LOG</type>
+      <type>ABORT</type>
       <attributes/>
       <xloc>272</xloc>
       <yloc>400</yloc>
