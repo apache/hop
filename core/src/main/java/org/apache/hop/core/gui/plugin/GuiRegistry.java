@@ -546,7 +546,9 @@ public class GuiRegistry {
     itemFilter.setGuiPluginClassName(guiPluginClassName);
     itemFilter.setGuiPluginMethodName(method.getName());
     itemFilter.setClassLoader(classLoader);
-    itemFilter.setId(guiPluginClassName.getClass().getName() + "." + method.getName());
+    // guiPluginClassName is already the class name. getClass() here is String, so the id was
+    // always "java.lang.String.<method>".
+    itemFilter.setId(guiPluginClassName + "." + method.getName());
 
     List<GuiToolbarItemFilter> itemFilters =
         toolbarItemFiltersMap.computeIfAbsent(filter.parentId(), k -> new ArrayList<>());
@@ -790,7 +792,9 @@ public class GuiRegistry {
     actionFilter.setGuiPluginClassName(guiPluginClassName);
     actionFilter.setGuiPluginMethodName(method.getName());
     actionFilter.setClassLoader(classLoader);
-    actionFilter.setId(guiPluginClassName.getClass().getName() + "." + method.getName());
+    // guiPluginClassName is already the class name. getClass() here is String, so the id was
+    // always "java.lang.String.<method>".
+    actionFilter.setId(guiPluginClassName + "." + method.getName());
 
     List<GuiActionFilter> actionFilters =
         contextActionFiltersMap.computeIfAbsent(af.parentId(), k -> new ArrayList<>());

@@ -64,20 +64,34 @@ public class GuiActionLambdaBuilder<T> {
             "Unable to find class '" + guiAction.getGuiPluginClassName() + "'", e);
       }
 
-      Object guiPlugin;
-
-      try {
-        Method getInstanceMethod = guiPluginClass.getDeclaredMethod("getInstance");
-        guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
-      } catch (Exception nsme) {
-        // On the rebound we'll try to simply construct a new instance...
-        // This makes the plugins even simpler.
-        //
+      // The caller passes the graph the click happened on. getInstance() only sees the active
+      // tab and returns null when that graph is not the active file, which is how the UI tests
+      // drive a canvas.
+      Object guiPlugin = null;
+      if (guiPluginClass.isInstance(refresher)) {
+        guiPlugin = refresher;
+      } else {
         try {
-          guiPlugin = guiPluginClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-          throw nsme;
+          Method getInstanceMethod = guiPluginClass.getDeclaredMethod("getInstance");
+          guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
+        } catch (Exception nsme) {
+          // On the rebound we'll try to simply construct a new instance...
+          // This makes the plugins even simpler.
+          //
+          try {
+            guiPlugin = guiPluginClass.getDeclaredConstructor().newInstance();
+          } catch (Exception e) {
+            throw nsme;
+          }
         }
+      }
+      if (guiPlugin == null) {
+        throw new HopException(
+            "No instance of "
+                + guiAction.getGuiPluginClassName()
+                + " for action "
+                + action.getId()
+                + ". getInstance() returned null.");
       }
 
       Method method =
