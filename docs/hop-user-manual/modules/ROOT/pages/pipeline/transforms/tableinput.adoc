@@ -201,13 +201,15 @@ where id > ${PRM_ID} AND lastdate > ?;
 [#parallel-reading]
 == Parallel reading
 
+Keep `NR_COPIES` as a parameter of the pipeline. On the pipeline properties *Parameters* tab, give it a default and a description so the copy count is documented with the pipeline and easy to change for a run. Changing that one value lets you test the limit of the source database's capacity. See xref:fields-parameters-variables.adoc#_parameters[Parameters].
+
 A large read often keeps one database session busy on a single CPU core, while the network and the disks still have capacity. Several copies of the same Table Input share that read. Each copy runs the query on its own session, and a predicate assigns that copy its own slice of the rows.
 
 Every row has to land in exactly one copy. Build the predicate so that it maps a key onto the copy number.
 
 === Setup
 
-. Define a pipeline parameter `NR_COPIES` with the number of copies, for example `4`.
+. Set pipeline parameter `NR_COPIES` to the number of copies for this run, for example `4`.
 . Click the Table Input icon and set *Specify copies* to `+${NR_COPIES}+`. See xref:pipeline/specify-copies.adoc[Specify copies]. The copies field accepts a positive integer or a single variable.
 . Enable *Replace variables in script*. Hop substitutes the variables before the database receives the SQL.
 . Add the slice predicate to the `WHERE` clause.
