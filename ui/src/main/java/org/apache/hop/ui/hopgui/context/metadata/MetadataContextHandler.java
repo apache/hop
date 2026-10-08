@@ -71,22 +71,11 @@ public class MetadataContextHandler implements IGuiContextHandler {
 
     List<GuiAction> actions = new ArrayList<>();
 
-    GuiAction newAction =
-        new GuiAction(
-            "CREATE_" + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
-            GuiActionType.Create,
-            TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
-            "Creates a new "
-                + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass)
-                + " : "
-                + TranslateUtil.translate(hopMetadata.description(), metadataObjectClass),
-            hopMetadata.image(),
-            (shiftClicked, controlClicked, parameters) ->
-                metadataManager.newMetadataWithEditor(""));
-    newAction.setClassLoader(metadataObjectClass.getClassLoader());
-    newAction.setCategory(CONST_METADATA);
-    newAction.setCategoryOrder("2");
-    actions.add(newAction);
+    // No new objects of a deprecated metadata type are created.
+    //
+    if (!hopMetadata.deprecated()) {
+      actions.add(createNewAction(hopMetadata));
+    }
 
     GuiAction editAction =
         new GuiAction(
@@ -140,5 +129,24 @@ public class MetadataContextHandler implements IGuiContextHandler {
     }
 
     return actions;
+  }
+
+  private GuiAction createNewAction(HopMetadata hopMetadata) {
+    GuiAction newAction =
+        new GuiAction(
+            "CREATE_" + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
+            GuiActionType.Create,
+            TranslateUtil.translate(hopMetadata.name(), metadataObjectClass),
+            "Creates a new "
+                + TranslateUtil.translate(hopMetadata.name(), metadataObjectClass)
+                + " : "
+                + TranslateUtil.translate(hopMetadata.description(), metadataObjectClass),
+            hopMetadata.image(),
+            (shiftClicked, controlClicked, parameters) ->
+                metadataManager.newMetadataWithEditor(""));
+    newAction.setClassLoader(metadataObjectClass.getClassLoader());
+    newAction.setCategory(CONST_METADATA);
+    newAction.setCategoryOrder("2");
+    return newAction;
   }
 }

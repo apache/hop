@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "label",
+          "data_set_field": "label"
+        }
+      ],
+      "field_order": [
+        "id",
+        "label"
+      ],
+      "transform_name": "Validation",
+      "data_set_name": "node-mapping-using-value-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-graph-output-validation-node-mapping-using-value UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-graph-output/neo4j-graph-output-validation-node-mapping-using-value.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "embedding",
+          "data_set_field": "embedding"
+        }
+      ],
+      "field_order": [
+        "id",
+        "embedding"
+      ],
+      "transform_name": "Validation",
+      "data_set_name": "graph-output-vector-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "graph-output-vector-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/graph-output-vector/graph-output-vector-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

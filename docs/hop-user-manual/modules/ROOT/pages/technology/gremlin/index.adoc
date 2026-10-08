@@ -1,0 +1,66 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/gremlin/
+:language: en_US
+:description: Apache Hop reads from and writes to graph databases which speak Gremlin: Apache TinkerPop Gremlin Server, JanusGraph and Amazon Neptune.
+:page-marketplace: hop-tech-gremlin
+
+= Gremlin
+
+== Description
+
+https://tinkerpop.apache.org/gremlin.html[Gremlin^] is the graph traversal language of Apache TinkerPop.
+Hop connects to Gremlin servers with a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] of the Gremlin type, from the optional Gremlin plugin.
+It is tested with Apache TinkerPop Gremlin Server and JanusGraph. The Gremlin endpoint of Amazon Neptune uses the same protocol. IAM authentication isn't supported.
+
+== Run Gremlin Server in docker
+
+`docker run -p 8182:8182 tinkerpop/gremlin-server`
+
+or JanusGraph:
+
+`docker run -p 8182:8182 janusgraph/janusgraph`
+
+== What works
+
+* The xref:pipeline/transforms/graph-query.adoc[Graph query] transform and the xref:workflow/actions/graph-script.adoc[Graph script] action run Gremlin traversals as scripts. The parameters become script bindings.
+A traversal returns a row per result: a map, from `project()`, `elementMap()` or `valueMap()`, gives a field per key, anything else one field called `result`.
+Vertices, edges and paths come back like the nodes, relationships and paths of other graph databases, for example as a graph value with the *Return graph* option.
+* The xref:pipeline/transforms/graph-output.adoc[Graph output] transform upserts vertices and edges with Gremlin traversals, without scripts. A vertex is identified by its primary properties and gets the first label of a node.
+* The xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections] action.
+
+== What doesn't work
+
+The features built on Cypher:
+
+* The xref:pipeline/transforms/cypher-output.adoc[Cypher output] and xref:pipeline/transforms/cypher-builder.adoc[Cypher builder] transforms.
+* The xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint] actions: create indexes with the schema tools of the server.
+* The execution logging, the xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] transform, the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective] and the xref:metadata-types/graphs/graph-database-location.adoc[graph database location].
+* The index checks of the Graph output model validation: Gremlin servers don't list their indexes. The use of the model is validated.
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j import].
+
+== Differences with Cypher databases
+
+* There are no transactions: every request is committed on its own.
+* The binding names `id`, `label`, `key` and `value` are reserved by Gremlin servers: don't use them as parameter names.
+* Amazon Neptune doesn't run scripts with bindings: use Graph output to write to Neptune.
+* Amazon Neptune: the connection only authenticates with a username and password, which Neptune doesn't use. Requests aren't signed with AWS Signature Version 4, so IAM database authentication isn't supported: connect to a Neptune cluster with IAM authentication disabled, over TLS.
+* Graph output sets vertex properties with single cardinality: an update replaces the value, also on servers which keep a set of values by default, like Neptune.
+* Graph output needs at least one primary property per node: it looks vertices up by these properties.
+* Dates and times are stored as UTC dates, the date type every Gremlin server supports.
+* Create indexes with the schema tools of the server, for example the JanusGraph management API: Graph output looks vertices up by their primary properties.
+* Gremlin Server has no browser. Tools like https://github.com/aws/graph-explorer[Graph Explorer^] can show its graph through the HTTP endpoint of the server, which needs the `WsAndHttpChannelizer` in its configuration.

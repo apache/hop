@@ -267,6 +267,7 @@ Set a positive number of milliseconds to change the interval.
 A negative value, for example -1, disables the interval flush.
 |HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|N|Set this variable to N to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
 Changing it to true will clear it when export pipeline / workflow.
+|HOP_GRAPH_LOGGING_CONNECTION||Set this variable to the name of a Neo4j connection or a graph database connection of a Cypher database to enable execution logging to that database.
 |HOP_JSON_INPUT_INCLUDE_NULLS|Y|Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not be included (default behavior)
 |HOP_LENIENT_STRING_TO_NUMBER_CONVERSION|N|System wide flag to allow lenient string to number conversion for backward compatibility.
 If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol).
@@ -318,7 +319,7 @@ Set to 0 to keep all snapshots indefinitely (default)
 |HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING|-|
 |HOP_ZIP_MIN_INFLATE_RATIO|-|A variable to configure the minimum allowed ratio between de- and inflated bytes to detect a zipbomb
 |HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING|-|
-|NEO4J_LOGGING_CONNECTION||Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database.
+|NEO4J_LOGGING_CONNECTION||Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database. HOP_GRAPH_LOGGING_CONNECTION takes precedence.
 |===
 
 == Environment variables

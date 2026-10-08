@@ -48,6 +48,9 @@ public class GraphPropertyData {
     return switch (type) {
       case Boolean -> ((Boolean) value) ? "true" : "false";
       case String -> escapeString((String) value);
+        // neo4j-admin import reads a float[] column with ; between the elements
+      case Vector ->
+          value instanceof java.util.List<?> list ? StringUtils.join(list, ';') : value.toString();
       default -> value.toString();
     };
   }

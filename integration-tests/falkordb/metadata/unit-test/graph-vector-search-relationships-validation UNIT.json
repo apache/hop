@@ -1,0 +1,40 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "query_id",
+          "data_set_field": "query_id"
+        },
+        {
+          "transform_field": "seq",
+          "data_set_field": "seq"
+        },
+        {
+          "transform_field": "found_id",
+          "data_set_field": "found_id"
+        },
+        {
+          "transform_field": "score",
+          "data_set_field": "score"
+        }
+      ],
+      "field_order": [
+        "seq"
+      ],
+      "transform_name": "Validation",
+      "data_set_name": "graph-vector-search-relationships-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "graph-vector-search-relationships-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/graph-vector-search-relationships/graph-vector-search-relationships-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

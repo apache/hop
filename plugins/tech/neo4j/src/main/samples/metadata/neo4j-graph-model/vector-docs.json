@@ -1,0 +1,97 @@
+{
+  "name": "vector-docs",
+  "description": "Documents with an embedding and the topics they are about, with an embedding of that relationship. Used by the graph-databases/vector-search samples.",
+  "nodes": [
+    {
+      "presentation": {
+        "x": 100,
+        "y": 100
+      },
+      "name": "Doc",
+      "description": "A document with the embedding of its text",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "The document ID",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "title",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "embedding",
+          "description": "The embedding of the document text",
+          "type": "Vector",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Doc"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 400,
+        "y": 100
+      },
+      "name": "Topic",
+      "description": "A topic documents are about",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Topic"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "nodeSource": "Doc",
+      "nodeTarget": "Topic",
+      "name": "ABOUT",
+      "description": "A document is about a topic. The embedding is the one of the passage about it.",
+      "label": "ABOUT",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "passage",
+          "description": "The passage of the document about the topic",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "embedding",
+          "description": "The embedding of the passage",
+          "type": "Vector",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    }
+  ]
+}

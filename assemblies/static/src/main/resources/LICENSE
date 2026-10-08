@@ -269,13 +269,13 @@ This product bundles antlr-runtime 3.5.3, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles antlr4-runtime 4.10.1, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles antlr4-runtime 4.13.1, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles antlr4-runtime 4.9.3, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles aopalliance 1.0, which is available under a
 "Public Domain" license. For details, see Public Domain.
@@ -970,6 +970,9 @@ This product bundles error_prone_annotations 2.50.0, which is available under a
 This product bundles eventstream 1.0.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles exp4j 0.4.8, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles exporter-metrics 0.33.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1192,6 +1195,21 @@ This product bundles google-oauth-client-java6 1.39.0, which is available under 
 This product bundles google-oauth-client-jetty 1.39.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles gremlin-core 3.7.6, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles gremlin-driver 3.7.6, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles gremlin-language 3.7.6, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles gremlin-shaded 3.7.6, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles gremlin-util 3.7.6, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles groovy 4.0.30, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1369,6 +1387,9 @@ This product bundles hk2-utils 3.0.6, which is available under a
 This product bundles hk2-utils 4.0.0-M3, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
+This product bundles hppc 0.7.1, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles hppc 0.8.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1441,10 +1462,19 @@ This product bundles jackcess-encrypt 4.0.3, which is available under a
 This product bundles jackrabbit-webdav 2.20.16, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles jackson-annotations 2.15.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles jackson-annotations 2.21, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles jackson-core 2.15.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles jackson-core 2.21.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-databind 2.15.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-databind 2.21.5, which is available under a
@@ -1561,6 +1591,9 @@ This product bundles janino 3.1.12, which is available under a
 This product bundles janino 3.1.9, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
+This product bundles janusgraph-driver 1.1.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles java-driver-core 4.17.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1584,6 +1617,9 @@ This product bundles javapoet 1.13.0, which is available under a
 
 This product bundles javassist 3.32.0-GA, which is available under a
 "Mozilla Public 1.1" license. For details, see licenses/LICENSE-MPL11.
+
+This product bundles javatuples 1.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
 
 This product bundles javax.activation-api 1.2.0, which is available under a
 "Common Development and Distribution 1.0" license. For details, see licenses/LICENSE-CDDL10.
@@ -1885,6 +1921,9 @@ This product bundles jt400 21.0.7, which is available under a
 This product bundles jtokkit 1.1.0, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
+This product bundles jts-core 1.17.0, which is available under a
+"Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
+
 This product bundles jts-core 1.20.0, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
@@ -1996,6 +2035,9 @@ This product bundles kotlinx-serialization-core-jvm 1.0.1, which is available un
 This product bundles kryo 2.24.0, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
+This product bundles kryo-shaded 3.0.3, which is available under a
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
+
 This product bundles kryo-shaded 4.0.2, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
@@ -2031,6 +2073,9 @@ This product bundles langchain4j-reactive-streaming 1.20.0-beta30, which is avai
 
 This product bundles LatencyUtils 2.0.3, which is available under a
 "Creative Commons" license. For details, see licenses/LICENSE-CC0.
+
+This product bundles lettuce-core 6.5.5.RELEASE, which is available under a
+"The MIT" license. For details, see licenses/LICENSE-MIT.
 
 This product bundles libphonenumber 9.0.40, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
@@ -2410,10 +2455,16 @@ This product bundles netty-transport-udt 4.2.17.Final, which is available under 
 This product bundles nimbus-jose-jwt 10.6, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles noggit 0.8, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles oauth2-oidc-sdk 11.9.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles objenesis-2.1.jar , which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles objenesis-3.3.jar , which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles objenesis-3.4.jar , which is available under a
@@ -2782,6 +2833,9 @@ This product bundles reactor-netty-http 1.3.3, which is available under a
 This product bundles redshift-jdbc42 2.2.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles reflectasm 1.10.1, which is available under a
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
+
 This product bundles regex 25.0.3, which is available under a
 "The Universal Permissive License (UPL)" license. For details, see licenses/LICENSE-UPL.
 
@@ -3011,6 +3065,9 @@ This product bundles spark-variant_2.13 4.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles SparseBitSet 1.3, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles spatial4j 0.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles splunk 1.6.5.0, which is available under a

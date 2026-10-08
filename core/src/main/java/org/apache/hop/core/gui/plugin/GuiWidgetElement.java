@@ -162,6 +162,14 @@ public @interface GuiWidgetElement {
   String metadataKey() default "";
 
   /**
+   * A subclass of the metadata selection line widget to use instead of the standard one, for
+   * example to list the elements of more than one metadata type. It needs a public constructor
+   * taking IVariables, IHopMetadataProvider, Composite, int flags, String label and String tooltip.
+   * {@link Void} (the default) uses the standard widget.
+   */
+  Class<?> metadataSelectionLine() default Void.class;
+
+  /**
    * Optional naming-scheme type code for this widget ({@code file}, {@code folder}, {@code
    * hop-variable}, …). Empty means: infer {@code file}/{@code folder} from {@link
    * GuiElementType#FILENAME}/{@link GuiElementType#FOLDER}, otherwise the widget is not a name

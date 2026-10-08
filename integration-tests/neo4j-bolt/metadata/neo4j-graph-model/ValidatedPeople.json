@@ -1,0 +1,36 @@
+{
+  "relationships": [],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 200,
+        "y": 200
+      },
+      "name": "VPerson",
+      "description": "A person with an indexed id and a mandatory name",
+      "properties": [
+        {
+          "indexed": true,
+          "unique": false,
+          "name": "id",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "type": "String",
+          "mandatory": true,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "VPerson"
+      ]
+    }
+  ],
+  "name": "ValidatedPeople",
+  "description": "Graph Output validation against a model with an index"
+}

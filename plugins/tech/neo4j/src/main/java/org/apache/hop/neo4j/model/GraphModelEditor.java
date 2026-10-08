@@ -25,12 +25,11 @@ import java.util.Map;
 import java.util.Random;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.graph.GraphConstraintType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.neo4j.actions.constraint.ConstraintType;
 import org.apache.hop.neo4j.actions.constraint.ConstraintUpdate;
 import org.apache.hop.neo4j.actions.constraint.Neo4jConstraint;
 import org.apache.hop.neo4j.actions.index.IndexUpdate;
@@ -40,7 +39,7 @@ import org.apache.hop.neo4j.actions.index.UpdateType;
 import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.arrows.ArrowsAppImporter;
 import org.apache.hop.neo4j.model.sw.SolutionsWorkbenchImporter;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterListDialog;
@@ -880,6 +879,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
                 case IValueMeta.TYPE_BOOLEAN -> GraphPropertyType.Boolean;
                 case IValueMeta.TYPE_TIMESTAMP -> GraphPropertyType.LocalDateTime;
                 case IValueMeta.TYPE_BINARY -> GraphPropertyType.ByteArray;
+                case IValueMeta.TYPE_VECTOR -> GraphPropertyType.Vector;
                 default -> GraphPropertyType.String;
               };
 
@@ -1967,9 +1967,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
       // Select the index name...
       //
-      IHopMetadataSerializer<NeoConnection> connectionSerializer =
-          getMetadataManager().getMetadataProvider().getSerializer(NeoConnection.class);
-      java.util.List<String> connectionNames = connectionSerializer.listObjectNames();
+      java.util.List<String> connectionNames =
+          NeoConnectionUtils.getConnectionNames(getMetadataManager().getMetadataProvider());
       EnterSelectionDialog enterSelectionDialog =
           new EnterSelectionDialog(
               getShell(),
@@ -1980,10 +1979,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       if (connectionName == null) {
         return;
       }
-      NeoConnection connection = connectionSerializer.load(connectionName);
-
       Neo4jIndex neo4jIndex = new Neo4jIndex();
-      neo4jIndex.setConnection(connection);
+      neo4jIndex.setConnectionName(connectionName);
 
       // We need indexes for all the indexed or primary key fields (one only) in the model nodes...
       //
@@ -2019,7 +2016,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       String xmlIndex = indexMeta.getXml();
 
       Neo4jConstraint neo4jConstraint = new Neo4jConstraint();
-      neo4jConstraint.setConnection(connection);
+      neo4jConstraint.setConnectionName(connectionName);
 
       // We need indexes on all the primary keys in the model nodes...
       //
@@ -2040,7 +2037,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
                       new ConstraintUpdate(
                           org.apache.hop.neo4j.actions.constraint.UpdateType.CREATE,
                           org.apache.hop.neo4j.actions.constraint.ObjectType.NODE,
-                          ConstraintType.UNIQUE,
+                          GraphConstraintType.UNIQUE,
                           "COU_" + label.toUpperCase() + "_" + property.getName().toUpperCase(),
                           label,
                           property.getName()));

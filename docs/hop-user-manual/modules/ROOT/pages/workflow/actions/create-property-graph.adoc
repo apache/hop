@@ -1,0 +1,118 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Create property graph action creates a SQL/PGQ property graph in a relational database from a graph model
+:page-marketplace: hop-tech-neo4j
+
+= Create property graph
+
+== Description
+
+The `Create property graph` action turns a xref:metadata-types/graphs/graph-model.adoc[graph model] into a SQL/PGQ (SQL:2023) property graph in a relational database.
+
+In SQL/PGQ a property graph is defined on top of ordinary tables: one table per node and one table per relationship.
+The action creates the tables which don't exist yet and the `CREATE PROPERTY GRAPH` statement on top of them.
+Load the tables like any other table, for example with a Table Output transform, and query the graph with a `GRAPH_TABLE` query in a Table Input transform:
+
+[source,sql]
+----
+SELECT *
+FROM GRAPH_TABLE ( social_graph
+  MATCH (a IS Person) -[k IS KNOWS]-> (b IS Person)
+  COLUMNS (a.name AS a_name, b.name AS b_name, k.since AS since) )
+----
+
+The action is tested with Oracle Database 23ai.
+
+== Options
+
+=== Property graph tab
+
+[options="header"]
+|===
+|Option |Description
+
+|Relational database connection
+|The database to create the property graph in. It has to support SQL/PGQ.
+
+|Schema
+|The schema of the property graph and its tables. Leave it empty for the default schema.
+
+|Property graph name
+|The name of the property graph.
+
+|Graph model
+|The graph model with the nodes, relationships and properties of the graph.
+
+|Create missing tables?
+|Create the node and edge tables which don't exist yet, with a primary key on their key columns.
+The column types follow the property types of the graph model.
+
+|Replace an existing graph?
+|Use `CREATE OR REPLACE PROPERTY GRAPH` to replace a graph with the same name.
+|===
+
+=== Node tables tab
+
+The table of each node of the graph model.
+Empty values take the defaults:
+
+* Table: the name of the node
+* Key columns: the primary properties of the node
+
+Each property of the node is a column of its table.
+
+=== Edge tables tab
+
+The table of each relationship of the graph model.
+Empty values take the defaults:
+
+* Table: the name of the relationship
+* Source key columns: `source_<key>` for each key column of the source node table
+* Target key columns: `target_<key>` for each key column of the target node table
+* Key columns: the primary properties of the relationship, or else the source and target key columns
+
+Each property of the relationship is a column of its table.
+
+== Buttons
+
+* *Get from model*: adds a row with the defaults for every node and relationship of the graph model without a row, so you can change them.
+* *Show SQL*: shows the statements the action executes. It connects to the database to see which tables exist.
+
+== Example
+
+The samples project has a complete example.
+It needs Oracle Database 23ai, or another database with SQL/PGQ property graphs, and a relational database connection called `oracle-23ai`.
+Create that connection, or select your own in the action and in both pipelines.
+
+* the graph model `social-network`: `Person` nodes with the properties `id` (primary) and `name`, `Company` nodes with `code` (primary) and `name`, a `KNOWS` relationship from `Person` to `Person` with the property `since`, and a `WORKS_AT` relationship from `Person` to `Company`.
+* the workflow `property-graph/social-network-property-graph.hwf`:
+.. Create property graph: creates the tables `Person`, `Company`, `KNOWS` and `WORKS_AT` when they don't exist yet, and the property graph `SOCIAL_NETWORK` on top of them. *Replace an existing graph?* is on, so the workflow can run again.
+.. the pipeline `property-graph/social-network-load-tables.hpl`: a Data grid and a Table output per table. The edge tables take the default columns: `KNOWS` has `source_id`, `target_id` and `since`, `WORKS_AT` has `source_id` and `target_code`. Each Table output truncates its table first.
+.. the pipeline `property-graph/social-network-query.hpl`: a Table input with a `GRAPH_TABLE` query and a Write to log transform.
+
+The query returns every person, the people they know, since when, and where those people work:
+
+[source,sql]
+----
+SELECT *
+FROM GRAPH_TABLE ( SOCIAL_NETWORK
+  MATCH (p IS Person) -[k IS KNOWS]-> (f IS Person) -[w IS WORKS_AT]-> (c IS Company)
+  COLUMNS (p.name AS person, f.name AS friend, k.since AS since, c.name AS friend_works_at) )
+ORDER BY person, friend
+----

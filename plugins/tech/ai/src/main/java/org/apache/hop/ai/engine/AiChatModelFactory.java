@@ -19,6 +19,9 @@ package org.apache.hop.ai.engine;
 import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
+import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -87,6 +90,16 @@ public final class AiChatModelFactory {
           throw new HopException(
               BaseMessages.getString(PKG, "AiChatModelFactory.UnsupportedType", settings.type()));
     };
+  }
+
+  /**
+   * The schema as a response format, or null when the model does not accept one. Callers then put
+   * the schema in the prompt and check the answer on the way back.
+   */
+  public static ResponseFormat responseFormatFor(ChatModel model, JsonSchema schema) {
+    return model.supportedCapabilities().contains(Capability.RESPONSE_FORMAT_JSON_SCHEMA)
+        ? ResponseFormat.builder().type(ResponseFormatType.JSON).jsonSchema(schema).build()
+        : null;
   }
 
   /**

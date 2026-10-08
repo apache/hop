@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.neo4j.core.data.GraphVectors;
 
 @SuppressWarnings("java:S115")
 public enum GraphPropertyType {
@@ -40,7 +41,9 @@ public enum GraphPropertyType {
   Duration,
   LocalTime,
   DateTime,
-  Array;
+  Array,
+  /** An embedding: the Hop Vector value type, a list of numbers in the graph database. */
+  Vector;
 
   /**
    * Get the code for a type, handles the null case
@@ -127,6 +130,8 @@ public enum GraphPropertyType {
           }
           return zonedDateTime;
         }
+      case Vector:
+        return GraphVectors.toList(valueMeta, valueData);
       case Array:
         // Array conversion requires separator and enclosure - use overloaded method
         throw new HopValueException(
@@ -216,6 +221,7 @@ public enum GraphPropertyType {
       case IValueMeta.TYPE_BINARY -> GraphPropertyType.ByteArray;
       case IValueMeta.TYPE_BIGNUMBER -> GraphPropertyType.String;
       case IValueMeta.TYPE_INTEGER -> GraphPropertyType.Integer;
+      case IValueMeta.TYPE_VECTOR -> GraphPropertyType.Vector;
       default -> GraphPropertyType.String;
     };
   }

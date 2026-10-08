@@ -171,6 +171,19 @@ public class HopMetadataUtil {
     return annotation != null && key != null && getAllKeys(annotation).contains(key);
   }
 
+  /**
+   * @param managedClass a metadata class
+   * @return true if the metadata type is {@link HopMetadata#deprecated() deprecated}: existing
+   *     objects load and can be edited, but no new ones are created in the GUI
+   */
+  public static boolean isDeprecated(Class<? extends IHopMetadata> managedClass) {
+    if (managedClass == null) {
+      return false;
+    }
+    HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
+    return annotation != null && annotation.deprecated();
+  }
+
   public static String[] getHopMetadataKeys(IHopMetadataProvider provider) {
     List<String> keys = new ArrayList<>();
     for (Class<IHopMetadata> metadataClass : provider.getMetadataClasses()) {

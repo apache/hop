@@ -17,8 +17,12 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.hop.core.graph.IGraphConnection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.shared.NeoConnection;
@@ -33,6 +37,13 @@ public class CypherData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
   public NeoConnection neoConnection;
+
+  /**
+   * The connection to a graph database which isn't spoken to over Bolt, for example FalkorDB. Null
+   * for Bolt connections, which use the driver and session.
+   */
+  public IGraphConnection graphConnection;
+
   public String url;
   public Driver driver;
   public Session session;
@@ -51,6 +62,24 @@ public class CypherData extends BaseTransformData implements ITransformData {
 
   public Map<String, GraphPropertyDataType> returnSourceTypeMap;
   public int attempts;
+
+  /**
+   * The output rows of the attempt being executed, when the work can be retried. They are passed on
+   * once the attempt succeeded, so that a retried attempt doesn't output rows twice.
+   */
+  public List<Object[]> attemptRows = new ArrayList<>();
+
+  /**
+   * True if the output rows of the work being executed are passed on right away instead of being
+   * kept in {@link #attemptRows}. See {@code Cypher.isStreamingRows()}.
+   */
+  public boolean streamingRows;
+
+  /** The number of output rows passed on right away by the work being executed. */
+  public long streamedRows;
+
+  /** The notification codes and severities logged already in this run */
+  public Set<String> loggedNotifications = new HashSet<>();
 
   public CypherData() {
     super();

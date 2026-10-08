@@ -1,0 +1,29 @@
+{
+  "graphDatabase": {
+    "NEO4J": {
+      "server": "${NEO_HOSTNAME}",
+      "browserPort": "7474",
+      "databaseName": "",
+      "manualUrls": [],
+      "automaticVariable": "",
+      "usingEncryption": false,
+      "routing": true,
+      "password": "${NEO_PASSWORD}",
+      "usingEncryptionVariable": "",
+      "maxTransactionRetryTime": "",
+      "connectionLivenessCheckTimeout": "",
+      "connectionTimeout": "",
+      "connectionAcquisitionTimeout": "",
+      "trustAllCertificatesVariable": "",
+      "maxConnectionLifetime": "",
+      "routingVariable": "",
+      "automatic": false,
+      "routingPolicy": "",
+      "boltPort": "${NEO_PORT}",
+      "trustAllCertificates": false,
+      "maxConnectionPoolSize": "",
+      "username": "${NEO_USERNAME}"
+    }
+  },
+  "name": "Test"
+}

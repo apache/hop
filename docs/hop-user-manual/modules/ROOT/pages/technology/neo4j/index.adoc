@@ -34,7 +34,7 @@ Hop supports Neo4j through the following metadata objects
 == Perspective: Execution lineage
 
 You can use Neo4j to store logging and execution lineage of your workflows and pipelines.
-The way you do this is simply by setting the variable `NEO4J_LOGGING_CONNECTION` to the name of the Neo4j Connection where you want the logging and lineage to be written to.
+The way you do this is simply by setting the variable `HOP_GRAPH_LOGGING_CONNECTION` (or `NEO4J_LOGGING_CONNECTION`) to the name of the Neo4j Connection, or graph database connection, where you want the logging and lineage to be written to.
 
 The Neo4j plugin offers a separate perspective to query this logging and lineage information.
 For example, it allows you to quickly jump to the place where an error occurred.
@@ -43,25 +43,25 @@ The path you get is the exact path that was followed from for example the "grand
 
 == Metadata Types
 
-* xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: create or manage a connection to a Neo4j database
-* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: create or manage a Neo4j (sub)graph model
+* xref:metadata-types/graphs/neo4j-connection.adoc[Neo4j Connection]: create or manage a connection to a Neo4j database
+* xref:metadata-types/graphs/graph-model.adoc[Neo4j Graph Model]: create or manage a Neo4j (sub)graph model
 
 == Workflow Actions
 
-* xref:workflow/actions/neo4j-checkconnections.adoc[Neo4j Check Connection]: check a connection to a Neo4j database
-* xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher script]: execute a Cypher script or query
-* xref:workflow/actions/neo4j-index.adoc[Neo4j index]: Create or drop Neo4j indexes
-* xref:workflow/actions/neo4j-constraint.adoc[Neo4j constraint]: Create or drop Neo4j constraints
+* xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections]: check a connection to a Neo4j database
+* xref:workflow/actions/graph-script.adoc[Graph script]: execute a Cypher script or query
+* xref:workflow/actions/graph-index.adoc[Graph index]: Create or drop Neo4j indexes
+* xref:workflow/actions/graph-constraint.adoc[Graph constraint]: Create or drop Neo4j constraints
 
 == Pipeline Transforms
 
-* xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher]: execute a Cypher query on a Neo4j database using parameter info from input fields
-* xref:pipeline/transforms/neo4j-gencsv.adoc[Neo4j generate CSVs]: Generate CSV files for nodes and relationships to be used with neo4j-import
-* xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Log Info]: Queries the Neo4j logging graph for execution info
-* xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j graph output]: Writes to a Neo4j graph using an input fields mapping.
+* xref:pipeline/transforms/graph-query.adoc[Graph query]: execute a Cypher query on a Neo4j database using parameter info from input fields
+* xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]: Generate CSV files for nodes and relationships to be used with neo4j-import
+* xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info]: Queries the Neo4j logging graph for execution info
+* xref:pipeline/transforms/graph-output.adoc[Graph output]: Writes to a Neo4j graph using an input fields mapping.
 * xref:pipeline/transforms/neo4j-import.adoc[Neo4j import]: Runs a Neo4j import command using the provided CSV files
-* xref:pipeline/transforms/neo4j-output.adoc[Neo4j output]: Write nodes and/or relationships to a Neo4j graph
-* xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j split graph]: Splits the nodes and relationships of a Neo4j graph
+* xref:pipeline/transforms/cypher-output.adoc[Cypher output]: Write nodes and/or relationships to a Neo4j graph
+* xref:pipeline/transforms/split-graph.adoc[Split graph]: Splits the nodes and relationships of a Neo4j graph
 
 == Examples
 
