@@ -68,6 +68,13 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
 
   @HopMetadataProperty private boolean windowed;
 
+  /**
+   * #2337: how to compress the output files, as a {@link org.apache.beam.sdk.io.Compression}
+   * constant. Blank means no explicit compression; {@code AUTO} derives the codec from the file
+   * suffix.
+   */
+  @HopMetadataProperty private String compression;
+
   @Override
   public String getDialogClassName() {
     return BeamOutputDialog.class.getName();
@@ -148,6 +155,7 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
             variables.resolve(outputFileDefinition.getSeparator()),
             variables.resolve(outputFileDefinition.getEnclosure()),
             windowed,
+            variables.resolve(compression),
             JsonRowMeta.toJson(rowMeta));
 
     // Which transform do we apply this transform to?
@@ -259,7 +267,23 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
   }
 
   /**
-   * Gets windowed
+   * Gets compression
+   *
+   * @return value of compression
+   */
+  public String getCompression() {
+    return compression;
+  }
+
+  /**
+   * @param compression The compression to set
+   */
+  public void setCompression(String compression) {
+    this.compression = compression;
+  }
+
+  /**
+   * Is windowed
    *
    * @return value of windowed
    */

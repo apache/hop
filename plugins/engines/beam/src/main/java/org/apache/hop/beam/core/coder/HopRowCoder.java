@@ -38,6 +38,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 
 public class HopRowCoder extends AtomicCoder<HopRow> {
+  /** Distinct from {@link IValueMeta#TYPE_INTEGER}, which is a Hop Long. */
+  private static final int INDEX_INTEGER = 1001;
 
   @Override
   public void encode(HopRow hopRow, OutputStream outStream) throws IOException {
@@ -120,6 +122,9 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           Long lng = (Long) object;
           out.writeLong(lng);
         }
+        break;
+      case INDEX_INTEGER:
+        out.writeInt((Integer) object);
         break;
       case IValueMeta.TYPE_TIMESTAMP:
         {
@@ -211,6 +216,9 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           return in.readLong();
         }
 
+      case INDEX_INTEGER:
+        return in.readInt();
+
       case IValueMeta.TYPE_TIMESTAMP:
         {
           Timestamp timestamp = new Timestamp(in.readLong());
@@ -275,6 +283,10 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   private int getObjectType(Object object) throws CoderException {
     if (object instanceof String) {
       return IValueMeta.TYPE_STRING;
+    }
+    if (object instanceof Integer) {
+      // Indexed Hop values store a java.lang.Integer index, not a Hop Long.
+      return INDEX_INTEGER;
     }
     if (object instanceof Long) {
       return IValueMeta.TYPE_INTEGER;

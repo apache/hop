@@ -33,6 +33,19 @@ Also, they are not stored, so the values start back at the same value every time
 
 The start, increment, and maximum can be typed in, or read from another transform. Connect that transform to Add Sequence and select it as the configuration transform. It must return exactly one row. More than one row stops the pipeline with an error. The hop is an info hop, so that row is not part of the main stream. The end field is the maximum value: after it, the sequence returns to the start value. The configuration transform cannot run in multiple copies. If Add Sequence itself runs in multiple copies, copy the configuration row to every copy.
 
+=== On the Beam engines
+
+With a typed start, increment, and maximum on a bounded input, the Beam engines produce a single
+sequence across the whole pipeline, with no duplicates, the same as the local engine.
+To achieve this every row is keyed onto one key, so the transform runs at a parallelism of one:
+that is the trade-off for a globally increasing value.
+
+A database sequence, a configuration transform, or an unbounded input (for example Kafka or MQTT)
+runs the transform on each worker instead.
+A database sequence stays unique, because the database hands out the values.
+With a configuration transform or an unbounded input each worker keeps its own counter, so the
+values are not unique across the pipeline.
+
 == Options
 
 [options="header"]

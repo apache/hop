@@ -1,0 +1,55 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements. See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Beam Elasticsearch input uses the Beam ElasticsearchIO connector for JSON documents.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
+
+= image:transforms/icons/beam-elasticsearch-input.svg[Beam Elasticsearch input icon, role="image-doc-icon"] Beam Elasticsearch input
+
+== Description
+
+A bounded source that reads JSON documents with Beam's Elasticsearch scroll IO. This transform starts a Beam pipeline without incoming rows and provides a single String column to downstream transforms.
+It is not an incremental change feed and does not parse document properties into columns; use downstream JSON transforms for that.
+
+== Options
+
+All String settings support Hop variables, for example `${ES_HOSTS}` and `${ES_PASSWORD}`.
+Variables are resolved while constructing the Beam graph. Empty required settings, unresolved variables and invalid configuration fail before submission; credentials must also be available on workers through the resolved graph.
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Unique name within the pipeline.
+|Hosts|Required comma-separated HTTP(S) origins, for example `https://first.example:9200,https://second.example:9200`. Paths, URL credentials, query strings and fragments are rejected.
+|Index|Required index. Input can use an index expression understood by Elasticsearch; output needs a writable target index.
+|Document type (legacy)|Optional legacy type. See the version-specific limits below.
+|Username / Password|Optional basic authentication; supply both or neither. Passwords are stored with Hop's password encryption convention; variable expressions remain expressions. This is not a substitute for restricting pipeline and runner access.
+|JSON field|Required name of the single output String field, default `json`. Each row contains the document `_source` JSON object, not the hit metadata such as `_id`.
+|Query JSON|Optional JSON request body, for example `{"query":{"match_all":{}}}`. Blank reads all documents. The body is also sent to the count endpoint by Beam, so it must be accepted by that endpoint. Elasticsearch performs query semantics validation.
+|Scroll keepalive|Positive scroll context duration, default `5m`; units `ms`, `s`, `m`, `h` and `d` are accepted.
+|===
+
+== Reading and permissions
+
+The connector needs access to the root version response, index statistics, count (when a query is supplied), search and scroll APIs, including scroll cleanup.
+Workers must be able to reach the configured hosts. Runner splitting uses index statistics and Elasticsearch's sliced scroll.
+In Beam 2.74.0 the scroll request implementation does not apply the SDK `withBatchSize()` option to the request, so Hop does not expose a misleading read-batch control.
+There is no point-in-time or continuous polling mode in this transform.
+
+include::partial$beam-elasticsearch-compatibility.adoc[]

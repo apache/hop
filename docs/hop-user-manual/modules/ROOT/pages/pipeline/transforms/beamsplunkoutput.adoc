@@ -1,0 +1,63 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Beam Splunk output using Apache Beam SplunkIO.
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-engines-beam
+
+= image:transforms/icons/beam-splunk-output.svg[Beam Splunk output icon, role="image-doc-icon"] Beam Splunk output
+
+== Description
+
+Publish one Splunk HTTP Event Collector (HEC) event for each incoming Hop row using Apache Beam SplunkIO 2.74.0. Connect exactly one incoming transform. This is a terminal sink; it does not produce downstream rows. There is no Splunk input transform: SplunkIO is write-only.
+
+The HEC token is sent as `Authorization: Splunk <token>`. The request URL is the configured base URL plus `/services/collector/event`. Declared Beam compatibility is not a remote-runner certification.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Unique name in the pipeline.
+|HEC URL|Required base URL, `http://host:8088` or `https://host:8088`. No path, user info or query.
+|HEC token|Required token. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `${SPLUNK_HEC_TOKEN}`.
+|Batch count|Optional events per HTTP request. Empty uses the Beam default of 10. A partial batch is flushed on a 2 second timer.
+|Root CA certificate|Optional PEM used while certificate validation stays enabled. A `gs://` path needs the Beam GCS filesystem on the worker.
+|Disable certificate validation|Unchecked by default. HTTPS validates the server certificate and hostname unless this is enabled.
+|Gzip HTTP body|Checked by default, matching SplunkIO. The request body is gzip-compressed.
+|Event field|Required incoming field. Its string value is the HEC `event` body. A null value fails the pipeline.
+|Index|Optional index copied onto every event.
+|Source|Optional source copied onto every event.
+|Source type|Optional source type copied onto every event.
+|Host|Optional host copied onto every event.
+|===
+
+== Execution and security
+
+Hop's lines-read and lines-output counts are conversion: a row was read, or it was turned into a `SplunkEvent` and handed to SplunkIO. Lines written stays empty. A converted event is not a confirmed HEC write. SplunkIO keeps its own HTTP counters inside Beam; this transform does not copy them onto a Hop acknowledged-write counter.
+
+Client errors (HTTP 400 and above, below 500) are not retried. SplunkIO emits them as write errors, and this transform fails the pipeline. Hop's failure text contains the HTTP status only, not the event body or the token. A write that fails without an HTTP status says so, and still omits the event body and the token. Server errors (HTTP 500 and above) are retried by the Google HTTP client for up to 15 minutes (900000 ms) using its default exponential backoff. That retry limit is not a dialog option.
+
+HTTPS validates certificates unless *Disable certificate validation* is checked. Leave that unchecked outside a private test.
+
+== Limitations
+
+* Write-only. SplunkIO 2.74.0 has no read transform.
+* The URL accepts `http` and `https` with an optional port. It does not accept a path or embedded credentials.
+* Index, source, source type and host are constants for the transform, not per-row fields.
+* Loopback HEC tests cover a successful post and a single HTTP 400 rejection. A production Splunk server and remote runners have not been certified.
