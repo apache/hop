@@ -36,6 +36,7 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -218,7 +219,8 @@ public class ContentEditorWidget implements IContentEditorWidget {
           new org.eclipse.swt.graphics.Color(control.getDisplay(), 120, 120, 120);
       lineNumberColumn.setForeground(lineNumFg);
     }
-    sourceViewer.getTextWidget().setTabs(4);
+    sourceViewer.getTextWidget().setTabs(TextIndent.tabSize());
+    TextIndent.attach(sourceViewer.getTextWidget());
     sourceViewer
         .getDocument()
         .addDocumentListener(
@@ -356,6 +358,11 @@ public class ContentEditorWidget implements IContentEditorWidget {
       IDocument doc = sourceViewer.getDocument();
       if (doc != null) {
         doc.set(text);
+      }
+      // doc.set is an undoable insert from the empty document. The loaded text is the floor.
+      IUndoManager undoManager = sourceViewer.getUndoManager();
+      if (undoManager != null) {
+        undoManager.reset();
       }
       sourceViewer.setSelectedRange(0, 0);
       sourceViewer.invalidateTextPresentation();

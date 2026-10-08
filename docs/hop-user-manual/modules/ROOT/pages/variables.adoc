@@ -309,6 +309,7 @@ The default value is 1440 (one day).
 Changing it to true will remove first and last enclosure symbol from the resulting string chunks.
 |HOP_SYSTEM_HOSTNAME||You can use this variable to speed up hostname lookup.
 Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.
+|HOP_TEXT_TAB_SIZE|2|Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. Set the environment variable to override the value stored in the Hop configuration. See xref:hop-gui/shortcuts.adoc[Hop Shortcuts].
 |HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT|0|The maximum number of transform performance snapshots to keep in memory.
 Set to 0 to keep all snapshots indefinitely (default)
 |HOP_USE_NATIVE_FILE_DIALOG|N|Set this value to Y if you want to use the system file open/save dialog when browsing files

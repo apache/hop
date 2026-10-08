@@ -34,6 +34,8 @@ Widget-local shortcuts (they apply to the focused field, not the whole window) a
 |`CTRL-SPACE`|Name fields that do *not* accept variables (transform/action/metadata names)|Apply a xref:metadata-types/naming-scheme.adoc[Naming Scheme] of the matching type
 |`CTRL-SHIFT-N`|Any name field, field-name cell, table name, file/folder field, or F2 tree rename|List and apply a Naming Scheme. Replaces the current identifier (values that contain `${...}` are left unchanged)
 |`CTRL-ENTER` / `Cmd-Enter`|AI Assistant question field|Send the question (same as the Hop logo button)
+|`TAB`|Multi-line text field|Indent the selected lines by `HOP_TEXT_TAB_SIZE` spaces (default 2). A caret with no selection indents the current line. Single-line fields still use Tab to move to the next field
+|`SHIFT-TAB`|Multi-line text field|Remove one indent from the selected lines: a leading tab, or up to `HOP_TEXT_TAB_SIZE` leading spaces
 |===
 
 See xref:metadata-types/naming-scheme.adoc[Naming Scheme] for the *N* indicator, types, and the TableView bulk toolbar.
