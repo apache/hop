@@ -516,4 +516,17 @@ class LakeTableInputLocalTest {
 
     assertEquals(before, second.sharedCurrentSnapshotId(table));
   }
+
+  @Test
+  void readerFollowsTheIteratorContract() throws Exception {
+    try (IcebergRowReader reader = new IcebergRowReader(table, List.of("id"), null, null, 0, 1)) {
+      int rows = 0;
+      for (int i = 0; i < 1500; i++) {
+        reader.next();
+        rows++;
+      }
+      assertEquals(1500, rows, "next() works without calling hasNext() first");
+      assertThrows(java.util.NoSuchElementException.class, reader::next);
+    }
+  }
 }

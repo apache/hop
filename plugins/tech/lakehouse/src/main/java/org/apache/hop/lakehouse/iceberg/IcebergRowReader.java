@@ -23,6 +23,7 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.iceberg.CombinedScanTask;
@@ -137,6 +138,9 @@ public class IcebergRowReader implements Closeable, Iterator<Object[]> {
 
   @Override
   public Object[] next() {
+    if (!hasNext()) {
+      throw new NoSuchElementException();
+    }
     Record record = current.next();
     List<Types.NestedField> fields = projection.columns();
     Object[] row = new Object[fields.size()];
