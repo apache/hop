@@ -26,6 +26,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -41,6 +42,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.iceberg.Snapshot;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.util.SnapshotUtil;
 
@@ -51,6 +53,9 @@ import org.apache.iceberg.util.SnapshotUtil;
  * table as a Dataset instead.
  */
 public class LakeTableInput extends BaseTransform<LakeTableInputMeta, LakeTableInputData> {
+
+  /** Marks a table that had no snapshot yet in the shared current snapshot entry. */
+  private static final Long NO_SNAPSHOT = -1L;
 
   private static final DateTimeFormatter TIMESTAMP_FORMAT =
       new DateTimeFormatterBuilder()
@@ -104,7 +109,11 @@ public class LakeTableInput extends BaseTransform<LakeTableInputMeta, LakeTableI
     }
 
     Table table = loadTable();
+    int copies = getTransformMeta().getCopies(this);
     Long snapshotId = snapshotId(table);
+    if (snapshotId == null && copies > 1) {
+      snapshotId = sharedCurrentSnapshotId(table);
+    }
 
     List<String> columns = null;
     if (!meta.getFields().isEmpty()) {
@@ -114,7 +123,6 @@ public class LakeTableInput extends BaseTransform<LakeTableInputMeta, LakeTableI
       }
     }
 
-    int copies = getTransformMeta().getCopies(this);
     data.reader = new IcebergRowReader(table, columns, null, snapshotId, getCopy(), copies);
     data.readRowMeta = data.reader.getRowMeta();
     if (columns == null) {
@@ -159,6 +167,25 @@ public class LakeTableInput extends BaseTransform<LakeTableInputMeta, LakeTableI
       throw new HopException("Please specify the location of the table");
     }
     return IcebergTables.loadFromPath(path);
+  }
+
+  /**
+   * The current snapshot, resolved once for all copies of this transform in this pipeline run. Each
+   * copy loads the table on its own, so without this a commit landing while the copies start could
+   * make them read different snapshots, and rows would be read twice or not at all.
+   */
+  Long sharedCurrentSnapshotId(Table table) {
+    Map<String, Object> shared = getPipeline().getExtensionDataMap();
+    String key = LakeTableInput.class.getName() + ".currentSnapshot." + getTransformName();
+    synchronized (shared) {
+      Object id = shared.get(key);
+      if (id == null) {
+        Snapshot current = table.currentSnapshot();
+        id = current == null ? NO_SNAPSHOT : current.snapshotId();
+        shared.put(key, id);
+      }
+      return NO_SNAPSHOT.equals(id) ? null : (Long) id;
+    }
   }
 
   /** The snapshot to read for time travel, or null for the current snapshot. */

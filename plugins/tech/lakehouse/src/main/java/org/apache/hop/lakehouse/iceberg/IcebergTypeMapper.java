@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,8 +50,10 @@ import org.apache.iceberg.types.Types;
 
 /**
  * Converts between Hop value types and Iceberg types, and between Hop values and the Java objects
- * Iceberg's generic records use. Times without a zone are interpreted as UTC so that a value
- * written and read back by Hop is unchanged regardless of the JVM time zone.
+ * Iceberg's generic records use. Dates and timestamps without a zone hold a local date and time, so
+ * they are taken in the JVM time zone, the same way Parquet Input reads them: a date of 2026-10-01
+ * is midnight on that day and a timestamp of 12:00 shows as 12:00, in every zone. Timestamps with a
+ * zone are instants.
  */
 public final class IcebergTypeMapper {
 
@@ -151,15 +154,15 @@ public final class IcebergTypeMapper {
       case UUID:
         return UUID.fromString(valueMeta.getString(value));
       case DATE:
-        return toInstant(valueMeta, value).atZone(ZoneOffset.UTC).toLocalDate();
+        return toInstant(valueMeta, value).atZone(ZoneId.systemDefault()).toLocalDate();
       case TIME:
         return LocalTime.parse(valueMeta.getString(value));
       case TIMESTAMP, TIMESTAMP_NANO:
         Instant instant = toInstant(valueMeta, value);
-        if (((Types.TimestampType) type).shouldAdjustToUTC()) {
+        if (adjustedToUtc(type)) {
           return instant.atOffset(ZoneOffset.UTC);
         }
-        return LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
       case BINARY:
         return ByteBuffer.wrap(valueMeta.getBinary(value));
       case FIXED:
@@ -183,12 +186,12 @@ public final class IcebergTypeMapper {
       case STRING, UUID, TIME:
         return value.toString();
       case DATE:
-        return Date.from(((LocalDate) value).atStartOfDay(ZoneOffset.UTC).toInstant());
+        return Date.from(((LocalDate) value).atStartOfDay(ZoneId.systemDefault()).toInstant());
       case TIMESTAMP, TIMESTAMP_NANO:
         if (value instanceof OffsetDateTime offsetDateTime) {
           return Timestamp.from(offsetDateTime.toInstant());
         }
-        return Timestamp.from(((LocalDateTime) value).toInstant(ZoneOffset.UTC));
+        return Timestamp.valueOf((LocalDateTime) value);
       case BINARY:
         ByteBuffer buffer = ((ByteBuffer) value).duplicate();
         byte[] bytes = new byte[buffer.remaining()];
@@ -215,6 +218,13 @@ public final class IcebergTypeMapper {
               + decimalType);
     }
     return decimal;
+  }
+
+  private static boolean adjustedToUtc(Type type) {
+    if (type instanceof Types.TimestampNanoType nano) {
+      return nano.shouldAdjustToUTC();
+    }
+    return ((Types.TimestampType) type).shouldAdjustToUTC();
   }
 
   private static Instant toInstant(IValueMeta valueMeta, Object value) throws HopValueException {

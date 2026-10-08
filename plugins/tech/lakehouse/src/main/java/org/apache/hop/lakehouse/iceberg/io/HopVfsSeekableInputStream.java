@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.iceberg.io.SeekableInputStream;
@@ -29,12 +30,14 @@ import org.apache.iceberg.io.SeekableInputStream;
  * Seekable stream over a Hop VFS file. Parquet readers jump to the footer first and then to each
  * column chunk, so seeking has to be cheap. When the VFS provider supports random access we use it
  * directly. Otherwise the stream is reopened and skipped forward, which is slower but works with
- * every provider.
+ * every provider. Some providers, such as S3 and MinIO, report random access but don't implement
+ * it, so a failure to open random access content also falls back to reopening.
  */
 class HopVfsSeekableInputStream extends SeekableInputStream {
 
   private final FileObject file;
   private RandomAccessContent randomAccess;
+  private boolean randomAccessAllowed = true;
   private InputStream stream;
   private long pos;
 
@@ -44,8 +47,16 @@ class HopVfsSeekableInputStream extends SeekableInputStream {
 
   private InputStream stream() throws IOException {
     if (stream == null) {
-      if (file.getFileSystem().hasCapability(Capability.RANDOM_ACCESS_READ)) {
-        randomAccess = file.getContent().getRandomAccessContent(RandomAccessMode.READ);
+      if (randomAccessAllowed
+          && file.getFileSystem().hasCapability(Capability.RANDOM_ACCESS_READ)) {
+        try {
+          randomAccess = file.getContent().getRandomAccessContent(RandomAccessMode.READ);
+        } catch (FileSystemException e) {
+          // The provider reports the capability but doesn't implement it.
+          randomAccessAllowed = false;
+        }
+      }
+      if (randomAccess != null) {
         randomAccess.seek(pos);
         stream = randomAccess.getInputStream();
       } else {

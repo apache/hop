@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.iceberg.CombinedScanTask;
+import org.apache.iceberg.FileFormat;
 import org.apache.iceberg.FileScanTask;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
@@ -147,6 +148,15 @@ public class IcebergRowReader implements Closeable, Iterator<Object[]> {
   }
 
   private void open(FileScanTask task) {
+    if (task.file().format() != FileFormat.PARQUET) {
+      throw new UnsupportedOperationException(
+          "Data file "
+              + task.file().location()
+              + " is in "
+              + task.file().format()
+              + " format. Only Parquet data files are supported on the local engine; ORC and"
+              + " Avro tables can be read with the Spark engine.");
+    }
     GenericDeleteFilter deletes =
         new GenericDeleteFilter(table.io(), task, table.schema(), projection);
     Schema readSchema = deletes.requiredSchema();

@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -39,11 +40,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.lakehouse.LakeField;
 import org.apache.hop.lakehouse.LakeFormats;
+import org.apache.hop.lakehouse.iceberg.IcebergRowReader;
 import org.apache.hop.lakehouse.iceberg.io.HopVfsFileIO;
 import org.apache.hop.lakehouse.metadata.LakeCatalog;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -254,10 +257,8 @@ class LakeTableInputLocalTest {
     Object[] row = result.rows.stream().filter(r -> (Long) r[0] == 7L).findFirst().orElseThrow();
     assertEquals("US", row[1]);
     assertEquals(0, new BigDecimal("0.07").compareTo((BigDecimal) row[2]));
-    assertInstanceOf(java.util.Date.class, row[3]);
-    assertEquals(
-        LocalDateTime.of(2026, 10, 1, 7, 0).toInstant(ZoneOffset.UTC).toEpochMilli(),
-        ((java.util.Date) row[3]).getTime());
+    assertInstanceOf(Timestamp.class, row[3]);
+    assertEquals(LocalDateTime.of(2026, 10, 1, 7, 0), ((Timestamp) row[3]).toLocalDateTime());
     assertEquals("order 7", row[4]);
 
     Object[] nullNote =
@@ -435,5 +436,84 @@ class LakeTableInputLocalTest {
         LakeTableInput.parseTimestamp("2026-10-01 12:00:00.5"));
     assertThrows(HopException.class, () -> LakeTableInput.parseTimestamp("yesterday"));
     assertThrows(HopException.class, () -> LakeTableInput.parseTimestamp(""));
+  }
+
+  @Test
+  void timestampsWithoutZoneKeepTheirWallClockTimeInEveryZone() throws Exception {
+    TimeZone original = TimeZone.getDefault();
+    try {
+      for (String zone : List.of("America/Los_Angeles", "Europe/Berlin", "Asia/Kolkata")) {
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+
+        Result result = run(pathInput(), 1);
+
+        assertEquals(0, result.errors, zone);
+        Object[] row =
+            result.rows.stream().filter(r -> (Long) r[0] == 7L).findFirst().orElseThrow();
+        assertEquals(
+            LocalDateTime.of(2026, 10, 1, 7, 0), ((Timestamp) row[3]).toLocalDateTime(), zone);
+      }
+    } finally {
+      TimeZone.setDefault(original);
+    }
+  }
+
+  @Test
+  void nonParquetDataFilesGiveAClearError() throws Exception {
+    Schema schema = new Schema(Types.NestedField.required(1, "id", Types.LongType.get()));
+    Table avro =
+        catalog.createTable(
+            TableIdentifier.of("sales", "avro_orders"),
+            schema,
+            PartitionSpec.unpartitioned(),
+            Map.of("format-version", "2", "write.format.default", "avro"));
+    var writer =
+        new GenericFileWriterFactory.Builder(avro)
+            .dataFileFormat(FileFormat.AVRO)
+            .build()
+            .newDataWriter(
+                OutputFileFactory.builderFor(avro, 0, 0)
+                    .format(FileFormat.AVRO)
+                    .build()
+                    .newOutputFile(),
+                avro.spec(),
+                null);
+    try (writer) {
+      GenericRecord record = GenericRecord.create(schema);
+      record.setField("id", 1L);
+      writer.write(record);
+    }
+    avro.newAppend().appendFile(writer.toDataFile()).commit();
+
+    try (IcebergRowReader reader = new IcebergRowReader(avro, null, null, null, 0, 1)) {
+      UnsupportedOperationException e =
+          assertThrows(UnsupportedOperationException.class, reader::hasNext);
+      assertTrue(e.getMessage().contains("AVRO format"), e.getMessage());
+      assertTrue(e.getMessage().contains("Only Parquet data files"), e.getMessage());
+    }
+  }
+
+  @Test
+  void copiesShareTheCurrentSnapshot() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("read");
+    TransformMeta transformMeta = new TransformMeta("input", pathInput());
+    transformMeta.setCopies(2);
+    pipelineMeta.addTransform(transformMeta);
+    LocalPipelineEngine pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.setMetadataProvider(metadataProvider);
+    pipeline.prepareExecution();
+    LakeTableInput first = (LakeTableInput) pipeline.getTransform("input", 0);
+    LakeTableInput second = (LakeTableInput) pipeline.getTransform("input", 1);
+
+    long before = table.currentSnapshot().snapshotId();
+    assertEquals(before, first.sharedCurrentSnapshotId(table));
+
+    // A commit lands after the first copy resolved the snapshot, before the second one starts.
+    append(1500, 1600);
+    table.refresh();
+    assertTrue(table.currentSnapshot().snapshotId() != before);
+
+    assertEquals(before, second.sharedCurrentSnapshotId(table));
   }
 }
