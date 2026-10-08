@@ -18,6 +18,7 @@ package org.apache.hop.ai.engine;
 
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /**
@@ -27,6 +28,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  * settings a provider carries, and both model factories need it.
  */
 public final class AiProviderLoader {
+
+  private static final Class<?> PKG = AiProviderLoader.class;
 
   private AiProviderLoader() {}
 
@@ -39,10 +42,12 @@ public final class AiProviderLoader {
     try {
       provider = metadataProvider.getSerializer(AiProvider.class).load(providerName);
     } catch (Exception e) {
-      throw new HopException("Error loading AI provider '" + providerName + "'", e);
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiProviderLoader.NotLoaded", providerName), e);
     }
     if (provider == null) {
-      throw new HopException("AI provider not found: " + providerName);
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiProviderLoader.NotFound", providerName));
     }
     return provider;
   }

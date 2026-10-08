@@ -102,13 +102,16 @@ public class AiAdvisorMetadataContextTest {
       if ("ai-provider".equals(key)) {
         return (Class<T>) AiProvider.class;
       }
+      if ("test-connection".equals(key)) {
+        return (Class<T>) TestConnection.class;
+      }
       return super.getMetadataClassForKey(key);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T extends IHopMetadata> List<Class<T>> getMetadataClasses() {
-      return List.of((Class<T>) AiProvider.class);
+      return List.of((Class<T>) AiProvider.class, (Class<T>) TestConnection.class);
     }
   }
 }

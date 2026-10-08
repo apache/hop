@@ -111,6 +111,8 @@ public class AiAdvisorPerspective implements IHopPerspective, IAiAdvisorWorkbenc
     keyHandler.addParentObjectToHandle(this);
     keyHandler.addParentObjectToHandle(workbench);
     hopGui.replaceKeyboardShortcutListeners(workbench, keyHandler);
+
+    AiAdvisorViews.restoreDock(hopGui);
   }
 
   @Override

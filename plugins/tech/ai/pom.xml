@@ -70,5 +70,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- The evaluation checks proposals against real plugins; Write to log is a common one. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-writetolog</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

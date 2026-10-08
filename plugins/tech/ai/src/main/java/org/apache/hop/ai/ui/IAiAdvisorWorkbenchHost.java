@@ -39,4 +39,15 @@ public interface IAiAdvisorWorkbenchHost {
   void activate();
 
   void asyncExec(Runnable runnable);
+
+  /** Where the workbench is shown, so it can offer moving to the other places. */
+  enum ViewKind {
+    PERSPECTIVE,
+    FLOATING,
+    DOCK
+  }
+
+  default ViewKind getViewKind() {
+    return ViewKind.PERSPECTIVE;
+  }
 }

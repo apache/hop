@@ -476,11 +476,14 @@ public class ConfigDocGenerator {
       if (isLongDefault(o.dflt())) {
         // An AsciiDoc cell, so the default can be a block under the description where there is
         // room for it. The Default column is a narrow one and a long value wraps to a word a line.
-        sb.append("a|")
-            .append(text(description))
-            .append("\n\n.Default\n[listing]\n----\n")
-            .append(o.dflt().strip())
-            .append("\n----\n");
+        // Not a listing block: that never wraps, and its longest line sets the width of the whole
+        // table. One line of inline code per line of the value keeps the line breaks and wraps.
+        sb.append("a|").append(text(description)).append("\n\n.Default\n[%hardbreaks]\n");
+        for (String line : o.dflt().strip().split("\\R")) {
+          if (!line.isBlank()) {
+            sb.append(literal(line.strip())).append("\n");
+          }
+        }
         sb.append("|_(with the description)_\n\n");
       } else {
         sb.append("|").append(text(description)).append("\n");

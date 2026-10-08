@@ -20,6 +20,7 @@ package org.apache.hop.ai.advisors.workflow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
+import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.WorkflowHopMeta;
@@ -61,8 +62,24 @@ class WorkflowAiContextBuilderTest {
     request.setFocusNodeName("Start");
 
     String prompt = WorkflowAiContextBuilder.buildUserPrompt(workflowMeta, request);
-    assertTrue(prompt.contains("Focus action:\nStart"));
-    assertTrue(prompt.contains("Focus action XML:"));
+    assertTrue(prompt.contains("<focus_action>\nStart\n</focus_action>"));
+    assertTrue(prompt.contains("<focus_action_xml>"));
     assertTrue(prompt.contains("<action>"));
+  }
+
+  @Test
+  void followUpSendsWhatIsChecked() throws Exception {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    request.setUserPrompt("Why did it fail?");
+    request.setArtifact(workflowMeta);
+    request.setVariables(new Variables());
+    request.setFollowUp(true);
+    request.setLogExcerpt("ERROR: action failed");
+    request.getInclusions().put(AiAdvisorInclusions.LOGS, true);
+
+    String prompt = WorkflowAiContextBuilder.buildUserPrompt(workflowMeta, request);
+    assertTrue(prompt.contains("<workflow_summary>"));
+    assertTrue(prompt.contains("ERROR: action failed"));
   }
 }

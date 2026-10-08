@@ -83,23 +83,44 @@ public class PipelineAiGuiPlugin {
     }
   }
 
-  private static void openAiAdvisor(HopGuiPipelineGraph pipelineGraph, String focusTransformName) {
+  /**
+   * A session request for this pipeline, as AI Help opens it. Also used to start a new session for
+   * the open pipeline, or to link a session to it.
+   *
+   * @return the request, or null when the graph has no pipeline
+   */
+  public static AiAdvisorOpenRequest newRequest(
+      HopGuiPipelineGraph pipelineGraph, String focusTransformName) {
     PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
     if (pipelineMeta == null) {
-      return;
+      return null;
     }
     AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
     request.setAdvisorPluginId(PipelineAiAdvisor.ID);
     request.setLocation(AiAdvisorLocations.PIPELINE_GRAPH);
     request.setAreaLabel(
         BaseMessages.getString(PipelineAiGuiPlugin.class, "PipelineAiGuiPlugin.Area.Label"));
-    request.setPreferFloatingWindow(true);
     request.setArtifact(pipelineMeta);
     request.setArtifactName(pipelineMeta.getName());
     request.setArtifactKind("pipeline");
     request.setTitle(pipelineMeta.getName());
     request.setFocusNodeName(focusTransformName);
     request.setLogSupplier(() -> AiAdvisorLogSupport.readPipelineLog(pipelineGraph));
+    request.setRunIdSupplier(
+        () ->
+            pipelineGraph.getPipeline() != null
+                ? pipelineGraph.getPipeline().getLogChannelId()
+                : null);
+    AiAdvisorViews.releaseWhenClosed(pipelineGraph, pipelineGraph.getHopGui(), pipelineMeta);
+    return request;
+  }
+
+  private static void openAiAdvisor(HopGuiPipelineGraph pipelineGraph, String focusTransformName) {
+    AiAdvisorOpenRequest request = newRequest(pipelineGraph, focusTransformName);
+    if (request == null) {
+      return;
+    }
+    request.setPreferFloatingWindow(true);
     AiAdvisorViews.openSession(pipelineGraph.getHopGui(), request);
   }
 }

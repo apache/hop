@@ -20,11 +20,14 @@ package org.apache.hop.ai.engine;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 
 /** Loads workflow action plugin metadata with plugin defaults for AI proposal application. */
 public final class AiActionPluginSupport {
+
+  private static final Class<?> PKG = AiActionPluginSupport.class;
 
   private AiActionPluginSupport() {}
 
@@ -36,7 +39,8 @@ public final class AiActionPluginSupport {
       actionMeta.setName(name);
       return actionMeta;
     } catch (Exception e) {
-      throw new HopException("Unable to load workflow action plugin: " + pluginId, e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiActionPluginSupport.CannotLoad", pluginId), e);
     }
   }
 }

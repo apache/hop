@@ -50,4 +50,14 @@ class AiAdvisorPluginsLocationTest {
         AiAdvisorPlugins.keywordsOfferLocation(
             new String[] {"data-vault-graph"}, AiAdvisorLocations.PIPELINE_GRAPH));
   }
+
+  @Test
+  void fileAdvisorsAreNotOfferedInAnUnlinkedSession() {
+    assertFalse(
+        AiAdvisorPlugins.keywordsOfferLocation(
+            new String[] {AiAdvisorLocations.PIPELINE_GRAPH}, AiAdvisorLocations.PERSPECTIVE));
+    assertTrue(
+        AiAdvisorPlugins.keywordsOfferLocation(
+            new String[] {AiAdvisorLocations.PERSPECTIVE}, AiAdvisorLocations.PERSPECTIVE));
+  }
 }
