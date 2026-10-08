@@ -37,11 +37,11 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Execute a child pipeline for every row and pass the rows of the child back as a data stream.</note>
+      <note>Execute a child pipeline for every row. The child copies its rows to the result, which come back on the 'child rows' stream. The execution statistics go to 'execution results'.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
-      <width>400</width>
-      <heigth>27</heigth>
+      <width>560</width>
+      <heigth>42</heigth>
       <fontname>Noto Sans</fontname>
       <fontsize>11</fontsize>
       <fontbold>N</fontbold>
@@ -61,6 +61,16 @@ limitations under the License.
     <hop>
       <from>rows</from>
       <to>pipeline executor</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>pipeline executor</from>
+      <to>execution results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>pipeline executor</from>
+      <to>child rows</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -121,15 +131,56 @@ limitations under the License.
     <group_time/>
     <parameters/>
     <inherit_all_vars>Y</inherit_all_vars>
-    <execution_result_target_transform/>
+    <execution_result_target_transform>execution results</execution_result_target_transform>
     <execution_time_field>ExecutionTime</execution_time_field>
     <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
+    <result_rows_target_transform>child rows</result_rows_target_transform>
+    <result_rows_field>
+      <name>child_value</name>
+      <type>String</type>
+      <length>-1</length>
+      <precision>-1</precision>
+    </result_rows_field>
     <result_files_file_name_field>FileName</result_files_file_name_field>
     <attributes/>
     <GUI>
       <xloc>400</xloc>
       <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>execution results</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>child rows</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

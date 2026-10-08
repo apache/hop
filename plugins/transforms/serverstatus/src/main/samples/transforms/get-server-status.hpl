@@ -37,11 +37,11 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Query the status of a Hop server. Requires a reachable Hop server.</note>
+      <note>Query the status of the Hop servers named in the serverName field. The local-hop-server metadata points at localhost:8080 (cluster/cluster). Without a running Hop server, available is N and errorMessage says why.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
-      <width>400</width>
-      <heigth>27</heigth>
+      <width>560</width>
+      <heigth>42</heigth>
       <fontname>Noto Sans</fontname>
       <fontsize>11</fontsize>
       <fontbold>N</fontbold>
@@ -58,8 +58,45 @@ limitations under the License.
     </notepad>
   </notepads>
   <order>
+    <hop>
+      <from>server names</from>
+      <to>get server status</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
-<transform>
+  <transform>
+    <name>server names</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>serverName</name>
+        <type>String</type>
+        <format></format>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>local-hop-server</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>get server status</name>
     <type>GetServerStatus</type>
     <description/>
@@ -82,7 +119,7 @@ limitations under the License.
     <response_ns_field/>
     <attributes/>
     <GUI>
-      <xloc>128</xloc>
+      <xloc>400</xloc>
       <yloc>160</yloc>
     </GUI>
   </transform>

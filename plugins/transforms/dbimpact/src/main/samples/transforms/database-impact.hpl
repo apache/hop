@@ -37,10 +37,10 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Collect the database impact of the transforms in a pipeline.</note>
+      <note>Collect the database impact of the transforms in the pipeline named in the filename field, here the tableoutput-basic sample.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
-      <width>400</width>
+      <width>560</width>
       <heigth>27</heigth>
       <fontname>Noto Sans</fontname>
       <fontsize>11</fontsize>
@@ -59,14 +59,14 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>rows</from>
+      <from>pipeline filename</from>
       <to>database impact input</to>
       <enabled>Y</enabled>
     </hop>
   </order>
-<transform>
-    <name>rows</name>
-    <type>DataGrid</type>
+  <transform>
+    <name>pipeline filename</name>
+    <type>GetVariable</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -77,19 +77,14 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>value</name>
-        <type>String</type>
-        <format></format>
         <length>-1</length>
+        <name>filename</name>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>${PROJECT_HOME}/transforms/tableoutput-basic.hpl</variable>
       </field>
     </fields>
-    <data>
-      <line>
-        <item>sample-value</item>
-      </line>
-    </data>
     <attributes/>
     <GUI>
       <xloc>128</xloc>
@@ -107,6 +102,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <filename-field>filename</filename-field>
     <attributes/>
     <GUI>
       <xloc>400</xloc>

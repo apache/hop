@@ -820,10 +820,6 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>requires Beam run configuration and a Hive metastore</item>
       </line>
       <line>
-        <item>structured-extract-basic.hpl</item>
-        <item>requires an AI provider connection, e.g. ollama</item>
-      </line>
-      <line>
         <item>redis-input-multi-structure.hpl</item>
         <item>requires a reachable Redis server and Redis connection localhost_standalone</item>
       </line>
