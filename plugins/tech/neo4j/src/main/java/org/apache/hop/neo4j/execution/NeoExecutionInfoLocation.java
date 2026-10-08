@@ -1249,9 +1249,12 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
     try {
       if (rowBuffer == null || rowBuffer.getRowMeta() == null) {
-        log.logError(
-            "Skipping execution data set without row metadata: "
-                + (setMeta == null ? "?" : setMeta.getSetKey()));
+        // Normal for a transform that has not written a sampled row (yet), on every save.
+        if (log.isDebug()) {
+          log.logDebug(
+              "Skipping execution data set without row metadata: "
+                  + (setMeta == null ? "?" : setMeta.getSetKey()));
+        }
         return;
       }
       IRowMeta rowMeta = rowBuffer.getRowMeta();
