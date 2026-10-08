@@ -20,11 +20,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -483,6 +491,41 @@ public class CustomRuleExecutor {
     return null;
   }
 
+  /**
+   * The fields every transform has, whatever its plugin, with their types. The linter works them
+   * out itself rather than reading them from the plugin, so {@code hop lint --list-fields} lists
+   * them from here. Keep in step with {@link #extractFieldFromTransform}.
+   */
+  public static final Map<String, String> TRANSFORM_FIELDS =
+      orderedFields(
+          "name", "String",
+          "description", "String",
+          "pluginId", "String",
+          "copies", "int",
+          "isDummy", "boolean",
+          "hasDefaultName", "boolean",
+          "isOrphaned", "boolean",
+          "isBlockingTransform", "boolean");
+
+  /**
+   * As {@link #TRANSFORM_FIELDS}, for actions. Keep in step with {@link #extractFieldFromAction}.
+   */
+  public static final Map<String, String> ACTION_FIELDS =
+      orderedFields(
+          "name", "String",
+          "description", "String",
+          "pluginId", "String",
+          "hasDefaultName", "boolean",
+          "isOrphaned", "boolean");
+
+  private static Map<String, String> orderedFields(String... namesAndTypes) {
+    Map<String, String> fields = new LinkedHashMap<>();
+    for (int i = 0; i < namesAndTypes.length; i += 2) {
+      fields.put(namesAndTypes[i], namesAndTypes[i + 1]);
+    }
+    return Collections.unmodifiableMap(fields);
+  }
+
   /** Extract field value from a transform using reflection */
   private static Object extractFieldFromTransform(
       TransformMeta transformMeta, String fieldName, CustomLintRule rule) {
@@ -501,7 +544,10 @@ public class CustomRuleExecutor {
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
-          return hasDefaultGeneratedName(transformMeta.getName());
+          return hasDefaultGeneratedName(
+              transformMeta.getName(),
+              transformMeta.getTransformPluginId(),
+              TransformPluginType.class);
         case "isOrphaned":
           return SUBJECT.get() instanceof PipelineMeta pipeline
               ? isOrphaned(transformMeta, pipeline.getPipelineHops(), pipeline.getTransforms())
@@ -534,7 +580,12 @@ public class CustomRuleExecutor {
         case "pluginId":
           return actionMeta.getAction().getPluginId();
         case "hasDefaultName":
-          return hasDefaultGeneratedName(actionMeta.getName());
+          // Every workflow starts at Start; there is no better name for it.
+          return !actionMeta.isStart()
+              && hasDefaultGeneratedName(
+                  actionMeta.getName(),
+                  actionMeta.getAction().getPluginId(),
+                  ActionPluginType.class);
         case "isOrphaned":
           return SUBJECT.get() instanceof WorkflowMeta workflow
               ? isOrphaned(actionMeta, workflow.getWorkflowHops(), workflow.getActions())
@@ -553,11 +604,35 @@ public class CustomRuleExecutor {
     }
   }
 
-  private static boolean hasDefaultGeneratedName(String name) {
+  /**
+   * Whether a transform or action still has the name Hop Gui gave it: the plugin's name, such as
+   * "Table input", followed by a number when that name was taken, as in "Dummy (do nothing) 2".
+   *
+   * <p>Only "Transform 1" and "Action 1" used to count, and Hop Gui never generates those. The
+   * plugin's name is the one of the language Hop runs in, so a name Hop Gui gave in another
+   * language is not recognised.
+   */
+  static boolean hasDefaultGeneratedName(
+      String name, String pluginId, Class<? extends IPluginType> pluginType) {
     if (Utils.isEmpty(name)) {
       return false;
     }
-    return name.matches("(?i)(Transform|Action)\\s+\\d+");
+    String trimmed = name.trim();
+    if (trimmed.matches("(?i)(Transform|Action)\\s+\\d+")) {
+      return true;
+    }
+    if (Utils.isEmpty(pluginId)) {
+      return false;
+    }
+    IPlugin plugin = PluginRegistry.getInstance().findPluginWithId(pluginType, pluginId);
+    if (plugin == null || Utils.isEmpty(plugin.getName())) {
+      return false;
+    }
+    String pluginName = plugin.getName().trim();
+    return trimmed.equalsIgnoreCase(pluginName)
+        || (trimmed.length() > pluginName.length() + 1
+            && trimmed.substring(0, pluginName.length()).equalsIgnoreCase(pluginName)
+            && trimmed.substring(pluginName.length()).matches("\\s+\\d+"));
   }
 
   /**
@@ -1000,7 +1075,12 @@ public class CustomRuleExecutor {
       // fire on it. Hop returns null for an unset description, which is exactly the case
       // "description NOT_EMPTY" exists to catch; treating null as passing made those rules
       // fire only on a description explicitly set to "".
-      return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      if (condition != RuleCondition.NOT_MATCHES_PATTERN) {
+        return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      }
+      // A pattern that forbids blank values, such as SQL-002's "no row limit", must also see an
+      // unset value, so NOT_MATCHES_PATTERN reads null as "".
+      fieldValue = "";
     }
 
     // Handle null condition value for conditions that don't need it
@@ -1023,6 +1103,12 @@ public class CustomRuleExecutor {
 
       case NOT_EMPTY:
         return Utils.isEmpty(fieldValue.toString());
+
+      case IS_EMPTY:
+        // The opposite of NOT_EMPTY, so that a clause can require that a field is not set. Under
+        // allOf, url MATCHES_PATTERN ^https://.* and httpLogin IS_EMPTY report a plain http:// URL
+        // with a login.
+        return !Utils.isEmpty(fieldValue.toString());
 
       case NOT_NULL:
         return fieldValue == null;

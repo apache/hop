@@ -26,6 +26,7 @@ public enum RuleCondition {
   // String conditions
   NOT_EMPTY("Not Empty", "Field must not be empty or null", false),
   NOT_NULL("Not Null", "Field must not be null", false),
+  IS_EMPTY("Is Empty", "Field must be empty or not set", false),
   NO_HARDCODED("No Hardcoded Values", "Field must use variables, not hardcoded values", false),
   MATCHES_PATTERN("Matches Pattern", "Field must match specified regex pattern", true),
   NOT_MATCHES_PATTERN(
