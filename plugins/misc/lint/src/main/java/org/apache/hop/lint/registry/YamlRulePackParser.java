@@ -23,8 +23,11 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lint.CustomLintRule;
@@ -39,6 +42,42 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /** Parses YAML rule pack and project overlay files. */
 public final class YamlRulePackParser {
+
+  /** The keys a rule the linter evaluates may carry. */
+  static final Set<String> CUSTOM_RULE_KEYS =
+      Set.of(
+          "type",
+          "name",
+          "description",
+          "enabled",
+          "severity",
+          "target",
+          "targetField",
+          "condition",
+          "conditionValue",
+          "appliesTo",
+          RuleCombinator.ALL_OF.getYamlKey(),
+          RuleCombinator.ANY_OF.getYamlKey(),
+          "parameters",
+          "tags",
+          "helpUri");
+
+  /** The keys a rule classifying Hop's own verify remarks may carry. */
+  static final Set<String> NATIVE_RULE_KEYS =
+      Set.of(
+          "type",
+          "name",
+          "description",
+          "enabled",
+          "severity",
+          "appliesTo",
+          "messageKey",
+          "tags",
+          "helpUri");
+
+  /** The keys a project's hop-lint.yml may use to tune a rule from a pack. */
+  static final Set<String> OVERRIDE_KEYS =
+      Set.of("enabled", "severity", "conditionValue", "parameters", "tags", "helpUri");
 
   private YamlRulePackParser() {}
 
@@ -266,7 +305,8 @@ public final class YamlRulePackParser {
             parseCustomRule(ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT);
         projectRules.add(rule);
       } else {
-        overlays.put(ruleId, ProjectYamlOverlay.ProjectRuleOverlay.fromMap(ruleData));
+        warnUnknownKeys(ruleId, RulePackIds.PROJECT, ruleData, OVERRIDE_KEYS);
+        overlays.put(ruleId, ProjectYamlOverlay.ProjectRuleOverlay.fromMap(ruleId, ruleData));
       }
     }
     return new ProjectYamlOverlay(projectRules, overlays, policy);
@@ -440,6 +480,8 @@ public final class YamlRulePackParser {
     rule.setSeverity(stringValue(ruleData.get("severity"), "WARNING"));
     rule.setAppliesTo(stringListValue(ruleData.get("appliesTo")));
     rule.setMessageKey(stringValue(ruleData.get("messageKey"), ""));
+    applyDocumentation(rule, ruleData);
+    warnUnknownKeys(ruleId, packId, ruleData, NATIVE_RULE_KEYS);
     return rule;
   }
 
@@ -481,7 +523,118 @@ public final class YamlRulePackParser {
     if (parameters != null && !parameters.isEmpty()) {
       customRule.setAdditionalParameters(new HashMap<>(parameters));
     }
+    applyDocumentation(customRule, ruleData);
+    warnUnknownKeys(ruleId, packId, ruleData, CUSTOM_RULE_KEYS);
     return customRule;
+  }
+
+  /** Read the keys that describe a rule without changing what it checks: tags and helpUri. */
+  private static void applyDocumentation(CustomLintRule rule, Map<String, Object> ruleData) {
+    String helpUri = stringValue(ruleData.get("helpUri"), null);
+    if (!Utils.isEmpty(helpUri)) {
+      rule.setHelpUri(helpUri.trim());
+    }
+    rule.setTags(tagsValue(ruleData.get("tags"), rule.getId(), rule.getPackId()));
+  }
+
+  /**
+   * Read a {@code tags:} block. Each value is a string or a list of strings.
+   *
+   * <p>Anything else is logged and left out rather than failing the pack: tags never change what a
+   * rule finds, so a malformed one is no reason to stop linting.
+   */
+  static Map<String, List<String>> tagsValue(Object value, String ruleId, String packId) {
+    return tagsValue(value, ruleId, packId, false);
+  }
+
+  /**
+   * @param keepEmpty whether a key with no values is kept: in a project override it removes the
+   *     pack's tag of that key, on a rule it means nothing
+   */
+  static Map<String, List<String>> tagsValue(
+      Object value, String ruleId, String packId, boolean keepEmpty) {
+    Map<String, List<String>> tags = new LinkedHashMap<>();
+    if (value == null) {
+      return tags;
+    }
+    if (!(value instanceof Map<?, ?> map)) {
+      warn(
+          "Warning: tags of rule '"
+              + ruleId
+              + "' "
+              + where(packId)
+              + " are not a mapping and are ignored.");
+      return tags;
+    }
+    for (Map.Entry<?, ?> entry : map.entrySet()) {
+      String key = entry.getKey() != null ? entry.getKey().toString().trim() : "";
+      Object tagValue = entry.getValue();
+      if (key.isEmpty() || tagValue instanceof Map) {
+        warn(
+            "Warning: tag '"
+                + key
+                + "' of rule '"
+                + ruleId
+                + "' "
+                + where(packId)
+                + " is ignored: a tag is a string or a list of strings.");
+        continue;
+      }
+      // A value given twice is kept once: SARIF requires the tags of a rule to be unique.
+      List<String> values = new ArrayList<>(new LinkedHashSet<>(stringListValue(tagValue)));
+      if (keepEmpty || !values.isEmpty()) {
+        tags.put(key, values);
+      }
+    }
+    return tags;
+  }
+
+  /**
+   * Log every key on a rule that the linter does not read.
+   *
+   * <p>An unknown key is dropped, and a typo such as {@code tag:} for {@code tags:} or {@code
+   * severty:} would otherwise change the rule with nothing to show for it.
+   */
+  private static void warnUnknownKeys(
+      String ruleId, String packId, Map<String, Object> ruleData, Set<String> knownKeys) {
+    unknownKeyWarnings(ruleId, packId, ruleData, knownKeys).forEach(YamlRulePackParser::warn);
+  }
+
+  /** One warning for each key on the rule that is not one of the known keys. */
+  static List<String> unknownKeyWarnings(
+      String ruleId, String packId, Map<String, Object> ruleData, Set<String> knownKeys) {
+    List<String> warnings = new ArrayList<>();
+    if (ruleData == null) {
+      return warnings;
+    }
+    for (Object key : ruleData.keySet()) {
+      String name = String.valueOf(key);
+      if (knownKeys.contains(name)) {
+        continue;
+      }
+      StringBuilder warning =
+          new StringBuilder("Warning: rule '")
+              .append(ruleId)
+              .append("' ")
+              .append(where(packId))
+              .append(" has an unknown key '")
+              .append(name)
+              .append("', which is ignored.");
+      String closest = RuleRegistry.closestId(name, knownKeys);
+      if (closest != null) {
+        warning.append(" Did you mean ").append(closest).append("?");
+      }
+      warnings.add(warning.toString());
+    }
+    return warnings;
+  }
+
+  private static String where(String packId) {
+    return RulePackIds.PROJECT.equals(packId) ? "in hop-lint.yml" : "in pack '" + packId + "'";
+  }
+
+  private static void warn(String warning) {
+    LintWarnings.logOnce(warning, warning);
   }
 
   private static String stringValue(Object value, String defaultValue) {

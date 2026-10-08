@@ -21,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -60,6 +62,27 @@ public class CustomRuleExecutorTest {
     assertEquals(1, results.size());
     assertEquals(LintSourceRef.Kind.HOP, results.get(0).getSource().getKind());
     assertTrue(results.get(0).getSource().getName().contains("A -> B"));
+  }
+
+  /** Tags are inert: they change nothing about the finding except that it carries them. */
+  @Test
+  public void findingsCarryTheRuleTagsAndHelpUri() {
+    TransformMeta from = new TransformMeta();
+    from.setName("A");
+    TransformMeta to = new TransformMeta();
+    to.setName("B");
+    PipelineHopMeta hop = new PipelineHopMeta(from, to, false);
+
+    CustomLintRule rule = baseRule(RuleTarget.HOP, "enabled", RuleCondition.MUST_BE_TRUE);
+    rule.setTags(new LinkedHashMap<>(Map.of("owner", List.of("platform-team"))));
+    rule.setHelpUri("https://example.com/rules/hop");
+
+    LintRuleDetails details =
+        CustomRuleExecutor.executeRule(rule, hop, "/tmp/test.hpl").get(0).getRuleDetails();
+
+    assertEquals(List.of("platform-team"), details.tags().get("owner"));
+    assertEquals("https://example.com/rules/hop", details.helpUri());
+    assertEquals("Test rule description", details.description());
   }
 
   @Test

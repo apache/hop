@@ -17,12 +17,19 @@
 package org.apache.hop.lint;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -63,6 +70,8 @@ public class RuleBuilderDialog extends Dialog {
   private Table clauseTable;
   private Button addClauseButton;
   private Button removeClauseButton;
+  private Text helpUriText;
+  private TableView tagsTable;
 
   /**
    * The clauses being edited. Always at least one; a rule which checks one thing has exactly one.
@@ -88,12 +97,16 @@ public class RuleBuilderDialog extends Dialog {
     populateControls();
 
     shell.pack();
-    // Roomy enough for the clause table and its buttons on top of the fields that were here
-    // before; the dialog is resizable if a rule grows more clauses than that.
-    shell.setSize(700, 660);
+    // Roomy enough for the clause table, the fields and the tags table, but never taller than the
+    // screen: on a laptop display an 820 pixel dialog put OK and Cancel out of reach. Below the
+    // minimum the fixed rows would run into the button bar, so the dialog does not shrink past it.
+    Rectangle screen = parent.getMonitor().getClientArea();
+    int height = Math.min(820, screen.height);
+    shell.setMinimumSize(560, Math.min(700, height));
+    shell.setSize(700, height);
     shell.setLocation(
-        parent.getLocation().x + (parent.getSize().x - 700) / 2,
-        parent.getLocation().y + (parent.getSize().y - 660) / 2);
+        Math.max(screen.x, parent.getLocation().x + (parent.getSize().x - 700) / 2),
+        Math.max(screen.y, parent.getLocation().y + (parent.getSize().y - height) / 2));
     shell.open();
 
     Display display = parent.getDisplay();
@@ -347,6 +360,22 @@ public class RuleBuilderDialog extends Dialog {
     enabledData.top = new FormAttachment(severityCombo, margin);
     enabledCheck.setLayoutData(enabledData);
 
+    // Help URL, written to SARIF as helpUri
+    Label helpUriLabel = new Label(shell, SWT.RIGHT);
+    helpUriLabel.setText(BaseMessages.getString(PKG, "RuleBuilderDialog.Label.HelpUri"));
+    FormData helpUriLabelData = new FormData();
+    helpUriLabelData.left = new FormAttachment(0, margin);
+    helpUriLabelData.right = new FormAttachment(0, labelWidth);
+    helpUriLabelData.top = new FormAttachment(enabledCheck, margin);
+    helpUriLabel.setLayoutData(helpUriLabelData);
+
+    helpUriText = new Text(shell, SWT.BORDER);
+    FormData helpUriData = new FormData();
+    helpUriData.left = new FormAttachment(helpUriLabel, margin);
+    helpUriData.right = new FormAttachment(100, -margin);
+    helpUriData.top = new FormAttachment(enabledCheck, margin);
+    helpUriText.setLayoutData(helpUriData);
+
     // Buttons
     Button okButton = new Button(shell, SWT.PUSH);
     okButton.setText(BaseMessages.getString(PKG, "RuleBuilderDialog.Button.Ok"));
@@ -378,6 +407,45 @@ public class RuleBuilderDialog extends Dialog {
     cancelData.width = 80;
     cancelButton.setLayoutData(cancelData);
 
+    // Tags: one row per key and value, so a value never needs escaping. The table takes whatever
+    // height is left between the help URL and the buttons, so resizing the dialog grows it rather
+    // than pushing it under the buttons.
+    Label tagsLabel = new Label(shell, SWT.RIGHT);
+    tagsLabel.setText(BaseMessages.getString(PKG, "RuleBuilderDialog.Label.Tags"));
+    tagsLabel.setToolTipText(BaseMessages.getString(PKG, "RuleBuilderDialog.Tags.Tooltip"));
+    FormData tagsLabelData = new FormData();
+    tagsLabelData.left = new FormAttachment(0, margin);
+    tagsLabelData.right = new FormAttachment(0, labelWidth);
+    tagsLabelData.top = new FormAttachment(helpUriText, margin);
+    tagsLabel.setLayoutData(tagsLabelData);
+
+    ColumnInfo[] tagColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RuleBuilderDialog.Column.TagKey"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RuleBuilderDialog.Column.TagValue"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
+    tagsTable =
+        new TableView(
+            Variables.getADefaultVariableSpace(),
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            tagColumns,
+            1,
+            null,
+            PropsUi.getInstance());
+    tagsTable.setToolTipText(BaseMessages.getString(PKG, "RuleBuilderDialog.Tags.Tooltip"));
+    FormData tagsData = new FormData();
+    tagsData.left = new FormAttachment(tagsLabel, margin);
+    tagsData.right = new FormAttachment(100, -margin);
+    tagsData.top = new FormAttachment(helpUriText, margin);
+    tagsData.bottom = new FormAttachment(okButton, -margin);
+    tagsTable.setLayoutData(tagsData);
+
     shell.setDefaultButton(okButton);
   }
 
@@ -401,6 +469,8 @@ public class RuleBuilderDialog extends Dialog {
       }
     }
     enabledCheck.setSelection(rule.isEnabled());
+    helpUriText.setText(rule.getHelpUri() != null ? rule.getHelpUri() : "");
+    populateTags();
     loadClausesFromRule();
 
     // A native rule, such as HOP-CHECK, says how Hop's own verify remarks are reported. It has no
@@ -491,6 +561,13 @@ public class RuleBuilderDialog extends Dialog {
       showError("Rule name is required");
       return false;
     }
+    // A row with only a key or only a value is not a tag. Saving would drop it without a word.
+    for (TableItem item : tagsTable.getNonEmptyItems()) {
+      if (item.getText(1).trim().isEmpty() || item.getText(2).trim().isEmpty()) {
+        showError(BaseMessages.getString(PKG, "RuleBuilderDialog.Tags.Incomplete"));
+        return false;
+      }
+    }
     if (rule.isNativeVerify()) {
       return true;
     }
@@ -522,6 +599,9 @@ public class RuleBuilderDialog extends Dialog {
     rule.setDescription(descriptionText.getText());
     rule.setSeverity(severityCombo.getText());
     rule.setEnabled(enabledCheck.getSelection());
+    rule.setHelpUri(
+        Utils.isEmpty(helpUriText.getText().trim()) ? null : helpUriText.getText().trim());
+    rule.setTags(readTags());
     if (rule.isNativeVerify()) {
       return;
     }
@@ -543,6 +623,41 @@ public class RuleBuilderDialog extends Dialog {
       rest.add(editingClauses.get(i).copy());
     }
     rule.setAdditionalClauses(rest);
+  }
+
+  private void populateTags() {
+    tagsTable.clearAll(false);
+    rule.getTags()
+        .forEach(
+            (key, values) -> {
+              for (String value : values) {
+                TableItem item = new TableItem(tagsTable.table, SWT.NONE);
+                item.setText(1, key);
+                item.setText(2, value);
+              }
+            });
+    tagsTable.removeEmptyRows();
+    tagsTable.setRowNums();
+    tagsTable.optWidth(true);
+  }
+
+  /**
+   * The tags as entered, grouped by key in the order the keys first appear. {@link #validate()} has
+   * refused rows with only a key or only a value; a row entered twice is kept once.
+   */
+  private Map<String, List<String>> readTags() {
+    Map<String, List<String>> tags = new LinkedHashMap<>();
+    for (TableItem item : tagsTable.getNonEmptyItems()) {
+      String key = item.getText(1).trim();
+      String value = item.getText(2).trim();
+      if (!key.isEmpty() && !value.isEmpty()) {
+        List<String> values = tags.computeIfAbsent(key, k -> new ArrayList<>());
+        if (!values.contains(value)) {
+          values.add(value);
+        }
+      }
+    }
+    return tags;
   }
 
   /** Load the rule's clauses into the table, selecting the first. */

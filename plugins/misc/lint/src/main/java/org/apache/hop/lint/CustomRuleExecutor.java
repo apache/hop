@@ -250,13 +250,14 @@ public class CustomRuleExecutor {
   private static LintResult createResult(
       CustomLintRule rule, String message, String fileName, Object hopObject, String severity) {
     return new LintResult(
-        rule.generateRuleId(),
-        rule.getName(),
-        severity,
-        message,
-        fileName,
-        sourceFrom(hopObject),
-        LintResult.Origin.LINT);
+            rule.generateRuleId(),
+            rule.getName(),
+            severity,
+            message,
+            fileName,
+            sourceFrom(hopObject),
+            LintResult.Origin.LINT)
+        .withRuleDetails(LintRuleDetails.of(rule));
   }
 
   /**

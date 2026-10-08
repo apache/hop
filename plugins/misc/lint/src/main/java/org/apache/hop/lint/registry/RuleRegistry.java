@@ -22,8 +22,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lint.CustomLintRule;
@@ -50,13 +48,6 @@ public class RuleRegistry {
    * change while Hop is running.
    */
   private volatile Map<String, CustomLintRule> packRules;
-
-  /**
-   * The unknown rule id warnings already logged, per hop-lint.yml. Resolution runs once per file
-   * and on every background check, so logging each time repeated the same line for as long as the
-   * project kept the id.
-   */
-  private final Set<String> loggedWarnings = ConcurrentHashMap.newKeySet();
 
   public static RuleRegistry getInstance() {
     return INSTANCE;
@@ -166,11 +157,7 @@ public class RuleRegistry {
             // no sign anything had gone wrong.
             String warning = unknownRuleWarning(entry.getKey(), merged.keySet(), projectYaml);
             warnings.add(warning);
-            if (loggedWarnings.add(projectYaml.getAbsolutePath() + '\n' + warning)) {
-              LogChannel.GENERAL.logMinimal(warning);
-            } else {
-              LogChannel.GENERAL.logDetailed(warning);
-            }
+            LintWarnings.logOnce(projectYaml.getAbsolutePath() + '\n' + warning, warning);
           }
         }
         LogChannel.GENERAL.logDetailed(
@@ -227,7 +214,7 @@ public class RuleRegistry {
   }
 
   /** The known id within two edits of the one given, or null. */
-  private static String closestId(String ruleId, Collection<String> knownIds) {
+  static String closestId(String ruleId, Collection<String> knownIds) {
     String best = null;
     int bestDistance = 3;
     for (String known : knownIds) {

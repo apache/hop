@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -357,6 +359,54 @@ public class NativeCheckClassifierTest {
             + "\t\tvalueToSqrt"
             + Const.CR,
         "SelectValues");
+  }
+
+  /** The tags of the rule that classified a remark travel with the finding it becomes. */
+  @Test
+  public void aNativeFindingCarriesTheTagsOfTheRuleThatClassifiedIt() {
+    CustomLintRule rule = nativeRule("HOP-CHECK", "WARNING", true);
+    rule.setTags(new LinkedHashMap<>(Map.of("category", List.of("verify"))));
+    NativeCheckClassifier classifier = new NativeCheckClassifier(List.of(rule));
+
+    LintResult finding =
+        LintCheckResultAdapter.fromCheckResult(
+            remark(ICheckResult.TYPE_RESULT_ERROR, "boom"), "/tmp/a.hpl", classifier);
+
+    assertEquals(List.of("verify"), finding.getRuleDetails().tags().get("category"));
+    assertFalse(
+        LintCheckResultAdapter.fromCheckResult(
+                remark(ICheckResult.TYPE_RESULT_ERROR, "boom"), "/tmp/a.hpl")
+            .getRuleDetails()
+            .hasTags(),
+        "a remark no rule classified has no tags");
+  }
+
+  /**
+   * A check reported under its own error code carries the tags of the rule that classified it, but
+   * not that rule's description or help link: those describe the rule, not the code.
+   */
+  @Test
+  public void anErrorCodeFindingCarriesTheTagsButNotTheDescription() {
+    CustomLintRule rule = nativeRule("HOP-CHECK", "WARNING", true);
+    rule.setDescription("Every remark Hop's own checks produce");
+    rule.setHelpUri("https://example.com/HOP-CHECK");
+    rule.setTags(new LinkedHashMap<>(Map.of("category", List.of("verify"))));
+    NativeCheckClassifier classifier = new NativeCheckClassifier(List.of(rule));
+
+    LintResult finding =
+        LintCheckResultAdapter.fromCheckResult(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                "CONNECTION_DOES_NOT_EXIST",
+                "no such connection",
+                new TransformMeta("TableInput", "read", null)),
+            "/tmp/a.hpl",
+            classifier);
+
+    assertEquals("CONNECTION_DOES_NOT_EXIST", finding.getRuleId());
+    assertEquals(List.of("verify"), finding.getRuleDetails().tags().get("category"));
+    assertEquals("", finding.getRuleDetails().description());
+    assertNull(finding.getRuleDetails().helpUri());
   }
 
   private static ICheckResult remark(int type, String text) {

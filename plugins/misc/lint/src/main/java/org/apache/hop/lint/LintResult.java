@@ -36,6 +36,7 @@ public class LintResult {
   private final LintSourceRef source;
   private final Origin origin;
   private final List<String> aliasRuleIds;
+  private final LintRuleDetails ruleDetails;
 
   public LintResult(
       String ruleId, String ruleName, String severity, String message, String fileName) {
@@ -79,6 +80,28 @@ public class LintResult {
       LintSourceRef source,
       Origin origin,
       List<String> aliasRuleIds) {
+    this(
+        ruleId,
+        ruleName,
+        severity,
+        message,
+        fileName,
+        source,
+        origin,
+        aliasRuleIds,
+        LintRuleDetails.NONE);
+  }
+
+  private LintResult(
+      String ruleId,
+      String ruleName,
+      String severity,
+      String message,
+      String fileName,
+      LintSourceRef source,
+      Origin origin,
+      List<String> aliasRuleIds,
+      LintRuleDetails ruleDetails) {
     this.ruleId = ruleId;
     this.ruleName = ruleName;
     this.severity = severity;
@@ -87,6 +110,13 @@ public class LintResult {
     this.source = source;
     this.origin = origin != null ? origin : Origin.LINT;
     this.aliasRuleIds = aliasRuleIds == null ? Collections.emptyList() : List.copyOf(aliasRuleIds);
+    this.ruleDetails = ruleDetails != null ? ruleDetails : LintRuleDetails.NONE;
+  }
+
+  /** This finding, carrying the description, help link and tags of the rule that produced it. */
+  public LintResult withRuleDetails(LintRuleDetails details) {
+    return new LintResult(
+        ruleId, ruleName, severity, message, fileName, source, origin, aliasRuleIds, details);
   }
 
   public String getRuleId() {
@@ -115,6 +145,11 @@ public class LintResult {
 
   public Origin getOrigin() {
     return origin;
+  }
+
+  /** The description, help link and tags of the rule that produced this finding. */
+  public LintRuleDetails getRuleDetails() {
+    return ruleDetails;
   }
 
   /**

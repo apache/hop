@@ -99,6 +99,8 @@ public final class ProjectLintYamlExporter {
         || !Objects.equals(desired.getSeverity(), packDefault.getSeverity())
         || !Objects.equals(desired.getAdditionalParameters(), packDefault.getAdditionalParameters())
         || !Objects.equals(desired.getConditionValue(), packDefault.getConditionValue())
+        || !Objects.equals(desired.getHelpUri(), packDefault.getHelpUri())
+        || !Objects.equals(desired.getTags(), packDefault.getTags())
         || structurallyDiffersFromPackDefault(desired, packDefault);
   }
 
@@ -155,7 +157,41 @@ public final class ProjectLintYamlExporter {
         && !desired.getAdditionalParameters().isEmpty()) {
       ruleConfig.put("parameters", new HashMap<>(desired.getAdditionalParameters()));
     }
+    if (!Objects.equals(desired.getHelpUri(), packDefault.getHelpUri())) {
+      // An empty value is how a project removes the pack's link.
+      ruleConfig.put("helpUri", desired.getHelpUri() != null ? desired.getHelpUri() : "");
+    }
+    Map<String, Object> tags = tagOverrides(desired.getTags(), packDefault.getTags());
+    if (!tags.isEmpty()) {
+      ruleConfig.put("tags", tags);
+    }
     return ruleConfig;
+  }
+
+  /**
+   * Only the tag keys the project changed. A key the project removed is written with no values, so
+   * the pack's tag is dropped, while the pack's other tags, and any it adds later, still apply.
+   */
+  static Map<String, Object> tagOverrides(
+      Map<String, List<String>> desired, Map<String, List<String>> packDefault) {
+    Map<String, Object> overrides = new LinkedHashMap<>();
+    desired.forEach(
+        (key, values) -> {
+          if (!values.equals(packDefault.get(key))) {
+            overrides.put(key, tagYamlValue(values));
+          }
+        });
+    for (String key : packDefault.keySet()) {
+      if (!desired.containsKey(key)) {
+        overrides.put(key, new ArrayList<>());
+      }
+    }
+    return overrides;
+  }
+
+  /** One value is written as a plain string, several as a list, the way a person writes them. */
+  private static Object tagYamlValue(List<String> values) {
+    return values.size() == 1 ? values.get(0) : new ArrayList<>(values);
   }
 
   private static Map<String, Object> toFullCustomRuleMap(CustomLintRule rule) {
@@ -196,7 +232,23 @@ public final class ProjectLintYamlExporter {
       // Omitted when empty, like appliesTo: "parameters: {}" on every rule was noise in the diff.
       ruleConfig.put("parameters", new HashMap<>(rule.getAdditionalParameters()));
     }
+    putDocumentation(ruleConfig, rule);
     return ruleConfig;
+  }
+
+  /**
+   * Write the rule's help link and tags, so a rule saved from the rule manager keeps them. Both are
+   * omitted when absent, like appliesTo.
+   */
+  private static void putDocumentation(Map<String, Object> ruleConfig, CustomLintRule rule) {
+    if (rule.getHelpUri() != null && !rule.getHelpUri().isEmpty()) {
+      ruleConfig.put("helpUri", rule.getHelpUri());
+    }
+    if (!rule.getTags().isEmpty()) {
+      Map<String, Object> tags = new LinkedHashMap<>();
+      rule.getTags().forEach((key, values) -> tags.put(key, tagYamlValue(values)));
+      ruleConfig.put("tags", tags);
+    }
   }
 
   /**
@@ -219,6 +271,7 @@ public final class ProjectLintYamlExporter {
     }
     ruleConfig.put("name", rule.getName());
     ruleConfig.put("description", rule.getDescription());
+    putDocumentation(ruleConfig, rule);
     return ruleConfig;
   }
 }
