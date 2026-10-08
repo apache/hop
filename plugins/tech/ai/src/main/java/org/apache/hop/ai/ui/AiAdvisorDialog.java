@@ -68,6 +68,17 @@ public class AiAdvisorDialog {
     return dialog;
   }
 
+  /** Close the floating window, if it is open. */
+  public static void close(HopGui hopGui) {
+    if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+      return;
+    }
+    if (hopGui.getShell().getData(SHELL_DATA_KEY) instanceof AiAdvisorDialog dialog
+        && dialog.isOpen()) {
+      dialog.shell.close();
+    }
+  }
+
   boolean isOpen() {
     return shell != null && !shell.isDisposed();
   }
@@ -110,6 +121,7 @@ public class AiAdvisorDialog {
 
     shell.addDisposeListener(
         e -> {
+          keyHandler.removeParentObjectToHandle(workbench);
           props.setScreen(new WindowProperty(shell));
           if (hopGui.getShell() != null
               && !hopGui.getShell().isDisposed()

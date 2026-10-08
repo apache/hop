@@ -1389,7 +1389,9 @@ public class PropsUi extends Props {
         .setLayerSpacing(getAutoLayoutLayerSpacing())
         .setNodeSpacing(getAutoLayoutNodeSpacing())
         .setCrossingIterations(getAutoLayoutCrossingIterations())
-        .setMoveNotes(isAutoLayoutMoveNotes());
+        .setMoveNotes(isAutoLayoutMoveNotes())
+        // Auto-layout must snap to the same grid as manual moves to keep items aligned.
+        .setGridSize(getCanvasGridSize());
   }
 
   /**

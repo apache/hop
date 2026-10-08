@@ -199,4 +199,35 @@ class MarketplaceRepositoryBrowserTypeTest {
         "https://example.org/${artifactId}-${version}.zip",
         config.findRepository("acme").getUrlTemplate());
   }
+
+  @Test
+  void plainMavenRepositoryCannotBeBrowsed() {
+    MarketplaceRepository repo =
+        new MarketplaceRepository("corporate-repo", "https://maven.example/releases/");
+    repo.setBrowse(true);
+    assertFalse(repo.supportsBrowseApi());
+    assertFalse(repo.canBrowse());
+  }
+
+  @Test
+  void nexusArtifactoryAndExplicitTypeCanBeBrowsed() {
+    MarketplaceRepository nexus =
+        new MarketplaceRepository("nexus", "https://repository.example/repository/hop-plugins/");
+    nexus.setBrowse(true);
+    assertTrue(nexus.canBrowse());
+
+    MarketplaceRepository artifactory =
+        new MarketplaceRepository(
+            "artifactory", "https://artifactory.example/artifactory/hop-plugins/");
+    artifactory.setBrowse(true);
+    assertTrue(artifactory.canBrowse());
+
+    MarketplaceRepository explicit = new MarketplaceRepository("jfrog", "https://maven.example/m/");
+    explicit.setBrowserType(MarketplaceRepository.BROWSER_JFROG);
+    explicit.setBrowse(true);
+    assertTrue(explicit.canBrowse());
+
+    explicit.setBrowse(false);
+    assertFalse(explicit.canBrowse());
+  }
 }

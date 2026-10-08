@@ -54,6 +54,13 @@ public class AiAdvisorOpenRequest {
   private String focusNodeName;
   private Object artifact;
   private Supplier<String> logSupplier;
+
+  /**
+   * Identifies the latest run of the pipeline or workflow, for example its log channel id, or
+   * returns null before the first run. A new value means the log belongs to a new run.
+   */
+  private Supplier<String> runIdSupplier;
+
   private boolean reuseExisting = true;
 
   /**

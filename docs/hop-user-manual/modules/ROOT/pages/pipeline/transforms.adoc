@@ -157,6 +157,7 @@ Those are explained once in xref:pipeline/formatting-values.adoc[Formatting numb
 * xref:pipeline/transforms/mail.adoc[Mail]
 * xref:pipeline/transforms/mapping-input.adoc[Mapping input]
 * xref:pipeline/transforms/mapping-output.adoc[Mapping output]
+* xref:pipeline/transforms/maskfields.adoc[Mask fields]
 * xref:pipeline/transforms/memgroupby.adoc[Memory Group By]
 * xref:pipeline/transforms/mergejoin.adoc[Merge Join]
 * xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]

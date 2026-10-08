@@ -18,7 +18,6 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.i18n.BaseMessages;
@@ -58,10 +57,8 @@ public final class TransformSourceGui {
     if (StringUtils.isEmpty(suffix)) {
       return;
     }
-    if (StringUtils.isEmpty(action.getTooltip())) {
-      action.setTooltip(suffix);
-    } else if (!action.getTooltip().contains(suffix)) {
-      action.setTooltip(action.getTooltip() + Const.CR + suffix);
+    if (!action.getTooltipHints().contains(suffix)) {
+      action.getTooltipHints().add(suffix);
     }
   }
 }

@@ -40,6 +40,11 @@ public class HopGuiAiAdvisorWorkbenchHost implements IAiAdvisorWorkbenchHost {
   }
 
   @Override
+  public ViewKind getViewKind() {
+    return dialogShell != null ? ViewKind.FLOATING : ViewKind.DOCK;
+  }
+
+  @Override
   public HopGui getHopGui() {
     return hopGui;
   }

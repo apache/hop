@@ -29,8 +29,10 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -49,6 +51,7 @@ public class AiAdvisorProposalReviewDialog {
   private final Function<AiProposal, String> previewFn;
   private Shell shell;
   private Table wProposals;
+  private Button wApply;
   private Text wPreview;
   private boolean applied;
   private List<AiProposal> selectedProposals = List.of();
@@ -72,7 +75,7 @@ public class AiAdvisorProposalReviewDialog {
 
     int margin = PropsUi.getMargin();
 
-    Button wApply = new Button(shell, SWT.PUSH);
+    wApply = new Button(shell, SWT.PUSH);
     wApply.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Apply.Label"));
     wApply.setToolTipText(
         BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Apply.Tooltip"));
@@ -102,17 +105,32 @@ public class AiAdvisorProposalReviewDialog {
     wProposals =
         new Table(
             shell,
-            SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
+            SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.SINGLE);
     PropsUi.setLook(wProposals);
-    wProposals.setHeaderVisible(false);
+    wProposals.setHeaderVisible(true);
     wProposals.setLinesVisible(true);
+    // The state is also spelled out in its own column: on some themes the check box of a table row
+    // is hard to see, and a highlighted row is easily mistaken for a selected proposal.
+    TableColumn stateColumn = new TableColumn(wProposals, SWT.NONE);
+    stateColumn.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Column.State"));
     TableColumn column = new TableColumn(wProposals, SWT.NONE);
+    column.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Column.Proposal"));
     column.setResizable(true);
     column.setWidth(580);
+
+    Button wAll = new Button(shell, SWT.PUSH);
+    wAll.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.All.Label"));
+    wAll.addListener(SWT.Selection, e -> chooseAll(true));
+    Button wNone = new Button(shell, SWT.PUSH);
+    wNone.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.None.Label"));
+    wNone.addListener(SWT.Selection, e -> chooseAll(false));
+    wNone.setLayoutData(new FormDataBuilder().right(100, -margin).top(0, margin).result());
+    wAll.setLayoutData(new FormDataBuilder().right(wNone, -margin).top(0, margin).result());
+
     wProposals.setLayoutData(
         new FormDataBuilder()
             .left(0, margin)
-            .top(wlList, margin)
+            .top(wAll, margin)
             .right(100, -margin)
             .bottom(wlPreview, -margin)
             .result());
@@ -122,24 +140,41 @@ public class AiAdvisorProposalReviewDialog {
       AiProposalValidation validation = i < validations.size() ? validations.get(i) : null;
       boolean blocked = validation != null && validation.isBlocked();
       TableItem item = new TableItem(wProposals, SWT.NONE);
-      item.setText(proposalLabel(proposal, validation));
-      item.setChecked(!blocked);
+      item.setText(1, proposalLabel(proposal, validation));
       if (blocked) {
         item.setData(BLOCKED_ITEM_KEY, Boolean.TRUE);
       }
+      // Deletes, replacements and overwrites wait for the user to choose them.
+      setChosen(item, !blocked && !(validation != null && validation.isOptIn()));
     }
+    stateColumn.pack();
     column.pack();
 
     wProposals.addListener(
         SWT.Selection,
         e -> {
-          if (e.detail == SWT.CHECK) {
-            TableItem item = (TableItem) e.item;
-            if (item != null && Boolean.TRUE.equals(item.getData(BLOCKED_ITEM_KEY))) {
-              item.setChecked(false);
-            }
+          if (e.detail == SWT.CHECK && e.item instanceof TableItem item) {
+            setChosen(item, item.getChecked());
           }
           updatePreview();
+        });
+    // A click in the state column, or a double click anywhere, also switches the proposal on/off.
+    wProposals.addListener(
+        SWT.MouseDown,
+        e -> {
+          TableItem item = wProposals.getItem(new Point(e.x, e.y));
+          if (item != null && item.getBounds(0).contains(e.x, e.y)) {
+            setChosen(item, !item.getChecked());
+            updatePreview();
+          }
+        });
+    wProposals.addListener(
+        SWT.DefaultSelection,
+        e -> {
+          if (e.item instanceof TableItem item) {
+            setChosen(item, !item.getChecked());
+            updatePreview();
+          }
         });
 
     wPreview =
@@ -153,7 +188,11 @@ public class AiAdvisorProposalReviewDialog {
             .right(100, -margin)
             .result());
 
+    if (wProposals.getItemCount() > 0) {
+      wProposals.setSelection(0);
+    }
     updatePreview();
+    updateApplyButton();
     BaseTransformDialog.setSize(shell);
     shell.open();
     while (!shell.isDisposed()) {
@@ -182,21 +221,74 @@ public class AiAdvisorProposalReviewDialog {
     return selected;
   }
 
-  private void updatePreview() {
-    StringBuilder preview = new StringBuilder();
-    List<AiProposal> selected = readSelectedFromWidgets();
-    for (int i = 0; i < selected.size(); i++) {
-      if (i > 0) {
-        preview.append("\n\n---\n\n");
-      }
-      preview.append(previewFn.apply(selected.get(i)));
+  private void setChosen(TableItem item, boolean chosen) {
+    boolean blocked = Boolean.TRUE.equals(item.getData(BLOCKED_ITEM_KEY));
+    boolean value = chosen && !blocked;
+    item.setChecked(value);
+    String state;
+    if (blocked) {
+      state = "AiAdvisorProposalReviewDialog.State.Blocked";
+    } else if (value) {
+      state = "AiAdvisorProposalReviewDialog.State.Apply";
+    } else {
+      state = "AiAdvisorProposalReviewDialog.State.Skip";
     }
+    item.setText(0, BaseMessages.getString(PKG, state));
+    updateApplyButton();
+  }
+
+  private void chooseAll(boolean chosen) {
+    for (TableItem item : wProposals.getItems()) {
+      setChosen(item, chosen);
+    }
+    updatePreview();
+  }
+
+  private void updateApplyButton() {
+    if (wApply == null || wApply.isDisposed()) {
+      return;
+    }
+    int count = readSelectedFromWidgets().size();
+    wApply.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Apply.Count", count));
+    wApply.getParent().layout(true, true);
+  }
+
+  /** The highlighted proposal, or the first one: what it does and whether it will be applied. */
+  private void updatePreview() {
+    int index = Math.max(0, wProposals.getSelectionIndex());
+    if (index >= proposals.size()) {
+      wPreview.setText("");
+      return;
+    }
+    TableItem item = wProposals.getItem(index);
+    AiProposalValidation validation = index < validations.size() ? validations.get(index) : null;
+    StringBuilder preview = new StringBuilder();
+    if (validation != null && validation.isBlocked()) {
+      preview.append(
+          BaseMessages.getString(
+              PKG, "AiAdvisorProposalReviewDialog.Preview.Blocked", validation.getReason()));
+    } else if (item.getChecked()) {
+      preview.append(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Preview.Apply"));
+    } else {
+      preview.append(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Preview.Skip"));
+    }
+    if (validation != null && !Utils.isEmpty(validation.getWarning())) {
+      preview.append('\n').append(validation.getWarning());
+    }
+    preview.append("\n\n").append(previewFn.apply(proposals.get(index)));
     wPreview.setText(preview.toString());
   }
 
   private void applySelected() {
     selectedProposals = readSelectedFromWidgets();
-    applied = !selectedProposals.isEmpty();
+    if (selectedProposals.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "AiAdvisorProposalReviewDialog.NothingChosen"));
+      box.open();
+      return;
+    }
+    applied = true;
     PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
   }

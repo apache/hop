@@ -37,7 +37,7 @@ class PipelineAiAdvisorTest {
     PipelineAiAdvisor advisor = new PipelineAiAdvisor();
     assertEquals(PipelineAiAdvisor.ID, advisor.getId());
     assertEquals(4, advisor.listScenarios().size());
-    assertEquals(5, advisor.listInclusions().size());
+    assertEquals(6, advisor.listInclusions().size());
     advisor
         .listInclusions()
         .forEach(
@@ -45,7 +45,8 @@ class PipelineAiAdvisorTest {
               assertTrue(
                   inclusion.getDescription() != null && !inclusion.getDescription().isBlank(),
                   inclusion.getId());
-              if (AiAdvisorInclusions.CATALOG.equals(inclusion.getId())) {
+              if (AiAdvisorInclusions.CATALOG.equals(inclusion.getId())
+                  || AiAdvisorInclusions.SETTINGS.equals(inclusion.getId())) {
                 assertTrue(inclusion.isDefaultSelected(), inclusion.getId());
               } else {
                 assertFalse(inclusion.isDefaultSelected(), inclusion.getId());

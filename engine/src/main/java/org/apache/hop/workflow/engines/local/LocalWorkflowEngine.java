@@ -467,6 +467,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
         iLocation.registerExecution(
             ExecutionBuilder.of()
                 .withId(action.getLogChannel().getLogChannelId())
+                .withName(actionMeta.getName())
                 .withParentId(workflow.getLogChannelId())
                 .withExecutionStartDate(new Date())
                 .withRegistrationDate(new Date())

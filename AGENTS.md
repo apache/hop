@@ -115,6 +115,14 @@ Hand-built SWT is for things annotations cannot express (canvas, custom painters
 
 Listeners (`IGuiPluginCompositeWidgetsListener`) are for enable/disable and `setChanged()`, not for creating the fields.
 
+# Enums in Hop GUI and Hop Web
+
+An enum that appears in a Hop GUI or Hop Web control (a combo, a table column, a set of options) implements `org.apache.hop.metadata.api.IEnumHasCodeAndDescription`.
+
+- `getCode()` is the stable value stored in metadata. For a new enum that is the constant name. Do not change a code that projects already store.
+- `getDescription()` is the label a person sees. Load it with `BaseMessages` from the enum's `messages_en_US.properties`. `GuiCompositeWidgets` lists that description in a combo or table cell and writes the selection back by looking up the description, then the code, then the constant name.
+- Do not override `toString()` to return the description. `toString()` stays the constant name.
+
 # Hop i18n resource bundles
 
 Values defined in resource bundles (resource files in `messages/messages\*.properties` files) need to be properly escaped and quoted.  This means that variables expressions like `${VARIABLE}` really need to be surrounded with single quotes like this: `'${VARIABLE}'`.

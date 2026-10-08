@@ -112,6 +112,17 @@ image::pipeline-unit-testing-data-sets.png[Pipeline Unit Testing - Data Sets,wid
 * **Bypass in test**: When this unit test is run, bypass this transform (replace with a dummy)
 * **Remove bypass in test**: Do not bypass this transform in the current pipeline during testing
 
+Select two or more transforms and open the context dialog on one of them.
+Those four actions move to a *Bulk* category and apply to every selected transform:
+
+* **Remove selection from test**: When this unit test is run, do not include the selected transforms
+* **Include selection in test**: Include the selected transforms in this unit test
+* **Bypass selection in test**: When this unit test is run, bypass the selected transforms (replace each with a dummy)
+* **Remove bypass from selection**: Do not bypass the selected transforms during testing
+
+This is the same idea as *Enable hops between selection* and *Disable hops between selection* on a hop: one action updates the whole selection.
+With a single transform selected, the Unit Testing actions still apply to that transform only.
+
 If a unit test is active and you rename a transform that has an input data set, a golden data set, or a tweak, Hop updates that location on the unit test so the attachment stays on the renamed transform.
 
 TIP: creating data sets is also possible from the 'New' context menu or metadata perspective.
@@ -225,6 +236,10 @@ In our example, we may want to remove or bypass the transform that caused the te
 Click on the transform icon and select either 'Bypass in Test' or 'Remove from test'.
 Bypassing a transform in a test will replace the transform with a Dummy transform while executing the test.
 As the name implies, 'Remove from test' will remove the transform from the test pipeline, exactly like you would remove a transform from a pipeline.
+
+To remove or bypass several transforms at once, select them and open the context dialog on one of the selected transforms.
+Use *Remove selection from test* or *Bypass selection in test* in the Bulk category.
+*Include selection in test* and *Remove bypass from selection* clear those tweaks on the same selection.
 
 In the case of bypassing a transform, your pipeline will look like the one below ('Remove' will add a similar icon to the transform icon, crossing it out).
 

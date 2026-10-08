@@ -106,7 +106,8 @@ private String name;
 
 == Perspective
 
-A perspective is a full screen in the Hop GUI, selected from the icons in the left sidebar: the Data Orchestration, Metadata, Explorer and Execution Information perspectives are all plugins.
+A perspective is a full screen in the Hop GUI, selected from the icons in the left sidebar, which are sorted by plugin id.
+The built-in perspectives, such as File Explorer, Execution Information, Configuration, Database, Metadata and Plugin explorer, are all plugins.
 
 Annotation:: `@HopPerspectivePlugin`
 Implement:: `IHopPerspective`

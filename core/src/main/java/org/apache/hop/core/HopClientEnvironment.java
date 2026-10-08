@@ -30,6 +30,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.extension.ExtensionPointMap;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
 import org.apache.hop.core.logging.ConsoleLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
@@ -231,6 +232,11 @@ public class HopClientEnvironment {
       HopLogStore.getInstance().reset();
     }
     PluginRegistry.getInstance().reset();
+    // reset() drops every plugin listener. The extension-point map subscribed once, when its class
+    // was loaded, and otherwise keeps calling plugins from the registry that was just discarded.
+    // Anything registered after the environment is rebuilt (a pre-commit check, for example) is
+    // then never invoked. Put the listener back and drop the stale entries.
+    ExtensionPointMap.getInstance().reset();
     initialized = null;
   }
 }

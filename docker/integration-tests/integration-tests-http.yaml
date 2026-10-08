@@ -98,8 +98,12 @@ services:
       - ./resource/http/server.xml:/usr/local/tomcat/conf/server.xml
       - ./resource/http/.keystore:/usr/local/tomcat/conf/.keystore
 
+  # Built from the CastleMock v1.68 tag. The Docker Hub image and the published war are gone.
   castlemock:
-    image: castlemock/castlemock
+    build:
+      context: ./castlemock
+      dockerfile: Dockerfile
+    image: hop-it-castlemock:1.68
     hostname: castlemock
 
   # A paginating API, one endpoint per RestPaginationType. Every endpoint serves the same six

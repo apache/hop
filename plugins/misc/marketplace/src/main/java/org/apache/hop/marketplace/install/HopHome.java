@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,8 +43,35 @@ public final class HopHome {
 
   public static Path resolve() throws HopException {
     List<String> tried = new ArrayList<>();
-    for (Path candidate : candidates()) {
+    Path imageHome = null;
+    for (Path candidate : imageCandidates()) {
       Path abs = candidate.toAbsolutePath().normalize();
+      tried.add(abs.toString());
+      if (isHopHome(abs)) {
+        imageHome = abs;
+        break;
+      }
+    }
+
+    // A writable plugins directory named in HOP_PLUGIN_BASE_FOLDERS (usually a mounted volume) is
+    // the install target, so a read-only image root is not the only place plugins can live. The
+    // launcher passes the variable as a system property; the environment is only a fallback when
+    // the process was not started by that launcher.
+    for (Path home : pluginHomes(true)) {
+      Path abs = home.toAbsolutePath().normalize();
+      if (imageHome != null && imageHome.equals(abs)) {
+        continue;
+      }
+      if (isWritablePluginsHome(abs)) {
+        return abs;
+      }
+    }
+    if (imageHome != null) {
+      return imageHome;
+    }
+
+    for (Path home : pluginHomes(false)) {
+      Path abs = home.toAbsolutePath().normalize();
       tried.add(abs.toString());
       if (isHopHome(abs)) {
         return abs;
@@ -56,7 +84,7 @@ public final class HopHome {
             + String.join(", ", tried));
   }
 
-  private static Set<Path> candidates() {
+  private static Set<Path> imageCandidates() {
     Set<Path> paths = new LinkedHashSet<>();
     Path cwd = Paths.get(System.getProperty("user.dir", "."));
     paths.add(cwd);
@@ -65,16 +93,27 @@ public final class HopHome {
       paths.add(parent);
     }
 
-    // Web deployments can keep the writable plugins and configuration outside the binaries.
-    // Resolve those configured locations without changing the launcher behavior above.
+    // Web deployments can keep configuration outside the binaries.
     addConfiguredParent(paths, System.getProperty(HOP_CONFIG_FOLDER), "config");
     addConfiguredParent(paths, System.getenv(HOP_CONFIG_FOLDER), "config");
-    addConfiguredPluginParents(paths, System.getProperty(HOP_PLUGIN_BASE_FOLDERS));
-    addConfiguredPluginParents(paths, System.getenv(HOP_PLUGIN_BASE_FOLDERS));
     return paths;
   }
 
-  private static void addConfiguredPluginParents(Set<Path> paths, String configured) {
+  private static List<Path> pluginHomes(boolean propertyOnly) {
+    List<Path> homes = new ArrayList<>();
+    addConfiguredPluginParents(homes, System.getProperty(HOP_PLUGIN_BASE_FOLDERS));
+    if (!propertyOnly) {
+      addConfiguredPluginParents(homes, System.getenv(HOP_PLUGIN_BASE_FOLDERS));
+    }
+    return homes;
+  }
+
+  private static boolean isWritablePluginsHome(Path home) {
+    Path plugins = home.resolve("plugins");
+    return Files.isDirectory(plugins) && Files.isWritable(plugins);
+  }
+
+  private static void addConfiguredPluginParents(Collection<Path> paths, String configured) {
     if (configured == null || configured.isBlank()) {
       return;
     }
@@ -83,7 +122,8 @@ public final class HopHome {
     }
   }
 
-  private static void addConfiguredParent(Set<Path> paths, String configured, String childName) {
+  private static void addConfiguredParent(
+      Collection<Path> paths, String configured, String childName) {
     if (configured == null || configured.isBlank()) {
       return;
     }

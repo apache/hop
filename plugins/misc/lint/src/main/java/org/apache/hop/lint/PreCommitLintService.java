@@ -93,6 +93,19 @@ public final class PreCommitLintService {
   }
 
   public static List<File> readStagedFiles(String stagedFileListPath) throws HopException {
+    return readStagedFiles(stagedFileListPath, null);
+  }
+
+  /**
+   * The staged files to lint.
+   *
+   * @param baseDirectory what a relative path in the list is relative to. git lists staged files
+   *     relative to the repository root, and the hop launcher changes to the Hop installation
+   *     before it starts Java, so resolving them against the working directory found none of them
+   *     and the hook let every commit through.
+   */
+  public static List<File> readStagedFiles(String stagedFileListPath, File baseDirectory)
+      throws HopException {
     List<File> files = new ArrayList<>();
     File listFile = new File(stagedFileListPath);
     if (!listFile.isFile()) {
@@ -106,8 +119,17 @@ public final class PreCommitLintService {
           continue;
         }
         File candidate = new File(trimmed);
-        if (candidate.isFile() && isLintablePath(trimmed)) {
+        if (!candidate.isAbsolute() && baseDirectory != null) {
+          candidate = new File(baseDirectory, trimmed);
+        }
+        if (!isLintablePath(candidate.getAbsolutePath())) {
+          continue;
+        }
+        if (candidate.isFile()) {
           files.add(candidate);
+        } else {
+          // A staged file the hook cannot find is a hook that checks nothing, so say so.
+          System.err.println("Staged file not found, not linted: " + candidate.getPath());
         }
       }
     } catch (Exception e) {

@@ -69,8 +69,8 @@ class PipelineAiContextBuilderTest {
     request.setFocusNodeName("Input");
 
     String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
-    assertTrue(prompt.contains("Focus transform:\nInput"));
-    assertTrue(prompt.contains("Focus transform XML:"));
+    assertTrue(prompt.contains("<focus_transform>\nInput\n</focus_transform>"));
+    assertTrue(prompt.contains("<focus_transform_xml>"));
     assertTrue(prompt.contains("<transform>"));
     assertTrue(prompt.contains("Dummy"));
   }
@@ -119,29 +119,31 @@ class PipelineAiContextBuilderTest {
     request.getInclusions().put(AiAdvisorInclusions.CATALOG, true);
 
     String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
-    assertTrue(prompt.contains("Available transform plugins JSON"));
-    assertTrue(prompt.contains("Available metadata types JSON"));
-    assertTrue(prompt.contains("Available database plugins JSON"));
+    assertTrue(prompt.contains("<plugin_catalog>"));
+    assertTrue(prompt.contains("<metadata_types>"));
+    assertTrue(prompt.contains("<database_plugins>"));
     assertTrue(prompt.contains("ai-provider"));
   }
 
   @Test
-  void followUpOmitsCatalogAndSummary() throws Exception {
+  void followUpSendsWhatIsChecked() throws Exception {
+    // Ask, run, it fails, ask why: the second question must carry the log of the new run.
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("demo");
     AiAdvisorRequest request = new AiAdvisorRequest();
-    request.setUserPrompt("What next?");
+    request.setUserPrompt("Why did it fail?");
     request.setArtifact(pipelineMeta);
     request.setVariables(new Variables());
     request.setFollowUp(true);
+    request.setLogExcerpt("ERROR: row rejected");
     request.getInclusions().put(AiAdvisorInclusions.CATALOG, true);
+    request.getInclusions().put(AiAdvisorInclusions.LOGS, true);
 
     String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
-    assertTrue(prompt.contains("Pipeline structure JSON"));
-    assertFalse(prompt.contains("Pipeline summary JSON"));
-    assertFalse(prompt.contains("Available transform plugins JSON"));
-    assertFalse(prompt.contains("Available metadata types JSON"));
-    assertFalse(prompt.contains("Available database plugins JSON"));
+    assertTrue(prompt.contains("<pipeline_structure>"));
+    assertTrue(prompt.contains("<pipeline_summary>"));
+    assertTrue(prompt.contains("<plugin_catalog>"));
+    assertTrue(prompt.contains("ERROR: row rejected"));
   }
 
   @Test
@@ -179,12 +181,12 @@ class PipelineAiContextBuilderTest {
     request.getMetadataSelections().add(new AiAdvisorMetadataSelection("ai-provider", "sales-db"));
 
     String omitted = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
-    assertFalse(omitted.contains("Selected metadata JSON"));
+    assertFalse(omitted.contains("<selected_metadata>"));
 
     request.getInclusions().put(AiAdvisorInclusions.METADATA, true);
     request.setFollowUp(true);
     String included = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
-    assertTrue(included.contains("Selected metadata JSON"));
+    assertTrue(included.contains("<selected_metadata>"));
     assertTrue(included.contains("sales-db"));
     assertFalse(included.contains("sk-hidden"));
   }

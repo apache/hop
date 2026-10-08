@@ -1,0 +1,14 @@
+{
+  "sequenceStart": "1",
+  "piiClassification": "Sensitive",
+  "prefix": "bs",
+  "description": "",
+  "storage": "NONE",
+  "schemaName": "",
+  "suffix": "",
+  "tableName": "",
+  "token": "SEQUENCE",
+  "name": "bus",
+  "connection": "",
+  "valueSource": "SYNTHETIC"
+}

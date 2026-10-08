@@ -32,6 +32,12 @@ public final class HopSecurityPrivilegeMode {
   /** Sentinel for “use full base privileges” (not a HopRole id). */
   public static final String MODE_FULL = "full";
 
+  /**
+   * User name given to an effective context when the base context has no real user, such as the
+   * unrestricted desktop simulating a role.
+   */
+  public static final String STAND_IN_USERNAME = "session";
+
   private HopSecurityPrivilegeMode() {}
 
   /**
@@ -86,7 +92,7 @@ public final class HopSecurityPrivilegeMode {
     if (username == null
         || username.isBlank()
         || HopSecurityContext.ANONYMOUS_USERNAME.equals(username)) {
-      username = "session";
+      username = STAND_IN_USERNAME;
     }
     return HopSecurityContext.forUser(username, EnumSet.of(target), base.getSourceRoles());
   }

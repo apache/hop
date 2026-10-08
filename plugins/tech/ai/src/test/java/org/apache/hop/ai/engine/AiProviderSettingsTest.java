@@ -108,9 +108,9 @@ class AiProviderSettingsTest {
 
   @Test
   void rejectsANullProvider() {
-    HopException e = assertThrows(HopException.class, () -> AiProviderSettings.of(null, vars()));
+    HopException e = assertThrows(AiUserException.class, () -> AiProviderSettings.of(null, vars()));
 
-    assertTrue(e.getMessage().contains("required"), e.getMessage());
+    assertTrue(e.getMessage().contains("No AI provider is selected"), e.getMessage());
   }
 
   @Test

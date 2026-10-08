@@ -116,6 +116,32 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
 fi
 
+# Shared jars installed beside an extra plugins folder (HOP_PLUGIN_BASE_FOLDERS) are not under
+# this install's lib/core. The folder name must be "plugins"; its parent holds lib/core.
+if [ -n "${HOP_PLUGIN_BASE_FOLDERS:-}" ]; then
+  _hop_plugin_rest="${HOP_PLUGIN_BASE_FOLDERS}"
+  while [ -n "${_hop_plugin_rest}" ]; do
+    _hop_plugin_folder="${_hop_plugin_rest%%,*}"
+    case "${_hop_plugin_rest}" in
+      *,*) _hop_plugin_rest="${_hop_plugin_rest#*,}" ;;
+      *) _hop_plugin_rest="" ;;
+    esac
+    _hop_plugin_folder="${_hop_plugin_folder#"${_hop_plugin_folder%%[![:space:]]*}"}"
+    _hop_plugin_folder="${_hop_plugin_folder%"${_hop_plugin_folder##*[![:space:]]}"}"
+    [ -z "${_hop_plugin_folder}" ] && continue
+    if [ "$(basename "${_hop_plugin_folder}")" = "plugins" ]; then
+      _hop_plugin_home="$(dirname "${_hop_plugin_folder}")"
+      if [ -d "${_hop_plugin_home}/lib/core" ]; then
+        case ":${CLASSPATH}:" in
+          *":${_hop_plugin_home}/lib/core/*:"*) ;;
+          *) CLASSPATH="${_hop_plugin_home}/lib/core/*:${CLASSPATH}" ;;
+        esac
+      fi
+    fi
+  done
+  unset _hop_plugin_rest _hop_plugin_folder _hop_plugin_home
+fi
+
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
 EXITCODE=$?
 

@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.engine.AiProposalParamSupport;
 import org.apache.hop.ai.engine.AiProposalTypes;
+import org.apache.hop.ai.engine.AiProposalUndo;
 import org.apache.hop.ai.engine.AiProposalXmlSupport;
 import org.apache.hop.ai.engine.AiTransformConfigSupport;
 import org.apache.hop.ai.engine.AiTransformPluginSupport;
@@ -29,15 +30,21 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.w3c.dom.Document;
 
 /** Previews and applies validated AI proposals to an open pipeline. */
 public final class PipelineAiProposalApplier {
+
+  private static final Class<?> PKG = PipelineAiProposalApplier.class;
 
   private PipelineAiProposalApplier() {}
 
@@ -62,16 +69,108 @@ public final class PipelineAiProposalApplier {
       IHopMetadataProvider metadataProvider)
       throws HopException {
     if (pipelineMeta == null) {
-      throw new HopException("No pipeline is open");
+      throw new HopException(BaseMessages.getString(PKG, "PipelineAiProposalApplier.NoPipeline"));
     }
     if (proposals == null || proposals.isEmpty()) {
       return;
     }
+    proposals = AiProposalTypes.inApplyOrder(proposals);
     IHopMetadataProvider provider =
         metadataProvider != null ? metadataProvider : pipelineMeta.getMetadataProvider();
-    for (int i = 0; i < proposals.size(); i++) {
-      boolean chainUndo = hopGui != null && i < proposals.size() - 1;
-      applyOne(pipelineMeta, proposals.get(i), hopGui, chainUndo, provider);
+    // All or nothing. The pipeline as it is now is kept to put back when a proposal fails half
+    // way; without it nothing is applied.
+    String before;
+    try {
+      before = pipelineMeta.getXml(Variables.getADefaultVariableSpace());
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "PipelineAiProposalApplier.CannotCopy"), e);
+    }
+    // A dry run on a copy finds most failures before the open pipeline is touched. The copy can
+    // fail where the pipeline itself is fine (a plugin that cannot load its XML); the rollback
+    // below still covers that case.
+    PipelineMeta copy = copyForDryRun(before, provider);
+    if (copy != null) {
+      for (AiProposal proposal : proposals) {
+        applyOne(copy, proposal, null, false, provider);
+      }
+    }
+    applyOrRestore(pipelineMeta, before, proposals, hopGui, provider);
+  }
+
+  /**
+   * Apply the proposals to the open pipeline. When one fails, the pipeline is put back as {@code
+   * before} and none of them stays applied.
+   */
+  static void applyOrRestore(
+      PipelineMeta pipelineMeta,
+      String before,
+      List<AiProposal> proposals,
+      HopGui hopGui,
+      IHopMetadataProvider provider)
+      throws HopException {
+    boolean changedBefore = pipelineMeta.hasChanged();
+    int applied = 0;
+    try {
+      for (int i = 0; i < proposals.size(); i++) {
+        boolean chainUndo = hopGui != null && i < proposals.size() - 1;
+        applyOne(pipelineMeta, proposals.get(i), hopGui, chainUndo, provider);
+        applied++;
+      }
+    } catch (Exception e) {
+      // The failing proposal may have changed the pipeline before it failed, so put it back even
+      // when it was the first.
+      HopException failure =
+          new HopException(
+              BaseMessages.getString(PKG, "PipelineAiProposalApplier.RolledBack", applied + 1), e);
+      try {
+        restore(pipelineMeta, before, provider, hopGui, changedBefore);
+      } catch (Exception restoreError) {
+        failure.addSuppressed(restoreError);
+      }
+      throw failure;
+    }
+  }
+
+  /** Put the pipeline back as it was before a batch failed half way. */
+  static void restore(
+      PipelineMeta pipelineMeta,
+      String xml,
+      IHopMetadataProvider provider,
+      HopGui hopGui,
+      boolean changedBefore)
+      throws HopException {
+    Document document = XmlHandler.loadXmlString(xml);
+    pipelineMeta.restoreContentFromXml(
+        XmlHandler.getSubNode(document, PipelineMeta.XML_TAG),
+        pipelineMeta.getFilename(),
+        provider);
+    // Restoring the content clears the changed flag: put back the one it had, so unsaved edits
+    // from before the batch still ask to be saved.
+    if (changedBefore) {
+      pipelineMeta.setChanged();
+    } else {
+      pipelineMeta.clearChanged();
+    }
+    AiProposalUndo.forgetPartialChange(hopGui, pipelineMeta);
+  }
+
+  /** A copy through XML, or null when the pipeline cannot be copied (the dry run is skipped). */
+  public static PipelineMeta copyForDryRun(
+      PipelineMeta pipelineMeta, IHopMetadataProvider provider) {
+    try {
+      return copyForDryRun(pipelineMeta.getXml(Variables.getADefaultVariableSpace()), provider);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  private static PipelineMeta copyForDryRun(String xml, IHopMetadataProvider provider) {
+    try {
+      Document document = XmlHandler.loadXmlString(xml);
+      return new PipelineMeta(XmlHandler.getSubNode(document, PipelineMeta.XML_TAG), provider);
+    } catch (Exception e) {
+      return null;
     }
   }
 
@@ -98,7 +197,9 @@ public final class PipelineAiProposalApplier {
       case CONFIGURE_TRANSFORM -> configureTransform(pipelineMeta, proposal, hopGui, chainUndo);
       case REPLACE_TRANSFORM ->
           replaceTransform(pipelineMeta, proposal, hopGui, chainUndo, metadataProvider);
-      default -> throw new HopException("Unsupported proposal type: " + type);
+      default ->
+          throw new HopException(
+              BaseMessages.getString(PKG, "PipelineAiProposalApplier.UnsupportedType", type));
     }
   }
 
@@ -139,7 +240,9 @@ public final class PipelineAiProposalApplier {
     String transformName = proposal.parameter("transformName");
     TransformMeta transform = pipelineMeta.findTransform(transformName);
     if (transform == null) {
-      throw new HopException("Transform not found: " + transformName);
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "PipelineAiProposalApplier.TransformNotFound", transformName));
     }
     List<PipelineHopMeta> hopsToRemove = new ArrayList<>();
     for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
@@ -206,7 +309,9 @@ public final class PipelineAiProposalApplier {
     TransformMeta to = requireTransform(pipelineMeta, proposal.parameter("toTransform"));
     PipelineHopMeta hop = pipelineMeta.findPipelineHop(from, to);
     if (hop == null) {
-      throw new HopException("Hop not found: " + from.getName() + " -> " + to.getName());
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "PipelineAiProposalApplier.HopNotFound", from.getName(), to.getName()));
     }
     int hopIndex = pipelineMeta.indexOfPipelineHop(hop);
     if (hopGui != null) {
@@ -240,7 +345,8 @@ public final class PipelineAiProposalApplier {
       throws HopException {
     TransformMeta existing = requireTransform(pipelineMeta, proposal.parameter("transformName"));
     if (existing.getTransform() == null) {
-      throw new HopException("Transform has no metadata: " + existing.getName());
+      throw new HopException(
+          BaseMessages.getString(PKG, "PipelineAiProposalApplier.NoMetadata", existing.getName()));
     }
     TransformMeta before = (TransformMeta) existing.clone();
     AiTransformConfigSupport.apply(existing.getTransform(), proposal);
@@ -314,7 +420,8 @@ public final class PipelineAiProposalApplier {
       throws HopException {
     TransformMeta transform = pipelineMeta.findTransform(name);
     if (transform == null) {
-      throw new HopException("Transform not found: " + name);
+      throw new HopException(
+          BaseMessages.getString(PKG, "PipelineAiProposalApplier.TransformNotFound", name));
     }
     return transform;
   }

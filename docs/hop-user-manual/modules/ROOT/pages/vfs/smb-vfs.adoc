@@ -1,0 +1,58 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /vfs/
+:language: en_US
+:description: SMB2 and SMB3 file shares through a named VFS connection
+
+= SMB
+
+== Scheme
+
+SMB is a named VFS connection.
+The scheme is the connection name:
+
+`finance:///reports/2026/daily.csv`
+
+Host, share, and credentials live on the xref:metadata-types/smb-connection.adoc[SMB Connection].
+They are not part of the URL.
+A UNC path such as `\\server\share` is not a VFS URI, and Hop does not register `smb://`.
+
+Text File Input, Text File Output, Copy Files, and the VFS File Explorer use the connection directly.
+There is no separate Get or Put action.
+
+== What it speaks
+
+The client is SMB 2.0.2 through SMB 3.1.1.
+It does not speak SMB1.
+That matches current Windows, where SMB1 is off.
+
+Sign-in for this version is NTLMv2 with a username and password, plus an optional domain.
+Guest is available for a lab share that still allows it.
+Current Windows has guest SMB2 access off by default.
+Kerberos is not implemented yet.
+
+Azure Files is the same NTLM connection: hostname `account.file.core.windows.net`, username is the storage account, password is the access key, and the share is the file share name.
+
+== Check against Windows
+
+The automated tests run against Samba with SMB1 disabled, NTLMv2 only, and SMB signing required.
+To confirm a real Windows share:
+
+. Create an xref:metadata-types/smb-connection.adoc[SMB Connection] aimed at a server that has SMB1 turned off.
+. Use *Test connection*.
+. Write a small file with Text File Output to `connectionName:///folder/file.csv` and read it back.

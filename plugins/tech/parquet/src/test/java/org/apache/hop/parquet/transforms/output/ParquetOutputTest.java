@@ -19,6 +19,7 @@ package org.apache.hop.parquet.transforms.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -158,7 +159,11 @@ class ParquetOutputTest {
   @Test
   void testResolveOutputFieldsUsesConfiguredFields() throws Exception {
     ParquetOutputMeta meta = new ParquetOutputMeta();
-    meta.getFields().add(new ParquetField("id", "identifier"));
+    ParquetField id = new ParquetField("id", "identifier");
+    id.setParquetType("Date");
+    id.setPrecision("8");
+    id.setScale("0");
+    meta.getFields().add(id);
     meta.getFields().add(new ParquetField("name", ""));
 
     ParquetOutputData data = new ParquetOutputData();
@@ -173,7 +178,11 @@ class ParquetOutputTest {
 
     assertEquals(2, data.outputFields.size());
     assertEquals("identifier", data.outputFields.get(0).getTargetFieldName());
+    assertEquals("Date", data.outputFields.get(0).getParquetType());
+    assertEquals("8", data.outputFields.get(0).getPrecision());
+    assertEquals("0", data.outputFields.get(0).getScale());
     assertEquals("name", data.outputFields.get(1).getTargetFieldName());
+    assertNull(data.outputFields.get(1).getParquetType());
   }
 
   @Test

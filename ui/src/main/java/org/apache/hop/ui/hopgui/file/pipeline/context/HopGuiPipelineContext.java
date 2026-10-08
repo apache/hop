@@ -103,8 +103,7 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
               GuiActionFavorites.createId(GuiActionFavorites.Kind.TRANSFORM, pluginId),
               GuiActionType.Create,
               transformPlugin.getName(),
-              GuiActionFavorites.tooltipWithFavoriteHint(
-                  transformPlugin.getDescription(), favorite),
+              transformPlugin.getDescription(),
               transformPlugin.getImageFile(),
               (shiftClicked, controlClicked, t) ->
                   pipelineGraph.pipelineTransformDelegate.newTransform(
@@ -115,6 +114,7 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
                       controlClicked,
                       true,
                       click));
+      createTransformAction.getTooltipHints().add(GuiActionFavorites.favoriteHint(favorite));
       createTransformAction.getKeywords().addAll(Arrays.asList(transformPlugin.getKeywords()));
       // Also search on the English name/category/keywords for non-English locales (issue #2633)
       createTransformAction

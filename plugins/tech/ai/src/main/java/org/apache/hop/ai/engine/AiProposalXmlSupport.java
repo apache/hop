@@ -28,6 +28,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -38,6 +39,8 @@ import org.w3c.dom.Node;
 
 /** Hop clipboard XML envelopes for AI transform/action proposals. */
 public final class AiProposalXmlSupport {
+
+  private static final Class<?> PKG = AiProposalXmlSupport.class;
 
   public static final String PIPELINE_ENVELOPE = "pipeline-transforms";
   public static final String PIPELINE_TRANSFORMS = "transforms";
@@ -169,12 +172,13 @@ public final class AiProposalXmlSupport {
       throws HopException {
     List<Node> nodes = transformNodes(xml);
     if (nodes.isEmpty()) {
-      throw new HopException("No <transform> element in xml");
+      throw new HopException(BaseMessages.getString(PKG, "AiProposalXmlSupport.NoTransform"));
     }
     try {
       return new TransformMeta(nodes.get(0), metadataProvider);
     } catch (Exception e) {
-      throw new HopException("Unable to parse transform XML", e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiProposalXmlSupport.BadTransformXml"), e);
     }
   }
 
@@ -182,12 +186,12 @@ public final class AiProposalXmlSupport {
       String xml, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     List<Node> nodes = actionNodes(xml);
     if (nodes.isEmpty()) {
-      throw new HopException("No <action> element in xml");
+      throw new HopException(BaseMessages.getString(PKG, "AiProposalXmlSupport.NoAction"));
     }
     try {
       return new ActionMeta(nodes.get(0), metadataProvider, variables);
     } catch (Exception e) {
-      throw new HopException("Unable to parse action XML", e);
+      throw new HopException(BaseMessages.getString(PKG, "AiProposalXmlSupport.BadActionXml"), e);
     }
   }
 
@@ -209,23 +213,27 @@ public final class AiProposalXmlSupport {
     try {
       List<String> ids = pipeline ? transformPluginIds(xml) : actionPluginIds(xml);
       if (ids.isEmpty()) {
-        return pipeline ? "No <transform> element in xml" : "No <action> element in xml";
+        return BaseMessages.getString(
+            PKG, pipeline ? "AiProposalXmlSupport.NoTransform" : "AiProposalXmlSupport.NoAction");
       }
       PluginRegistry registry = PluginRegistry.getInstance();
       for (String id : ids) {
         if (Utils.isEmpty(id)) {
-          return "Plugin id (type) is missing in xml";
+          return BaseMessages.getString(PKG, "AiProposalXmlSupport.NoPluginId");
         }
         boolean known =
             pipeline
                 ? registry.findPluginWithId(TransformPluginType.class, id) != null
                 : registry.findPluginWithId(ActionPluginType.class, id) != null;
         if (!known) {
-          return "Unknown plugin in xml: " + id;
+          return BaseMessages.getString(PKG, "AiProposalXmlSupport.UnknownPlugin", id);
         }
       }
     } catch (Exception e) {
-      return "Invalid XML: " + Const.NVL(e.getMessage(), e.getClass().getSimpleName());
+      return BaseMessages.getString(
+          PKG,
+          "AiProposalXmlSupport.InvalidXml",
+          Const.NVL(e.getMessage(), e.getClass().getSimpleName()));
     }
     return null;
   }
@@ -245,7 +253,7 @@ public final class AiProposalXmlSupport {
       List<Node> nodes = XmlHandler.getNodes(parent, childTag);
       return nodes != null ? nodes : List.of();
     } catch (Exception e) {
-      throw new HopException("Unable to parse proposal XML", e);
+      throw new HopException(BaseMessages.getString(PKG, "AiProposalXmlSupport.BadXml"), e);
     }
   }
 

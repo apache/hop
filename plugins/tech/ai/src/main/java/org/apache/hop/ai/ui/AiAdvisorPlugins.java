@@ -20,7 +20,6 @@ package org.apache.hop.ai.ui;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorPluginType;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.core.exception.HopException;
@@ -41,12 +40,13 @@ public final class AiAdvisorPlugins {
   }
 
   /**
-   * Advisors for this session location. Empty {@code locations()} means any session. The unbound
-   * perspective lists every advisor.
+   * Advisors for this session location. Empty {@code locations()} means any session. A session that
+   * is not bound to a file (location {@code perspective}) only lists advisors that declare they
+   * work there: the pipeline and workflow advisors need their file and would fail.
    */
   public static List<IPlugin> listForLocation(String location) {
     List<IPlugin> all = list();
-    if (Utils.isEmpty(location) || AiAdvisorLocations.PERSPECTIVE.equals(location)) {
+    if (Utils.isEmpty(location)) {
       return all;
     }
     List<IPlugin> matching = new ArrayList<>();

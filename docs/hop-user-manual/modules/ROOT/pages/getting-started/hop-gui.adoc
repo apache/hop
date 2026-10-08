@@ -68,7 +68,7 @@ You'll use those in xref:getting-started/hop-projects.adoc[Projects and environm
 == Perspectives
 
 A perspective is a mode of the whole window.
-You'll spend nearly all of your time in the first one, Data Orchestration, which is where pipelines and workflows are edited.
+You'll spend nearly all of your time in the first one, File Explorer, which is where you browse your project and edit pipelines and workflows.
 
 include::../snippets/hop-gui/perspectives-list.adoc[]
 

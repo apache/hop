@@ -167,6 +167,53 @@ class HopGuiKeyHandlerTest {
     }
   }
 
+  /** Stands in for the perspectives opened with Ctrl/Cmd+Shift+A and Ctrl/Cmd+Shift+C. */
+  public static class PerspectiveShortcuts {
+    public int assistant;
+    public int selectAll;
+    public int shiftedPaste;
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'a', global = true)
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'a', global = true)
+    public void activateAssistant() {
+      assistant++;
+    }
+
+    @GuiKeyboardShortcut(control = true, key = 'a')
+    @GuiOsxKeyboardShortcut(command = true, key = 'a')
+    public void selectAllInGraph() {
+      selectAll++;
+    }
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'v', global = true)
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'v', global = true)
+    public void shiftedPaste() {
+      shiftedPaste++;
+    }
+  }
+
+  @Test
+  void shiftedClipboardChordsRunShortcutsFromTextWidgets() {
+    PerspectiveShortcuts shortcuts = new PerspectiveShortcuts();
+    registerShortcutsLikeHopGuiEnvironment(PerspectiveShortcuts.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(shortcuts);
+    try {
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'a', SWT.CONTROL | SWT.SHIFT));
+      assertEquals(
+          1, shortcuts.assistant, "Ctrl+Shift+A must open the AI Assistant from a text field");
+
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'a', SWT.CONTROL));
+      assertEquals(0, shortcuts.selectAll, "Ctrl+A in a text field still selects the text");
+
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'v', SWT.CONTROL | SWT.SHIFT));
+      assertEquals(0, shortcuts.shiftedPaste, "Ctrl+Shift+V in a text field stays with the field");
+    } finally {
+      keyHandler.removeParentObjectToHandle(shortcuts);
+    }
+  }
+
   /** Stands in for HopGui align / distribute shortcuts, which share chords with word movement. */
   public static class AlignGraph {
     public int alignLeft;

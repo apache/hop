@@ -19,6 +19,7 @@ package org.apache.hop.ai.ui;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorSessionStore;
@@ -31,13 +32,19 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -53,6 +60,7 @@ public class AiAdvisorWorkbench extends Composite {
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "AiAdvisorWorkbench-Toolbar";
   public static final String TOOLBAR_ITEM_NEW = "AiAdvisorWorkbench-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_RENAME = "AiAdvisorWorkbench-Toolbar-10010-Rename";
+  public static final String TOOLBAR_ITEM_LINK = "AiAdvisorWorkbench-Toolbar-10015-Link";
   public static final String TOOLBAR_ITEM_CLOSE = "AiAdvisorWorkbench-Toolbar-10020-Close";
   public static final String TOOLBAR_ITEM_FLOAT = "AiAdvisorWorkbench-Toolbar-20000-Float";
   public static final String TOOLBAR_ITEM_DOCK = "AiAdvisorWorkbench-Toolbar-20010-Dock";
@@ -66,10 +74,20 @@ public class AiAdvisorWorkbench extends Composite {
   private final GuiToolbarWidgets toolBarWidgets;
   private boolean refreshing;
 
+  /**
+   * Asks whether a session with a conversation may be closed. Replaceable so tests need no native
+   * message box.
+   */
+  Predicate<AiAdvisorSession> confirmClose = this::askToClose;
+
   public AiAdvisorWorkbench(Composite parent, IAiAdvisorWorkbenchHost host) {
+    this(parent, host, AiAdvisorSessionStore.get(host.getHopGui()));
+  }
+
+  AiAdvisorWorkbench(Composite parent, IAiAdvisorWorkbenchHost host, AiAdvisorSessionStore store) {
     super(parent, SWT.NONE);
     this.host = host;
-    this.store = AiAdvisorSessionStore.get(host.getHopGui());
+    this.store = store;
 
     PropsUi.setLook(this);
     setLayout(PropsUi.getInstance().createFormLayout());
@@ -103,9 +121,9 @@ public class AiAdvisorWorkbench extends Composite {
         new FormDataBuilder().top(wlSessions, PropsUi.getMargin()).bottom().fullWidth().result());
     tree.addListener(SWT.Selection, e -> treeSelection());
 
-    sessionPane = new AiAdvisorSessionPane(sash, host);
-    sash.setWeights(24, 76);
-    SashFormMemory.persist(sash, "ai-advisor-workbench-sash", 24, 76);
+    sessionPane = new AiAdvisorSessionPane(sash, host, store);
+    sash.setWeights(16, 84);
+    SashFormMemory.persist(sash, "ai-advisor-workbench-sash", 16, 84);
 
     store.addListener(storeListener);
     addDisposeListener(e -> store.removeListener(storeListener));
@@ -119,11 +137,32 @@ public class AiAdvisorWorkbench extends Composite {
     return session;
   }
 
+  /** A new session for the open pipeline or workflow, or an unlinked one when none is open. */
   public AiAdvisorSession newSession() {
-    AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
+    AiAdvisorOpenRequest request = requestForOpenFile(host.getHopGui());
+    if (request == null) {
+      request = new AiAdvisorOpenRequest();
+      request.setTitle(BaseMessages.getString(PKG, "AiAdvisor.Session.Untitled"));
+    }
     request.setReuseExisting(false);
-    request.setTitle(BaseMessages.getString(PKG, "AiAdvisor.Session.Untitled"));
     return store.open(request);
+  }
+
+  /** The pipeline or workflow open in the Explorer perspective, as a session request. */
+  static AiAdvisorOpenRequest requestForOpenFile(HopGui hopGui) {
+    if (hopGui == null || hopGui.getPerspectiveManager() == null) {
+      return null;
+    }
+    ExplorerPerspective explorer =
+        hopGui.getPerspectiveManager().findPerspective(ExplorerPerspective.class);
+    IHopFileTypeHandler handler = explorer != null ? explorer.getActiveFileTypeHandler() : null;
+    if (handler instanceof HopGuiPipelineGraph pipelineGraph) {
+      return PipelineAiGuiPlugin.newRequest(pipelineGraph, null);
+    }
+    if (handler instanceof HopGuiWorkflowGraph workflowGraph) {
+      return WorkflowAiGuiPlugin.newRequest(workflowGraph, null);
+    }
+    return null;
   }
 
   @GuiToolbarElement(
@@ -160,14 +199,60 @@ public class AiAdvisorWorkbench extends Composite {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_LINK,
+      toolTip = "i18n::AiAdvisor.Toolbar.Link.Tooltip",
+      image = "ui/images/link.svg")
+  public void toolbarLink() {
+    AiAdvisorSession session = store.getActiveSession();
+    if (session == null || session.getArtifact() != null) {
+      return;
+    }
+    AiAdvisorOpenRequest request = requestForOpenFile(host.getHopGui());
+    if (request == null) {
+      MessageBox box = new MessageBox(host.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "AiAdvisor.Link.NoFile.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "AiAdvisor.Link.NoFile.Message"));
+      box.open();
+      return;
+    }
+    store.link(session, request);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_CLOSE,
       toolTip = "i18n::AiAdvisor.Toolbar.Close.Tooltip",
       image = "ui/images/close.svg")
   public void toolbarClose() {
     AiAdvisorSession session = store.getActiveSession();
-    if (session != null) {
-      store.remove(session.getId());
+    if (session == null) {
+      return;
     }
+    if (!session.isEmpty() && !confirmClose.test(session)) {
+      return;
+    }
+    store.remove(session.getId());
+  }
+
+  private boolean askToClose(AiAdvisorSession session) {
+    MessageBox box = new MessageBox(host.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    box.setText(BaseMessages.getString(PKG, "AiAdvisor.Close.Title"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "AiAdvisor.Close.Message", session.displayTitle(), session.getTurns().size()));
+    return box.open() == SWT.YES;
+  }
+
+  GuiToolbarWidgets getToolBarWidgets() {
+    return toolBarWidgets;
+  }
+
+  AiAdvisorSessionPane getSessionPane() {
+    return sessionPane;
+  }
+
+  Tree getTree() {
+    return tree;
   }
 
   @GuiToolbarElement(
@@ -177,7 +262,16 @@ public class AiAdvisorWorkbench extends Composite {
       image = "ui/images/detach-panel.svg",
       separator = true)
   public void toolbarFloat() {
-    AiAdvisorViews.openDialog(host.getHopGui());
+    HopGui hopGui = host.getHopGui();
+    boolean fromDock = host.getViewKind() == IAiAdvisorWorkbenchHost.ViewKind.DOCK;
+    AiAdvisorViews.rememberView(IAiAdvisorWorkbenchHost.ViewKind.FLOATING);
+    AiAdvisorViews.openDialog(hopGui);
+    // Move rather than copy: the same session in two places looks like two conversations.
+    if (fromDock) {
+      // Later, not from inside the handler of a toolbar that is about to be disposed.
+      getDisplay()
+          .asyncExec(() -> AiAdvisorViews.closeAfterMove(() -> AiAdvisorViews.closeDock(hopGui)));
+    }
   }
 
   @GuiToolbarElement(
@@ -186,7 +280,14 @@ public class AiAdvisorWorkbench extends Composite {
       toolTip = "i18n::AiAdvisor.Toolbar.Dock.Tooltip",
       image = "ui/images/dock-panel.svg")
   public void toolbarDock() {
-    AiAdvisorViews.openDock(host.getHopGui());
+    HopGui hopGui = host.getHopGui();
+    boolean fromFloating = host.getViewKind() == IAiAdvisorWorkbenchHost.ViewKind.FLOATING;
+    AiAdvisorViews.rememberView(IAiAdvisorWorkbenchHost.ViewKind.DOCK);
+    AiAdvisorViews.openDock(hopGui);
+    if (fromFloating) {
+      getDisplay()
+          .asyncExec(() -> AiAdvisorViews.closeAfterMove(() -> AiAdvisorDialog.close(hopGui)));
+    }
   }
 
   private void treeSelection() {
@@ -237,8 +338,14 @@ public class AiAdvisorWorkbench extends Composite {
   }
 
   private void updateToolbar() {
-    boolean hasSession = store.getActiveSession() != null;
+    AiAdvisorSession active = store.getActiveSession();
+    boolean hasSession = active != null;
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_LINK, hasSession && active.getArtifact() == null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, hasSession);
+    toolBarWidgets.enableToolbarItem(
+        TOOLBAR_ITEM_FLOAT, host.getViewKind() != IAiAdvisorWorkbenchHost.ViewKind.FLOATING);
+    toolBarWidgets.enableToolbarItem(
+        TOOLBAR_ITEM_DOCK, host.getViewKind() != IAiAdvisorWorkbenchHost.ViewKind.DOCK);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CLOSE, hasSession);
   }
 }

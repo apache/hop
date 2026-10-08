@@ -18,14 +18,25 @@
 package org.apache.hop.ai.session;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
+import org.apache.hop.ai.config.HopAiConfigSingleton;
+import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -34,11 +45,26 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AiAdvisorSessionStore {
 
+  private static final Class<?> PKG = AiAdvisorSessionStore.class;
+
   static final String SHELL_DATA_KEY = AiAdvisorSessionStore.class.getName();
 
   private final List<AiAdvisorSession> sessions = new ArrayList<>();
   private final List<Runnable> listeners = new CopyOnWriteArrayList<>();
   private String activeSessionId;
+
+  /** Keeps conversations in the audit folder; see {@link AiAdvisorSessionArchive}. */
+  boolean persistent;
+
+  private final Set<String> loadedScopes = new HashSet<>();
+  private boolean saveScheduled;
+
+  /**
+   * The provider picked last in each project, for new sessions when no default provider is
+   * configured. Remembered in the audit folder.
+   */
+  private final Map<String, String> lastProviderNames = new HashMap<>();
+
   private boolean firing;
 
   public static AiAdvisorSessionStore get(HopGui hopGui) {
@@ -51,16 +77,92 @@ public class AiAdvisorSessionStore {
       return store;
     }
     AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    // Only the store of Hop GUI keeps conversations on disk, not the throwaway ones of tests.
+    store.persistent = true;
     shell.setData(SHELL_DATA_KEY, store);
+    // A change made just before Hop GUI closes is still waiting for its delayed save.
+    shell.addListener(
+        SWT.Dispose,
+        e -> {
+          store.stopWaitingQuestions();
+          store.saveNow();
+        });
     return store;
   }
 
+  /**
+   * The project a session belongs to: Hop GUI's namespace, which is the name of the open project.
+   * Replaceable so tests can switch projects.
+   */
+  Supplier<String> scope = AiAdvisorSessionStore::currentNamespace;
+
+  static String currentNamespace() {
+    try {
+      return HopNamespace.getNamespace();
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
+
+  /**
+   * The sessions of the open project. A session holds its pipeline, its conversation and the
+   * provider and metadata it names, which all belong to the project it was started in.
+   */
   public List<AiAdvisorSession> getSessions() {
-    return sessions;
+    String current = scope.get();
+    loadOnce(current);
+    List<AiAdvisorSession> visible = new ArrayList<>();
+    for (AiAdvisorSession session : sessions) {
+      if (Objects.equals(session.getScope(), current)) {
+        visible.add(session);
+      }
+    }
+    return visible;
   }
 
   public AiAdvisorSession getActiveSession() {
-    return find(activeSessionId);
+    AiAdvisorSession active = find(activeSessionId);
+    if (active == null) {
+      // After a project switch the active session can belong to the other project.
+      List<AiAdvisorSession> visible = getSessions();
+      if (!visible.isEmpty()) {
+        active = visible.get(visible.size() - 1);
+        activeSessionId = active.getId();
+      }
+    }
+    return active;
+  }
+
+  /** The provider picked last in the open project, or null. */
+  public String getLastProviderName() {
+    String key = AiAdvisorSessionArchive.group(scope.get());
+    if (!lastProviderNames.containsKey(key)) {
+      String saved = null;
+      if (persistent) {
+        try {
+          saved = AiAdvisorSessionArchive.loadLastProvider(key);
+        } catch (Exception e) {
+          LogChannel.UI.logError("Unable to read the last used AI provider", e);
+        }
+      }
+      lastProviderNames.put(key, saved);
+    }
+    return lastProviderNames.get(key);
+  }
+
+  public void setLastProviderName(String lastProviderName) {
+    String key = AiAdvisorSessionArchive.group(scope.get());
+    if (Objects.equals(lastProviderNames.get(key), lastProviderName)) {
+      return;
+    }
+    lastProviderNames.put(key, lastProviderName);
+    if (persistent) {
+      try {
+        AiAdvisorSessionArchive.saveLastProvider(key, lastProviderName);
+      } catch (Exception e) {
+        LogChannel.UI.logError("Unable to remember the last used AI provider", e);
+      }
+    }
   }
 
   public String getActiveSessionId() {
@@ -76,7 +178,7 @@ public class AiAdvisorSessionStore {
     if (sessionId == null) {
       return null;
     }
-    for (AiAdvisorSession session : sessions) {
+    for (AiAdvisorSession session : getSessions()) {
       if (sessionId.equals(session.getId())) {
         return session;
       }
@@ -85,6 +187,8 @@ public class AiAdvisorSessionStore {
   }
 
   public AiAdvisorSession add(AiAdvisorSession session) {
+    session.setScope(scope.get());
+    loadOnce(session.getScope());
     sessions.add(session);
     activeSessionId = session.getId();
     fireChanged();
@@ -92,9 +196,15 @@ public class AiAdvisorSessionStore {
   }
 
   public void remove(String sessionId) {
+    AiAdvisorSession removed = find(sessionId);
+    if (removed != null) {
+      // A request that is still running would otherwise go on, and keep spending tokens.
+      removed.requestCancel();
+    }
     sessions.removeIf(session -> session.getId().equals(sessionId));
     if (Objects.equals(activeSessionId, sessionId)) {
-      activeSessionId = sessions.isEmpty() ? null : sessions.get(sessions.size() - 1).getId();
+      List<AiAdvisorSession> visible = getSessions();
+      activeSessionId = visible.isEmpty() ? null : visible.get(visible.size() - 1).getId();
     }
     fireChanged();
   }
@@ -103,32 +213,91 @@ public class AiAdvisorSessionStore {
     if (request == null || !request.isReuseExisting()) {
       return null;
     }
-    for (AiAdvisorSession session : sessions) {
+    AiAdvisorSession sameFile = null;
+    for (AiAdvisorSession session : getSessions()) {
       if (!Objects.equals(session.getAdvisorPluginId(), nvl(request.getAdvisorPluginId()))) {
         continue;
       }
       if (!Objects.equals(nvl(session.getLocation()), nvl(request.getLocation()))) {
         continue;
       }
-      if (!Objects.equals(nvl(session.getArtifactName()), nvl(request.getArtifactName()))) {
+      if (request.getArtifact() == null) {
+        // Nothing to identify the pipeline or workflow by, so fall back to the name.
+        if (session.getArtifact() == null
+            && Utils.isEmpty(session.getArtifactFilename())
+            && Objects.equals(nvl(session.getArtifactName()), nvl(request.getArtifactName()))) {
+          return session;
+        }
         continue;
       }
-      return session;
+      if (session.getArtifact() == request.getArtifact()) {
+        return session;
+      }
+      // The same saved file, opened again after its tab was closed. A name is not enough: two
+      // files in different folders, or two unsaved pipelines, can have the same name.
+      String filename = filenameOf(request.getArtifact());
+      if (sameFile == null && !Utils.isEmpty(filename) && filename.equals(filenameOf(session))) {
+        sameFile = session;
+      }
     }
-    return null;
+    return sameFile;
+  }
+
+  static String filenameOf(Object artifact) {
+    return artifact instanceof IHasFilename hasFilename ? hasFilename.getFilename() : null;
+  }
+
+  static String filenameOf(AiAdvisorSession session) {
+    String filename = filenameOf(session.getArtifact());
+    return filename != null ? filename : session.getArtifactFilename();
+  }
+
+  /**
+   * A pipeline or workflow tab was closed: its sessions let go of the file and its log, and keep
+   * the conversation and the file name for when the file is opened again.
+   */
+  public void release(Object artifact) {
+    boolean changed = false;
+    for (AiAdvisorSession session : sessions) {
+      if (artifact != null && session.getArtifact() == artifact) {
+        String filename = filenameOf(artifact);
+        if (!Utils.isEmpty(filename)) {
+          session.setArtifactFilename(filename);
+        }
+        session.setArtifact(null);
+        session.setLogSupplier(null);
+        session.setRunIdSupplier(null);
+        changed = true;
+      }
+    }
+    if (changed) {
+      fireChanged();
+    }
   }
 
   public AiAdvisorSession open(AiAdvisorOpenRequest request) {
     AiAdvisorSession existing = findReusable(request);
     if (existing != null) {
-      if (!Utils.isEmpty(request.getFocusNodeName())) {
-        existing.setFocusNodeName(request.getFocusNodeName());
-      }
+      // AI Help opened on the pipeline or workflow itself clears a focus set from a transform or
+      // action earlier, so that node's XML is no longer sent.
+      existing.setFocusNodeName(nvl(request.getFocusNodeName()));
       if (request.getArtifact() != null) {
         existing.setArtifact(request.getArtifact());
+        existing.setArtifactFilename(filenameOf(request.getArtifact()));
+      }
+      // A new pipeline gets its name from the file name when it is first saved.
+      if (Objects.equals(existing.getTitle(), existing.getArtifactName())
+          && !Utils.isEmpty(request.getTitle())) {
+        existing.setTitle(request.getTitle());
+      }
+      if (!Utils.isEmpty(request.getArtifactName())) {
+        existing.setArtifactName(request.getArtifactName());
       }
       if (request.getLogSupplier() != null) {
         existing.setLogSupplier(request.getLogSupplier());
+      }
+      if (request.getRunIdSupplier() != null) {
+        existing.setRunIdSupplier(request.getRunIdSupplier());
       }
       mergeAttributes(existing, request);
       activeSessionId = existing.getId();
@@ -146,10 +315,41 @@ public class AiAdvisorSessionStore {
       session.setArtifactKind(nvl(request.getArtifactKind()));
       session.setFocusNodeName(nvl(request.getFocusNodeName()));
       session.setArtifact(request.getArtifact());
+      session.setArtifactFilename(filenameOf(request.getArtifact()));
       session.setLogSupplier(request.getLogSupplier());
+      session.setRunIdSupplier(request.getRunIdSupplier());
       session.setAttributes(copyAttributes(request.getAttributes()));
     }
     return add(session);
+  }
+
+  /**
+   * Link a session that has no pipeline or workflow to one. It takes the advisor, title and log of
+   * that file, and keeps its conversation.
+   */
+  public void link(AiAdvisorSession session, AiAdvisorOpenRequest request) {
+    if (session == null || request == null || request.getArtifact() == null) {
+      return;
+    }
+    session.setAdvisorPluginId(nvl(request.getAdvisorPluginId()));
+    session.setScenarioId("");
+    if (request.getLocation() != null) {
+      session.setLocation(request.getLocation());
+    }
+    session.setAreaLabel(nvl(request.getAreaLabel()));
+    session.setArtifact(request.getArtifact());
+    session.setArtifactFilename(filenameOf(request.getArtifact()));
+    session.setArtifactName(nvl(request.getArtifactName()));
+    session.setArtifactKind(nvl(request.getArtifactKind()));
+    session.setLogSupplier(request.getLogSupplier());
+    session.setRunIdSupplier(request.getRunIdSupplier());
+    session.setFocusNodeName(nvl(request.getFocusNodeName()));
+    if (session.isEmpty() || Utils.isEmpty(session.getTitle())) {
+      session.setTitle(nvl(request.getTitle()));
+    }
+    mergeAttributes(session, request);
+    activeSessionId = session.getId();
+    fireChanged();
   }
 
   static void mergeAttributes(AiAdvisorSession session, AiAdvisorOpenRequest request) {
@@ -180,6 +380,7 @@ public class AiAdvisorSessionStore {
     if (firing) {
       return;
     }
+    saveSoon();
     firing = true;
     try {
       for (Runnable listener : listeners) {
@@ -192,5 +393,86 @@ public class AiAdvisorSessionStore {
 
   private static String nvl(String value) {
     return value == null ? "" : value;
+  }
+
+  private static boolean keepConversations() {
+    return HopAiConfigSingleton.getConfig().isKeepConversations();
+  }
+
+  /**
+   * Bring back the saved conversations of a project the first time its sessions are shown. Only
+   * once they were read is the project saved: while Keep conversations is off nothing is read, and
+   * switching it on later must not write the sessions in memory over the saved ones.
+   */
+  private void loadOnce(String scopeName) {
+    String key = AiAdvisorSessionArchive.group(scopeName);
+    if (!persistent || !keepConversations() || !loadedScopes.add(key)) {
+      return;
+    }
+    try {
+      List<AiAdvisorSession> saved = AiAdvisorSessionArchive.load(scopeName);
+      sessions.addAll(0, saved);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Unable to read the saved AI Assistant conversations", e);
+    }
+  }
+
+  /** Save a moment after a change, so a burst of changes is written once. */
+  private void saveSoon() {
+    if (!persistent || saveScheduled) {
+      return;
+    }
+    Display display = Display.getCurrent();
+    if (display == null) {
+      saveNow();
+      return;
+    }
+    saveScheduled = true;
+    display.timerExec(
+        1500,
+        () -> {
+          saveScheduled = false;
+          saveNow();
+        });
+  }
+
+  /**
+   * Hop GUI exits: a question still waiting for its answer cannot finish, as the JVM stops once the
+   * main window is gone. Its turn says so instead of staying unanswered after a restart.
+   */
+  void stopWaitingQuestions() {
+    for (AiAdvisorSession session : sessions) {
+      if (!session.isWorking()) {
+        continue;
+      }
+      session.requestCancel();
+      session.setWorking(false);
+      session.setWorkerThread(null);
+      if (!session.isEmpty()) {
+        AiAdvisorTurn turn = session.getTurns().get(session.getTurns().size() - 1);
+        if (Utils.isEmpty(turn.getAssistantAdvice())) {
+          turn.setErrorMessage(BaseMessages.getString(PKG, "AiAdvisorSessionStore.StoppedByExit"));
+        }
+      }
+    }
+  }
+
+  void saveNow() {
+    if (!persistent || !keepConversations()) {
+      return;
+    }
+    for (String key : loadedScopes) {
+      List<AiAdvisorSession> inScope = new ArrayList<>();
+      for (AiAdvisorSession session : sessions) {
+        if (key.equals(AiAdvisorSessionArchive.group(session.getScope()))) {
+          inScope.add(session);
+        }
+      }
+      try {
+        AiAdvisorSessionArchive.save(key, inScope);
+      } catch (Exception e) {
+        LogChannel.UI.logError("Unable to save the AI Assistant conversations", e);
+      }
+    }
   }
 }

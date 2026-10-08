@@ -19,6 +19,7 @@ package org.apache.hop.ai.advisor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -76,6 +77,46 @@ class AiProposalParserTest {
     assertTrue(response.isProposalBlockPresent());
     assertTrue(response.getProposals().isEmpty());
     assertTrue(response.getMarkdownAdvice().contains("Keep this advice."));
+    assertTrue(response.getProposalParseError().contains("not valid JSON"));
+  }
+
+  @Test
+  void blockWithoutProposalsArrayReportsWhy() {
+    String raw =
+        """
+        ```hop_proposals
+        [{"type":"ADD_TRANSFORM"}]
+        ```
+        """;
+    AiAdvisorResponse response = AiProposalParser.parse(raw);
+    assertTrue(response.getProposals().isEmpty());
+    assertTrue(response.getProposalParseError().contains("\"proposals\" array"));
+  }
+
+  @Test
+  void combinedTypesAreReportedSoTheModelCanCorrectThem() {
+    String raw =
+        """
+        ```hop_proposals
+        {"proposals":[{"description":"Add Dummy","type":"ADD_TRANSFORM|ADD_PIPELINE_HOP"}]}
+        ```
+        """;
+    AiAdvisorResponse response = AiProposalParser.parse(raw);
+    assertTrue(response.getProposalParseError().contains("several types"));
+  }
+
+  @Test
+  void itemWithoutTypeIsKeptSoTheValidatorCanBlockIt() {
+    String raw =
+        """
+        ```hop_proposals
+        {"proposals":[{"description":"Add a filter","parameters":{"name":"Filter"}}]}
+        ```
+        """;
+    AiAdvisorResponse response = AiProposalParser.parse(raw);
+    assertEquals(1, response.getProposals().size());
+    assertEquals("", response.getProposals().get(0).getType());
+    assertNull(response.getProposalParseError());
   }
 
   @Test

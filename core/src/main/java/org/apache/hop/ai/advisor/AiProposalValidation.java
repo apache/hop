@@ -32,4 +32,15 @@ public class AiProposalValidation {
   private boolean blocked;
   private String reason;
   private String warning;
+
+  /**
+   * Not selected in the review by default: the user has to choose it. Used for changes that remove
+   * or replace existing work, such as deletes, replacements and overwritten metadata.
+   */
+  private boolean optIn;
+
+  /** The constructor from before {@link #optIn} existed, kept for advisors in other plugins. */
+  public AiProposalValidation(String proposalId, boolean blocked, String reason, String warning) {
+    this(proposalId, blocked, reason, warning, false);
+  }
 }

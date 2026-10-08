@@ -18,6 +18,7 @@
 package org.apache.hop.ai.engine;
 
 import java.util.List;
+import java.util.TreeSet;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
@@ -34,19 +35,33 @@ public final class AiM2PromptSupport {
   public static String buildSupplement() throws HopException {
     return AiPromptLoader.load(PROMPT_ROOT, "preamble-m2.txt")
         + "\n\n"
-        + AiPromptLoader.load(PROMPT_ROOT, "hop-proposals-schema.txt");
+        + AiPromptLoader.load(PROMPT_ROOT, "hop-proposals-schema.txt")
+        + "\n"
+        + savableMetadata();
+  }
+
+  /**
+   * Which metadata a proposal can save, from the list the review enforces, so the model does not
+   * propose a run configuration or a server only to see it blocked, or offers something else.
+   */
+  static String savableMetadata() throws HopException {
+    return AiPromptLoader.load(PROMPT_ROOT, "savable-metadata.txt")
+        .replace(
+            "{types}",
+            String.join(", ", new TreeSet<>(AiMetadataProposalSupport.SAVABLE_TYPE_KEYS)));
   }
 
   public static void appendAppliedSummaries(StringBuilder prompt, List<String> summaries) {
     if (summaries == null || summaries.isEmpty()) {
       return;
     }
-    prompt.append("User applied these graph changes since the previous turn:\n");
+    StringBuilder applied = new StringBuilder();
     for (String summary : summaries) {
       if (!Utils.isEmpty(summary)) {
-        prompt.append("- ").append(summary).append('\n');
+        applied.append("- ").append(summary).append('\n');
       }
     }
-    prompt.append('\n');
+    // The user applied these proposals to the graph since the previous question.
+    AiTextUtil.appendSection(prompt, "applied_changes", applied.toString());
   }
 }

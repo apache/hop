@@ -690,7 +690,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
   private static boolean isNativeTextEditingKey(int keyCode, int stateMask, char character) {
     if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
       char key = Character.toLowerCase((char) keyCode);
-      if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
+      // With SHIFT, A and C are app shortcuts (Ctrl/Cmd+Shift+A opens the AI Assistant, +C the
+      // configuration), not select all or copy. Shift+V and Shift+X stay with the widget: some
+      // editors paste as plain text or cut a line with them.
+      boolean shift = (stateMask & SWT.SHIFT) != 0;
+      if (key == 'v' || key == 'x' || (!shift && (key == 'a' || key == 'c'))) {
         return true;
       }
     }

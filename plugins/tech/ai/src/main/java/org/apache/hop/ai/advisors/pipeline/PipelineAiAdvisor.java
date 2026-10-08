@@ -28,6 +28,8 @@ import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
+import org.apache.hop.ai.engine.AiAdvisorEngine;
+import org.apache.hop.ai.engine.AiProposalNormalizer;
 import org.apache.hop.ai.engine.AiProposalPreview;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -87,6 +89,12 @@ public class PipelineAiAdvisor implements IAiAdvisor {
   public List<AiAdvisorInclusion> listInclusions() {
     return List.of(
         new AiAdvisorInclusion(
+            AiAdvisorInclusions.SETTINGS,
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Settings"),
+            true,
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Settings.Tooltip"),
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Settings.Summary")),
+        new AiAdvisorInclusion(
             AiAdvisorInclusions.CHECKS,
             BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Checks"),
             false,
@@ -136,6 +144,8 @@ public class PipelineAiAdvisor implements IAiAdvisor {
       AiAdvisorRequest request, List<AiProposal> proposals) {
     PipelineMeta pipelineMeta =
         request != null && request.getArtifact() instanceof PipelineMeta meta ? meta : null;
+    // Repair the model's slips first (a workflow hop type, a missing plugin id or location).
+    AiProposalNormalizer.forPipeline(pipelineMeta, proposals);
     return PipelineAiProposalValidator.validate(
         pipelineMeta, proposals, request != null ? request.getMetadataProvider() : null);
   }
@@ -144,7 +154,8 @@ public class PipelineAiAdvisor implements IAiAdvisor {
   public void applyProposals(AiAdvisorRequest request, List<AiProposal> selected)
       throws HopException {
     if (!(request.getArtifact() instanceof PipelineMeta pipelineMeta)) {
-      throw new HopException("No pipeline is bound to this session.");
+      throw new HopException(
+          BaseMessages.getString(AiAdvisorEngine.class, "AiContextBuilder.NotLinked.Pipeline"));
     }
     HopGui hopGui = hopGuiFrom(request);
     PipelineAiProposalApplier.apply(

@@ -1,0 +1,20 @@
+{
+  "base_filename": "golden-0119-mask-fields.csv",
+  "name": "golden-0119-mask-fields",
+  "description": "Masked personal data from 0119-mask-fields",
+  "dataset_fields": [
+    { "field_comment": "", "field_length": -1, "field_type": 5, "field_precision": -1, "field_format": "", "field_name": "id" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "firstName" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "lastName" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "street" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "houseNr" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "bus" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "zipCode" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "city" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "state" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "countryCode" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "telHome" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "telCell" }
+  ],
+  "folder_name": ""
+}

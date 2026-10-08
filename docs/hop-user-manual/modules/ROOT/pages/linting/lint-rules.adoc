@@ -198,7 +198,7 @@ A rule with neither block behaves exactly as before, so nothing that was written
 
 [NOTE]
 ====
-The rule manager in Hop Gui edits one condition, so it shows a composed rule's clauses but leaves them alone: name, severity and enabled can be changed there, the clauses are edited in `hop-lint.yml`.
+The rule editor in Hop Gui lists a composed rule's clauses and edits them one at a time; *Add clause* and *Remove clause* change the list.
 ====
 
 == Narrowing a rule to one kind of transform
@@ -404,6 +404,7 @@ rules:
 ----
 
 *Tools -> Lint -> Manage Custom Rules* writes this file for you.
+It changes only the entry of the rule you added, edited, switched or deleted: the other rules, the `exclude` and `suppress` sections and your comments stay as you wrote them.
 
 A parse error in `hop-lint.yml` is reported rather than ignored, so that a typo cannot leave you linting with the defaults while believing otherwise.
 

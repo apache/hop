@@ -211,6 +211,12 @@ plugins:
     description: Google technology
     installPath: plugins/tech/google
     modulePath: plugins/tech/google
+  - artifactId: hop-tech-git-vfs
+    name: Git repository
+    category: Technology
+    description: Read a git repository, checked out at a branch or revision, as a named VFS location.
+    installPath: plugins/tech/git-vfs
+    modulePath: plugins/tech/git-vfs
   - artifactId: hop-tech-minio
     name: MinIO
     category: Technology

@@ -125,6 +125,9 @@ public class ArrowFlightServer {
   public void start() throws HopException {
     try {
       flightServer.start();
+      // Port 0 is replaced by the port the operating system assigned.
+      //
+      port = flightServer.getPort();
       log.logBasic(
           "Apache Arrow Flight server listening on "
               + hostname
@@ -146,6 +149,23 @@ public class ArrowFlightServer {
       log.logBasic("Apache Arrow Flight server was shut down");
     } catch (Exception e) {
       throw new HopException("Unable to shut down Flight server on " + hostname + ":" + port, e);
+    }
+  }
+
+  /**
+   * Shuts the server down, waits until it has stopped, and releases its allocator. A caller that
+   * wants to keep the process alive uses {@link #shutdown()} and waits on the Flight server itself.
+   */
+  public void close() throws HopException {
+    try {
+      flightServer.close();
+      log.logBasic("Apache Arrow Flight server was shut down");
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new HopException(
+          "Interrupted while shutting down the Flight server on " + hostname + ":" + port, e);
+    } finally {
+      allocator.close();
     }
   }
 }

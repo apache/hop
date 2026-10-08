@@ -16,6 +16,7 @@
  */
 package org.apache.hop.lint;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +110,8 @@ public class RuleTargetFields {
             "targetTransforms",
             "isStart",
             "isDummy",
+            "isOrphaned",
+            "isBlockingTransform",
             "hasDefaultName",
             "password",
             "secret",
@@ -128,6 +131,7 @@ public class RuleTargetFields {
             "errorHandling",
             "targetActions",
             "isStart",
+            "isOrphaned",
             "hasDefaultName",
             "password",
             "secret",
@@ -199,7 +203,7 @@ public class RuleTargetFields {
       // Numeric fields
       return Arrays.asList(
           RuleCondition.MAX_VALUE, RuleCondition.MIN_VALUE, RuleCondition.EXACT_VALUE);
-    } else if (field.startsWith("has")
+    } else if (isFlagName(field)
         || field.equals("enabled")
         || field.equals("distributes")
         || field.equals("unconditional")
@@ -229,5 +233,50 @@ public class RuleTargetFields {
           RuleCondition.STARTS_WITH,
           RuleCondition.ENDS_WITH);
     }
+  }
+
+  /**
+   * {@code hasNotes}, {@code isDummy}: a yes-or-no question, but not {@code issuer} or {@code
+   * hash}.
+   */
+  private static boolean isFlagName(String field) {
+    for (String prefix : new String[] {"has", "is"}) {
+      if (field.length() > prefix.length()
+          && field.startsWith(prefix)
+          && Character.isUpperCase(field.charAt(prefix.length()))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * The fields the rule editor offers, with the one the rule already reads among them.
+   *
+   * <p>A rule may read a field the list does not know: a transform's own setting such as a Table
+   * Input's {@code sql}, or any field of a metadata object. Leaving it out opened such a rule with
+   * no field selected, and the editor then refused to save it at all, even for a severity change.
+   */
+  public static List<String> getFieldChoices(RuleTarget target, String currentField) {
+    List<String> fields = new ArrayList<>(getFieldsForTarget(target));
+    if (currentField != null && !currentField.isEmpty() && !fields.contains(currentField)) {
+      fields.add(currentField);
+    }
+    return fields;
+  }
+
+  /**
+   * The conditions the rule editor offers for a field, with the one the rule already uses among
+   * them, for the same reason as {@link #getFieldChoices}: a rule from a pack is not wrong just
+   * because the editor would not have suggested its condition.
+   */
+  public static List<RuleCondition> getConditionChoices(
+      String field, RuleCondition currentCondition) {
+    List<RuleCondition> conditions =
+        new ArrayList<>(getCompatibleConditions(field == null ? "" : field));
+    if (currentCondition != null && !conditions.contains(currentCondition)) {
+      conditions.add(currentCondition);
+    }
+    return conditions;
   }
 }

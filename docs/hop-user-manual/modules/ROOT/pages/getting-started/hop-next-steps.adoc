@@ -50,7 +50,7 @@ Where you go next depends on what you're trying to do.
 == Run it somewhere else
 
 * xref:projects/index.adoc[Projects] - the full reference for projects and environments
-* xref:hop-server/deploying.adoc[Deploying Hop Server] - three ways to get a project onto a running server
+* xref:hop-server/deploying.adoc[Deploying Hop Server] - how a project gets onto a running server, including a stock `apache/hop` container
 * xref:docker-container.adoc[Hop in Docker] - the `apache/hop` image
 * xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations] - run the same pipeline on Apache Spark, Apache Flink or Google Dataflow without changing it
 * xref:logging/logging-basics.adoc[Logging] - log levels and where to send the output

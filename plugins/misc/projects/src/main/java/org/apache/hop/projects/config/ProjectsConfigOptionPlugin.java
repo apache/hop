@@ -49,7 +49,9 @@ import picocli.CommandLine;
 
 @ConfigPlugin(
     id = "ProjectsConfigOptionPlugin",
-    description = "Configuration options for the global projects plugin")
+    description = "Configuration options for the global projects plugin",
+    configKey = ProjectsConfig.HOP_CONFIG_PROJECTS_CONFIG_KEY,
+    configClass = ProjectsConfig.class)
 @GuiPlugin(
     description = "i18n::ProjectConfig.Tab.Name" // label in options dialog
     )
@@ -77,17 +79,19 @@ public class ProjectsConfigOptionPlugin
       id = WIDGET_ID_ENABLE_PROJECTS,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::ProjectConfig.EnableProjectPlugin.Message")
+      label = "i18n::ProjectConfig.EnableProjectPlugin.Message",
+      toolTip = "i18n::ProjectConfig.EnableProjectPlugin.Description")
   @CommandLine.Option(
       names = {"-pn", "--projects-enabled"},
       description = "Enable or disable the projects plugin")
-  private Boolean projectsEnabled;
+  private Boolean enabled;
 
   @GuiWidgetElement(
       id = WIDGET_ID_PROJECT_MANDATORY,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::ProjectConfig.ProjectMandatory.Message")
+      label = "i18n::ProjectConfig.ProjectMandatory.Message",
+      toolTip = "i18n::ProjectConfig.ProjectMandatory.Description")
   @CommandLine.Option(
       names = {"-py", "--project-mandatory"},
       description = "Make it mandatory to reference a project")
@@ -97,7 +101,8 @@ public class ProjectsConfigOptionPlugin
       id = WIDGET_ID_ENVIRONMENT_MANDATORY,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "i18n::ProjectConfig.EnvironmentMandatory.Message")
+      label = "i18n::ProjectConfig.EnvironmentMandatory.Message",
+      toolTip = "i18n::ProjectConfig.EnvironmentMandatory.Description")
   @CommandLine.Option(
       names = {"-ey", "--environment-mandatory"},
       description = "Make it mandatory to reference an environment")
@@ -109,7 +114,8 @@ public class ProjectsConfigOptionPlugin
       type = GuiElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       variables = true,
-      label = "i18n::ProjectConfig.DefaultProject.Message")
+      label = "i18n::ProjectConfig.DefaultProject.Message",
+      toolTip = "i18n::ProjectConfig.DefaultProject.Description")
   @CommandLine.Option(
       names = {"-dp", "--default-project"},
       description = "The default project to use when none is specified")
@@ -120,7 +126,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "i18n::ProjectConfig.DefaultEnvironment.Message")
+      label = "i18n::ProjectConfig.DefaultEnvironment.Message",
+      toolTip = "i18n::ProjectConfig.DefaultEnvironment.Description")
   @CommandLine.Option(
       names = {"-de", "--default-environment"},
       description = "The name of the default environment to use when none is specified")
@@ -132,7 +139,8 @@ public class ProjectsConfigOptionPlugin
       type = GuiElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       variables = true,
-      label = "i18n::ProjectConfig.ParentProject.Message")
+      label = "i18n::ProjectConfig.ParentProject.Message",
+      toolTip = "i18n::ProjectConfig.ParentProject.Description")
   @CommandLine.Option(
       names = {"-sp", "--standard-parent-project"},
       description =
@@ -144,7 +152,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FOLDER,
       variables = true,
-      label = "i18n::ProjectConfig.StdProjectFolder.Message")
+      label = "i18n::ProjectConfig.StdProjectFolder.Message",
+      toolTip = "i18n::ProjectConfig.StdProjectFolder.Description")
   @CommandLine.Option(
       names = {"-sj", "--standard-projects-folder"},
       description = "The standard projects folder for new projects")
@@ -155,7 +164,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "i18n::ProjectConfig.StdProjectFilename.Message")
+      label = "i18n::ProjectConfig.StdProjectFilename.Message",
+      toolTip = "i18n::ProjectConfig.StdProjectFilename.Description")
   @CommandLine.Option(
       names = {"-dc", "--default-projects-folder"},
       description = "The project configuration filename for new projects")
@@ -177,7 +187,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "i18n::ProjectConfig.ClearDbCache.Message")
+      label = "i18n::ProjectConfig.ClearDbCache.Message",
+      toolTip = "i18n::ProjectConfig.ClearDbCache.Description")
   @CommandLine.Option(
       names = {"-cdb", "--clear-db-when-env-switching"},
       description = "Clear database cache when switching project/environment")
@@ -188,7 +199,8 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "i18n::ProjectConfig.SortByNameLastUsedProjects.Message")
+      label = "i18n::ProjectConfig.SortByNameLastUsedProjects.Message",
+      toolTip = "i18n::ProjectConfig.SortByNameLastUsedProjects.Description")
   @Getter
   @Setter
   private Boolean sortByNameLastUsedProjects;
@@ -202,7 +214,7 @@ public class ProjectsConfigOptionPlugin
     ProjectsConfigOptionPlugin instance = new ProjectsConfigOptionPlugin();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    instance.projectsEnabled = config.isEnabled();
+    instance.enabled = config.isEnabled();
     instance.defaultProject = config.getDefaultProject();
     instance.defaultEnvironment = config.getDefaultEnvironment();
     instance.projectMandatory = config.isProjectMandatory();
@@ -222,9 +234,9 @@ public class ProjectsConfigOptionPlugin
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     try {
       boolean changed = false;
-      if (projectsEnabled != null) {
-        config.setEnabled(projectsEnabled);
-        if (projectsEnabled) {
+      if (enabled != null) {
+        config.setEnabled(enabled);
+        if (enabled) {
           log.logBasic("Enabled the projects system");
         } else {
           log.logBasic("Disabled the projects system");
@@ -338,8 +350,8 @@ public class ProjectsConfigOptionPlugin
       Control control = compositeWidgets.getWidgetsMap().get(widgetId);
       switch (widgetId) {
         case WIDGET_ID_ENABLE_PROJECTS:
-          projectsEnabled = ((Button) control).getSelection();
-          ProjectsConfigSingleton.getConfig().setEnabled(projectsEnabled);
+          enabled = ((Button) control).getSelection();
+          ProjectsConfigSingleton.getConfig().setEnabled(enabled);
           break;
         case WIDGET_ID_PROJECT_MANDATORY:
           projectMandatory = ((Button) control).getSelection();

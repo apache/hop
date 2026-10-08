@@ -52,24 +52,33 @@ public final class LintReportWriter {
         return renderSarif(results, toolVersion, baseDirectory);
       case TEXT:
       default:
-        return renderText(results);
+        return renderText(results, true);
     }
   }
 
   // ---------------------------------------------------------------- text
 
   public static String renderText(List<LintResult> results) {
+    return renderText(results, true);
+  }
+
+  /**
+   * @param summary whether to open with the totals; {@code --quiet} reports the findings only
+   */
+  public static String renderText(List<LintResult> results, boolean summary) {
     StringBuilder out = new StringBuilder();
     if (results.isEmpty()) {
       return "No lint issues found.\n";
     }
 
-    out.append("Lint Results Summary:\n");
-    out.append("===================\n");
-    out.append("Total Issues: ").append(results.size()).append('\n');
-    out.append("Errors: ").append(countBySeverity(results, "ERROR")).append('\n');
-    out.append("Warnings: ").append(countBySeverity(results, "WARNING")).append('\n');
-    out.append("Info: ").append(countBySeverity(results, "INFO")).append("\n\n");
+    if (summary) {
+      out.append("Lint Results Summary:\n");
+      out.append("===================\n");
+      out.append("Total Issues: ").append(results.size()).append('\n');
+      out.append("Errors: ").append(countBySeverity(results, "ERROR")).append('\n');
+      out.append("Warnings: ").append(countBySeverity(results, "WARNING")).append('\n');
+      out.append("Info: ").append(countBySeverity(results, "INFO")).append("\n\n");
+    }
 
     for (String severity : new String[] {"ERROR", "WARNING", "INFO"}) {
       List<LintResult> group =
