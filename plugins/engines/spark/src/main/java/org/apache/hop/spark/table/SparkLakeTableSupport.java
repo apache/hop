@@ -46,8 +46,9 @@ import org.apache.spark.sql.SparkSession;
  *
  * <ul>
  *   <li>Delta PATH: {@code format("delta").load/save(path)} (requires DeltaCatalog on session)
- *   <li>Iceberg PATH: path identifier under built-in Hadoop catalog {@code hop_iceberg.`uri`} —
- *       bare {@code format("iceberg").load(path)} defaults to HiveCatalog and is not used
+ *   <li>Iceberg PATH: {@code hop_iceberg_<hash>.`table`}, in a Hadoop catalog whose warehouse is
+ *       the table's parent folder (see {@link IcebergPathTable}) — bare {@code
+ *       format("iceberg").load(path)} defaults to HiveCatalog and is not used
  * </ul>
  */
 public final class SparkLakeTableSupport {
@@ -235,7 +236,7 @@ public final class SparkLakeTableSupport {
    *
    * <ul>
    *   <li>Delta PATH → {@code delta.`path`}
-   *   <li>Iceberg PATH → {@code hop_iceberg.`uri`}
+   *   <li>Iceberg PATH → {@code hop_iceberg_<hash>.`table`} (see {@link IcebergPathTable})
    *   <li>TABLE → resolved multi-part table id
    * </ul>
    */
@@ -743,10 +744,8 @@ public final class SparkLakeTableSupport {
                   + sql
                   + ") in transform '"
                   + transformName
-                  + "'. Ensure the Iceberg runtime is on the engine classpath and session has"
-                  + " IcebergSparkSessionExtensions + Hadoop catalog '"
-                  + SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME
-                  + "' (see plugins/engines/spark/README.md).",
+                  + "'. Ensure the Iceberg runtime is on the engine classpath and the session"
+                  + " has IcebergSparkSessionExtensions (see plugins/engines/spark/README.md).",
               path),
           e);
     }
@@ -856,8 +855,8 @@ public final class SparkLakeTableSupport {
                   + sqlId
                   + ") in transform '"
                   + transformName
-                  + "'. Ensure Iceberg is on the classpath and hop_iceberg Hadoop catalog is"
-                  + " configured (see plugins/engines/spark/README.md).",
+                  + "'. Ensure Iceberg is on the classpath (see"
+                  + " plugins/engines/spark/README.md).",
               path),
           e);
     }
@@ -881,10 +880,6 @@ public final class SparkLakeTableSupport {
   }
 
   /**
-   * Ensure the built-in Hadoop catalog for path identifiers is registered on this session. Safe to
-   * call multiple times; no-ops when already present.
-   */
-  /**
    * Registers the Hadoop catalog that serves the Iceberg table at {@code path} (see {@link
    * IcebergPathTable}) on this session. Safe to call multiple times.
    */
@@ -899,6 +894,11 @@ public final class SparkLakeTableSupport {
     spark.conf().set(key + ".warehouse", table.warehouse());
   }
 
+  /**
+   * Ensure the built-in {@code hop_iceberg} Hadoop catalog is registered on this session. It is
+   * used for two-part TABLE identifiers; PATH tables use {@link #ensureIcebergPathCatalog(
+   * SparkSession, String)}. Safe to call multiple times; no-ops when already present.
+   */
   public static void ensureIcebergPathCatalog(SparkSession spark) {
     String existing = spark.conf().get(SparkLakeFormats.SPARK_CONF_ICEBERG_PATH_CATALOG, "");
     if (StringUtils.isNotEmpty(existing)) {
