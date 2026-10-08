@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.ContentEditorFacade;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -50,23 +51,41 @@ class TextIndentWidgetTest extends SwtBotTestBase {
     text.setText("a\nb");
     text.setSelection(0, 0);
     TextIndent.attach(text);
+    // The UI suite already filters this display from HopGuiKeyHandler. A second filter indents
+    // again (two spaces, then two more).
+    HopGuiKeyHandler.getInstance().addHandledShell(display, shell);
     String pad = " ".repeat(TextIndent.tabSize());
 
-    Listener filter = TextIndent::handleKey;
-    display.addFilter(SWT.KeyDown, filter);
+    Event tab = key(text, SWT.NONE);
+    text.notifyListeners(SWT.KeyDown, tab);
+    assertFalse(tab.doit);
+    assertEquals(pad + "a\nb", text.getText());
+    assertEquals(pad.length(), text.getCaretOffset());
+
+    text.setSelection(0, pad.length() + 1);
+    Event shiftTab = key(text, SWT.SHIFT);
+    text.notifyListeners(SWT.KeyDown, shiftTab);
+    assertEquals("a\nb", text.getText());
+    shell.dispose();
+  }
+
+  @Test
+  void aSecondKeyFilterDoesNotIndentAgain() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FillLayout());
+    StyledText text = new StyledText(shell, SWT.MULTI);
+    shell.open();
+    text.setText("a\nb");
+    text.setSelection(0, 0);
+    HopGuiKeyHandler.getInstance().addHandledShell(display, shell);
+    Listener extra = TextIndent::handleKey;
+    display.addFilter(SWT.KeyDown, extra);
     try {
       Event tab = key(text, SWT.NONE);
       text.notifyListeners(SWT.KeyDown, tab);
-      assertFalse(tab.doit);
-      assertEquals(pad + "a\nb", text.getText());
-      assertEquals(pad.length(), text.getCaretOffset());
-
-      text.setSelection(0, pad.length() + 1);
-      Event shiftTab = key(text, SWT.SHIFT);
-      text.notifyListeners(SWT.KeyDown, shiftTab);
-      assertEquals("a\nb", text.getText());
+      assertEquals(" ".repeat(TextIndent.tabSize()) + "a\nb", text.getText());
     } finally {
-      display.removeFilter(SWT.KeyDown, filter);
+      display.removeFilter(SWT.KeyDown, extra);
       shell.dispose();
     }
   }

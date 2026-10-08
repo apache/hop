@@ -162,7 +162,7 @@ public final class TextIndent {
    * @return {@code true} when the event was consumed
    */
   public static boolean handleKey(Event event) {
-    if (event == null || event.widget == null || isWeb()) {
+    if (event == null || event.widget == null || !event.doit || isWeb()) {
       return false;
     }
     if (!isPlainTab(event.keyCode, event.character, event.stateMask)) {
