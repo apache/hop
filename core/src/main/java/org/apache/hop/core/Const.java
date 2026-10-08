@@ -1001,7 +1001,9 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
-  @Variable(description = "A variable to configure the maximum file size of a single zip entry")
+  @Variable(
+      value = "4294967295",
+      description = "A variable to configure the maximum file size of a single zip entry")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE = "HOP_ZIP_MAX_ENTRY_SIZE";
 
   /**
@@ -1018,7 +1020,6 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    */
-  @Variable(description = "")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT);
 
