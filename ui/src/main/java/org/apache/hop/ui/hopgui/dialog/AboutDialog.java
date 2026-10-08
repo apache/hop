@@ -222,7 +222,6 @@ public class AboutDialog extends Dialog {
         new Text(
             expandBar,
             SWT.READ_ONLY | SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    wProperties.setText(getProperties());
     PropsUi.setLook(wProperties);
 
     advanced = new ExpandItem(expandBar, SWT.NONE);
@@ -255,6 +254,9 @@ public class AboutDialog extends Dialog {
     collapsedHeight = computeCollapsedHeight(margin);
     shell.setSize(width, collapsedHeight);
     shell.setMinimumSize(width, collapsedHeight);
+
+    // Set properties after layout (Issue #8816 on Windows)
+    wProperties.setText(getProperties());
 
     shell.open();
     while (!shell.isDisposed()) {
