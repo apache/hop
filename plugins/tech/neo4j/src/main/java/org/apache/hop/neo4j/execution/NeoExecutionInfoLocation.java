@@ -336,7 +336,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   private void addIndex(StringBuilder cypher, String indexName, String label, String... keys) {
     assert keys != null && keys.length > 0 : "specify one or more keys";
-    String statement = getCreateIndexStatement(indexConnection, indexName, label, List.of(keys));
+    String statement =
+        getCreateIndexStatement(
+            HopGui.getInstance().getVariables(), indexConnection, indexName, label, List.of(keys));
     if (statement != null) {
       cypher.append(statement).append(Const.CR).append(";").append(Const.CR);
     }
@@ -347,14 +349,15 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
    * the database has no such indexes.
    */
   static String getCreateIndexStatement(
-      NamedGraphConnection graphConnection, String indexName, String label, List<String> keys) {
+      IVariables variables,
+      NamedGraphConnection graphConnection,
+      String indexName,
+      String label,
+      List<String> keys) {
     IGraphDialect dialect =
         graphConnection == null
             ? Neo4jGraphDialect.INSTANCE
-            : graphConnection.getDialect(
-                HopGui.getInstance() == null
-                    ? org.apache.hop.core.variables.Variables.getADefaultVariableSpace()
-                    : HopGui.getInstance().getVariables());
+            : graphConnection.getDialect(variables);
     return dialect.getCreateNodeIndexStatement(indexName, label, keys);
   }
 

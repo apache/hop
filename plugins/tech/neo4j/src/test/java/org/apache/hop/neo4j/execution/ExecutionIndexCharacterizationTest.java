@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.neo4j.bolt.BoltGraphDialect;
 import org.apache.hop.neo4j.bolt.MemgraphGraphDialect;
 import org.apache.hop.neo4j.bolt.Neo4jGraphDialect;
@@ -62,7 +63,11 @@ class ExecutionIndexCharacterizationTest {
                   assertEquals(
                       row[1],
                       NeoExecutionInfoLocation.getCreateIndexStatement(
-                          connection, "idx_execution_id", "Execution", List.of("id")))));
+                          Variables.getADefaultVariableSpace(),
+                          connection,
+                          "idx_execution_id",
+                          "Execution",
+                          List.of("id")))));
       tests.add(
           DynamicTest.dynamicTest(
               dialect.getId() + "|two",
@@ -70,7 +75,11 @@ class ExecutionIndexCharacterizationTest {
                   assertEquals(
                       row[2],
                       NeoExecutionInfoLocation.getCreateIndexStatement(
-                          connection, "idx_execution_id", "Execution", List.of("name", "type")))));
+                          Variables.getADefaultVariableSpace(),
+                          connection,
+                          "idx_execution_id",
+                          "Execution",
+                          List.of("name", "type")))));
     }
     tests.add(
         DynamicTest.dynamicTest(
@@ -79,7 +88,11 @@ class ExecutionIndexCharacterizationTest {
                 assertEquals(
                     one,
                     NeoExecutionInfoLocation.getCreateIndexStatement(
-                        null, "idx_execution_id", "Execution", List.of("id")))));
+                        Variables.getADefaultVariableSpace(),
+                        null,
+                        "idx_execution_id",
+                        "Execution",
+                        List.of("id")))));
     return tests;
   }
 }
