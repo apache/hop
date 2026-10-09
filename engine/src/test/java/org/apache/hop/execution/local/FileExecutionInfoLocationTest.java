@@ -110,6 +110,23 @@ class FileExecutionInfoLocationTest {
     assertEquals("recent", location.getExecution("recent").getId());
   }
 
+  @Test
+  void deleteExecutionRemovesDescendantsWithoutReadingThePipelineXml() throws Exception {
+    FileExecutionInfoLocation location = openLocation();
+    Execution parent = execution("parent", null, new Date(1_000L));
+    parent.setExecutorXml("x".repeat(20_000));
+    parent.setMetadataJson("y".repeat(20_000));
+    location.registerExecution(parent);
+    location.registerExecution(execution("child", "parent", new Date(1_000L)));
+    location.registerExecution(execution("grandchild", "child", new Date(1_000L)));
+
+    assertTrue(location.deleteExecution("parent"));
+
+    assertNull(location.getExecution("parent"));
+    assertNull(location.getExecution("child"));
+    assertNull(location.getExecution("grandchild"));
+  }
+
   private FileExecutionInfoLocation openLocation() throws Exception {
     FileExecutionInfoLocation location =
         new FileExecutionInfoLocation(tempDir.resolve("root").toString());

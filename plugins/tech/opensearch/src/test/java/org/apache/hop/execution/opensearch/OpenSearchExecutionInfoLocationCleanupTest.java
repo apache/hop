@@ -17,6 +17,7 @@
 
 package org.apache.hop.execution.opensearch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -38,6 +39,12 @@ class OpenSearchExecutionInfoLocationCleanupTest {
     assertTrue(sql.contains("LIMIT 200"));
     assertFalse(sql.contains("LIMIT 50"));
     assertTrue(sql.contains(utcMinute(cutoff)));
+  }
+
+  @Test
+  void refreshPathTargetsTheLocationIndex() {
+    assertEquals(
+        "hop-executions/_refresh", OpenSearchExecutionInfoLocation.refreshPath("hop-executions"));
   }
 
   @Test

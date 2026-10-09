@@ -307,7 +307,9 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                 ignoreSsl,
                 getHeaders());
         responseBody = deleteRestCaller.execute();
-        checkStatusCode(responseBody, deleteRestCaller.getStatusCode(), 200L);
+        // A stale search still returns a document that this loop already deleted. OpenSearch then
+        // answers 404. The document is gone, so that is a successful delete.
+        checkStatusCode(responseBody, deleteRestCaller.getStatusCode(), 200L, 404L);
       }
     } catch (Exception e) {
       throw new HopException("Error deleting caching file entry from OpenSearch", e);
@@ -557,18 +559,27 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
         .replace("\r", "\\r");
   }
 
+  /** Index path of a refresh call. The next SQL page must not see documents just deleted. */
+  static String refreshPath(String indexName) {
+    return indexName + "/_refresh";
+  }
+
   @Override
   public int deleteExecutions(Date olderThan, IProgressMonitor monitor) throws HopException {
     int deleted = 0;
     int failed = 0;
     HopException firstFailure = null;
+    List<String> previousIds = List.of();
     while (monitor == null || !monitor.isCanceled()) {
       String sql =
           cleanupSql(actualIndexName, getActiveProjectId(), olderThan, ExecutionDeleter.PAGE_SIZE);
       List<String> ids = queryIds(sql);
-      if (ids.isEmpty()) {
+      // The same page twice means the refresh did not move the search view. Stop rather than
+      // delete the same ids until the client runs out of memory.
+      if (ids.isEmpty() || ids.equals(previousIds)) {
         break;
       }
+      previousIds = List.copyOf(ids);
       int removed = 0;
       for (String id : ids) {
         if (monitor != null && monitor.isCanceled()) {
@@ -597,9 +608,34 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       if (removed == 0) {
         break;
       }
+      refreshIndex();
     }
     ExecutionDeleter.throwIfFailed(deleted, failed, firstFailure);
     return deleted;
+  }
+
+  /** Make the deletes of the page visible before the next SQL query. */
+  private void refreshIndex() throws HopException {
+    try {
+      URI uri = URI.create(actualUrl);
+      URI refreshUri = uri.resolve(refreshPath(actualIndexName));
+      RestCaller restCaller =
+          new RestCaller(
+              metadataProvider,
+              refreshUri.toString(),
+              actualUsername,
+              actualPassword,
+              "POST",
+              "",
+              ignoreSsl,
+              getHeaders());
+      String responseBody = restCaller.execute();
+      checkStatusCode(responseBody, restCaller.getStatusCode(), 200L);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Error refreshing OpenSearch index " + actualIndexName, e);
+    }
   }
 
   private List<String> queryIds(String sql) throws HopException {

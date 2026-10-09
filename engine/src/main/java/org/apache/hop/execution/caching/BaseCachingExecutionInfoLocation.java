@@ -574,7 +574,16 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   @Override
   public synchronized boolean deleteExecution(String executionId) throws HopException {
+    if (StringUtils.isEmpty(executionId)) {
+      return false;
+    }
+    // A bulk delete lists ids without keeping every document in the cache. The persisted row is
+    // still removed: the id is enough to find the file or the database row.
     CacheEntry removed = cache.remove(executionId);
+    if (removed == null) {
+      removed = new CacheEntry();
+      removed.setId(executionId);
+    }
     deleteCacheEntry(removed);
     return true;
   }
