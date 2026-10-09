@@ -206,6 +206,125 @@ where id > ${PRM_ID} AND lastdate > ?;
 - `+${startDate}+` is a pipeline variable
 - `?` is a parameter provided by the input stream
 
+[#parallel-reading]
+== Parallel reading
+
+Keep `NR_COPIES` as a parameter of the pipeline. On the pipeline properties *Parameters* tab, give it a default and a description so the copy count is documented with the pipeline and easy to change for a run. Changing that one value lets you test the limit of the source database's capacity. See xref:fields-parameters-variables.adoc#_parameters[Parameters].
+
+A large read often keeps one database session busy on a single CPU core, while the network and the disks still have capacity. Several copies of the same Table Input share that read. Unless the copies share a connection, each copy runs the query on its own session, and a predicate assigns that copy its own slice of the rows.
+
+Every row has to land in exactly one copy. Each copy reads its own snapshot; for a consistent result, read from a table that isn't being changed during the run. Build the predicate so that it maps a key onto the copy number.
+
+=== Setup
+
+. Set pipeline parameter `NR_COPIES` to the number of copies for this run, for example `4`.
+. Click the Table Input icon and set *Specify copies* to `+${NR_COPIES}+`. See xref:pipeline/specify-copies.adoc[Specify copies]. The copies field accepts a positive integer or a single variable.
+. Enable *Replace variables in script*. Hop substitutes the variables before the database receives the SQL.
+. Add the slice predicate to the `WHERE` clause.
+
+`+${Internal.Transform.CopyNr}+` is the copy that is running this query. Copy numbers start at `0`. The last copy is `NR_COPIES - 1`. See xref:variables.adoc#_internal_variables[internal variables].
+
+Each copy is a thread with its own database connection on the engines that honor the copy count, unless the copies share a connection. Don't use a transactional run configuration; it makes all copies share one connection. See xref:pipeline/specify-copies.adoc#supported-engines[which engines run copies in parallel].
+
+The statements stay the same apart from the copy number. *Limit size* and a SQL `LIMIT` apply inside each copy, so four copies with `LIMIT 100` return up to 400 rows.
+
+The next transform receives the rows from every copy. One copy of that transform merges the slices into a single stream.
+
+Leave Table Input unpartitioned. A partition schema sets the number of copies itself.
+
+=== Integer keys
+
+Oracle, MySQL, MariaDB, and PostgreSQL accept the same predicate for a non-negative integer key:
+
+[source,sql]
+----
+SELECT *
+FROM orders
+WHERE MOD(table_id, ${NR_COPIES}) = ${Internal.Transform.CopyNr}
+----
+
+`MOD` returns `0` through `NR_COPIES - 1` for a non-negative `table_id`, which is the range of copy numbers. Combine it with `AND` when the statement already has a `WHERE` clause.
+
+`MOD` of a negative number keeps the sign of that number on these databases. A negative remainder matches none of the copy numbers, so that row is left unread. A `NULL` key is left unread as well, because the comparison is unknown.
+
+`MOD(table_id, ...)` usually cannot use a plain index on `table_id`. Each copy scans its slice. The extra sessions speed the read up when one session is capped by a single server core and the storage and network can serve those sessions.
+
+=== Other keys
+
+When the key is not a single non-negative integer, hash the columns and take that value modulo `+${NR_COPIES}+`. A CRC, a hash, or one byte of an MD5 digest all work. The expression has to stay non-negative, and it has to be the same in every copy.
+
+The slices are even when the number of copies is a power of two (2, 4, 8, 16). Any other count still returns every row, with a few copies receiving slightly more rows than the others.
+
+==== Oracle
+
+`ORA_HASH` returns a bucket for an expression. The second argument is the highest bucket number, and the function returns `0` through that number inclusive. Four copies use buckets `0`, `1`, `2`, and `3`, so the second argument is `+${NR_COPIES}+ - 1`. Hop replaces the variable first and the database evaluates the subtraction. The third argument is a constant seed. Use the same seed in every copy so the split stays stable. Oracle's example of 100 buckets passes `99`.
+
+[source,sql]
+----
+SELECT *
+FROM sales
+WHERE ORA_HASH(CONCAT(cust_id, prod_id), ${NR_COPIES} - 1, 12345)
+    = ${Internal.Transform.CopyNr}
+----
+
+Oracle computes the bucket as the raw hash modulo the number of copies. That split is uniform when the number of copies is a power of two.
+
+`CONCAT` returns `NULL` only when both values are `NULL`, and that row is left unread.
+
+==== MySQL and MariaDB
+
+`CRC32` returns an unsigned 32-bit checksum:
+
+[source,sql]
+----
+SELECT *
+FROM sales
+WHERE MOD(CRC32(CONCAT(cust_id, prod_id)), ${NR_COPIES})
+    = ${Internal.Transform.CopyNr}
+----
+
+The first byte of an MD5 digest is a number from `0` through `255`:
+
+[source,sql]
+----
+SELECT *
+FROM sales
+WHERE MOD(
+        CONV(SUBSTR(MD5(CONCAT(cust_id, prod_id)), 1, 2), 16, 10),
+        ${NR_COPIES}
+      ) = ${Internal.Transform.CopyNr}
+----
+
+`CONCAT` returns `NULL` when any argument is `NULL`, and that row is left unread.
+
+==== PostgreSQL
+
+The first byte of an MD5 digest is a number from `0` through `255`:
+
+[source,sql]
+----
+SELECT *
+FROM sales
+WHERE MOD(
+        get_byte(decode(md5(cust_id::text || prod_id::text), 'hex'), 0),
+        ${NR_COPIES}
+      ) = ${Internal.Transform.CopyNr}
+----
+
+`hashtext` hashes the whole value. It can return a negative integer. Cast to `bigint` before `ABS`, because `ABS` of the smallest 32-bit integer overflows.
+
+[source,sql]
+----
+SELECT *
+FROM sales
+WHERE MOD(
+        ABS(hashtext(cust_id::text || prod_id::text)::bigint),
+        ${NR_COPIES}
+      ) = ${Internal.Transform.CopyNr}
+----
+
+The `||` operator yields `NULL` when either side is `NULL`, and that row is left unread. `hashtext` is the function PostgreSQL uses for hash indexes, so every copy in one run shares it.
+
 == Best Practices and Pro Tips
 
 == Pro Tips
@@ -218,7 +337,7 @@ TIP: A cartesian join transform will combine a different number of fields from m
 
 TIP: When *Execute for each row* is off, Table Input waits until every incoming hop has completed so it can concatenate the parameter rows. When the SQL has no bind placeholder, the incoming rows are only drained so an upstream header or sequencing transform can complete before the query runs.
 
-TIP: For better performance with large datasets you can use indexed columns in `WHERE` clauses and avoid `SELECT *` and only retrieve needed fields.
+TIP: For better performance with large datasets you can use indexed columns in `WHERE` clauses and avoid `SELECT *` and only retrieve needed fields. To spread one table read across several database sessions, see <<parallel-reading>>.
 
 == Dynamic SQL with Metadata Injection
 
