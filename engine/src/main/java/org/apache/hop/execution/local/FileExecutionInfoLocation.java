@@ -179,9 +179,10 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public synchronized boolean deleteExecution(String executionId) throws HopException {
     try {
-      // Get the children of this execution and delete those first.
+      // Children live in their own folders. Scan every execution: the viewer lookup stops after
+      // 10,000 ids, which left child folders behind once a location grew past that.
       //
-      List<Execution> childExecutions = findExecutions(executionId);
+      List<Execution> childExecutions = findDirectChildren(executionId);
       for (Execution childExecution : childExecutions) {
         deleteExecution(childExecution.getId());
       }
@@ -198,6 +199,18 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
     } catch (Exception e) {
       throw new HopException("Error deleting execution with ID " + executionId, e);
     }
+  }
+
+  /** Every direct child, with no cap on how many executions the location holds. */
+  private List<Execution> findDirectChildren(String parentExecutionId) throws HopException {
+    List<Execution> children = new ArrayList<>();
+    for (String id : getExecutionIds(true, 0)) {
+      Execution execution = getExecution(id);
+      if (execution != null && parentExecutionId.equals(execution.getParentId())) {
+        children.add(execution);
+      }
+    }
+    return children;
   }
 
   @Override

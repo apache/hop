@@ -18,7 +18,9 @@
 
 package org.apache.hop.execution;
 
+import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -97,6 +99,31 @@ public interface IExecutionInfoLocation extends Cloneable {
    * @throws HopException
    */
   boolean deleteExecution(String executionId) throws HopException;
+
+  /**
+   * Delete top-level executions and their children.
+   *
+   * @param olderThan exclusive upper bound on the execution start date. Null deletes every
+   *     execution in the location. An execution with no start date is included.
+   * @return how many top-level executions were deleted
+   */
+  default int deleteExecutions(Date olderThan) throws HopException {
+    return deleteExecutions(olderThan, null);
+  }
+
+  /**
+   * Same as {@link #deleteExecutions(Date)}. {@code monitor} receives a sub-task per execution and
+   * can stop the loop before the next one. An execution that is already being deleted is not
+   * aborted.
+   *
+   * @param olderThan exclusive upper bound on the execution start date. Null deletes every
+   *     execution in the location.
+   * @param monitor progress and cancel, or null
+   * @return how many top-level executions were deleted
+   */
+  default int deleteExecutions(Date olderThan, IProgressMonitor monitor) throws HopException {
+    return ExecutionDeleter.delete(this, olderThan, monitor);
+  }
 
   /**
    * Get the execution state for an execution. Any large logging text associated with the requested

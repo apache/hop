@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -56,6 +57,7 @@ import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionDeleter;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionStateBuilder;
@@ -514,11 +516,125 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
   }
 
+  /**
+   * Nodes removed per Neo4j transaction so one large sample does not exhaust transaction memory.
+   */
+  private static final int DELETE_BATCH_SIZE = 500;
+
+  /**
+   * Parent executions to delete, oldest first. A null cutoff matches every parent. An execution
+   * with no start date is included.
+   */
+  static CypherQueryBuilder parentIdsToDelete(Date olderThan, int limit) {
+    CypherQueryBuilder builder = CypherQueryBuilder.of().withLabelWithoutKey("n", EL_EXECUTION);
+    builder.withWhereIsNull("n", EP_PARENT_ID);
+    if (olderThan != null) {
+      builder.withExtraClause(
+          " AND (n."
+              + EP_EXECUTION_START_DATE
+              + " < $olderThan OR n."
+              + EP_EXECUTION_START_DATE
+              + " IS NULL) ");
+      builder.parameters().put("olderThan", olderThan);
+    }
+    builder.withReturnValues("n", EP_ID);
+    builder.withOrderBy("n", EP_EXECUTION_START_DATE, true);
+    builder.withLimit(limit);
+    return builder;
+  }
+
+  /** One batch of nodes that share a property value. */
+  static CypherDeleteBuilder batchDelete(String label, String key, String value, int batchSize) {
+    return CypherDeleteBuilder.of()
+        .withMatch(label, "n", Map.of(key, value))
+        .withBatchDetachDelete("n", batchSize);
+  }
+
+  @Override
+  public int deleteExecutions(Date olderThan, IProgressMonitor monitor) throws HopException {
+    synchronized (this) {
+      int deleted = 0;
+      int failed = 0;
+      HopException firstFailure = null;
+      while (monitor == null || !monitor.isCanceled()) {
+        List<String> ids = readParentIds(olderThan, ExecutionDeleter.PAGE_SIZE);
+        if (ids.isEmpty()) {
+          break;
+        }
+        int removed = 0;
+        for (String id : ids) {
+          if (monitor != null && monitor.isCanceled()) {
+            break;
+          }
+          if (monitor != null) {
+            monitor.subTask("Deleting execution " + (deleted + removed + 1) + ": " + id);
+          }
+          try {
+            if (deleteExecution(id)) {
+              removed++;
+            } else {
+              failed++;
+              if (firstFailure == null) {
+                firstFailure = new HopException("Execution " + id + " was not deleted");
+              }
+            }
+          } catch (Exception e) {
+            failed++;
+            if (firstFailure == null) {
+              firstFailure = new HopException("Error deleting execution " + id + " in Neo4j", e);
+            }
+          }
+        }
+        deleted += removed;
+        if (removed == 0) {
+          break;
+        }
+      }
+      ExecutionDeleter.throwIfFailed(deleted, failed, firstFailure);
+      return deleted;
+    }
+  }
+
+  private List<String> readParentIds(Date olderThan, int limit) throws HopException {
+    try {
+      return session.executeRead(
+          transaction -> {
+            List<String> ids = new ArrayList<>();
+            Result result = execute(transaction, parentIdsToDelete(olderThan, limit));
+            while (result.hasNext()) {
+              ids.add(getString(result.next(), EP_ID));
+            }
+            return ids;
+          });
+    } catch (Exception e) {
+      throw new HopException("Error listing executions to delete in Neo4j", e);
+    }
+  }
+
   @Override
   public boolean deleteExecution(String executionId) throws HopException {
     synchronized (this) {
       try {
-        return session.executeWrite(transaction -> deleteNeo4jExecution(transaction, executionId));
+        for (String childId : findChildExecutionIds(executionId)) {
+          deleteExecution(childId);
+        }
+        // Each label is its own series of transactions. One DETACH DELETE of every sample row
+        // used to fail the transaction and leave the rest of the location in place.
+        deleteLabelInBatches(OL_EXECUTION_DATA_SET_ROW, OP_PARENT_ID, executionId);
+        deleteLabelInBatches(ML_EXECUTION_DATA_SET_META, MP_PARENT_ID, executionId);
+        deleteLabelInBatches(TL_EXECUTION_DATA_SET, TP_PARENT_ID, executionId);
+        deleteLabelInBatches(DL_EXECUTION_DATA, DP_PARENT_ID, executionId);
+        deleteLabelInBatches(CL_EXECUTION_METRIC, CP_ID, executionId);
+        session.executeWrite(
+            transaction -> {
+              execute(
+                  transaction,
+                  CypherDeleteBuilder.of()
+                      .withMatch(EL_EXECUTION, "n", Map.of(EP_ID, executionId))
+                      .withDetachDelete("n"));
+              return true;
+            });
+        return true;
       } catch (Exception e) {
         throw new HopException("Error deleting execution with id " + executionId + " in Neo4j", e);
       } finally {
@@ -527,65 +643,44 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
   }
 
-  private boolean deleteNeo4jExecution(TransactionContext transaction, String executionId) {
-    // Get the children of this execution. Delete those first
-    //
-    List<Execution> childExecutions = findNeo4jExecutions(transaction, executionId);
-    for (Execution childExecution : childExecutions) {
-      deleteNeo4jExecution(transaction, childExecution.getId());
+  private List<String> findChildExecutionIds(String parentExecutionId) throws HopException {
+    try {
+      return session.executeRead(
+          transaction -> {
+            List<String> ids = new ArrayList<>();
+            Result result =
+                execute(
+                    transaction,
+                    CypherQueryBuilder.of()
+                        .withLabelAndKey("n", EL_EXECUTION, EP_PARENT_ID, parentExecutionId)
+                        .withReturnValues("n", EP_ID));
+            while (result.hasNext()) {
+              ids.add(getString(result.next(), EP_ID));
+            }
+            return ids;
+          });
+    } catch (Exception e) {
+      throw new HopException(
+          "Error finding child executions of " + parentExecutionId + " in Neo4j", e);
     }
+  }
 
-    // Now delete any data, data sets, rows and metadata with the given execution ID as a parent
-    //
-    // Rows
-    //
-    execute(
-        transaction,
-        CypherDeleteBuilder.of()
-            .withMatch(OL_EXECUTION_DATA_SET_ROW, "n", Map.of(OP_PARENT_ID, executionId))
-            .withDetachDelete("n"));
-
-    // SetMeta
-    //
-    execute(
-        transaction,
-        CypherDeleteBuilder.of()
-            .withMatch(ML_EXECUTION_DATA_SET_META, "n", Map.of(MP_PARENT_ID, executionId))
-            .withDetachDelete("n"));
-
-    // DataSet
-    //
-    execute(
-        transaction,
-        CypherDeleteBuilder.of()
-            .withMatch(TL_EXECUTION_DATA_SET, "n", Map.of(TP_PARENT_ID, executionId))
-            .withDetachDelete("n"));
-
-    // Data
-    //
-    execute(
-        transaction,
-        CypherDeleteBuilder.of()
-            .withMatch(DL_EXECUTION_DATA, "n", Map.of(DP_PARENT_ID, executionId))
-            .withDetachDelete("n"));
-
-    // The execution metrics
-    //
-    execute(
-        transaction,
-        CypherDeleteBuilder.of()
-            .withMatch(CL_EXECUTION_METRIC, "n", Map.of(CP_ID, executionId))
-            .withDetachDelete("n"));
-
-    // The execution itself
-    //
-    execute(
-        transaction,
-        CypherDeleteBuilder.of()
-            .withMatch(EL_EXECUTION, "n", Map.of(EP_ID, executionId))
-            .withDetachDelete("n"));
-
-    return true;
+  private void deleteLabelInBatches(String label, String key, String value) {
+    while (true) {
+      int removed =
+          session.executeWrite(
+              transaction -> {
+                Result result =
+                    execute(transaction, batchDelete(label, key, value, DELETE_BATCH_SIZE));
+                if (!result.hasNext()) {
+                  return 0;
+                }
+                return result.next().get("deleted").asInt();
+              });
+      if (removed <= 0) {
+        return;
+      }
+    }
   }
 
   @Override

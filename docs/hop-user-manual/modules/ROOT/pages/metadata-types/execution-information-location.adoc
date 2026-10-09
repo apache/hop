@@ -24,7 +24,9 @@ under the License.
 
 The Execution Information Location determines where Apache Hop can send information execution information to.
 
-After execution this information can be consulted from the xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective]
+After execution this information can be consulted from the xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective].
+
+Old executions can be removed from that perspective, or on a schedule with the xref:workflow/actions/deleteexecutioninfo.adoc[Delete execution information] action. The action deletes stored executions and leaves this metadata object in place.
 
 == Options
 

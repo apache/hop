@@ -392,6 +392,7 @@ under the License.
 *** xref:workflow/actions/dbt.adoc[dbt]
 *** xref:workflow/actions/pgpdecryptfiles.adoc[Decrypt files with PGP]
 *** xref:workflow/actions/deletefile.adoc[Delete file]
+*** xref:workflow/actions/deleteexecutioninfo.adoc[Delete execution information]
 *** xref:workflow/actions/deleteresultfilenames.adoc[Delete filenames from result]
 *** xref:workflow/actions/deletefiles.adoc[Delete files]
 *** xref:workflow/actions/deletefolders.adoc[Delete folders]

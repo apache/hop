@@ -81,10 +81,10 @@ Possible action:
 |The information about the pipeline or workflow will be loaded into a new tab on the right-hand side of the perspective.
 
 |Click on the refresh icon
-|The last 100 executions without parent will be loaded from the location
+|The tree is loaded again using the toolbar filters. The default time filter is the last hour. A location can still return only a page of rows for display.
 
-|Click on the delete icon
-|The currently selected execution will be deleted or all executions from the currently selected location (after confirmation).
+|Click on the delete icon, or press Delete
+|The selected execution is deleted. Several executions can be selected and deleted together, after one confirmation. A selected location deletes every execution stored there, not only the rows on screen, after confirmation. A progress dialog stays open while the delete runs. One execution is deleted without asking.
 
 |===
 
