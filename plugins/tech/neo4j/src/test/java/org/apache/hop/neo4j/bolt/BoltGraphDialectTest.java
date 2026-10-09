@@ -128,6 +128,9 @@ class BoltGraphDialectTest {
     MemgraphGraphDialect memgraph = MemgraphGraphDialect.INSTANCE;
     assertTrue(memgraph.isRequiringAutoCommit("SHOW INDEX INFO"));
     assertTrue(memgraph.isRequiringAutoCommit("CREATE VECTOR INDEX v ON :Doc(e) WITH CONFIG {}"));
+    assertTrue(
+        memgraph.isRequiringAutoCommit("CREATE VECTOR EDGE INDEX v ON :LINKS(e) WITH CONFIG {}"));
+    assertTrue(memgraph.isRequiringAutoCommit("DROP VECTOR EDGE INDEX v"));
     assertFalse(memgraph.isRequiringAutoCommit("MATCH (n:Showcase) RETURN n"));
     assertFalse(Neo4jGraphDialect.INSTANCE.isRequiringAutoCommit("SHOW INDEXES"));
   }

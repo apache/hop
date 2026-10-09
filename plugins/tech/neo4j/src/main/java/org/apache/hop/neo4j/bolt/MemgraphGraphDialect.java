@@ -57,7 +57,7 @@ public class MemgraphGraphDialect extends BoltGraphDialect {
   private static final Pattern AUTO_COMMIT_STATEMENT =
       Pattern.compile(
           "^\\s*(SHOW\\b|DROP\\s+ALL\\b|ANALYZE\\s+GRAPH\\b|FREE\\s+MEMORY\\b|STORAGE\\s+MODE\\b"
-              + "|(CREATE|DROP)\\s+(\\w+\\s+)?(INDEX|CONSTRAINT)\\b)",
+              + "|(CREATE|DROP)\\s+(\\w+\\s+)*(INDEX|CONSTRAINT)\\b)",
           Pattern.CASE_INSENSITIVE);
 
   public MemgraphGraphDialect() {

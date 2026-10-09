@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 import org.apache.hop.core.graph.GraphNodeValue;
 import org.apache.hop.core.graph.GraphPathValue;
 import org.apache.hop.core.graph.GraphRelationshipValue;
@@ -42,6 +43,8 @@ import org.apache.hop.core.graph.GraphRelationshipValue;
  * with its type, labels, relationship types and property keys as ids.
  */
 public final class FalkorDbCypher {
+
+  private static final Pattern IDENTIFIER = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*");
 
   private FalkorDbCypher() {}
 
@@ -54,7 +57,7 @@ public final class FalkorDbCypher {
     for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
       query
           .append(' ')
-          .append(parameter.getKey())
+          .append(parameterName(parameter.getKey()))
           .append('=')
           .append(toLiteral(parameter.getValue()));
     }
@@ -118,8 +121,34 @@ public final class FalkorDbCypher {
     return quote(value.toString());
   }
 
+  /** A parameter name as is when it is an identifier, otherwise between backticks. */
+  private static String parameterName(String name) {
+    return IDENTIFIER.matcher(name).matches() ? name : quoteName(name);
+  }
+
+  /** A string literal: backslashes, quotes and control characters escaped. */
   private static String quote(String string) {
-    return "'" + string.replace("\\", "\\\\").replace("'", "\\'") + "'";
+    StringBuilder literal = new StringBuilder(string.length() + 2).append('\'');
+    for (int i = 0; i < string.length(); i++) {
+      char c = string.charAt(i);
+      switch (c) {
+        case '\\' -> literal.append("\\\\");
+        case '\'' -> literal.append("\\'");
+        case '\n' -> literal.append("\\n");
+        case '\r' -> literal.append("\\r");
+        case '\t' -> literal.append("\\t");
+        case '\b' -> literal.append("\\b");
+        case '\f' -> literal.append("\\f");
+        default -> {
+          if (Character.isISOControl(c)) {
+            literal.append(String.format("\\u%04x", (int) c));
+          } else {
+            literal.append(c);
+          }
+        }
+      }
+    }
+    return literal.append('\'').toString();
   }
 
   private static String quoteName(String name) {

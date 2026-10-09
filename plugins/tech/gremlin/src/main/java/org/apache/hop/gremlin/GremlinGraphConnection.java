@@ -340,8 +340,11 @@ public class GremlinGraphConnection implements IGraphConnection {
         log.logDetailed("Error closing the Gremlin traversal source: " + e.getMessage());
       }
     } finally {
-      client.close();
-      cluster.close();
+      try {
+        client.close();
+      } finally {
+        cluster.close();
+      }
     }
   }
 }

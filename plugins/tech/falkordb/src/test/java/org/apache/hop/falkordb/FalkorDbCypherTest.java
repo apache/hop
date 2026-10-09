@@ -58,6 +58,20 @@ class FalkorDbCypherTest {
         "CYPHER props=[{`id`: 1}] UNWIND $props AS pr RETURN pr",
         FalkorDbCypher.withParameters(
             "UNWIND $props AS pr RETURN pr", Map.of("props", List.of(Map.of("id", 1L)))));
+    assertEquals(
+        "CYPHER `my name`=1 RETURN $`my name`",
+        FalkorDbCypher.withParameters("RETURN $`my name`", Map.of("my name", 1L)));
+    assertEquals(
+        "CYPHER `a=1 MATCH (n) DETACH DELETE n //`=1 RETURN 1",
+        FalkorDbCypher.withParameters("RETURN 1", Map.of("a=1 MATCH (n) DETACH DELETE n //", 1L)));
+  }
+
+  @Test
+  void testStringLiteralEscapes() {
+    assertEquals(
+        "'a\\nb\\r\\tc\\\\d\\'e\\b\\f\\u0001'",
+        FalkorDbCypher.toLiteral("a\nb\r\tc\\d'e\b\f\u0001"));
+    assertEquals("'é\"'", FalkorDbCypher.toLiteral("é\""));
   }
 
   private static final FalkorDbCypher.NameResolver NAMES =
