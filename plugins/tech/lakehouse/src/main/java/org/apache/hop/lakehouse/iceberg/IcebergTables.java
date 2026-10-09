@@ -214,7 +214,12 @@ public final class IcebergTables {
 
   /**
    * The current metadata file of the table at {@code location}, or null if there is no table there.
-   * The version hint is followed when there is one; otherwise the newest metadata file is used.
+   *
+   * <p>The version hint is only a starting point: a writer moves {@code v<N>.metadata.json} into
+   * place before it updates the hint, so after a crash between the two, or a failed hint write, the
+   * hint names an older version. Like Iceberg's {@code HadoopTableOperations}, the lookup starts at
+   * the hinted version and walks forward through {@code v<N+1>}, {@code v<N+2>}, ... to the newest
+   * one that exists. Without a usable hint, the newest metadata file in the folder is used.
    */
   static String findCurrentMetadataFile(String location) throws HopException {
     String root = StringUtils.removeEnd(location, "/");
@@ -222,11 +227,20 @@ public final class IcebergTables {
     try {
       FileObject hint = HopVfs.getFileObject(metadataFolder + "/version-hint.text");
       if (hint.exists()) {
+        long hinted = -1;
         try (InputStream in = HopVfs.getInputStream(hint)) {
-          String version = new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
-          String file = metadataFolder + "/v" + version + ".metadata.json";
-          if (HopVfs.getFileObject(file).exists()) {
-            return file;
+          hinted = Long.parseLong(new String(in.readAllBytes(), StandardCharsets.UTF_8).trim());
+        } catch (Exception e) {
+          // An unreadable hint is ignored, the folder listing below finds the newest version.
+        }
+        String file = hinted < 0 ? null : versionFile(metadataFolder, hinted);
+        if (file != null) {
+          for (long next = hinted + 1; ; next++) {
+            String newer = versionFile(metadataFolder, next);
+            if (newer == null) {
+              return file;
+            }
+            file = newer;
           }
         }
       }
@@ -249,6 +263,18 @@ public final class IcebergTables {
     } catch (Exception e) {
       throw new HopException("Unable to find the Iceberg metadata of table '" + root + "'", e);
     }
+  }
+
+  /** The metadata file of {@code version} in a path-table layout, or null if it doesn't exist. */
+  private static String versionFile(String metadataFolder, long version) throws Exception {
+    for (String name :
+        new String[] {"v" + version + ".metadata.json", "v" + version + ".gz.metadata.json"}) {
+      String file = metadataFolder + "/" + name;
+      if (HopVfs.getFileObject(file).exists()) {
+        return file;
+      }
+    }
+    return null;
   }
 
   /** Version number in a metadata file name, or -1 if it isn't a table metadata file. */

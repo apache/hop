@@ -28,6 +28,7 @@ import org.apache.iceberg.Snapshot;
 import org.apache.iceberg.SnapshotUpdate;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.Transaction;
+import org.apache.iceberg.exceptions.CommitStateUnknownException;
 import org.apache.iceberg.expressions.Expressions;
 
 /**
@@ -54,6 +55,8 @@ public class CommitCoordinator {
   private final WriteMode writeMode;
   private final Map<String, String> summary;
   private final Long startSnapshotId;
+  private boolean published;
+  private boolean outcomeUnknown;
   private final List<DataFile> files = new ArrayList<>();
   private boolean done;
 
@@ -99,8 +102,15 @@ public class CommitCoordinator {
     files.addAll(dataFiles);
   }
 
-  /** Commits all collected files as one snapshot and returns its id. */
-  public synchronized long commit() {
+  /**
+   * Commits all collected files as one snapshot.
+   *
+   * @return the id of the new snapshot, or null if the commit happened but the table couldn't be
+   *     read back afterwards
+   * @throws CommitStateUnknownException if the catalog couldn't say whether the commit happened;
+   *     the data files must then be kept, see {@link #isPublished()}
+   */
+  public synchronized Long commit() {
     done = true;
     SnapshotUpdate<?> update =
         switch (writeMode) {
@@ -132,17 +142,48 @@ public class CommitCoordinator {
           }
         };
     summary.forEach(update::set);
-    update.commit();
-    if (createTransaction != null) {
-      createTransaction.commitTransaction();
-      return createTransaction.table().currentSnapshot().snapshotId();
+    try {
+      update.commit();
+      if (createTransaction != null) {
+        createTransaction.commitTransaction();
+      }
+    } catch (CommitStateUnknownException e) {
+      outcomeUnknown = true;
+      throw e;
     }
-    table.refresh();
-    return table.currentSnapshot().snapshotId();
+    published = true;
+
+    // The snapshot is in the table from here on: reading it back is only for the log.
+    try {
+      Table committed = createTransaction != null ? createTransaction.table() : table;
+      committed.refresh();
+      Snapshot snapshot = committed.currentSnapshot();
+      return snapshot == null ? null : snapshot.snapshotId();
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
-  /** Deletes every collected data file. Nothing becomes visible in the table. */
+  /** True once the run's snapshot is in the table; the data files must then never be deleted. */
+  public synchronized boolean isPublished() {
+    return published;
+  }
+
+  /** True if the catalog couldn't say whether the commit happened. */
+  public synchronized boolean isOutcomeUnknown() {
+    return outcomeUnknown;
+  }
+
+  /**
+   * Deletes every collected data file, so nothing of this run becomes visible. Refuses to do so
+   * once the snapshot is published or when the commit outcome is unknown, since the table may then
+   * reference those files.
+   */
   public synchronized void abort() {
+    if (published || outcomeUnknown) {
+      throw new IllegalStateException(
+          "The data files of this run may be referenced by the table and are kept");
+    }
     done = true;
     for (DataFile file : files) {
       table.io().deleteFile(file.location());

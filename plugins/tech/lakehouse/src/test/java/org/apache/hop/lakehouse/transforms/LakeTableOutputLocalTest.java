@@ -402,4 +402,22 @@ class LakeTableOutputLocalTest {
       TimeZone.setDefault(original);
     }
   }
+
+  @Test
+  void unknownSaveModeIsRefused() throws Exception {
+    run(output(LakeTableOutputMeta.MODE_ERROR), 1, rows(0, 10), false);
+
+    Run run = run(output("Upsert"), 1, rows(10, 20), false);
+
+    assertTrue(run.errors > 0, "an unsupported save mode fails instead of appending");
+    assertEquals(10, ids(table()).size(), "the existing table is unchanged");
+  }
+
+  @Test
+  void unknownSaveModeCreatesNoTable() throws Exception {
+    Run run = run(output("Upsert"), 1, rows(0, 10), false);
+
+    assertTrue(run.errors > 0);
+    assertFalse(Files.exists(tempDir.resolve("orders/metadata")), "no table is created");
+  }
 }

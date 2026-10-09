@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
+import org.apache.iceberg.exceptions.CommitStateUnknownException;
 
 /**
  * Writes rows to a lake table on the local engine and passes them on unchanged.
@@ -154,13 +155,20 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
         logBasic("Table " + target.name() + " already exists, rows are not written (Ignore)");
         return null;
       }
-      WriteMode mode =
-          LakeTableOutputMeta.MODE_OVERWRITE.equalsIgnoreCase(saveMode)
-              ? WriteMode.OVERWRITE_TABLE
-              : WriteMode.APPEND;
+      WriteMode mode;
+      if (LakeTableOutputMeta.MODE_OVERWRITE.equalsIgnoreCase(saveMode)) {
+        mode = WriteMode.OVERWRITE_TABLE;
+      } else if (LakeTableOutputMeta.MODE_APPEND.equalsIgnoreCase(saveMode)) {
+        mode = WriteMode.APPEND;
+      } else {
+        throw unsupportedSaveMode(saveMode);
+      }
       return new CommitCoordinator(target.load(), mode, summary);
     }
 
+    if (!isSupportedSaveMode(saveMode)) {
+      throw unsupportedSaveMode(saveMode);
+    }
     Schema schema = IcebergTypeMapper.toIcebergSchema(rowMeta);
     PartitionSpec spec = partitionSpec(schema, resolve(meta.getPartitionByColumns()));
     logBasic(
@@ -168,6 +176,28 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
             + target.name()
             + (spec.isUnpartitioned() ? "" : ", partitioned by " + meta.getPartitionByColumns()));
     return new CommitCoordinator(target.create(schema, spec, Map.of()), summary);
+  }
+
+  private static boolean isSupportedSaveMode(String saveMode) {
+    for (String mode :
+        new String[] {
+          LakeTableOutputMeta.MODE_APPEND,
+          LakeTableOutputMeta.MODE_OVERWRITE,
+          LakeTableOutputMeta.MODE_ERROR,
+          LakeTableOutputMeta.MODE_IGNORE
+        }) {
+      if (mode.equalsIgnoreCase(saveMode)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static HopException unsupportedSaveMode(String saveMode) {
+    return new HopException(
+        "Save mode '"
+            + saveMode
+            + "' isn't supported. Use Append, Overwrite, ErrorIfExists or Ignore.");
   }
 
   private IcebergTableTarget target() throws HopException {
@@ -231,16 +261,26 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
       return;
     }
     try {
-      long snapshotId = coordinator.commit();
+      Long snapshotId = coordinator.commit();
       logBasic(
           "Committed "
               + coordinator.fileCount()
-              + " data file(s) as snapshot "
-              + snapshotId
-              + " of table "
+              + " data file(s)"
+              + (snapshotId == null ? "" : " as snapshot " + snapshotId)
+              + " to table "
               + coordinator.table().name());
+    } catch (CommitStateUnknownException e) {
+      // The catalog may have applied the commit: deleting the files could break the table.
+      throw new HopException(
+          "The commit to Iceberg table "
+              + coordinator.table().name()
+              + " may or may not have been applied. The data files are kept; check the table"
+              + " history before running the pipeline again.",
+          e);
     } catch (Exception e) {
-      coordinator.abort();
+      if (!coordinator.isPublished()) {
+        coordinator.abort();
+      }
       throw new HopException("Unable to commit to Iceberg table", e);
     }
   }

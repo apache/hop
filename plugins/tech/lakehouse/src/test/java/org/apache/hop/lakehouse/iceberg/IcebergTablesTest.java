@@ -145,16 +145,23 @@ class IcebergTablesTest {
     assertEquals(-1, IcebergTables.metadataVersion("snap-123-1-abc.avro"));
   }
 
+  /**
+   * The hint is a starting point: a writer publishes {@code v<N>.metadata.json} before it updates
+   * the hint, so newer versions after the hinted one are followed, like Iceberg's Hadoop tables do,
+   * including gzip-compressed metadata. The walk stops at the first missing version.
+   */
   @Test
-  void versionHintWins() throws Exception {
+  void versionHintIsAStartingPoint() throws Exception {
     Path metadata = Files.createDirectories(tempDir.resolve("t/metadata"));
     Files.writeString(metadata.resolve("v1.metadata.json"), "{}");
     Files.writeString(metadata.resolve("v2.metadata.json"), "{}");
+    Files.writeString(metadata.resolve("v3.gz.metadata.json"), "{}");
+    Files.writeString(metadata.resolve("v5.metadata.json"), "{}");
     Files.writeString(metadata.resolve("version-hint.text"), "1\n");
 
     String root = tempDir.resolve("t").toUri().toString();
     assertEquals(
-        metadataFolder(root) + "/v1.metadata.json", IcebergTables.currentMetadataFile(root));
+        metadataFolder(root) + "/v3.gz.metadata.json", IcebergTables.currentMetadataFile(root));
   }
 
   @Test

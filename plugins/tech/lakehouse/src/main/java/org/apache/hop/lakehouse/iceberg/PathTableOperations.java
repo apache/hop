@@ -19,8 +19,18 @@ package org.apache.hop.lakehouse.iceberg;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.provider.local.LocalFile;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.lakehouse.iceberg.io.HopVfsFileIO;
 import org.apache.iceberg.LocationProviders;
@@ -37,13 +47,23 @@ import org.apache.iceberg.io.LocationProvider;
  * Hadoop catalogs and Spark path tables: {@code metadata/v<N>.metadata.json} plus a {@code
  * version-hint.text} that names the current version.
  *
- * <p>A commit writes the new metadata to a temporary file and moves it to the next version's name,
- * failing if that name is already taken. On a local or HDFS file system the move is atomic, so two
- * writers can't both commit the same version. Object stores like S3 can't guarantee that, the same
- * limitation Iceberg documents for Hadoop tables, so there a table should have one writer at a
- * time. Tables managed by a catalog should be written through the catalog instead.
+ * <p>A commit writes the new metadata to a temporary file and then publishes it under the next
+ * version's name with an operation that fails if that name is already taken. On a local file system
+ * that is a hard link, which the operating system creates atomically, so two writers can't both
+ * commit the same version, whether they run in one Hop instance or in several processes. Commits in
+ * one JVM are also serialized per table location. Other file systems publish with a check followed
+ * by a move, which isn't atomic across processes: like Iceberg's Hadoop tables on S3, a path table
+ * there should have one writer at a time. Tables managed by a catalog should be written through the
+ * catalog instead.
+ *
+ * <p>The version hint is best effort. Once the metadata file is in place the commit has happened,
+ * so a failure to update the hint is only logged, and readers walk forward from the hint to the
+ * newest version (see {@link IcebergTables#findCurrentMetadataFile(String)}).
  */
 public class PathTableOperations implements TableOperations {
+
+  /** Serializes commits to the same table location within this JVM. */
+  private static final Map<String, ReentrantLock> LOCKS = new ConcurrentHashMap<>();
 
   private final String location;
   private final FileIO io = new HopVfsFileIO();
@@ -88,6 +108,16 @@ public class PathTableOperations implements TableOperations {
 
   @Override
   public void commit(TableMetadata base, TableMetadata metadata) {
+    ReentrantLock lock = LOCKS.computeIfAbsent(location, ignored -> new ReentrantLock());
+    lock.lock();
+    try {
+      commitLocked(base, metadata);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  private void commitLocked(TableMetadata base, TableMetadata metadata) {
     TableMetadata latest = refresh();
     if (base != latest
         && (base == null
@@ -102,22 +132,74 @@ public class PathTableOperations implements TableOperations {
     String temp = metadataFileLocation(UUID.randomUUID() + ".metadata.json.tmp");
     TableMetadataParser.write(metadata, io.newOutputFile(temp));
     try {
+      publish(temp, target, next);
+    } finally {
+      deleteQuietly(temp);
+    }
+
+    // The commit has happened. Nothing after this point may fail it.
+    try {
+      writeVersionHint(next);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logBasic(
+          "Committed version "
+              + next
+              + " of Iceberg table "
+              + location
+              + ", but couldn't update version-hint.text; readers find the new version anyway: "
+              + e.getMessage());
+    }
+    // Read the new metadata lazily, on the next call to current() or refresh().
+    current = null;
+    version = -1;
+  }
+
+  /**
+   * Publishes {@code temp} as {@code target}, failing with a {@link CommitFailedException} if
+   * another writer committed that version first.
+   */
+  void publish(String temp, String target, int next) {
+    try {
       FileObject tempFile = HopVfs.getFileObject(temp);
       FileObject targetFile = HopVfs.getFileObject(target);
+      if (tempFile instanceof LocalFile && targetFile instanceof LocalFile) {
+        Path tempPath = Paths.get(tempFile.getURI());
+        Path targetPath = Paths.get(targetFile.getURI());
+        try {
+          // link(2) fails with EEXIST if the name is taken, atomically.
+          Files.createLink(targetPath, tempPath);
+        } catch (UnsupportedOperationException | FileSystemException linkNotSupported) {
+          if (linkNotSupported instanceof FileAlreadyExistsException) {
+            throw linkNotSupported;
+          }
+          // No hard links on this file system: a move that refuses an existing target.
+          Files.move(tempPath, targetPath);
+        }
+        return;
+      }
       if (targetFile.exists()) {
-        tempFile.delete();
-        throw new CommitFailedException(
-            "Version %d of table %s was committed by another writer", next, location);
+        throw new FileAlreadyExistsException(target);
       }
       tempFile.moveTo(targetFile);
-      writeVersionHint(next);
-    } catch (CommitFailedException e) {
-      throw e;
+    } catch (FileAlreadyExistsException e) {
+      throw new CommitFailedException(
+          "Version %d of table %s was committed by another writer", next, location);
     } catch (Exception e) {
       throw new RuntimeIOException(
           new java.io.IOException("Unable to commit version " + next + " of " + location, e));
     }
-    refresh();
+  }
+
+  private static void deleteQuietly(String file) {
+    try {
+      FileObject object = HopVfs.getFileObject(file);
+      if (object.exists()) {
+        object.delete();
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logBasic(
+          "Unable to delete temporary file " + file + ": " + e.getMessage());
+    }
   }
 
   private void writeVersionHint(int newVersion) throws Exception {
