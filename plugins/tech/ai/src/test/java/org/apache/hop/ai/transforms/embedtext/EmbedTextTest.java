@@ -17,6 +17,7 @@
 package org.apache.hop.ai.transforms.embedtext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -103,6 +104,30 @@ class EmbedTextTest {
   }
 
   @Test
+  void treatsWhitespaceOnlyTextAsEmpty() throws Exception {
+    // langchain4j refuses a blank text segment, which would stop the transform outright.
+    run(Arrays.asList(new Object[] {"first"}, new Object[] {" \t\n "}, new Object[] {"third"}));
+
+    assertEquals(3, passed.size());
+    assertEquals("[1.0,2.0]", passed.get(0)[1]);
+    assertEquals(" \t\n ", passed.get(1)[0], "the blank text itself is passed on unchanged");
+    assertNull(passed.get(1)[1], "a row with blank text gets no embedding");
+    assertEquals("[1.0,2.0]", passed.get(2)[1]);
+  }
+
+  @Test
+  void findsNothingToEmbedInTextThatOnlyHoldsWhitespaceOrControlCharacters() {
+    assertTrue(EmbedText.hasNothingToEmbed(null));
+    assertTrue(EmbedText.hasNothingToEmbed(""));
+    assertTrue(EmbedText.hasNothingToEmbed(" \t\r\n"));
+    // langchain4j trims these away and then refuses the segment.
+    assertTrue(EmbedText.hasNothingToEmbed("\u0000\u0007"));
+    // Unicode spaces that trim keeps.
+    assertTrue(EmbedText.hasNothingToEmbed("\u2003\u3000"));
+    assertFalse(EmbedText.hasNothingToEmbed(" a "));
+  }
+
+  @Test
   void divertsOnlyTheRowsThatWereActuallySent() throws Exception {
     // A row with no text is not in the request, so a provider failure is not its failure.
     when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
@@ -165,6 +190,12 @@ class EmbedTextTest {
                 throw new RuntimeException("provider is down");
               }
               List<TextSegment> segments = invocation.getArgument(0);
+              // Like the providers, reject blank input for the whole request.
+              for (TextSegment segment : segments) {
+                if (segment.text().isBlank()) {
+                  throw new RuntimeException("input must not be blank");
+                }
+              }
               List<Embedding> embeddings = new ArrayList<>();
               for (int i = 0; i < segments.size(); i++) {
                 embeddings.add(Embedding.from(new float[] {1.0f, 2.0f}));
