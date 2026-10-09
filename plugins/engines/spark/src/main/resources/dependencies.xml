@@ -17,6 +17,7 @@
   -->
 <dependencies>
     <!-- Native handlers need transform metadata classes on the driver -->
+    <folder>../../tech/lakehouse</folder>
     <folder>../../transforms/memgroupby</folder>
     <folder>../../transforms/mergejoin</folder>
     <folder>../../transforms/uniquerows</folder>

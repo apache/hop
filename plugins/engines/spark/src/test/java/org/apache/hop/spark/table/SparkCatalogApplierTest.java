@@ -24,17 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.spark.metadata.SparkCatalog;
+import org.apache.hop.lakehouse.metadata.LakeCatalog;
 import org.junit.jupiter.api.Test;
 
 class SparkCatalogApplierTest {
 
   @Test
   void hadoopCatalogExpandsConf() throws Exception {
-    SparkCatalog cat = new SparkCatalog();
+    LakeCatalog cat = new LakeCatalog();
     cat.setName("my-lake");
     cat.setCatalogName("lake");
-    cat.setCatalogType(SparkCatalog.TYPE_HADOOP);
+    cat.setCatalogType(LakeCatalog.TYPE_HADOOP);
     cat.setWarehouse("/tmp/warehouse");
     cat.setConfExtra("io-impl=org.apache.iceberg.hadoop.HadoopFileIO\n# comment\n");
 
@@ -48,20 +48,20 @@ class SparkCatalogApplierTest {
 
   @Test
   void restCatalogRequiresUri() {
-    SparkCatalog cat = new SparkCatalog();
+    LakeCatalog cat = new LakeCatalog();
     cat.setName("rest");
     cat.setCatalogName("remote");
-    cat.setCatalogType(SparkCatalog.TYPE_REST);
+    cat.setCatalogType(LakeCatalog.TYPE_REST);
     assertThrows(
         HopException.class, () -> SparkCatalogApplier.toSparkConfigs(cat, new Variables()));
   }
 
   @Test
   void restCatalogWithToken() throws Exception {
-    SparkCatalog cat = new SparkCatalog();
+    LakeCatalog cat = new LakeCatalog();
     cat.setName("rest");
     cat.setCatalogName("remote");
-    cat.setCatalogType(SparkCatalog.TYPE_REST);
+    cat.setCatalogType(LakeCatalog.TYPE_REST);
     cat.setUri("https://catalog.example.com/iceberg");
     cat.setCredential("secret-token");
     Map<String, String> conf = SparkCatalogApplier.toSparkConfigs(cat, new Variables());
@@ -72,10 +72,10 @@ class SparkCatalogApplierTest {
 
   @Test
   void fullSparkKeyInConfExtra() throws Exception {
-    SparkCatalog cat = new SparkCatalog();
+    LakeCatalog cat = new LakeCatalog();
     cat.setName("c");
     cat.setCatalogName("c");
-    cat.setCatalogType(SparkCatalog.TYPE_CUSTOM);
+    cat.setCatalogType(LakeCatalog.TYPE_CUSTOM);
     cat.setImplementation("com.example.MyCatalog");
     cat.setConfExtra("spark.sql.defaultCatalog=c");
     Map<String, String> conf = SparkCatalogApplier.toSparkConfigs(cat, new Variables());

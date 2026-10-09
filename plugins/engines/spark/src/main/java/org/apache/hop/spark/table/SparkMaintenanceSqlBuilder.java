@@ -20,6 +20,7 @@ package org.apache.hop.spark.table;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta;
 
 /**
  * Builds Spark SQL for lakehouse maintenance (OPTIMIZE / VACUUM / expire / rewrite / DELETE). Does
@@ -27,11 +28,11 @@ import org.apache.hop.core.exception.HopException;
  */
 public final class SparkMaintenanceSqlBuilder {
 
-  public static final String OP_OPTIMIZE = "OPTIMIZE";
-  public static final String OP_VACUUM = "VACUUM";
-  public static final String OP_EXPIRE_SNAPSHOTS = "EXPIRE_SNAPSHOTS";
-  public static final String OP_REWRITE_MANIFESTS = "REWRITE_MANIFESTS";
-  public static final String OP_DELETE_WHERE = "DELETE_WHERE";
+  public static final String OP_OPTIMIZE = LakeTableMaintenanceMeta.OP_OPTIMIZE;
+  public static final String OP_VACUUM = LakeTableMaintenanceMeta.OP_VACUUM;
+  public static final String OP_EXPIRE_SNAPSHOTS = LakeTableMaintenanceMeta.OP_EXPIRE_SNAPSHOTS;
+  public static final String OP_REWRITE_MANIFESTS = LakeTableMaintenanceMeta.OP_REWRITE_MANIFESTS;
+  public static final String OP_DELETE_WHERE = LakeTableMaintenanceMeta.OP_DELETE_WHERE;
 
   private SparkMaintenanceSqlBuilder() {}
 

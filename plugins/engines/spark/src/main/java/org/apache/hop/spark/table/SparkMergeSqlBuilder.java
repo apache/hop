@@ -20,6 +20,7 @@ package org.apache.hop.spark.table;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.lakehouse.transforms.LakeTableMergeMeta;
 
 /**
  * Builds Spark SQL {@code MERGE INTO} statements for lakehouse upserts. Does not execute SQL.
@@ -30,15 +31,17 @@ import org.apache.hop.core.exception.HopException;
  */
 public final class SparkMergeSqlBuilder {
 
-  public static final String MATCHED_UPDATE_ALL = "UPDATE_ALL";
-  public static final String MATCHED_DELETE = "DELETE";
-  public static final String MATCHED_NONE = "NONE";
+  public static final String MATCHED_UPDATE_ALL = LakeTableMergeMeta.MATCHED_UPDATE_ALL;
+  public static final String MATCHED_DELETE = LakeTableMergeMeta.MATCHED_DELETE;
+  public static final String MATCHED_NONE = LakeTableMergeMeta.MATCHED_NONE;
 
-  public static final String NOT_MATCHED_INSERT_ALL = "INSERT_ALL";
-  public static final String NOT_MATCHED_NONE = "NONE";
+  public static final String NOT_MATCHED_INSERT_ALL = LakeTableMergeMeta.NOT_MATCHED_INSERT_ALL;
+  public static final String NOT_MATCHED_NONE = LakeTableMergeMeta.NOT_MATCHED_NONE;
 
-  public static final String NOT_MATCHED_BY_SOURCE_DELETE = "DELETE";
-  public static final String NOT_MATCHED_BY_SOURCE_NONE = "NONE";
+  public static final String NOT_MATCHED_BY_SOURCE_DELETE =
+      LakeTableMergeMeta.NOT_MATCHED_BY_SOURCE_DELETE;
+  public static final String NOT_MATCHED_BY_SOURCE_NONE =
+      LakeTableMergeMeta.NOT_MATCHED_BY_SOURCE_NONE;
 
   private SparkMergeSqlBuilder() {}
 

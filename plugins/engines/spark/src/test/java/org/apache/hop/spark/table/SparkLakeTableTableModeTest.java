@@ -30,16 +30,16 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lakehouse.metadata.LakeCatalog;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
-import org.apache.hop.spark.metadata.SparkCatalog;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -49,7 +49,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Iceberg TABLE mode via SparkCatalog (Hadoop warehouse; skipped if connectors missing). */
+/** Iceberg TABLE mode via LakeCatalog (Hadoop warehouse; skipped if connectors missing). */
 class SparkLakeTableTableModeTest {
 
   @TempDir Path tempDir;
@@ -87,14 +87,14 @@ class SparkLakeTableTableModeTest {
         "Iceberg connector not on classpath; connectors missing from test classpath");
 
     Path warehouse = tempDir.resolve("wh");
-    SparkCatalog catalogMeta = new SparkCatalog();
+    LakeCatalog catalogMeta = new LakeCatalog();
     catalogMeta.setName("lake-meta");
     catalogMeta.setCatalogName("lake");
-    catalogMeta.setCatalogType(SparkCatalog.TYPE_HADOOP);
+    catalogMeta.setCatalogType(LakeCatalog.TYPE_HADOOP);
     catalogMeta.setWarehouse(warehouse.toUri().toString());
 
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
-    provider.getSerializer(SparkCatalog.class).save(catalogMeta);
+    provider.getSerializer(LakeCatalog.class).save(catalogMeta);
 
     // Build session as LakeSessionPlan would for hop-run
     SparkSession.Builder builder =
@@ -110,9 +110,9 @@ class SparkLakeTableTableModeTest {
 
     String tableId = "lake.db.orders";
 
-    SparkLakeTableOutputMeta outMeta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta outMeta = new LakeTableOutputMeta();
     outMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    outMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_TABLE);
+    outMeta.setIdentifierMode(LakeTableInputMeta.MODE_TABLE);
     outMeta.setTableIdentifier(tableId);
     outMeta.setCatalogMetadataName("lake-meta");
     outMeta.setSaveMode(SparkFileOutputMeta.MODE_OVERWRITE);
@@ -142,9 +142,9 @@ class SparkLakeTableTableModeTest {
     assertEquals(0, map.get("out").count());
     assertEquals(12L, spark.table(tableId).count());
 
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    inMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_TABLE);
+    inMeta.setIdentifierMode(LakeTableInputMeta.MODE_TABLE);
     inMeta.setTableIdentifier(tableId);
     inMeta.setCatalogMetadataName("lake-meta");
 
@@ -173,18 +173,18 @@ class SparkLakeTableTableModeTest {
 
   @Test
   void lakeSessionPlanLoadsSparkCatalog() throws Exception {
-    SparkCatalog catalogMeta = new SparkCatalog();
+    LakeCatalog catalogMeta = new LakeCatalog();
     catalogMeta.setName("lake-meta");
     catalogMeta.setCatalogName("lake");
-    catalogMeta.setCatalogType(SparkCatalog.TYPE_HADOOP);
+    catalogMeta.setCatalogType(LakeCatalog.TYPE_HADOOP);
     catalogMeta.setWarehouse("/tmp/wh");
 
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
-    provider.getSerializer(SparkCatalog.class).save(catalogMeta);
+    provider.getSerializer(LakeCatalog.class).save(catalogMeta);
 
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    inMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_TABLE);
+    inMeta.setIdentifierMode(LakeTableInputMeta.MODE_TABLE);
     inMeta.setTableIdentifier("lake.db.t");
     inMeta.setCatalogMetadataName("lake-meta");
 

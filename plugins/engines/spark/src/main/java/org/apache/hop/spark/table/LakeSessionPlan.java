@@ -29,23 +29,24 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.lakehouse.metadata.LakeCatalog;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableMergeMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.spark.metadata.SparkCatalog;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableMergeMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.SparkSession;
 import org.w3c.dom.Node;
 
 /**
- * Pre-session scan of active lake transforms: formats, referenced {@link SparkCatalog} metadata,
- * and session conf for Delta / Iceberg PATH + TABLE modes.
+ * Pre-session scan of active lake transforms: formats, referenced {@link LakeCatalog} metadata, and
+ * session conf for Delta / Iceberg PATH + TABLE modes.
  */
 public final class LakeSessionPlan {
 
@@ -57,7 +58,7 @@ public final class LakeSessionPlan {
           SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID);
 
   private final Set<String> formatsNeeded = new LinkedHashSet<>();
-  private final Map<String, SparkCatalog> catalogsByMetaName = new LinkedHashMap<>();
+  private final Map<String, LakeCatalog> catalogsByMetaName = new LinkedHashMap<>();
   private boolean needsTableMode;
 
   private LakeSessionPlan() {}
@@ -66,7 +67,7 @@ public final class LakeSessionPlan {
     return formatsNeeded;
   }
 
-  public Map<String, SparkCatalog> getCatalogsByMetaName() {
+  public Map<String, LakeCatalog> getCatalogsByMetaName() {
     return catalogsByMetaName;
   }
 
@@ -86,7 +87,7 @@ public final class LakeSessionPlan {
     return needsTableMode;
   }
 
-  /** Scan active transforms for lake plugin ids, formats, and SparkCatalog metadata references. */
+  /** Scan active transforms for lake plugin ids, formats, and LakeCatalog metadata references. */
   public static LakeSessionPlan from(
       PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider) throws HopException {
     return from(pipelineMeta, metadataProvider, null);
@@ -107,7 +108,7 @@ public final class LakeSessionPlan {
         continue;
       }
       if (SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID.equals(id)) {
-        SparkLakeTableInputMeta meta = new SparkLakeTableInputMeta();
+        LakeTableInputMeta meta = new LakeTableInputMeta();
         loadMeta(meta, tm, metadataProvider);
         SparkLakeTableSupport.collectFormat(meta.getFormat(), plan.formatsNeeded);
         collectCatalogRef(
@@ -117,7 +118,7 @@ public final class LakeSessionPlan {
             meta.getIdentifierMode(),
             meta.getCatalogMetadataName());
       } else if (SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID.equals(id)) {
-        SparkLakeTableOutputMeta meta = new SparkLakeTableOutputMeta();
+        LakeTableOutputMeta meta = new LakeTableOutputMeta();
         loadMeta(meta, tm, metadataProvider);
         SparkLakeTableSupport.collectFormat(meta.getFormat(), plan.formatsNeeded);
         collectCatalogRef(
@@ -127,7 +128,7 @@ public final class LakeSessionPlan {
             meta.getIdentifierMode(),
             meta.getCatalogMetadataName());
       } else if (SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID.equals(id)) {
-        SparkLakeTableMergeMeta meta = new SparkLakeTableMergeMeta();
+        LakeTableMergeMeta meta = new LakeTableMergeMeta();
         loadMeta(meta, tm, metadataProvider);
         SparkLakeTableSupport.collectFormat(meta.getFormat(), plan.formatsNeeded);
         collectCatalogRef(
@@ -137,7 +138,7 @@ public final class LakeSessionPlan {
             meta.getIdentifierMode(),
             meta.getCatalogMetadataName());
       } else if (SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID.equals(id)) {
-        SparkLakeTableMaintenanceMeta meta = new SparkLakeTableMaintenanceMeta();
+        LakeTableMaintenanceMeta meta = new LakeTableMaintenanceMeta();
         loadMeta(meta, tm, metadataProvider);
         SparkLakeTableSupport.collectFormat(meta.getFormat(), plan.formatsNeeded);
         collectCatalogRef(
@@ -162,9 +163,9 @@ public final class LakeSessionPlan {
     try {
       mode = SparkLakeTableSupport.normalizeIdentifierMode(identifierMode);
     } catch (HopException e) {
-      mode = SparkLakeTableInputMeta.MODE_PATH;
+      mode = LakeTableInputMeta.MODE_PATH;
     }
-    if (SparkLakeTableInputMeta.MODE_TABLE.equals(mode)) {
+    if (LakeTableInputMeta.MODE_TABLE.equals(mode)) {
       plan.needsTableMode = true;
     }
     if (StringUtils.isEmpty(catalogMetadataName) || metadataProvider == null) {
@@ -176,7 +177,7 @@ public final class LakeSessionPlan {
       return;
     }
     try {
-      SparkCatalog catalog = metadataProvider.getSerializer(SparkCatalog.class).load(metaName);
+      LakeCatalog catalog = metadataProvider.getSerializer(LakeCatalog.class).load(metaName);
       if (catalog == null) {
         throw new HopException(
             "SparkCatalog metadata '"
@@ -200,7 +201,7 @@ public final class LakeSessionPlan {
   }
 
   /**
-   * Apply Delta / Iceberg session conf and referenced SparkCatalog entries on a new hop-run session
+   * Apply Delta / Iceberg session conf and referenced LakeCatalog entries on a new hop-run session
    * builder.
    */
   public void applyToBuilder(SparkSession.Builder builder) throws HopException {
@@ -230,14 +231,14 @@ public final class LakeSessionPlan {
     if (!extensions.isEmpty()) {
       builder.config(SparkLakeFormats.SPARK_CONF_EXTENSIONS, String.join(",", extensions));
     }
-    for (SparkCatalog catalog : catalogsByMetaName.values()) {
+    for (LakeCatalog catalog : catalogsByMetaName.values()) {
       SparkCatalogApplier.applyToBuilder(builder, catalog, variables);
     }
   }
 
   /**
    * For an active/reused session (spark-submit): require connector classes and Delta conf; register
-   * missing Iceberg path catalog and user SparkCatalog entries when possible.
+   * missing Iceberg path catalog and user LakeCatalog entries when possible.
    */
   public void verifyActiveSession(SparkSession session, ILogChannel log) throws HopException {
     verifyActiveSession(session, log, null);
@@ -313,9 +314,9 @@ public final class LakeSessionPlan {
       }
     }
 
-    // Apply / verify user SparkCatalog metadata (TABLE mode)
-    for (Map.Entry<String, SparkCatalog> e : catalogsByMetaName.entrySet()) {
-      SparkCatalog cat = e.getValue();
+    // Apply / verify user LakeCatalog metadata (TABLE mode)
+    for (Map.Entry<String, LakeCatalog> e : catalogsByMetaName.entrySet()) {
+      LakeCatalog cat = e.getValue();
       String sparkName = StringUtils.defaultIfBlank(cat.getCatalogName(), cat.getName());
       if (variables != null) {
         sparkName = variables.resolve(sparkName);
@@ -363,65 +364,32 @@ public final class LakeSessionPlan {
       Node node = XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
       meta.loadXml(node, metadataProvider);
     } catch (Exception e) {
-      ITransformMeta live = transformMeta.getTransform();
-      if (meta instanceof SparkLakeTableInputMeta target
-          && live instanceof SparkLakeTableInputMeta in) {
-        target.setFormat(in.getFormat());
-        target.setIdentifierMode(in.getIdentifierMode());
-        target.setTablePath(in.getTablePath());
-        target.setTableIdentifier(in.getTableIdentifier());
-        target.setCatalogMetadataName(in.getCatalogMetadataName());
-        target.setTimeTravelType(in.getTimeTravelType());
-        target.setTimeTravelVersion(in.getTimeTravelVersion());
-        target.setTimeTravelTimestamp(in.getTimeTravelTimestamp());
-        target.setExtraOptions(in.getExtraOptions());
-        target.setFields(in.getFields());
-        return;
+      try {
+        copyFromLive(meta, transformMeta.getTransform(), metadataProvider);
+      } catch (Exception copyFailure) {
+        e.addSuppressed(copyFailure);
+        throw new HopException(
+            "Unable to load lake transform metadata for '" + transformMeta.getName() + "'", e);
       }
-      if (meta instanceof SparkLakeTableOutputMeta target
-          && live instanceof SparkLakeTableOutputMeta out) {
-        target.setFormat(out.getFormat());
-        target.setIdentifierMode(out.getIdentifierMode());
-        target.setTablePath(out.getTablePath());
-        target.setTableIdentifier(out.getTableIdentifier());
-        target.setCatalogMetadataName(out.getCatalogMetadataName());
-        target.setSaveMode(out.getSaveMode());
-        target.setExtraOptions(out.getExtraOptions());
-        target.setPartitionByColumns(out.getPartitionByColumns());
-        target.setCoalescePartitions(out.getCoalescePartitions());
-        return;
-      }
-      if (meta instanceof SparkLakeTableMergeMeta target
-          && live instanceof SparkLakeTableMergeMeta merge) {
-        target.setFormat(merge.getFormat());
-        target.setIdentifierMode(merge.getIdentifierMode());
-        target.setTablePath(merge.getTablePath());
-        target.setTableIdentifier(merge.getTableIdentifier());
-        target.setCatalogMetadataName(merge.getCatalogMetadataName());
-        target.setMergeCondition(merge.getMergeCondition());
-        target.setMatchedAction(merge.getMatchedAction());
-        target.setNotMatchedAction(merge.getNotMatchedAction());
-        target.setNotMatchedBySourceAction(merge.getNotMatchedBySourceAction());
-        target.setRawMergeSql(merge.getRawMergeSql());
-        return;
-      }
-      if (meta instanceof SparkLakeTableMaintenanceMeta target
-          && live instanceof SparkLakeTableMaintenanceMeta maint) {
-        target.setFormat(maint.getFormat());
-        target.setIdentifierMode(maint.getIdentifierMode());
-        target.setTablePath(maint.getTablePath());
-        target.setTableIdentifier(maint.getTableIdentifier());
-        target.setCatalogMetadataName(maint.getCatalogMetadataName());
-        target.setOperation(maint.getOperation());
-        target.setRetentionHours(maint.getRetentionHours());
-        target.setRetainLast(maint.getRetainLast());
-        target.setWhereClause(maint.getWhereClause());
-        target.setZOrderColumns(maint.getZOrderColumns());
-        target.setAcknowledgeDestructive(maint.isAcknowledgeDestructive());
-        return;
-      }
-      throw new HopException(
-          "Unable to load lake transform metadata for '" + transformMeta.getName() + "'", e);
     }
+  }
+
+  /**
+   * Copies the settings of a transform's in-memory meta into {@code meta}. The lake transforms
+   * belong to the lakehouse plugin, so the in-memory meta can come from another class loader than
+   * {@code meta}: it is copied through its serialized form instead of being cast.
+   */
+  static void copyFromLive(
+      ITransformMeta meta, ITransformMeta live, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    if (live == null || !live.getClass().getName().equals(meta.getClass().getName())) {
+      throw new HopException(
+          "No " + meta.getClass().getSimpleName() + " settings to copy from the transform");
+    }
+    String xml = XmlMetadataUtil.serializeObjectToXml(live);
+    Node node =
+        XmlHandler.getSubNode(
+            XmlHandler.loadXmlString("<transform>" + xml + "</transform>"), "transform");
+    XmlMetadataUtil.deSerializeFromXml(node, meta.getClass(), meta, metadataProvider);
   }
 }

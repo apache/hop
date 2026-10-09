@@ -28,10 +28,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lakehouse.LakeField;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.spark.pipeline.handler.SparkFileInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileIoSupport;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
+import org.apache.hop.spark.transforms.io.SparkField;
 import org.apache.hop.spark.util.SparkPathDialect;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
@@ -72,20 +74,19 @@ public final class SparkLakeTableSupport {
 
   public static String normalizeIdentifierMode(String mode) throws HopException {
     if (StringUtils.isEmpty(mode)) {
-      return SparkLakeTableInputMeta.MODE_PATH;
+      return LakeTableInputMeta.MODE_PATH;
     }
     String m = mode.trim().toUpperCase(Locale.ROOT);
-    if (SparkLakeTableInputMeta.MODE_PATH.equals(m)
-        || SparkLakeTableInputMeta.MODE_TABLE.equals(m)) {
+    if (LakeTableInputMeta.MODE_PATH.equals(m) || LakeTableInputMeta.MODE_TABLE.equals(m)) {
       return m;
     }
     throw new HopException(
         "Unsupported identifier mode '"
             + mode
             + "'. Supported: "
-            + SparkLakeTableInputMeta.MODE_PATH
+            + LakeTableInputMeta.MODE_PATH
             + ", "
-            + SparkLakeTableInputMeta.MODE_TABLE
+            + LakeTableInputMeta.MODE_TABLE
             + ".");
   }
 
@@ -119,23 +120,23 @@ public final class SparkLakeTableSupport {
 
   public static String normalizeTimeTravelType(String type) throws HopException {
     if (StringUtils.isEmpty(type)) {
-      return SparkLakeTableInputMeta.TIME_TRAVEL_NONE;
+      return LakeTableInputMeta.TIME_TRAVEL_NONE;
     }
     String t = type.trim().toUpperCase(Locale.ROOT);
-    if (SparkLakeTableInputMeta.TIME_TRAVEL_NONE.equals(t)
-        || SparkLakeTableInputMeta.TIME_TRAVEL_VERSION.equals(t)
-        || SparkLakeTableInputMeta.TIME_TRAVEL_TIMESTAMP.equals(t)) {
+    if (LakeTableInputMeta.TIME_TRAVEL_NONE.equals(t)
+        || LakeTableInputMeta.TIME_TRAVEL_VERSION.equals(t)
+        || LakeTableInputMeta.TIME_TRAVEL_TIMESTAMP.equals(t)) {
       return t;
     }
     throw new HopException(
         "Unsupported time travel type '"
             + type
             + "'. Supported: "
-            + SparkLakeTableInputMeta.TIME_TRAVEL_NONE
+            + LakeTableInputMeta.TIME_TRAVEL_NONE
             + ", "
-            + SparkLakeTableInputMeta.TIME_TRAVEL_VERSION
+            + LakeTableInputMeta.TIME_TRAVEL_VERSION
             + ", "
-            + SparkLakeTableInputMeta.TIME_TRAVEL_TIMESTAMP
+            + LakeTableInputMeta.TIME_TRAVEL_TIMESTAMP
             + ".");
   }
 
@@ -155,10 +156,10 @@ public final class SparkLakeTableSupport {
     Map<String, String> map = new java.util.LinkedHashMap<>();
     String fmt = normalizeFormat(format);
     String tt = normalizeTimeTravelType(timeTravelType);
-    if (SparkLakeTableInputMeta.TIME_TRAVEL_NONE.equals(tt)) {
+    if (LakeTableInputMeta.TIME_TRAVEL_NONE.equals(tt)) {
       return map;
     }
-    if (SparkLakeTableInputMeta.TIME_TRAVEL_VERSION.equals(tt)) {
+    if (LakeTableInputMeta.TIME_TRAVEL_VERSION.equals(tt)) {
       if (StringUtils.isEmpty(version)) {
         throw new HopException("Time travel type VERSION requires a version / snapshot id value");
       }
@@ -193,7 +194,7 @@ public final class SparkLakeTableSupport {
   public static String resolveMergeTargetSqlId(
       SparkSession spark,
       IVariables variables,
-      org.apache.hop.spark.transforms.table.SparkLakeTableMergeMeta meta,
+      org.apache.hop.lakehouse.transforms.LakeTableMergeMeta meta,
       String transformName)
       throws HopException {
     return resolveMergeTargetSqlId(spark, variables, meta, transformName, null);
@@ -202,7 +203,7 @@ public final class SparkLakeTableSupport {
   public static String resolveMergeTargetSqlId(
       SparkSession spark,
       IVariables variables,
-      org.apache.hop.spark.transforms.table.SparkLakeTableMergeMeta meta,
+      org.apache.hop.lakehouse.transforms.LakeTableMergeMeta meta,
       String transformName,
       String pathSchemeMap)
       throws HopException {
@@ -224,7 +225,7 @@ public final class SparkLakeTableSupport {
   public static MaintenanceTarget resolveMaintenanceTarget(
       SparkSession spark,
       IVariables variables,
-      org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta meta,
+      org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta meta,
       String transformName)
       throws HopException {
     return resolveMaintenanceTarget(spark, variables, meta, transformName, null);
@@ -233,7 +234,7 @@ public final class SparkLakeTableSupport {
   public static MaintenanceTarget resolveMaintenanceTarget(
       SparkSession spark,
       IVariables variables,
-      org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta meta,
+      org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta meta,
       String transformName,
       String pathSchemeMap)
       throws HopException {
@@ -254,7 +255,7 @@ public final class SparkLakeTableSupport {
     String procedureCatalog = null;
     String tableRefForCall = null;
     if (SparkLakeFormats.FORMAT_ICEBERG.equals(format)) {
-      if (SparkLakeTableInputMeta.MODE_PATH.equals(mode)) {
+      if (LakeTableInputMeta.MODE_PATH.equals(mode)) {
         procedureCatalog = SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME;
         tableRefForCall =
             toTableLocationUri(
@@ -317,7 +318,7 @@ public final class SparkLakeTableSupport {
     String format = normalizeFormat(formatRaw);
     String mode = normalizeIdentifierMode(modeRaw);
 
-    if (SparkLakeTableInputMeta.MODE_TABLE.equals(mode)) {
+    if (LakeTableInputMeta.MODE_TABLE.equals(mode)) {
       return resolveTableIdentifier(tableIdentifier, null, variables);
     }
 
@@ -378,7 +379,7 @@ public final class SparkLakeTableSupport {
       IVariables variables,
       ILogChannel log,
       String transformName,
-      SparkLakeTableInputMeta meta)
+      LakeTableInputMeta meta)
       throws HopException {
     return resolveRead(spark, variables, log, transformName, meta, null);
   }
@@ -392,7 +393,7 @@ public final class SparkLakeTableSupport {
       IVariables variables,
       ILogChannel log,
       String transformName,
-      SparkLakeTableInputMeta meta,
+      LakeTableInputMeta meta,
       String pathSchemeMap)
       throws HopException {
 
@@ -415,7 +416,7 @@ public final class SparkLakeTableSupport {
     options.putAll(ttOptions);
 
     Dataset<Row> dataset;
-    if (SparkLakeTableInputMeta.MODE_TABLE.equals(mode)) {
+    if (LakeTableInputMeta.MODE_TABLE.equals(mode)) {
       String tableId = resolveTableIdentifier(meta.getTableIdentifier(), null, variables);
       // Prefer catalogMetadataName only for session plan; identifier is full Spark id
       dataset =
@@ -436,9 +437,22 @@ public final class SparkLakeTableSupport {
 
     if (meta.getFields() != null && !meta.getFields().isEmpty()) {
       dataset =
-          SparkFileInputHandler.projectAndCastByName(log, transformName, dataset, meta.getFields());
+          SparkFileInputHandler.projectAndCastByName(
+              log, transformName, dataset, toSparkFields(meta.getFields()));
     }
     return dataset;
+  }
+
+  static List<SparkField> toSparkFields(List<LakeField> fields) {
+    List<SparkField> sparkFields = new ArrayList<>(fields.size());
+    for (LakeField field : fields) {
+      SparkField sparkField =
+          new SparkField(
+              field.getName(), field.getHopType(), field.getLength(), field.getPrecision());
+      sparkField.setFormatMask(field.getFormatMask());
+      sparkFields.add(sparkField);
+    }
+    return sparkFields;
   }
 
   /** Write a Dataset to a lake table (PATH + TABLE). Action runs immediately. */
@@ -447,7 +461,7 @@ public final class SparkLakeTableSupport {
       Dataset<Row> dataset,
       IVariables variables,
       String transformName,
-      SparkLakeTableOutputMeta meta)
+      LakeTableOutputMeta meta)
       throws HopException {
     resolveWrite(spark, dataset, variables, transformName, meta, null);
   }
@@ -461,7 +475,7 @@ public final class SparkLakeTableSupport {
       Dataset<Row> dataset,
       IVariables variables,
       String transformName,
-      SparkLakeTableOutputMeta meta,
+      LakeTableOutputMeta meta,
       String pathSchemeMap)
       throws HopException {
 
@@ -490,7 +504,7 @@ public final class SparkLakeTableSupport {
       toWrite = toWrite.coalesce(coalesce);
     }
 
-    if (SparkLakeTableInputMeta.MODE_TABLE.equals(mode)) {
+    if (LakeTableInputMeta.MODE_TABLE.equals(mode)) {
       String tableId = resolveTableIdentifier(meta.getTableIdentifier(), null, variables);
       writeTable(
           spark, toWrite, format, tableId, saveMode, options, partitionColumns, transformName);
@@ -697,10 +711,10 @@ public final class SparkLakeTableSupport {
       String sqlIdentifier, String timeTravelType, String version, String timestamp)
       throws HopException {
     String tt = normalizeTimeTravelType(timeTravelType);
-    if (SparkLakeTableInputMeta.TIME_TRAVEL_NONE.equals(tt)) {
+    if (LakeTableInputMeta.TIME_TRAVEL_NONE.equals(tt)) {
       return "SELECT * FROM " + sqlIdentifier;
     }
-    if (SparkLakeTableInputMeta.TIME_TRAVEL_VERSION.equals(tt)) {
+    if (LakeTableInputMeta.TIME_TRAVEL_VERSION.equals(tt)) {
       if (StringUtils.isEmpty(version)) {
         throw new HopException("Iceberg VERSION time travel requires a snapshot id");
       }
