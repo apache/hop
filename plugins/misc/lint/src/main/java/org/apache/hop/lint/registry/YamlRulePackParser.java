@@ -292,6 +292,8 @@ public final class YamlRulePackParser {
 
     List<CustomLintRule> projectRules = new ArrayList<>();
     Map<String, ProjectYamlOverlay.ProjectRuleOverlay> overlays = new HashMap<>();
+    // Every project has a hop-lint.yml, so the warnings name the file by its path.
+    String location = inFile(projectYaml);
 
     for (Map.Entry<String, Object> entry : rulesSection.entrySet()) {
       String ruleId = entry.getKey();
@@ -299,14 +301,16 @@ public final class YamlRulePackParser {
       Map<String, Object> ruleData = (Map<String, Object>) entry.getValue();
       if (isNativeRuleDefinition(ruleData)) {
         projectRules.add(
-            parseNativeRule(ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT));
+            parseNativeRule(
+                ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT, location));
       } else if (isCustomRuleDefinition(ruleData)) {
         CustomLintRule rule =
-            parseCustomRule(ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT);
+            parseCustomRule(ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT, location);
         projectRules.add(rule);
       } else {
-        warnUnknownKeys(ruleId, RulePackIds.PROJECT, ruleData, OVERRIDE_KEYS);
-        overlays.put(ruleId, ProjectYamlOverlay.ProjectRuleOverlay.fromMap(ruleId, ruleData));
+        warnUnknownKeys(ruleId, location, ruleData, OVERRIDE_KEYS);
+        overlays.put(
+            ruleId, ProjectYamlOverlay.ProjectRuleOverlay.fromMap(ruleId, ruleData, location));
       }
     }
     return new ProjectYamlOverlay(projectRules, overlays, policy);
@@ -469,6 +473,18 @@ public final class YamlRulePackParser {
    */
   public static CustomLintRule parseNativeRule(
       String ruleId, Map<String, Object> ruleData, String packId, RulePackOwner owner) {
+    return parseNativeRule(ruleId, ruleData, packId, owner, inPack(packId));
+  }
+
+  /**
+   * @param location where the rule is written, for the warnings: {@link #inPack} or {@link #inFile}
+   */
+  private static CustomLintRule parseNativeRule(
+      String ruleId,
+      Map<String, Object> ruleData,
+      String packId,
+      RulePackOwner owner,
+      String location) {
     CustomLintRule rule = new CustomLintRule();
     rule.setId(ruleId);
     rule.setPackId(packId);
@@ -480,13 +496,25 @@ public final class YamlRulePackParser {
     rule.setSeverity(stringValue(ruleData.get("severity"), "WARNING"));
     rule.setAppliesTo(stringListValue(ruleData.get("appliesTo")));
     rule.setMessageKey(stringValue(ruleData.get("messageKey"), ""));
-    applyDocumentation(rule, ruleData);
-    warnUnknownKeys(ruleId, packId, ruleData, NATIVE_RULE_KEYS);
+    applyDocumentation(rule, ruleData, location);
+    warnUnknownKeys(ruleId, location, ruleData, NATIVE_RULE_KEYS);
     return rule;
   }
 
   public static CustomLintRule parseCustomRule(
       String ruleId, Map<String, Object> ruleData, String packId, RulePackOwner owner) {
+    return parseCustomRule(ruleId, ruleData, packId, owner, inPack(packId));
+  }
+
+  /**
+   * @param location where the rule is written, for the warnings: {@link #inPack} or {@link #inFile}
+   */
+  private static CustomLintRule parseCustomRule(
+      String ruleId,
+      Map<String, Object> ruleData,
+      String packId,
+      RulePackOwner owner,
+      String location) {
     CustomLintRule customRule = new CustomLintRule();
     customRule.setId(ruleId);
     customRule.setPackId(packId);
@@ -523,18 +551,19 @@ public final class YamlRulePackParser {
     if (parameters != null && !parameters.isEmpty()) {
       customRule.setAdditionalParameters(new HashMap<>(parameters));
     }
-    applyDocumentation(customRule, ruleData);
-    warnUnknownKeys(ruleId, packId, ruleData, CUSTOM_RULE_KEYS);
+    applyDocumentation(customRule, ruleData, location);
+    warnUnknownKeys(ruleId, location, ruleData, CUSTOM_RULE_KEYS);
     return customRule;
   }
 
   /** Read the keys that describe a rule without changing what it checks: tags and helpUri. */
-  private static void applyDocumentation(CustomLintRule rule, Map<String, Object> ruleData) {
+  private static void applyDocumentation(
+      CustomLintRule rule, Map<String, Object> ruleData, String location) {
     String helpUri = stringValue(ruleData.get("helpUri"), null);
     if (!Utils.isEmpty(helpUri)) {
       rule.setHelpUri(helpUri.trim());
     }
-    rule.setTags(tagsValue(ruleData.get("tags"), rule.getId(), rule.getPackId()));
+    rule.setTags(tagsValue(ruleData.get("tags"), rule.getId(), location));
   }
 
   /**
@@ -543,8 +572,8 @@ public final class YamlRulePackParser {
    * <p>Anything else is logged and left out rather than failing the pack: tags never change what a
    * rule finds, so a malformed one is no reason to stop linting.
    */
-  static Map<String, List<String>> tagsValue(Object value, String ruleId, String packId) {
-    return tagsValue(value, ruleId, packId, false);
+  static Map<String, List<String>> tagsValue(Object value, String ruleId, String location) {
+    return tagsValue(value, ruleId, location, false);
   }
 
   /**
@@ -552,7 +581,7 @@ public final class YamlRulePackParser {
    *     pack's tag of that key, on a rule it means nothing
    */
   static Map<String, List<String>> tagsValue(
-      Object value, String ruleId, String packId, boolean keepEmpty) {
+      Object value, String ruleId, String location, boolean keepEmpty) {
     Map<String, List<String>> tags = new LinkedHashMap<>();
     if (value == null) {
       return tags;
@@ -562,7 +591,7 @@ public final class YamlRulePackParser {
           "Warning: tags of rule '"
               + ruleId
               + "' "
-              + where(packId)
+              + location
               + " are not a mapping and are ignored.");
       return tags;
     }
@@ -576,7 +605,7 @@ public final class YamlRulePackParser {
                 + "' of rule '"
                 + ruleId
                 + "' "
-                + where(packId)
+                + location
                 + " is ignored: a tag is a string or a list of strings.");
         continue;
       }
@@ -596,13 +625,17 @@ public final class YamlRulePackParser {
    * severty:} would otherwise change the rule with nothing to show for it.
    */
   private static void warnUnknownKeys(
-      String ruleId, String packId, Map<String, Object> ruleData, Set<String> knownKeys) {
-    unknownKeyWarnings(ruleId, packId, ruleData, knownKeys).forEach(YamlRulePackParser::warn);
+      String ruleId, String location, Map<String, Object> ruleData, Set<String> knownKeys) {
+    unknownKeyWarnings(ruleId, location, ruleData, knownKeys).forEach(YamlRulePackParser::warn);
   }
 
-  /** One warning for each key on the rule that is not one of the known keys. */
+  /**
+   * One warning for each key on the rule that is not one of the known keys.
+   *
+   * @param location where the rule is written: {@link #inPack} or {@link #inFile}
+   */
   static List<String> unknownKeyWarnings(
-      String ruleId, String packId, Map<String, Object> ruleData, Set<String> knownKeys) {
+      String ruleId, String location, Map<String, Object> ruleData, Set<String> knownKeys) {
     List<String> warnings = new ArrayList<>();
     if (ruleData == null) {
       return warnings;
@@ -616,7 +649,7 @@ public final class YamlRulePackParser {
           new StringBuilder("Warning: rule '")
               .append(ruleId)
               .append("' ")
-              .append(where(packId))
+              .append(location)
               .append(" has an unknown key '")
               .append(name)
               .append("', which is ignored.");
@@ -629,10 +662,20 @@ public final class YamlRulePackParser {
     return warnings;
   }
 
-  private static String where(String packId) {
+  /** Where a rule from a pack is written, for a warning about it. */
+  static String inPack(String packId) {
     return RulePackIds.PROJECT.equals(packId) ? "in hop-lint.yml" : "in pack '" + packId + "'";
   }
 
+  /**
+   * Where a rule in a project's hop-lint.yml is written. Every project has a file of that name, so
+   * the path says which one, and two projects with the same mistake are each told about it.
+   */
+  static String inFile(File projectYaml) {
+    return "in " + projectYaml.getAbsolutePath();
+  }
+
+  /** The location is part of the text, so the same mistake in another file is logged again. */
   private static void warn(String warning) {
     LintWarnings.logOnce(warning, warning);
   }

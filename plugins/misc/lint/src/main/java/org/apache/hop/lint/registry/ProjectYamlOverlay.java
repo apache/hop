@@ -90,7 +90,11 @@ public final class ProjectYamlOverlay {
       this.tags = tags != null ? tags : Collections.emptyMap();
     }
 
-    public static ProjectRuleOverlay fromMap(String ruleId, Map<String, Object> ruleData) {
+    /**
+     * @param location where the override is written, for the warnings
+     */
+    public static ProjectRuleOverlay fromMap(
+        String ruleId, Map<String, Object> ruleData, String location) {
       Boolean enabled = ruleData.containsKey("enabled") ? (Boolean) ruleData.get("enabled") : null;
       String severity =
           ruleData.containsKey("severity") ? String.valueOf(ruleData.get("severity")) : null;
@@ -109,7 +113,7 @@ public final class ProjectYamlOverlay {
         helpUri = value != null ? value.toString().trim() : "";
       }
       Map<String, List<String>> tags =
-          YamlRulePackParser.tagsValue(ruleData.get("tags"), ruleId, RulePackIds.PROJECT, true);
+          YamlRulePackParser.tagsValue(ruleData.get("tags"), ruleId, location, true);
       return new ProjectRuleOverlay(enabled, severity, conditionValue, parameters, helpUri, tags);
     }
 

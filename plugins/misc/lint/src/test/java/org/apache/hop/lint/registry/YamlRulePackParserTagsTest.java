@@ -17,10 +17,12 @@
 package org.apache.hop.lint.registry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -137,7 +139,8 @@ public class YamlRulePackParserTagsTest {
     override.put("tags", tags);
     override.put("helpUri", "https://wiki.example.com/ACME-001");
 
-    ProjectYamlOverlay.ProjectRuleOverlay.fromMap("ACME-001", override).applyTo(rule);
+    ProjectYamlOverlay.ProjectRuleOverlay.fromMap("ACME-001", override, "in hop-lint.yml")
+        .applyTo(rule);
 
     assertEquals(List.of("data-team"), rule.getTags().get("owner"));
     assertEquals(List.of("secrets"), rule.getTags().get("category"));
@@ -154,7 +157,8 @@ public class YamlRulePackParserTagsTest {
     Map<String, Object> override = new LinkedHashMap<>();
     override.put("helpUri", null);
 
-    ProjectYamlOverlay.ProjectRuleOverlay.fromMap("ACME-001", override).applyTo(rule);
+    ProjectYamlOverlay.ProjectRuleOverlay.fromMap("ACME-001", override, "in hop-lint.yml")
+        .applyTo(rule);
 
     assertNull(rule.getHelpUri());
   }
@@ -164,7 +168,9 @@ public class YamlRulePackParserTagsTest {
     assertEquals(
         Map.of("policy", List.of("SEC-POL-4", "SEC-POL-7")),
         YamlRulePackParser.tagsValue(
-            Map.of("policy", List.of("SEC-POL-4", "SEC-POL-7", "SEC-POL-4")), "ACME-001", "acme"));
+            Map.of("policy", List.of("SEC-POL-4", "SEC-POL-7", "SEC-POL-4")),
+            "ACME-001",
+            YamlRulePackParser.inPack("acme")));
   }
 
   /**
@@ -212,8 +218,10 @@ public class YamlRulePackParserTagsTest {
 
     assertEquals(
         Map.of("owner", List.of("platform-team")),
-        YamlRulePackParser.tagsValue(tags, "ACME-001", "acme"));
-    assertTrue(YamlRulePackParser.tagsValue("secrets", "ACME-001", "acme").isEmpty());
+        YamlRulePackParser.tagsValue(tags, "ACME-001", YamlRulePackParser.inPack("acme")));
+    assertTrue(
+        YamlRulePackParser.tagsValue("secrets", "ACME-001", YamlRulePackParser.inPack("acme"))
+            .isEmpty());
   }
 
   /** A typo such as tag: for tags: would otherwise drop every tag without anyone noticing. */
@@ -225,7 +233,10 @@ public class YamlRulePackParserTagsTest {
 
     List<String> warnings =
         YamlRulePackParser.unknownKeyWarnings(
-            "ACME-001", "acme", ruleData, YamlRulePackParser.CUSTOM_RULE_KEYS);
+            "ACME-001",
+            YamlRulePackParser.inPack("acme"),
+            ruleData,
+            YamlRulePackParser.CUSTOM_RULE_KEYS);
 
     assertEquals(
         List.of(
@@ -243,21 +254,41 @@ public class YamlRulePackParserTagsTest {
 
     assertTrue(
         YamlRulePackParser.unknownKeyWarnings(
-                "ACME-001", "acme", ruleData, YamlRulePackParser.CUSTOM_RULE_KEYS)
+                "ACME-001",
+                YamlRulePackParser.inPack("acme"),
+                ruleData,
+                YamlRulePackParser.CUSTOM_RULE_KEYS)
             .isEmpty());
   }
 
-  /** A project override that misspells a key used to leave the pack's rule unchanged silently. */
+  /**
+   * A project override that misspells a key used to leave the pack's rule unchanged silently. Every
+   * project has a hop-lint.yml, so the warning names the file by its path: the same typo in a
+   * second project is a second warning, not a repeat of the first.
+   */
   @Test
   public void anUnknownOverrideKeyNamesTheProjectFile() {
     Map<String, Object> ruleData = Map.of("severty", "ERROR");
+    File crm = new File("/projects/crm/hop-lint.yml");
+    File sales = new File("/projects/sales/hop-lint.yml");
+
+    List<String> warnings =
+        YamlRulePackParser.unknownKeyWarnings(
+            "DB-001", YamlRulePackParser.inFile(crm), ruleData, YamlRulePackParser.OVERRIDE_KEYS);
 
     assertEquals(
         List.of(
-            "Warning: rule 'DB-001' in hop-lint.yml has an unknown key 'severty', which is"
-                + " ignored. Did you mean severity?"),
+            "Warning: rule 'DB-001' in "
+                + crm.getAbsolutePath()
+                + " has an unknown key 'severty', which is ignored. Did you mean severity?"),
+        warnings);
+    assertNotEquals(
+        warnings,
         YamlRulePackParser.unknownKeyWarnings(
-            "DB-001", RulePackIds.PROJECT, ruleData, YamlRulePackParser.OVERRIDE_KEYS));
+            "DB-001",
+            YamlRulePackParser.inFile(sales),
+            ruleData,
+            YamlRulePackParser.OVERRIDE_KEYS));
   }
 
   /** Every key the core pack uses has to be a known key, or Hop warns about its own rules. */
@@ -277,7 +308,8 @@ public class YamlRulePackParserTagsTest {
                 : YamlRulePackParser.CUSTOM_RULE_KEYS;
         assertEquals(
             List.of(),
-            YamlRulePackParser.unknownKeyWarnings(entry.getKey(), "hop-core", ruleData, known));
+            YamlRulePackParser.unknownKeyWarnings(
+                entry.getKey(), YamlRulePackParser.inPack("hop-core"), ruleData, known));
       }
     }
   }

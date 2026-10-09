@@ -100,13 +100,18 @@ public class RuleBuilderDialog extends Dialog {
     // Roomy enough for the clause table, the fields and the tags table, but never taller than the
     // screen: on a laptop display an 820 pixel dialog put OK and Cancel out of reach. Below the
     // minimum the fixed rows would run into the button bar, so the dialog does not shrink past it.
+    // The whole dialog stays inside the work area, wherever the Hop window sits: clamping only the
+    // top edge still put the buttons off-screen below a window in the lower half of the screen.
     Rectangle screen = parent.getMonitor().getClientArea();
+    int width = Math.min(700, screen.width);
     int height = Math.min(820, screen.height);
-    shell.setMinimumSize(560, Math.min(700, height));
-    shell.setSize(700, height);
-    shell.setLocation(
-        Math.max(screen.x, parent.getLocation().x + (parent.getSize().x - 700) / 2),
-        Math.max(screen.y, parent.getLocation().y + (parent.getSize().y - height) / 2));
+    int x = parent.getLocation().x + (parent.getSize().x - width) / 2;
+    int y = parent.getLocation().y + (parent.getSize().y - height) / 2;
+    x = Math.max(screen.x, Math.min(x, screen.x + screen.width - width));
+    y = Math.max(screen.y, Math.min(y, screen.y + screen.height - height));
+    shell.setMinimumSize(Math.min(560, width), Math.min(700, height));
+    shell.setSize(width, height);
+    shell.setLocation(x, y);
     shell.open();
 
     Display display = parent.getDisplay();
