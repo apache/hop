@@ -104,6 +104,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-action-delete-execution-info</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-deletefile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -117,12 +123,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-deletefolders</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-delete-execution-info</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

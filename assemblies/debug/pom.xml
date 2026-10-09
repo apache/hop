@@ -92,6 +92,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-action-delete-execution-info</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-deletefile</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -105,12 +111,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-deletefolders</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-delete-execution-info</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
