@@ -1,0 +1,83 @@
+{
+  "name": "social",
+  "description": "Property graph integration test model",
+  "nodes": [
+    {
+      "presentation": {
+        "x": 100,
+        "y": 100
+      },
+      "name": "Person",
+      "description": "",
+      "labels": [
+        "Person"
+      ],
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "presentation": {
+        "x": 400,
+        "y": 100
+      },
+      "name": "Company",
+      "description": "",
+      "labels": [
+        "Company"
+      ],
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "code",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "nodeSource": "Person",
+      "nodeTarget": "Person",
+      "name": "KNOWS",
+      "description": "",
+      "label": "KNOWS",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "since",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "nodeSource": "Person",
+      "nodeTarget": "Company",
+      "name": "WORKS_AT",
+      "description": "",
+      "label": "WORKS_AT",
+      "properties": []
+    }
+  ]
+}

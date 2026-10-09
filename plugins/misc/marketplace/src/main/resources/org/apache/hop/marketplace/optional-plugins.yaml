@@ -134,6 +134,24 @@ plugins:
     description: Neo4j Graph Database
     installPath: plugins/tech/neo4j
     modulePath: plugins/tech/neo4j
+  - artifactId: hop-tech-falkordb
+    name: FalkorDB
+    category: Technology
+    description: FalkorDB graph database connections, for the Neo4j plugin transforms
+    installPath: plugins/tech/falkordb
+    modulePath: plugins/tech/falkordb
+  - artifactId: hop-tech-age
+    name: Apache AGE
+    category: Technology
+    description: Apache AGE graph database connections, for the Neo4j plugin transforms
+    installPath: plugins/tech/age
+    modulePath: plugins/tech/age
+  - artifactId: hop-tech-gremlin
+    name: Gremlin
+    category: Technology
+    description: Gremlin graph database connections (Gremlin Server, JanusGraph, Neptune), for the Neo4j plugin transforms
+    installPath: plugins/tech/gremlin
+    modulePath: plugins/tech/gremlin
   - artifactId: hop-tech-azure
     name: Azure
     category: Technology

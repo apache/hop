@@ -27,7 +27,7 @@ services:
       - neo4j
 
   neo4j:
-    image: neo4j:enterprise
+    image: neo4j:2026.06.0-enterprise
     ports:
       - "7474"
       - "7687"

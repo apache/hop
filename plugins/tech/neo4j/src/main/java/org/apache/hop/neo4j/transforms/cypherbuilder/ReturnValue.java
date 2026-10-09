@@ -116,7 +116,7 @@ public class ReturnValue implements Cloneable {
     } else if (StringUtils.isEmpty(parameter)) {
       return expression;
     } else {
-      return "{" + parameter + "}";
+      return "$" + parameter;
     }
   }
 

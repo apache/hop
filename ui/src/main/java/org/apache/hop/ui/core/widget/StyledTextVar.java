@@ -134,6 +134,7 @@ public class StyledTextVar extends TextComposite {
     wText = new StyledText(this, style);
     // This control handles Ctrl/Cmd+Z and Ctrl/Cmd+Y. The graph must not take those chords.
     wText.setData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY, Boolean.TRUE);
+    TextIndent.attach(wText);
     wPopupMenu = new Menu(parent.getShell(), SWT.POP_UP);
 
     buildingStyledTextMenu(wPopupMenu);

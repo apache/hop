@@ -40,7 +40,7 @@ import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphNode;
 import org.apache.hop.neo4j.model.GraphProperty;
 import org.apache.hop.neo4j.model.GraphRelationship;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionSelectionLine;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -72,7 +72,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       GraphOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private MetaSelectionLine<NeoConnection> wConnection;
+  private NeoConnectionSelectionLine wConnection;
   private MetaSelectionLine<GraphModel> wModel;
 
   private Label wlBatchSize;
@@ -120,14 +120,14 @@ public class GraphOutputDialog extends BaseTransformDialog {
     Control lastControl = wSpacer;
 
     wConnection =
-        new MetaSelectionLine<>(
+        new NeoConnectionSelectionLine(
             variables,
             metadataProvider,
-            NeoConnection.class,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            "Neo4j Connection",
-            "The name of the Neo4j connection to use");
+            "Graph database connection",
+            "The name of the graph database connection to use",
+            true);
     PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
@@ -149,7 +149,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             "Graph model",
-            "The name of the Neo4j logical Graph Model to use");
+            "The name of the logical graph model to use");
     PropsUi.setLook(wModel);
     FormData fdModel = new FormData();
     fdModel.left = new FormAttachment(0, 0);

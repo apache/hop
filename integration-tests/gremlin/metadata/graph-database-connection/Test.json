@@ -1,0 +1,14 @@
+{
+  "graphDatabase": {
+    "GREMLIN": {
+      "hostnames": "${GREMLIN_HOST}",
+      "port": "${GREMLIN_PORT}",
+      "traversalSource": "g",
+      "username": "",
+      "password": "",
+      "usingTls": false,
+      "serializer": "GraphBinary"
+    }
+  },
+  "name": "Test"
+}

@@ -1,0 +1,62 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "element_type",
+          "data_set_field": "element_type"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "property",
+          "data_set_field": "property"
+        },
+        {
+          "transform_field": "property_types",
+          "data_set_field": "property_types"
+        },
+        {
+          "transform_field": "mandatory",
+          "data_set_field": "mandatory"
+        },
+        {
+          "transform_field": "indexed",
+          "data_set_field": "indexed"
+        },
+        {
+          "transform_field": "unique",
+          "data_set_field": "unique"
+        },
+        {
+          "transform_field": "start_labels",
+          "data_set_field": "start_labels"
+        },
+        {
+          "transform_field": "end_labels",
+          "data_set_field": "end_labels"
+        }
+      ],
+      "field_order": [
+        "element_type",
+        "name",
+        "property"
+      ],
+      "transform_name": "Validation",
+      "data_set_name": "get-graph-schema-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "get-graph-schema-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/get-graph-schema/get-graph-schema-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

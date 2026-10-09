@@ -100,7 +100,7 @@ public final class ExtractionParser {
    * Models wrap JSON in ```json fences even when told not to, so the fence is stripped rather than
    * treated as a failure. Anything else is a genuine protocol error.
    */
-  static JsonNode readTree(String json) throws HopException {
+  public static JsonNode readTree(String json) throws HopException {
     String text = json == null ? "" : json.trim();
     if (text.startsWith("```")) {
       int firstNewline = text.indexOf('\n');

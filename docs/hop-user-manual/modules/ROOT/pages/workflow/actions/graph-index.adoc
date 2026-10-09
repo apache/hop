@@ -1,0 +1,78 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Graph index action creates or drops indexes on node or relationship properties in a graph database
+:page-marketplace: hop-tech-neo4j
+:page-aliases: workflow/actions/neo4j-index.adoc
+
+= Graph index
+
+== Description
+
+The `Graph index` action (previously Neo4j index) creates or drops indexes on node or relationship properties in a graph database, in the syntax of the database: Neo4j, Memgraph or FalkorDB.
+
+For similar operations on constraints, check the xref:workflow/actions/graph-constraint.adoc[Graph constraint] action.
+
+== Options
+
+* Graph database connection : The name of the graph database connection to update indexes on
+* Index updates to perform: You can specify your list of index updates here
+** Update type : CREATE or DROP
+** Type of object to index on: NODE or RELATIONSHIP
+** Index name: optional but recommended name for your index
+** Object name: the label of the node or relationship you want to update an index for
+** Properties: the comma separated list of node or relationship properties to index
+** Index type: RANGE for a regular property index (the default), VECTOR for a vector index
+** Vector dimensions: VECTOR only, the number of numbers in each vector, for example 768 for `nomic-embed-text`
+** Vector similarity: VECTOR only, COSINE (the default) or EUCLIDEAN
+** Vector capacity: VECTOR on Memgraph only, the number of vectors to reserve room for, 1000 when empty
+
+Vector dimensions and capacity can be variables.
+
+== Vector indexes
+
+A vector index is on a single property holding embeddings, see xref:technology/graph-databases/index.adoc#vectors[Vectors and embeddings].
+Neo4j, Memgraph and FalkorDB have vector indexes; the action refuses them on the other databases.
+
+[options="header"]
+|===
+|Database |Notes
+
+|Neo4j
+|Vector indexes on nodes and relationships, `CREATE VECTOR INDEX ... FOR ()-[n:TYPE]-()` for relationships. Drop them by name.
+
+|Memgraph
+|Vector indexes on nodes and, from Memgraph 3, relationships (`CREATE VECTOR EDGE INDEX`), with a name, which you also drop them by.
+EUCLIDEAN uses Memgraph's `l2sq` metric.
+
+|FalkorDB
+|Vector indexes on nodes and relationships, identified by label or relationship type and property like its other indexes.
+|===
+
+For a vector index on relationships set the type of object to RELATIONSHIP and the object name to the relationship type.
+Search it with the xref:pipeline/transforms/graph-vector-search.adoc[Graph vector search] transform, *Search* set to `RELATIONSHIP`.
+
+== Show Cypher Preview
+
+The action dialog includes a "Show Cypher" button that displays a preview of the 
+Cypher statements that will be executed for creating or dropping indexes. This preview 
+shows the exact `CREATE INDEX` or `DROP INDEX` statements before execution.
+
+The preview is read-only and helps you verify the index operations that will be performed.
+
+

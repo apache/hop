@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>extract-graph-to-database</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Read the entities and relationships in texts and write them to a graph database.
+      Needs an AI provider called ollama-local and a graph database connection called demo; change
+      them to your own.</description>
+    <extended_description />
+    <pipeline_version />
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/10/07 09:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/10/07 09:00:00.000</modified_date>
+    <key_for_session_key />
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <heigth>90</heigth>
+      <xloc>96</xloc>
+      <yloc>320</yloc>
+      <note>Writes the extracted graph with the knowledge-graph model: an Entity node per name and a RELATED_TO
+relationship between entities, with the types as properties. Entities are written first, relationships
+after "Write entities" has finished, so a name is never merged by two transforms at once.
+Run it with extract-graph-to-database.hwf, which creates a unique constraint on Entity.name first.</note>
+      <width>620</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>texts</from>
+      <to>Extract graph</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Extract graph</from>
+      <to>Entity?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Entity?</from>
+      <to>Write entities</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Entity?</from>
+      <to>Collect relationships</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Collect relationships</from>
+      <to>Wait for the entities</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Wait for the entities</from>
+      <to>Write relationships</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>texts</name>
+    <type>DataGrid</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <data>
+      <line>
+        <item>doc-1</item>
+        <item>Ada Lovelace worked with Charles Babbage on the Analytical Engine in London. She wrote what is seen as the first computer program for it.</item>
+      </line>
+      <line>
+        <item>doc-2</item>
+        <item>Apache Hop is a data orchestration platform developed by the Apache Software Foundation.</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>document_id</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>text</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes />
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Extract graph</name>
+    <type>ExtractGraph</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <ai_provider>ollama-local</ai_provider>
+    <model_name />
+    <input_field>text</input_field>
+    <entity_types>Person, Organization, Product, Place</entity_types>
+    <relationship_types>WORKED_WITH, WORKED_ON, CREATED, LOCATED_IN</relationship_types>
+    <instructions />
+    <pass_rows_without_results>N</pass_rows_without_results>
+    <kind_field>graph_element</kind_field>
+    <name_field>name</name_field>
+    <type_field>type</type_field>
+    <description_field>description</description_field>
+    <source_field>source</source_field>
+    <target_field>target</target_field>
+    <attributes />
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Entity?</name>
+    <type>FilterRows</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+        </conditions>
+        <function>=</function>
+        <leftvalue>graph_element</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <mask />
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>ENTITY</text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <send_false_to>Collect relationships</send_false_to>
+    <send_true_to>Write entities</send_true_to>
+    <attributes />
+    <GUI>
+      <xloc>448</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Write entities</name>
+    <type>Neo4jGraphOutput</type>
+    <description>MERGE an Entity node per name, with its type and description</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>demo</connection>
+    <model>knowledge-graph</model>
+    <batch_size>100</batch_size>
+    <create_indexes>N</create_indexes>
+    <returning_graph>N</returning_graph>
+    <return_graph_field />
+    <validate_against_model>N</validate_against_model>
+    <out_of_order_allowed>Y</out_of_order_allowed>
+    <mappings>
+      <mapping>
+        <source_field>name</source_field>
+        <target_type>Node</target_type>
+        <target_name>Entity</target_name>
+        <target_property>name</target_property>
+        <target_hint>None</target_hint>
+      </mapping>
+      <mapping>
+        <source_field>type</source_field>
+        <target_type>Node</target_type>
+        <target_name>Entity</target_name>
+        <target_property>type</target_property>
+        <target_hint>None</target_hint>
+      </mapping>
+      <mapping>
+        <source_field>description</source_field>
+        <target_type>Node</target_type>
+        <target_name>Entity</target_name>
+        <target_property>description</target_property>
+        <target_hint>None</target_hint>
+      </mapping>
+    </mappings>
+    <relationship_mappings>
+    </relationship_mappings>
+    <node_mappings>
+    </node_mappings>
+    <attributes />
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Collect relationships</name>
+    <type>BlockingTransform</type>
+    <description>Reads all relationship rows first, so the filter never waits on this branch</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <cache_size>5000</cache_size>
+    <compress>Y</compress>
+    <directory>${java.io.tmpdir}</directory>
+    <pass_all_rows>Y</pass_all_rows>
+    <prefix>relationships</prefix>
+    <attributes />
+    <GUI>
+      <xloc>448</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Wait for the entities</name>
+    <type>BlockUntilTransformsFinish</type>
+    <description>Relationships are written once every entity is</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <transforms>
+      <transform>
+        <name>Write entities</name>
+        <CopyNr>0</CopyNr>
+      </transform>
+    </transforms>
+    <attributes />
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Write relationships</name>
+    <type>Neo4jGraphOutput</type>
+    <description>MERGE a RELATED_TO relationship between the source and target entities</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>demo</connection>
+    <model>knowledge-graph</model>
+    <batch_size>100</batch_size>
+    <create_indexes>N</create_indexes>
+    <returning_graph>N</returning_graph>
+    <return_graph_field />
+    <validate_against_model>N</validate_against_model>
+    <out_of_order_allowed>Y</out_of_order_allowed>
+    <mappings>
+      <mapping>
+        <source_field>source</source_field>
+        <target_type>Node</target_type>
+        <target_name>Entity</target_name>
+        <target_property>name</target_property>
+        <target_hint>SelfRelationshipSource</target_hint>
+      </mapping>
+      <mapping>
+        <source_field>target</source_field>
+        <target_type>Node</target_type>
+        <target_name>Entity</target_name>
+        <target_property>name</target_property>
+        <target_hint>SelfRelationshipTarget</target_hint>
+      </mapping>
+      <mapping>
+        <source_field>type</source_field>
+        <target_type>Relationship</target_type>
+        <target_name>RELATED_TO</target_name>
+        <target_property>type</target_property>
+        <target_hint>None</target_hint>
+      </mapping>
+      <mapping>
+        <source_field>description</source_field>
+        <target_type>Relationship</target_type>
+        <target_name>RELATED_TO</target_name>
+        <target_property>description</target_property>
+        <target_hint>None</target_hint>
+      </mapping>
+    </mappings>
+    <relationship_mappings>
+    </relationship_mappings>
+    <node_mappings>
+    </node_mappings>
+    <attributes />
+    <GUI>
+      <xloc>832</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes />
+</pipeline>

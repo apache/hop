@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "country",
+          "data_set_field": "country"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        }
+      ],
+      "field_order": [
+        "country",
+        "type",
+        "count"
+      ],
+      "transform_name": "VALIDATE",
+      "data_set_name": "output-dynamic-labels-large-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-output-dynamic-labels-large-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-output-dynamic-labels-large/neo4j-output-dynamic-labels-large-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/falkordb/
+:language: en_US
+:description: Apache Hop reads from and writes to FalkorDB graphs with Cypher.
+:page-marketplace: hop-tech-falkordb
+
+= FalkorDB
+
+== Description
+
+https://www.falkordb.com[FalkorDB^] is a graph database on top of Redis which speaks Cypher.
+Hop connects to it over the Redis protocol with a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] of the FalkorDB type, from the optional FalkorDB plugin.
+
+A connection works with one graph: the graph name is one of its options. FalkorDB creates the graph when something is written to it.
+
+== Run FalkorDB in docker
+
+`docker run -p 6379:6379 -p 3000:3000 falkordb/falkordb`
+
+Port 3000 is the FalkorDB browser, to look at the graph.
+
+== What works
+
+* xref:pipeline/transforms/graph-query.adoc[Graph query], including *Return graph*
+* xref:pipeline/transforms/graph-output.adoc[Graph output], including the validation against the graph model and its indexes
+* xref:pipeline/transforms/cypher-output.adoc[Cypher output]
+* xref:pipeline/transforms/cypher-builder.adoc[Cypher builder]
+* xref:pipeline/transforms/split-graph.adoc[Split graph] and xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]
+* xref:workflow/actions/graph-script.adoc[Graph script]
+* xref:workflow/actions/graph-index.adoc[Graph index]
+* xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections]
+* Execution logging (`HOP_GRAPH_LOGGING_CONNECTION`), the xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] transform and the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective]
+* The xref:metadata-types/graphs/graph-database-location.adoc[graph database location] for execution information
+
+== What doesn't work
+
+* The xref:workflow/actions/graph-constraint.adoc[Graph constraint] action: FalkorDB has no Cypher statements for constraints. Create them with the `GRAPH.CONSTRAINT` command of FalkorDB.
+* Transactions: every statement is committed on its own, so a failed batch doesn't roll back the statements before it.
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j import]: use the FalkorDB bulk loader with the files of Generate graph CSVs instead.
+
+== Differences with Neo4j
+
+* FalkorDB has no multi-statement transactions: every statement is committed on its own.
+* There are no Cypher constraints and no `IF NOT EXISTS`: the xref:workflow/actions/graph-constraint.adoc[Graph constraint] action isn't supported.
+Indexes are unnamed and identified by their label and properties.
+* Dates, times and binary values are passed to FalkorDB as ISO and Base64 strings.
+* Nodes, relationships and paths in the results come back like those of every other graph database, for example as a graph value with the *Return graph* option of the Graph query transform.

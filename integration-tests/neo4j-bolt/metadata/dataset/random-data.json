@@ -1,0 +1,88 @@
+{
+  "base_filename": "random-data.csv",
+  "name": "random-data",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "0",
+      "field_name": "idA"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "0",
+      "field_name": "idB"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "0",
+      "field_name": "idC"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "0",
+      "field_name": "idD"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "0",
+      "field_name": "idE"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "a"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "b"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "c"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "d"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "e"
+    }
+  ],
+  "folder_name": ""
+}

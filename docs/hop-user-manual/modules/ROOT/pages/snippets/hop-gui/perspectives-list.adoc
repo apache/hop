@@ -28,6 +28,6 @@ under the License.
 
 * image:icons/plugin.svg[width="24px"] xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
 
-* image:icons/neo4j_logo.svg[width="24px"] xref:hop-gui/perspective-neo4j.adoc[Neo4j]
+* image:icons/graph_logging.svg[width="24px"] xref:hop-gui/perspective-graph-logging.adoc[Graph logging]
 
 TIP: Project-wide search is not a left-toolbar perspective. Open it with `CTRL-F` (*Edit → Find*). See xref:hop-gui/perspective-search.adoc[Search].

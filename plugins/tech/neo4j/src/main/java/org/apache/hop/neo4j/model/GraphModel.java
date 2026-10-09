@@ -42,7 +42,7 @@ import org.json.simple.parser.JSONParser;
     description = "i18n::GraphModel.description",
     image = "neo4j_logo.svg",
     category = HopMetadataCategory.DATA_DEFINITION,
-    documentationUrl = "/metadata-types/neo4j/neo4j-graphmodel.html",
+    documentationUrl = "/metadata-types/graphs/graph-model.html",
     hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_MODEL)
 public class GraphModel extends HopMetadataBase implements IHopMetadata {
 

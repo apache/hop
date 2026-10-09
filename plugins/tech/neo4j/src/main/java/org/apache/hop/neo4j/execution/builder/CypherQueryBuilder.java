@@ -50,6 +50,10 @@ public class CypherQueryBuilder extends BaseCypherBuilder {
 
   public CypherQueryBuilder withLabelAndKeys(
       String nodeAlias, String label, Map<String, Object> keyValueMap) {
+    if (keyValueMap.isEmpty()) {
+      // No empty map: not every graph database accepts it
+      return withLabelWithoutKey(nodeAlias, label);
+    }
     cypher.append("(").append(nodeAlias).append(":").append(label).append(" {");
 
     boolean firstKey = true;

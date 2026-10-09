@@ -20,29 +20,36 @@ package org.apache.hop.neo4j.transforms.graph;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.graph.GraphUpsertNode;
+import org.apache.hop.core.graph.GraphUpsertRelationship;
+import org.apache.hop.core.graph.IGraphConnection;
+import org.apache.hop.core.graph.IGraphTransaction;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphProperty;
 import org.apache.hop.neo4j.model.GraphRelationship;
 import org.apache.hop.neo4j.model.validation.ModelValidator;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
 import org.apache.hop.neo4j.transforms.BaseNeoTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
 
 @SuppressWarnings("java:S1104")
 public class GraphOutputData extends BaseNeoTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
-  public NeoConnection neoConnection;
+  public NamedGraphConnection graphConnection;
+  public IGraphConnection connection;
   public String url;
-  public Driver driver;
-  public Session session;
   public int[] fieldIndexes;
   public long batchSize;
-  public Transaction transaction;
+  public IGraphTransaction transaction;
+
+  /** Write with upserts instead of Cypher, for graph databases which don't speak Cypher. */
+  public boolean upserting;
+
+  public List<GraphUpsertNode> upsertNodes;
+  public List<GraphUpsertRelationship> upsertRelationships;
+  public long upsertRowCount;
   public long outputCount;
   public boolean hasInput;
   public GraphModel graphModel;

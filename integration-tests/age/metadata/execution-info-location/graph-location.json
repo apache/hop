@@ -1,0 +1,11 @@
+{
+  "executionInfoLocation": {
+    "neo4j-location": {
+      "connection": "Test"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "graph-location",
+  "description": "Execution information in the graph database of connection Test",
+  "dataLoggingInterval": "5000"
+}

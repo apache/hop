@@ -1,0 +1,42 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Split graph transform splits the nodes and relationships of a graph data type.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-neo4j
+:page-aliases: pipeline/transforms/neo4j-split-graph.adoc
+
+= image:transforms/icons/graph_split.svg[Split graph transform Icon, role="image-doc-icon"] Split graph
+
+== Description
+
+The Split graph transform (previously Neo4j split graph) splits the nodes and relationships of a graph data type: it writes a row for every node and every relationship.
+
+The graph comes for example from the xref:pipeline/transforms/graph-query.adoc[Graph query] transform, from any graph database.
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+|Transform name|Split graph|the name to use for this transform in the pipeline
+|Graph field|graph|the graph field in the pipeline
+|Type output field (Node/Relationship)|type|the field that will contain the type of field (Node or Relationship)
+|ID outputfield|id|the output field to write the ID to
+|Property set output field|propertySet|the field name to write the property set for a node or relationship to
+|===

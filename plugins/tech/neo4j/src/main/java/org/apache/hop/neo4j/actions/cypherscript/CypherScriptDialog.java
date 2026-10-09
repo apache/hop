@@ -21,13 +21,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionSelectionLine;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -48,7 +47,7 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  private MetaSelectionLine<NeoConnection> wConnection;
+  private NeoConnectionSelectionLine wConnection;
   private TextVar wScript;
   private Button wReplaceVariables;
 
@@ -70,14 +69,14 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
     changed = cypherScript.hasChanged();
 
     wConnection =
-        new MetaSelectionLine<>(
+        new NeoConnectionSelectionLine(
             variables,
             getMetadataProvider(),
-            NeoConnection.class,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "CypherScriptDialog.NeoConnection.Label"),
-            BaseMessages.getString(PKG, "CypherScriptDialog.NeoConnection.Tooltip"));
+            BaseMessages.getString(PKG, "CypherScriptDialog.NeoConnection.Tooltip"),
+            true);
     PropsUi.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();

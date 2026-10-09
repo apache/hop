@@ -24,6 +24,7 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
@@ -106,6 +107,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     Composite root = createRootComposite(parent);
 
     Text text = new Text(root, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+    TextIndent.attach(text);
     PropsUi.setLook(text, Props.WIDGET_STYLE_FIXED);
 
     RapContentEditorWidget widget = new RapContentEditorWidget(root, text, languageId);

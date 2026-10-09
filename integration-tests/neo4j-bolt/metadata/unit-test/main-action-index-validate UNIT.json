@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "entityType",
+          "data_set_field": "entityType"
+        },
+        {
+          "transform_field": "labelsOrTypes",
+          "data_set_field": "labelsOrTypes"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "properties",
+          "data_set_field": "properties"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "indexes",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "main-action-index-validate UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./tests/neo4j-action-index/main-action-index-validate.hpl",
+  "test_type": "UNIT_TEST"
+}
