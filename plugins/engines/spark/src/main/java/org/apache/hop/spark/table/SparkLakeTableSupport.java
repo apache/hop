@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -135,16 +137,93 @@ public final class SparkLakeTableSupport {
    * share a catalog.
    */
   public static IcebergPathTable icebergPathTable(String path) {
-    String uri = StringUtils.removeEnd(toTableLocationUri(path), "/");
+    String uri = canonicalLocation(toTableLocationUri(path));
     int slash = uri == null ? -1 : uri.lastIndexOf('/');
     String parent = slash < 0 ? "" : uri.substring(0, slash);
     String name = slash < 0 ? "" : uri.substring(slash + 1);
-    if (name.isEmpty() || parent.isEmpty() || parent.endsWith(":") || parent.endsWith("/")) {
+    if (name.isEmpty() || isSchemeOnly(parent)) {
       throw new IllegalArgumentException(
           "Iceberg table path '" + path + "' needs a parent folder, e.g. file:///data/orders");
     }
     return new IcebergPathTable(
         SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + "_" + shortHash(parent), parent, name);
+  }
+
+  /**
+   * Like {@link #icebergPathTable(String)}, but reports an invalid path as a {@link HopException}
+   * that names the transform.
+   */
+  public static IcebergPathTable icebergPathTable(String path, String transformName)
+      throws HopException {
+    try {
+      return icebergPathTable(path);
+    } catch (IllegalArgumentException e) {
+      throw new HopException("Spark Lake Table '" + transformName + "': " + e.getMessage(), e);
+    }
+  }
+
+  private static final Pattern URI_SCHEME = Pattern.compile("^([A-Za-z][A-Za-z0-9+.-]*):(.*)$");
+
+  /**
+   * One spelling per location, so that one folder is always one catalog: the scheme is lowercased,
+   * {@code file:/x}, {@code file://localhost/x} and {@code file:///x} all become {@code file:///x},
+   * empty path segments are collapsed, and {@code .} and {@code ..} are resolved. A trailing slash
+   * is removed.
+   */
+  static String canonicalLocation(String uri) {
+    if (StringUtils.isEmpty(uri)) {
+      return uri;
+    }
+    Matcher matcher = URI_SCHEME.matcher(uri.trim());
+    if (!matcher.matches() || matcher.group(1).length() == 1) {
+      // No scheme (or a Windows drive letter): leave it as it is.
+      return StringUtils.removeEnd(uri.trim(), "/");
+    }
+    String scheme = matcher.group(1).toLowerCase(java.util.Locale.ROOT);
+    String rest = matcher.group(2);
+    String authority = "";
+    String pathPart = rest;
+    if (rest.startsWith("//")) {
+      int end = rest.indexOf('/', 2);
+      authority = end < 0 ? rest.substring(2) : rest.substring(2, end);
+      pathPart = end < 0 ? "" : rest.substring(end);
+    }
+    if ("file".equals(scheme) && "localhost".equalsIgnoreCase(authority)) {
+      authority = "";
+    }
+    java.util.Deque<String> segments = new java.util.ArrayDeque<>();
+    for (String segment : pathPart.split("/")) {
+      if (segment.isEmpty() || ".".equals(segment)) {
+        continue;
+      }
+      if ("..".equals(segment)) {
+        segments.pollLast();
+      } else {
+        segments.addLast(segment);
+      }
+    }
+    String normalizedPath = segments.isEmpty() ? "" : "/" + String.join("/", segments);
+    return scheme + "://" + authority + normalizedPath;
+  }
+
+  /**
+   * True for {@code file:}, {@code file://}, {@code s3a:/} and the like: a scheme and no folder.
+   */
+  private static boolean isSchemeOnly(String parent) {
+    if (parent.isEmpty()) {
+      return true;
+    }
+    Matcher matcher = URI_SCHEME.matcher(parent);
+    if (!matcher.matches() || matcher.group(1).length() == 1) {
+      return false;
+    }
+    String rest = matcher.group(2);
+    if (!rest.startsWith("//")) {
+      return StringUtils.strip(rest, "/").isEmpty();
+    }
+    // scheme://authority/path: a warehouse needs a bucket or host, or for file: a path.
+    String afterSlashes = rest.substring(2);
+    return StringUtils.strip(afterSlashes, "/").isEmpty();
   }
 
   private static String shortHash(String value) {
@@ -307,7 +386,8 @@ public final class SparkLakeTableSupport {
       if (LakeTableInputMeta.MODE_PATH.equals(mode)) {
         IcebergPathTable pathTable =
             icebergPathTable(
-                SparkPathDialect.toSparkUri(variables.resolve(meta.getTablePath()), pathSchemeMap));
+                SparkPathDialect.toSparkUri(variables.resolve(meta.getTablePath()), pathSchemeMap),
+                transformName);
         procedureCatalog = pathTable.catalogName();
         tableRefForCall = pathTable.procedureTableRef();
       } else {
@@ -387,10 +467,11 @@ public final class SparkLakeTableSupport {
       return "delta.`" + loc + "`";
     }
 
+    IcebergPathTable pathTable = icebergPathTable(path, transformName);
     if (spark != null) {
-      ensureIcebergPathCatalog(spark, path);
+      ensureIcebergPathCatalog(spark, pathTable);
     }
-    return icebergPathSqlIdentifier(path);
+    return pathTable.sqlIdentifier();
   }
 
   /** Maintenance target resolution result. */
@@ -730,8 +811,9 @@ public final class SparkLakeTableSupport {
       String timestamp,
       String transformName)
       throws HopException {
-    ensureIcebergPathCatalog(spark, path);
-    String sqlId = icebergPathSqlIdentifier(path);
+    IcebergPathTable pathTable = icebergPathTable(path, transformName);
+    ensureIcebergPathCatalog(spark, pathTable);
+    String sqlId = pathTable.sqlIdentifier();
     String sql = buildIcebergTimeTravelSql(sqlId, timeTravelType, version, timestamp);
     try {
       return spark.sql(sql);
@@ -789,8 +871,9 @@ public final class SparkLakeTableSupport {
       String[] partitionColumns,
       String transformName)
       throws HopException {
-    ensureIcebergPathCatalog(spark, path);
-    String sqlId = icebergPathSqlIdentifier(path);
+    IcebergPathTable pathTable = icebergPathTable(path, transformName);
+    ensureIcebergPathCatalog(spark, pathTable);
+    String sqlId = pathTable.sqlIdentifier();
 
     try {
       switch (saveMode) {
@@ -884,7 +967,11 @@ public final class SparkLakeTableSupport {
    * IcebergPathTable}) on this session. Safe to call multiple times.
    */
   public static void ensureIcebergPathCatalog(SparkSession spark, String path) {
-    IcebergPathTable table = icebergPathTable(path);
+    ensureIcebergPathCatalog(spark, icebergPathTable(path));
+  }
+
+  /** Registers the Hadoop catalog that serves {@code table} on this session. */
+  public static void ensureIcebergPathCatalog(SparkSession spark, IcebergPathTable table) {
     String key = "spark.sql.catalog." + table.catalogName();
     if (StringUtils.isNotEmpty(spark.conf().get(key, ""))) {
       return;

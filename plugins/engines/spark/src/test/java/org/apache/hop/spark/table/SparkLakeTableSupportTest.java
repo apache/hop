@@ -100,6 +100,55 @@ class SparkLakeTableSupportTest {
   }
 
   @Test
+  void icebergPathTableAcceptsAWindowsDriveRoot() {
+    SparkLakeTableSupport.IcebergPathTable table =
+        SparkLakeTableSupport.icebergPathTable("file:///C:/orders");
+
+    assertEquals("file:///C:", table.warehouse());
+    assertEquals("orders", table.tableName());
+  }
+
+  @Test
+  void icebergPathTableCollapsesEmptySegments() {
+    SparkLakeTableSupport.IcebergPathTable doubled =
+        SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake//orders");
+    SparkLakeTableSupport.IcebergPathTable single =
+        SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake/orders");
+
+    assertEquals("s3a://bucket/lake", doubled.warehouse());
+    assertEquals(single, doubled);
+    assertEquals(
+        single, SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake/./tmp/../orders"));
+  }
+
+  @Test
+  void oneFolderIsOneCatalogWhateverTheSpelling() {
+    SparkLakeTableSupport.IcebergPathTable canonical =
+        SparkLakeTableSupport.icebergPathTable("file:///data/lake/orders");
+
+    // File.toURI() and Path.toUri() spell the same folder differently.
+    for (String spelling :
+        new String[] {
+          "file:/data/lake/orders",
+          "file://localhost/data/lake/orders",
+          "FILE:///data/lake/orders/",
+          "file:///data//lake/orders"
+        }) {
+      assertEquals(canonical, SparkLakeTableSupport.icebergPathTable(spelling), spelling);
+    }
+    assertEquals("file:///data/lake", canonical.warehouse());
+  }
+
+  @Test
+  void invalidPathNamesTheTransform() {
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () -> SparkLakeTableSupport.icebergPathTable("file:///t", "write orders"));
+    assertTrue(e.getMessage().contains("'write orders'"), e.getMessage());
+  }
+
+  @Test
   void toTableLocationUriPreservesSchemes() {
     assertEquals("s3a://bucket/t", SparkLakeTableSupport.toTableLocationUri("s3a://bucket/t"));
     assertTrue(SparkLakeTableSupport.toTableLocationUri("/tmp/x").startsWith("file:"));
