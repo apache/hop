@@ -85,6 +85,9 @@ class LakeTableOutputLocalTest {
   private MemoryMetadataProvider metadataProvider;
   private String tablePath;
 
+  /** Runs in the pipeline when the first row has been written, before the run commits. */
+  private Runnable onFirstRow;
+
   @BeforeAll
   static void init() throws Exception {
     HopEnvironment.init();
@@ -148,7 +151,11 @@ class LakeTableOutputLocalTest {
             new RowAdapter() {
               @Override
               public void rowReadEvent(IRowMeta meta, Object[] row) throws HopTransformException {
-                if (run.passedThrough.incrementAndGet() == rows.size() && failAfter) {
+                int seen = run.passedThrough.incrementAndGet();
+                if (seen == 1 && onFirstRow != null) {
+                  onFirstRow.run();
+                }
+                if (seen == rows.size() && failAfter) {
                   throw new HopTransformException("Failing after the output finished writing");
                 }
               }
@@ -419,5 +426,37 @@ class LakeTableOutputLocalTest {
 
     assertTrue(run.errors > 0);
     assertFalse(Files.exists(tempDir.resolve("orders/metadata")), "no table is created");
+  }
+
+  /**
+   * A commit that fails is part of the pipeline result as soon as waitUntilFinished() returns, so a
+   * parent workflow can't treat the run as successful. Here an overwrite fails validation because
+   * another writer appended to the table while the run was writing.
+   */
+  @Test
+  void failedCommitIsAnErrorWhenThePipelineFinishes() throws Exception {
+    run(output(LakeTableOutputMeta.MODE_ERROR), 1, rows(0, 10), false);
+    onFirstRow =
+        () -> {
+          Table other =
+              new org.apache.iceberg.BaseTable(
+                  new org.apache.hop.lakehouse.iceberg.PathTableOperations(tablePath), tablePath);
+          other
+              .newAppend()
+              .appendFile(
+                  org.apache.iceberg.DataFiles.builder(other.spec())
+                      .withPath(tablePath + "/data/concurrent.parquet")
+                      .withFormat(org.apache.iceberg.FileFormat.PARQUET)
+                      .withFileSizeInBytes(10)
+                      .withRecordCount(1)
+                      .build())
+              .commit();
+        };
+
+    Run run = run(output(LakeTableOutputMeta.MODE_OVERWRITE), 1, rows(100, 120), false);
+
+    assertTrue(run.errors > 0, "the failed commit is in the result waitUntilFinished() returns");
+    assertEquals(
+        2, table().history().size(), "the overwrite didn't replace the other writer's data");
   }
 }

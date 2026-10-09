@@ -127,7 +127,24 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
     }
   }
 
+  /** Coalesce and extra options configure a Spark write; this engine doesn't use them. */
+  private void warnAboutSparkOnlyOptions() {
+    for (String[] option :
+        new String[][] {
+          {"Coalesce partitions", meta.getCoalescePartitions()},
+          {"Extra options", meta.getExtraOptions()}
+        }) {
+      if (StringUtils.isNotBlank(resolve(option[1]))) {
+        logError(
+            "Warning: '"
+                + option[0]
+                + "' only applies to the Spark engine and is ignored when writing on this engine");
+      }
+    }
+  }
+
   private CommitCoordinator newCoordinator(IRowMeta rowMeta) throws HopException {
+    warnAboutSparkOnlyOptions();
     String format = resolve(meta.getFormat());
     if (!LakeFormats.FORMAT_ICEBERG.equalsIgnoreCase(format)) {
       throw new HopException(
@@ -254,11 +271,23 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
             });
   }
 
+  /**
+   * Commits or aborts the run. This runs from an execution-finished listener, after Hop has already
+   * marked the pipeline finished, so for the duration of the commit the pipeline reports itself as
+   * running again: a status poll (the remote engine, a parent workflow) can't see "Finished" before
+   * the snapshot exists. A failed commit is counted as an error of this transform before the
+   * listener returns, so it is part of the pipeline result that waiters read.
+   */
   private void finishRun(boolean failed, CommitCoordinator coordinator) throws HopException {
     if (failed) {
       coordinator.abort();
       logBasic("The pipeline didn't finish successfully: no rows were committed");
       return;
+    }
+    // On the local engine, and inside Hop Server for the remote engine, this is a Pipeline.
+    Pipeline pipeline = getPipeline() instanceof Pipeline local ? local : null;
+    if (pipeline != null) {
+      pipeline.setRunning(true);
     }
     try {
       Long snapshotId = coordinator.commit();
@@ -271,6 +300,7 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
               + coordinator.table().name());
     } catch (CommitStateUnknownException e) {
       // The catalog may have applied the commit: deleting the files could break the table.
+      setErrors(getErrors() + 1);
       throw new HopException(
           "The commit to Iceberg table "
               + coordinator.table().name()
@@ -278,10 +308,15 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
               + " history before running the pipeline again.",
           e);
     } catch (Exception e) {
+      setErrors(getErrors() + 1);
       if (!coordinator.isPublished()) {
         coordinator.abort();
       }
       throw new HopException("Unable to commit to Iceberg table", e);
+    } finally {
+      if (pipeline != null) {
+        pipeline.setRunning(false);
+      }
     }
   }
 

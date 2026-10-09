@@ -187,4 +187,52 @@ class PathTableOperationsTest {
     }
     return count;
   }
+
+  /**
+   * On a file system without hard links, here Hop VFS's in-memory ram://, a version file that
+   * already exists is never deleted or replaced: the commit fails instead.
+   */
+  @Test
+  void nonLocalPublishNeverReplacesAVersion() throws Exception {
+    String ram = "ram:///path-table-test-" + java.util.UUID.randomUUID();
+    String target = ram + "/metadata/v2.metadata.json";
+    String temp = ram + "/metadata/other.metadata.json.tmp";
+    write(target, "committed by the first writer");
+    write(temp, "second writer");
+
+    PathTableOperations ops = new PathTableOperations(ram);
+    assertThrows(CommitFailedException.class, () -> ops.publish(temp, target, 2));
+    assertEquals("committed by the first writer", read(target));
+
+    String free = ram + "/metadata/v3.metadata.json";
+    ops.publish(temp, free, 3);
+    assertEquals("second writer", read(free));
+  }
+
+  @Test
+  void pathTableOnANonLocalFileSystem() throws Exception {
+    String ram = "ram:///path-table-test-" + java.util.UUID.randomUUID();
+    IcebergTableTarget.atPath(ram)
+        .create(SCHEMA, PartitionSpec.unpartitioned(), Map.of())
+        .commitTransaction();
+    PathTableOperations ops = new PathTableOperations(ram);
+    new BaseTable(ops, ram).newAppend().appendFile(dataFile()).commit();
+
+    assertEquals(1, snapshotCount(IcebergTables.loadFromPath(ram)));
+    assertTrue(IcebergTables.findCurrentMetadataFile(ram).endsWith("/metadata/v2.metadata.json"));
+  }
+
+  private static void write(String uri, String text) throws Exception {
+    org.apache.commons.vfs2.FileObject file = org.apache.hop.core.vfs.HopVfs.getFileObject(uri);
+    file.getParent().createFolder();
+    try (java.io.OutputStream out = org.apache.hop.core.vfs.HopVfs.getOutputStream(file, false)) {
+      out.write(text.getBytes(StandardCharsets.UTF_8));
+    }
+  }
+
+  private static String read(String uri) throws Exception {
+    try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(uri)) {
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+  }
 }

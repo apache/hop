@@ -17,12 +17,12 @@
 
 package org.apache.hop.lakehouse.iceberg;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +38,7 @@ import org.apache.iceberg.TableMetadata;
 import org.apache.iceberg.TableMetadataParser;
 import org.apache.iceberg.TableOperations;
 import org.apache.iceberg.exceptions.CommitFailedException;
+import org.apache.iceberg.exceptions.CommitStateUnknownException;
 import org.apache.iceberg.exceptions.RuntimeIOException;
 import org.apache.iceberg.io.FileIO;
 import org.apache.iceberg.io.LocationProvider;
@@ -52,9 +53,10 @@ import org.apache.iceberg.io.LocationProvider;
  * that is a hard link, which the operating system creates atomically, so two writers can't both
  * commit the same version, whether they run in one Hop instance or in several processes. Commits in
  * one JVM are also serialized per table location. Other file systems publish with a check followed
- * by a move, which isn't atomic across processes: like Iceberg's Hadoop tables on S3, a path table
- * there should have one writer at a time. Tables managed by a catalog should be written through the
- * catalog instead.
+ * by a write, which isn't atomic across processes, so a path table there (including HDFS, object
+ * stores and local file systems without hard links) should have one writer at a time. Tables
+ * managed by a catalog should be written through the catalog instead. Nothing in a commit ever
+ * deletes or replaces an existing version file.
  *
  * <p>The version hint is best effort. Once the metadata file is in place the commit has happened,
  * so a failure to update the hint is only logged, and readers walk forward from the hint to the
@@ -156,37 +158,50 @@ public class PathTableOperations implements TableOperations {
 
   /**
    * Publishes {@code temp} as {@code target}, failing with a {@link CommitFailedException} if
-   * another writer committed that version first.
+   * another writer committed that version first. Nothing here ever deletes or replaces an existing
+   * version file.
+   *
+   * <p>On a local file system with hard links, the link is atomic, so this also holds between
+   * processes. Everywhere else (HDFS, object stores, local file systems without hard links) the
+   * check and the write are separate steps, which is why path tables there support one writer at a
+   * time. A failure while writing the version file there is reported as a {@link
+   * CommitStateUnknownException}, since the file may already be visible.
    */
   void publish(String temp, String target, int next) {
+    FileObject targetFile;
     try {
       FileObject tempFile = HopVfs.getFileObject(temp);
-      FileObject targetFile = HopVfs.getFileObject(target);
+      targetFile = HopVfs.getFileObject(target);
       if (tempFile instanceof LocalFile && targetFile instanceof LocalFile) {
-        Path tempPath = Paths.get(tempFile.getURI());
-        Path targetPath = Paths.get(targetFile.getURI());
         try {
           // link(2) fails with EEXIST if the name is taken, atomically.
-          Files.createLink(targetPath, tempPath);
-        } catch (UnsupportedOperationException | FileSystemException linkNotSupported) {
-          if (linkNotSupported instanceof FileAlreadyExistsException) {
-            throw linkNotSupported;
-          }
-          // No hard links on this file system: a move that refuses an existing target.
-          Files.move(tempPath, targetPath);
+          Files.createLink(Paths.get(targetFile.getURI()), Paths.get(tempFile.getURI()));
+          return;
+        } catch (FileAlreadyExistsException e) {
+          throw e;
+        } catch (UnsupportedOperationException | FileSystemException noHardLinks) {
+          // No hard links on this file system: fall through to the single-writer path below.
         }
-        return;
       }
       if (targetFile.exists()) {
         throw new FileAlreadyExistsException(target);
       }
-      tempFile.moveTo(targetFile);
     } catch (FileAlreadyExistsException e) {
       throw new CommitFailedException(
           "Version %d of table %s was committed by another writer", next, location);
     } catch (Exception e) {
       throw new RuntimeIOException(
           new java.io.IOException("Unable to commit version " + next + " of " + location, e));
+    }
+    // Write the new version file directly instead of moving the temp file: VFS moveTo deletes an
+    // existing destination, which would remove a version another writer just published.
+    try (InputStream in = HopVfs.getInputStream(temp);
+        OutputStream out = HopVfs.getOutputStream(targetFile, false)) {
+      in.transferTo(out);
+    } catch (Exception e) {
+      throw new CommitStateUnknownException(
+          new java.io.IOException(
+              "Writing version " + next + " of " + location + " failed; it may be incomplete", e));
     }
   }
 
