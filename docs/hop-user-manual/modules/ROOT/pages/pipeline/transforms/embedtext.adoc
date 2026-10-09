@@ -70,7 +70,7 @@ Vector is the better choice when the Vector value type plugin is installed. When
 |Transform name|Name of the transform, unique within the pipeline.
 |AI provider|The AI provider serving the embedding model.
 |Model|Optional. Overrides the provider's EMBEDDING model for this transform only. Accepts variables.
-|Input field|Field holding the text to embed. A row whose text is empty is passed on with empty output fields rather than being dropped, and keeps its place in the stream.
+|Input field|Field holding the text to embed. A row whose text is empty or only whitespace is passed on with empty output fields rather than being dropped, and keeps its place in the stream.
 |Output field|Field the embedding is written to.
 |Output format|`STRING` for a JSON array, `VECTOR` for a Vector field.
 |Batch size|Rows buffered before the provider is called. Accepts variables. Rows with empty text are buffered so they keep their place in the stream, but are not sent, so a batch can send fewer texts than its size.
