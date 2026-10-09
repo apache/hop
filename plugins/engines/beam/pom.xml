@@ -305,7 +305,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- DebeziumIO provides the CDC source but not a database connector. -->
+        <!-- DebeziumIO provides the CDC source but not a database connector.
+             Packaged with its PostgreSQL driver under plugins/engines/beam/lib, not lib/core.
+             A driver on the application classpath breaks PostgreSQL Bulk Loader. -->
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
