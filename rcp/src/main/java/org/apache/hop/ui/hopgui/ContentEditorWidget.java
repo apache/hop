@@ -219,7 +219,8 @@ public class ContentEditorWidget implements IContentEditorWidget {
           new org.eclipse.swt.graphics.Color(control.getDisplay(), 120, 120, 120);
       lineNumberColumn.setForeground(lineNumFg);
     }
-    sourceViewer.getTextWidget().setTabs(TextIndent.tabSize());
+    int tabStops = TextIndent.tabSize();
+    sourceViewer.getTextWidget().setTabs(tabStops < 1 ? TextIndent.DEFAULT_SIZE : tabStops);
     TextIndent.attach(sourceViewer.getTextWidget());
     sourceViewer
         .getDocument()

@@ -338,10 +338,8 @@
           readOnly: self._readOnly,
           // Copy or cut the current line when nothing is selected, same as the other text fields.
           emptySelectionClipboard: true,
-          // Same indent width as the other multi-line fields (HOP_TEXT_TAB_SIZE, default 2).
+          // Width only. Detection stays on, so a Makefile or a tab-indented file keeps its own indent.
           tabSize: tabSize,
-          insertSpaces: true,
-          detectIndentation: false,
           automaticLayout: true,
           scrollBeyondLastLine: false,
           minimap: { enabled: true },

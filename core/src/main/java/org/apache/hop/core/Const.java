@@ -961,7 +961,7 @@ public class Const {
       scope = VariableScope.APPLICATION,
       value = "2",
       description =
-          "Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. The default is 2.")
+          "Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. A line that already starts with a tab gains another tab. Set the value to 0 to insert a tab. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. The default is 2.")
   public static final String HOP_TEXT_TAB_SIZE = "HOP_TEXT_TAB_SIZE";
 
   /**

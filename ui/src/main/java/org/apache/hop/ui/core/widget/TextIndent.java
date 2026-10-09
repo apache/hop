@@ -17,7 +17,11 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -30,11 +34,11 @@ import org.eclipse.swt.widgets.Widget;
 /**
  * Indents or outdents the lines touched by a selection in a multi-line text field.
  *
- * <p>Tab adds {@link #tabSize()} spaces at the start of each of those lines. Shift+Tab removes one
- * indent: a leading tab, or up to that many leading spaces. The width comes from the environment
- * variable {@code HOP_TEXT_TAB_SIZE} and otherwise from the configuration variable of the same
- * name. The default is 2. Single-line fields, read-only fields, and Hop Web are left alone. Hop Web
- * indents in the browser.
+ * <p>Tab inserts one tab when {@link #tabSize()} is 0 or the line already starts with a tab.
+ * Otherwise it inserts {@link #tabSize()} spaces. Shift+Tab removes one indent: a leading tab, or
+ * up to that many leading spaces. The width comes from {@link HopResolvedSettings}: the Hop
+ * configuration, then the environment, then a system property. The default is 2. Single-line
+ * fields, read-only fields, and Hop Web are left alone. Hop Web indents in the browser.
  */
 public final class TextIndent {
 
@@ -52,43 +56,48 @@ public final class TextIndent {
   private TextIndent() {}
 
   /**
-   * Spaces per indent. The process environment wins over the configuration variable. Blank or
-   * unusable values fall back to {@link #DEFAULT_SIZE}.
+   * Spaces per indent, or 0 when Tab inserts a tab character. Blank or unusable values fall back to
+   * {@link #DEFAULT_SIZE}.
    */
   public static int tabSize() {
-    return parse(
-        System.getenv(Const.HOP_TEXT_TAB_SIZE), System.getProperty(Const.HOP_TEXT_TAB_SIZE));
+    return parseSize(resolvedTabSize());
   }
 
-  static int parse(String environment, String property) {
-    Integer fromEnvironment = parseOne(environment);
-    if (fromEnvironment != null) {
-      return fromEnvironment;
+  /**
+   * Hop configuration, then the environment, then {@code -D}. Hop copies the configuration value
+   * into system properties, and that copy must not hide the environment variable.
+   */
+  static String resolvedTabSize() {
+    String name = Const.HOP_TEXT_TAB_SIZE;
+    String resolved = HopResolvedSettings.resolveString(name, null);
+    Map<String, String> environment = System.getenv();
+    if (!environment.containsKey(name) || !System.getProperties().containsKey(name)) {
+      return resolved;
     }
-    Integer fromProperty = parseOne(property);
-    if (fromProperty != null) {
-      return fromProperty;
+    String config = HopConfig.readStringVariable(name, null);
+    if (config != null && Objects.equals(System.getProperty(name), Const.NVL(config, ""))) {
+      return environment.get(name);
     }
-    return DEFAULT_SIZE;
+    return resolved;
   }
 
-  private static Integer parseOne(String raw) {
+  static int parseSize(String raw) {
     if (raw == null) {
-      return null;
+      return DEFAULT_SIZE;
     }
     String trimmed = raw.trim();
     if (trimmed.isEmpty()) {
-      return null;
+      return DEFAULT_SIZE;
     }
     try {
       int value = Integer.parseInt(trimmed);
-      if (value < 1 || value > MAX_SIZE) {
-        return null;
+      if (value == 0 || (value >= 1 && value <= MAX_SIZE)) {
+        return value;
       }
-      return value;
     } catch (NumberFormatException e) {
-      return null;
+      // Fall back below.
     }
+    return DEFAULT_SIZE;
   }
 
   /**
@@ -101,7 +110,7 @@ public final class TextIndent {
     if (text == null) {
       text = "";
     }
-    if (size < 1) {
+    if (size < 0) {
       size = DEFAULT_SIZE;
     }
     int length = text.length();
@@ -304,6 +313,9 @@ public final class TextIndent {
   }
 
   private static String indentLine(String line, int size) {
+    if (size == 0 || (!line.isEmpty() && line.charAt(0) == '\t')) {
+      return "\t" + line;
+    }
     return " ".repeat(size) + line;
   }
 

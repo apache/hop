@@ -18,22 +18,32 @@
 /**
  * Tab and Shift+Tab indent the selected lines of a multi-line text field.
  *
- * The line rules match org.apache.hop.ui.core.widget.TextIndent. Monaco indents itself; its width
- * is window.hopTextTabSize, set from HOP_TEXT_TAB_SIZE (default 2). This runs in the capture phase
- * and stops the key, so the browser does not move focus and the server does not indent again.
+ * The line rules match org.apache.hop.ui.core.widget.TextIndent. A line that already starts with a
+ * tab, or HOP_TEXT_TAB_SIZE 0, gains a tab; otherwise the indent is window.hopTextTabSize spaces
+ * (default 2). Monaco indents itself. Esc then Tab moves focus instead of indenting. This runs in
+ * the capture phase and stops the indent key, so the browser does not move focus and the server
+ * does not indent again.
  */
 (function () {
   'use strict';
 
   var DEFAULT_SIZE = 2;
   var MAX_SIZE = 32;
+  var focusExit = null;
 
   function tabSize() {
     var size = window.hopTextTabSize;
-    if (typeof size !== 'number' || !isFinite(size) || size < 1 || size > MAX_SIZE) {
+    if (typeof size !== 'number' || !isFinite(size)) {
       return DEFAULT_SIZE;
     }
-    return Math.floor(size);
+    size = Math.floor(size);
+    if (size === 0) {
+      return 0;
+    }
+    if (size < 1 || size > MAX_SIZE) {
+      return DEFAULT_SIZE;
+    }
+    return size;
   }
 
   function isTextArea(el) {
@@ -129,6 +139,9 @@
   }
 
   function indentLine(line, size) {
+    if (size === 0 || (line.length > 0 && line.charAt(0) === '\t')) {
+      return '\t' + line;
+    }
     return spaces(size) + line;
   }
 
@@ -165,7 +178,7 @@
     if (text == null) {
       text = '';
     }
-    if (size < 1) {
+    if (size < 0) {
       size = DEFAULT_SIZE;
     }
     var length = text.length;
@@ -217,16 +230,31 @@
     return { text: next, selectionStart: newFrom, selectionEnd: newTo };
   }
 
+  function canIndentElement(el) {
+    return isTextArea(el) && !inMonaco(el) && !el.readOnly && !el.disabled;
+  }
+
   document.addEventListener('keydown', function (event) {
+    var key = event.key || '';
+    var el = event.target;
+    var escape = key === 'Escape' || key === 'Esc' || event.keyCode === 27;
+    if (escape && !event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
+      focusExit = canIndentElement(el) ? el : null;
+      return;
+    }
+    var tab = key === 'Tab' || event.keyCode === 9;
+    if (tab && focusExit && focusExit === el && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      focusExit = null;
+      return;
+    }
+    focusExit = null;
     if (event.ctrlKey || event.metaKey || event.altKey) {
       return;
     }
-    var key = event.key || '';
-    if (key !== 'Tab' && event.keyCode !== 9) {
+    if (!tab) {
       return;
     }
-    var el = event.target;
-    if (!isTextArea(el) || inMonaco(el) || el.readOnly || el.disabled) {
+    if (!canIndentElement(el)) {
       return;
     }
     var before = el.value || '';

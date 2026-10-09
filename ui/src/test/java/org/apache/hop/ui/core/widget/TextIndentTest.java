@@ -19,6 +19,11 @@ package org.apache.hop.ui.core.widget;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.lang.reflect.Field;
+import java.util.Map;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.ui.core.widget.TextIndent.Edit;
 import org.junit.jupiter.api.Test;
 
@@ -165,22 +170,120 @@ class TextIndentTest {
   }
 
   @Test
-  void environmentValueWinsAndUnusableValuesFallBack() {
-    assertEquals(4, TextIndent.parse("4", "8"));
-    assertEquals(8, TextIndent.parse(null, "8"));
-    assertEquals(8, TextIndent.parse("  ", "8"));
-    assertEquals(2, TextIndent.parse("nope", ""));
-    assertEquals(2, TextIndent.parse("0", "-3"));
-    assertEquals(4, TextIndent.parse("33", "4"));
-    assertEquals(2, TextIndent.parse("33", "nope"));
-    assertEquals(1, TextIndent.parse("1", null));
-    assertEquals(32, TextIndent.parse(" 32 ", null));
-    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parse(null, null));
+  void lineThatStartsWithATabGainsAnotherTab() {
+    String text = "\thello";
+    Edit edit = TextIndent.edit(text, 2, 2, 2, false);
+    assertEquals("\t\thello", apply(edit, text));
+    assertEquals(3, edit.selectionStart());
+  }
+
+  @Test
+  void mixedLinesKeepATabOnlyWhereTheLineAlreadyHasOne() {
+    String text = "\ta\nb";
+    Edit edit = TextIndent.edit(text, 0, text.length(), 2, false);
+    assertEquals("\t\ta\n  b", apply(edit, text));
+  }
+
+  @Test
+  void zeroWidthInsertsATab() {
+    String text = "hello";
+    Edit edit = TextIndent.edit(text, 0, 0, 0, false);
+    assertEquals("\thello", apply(edit, text));
+    assertEquals(1, edit.selectionStart());
+
+    Edit outdent = TextIndent.edit("\thello", 1, 1, 0, true);
+    assertEquals("hello", apply(outdent, "\thello"));
+    Edit spaces = TextIndent.edit("  hello", 2, 2, 0, true);
+    assertEquals("  hello", apply(spaces, "  hello"));
+  }
+
+  @Test
+  void systemPropertyWinsOverTheEnvironmentAndUnusableValuesFallBack() {
+    assertEquals(0, TextIndent.parseSize("0"));
+    assertEquals(0, TextIndent.parseSize(" 0 "));
+    assertEquals(1, TextIndent.parseSize("1"));
+    assertEquals(32, TextIndent.parseSize(" 32 "));
+    assertEquals(4, TextIndent.parseSize("4"));
+    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parseSize(null));
+    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parseSize(""));
+    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parseSize(" "));
+    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parseSize("nope"));
+    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parseSize("-3"));
+    assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.parseSize("33"));
+
+    String name = Const.HOP_TEXT_TAB_SIZE;
+    String previousProperty = System.getProperty(name);
+    String previousEnvironment = System.getenv(name);
+    DescribedVariable previousConfig = HopConfig.getInstance().findDescribedVariable(name);
+    boolean hadConfig = previousConfig != null;
+    String previousConfigValue = hadConfig ? previousConfig.getValue() : null;
+    String previousConfigDescription = hadConfig ? previousConfig.getDescription() : null;
+    try {
+      setEnvironment(name, "4");
+      HopConfig.getInstance().setDescribedVariable(new DescribedVariable(name, "2", "test"));
+      System.setProperty(name, "8");
+      assertEquals(8, TextIndent.tabSize());
+
+      System.setProperty(name, "2");
+      assertEquals(4, TextIndent.tabSize());
+
+      System.clearProperty(name);
+      assertEquals(4, TextIndent.tabSize());
+
+      restoreEnvironment(name, null);
+      assertEquals(2, TextIndent.tabSize());
+
+      System.setProperty(name, "nope");
+      assertEquals(TextIndent.DEFAULT_SIZE, TextIndent.tabSize());
+      System.setProperty(name, "0");
+      assertEquals(0, TextIndent.tabSize());
+    } finally {
+      if (previousProperty == null) {
+        System.clearProperty(name);
+      } else {
+        System.setProperty(name, previousProperty);
+      }
+      restoreEnvironment(name, previousEnvironment);
+      if (hadConfig) {
+        HopConfig.getInstance()
+            .setDescribedVariable(
+                new DescribedVariable(name, previousConfigValue, previousConfigDescription));
+      } else {
+        HopConfig.getInstance()
+            .getDescribedVariables()
+            .removeIf(variable -> name.equals(variable.getName()));
+      }
+    }
   }
 
   private static String apply(Edit edit, String text) {
     return text.substring(0, edit.replaceStart())
         + edit.replacement()
         + text.substring(edit.replaceStart() + edit.replaceLength());
+  }
+
+  private static void setEnvironment(String name, String value) {
+    environmentMap().put(name, value);
+  }
+
+  private static void restoreEnvironment(String name, String previous) {
+    Map<String, String> environment = environmentMap();
+    if (previous == null) {
+      environment.remove(name);
+    } else {
+      environment.put(name, previous);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, String> environmentMap() {
+    try {
+      Map<String, String> view = System.getenv();
+      Field field = view.getClass().getDeclaredField("m");
+      field.setAccessible(true);
+      return (Map<String, String>) field.get(view);
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }
