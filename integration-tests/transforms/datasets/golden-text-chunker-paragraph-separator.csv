@@ -1,0 +1,4 @@
+chunk_text,chunk_index,chunk_start_position,total_chunks
+"First part.",0,0,3
+"Second part.",1,17,3
+"Third part.",2,35,3

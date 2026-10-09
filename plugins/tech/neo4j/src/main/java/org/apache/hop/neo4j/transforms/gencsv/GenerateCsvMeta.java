@@ -35,10 +35,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     id = "Neo4jLoad",
     name = "i18n::GenerateCsvMeta.name",
     description = "i18n::GenerateCsvMeta.description",
-    image = "neo4j_load.svg",
+    image = "graph_csv.svg",
     categoryDescription = "i18n::GenerateCsvMeta.categoryDescription",
     keywords = "i18n::GenerateCsvMeta.keyword",
-    documentationUrl = "/pipeline/transforms/neo4j-gencsv.html")
+    documentationUrl = "/pipeline/transforms/generate-graph-csvs.html")
 public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvData> {
 
   @HopMetadataProperty(key = "graph_field_name")
@@ -49,6 +49,10 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
 
   @HopMetadataProperty(key = "uniqueness_strategy")
   protected UniquenessStrategy uniquenessStrategy;
+
+  /** The header line of the CSV files. Empty in older pipelines: neo4j-admin import. */
+  @HopMetadataProperty(key = "header_format")
+  protected CsvHeaderFormat headerFormat;
 
   @HopMetadataProperty(key = "files_prefix")
   protected String filesPrefix;
@@ -63,6 +67,7 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
   public void setDefault() {
     baseFolder = "/var/lib/neo4j/";
     uniquenessStrategy = UniquenessStrategy.None;
+    headerFormat = CsvHeaderFormat.NEO4J_ADMIN;
     filesPrefix = "prefix";
     filenameField = "filename";
     fileTypeField = "fileType";

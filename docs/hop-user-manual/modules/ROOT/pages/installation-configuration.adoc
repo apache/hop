@@ -36,6 +36,8 @@ Hop's limited footprint should allow it to run on any modern physical or virtual
 
 For the default Hop distribution, a minimum of 1 CPU/core and 4GB RAM should do, even though you can tweak Hop to run on machines with even less memory.
 
+xref:sizing.adoc[Sizing Apache Hop] splits that floor into three cases: a stripped `hop-run` on a small device, a workstation for Hop Gui, and batch runs on Spark or Beam.
+
 Hop Runs on the following operating systems:
 
 * Windows 7 or higher
@@ -137,7 +139,7 @@ TIP: For Hop Web in Docker, persist `HOP_CONFIG_FOLDER` and project homes on vol
 
 == Additional configuration
 
-=== JVM memory settings
+=== JVM memory settings [[JvmMemorySettings]]
 
 By default, Hop only sets a maximum for the JVM Heap size Hop can allocate.
 

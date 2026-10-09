@@ -68,6 +68,7 @@ import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.EngineCompatibility;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -1755,6 +1756,9 @@ public abstract class BeamPipelineEngine extends Variables
    * the converter does, so the answer at design time matches what actually happens at run time.
    *
    * <ol>
+   *   <li>Plugin id on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_PLUGIN_IDS}
+   *       list → UNSUPPORTED with the canonical user-facing reason. This path does not load the
+   *       transform class.
    *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
    *       list → UNSUPPORTED with the canonical user-facing reason.
    *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
@@ -1775,7 +1779,27 @@ public abstract class BeamPipelineEngine extends Variables
     if (transformPlugin == null) {
       return EngineCompatibility.unknown();
     }
+    String[] ids = transformPlugin.getIds();
+    if (ids != null) {
+      for (String id : ids) {
+        String ban = HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get(id);
+        if (ban != null) {
+          return EngineCompatibility.unsupported(ban);
+        }
+      }
+    }
     Class<?> mainType = transformPlugin.getMainType();
+    // Registered plugins expose ITransformMeta as the main role, not their implementation.
+    // Resolve the implementation without constructing metadata or initializing its runtime.
+    if (mainType != null
+        && transformPlugin.getClassMap() != null
+        && transformPlugin.getClassMap().containsKey(mainType)) {
+      try {
+        mainType = PluginRegistry.getInstance().getClass(transformPlugin, mainType);
+      } catch (HopException e) {
+        return EngineCompatibility.unknown();
+      }
+    }
     if (mainType != null) {
       String banReason =
           HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(mainType);
@@ -1786,7 +1810,6 @@ public abstract class BeamPipelineEngine extends Variables
         return EngineCompatibility.supported();
       }
     }
-    String[] ids = transformPlugin.getIds();
     if (ids != null) {
       for (String id : ids) {
         if (HopPipelineMetaToBeamPipelineConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {

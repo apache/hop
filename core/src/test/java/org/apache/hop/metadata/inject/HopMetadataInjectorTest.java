@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -385,6 +388,69 @@ class HopMetadataInjectorTest {
     @Override
     public String getDescription() {
       return description;
+    }
+  }
+
+  /**
+   * Regression test: a lazy-conversion source (e.g. CSV Input with lazy conversion enabled) stores
+   * values as raw {@code byte[]} with {@link IValueMeta#STORAGE_TYPE_BINARY_STRING}. Injecting such
+   * a value into a {@code List<String>} must decode the bytes to a String, not store the raw array
+   * (which {@code toString()} renders as {@code "[B@..."}).
+   *
+   * <p>The {@code STRING} key on {@link Company} is not a list, so this test verifies the
+   * scalar-path + list-item path via {@code EMPLOYEES/FIRST_NAME} below; this one uses a dedicated
+   * {@code List<String>} sample.
+   */
+  @Test
+  void injectLazyBinaryValueIntoStringList() throws Exception {
+    IValueMeta stringMeta = new ValueMetaString("STRINGS_ITEM");
+    stringMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    stringMeta.setStorageMetadata(new ValueMetaString("STRINGS_ITEM"));
+
+    RowBuffer rowBuffer = new RowBuffer();
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(stringMeta);
+    rowBuffer.setRowMeta(rowMeta);
+    rowBuffer.addRow("lazy-value".getBytes(StandardCharsets.UTF_8));
+
+    StringListMeta meta = new StringListMeta();
+    HopMetadataInjector.inject(
+        new MemoryMetadataProvider(), meta, Map.of(), Map.of("STRINGS", rowBuffer));
+
+    assertEquals("lazy-value", meta.getStrings().get(0));
+  }
+
+  /**
+   * Regression test: same lazy-conversion scenario, but the value lands in a String field of a list
+   * item. It must be decoded to a String instead of becoming {@code byte[].toString()} ({@code
+   * "[B@..."}), which later breaks {@code SimpleDateFormat} with "Illegal pattern character 'B'".
+   */
+  @Test
+  void injectLazyBinaryValueIntoListItemStringField() throws Exception {
+    IValueMeta nameMeta = new ValueMetaString("FIRST_NAME");
+    nameMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    nameMeta.setStorageMetadata(new ValueMetaString("FIRST_NAME"));
+
+    RowBuffer rowBuffer = new RowBuffer();
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(nameMeta);
+    rowBuffer.setRowMeta(rowMeta);
+    rowBuffer.addRow("Donald".getBytes(StandardCharsets.UTF_8));
+
+    Company company = new Company();
+    HopMetadataInjector.inject(
+        new MemoryMetadataProvider(), company, Map.of(), Map.of("EMPLOYEES", rowBuffer));
+
+    assertEquals("Donald", company.getEmployees().get(0).getFirstName());
+  }
+
+  /** Minimal sample with a {@code List<String>} injection group. */
+  private static class StringListMeta {
+    @HopMetadataProperty(injectionGroupKey = "STRINGS")
+    private final List<String> strings = new ArrayList<>();
+
+    public List<String> getStrings() {
+      return strings;
     }
   }
 }

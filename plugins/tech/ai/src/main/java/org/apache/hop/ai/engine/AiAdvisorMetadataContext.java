@@ -63,10 +63,10 @@ public final class AiAdvisorMetadataContext {
         || request.getMetadataSelections().isEmpty()) {
       return;
     }
-    prompt
-        .append("Selected metadata JSON:\n")
-        .append(serialize(request.getMetadataProvider(), request.getMetadataSelections()))
-        .append("\n\n");
+    AiTextUtil.appendSection(
+        prompt,
+        "selected_metadata",
+        serialize(request.getMetadataProvider(), request.getMetadataSelections()));
   }
 
   @SuppressWarnings("unchecked")
@@ -167,10 +167,7 @@ public final class AiAdvisorMetadataContext {
     if (prompt == null || metadataProvider == null) {
       return;
     }
-    prompt
-        .append("Available metadata types JSON:\n")
-        .append(serializeTypeKeys(metadataProvider))
-        .append("\n\n");
+    AiTextUtil.appendSection(prompt, "metadata_types", serializeTypeKeys(metadataProvider));
   }
 
   /**
@@ -207,16 +204,8 @@ public final class AiAdvisorMetadataContext {
     if (prompt == null) {
       return;
     }
-    prompt
-        .append("Available database plugins JSON:\n")
-        .append(serializeDatabaseCatalog())
-        .append("\n\n");
-    prompt.append(
-        "SAVE_METADATA for a relational connection: typeKey rdbms, json shape "
-            + "{\"name\":\"my-db\",\"rdbms\":{\"POSTGRESQL\":{\"pluginId\":\"POSTGRESQL\","
-            + "\"accessType\":0,\"hostname\":\"localhost\",\"port\":\"5432\","
-            + "\"databaseName\":\"db\",\"username\":\"user\",\"password\":\"${DB_PASSWORD}\"}}}."
-            + " The rdbms key must be the catalog id (POSTGRESQL, MYSQL, …), not a flat object.\n\n");
+    // The rdbms JSON shape that SAVE_METADATA needs is in the proposal rules of the system prompt.
+    AiTextUtil.appendSection(prompt, "database_plugins", serializeDatabaseCatalog());
   }
 
   public static List<TypeCatalog> listTypes(IHopMetadataProvider metadataProvider) {

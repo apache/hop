@@ -29,6 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -66,10 +67,10 @@ import org.eclipse.swt.widgets.TreeItem;
 
 /**
  * IntelliJ-style "Search Everywhere" popup. It runs the same searchable-analyzer pipeline as the
- * {@link HopGuiSearchResultsPanel} (across all available locations) plus the global GUI commands,
- * and renders the results as a single grouped, keyboard-navigable list. Selecting a result opens it
- * through its regular {@link org.apache.hop.core.search.ISearchableCallback}. "Show all" hands the
- * query off to a Search tab in the bottom dock.
+ * {@link HopGuiSearchResultsPanel} plus the global GUI commands, and renders the results as a
+ * single grouped, keyboard-navigable list. The footer selects the search location. Selecting a
+ * result opens it through its regular {@link org.apache.hop.core.search.ISearchableCallback}. "Show
+ * all" hands the query off to a Search tab in the bottom dock.
  */
 public class SearchEverywhereDialog {
 
@@ -91,8 +92,16 @@ public class SearchEverywhereDialog {
   private final Shell parent;
   private final PropsUi props;
 
-  /** Searchables enumerated once when the popup opens and reused for every keystroke. */
+  /** Location id to select when the dialog opens, or null for all loaded locations. */
+  private final String initialLocationId;
+
+  private List<ISearchablesLocation> searchablesLocations = List.of();
+
+  /** Searchables enumerated once for a location and reused for every keystroke. */
   private List<ISearchable> cachedSearchables;
+
+  /** Combo index the cache was built for. */
+  private int cachedLocationIndex = Integer.MIN_VALUE;
 
   private Map<Class<ISearchableAnalyser>, ISearchableAnalyser> cachedAnalysers;
 
@@ -104,6 +113,8 @@ public class SearchEverywhereDialog {
   private Button wCaseSensitive;
   private Button wRegEx;
   private Button wSettings;
+  private Composite wFooter;
+  private Combo wLocation;
   private Tree wTree;
   private TreeColumn nameColumn;
   private TreeColumn detailColumn;
@@ -124,9 +135,18 @@ public class SearchEverywhereDialog {
           });
 
   public SearchEverywhereDialog(Shell parent, HopGui hopGui) {
+    this(parent, hopGui, null);
+  }
+
+  /**
+   * @param initialLocationId location to select ({@link ISearchablesLocation#getLocationId()}), or
+   *     null for all loaded locations
+   */
+  public SearchEverywhereDialog(Shell parent, HopGui hopGui, String initialLocationId) {
     this.parent = parent;
     this.hopGui = hopGui;
     this.props = PropsUi.getInstance();
+    this.initialLocationId = initialLocationId;
   }
 
   public void open() {
@@ -191,15 +211,31 @@ public class SearchEverywhereDialog {
         BaseMessages.getString(PKG, "SearchEverywhereDialog.Settings.Tooltip"));
     wSettings.addListener(SWT.Selection, e -> openSettings());
 
-    // --- Footer: hint + "show all" handoff to the search perspective ---
-    wShowAll = new Link(shell, SWT.NONE);
+    // --- Footer: status on the left, search location at the bottom right ---
+    wFooter = new Composite(shell, SWT.NONE);
+    PropsUi.setLook(wFooter);
+    GridLayout footerLayout = new GridLayout(2, false);
+    footerLayout.marginWidth = 0;
+    footerLayout.marginHeight = 0;
+    wFooter.setLayout(footerLayout);
+    FormData fdFooter = new FormData();
+    fdFooter.left = new FormAttachment(0, 0);
+    fdFooter.right = new FormAttachment(100, 0);
+    fdFooter.bottom = new FormAttachment(100, 0);
+    wFooter.setLayoutData(fdFooter);
+
+    wShowAll = new Link(wFooter, SWT.NONE);
     PropsUi.setLook(wShowAll);
-    FormData fdShowAll = new FormData();
-    fdShowAll.left = new FormAttachment(0, 0);
-    fdShowAll.right = new FormAttachment(100, 0);
-    fdShowAll.bottom = new FormAttachment(100, 0);
-    wShowAll.setLayoutData(fdShowAll);
+    wShowAll.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     wShowAll.addListener(SWT.Selection, e -> openShowAll());
+
+    wLocation = new Combo(wFooter, SWT.DROP_DOWN | SWT.READ_ONLY);
+    PropsUi.setLook(wLocation);
+    GridData gdLocation = new GridData(SWT.FILL, SWT.CENTER, false, false);
+    gdLocation.widthHint = (int) (280 * props.getZoomFactor());
+    wLocation.setLayoutData(gdLocation);
+    wLocation.addListener(SWT.Selection, e -> onLocationSelected());
+    populateLocations();
 
     // --- The grouped result tree (two user-resizable columns + horizontal scroll) ---
     wTree =
@@ -216,7 +252,7 @@ public class SearchEverywhereDialog {
     fdTree.top = new FormAttachment(searchBar, margin);
     fdTree.left = new FormAttachment(0, 0);
     fdTree.right = new FormAttachment(100, 0);
-    fdTree.bottom = new FormAttachment(wShowAll, -margin);
+    fdTree.bottom = new FormAttachment(wFooter, -margin);
     wTree.setLayoutData(fdTree);
 
     // The Location column always fills the remaining width (also when the window or the Name column
@@ -281,6 +317,7 @@ public class SearchEverywhereDialog {
   private void invalidateCache() {
     cachedSearchables = null;
     cachedAnalysers = null;
+    cachedLocationIndex = Integer.MIN_VALUE;
     sourceByKey.clear();
   }
 
@@ -423,9 +460,11 @@ public class SearchEverywhereDialog {
    * de-duplicating objects that several locations report (e.g. metadata and variables are listed by
    * both the GUI and the project location). Subsequent keystrokes only re-match against this cache.
    */
-  private synchronized void ensureLoaded() {
-    if (cachedSearchables != null) {
-      return;
+  private synchronized HopGuiSearchHelper.EnumeratedSearchables ensureLoaded(
+      List<ISearchablesLocation> locations, int locationIndex) {
+    if (cachedSearchables != null && cachedLocationIndex == locationIndex) {
+      return new HopGuiSearchHelper.EnumeratedSearchables(
+          cachedSearchables, new HashMap<>(sourceByKey));
     }
     try {
       cachedAnalysers = HopGuiSearchHelper.loadSearchableAnalysers();
@@ -435,13 +474,15 @@ public class SearchEverywhereDialog {
     }
     HopGuiSearchHelper.EnumeratedSearchables enumerated =
         HopGuiSearchHelper.enumerateAll(
-            hopGui.getSearchablesLocations(),
+            HopGuiSearchHelper.selectLocations(locations, locationIndex),
             hopGui.getMetadataProvider(),
             hopGui.getVariables(),
             hopGui.getLog());
     cachedSearchables = enumerated.getSearchables();
+    cachedLocationIndex = locationIndex;
     sourceByKey.clear();
     sourceByKey.putAll(enumerated.getSourceByKey());
+    return enumerated;
   }
 
   private void runSearch() {
@@ -464,6 +505,8 @@ public class SearchEverywhereDialog {
     final SearchLimits limits = SearchLimits.fromConfig();
     final int generation = searchGeneration.incrementAndGet();
     final Display display = shell.getDisplay();
+    final int locationIndex = locationSelectionIndex();
+    final List<ISearchablesLocation> locations = searchablesLocations;
 
     wTree.removeAll();
     fullResultCount = 0;
@@ -472,17 +515,29 @@ public class SearchEverywhereDialog {
     searchExecutor.execute(
         () -> {
           try {
-            ensureLoaded();
+            HopGuiSearchHelper.EnumeratedSearchables enumerated =
+                ensureLoaded(locations, locationIndex);
             SearchQuery query = new SearchQuery(searchString, caseSensitive, regExp);
             SearchAnalysisResult analysis =
                 HopGuiSearchHelper.analyseRankedLimited(
-                    cachedSearchables, query, cachedAnalysers, true, limits, sourceByKey);
+                    enumerated.getSearchables(),
+                    query,
+                    cachedAnalysers,
+                    true,
+                    limits,
+                    enumerated.getSourceByKey());
             display.asyncExec(
                 () -> {
                   if (generation != searchGeneration.get() || shell == null || shell.isDisposed()) {
                     return;
                   }
-                  paintResults(analysis, searchString, regExp, caseSensitive, limits);
+                  paintResults(
+                      analysis,
+                      searchString,
+                      regExp,
+                      caseSensitive,
+                      limits,
+                      enumerated.getSourceByKey());
                 });
           } catch (Exception e) {
             hopGui.getLog().logError("Error while searching", e);
@@ -503,14 +558,15 @@ public class SearchEverywhereDialog {
       String searchString,
       boolean regExp,
       boolean caseSensitive,
-      SearchLimits limits) {
+      SearchLimits limits,
+      Map<String, Integer> sources) {
     lastAnalysis = analysis;
     wTree.removeAll();
     fullResultCount = 0;
 
     String searchTerm = regExp ? null : searchString;
     for (HopGuiSearchHelper.SearchSection section :
-        HopGuiSearchHelper.groupResults(analysis.getResults(), sourceByKey)) {
+        HopGuiSearchHelper.groupResults(analysis.getResults(), sources)) {
       addSection(section, searchTerm);
     }
     if (!analysis.isTruncated()) {
@@ -651,7 +707,7 @@ public class SearchEverywhereDialog {
 
   private void updateShowAllSearching() {
     wShowAll.setText(BaseMessages.getString(PKG, "SearchEverywhereDialog.Searching.Label"));
-    wShowAll.requestLayout();
+    layoutFooter();
   }
 
   private void updateShowAll() {
@@ -683,7 +739,54 @@ public class SearchEverywhereDialog {
     } else {
       wShowAll.setText(BaseMessages.getString(PKG, "SearchEverywhereDialog.Hint.Label"));
     }
-    wShowAll.requestLayout();
+    layoutFooter();
+  }
+
+  private void layoutFooter() {
+    if (wShowAll != null && !wShowAll.isDisposed()) {
+      wShowAll.requestLayout();
+    }
+    if (wFooter != null && !wFooter.isDisposed()) {
+      wFooter.requestLayout();
+    }
+  }
+
+  private void populateLocations() {
+    List<ISearchablesLocation> locations = hopGui.getSearchablesLocations();
+    searchablesLocations = locations == null ? List.of() : locations;
+    String allLoaded = BaseMessages.getString(PKG, "SearchLocation.AllLoaded");
+    wLocation.setItems(HopGuiSearchHelper.locationLabels(searchablesLocations, allLoaded));
+    wLocation.setToolTipText(BaseMessages.getString(PKG, "SearchLocation.Tooltip"));
+    int index = HopGuiSearchHelper.indexOfLocation(searchablesLocations, initialLocationId);
+    if (index >= wLocation.getItemCount()) {
+      index = HopGuiSearchHelper.ALL_LOADED_LOCATIONS_INDEX;
+    }
+    wLocation.select(index);
+  }
+
+  private void onLocationSelected() {
+    invalidateCache();
+    scheduleSearch();
+  }
+
+  private int locationSelectionIndex() {
+    if (wLocation != null && !wLocation.isDisposed() && wLocation.getSelectionIndex() >= 0) {
+      return wLocation.getSelectionIndex();
+    }
+    return HopGuiSearchHelper.indexOfLocation(searchablesLocations, initialLocationId);
+  }
+
+  /**
+   * Id of the selected location, or null when the combined "all loaded locations" entry is
+   * selected.
+   */
+  private String selectedLocationId() {
+    int index = locationSelectionIndex();
+    if (index <= 0 || index - 1 >= searchablesLocations.size()) {
+      return null;
+    }
+    ISearchablesLocation location = searchablesLocations.get(index - 1);
+    return location == null ? null : location.getLocationId();
   }
 
   private void openSelected() {
@@ -733,6 +836,7 @@ public class SearchEverywhereDialog {
     String searchString = wSearch.getText();
     boolean caseSensitive = wCaseSensitive.getSelection();
     boolean regExp = wRegEx.getSelection();
+    String locationId = selectedLocationId();
     persistHistory();
     dispose();
 
@@ -746,7 +850,7 @@ public class SearchEverywhereDialog {
             searchTabTitle(searchString),
             GuiResource.getInstance().getImageSearch(),
             true,
-            container -> new HopGuiSearchResultsPanel(container, hopGui));
+            container -> new HopGuiSearchResultsPanel(container, hopGui, locationId));
     if (content instanceof HopGuiSearchResultsPanel panel) {
       panel.setSearchQuery(searchString, caseSensitive, regExp);
       panel.focusSearchField();

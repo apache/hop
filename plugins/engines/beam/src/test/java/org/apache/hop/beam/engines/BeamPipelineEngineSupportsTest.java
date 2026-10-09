@@ -73,6 +73,20 @@ class BeamPipelineEngineSupportsTest {
   }
 
   @Test
+  void maskFieldsPluginIdIsHardBanned() {
+    // Ban by plugin id. Referencing MaskFieldsMeta here would put that class on the Beam engine
+    // class loader, which is what broke every Beam run after the transform was added.
+    EngineCompatibility verdict =
+        engine.supports(
+            pluginWithIdAndMainType(BeamConst.STRING_MASK_FIELDS_PLUGIN_ID, Object.class));
+    assertTrue(verdict.isUnsupported(), "MaskFields should be UNSUPPORTED");
+    assertEquals(
+        HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get(
+            BeamConst.STRING_MASK_FIELDS_PLUGIN_ID),
+        verdict.getReason());
+  }
+
+  @Test
   void joinRowsMetaIsHardBanned() {
     EngineCompatibility verdict = engine.supports(pluginWithMainType(JoinRowsMeta.class));
     assertTrue(verdict.isUnsupported(), "JoinRowsMeta should be UNSUPPORTED");

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -239,6 +240,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
     toolbarWidgets.registerGuiPluginObject(this);
     toolbarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    if (!isCreatingNewElements()) {
+      toolbarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, false);
+    }
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if (flags != SWT.NONE) {
@@ -290,8 +294,11 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       toolTip = "i18n::MetadataElement.Edit.Tooltip",
       imageMethod = "getEditIcon")
   public void editMetadataElement() {
-    if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
-    else this.editMetadata();
+    if (!Utils.isEmpty(wCombo.getText())) {
+      this.editMetadata();
+    } else if (isCreatingNewElements()) {
+      this.newMetadata();
+    }
   }
 
   public static String getEditIcon(Object guiPluginObject) {
@@ -311,6 +318,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       toolTip = "i18n::MetadataElement.New.Tooltip",
       image = "ui/images/new.svg")
   public void newMetadataElement() {
+    if (!isCreatingNewElements()) {
+      return;
+    }
     T element = newMetadata();
     if (element != null) {
       wCombo.setText(Const.NVL(element.getName(), ""));
@@ -365,8 +375,27 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     return manager.editMetadata(selected);
   }
 
+  /**
+   * New elements can be created with this line, unless the metadata type is {@link
+   * HopMetadata#deprecated() deprecated}.
+   */
+  private boolean isCreatingNewElements() {
+    return !HopMetadataUtil.isDeprecated(managedClass);
+  }
+
+  /**
+   * The element the "New" button opens in the editor. Override to preset values, for example a
+   * type.
+   *
+   * @return the new element, or null for an empty element of the managed class
+   */
+  protected T createNewElement() {
+    return null;
+  }
+
   private T newMetadata() {
-    T element = manager.newMetadata();
+    T preset = createNewElement();
+    T element = preset == null ? manager.newMetadata() : manager.newMetadata(preset);
     if (element != null) {
       try {
         fillItems();
@@ -389,15 +418,50 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     }
     repopulatingItems = true;
     try {
-      String previous = wCombo.getText();
+      CCombo combo = wCombo.getCComboWidget();
+      if (combo.isDisposed()) {
+        return;
+      }
+      String previous = Const.NVL(wCombo.getText(), "");
       List<String> elementNames = manager.getSerializer().listObjectNames();
       Collections.sort(elementNames);
-      wCombo.setItems(elementNames.toArray(new String[0]));
-      if (!wCombo.getCComboWidget().isDisposed()) {
-        wCombo.setText(Const.NVL(previous, ""));
+      String[] items = elementNames.toArray(new String[0]);
+      // Selecting a run configuration tab refreshes these lists. On Windows, CCombo.setText
+      // notifies Modify even when the string is unchanged, and the editors treat that as an
+      // unsaved edit (issue #8758). Skip the write when nothing changed, and keep listeners
+      // detached while the list is rebuilt so a read-only combo can be restored quietly.
+      if (Arrays.equals(items, wCombo.getItems()) && previous.equals(combo.getText())) {
+        return;
+      }
+      Listener[] modifyListeners = combo.getListeners(SWT.Modify);
+      Listener[] selectionListeners = combo.getListeners(SWT.Selection);
+      setListeners(combo, SWT.Modify, modifyListeners, false);
+      setListeners(combo, SWT.Selection, selectionListeners, false);
+      try {
+        wCombo.setItems(items);
+        if (!combo.isDisposed()) {
+          wCombo.setText(previous);
+        }
+      } finally {
+        setListeners(combo, SWT.Modify, modifyListeners, true);
+        setListeners(combo, SWT.Selection, selectionListeners, true);
       }
     } finally {
       repopulatingItems = false;
+    }
+  }
+
+  /** Adds or removes the listeners captured around a programmatic combo refresh. */
+  private static void setListeners(CCombo combo, int eventType, Listener[] listeners, boolean add) {
+    if (combo.isDisposed() || listeners == null) {
+      return;
+    }
+    for (Listener listener : listeners) {
+      if (add) {
+        combo.addListener(eventType, listener);
+      } else {
+        combo.removeListener(eventType, listener);
+      }
     }
   }
 

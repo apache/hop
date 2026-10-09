@@ -70,6 +70,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.DetailsDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -463,18 +464,22 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
             switch ((String) treeItem.getData(KEY_TYPE)) {
               case TYPE:
-                menuItem = new MenuItem(menu, SWT.POP_UP);
-                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
-                menuItem.addListener(SWT.Selection, e -> onNewMetadata());
+                if (isCreatableType(getObjectKey(treeItem))) {
+                  menuItem = new MenuItem(menu, SWT.POP_UP);
+                  menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
+                  menuItem.addListener(SWT.Selection, e -> onNewMetadata());
+                }
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewFolder"));
                 menuItem.addListener(SWT.Selection, e -> createNewFolder());
                 new MenuItem(menu, SWT.SEPARATOR);
                 break;
               case FOLDER:
-                menuItem = new MenuItem(menu, SWT.POP_UP);
-                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
-                menuItem.addListener(SWT.Selection, e -> onNewMetadata());
+                if (isCreatableType(getObjectKey(treeItem))) {
+                  menuItem = new MenuItem(menu, SWT.POP_UP);
+                  menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
+                  menuItem.addListener(SWT.Selection, e -> onNewMetadata());
+                }
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewFolder"));
                 menuItem.addListener(SWT.Selection, e -> createNewFolder());
@@ -966,6 +971,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private List<MetadataOverview.TypeCard> buildOverviewCards() {
     List<MetadataOverview.TypeCard> cards = new ArrayList<>();
     for (MetadataTypeModel typeModel : typeModels) {
+      if (typeModel.deprecated && typeModel.items.isEmpty()) {
+        // No new objects of a deprecated type are created: only list it while it has objects.
+        continue;
+      }
       cards.add(
           new MetadataOverview.TypeCard(
               typeModel.categoryId,
@@ -974,7 +983,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
               typeModel.description,
               typeModel.image,
               typeModel.metadataClass.getClassLoader(),
-              typeModel.items.size()));
+              typeModel.items.size(),
+              !typeModel.deprecated));
     }
     return cards;
   }
@@ -1206,7 +1216,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private void addNewTypeMenuItems(Menu menu, String onlyCategoryId) {
     List<String> categoryIds = new ArrayList<>();
     for (MetadataTypeModel typeModel : typeModels) {
-      if ((onlyCategoryId == null || onlyCategoryId.equals(typeModel.categoryId))
+      if (!typeModel.deprecated
+          && (onlyCategoryId == null || onlyCategoryId.equals(typeModel.categoryId))
           && !categoryIds.contains(typeModel.categoryId)) {
         categoryIds.add(typeModel.categoryId);
       }
@@ -1243,7 +1254,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    */
   private void addTypeItems(Menu menu, String categoryId) {
     for (MetadataTypeModel typeModel : typeModels) {
-      if (!typeModel.categoryId.equals(categoryId)) {
+      if (!typeModel.categoryId.equals(categoryId) || typeModel.deprecated) {
+        // No new objects of a deprecated metadata type are created.
         continue;
       }
       MenuItem typeMenuItem = new MenuItem(menu, SWT.POP_UP);
@@ -1328,6 +1340,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private void createMetadataOfType(String objectKey, String virtualPath) {
     if (!HopSecurity.allows(Permission.METADATA_WRITE)) {
       HopSecurityUi.deny(Permission.METADATA_WRITE);
+      return;
+    }
+    if (!isCreatableType(objectKey)) {
+      // No new objects of a deprecated metadata type are created.
       return;
     }
     try {
@@ -2291,11 +2307,34 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
         IHopMetadata metadata = manager.loadElement(objectName);
 
+        String targetProviderName = metadata.getMetadataProviderName();
+        List<String> providerChoices =
+            HopMetadataUtil.duplicateProviderChoices(
+                hopGui.getMetadataProvider(), targetProviderName);
+        if (!providerChoices.isEmpty()) {
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  getShell(),
+                  providerChoices.toArray(new String[0]),
+                  BaseMessages.getString(
+                      PKG, "MetadataPerspective.DuplicateMetadata.SelectProvider.Title"),
+                  BaseMessages.getString(
+                      PKG,
+                      "MetadataPerspective.DuplicateMetadata.SelectProvider.Message",
+                      objectName));
+          String chosen = dialog.open(0);
+          if (chosen == null) {
+            return;
+          }
+          targetProviderName = chosen;
+        }
+
         int copyNr = 2;
         while (true) {
           String newName = objectName + " " + copyNr;
           if (!manager.getSerializer().exists(newName)) {
             metadata.setName(newName);
+            metadata.setMetadataProviderName(targetProviderName);
             manager.getSerializer().save(metadata);
             break;
           } else {
@@ -2458,7 +2497,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 Const.NVL(TranslateUtil.translate(annotation.name(), metadataClass), ""),
                 Const.NVL(TranslateUtil.translate(annotation.description(), metadataClass), ""),
                 annotation.image(),
-                metadataClass);
+                metadataClass,
+                annotation.deprecated());
 
         // A folder named after a legacy key holds objects of this type which weren't saved since
         // the type was renamed: they are not unknown.
@@ -2780,6 +2820,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     return path.equals(folderPath) || path.startsWith(folderPath + "/");
   }
 
+  /**
+   * True when new objects of the metadata type can be created: the type is known and not {@link
+   * HopMetadata#deprecated() deprecated}.
+   */
+  private boolean isCreatableType(String typeKey) {
+    MetadataTypeModel typeModel = findTypeModel(typeKey);
+    return typeModel != null && !typeModel.deprecated;
+  }
+
   private MetadataTypeModel findTypeModel(String typeKey) {
     for (MetadataTypeModel typeModel : typeModels) {
       if (typeModel.key.equals(typeKey)) {
@@ -2867,12 +2916,16 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
               }
             }
           }
-          boolean showType =
-              filtering
-                  ? (typeMatches || !shownItems.isEmpty())
-                  : (showEmptyTypes
-                      || !typeModel.items.isEmpty()
-                      || !typeModel.folderVirtualPaths.isEmpty());
+          boolean empty = typeModel.items.isEmpty() && typeModel.folderVirtualPaths.isEmpty();
+          boolean showType;
+          if (typeModel.deprecated && empty) {
+            // No new objects of a deprecated type are created: only show it while it has objects.
+            showType = false;
+          } else if (filtering) {
+            showType = typeMatches || !shownItems.isEmpty();
+          } else {
+            showType = showEmptyTypes || !empty;
+          }
           if (!showType) {
             continue;
           }
@@ -3542,6 +3595,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     private final String description;
     private final String image;
     private final Class<IHopMetadata> metadataClass;
+
+    /** No new objects of a deprecated type are created, existing ones are listed. */
+    private final boolean deprecated;
+
     private final List<MetadataItemModel> items = new ArrayList<>();
 
     /** Explicitly created virtual folder paths (persisted), shown even when they hold no items. */
@@ -3553,13 +3610,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         String typeName,
         String description,
         String image,
-        Class<IHopMetadata> metadataClass) {
+        Class<IHopMetadata> metadataClass,
+        boolean deprecated) {
       this.key = key;
       this.categoryId = categoryId;
       this.typeName = typeName;
       this.description = description;
       this.image = image;
       this.metadataClass = metadataClass;
+      this.deprecated = deprecated;
     }
   }
 

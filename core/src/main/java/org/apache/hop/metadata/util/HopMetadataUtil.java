@@ -112,6 +112,33 @@ public class HopMetadataUtil {
     return providers;
   }
 
+  /**
+   * Metadata locations a duplicate can be written to when the original is not stored in the active
+   * project. The active project (the last provider) is first.
+   *
+   * @param provider the metadata provider of the project, possibly a {@link MultiMetadataProvider}
+   * @param sourceProviderName {@link IHopMetadata#getMetadataProviderName()} of the original, or
+   *     null
+   * @return provider descriptions, active project first, or an empty list when there is nothing to
+   *     choose (a single location, or the original already belongs to the active project)
+   */
+  public static List<String> duplicateProviderChoices(
+      IHopMetadataProvider provider, String sourceProviderName) {
+    List<IHopMetadataProvider> providers = getProviders(provider);
+    if (providers.size() < 2) {
+      return Collections.emptyList();
+    }
+    String activeProject = providers.get(providers.size() - 1).getDescription();
+    if (StringUtils.isEmpty(sourceProviderName) || sourceProviderName.equals(activeProject)) {
+      return Collections.emptyList();
+    }
+    List<String> choices = new ArrayList<>();
+    for (int i = providers.size() - 1; i >= 0; i--) {
+      choices.add(providers.get(i).getDescription());
+    }
+    return choices;
+  }
+
   public static <T extends IHopMetadata> HopMetadata getHopMetadataAnnotation(
       Class<T> managedClass) {
     return managedClass.getAnnotation(HopMetadata.class);
@@ -142,6 +169,19 @@ public class HopMetadataUtil {
    */
   public static boolean matchesKey(HopMetadata annotation, String key) {
     return annotation != null && key != null && getAllKeys(annotation).contains(key);
+  }
+
+  /**
+   * @param managedClass a metadata class
+   * @return true if the metadata type is {@link HopMetadata#deprecated() deprecated}: existing
+   *     objects load and can be edited, but no new ones are created in the GUI
+   */
+  public static boolean isDeprecated(Class<? extends IHopMetadata> managedClass) {
+    if (managedClass == null) {
+      return false;
+    }
+    HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
+    return annotation != null && annotation.deprecated();
   }
 
   public static String[] getHopMetadataKeys(IHopMetadataProvider provider) {

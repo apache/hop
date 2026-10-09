@@ -272,9 +272,13 @@
     "value" : "",
     "description" : ""
   }, {
+    "name" : "HOP_GRAPH_LOGGING_CONNECTION",
+    "value" : "",
+    "description" : "Set this variable to the name of a Neo4j connection or a graph database connection of a Cypher database to enable execution logging to that database."
+  }, {
     "name" : "NEO4J_LOGGING_CONNECTION",
     "value" : "",
-    "description" : "Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database."
+    "description" : "Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database. HOP_GRAPH_LOGGING_CONNECTION takes precedence."
   }, {
     "name" : "HOP_CONTEXT_DIALOG_STRICT_SEARCH",
     "value" : "Y",

@@ -61,6 +61,9 @@ limitations under the License.
           <name>0115-text-chunker-paragraph UNIT</name>
         </test_name>
         <test_name>
+          <name>0115-text-chunker-paragraph-separator UNIT</name>
+        </test_name>
+        <test_name>
           <name>0115-text-chunker-structure-markdown UNIT</name>
         </test_name>
         <test_name>

@@ -227,4 +227,67 @@ class TextChunkerTest {
 
     assertFalse(transform.init(), "a non-positive chunk size must fail init, not drop rows");
   }
+
+  /** A multi-byte separator configured on the meta must drive the Paragraph strategy end to end. */
+  @Test
+  void splitsOnTheConfiguredParagraphSeparator() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkingStrategy(ChunkingStrategyType.PARAGRAPH);
+    meta.setParagraphSeparator("<PARA>");
+    meta.setChunkSize("5");
+
+    run(meta, rowMeta(), List.<Object[]>of(new Object[] {"one<PARA>two<PARA>three"}));
+
+    int chunkPos = outputRowMeta.indexOfValue("chunk_text");
+    assertEquals(3, output.size());
+    assertEquals("one", output.get(0)[chunkPos]);
+    assertEquals("two", output.get(1)[chunkPos]);
+    assertEquals("three", output.get(2)[chunkPos]);
+  }
+
+  /**
+   * The separator supports variables and escape sequences; a single \n must split paragraphs even
+   * though the default blank-line detection would keep the text whole.
+   */
+  @Test
+  void resolvesTheParagraphSeparatorFromVariablesAndEscapes() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkingStrategy(ChunkingStrategyType.PARAGRAPH);
+    meta.setParagraphSeparator("${PARA_SEP}");
+    meta.setChunkSize("8");
+    meta.setChunkOverlap("0");
+
+    TextChunkerData data = new TextChunkerData();
+    TextChunker transform =
+        spy(
+            new TextChunker(
+                helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline));
+    transform.setVariable("PARA_SEP", "\\n");
+    transform.init();
+    transform.setInputRowMeta(rowMeta());
+
+    Iterator<Object[]> iterator = List.<Object[]>of(new Object[] {"Line one\nLine two"}).iterator();
+    doAnswer(invocation -> iterator.hasNext() ? iterator.next() : null).when(transform).getRow();
+    doAnswer(
+            invocation -> {
+              outputRowMeta = invocation.getArgument(0);
+              output.add(invocation.getArgument(1));
+              return null;
+            })
+        .when(transform)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    while (transform.processRow()) {
+      // drain
+    }
+
+    int chunkPos = outputRowMeta.indexOfValue("chunk_text");
+    assertEquals(2, output.size(), "a single LF must split when set as the separator");
+    assertEquals("Line one", output.get(0)[chunkPos]);
+    assertEquals("Line two", output.get(1)[chunkPos]);
+  }
 }

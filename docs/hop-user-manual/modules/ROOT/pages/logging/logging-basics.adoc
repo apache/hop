@@ -109,7 +109,7 @@ Check the xref:../metadata-types/workflow-log.adoc[workflow log] and xref:../log
 
 Hop can write execution logs for workflows and pipelines to a Neo4j database.
 
-Check xref:../hop-gui/perspective-neo4j.adoc[Neo4j Perspective] page for more details.
+Check xref:../hop-gui/perspective-graph-logging.adoc[Graph logging perspective] page for more details.
 
 === Transforms 
 

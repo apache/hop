@@ -17,14 +17,16 @@
 
 package org.apache.hop.spark.table;
 
+import org.apache.hop.lakehouse.LakeFormats;
+
 /**
  * Format identifiers and well-known class / Spark conf names for open table formats on the native
  * Spark engine. Connector JARs are optional at runtime (see {@link SparkLakeConnectorProbe}).
  */
 public final class SparkLakeFormats {
 
-  public static final String FORMAT_DELTA = "delta";
-  public static final String FORMAT_ICEBERG = "iceberg";
+  public static final String FORMAT_DELTA = LakeFormats.FORMAT_DELTA;
+  public static final String FORMAT_ICEBERG = LakeFormats.FORMAT_ICEBERG;
 
   /** Delta SparkSession extension (must be set at session build when Delta is used). */
   public static final String DELTA_EXTENSION = "io.delta.sql.DeltaSparkSessionExtension";
@@ -33,7 +35,7 @@ public final class SparkLakeFormats {
    * Delta catalog implementation for {@code spark.sql.catalog.spark_catalog}. Required for modern
    * Delta 4.x on Spark 4 (SQL / MERGE / OPTIMIZE); hop-run always sets it when Delta is needed.
    */
-  public static final String DELTA_CATALOG = "org.apache.spark.sql.delta.catalog.DeltaCatalog";
+  public static final String DELTA_CATALOG = LakeFormats.DELTA_CATALOG;
 
   public static final String SPARK_CONF_EXTENSIONS = "spark.sql.extensions";
   public static final String SPARK_CONF_SPARK_CATALOG = "spark.sql.catalog.spark_catalog";
@@ -43,7 +45,7 @@ public final class SparkLakeFormats {
       "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions";
 
   /** Default Iceberg catalog implementation (Hadoop / REST via catalog conf). */
-  public static final String ICEBERG_CATALOG = "org.apache.iceberg.spark.SparkCatalog";
+  public static final String ICEBERG_CATALOG = LakeFormats.ICEBERG_CATALOG;
 
   /**
    * Built-in Hadoop catalog name used for Iceberg PATH mode ({@code hop_iceberg.`file:///…`}).

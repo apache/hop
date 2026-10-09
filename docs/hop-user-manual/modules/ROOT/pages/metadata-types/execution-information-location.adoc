@@ -83,9 +83,9 @@ Options:
 * *Hop Server*: the remote Hop Server to write the execution information to.
 * *Execution Information Location*: the Execution Information Location to be used on the remote Hop Server.
 
-=== Neo4j location
+=== Graph database location
 
-With this location type you can store execution information in a xref:technology/neo4j/index.adoc[Neo4j] graph database.  For more information on this plugin, see the xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j location type] documentation.
+With this location type (previously Neo4j location) you can store execution information in a graph database which speaks Cypher: Neo4j, Memgraph, Amazon Neptune, FalkorDB or Apache AGE.  For more information on this plugin, see the xref:metadata-types/graphs/graph-database-location.adoc[graph database location type] documentation.
 
 === Elastic location
 

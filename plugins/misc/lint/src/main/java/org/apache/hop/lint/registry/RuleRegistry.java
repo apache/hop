@@ -18,8 +18,12 @@ package org.apache.hop.lint.registry;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lint.CustomLintRule;
@@ -46,6 +50,13 @@ public class RuleRegistry {
    * change while Hop is running.
    */
   private volatile Map<String, CustomLintRule> packRules;
+
+  /**
+   * The unknown rule id warnings already logged, per hop-lint.yml. Resolution runs once per file
+   * and on every background check, so logging each time repeated the same line for as long as the
+   * project kept the id.
+   */
+  private final Set<String> loggedWarnings = ConcurrentHashMap.newKeySet();
 
   public static RuleRegistry getInstance() {
     return INSTANCE;
@@ -138,6 +149,7 @@ public class RuleRegistry {
     }
 
     ProjectYamlOverlay overlay = ProjectYamlOverlay.empty();
+    List<String> warnings = new ArrayList<>();
     if (projectYaml != null && projectYaml.exists()) {
       try {
         overlay = YamlRulePackParser.parseProjectYaml(projectYaml);
@@ -146,9 +158,19 @@ public class RuleRegistry {
         }
         for (Map.Entry<String, ProjectYamlOverlay.ProjectRuleOverlay> entry :
             overlay.getOverlays().entrySet()) {
-          CustomLintRule existing = merged.get(entry.getKey());
+          CustomLintRule existing = findRule(merged, entry.getKey());
           if (existing != null) {
             entry.getValue().applyTo(existing);
+          } else {
+            // Applied to nothing, a typo such as SQL-02 for SQL-002 left the rule as it was with
+            // no sign anything had gone wrong.
+            String warning = unknownRuleWarning(entry.getKey(), merged.keySet(), projectYaml);
+            warnings.add(warning);
+            if (loggedWarnings.add(projectYaml.getAbsolutePath() + '\n' + warning)) {
+              LogChannel.GENERAL.logMinimal(warning);
+            } else {
+              LogChannel.GENERAL.logDetailed(warning);
+            }
           }
         }
         LogChannel.GENERAL.logDetailed(
@@ -168,7 +190,73 @@ public class RuleRegistry {
 
     LinterConfig config = buildLinterConfig(merged);
     config.setEnabled(true);
-    return new EffectiveRuleSet(new ArrayList<>(merged.values()), config, overlay.getPolicy());
+    return new EffectiveRuleSet(
+        new ArrayList<>(merged.values()), config, overlay.getPolicy(), warnings);
+  }
+
+  /** The rule of this id, ignoring case: {@code sql-002} in hop-lint.yml means SQL-002. */
+  private static CustomLintRule findRule(Map<String, CustomLintRule> rules, String ruleId) {
+    CustomLintRule exact = rules.get(ruleId);
+    if (exact != null) {
+      return exact;
+    }
+    for (Map.Entry<String, CustomLintRule> entry : rules.entrySet()) {
+      if (entry.getKey().equalsIgnoreCase(ruleId)) {
+        return entry.getValue();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * A warning, not an error: a project may tune a rule from a pack that is not installed on every
+   * machine that lints it, and that should not stop the run.
+   */
+  static String unknownRuleWarning(String ruleId, Collection<String> knownIds, File projectYaml) {
+    StringBuilder warning =
+        new StringBuilder("Warning: ")
+            .append(projectYaml.getName())
+            .append(" changes rule '")
+            .append(ruleId)
+            .append("', which no installed rule pack defines; the change is ignored.");
+    String closest = closestId(ruleId, knownIds);
+    if (closest != null) {
+      warning.append(" Did you mean ").append(closest).append("?");
+    }
+    return warning.toString();
+  }
+
+  /** The known id within two edits of the one given, or null. */
+  private static String closestId(String ruleId, Collection<String> knownIds) {
+    String best = null;
+    int bestDistance = 3;
+    for (String known : knownIds) {
+      int distance = editDistance(ruleId.toUpperCase(), known.toUpperCase());
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = known;
+      }
+    }
+    return best;
+  }
+
+  private static int editDistance(String a, String b) {
+    int[] previous = new int[b.length() + 1];
+    int[] current = new int[b.length() + 1];
+    for (int j = 0; j <= b.length(); j++) {
+      previous[j] = j;
+    }
+    for (int i = 1; i <= a.length(); i++) {
+      current[0] = i;
+      for (int j = 1; j <= b.length(); j++) {
+        int substitution = previous[j - 1] + (a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1);
+        current[j] = Math.min(substitution, Math.min(previous[j] + 1, current[j - 1] + 1));
+      }
+      int[] swap = previous;
+      previous = current;
+      current = swap;
+    }
+    return previous[b.length()];
   }
 
   public EffectiveRuleSet resolveForContext(File context) {

@@ -93,6 +93,22 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
         <environmentConfigFiles>...]
                             A list of configuration files for this lifecycle
                               environment, comma separated
+          --environment-config-file-directory=<environmentConfigFileDirectory>
+                            Folder of configuration files for this lifecycle
+                              environment. Matching files replace the configuration
+                              file list, together with --environment-config-files
+                              when that option is also set.
+          --environment-config-file-exclude-wildcard=<environmentConfigFileExcludeWildcard>
+                            Regular expression for file names to ignore in
+                              --environment-config-file-directory. Example:
+                              .*secret.*
+          --environment-config-file-wildcard=<environmentConfigFileWildcard>
+                            Regular expression matched against file names in
+                              --environment-config-file-directory. Example:
+                              .*\.json
+          --environment-config-include-subfolders
+                            Also include matching files from subfolders of
+                              --environment-config-file-directory
       -el, --environments-list
                             List the defined lifecycle environments
       -em, --environment-modify
@@ -223,7 +239,14 @@ TIP: `-sv` can be used to unset a variable by specifying a variable without a va
 |-cfd|--config-file-describe-variables=<configDescribeVariables>[,<configDescribeVariables>...]|A list of variable=description combinations separated by a comma
 |-cfv|--config-file-set-variables=<configSetVariables> ,<configSetVariables>...]|A list of variable=value combinations separated by a comma
 |-eg|--environment-config-files=<environmentConfigFiles>[, <environmentConfigFiles>...]|A list of configuration files for this lifecycle environment, comma separated
+||--environment-config-file-directory=<environmentConfigFileDirectory>|Folder of configuration files. Matching files replace the configuration file list, together with --environment-config-files when that option is also set. The wildcard is a regular expression, for example `.*\.json`, not a shell glob
+||--environment-config-file-wildcard=<environmentConfigFileWildcard>|Regular expression matched against file names in --environment-config-file-directory
+||--environment-config-file-exclude-wildcard=<environmentConfigFileExcludeWildcard>|Regular expression for file names to ignore in that folder
+||--environment-config-include-subfolders|Also include matching files from subfolders of --environment-config-file-directory
 |-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
+||--graph-connection-test=<name>|Test the graph database connection or Neo4j connection with the given name. See <<_graph_database_connections>>
+||--graph-connection-info=<name>|Print the graph database type and capabilities of a graph database connection or Neo4j connection as JSON
+||--graph-database-types|Print the installed graph database types and their capabilities as JSON
 |===
 
 =====
@@ -280,6 +303,68 @@ Result:
 == Project Usage and Configuration
 
 include::hop-conf-projects.adoc[]
+
+== Graph database connections
+
+Hop Conf tests xref:metadata-types/graphs/graph-database-connection.adoc[graph database connections] and xref:metadata-types/graphs/neo4j-connection.adoc[Neo4j connections] by name, and tells what the graph database types support.
+The connections come from the metadata of a project: enable it with the `-j` (project) or `-e` (environment) option of the `hop` command, before `conf`.
+Without a project, and with `hop-conf.sh`, the metadata in the folder of the `HOP_METADATA_FOLDER` variable is used.
+Variables in the connection settings are resolved with the variables of the project and environment.
+
+[options="header"]
+|===
+|Option |Description
+
+|`--graph-connection-test=<name>`
+|Connect to the database and print what was tested, for example the URL. The exit code is 0 when the connection works, 1 with the error when it doesn't or when there is no connection with that name.
+
+|`--graph-connection-info=<name>`
+|Print the name, the metadata type (`graph-database-connection` or `neo4j-connection`) and the graph database type with its capabilities as JSON. Settings like the server or the password are not printed. A Neo4j connection has the type Neo4j.
+
+|`--graph-database-types`
+|Print all installed graph database types with their capabilities as a JSON array. This doesn't need a project or a connection.
+|===
+
+The same is available in Hop GUI: the *Test* button and the *Supports* line of the graph database connection editor.
+
+[source,bash]
+----
+./hop -j my-project conf --graph-connection-test=memgraph
+Graph database connection 'memgraph' is OK: bolt://localhost:7687
+
+./hop -e my-environment conf --graph-connection-info=memgraph
+./hop-conf.sh --graph-database-types
+----
+
+The JSON of a graph database type, also used for the `type` of `--graph-connection-info`:
+
+[source,json]
+----
+{
+  "pluginId" : "MEMGRAPH",
+  "name" : "Memgraph",
+  "description" : "Memgraph over the Bolt protocol",
+  "documentationUrl" : "https://hop.apache.org/manual/next/metadata-types/graphs/graph-database-connection.html",
+  "dialectId" : "MEMGRAPH",
+  "queryLanguage" : "Cypher",
+  "capabilities" : {
+    "cypher" : true,
+    "supportingConstraints" : true,
+    "supportingIndexes" : true,
+    "supportingNodeIndexes" : true,
+    "supportingRelationshipIndexes" : true,
+    "supportingRelationshipVectorSearch" : true,
+    "supportingSchemaChangesInTransactions" : false,
+    "supportingSchemaIntrospection" : true,
+    "supportingShortestPath" : false,
+    "supportingVectorIndexes" : true,
+    "supportingVectorSearch" : true
+  }
+}
+----
+
+`queryLanguage` is `Cypher` or `Gremlin`.
+The capabilities are listed in xref:metadata-types/graphs/graph-database-connection.adoc#_capabilities[Graph Database Connection].
 
 == Running Workflows and Pipelines
 

@@ -103,6 +103,13 @@ public class SplitFieldToRowsMeta
       injectionKeyDescription = "SplitFieldsToRow.Injection.DelimiterIsRegexp.Description")
   private boolean isDelimiterRegex;
 
+  /** Remove the field to split from each output row */
+  @HopMetadataProperty(
+      key = "exclude_split_field",
+      injectionKey = "EXCLUDE_SPLIT_FIELD",
+      injectionKeyDescription = "SplitFieldsToRow.Injection.ExcludeSplitField.Description")
+  private boolean excludeSplitField;
+
   public boolean isIsDelimiterRegex() {
     return isDelimiterRegex;
   }
@@ -165,6 +172,7 @@ public class SplitFieldToRowsMeta
     newFieldname = "";
     includeRowNumber = false;
     isDelimiterRegex = false;
+    excludeSplitField = false;
     rowNumberField = "";
     resetRowNumber = true;
   }
@@ -178,6 +186,14 @@ public class SplitFieldToRowsMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    if (excludeSplitField && !Utils.isEmpty(splitField)) {
+      String realSplitField = variables.resolve(splitField);
+      int splitIndex = row.indexOfValue(realSplitField);
+      if (splitIndex >= 0) {
+        row.removeValueMeta(splitIndex);
+      }
+    }
 
     IValueMeta v = new ValueMetaString(newFieldname);
     v.setOrigin(name);
@@ -347,5 +363,19 @@ public class SplitFieldToRowsMeta
    */
   public boolean isIncludeRowNumber() {
     return includeRowNumber;
+  }
+
+  /**
+   * @return {@code true} when the field to split is removed from the output
+   */
+  public boolean isExcludeSplitField() {
+    return excludeSplitField;
+  }
+
+  /**
+   * @param excludeSplitField {@code true} to remove the field to split from the output
+   */
+  public void setExcludeSplitField(boolean excludeSplitField) {
+    this.excludeSplitField = excludeSplitField;
   }
 }

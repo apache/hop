@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "errorLineage",
+          "data_set_field": "errorLineage"
+        }
+      ],
+      "field_order": [
+        "errorLineage"
+      ],
+      "transform_name": "ERROR LINEAGE",
+      "data_set_name": "neo4j-error-lineage-8704"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-error-lineage-8704-validation",
+  "description": "Verifies the Neo4j execution information location connects a workflow to the pipelines its actions run, see issue #8704",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-error-lineage-8704/neo4j-error-lineage-8704-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

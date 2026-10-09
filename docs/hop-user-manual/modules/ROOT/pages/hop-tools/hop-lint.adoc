@@ -36,15 +36,30 @@ See xref:linting/index.adoc[Linting] for what the linter does, and xref:linting/
 hop lint                              # lint the current directory
 hop lint pipelines/load.hpl           # lint one file
 hop lint /path/to/project             # lint a folder
+hop lint -e dev /path/to/project      # lint with the variables of an environment
 hop lint --list-rules                 # show the effective rule set
 hop lint --help                       # full option list
 ----
+
+== Project and environment
+
+`hop lint` takes the project and environment options of `hop run`.
+Hop's own checks then see the variables a pipeline is run with, so a transform that reads `'${INPUT_FOLDER}'` from the environment is checked against that folder rather than reported as unable to find it.
+Without `-j` or `-e` the default project and environment from the Hop configuration apply, but only to what lies inside that project.
+Anything else, such as another project's folder or a commit checked by the pre-commit hook, is linted with the `metadata` folder found above it.
+A project chosen with `-j` or `-e` applies whatever is linted; for a target outside it, `hop lint` prints a warning.
 
 == Options
 
 [cols="1,3", options="header"]
 |===
 |Option |Description
+
+|`-j`, `--project <name>`
+|Lint with this project's variables and metadata
+
+|`-e`, `--environment <name>`
+|Lint with this environment's variables, and its project's
 
 |`--format <format>`
 |Report format: `text` (default), `json` or `sarif`
@@ -115,7 +130,8 @@ hop lint --max-warnings 20 .
 
 `sarif` is the format GitHub code scanning, Azure DevOps and most review tooling read, so findings show up as annotations on the pull request.
 `json` is there for everything else.
-Both formats write only the report to stdout, so they can be piped.
+Stdout carries only the report, in every format, so it can be piped or redirected.
+Hop's log lines and notes such as the baseline count go to stderr.
 
 [[baseline]]
 == Adopting the linter on an existing project
@@ -146,6 +162,7 @@ hop lint --install-hook
 
 This writes a `pre-commit` hook into the current repository's `.git/hooks`.
 The hook lints the staged Hop files and blocks the commit when they fail.
+It is a copy, so run `hop lint --install-hook` again after upgrading Hop to pick up changes to it.
 
 Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Linter -> Block Git Commits*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.
 

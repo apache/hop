@@ -1,0 +1,14 @@
+{
+  "sequenceStart": "9000000",
+  "piiClassification": "Direct identifier",
+  "prefix": "tel",
+  "description": "",
+  "storage": "NONE",
+  "schemaName": "",
+  "suffix": "",
+  "tableName": "",
+  "token": "SEQUENCE",
+  "name": "telephone",
+  "connection": "",
+  "valueSource": "SYNTHETIC"
+}

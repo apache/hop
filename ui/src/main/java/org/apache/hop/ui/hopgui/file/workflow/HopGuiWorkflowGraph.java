@@ -1538,7 +1538,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     CanvasTarget target = targetUnder(getVisibleAreaOwner(real.x, real.y), real);
     selectAsClicked(target);
+    releaseMouseCapture();
     openContextDialog(target, real, canvasPoint.x, canvasPoint.y);
+  }
+
+  /**
+   * On Windows the canvas captures the mouse while the right button is down and only lets go once
+   * the menu detect event has returned. The context dialog runs its event loop inside that event,
+   * so without this the canvas keeps the mouse and the dialog never sees it move (issue #8760). Hop
+   * Web has no mouse capture.
+   */
+  private void releaseMouseCapture() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      canvas.setCapture(false);
+    }
   }
 
   /**
@@ -4876,9 +4889,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       boolean fileExist = HopVfs.fileExists(workflowMeta.getFilename());
 
-      // Record the version of Hop saving this workflow
+      // Record who saved this workflow, when, and with which version of Hop
       //
-      workflowMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+      if (workflowMeta.needsModificationStamp(fileExist)) {
+        workflowMeta.stampModified();
+        workflowMeta.setModifiedHopVersion(Const.NVL(Const.getHopVersion(), ""));
+      }
 
       String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);

@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -56,12 +57,18 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     classLoaderGroup = "hop-ai")
 public class AiProvider extends HopMetadataBase implements IHopMetadata {
 
+  private static final Class<?> PKG = AiProvider.class;
+
   public static final String GUI_WIDGETS_PARENT_ID = "AiProviderEditor.Widgets";
   public static final String WIDGET_BASE_URL = "0100-base-url";
   public static final String WIDGET_API_KEY = "0200-api-key";
   public static final String WIDGET_TIMEOUT = "0300-timeout";
   public static final String WIDGET_MODEL_NAME = "0400-model-name";
   public static final String WIDGET_TEMPERATURE = "0500-temperature";
+  public static final String WIDGET_CONTEXT_SIZE = "0510-context-size";
+  public static final String WIDGET_MAX_OUTPUT_TOKENS = "0520-max-output-tokens";
+  public static final String WIDGET_STRUCTURED_ANSWERS = "0530-structured-answers";
+  public static final String WIDGET_MODELS = "0600-models";
 
   @HopMetadataProperty(key = "provider")
   private IAiProvider provider;
@@ -72,8 +79,8 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       order = "0100",
       type = GuiElementType.TEXT,
       parentId = GUI_WIDGETS_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Connection",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Connection",
       groupOrder = "10",
       label = "i18n::AiProvider.BaseUrl.Label",
       toolTip = "i18n::AiProvider.BaseUrl.Tooltip")
@@ -86,8 +93,8 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       type = GuiElementType.TEXT,
       password = true,
       parentId = GUI_WIDGETS_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Connection",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Connection",
       groupOrder = "10",
       label = "i18n::AiProvider.ApiKey.Label",
       toolTip = "i18n::AiProvider.ApiKey.Tooltip")
@@ -99,8 +106,8 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       order = "0300",
       type = GuiElementType.TEXT,
       parentId = GUI_WIDGETS_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Connection",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Connection",
       groupOrder = "10",
       label = "i18n::AiProvider.Timeout.Label",
       toolTip = "i18n::AiProvider.Timeout.Tooltip")
@@ -113,8 +120,8 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       type = GuiElementType.COMBO,
       comboValuesMethod = "getModelNameChoices",
       parentId = GUI_WIDGETS_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Model",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
       groupOrder = "20",
       label = "i18n::AiProvider.ModelName.Label",
       toolTip = "i18n::AiProvider.ModelName.Tooltip")
@@ -126,12 +133,61 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       order = "0500",
       type = GuiElementType.TEXT,
       parentId = GUI_WIDGETS_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Model",
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
       groupOrder = "20",
       label = "i18n::AiProvider.Temperature.Label",
       toolTip = "i18n::AiProvider.Temperature.Tooltip")
   private String temperature = "0.3";
+
+  /**
+   * The model's context window in tokens. Ollama loads the model with this window ({@code
+   * num_ctx}); for every provider it is the budget a prompt is checked against before it is sent.
+   */
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_CONTEXT_SIZE,
+      order = "0510",
+      type = GuiElementType.TEXT,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
+      groupOrder = "20",
+      label = "i18n::AiProvider.ContextSize.Label",
+      toolTip = "i18n::AiProvider.ContextSize.Tooltip")
+  private String contextSize = "";
+
+  /** The longest answer the model may write, in tokens. */
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_MAX_OUTPUT_TOKENS,
+      order = "0520",
+      type = GuiElementType.TEXT,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
+      groupOrder = "20",
+      label = "i18n::AiProvider.MaxOutputTokens.Label",
+      toolTip = "i18n::AiProvider.MaxOutputTokens.Tooltip")
+  private String maxOutputTokens = "";
+
+  /**
+   * Have the AI Assistant's answers follow a JSON schema, where the provider type can hold a model
+   * to one (Ollama, OpenAI, Anthropic, Mistral). Off by default until it is checked with the
+   * evaluation set for the models in use.
+   */
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_STRUCTURED_ANSWERS,
+      order = "0530",
+      type = GuiElementType.CHECKBOX,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
+      groupOrder = "20",
+      label = "i18n::AiProvider.StructuredAnswers.Label",
+      toolTip = "i18n::AiProvider.StructuredAnswers.Tooltip")
+  private boolean structuredAnswers;
 
   /**
    * Models this provider serves, one entry per {@link AiModelRole}. A transform resolves the role
@@ -142,6 +198,17 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
    * falls back to {@link #modelName} and nothing changes.
    */
   @HopMetadataProperty(key = "models", injectionGroupKey = "MODELS")
+  @GuiWidgetElement(
+      id = WIDGET_MODELS,
+      order = "0600",
+      type = GuiElementType.TABLE,
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Models.Label",
+      groupOrder = "30",
+      label = "i18n::AiProviderEditor.Models.Explanation",
+      toolTip = "i18n::AiProviderEditor.Models.Tooltip",
+      tableRows = 4)
   private List<AiProviderModel> models = new ArrayList<>();
 
   public AiProvider() {}
@@ -156,6 +223,9 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
     this.timeoutSeconds = other.timeoutSeconds;
     this.modelName = other.modelName;
     this.temperature = other.temperature;
+    this.contextSize = other.contextSize;
+    this.maxOutputTokens = other.maxOutputTokens;
+    this.structuredAnswers = other.structuredAnswers;
     for (AiProviderModel model : other.models) {
       this.models.add(new AiProviderModel(model));
     }
@@ -183,6 +253,14 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
 
   public String getPluginId() {
     return provider != null ? provider.getPluginId() : null;
+  }
+
+  /**
+   * Whether a provider type is set. A provider saved without its plugin id loads without a type
+   * until the user selects one in the editor.
+   */
+  public boolean hasProviderType() {
+    return provider != null && !Utils.isEmpty(provider.getPluginId());
   }
 
   public String getPluginName() {
@@ -227,6 +305,54 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
     if (Utils.isEmpty(modelName)) {
       modelName = provider.getDefaultModelName();
     }
+  }
+
+  /**
+   * Problems that would make the provider fail or behave unexpectedly, as messages for the user.
+   * Values that use a variable are only checked when the provider is used.
+   */
+  public List<String> validate() {
+    List<String> problems = new ArrayList<>();
+    if (!hasProviderType()) {
+      problems.add(BaseMessages.getString(PKG, "AiProvider.Validate.NoType"));
+    }
+    if (!isVariable(temperature) && !Utils.isEmpty(temperature)) {
+      try {
+        double value = Double.parseDouble(temperature.trim());
+        if (value < 0 || value > 2) {
+          problems.add(BaseMessages.getString(PKG, "AiProvider.Validate.Temperature", temperature));
+        }
+      } catch (NumberFormatException e) {
+        problems.add(BaseMessages.getString(PKG, "AiProvider.Validate.Temperature", temperature));
+      }
+    }
+    checkPositiveInt(problems, "AiProvider.Timeout.Label", timeoutSeconds);
+    checkPositiveInt(problems, "AiProvider.ContextSize.Label", contextSize);
+    checkPositiveInt(problems, "AiProvider.MaxOutputTokens.Label", maxOutputTokens);
+    return problems;
+  }
+
+  private static void checkPositiveInt(List<String> problems, String labelKey, String value) {
+    if (Utils.isEmpty(value) || isVariable(value)) {
+      return;
+    }
+    try {
+      if (Integer.parseInt(value.trim()) > 0) {
+        return;
+      }
+    } catch (NumberFormatException e) {
+      // Reported below.
+    }
+    problems.add(
+        BaseMessages.getString(
+            PKG,
+            "AiProvider.Validate.PositiveNumber",
+            BaseMessages.getString(PKG, labelKey),
+            value));
+  }
+
+  private static boolean isVariable(String value) {
+    return value != null && (value.contains("${") || value.contains("%%") || value.contains("$["));
   }
 
   public String test(IVariables variables) throws HopException {

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,15 +38,41 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 
 /** Validates and saves CLIPBOARD_METADATA / SAVE_METADATA hop_proposals. */
 public final class AiMetadataProposalSupport {
 
+  private static final Class<?> PKG = AiMetadataProposalSupport.class;
+
   public static final int MAX_JSON_CHARS = 100_000;
+
+  /**
+   * The metadata types a proposal may save: connections and data definitions a user typically asks
+   * the assistant to create. Everything else, such as run configurations, servers, AI providers,
+   * variable resolvers, logging, web services, VFS and Git connections, can redirect where prompts,
+   * secrets, files, logs or execution go. The user creates or changes those in the Metadata
+   * perspective. Matched on the type's own key, so a legacy key in a proposal does not get around
+   * it.
+   */
+  static final Set<String> SAVABLE_TYPE_KEYS =
+      Set.of(
+          "rdbms",
+          "cassandra-connection",
+          "mongodb-connection",
+          "neo4j-connection",
+          "neo4j-graph-model",
+          "dataset",
+          "unit-test",
+          "file-definition",
+          "schema-definition",
+          "partition");
 
   private AiMetadataProposalSupport() {}
 
@@ -60,19 +87,64 @@ public final class AiMetadataProposalSupport {
       return result;
     }
     if (AiProposalXmlSupport.containsSecrets(jsonParam(proposal))) {
-      result.setWarning("JSON contains password-like fields");
+      result.setWarning(BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Secrets"));
     } else if (AiProposalTypes.of(proposal) == AiProposalTypes.CLIPBOARD_METADATA) {
-      result.setWarning("Copies JSON to the clipboard");
+      result.setWarning(BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Clipboard"));
     } else {
-      String name = Const.NVL(proposal.parameter("name"), "");
-      String typeKey = Const.NVL(proposal.parameter("typeKey"), "");
-      result.setWarning(
-          "Saves metadata object " + (name.isEmpty() ? typeKey : name + " (" + typeKey + ")"));
+      String name = Const.NVL(targetName(proposal, metadataProvider), "");
+      String typeKey = Const.NVL(firstParameter(proposal, "typeKey", "metadataType"), "");
+      if (exists(proposal, metadataProvider)) {
+        result.setWarning(
+            BaseMessages.getString(
+                PKG, "AiMetadataProposalSupport.Warning.Overwrite", typeKey, name));
+        result.setOptIn(true);
+      } else if (name.isEmpty()) {
+        result.setWarning(
+            BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Save", typeKey));
+      } else {
+        result.setWarning(
+            BaseMessages.getString(
+                PKG, "AiMetadataProposalSupport.Warning.SaveNamed", name, typeKey));
+      }
     }
     return result;
   }
 
-  public static void save(AiProposal proposal, IHopMetadataProvider metadataProvider)
+  /** The name the object will be saved under, or null when it cannot be determined. */
+  public static String targetName(AiProposal proposal, IHopMetadataProvider metadataProvider) {
+    String name = firstParameter(proposal, "name");
+    if (!Utils.isEmpty(name)) {
+      return name;
+    }
+    try {
+      String typeKey = firstParameter(proposal, "typeKey", "metadataType");
+      Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
+      return parseObject(metadataClass, metadataProvider, jsonParam(proposal)).getName();
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /** Whether a SAVE_METADATA proposal would replace an existing object. */
+  public static boolean exists(AiProposal proposal, IHopMetadataProvider metadataProvider) {
+    if (AiProposalTypes.of(proposal) != AiProposalTypes.SAVE_METADATA || metadataProvider == null) {
+      return false;
+    }
+    String name = targetName(proposal, metadataProvider);
+    if (Utils.isEmpty(name)) {
+      return false;
+    }
+    try {
+      Class<IHopMetadata> metadataClass =
+          metadataProvider.getMetadataClassForKey(
+              firstParameter(proposal, "typeKey", "metadataType"));
+      return metadataProvider.getSerializer(metadataClass).exists(name);
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public static AiMetadataBackup save(AiProposal proposal, IHopMetadataProvider metadataProvider)
       throws Exception {
     String error = validateError(proposal, metadataProvider);
     if (error != null) {
@@ -89,22 +161,124 @@ public final class AiMetadataProposalSupport {
       throw new HopException("Metadata name is required");
     }
     IHopMetadataSerializer<IHopMetadata> serializer = metadataProvider.getSerializer(metadataClass);
+    String previousJson = null;
+    if (serializer.exists(object.getName())) {
+      previousJson = json(metadataClass, metadataProvider, serializer.load(object.getName()));
+    }
     serializer.save(object);
+    String savedJson = json(metadataClass, metadataProvider, serializer.load(object.getName()));
+    return new AiMetadataBackup(typeKey, object.getName(), previousJson, savedJson);
   }
 
-  public static int saveAll(List<AiProposal> selected, IHopMetadataProvider provider)
+  private static String json(
+      Class<IHopMetadata> metadataClass, IHopMetadataProvider provider, IHopMetadata object)
       throws Exception {
-    int saved = 0;
-    if (selected == null || provider == null) {
-      return 0;
+    return object == null
+        ? null
+        : new JsonMetadataParser<>(metadataClass, provider).getJsonObject(object).toJSONString();
+  }
+
+  /**
+   * The objects an undo would overwrite or delete although they were changed after the assistant
+   * saved them, or deleted since. Their names, as type and name, for the user to confirm.
+   */
+  public static List<String> changedSinceSave(
+      List<AiMetadataBackup> backups, IHopMetadataProvider metadataProvider) {
+    List<String> changed = new ArrayList<>();
+    for (AiMetadataBackup backup : backups) {
+      try {
+        Class<IHopMetadata> metadataClass =
+            metadataProvider.getMetadataClassForKey(backup.typeKey());
+        IHopMetadataSerializer<IHopMetadata> serializer =
+            metadataProvider.getSerializer(metadataClass);
+        String current =
+            serializer.exists(backup.name())
+                ? json(metadataClass, metadataProvider, serializer.load(backup.name()))
+                : null;
+        if (backup.savedJson() == null || !backup.savedJson().equals(current)) {
+          changed.add(backup.typeKey() + " " + backup.name());
+        }
+      } catch (Exception e) {
+        changed.add(backup.typeKey() + " " + backup.name());
+      }
+    }
+    return changed;
+  }
+
+  /**
+   * Check every SAVE_METADATA proposal before anything is applied, so a bad one does not leave the
+   * graph changed and the metadata half saved.
+   */
+  public static void checkAll(List<AiProposal> selected, IHopMetadataProvider provider)
+      throws HopException {
+    if (selected == null) {
+      return;
     }
     for (AiProposal proposal : selected) {
       if (AiProposalTypes.of(proposal) == AiProposalTypes.SAVE_METADATA) {
-        save(proposal, provider);
-        saved++;
+        String error = validateError(proposal, provider);
+        if (error != null) {
+          throw new HopException(error);
+        }
       }
     }
-    return saved;
+  }
+
+  /** Restore what the saves replaced and delete what they created, newest first. */
+  public static void revert(List<AiMetadataBackup> backups, IHopMetadataProvider metadataProvider)
+      throws Exception {
+    for (int i = backups.size() - 1; i >= 0; i--) {
+      AiMetadataBackup backup = backups.get(i);
+      Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(backup.typeKey());
+      IHopMetadataSerializer<IHopMetadata> serializer =
+          metadataProvider.getSerializer(metadataClass);
+      if (backup.created()) {
+        if (serializer.exists(backup.name())) {
+          serializer.delete(backup.name());
+        }
+      } else {
+        serializer.save(parseObject(metadataClass, metadataProvider, backup.previousJson()));
+      }
+    }
+  }
+
+  /**
+   * Save every SAVE_METADATA proposal, or none: when one save fails, the ones before it are undone.
+   *
+   * @return what each save replaced, in save order, for {@link #revert(List, IHopMetadataProvider)}
+   */
+  public static List<AiMetadataBackup> saveAll(
+      List<AiProposal> selected, IHopMetadataProvider provider) throws Exception {
+    List<AiMetadataBackup> backups = new ArrayList<>();
+    if (selected == null || provider == null) {
+      return backups;
+    }
+    try {
+      for (AiProposal proposal : selected) {
+        if (AiProposalTypes.of(proposal) == AiProposalTypes.SAVE_METADATA) {
+          backups.add(save(proposal, provider));
+        }
+      }
+    } catch (Exception e) {
+      HopException failure =
+          new HopException(BaseMessages.getString(PKG, "AiMetadataProposalSupport.SaveFailed"), e);
+      try {
+        revert(backups, provider);
+      } catch (Exception revertError) {
+        failure.addSuppressed(revertError);
+      }
+      throw failure;
+    }
+    return backups;
+  }
+
+  /** The allowed type keys; tests add their own test type. */
+  static Set<String> savableTypeKeys = SAVABLE_TYPE_KEYS;
+
+  /** Whether a proposal may save objects of this type; see {@link #SAVABLE_TYPE_KEYS}. */
+  static boolean isSavable(Class<? extends IHopMetadata> metadataClass) {
+    HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(metadataClass);
+    return annotation != null && savableTypeKeys.contains(annotation.key());
   }
 
   static String validateError(AiProposal proposal, IHopMetadataProvider metadataProvider) {
@@ -133,6 +307,10 @@ public final class AiMetadataProposalSupport {
     }
     try {
       Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
+      if (AiProposalTypes.of(proposal) == AiProposalTypes.SAVE_METADATA
+          && !isSavable(metadataClass)) {
+        return BaseMessages.getString(PKG, "AiMetadataProposalSupport.NotSavable", typeKey);
+      }
       parseObject(metadataClass, metadataProvider, json);
     } catch (Exception e) {
       return "Invalid metadata JSON: "

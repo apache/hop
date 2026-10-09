@@ -1,0 +1,52 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "Person",
+      "name": "friend",
+      "description": "",
+      "nodeTarget": "Person",
+      "label": "friend_of",
+      "properties": []
+    },
+    {
+      "nodeSource": "Person",
+      "name": "not_friend",
+      "nodeTarget": "Person",
+      "label": "not_friend_of",
+      "properties": []
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 388,
+        "y": 376
+      },
+      "name": "Person",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "description",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Person"
+      ]
+    }
+  ],
+  "name": "Self2",
+  "description": ""
+}

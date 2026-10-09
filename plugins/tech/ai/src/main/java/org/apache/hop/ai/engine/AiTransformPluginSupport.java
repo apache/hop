@@ -20,11 +20,14 @@ package org.apache.hop.ai.engine;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Loads transform plugin metadata with plugin defaults for AI proposal application. */
 public final class AiTransformPluginSupport {
+
+  private static final Class<?> PKG = AiTransformPluginSupport.class;
 
   private AiTransformPluginSupport() {}
 
@@ -36,7 +39,8 @@ public final class AiTransformPluginSupport {
       meta.setDefault();
       return meta;
     } catch (Exception e) {
-      throw new HopException("Unable to load transform plugin: " + pluginId, e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiTransformPluginSupport.CannotLoad", pluginId), e);
     }
   }
 

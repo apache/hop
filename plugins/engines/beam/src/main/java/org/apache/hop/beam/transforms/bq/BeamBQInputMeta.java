@@ -64,6 +64,20 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
   @HopMetadataProperty(key = "query")
   private String query;
 
+  /**
+   * #2416: the BigQuery dataset location that runs the query, for example {@code EU} or {@code US}.
+   * Leave blank to use the job's own location.
+   */
+  @HopMetadataProperty(key = "query_location")
+  private String queryLocation;
+
+  /**
+   * #2416: do not validate the query before the job starts. Useful for a query that is created or
+   * changed by an earlier step and is therefore not registered when the job is submitted.
+   */
+  @HopMetadataProperty(key = "skip_query_validation")
+  private boolean skippingQueryValidation;
+
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<BQField> fields;
 
@@ -151,6 +165,8 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
             variables.resolve(datasetId),
             variables.resolve(tableId),
             variables.resolve(query),
+            variables.resolve(queryLocation),
+            skippingQueryValidation,
             JsonRowMeta.toJson(outputRowMeta));
     PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
     transformCollectionMap.put(transformMeta.getName(), afterInput);
@@ -219,6 +235,38 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
    */
   public void setQuery(String query) {
     this.query = query;
+  }
+
+  /**
+   * Gets queryLocation
+   *
+   * @return value of queryLocation
+   */
+  public String getQueryLocation() {
+    return queryLocation;
+  }
+
+  /**
+   * @param queryLocation The queryLocation to set
+   */
+  public void setQueryLocation(String queryLocation) {
+    this.queryLocation = queryLocation;
+  }
+
+  /**
+   * Is the query validation skipped
+   *
+   * @return value of skippingQueryValidation
+   */
+  public boolean isSkippingQueryValidation() {
+    return skippingQueryValidation;
+  }
+
+  /**
+   * @param skippingQueryValidation The skippingQueryValidation to set
+   */
+  public void setSkippingQueryValidation(boolean skippingQueryValidation) {
+    this.skippingQueryValidation = skippingQueryValidation;
   }
 
   /**

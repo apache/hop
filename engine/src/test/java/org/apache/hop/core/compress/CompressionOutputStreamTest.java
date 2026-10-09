@@ -81,6 +81,18 @@ class CompressionOutputStreamTest {
   }
 
   @Test
+  void testFlushDelegates() throws IOException {
+    ICompressionProvider provider = outStream.getCompressionProvider();
+    FlushCountStream out = new FlushCountStream();
+    outStream = new DummyCompressionOS(out, provider);
+    outStream.write("Test".getBytes());
+    assertEquals(0, out.flushes);
+    outStream.flush();
+    assertEquals(1, out.flushes);
+    assertEquals("Test", out.toString());
+  }
+
+  @Test
   void testAddEntry() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -92,6 +104,15 @@ class CompressionOutputStreamTest {
   private static class DummyCompressionOS extends CompressionOutputStream {
     DummyCompressionOS(OutputStream out, ICompressionProvider provider) {
       super(out, provider);
+    }
+  }
+
+  private static class FlushCountStream extends ByteArrayOutputStream {
+    private int flushes;
+
+    @Override
+    public void flush() {
+      flushes++;
     }
   }
 }

@@ -1,0 +1,19 @@
+{
+  "explain-en": true,
+  "explain-es": true,
+  "explain-nl": true,
+  "diagnose-log": false,
+  "follow-up-gets-new-log": false,
+  "build-request": true,
+  "add-transform": true,
+  "sql-comment-is-not-an-instruction": true,
+  "add-two-transforms": true,
+  "hop-to-existing": false,
+  "workflow-explain-en": true,
+  "workflow-explain-nl": false,
+  "workflow-diagnose-log": true,
+  "workflow-add-action": false,
+  "rename-transform": false,
+  "delete-two-transforms": false,
+  "run-configuration-is-not-proposed": false
+}

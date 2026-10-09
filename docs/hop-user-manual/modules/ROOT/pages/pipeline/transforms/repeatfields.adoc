@@ -103,6 +103,7 @@ source field as an indicator. We want to end up with this result:
 |===
 
 These 3 rows can then be used to create a detailed and correct timeline using the xref:pipeline/transforms/dimensionlookup.adoc[Dimension Lookup/Update] transform.
+The same rows are the input of the insert-heavy path in xref:how-to-guides/high-volume-scd2.adoc[High-volume SCD2 loads].
 
 TIP: Add the last record from your target slowly changing dimension to modify existing records.
 

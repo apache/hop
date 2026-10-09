@@ -31,6 +31,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopConfigException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.graph.GraphDatabaseMeta;
+import org.apache.hop.core.graph.IGraphDatabaseMetaConvertible;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -42,6 +44,9 @@ import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.neo4j.bolt.BoltGraphDialect;
+import org.apache.hop.neo4j.bolt.Neo4jGraphDatabase;
+import org.apache.hop.neo4j.bolt.Neo4jGraphDialect;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
@@ -59,9 +64,11 @@ import org.neo4j.driver.Value;
     description = "i18n::NeoConnection.description",
     image = "neo4j_logo.svg",
     category = HopMetadataCategory.CONNECTIONS,
-    documentationUrl = "/metadata-types/neo4j/neo4j-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
-public class NeoConnection extends HopMetadataBase implements IHopMetadata {
+    documentationUrl = "/metadata-types/graphs/neo4j-connection.html",
+    hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION,
+    deprecated = true)
+public class NeoConnection extends HopMetadataBase
+    implements IHopMetadata, IGraphDatabaseMetaConvertible {
 
   @HopMetadataProperty private String server;
 
@@ -110,6 +117,12 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String protocol;
 
+  /**
+   * The Cypher dialect of the database. Not stored: a Neo4j connection is always Neo4j, a Bolt
+   * graph database connection sets it from its type.
+   */
+  private BoltGraphDialect dialect = Neo4jGraphDialect.INSTANCE;
+
   public NeoConnection() {
     boltPort = "7687";
     browserPort = "7474";
@@ -141,6 +154,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     this.automatic = source.automatic;
     this.automaticVariable = source.automaticVariable;
     this.protocol = source.protocol;
+    this.dialect = source.dialect;
     this.manualUrls = new ArrayList<>();
     this.manualUrls.addAll(source.manualUrls);
   }
@@ -186,6 +200,17 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       }
     }
     return driver.session(cfgBuilder.build());
+  }
+
+  /**
+   * A graph database connection of type Neo4j with the name and settings of this connection, for
+   * the tools which work on any graph connection, like hop-conf. Nothing is saved.
+   */
+  @Override
+  public GraphDatabaseMeta toGraphDatabaseMeta() throws HopException {
+    Neo4jGraphDatabase neo4j = (Neo4jGraphDatabase) GraphDatabaseMeta.createGraphDatabase("NEO4J");
+    neo4j.copyFrom(this);
+    return new GraphDatabaseMeta(name, neo4j);
   }
 
   /**
@@ -857,5 +882,19 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
    */
   public void setProtocol(String protocol) {
     this.protocol = protocol;
+  }
+
+  /**
+   * @return The dialect of the database, never null
+   */
+  public BoltGraphDialect getDialect() {
+    return dialect == null ? Neo4jGraphDialect.INSTANCE : dialect;
+  }
+
+  /**
+   * @param dialect The dialect of the database
+   */
+  public void setDialect(BoltGraphDialect dialect) {
+    this.dialect = dialect;
   }
 }

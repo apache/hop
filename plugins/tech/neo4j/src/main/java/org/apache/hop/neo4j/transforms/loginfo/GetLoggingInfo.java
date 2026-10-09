@@ -18,7 +18,6 @@
 
 package org.apache.hop.neo4j.transforms.loginfo;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,26 +27,23 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
-import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.neo4j.logging.Defaults;
 import org.apache.hop.neo4j.logging.util.LoggingCore;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
 
 /** Get information from the System or the supervising pipeline. */
 public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData> {
 
   public static final String CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE =
-      "Unable to find logging Neo4j connection (variable ";
+      "Unable to find the logging graph database connection (variable ";
   public static final String CONST_STATUS = "status";
 
   public GetLoggingInfo(
@@ -198,138 +194,62 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
   }
 
   private Date getPreviousPipelineExecution(String pipelineName) throws Exception {
-
-    final NeoConnection connection =
-        LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
-    if (connection == null) {
-      throw new HopException(
-          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
-              + Defaults.NEO4J_LOGGING_CONNECTION
-              + ")");
-    }
-
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("type", "PIPELINE");
-    parameters.put("name", pipelineName);
-    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
-
-    String cypher =
-        "MATCH(e:Execution { type: $type, name : $name }) "
-            + "WHERE e.status = $status "
-            + "RETURN e.name AS Name, e.executionStart AS startDate, e.errors AS errors, e.id AS id "
-            + "ORDER BY startDate DESC "
-            + "LIMIT 1 ";
-
-    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
+    return getPreviousStartDate(LoggingObjectType.PIPELINE.name(), pipelineName, false);
   }
 
   private Date getPreviousPipelineSuccess(String pipelineName) throws Exception {
-
-    final NeoConnection connection =
-        LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
-    if (connection == null) {
-      throw new HopException(
-          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
-              + Defaults.NEO4J_LOGGING_CONNECTION
-              + ")");
-    }
-
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("type", "TRANS");
-    parameters.put("name", pipelineName);
-    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
-
-    String cypher =
-        "MATCH(e:Execution { type: $type, name : $name }) "
-            + "WHERE e.errors = 0 "
-            + "  AND e.status = $status "
-            + "RETURN e.name AS Name, e.executionStart AS startDate, e.errors AS errors, e.id AS id "
-            + "ORDER BY startDate DESC "
-            + "LIMIT 1 ";
-
-    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
+    return getPreviousStartDate(LoggingObjectType.PIPELINE.name(), pipelineName, true);
   }
 
-  private Date getPreviousWorkflowExecution(String jobName) throws Exception {
-
-    final NeoConnection connection =
-        LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
-    if (connection == null) {
-      throw new HopException(
-          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
-              + Defaults.NEO4J_LOGGING_CONNECTION
-              + ")");
-    }
-
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("type", "JOB");
-    parameters.put("workflow", jobName);
-    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
-
-    String cypher =
-        "MATCH(e:Execution { type: $type, name : $job }) "
-            + "WHERE e.status = $status "
-            + "RETURN e.name AS Name, e.executionStart AS startDate, e.errors AS errors, e.id AS id "
-            + "ORDER BY startDate DESC "
-            + "LIMIT 1 ";
-
-    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
+  private Date getPreviousWorkflowExecution(String workflowName) throws Exception {
+    return getPreviousStartDate(LoggingObjectType.WORKFLOW.name(), workflowName, false);
   }
 
-  private Date getPreviousWorkflowSuccess(String jobName) throws Exception {
-
-    final NeoConnection connection =
-        LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
-    if (connection == null) {
-      throw new HopException(
-          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
-              + Defaults.NEO4J_LOGGING_CONNECTION
-              + ")");
-    }
-
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("type", "JOB");
-    parameters.put("workflow", jobName);
-    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
-
-    String cypher =
-        "MATCH(e:Execution { type: $type, name : $job }) "
-            + "WHERE e.errors = 0 "
-            + "  AND e.status = $status "
-            + "RETURN e.name AS Name, e.executionStart AS startDate, e.errors AS errors, e.id AS id "
-            + "ORDER BY startDate DESC "
-            + "LIMIT 1 ";
-
-    return getResultStartDate(getLogChannel(), connection, cypher, parameters);
+  private Date getPreviousWorkflowSuccess(String workflowName) throws Exception {
+    return getPreviousStartDate(LoggingObjectType.WORKFLOW.name(), workflowName, true);
   }
 
-  private Date getResultStartDate(
-      ILogChannel log, NeoConnection connection, String cypher, Map<String, Object> parameters)
+  /**
+   * The start date of the last finished execution of a pipeline or workflow in the execution
+   * logging, null if there is none.
+   *
+   * @param type The execution type, as the logging writes it: PIPELINE or WORKFLOW
+   * @param name The name of the pipeline or workflow
+   * @param withoutErrors True for the last execution without errors
+   */
+  private Date getPreviousStartDate(String type, String name, boolean withoutErrors)
       throws Exception {
-    return LoggingCore.executeCypher(
-        log,
-        this,
-        connection,
-        cypher,
-        parameters,
-        result -> {
-          try {
-            return getResultDate(result, "startDate");
-          } catch (ParseException e) {
-            throw new HopRuntimeException("Unable to get start date with cypher : " + cypher, e);
-          }
-        });
-  }
-
-  private Date getResultDate(Result result, String startDate) throws ParseException {
-    // One row, get it
-    //
-    if (result.hasNext()) {
-      Record record = result.next();
-      String string = record.get("startDate").asString(); // Dates in logging are in String formats
-      return new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").parse(string);
+    NamedGraphConnection connection =
+        LoggingCore.getConnection(getPipeline().getMetadataProvider(), getPipeline());
+    if (connection == null) {
+      throw new HopException(
+          CONST_UNABLE_TO_FIND_LOGGING_NEO_4_J_CONNECTION_VARIABLE
+              + Defaults.HOP_GRAPH_LOGGING_CONNECTION
+              + ")");
     }
 
-    return null;
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("type", type);
+    parameters.put("name", name);
+    parameters.put(CONST_STATUS, Pipeline.STRING_FINISHED);
+
+    String cypher =
+        "MATCH (e:Execution { type: $type, name : $name }) "
+            + "WHERE e.status = $status "
+            + (withoutErrors ? "AND e.errors = 0 " : "")
+            + "RETURN e.executionStart AS startDate "
+            + "ORDER BY startDate DESC "
+            + "LIMIT 1 ";
+
+    List<Map<String, Object>> rows =
+        LoggingCore.query(getLogChannel(), this, connection, cypher, parameters);
+    if (rows.isEmpty()) {
+      return null;
+    }
+    // Dates in the logging are strings
+    String startDate = LoggingCore.getStringValue(rows.get(0), "startDate");
+    return startDate == null
+        ? null
+        : new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").parse(startDate);
   }
 }

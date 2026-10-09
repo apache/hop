@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>neo4j-error-lineage-8704-validation</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Reads the error lineage of a failed run from the Neo4j execution information location, see issue #8704</description>
+    <extended_description>The WHERE clause is the one from NeoExecutionViewerTabBase.buildPathToFailedCypher(), used by the
+Error lineage tab of the Execution information perspective. The variable length pattern is bounded to 20
+hops so Neo4j doesn't return an UnboundedVariableLengthPattern notification, which the Cypher transform
+reports as an error.
+
+Until issue #8704 the Neo4j location rejected the first registration of every workflow action, because
+it had no name. The action never made it into the graph, so the pipeline it ran wasn't connected to the
+workflow and the error lineage of the workflow was empty.</extended_description>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/10/01 10:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/10/01 10:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>1 row</from>
+      <to>Look up error lineage</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Look up error lineage</from>
+      <to>ERROR LINEAGE</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>1 row</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+    </fields>
+    <limit>1</limit>
+    <never_ending>N</never_ending>
+    <interval_in_ms>5000</interval_in_ms>
+    <row_time_field>now</row_time_field>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>144</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Look up error lineage</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher>MATCH (top:Execution { name : 'error-lineage-8704-run', executionType : 'Workflow' })
+MATCH p = shortestPath((top)-[:EXECUTES*1..20]-&gt;(child:Execution))
+WHERE child.failed = true
+  AND child.id &lt;&gt; top.id
+  AND NOT (child)-[:EXECUTES]-&gt;()
+  AND all(n IN nodes(p) WHERE n.type IS NULL)
+RETURN reduce(lineage = '', n IN nodes(p) | lineage + CASE WHEN lineage = '' THEN '' ELSE ' &gt; ' END + n.name) AS errorLineage
+ORDER BY size(RELATIONSHIPS(p))
+LIMIT 10</cypher>
+    <batch_size>1</batch_size>
+    <read_only>Y</read_only>
+    <nr_retries_on_error>5</nr_retries_on_error>
+    <retry>Y</retry>
+    <cypher_from_field>N</cypher_from_field>
+    <cypher_field/>
+    <unwind>N</unwind>
+    <unwind_map/>
+    <returning_graph>N</returning_graph>
+    <return_graph_field/>
+    <mappings>
+    </mappings>
+    <returns>
+      <return>
+        <name>errorLineage</name>
+        <type>String</type>
+        <source_type>String</source_type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ERROR LINEAGE</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

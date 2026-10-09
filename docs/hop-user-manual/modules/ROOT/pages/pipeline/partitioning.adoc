@@ -15,14 +15,33 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
-:description: Partitioning allows you to distribute all the data from a set into distinct subsets according to the rule applied on a table or row, where these subsets form a partition of the original set with no item replicated into multiple groups.
+:description: Partitioning routes rows to threads on the local Hop pipeline engine so related rows stay together. Beam (including Flink) and native Spark do not apply a Hop partition schema.
 
 = Partitioning
 
 Partitioning allows you to distribute all the data from a set into distinct subsets according to the rule applied on a table or row, where these subsets form a partition of the original set with no item replicated into multiple groups.
 
-Partitioning data is an important feature to scale your Hop pipelines up and out.
-Scaling up makes the most of a single server with multiple CPU cores, while scaling out maximizes the resources of multiple servers operating in parallel.
+Partitioning data scales a pipeline on the local Hop pipeline engine.
+It uses the cores of that one engine: each partition is a thread, and rows that belong together stay on the same thread.
+It does not spread work across a Flink, Spark or Dataflow cluster.
+
+[[supported-engines]]
+== Supported engines
+
+A partition schema, the copies it starts, repartitioning and swimlanes are applied only by the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[local Hop pipeline engine].
+The xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote] and xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[load-balancing] engines apply them only when the Hop Server runs the pipeline on that same engine.
+The xref:pipeline/pipeline-run-configurations/single-threaded-pipeline-engine.adoc[single-threaded] engine uses the same routing, but from one thread.
+
+Beam engines do not read the partition schema.
+That includes xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Flink], xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Spark], xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Dataflow] and the xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Direct] runner.
+Setting a schema does not group rows onto the same Flink task or Beam worker.
+Parallelism on those engines comes from the runner.
+The xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[native Spark] engine ignores the schema as well and uses Spark partitions.
+See xref:pipeline/specify-copies.adoc#supported-engines[Specify copies] for the same limit on the copy count.
+
+NOTE: This page is about routing rows to transform copies.
+It is not the table or file split some transforms do from a field value, such as xref:pipeline/transforms/tableoutput.adoc[Table output].
+That option belongs to the transform and still runs wherever the transform itself is supported.
 
 == Data Partitioning During Processing
 
@@ -33,7 +52,7 @@ The results of which can be verified by examining the preview data.
 
 image::hop-gui/pipeline/partitionining-preview.png[Pipeline Preview,width="45%"]
 
-To take advantage of the processing resources in your run configuration, you can scale up the pipeline using the multi-threading option `Change Number of Copies to Start` to produce multiple copies of the transform (click the transform's icon to open the context dialog and select 'Specify copies' in the 'Data routing' category).
+To take advantage of the cores on the local Hop pipeline engine, you can scale up the pipeline using the multi-threading option `Change Number of Copies to Start` to produce multiple copies of the transform (click the transform's icon to open the context dialog and select 'Specify copies' in the 'Data routing' category).
 
 As shown below, the x2 notation indicates that two copies will be started at runtime.
 

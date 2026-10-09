@@ -18,8 +18,13 @@
 package org.apache.hop.neo4j.core.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.graph.GraphNodeValue;
+import org.apache.hop.core.graph.GraphPathValue;
+import org.apache.hop.core.graph.GraphRelationshipValue;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -244,6 +249,34 @@ public class GraphData {
     } else {
       relationships.set(index, dataRelationship);
     }
+  }
+
+  /**
+   * Add the nodes, relationships and paths in a value from the results of a graph database
+   * connection, also those inside lists and maps. Other values are ignored.
+   */
+  public void updateFromValue(Object value) {
+    if (value instanceof GraphNodeValue node) {
+      update(new GraphNodeData(node));
+    } else if (value instanceof GraphRelationshipValue relationship) {
+      update(new GraphRelationshipData(relationship));
+    } else if (value instanceof GraphPathValue path) {
+      path.nodes().forEach(node -> update(new GraphNodeData(node)));
+      path.relationships().forEach(relationship -> update(new GraphRelationshipData(relationship)));
+    } else if (value instanceof Collection<?> collection) {
+      collection.forEach(this::updateFromValue);
+    } else if (value instanceof Map<?, ?> map) {
+      map.values().forEach(this::updateFromValue);
+    }
+  }
+
+  /** The graph of all the nodes, relationships and paths in result rows of a graph connection. */
+  public static GraphData fromRows(List<Map<String, Object>> rows) {
+    GraphData graphData = new GraphData();
+    for (Map<String, Object> row : rows) {
+      row.values().forEach(graphData::updateFromValue);
+    }
+    return graphData;
   }
 
   public void update(Node node) {

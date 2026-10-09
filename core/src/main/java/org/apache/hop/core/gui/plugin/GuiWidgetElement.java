@@ -89,6 +89,15 @@ public @interface GuiWidgetElement {
   int multiLineTextHeight() default 1;
 
   /**
+   * Preferred height of a {@link GuiElementType#TABLE}, in rows. Default is 5. Values less than 1
+   * are treated as 5. Ignored for other element types. The last grid in a parent also grows with
+   * the parent.
+   *
+   * @return height in rows
+   */
+  int tableRows() default 5;
+
+  /**
    * @return true if the widget supports variables
    */
   boolean variables() default true;
@@ -153,6 +162,14 @@ public @interface GuiWidgetElement {
   String metadataKey() default "";
 
   /**
+   * A subclass of the metadata selection line widget to use instead of the standard one, for
+   * example to list the elements of more than one metadata type. It needs a public constructor
+   * taking IVariables, IHopMetadataProvider, Composite, int flags, String label and String tooltip.
+   * {@link Void} (the default) uses the standard widget.
+   */
+  Class<?> metadataSelectionLine() default Void.class;
+
+  /**
    * Optional naming-scheme type code for this widget ({@code file}, {@code folder}, {@code
    * hop-variable}, …). Empty means: infer {@code file}/{@code folder} from {@link
    * GuiElementType#FILENAME}/{@link GuiElementType#FOLDER}, otherwise the widget is not a name
@@ -178,4 +195,17 @@ public @interface GuiWidgetElement {
    * GuiWidgetGroupType#NONE} value wins. Mixed types log a warning and fall back to tabs.
    */
   GuiWidgetGroupType groupType() default GuiWidgetGroupType.NONE;
+
+  /**
+   * What this option falls back to when it has never been set, as it would be written in the
+   * documentation ({@code "true"}, {@code "1000"}, ...). Only for widgets whose value has no field
+   * of the same name on the {@code configClass()} of their {@code @ConfigPlugin} - a plugin reading
+   * the option straight from {@link org.apache.hop.core.config.HopConfig} with an inline fallback,
+   * for instance. Where that field does exist, leave this empty: a documentation generator reads
+   * the real default off the configuration object, which cannot fall out of step with the code the
+   * way a copy here can.
+   *
+   * @return The default value as text, or an empty String
+   */
+  String defaultValue() default "";
 }

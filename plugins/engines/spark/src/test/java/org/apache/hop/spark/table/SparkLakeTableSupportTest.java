@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests that do not require Delta/Iceberg connectors on the classpath. */
@@ -45,10 +45,9 @@ class SparkLakeTableSupportTest {
 
   @Test
   void normalizeIdentifierMode() throws Exception {
+    assertEquals(LakeTableInputMeta.MODE_PATH, SparkLakeTableSupport.normalizeIdentifierMode(null));
     assertEquals(
-        SparkLakeTableInputMeta.MODE_PATH, SparkLakeTableSupport.normalizeIdentifierMode(null));
-    assertEquals(
-        SparkLakeTableInputMeta.MODE_TABLE, SparkLakeTableSupport.normalizeIdentifierMode("table"));
+        LakeTableInputMeta.MODE_TABLE, SparkLakeTableSupport.normalizeIdentifierMode("table"));
     assertThrows(HopException.class, () -> SparkLakeTableSupport.normalizeIdentifierMode("uri"));
   }
 
@@ -81,7 +80,7 @@ class SparkLakeTableSupportTest {
             null,
             new Variables(),
             SparkLakeFormats.FORMAT_DELTA,
-            SparkLakeTableInputMeta.MODE_PATH,
+            LakeTableInputMeta.MODE_PATH,
             "s3://bucket/table",
             null,
             "merge",
@@ -109,9 +108,9 @@ class SparkLakeTableSupportTest {
 
   @Test
   void resolveWriteRejectsMissingPath() {
-    SparkLakeTableOutputMeta meta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta meta = new LakeTableOutputMeta();
     meta.setFormat(SparkLakeFormats.FORMAT_DELTA);
-    meta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    meta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     meta.setTablePath("");
     HopException ex =
         assertThrows(
@@ -122,7 +121,7 @@ class SparkLakeTableSupportTest {
 
   @Test
   void defaultSaveModeIsErrorIfExists() {
-    SparkLakeTableOutputMeta meta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta meta = new LakeTableOutputMeta();
     assertEquals(
         org.apache.hop.spark.transforms.io.SparkFileOutputMeta.MODE_ERROR, meta.getSaveMode());
   }
@@ -131,14 +130,14 @@ class SparkLakeTableSupportTest {
   void timeTravelOptionMapDelta() throws Exception {
     Map<String, String> v =
         SparkLakeTableSupport.timeTravelOptionMap(
-            SparkLakeFormats.FORMAT_DELTA, SparkLakeTableInputMeta.TIME_TRAVEL_VERSION, "12", null);
+            SparkLakeFormats.FORMAT_DELTA, LakeTableInputMeta.TIME_TRAVEL_VERSION, "12", null);
     assertEquals("12", v.get("versionAsOf"));
     assertEquals(1, v.size());
 
     Map<String, String> t =
         SparkLakeTableSupport.timeTravelOptionMap(
             SparkLakeFormats.FORMAT_DELTA,
-            SparkLakeTableInputMeta.TIME_TRAVEL_TIMESTAMP,
+            LakeTableInputMeta.TIME_TRAVEL_TIMESTAMP,
             null,
             "2024-01-15 10:00:00");
     assertEquals("2024-01-15 10:00:00", t.get("timestampAsOf"));
@@ -148,16 +147,13 @@ class SparkLakeTableSupportTest {
   void timeTravelOptionMapIceberg() throws Exception {
     Map<String, String> v =
         SparkLakeTableSupport.timeTravelOptionMap(
-            SparkLakeFormats.FORMAT_ICEBERG,
-            SparkLakeTableInputMeta.TIME_TRAVEL_VERSION,
-            "999",
-            null);
+            SparkLakeFormats.FORMAT_ICEBERG, LakeTableInputMeta.TIME_TRAVEL_VERSION, "999", null);
     assertEquals("999", v.get("snapshot-id"));
 
     Map<String, String> t =
         SparkLakeTableSupport.timeTravelOptionMap(
             SparkLakeFormats.FORMAT_ICEBERG,
-            SparkLakeTableInputMeta.TIME_TRAVEL_TIMESTAMP,
+            LakeTableInputMeta.TIME_TRAVEL_TIMESTAMP,
             null,
             "2024-06-01 12:00:00");
     assertEquals("2024-06-01 12:00:00", t.get("as-of-timestamp"));
@@ -167,7 +163,7 @@ class SparkLakeTableSupportTest {
   void timeTravelNoneYieldsEmptyMap() throws Exception {
     assertTrue(
         SparkLakeTableSupport.timeTravelOptionMap(
-                SparkLakeFormats.FORMAT_DELTA, SparkLakeTableInputMeta.TIME_TRAVEL_NONE, "1", "t")
+                SparkLakeFormats.FORMAT_DELTA, LakeTableInputMeta.TIME_TRAVEL_NONE, "1", "t")
             .isEmpty());
   }
 
@@ -177,10 +173,7 @@ class SparkLakeTableSupportTest {
         HopException.class,
         () ->
             SparkLakeTableSupport.timeTravelOptionMap(
-                SparkLakeFormats.FORMAT_DELTA,
-                SparkLakeTableInputMeta.TIME_TRAVEL_VERSION,
-                "",
-                null));
+                SparkLakeFormats.FORMAT_DELTA, LakeTableInputMeta.TIME_TRAVEL_VERSION, "", null));
   }
 
   @Test
@@ -189,14 +182,14 @@ class SparkLakeTableSupportTest {
     assertEquals(
         "SELECT * FROM " + id,
         SparkLakeTableSupport.buildIcebergTimeTravelSql(
-            id, SparkLakeTableInputMeta.TIME_TRAVEL_NONE, null, null));
+            id, LakeTableInputMeta.TIME_TRAVEL_NONE, null, null));
     assertEquals(
         "SELECT * FROM " + id + " VERSION AS OF 42",
         SparkLakeTableSupport.buildIcebergTimeTravelSql(
-            id, SparkLakeTableInputMeta.TIME_TRAVEL_VERSION, "42", null));
+            id, LakeTableInputMeta.TIME_TRAVEL_VERSION, "42", null));
     assertEquals(
         "SELECT * FROM " + id + " TIMESTAMP AS OF TIMESTAMP '2024-01-01 00:00:00'",
         SparkLakeTableSupport.buildIcebergTimeTravelSql(
-            id, SparkLakeTableInputMeta.TIME_TRAVEL_TIMESTAMP, null, "2024-01-01 00:00:00"));
+            id, LakeTableInputMeta.TIME_TRAVEL_TIMESTAMP, null, "2024-01-01 00:00:00"));
   }
 }

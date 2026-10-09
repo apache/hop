@@ -57,7 +57,8 @@ public class FileValidationConfigPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::FileValidationConfigPlugin.ValidateDbConnectionsOnSave.Label",
-      toolTip = "i18n::FileValidationConfigPlugin.ValidateDbConnectionsOnSave.ToolTip")
+      toolTip = "i18n::FileValidationConfigPlugin.ValidateDbConnectionsOnSave.ToolTip",
+      defaultValue = "true")
   @CommandLine.Option(
       names = {"--validate-db-connections-on-save"},
       description =

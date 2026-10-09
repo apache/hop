@@ -24,7 +24,15 @@ public class Defaults {
 
   @Variable(
       description =
-          "Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database.")
+          "Set this variable to the name of a Neo4j connection or a graph database connection of a"
+              + " Cypher database to enable execution logging to that database.")
+  public static final String HOP_GRAPH_LOGGING_CONNECTION = "HOP_GRAPH_LOGGING_CONNECTION";
+
+  /** The variable from before graph database connections, used if the one above isn't set. */
+  @Variable(
+      description =
+          "Set this variable to the name of an existing Neo4j connection to enable execution"
+              + " logging to a Neo4j database. HOP_GRAPH_LOGGING_CONNECTION takes precedence.")
   public static final String NEO4J_LOGGING_CONNECTION = "NEO4J_LOGGING_CONNECTION";
 
   public static String TRANS_NODE_UPDATES_GROUP = "NODE_UPDATES";

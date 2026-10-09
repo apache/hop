@@ -29,6 +29,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -70,6 +71,12 @@ public class HopGuiWorkflowCheckDelegate {
   @Getter private CTabItem workflowCheckTab;
   @Getter private GuiToolbarWidgets toolBarWidgets;
   private Tree wTree;
+
+  /**
+   * What the tab shows. Detaching or docking the results view builds the tab again, empty; the
+   * remarks are put back from here.
+   */
+  private List<ICheckResult> shownRemarks = List.of();
 
   /**
    * Check workflow and actions
@@ -152,6 +159,10 @@ public class HopGuiWorkflowCheckDelegate {
     wTree.addListener(SWT.DefaultSelection, this::edit);
 
     workflowCheckTab.setControl(checkComposite);
+
+    if (!shownRemarks.isEmpty()) {
+      refresh(shownRemarks);
+    }
   }
 
   @GuiToolbarElement(
@@ -231,9 +242,13 @@ public class HopGuiWorkflowCheckDelegate {
    * @param remarks the remarks to show
    */
   public void refresh(List<ICheckResult> remarks) {
+    shownRemarks = List.copyOf(remarks);
     wTree.setRedraw(false);
     wTree.removeAll();
 
+    // Remarks about the workflow as a whole sit together at the top, under its name. Added at the
+    // top level in arrival order, they landed between two groups and read as belonging to one.
+    TreeItem workflowItem = null;
     Map<ICheckResultSource, TreeItem> mapSourceItems = new HashMap<>();
     for (ICheckResult cr : remarks) {
       // Ignore OK result
@@ -242,7 +257,12 @@ public class HopGuiWorkflowCheckDelegate {
       ICheckResultSource source = cr.getSourceInfo();
       TreeItem item = mapSourceItems.get(source);
       if (source == null) {
-        item = new TreeItem(wTree, SWT.NONE);
+        if (workflowItem == null) {
+          workflowItem = new TreeItem(wTree, SWT.NONE, 0);
+          workflowItem.setText(workflowLabel());
+          workflowItem.setImage(GuiResource.getInstance().getImageWorkflow());
+        }
+        item = new TreeItem(workflowItem, SWT.NONE);
       } else if (item == null) {
         TreeItem parentItem = new TreeItem(wTree, SWT.NONE);
         parentItem.setText(source.getName());
@@ -271,7 +291,17 @@ public class HopGuiWorkflowCheckDelegate {
       }
     }
 
+    if (workflowItem != null) {
+      workflowItem.setExpanded(true);
+    }
     wTree.setRedraw(true);
+  }
+
+  private String workflowLabel() {
+    String name = workflowGraph.getWorkflowMeta().getName();
+    return Utils.isEmpty(name)
+        ? BaseMessages.getString(PKG, "WorkflowGraph.Check.WorkflowRemarks")
+        : name;
   }
 
   private Image getImage(ICheckResult cr) {

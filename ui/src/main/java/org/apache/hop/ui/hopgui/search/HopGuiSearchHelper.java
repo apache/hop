@@ -291,6 +291,69 @@ public final class HopGuiSearchHelper {
   /** Audit type under which the shared search-string history is stored (popup + results panel). */
   public static final String AUDIT_TYPE_SEARCH_STRING = "search-string";
 
+  /**
+   * Combo index of the combined search: every location that {@link
+   * ISearchablesLocation#isIncludedInDefaultSearch()} reports.
+   */
+  public static final int ALL_LOADED_LOCATIONS_INDEX = 0;
+
+  /**
+   * Locations to search for a footer combo selection. Index {@link #ALL_LOADED_LOCATIONS_INDEX}
+   * keeps the default combined search. A higher index selects that single location (the combo lists
+   * the combined entry first, then each location).
+   */
+  public static List<ISearchablesLocation> selectLocations(
+      List<ISearchablesLocation> locations, int selectionIndex) {
+    if (locations == null || locations.isEmpty()) {
+      return List.of();
+    }
+    if (selectionIndex <= ALL_LOADED_LOCATIONS_INDEX) {
+      List<ISearchablesLocation> included = new ArrayList<>();
+      for (ISearchablesLocation location : locations) {
+        if (location != null && location.isIncludedInDefaultSearch()) {
+          included.add(location);
+        }
+      }
+      return included;
+    }
+    int locationIndex = selectionIndex - 1;
+    if (locationIndex >= locations.size()) {
+      return selectLocations(locations, ALL_LOADED_LOCATIONS_INDEX);
+    }
+    ISearchablesLocation location = locations.get(locationIndex);
+    return location == null ? List.of() : List.of(location);
+  }
+
+  /**
+   * Combo index of the location with this id, or {@link #ALL_LOADED_LOCATIONS_INDEX} when the id is
+   * empty or unknown.
+   */
+  public static int indexOfLocation(List<ISearchablesLocation> locations, String locationId) {
+    if (locations == null || locationId == null || locationId.isEmpty()) {
+      return ALL_LOADED_LOCATIONS_INDEX;
+    }
+    for (int i = 0; i < locations.size(); i++) {
+      ISearchablesLocation location = locations.get(i);
+      if (location != null && locationId.equals(location.getLocationId())) {
+        return i + 1;
+      }
+    }
+    return ALL_LOADED_LOCATIONS_INDEX;
+  }
+
+  /** Labels for the location combo: the combined entry first, then each location description. */
+  public static String[] locationLabels(
+      List<ISearchablesLocation> locations, String allLoadedLabel) {
+    List<ISearchablesLocation> safe = locations == null ? List.of() : locations;
+    String[] items = new String[safe.size() + 1];
+    items[0] = allLoadedLabel;
+    for (int i = 0; i < safe.size(); i++) {
+      ISearchablesLocation location = safe.get(i);
+      items[i + 1] = location == null ? "" : Const.NVL(location.getLocationDescription(), "");
+    }
+    return items;
+  }
+
   // --- Cross-location enumeration + grouping (shared by the popup and the perspective) -----------
 
   /** Internal section key for objects that are currently open in a Hop GUI tab. */
@@ -322,12 +385,15 @@ public final class HopGuiSearchHelper {
     Set<String> seen = new HashSet<>();
     for (int locationIndex = 0; locationIndex < locations.size(); locationIndex++) {
       ISearchablesLocation location = locations.get(locationIndex);
+      // Index 0 is reserved for the Hop GUI location so open tabs stay distinct when the list
+      // being searched does not start with that location.
+      int sourceIndex = sourceIndex(location, locationIndex);
       try {
         for (ISearchable searchable : enumerateSearchables(location, metadataProvider, variables)) {
           String key = searchableKey(searchable);
           if (seen.add(key)) {
             searchables.add(searchable);
-            sourceByKey.put(key, locationIndex);
+            sourceByKey.put(key, sourceIndex);
           }
         }
       } catch (Exception e) {
@@ -338,6 +404,14 @@ public final class HopGuiSearchHelper {
       }
     }
     return new EnumeratedSearchables(searchables, sourceByKey);
+  }
+
+  /** Source index stored for a location. 0 means the objects came from the Hop GUI location. */
+  private static int sourceIndex(ISearchablesLocation location, int locationIndex) {
+    if (location instanceof HopGuiSearchLocation) {
+      return 0;
+    }
+    return locationIndex == 0 ? 1 : locationIndex;
   }
 
   /**

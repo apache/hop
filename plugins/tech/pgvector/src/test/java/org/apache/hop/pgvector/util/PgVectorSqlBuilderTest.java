@@ -17,6 +17,7 @@
 package org.apache.hop.pgvector.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -101,6 +102,17 @@ class PgVectorSqlBuilderTest {
         "score vector + 2 filters + order-by vector + limit");
     assertTrue(sql.contains("WHERE \"source_type\" = ? AND \"origin\" = ?"));
     assertTrue(sql.endsWith("LIMIT ?"));
+  }
+
+  /** With every filter skipped for a row, the search runs without a WHERE clause. */
+  @Test
+  void searchSqlWithoutFiltersHasNoWhereClause() {
+    String sql =
+        PgVectorSqlBuilder.searchSql(
+            "\"public\".\"chunks\"", VectorDistanceMetric.COSINE, List.of());
+
+    assertFalse(sql.contains("WHERE"));
+    assertEquals(3, sql.chars().filter(c -> c == '?').count(), "score vector + order-by + limit");
   }
 
   /** Identifiers are quoted and embedded quotes are doubled, so a crafted name cannot break out. */

@@ -24,14 +24,20 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.graph.IGraphConnection;
+import org.apache.hop.core.graph.IGraphTransaction;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.neo4j.bolt.BoltGraphConnection;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionSelectionLine;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.neo4j.transforms.output.Neo4JOutputDialog;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -42,10 +48,10 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -68,13 +74,11 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
-import org.neo4j.driver.types.Type;
 import org.neo4j.driver.util.Pair;
 
 public class CypherDialog extends BaseTransformDialog {
@@ -85,7 +89,7 @@ public class CypherDialog extends BaseTransformDialog {
 
   private CTabFolder wTabFolder;
 
-  private MetaSelectionLine<NeoConnection> wConnection;
+  private NeoConnectionSelectionLine wConnection;
   private TextVar wBatchSize;
   private Button wReadOnly;
   private Button wRetryOnDisconnect;
@@ -156,14 +160,14 @@ public class CypherDialog extends BaseTransformDialog {
     wOptionsComp.setLayout(createFormLayout());
 
     wConnection =
-        new MetaSelectionLine<>(
+        new NeoConnectionSelectionLine(
             variables,
             metadataProvider,
-            NeoConnection.class,
             wOptionsComp,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            "Neo4j Connection",
-            "The name of the Neo4j connection to use");
+            "Graph database connection",
+            "The name of the graph database connection to use",
+            true);
     PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
@@ -407,7 +411,7 @@ public class CypherDialog extends BaseTransformDialog {
           new ColumnInfo("Parameter", ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo("Field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
           new ColumnInfo(
-              "Neo4j Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
+              "Graph type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
         };
 
     Label wlParameters = new Label(wParametersComp, SWT.LEFT);
@@ -736,62 +740,107 @@ public class CypherDialog extends BaseTransformDialog {
   }
 
   private void getReturnValues() {
-    Driver driver = null;
-    Session session = null;
-    Transaction transaction = null;
-
     CypherMeta meta = new CypherMeta();
     getInfo(meta);
 
     try {
-      NeoConnection neoConnection =
-          metadataProvider.getSerializer(NeoConnection.class).load(meta.getConnectionName());
-      driver = neoConnection.getDriver(log, variables);
-      session = driver.session();
-      transaction = session.beginTransaction();
+      String connectionName = variables.resolve(meta.getConnectionName());
+      NamedGraphConnection graphConnection =
+          NeoConnectionUtils.findGraphConnection(metadataProvider, connectionName);
+      if (graphConnection == null) {
+        showMessage(
+            SWT.OK | SWT.ICON_ERROR,
+            BaseMessages.getString(
+                PKG, "CypherDialog.GetReturnValues.ConnectionNotFound", connectionName));
+        return;
+      }
       Map<String, Object> parameters = new HashMap<>();
       for (ParameterMapping mapping : meta.getParameterMappings()) {
         parameters.put(variables.resolve(mapping.getParameter()), "");
       }
       String cypher = variables.resolve(wCypher.getText());
-      Result result = transaction.run(cypher, parameters);
 
-      // Evaluate the result
-      //
-      if (result.hasNext()) {
-        Record record = result.next();
-        List<Pair<String, Value>> fields = record.fields();
-        for (Pair<String, Value> fieldPair : fields) {
-          String returnField = fieldPair.key();
-          Value returnValue = fieldPair.value();
-          Type valueType = returnValue.type();
-
-          String typeName = valueType.name().replaceAll("_", "").replace("LIST OF ANY?", "LIST");
-          GraphPropertyDataType type = GraphPropertyDataType.parseCode(typeName);
-          int kettleType = type.getHopType();
-
-          TableItem item = new TableItem(wReturns.table, SWT.NONE);
-          item.setText(1, returnField);
-          item.setText(2, ValueMetaFactory.getValueMetaName(kettleType));
-          item.setText(3, type.name());
+      List<ReturnValue> returnValues;
+      try (IGraphConnection connection = graphConnection.connect(log, variables)) {
+        if (connection instanceof BoltGraphConnection boltConnection) {
+          returnValues = getBoltReturnValues(boltConnection.getSession(), cypher, parameters);
+        } else {
+          if (!connection.isSupportingTransactions()
+              && showMessage(
+                      SWT.YES | SWT.NO | SWT.ICON_WARNING,
+                      BaseMessages.getString(
+                          PKG, "CypherDialog.GetReturnValues.NoTransactions", connectionName))
+                  != SWT.YES) {
+            return;
+          }
+          returnValues = getGenericReturnValues(connection, cypher, parameters);
         }
+      }
+
+      for (ReturnValue returnValue : returnValues) {
+        TableItem item = new TableItem(wReturns.table, SWT.NONE);
+        item.setText(1, returnValue.getName());
+        item.setText(2, returnValue.getType());
+        item.setText(3, returnValue.getSourceType());
       }
       wReturns.removeEmptyRows();
       wReturns.setRowNums();
       wReturns.optWidth(true);
     } catch (Exception e) {
       new ErrorDialog(shell, CONST_ERROR, "Error getting return values from Cypher statement", e);
-    } finally {
-      if (transaction != null) {
+    }
+  }
+
+  /**
+   * The return values of the first record of a statement, in a transaction which is rolled back.
+   * Only the first record is read.
+   */
+  private static List<ReturnValue> getBoltReturnValues(
+      Session session, String cypher, Map<String, Object> parameters) throws HopException {
+    List<ReturnValue> returnValues = new ArrayList<>();
+    try (Transaction transaction = session.beginTransaction()) {
+      try {
+        Result result = transaction.run(cypher, parameters);
+        if (result.hasNext()) {
+          Record record = result.next();
+          for (Pair<String, Value> field : record.fields()) {
+            returnValues.add(ReturnValue.fromBoltValue(field.key(), field.value()));
+          }
+        }
+      } finally {
         transaction.rollback();
-        transaction.close();
-      }
-      if (session != null) {
-        session.close();
-      }
-      if (driver != null) {
-        driver.close();
       }
     }
+    return returnValues;
+  }
+
+  /**
+   * The return values of the first result row of a statement, in a transaction which is rolled back
+   * where the database supports transactions.
+   */
+  private static List<ReturnValue> getGenericReturnValues(
+      IGraphConnection connection, String cypher, Map<String, Object> parameters)
+      throws HopException {
+    List<ReturnValue> returnValues = new ArrayList<>();
+    try (IGraphTransaction transaction = connection.beginTransaction()) {
+      try {
+        List<Map<String, Object>> rows = transaction.execute(cypher, parameters);
+        if (!rows.isEmpty()) {
+          for (Map.Entry<String, Object> column : rows.get(0).entrySet()) {
+            returnValues.add(ReturnValue.fromValue(column.getKey(), column.getValue()));
+          }
+        }
+      } finally {
+        transaction.rollback();
+      }
+    }
+    return returnValues;
+  }
+
+  private int showMessage(int style, String message) {
+    MessageBox box = new MessageBox(shell, style);
+    box.setText(BaseMessages.getString(PKG, "CypherDialog.GetReturnValues.Title"));
+    box.setMessage(message);
+    return box.open();
   }
 }

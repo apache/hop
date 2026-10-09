@@ -22,8 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.lint.CustomLintRule;
 import org.apache.hop.lint.RuleCombinator;
 import org.junit.jupiter.api.Test;
@@ -431,5 +435,91 @@ public class RuleRegistryTest {
     } finally {
       projectYaml.delete();
     }
+  }
+
+  /**
+   * A typo in hop-lint.yml used to change nothing and say nothing: SQL-002 stayed disabled.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8731">#8731</a>
+   */
+  @Test
+  public void anUnknownRuleIdIsReportedWithTheClosestId() throws Exception {
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), "rules:\n  SQL-02:\n    enabled: true\n");
+    try {
+      EffectiveRuleSet rules = RuleRegistry.getInstance().resolve(projectYaml);
+
+      assertEquals(1, rules.getWarnings().size(), rules.getWarnings().toString());
+      String warning = rules.getWarnings().get(0);
+      assertTrue(warning.contains("'SQL-02'"), warning);
+      assertTrue(warning.contains("Did you mean SQL-002?"), warning);
+      assertFalse(
+          rules.getRules().stream()
+              .filter(rule -> "SQL-002".equals(rule.generateRuleId()))
+              .findFirst()
+              .orElseThrow()
+              .isEnabled());
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  @Test
+  public void aRuleIdInAnotherCaseIsTheSameRule() throws Exception {
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), "rules:\n  trans-002:\n    enabled: false\n");
+    try {
+      EffectiveRuleSet rules = RuleRegistry.getInstance().resolve(projectYaml);
+
+      assertTrue(rules.getWarnings().isEmpty(), rules.getWarnings().toString());
+      assertFalse(
+          rules.getRules().stream()
+              .filter(rule -> "TRANS-002".equals(rule.generateRuleId()))
+              .findFirst()
+              .orElseThrow()
+              .isEnabled());
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  /**
+   * Hop Gui resolves the rules for every file it lints and on every background check, so a warning
+   * logged each time filled the log for as long as the project kept the id.
+   */
+  @Test
+  public void anUnknownRuleIdIsLoggedOnce() throws Exception {
+    HopLogStore.init();
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), "rules:\n  NO-SUCH-RULE:\n    enabled: true\n");
+    List<String> logged = new ArrayList<>();
+    IHopLoggingEventListener listener =
+        event -> {
+          if (event.getLevel() == LogLevel.MINIMAL
+              && String.valueOf(event.getMessage()).contains("'NO-SUCH-RULE'")) {
+            logged.add(String.valueOf(event.getMessage()));
+          }
+        };
+    HopLogStore.getAppender().addLoggingEventListener(listener);
+    try {
+      EffectiveRuleSet first = RuleRegistry.getInstance().resolve(projectYaml);
+      EffectiveRuleSet second = RuleRegistry.getInstance().resolve(projectYaml);
+
+      assertEquals(1, logged.size(), logged.toString());
+      assertEquals(1, first.getWarnings().size());
+      assertEquals(first.getWarnings(), second.getWarnings(), "every resolution still reports it");
+    } finally {
+      HopLogStore.getAppender().removeLoggingEventListener(listener);
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  @Test
+  public void anIdFarFromAnyRuleGetsNoSuggestion() throws Exception {
+    String warning =
+        RuleRegistry.unknownRuleWarning(
+            "COMPLETELY-DIFFERENT", List.of("SQL-002", "DB-001"), new File("hop-lint.yml"));
+
+    assertFalse(warning.contains("Did you mean"), warning);
   }
 }

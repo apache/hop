@@ -21,30 +21,66 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 
 /** Instantiates {@link IAiProvider} plugins by id when deserializing AI provider metadata. */
 public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
 
+  private static final Class<?> PKG = AiProviderObjectFactory.class;
+
+  /**
+   * The id written by earlier versions that saved a provider without its plugin id. Such a file
+   * loads as a provider without a type, so the user can pick one and save it again.
+   */
+  static final String MISSING_ID = "null";
+
   @Override
   public Object createObject(String id, Object parentObject)
       throws HopException, HopMissingPluginsException {
+    if (Utils.isEmpty(id) || MISSING_ID.equals(id)) {
+      return new MissingTypeAiProvider();
+    }
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.findPluginWithId(AiProviderPluginType.class, id);
     if (plugin == null) {
       HopMissingPluginsException missing =
-          new HopMissingPluginsException("AI provider plugin not found: " + id);
+          new HopMissingPluginsException(
+              BaseMessages.getString(PKG, "AiProviderObjectFactory.PluginNotFound", id));
       missing.addMissingPluginDetails(AiProviderPluginType.class, id);
       throw missing;
     }
-    return registry.loadClass(plugin);
+    Object object = registry.loadClass(plugin);
+    if (object instanceof IAiProvider provider) {
+      provider.setPluginId(plugin.getIds()[0]);
+      provider.setPluginName(plugin.getName());
+    }
+    return object;
   }
 
   @Override
   public String getObjectId(Object object) throws HopException {
     if (!(object instanceof IAiProvider provider)) {
-      throw new HopException("Object is not an IAiProvider but " + object.getClass().getName());
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "AiProviderObjectFactory.NotAProvider", object.getClass().getName()));
     }
-    return provider.getPluginId();
+    String pluginId = provider.getPluginId();
+    if (Utils.isEmpty(pluginId)) {
+      IPlugin plugin = PluginRegistry.getInstance().getPlugin(AiProviderPluginType.class, object);
+      if (plugin != null) {
+        pluginId = plugin.getIds()[0];
+        provider.setPluginId(pluginId);
+        provider.setPluginName(plugin.getName());
+      }
+    }
+    if (Utils.isEmpty(pluginId)) {
+      throw new HopException(BaseMessages.getString(PKG, "AiProviderObjectFactory.NoType"));
+    }
+    return pluginId;
   }
+
+  /** Stands in for a provider that was saved without its plugin id. It has no type. */
+  static final class MissingTypeAiProvider extends BaseAiProvider {}
 }

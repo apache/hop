@@ -143,6 +143,11 @@ public class HopGuiPipelineHopDelegate {
       ok = false;
     }
 
+    if (ok && pipelineMeta.isMultipleCopiesTargetHop(newHop, pipelineGraph.getVariables())) {
+      pipelineGraph.showMultipleCopiesNotAllowedDialog();
+      ok = false;
+    }
+
     if (ok) { // only do the following checks, e.g. checkRowMixingStatically
       // when not looping, otherwise we get a loop with
       // StackOverflow there ;-)

@@ -38,6 +38,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -210,7 +211,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
       return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(

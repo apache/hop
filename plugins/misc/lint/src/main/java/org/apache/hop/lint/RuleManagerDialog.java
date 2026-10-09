@@ -74,7 +74,7 @@ public class RuleManagerDialog extends Dialog {
     // at the default size. The table scrolls horizontally if the user makes it narrower.
     shell.setSize(1220, 620);
     shell.setLocation(
-        parent.getLocation().x + (parent.getSize().x - 900) / 2,
+        parent.getLocation().x + (parent.getSize().x - 1220) / 2,
         parent.getLocation().y + (parent.getSize().y - 620) / 2);
     shell.open();
 
@@ -133,9 +133,15 @@ public class RuleManagerDialog extends Dialog {
           }
         });
 
+    // Findings, hop-lint.yml and the CLI all name a rule by its id, and two rules can share the
+    // start of a long name, so the id comes first.
+    TableColumn idColumn = new TableColumn(rulesTable, SWT.LEFT);
+    idColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.RuleId"));
+    idColumn.setWidth(110);
+
     TableColumn nameColumn = new TableColumn(rulesTable, SWT.LEFT);
     nameColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.RuleName"));
-    nameColumn.setWidth(180);
+    nameColumn.setWidth(260);
 
     TableColumn sourceColumn = new TableColumn(rulesTable, SWT.LEFT);
     sourceColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.Source"));
@@ -277,24 +283,27 @@ public class RuleManagerDialog extends Dialog {
 
     for (CustomLintRule rule : rules) {
       TableItem item = new TableItem(rulesTable, SWT.NONE);
-      item.setText(0, rule.getName() != null ? rule.getName() : "");
-      item.setText(1, rule.getPackOwner() != null ? rule.getPackOwner().getDisplayName() : "");
-      item.setText(2, rule.getTarget() != null ? rule.getTarget().getDisplayName() : "");
-      item.setText(3, rule.getTargetField() != null ? rule.getTargetField() : "");
+      item.setText(0, rule.getTarget() != null ? rule.generateRuleId() : nullToEmpty(rule.getId()));
+      item.setText(1, rule.getName() != null ? rule.getName() : "");
+      item.setText(2, rule.getPackOwner() != null ? rule.getPackOwner().getDisplayName() : "");
+      item.setText(3, rule.getTarget() != null ? rule.getTarget().getDisplayName() : "");
+      item.setText(4, rule.getTargetField() != null ? rule.getTargetField() : "");
       // A composed rule checks several things, and showing only its first clause made it
       // indistinguishable from a rule that checks one. Say so in the columns that would otherwise
       // be a half-truth.
       if (rule.isComposed()) {
         item.setText(
-            3, rule.getClauses().size() + " fields (" + rule.getCombinator().getYamlKey() + ")");
-        item.setText(4, rule.getCombinator() == RuleCombinator.ALL_OF ? "All of" : "Any of");
-        item.setText(5, "");
+            4, rule.getClauses().size() + " fields (" + rule.getCombinator().getYamlKey() + ")");
+        // A condition says what is required; the rule reports when the conditions are not met.
+        item.setText(
+            5, rule.getCombinator() == RuleCombinator.ALL_OF ? "All not met" : "Any not met");
+        item.setText(6, "");
       } else {
-        item.setText(4, rule.getCondition() != null ? rule.getCondition().getDisplayName() : "");
-        item.setText(5, rule.getConditionValue() != null ? rule.getConditionValue() : "");
+        item.setText(5, rule.getCondition() != null ? rule.getCondition().getDisplayName() : "");
+        item.setText(6, rule.getConditionValue() != null ? rule.getConditionValue() : "");
       }
-      item.setText(6, rule.getSeverity() != null ? rule.getSeverity() : "WARNING");
-      item.setText(7, rule.isEnabled() ? "✓" : "✗");
+      item.setText(7, rule.getSeverity() != null ? rule.getSeverity() : "WARNING");
+      item.setText(8, rule.isEnabled() ? "✓" : "✗");
       item.setData(rule);
     }
   }
@@ -325,9 +334,12 @@ public class RuleManagerDialog extends Dialog {
     if (newRule != null) {
       newRule.setPackId(RulePackIds.PROJECT);
       newRule.setPackOwner(RulePackOwner.PROJECT);
+      // Fixed now: without an id of its own the rule is named after a hash of its field and
+      // condition, so editing either would save it under a new id and leave the old entry behind.
+      newRule.setId(newRule.generateRuleId());
       rules.add(newRule);
       populateTable();
-      saveConfiguration();
+      saveRule(newRule, null);
       log.logBasic("Added project rule: " + newRule.getName());
     }
   }
@@ -342,11 +354,12 @@ public class RuleManagerDialog extends Dialog {
     // the project's hop-lint.yml, as an override when it only tunes the rule and as a full rule
     // definition when it redefines it. That keeps the pack upgradeable and the decision with the
     // project.
+    String previousId = rule.generateRuleId();
     RuleBuilderDialog dialog = new RuleBuilderDialog(shell, rule);
     CustomLintRule editedRule = dialog.open();
     if (editedRule != null) {
       populateTable();
-      saveConfiguration();
+      saveRule(editedRule, previousId);
       log.logBasic("Edited rule: " + rule.getName());
     }
   }
@@ -372,7 +385,11 @@ public class RuleManagerDialog extends Dialog {
       rules.remove(rule);
       populateTable();
       updateButtonState();
-      saveConfiguration();
+      try {
+        LinterConfigPlugin.getInstance().removeProjectRule(rule.generateRuleId());
+      } catch (Exception e) {
+        showSaveError(rule, e);
+      }
       log.logBasic("Deleted project rule: " + rule.getName());
     }
   }
@@ -388,7 +405,7 @@ public class RuleManagerDialog extends Dialog {
     populateTable();
     rulesTable.setSelection(findTableIndex(rule));
     updateButtonState();
-    saveConfiguration();
+    saveRule(rule, null);
     log.logBasic(
         "Toggled rule: " + rule.getName() + " to " + (rule.isEnabled() ? "enabled" : "disabled"));
   }
@@ -423,12 +440,32 @@ public class RuleManagerDialog extends Dialog {
     messageBox.open();
   }
 
-  private void saveConfiguration() {
+  /**
+   * Write the one rule that changed. The rest of hop-lint.yml — other rules, exclusions,
+   * suppressions and comments — stays as it is.
+   */
+  private void saveRule(CustomLintRule rule, String previousId) {
     try {
-      LinterConfigPlugin configPlugin = LinterConfigPlugin.getInstance();
-      configPlugin.saveProjectRules(new java.util.ArrayList<>(rules));
+      LinterConfigPlugin.getInstance().saveProjectRule(rule, previousId);
     } catch (Exception e) {
-      log.logError("Error saving custom rules configuration: " + e.getMessage(), e);
+      showSaveError(rule, e);
     }
+  }
+
+  /** A save that failed used to be logged only, so the change looked saved and was not. */
+  private void showSaveError(CustomLintRule rule, Exception e) {
+    log.logError("Error saving lint rule " + rule.generateRuleId() + ": " + e.getMessage(), e);
+    MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+    messageBox.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Dialog.SaveFailed.Title"));
+    messageBox.setMessage(
+        BaseMessages.getString(
+                PKG, "RuleManagerDialog.Dialog.SaveFailed.Message", rule.generateRuleId())
+            + "\n\n"
+            + e.getMessage());
+    messageBox.open();
+  }
+
+  private static String nullToEmpty(String value) {
+    return value == null ? "" : value;
   }
 }

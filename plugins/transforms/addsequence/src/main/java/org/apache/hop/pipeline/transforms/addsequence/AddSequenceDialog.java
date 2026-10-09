@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.addsequence;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -44,6 +46,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -82,6 +85,18 @@ public class AddSequenceDialog extends BaseTransformDialog {
 
   private Label wlMaxVal;
   private TextVar wMaxVal;
+
+  private Label wlConfigTransform;
+  private Combo wConfigTransform;
+
+  private Label wlStartField;
+  private Combo wStartField;
+
+  private Label wlEndField;
+  private Combo wEndField;
+
+  private Label wlIncrementField;
+  private Combo wIncrementField;
 
   private final AddSequenceMeta input;
 
@@ -354,6 +369,95 @@ public class AddSequenceDialog extends BaseTransformDialog {
     fdMaxVal.right = new FormAttachment(100, 0);
     wMaxVal.setLayoutData(fdMaxVal);
 
+    wlConfigTransform = new Label(gCounter, SWT.RIGHT);
+    wlConfigTransform.setText(
+        BaseMessages.getString(PKG, "AddSequenceDialog.ConfigurationTransform.Label"));
+    PropsUi.setLook(wlConfigTransform);
+    wlConfigTransform.setToolTipText(
+        BaseMessages.getString(PKG, "AddSequenceDialog.ConfigurationTransform.Tooltip"));
+    FormData fdlConfigTransform = new FormData();
+    fdlConfigTransform.left = new FormAttachment(0, 0);
+    fdlConfigTransform.right = new FormAttachment(middle, -margin);
+    fdlConfigTransform.top = new FormAttachment(wMaxVal, margin);
+    wlConfigTransform.setLayoutData(fdlConfigTransform);
+    wConfigTransform = new Combo(gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wConfigTransform);
+    wConfigTransform.setToolTipText(
+        BaseMessages.getString(PKG, "AddSequenceDialog.ConfigurationTransform.Tooltip"));
+    wConfigTransform.setItems(pipelineMeta.getPrevTransformNames(transformName));
+    FormData fdConfigTransform = new FormData();
+    fdConfigTransform.left = new FormAttachment(middle, 0);
+    fdConfigTransform.top = new FormAttachment(wMaxVal, margin);
+    fdConfigTransform.right = new FormAttachment(100, 0);
+    wConfigTransform.setLayoutData(fdConfigTransform);
+
+    wlStartField = new Label(gCounter, SWT.RIGHT);
+    wlStartField.setText(BaseMessages.getString(PKG, "AddSequenceDialog.StartField.Label"));
+    PropsUi.setLook(wlStartField);
+    wlStartField.setToolTipText(
+        BaseMessages.getString(PKG, "AddSequenceDialog.StartField.Tooltip"));
+    FormData fdlStartField = new FormData();
+    fdlStartField.left = new FormAttachment(0, 0);
+    fdlStartField.right = new FormAttachment(middle, -margin);
+    fdlStartField.top = new FormAttachment(wConfigTransform, margin);
+    wlStartField.setLayoutData(fdlStartField);
+    wStartField = new Combo(gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wStartField);
+    wStartField.setToolTipText(BaseMessages.getString(PKG, "AddSequenceDialog.StartField.Tooltip"));
+    wStartField.addModifyListener(lsMod);
+    FormData fdStartField = new FormData();
+    fdStartField.left = new FormAttachment(middle, 0);
+    fdStartField.top = new FormAttachment(wConfigTransform, margin);
+    fdStartField.right = new FormAttachment(100, 0);
+    wStartField.setLayoutData(fdStartField);
+
+    wlEndField = new Label(gCounter, SWT.RIGHT);
+    wlEndField.setText(BaseMessages.getString(PKG, "AddSequenceDialog.EndField.Label"));
+    PropsUi.setLook(wlEndField);
+    wlEndField.setToolTipText(BaseMessages.getString(PKG, "AddSequenceDialog.EndField.Tooltip"));
+    FormData fdlEndField = new FormData();
+    fdlEndField.left = new FormAttachment(0, 0);
+    fdlEndField.right = new FormAttachment(middle, -margin);
+    fdlEndField.top = new FormAttachment(wStartField, margin);
+    wlEndField.setLayoutData(fdlEndField);
+    wEndField = new Combo(gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wEndField);
+    wEndField.setToolTipText(BaseMessages.getString(PKG, "AddSequenceDialog.EndField.Tooltip"));
+    wEndField.addModifyListener(lsMod);
+    FormData fdEndField = new FormData();
+    fdEndField.left = new FormAttachment(middle, 0);
+    fdEndField.top = new FormAttachment(wStartField, margin);
+    fdEndField.right = new FormAttachment(100, 0);
+    wEndField.setLayoutData(fdEndField);
+
+    wlIncrementField = new Label(gCounter, SWT.RIGHT);
+    wlIncrementField.setText(BaseMessages.getString(PKG, "AddSequenceDialog.IncrementField.Label"));
+    PropsUi.setLook(wlIncrementField);
+    wlIncrementField.setToolTipText(
+        BaseMessages.getString(PKG, "AddSequenceDialog.IncrementField.Tooltip"));
+    FormData fdlIncrementField = new FormData();
+    fdlIncrementField.left = new FormAttachment(0, 0);
+    fdlIncrementField.right = new FormAttachment(middle, -margin);
+    fdlIncrementField.top = new FormAttachment(wEndField, margin);
+    wlIncrementField.setLayoutData(fdlIncrementField);
+    wIncrementField = new Combo(gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wIncrementField);
+    wIncrementField.setToolTipText(
+        BaseMessages.getString(PKG, "AddSequenceDialog.IncrementField.Tooltip"));
+    wIncrementField.addModifyListener(lsMod);
+    FormData fdIncrementField = new FormData();
+    fdIncrementField.left = new FormAttachment(middle, 0);
+    fdIncrementField.top = new FormAttachment(wEndField, margin);
+    fdIncrementField.right = new FormAttachment(100, 0);
+    wIncrementField.setLayoutData(fdIncrementField);
+
+    wConfigTransform.addModifyListener(
+        e -> {
+          input.setChanged();
+          enableFields();
+        });
+    wConfigTransform.addListener(SWT.Selection, e -> refreshConfigurationFields());
+
     wContent.pack();
     Rectangle bounds = wContent.getBounds();
     sc.setContent(wContent);
@@ -380,15 +484,56 @@ public class AddSequenceDialog extends BaseTransformDialog {
     wlSeqname.setEnabled(useDatabase);
     wSeqname.setEnabled(useDatabase);
 
+    boolean fromTransform = useCounter && !Utils.isEmpty(wConfigTransform.getText());
+
     wlCounterName.setEnabled(useCounter);
     wCounterName.setEnabled(useCounter);
-    wlStartAt.setEnabled(useCounter);
-    wStartAt.setEnabled(useCounter);
-    wlIncrBy.setEnabled(useCounter);
-    wIncrBy.setEnabled(useCounter);
-    wlMaxVal.setEnabled(useCounter);
-    wMaxVal.setEnabled(useCounter);
+    wlStartAt.setEnabled(useCounter && !fromTransform);
+    wStartAt.setEnabled(useCounter && !fromTransform);
+    wlIncrBy.setEnabled(useCounter && !fromTransform);
+    wIncrBy.setEnabled(useCounter && !fromTransform);
+    wlMaxVal.setEnabled(useCounter && !fromTransform);
+    wMaxVal.setEnabled(useCounter && !fromTransform);
+    wlConfigTransform.setEnabled(useCounter);
+    wConfigTransform.setEnabled(useCounter);
+    wlStartField.setEnabled(fromTransform);
+    wStartField.setEnabled(fromTransform);
+    wlEndField.setEnabled(fromTransform);
+    wEndField.setEnabled(fromTransform);
+    wlIncrementField.setEnabled(fromTransform);
+    wIncrementField.setEnabled(fromTransform);
     activeSequence();
+  }
+
+  /**
+   * Fill the start, end, and increment combos from the configuration transform. A failure to
+   * calculate those fields leaves the typed names in place.
+   */
+  private void refreshConfigurationFields() {
+    if (wStartField == null || wStartField.isDisposed()) {
+      return;
+    }
+    String start = wStartField.getText();
+    String end = wEndField.getText();
+    String increment = wIncrementField.getText();
+    String[] names = new String[0];
+    try {
+      String source = wConfigTransform.getText();
+      if (!Utils.isEmpty(source)) {
+        IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, source);
+        if (rowMeta != null) {
+          names = rowMeta.getFieldNames();
+        }
+      }
+    } catch (HopException e) {
+      log.logDebug("Unable to read fields from the configuration transform: " + e.getMessage());
+    }
+    wStartField.setItems(names);
+    wEndField.setItems(names);
+    wIncrementField.setItems(names);
+    wStartField.setText(Const.NVL(start, ""));
+    wEndField.setText(Const.NVL(end, ""));
+    wIncrementField.setText(Const.NVL(increment, ""));
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -417,6 +562,11 @@ public class AddSequenceDialog extends BaseTransformDialog {
     wStartAt.setText(input.getStartAt());
     wIncrBy.setText(input.getIncrementBy());
     wMaxVal.setText(input.getMaxValue());
+    wConfigTransform.setText(Const.NVL(input.getConfigurationTransform(), ""));
+    wStartField.setText(Const.NVL(input.getStartField(), ""));
+    wEndField.setText(Const.NVL(input.getEndField(), ""));
+    wIncrementField.setText(Const.NVL(input.getIncrementField(), ""));
+    refreshConfigurationFields();
 
     enableFields();
   }
@@ -446,6 +596,11 @@ public class AddSequenceDialog extends BaseTransformDialog {
     input.setStartAt(wStartAt.getText());
     input.setIncrementBy(wIncrBy.getText());
     input.setMaxValue(wMaxVal.getText());
+    input.setConfigurationTransform(wConfigTransform.getText());
+    input.setStartField(wStartField.getText());
+    input.setEndField(wEndField.getText());
+    input.setIncrementField(wIncrementField.getText());
+    input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
     if (input.isDatabaseUsed()
         && pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {

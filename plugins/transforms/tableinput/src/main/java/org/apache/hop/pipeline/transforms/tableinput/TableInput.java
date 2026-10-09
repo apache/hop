@@ -98,9 +98,40 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         if (isDetailed()) {
           logDetailed("Reading all parameter rows from incoming hops");
         }
-        RowMetaAndData assembled = readAllParameterRows();
-        parameters = assembled.getData();
-        parametersMeta = assembled.getRowMeta();
+
+        // Legacy sequencing contract (2.19): when there is no info stream (empty lookup) and no
+        // named parameters, the incoming rows are not parameters at all. They are only consumed
+        // so an upstream "header" transform can complete before the extraction runs. Consuming
+        // them as parameter rows would bind them to a statement without placeholders (ORA-17003 on
+        // Oracle). Drain them without collecting.
+        //
+        if (Utils.isEmpty(meta.getLookup()) && !meta.isUseNamedParameters()) {
+          String resolved;
+          try {
+            resolved = resolveSql();
+          } catch (HopException e) {
+            logError("Could not get SQL: " + e.getMessage());
+            setErrors(1);
+            stopAll();
+            return false;
+          }
+          if (TableInputSql.countPositionalPlaceholders(resolved) == 0) {
+            while (getRow() != null) {
+              // consume the sequencing row(s); nothing is bound
+            }
+            parameters = new Object[] {};
+            parametersMeta = new RowMeta();
+          } else {
+            RowMetaAndData assembled = readAllParameterRows();
+            parameters = assembled.getData();
+            parametersMeta = assembled.getRowMeta();
+          }
+        } else {
+          RowMetaAndData assembled = readAllParameterRows();
+          parameters = assembled.getData();
+          parametersMeta = assembled.getRowMeta();
+        }
+
         if (parameters == null) {
           parameters = new Object[] {};
         }
@@ -205,21 +236,26 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     }
   }
 
+  private String resolveSql() throws HopException {
+    String sql = meta.getEffectiveSql(variables);
+    if (meta.isVariableReplacementActive()) {
+      sql = resolve(sql);
+    }
+    return sql;
+  }
+
   private boolean doQuery(IRowMeta parametersMeta, Object[] parameters) throws HopException {
     boolean success = true;
 
     // Open the query with the optional parameters received from the source transforms.
     String sql;
     try {
-      sql = meta.getEffectiveSql(variables);
+      sql = resolveSql();
     } catch (HopException e) {
       logError("Could not get SQL: " + e.getMessage());
       setErrors(1);
       stopAll();
       return false;
-    }
-    if (meta.isVariableReplacementActive()) {
-      sql = resolve(sql);
     }
 
     TableInputSql.Bound bound;

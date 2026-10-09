@@ -18,14 +18,16 @@
 
 package org.apache.hop.neo4j.transforms.gencsv;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.HopVfs;
 
 public class CsvFile {
 
@@ -42,7 +44,7 @@ public class CsvFile {
   private transient Map<String, Integer> propsIndexes;
 
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
-  private transient FileOutputStream outputStream;
+  private transient OutputStream outputStream;
 
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient String idFieldName;
@@ -59,8 +61,14 @@ public class CsvFile {
     this.fileType = fileType;
   }
 
-  public void openFile() throws FileNotFoundException {
-    outputStream = new FileOutputStream(filename);
+  /** Open the file to write to, creating its folder if needed. */
+  public void openFile() throws HopException, IOException {
+    FileObject file = HopVfs.getFileObject(filename);
+    FileObject folder = file.getParent();
+    if (folder != null && !folder.exists()) {
+      folder.createFolder();
+    }
+    outputStream = HopVfs.getOutputStream(file, false);
   }
 
   public void closeFile() throws IOException {
@@ -75,14 +83,14 @@ public class CsvFile {
    *
    * @return value of outputStream
    */
-  public FileOutputStream getOutputStream() {
+  public OutputStream getOutputStream() {
     return outputStream;
   }
 
   /**
    * @param outputStream The outputStream to set
    */
-  public void setOutputStream(FileOutputStream outputStream) {
+  public void setOutputStream(OutputStream outputStream) {
     this.outputStream = outputStream;
   }
 

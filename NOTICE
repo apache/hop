@@ -22,3 +22,24 @@ See: https://calcite.apache.org/
 This product bundles Unity Catalog client libraries (transitive dependency of
 Delta Lake) under the Apache License, Version 2.0.
 See: https://github.com/unitycatalog/unitycatalog
+
+Apache Beam
+Copyright 2016-2018 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Based on source code originally developed by
+Google (http://www.google.com/).
+
+This product includes software developed at
+Google (http://www.google.com/).
+
+Elasticsearch
+Copyright 2009-2021 Elasticsearch
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+This product includes software developed by
+Joda.org (http://www.joda.org/).

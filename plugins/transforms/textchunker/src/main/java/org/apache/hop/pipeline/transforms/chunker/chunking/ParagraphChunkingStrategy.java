@@ -25,9 +25,11 @@ import org.apache.hop.pipeline.transforms.chunker.Chunk;
 /**
  * Chunking strategy that splits text on paragraph boundaries.
  *
- * <p>Paragraphs are identified by blank lines. A paragraph that on its own exceeds {@code maxSize}
- * is split further with {@link CharacterChunkingStrategy}, because a chunk larger than the limit
- * would be rejected downstream by the embedding model rather than simply being large.
+ * <p>Paragraphs are identified by blank lines, or by the literal separator configured with {@link
+ * #setSeparator(String)} when the text uses a custom multi-byte marker instead. A paragraph that on
+ * its own exceeds {@code maxSize} is split further with {@link CharacterChunkingStrategy}, because
+ * a chunk larger than the limit would be rejected downstream by the embedding model rather than
+ * simply being large.
  *
  * <p>Consecutive paragraphs are packed into one chunk while they fit within {@code maxSize}, which
  * is the usual contract for an embedding chunker: it keeps related text together and avoids
@@ -41,7 +43,61 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
    */
   private static final Pattern PARAGRAPH_SEPARATOR = Pattern.compile("\\R\\s*\\R");
 
+  /**
+   * The separator currently in effect. Defaults to blank-line detection and is replaced with a
+   * literal custom separator by {@link #setSeparator(String)}.
+   */
+  private Pattern separatorPattern = PARAGRAPH_SEPARATOR;
+
   private final CharacterChunkingStrategy fallback = new CharacterChunkingStrategy();
+
+  /**
+   * Sets a custom literal separator to split paragraphs on, so multi-byte markers such as {@code
+   * <PARA>} can be used where blank lines do not delimit the text. The separator is matched
+   * literally, not as a regular expression. An empty or null separator restores the default
+   * blank-line detection.
+   *
+   * @param separator the literal separator, e.g. {@code <PARA>}
+   */
+  public void setSeparator(String separator) {
+    if (separator == null || separator.isEmpty()) {
+      separatorPattern = PARAGRAPH_SEPARATOR;
+    } else {
+      separatorPattern = Pattern.compile(Pattern.quote(separator));
+    }
+  }
+
+  /**
+   * Decodes the escape sequences accepted in a configured separator so line breaks can be typed in
+   * a single-line text field: {@code \n}, {@code \r}, {@code \t} and {@code \\} (a literal
+   * backslash). Any other sequence is kept as typed, so a separator like {@code <PARA>} or {@code
+   * ##} needs no escaping.
+   *
+   * @param separator the separator as typed, may be null
+   * @return the decoded separator, null if the input was null
+   */
+  public static String decodeEscapes(String separator) {
+    if (separator == null || separator.indexOf('\\') < 0) {
+      return separator;
+    }
+    StringBuilder decoded = new StringBuilder(separator.length());
+    for (int i = 0; i < separator.length(); i++) {
+      char c = separator.charAt(i);
+      if (c != '\\' || i + 1 >= separator.length()) {
+        decoded.append(c);
+        continue;
+      }
+      char next = separator.charAt(++i);
+      switch (next) {
+        case 'n' -> decoded.append('\n');
+        case 'r' -> decoded.append('\r');
+        case 't' -> decoded.append('\t');
+        case '\\' -> decoded.append('\\');
+        default -> decoded.append('\\').append(next);
+      }
+    }
+    return decoded.toString();
+  }
 
   @Override
   public List<Chunk> chunk(String text, int maxSize, int overlap) {
@@ -113,11 +169,11 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
   }
 
   /**
-   * Splits on blank lines in a single pass, keeping each paragraph's offset in the original text.
+   * Splits on the separator in a single pass, keeping each paragraph's offset in the original text.
    */
-  private static List<Paragraph> splitParagraphs(String text) {
+  private List<Paragraph> splitParagraphs(String text) {
     List<Paragraph> paragraphs = new ArrayList<>();
-    Matcher matcher = PARAGRAPH_SEPARATOR.matcher(text);
+    Matcher matcher = separatorPattern.matcher(text);
     int start = 0;
     while (matcher.find()) {
       addParagraph(paragraphs, text, start, matcher.start());

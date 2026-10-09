@@ -1,0 +1,126 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Get graph schema transform reads the labels, relationship types and properties of a graph database, one row each.
+
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-neo4j
+
+= image:transforms/icons/graph_schema.svg[Get graph schema transform Icon, role="image-doc-icon"] Get graph schema
+
+== Description
+
+The Get graph schema transform reads which node labels and relationship types a graph database has, and the properties of each.
+It writes one row per property of a label or relationship type, and one row without property for a label or type without properties.
+
+Use it to document a graph, to check a graph against what a pipeline expects, or to see what a graph extracted with the xref:pipeline/transforms/extractgraph.adoc[Extract graph] transform contains.
+
+The transform doesn't read input rows: it is the start of a pipeline, like Table input.
+
+It works with every xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] and with Neo4j connections.
+
+== How the schema is read
+
+[options="header"]
+|===
+|Database |Labels, types and properties |Sample size
+
+|Neo4j
+|The schema procedures `db.schema.nodeTypeProperties()` and `db.schema.relTypeProperties()`, which read the whole graph.
+The labels at the ends of the relationships come from `db.schema.visualization()`.
+Without these procedures, a sample.
+|Only for the sample
+
+|Memgraph
+|`SHOW SCHEMA INFO`, when Memgraph runs with `--schema-info-enabled`.
+Otherwise a sample.
+|Only for the sample
+
+|Amazon Neptune
+|A sample of the nodes and relationships
+|Yes
+
+|FalkorDB
+|The labels and relationship types from `db.labels()` and `db.relationshipTypes()`, the properties from a sample of every label and type
+|Per label and per type
+
+|Apache AGE
+|The labels and relationship types from the `ag_catalog.ag_label` table, the properties from a sample of every label and type
+|Per label and per type
+
+|Gremlin servers
+|The element maps of a sample of the vertices and edges
+|Yes
+|===
+
+A sample is the first nodes and the first relationships the database returns, or the first of every label and type where the database lists those.
+Properties which only occur outside the sample are missing, and a property is mandatory when every node or relationship in the sample has it.
+
+The indexes come from the database too, where it lists them: Neo4j, Memgraph, FalkorDB and Apache AGE.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name
+|The name of the transform, unique in the pipeline.
+
+|Graph database connection
+|The connection to read the schema of.
+
+|Sample size
+|The number of nodes and relationships to read, per label and relationship type where the database lists them.
+1000 by default.
+
+|Element type field
+|The output field with `NODE` or `RELATIONSHIP`.
+
+|Name field
+|The output field with the node label or relationship type.
+
+|Property field
+|The output field with the property name, empty for a label or type without properties.
+
+|Property types field
+|The output field with the types of the property values, separated by commas.
+The type names are the same for every database: `String`, `Integer`, `Float`, `Boolean`, `Date`, `LocalDateTime`, `DateTime`, `LocalTime`, `Time`, `Duration`, `Point`, `Map`, `List` and `List<String>` and so on when all elements have the same type.
+
+|Mandatory field
+|The output field which is `true` if every node or relationship has the property, empty if unknown.
+
+|Indexed field
+|The output field which is `true` if an index covers the property, empty if the database doesn't list its indexes.
+
+|Unique field
+|The output field which is `true` if a unique index or constraint covers the property, empty if unknown.
+
+|Start labels field
+|For relationship types: the output field with the labels of the nodes they start from, separated by commas.
+
+|End labels field
+|For relationship types: the output field with the labels of the nodes they end at, separated by commas.
+|===
+
+Leave the name of an output field empty to leave the field out.
+
+== Notes
+
+A node with several labels counts for each of them.
+A property is mandatory for a label when every node with that label has it, whatever its other labels.

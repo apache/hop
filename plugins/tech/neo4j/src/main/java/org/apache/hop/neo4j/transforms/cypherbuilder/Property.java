@@ -92,7 +92,7 @@ public class Property implements Cloneable {
 
   public String formatParameter(String unwindAlias) {
     if (StringUtils.isEmpty(unwindAlias)) {
-      return "{" + parameter + "}";
+      return "$" + parameter;
     } else {
       return unwindAlias + "." + parameter;
     }
@@ -114,7 +114,7 @@ public class Property implements Cloneable {
   }
 
   /**
-   * alias.property={parameter} or alias.property=expression or alias.property=unwindAlias.parameter
+   * alias.property=$parameter or alias.property=expression or alias.property=unwindAlias.parameter
    *
    * @param unwindAlias unwind alias if there's any
    * @return The Cypher set clause for this property
@@ -123,7 +123,7 @@ public class Property implements Cloneable {
     String cypher = alias + "." + name + "=";
     if (StringUtils.isEmpty(expression)) {
       if (StringUtils.isEmpty(unwindAlias)) {
-        cypher += "{" + parameter + "}";
+        cypher += "$" + parameter;
       } else {
         cypher += unwindAlias + "." + parameter;
       }

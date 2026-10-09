@@ -1,0 +1,186 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/graph-databases/
+:language: en_US
+:description: Apache Hop reads from and writes to graph databases which speak Cypher or Gremlin: Neo4j, Memgraph, Amazon Neptune, FalkorDB, Apache AGE, Gremlin Server and JanusGraph.
+:page-marketplace: hop-tech-neo4j
+
+= Graph Databases
+
+== Description
+
+Apache Hop works with graph databases which speak Cypher or Gremlin.
+You connect to them with a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection], and use the same transforms and actions for all of them.
+
+[options="header"]
+|===
+|Database |Language |Connection type |Plugin |More information
+
+|https://neo4j.com[Neo4j^]
+|Cypher
+|Neo4j (Bolt)
+|Neo4j
+|xref:technology/neo4j/index.adoc[Neo4j]
+
+|https://memgraph.com[Memgraph^]
+|Cypher
+|Memgraph (Bolt)
+|Neo4j
+|xref:technology/memgraph/index.adoc[Memgraph]
+
+|https://aws.amazon.com/neptune/[Amazon Neptune^]
+|openCypher, Gremlin
+|Amazon Neptune (Bolt) or Gremlin
+|Neo4j, Gremlin
+|xref:technology/gremlin/index.adoc[Gremlin]
+
+|https://www.falkordb.com[FalkorDB^]
+|Cypher
+|FalkorDB (Redis protocol)
+|FalkorDB
+|xref:technology/falkordb/index.adoc[FalkorDB]
+
+|https://age.apache.org[Apache AGE^]
+|Cypher
+|Apache AGE (PostgreSQL)
+|Apache AGE
+|xref:technology/age/index.adoc[Apache AGE]
+
+|https://tinkerpop.apache.org[Apache TinkerPop Gremlin Server^], https://janusgraph.org[JanusGraph^]
+|Gremlin
+|Gremlin
+|Gremlin
+|xref:technology/gremlin/index.adoc[Gremlin]
+|===
+
+Requests to Amazon Neptune aren't signed with AWS Signature Version 4, so IAM database authentication isn't supported: connect to a Neptune cluster with IAM authentication disabled, over TLS. Neptune doesn't use the username and password of the connection.
+
+The graph plugins (Neo4j, which holds the transforms and actions as well as the Bolt connection types, FalkorDB, Apache AGE and Gremlin) are optional plugins: install them with the marketplace or use the full client.
+
+Relational databases with SQL/PGQ, like Oracle 23ai, can expose their tables as a property graph with the xref:workflow/actions/create-property-graph.adoc[Create property graph] action.
+
+== Transforms and actions
+
+* xref:pipeline/transforms/graph-query.adoc[Graph query]: run Cypher statements or Gremlin traversals with parameters from the input rows
+* xref:pipeline/transforms/graph-output.adoc[Graph output]: write input rows to a graph through a xref:metadata-types/graphs/graph-model.adoc[graph model]
+* xref:pipeline/transforms/graph-vector-search.adoc[Graph vector search]: find the nodes or relationships nearest to a vector through a vector index
+* xref:pipeline/transforms/get-graph-schema.adoc[Get graph schema]: the labels, relationship types and properties of a database, one row each
+* xref:pipeline/transforms/cypher-output.adoc[Cypher output]: write one or two nodes and a relationship per row with Cypher
+* xref:pipeline/transforms/cypher-builder.adoc[Cypher builder]: build Cypher statements from operations in a dialog
+* xref:pipeline/transforms/split-graph.adoc[Split graph]: split a graph value into its nodes and relationships
+* xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]: write the nodes and relationships of graphs to CSV files for bulk loading
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j import]: bulk load those CSV files with neo4j-admin import (Neo4j only)
+* xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info]: the dates of earlier executions in the execution logging
+* xref:workflow/actions/graph-script.adoc[Graph script]: run a script of statements
+* xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint]: manage indexes and constraints in the syntax of the database
+* xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections]: check that databases are available
+
+The xref:metadata-types/graphs/graph-database-connection.adoc#_where_you_can_use_them[graph database connection] page lists which of these work with which database.
+
+== Execution logging and information
+
+Hop can keep the history of your executions in a graph database which speaks Cypher:
+
+* Set the variable `HOP_GRAPH_LOGGING_CONNECTION` to the name of a connection to log executions to it, see the xref:technology/neo4j/neo4j-logging-schema.adoc[logging schema].
+Query the history with the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective].
+* Store execution information in a xref:metadata-types/graphs/graph-database-location.adoc[graph database location], to view it in the execution information perspective.
+
+[[vectors]]
+== Vectors and embeddings
+
+Embeddings, for example from the xref:pipeline/transforms/embedtext.adoc[Embed text] transform, travel through a pipeline as fields of the Vector value type.
+The graph transforms store them as a list of numbers:
+
+* In a xref:metadata-types/graphs/graph-model.adoc[graph model], give the property the type `Vector`.
+xref:pipeline/transforms/graph-output.adoc[Graph output] then writes the field as a vector.
+* In xref:pipeline/transforms/graph-query.adoc[Graph query], pick `Vector` as the graph data type of a parameter to pass a vector to a statement, for example to a vector search.
+Give a return value the Hop type `Vector` to read a stored vector back into a Vector field.
+* A text field holding `[0.1,0.2,0.3]`, as Embed text writes it with output format `STRING`, is converted too.
+* xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs] writes a vector as a `float[]` column, with `;` between the elements.
+
+How each database stores the list:
+
+[options="header"]
+|===
+|Database |Stored as
+
+|Neo4j, Memgraph
+|A list of floats, which their vector indexes use.
+
+|FalkorDB
+|A vector: Graph output wraps the value in `vecf32()`, which the FalkorDB vector index needs.
+In a Graph query statement, write `vecf32($param)` yourself.
+Cypher output and Cypher builder don't add `vecf32()`: use Graph output or Graph query to write vectors to FalkorDB.
+
+|Apache AGE
+|An agtype array.
+AGE has no vector index; keep the embeddings in a pgvector table next to the graph when you need vector search.
+
+|Amazon Neptune, Gremlin servers
+|A list, if the database accepts list properties.
+This is not covered by the integration tests.
+|===
+
+Create and drop vector indexes on nodes or relationships with the xref:workflow/actions/graph-index.adoc[Graph index] action, index type VECTOR, on Neo4j, Memgraph and FalkorDB.
+Search them with the xref:pipeline/transforms/graph-vector-search.adoc[Graph vector search] transform: one output row per node, or relationship, found, with its similarity score and the properties you pick.
+The score is the same on every database: the cosine similarity, from -1 to 1, for cosine indexes and 1 / (1 + squared euclidean distance) for euclidean ones.
+Vector search over relationships needs Neo4j 5.18 or later or Memgraph 3; the `supportingRelationshipVectorSearch` capability of a connection tells whether it has it.
+
+The transform calls the vector search procedure of the database, which you can also call yourself in a xref:pipeline/transforms/graph-query.adoc[Graph query] with a Vector parameter, for example to filter or expand the nodes found:
+
+* Neo4j: `CALL db.index.vector.queryNodes('index', 5, $q) YIELD node, score`, where the score is between 0 and 1: (1 + cosine similarity) / 2, or 1 / (1 + squared distance).
+* Memgraph: `CALL vector_search.search('index', 5, $q) YIELD node, distance`, where the distance is 1 - cosine similarity, or the squared distance: lower is nearer.
+Memgraph's `similarity` column is the absolute value of 1 - distance, which ranks opposite vectors as near ones.
+* FalkorDB: `CALL db.idx.vector.queryNodes('Label', 'property', 5, vecf32($q)) YIELD node, score`, where the score is a distance, 1 - cosine similarity or the euclidean distance: lower is nearer.
+
+And for relationships:
+
+* Neo4j: `CALL db.index.vector.queryRelationships('index', 5, $q) YIELD relationship, score`
+* Memgraph: `CALL vector_search.search_edges('index', 5, $q) YIELD edge, distance`
+* FalkorDB: `CALL db.idx.vector.queryRelationships('TYPE', 'property', 5, vecf32($q)) YIELD relationship, score`, again with a distance.
+
+== Upgrading from Hop 2.20 or earlier
+
+The graph functionality of Hop used to be Neo4j specific.
+From Hop 2.21 on it works with every graph database above. Existing projects keep working without changes:
+
+* Neo4j connections keep working. You can convert them to graph database connections, see xref:metadata-types/graphs/graph-database-connection.adoc#_converting_a_neo4j_connection[Converting a Neo4j connection].
+* The transforms and actions have vendor neutral names, icons and the category *Graph*. Their plugin IDs didn't change, so pipelines and workflows open as before:
++
+[options="header"]
+|===
+|Before |Now
+|Neo4j Cypher |Graph query
+|Neo4j graph output |Graph output
+|Neo4j output |Cypher output
+|Neo4j Cypher builder |Cypher builder
+|Neo4j split graph |Split graph
+|Neo4j generate CSVs |Generate graph CSVs
+|Get Neo4j logging info |Get graph logging info
+|Neo4j Cypher script |Graph script
+|Neo4j index |Graph index
+|Neo4j constraint |Graph constraint
+|Check Neo4j connections |Check graph database connections
+|Neo4j perspective |Graph logging perspective
+|Neo4j location |Graph database location
+|===
+* `HOP_GRAPH_LOGGING_CONNECTION` replaces `NEO4J_LOGGING_CONNECTION`, which keeps working when the new variable isn't set.
+* The Cypher builder writes parameters as `$name`. It wrote them as `{name}`, which Neo4j 4 and later reject, so statements without UNWIND work again.
+* Get graph logging info finds the previous executions of pipelines and workflows: it looked for execution types which the logging doesn't write.
+The workflow logging now writes the status of a workflow, which these lookups need.
+* The graph index, graph constraint, graph script and check connections actions report their own success, also after a failure hop.
+* Graph output validates against the graph model on every database: the use of the model always, its indexes and unique constraints when the database can list them.

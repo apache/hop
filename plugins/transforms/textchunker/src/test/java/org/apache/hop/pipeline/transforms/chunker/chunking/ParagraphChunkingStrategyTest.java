@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.chunker.chunking;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -196,6 +197,101 @@ public class ParagraphChunkingStrategyTest {
   @Test
   public void testStrategyType() {
     assertEquals(ChunkingStrategyType.PARAGRAPH, strategy.getType());
+  }
+
+  @Test
+  public void testCustomMultiByteSeparator() {
+    // Blank lines are not the only paragraph marker: some sources mark paragraphs with a
+    // multi-byte token.
+    strategy.setSeparator("<PARA>");
+    String text = "First paragraph.<PARA>Second paragraph.<PARA>Third paragraph.";
+    List<Chunk> chunks = strategy.chunk(text, 20, 0);
+
+    assertEquals(3, chunks.size());
+    assertEquals("First paragraph.", chunks.get(0).getContent());
+    assertEquals("Second paragraph.", chunks.get(1).getContent());
+    assertEquals("Third paragraph.", chunks.get(2).getContent());
+  }
+
+  @Test
+  public void testCustomSeparatorIsMatchedLiterally() {
+    // A separator is text, not a regular expression: metacharacters must not be interpreted.
+    strategy.setSeparator(".*");
+    String text = "alpha.*beta";
+    List<Chunk> chunks = strategy.chunk(text, 5, 0);
+
+    assertEquals(2, chunks.size());
+    assertEquals("alpha", chunks.get(0).getContent());
+    assertEquals("beta", chunks.get(1).getContent());
+  }
+
+  @Test
+  public void testCustomSeparatorKeepsPositionsInTheSourceText() {
+    strategy.setSeparator("<P>");
+    String text = "First.<P>Second.<P>Third.";
+    List<Chunk> chunks = strategy.chunk(text, 7, 0);
+
+    for (Chunk chunk : chunks) {
+      assertEquals(
+          chunk.getContent(),
+          text.substring(chunk.getStartPosition(), chunk.getEndPosition()),
+          "start/end positions must address the chunk in the source text");
+    }
+  }
+
+  @Test
+  public void testBlankLinesDoNotSplitWithACustomSeparator() {
+    strategy.setSeparator("<P>");
+    String text = "Line one\nLine two<P>Line three";
+    List<Chunk> chunks = strategy.chunk(text, 18, 0);
+
+    assertEquals(2, chunks.size());
+    assertEquals("Line one\nLine two", chunks.get(0).getContent());
+  }
+
+  @Test
+  public void testEmptySeparatorRestoresBlankLineSplitting() {
+    strategy.setSeparator("<P>");
+    strategy.setSeparator("");
+    String text = "First paragraph.\n\nSecond paragraph.";
+    List<Chunk> chunks = strategy.chunk(text, 20, 0);
+
+    assertEquals(2, chunks.size());
+  }
+
+  @Test
+  public void testOversizedParagraphStillSplitWithCustomSeparator() {
+    strategy.setSeparator("<P>");
+    String text = "short<P>" + "a".repeat(50);
+    List<Chunk> chunks = strategy.chunk(text, 10, 0);
+
+    assertEquals("short", chunks.get(0).getContent());
+    for (Chunk chunk : chunks) {
+      assertTrue(
+          chunk.getContent().length() <= 10, "chunk exceeds maxSize: '" + chunk.getContent() + "'");
+    }
+  }
+
+  @Test
+  public void testPackingStillAppliesWithCustomSeparator() {
+    strategy.setSeparator("<P>");
+    String text = "One.<P>Two.<P>Three.";
+    List<Chunk> chunks = strategy.chunk(text, 1000, 0);
+
+    assertEquals(1, chunks.size());
+    assertEquals(text, chunks.get(0).getContent());
+  }
+
+  @Test
+  public void testDecodeEscapes() {
+    assertEquals("\n\n", ParagraphChunkingStrategy.decodeEscapes("\\n\\n"));
+    assertEquals("\r\n", ParagraphChunkingStrategy.decodeEscapes("\\r\\n"));
+    assertEquals("\t", ParagraphChunkingStrategy.decodeEscapes("\\t"));
+    assertEquals("\\", ParagraphChunkingStrategy.decodeEscapes("\\\\"));
+    // Anything else is separator text, not an escape sequence.
+    assertEquals("<PARA>", ParagraphChunkingStrategy.decodeEscapes("<PARA>"));
+    assertEquals("a\\d", ParagraphChunkingStrategy.decodeEscapes("a\\d"));
+    assertNull(ParagraphChunkingStrategy.decodeEscapes(null));
   }
 
   @Test

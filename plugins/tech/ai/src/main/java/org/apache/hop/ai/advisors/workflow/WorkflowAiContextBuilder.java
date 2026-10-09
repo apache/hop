@@ -18,24 +18,25 @@
 package org.apache.hop.ai.advisors.workflow;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
+import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiAdvisorMetadataContext;
 import org.apache.hop.ai.engine.AiCheckResultsSerializer;
 import org.apache.hop.ai.engine.AiM2PromptSupport;
+import org.apache.hop.ai.engine.AiNodeSettings;
+import org.apache.hop.ai.engine.AiPluginCatalog;
 import org.apache.hop.ai.engine.AiPromptLoader;
 import org.apache.hop.ai.engine.AiTextUtil;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.ActionPluginType;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -46,17 +47,19 @@ public final class WorkflowAiContextBuilder {
   static final String PROMPT_ROOT = "/org/apache/hop/ai/prompts/workflow/";
   private static final int MAX_TOPOLOGY_XML_CHARS = 120_000;
   private static final int MAX_FOCUS_XML_CHARS = 40_000;
+  private static final int MAX_SETTINGS_CHARS = 40_000;
   private static final int MAX_LOG_CHARS = 20_000;
-  private static final int MAX_CATALOG_ENTRIES = 120;
 
   private WorkflowAiContextBuilder() {}
 
   public static AiAdvisorPrompt buildPrompt(AiAdvisorRequest request) throws HopException {
     if (!(request.getArtifact() instanceof WorkflowMeta workflowMeta)) {
-      throw new HopException("No workflow is bound to this session.");
+      throw new HopException(
+          BaseMessages.getString(AiAdvisorEngine.class, "AiContextBuilder.NotLinked.Workflow"));
     }
     if (Utils.isEmpty(request.getUserPrompt())) {
-      throw new HopException("Please enter a question for the AI advisor");
+      throw new HopException(
+          BaseMessages.getString(AiAdvisorEngine.class, "AiContextBuilder.NoQuestion"));
     }
     String scenarioId =
         Utils.isEmpty(request.getScenarioId()) ? "workflow-general" : request.getScenarioId();
@@ -73,55 +76,51 @@ public final class WorkflowAiContextBuilder {
       throws HopException {
     IVariables variables = request.getVariables();
     IHopMetadataProvider metadataProvider = request.getMetadataProvider();
-    boolean includeFull = !request.isFollowUp();
     StringBuilder prompt = new StringBuilder();
-    prompt.append("User question:\n").append(request.getUserPrompt()).append("\n\n");
-    prompt
-        .append("Workflow structure JSON:\n")
-        .append(serializeStructure(workflowMeta, request.getFocusNodeName()))
-        .append("\n\n");
-    if (includeFull) {
-      prompt
-          .append("Workflow summary JSON:\n")
-          .append(serializeSummary(workflowMeta))
-          .append("\n\n");
-      AiAdvisorMetadataContext.appendTypeKeys(prompt, metadataProvider);
-      AiAdvisorMetadataContext.appendDatabaseCatalog(prompt);
-      if (request.inclusionEnabled(AiAdvisorInclusions.CATALOG)) {
-        prompt
-            .append("Available action plugins JSON:\n")
-            .append(serializeActionCatalog())
-            .append("\n\n");
-      }
-      if (request.inclusionEnabled(AiAdvisorInclusions.XML)
-          && HopAiConfigSingleton.getConfig().isAllowSendFullXml()) {
-        prompt
-            .append("Workflow topology XML:\n")
-            .append(
-                AiTextUtil.redactSecrets(
-                    AiTextUtil.truncate(workflowMeta.getXml(variables), MAX_TOPOLOGY_XML_CHARS)))
-            .append("\n\n");
-      }
-      if (request.inclusionEnabled(AiAdvisorInclusions.LOGS)) {
-        prompt
-            .append("Execution log excerpt:\n")
-            .append(
-                AiTextUtil.redactSecrets(
-                    AiTextUtil.truncate(request.getLogExcerpt(), MAX_LOG_CHARS)))
-            .append("\n\n");
-      }
+    // Every turn sends what is checked. The history only replays questions and answers, so a
+    // follow-up that skipped this context would lose it, including the log of a new run.
+    AiTextUtil.appendSection(prompt, "workflow_summary", serializeSummary(workflowMeta));
+    AiTextUtil.appendSection(
+        prompt,
+        "workflow_structure",
+        serializeStructure(
+            workflowMeta,
+            request.getFocusNodeName(),
+            request.inclusionEnabled(AiAdvisorInclusions.SETTINGS)));
+    AiAdvisorMetadataContext.appendTypeKeys(prompt, metadataProvider);
+    AiAdvisorMetadataContext.appendDatabaseCatalog(prompt);
+    if (request.inclusionEnabled(AiAdvisorInclusions.CATALOG)) {
+      AiTextUtil.appendSection(prompt, "plugin_catalog", serializeActionCatalog());
+    }
+    if (request.inclusionEnabled(AiAdvisorInclusions.XML)
+        && HopAiConfigSingleton.getConfig().isAllowSendFullXml()) {
+      AiTextUtil.appendSection(
+          prompt,
+          "workflow_xml",
+          AiTextUtil.redactSecrets(
+              AiTextUtil.truncate(workflowMeta.getXml(variables), MAX_TOPOLOGY_XML_CHARS)));
+    }
+    if (request.inclusionEnabled(AiAdvisorInclusions.LOGS)) {
+      AiTextUtil.appendSection(
+          prompt,
+          "execution_log",
+          AiTextUtil.redactSecrets(AiTextUtil.truncate(request.getLogExcerpt(), MAX_LOG_CHARS)));
     }
     AiAdvisorMetadataContext.appendToPrompt(prompt, request);
     appendFocusAction(prompt, workflowMeta, request.getFocusNodeName());
     if (request.inclusionEnabled(AiAdvisorInclusions.CHECKS) && metadataProvider != null) {
       List<ICheckResult> results = new ArrayList<>();
       workflowMeta.checkActions(results, false, null, variables, metadataProvider);
-      prompt
-          .append("Workflow check results JSON:\n")
-          .append(AiCheckResultsSerializer.serialize(results))
-          .append("\n\n");
+      AiTextUtil.appendSection(
+          prompt, "check_results", AiCheckResultsSerializer.serialize(results));
     }
     AiM2PromptSupport.appendAppliedSummaries(prompt, request.getAppliedChangeSummaries());
+    AiTextUtil.appendSection(prompt, "question", request.getUserPrompt());
+    // Repeated from the instructions: small models follow the last thing they read best, and
+    // otherwise drift to English after a long English context.
+    prompt.append(
+        "Write your answer in the language that the text in the <question> block is written"
+            + " in.\n");
     return prompt.toString();
   }
 
@@ -129,7 +128,7 @@ public final class WorkflowAiContextBuilder {
     if (Utils.isEmpty(focusName)) {
       return;
     }
-    prompt.append("Focus action:\n").append(focusName).append("\n\n");
+    AiTextUtil.appendSection(prompt, "focus_action", focusName);
     ActionMeta action = workflowMeta.findAction(focusName);
     if (action == null) {
       return;
@@ -139,19 +138,28 @@ public final class WorkflowAiContextBuilder {
       if (Utils.isEmpty(xml)) {
         return;
       }
-      prompt
-          .append("Focus action XML:\n")
-          .append(AiTextUtil.redactSecrets(AiTextUtil.truncate(xml, MAX_FOCUS_XML_CHARS)))
-          .append("\n\n");
+      AiTextUtil.appendSection(
+          prompt,
+          "focus_action_xml",
+          AiTextUtil.redactSecrets(AiTextUtil.truncate(xml, MAX_FOCUS_XML_CHARS)));
     } catch (Exception e) {
       // Skip unreadable action XML rather than failing the whole prompt.
     }
   }
 
   public static String serializeStructure(WorkflowMeta workflowMeta, String focusActionName) {
+    return serializeStructure(workflowMeta, focusActionName, false);
+  }
+
+  /**
+   * @param includeSettings add each action's settings, until {@link #MAX_SETTINGS_CHARS} is used
+   */
+  public static String serializeStructure(
+      WorkflowMeta workflowMeta, String focusActionName, boolean includeSettings) {
     StringBuilder json = new StringBuilder();
     json.append("{\"actions\":[");
     List<ActionMeta> actions = workflowMeta.getActions();
+    int settingsChars = 0;
     for (int i = 0; i < actions.size(); i++) {
       if (i > 0) {
         json.append(',');
@@ -163,6 +171,13 @@ public final class WorkflowAiContextBuilder {
               AiTextUtil.jsonString(
                   action.getAction() != null ? action.getAction().getPluginId() : ""));
       json.append(",\"parallel\":").append(action.isLaunchingInParallel());
+      if (includeSettings && settingsChars < MAX_SETTINGS_CHARS) {
+        String settings = AiNodeSettings.toJson(action.getAction());
+        if (settings != null) {
+          json.append(",\"settings\":").append(settings);
+          settingsChars += settings.length();
+        }
+      }
       json.append('}');
     }
     json.append("],\"hops\":[");
@@ -206,32 +221,6 @@ public final class WorkflowAiContextBuilder {
   }
 
   static String serializeActionCatalog() {
-    StringBuilder json = new StringBuilder();
-    json.append("{\"actions\":[");
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> plugins = new ArrayList<>(registry.getPlugins(ActionPluginType.class));
-    plugins.sort(
-        Comparator.comparing(
-                IPlugin::getCategory, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-            .thenComparing(IPlugin::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
-    int count = 0;
-    for (IPlugin plugin : plugins) {
-      if (count >= MAX_CATALOG_ENTRIES) {
-        break;
-      }
-      if (plugin.getIds() == null || plugin.getIds().length == 0) {
-        continue;
-      }
-      if (count > 0) {
-        json.append(',');
-      }
-      json.append("{\"id\":").append(AiTextUtil.jsonString(plugin.getIds()[0]));
-      json.append(",\"name\":").append(AiTextUtil.jsonString(plugin.getName()));
-      json.append(",\"category\":").append(AiTextUtil.jsonString(plugin.getCategory()));
-      json.append('}');
-      count++;
-    }
-    json.append("]}");
-    return json.toString();
+    return AiPluginCatalog.compact(ActionPluginType.class);
   }
 }

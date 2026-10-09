@@ -114,6 +114,10 @@ public class BaseOperation implements IOperation {
   }
 
   protected String getKeysClause(String unwindAlias) {
+    if (keys == null || keys.isEmpty()) {
+      // No empty map: not every graph database accepts it
+      return " ";
+    }
     StringBuilder cypher = new StringBuilder();
     cypher.append(" {");
     for (int k = 0; k < keys.size(); k++) {
@@ -121,7 +125,7 @@ public class BaseOperation implements IOperation {
       if (k > 0) {
         cypher.append(", ");
       }
-      // id : {pId}
+      // id : $pId
       //
       cypher.append(key.getName()).append(":").append(key.formatParameter(unwindAlias));
     }
@@ -137,7 +141,7 @@ public class BaseOperation implements IOperation {
       if (p > 0) {
         cypher.append(", ");
       }
-      // n.prop1={param1}
+      // n.prop1=$param1
       //
       cypher
           .append(alias)

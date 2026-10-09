@@ -18,8 +18,13 @@
 package org.apache.hop.neo4j.logging.util;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +34,10 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.graph.GraphNodeValue;
+import org.apache.hop.core.graph.IGraphConnection;
+import org.apache.hop.core.graph.IGraphTransaction;
+import org.apache.hop.core.graph.IGraphTransactionWork;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
@@ -36,41 +45,116 @@ import org.apache.hop.core.logging.LoggingHierarchy;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.logging.Defaults;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.eclipse.swt.graphics.Rectangle;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.TransactionContext;
-import org.neo4j.driver.Value;
-import org.neo4j.driver.types.Node;
 
 public class LoggingCore {
 
-  public static final boolean isEnabled(IVariables space) {
-    String connectionName = space.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
-    return StringUtils.isNotEmpty(connectionName)
-        && !Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION_DISABLED.equals(connectionName);
-  }
+  /** The format Neo4j logging stores the registration date of an execution in. */
+  public static final String REGISTRATION_DATE_FORMAT = "yyyy/MM/dd'T'HH:mm:ss";
 
-  public static final NeoConnection getConnection(
-      IHopMetadataProvider metadataProvider, IVariables space) throws HopException {
-    String connectionName = space.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
+  /**
+   * The name of the connection to log to: {@link Defaults#HOP_GRAPH_LOGGING_CONNECTION} or else
+   * {@link Defaults#NEO4J_LOGGING_CONNECTION}. Null if logging is disabled.
+   */
+  public static String getConnectionName(IVariables variables) {
+    String connectionName = variables.getVariable(Defaults.HOP_GRAPH_LOGGING_CONNECTION);
     if (StringUtils.isEmpty(connectionName)) {
+      connectionName = variables.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
+    }
+    if (StringUtils.isEmpty(connectionName)
+        || Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION_DISABLED.equals(connectionName)) {
       return null;
     }
-    IHopMetadataSerializer<NeoConnection> serializer =
-        metadataProvider.getSerializer(NeoConnection.class);
-    return serializer.load(connectionName);
+    return connectionName;
+  }
+
+  public static final boolean isEnabled(IVariables space) {
+    return getConnectionName(space) != null;
+  }
+
+  /**
+   * The connection to log to: a Neo4j connection or a graph database connection of a Cypher
+   * database.
+   *
+   * @return The connection or null if logging is disabled
+   * @throws HopException if the connection doesn't exist or its database doesn't speak Cypher
+   */
+  public static final NamedGraphConnection getConnection(
+      IHopMetadataProvider metadataProvider, IVariables space) throws HopException {
+    String connectionName = getConnectionName(space);
+    if (connectionName == null) {
+      return null;
+    }
+    NamedGraphConnection connection =
+        NeoConnectionUtils.findGraphConnection(metadataProvider, connectionName);
+    if (connection == null) {
+      throw new HopException("Unable to find graph database connection '" + connectionName + "'");
+    }
+    if (!connection.getDialect().isCypher()) {
+      throw new HopException(
+          "Execution logging needs a Cypher graph database, connection '"
+              + connectionName
+              + "' isn't one");
+    }
+    return connection;
+  }
+
+  /**
+   * The connection to log to, like {@link #getConnection} but never failing: a connection which
+   * doesn't exist or doesn't speak Cypher gets a warning, as the execution logging always did.
+   *
+   * @return The connection or null if logging is disabled or not possible
+   */
+  public static NamedGraphConnection findConnection(
+      ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables) {
+    try {
+      return getConnection(metadataProvider, variables);
+    } catch (HopException e) {
+      log.logBasic("Warning! No execution logging: " + e.getMessage());
+      return null;
+    }
+  }
+
+  /** Run work in a write transaction. Errors are logged: logging never fails an execution. */
+  public static void write(
+      ILogChannel log, IGraphConnection connection, IGraphTransactionWork<Object> work) {
+    synchronized (connection) {
+      try {
+        connection.executeWrite(work);
+      } catch (Exception e) {
+        log.logError("Error writing execution information to the graph database", e);
+      }
+    }
+  }
+
+  /** Close the connection, logging errors. */
+  public static void close(ILogChannel log, IGraphConnection connection) {
+    try {
+      connection.close();
+    } catch (Exception e) {
+      log.logError("Error closing the graph database logging connection", e);
+    }
+  }
+
+  /** Run a read statement on the logging connection, the result rows as maps. */
+  public static List<Map<String, Object>> query(
+      ILogChannel log,
+      IVariables variables,
+      NamedGraphConnection connection,
+      String cypher,
+      Map<String, Object> parameters)
+      throws HopException {
+    try (IGraphConnection graphConnection = connection.connect(log, variables)) {
+      return graphConnection.executeRead(transaction -> transaction.execute(cypher, parameters));
+    }
   }
 
   public static final void writeHierarchies(
       ILogChannel log,
-      NeoConnection connection,
-      TransactionContext transaction,
+      IGraphTransaction transaction,
       List<LoggingHierarchy> hierarchies,
       String rootLogChannelId) {
 
@@ -90,7 +174,7 @@ public class LoggingCore {
         execPars.put("root", loggingObject.getLogChannelId().equals(rootLogChannelId));
         execPars.put(
             "registrationDate",
-            new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss")
+            new SimpleDateFormat(REGISTRATION_DATE_FORMAT)
                 .format(loggingObject.getRegistrationDate()));
 
         StringBuilder execCypher = new StringBuilder();
@@ -102,8 +186,7 @@ public class LoggingCore {
         execCypher.append(", e.registrationDate = $registrationDate ");
         execCypher.append(", e.root = $root ");
 
-        Result run = transaction.run(execCypher.toString(), execPars);
-        run.consume();
+        transaction.execute(execCypher.toString(), execPars);
       }
 
       // Now create the relationships between them
@@ -125,7 +208,7 @@ public class LoggingCore {
           execCypher.append(
               "MATCH (parent:Execution { name : $parentName, type : $parentType, id : $parentId } ) ");
           execCypher.append("MERGE (parent)-[rel:EXECUTES]->(child) ");
-          transaction.run(execCypher.toString(), execPars);
+          transaction.execute(execCypher.toString(), execPars);
         }
       }
       // Transaction is automatically committed by executeWrite
@@ -134,117 +217,88 @@ public class LoggingCore {
     }
   }
 
-  public static <T> T executeCypher(
-      ILogChannel log,
-      IVariables variables,
-      NeoConnection connection,
-      String cypher,
-      Map<String, Object> parameters,
-      WorkLambda<T> lambda)
-      throws Exception {
+  public static String getStringValue(Map<String, Object> row, String name) {
+    Object value = row.get(name);
+    return value == null ? null : value.toString();
+  }
 
-    try (Driver driver = connection.getDriver(log, variables)) {
-      try (Session session = connection.getSession(log, driver, variables)) {
-        return session.executeRead(
-            tx -> {
-              Result result = tx.run(cypher, parameters);
-              return lambda.getResultValue(result);
-            });
+  public static Long getLongValue(Map<String, Object> row, String name) {
+    Object value = row.get(name);
+    if (value == null) {
+      return null;
+    }
+    return value instanceof Number number ? number.longValue() : Long.valueOf(value.toString());
+  }
+
+  public static Integer getIntegerValue(Map<String, Object> row, String name) {
+    Long value = getLongValue(row, name);
+    return value == null ? null : value.intValue();
+  }
+
+  @Nullable
+  public static Boolean getBooleanValue(Map<String, Object> row, String name) {
+    Object value = row.get(name);
+    if (value == null) {
+      return null;
+    }
+    return value instanceof Boolean bool ? bool : Boolean.valueOf(value.toString());
+  }
+
+  /** The properties of a node in a result row, empty if it isn't a node. */
+  public static Map<String, Object> getNodeProperties(Map<String, Object> row, String name) {
+    Object value = row.get(name);
+    return value instanceof GraphNodeValue node ? node.properties() : Map.of();
+  }
+
+  /**
+   * A date property of an Execution node. The execution information location stores dates as a date
+   * and time: a local date time on Neo4j and Memgraph, an ISO string on FalkorDB and Apache AGE.
+   * Neo4j logging stores the registration date as a string in {@link #REGISTRATION_DATE_FORMAT}.
+   * Both write Execution nodes, so either can show up here (issue #8704).
+   *
+   * @return the date, or null if the property is missing or isn't a date
+   */
+  public static Date getDateValue(Map<String, Object> properties, String name) {
+    Object value = properties.get(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Date date) {
+      return date;
+    }
+    if (value instanceof LocalDateTime localDateTime) {
+      return toDate(localDateTime);
+    }
+    if (value instanceof ZonedDateTime zonedDateTime) {
+      return Date.from(zonedDateTime.toInstant());
+    }
+    if (value instanceof OffsetDateTime offsetDateTime) {
+      return Date.from(offsetDateTime.toInstant());
+    }
+    if (value instanceof LocalDate localDate) {
+      return toDate(localDate.atStartOfDay());
+    }
+    if (value instanceof String string) {
+      return parseDate(string);
+    }
+    return null;
+  }
+
+  private static Date parseDate(String string) {
+    for (DateTimeFormatter formatter :
+        List.of(
+            DateTimeFormatter.ofPattern(REGISTRATION_DATE_FORMAT),
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME)) {
+      try {
+        return toDate(LocalDateTime.parse(string, formatter));
+      } catch (DateTimeParseException e) {
+        // Try the next format
       }
     }
+    return null;
   }
 
-  public static String getStringValue(Record record, int i) {
-    if (i >= record.size()) {
-      return null;
-    }
-    Value value = record.get(i);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asString();
-  }
-
-  public static Long getLongValue(Record record, int i) {
-    if (i >= record.size()) {
-      return null;
-    }
-    Value value = record.get(i);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asLong();
-  }
-
-  public static Date getDateValue(Record record, int i) {
-    if (i >= record.size()) {
-      return null;
-    }
-    Value value = record.get(i);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    LocalDateTime localDateTime = value.asLocalDateTime();
-    if (localDateTime == null) {
-      return null;
-    }
-    return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-  }
-
-  @Nullable
-  public static Boolean getBooleanValue(Record record, int i) {
-    if (i >= record.size()) {
-      return null;
-    }
-    Value value = record.get(i);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asBoolean();
-  }
-
-  public static String getStringValue(Node node, String name) {
-    Value value = node.get(name);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asString();
-  }
-
-  public static Long getLongValue(Node node, String name) {
-    Value value = node.get(name);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asLong();
-  }
-
-  public static Integer getIntegerValue(Node node, String name) {
-    Value value = node.get(name);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asInt();
-  }
-
-  @Nullable
-  public static Boolean getBooleanValue(Node node, String name) {
-    Value value = node.get(name);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    return value.asBoolean();
-  }
-
-  public static Date getDateValue(Node node, String name) {
-    Value value = node.get(name);
-    if (value == null || value.isNull()) {
-      return null;
-    }
-    LocalDateTime localDateTime = value.asLocalDateTime();
-    if (localDateTime == null) {
-      return null;
-    }
+  private static Date toDate(LocalDateTime localDateTime) {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }
 

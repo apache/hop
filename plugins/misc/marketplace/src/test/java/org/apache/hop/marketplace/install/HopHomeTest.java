@@ -84,6 +84,25 @@ class HopHomeTest {
   }
 
   @Test
+  void resolvePrefersWritablePluginFolderOverTheInstall() throws Exception {
+    Path image = tempDir.resolve("opt-hop");
+    Files.createDirectories(image.resolve("plugins"));
+    Path volume = tempDir.resolve("volume");
+    Files.createDirectories(volume.resolve("plugins"));
+    String previousUserDir = System.getProperty("user.dir");
+    String previousPluginFolders = System.getProperty("HOP_PLUGIN_BASE_FOLDERS");
+    try {
+      System.setProperty("user.dir", image.toString());
+      System.setProperty(
+          "HOP_PLUGIN_BASE_FOLDERS", image.resolve("plugins") + "," + volume.resolve("plugins"));
+      assertEquals(volume.toAbsolutePath().normalize(), HopHome.resolve());
+    } finally {
+      restoreProperty("user.dir", previousUserDir);
+      restoreProperty("HOP_PLUGIN_BASE_FOLDERS", previousPluginFolders);
+    }
+  }
+
+  @Test
   void resolveUsesParentOfConfiguredConfigFolder() throws Exception {
     Path hop = tempDir.resolve("hop-web");
     Files.createDirectories(hop.resolve("plugins"));

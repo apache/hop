@@ -1,0 +1,295 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /metadata-types/graphs/
+:language: en_US
+:toc:
+:page-marketplace: hop-tech-neo4j
+:page-aliases: metadata-types/graph-database-connection.adoc
+
+= Graph Database Connection
+
+== Description
+
+A graph database connection connects to a graph database which speaks Cypher or Gremlin.
+The graph database type determines how Hop connects and which statements it generates:
+
+[options="header"]
+|===
+|Type |Plugin |Connection
+
+|Neo4j
+|Neo4j
+|Bolt. Automatic configuration with the `neo4j://` scheme on port 7687, the defaults of a xref:metadata-types/graphs/neo4j-connection.adoc[Neo4j Connection].
+
+|Memgraph
+|Neo4j
+|Bolt. A direct `bolt://` connection on port 7687 without encryption.
+Memgraph only offers routing in its high availability setup.
+
+|Amazon Neptune
+|Neo4j
+|Bolt. A `bolt://` connection on port 8182 with encryption, which Neptune requires.
+
+|FalkorDB
+|FalkorDB
+|The Redis protocol, on port 6379. One connection works with one graph, which FalkorDB creates when it doesn't exist.
+
+|Apache AGE
+|Apache AGE
+|PostgreSQL with the AGE extension, on port 5432, through the PostgreSQL JDBC driver which comes with Hop.
+One connection works with one AGE graph, which Hop can create when it doesn't exist.
+
+|Gremlin
+|Gremlin
+|The Apache TinkerPop driver, on port 8182: Apache TinkerPop Gremlin Server, JanusGraph or the Gremlin endpoint of Amazon Neptune.
+|===
+
+Graph database connections are serialized as JSON in the Hop metadata folder under
+
+`metadata/graph-database-connection/`
+
+When a Neo4j connection and a graph database connection have the same name, the Neo4j connection is used, so existing projects keep working exactly as before.
+
+== Where you can use them
+
+[options="header"]
+|===
+|Feature |Neo4j, Memgraph, Neptune |FalkorDB, Apache AGE |Gremlin
+
+|Graph output transform
+|Yes
+|Yes
+|Yes: nodes and relationships are upserted with Gremlin traversals. A node is identified by its primary properties and gets one label.
+
+|Validating against the graph model in Graph output
+|Yes
+|Yes
+|The use of the model only: Gremlin servers don't list their indexes.
+
+|Cypher output transform
+|Yes
+|Yes
+|No: it writes Cypher. Use Graph output with a graph model.
+
+|Graph query transform, Graph script action
+|Yes
+|Yes
+|Yes, with Gremlin scripts instead of Cypher. Parameters become script bindings.
+
+|Returning a graph from the Graph query transform
+|Yes
+|Yes
+|Yes
+
+|Cypher builder transform
+|Yes
+|Yes
+|No: it builds Cypher
+
+|Graph index, Graph constraint actions
+|Neo4j and Memgraph
+|Indexes on FalkorDB. On Apache AGE, create PostgreSQL indexes on the label tables.
+|No: create indexes with the schema tools of the server
+
+|Check graph database connections action
+|Yes
+|Yes
+|Yes
+
+|Get graph schema transform
+|Yes: Neo4j's schema procedures, Memgraph's SHOW SCHEMA INFO, a sample on Neptune
+|Yes: the labels from the database, the properties from a sample
+|Yes, from a sample of the vertices and edges
+
+|Graph vector search transform
+|Neo4j and Memgraph
+|FalkorDB
+|No
+
+|Execution logging (`HOP_GRAPH_LOGGING_CONNECTION`), Get graph logging info transform, Graph logging perspective, graph database execution information location
+|Yes
+|Yes
+|No: they are built on Cypher
+|===
+
+Amazon Neptune is only tested through its Bolt protocol for reading and writing data.
+Neptune has no username and password authentication: the username and password of the connection aren't used. Requests aren't signed with AWS Signature Version 4, so IAM database authentication isn't supported: connect to a Neptune cluster with IAM authentication disabled, over TLS.
+
+== Options
+
+=== Neo4j, Memgraph and Amazon Neptune
+
+The options are the same as the options of a xref:metadata-types/graphs/neo4j-connection.adoc[Neo4j Connection].
+They are grouped in four tabs:
+
+[options="header"]
+|===
+|Tab |Options
+
+|Connection
+|Server or IP address, database name, Bolt port, browser port, username and password.
+
+|Protocol
+|Automatic configuration, protocol (URL scheme), routing, routing policy, encryption and trusting all certificates.
+Every on/off option has a variable alternative which, when set, overrides it, for example `'${NEO4J_ENCRYPTION}'`.
+
+|Advanced
+|Connection liveness check timeout, maximum connection lifetime, maximum connection pool size, connection acquisition timeout, connection timeout and maximum transaction retry time, all in milliseconds.
+
+|Manual URLs
+|URLs which replace the ones built from the other options, for example `bolt://localhost:7687`.
+|===
+
+=== FalkorDB
+
+Server or IP address, port, graph name, username, password and whether to use TLS.
+Leave the username empty for the default user and the password empty when the server doesn't ask for one.
+
+=== Gremlin
+
+Servers or IP addresses (several servers of a cluster separated by commas), port, traversal source (`g` by default), username, password, whether to use TLS, and the serializer: GraphBinary for current servers, GraphSON 3 or GraphSON 2 for older ones.
+The JanusGraph types are registered with every serializer, so JanusGraph vertices and edges come back like those of any other server.
+
+=== Apache AGE
+
+Server or IP address, port, database name, username, password, graph name and whether to create the graph when it doesn't exist.
+AGE graph names have at least 3 characters.
+
+Use the *Test* button to verify the connection.
+
+== Converting a Neo4j connection
+
+Existing Neo4j connections keep working as they are: there is no need to convert them.
+To convert one, open it in the metadata perspective and click *Convert...*.
+*Convert all...* converts all the Neo4j connections of the project at once. A Neo4j connection is skipped when a graph database connection with the same name exists already.
+This saves graph database connections of type Neo4j with the same names and settings and removes the Neo4j connections.
+Pipelines, workflows, the graph database execution information location and the execution logging find connections by name, so they keep working without changes.
+Older versions of Hop don't know graph database connections, so only convert when every Hop installation that uses the project can read them.
+
+== Compatibility
+
+The transforms and actions generate Cypher.
+The database type determines which index and constraint statements are generated, and the Graph index and Graph constraint dialogs only offer what the database supports:
+
+[options="header"]
+|===
+|Feature |Neo4j |Memgraph |Amazon Neptune |FalkorDB |Apache AGE
+
+|Node indexes
+|Yes, named
+|Yes, unnamed: identified by label and properties
+|No, Neptune manages its indexes
+|Yes, unnamed: identified by label and properties
+|No, AGE indexes are PostgreSQL indexes
+
+|Relationship indexes
+|Yes
+|Yes, on a single property
+|No
+|Yes
+|No
+
+|Unique and existence constraints on nodes
+|Yes
+|Yes. Existence constraints are on a single property.
+|No
+|No
+|No
+
+|Node key constraints and relationship constraints
+|Yes
+|No
+|No
+|No
+|No
+
+|Transactions
+|Yes
+|Yes, but index and constraint changes run on their own
+|Yes
+|No: every statement is committed on its own
+|Yes
+|===
+
+More differences to keep in mind:
+
+* *FalkorDB*: dates, times and binary values are passed to FalkorDB as ISO and Base64 strings.
+* *Gremlin*: a vertex has one label, Graph Output uses the first label of a node.
+The binding names `id`, `label`, `key` and `value` are reserved by Gremlin servers: don't use them as parameter names.
+Amazon Neptune doesn't run scripts with bindings: on Neptune, use Graph Output, which doesn't need them.
+Dates and times are stored as UTC dates, the date type every Gremlin server supports.
+Graph Output looks nodes up by their keys: create indexes on them on the server for large graphs.
+There are no transactions: every request is committed on its own.
+Scripts return a row per result: a map, from `project()`, `elementMap()` or `valueMap()`, gives a field per key, anything else one field called `result`.
+* *Apache AGE*: a node has one label, and label names can't contain spaces.
+Cypher statements that return values need to name them: `RETURN *` isn't supported.
+* Notifications of the database, like deprecation warnings or the query planner hints of Memgraph, are advice about a statement which succeeded.
+The Cypher output, Graph output and Graph query transforms log them, warnings at the basic log level and informational notifications at the detailed log level, and never fail on them.
+* Cypher you write yourself, for example in the Graph query transform, has to use the syntax of the database.
+
+== Capabilities
+
+Each graph database type tells Hop what it supports.
+The editor of a graph database connection shows this on the *Supports* line under the graph database type, and its tooltip lists every capability with yes or no and the query language.
+On the command line, `hop-conf` prints the same as JSON, see xref:hop-tools/hop-conf/hop-conf.adoc#_graph_database_connections[Hop Conf]:
+
+* `--graph-database-types` lists every installed graph database type with its capabilities. No connection is needed.
+* `--graph-connection-info=<name>` prints the type and capabilities of a connection. Its settings, like the server or the password, are not printed.
+* `--graph-connection-test=<name>` tests a connection, like the *Test* button.
+
+The capabilities of the graph database types in this version of Hop:
+
+[options="header"]
+|===
+|Capability |Neo4j |Memgraph |Amazon Neptune |FalkorDB |Apache AGE |Gremlin
+
+|`cypher`: the database runs Cypher
+|Yes |Yes |Yes |Yes |Yes |No
+
+|`supportingNodeIndexes`
+|Yes |Yes |No |Yes |No |No
+
+|`supportingRelationshipIndexes`
+|Yes |Yes |No |Yes |No |No
+
+|`supportingIndexes`: node or relationship indexes
+|Yes |Yes |No |Yes |No |No
+
+|`supportingConstraints`
+|Yes |Yes |No |No |No |No
+
+|`supportingVectorIndexes`
+|Yes |Yes |No |Yes |No |No
+
+|`supportingVectorSearch`: searching a vector index for the nearest nodes
+|Yes |Yes |No |Yes |No |No
+
+|`supportingRelationshipVectorSearch`: searching a vector index on relationships for the nearest relationships
+|Yes |Yes |No |Yes |No |No
+
+|`supportingSchemaIntrospection`: reading the labels, relationship types and properties
+|Yes |Yes |Yes |Yes |Yes |Yes
+
+|`supportingSchemaChangesInTransactions`: index and constraint changes run in a transaction
+|Yes |No |Yes |Yes |Yes |Yes
+
+|`supportingShortestPath`: the `shortestPath()` function
+|Yes |No |No |No |No |No
+|===
+
+The capability names are the names of the methods of the graph database dialect without `is`, for example `isSupportingVectorIndexes()` becomes `supportingVectorIndexes`.
+Capabilities added in later versions of Hop or by other plugins appear in the editor and the JSON without changes.

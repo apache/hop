@@ -540,47 +540,58 @@ public class ExplorerLintGuiPlugin {
             List<LintResult> results = new java.util.ArrayList<>();
             int processedFilesCount = 0;
 
-            for (String filePath : hopFilePaths) {
-              File file = new File(filePath);
-              if (progressDialog.isCancelled()) {
-                log.logDetailed("Folder linting cancelled by user");
-                return;
-              }
+            // The unreferenced pipeline and workflow rules need the whole project, not just the
+            // folder: a pipeline in it may be called from anywhere in the project.
+            CustomRuleExecutor.setProjectIndex(
+                linter.buildProjectIndex(folderPath, metadataProvider, variables));
+            try {
 
-              try {
-                progressDialog.updateProgress(
-                    "Processing: " + file.getName(), processedFilesCount, hopFilePaths.size());
-                String normalizedPath = LintPathUtils.normalizePath(file.getAbsolutePath());
-                List<LintResult> fileResults;
-                if (normalizedPath.toLowerCase().endsWith(".hpl")) {
-                  PipelineMeta pipelineMeta =
-                      new PipelineMeta(file.getAbsolutePath(), metadataProvider, variables);
-                  fileResults =
-                      PipelineLintResultsBuilder.build(
-                          pipelineMeta, normalizedPath, metadataProvider, variables);
-                } else if (HopMetadataFileLoader.isMetadataJsonFile(normalizedPath)) {
-                  fileResults = linter.processFile(file, metadataProvider, variables);
-                } else {
-                  fileResults = linter.processFile(file, metadataProvider, variables);
+              for (String filePath : hopFilePaths) {
+                File file = new File(filePath);
+                if (progressDialog.isCancelled()) {
+                  log.logDetailed("Folder linting cancelled by user");
+                  return;
                 }
-                results.addAll(fileResults);
-                LintResultsManager.getInstance().updateResultsForFile(normalizedPath, fileResults);
-                processedFilesCount++;
-              } catch (Exception e) {
-                log.logError("Error processing file: " + file.getAbsolutePath(), e);
-                LintResult errorResult =
-                    new LintResult(
-                        "SYSTEM-001",
-                        "File Processing Error",
-                        "ERROR",
-                        "Failed to process file: " + e.getMessage(),
-                        LintPathUtils.normalizePath(file.getAbsolutePath()));
-                results.add(errorResult);
-                LintResultsManager.getInstance()
-                    .updateResultsForFile(
-                        LintPathUtils.normalizePath(file.getAbsolutePath()), List.of(errorResult));
-                processedFilesCount++;
+
+                try {
+                  progressDialog.updateProgress(
+                      "Processing: " + file.getName(), processedFilesCount, hopFilePaths.size());
+                  String normalizedPath = LintPathUtils.normalizePath(file.getAbsolutePath());
+                  List<LintResult> fileResults;
+                  if (normalizedPath.toLowerCase().endsWith(".hpl")) {
+                    PipelineMeta pipelineMeta =
+                        new PipelineMeta(file.getAbsolutePath(), metadataProvider, variables);
+                    fileResults =
+                        PipelineLintResultsBuilder.build(
+                            pipelineMeta, normalizedPath, metadataProvider, variables);
+                  } else if (HopMetadataFileLoader.isMetadataJsonFile(normalizedPath)) {
+                    fileResults = linter.processFile(file, metadataProvider, variables);
+                  } else {
+                    fileResults = linter.processFile(file, metadataProvider, variables);
+                  }
+                  results.addAll(fileResults);
+                  LintResultsManager.getInstance()
+                      .updateResultsForFile(normalizedPath, fileResults);
+                  processedFilesCount++;
+                } catch (Exception e) {
+                  log.logError("Error processing file: " + file.getAbsolutePath(), e);
+                  LintResult errorResult =
+                      new LintResult(
+                          "SYSTEM-001",
+                          "File Processing Error",
+                          "ERROR",
+                          "Failed to process file: " + e.getMessage(),
+                          LintPathUtils.normalizePath(file.getAbsolutePath()));
+                  results.add(errorResult);
+                  LintResultsManager.getInstance()
+                      .updateResultsForFile(
+                          LintPathUtils.normalizePath(file.getAbsolutePath()),
+                          List.of(errorResult));
+                  processedFilesCount++;
+                }
               }
+            } finally {
+              CustomRuleExecutor.setProjectIndex(null);
             }
 
             progressDialog.setComplete("Completed. Found " + results.size() + " issues");

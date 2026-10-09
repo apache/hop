@@ -811,13 +811,14 @@ public class Const {
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_COUNT = "HOP_FILE_OUTPUT_MAX_STREAM_COUNT";
 
   /**
-   * This variable contains the number of milliseconds between flushes of all open files in the Text
-   * File Output transform.
+   * Milliseconds between flushes of all open files in the Text File Output transform. {@code 0}
+   * selects the transform default of 5000. A negative value, for example {@code -1}, disables the
+   * interval flush.
    */
   @Variable(
-      value = "0",
+      value = "5000",
       description =
-          "This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.")
+          "This project variable is used by the Text File Output transform. It defines how many milliseconds to wait between flushes of files opened by the transform. Output is buffered, so slow input stays invisible until the buffer fills or the file is closed. The default is 5000 (5 seconds). A value of 0 uses that default. Set a positive number of milliseconds to change the interval. A negative value, for example -1, disables the interval flush.")
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_LIFE = "HOP_FILE_OUTPUT_MAX_STREAM_LIFE";
 
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */
@@ -953,6 +954,17 @@ public class Const {
   public static final String HOP_MAX_TAB_LENGTH = "HOP_MAX_TAB_LENGTH";
 
   /**
+   * Spaces inserted or removed when Tab or Shift+Tab changes the indentation of the selected lines
+   * in a multi-line text field.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "2",
+      description =
+          "Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. A line that already starts with a tab gains another tab. Set the value to 0 to insert a tab. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. The default is 2.")
+  public static final String HOP_TEXT_TAB_SIZE = "HOP_TEXT_TAB_SIZE";
+
+  /**
    * A variable to configure VFS USER_DIR_IS_ROOT option: should be "true" or "false" {@linkplain
    * org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder}
    */
@@ -1000,7 +1012,9 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
-  @Variable(description = "A variable to configure the maximum file size of a single zip entry")
+  @Variable(
+      value = "4294967295",
+      description = "A variable to configure the maximum file size of a single zip entry")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE = "HOP_ZIP_MAX_ENTRY_SIZE";
 
   /**
@@ -1017,7 +1031,6 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    */
-  @Variable(description = "")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT);
 

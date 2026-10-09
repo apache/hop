@@ -66,7 +66,7 @@ TIP: Running Hop pipelines on embedded Flink through Hop Gui will work just fine
 
 Set your Flink master to your cluster's master. For embedded Flink, `[local]` will do.
 
-Go back to the data orchestration perspective and run one of the Beam pipelines in the samples project. In this example, we used `samples/beam/pipelines/generate-synthetic-data.hpl`
+Go back to the File Explorer perspective and run one of the Beam pipelines in the samples project. In this example, we used `samples/beam/pipelines/generate-synthetic-data.hpl`
 
 When you start your pipeline from Hop Gui, it will appear in your Flink Dashboard.
 

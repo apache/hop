@@ -104,11 +104,12 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
               GuiActionFavorites.createId(GuiActionFavorites.Kind.WORKFLOW_ACTION, pluginId),
               GuiActionType.Create,
               actionPlugin.getName(),
-              GuiActionFavorites.tooltipWithFavoriteHint(actionPlugin.getDescription(), favorite),
+              actionPlugin.getDescription(),
               actionPlugin.getImageFile(),
               (shiftClicked, controlClicked, t) ->
                   workflowGraph.workflowActionDelegate.newAction(
                       workflowMeta, pluginId, actionPlugin.getName(), controlClicked, click));
+      createActionGuiAction.getTooltipHints().add(GuiActionFavorites.favoriteHint(favorite));
       createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getKeywords()));
       // Also search on the English name/category/keywords for non-English locales (issue #2633)
       createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getEnglishKeywords()));

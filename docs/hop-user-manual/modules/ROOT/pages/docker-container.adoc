@@ -171,6 +171,7 @@ You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=
 |
 |If you specify a value for this variable, they will be used to execute `hop-conf.sh` right before execution of the short- or long-lived container.
 You can use it for example to configure values for keys, plugins, and so on.
+See <<CloudCredentials>> for the cloud storage options.
 Specify multiple options separated by spaces. Enclose values containing spaces in quotes, for example `--set-variable=FOO=bar --describe-variable=FOO="An example variable"`.
 
 |```HOP_COMMAND```
@@ -246,7 +247,7 @@ Below are the variables you can use for a **long-lived** container, running Hop 
 |The maximum number of log lines kept in memory by the server.
 
 |```HOP_SERVER_MAX_LOG_TIMEOUT```
-|`0` (never clean up log lines)
+|`1440` (clean up log lines after one day)
 |The time (in minutes) it takes for a log line to be cleaned up in memory.
 
 |```HOP_SERVER_MAX_OBJECT_TIMEOUT```
@@ -447,6 +448,186 @@ docker run -it --rm \
 The download is supported by the client/server image (running pipelines, workflows or `hop-server`) and the Hop web image. The drivers and their transitive dependencies are written to `HOP_SHARED_JDBC_FOLDERS` (default `lib/jdbc`). If the container filesystem is read-only, make sure that folder is writable, for example by mounting a volume over it.
 
 NOTE: `HOP_DRIVERS_DOWNLOAD` is available from Hop version 2.19.
+
+[[DownloadingMarketplacePlugins]]
+== Downloading Marketplace plugins
+
+The Docker container can install optional or third-party plugins from the Hop marketplace or a corporate Maven repository (e.g. Sonatype Nexus, JFrog Artifactory) on startup *before* Hop starts. The stock image does this at runtime, so a custom image is not required. A repeated start skips a plugin when its receipt version matches and its files are still present. Every coordinate is installed by one `hop marketplace install` invocation.
+
+Set `HOP_PLUGINS_DOWNLOAD` to a comma-separated list of plugin coordinates. Each entry can be:
+
+* An artifact id or short name (e.g. `hop-tech-parquet`, `datavault`), when a browsable repository or the Apache catalog can resolve it.
+* An artifact id with version (e.g. `hopper-edw:0.10.0`), with the same limitation.
+* Full Maven coordinates (e.g. `org.hopper:hopper-edw:0.10.0`).
+
+`HOP_PLUGINS_MAVEN_REPO` is the repository to try first. The configured Apache and Maven Central repositories are still used when a plugin is not in that repository, so a private plugin and an Apache optional plugin can be requested together. Pass a full `groupId:artifactId:version` for the private one when that repository cannot be browsed.
+
+A repository that cannot be browsed (a plain Maven repository, or `HOP_PLUGINS_REPO_TYPE=maven`) does not accept a short name. The install fails and asks for `groupId:artifactId:version` instead of guessing `org.apache.hop`. `HOP_PLUGINS_REPO_TYPE` selects the browse API: `auto` (default), `nexus`, `forgejo`, `jfrog`, or `maven`. `auto` infers Nexus, Artifactory, or Forgejo from the URL.
+
+`HOP_PLUGINS_REPO_ID` is the id of that repository (default `corporate-repo`). The entrypoint does not put the password on the `hop` command line. It exports `HOP_MARKETPLACE_<ID>_USERNAME` and either `HOP_MARKETPLACE_<ID>_PASSWORD` or, when the auth type is `token`, `HOP_MARKETPLACE_<ID>_TOKEN`. For the default id those names are `HOP_MARKETPLACE_CORPORATE_REPO_USERNAME`, `HOP_MARKETPLACE_CORPORATE_REPO_PASSWORD` and `HOP_MARKETPLACE_CORPORATE_REPO_TOKEN`. Any other id is uppercased, and every character that is not a letter or digit becomes an underscore. You can set those variables yourself instead of `HOP_PLUGINS_REPO_USERNAME` and `HOP_PLUGINS_REPO_PASSWORD`.
+
+* `HOP_PLUGINS_REPO_USERNAME`: Basic auth username.
+* `HOP_PLUGINS_REPO_PASSWORD`: Basic auth password or bearer token.
+* `HOP_PLUGINS_REPO_AUTH_TYPE`: `auto` (default), `none`, `basic`, or `token`.
+
+The global `HOP_MARKETPLACE_USERNAME` and `HOP_MARKETPLACE_PASSWORD` variables are also picked up.
+
+.Install a private plugin and an Apache plugin, keeping them on a volume
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_PLUGINS_DOWNLOAD="org.hopper:hopper-edw:0.10.0,hop-tech-parquet" \
+  --env HOP_PLUGINS_MAVEN_REPO="https://repository.data-hopper.com/repository/hop-community-plugins/" \
+  --env HOP_PLUGINS_REPO_ID=data-hopper \
+  --env HOP_PLUGIN_BASE_FOLDERS=/opt/hop/plugins,/files/plugins \
+  --env HOP_PROJECT_FOLDER=/project \
+  --env HOP_PROJECT_NAME=my-project \
+  --env HOP_FILE_PATH='${PROJECT_HOME}/main.hpl' \
+  --env HOP_RUN_CONFIG=local \
+  --mount type=bind,source=/path/to/project,target=/project \
+  --mount type=volume,source=hop-plugins,target=/files/plugins \
+  apache/hop
+----
+
+`HOP_PLUGIN_BASE_FOLDERS` replaces the default `plugins` folder. Include the image plugins path and the mounted path, as in the example. The install is written to the first writable directory in that list that is not the image install itself. Shared `lib/core` jars are written next to that plugins folder and added to the classpath of `hop`, `hop-run` and `hop-server`.
+
+Plugins written only into the container filesystem are not kept when the container is removed. They are kept when that install directory is a mounted volume, or when the install happened while building an image.
+
+The Hop web image installs marketplace plugins at startup as well. The image rewrites the `hop` classpath the same way as `hop-run.sh`, so it includes `WEB-INF/lib` (where the Hop jars live) as well as `lib/core`. Shared jars from a plugin are installed into `WEB-INF/lib` so Tomcat and `hop` both load them. Plugin folders still follow `HOP_PLUGIN_BASE_FOLDERS`.
+
+Building a derived image is optional. It avoids the download on every start when a custom image is acceptable:
+
+[source,dockerfile]
+----
+FROM apache/hop:2.20.0
+RUN /opt/hop/hop marketplace install \
+    org.hopper:hopper-edw:0.10.0 \
+    org.apache.hop:hop-tech-parquet:2.20.0 \
+    --repo-url https://repository.data-hopper.com/repository/hop-community-plugins/ \
+    --repo-id data-hopper
+----
+
+If you maintain a declarative Hop environment install spec (`hop-env.yaml`) or repository definition (`hop-marketplace-repo.yaml`), you can point to it directly using `HOP_PLUGINS_ENV_FILE`:
+
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_PLUGINS_ENV_FILE=https://raw.githubusercontent.com/ProjectDataHopper/hopper-edw/main/hop-marketplace-repo.yaml \
+  ... \
+  apache/hop
+----
+
+NOTE: `HOP_PLUGINS_DOWNLOAD` is available from Hop version 2.20.
+
+[[CloudCredentials]]
+== Cloud storage credentials
+
+The cloud file systems in Hop (`s3://`, `gs://`, `azure://`, `googledrive://`, `dropbox://`) get their default credentials from one of two places:
+
+* the standard environment variables of the provider's SDK (AWS and Google Cloud), or
+* the Hop configuration (`hop-config.json`), which you set in the container with `hop-conf` options in `HOP_CONFIG_OPTIONS`.
+
+The sample file https://github.com/apache/hop/blob/main/docker/hop.env.sample[`docker/hop.env.sample`] lists the options below with comments.
+Copy it, uncomment what you need and pass it with `--env-file`:
+
+[source,bash]
+----
+docker run -it --rm \
+  --env-file hop.env \
+  -v /path/to/project:/files \
+  -v /path/to/keys:/keys:ro \
+  apache/hop:<tag>
+----
+
+`docker run --env-file` takes everything after the first `=` literally, quotes included, so do not wrap values in quotes.
+A line with only a variable name, for example `AWS_SECRET_ACCESS_KEY`, copies that variable from the shell that runs `docker run`.
+
+The sample is for `docker run --env-file` only.
+Do not use it as a Docker Compose `env_file`: Compose strips quotes and expands `${...}`, which breaks the quoted Azure key and `HOP_FILE_PATH`.
+
+[options="header"]
+|===
+|File system |Environment variables |`HOP_CONFIG_OPTIONS`
+
+|xref:vfs/aws-s3-vfs.adoc[Amazon S3] (`s3://`)
+|`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_REGION`.
+Or mount a credentials file with `-v ~/.aws:/home/hop/.aws:ro` and set `AWS_PROFILE`.
+|Not needed.
+
+|xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage] (`gs://`)
+|`GOOGLE_APPLICATION_CREDENTIALS`, pointing to a mounted service account key file.
+|`--google-cloud-service-account-key-file=/keys/key.json`
+
+|xref:vfs/azure-blob-storage-vfs.adoc[Azure Storage] (`azure://`)
+|None.
+|`--azure-account=<account> --azure-key=<key>`, optionally `--azure-emulator=<url>`
+
+|xref:vfs/google-drive-vfs.adoc[Google Drive] (`googledrive://`)
+|None.
+|`--google-drive-credentials-file=<file> --google-drive-tokens-folder=<folder>`
+
+|xref:vfs/dropbox-vfs.adoc[Dropbox] (`dropbox://`)
+|None.
+|`--dropbox-access-token=<token>`
+|===
+
+`HOP_CONFIG_OPTIONS` is a single variable.
+To configure more than one file system, put all options on one line, separated by spaces:
+
+[source,properties]
+----
+HOP_CONFIG_OPTIONS=--azure-account=mystorageaccount --azure-key="Encrypted 2be98..." --dropbox-access-token=my-token
+----
+
+The Azure key may be encrypted with `hop-encrypt.sh -hop <key>`.
+The result contains a space, so quote it as shown above.
+
+Google Drive needs a token that is created by an interactive browser login.
+Log in once with Hop GUI on a desktop, then mount the credentials file and the tokens folder into the container.
+The credentials file can stay on the read-only `/keys` mount.
+Hop writes to the tokens folder, so mount it read-write and make it owned by uid 501, the `hop` user in the image:
+
+[source,bash]
+----
+chown -R 501 /path/to/google-drive-tokens
+
+docker run -it --rm \
+  --env-file hop.env \
+  -v /path/to/keys:/keys:ro \
+  -v /path/to/google-drive-tokens:/home/hop/google-drive-tokens \
+  apache/hop:<tag>
+----
+
+with `--google-drive-credentials-file=/keys/google-drive-credentials.json --google-drive-tokens-folder=/home/hop/google-drive-tokens` in `HOP_CONFIG_OPTIONS`.
+
+=== Named connections
+
+Connections that are defined as metadata in your project, such as xref:vfs/aws-s3-vfs.adoc[S3], xref:vfs/minio-vfs.adoc[MinIO], xref:vfs/azure-blob-storage-vfs.adoc[Azure Storage] or xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage] connections, are read from the project and not from the environment file.
+
+* An S3 connection with the `Default (environment / instance profile)` authentication type uses the `AWS_*` variables from the table above.
+* An Azure connection with the `Managed Identity` authentication type also accepts a service principal through `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_CLIENT_SECRET`.
+
+Other connection fields can use Hop variables such as `${S3_SECRET_KEY}`.
+Container environment variables are not Hop variables.
+Set them in the environment configuration file (`HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`) or pass them as system properties with `HOP_SYSTEM_PROPERTIES`.
+
+=== Keeping secrets safe
+
+Anyone who can run `docker inspect` on the container can read its environment variables, including the values in `HOP_CONFIG_OPTIONS`.
+`hop-conf` also writes those values to `hop-config.json` inside the container.
+The values in `HOP_CONFIG_OPTIONS` also end up in the container log (`docker logs`): the start-up script prints the variable, and the Azure key is logged when it is set.
+
+* Prefer mounted, read-only key files over keys in environment variables.
+* Leave secrets out of the environment file and copy them from your shell, as described above.
+* Use a xref:metadata-types/variable-resolver/index.adoc[Variable Resolver] to read secrets from AWS Secrets Manager, Azure Key Vault, Google Secret Manager or HashiCorp Vault at runtime.
+
+=== Hop Web image
+
+The `apache/hop-web` image does not read `HOP_CONFIG_OPTIONS`.
+The provider SDK variables (`AWS_*`, `GOOGLE_APPLICATION_CREDENTIALS`) work as described above.
+For Azure, Google Drive and Dropbox, set the defaults in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective] in Hop Web.
+They are stored in `hop-config.json`, so keep that file on a persistent volume.
+See xref:hop-web-docker.adoc[Hop Web in Docker].
 
 == Custom Entrypoint Extension Shell Script
 

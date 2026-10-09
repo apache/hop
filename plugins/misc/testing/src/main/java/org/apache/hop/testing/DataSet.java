@@ -49,6 +49,9 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
 
   public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";
 
+  /** Placeholder base file name until a suggestion or the user replaces it. */
+  public static final String DEFAULT_BASE_FILENAME = "data-set-filename.csv";
+
   @HopMetadataProperty private String description;
 
   @HopMetadataProperty(key = "folder_name")
@@ -62,7 +65,7 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
 
   public DataSet() {
     fields = new ArrayList<>();
-    baseFilename = "data-set-filename.csv";
+    baseFilename = DEFAULT_BASE_FILENAME;
   }
 
   public DataSet(

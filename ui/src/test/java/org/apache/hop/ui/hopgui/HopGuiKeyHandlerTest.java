@@ -167,6 +167,53 @@ class HopGuiKeyHandlerTest {
     }
   }
 
+  /** Stands in for the perspectives opened with Ctrl/Cmd+Shift+A and Ctrl/Cmd+Shift+C. */
+  public static class PerspectiveShortcuts {
+    public int assistant;
+    public int selectAll;
+    public int shiftedPaste;
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'a', global = true)
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'a', global = true)
+    public void activateAssistant() {
+      assistant++;
+    }
+
+    @GuiKeyboardShortcut(control = true, key = 'a')
+    @GuiOsxKeyboardShortcut(command = true, key = 'a')
+    public void selectAllInGraph() {
+      selectAll++;
+    }
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'v', global = true)
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'v', global = true)
+    public void shiftedPaste() {
+      shiftedPaste++;
+    }
+  }
+
+  @Test
+  void shiftedClipboardChordsRunShortcutsFromTextWidgets() {
+    PerspectiveShortcuts shortcuts = new PerspectiveShortcuts();
+    registerShortcutsLikeHopGuiEnvironment(PerspectiveShortcuts.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(shortcuts);
+    try {
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'a', SWT.CONTROL | SWT.SHIFT));
+      assertEquals(
+          1, shortcuts.assistant, "Ctrl+Shift+A must open the AI Assistant from a text field");
+
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'a', SWT.CONTROL));
+      assertEquals(0, shortcuts.selectAll, "Ctrl+A in a text field still selects the text");
+
+      keyHandler.keyPressed(keyEvent(mock(Text.class), 'v', SWT.CONTROL | SWT.SHIFT));
+      assertEquals(0, shortcuts.shiftedPaste, "Ctrl+Shift+V in a text field stays with the field");
+    } finally {
+      keyHandler.removeParentObjectToHandle(shortcuts);
+    }
+  }
+
   /** Stands in for HopGui align / distribute shortcuts, which share chords with word movement. */
   public static class AlignGraph {
     public int alignLeft;
@@ -334,6 +381,63 @@ class HopGuiKeyHandlerTest {
       keyHandler.keyPressed(onCanvas);
       assertEquals(1, graph.selected, "Ctrl+A on the canvas still selects the graph");
       assertFalse(onCanvas.doit);
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  /** Stands in for the Edit / Undo shortcut on the graph and the main menu. */
+  public static class HistoryGraph {
+    public int undos;
+    public int redos;
+
+    @GuiKeyboardShortcut(control = true, key = 'z')
+    @GuiOsxKeyboardShortcut(command = true, key = 'z')
+    public void undo() {
+      undos++;
+    }
+
+    @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
+    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
+    public void redo() {
+      redos++;
+    }
+  }
+
+  @Test
+  void undoRedoStayInEditorsThatKeepTheirOwnHistory() {
+    HistoryGraph graph = new HistoryGraph();
+    registerShortcutsLikeHopGuiEnvironment(HistoryGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      StyledText editor = mock(StyledText.class);
+      when(editor.getData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY)).thenReturn(Boolean.TRUE);
+
+      KeyEvent undo = keyEvent(editor, 'z', SWT.CONTROL);
+      keyHandler.keyPressed(undo);
+      assertEquals(0, graph.undos, "Ctrl+Z in a script editor must not undo the graph");
+      assertTrue(undo.doit, "The editor performs undo; this handler must not consume the key");
+
+      KeyEvent upper = keyEvent(editor, 'Z', SWT.CONTROL);
+      keyHandler.keyPressed(upper);
+      assertEquals(0, graph.undos, "Ctrl+Z must match regardless of key-code case");
+
+      KeyEvent redo = keyEvent(editor, 'y', SWT.CONTROL);
+      keyHandler.keyPressed(redo);
+      assertEquals(0, graph.redos);
+      assertTrue(redo.doit, "Ctrl+Y stays with the editor");
+
+      KeyEvent shiftRedo = keyEvent(editor, 'z', SWT.CONTROL | SWT.SHIFT);
+      keyHandler.keyPressed(shiftRedo);
+      assertEquals(0, graph.redos, "Ctrl+Shift+Z in a script editor must not redo the graph");
+      assertTrue(shiftRedo.doit);
+
+      KeyEvent outside = keyEvent(mock(StyledText.class), 'z', SWT.CONTROL);
+      keyHandler.keyPressed(outside);
+      assertEquals(1, graph.undos, "Ctrl+Z outside that editor still undoes the graph");
+      assertFalse(outside.doit);
     } finally {
       keyHandler.removeParentObjectToHandle(graph);
     }

@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.gui;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +40,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.GuiTableColumnElement;
+import org.apache.hop.core.gui.plugin.GuiTableColumnType;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroups;
 import org.apache.hop.core.gui.plugin.GuiWidgetMethodInvoker;
@@ -48,15 +51,19 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.DialogOkContent;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -81,6 +88,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
@@ -126,6 +134,13 @@ public class GuiCompositeWidgets {
    * showing it again restores the size it was created with rather than a default one.
    */
   private final Map<Control, Integer> collapsedHeights = new HashMap<>();
+
+  /**
+   * {@link FormData#bottom} of a row hidden by {@link #setWidgetsHidden}. A grid attaches to the
+   * bottom of its parent, and {@link FormLayout} still honors that attachment while the control is
+   * invisible, so the attachment has to come off until the row is shown again.
+   */
+  private final Map<Control, FormAttachment> collapsedBottoms = new HashMap<>();
 
   public GuiCompositeWidgets(IVariables variables) {
     this(variables, 0);
@@ -217,7 +232,12 @@ public class GuiCompositeWidgets {
       boolean useNewLayout) {
     List<WidgetGroup> groups = collectGroups(guiElements);
     if (groups.isEmpty()) {
-      addCompositeWidgets(sourceData, parent, guiElements, lastControl, useNewLayout);
+      Control last =
+          addCompositeWidgets(sourceData, parent, guiElements, lastControl, useNewLayout);
+      // No children leaves last pointing at the control this composite hangs under.
+      if (last != lastControl) {
+        stretchLastTable(last);
+      }
       return;
     }
 
@@ -310,6 +330,9 @@ public class GuiCompositeWidgets {
       for (GuiElements child : group.elements) {
         lastInBox = addCompositeWidgets(sourceData, content, child, lastInBox, useNewLayout);
       }
+      if (group.extras.isEmpty()) {
+        stretchLastTable(lastInBox);
+      }
       for (Consumer<Composite> extra : group.extras) {
         extra.accept(content);
       }
@@ -349,6 +372,9 @@ public class GuiCompositeWidgets {
       Control last = null;
       for (GuiElements child : group.elements) {
         last = addCompositeWidgets(sourceData, composite, child, last, useNewLayout);
+      }
+      if (group.extras.isEmpty()) {
+        stretchLastTable(last);
       }
       for (Consumer<Composite> extra : group.extras) {
         extra.accept(composite);
@@ -578,6 +604,10 @@ public class GuiCompositeWidgets {
         continue;
       }
       collapsedHeights.putIfAbsent(control, formData.height);
+      if (formData.bottom != null) {
+        collapsedBottoms.putIfAbsent(control, formData.bottom);
+        formData.bottom = null;
+      }
       formData.height = 0;
       formData.top =
           lastVisible == null ? new FormAttachment(0, 0) : new FormAttachment(lastVisible, 0);
@@ -589,9 +619,18 @@ public class GuiCompositeWidgets {
     if (control == null || control.isDisposed()) {
       return;
     }
+    if (!(control.getLayoutData() instanceof FormData formData)) {
+      collapsedHeights.remove(control);
+      collapsedBottoms.remove(control);
+      return;
+    }
     Integer height = collapsedHeights.remove(control);
-    if (height != null && control.getLayoutData() instanceof FormData formData) {
+    if (height != null) {
       formData.height = height;
+    }
+    FormAttachment bottom = collapsedBottoms.remove(control);
+    if (bottom != null) {
+      formData.bottom = bottom;
     }
   }
 
@@ -620,8 +659,14 @@ public class GuiCompositeWidgets {
               && lastVisible != null
               && label != null
               && !label.isDisposed();
+      // A grid sits under its own label. Hanging it on the same control as that label overlaps
+      // the header.
+      boolean underLabel =
+          element.getType() == GuiElementType.TABLE && label != null && !label.isDisposed();
       if (centeredOnLabel) {
         fdWidget.top = new FormAttachment(label, 0, SWT.CENTER);
+      } else if (underLabel) {
+        fdWidget.top = new FormAttachment(label, PropsUi.getMargin() / 2);
       } else if (lastVisible == null) {
         fdWidget.top = new FormAttachment(0, PropsUi.getMargin());
       } else {
@@ -666,10 +711,19 @@ public class GuiCompositeWidgets {
 
       GuiElementType elementType = guiElements.getType();
 
+      // A grid with no columns was rejected while scanning. Leave the row out.
+      if (elementType == GuiElementType.TABLE && !hasTableColumns(guiElements)) {
+        LogChannel.UI.logError(
+            "TABLE widget '" + guiElements.getId() + "' has no columns and is not shown");
+        return lastControl;
+      }
+
       // Add the label
       // For metadata, button, and link, the label is handled in the widget itself
       // For checkbox in new layout, the label is handled in the widget itself
+      // A grid label spans the row: the table needs the full width in either layout.
       //
+      boolean tableLabel = elementType == GuiElementType.TABLE;
       if (StringUtils.isNotEmpty(guiElements.getLabel())
           && elementType != GuiElementType.METADATA
           && elementType != GuiElementType.BUTTON
@@ -677,7 +731,7 @@ public class GuiCompositeWidgets {
           && !(useNewLayout && elementType == GuiElementType.CHECKBOX)) {
         // Use new layout (label above) for ConfigPlugin classes, old layout (label on left) for
         // others
-        int labelStyle = useNewLayout ? SWT.LEFT : (SWT.RIGHT | SWT.SINGLE);
+        int labelStyle = useNewLayout || tableLabel ? SWT.LEFT : (SWT.RIGHT | SWT.SINGLE);
         label = new Label(parent, labelStyle);
         PropsUi.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
@@ -686,8 +740,8 @@ public class GuiCompositeWidgets {
         }
         FormData fdLabel = new FormData();
         fdLabel.left = new FormAttachment(0, 0);
-        if (useNewLayout) {
-          // New layout: label spans full width
+        if (useNewLayout || tableLabel) {
+          // New layout, and every grid: label spans full width
           fdLabel.right = new FormAttachment(100, 0);
         } else {
           // Old layout: label on left side (up to middle percentage)
@@ -726,6 +780,9 @@ public class GuiCompositeWidgets {
           break;
         case LINK:
           control = getLinkControl(parent, guiElements, props, lastControl, useNewLayout);
+          break;
+        case TABLE:
+          control = getTableControl(sourceObject, parent, guiElements, props, lastControl, label);
           break;
         default:
           break;
@@ -810,7 +867,34 @@ public class GuiCompositeWidgets {
     IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
     int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     MetaSelectionLine<? extends IHopMetadata> metaSelectionLine;
-    if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
+    Class<?> selectionLineClass = guiElements.getMetadataSelectionLine();
+    if (selectionLineClass != null
+        && selectionLineClass != Void.class
+        && MetaSelectionLine.class.isAssignableFrom(selectionLineClass)) {
+      try {
+        metaSelectionLine =
+            (MetaSelectionLine<? extends IHopMetadata>)
+                selectionLineClass
+                    .getConstructor(
+                        IVariables.class,
+                        IHopMetadataProvider.class,
+                        Composite.class,
+                        int.class,
+                        String.class,
+                        String.class)
+                    .newInstance(
+                        variables,
+                        metadataProvider,
+                        parent,
+                        flags,
+                        guiElements.getLabel(),
+                        guiElements.getToolTip());
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Unable to create metadata selection line " + selectionLineClass.getName(), e);
+        return lastControl;
+      }
+    } else if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
       metaSelectionLine =
           MetaSelectionLine.forMetadataKey(
               variables,
@@ -1001,10 +1085,11 @@ public class GuiCompositeWidgets {
 
   /**
    * See if the annotated field is an enum. If this is the case we can take the combo values from
-   * the enum names.
+   * the enum. An {@link IEnumHasCodeAndDescription} contributes its description. Any other enum
+   * contributes {@code toString()}.
    *
    * @param fieldClass The field class
-   * @return The list of enum names or null if this is not an enum
+   * @return The list of combo labels or null if this is not an enum
    */
   private String[] getEnumValues(Class<?> fieldClass) {
     try {
@@ -1012,7 +1097,7 @@ public class GuiCompositeWidgets {
         Object[] enumConstants = fieldClass.getEnumConstants();
         String[] values = new String[enumConstants.length];
         for (int i = 0; i < values.length; i++) {
-          values[i] = enumConstants[i].toString();
+          values[i] = enumChoiceLabel(enumConstants[i], false);
         }
         return values;
       } else {
@@ -1026,6 +1111,21 @@ public class GuiCompositeWidgets {
           "Error finding enum values of field class: " + fieldClass.getName(), e);
       return null;
     }
+  }
+
+  /**
+   * Label shown for an enum. A description is the label a person picks. Otherwise a combo keeps
+   * {@code toString()} and a table cell keeps the constant name, which is what each wrote before.
+   */
+  private String enumChoiceLabel(Object enumConstant, boolean constantNameFallback) {
+    if (enumConstant instanceof IEnumHasCodeAndDescription coded
+        && StringUtils.isNotEmpty(coded.getDescription())) {
+      return coded.getDescription();
+    }
+    if (constantNameFallback && enumConstant instanceof Enum<?> enumerated) {
+      return enumerated.name();
+    }
+    return enumConstant == null ? "" : Const.NVL(enumConstant.toString(), "");
   }
 
   private Control getCheckboxControl(
@@ -1512,6 +1612,11 @@ public class GuiCompositeWidgets {
           return;
         }
 
+        if (guiElements.getType() == GuiElementType.TABLE) {
+          fillTable(control, sourceData, guiElements);
+          return;
+        }
+
         // What's the value?
         //
         Object value = readFieldValue(sourceData, guiElements);
@@ -1532,12 +1637,14 @@ public class GuiCompositeWidgets {
             button.setSelection(Boolean.TRUE.equals(value));
             break;
           case COMBO:
+            String comboText =
+                value instanceof Enum<?> ? enumChoiceLabel(value, false) : stringValue;
             if (guiElements.isVariablesEnabled()) {
               ComboVar comboVar = (ComboVar) control;
-              comboVar.setText(stringValue);
+              comboVar.setText(comboText);
             } else {
               Combo combo = (Combo) control;
-              combo.setText(stringValue);
+              combo.setText(comboText);
             }
             break;
           case METADATA:
@@ -1553,8 +1660,8 @@ public class GuiCompositeWidgets {
             }
             line.setText(stringValue);
             break;
-          case BUTTON, LINK:
-            // No data to set
+          case BUTTON, LINK, TABLE:
+            // TABLE is filled above. Button and link have no value.
             break;
           default:
             LogChannel.UI.logError(
@@ -1566,7 +1673,7 @@ public class GuiCompositeWidgets {
             break;
         }
 
-      } else {
+      } else if (guiElements.getType() != GuiElementType.TABLE || hasTableColumns(guiElements)) {
         LogChannel.UI.logError(
             "Widget not found to set value on for id: "
                 + guiElements.getId()
@@ -1650,6 +1757,11 @@ public class GuiCompositeWidgets {
           return;
         }
 
+        if (guiElements.getType() == GuiElementType.TABLE) {
+          readTable(control, sourceData, guiElements);
+          return;
+        }
+
         // What's the value?
         //
         Object value = null;
@@ -1681,8 +1793,8 @@ public class GuiCompositeWidgets {
             MetaSelectionLine line = (MetaSelectionLine) control;
             value = line.getText();
             break;
-          case BUTTON, LINK:
-            // No data to retrieve from widget
+          case BUTTON, LINK, TABLE:
+            // TABLE is read above. Button and link have no value.
             break;
           default:
             LogChannel.UI.logError(
@@ -1730,7 +1842,7 @@ public class GuiCompositeWidgets {
               return;
             }
             try {
-              value = Enum.valueOf((Class<Enum>) parameterType, constantName);
+              value = enumConstant(parameterType, constantName);
             } catch (IllegalArgumentException e) {
               LogChannel.UI.logDebug(
                   "Ignoring value '"
@@ -1762,6 +1874,21 @@ public class GuiCompositeWidgets {
                     + "' for primitive "
                     + parameterType.getName());
             return;
+          }
+
+          // Text, combo and metadata widgets read back a String. int and long setters reject that
+          // and the field keeps its old value. String setters are left alone.
+          //
+          if (value instanceof String text
+              && (parameterType == int.class || parameterType == long.class)) {
+            String trimmed = text.trim();
+            // Keep the two assignments separate. A ternary of int and long widens the int to long,
+            // and reflection then rejects that Long for an int setter.
+            if (parameterType == int.class) {
+              value = Const.toInt(trimmed, 0);
+            } else {
+              value = Const.toLong(trimmed, 0L);
+            }
           }
 
           if (value != null && !isAssignable(parameterType, value.getClass())) {
@@ -1803,7 +1930,7 @@ public class GuiCompositeWidgets {
           e.printStackTrace();
         }
 
-      } else {
+      } else if (guiElements.getType() != GuiElementType.TABLE || hasTableColumns(guiElements)) {
         LogChannel.UI.logError(
             "Widget not found to set value on for id: "
                 + guiElements.getId()
@@ -1880,6 +2007,380 @@ public class GuiCompositeWidgets {
       for (GuiElements child : guiElements.getChildren()) {
         enableWidget(sourceData, child, enabled);
       }
+    }
+  }
+
+  private boolean hasTableColumns(GuiElements guiElements) {
+    return guiElements.getTableRowClass() != null
+        && guiElements.getTableColumns() != null
+        && !guiElements.getTableColumns().isEmpty();
+  }
+
+  /**
+   * The last grid in a parent keeps the row height used when the dialog is packed, and also
+   * attaches to the bottom so a stretched tab gives it the space that is left.
+   */
+  private void stretchLastTable(Control last) {
+    if (last instanceof TableView && last.getLayoutData() instanceof FormData formData) {
+      formData.bottom = new FormAttachment(100, 0);
+    }
+  }
+
+  private Control getTableControl(
+      Object sourceObject,
+      Composite parent,
+      GuiElements guiElements,
+      PropsUi props,
+      Control lastControl,
+      Label label) {
+    List<GuiTableColumnElement> columns = guiElements.getTableColumns();
+    ColumnInfo[] infos = new ColumnInfo[columns.size()];
+    for (int i = 0; i < columns.size(); i++) {
+      infos[i] = columnInfo(sourceObject, columns.get(i));
+    }
+
+    TableView tableView =
+        new TableView(
+            variables, parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, infos, 1, null, props);
+    tableView.addModifyListener(
+        event -> notifyWidgetModified(new Event(), tableView, guiElements.getId()));
+    if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
+      tableView.getTable().setToolTipText(guiElements.getToolTip());
+    }
+    widgetsMap.put(guiElements.getId(), tableView);
+
+    FormData formData = new FormData();
+    formData.left = new FormAttachment(0, 0);
+    formData.right = new FormAttachment(100, 0);
+    if (label != null) {
+      formData.top = new FormAttachment(label, PropsUi.getMargin() / 2);
+    } else if (lastControl != null) {
+      formData.top = new FormAttachment(lastControl, PropsUi.getMargin());
+    } else {
+      formData.top = new FormAttachment(0, PropsUi.getMargin());
+    }
+    formData.height = preferredTableHeight(tableView, props, guiElements.getTableRows());
+    tableView.setLayoutData(formData);
+    return tableView;
+  }
+
+  private ColumnInfo columnInfo(Object sourceObject, GuiTableColumnElement column) {
+    ColumnInfo info;
+    switch (column.getType()) {
+      case CHECKBOX:
+        info =
+            new ColumnInfo(
+                column.getLabel(), ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, true);
+        info.setUsingVariables(false);
+        break;
+      case COMBO:
+        if (column.getFieldClass() != null && column.getFieldClass().isEnum()) {
+          info =
+              new ColumnInfo(
+                  column.getLabel(),
+                  ColumnInfo.COLUMN_TYPE_CCOMBO,
+                  enumNames(column.getFieldClass()),
+                  true);
+          info.setUsingVariables(false);
+        } else {
+          String[] items = new String[0];
+          if (StringUtils.isNotEmpty(column.getComboValuesMethod())) {
+            items = getComboItems(sourceObject, column.getComboValuesMethod());
+          }
+          info = new ColumnInfo(column.getLabel(), ColumnInfo.COLUMN_TYPE_CCOMBO, items, false);
+          info.setUsingVariables(column.isVariables());
+        }
+        break;
+      default:
+        info = new ColumnInfo(column.getLabel(), ColumnInfo.COLUMN_TYPE_TEXT, false);
+        info.setUsingVariables(column.isVariables());
+        info.setPasswordField(column.isPassword());
+        break;
+    }
+    if (StringUtils.isNotEmpty(column.getToolTip())) {
+      info.setToolTip(column.getToolTip());
+    }
+    if (column.getWidth() > 0) {
+      info.setWidth(column.getWidth());
+    }
+    return info;
+  }
+
+  private String[] enumNames(Class<?> fieldClass) {
+    Object[] constants = fieldClass.getEnumConstants();
+    String[] names = new String[constants.length];
+    for (int i = 0; i < constants.length; i++) {
+      names[i] = enumChoiceLabel(constants[i], true);
+    }
+    return names;
+  }
+
+  private int preferredTableHeight(TableView tableView, PropsUi props, int rows) {
+    int rowCount = Math.max(1, rows);
+    int itemHeight = tableView.getTable().getItemHeight();
+    if (itemHeight <= 0) {
+      itemHeight = (int) Math.ceil(22 * props.getZoomFactor());
+    }
+    int header = tableView.getTable().getHeaderHeight();
+    if (header <= 0) {
+      header = itemHeight;
+    }
+    int toolbarHeight = 0;
+    Control toolbar = tableView.getToolbar();
+    if (toolbar != null && !toolbar.isDisposed()) {
+      Point size = toolbar.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+      toolbarHeight = Math.max(0, size.y);
+    }
+    return toolbarHeight + header + (rowCount * itemHeight) + PropsUi.getMargin();
+  }
+
+  private void fillTable(Control control, Object sourceData, GuiElements guiElements) {
+    if (!(control instanceof TableView tableView) || !hasTableColumns(guiElements)) {
+      return;
+    }
+    List<GuiTableColumnElement> columns = guiElements.getTableColumns();
+    // String combo items are resolved again on every fill, including the refresh after a BUTTON.
+    refreshStringComboColumns(tableView, sourceData, columns);
+
+    Object raw = readFieldValue(sourceData, guiElements);
+    List<?> values;
+    if (raw instanceof List<?> list) {
+      values = list;
+    } else {
+      if (raw != null) {
+        LogChannel.UI.logError(
+            "TABLE widget '" + guiElements.getId() + "' is not a List and is shown empty");
+      }
+      values = List.of();
+    }
+
+    tableView.removeAll();
+    while (tableView.getItemCount() < values.size()) {
+      new TableItem(tableView.getTable(), SWT.NONE);
+    }
+    for (int rowIndex = 0; rowIndex < values.size(); rowIndex++) {
+      Object row = values.get(rowIndex);
+      if (row == null) {
+        continue;
+      }
+      TableItem item = tableView.getTable().getItem(rowIndex);
+      for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+        item.setText(columnIndex + 1, cellText(row, columns.get(columnIndex)));
+      }
+    }
+    tableView.optimizeTableView();
+  }
+
+  private void refreshStringComboColumns(
+      TableView tableView, Object sourceData, List<GuiTableColumnElement> columns) {
+    ColumnInfo[] infos = tableView.getColumns();
+    for (int i = 0; i < columns.size() && i < infos.length; i++) {
+      GuiTableColumnElement column = columns.get(i);
+      if (column.getType() == GuiTableColumnType.COMBO
+          && column.getFieldClass() != null
+          && !column.getFieldClass().isEnum()
+          && StringUtils.isNotEmpty(column.getComboValuesMethod())) {
+        infos[i].setComboValues(getComboItems(sourceData, column.getComboValuesMethod()));
+      }
+    }
+  }
+
+  private String cellText(Object row, GuiTableColumnElement column) {
+    Object value = readRowValue(row, column);
+    if (value == null) {
+      return "";
+    }
+    if (value instanceof Boolean flag) {
+      return flag ? "Y" : "N";
+    }
+    if (value instanceof Enum<?>) {
+      return enumChoiceLabel(value, true);
+    }
+    return Const.NVL(value.toString(), "");
+  }
+
+  private Object readRowValue(Object row, GuiTableColumnElement column) {
+    try {
+      if (StringUtils.isNotEmpty(column.getGetterMethod())) {
+        Method getter = row.getClass().getMethod(column.getGetterMethod());
+        return getter.invoke(row);
+      }
+    } catch (Exception e) {
+      // Try the bean property below.
+    }
+    try {
+      Method reader = new PropertyDescriptor(column.getFieldName(), row.getClass()).getReadMethod();
+      if (reader == null) {
+        return null;
+      }
+      return reader.invoke(row);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Unable to read table column '" + column.getId() + "'", e);
+      return null;
+    }
+  }
+
+  private void readTable(Control control, Object sourceData, GuiElements guiElements) {
+    if (!(control instanceof TableView tableView) || !hasTableColumns(guiElements)) {
+      return;
+    }
+    Class<?> rowClass = guiElements.getTableRowClass();
+    Constructor<?> constructor;
+    try {
+      constructor = rowClass.getConstructor();
+    } catch (NoSuchMethodException e) {
+      LogChannel.UI.logError(
+          "TABLE widget '"
+              + guiElements.getId()
+              + "' row class "
+              + rowClass.getName()
+              + " needs a public no-arg constructor",
+          e);
+      return;
+    }
+
+    List<GuiTableColumnElement> columns = guiElements.getTableColumns();
+    List<Object> built = new ArrayList<>();
+    try {
+      for (TableItem item : tableView.getNonEmptyItems()) {
+        Object row = constructor.newInstance();
+        for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+          writeCell(row, columns.get(columnIndex), item.getText(columnIndex + 1));
+        }
+        built.add(row);
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Unable to read rows of TABLE widget '" + guiElements.getId() + "'", e);
+      return;
+    }
+
+    Object raw = readFieldValue(sourceData, guiElements);
+    if (raw instanceof List<?> existing) {
+      try {
+        @SuppressWarnings("unchecked")
+        List<Object> rows = (List<Object>) existing;
+        rows.clear();
+        rows.addAll(built);
+        return;
+      } catch (UnsupportedOperationException e) {
+        LogChannel.UI.logError(
+            "TABLE field '"
+                + guiElements.getFieldName()
+                + "' is not a modifiable List, replacing it",
+            e);
+      }
+    } else if (raw != null) {
+      LogChannel.UI.logError(
+          "TABLE widget '" + guiElements.getId() + "' is not a List, replacing the value");
+    }
+    writeList(sourceData, guiElements, built);
+  }
+
+  private void writeCell(Object row, GuiTableColumnElement column, String text) {
+    Method setter = findRowSetter(row, column);
+    if (setter == null) {
+      LogChannel.UI.logError("No setter for table column '" + column.getId() + "'");
+      return;
+    }
+    Class<?> parameterType = setter.getParameterTypes()[0];
+    Object value;
+    if (parameterType == String.class) {
+      value = text == null ? "" : text;
+    } else if (parameterType == boolean.class || parameterType == Boolean.class) {
+      value = "Y".equals(text);
+    } else if (parameterType.isEnum()) {
+      if (StringUtils.isEmpty(text)) {
+        return;
+      }
+      try {
+        value = enumConstant(parameterType, text);
+      } catch (IllegalArgumentException e) {
+        LogChannel.UI.logError(
+            "Ignoring value '"
+                + text
+                + "' for table column '"
+                + column.getId()
+                + "': not a constant of "
+                + parameterType.getName());
+        return;
+      }
+    } else {
+      LogChannel.UI.logError(
+          "Table column '" + column.getId() + "' has unsupported type " + parameterType.getName());
+      return;
+    }
+    try {
+      setter.invoke(row, value);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Unable to set table column '" + column.getId() + "'", e);
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private Object enumConstant(Class<?> parameterType, String text) {
+    if (IEnumHasCodeAndDescription.class.isAssignableFrom(parameterType)) {
+      Class<? extends IEnumHasCodeAndDescription> coded =
+          (Class<? extends IEnumHasCodeAndDescription>) parameterType;
+      IEnumHasCodeAndDescription byDescription =
+          IEnumHasCodeAndDescription.lookupDescription(coded, text, null);
+      if (byDescription != null) {
+        return byDescription;
+      }
+      IEnumHasCode byCode = IEnumHasCode.lookupCode(coded, text, null);
+      if (byCode != null) {
+        return byCode;
+      }
+    }
+    return Enum.valueOf((Class) parameterType, text);
+  }
+
+  private Method findRowSetter(Object row, GuiTableColumnElement column) {
+    try {
+      Method setter =
+          methodWithParameter(row.getClass(), column.getSetterMethod(), column.getFieldClass());
+      if (setter != null) {
+        return setter;
+      }
+      return new PropertyDescriptor(column.getFieldName(), row.getClass()).getWriteMethod();
+    } catch (Exception e) {
+      LogChannel.UI.logError("No setter for table column '" + column.getId() + "'", e);
+      return null;
+    }
+  }
+
+  private boolean writeList(Object sourceData, GuiElements guiElements, List<Object> rows) {
+    try {
+      Method setter =
+          methodWithParameter(
+              sourceData.getClass(), guiElements.getSetterMethod(), guiElements.getFieldClass());
+      if (setter == null) {
+        setter =
+            new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
+                .getWriteMethod();
+      }
+      if (setter == null) {
+        LogChannel.UI.logError(
+            "No setter for TABLE field '" + guiElements.getFieldName() + "', rows not applied");
+        return false;
+      }
+      setter.invoke(sourceData, rows);
+      return true;
+    } catch (Exception e) {
+      LogChannel.UI.logError("Unable to set TABLE field '" + guiElements.getFieldName() + "'", e);
+      return false;
+    }
+  }
+
+  /** Public method with this name whose single parameter is {@code parameterType}. */
+  private Method methodWithParameter(Class<?> type, String name, Class<?> parameterType) {
+    if (StringUtils.isEmpty(name) || parameterType == null) {
+      return null;
+    }
+    try {
+      return type.getMethod(name, parameterType);
+    } catch (NoSuchMethodException e) {
+      return null;
     }
   }
 

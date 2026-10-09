@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -32,7 +33,6 @@ import org.apache.hop.spark.table.SparkLakeActionSupport;
 import org.apache.hop.spark.table.SparkLakeTableSupport;
 import org.apache.hop.spark.table.SparkLakeTableSupport.MaintenanceTarget;
 import org.apache.hop.spark.table.SparkMaintenanceSqlBuilder;
-import org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -66,7 +66,7 @@ public class SparkLakeTableMaintenanceHandler extends SparkBaseTransformHandler 
       throws HopException {
 
     // Zero-input: ignore upstream if hop-connected (KD-20)
-    SparkLakeTableMaintenanceMeta meta = new SparkLakeTableMaintenanceMeta();
+    LakeTableMaintenanceMeta meta = new LakeTableMaintenanceMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
     String operation =

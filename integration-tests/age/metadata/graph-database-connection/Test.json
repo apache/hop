@@ -1,0 +1,14 @@
+{
+  "graphDatabase": {
+    "AGE": {
+      "hostname": "${AGE_HOST}",
+      "port": "${AGE_PORT}",
+      "databaseName": "hop",
+      "username": "hop",
+      "password": "${AGE_PASSWORD}",
+      "graphName": "hop_it",
+      "creatingGraph": true
+    }
+  },
+  "name": "Test"
+}

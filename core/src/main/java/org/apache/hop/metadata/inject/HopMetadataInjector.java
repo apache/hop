@@ -614,8 +614,16 @@ public class HopMetadataInjector {
         // Is this a primitive type we're dealing with?
         //
         if (listItemClass.isPrimitive() || listItemClass.equals(String.class)) {
-          // The row contains a single value that we simply need to add to the list
-          list.add(row[0]);
+          // The row contains a single value that we simply need to add to the list.
+          // Lazy-converted sources (e.g. CSV Input with lazy conversion) store Strings as
+          // byte[]; decode them so a List<String> receives a String, not "[B@...".
+          //
+          IValueMeta singleValueMeta = rowMeta.getValueMeta(0);
+          Object value = row[0];
+          if (isLazyBinaryString(singleValueMeta, value)) {
+            value = singleValueMeta.convertBinaryStringToNativeType((byte[]) value);
+          }
+          list.add(value);
         } else {
           // Reuse the pre-defined template item at the same position so its non-injected fields
           // are preserved; only create a new item when injecting beyond the pre-defined rows.
@@ -633,6 +641,13 @@ public class HopMetadataInjector {
             IValueMeta valueMeta = rowMeta.getValueMeta(valueIndex);
             String valueKey = valueMeta.getName();
             Object value = row[valueIndex];
+
+            // Lazy-converted sources (e.g. CSV Input with lazy conversion) store Strings as
+            // byte[]; decode them so String fields receive a String, not "[B@...".
+            //
+            if (isLazyBinaryString(valueMeta, value)) {
+              value = valueMeta.convertBinaryStringToNativeType((byte[]) value);
+            }
 
             // The map will contain just a single value matching the expected key in the underlying
             // object
@@ -657,6 +672,16 @@ public class HopMetadataInjector {
               + field.getName(),
           e);
     }
+  }
+
+  /**
+   * True when the value is a raw lazy-conversion byte array (binary-string storage) that should be
+   * decoded to its native type before it is injected into a String field or list.
+   */
+  private static boolean isLazyBinaryString(IValueMeta valueMeta, Object value) {
+    return valueMeta != null
+        && valueMeta.getStorageType() == IValueMeta.STORAGE_TYPE_BINARY_STRING
+        && value instanceof byte[];
   }
 
   private static void setValue(Object object, Field field, Object valueToSet) throws Exception {
