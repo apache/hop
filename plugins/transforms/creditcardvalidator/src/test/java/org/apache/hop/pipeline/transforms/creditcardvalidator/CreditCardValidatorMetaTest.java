@@ -22,14 +22,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class CreditCardValidatorMetaTest {
+
+  @BeforeAll
+  static void init() throws Exception {
+    HopEnvironment.init();
+  }
+
   @Test
   void testLoadSave() throws Exception {
     CreditCardValidatorMeta meta =
@@ -40,6 +50,16 @@ class CreditCardValidatorMetaTest {
     assertNotNull(meta.getNotValidMessage());
     assertTrue(meta.isOnlyDigits());
     assertNotNull(meta.getCardType());
+    assertTrue(meta.isUseBinDatabase());
+    assertNotNull(meta.getBinFileName());
+    assertEquals(",", meta.getBinDelimiter());
+    assertEquals("\"", meta.getBinEnclosure());
+    assertEquals("UTF-8", meta.getBinEncoding());
+    assertTrue(meta.isBinHeaderPresent());
+    assertEquals("BIN", meta.getBinCsvColumn());
+    assertNotNull(meta.getOutputFields());
+    assertEquals(1, meta.getOutputFields().size());
+    assertEquals("bank_name", meta.getOutputFields().get(0).getName());
   }
 
   @Test
@@ -55,6 +75,15 @@ class CreditCardValidatorMetaTest {
     assertFalse(meta.isOnlyDigits());
     assertEquals("card type", meta.getCardType());
     assertEquals("not valid message", meta.getNotValidMessage());
+    assertFalse(meta.isUseBinDatabase());
+    assertEquals("", meta.getBinFileName());
+    assertEquals(",", meta.getBinDelimiter());
+    assertEquals("\"", meta.getBinEnclosure());
+    assertEquals("UTF-8", meta.getBinEncoding());
+    assertTrue(meta.isBinHeaderPresent());
+    assertEquals("", meta.getBinCsvColumn());
+    assertNotNull(meta.getOutputFields());
+    assertTrue(meta.getOutputFields().isEmpty());
   }
 
   @Test
@@ -77,5 +106,47 @@ class CreditCardValidatorMetaTest {
     assertEquals("Is Card Valid", rowMeta.getValueMeta(2).getName());
     assertEquals(IValueMeta.TYPE_STRING, rowMeta.getValueMeta(2).getType());
     assertEquals("this transform", rowMeta.getValueMeta(2).getOrigin());
+  }
+
+  @Test
+  void testGetFieldsExtraOutputType() throws HopTransformException {
+    CreditCardValidatorMeta meta = new CreditCardValidatorMeta();
+    meta.setDefault();
+    meta.setUseBinDatabase(true);
+    meta.setResultFieldName("result");
+    meta.setCardType("card type");
+    meta.setNotValidMessage("not valid");
+
+    BinOutputField field = new BinOutputField("my_int", "NUM");
+    field.setType(IValueMeta.TYPE_INTEGER);
+    field.setLength(10);
+    field.setPrecision(0);
+    List<BinOutputField> fields = new ArrayList<>();
+    fields.add(field);
+    meta.setOutputFields(fields);
+
+    RowMeta rowMeta = new RowMeta();
+    meta.getFields(rowMeta, "this transform", null, null, new Variables(), null);
+    assertEquals(4, rowMeta.size());
+    assertEquals("my_int", rowMeta.getValueMeta(3).getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, rowMeta.getValueMeta(3).getType());
+  }
+
+  @Test
+  void testGetFieldsExtraOutputSkippedWhenBinDatabaseOff() throws HopTransformException {
+    CreditCardValidatorMeta meta = new CreditCardValidatorMeta();
+    meta.setDefault();
+    meta.setUseBinDatabase(false);
+    meta.setResultFieldName("result");
+    meta.setCardType("card type");
+    meta.setNotValidMessage("not valid");
+
+    List<BinOutputField> fields = new ArrayList<>();
+    fields.add(new BinOutputField("extra", "NUM"));
+    meta.setOutputFields(fields);
+
+    RowMeta rowMeta = new RowMeta();
+    meta.getFields(rowMeta, "this transform", null, null, new Variables(), null);
+    assertEquals(3, rowMeta.size());
   }
 }
