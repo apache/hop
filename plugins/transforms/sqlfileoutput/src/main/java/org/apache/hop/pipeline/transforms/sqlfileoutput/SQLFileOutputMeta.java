@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -83,6 +85,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   @HopMetadataProperty(key = "truncate")
   private boolean truncateTable;
 
+  @HopMetadataProperty(key = "DoNotAddInsertStatements")
+  private boolean doNotAddInsertStatements;
+
   @HopMetadataProperty(key = "AddToResult")
   private boolean addToResult;
 
@@ -104,6 +109,12 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   @HopMetadataProperty(key = "StartNewLine")
   private boolean startNewLine;
 
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<SQLFileOutputField> sqlFileOutputFields = new ArrayList<>();
+
+  @HopMetadataProperty(key = "specifyFields")
+  private boolean specifyFields;
+
   /** Added for backwards compatibility with older XML using "extention". */
   @Override
   public void convertLegacyXml(Node node) throws HopException {
@@ -116,6 +127,41 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     if (file != null && !Utils.isEmpty(legacyExtension)) {
       file.extension = legacyExtension;
     }
+  }
+
+  /**
+   * Returns the layout of the rows written to the SQL file. When "Specify table fields" is
+   * disabled, this is the incoming row. When it is enabled, only the selected fields are kept, in
+   * the order of the grid, with their new name if a rename is given. Runtime, the SQL button,
+   * check() and analyseImpact() all rely on this so they describe the same columns.
+   *
+   * @param inputRowMeta the layout of the incoming rows
+   * @return the layout of the rows written in the CREATE TABLE and INSERT statements
+   * @throws HopTransformException when the option is enabled with an empty grid, or when a selected
+   *     field is not found in the incoming rows
+   */
+  public IRowMeta getSqlRowMeta(IRowMeta inputRowMeta) throws HopTransformException {
+    if (!specifyFields) {
+      return inputRowMeta.clone();
+    }
+    if (sqlFileOutputFields == null || sqlFileOutputFields.isEmpty()) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "SQLFileOutputMeta.Exception.NoFieldsSpecified"));
+    }
+    IRowMeta sqlRowMeta = new RowMeta();
+    for (SQLFileOutputField field : sqlFileOutputFields) {
+      int index = inputRowMeta.indexOfValue(field.getName());
+      if (index < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "SQLFileOutput.Exception.FieldNotFound", field.getName()));
+      }
+      IValueMeta valueMeta = inputRowMeta.getValueMeta(index).clone();
+      if (!Utils.isEmpty(field.getRename())) {
+        valueMeta.setName(field.getRename());
+      }
+      sqlRowMeta.addValueMeta(valueMeta);
+    }
+    return sqlRowMeta;
   }
 
   public String[] getFiles(IVariables variables, String fileName) {
@@ -275,9 +321,13 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
                           transformMeta);
                   remarks.add(cr);
 
-                  // Starting from prev...
-                  for (int i = 0; i < prev.size(); i++) {
-                    IValueMeta pv = prev.getValueMeta(i);
+                  // Compare the table with the columns that will actually be written
+                  // (only the selected fields, renamed if needed, when specifyFields is set)
+                  IRowMeta sqlRowMeta = getSqlRowMeta(prev);
+
+                  // starting from the written columns...
+                  for (int i = 0; i < sqlRowMeta.size(); i++) {
+                    IValueMeta pv = sqlRowMeta.getValueMeta(i);
                     int idx = r.indexOfValue(pv.getName());
                     if (idx < 0) {
                       errorMessage +=
@@ -309,7 +359,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
                   // Starting from table fields in r...
                   for (int i = 0; i < r.size(); i++) {
                     IValueMeta rv = r.getValueMeta(i);
-                    int idx = prev.indexOfValue(rv.getName());
+                    int idx = sqlRowMeta.indexOfValue(rv.getName());
                     if (idx < 0) {
                       errorMessage +=
                           "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
@@ -450,27 +500,47 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
       }
       // The values that are entering this transform are in "prev":
       if (prev != null) {
-        for (int i = 0; i < prev.size(); i++) {
-          IValueMeta v = prev.getValueMeta(i);
-          DatabaseImpact ii =
-              new DatabaseImpact(
-                  DatabaseImpact.TYPE_IMPACT_WRITE,
-                  pipelineMeta.getName(),
-                  transformMeta.getName(),
-                  databaseMeta.getDatabaseName(),
-                  tableName,
-                  v.getName(),
-                  v.getName(),
-                  v != null ? v.getOrigin() : "?",
-                  "",
-                  "Type = " + v.toStringMeta());
-          impact.add(ii);
+        if (specifyFields) {
+          // Only the selected fields are written, under their new name if one is given
+          for (SQLFileOutputField field : sqlFileOutputFields) {
+            IValueMeta v = prev.searchValueMeta(field.getName());
+            if (v == null) {
+              continue; // reported by check() and at runtime
+            }
+            String column = Utils.isEmpty(field.getRename()) ? field.getName() : field.getRename();
+            impact.add(createWriteImpact(pipelineMeta, transformMeta, databaseMeta, column, v));
+          }
+        } else {
+          for (int i = 0; i < prev.size(); i++) {
+            IValueMeta v = prev.getValueMeta(i);
+            impact.add(
+                createWriteImpact(pipelineMeta, transformMeta, databaseMeta, v.getName(), v));
+          }
         }
       }
     } catch (HopException e) {
       throw new HopTransformException(
           "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
+  }
+
+  private DatabaseImpact createWriteImpact(
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      DatabaseMeta databaseMeta,
+      String column,
+      IValueMeta v) {
+    return new DatabaseImpact(
+        DatabaseImpact.TYPE_IMPACT_WRITE,
+        pipelineMeta.getName(),
+        transformMeta.getName(),
+        databaseMeta.getDatabaseName(),
+        tableName,
+        column,
+        v.getName(),
+        v.getOrigin(),
+        "",
+        "Type = " + v.toStringMeta());
   }
 
   @Override
@@ -497,7 +567,8 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
 
               String schemaTable =
                   databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
-              String crTable = db.getDDL(schemaTable, prev);
+              // Build the DDL from the columns that will actually be written
+              String crTable = db.getDDL(schemaTable, getSqlRowMeta(prev));
 
               // Empty string means: nothing to do: set it to null...
               if (Utils.isEmpty(crTable)) {
@@ -509,6 +580,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
               retVal.setError(
                   BaseMessages.getString(
                       PKG, "SQLFileOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
+            } catch (HopTransformException e) {
+              // Invalid field selection: empty grid or unknown field
+              retVal.setError(e.getMessage());
             } finally {
               db.close();
             }
