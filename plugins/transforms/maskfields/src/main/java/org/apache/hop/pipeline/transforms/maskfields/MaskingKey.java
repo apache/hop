@@ -67,8 +67,8 @@ public final class MaskingKey {
 
   /**
    * The key for a pattern. Only a database pattern hashes its keys. A hash secret that resolves to
-   * nothing, or still holds a variable, is an error: hashing with the literal text or falling back
-   * to plain text would both go unnoticed.
+   * nothing, still holds a variable or does not decrypt is an error: hashing with the literal text
+   * or falling back to plain text would both go unnoticed.
    */
   public static MaskingKey forPattern(MaskingPattern pattern, IVariables variables)
       throws HopException {
@@ -76,12 +76,15 @@ public final class MaskingKey {
     if (pattern.getStorage() == MaskingStorage.DATABASE
         && StringUtils.isNotEmpty(pattern.getHashSecret())) {
       String resolved = variables.resolve(pattern.getHashSecret());
-      if (StringUtils.isEmpty(resolved) || StringUtil.containsVariableToken(resolved)) {
+      if (!StringUtils.isEmpty(resolved) && !StringUtil.containsVariableToken(resolved)) {
+        // An encrypted value that is not a valid ciphertext decrypts to an empty string.
+        secret = Encr.decryptPasswordOptionallyEncrypted(resolved);
+      }
+      if (StringUtils.isEmpty(secret)) {
         throw new HopException(
             BaseMessages.getString(
                 PKG, "MaskFields.Error.HashSecretUnresolved", pattern.getName()));
       }
-      secret = Encr.decryptPasswordOptionallyEncrypted(resolved);
     }
     return new MaskingKey(pattern.isTrimKey(), pattern.isIgnoreCase(), secret);
   }

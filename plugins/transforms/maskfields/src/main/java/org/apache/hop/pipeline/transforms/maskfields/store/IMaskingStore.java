@@ -33,9 +33,9 @@ public interface IMaskingStore extends AutoCloseable {
 
   /**
    * Like {@link #findOrCreate(String, String, MaskAllocator)}, but also finds a mapping stored
-   * under the key an earlier version wrote, and moves it to {@code sourceKey}. The store only asks
-   * for that key when {@code sourceKey} is not found. A store that never kept mappings across
-   * versions ignores it.
+   * under the key an earlier version wrote, and moves it to {@code sourceKey}, or removes it when
+   * {@code sourceKey} already has a mapping. A store that never kept mappings across versions
+   * ignores it.
    */
   default String findOrCreate(
       String patternName, String sourceKey, KeySupplier legacyKey, MaskAllocator allocator)

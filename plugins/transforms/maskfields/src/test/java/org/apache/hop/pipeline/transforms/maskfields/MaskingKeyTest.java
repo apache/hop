@@ -62,7 +62,11 @@ class MaskingKeyTest {
   void aHashSecretThatDoesNotResolveIsAnError() {
     Variables variables = new Variables();
     variables.setVariable("EMPTY_SECRET", "");
-    for (String secret : new String[] {"${NOT_SET}", "${EMPTY_SECRET}", "%%NOT_SET%%"}) {
+    variables.setVariable("BROKEN_SECRET", "Encrypted not-a-ciphertext");
+    for (String secret :
+        new String[] {
+          "${NOT_SET}", "${EMPTY_SECRET}", "%%NOT_SET%%", "${BROKEN_SECRET}", "Encrypted "
+        }) {
       MaskingPattern pattern = databasePattern(secret);
       HopException e =
           assertThrows(HopException.class, () -> MaskingKey.forPattern(pattern, variables));

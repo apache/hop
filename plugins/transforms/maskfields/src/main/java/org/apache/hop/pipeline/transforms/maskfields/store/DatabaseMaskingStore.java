@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.maskfields.store;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -58,6 +59,9 @@ public class DatabaseMaskingStore implements IMaskingStore {
   private final String schemaName;
   private final String tableName;
   private final Map<String, Map<String, String>> cache = new ConcurrentHashMap<>();
+
+  /** Legacy keys per pattern this store already looked up and moved or removed. */
+  private final Map<String, Set<String>> legacyDone = new ConcurrentHashMap<>();
 
   private Database database;
   private String mapTable;
@@ -107,6 +111,10 @@ public class DatabaseMaskingStore implements IMaskingStore {
    * Finds or stores the replacement in one transaction. When another process stores the same source
    * key, the next sequence row or the same replacement at the same moment, the constraint violation
    * rolls the attempt back and the next attempt sees what that process committed.
+   *
+   * <p>A row under the legacy key moves to {@code sourceKey}. When {@code sourceKey} already has a
+   * row, for example because a second spelling folds onto the same key, the legacy row is removed
+   * so the original value does not stay in the table.
    */
   @Override
   public synchronized String findOrCreate(
@@ -114,19 +122,29 @@ public class DatabaseMaskingStore implements IMaskingStore {
       throws HopException {
     Map<String, String> patternCache =
         cache.computeIfAbsent(patternName, k -> new ConcurrentHashMap<>());
+    Set<String> patternLegacyDone =
+        legacyDone.computeIfAbsent(patternName, k -> ConcurrentHashMap.newKeySet());
+    String oldKey = legacyKey == null ? null : legacyKey.get();
+    if (oldKey != null && (oldKey.equals(sourceKey) || patternLegacyDone.contains(oldKey))) {
+      oldKey = null;
+    }
     String cached = patternCache.get(sourceKey);
-    if (cached != null) {
+    if (cached != null && oldKey == null) {
       return cached;
     }
     ensureOpen();
     for (int attempt = 1; ; attempt++) {
       try {
-        String masked = lookup(patternName, sourceKey);
-        String oldKey = masked == null && legacyKey != null ? legacyKey.get() : null;
-        if (oldKey != null && !oldKey.equals(sourceKey)) {
-          masked = lookup(patternName, oldKey);
-          if (masked != null) {
-            rekey(patternName, oldKey, sourceKey);
+        String masked = cached != null ? cached : lookup(patternName, sourceKey);
+        if (oldKey != null) {
+          String oldMasked = lookup(patternName, oldKey);
+          if (oldMasked != null) {
+            if (masked == null) {
+              rekey(patternName, oldKey, sourceKey);
+              masked = oldMasked;
+            } else {
+              delete(patternName, oldKey);
+            }
           }
         }
         if (masked == null) {
@@ -135,6 +153,9 @@ public class DatabaseMaskingStore implements IMaskingStore {
         }
         database.commit();
         patternCache.put(sourceKey, masked);
+        if (oldKey != null) {
+          patternLegacyDone.add(oldKey);
+        }
         return masked;
       } catch (HopException e) {
         rollbackQuietly();
@@ -210,6 +231,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
   @Override
   public synchronized void close() {
     cache.clear();
+    legacyDone.clear();
     if (database != null) {
       database.disconnect();
       database = null;
@@ -314,6 +336,13 @@ public class DatabaseMaskingStore implements IMaskingStore {
             + " = ?",
         rekeyParameters(),
         new Object[] {newKey, patternName, oldKey});
+  }
+
+  private void delete(String patternName, String sourceKey) throws HopException {
+    exec(
+        "DELETE FROM " + mapTable + " WHERE " + quotedPattern + " = ? AND " + quotedSource + " = ?",
+        twoStrings(),
+        new Object[] {patternName, sourceKey});
   }
 
   private String selectNextSql() {

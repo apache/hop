@@ -217,6 +217,68 @@ class DatabaseMaskingStoreTest {
   }
 
   @Test
+  void twoStoredSpellingsOfOneKeyLeaveNoPlainTextRow() throws Exception {
+    DatabaseMeta databaseMeta = h2();
+    Variables variables = new Variables();
+    DatabaseMaskingStore store =
+        new DatabaseMaskingStore((ILoggingObject) null, variables, databaseMeta, null, "mask_map");
+    store.open();
+    try {
+      // Rows written before the pattern ignored case.
+      assertEquals("first-name-1", allocate(store, "Matt"));
+      assertEquals("first-name-2", allocate(store, "MATT"));
+    } finally {
+      store.close();
+    }
+
+    DatabaseMaskingStore later =
+        new DatabaseMaskingStore((ILoggingObject) null, variables, databaseMeta, null, "mask_map");
+    later.open();
+    try {
+      assertEquals("first-name-1", allocate(later, "matt", "Matt"));
+      // The new key is cached now. The second spelling still has to leave the table.
+      assertEquals("first-name-1", allocate(later, "matt", "MATT"));
+    } finally {
+      later.close();
+    }
+    assertEquals(List.of("matt"), sourceKeys(databaseMeta, variables));
+
+    DatabaseMaskingStore again =
+        new DatabaseMaskingStore((ILoggingObject) null, variables, databaseMeta, null, "mask_map");
+    again.open();
+    try {
+      assertEquals("first-name-1", allocate(again, "matt", "MATT"));
+    } finally {
+      again.close();
+    }
+    assertEquals(List.of("matt"), sourceKeys(databaseMeta, variables));
+  }
+
+  @Test
+  void aManualUrlIsKeyedOnTheDatabaseItOpens() throws Exception {
+    String one = "mem:mask" + UUID.randomUUID().toString().replace("-", "");
+    String two = "mem:mask" + UUID.randomUUID().toString().replace("-", "");
+    DatabaseMeta databaseMeta = h2();
+    databaseMeta.setManualUrl("jdbc:h2:${MASK_DB};DB_CLOSE_DELAY=-1");
+    Variables first = new Variables();
+    first.setVariable("MASK_DB", one);
+    Variables second = new Variables();
+    second.setVariable("MASK_DB", two);
+
+    MaskingRuntime.Lease lease = MaskingRuntime.getInstance().acquire("db-" + UUID.randomUUID());
+    try {
+      DatabaseMaskingStore firstStore = lease.database(null, first, databaseMeta, null, "mask_map");
+      DatabaseMaskingStore secondStore =
+          lease.database(null, second, databaseMeta, null, "mask_map");
+      assertNotSame(firstStore, secondStore);
+      assertEquals("first-name-1", allocate(firstStore, "Matt"));
+      assertEquals("first-name-1", allocate(secondStore, "Ann"));
+    } finally {
+      lease.release();
+    }
+  }
+
+  @Test
   void connectionsWithTheSameNameOnDifferentDatabasesGetTheirOwnStore() throws Exception {
     Variables variables = new Variables();
     DatabaseMeta one = h2();
