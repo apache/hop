@@ -48,8 +48,20 @@ public class WriteChannelOutputStream extends OutputStream {
 
   private final ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
 
+  /** The object being written, named in the retry log and watched for stalls. */
+  private final GoogleStorageStallWatchdog.Transfer transfer;
+
   public WriteChannelOutputStream(WriteChannel channel) {
+    this(channel, GoogleStorageStallWatchdog.Transfer.untracked(null));
+  }
+
+  /**
+   * @param channel the channel to write to
+   * @param transfer the object being written
+   */
+  WriteChannelOutputStream(WriteChannel channel, GoogleStorageStallWatchdog.Transfer transfer) {
     this.channel = channel;
+    this.transfer = transfer;
   }
 
   @Override
@@ -63,32 +75,41 @@ public class WriteChannelOutputStream extends OutputStream {
       throw new ClosedChannelException();
     }
     synchronized (writeLock) {
-      int count = 0;
-      while (count < len) {
-        int c = Math.min(len - count, bytes.remaining());
-        bytes.put(buf, off + count, c);
-        bytes.flip();
-        int noProgress = 0;
-        while (bytes.hasRemaining()) {
-          WriteChannel ch = channel;
-          if (ch == null) {
-            // close() ran on another thread (e.g. pipeline stop) - stop writing.
-            throw new ClosedChannelException();
-          }
-          int written = ch.write(bytes);
-          if (written <= 0) {
-            if (++noProgress > MAX_NO_PROGRESS_WRITES) {
-              throw new IOException(
-                  "Google Storage write channel made no progress after "
-                      + MAX_NO_PROGRESS_WRITES
-                      + " attempts; aborting to avoid an unbounded loop");
+      try (GoogleStorageObjectContext.Scope ignored =
+          GoogleStorageObjectContext.enter(transfer.uri())) {
+        int count = 0;
+        while (count < len) {
+          int c = Math.min(len - count, bytes.remaining());
+          bytes.put(buf, off + count, c);
+          bytes.flip();
+          int noProgress = 0;
+          while (bytes.hasRemaining()) {
+            WriteChannel ch = channel;
+            if (ch == null) {
+              // close() ran on another thread (e.g. pipeline stop) - stop writing.
+              throw new ClosedChannelException();
             }
-          } else {
-            noProgress = 0;
+            int written = 0;
+            transfer.begin();
+            try {
+              written = ch.write(bytes);
+            } finally {
+              transfer.end(written);
+            }
+            if (written <= 0) {
+              if (++noProgress > MAX_NO_PROGRESS_WRITES) {
+                throw new IOException(
+                    "Google Storage write channel made no progress after "
+                        + MAX_NO_PROGRESS_WRITES
+                        + " attempts; aborting to avoid an unbounded loop");
+              }
+            } else {
+              noProgress = 0;
+            }
           }
+          bytes.compact();
+          count += c;
         }
-        bytes.compact();
-        count += c;
       }
     }
   }
@@ -100,7 +121,14 @@ public class WriteChannelOutputStream extends OutputStream {
     WriteChannel ch = channel;
     if (ch != null) {
       channel = null;
-      ch.close();
+      // The last part of the upload happens here.
+      transfer.begin();
+      try (GoogleStorageObjectContext.Scope ignored =
+          GoogleStorageObjectContext.enter(transfer.uri())) {
+        ch.close();
+      } finally {
+        transfer.end(0);
+      }
     }
   }
 }

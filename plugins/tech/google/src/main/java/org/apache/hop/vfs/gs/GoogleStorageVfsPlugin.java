@@ -63,7 +63,7 @@ public class GoogleStorageVfsPlugin implements IVfs {
             new GoogleStorageFileProvider(variables, googleStorageMetadataType));
       }
     } catch (Exception e) {
-      LogChannel.GENERAL.logError("Unable to load Google Storage VFS providers", e);
+      LogChannel.GENERAL.logError("Google Cloud Storage: Unable to load the VFS providers", e);
     }
     return providers;
   }

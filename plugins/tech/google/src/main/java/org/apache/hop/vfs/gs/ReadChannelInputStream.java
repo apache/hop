@@ -28,8 +28,9 @@ public class ReadChannelInputStream extends InputStream {
   /**
    * Volatile and intentionally NOT guarded by the read monitor: {@link #close()} must be able to
    * tear the channel down from another thread (e.g. a pipeline stop) even while {@code read()} is
-   * parked inside {@code channel.read(...)} on a stalled network socket. Closing the channel from
-   * the other thread aborts the in-flight read, which is the only way to break a stalled transfer.
+   * parked inside {@code channel.read(...)} on a stalled network socket. Note that the GCS client's
+   * own {@code close()} waits for a read in progress, so this does not break a stalled read; see
+   * {@code GoogleStorageStalledDownloadTest}.
    */
   private volatile ReadChannel channel;
 
@@ -40,8 +41,26 @@ public class ReadChannelInputStream extends InputStream {
 
   private final ByteBuffer bytes = ByteBuffer.allocate(64 * 1024);
 
+  /** The object being read, named in the retry log and watched for stalls. */
+  private final GoogleStorageStallWatchdog.Transfer transfer;
+
+  /**
+   * Set once the watchdog ended a stuck read. Every later read fails with it too: the download is
+   * incomplete, and returning end-of-stream would silently cut the file short.
+   */
+  private volatile IOException failure;
+
   public ReadChannelInputStream(ReadChannel channel) {
+    this(channel, GoogleStorageStallWatchdog.Transfer.untracked(null));
+  }
+
+  /**
+   * @param channel the channel to read from
+   * @param transfer the object being read
+   */
+  ReadChannelInputStream(ReadChannel channel, GoogleStorageStallWatchdog.Transfer transfer) {
     this.channel = channel;
+    this.transfer = transfer;
   }
 
   @Override
@@ -58,6 +77,9 @@ public class ReadChannelInputStream extends InputStream {
   public int read(byte[] buf, int off, int len) throws IOException {
     // Snapshot the channel; close() may null it concurrently and that is allowed - it is how a
     // stalled read gets unblocked.
+    if (failure != null) {
+      throw new IOException(failure.getMessage(), failure);
+    }
     ReadChannel ch = channel;
     if (ch == null) {
       return -1;
@@ -68,16 +90,32 @@ public class ReadChannelInputStream extends InputStream {
         bytes.limit(len);
       }
       int res;
-      try {
+      transfer.begin();
+      try (GoogleStorageObjectContext.Scope ignored =
+          GoogleStorageObjectContext.enter(transfer.uri())) {
         res = ch.read(bytes);
       } catch (IOException e) {
+        if (transfer.end(0)) {
+          // The watchdog interrupted a read that made no progress for too long.
+          failure = transfer.abortedError(e);
+          throw failure;
+        }
         // If close() ran underneath us the read fails - treat that as a normal end-of-stream
         // rather than propagating a spurious error from the deliberate teardown.
         if (channel == null) {
           return -1;
         }
         throw e;
+      } catch (RuntimeException e) {
+        // However the client reports the interrupt, the reason it came is the watchdog's.
+        if (transfer.end(0)) {
+          failure = transfer.abortedError(e);
+          throw failure;
+        }
+        throw e;
       }
+      // Ended by the watchdog just as the data arrived: the read succeeded, so carry on.
+      transfer.end(res);
       if (res < 0) {
         close();
         return -1;
