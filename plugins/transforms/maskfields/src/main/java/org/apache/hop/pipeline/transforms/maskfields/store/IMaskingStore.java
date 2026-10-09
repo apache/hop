@@ -31,6 +31,18 @@ public interface IMaskingStore extends AutoCloseable {
   String findOrCreate(String patternName, String sourceKey, MaskAllocator allocator)
       throws HopException;
 
+  /**
+   * Like {@link #findOrCreate(String, String, MaskAllocator)}, but also finds a mapping stored
+   * under the key an earlier version wrote, and moves it to {@code sourceKey}, or removes it when
+   * {@code sourceKey} already has a mapping. A store that never kept mappings across versions
+   * ignores it.
+   */
+  default String findOrCreate(
+      String patternName, String sourceKey, KeySupplier legacyKey, MaskAllocator allocator)
+      throws HopException {
+    return findOrCreate(patternName, sourceKey, allocator);
+  }
+
   /** Next sequence value for the pattern, starting at {@code start} the first time. */
   long allocateSequence(String patternName, long start) throws HopException;
 
@@ -39,6 +51,12 @@ public interface IMaskingStore extends AutoCloseable {
 
   @Override
   void close();
+
+  /** Supplies a key only when the store needs it. */
+  @FunctionalInterface
+  interface KeySupplier {
+    String get() throws HopException;
+  }
 
   /** Builds the replacement string for a new source key. */
   @FunctionalInterface

@@ -17,15 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.maskfields.MaskingEngine.Binding;
+import org.apache.hop.pipeline.transforms.maskfields.store.IMaskingStore;
 import org.apache.hop.pipeline.transforms.maskfields.store.MemoryMaskingStore;
 import org.junit.jupiter.api.Test;
 
@@ -94,6 +98,45 @@ class MaskingEngineTest {
     assertEquals("", masked[1]);
   }
 
+  @Test
+  void aFailingFieldClearsItselfAndTheFieldsAfterIt() throws Exception {
+    MaskingPattern first = synthetic("First name", MaskingStorage.NONE, "fn-", "", "1");
+    MaskingPattern broken = synthetic("Broken", MaskingStorage.MEMORY, "x-", "", "1");
+    IMaskingStore failing =
+        new MemoryMaskingStore() {
+          @Override
+          public synchronized String findOrCreate(
+              String patternName, String sourceKey, MaskAllocator allocator) throws HopException {
+            throw new HopException("mapping table is gone");
+          }
+        };
+    MaskingEngine engine =
+        engine(
+            binding("first", first, null),
+            new Binding("last", broken, "x-", "", 1, failing),
+            binding("city", first, null));
+    RowMeta rowMeta = stringRow("first", "last", "city", "untouched");
+    Object[] row = {"Matt", "Casters", "Gent", "kept"};
+
+    assertThrows(HopException.class, () -> engine.apply(rowMeta, row));
+    assertArrayEquals(new Object[] {"fn-1", null, null, "kept"}, row);
+  }
+
+  @Test
+  void aRememberedValueIgnoresCaseAndSpacesWhenAsked() throws Exception {
+    MaskingPattern pattern = synthetic("First name", MaskingStorage.MEMORY, "fn-", "", "1");
+    MemoryMaskingStore store = new MemoryMaskingStore();
+    long start = 1L;
+    MaskingEngine engine =
+        engine(
+            new Binding(
+                "name", pattern, "fn-", "", start, store, null, new MaskingKey(true, true, null)));
+    RowMeta rowMeta = stringRow("name");
+    assertEquals("fn-1", apply(engine, rowMeta, "Matt")[0]);
+    assertEquals("fn-1", apply(engine, rowMeta, " MATT ")[0]);
+    assertEquals("   ", apply(engine, rowMeta, "   ")[0]);
+  }
+
   private static MaskingPattern synthetic(
       String name, MaskingStorage storage, String prefix, String suffix, String start) {
     MaskingPattern pattern = new MaskingPattern();
@@ -107,7 +150,7 @@ class MaskingEngineTest {
     return pattern;
   }
 
-  private static Binding binding(String field, MaskingPattern pattern, MemoryMaskingStore store) {
+  private static Binding binding(String field, MaskingPattern pattern, IMaskingStore store) {
     long start = 1L;
     if (pattern.getSequenceStart() != null && !pattern.getSequenceStart().isBlank()) {
       start = Long.parseLong(pattern.getSequenceStart().trim());

@@ -152,13 +152,16 @@ public class MaskingPatternEditor extends MetadataEditor<MaskingPattern> {
     }
     if (removal) {
       hidden.add(MaskingPattern.WIDGET_STORAGE);
+    }
+    if (removal || storage == MaskingStorage.NONE) {
+      hidden.add(MaskingPattern.WIDGET_TRIM_KEY);
+      hidden.add(MaskingPattern.WIDGET_IGNORE_CASE);
+    }
+    if (removal || storage != MaskingStorage.DATABASE) {
       hidden.add(MaskingPattern.WIDGET_CONNECTION);
       hidden.add(MaskingPattern.WIDGET_SCHEMA);
       hidden.add(MaskingPattern.WIDGET_TABLE);
-    } else if (storage != MaskingStorage.DATABASE) {
-      hidden.add(MaskingPattern.WIDGET_CONNECTION);
-      hidden.add(MaskingPattern.WIDGET_SCHEMA);
-      hidden.add(MaskingPattern.WIDGET_TABLE);
+      hidden.add(MaskingPattern.WIDGET_HASH_SECRET);
     }
     widgets.setWidgetsHidden(getMetadata(), hidden);
     relayoutScrolledContent();

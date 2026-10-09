@@ -55,6 +55,8 @@ image::transforms/maskfields/maskfields-dialog.png[Mask fields dialog,width="60%
 |Name of a Masking pattern metadata item. Leave this empty to skip the field.
 |===
 
+When a field cannot be masked and the transform has error handling, the error row has that field and every masked field after it set to null.
+
 == What a pattern writes
 
 *SYNTHETIC* builds `prefix + token + suffix` for a string. The token is a *SEQUENCE* (an integer that starts at *Sequence start* and steps by one) or a *UUID*. A number field can take a sequence only, with an empty prefix and suffix. A date cannot take a generated token.
@@ -67,11 +69,17 @@ image::transforms/maskfields/maskfields-dialog.png[Mask fields dialog,width="60%
 
 *MEMORY* keeps the mapping for this pipeline execution. The next run starts again, so tokens from the previous run can be issued again.
 
-*DATABASE* keeps the mapping in the table named on the pattern. A second table, that name plus `_seq`, stores the next sequence number. Both tables are created when they are missing. The map table has `pattern_name`, `source_key` and `masked_value`, with a primary key on the pattern name and the source key.
+*DATABASE* keeps the mapping in the table named on the pattern. A second table, that name plus `_seq`, stores the next sequence number. Both tables are created when they are missing. The map table has `pattern_name`, `source_key` and `masked_value`, with a primary key on the pattern name and the source key. A new map table also has a unique key on the pattern name and the masked value, and holds masked values of up to 255 characters.
 
-The map table stores the original value, so it is itself personal data. Put it on a connection you protect, separate from the masked output.
+Give a database pattern a *Hash secret*. The map table then stores an HMAC-SHA256 of each value, made with that secret, instead of the value itself. Without a secret, `source_key` holds the original value, so the table is itself personal data, and the transform check warns about it. Keep the secret in a variable, out of the project. Changing the secret starts a new mapping. A row stored in plain text before the pattern had a secret is moved to its hashed key the next time its value is masked. Rows for values that do not come by again stay in plain text, so delete those once the mapping has been rebuilt.
 
-Copies and partitions of one pipeline share one runtime, so a remembered value stays the same and a sequence does not start over on each copy. Which row receives which new sequence number follows whichever copy runs first. Beam and native Spark each run a worker in its own JVM, so they stay unsupported. The database store is what shares a mapping across pipelines.
+Several Hop processes can share one map table. Each new sequence number is reserved with a row lock, so two processes never hand out the same value.
+
+*Ignore surrounding spaces* and *Ignore case* make values that only differ in those ways share a replacement. A number is compared by its value, not by its conversion mask. Turning these options on for a database pattern that already holds mappings changes replacements: spellings such as `Matt` and `matt` that had their own replacement now share the one stored for whichever spelling comes by first, so data masked earlier no longer matches for the others.
+
+A hash secret that resolves to nothing, or still holds a variable that is not set, stops the transform from starting. It never falls back to plain text or to the literal text of the variable.
+
+Copies and partitions of one pipeline share one runtime, so a remembered value stays the same and a sequence does not start over on each copy. Which row receives which new sequence number follows whichever copy runs first. Beam and native Spark each run a worker in its own JVM, so they stay unsupported. The database store is what shares a mapping across pipelines. Copies share a database store when its connection resolves to the same URL and user.
 
 == Related
 
