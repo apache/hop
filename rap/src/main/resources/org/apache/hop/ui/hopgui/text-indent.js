@@ -21,8 +21,8 @@
  * The line rules match org.apache.hop.ui.core.widget.TextIndent. A line that already starts with a
  * tab, or HOP_TEXT_TAB_SIZE 0, gains a tab; otherwise the indent is window.hopTextTabSize spaces
  * (default 2). Monaco indents itself. Esc then Tab moves focus instead of indenting. This runs in
- * the capture phase and stops the indent key, so the browser does not move focus and the server
- * does not indent again.
+ * the capture phase. Tab is stopped so the browser does not move focus and the server does not
+ * indent again. Esc is stopped in the field so a dialog shell does not close before that Tab.
  */
 (function () {
   'use strict';
@@ -239,7 +239,14 @@
     var el = event.target;
     var escape = key === 'Escape' || key === 'Esc' || event.keyCode === 27;
     if (escape && !event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
-      focusExit = canIndentElement(el) ? el : null;
+      if (canIndentElement(el)) {
+        // Shell keydown closes a dialog that has a parent. Stop it so the next Tab can move focus.
+        focusExit = el;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      } else {
+        focusExit = null;
+      }
       return;
     }
     var tab = key === 'Tab' || event.keyCode === 9;
