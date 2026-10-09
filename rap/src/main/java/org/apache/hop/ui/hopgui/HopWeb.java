@@ -175,7 +175,8 @@ public class HopWeb implements ApplicationConfiguration {
             "org/apache/hop/ui/hopgui/monaco-editor.js",
             "org/apache/hop/ui/hopgui/mac-command-keys.js",
             "org/apache/hop/ui/hopgui/text-line-clipboard.js",
-            "org/apache/hop/ui/hopgui/text-select-all.js")
+            "org/apache/hop/ui/hopgui/text-select-all.js",
+            "org/apache/hop/ui/hopgui/text-indent.js")
         .forEach(
             str ->
                 application.addResource(

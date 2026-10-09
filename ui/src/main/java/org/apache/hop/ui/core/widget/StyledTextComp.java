@@ -111,6 +111,7 @@ public class StyledTextComp extends TextComposite {
 
     super(parent, SWT.NONE, toolbarEnabled, styleType);
     textWidget = new Text(this, args);
+    TextIndent.attach(textWidget);
     popupMenu = new Menu(parent.getShell(), SWT.POP_UP);
 
     buildingStyledTextMenu(popupMenu);
