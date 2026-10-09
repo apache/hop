@@ -91,6 +91,13 @@
                      Snowflake IO jar that loads it, off the shared lib/core classpath. -->
                 <exclude>org.apache.beam:beam-sdks-java-io-snowflake</exclude>
                 <exclude>net.snowflake:snowflake-jdbc</exclude>
+                <!-- debezium-connector-postgres pulls org.postgresql:postgresql. A copy of that
+                     driver on lib/core is loaded by the application classloader, so DriverManager
+                     returns a PgConnection the database plugin cannot cast to its own
+                     PGConnection (PostgreSQL Bulk Loader). Keep the connector and its driver in
+                     the Beam plugin classloader. -->
+                <exclude>io.debezium:debezium-connector-postgres</exclude>
+                <exclude>org.postgresql:postgresql</exclude>
             </excludes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
@@ -101,6 +108,8 @@
             <includes>
                 <include>org.apache.beam:beam-sdks-java-io-snowflake:jar</include>
                 <include>net.snowflake:snowflake-jdbc:jar</include>
+                <include>io.debezium:debezium-connector-postgres:jar</include>
+                <include>org.postgresql:postgresql:jar</include>
             </includes>
             <outputDirectory>plugins/engines/beam/lib</outputDirectory>
         </dependencySet>
