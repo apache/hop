@@ -237,6 +237,78 @@ class ScriptValuesTest {
   }
 
   /**
+   * A replaced field the script does not assign keeps its input value. It used to depend on whether
+   * the field name appeared in the script text, so adding or removing a comment changed the output.
+   */
+  @Test
+  void replacedFieldNotSetByScriptKeepsInputValue() throws Exception {
+    for (String script : new String[] {"var other = 0;", "//var test_int = 0;\nvar other = 0;"}) {
+      RowMeta input = new RowMeta();
+      input.addValueMeta(new ValueMetaString("test_int"));
+
+      ScriptValuesMeta meta = metaWith(ScriptValuesScript.TRANSFORM_SCRIPT, script, null);
+      ScriptValuesMeta.ScriptField field = new ScriptValuesMeta.ScriptField();
+      field.setName("test_int");
+      field.setType(IValueMeta.TYPE_STRING);
+      field.setReplace(true);
+      meta.getScriptFields().add(field);
+
+      ScriptValues transform = newTransform(meta, input);
+      doReturn(new Object[] {"1"}).when(transform).getRow();
+      assertTrue(transform.init());
+
+      Object[] row = PipelineTestingUtil.execute(transform, 1, false).get(0);
+      assertEquals("1", row[0], script);
+      assertEquals(0, transform.getErrors());
+    }
+  }
+
+  /** The same holds when "Rename to" points at the replaced input field. */
+  @Test
+  void renamedReplacedFieldNotSetByScriptKeepsInputValue() throws Exception {
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("test_int"));
+
+    ScriptValuesMeta meta = metaWith(ScriptValuesScript.TRANSFORM_SCRIPT, "var other = 0;", null);
+    ScriptValuesMeta.ScriptField field = new ScriptValuesMeta.ScriptField();
+    field.setName("new_value");
+    field.setRename("test_int");
+    field.setType(IValueMeta.TYPE_STRING);
+    field.setReplace(true);
+    meta.getScriptFields().add(field);
+
+    ScriptValues transform = newTransform(meta, input);
+    doReturn(new Object[] {"1"}).when(transform).getRow();
+    assertTrue(transform.init());
+
+    Object[] row = PipelineTestingUtil.execute(transform, 1, false).get(0);
+    assertEquals("1", row[0]);
+    assertEquals(0, transform.getErrors());
+  }
+
+  /** A kept input value is converted to the type the replacing field declares. */
+  @Test
+  void replacedFieldNotSetByScriptIsConvertedToItsType() throws Exception {
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("test_int"));
+
+    ScriptValuesMeta meta = metaWith(ScriptValuesScript.TRANSFORM_SCRIPT, "var other = 0;", null);
+    ScriptValuesMeta.ScriptField field = new ScriptValuesMeta.ScriptField();
+    field.setName("test_int");
+    field.setType(IValueMeta.TYPE_INTEGER);
+    field.setReplace(true);
+    meta.getScriptFields().add(field);
+
+    ScriptValues transform = newTransform(meta, input);
+    doReturn(new Object[] {"1"}).doReturn(null).when(transform).getRow();
+    assertTrue(transform.init());
+
+    Object[] row = PipelineTestingUtil.execute(transform, 1, false).get(0);
+    assertEquals(1L, row[0]);
+    assertEquals(0, transform.getErrors());
+  }
+
+  /**
    * Fields used by the script were counted case insensitively but bound case sensitively, so a
    * field only matching on case left an unusable slot pointing at field 0.
    */
