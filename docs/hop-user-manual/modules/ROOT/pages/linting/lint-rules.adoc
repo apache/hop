@@ -474,7 +474,7 @@ suppress:
 `rule: "*"` accepts whatever is reported on that element, including a rule that starts reporting on it later, which is what a transform filled in at runtime needs.
 It is only accepted together with a `path` or a `source`: on its own it would be the linter switched off under another name, and it is refused the same way an entry without a rule is.
 
-An element whose findings are accepted is drawn with a muted outline on the canvas rather than nothing at all, so the absence of a warning reads as somebody's decision rather than as a check that never ran.
+An element whose findings are accepted is drawn with a dashed outline and a small greyed-out info badge on the canvas rather than nothing at all, so the absence of a warning reads as somebody's decision rather than as a check that never ran.
 Turn that off with *Mark Ignored Transforms and Actions* in the linter options.
 
 == How the effective rule set is built

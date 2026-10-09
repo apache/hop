@@ -116,13 +116,27 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @Override
   public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-    // Nothing to do.
+    enableDependentWidgets(compositeWidgets);
   }
 
   @Override
   public void widgetModified(
       GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    enableDependentWidgets(compositeWidgets);
     persistContents(compositeWidgets);
+  }
+
+  /**
+   * Blocking commits on warnings only means anything when commits are blocked at all, so it is
+   * greyed out while they are not. "Include Metadata in Pre-Commit Checks" stays available: the
+   * background lint reads it as well.
+   */
+  static void enableDependentWidgets(GuiCompositeWidgets compositeWidgets) {
+    Map<String, Control> widgets = compositeWidgets.getWidgetsMap();
+    if (widgets.get("linter-pre-commit-enabled") instanceof Button preCommit
+        && widgets.get("linter-pre-commit-block-warnings") instanceof Button blockWarnings) {
+      blockWarnings.setEnabled(preCommit.getSelection());
+    }
   }
 
   /**
@@ -256,6 +270,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
   // Global linter settings
   @GuiWidgetElement(
       id = "linter-enabled",
+      order = "0100",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.Enabled.Label",
@@ -268,6 +283,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-lint-on-edit",
+      order = "0110",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.LintOnEdit.Label",
@@ -280,6 +296,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-show-problems-bar",
+      order = "0300",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.ShowIndicators.Label",
@@ -292,6 +309,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-show-ignored-markers",
+      order = "0310",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.ShowIgnoredMarkers.Label",
@@ -304,6 +322,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-config-file",
+      order = "0400",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FILENAME,
       variables = true,
@@ -316,6 +335,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-pre-commit-enabled",
+      order = "0500",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommit.Label",
@@ -328,6 +348,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-pre-commit-block-warnings",
+      order = "0510",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommitWarnings.Label",
@@ -340,6 +361,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-pre-commit-include-metadata",
+      order = "0520",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PreCommitMetadata.Label",
@@ -352,6 +374,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-include-in-pipeline-verify",
+      order = "0200",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.PipelineVerify.Label",
@@ -364,6 +387,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-include-in-workflow-verify",
+      order = "0210",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.WorkflowVerify.Label",
@@ -376,6 +400,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
 
   @GuiWidgetElement(
       id = "linter-include-native-checks",
+      order = "0220",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::LinterConfigPlugin.Option.NativeChecks.Label",

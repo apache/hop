@@ -16,7 +16,10 @@
  */
 package org.apache.hop.lint;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +102,61 @@ public final class LintResultGrouping {
     }
 
     return grouped;
+  }
+
+  /** What the results view sorts the findings of a severity on. */
+  public enum SortKey {
+    FILE,
+    RULE,
+    MESSAGE
+  }
+
+  /**
+   * The order of the findings within a severity: by the chosen column, then by the others, so the
+   * same results always come out in the same order. Findings used to appear in the order they were
+   * found, which moved a file's findings to the bottom each time it was linted again.
+   */
+  public static Comparator<LintResult> order(SortKey key, boolean ascending) {
+    // Resolving a path goes through VFS, so each path is resolved once per comparator and not on
+    // every comparison. It also gives the same path the same key throughout a sort.
+    Map<String, String> fileNames = new HashMap<>();
+    Comparator<LintResult> byFile =
+        Comparator.comparing(
+                (LintResult r) ->
+                    fileNames.computeIfAbsent(text(r.getFileName()), path -> fileName(path)),
+                String.CASE_INSENSITIVE_ORDER)
+            .thenComparing(r -> text(r.getFileName()), String.CASE_INSENSITIVE_ORDER);
+    Comparator<LintResult> byRule =
+        Comparator.comparing((LintResult r) -> text(r.getRuleId()), String.CASE_INSENSITIVE_ORDER);
+    Comparator<LintResult> byMessage =
+        Comparator.comparing((LintResult r) -> text(r.getMessage()), String.CASE_INSENSITIVE_ORDER);
+
+    Comparator<LintResult> order =
+        switch (key) {
+          case RULE -> byRule.thenComparing(byFile).thenComparing(byMessage);
+          case MESSAGE -> byMessage.thenComparing(byFile).thenComparing(byRule);
+          default -> byFile.thenComparing(byRule).thenComparing(byMessage);
+        };
+    return ascending ? order : order.reversed();
+  }
+
+  /** ERROR, WARNING and INFO in that order, whatever came first; anything else after them. */
+  public static Comparator<String> severityOrder() {
+    List<String> known = List.of("ERROR", "WARNING", "INFO");
+    return Comparator.comparing(
+            (String severity) -> {
+              int index = known.indexOf(severity == null ? "" : severity.toUpperCase());
+              return index < 0 ? known.size() : index;
+            })
+        .thenComparing(severity -> text(severity), String.CASE_INSENSITIVE_ORDER);
+  }
+
+  private static String fileName(String path) {
+    return path.isEmpty() ? path : new File(LintPathUtils.normalizePath(path)).getName();
+  }
+
+  private static String text(String value) {
+    return value == null ? "" : value;
   }
 
   public static int countBySeverity(List<LintResult> results, String severity) {
