@@ -20,10 +20,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILogChannel;
@@ -203,8 +205,9 @@ public class CustomRuleExecutor {
         // A rule that named specific plugin types asserted the field exists on them, so a
         // missing field is a mistake in the rule and is reported rather than passed over.
         // Unscoped rules stay opportunistic: they run across every transform, most of which
-        // legitimately do not have the field.
-        if (!rule.getAppliesTo().isEmpty()) {
+        // legitimately do not have the field. Every connection has the same fields, so there a
+        // missing one is always a mistake in the rule.
+        if (!rule.getAppliesTo().isEmpty() || hopObject instanceof DatabaseMeta) {
           results.add(
               createResult(
                   rule,
@@ -214,7 +217,10 @@ public class CustomRuleExecutor {
                       + rule.getTargetField()
                       + "', which does not exist on "
                       + describe(hopObject)
-                      + ". Check the field name against this transform or action.",
+                      + ". Check the field name against "
+                      + (hopObject instanceof DatabaseMeta
+                          ? "the fields offered for database connections."
+                          : "this transform or action."),
                   fileName,
                   hopObject,
                   "ERROR"));
@@ -423,6 +429,8 @@ public class CustomRuleExecutor {
             return dbMeta.getAttributes() != null
                 ? dbMeta.getAttributes().getOrDefault("description", "")
                 : "";
+          case "databaseType":
+            return dbMeta.getPluginId();
           case "hostname":
             return dbMeta.getHostname();
           case "port":
@@ -433,9 +441,18 @@ public class CustomRuleExecutor {
             return dbMeta.getUsername();
           case "password":
             return dbMeta.getPassword();
+          case "servername":
+            return dbMeta.getServername();
+          case "dataTablespace":
+            return dbMeta.getDataTablespace();
+          case "indexTablespace":
+            return dbMeta.getIndexTablespace();
+          case "attributes":
+            // The extra options are attributes too, stored as EXTRA_OPTION_<type>.<option>.
+            return dbMeta.getAttributes();
           default:
-            log.logDetailed("Unknown database field: " + fieldName);
-            return null;
+            // Any other connection property, such as manualUrl, by getter or field.
+            return extractFieldFromObject(dbMeta, fieldName);
         }
       } else if (hopObject instanceof PipelineHopMeta) {
         PipelineHopMeta hop = (PipelineHopMeta) hopObject;
@@ -509,6 +526,9 @@ public class CustomRuleExecutor {
           "description", "String",
           "pluginId", "String",
           "copies", "int",
+          "distributes", "boolean",
+          "errorHandling", "boolean",
+          "targetTransforms", "List",
           "isDummy", "boolean",
           "hasDefaultName", "boolean",
           "isOrphaned", "boolean",
@@ -522,6 +542,9 @@ public class CustomRuleExecutor {
           "name", "String",
           "description", "String",
           "pluginId", "String",
+          "errorHandling", "boolean",
+          "targetActions", "List",
+          "isStart", "boolean",
           "hasDefaultName", "boolean",
           "isOrphaned", "boolean");
 
@@ -548,6 +571,16 @@ public class CustomRuleExecutor {
         case "copies":
           return transformMeta.getCopies(
               org.apache.hop.core.variables.Variables.getADefaultVariableSpace());
+        case "distributes":
+          return transformMeta.isDistributes();
+        case "errorHandling":
+          return transformMeta.getTransform() != null && transformMeta.isDoingErrorHandling();
+        case "targetTransforms":
+          return SUBJECT.get() instanceof PipelineMeta pipeline
+              ? pipeline.findNextTransforms(transformMeta).stream()
+                  .map(TransformMeta::getName)
+                  .toList()
+              : null;
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
@@ -586,6 +619,26 @@ public class CustomRuleExecutor {
           return actionMeta.getDescription();
         case "pluginId":
           return actionMeta.getAction().getPluginId();
+        case "errorHandling":
+          // An action handles its errors with a hop followed on failure.
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? workflow.getWorkflowHops().stream()
+                  .anyMatch(
+                      hop ->
+                          hop.isEnabled()
+                              && actionMeta.equals(hop.getFromAction())
+                              && !hop.isUnconditional()
+                              && !hop.isEvaluation())
+              : null;
+        case "targetActions":
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? workflow.getWorkflowHops().stream()
+                  .filter(hop -> hop.isEnabled() && actionMeta.equals(hop.getFromAction()))
+                  .map(hop -> hop.getToAction().getName())
+                  .toList()
+              : null;
+        case "isStart":
+          return actionMeta.isStart();
         case "hasDefaultName":
           // Every workflow starts at Start; there is no better name for it.
           return !actionMeta.isStart()
@@ -867,8 +920,19 @@ public class CustomRuleExecutor {
     if (secret) {
       return "hidden";
     }
-    String text = value.toString();
+    String text = shown(value).toString();
     return text.length() > 60 ? text.substring(0, 57) + "..." : text;
+  }
+
+  /**
+   * A value as a finding may show it. Of a map only the keys: a connection's attributes hold its
+   * extra options, and an option such as a token or a key would otherwise land in the report.
+   */
+  private static Object shown(Object value) {
+    if (value instanceof Map<?, ?> map) {
+      return new TreeSet<>(map.keySet().stream().map(String::valueOf).toList());
+    }
+    return value;
   }
 
   /** Human-readable label for a transform or action, used in configuration error messages. */
@@ -884,6 +948,9 @@ public class CustomRuleExecutor {
       String pluginId =
           actionMeta.getAction() != null ? actionMeta.getAction().getPluginId() : "unknown";
       return "action '" + actionMeta.getName() + "' (" + pluginId + ")";
+    }
+    if (hopObject instanceof DatabaseMeta databaseMeta) {
+      return "connection '" + databaseMeta.getName() + "'";
     }
     return hopObject != null ? hopObject.getClass().getSimpleName() : "null";
   }
@@ -1265,34 +1332,20 @@ public class CustomRuleExecutor {
         return !(fieldValue instanceof Boolean) || ((Boolean) fieldValue);
 
       case NOT_EMPTY_COLLECTION:
-        if (fieldValue instanceof List) {
-          return ((List<?>) fieldValue).isEmpty();
-        }
-        return false;
+        return sizeOf(fieldValue) == 0;
 
       case MAX_COLLECTION_SIZE:
-        if (fieldValue instanceof List) {
-          int size = ((List<?>) fieldValue).size();
-          try {
-            int maxSize = Integer.parseInt(conditionValue);
-            return size > maxSize;
-          } catch (NumberFormatException e) {
-            return false;
-          }
-        }
-        return false;
-
       case MIN_COLLECTION_SIZE:
-        if (fieldValue instanceof List) {
-          int size = ((List<?>) fieldValue).size();
-          try {
-            int minSize = Integer.parseInt(conditionValue);
-            return size < minSize;
-          } catch (NumberFormatException e) {
-            return false;
-          }
+        int size = sizeOf(fieldValue);
+        if (size < 0) {
+          return false;
         }
-        return false;
+        try {
+          int limit = Integer.parseInt(conditionValue);
+          return condition == RuleCondition.MAX_COLLECTION_SIZE ? size > limit : size < limit;
+        } catch (NumberFormatException e) {
+          return false;
+        }
 
       default:
         // Returning false here would report the rule as passing, which is the worst
@@ -1307,6 +1360,20 @@ public class CustomRuleExecutor {
                 + ", which this version of the linter cannot evaluate. Remove the rule or"
                 + " use a supported condition.");
     }
+  }
+
+  /**
+   * The number of entries in a list, set or map, or -1 for anything else. A connection's {@code
+   * attributes} are a map, which the collection conditions did not count.
+   */
+  private static int sizeOf(Object value) {
+    if (value instanceof Collection<?> collection) {
+      return collection.size();
+    }
+    if (value instanceof Map<?, ?> map) {
+      return map.size();
+    }
+    return -1;
   }
 
   /** Helper method for numeric condition evaluation */
@@ -1346,7 +1413,7 @@ public class CustomRuleExecutor {
     message.append(headline);
 
     if (fieldValue != null) {
-      message.append(" (current value: ").append(fieldValue).append(")");
+      message.append(" (current value: ").append(shown(fieldValue)).append(")");
     }
 
     if (!Utils.isEmpty(rule.getConditionValue())) {

@@ -150,7 +150,21 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 
 |`isBlockingTransform`
 |The transform blocks until all rows have arrived
+
+|`errorHandling`
+|A transform sends its error rows to another transform; an action has a hop that is followed on failure
+
+|`targetTransforms`, `targetActions`
+|The names of the transforms or actions that the enabled hops lead to
+
+|`databaseType`
+|The type of a database connection, as its plugin id, for example `POSTGRESQL`
+
+|`attributes`
+|The attributes of a database connection, including its extra options. A finding lists the attribute names, not their values
 |===
+
+A database connection rule that names a field the connection does not have is reported as an error against the rule.
 
 Nested properties are reached with a dotted path:
 
