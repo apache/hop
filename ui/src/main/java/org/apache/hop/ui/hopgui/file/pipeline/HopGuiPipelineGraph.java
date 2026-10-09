@@ -1968,7 +1968,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     CanvasTarget target = targetUnder(getVisibleAreaOwner(real.x, real.y), real);
     selectAsClicked(target);
+    releaseMouseCapture();
     openContextDialog(target, real, canvasPoint.x, canvasPoint.y);
+  }
+
+  /**
+   * On Windows the canvas captures the mouse while the right button is down and only lets go once
+   * the menu detect event has returned. The context dialog runs its event loop inside that event,
+   * so without this the canvas keeps the mouse and the dialog never sees it move (issue #8760). Hop
+   * Web has no mouse capture.
+   */
+  private void releaseMouseCapture() {
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      canvas.setCapture(false);
+    }
   }
 
   /**
