@@ -27,7 +27,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.StyledTextVar;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.markdown.MarkdownEditContext;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -61,7 +61,7 @@ public class NotePadDialog extends Dialog {
 
   private NotePadMeta notePadMeta;
 
-  private StyledTextComp wDesc;
+  private StyledTextVar wDesc;
 
   private Button wMarkdown;
 
@@ -273,8 +273,10 @@ public class NotePadDialog extends Dialog {
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(wNoteType, margin);
     wlDesc.setLayoutData(fdlDesc);
+    // StyledTextVar keeps the undo/redo stack. StyledTextComp is a plain Text and its
+    // undo and redo methods do nothing.
     wDesc =
-        new StyledTextComp(
+        new StyledTextVar(
             variables,
             wNoteContentComp,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
