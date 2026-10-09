@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.deleteexecutioninfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -60,6 +61,9 @@ public class ActionDeleteExecutionInfoDialog extends ActionDialog {
             wOk,
             ActionDeleteExecutionInfo.GUI_PLUGIN_ELEMENT_PARENT_ID,
             action);
+    // The name is not an annotated widget. createShell leaves the field empty.
+    wName.setText(Const.NVL(action.getName(), ""));
+    action.setChanged(changed);
     focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return action;
