@@ -23,14 +23,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.maskfields.MaskingEngine.Binding;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class MaskingRuntimeTest {
+
+  @BeforeAll
+  static void initHop() throws Exception {
+    HopEnvironment.init();
+  }
 
   @Test
   void memoryIsSharedInsideOneExecutionAndResetForTheNext() throws Exception {
