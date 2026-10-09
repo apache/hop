@@ -83,11 +83,26 @@ class SparkLakeTableIcebergPathTest {
 
   @Test
   void icebergPathOutputThenInputRoundTrip() throws Exception {
+    roundTrip(tempDir.resolve("orders_iceberg"));
+  }
+
+  /**
+   * A folder with spaces: the path reaches Spark escaped ({@code my%20lake}), and Hadoop doesn't
+   * treat {@code %} as an escape, so without decoding the table would land in a folder literally
+   * named {@code my%20lake}.
+   */
+  @Test
+  void icebergPathWithSpacesIsWrittenThere() throws Exception {
+    Path tablePath = tempDir.resolve("my lake").resolve("my orders");
+    roundTrip(tablePath);
+    assertFalse(Files.exists(tempDir.resolve("my%20lake")), "no folder with an escaped name");
+  }
+
+  private void roundTrip(Path tablePath) throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
         "Iceberg connector not on classpath; connectors missing from test classpath");
 
-    Path tablePath = tempDir.resolve("orders_iceberg");
     Path warehouse = tempDir.resolve("iceberg_wh");
     spark =
         SparkSession.builder()

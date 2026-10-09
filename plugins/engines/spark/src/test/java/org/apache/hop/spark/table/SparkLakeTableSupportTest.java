@@ -140,6 +140,43 @@ class SparkLakeTableSupportTest {
   }
 
   @Test
+  void escapedAndUnescapedSpellingsAreOneCatalog() {
+    SparkLakeTableSupport.IcebergPathTable expected =
+        SparkLakeTableSupport.icebergPathTable("file:///data/my lake/my orders");
+
+    assertEquals("file:///data/my lake", expected.warehouse());
+    assertEquals("my orders", expected.tableName());
+    assertEquals(
+        expected, SparkLakeTableSupport.icebergPathTable("file:///data/my%20lake/my%20orders"));
+    // A scheme-less path goes through Path.toUri(), which escapes the spaces.
+    assertEquals(
+        expected.tableName(),
+        SparkLakeTableSupport.icebergPathTable("/data/my lake/my orders").tableName());
+    assertTrue(
+        SparkLakeTableSupport.icebergPathTable("/data/my lake/my orders")
+            .warehouse()
+            .endsWith("/data/my lake"));
+  }
+
+  @Test
+  void plusAndBrokenEscapesAreKept() {
+    assertEquals("a+b", SparkLakeTableSupport.percentDecode("a+b"));
+    assertEquals("100%", SparkLakeTableSupport.percentDecode("100%"));
+    assertEquals("x%zzy", SparkLakeTableSupport.percentDecode("x%zzy"));
+    assertEquals("caf\u00e9", SparkLakeTableSupport.percentDecode("caf%C3%A9"));
+  }
+
+  @Test
+  void driveLetterCaseIsOneCatalog() {
+    assertEquals(
+        SparkLakeTableSupport.icebergPathTable("file:///C:/data/orders"),
+        SparkLakeTableSupport.icebergPathTable("file:///c:/data/orders"));
+    assertEquals(
+        "file:///C:/data",
+        SparkLakeTableSupport.icebergPathTable("file:///c:/data/orders").warehouse());
+  }
+
+  @Test
   void invalidPathNamesTheTransform() {
     HopException e =
         assertThrows(

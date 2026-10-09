@@ -167,8 +167,11 @@ public final class SparkLakeTableSupport {
   /**
    * One spelling per location, so that one folder is always one catalog: the scheme is lowercased,
    * {@code file:/x}, {@code file://localhost/x} and {@code file:///x} all become {@code file:///x},
-   * empty path segments are collapsed, and {@code .} and {@code ..} are resolved. A trailing slash
-   * is removed.
+   * empty path segments are collapsed, {@code .} and {@code ..} are resolved, and a trailing slash
+   * is removed. Percent-escapes in the path and the authority are decoded, because the result is
+   * used as a Hadoop path, and Hadoop doesn't treat {@code %} as an escape: {@code
+   * file:///data/my%20lake} would otherwise be the folder {@code my%20lake}. A segment with a
+   * broken escape is kept as it is. For {@code file} URIs, a Windows drive letter is uppercased.
    */
   static String canonicalLocation(String uri) {
     if (StringUtils.isEmpty(uri)) {
@@ -188,11 +191,13 @@ public final class SparkLakeTableSupport {
       authority = end < 0 ? rest.substring(2) : rest.substring(2, end);
       pathPart = end < 0 ? "" : rest.substring(end);
     }
+    authority = percentDecode(authority);
     if ("file".equals(scheme) && "localhost".equalsIgnoreCase(authority)) {
       authority = "";
     }
     java.util.Deque<String> segments = new java.util.ArrayDeque<>();
-    for (String segment : pathPart.split("/")) {
+    for (String raw : pathPart.split("/")) {
+      String segment = percentDecode(raw);
       if (segment.isEmpty() || ".".equals(segment)) {
         continue;
       }
@@ -202,8 +207,56 @@ public final class SparkLakeTableSupport {
         segments.addLast(segment);
       }
     }
+    if ("file".equals(scheme)
+        && !segments.isEmpty()
+        && WINDOWS_DRIVE.matcher(segments.peekFirst()).matches()) {
+      segments.addFirst(segments.pollFirst().toUpperCase(java.util.Locale.ROOT));
+    }
     String normalizedPath = segments.isEmpty() ? "" : "/" + String.join("/", segments);
     return scheme + "://" + authority + normalizedPath;
+  }
+
+  private static final Pattern WINDOWS_DRIVE = Pattern.compile("[A-Za-z]:");
+
+  /**
+   * Decodes {@code %XX} escapes as UTF-8, leaving {@code +} alone. A value with a malformed escape
+   * is returned unchanged.
+   */
+  static String percentDecode(String value) {
+    if (value.indexOf('%') < 0) {
+      return value;
+    }
+    java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+    for (int i = 0; i < value.length(); ) {
+      char c = value.charAt(i);
+      if (c == '%') {
+        if (i + 2 >= value.length()) {
+          return value;
+        }
+        int hi = Character.digit(value.charAt(i + 1), 16);
+        int lo = Character.digit(value.charAt(i + 2), 16);
+        if (hi < 0 || lo < 0) {
+          return value;
+        }
+        bytes.write(hi * 16 + lo);
+        i += 3;
+      } else {
+        int end = i + Character.charCount(value.codePointAt(i));
+        byte[] encoded = value.substring(i, end).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        bytes.write(encoded, 0, encoded.length);
+        i = end;
+      }
+    }
+    java.nio.charset.CharsetDecoder decoder =
+        java.nio.charset.StandardCharsets.UTF_8
+            .newDecoder()
+            .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+            .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+    try {
+      return decoder.decode(java.nio.ByteBuffer.wrap(bytes.toByteArray())).toString();
+    } catch (java.nio.charset.CharacterCodingException e) {
+      return value;
+    }
   }
 
   /**
