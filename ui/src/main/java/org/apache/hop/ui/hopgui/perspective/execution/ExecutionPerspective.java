@@ -17,15 +17,20 @@
 
 package org.apache.hop.ui.hopgui.perspective.execution;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -67,6 +72,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -437,14 +443,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           });
     }
 
-    tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    tree = new Tree(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(
         SWT.DefaultSelection,
         event -> {
-          TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem != null) {
+          if (tree.getSelectionCount() == 1) {
             onNewViewer();
           }
         });
@@ -1519,39 +1524,191 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void delete() {
     try {
-      if (tree.getSelectionCount() != 1) {
+      List<ExecutionDeleteSelection.Target> targets = selectedDeleteTargets();
+      if (targets.isEmpty()) {
         return;
       }
-      TreeItem item = tree.getSelection()[0];
-      Object itemData = item.getData();
-      if (itemData instanceof ExecutionInfoLocation location) {
-        // Delete the whole location
-        //
-        MessageBox box = new MessageBox(getShell(), SWT.APPLICATION_MODAL | SWT.NO | SWT.YES);
-        box.setText("Confirm delete");
-        box.setMessage("Are you sure you want to delete all information in this location?");
-        int answer = box.open();
-        if ((answer & SWT.YES) == 0) {
-          return;
-        }
+      if (!confirmDelete(targets)) {
+        return;
+      }
 
-        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-        List<String> executionIds = iLocation.getExecutionIds(false, 0);
-        for (int i = executionIds.size() - 1; i >= 0; i--) {
-          iLocation.deleteExecution(executionIds.get(i));
+      List<ExecutionDeleteSelection.Target> removed = new ArrayList<>();
+      HopException[] firstFailure = {null};
+      int[] failed = {0};
+      IRunnableWithProgress runnable =
+          monitor -> {
+            monitor.beginTask(
+                BaseMessages.getString(PKG, "ExecutionPerspective.Delete.Task"), targets.size());
+            int index = 0;
+            for (ExecutionDeleteSelection.Target target : targets) {
+              if (monitor.isCanceled()) {
+                break;
+              }
+              index++;
+              monitor.subTask(deleteSubTask(target, index, targets.size()));
+              try {
+                deleteTarget(target, monitor);
+                removed.add(target);
+              } catch (Exception e) {
+                failed[0]++;
+                if (firstFailure[0] == null) {
+                  firstFailure[0] =
+                      e instanceof HopException hopException
+                          ? hopException
+                          : new HopException(e.getMessage(), e);
+                }
+              }
+              monitor.worked(1);
+            }
+            monitor.done();
+          };
+
+      try {
+        new ProgressMonitorDialog(getShell()).run(true, runnable);
+      } catch (InvocationTargetException e) {
+        if (firstFailure[0] == null) {
+          Throwable cause = e.getCause() == null ? e : e.getCause();
+          firstFailure[0] =
+              cause instanceof HopException hopException
+                  ? hopException
+                  : new HopException(cause.getMessage(), cause);
+          failed[0]++;
         }
-        refresh();
-      } else if (itemData instanceof Execution execution) {
-        // Delete one execution: do not ask for confirmation
-        //
-        TreeItem parentItem = item.getParentItem();
-        ExecutionInfoLocation location = (ExecutionInfoLocation) parentItem.getData();
-        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-        iLocation.deleteExecution(execution.getId());
-        refresh();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+
+      closeDeletedViewers(removed);
+      refresh();
+      if (firstFailure[0] != null) {
+        new ErrorDialog(
+            getShell(),
+            CONST_ERROR1,
+            BaseMessages.getString(
+                PKG, "ExecutionPerspective.Delete.Error.Message", failed[0], removed.size()),
+            firstFailure[0]);
       }
     } catch (Exception e) {
-      new ErrorDialog(getShell(), CONST_ERROR1, "Error deleting location(s)", e);
+      new ErrorDialog(
+          getShell(),
+          CONST_ERROR1,
+          BaseMessages.getString(PKG, "ExecutionPerspective.Delete.Error.Message", 1, 0),
+          e);
+    }
+  }
+
+  private List<ExecutionDeleteSelection.Target> selectedDeleteTargets() {
+    List<ExecutionDeleteSelection.Item> items = new ArrayList<>();
+    if (tree == null || tree.isDisposed()) {
+      return List.of();
+    }
+    for (TreeItem item : tree.getSelection()) {
+      Object data = item.getData();
+      if (data instanceof ExecutionInfoLocation location) {
+        items.add(new ExecutionDeleteSelection.Item(location, null));
+      } else if (data instanceof Execution execution && item.getParentItem() != null) {
+        Object parentData = item.getParentItem().getData();
+        if (parentData instanceof ExecutionInfoLocation location) {
+          items.add(new ExecutionDeleteSelection.Item(location, execution));
+        }
+      }
+    }
+    return ExecutionDeleteSelection.targets(items);
+  }
+
+  /** One execution is deleted without asking. A location or several rows ask once. */
+  private boolean confirmDelete(List<ExecutionDeleteSelection.Target> targets) {
+    int locations = 0;
+    int executions = 0;
+    for (ExecutionDeleteSelection.Target target : targets) {
+      if (target.locationWipe()) {
+        locations++;
+      } else {
+        executions++;
+      }
+    }
+    if (locations == 0 && executions == 1) {
+      return true;
+    }
+    String message;
+    if (locations > 0 && executions == 0) {
+      message =
+          locations == 1
+              ? BaseMessages.getString(PKG, "ExecutionPerspective.Delete.Confirm.Location")
+              : BaseMessages.getString(
+                  PKG, "ExecutionPerspective.Delete.Confirm.Locations", locations);
+    } else if (locations == 0) {
+      message =
+          BaseMessages.getString(PKG, "ExecutionPerspective.Delete.Confirm.Executions", executions);
+    } else {
+      message =
+          BaseMessages.getString(
+              PKG, "ExecutionPerspective.Delete.Confirm.Mixed", locations, executions);
+    }
+    MessageBox box = new MessageBox(getShell(), SWT.APPLICATION_MODAL | SWT.NO | SWT.YES);
+    box.setText(BaseMessages.getString(PKG, "ExecutionPerspective.Delete.Confirm.Title"));
+    box.setMessage(message);
+    return (box.open() & SWT.YES) != 0;
+  }
+
+  private static String deleteSubTask(
+      ExecutionDeleteSelection.Target target, int index, int total) {
+    if (target.locationWipe()) {
+      return BaseMessages.getString(
+          PKG,
+          "ExecutionPerspective.Delete.SubTask.Location",
+          target.location().getName(),
+          index,
+          total);
+    }
+    String name =
+        target.execution().getName() == null
+            ? target.execution().getId()
+            : target.execution().getName();
+    return BaseMessages.getString(
+        PKG, "ExecutionPerspective.Delete.SubTask.Execution", name, index, total);
+  }
+
+  private static void deleteTarget(ExecutionDeleteSelection.Target target, IProgressMonitor monitor)
+      throws HopException {
+    IExecutionInfoLocation iLocation = target.location().getExecutionInfoLocation();
+    if (target.locationWipe()) {
+      iLocation.deleteExecutions(null, monitor);
+    } else {
+      iLocation.deleteExecution(target.execution().getId());
+    }
+  }
+
+  private void closeDeletedViewers(List<ExecutionDeleteSelection.Target> removed) {
+    if (tabFolder == null || tabFolder.isDisposed() || removed.isEmpty()) {
+      return;
+    }
+    Set<String> locationWipes = new HashSet<>();
+    Set<String> executionKeys = new HashSet<>();
+    for (ExecutionDeleteSelection.Target target : removed) {
+      String locationName = target.location().getName();
+      if (target.locationWipe()) {
+        locationWipes.add(locationName);
+      } else if (target.execution() != null) {
+        executionKeys.add(toTabKey(locationName, target.execution().getId()));
+      }
+    }
+    List<CTabItem> closing = new ArrayList<>();
+    for (CTabItem item : tabFolder.getItems()) {
+      if (item.isDisposed() || !(item.getData() instanceof BaseExecutionViewer viewer)) {
+        continue;
+      }
+      String locationName = viewer.getLocationName();
+      String executionId = viewer.getExecution() == null ? "" : viewer.getExecution().getId();
+      if (locationWipes.contains(locationName)
+          || executionKeys.contains(toTabKey(locationName, executionId))) {
+        closing.add(item);
+      }
+    }
+    for (CTabItem item : closing) {
+      if (!item.isDisposed()) {
+        closeTab(null, item);
+      }
     }
   }
 

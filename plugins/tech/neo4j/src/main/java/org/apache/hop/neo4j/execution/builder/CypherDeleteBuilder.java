@@ -60,6 +60,19 @@ public class CypherDeleteBuilder extends CypherMatchBuilder {
     return withDelete(aliases);
   }
 
+  /**
+   * Delete at most {@code limit} matched nodes and return how many were collected as {@code
+   * deleted}. An empty match returns no row.
+   */
+  public CypherDeleteBuilder withBatchDetachDelete(String alias, int limit) {
+    cypher.append("WITH ").append(alias).append(" LIMIT ").append(limit).append(" ");
+    cypher.append("WITH collect(").append(alias).append(") AS __batch ");
+    cypher.append("UNWIND __batch AS ").append(alias).append(" ");
+    cypher.append("DETACH DELETE ").append(alias).append(" ");
+    cypher.append("RETURN size(__batch) AS deleted ");
+    return this;
+  }
+
   public CypherDeleteBuilder withRelationshipMatch(
       String edgeLabel, String edgeAlias, String sourceNodeAlias, String targetNodeAlias) {
     cypher
