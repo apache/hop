@@ -756,7 +756,10 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
         });
 
     addListener(SWT.Modify, event -> updateToolbar());
-    addListener(SWT.Selection, event -> updateToolbar());
+    // SWT Text never sends SWT.Selection when the user selects text (only DefaultSelection
+    // for Enter). Mouse and key release are what actually change the selection.
+    addListener(SWT.MouseUp, event -> updateToolbar());
+    addListener(SWT.KeyUp, event -> updateToolbar());
 
     addMenuDetectListener(
         event -> {

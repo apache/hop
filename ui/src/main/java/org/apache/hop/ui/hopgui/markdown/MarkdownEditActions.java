@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 /**
  * Markdown toolbar actions shared by canvas notes ({@link TextComposite}) and explorer {@code .md}
@@ -296,7 +298,7 @@ public class MarkdownEditActions {
     MenuItem fileItem = new MenuItem(menu, SWT.PUSH);
     fileItem.setText(BaseMessages.getString(PKG, "MarkdownEditActions.Link.File"));
     fileItem.addListener(SWT.Selection, e -> askFile(editor));
-    showPopup(anchor(editor, ID_TEXT_LINK, ID_CONTENT_LINK), menu);
+    showPopup(editor, ID_TEXT_LINK, ID_CONTENT_LINK, menu);
   }
 
   private static void askUrl(IFindReplaceTarget editor) {
@@ -417,7 +419,7 @@ public class MarkdownEditActions {
     addHeaderItem(menu, editor, 4, "MarkdownEditActions.Header.4");
     new MenuItem(menu, SWT.SEPARATOR);
     addHeaderItem(menu, editor, 0, "MarkdownEditActions.Header.Regular");
-    showPopup(anchor(editor, ID_TEXT_HEADER, ID_CONTENT_HEADER), menu);
+    showPopup(editor, ID_TEXT_HEADER, ID_CONTENT_HEADER, menu);
   }
 
   private static void addHeaderItem(
@@ -529,25 +531,20 @@ public class MarkdownEditActions {
     return null;
   }
 
-  private static Control anchor(IFindReplaceTarget editor, String textId, String contentId) {
-    if (editor instanceof TextComposite text && text.getToolbarWidgets() != null) {
-      Control control = text.getToolbarWidgets().getControlForMenu(textId);
-      if (control != null) {
-        return control;
-      }
+  private static GuiToolbarWidgets toolbarWidgets(IFindReplaceTarget editor) {
+    if (editor instanceof TextComposite text) {
+      return text.getToolbarWidgets();
     }
-    if (editor instanceof IContentEditorWidget widget && widget.getToolbarWidgets() != null) {
-      return widget.getToolbarWidgets().getControlForMenu(contentId);
+    if (editor instanceof IContentEditorWidget widget) {
+      return widget.getToolbarWidgets();
     }
     return null;
   }
 
-  private static void showPopup(Control anchor, Menu menu) {
-    if (anchor != null && !anchor.isDisposed() && anchor.getParent() != null) {
-      Rectangle rect = anchor.getBounds();
-      Point location = anchor.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + 6));
-      menu.setLocation(location);
-    }
+  private static void showPopup(
+      IFindReplaceTarget editor, String textId, String contentId, Menu menu) {
+    String itemId = editor instanceof TextComposite ? textId : contentId;
+    positionUnderToolbarItem(toolbarWidgets(editor), itemId, menu);
     menu.addListener(
         SWT.Hide,
         e -> {
@@ -562,5 +559,33 @@ public class MarkdownEditActions {
           }
         });
     menu.setVisible(true);
+  }
+
+  /**
+   * Drop the menu under the clicked icon. A desktop toolbar button is a {@link ToolItem}, and the
+   * control stored for it is the toolbar itself, whose bounds sit at the left edge.
+   */
+  private static void positionUnderToolbarItem(
+      GuiToolbarWidgets widgets, String itemId, Menu menu) {
+    if (widgets == null || itemId == null) {
+      return;
+    }
+    ToolItem toolItem = widgets.findToolItem(itemId);
+    if (toolItem != null && !toolItem.isDisposed()) {
+      Rectangle rect = toolItem.getBounds();
+      Point location = toolItem.getParent().toDisplay(rect.x, rect.y + rect.height);
+      menu.setLocation(location);
+      return;
+    }
+    Control control = widgets.getControlForMenu(itemId);
+    if (control == null
+        || control.isDisposed()
+        || control.getParent() == null
+        || control instanceof ToolBar) {
+      return;
+    }
+    Rectangle rect = control.getBounds();
+    Point location = control.getParent().toDisplay(rect.x, rect.y + rect.height);
+    menu.setLocation(location);
   }
 }
