@@ -85,6 +85,14 @@ Prefer *named parameters* `{openfield}fieldName{closefield}` so the SQL does not
 
 *Execute for each row* is the usual case: run the query once per incoming row. Disable it only for the legacy assemble-all path, where every incoming row is concatenated into one parameter list. That is how positional SQL such as `WHERE bar IN (?,?,?)` can be filled from three one-field rows.
 
+When the SQL has no bind placeholder at all (no `{openfield}fieldName{closefield}` and no positional `?`), Table Input never binds incoming rows to the statement.
+
+With *Execute for each row* **off**, the incoming hops are still consumed so an upstream transform can complete before the query runs (header or sequencing hops), but their rows are only drained, never concatenated into a parameter list and never bound, and the query runs once without parameters.
+With *Execute for each row* **on**, the query runs once per incoming row (the usual contract), still with no parameter bound.
+Binding values to a statement without placeholders fails on every driver (for example `ORA-17003 Invalid column index` on Oracle), so this is what keeps those pipelines working.
+
+NOTE: This restores the 2.19 behavior for SQL without placeholders and keeps the 2.20 "optional lookup" feature for SQL with placeholders: named and positional parameters are still read from every incoming hop (even with an empty *Insert data from transform*).
+
 If two hops into Table Input have different layouts, Hop still warns about mixing rows. That check is unchanged.
 
 .Named parameter with an informational hop from the previous transform:
@@ -208,7 +216,7 @@ TIP: If you are getting unexpected query results, try clearing the database cach
 
 TIP: A cartesian join transform will combine a different number of fields from multiple table inputs without requiring key join fields.
 
-TIP: When *Execute for each row* is off, Table Input waits until every incoming hop has completed so it can concatenate the parameter rows.
+TIP: When *Execute for each row* is off, Table Input waits until every incoming hop has completed so it can concatenate the parameter rows. When the SQL has no bind placeholder, the incoming rows are only drained so an upstream header or sequencing transform can complete before the query runs.
 
 TIP: For better performance with large datasets you can use indexed columns in `WHERE` clauses and avoid `SELECT *` and only retrieve needed fields.
 
@@ -271,8 +279,8 @@ On the *Fields* tab you can define the output schema instead of asking the datab
 |SQL tab|SQL statement, optional SQL file, `Get SQL select statement`, `Use named parameters`, and `Insert field...` for `{openfield}fieldName{closefield}`.
 |Use named parameters|When enabled, `{openfield}fieldName{closefield}` in SQL is bound to an incoming field. Off for existing Table Input metadata, on for new transforms. Disable if curly braces are used for something else. Checking this option also enables *Execute for each row* when hops exist, and selects the incoming transform when there is only one.
 |Replace variables in script?|Enable to substitute variables (e.g., `+${param}+`) in your SQL before execution.
-|Insert data from transform|Optional. Names the hop that should be treated as informational (parameter rows, not the SQL result). Parameter values are read from **all** incoming hops. Leave empty when you only need the connected hops as parameter sources.
-|Execute for each row?|When incoming hops exist, run the SQL query once for each incoming row. Disable to concatenate all incoming rows into a single parameter list (legacy `WHERE bar IN (?,?,?)` from several one-field rows). Incoming hops with different layouts still produce the mixed-layout warning.
+|Insert data from transform|Optional. Names the hop that should be treated as informational (parameter rows, not the SQL result). Parameter values are read from **all** incoming hops. Leave empty when you only need the connected hops as parameter sources. When the SQL has no bind placeholder, the incoming rows are never bound (only drained when *Execute for each row* is off).
+|Execute for each row?|When incoming hops exist, run the SQL query once for each incoming row. Disable to concatenate all incoming rows into a single parameter list (legacy `WHERE bar IN (?,?,?)` from several one-field rows). Incoming hops with different layouts still produce the mixed-layout warning. When the SQL has no bind placeholder, nothing is ever bound: with this option **off** the incoming rows are only drained and the query runs once without parameters; with it **on** the query runs once per incoming row, still without parameters.
 |Limit size|Maximum number of rows to return from the query. `0` means no limit. See <<limit-size-vs-sql-limit,Limit size vs. SQL LIMIT>> below.
 |Specify output fields|Define the output field list instead of reading column metadata from the database.
 |Validate specified fields|When specifying fields, fail if the query result names or types do not match the list.
