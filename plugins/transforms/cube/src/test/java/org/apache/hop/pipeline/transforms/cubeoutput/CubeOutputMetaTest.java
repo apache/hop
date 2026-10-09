@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
@@ -31,5 +33,16 @@ class CubeOutputMetaTest {
             "/serialize-transform.xml", CubeOutputMeta.class);
 
     assertNotNull(meta.getFilename());
+    assertFalse(meta.isIncludeTransformNr());
+  }
+
+  @Test
+  void includeTransformNrRoundTrips() throws Exception {
+    CubeOutputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/serialize-with-copy-nr.xml", CubeOutputMeta.class);
+
+    assertTrue(meta.isIncludeTransformNr());
+    assertTrue(meta.isFilenameCreatingParentFolders());
   }
 }
