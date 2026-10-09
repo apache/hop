@@ -17,15 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ReturnIndicator {
   public String CardType;
   public boolean CardValid;
   public String UnValidMsg;
+  public Map<String, String> extraValues;
 
   public ReturnIndicator() {
     super();
     CardValid = false;
     CardType = null;
     UnValidMsg = null;
+    extraValues = new HashMap<>();
   }
 }

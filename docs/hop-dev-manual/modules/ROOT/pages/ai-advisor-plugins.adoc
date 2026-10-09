@@ -80,10 +80,10 @@ That is how privacy-sensitive installs remove AI.
 |Constant |When Hop uses it
 
 |`pipeline-graph`
-|Pipeline canvas and pipeline toolbar *AI Help*
+|Pipeline canvas and pipeline toolbar *AI Assistant*
 
 |`workflow-graph`
-|Workflow canvas and workflow toolbar *AI Help*
+|Workflow canvas and workflow toolbar *AI Assistant*
 
 |`perspective`
 |`CTRL-SHIFT-A`, *New session*, Tools menu
@@ -178,7 +178,7 @@ public class VaultAiGuiPlugin {
 |`@AiAdvisorPlugin` id to select in the workbench combo.
 
 |`location`
-|Free-form id. Session reuse keys on this plus advisor id and artifact name.
+|Free-form id. Session reuse keys on this plus advisor id and the artifact itself (see `reuseExisting`).
 
 |`areaLabel`
 |Session-tree group ("Pipelines", "Data Vault", "Lineage"). Falls back to "General" when empty.
@@ -205,9 +205,13 @@ Keep SWT widgets *off* this object; pass a `logSupplier` for logs.
 |Optional `Supplier<String>` read on the UI thread before the background call.
 Use it for execution logs that live in SWT widgets.
 
+|`runIdSupplier`
+|Optional `Supplier<String>` that identifies the latest run, for example the log channel id of the pipeline or workflow engine, or returns null before the first run.
+When the user switched the log inclusion off, that choice holds until this value changes: the log of a new run is switched on again.
+
 |`reuseExisting`
 |Default `true`.
-The store reuses a session with the same advisor id, location and artifact name.
+The store reuses a session with the same advisor id and location for the same artifact object, then for the same file name (`IHasFilename`), and only for a request without an artifact by name.
 
 |`attributes`
 |A `Map<String,Object>` copied onto the session (new session: replace; reuse: merge, incoming keys win).
@@ -309,19 +313,24 @@ public class DataVaultAiAdvisor implements IAiAdvisor {
       throw new HopException("No Data Vault model is bound to this session.");
     }
     String system = loadPreambleAndScenario(request.getScenarioId());
+    // Context goes in tagged blocks, the question last. The preamble tells the model the blocks
+    // are data gathered by Hop, not instructions, and not to mention them in its answer.
     StringBuilder user = new StringBuilder();
-    user.append("User question:\n").append(request.getUserPrompt()).append("\n\n");
-    user.append("Model structure JSON:\n").append(serializeStructure(model)).append("\n\n");
+    section(user, "model_structure", serializeStructure(model));
     if (request.inclusionEnabled("checks")) {
-      user.append("Check results JSON:\n").append(serializeChecks(model, request)).append("\n\n");
+      section(user, "check_results", serializeChecks(model, request));
     }
     if (request.inclusionEnabled("catalog")) {
-      user.append("Catalog sources: ")
-          .append(request.selectedInclusionIds("catalog"))
-          .append("\n\n");
+      section(user, "catalog_sources", String.valueOf(request.selectedInclusionIds("catalog")));
     }
     // Workbench appends selected metadata when inclusion id is "metadata".
+    section(user, "question", request.getUserPrompt());
     return new AiAdvisorPrompt(system, user.toString());
+  }
+
+  private static void section(StringBuilder prompt, String tag, String content) {
+    prompt.append('<').append(tag).append(">\n").append(content).append("\n</").append(tag);
+    prompt.append(">\n\n");
   }
 }
 ----
@@ -386,7 +395,8 @@ Default-off inclusions (full XML, logs, metadata) are the ones that can leak sec
 
 |`followUp`
 |`true` after a successful prior turn.
-Large context (catalog, XML, logs) is usually first-turn only; you decide.
+The conversation history only carries earlier questions and answers, not the context sent with them.
+Send what is checked on every turn, as Hop's own advisors do, so a follow-up question still has the context and a new execution log reaches the model.
 
 |`attributes`
 |Copied from the session (which came from `AiAdvisorOpenRequest.attributes`).
@@ -407,7 +417,7 @@ After `buildPrompt` returns, the workbench appends standing notes to the *system
   * The same paths on the plugin classpath (JAR root) if the folder file is missing
   * The folder file *wins* when both exist, so an install can edit notes without rebuilding
 . `IAiAdvisor.getStandingContext()` when non-empty (computed notes; prefer files)
-. Configuration → *Extra context* and *Context files* (default `+${PROJECT_HOME}/AGENTS.md+`)
+. Configuration → *Extra context* and *Context files* (empty by default)
 
 Missing files are skipped. Your `buildPrompt` does not load these.
 
@@ -436,6 +446,34 @@ Custom file types should still implement `afterApply` for undo using `request.ge
 
 Chat-only advisors leave apply / afterApply / summarize as the defaults.
 
+The review applies a selection all or nothing: when `applyProposals` throws, the workbench restores the metadata objects saved for that selection and shows the error.
+Restore your own artifact in `applyProposals` before you throw, as the pipeline and workflow appliers do.
+Proposals with `riskLevel` `HIGH` start unchecked in the review, whatever the advisor's validator says.
+
+The proposal schema check and *Structured answers* (an option on the AI Provider) only apply to the pipeline and workflow assistants, whose proposal types are fixed.
+Answers of other advisors are parsed from text as before.
+
+[[evaluation]]
+=== Check prompt changes with the evaluation set
+
+`AiAdvisorEvaluation` in the tests of `plugins/tech/ai` asks the pipeline and workflow assistants a fixed set of questions with a real model and checks the answers: the language, no proposals when only an explanation was asked for, valid proposals when a change was asked for, a SQL comment that tries to give instructions, the log of a new run.
+The cases are in `src/test/resources/org/apache/hop/ai/eval/cases.json`. A case can expect no proposals or some, the language of the answer, words the answer mentions, proposals the review would not block (`validTypes`), the only proposal types that fit the question (`types`), and a minimum number of proposals of a type (`requiredTypes`).
+It is not part of the normal build. Run it once with a small local model and once with a hosted one:
+
+[source,bash]
+----
+HOP_AI_EVAL_PROVIDER=ollama HOP_AI_EVAL_MODEL=phi3:latest HOP_AI_EVAL_CONTEXT_SIZE=16384 \
+  ./mvnw -pl plugins/tech/ai test -Dtest=AiAdvisorEvaluation -Dsurefire.failIfNoSpecifiedTests=false
+
+HOP_AI_EVAL_PROVIDER=openai HOP_AI_EVAL_MODEL=gpt-4o-mini HOP_AI_EVAL_API_KEY=... \
+  ./mvnw -pl plugins/tech/ai test -Dtest=AiAdvisorEvaluation -Dsurefire.failIfNoSpecifiedTests=false
+----
+
+Add `HOP_AI_EVAL_STRUCTURED=Y` to run with *Structured answers*, and `HOP_AI_EVAL_CASES=explain-en,diagnose-log` to run a few cases.
+The report with every answer is written to `target/ai-eval/<provider>-<model>.md`, with the result per case in a `.json` file next to it.
+When `src/test/resources/org/apache/hop/ai/eval/baseline/` holds a results file of the same name, the report lists the cases that passed there and fail now. Copy a new results file there when a change is accepted.
+Answers vary between runs: read the report, and run a failing case again before you conclude a prompt change broke it.
+
 == Classloading
 
 `IAiAdvisor` lives in *hop-core*.
@@ -454,7 +492,7 @@ Third-party advisor plugins:
 If `plugins/tech/ai` is removed, `openAiAdvisorSession` is still a silent no-op; the third-party advisor plugin still loads.
 
 The workbench combo lists advisors whose `locations()` match the session (plus advisors with empty locations).
-A `data-vault-graph` session does not offer Pipeline AI Help.
+A `data-vault-graph` session does not offer the pipeline assistant.
 The unbound perspective lists every advisor.
 
 Do not put hopper-edw location ids in `AiAdvisorLocations`.

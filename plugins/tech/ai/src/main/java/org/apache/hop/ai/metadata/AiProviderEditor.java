@@ -36,15 +36,13 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -60,8 +58,6 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   private TextVar wName;
   private Combo wProviderType;
   private GuiCompositeWidgets widgets;
-  private ScrolledComposite wScrolled;
-  private Composite wContent;
   private final AtomicBoolean busyChangingType = new AtomicBoolean(false);
 
   public AiProviderEditor(HopGui hopGui, MetadataManager<AiProvider> manager, AiProvider metadata) {
@@ -97,29 +93,16 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     fdType.right = new FormAttachment(100, 0);
     wProviderType.setLayoutData(fdType);
 
-    wScrolled = new ScrolledComposite(parent, SWT.V_SCROLL);
-    FormData fdScrolled = new FormData();
-    fdScrolled.left = new FormAttachment(0, 0);
-    fdScrolled.right = new FormAttachment(100, 0);
-    fdScrolled.top = new FormAttachment(wProviderType, 15);
-    fdScrolled.bottom = new FormAttachment(100, 0);
-    wScrolled.setLayoutData(fdScrolled);
-    wScrolled.setExpandHorizontal(true);
-    wScrolled.setExpandVertical(true);
-
-    wContent = new Composite(wScrolled, SWT.NONE);
-    PropsUi.setLook(wContent);
-    FormLayout contentLayout = new FormLayout();
-    contentLayout.marginWidth = 0;
-    contentLayout.marginHeight = 0;
-    wContent.setLayout(contentLayout);
-    wScrolled.setContent(wContent);
-
-    widgets = new GuiCompositeWidgets(manager.getVariables());
-    widgets.createCompositeWidgets(
-        getMetadata(), null, wContent, AiProvider.GUI_WIDGETS_PARENT_ID, null);
-
-    wScrolled.addListener(SWT.Resize, e -> relayoutScrolledContent());
+    // The fields are in tabs (Connection, Model, Models per role) that fill the rest of the editor;
+    // the grouped container scrolls them when the editor is small.
+    widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            parent,
+            manager.getVariables(),
+            wProviderType,
+            null,
+            AiProvider.GUI_WIDGETS_PARENT_ID,
+            getMetadata());
 
     setWidgetsContent();
 
@@ -148,7 +131,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
         meta.setProviderType(selected);
       }
       applyModelNameChoices(meta.getModelNameChoices(null, null));
-      widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
+      widgets.setWidgetsContents(meta, null, AiProvider.GUI_WIDGETS_PARENT_ID);
       updateVisibility();
       setChanged();
     } catch (HopException e) {
@@ -172,20 +155,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
       hidden.add(AiProvider.WIDGET_API_KEY);
     }
     widgets.setWidgetsHidden(getMetadata(), hidden);
-    relayoutScrolledContent();
-  }
-
-  private void relayoutScrolledContent() {
-    if (wScrolled == null || wScrolled.isDisposed() || wContent == null || wContent.isDisposed()) {
-      return;
-    }
-    wContent.layout(true, true);
-    Rectangle client = wScrolled.getClientArea();
-    int width = Math.max(client.width, 1);
-    Point size = wContent.computeSize(width, SWT.DEFAULT);
-    wScrolled.setMinWidth(width);
-    wScrolled.setMinHeight(size.y);
-    wContent.setSize(width, size.y);
+    parent.layout(true, true);
   }
 
   @Override
@@ -202,7 +172,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     if (meta.getPluginName() != null) {
       wProviderType.setText(meta.getPluginName());
     }
-    widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
+    widgets.setWidgetsContents(meta, null, AiProvider.GUI_WIDGETS_PARENT_ID);
     updateVisibility();
   }
 
@@ -250,7 +220,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
         names.add(0, current);
       }
       applyModelNameChoices(names);
-      widgets.setWidgetsContents(meta, wContent, AiProvider.GUI_WIDGETS_PARENT_ID);
+      widgets.setWidgetsContents(meta, null, AiProvider.GUI_WIDGETS_PARENT_ID);
       MessageBox box = new MessageBox(parent.getShell(), SWT.ICON_INFORMATION | SWT.OK);
       box.setText(BaseMessages.getString(PKG, "AiProviderEditor.RefreshModels.Success.Title"));
       box.setMessage(
@@ -272,7 +242,32 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     if (widgets == null || names == null) {
       return;
     }
-    widgets.setComboValues(AiProvider.WIDGET_MODEL_NAME, names.toArray(String[]::new));
+    String[] items = names.toArray(String[]::new);
+    widgets.setComboValues(AiProvider.WIDGET_MODEL_NAME, items);
+    // The model column of Models per role offers the same names.
+    if (widgets.getWidgetsMap().get(AiProvider.WIDGET_MODELS) instanceof TableView table) {
+      for (ColumnInfo column : table.getColumns()) {
+        if (column.getType() == ColumnInfo.COLUMN_TYPE_CCOMBO
+            && BaseMessages.getString(PKG, "AiProviderEditor.Models.Column.ModelName")
+                .equals(column.getName())) {
+          column.setComboValues(items);
+        }
+      }
+    }
+  }
+
+  @Override
+  public void save() throws HopException {
+    AiProvider check = new AiProvider(getMetadata());
+    getWidgetsContent(check);
+    List<String> problems = check.validate();
+    if (!problems.isEmpty()) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiProviderEditor.Validate.Title")
+              + "\n\n"
+              + String.join("\n", problems));
+    }
+    super.save();
   }
 
   public void test() {

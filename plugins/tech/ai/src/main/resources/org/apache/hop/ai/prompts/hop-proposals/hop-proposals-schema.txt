@@ -1,17 +1,30 @@
-Proposal JSON schema (when suggesting graph edits, clipboard XML/JSON, or metadata saves):
+Proposal JSON (when suggesting graph edits, clipboard XML/JSON, or metadata saves). Example: add a Dummy after "Output" and connect it.
 ```hop_proposals
 {
   "proposals": [
     {
       "id": "1",
-      "description": "Human-readable summary",
-      "riskLevel": "LOW|MEDIUM|HIGH",
-      "type": "ADD_TRANSFORM|DELETE_TRANSFORM|RENAME_TRANSFORM|ADD_PIPELINE_HOP|DELETE_PIPELINE_HOP|SET_TRANSFORM_LOCATION|ADD_PIPELINE_NOTE|CONFIGURE_TRANSFORM|CLIPBOARD_TRANSFORMS|REPLACE_TRANSFORM|ADD_ACTION|DELETE_ACTION|RENAME_ACTION|ADD_WORKFLOW_HOP|DELETE_WORKFLOW_HOP|SET_ACTION_LOCATION|ADD_WORKFLOW_NOTE|CONFIGURE_ACTION|CLIPBOARD_ACTIONS|REPLACE_ACTION|CLIPBOARD_METADATA|SAVE_METADATA",
-      "parameters": { }
+      "description": "Add a Dummy transform after Output",
+      "riskLevel": "LOW",
+      "type": "ADD_TRANSFORM",
+      "parameters": {"transformPluginId": "Dummy", "name": "Dummy", "locationX": "400", "locationY": "100"}
+    },
+    {
+      "id": "2",
+      "description": "Connect Output to Dummy",
+      "riskLevel": "LOW",
+      "type": "ADD_PIPELINE_HOP",
+      "parameters": {"fromTransform": "Output", "toTransform": "Dummy", "enabled": "Y"}
     }
   ]
 }
 ```
+Each proposal has exactly ONE type. Never combine types like "ADD_TRANSFORM|ADD_PIPELINE_HOP": make one proposal per change, so adding a transform with its hop takes two proposals.
+riskLevel is one of LOW, MEDIUM, HIGH.
+Pipeline types: ADD_TRANSFORM, DELETE_TRANSFORM, RENAME_TRANSFORM, ADD_PIPELINE_HOP, DELETE_PIPELINE_HOP, SET_TRANSFORM_LOCATION, ADD_PIPELINE_NOTE, CONFIGURE_TRANSFORM, CLIPBOARD_TRANSFORMS, REPLACE_TRANSFORM.
+Workflow types: ADD_ACTION, DELETE_ACTION, RENAME_ACTION, ADD_WORKFLOW_HOP, DELETE_WORKFLOW_HOP, SET_ACTION_LOCATION, ADD_WORKFLOW_NOTE, CONFIGURE_ACTION, CLIPBOARD_ACTIONS, REPLACE_ACTION.
+Metadata types (pipeline or workflow): CLIPBOARD_METADATA, SAVE_METADATA.
+Use pipeline types for a pipeline and workflow types for a workflow.
 
 Pipeline parameter reference:
 - ADD_TRANSFORM: transformPluginId, name, locationX, locationY, plus plugin fields (sql, connection, filename or file.name, sheet or file.sheetname, header, …). Optional xml. Optional config JSON object.
@@ -42,10 +55,10 @@ Metadata parameter reference (pipeline or workflow session):
 - SAVE_METADATA: typeKey, json (string or nested object), optional name (JSON is saved through the metadata serializer; name overrides the object name). For rdbms you may instead send hostname, port, databaseName, username, password, pluginId (POSTGRESQL, MYSQL, …).
 
 Rules:
-- If you tell the user to add, connect, or create something, also emit the matching hop_proposals items. Prose-only steps are not enough.
+- When the user asks for a change, emit the matching hop_proposals items for everything you tell them to add, connect, or create.
 - Topology types still need hops and unique names. Plugin configuration belongs in ADD_TRANSFORM / ADD_ACTION / CONFIGURE_* parameters (and in the markdown). Apply writes those @HopMetadataProperty keys onto the plugin (sql, connection, file.name, …). Unknown keys are ignored.
 - ADD_TRANSFORM and ADD_ACTION load the plugin, then overlay those extra parameters. Still emit them on an empty canvas. If the SQL or filename is known, include it so the dialog is not left at defaults.
-- transformPluginId/actionPluginId must be the catalog JSON "id" (for example TableInput, TypeExitExcelWriterTransform), not the human-readable name. When the catalog is in context, only use ids from it.
+- transformPluginId/actionPluginId must be the plugin id from the plugin catalog (for example TableInput, TypeExitExcelWriterTransform), not the human-readable name in parentheses. When the catalog is in context, only use ids from it.
 - CLIPBOARD_TRANSFORMS, REPLACE_TRANSFORM, CLIPBOARD_ACTIONS, and REPLACE_ACTION may include Hop XML in the xml parameter. Copy a focus XML template from context. Do not invent plugin tags. If there is no template, use ADD_TRANSFORM / ADD_ACTION instead of skipping proposals.
 - REPLACE_TRANSFORM / REPLACE_ACTION keep the existing name and canvas location. The XML plugin id (type) must match the existing node. Use HIGH risk.
 - CLIPBOARD_TRANSFORMS / CLIPBOARD_ACTIONS copy XML to the clipboard. They do not add nodes. The user pastes on the canvas (Ctrl-V). Use HIGH risk.

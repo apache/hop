@@ -81,11 +81,16 @@ public class AiAdvisorMetadataSelectionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "AiAdvisorMetadataSelectionDialog.Cancel.Label"));
     wCancel.addListener(SWT.Selection, e -> cancel());
+    Button wAll = new Button(shell, SWT.PUSH);
+    wAll.setText(BaseMessages.getString(PKG, "AiAdvisorMetadataSelectionDialog.All.Label"));
+    wAll.setToolTipText(
+        BaseMessages.getString(PKG, "AiAdvisorMetadataSelectionDialog.All.Tooltip"));
+    wAll.addListener(SWT.Selection, e -> selectAllShown());
     Button wNone = new Button(shell, SWT.PUSH);
     wNone.setText(BaseMessages.getString(PKG, "AiAdvisorMetadataSelectionDialog.None.Label"));
     wNone.addListener(SWT.Selection, e -> clearAll());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel, wNone}, margin, null);
+        shell, new Button[] {wOk, wCancel, wAll, wNone}, margin, null);
 
     Label wlFilter = new Label(shell, SWT.LEFT);
     wlFilter.setText(BaseMessages.getString(PKG, "AiAdvisorMetadataSelectionDialog.Filter.Label"));
@@ -217,6 +222,18 @@ public class AiAdvisorMetadataSelectionDialog {
     }
     parentItem.setChecked(checkedCount == children.length && children.length > 0);
     parentItem.setGrayed(checkedCount > 0 && checkedCount < children.length);
+  }
+
+  /** Everything the tree shows, so a filter narrows what All selects. */
+  private void selectAllShown() {
+    for (TreeItem typeItem : wTree.getItems()) {
+      for (TreeItem child : typeItem.getItems()) {
+        if (child.getData(DATA_SELECTION) instanceof AiAdvisorMetadataSelection selection) {
+          checked.add(selection);
+        }
+      }
+    }
+    rebuildTree();
   }
 
   private void clearAll() {

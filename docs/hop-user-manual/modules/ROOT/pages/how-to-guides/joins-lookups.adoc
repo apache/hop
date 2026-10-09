@@ -160,3 +160,5 @@ The dialog options vary slightly, but the caching options offered by these trans
 * load all data from table (database lookup only): load all the table's data to memory before the pipeline starts.
 
 Consider your available memory resources when configuring caching. Caching can significantly speed up the lookup process, but memory is a finite resource.
+
+For a type 2 dimension that is too large for a lookup per row, see xref:how-to-guides/high-volume-scd2.adoc[High-volume SCD2 loads].

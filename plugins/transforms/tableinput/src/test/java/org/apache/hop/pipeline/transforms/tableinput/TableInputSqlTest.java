@@ -166,9 +166,41 @@ class TableInputSqlTest {
 
     TableInputSql.Bound bound = TableInputSql.prepare(false, sql, incoming, row);
 
+    // No positional placeholder: the SQL is passed through and nothing is bound, otherwise the
+    // driver fails (ORA-17003 / "Parameter index out of range") on a statement without binds.
     assertEquals(sql, bound.getJdbcSql());
+    assertEquals(null, bound.getParameterMeta());
+    assertEquals(null, bound.getParameterData());
+  }
+
+  @Test
+  void prepareDisabledStillBindsWhenPositionalPlaceholdersExist() throws Exception {
+    IRowMeta incoming = new RowMeta();
+    incoming.addValueMeta(new ValueMetaString("key"));
+    Object[] row = new Object[] {"10"};
+
+    TableInputSql.Bound bound =
+        TableInputSql.prepare(false, "SELECT * FROM t WHERE id = ?", incoming, row);
+
+    assertEquals("SELECT * FROM t WHERE id = ?", bound.getJdbcSql());
     assertEquals(incoming, bound.getParameterMeta());
     assertArrayEquals(row, bound.getParameterData());
+  }
+
+  @Test
+  void countPositionalPlaceholdersIgnoresLiteralsCommentsAndVariables() {
+    assertEquals(
+        0,
+        TableInputSql.countPositionalPlaceholders(
+            "SELECT '?' AS a, \"q?\" AS b FROM t -- ?\n WHERE x = '${VAR}'"));
+    assertEquals(
+        3,
+        TableInputSql.countPositionalPlaceholders(
+            "SELECT * FROM t WHERE id = ? AND name = ? AND x = ?"));
+    assertEquals(
+        1,
+        TableInputSql.countPositionalPlaceholders(
+            "SELECT * FROM t WHERE id = ? -- comment\n AND /* ? */ name = '?'"));
   }
 
   @Test

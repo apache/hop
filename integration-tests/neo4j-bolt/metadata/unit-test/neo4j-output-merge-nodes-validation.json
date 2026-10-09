@@ -1,0 +1,64 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "firstname",
+          "data_set_field": "firstname"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "zip",
+          "data_set_field": "zip"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "VALIDATE",
+      "data_set_name": "customers"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-output-merge-nodes-validation",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-output-merge-nodes/neo4j-output-merge-nodes-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

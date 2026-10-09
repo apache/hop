@@ -1,0 +1,30 @@
+{
+  "relationships": [],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "IP",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "ip",
+          "description": "IP Address",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "IPAddress",
+        "Public"
+      ]
+    }
+  ],
+  "name": "IP",
+  "description": ""
+}

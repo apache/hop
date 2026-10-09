@@ -18,9 +18,16 @@
 
 package org.apache.hop.neo4j.shared;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.graph.GraphDatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -818,7 +825,167 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
     wTest.addListener(SWT.Selection, e -> test());
 
-    return new Button[] {wTest};
+    Button wConvert = new Button(composite, SWT.PUSH);
+    wConvert.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Button"));
+    wConvert.setToolTipText(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Tooltip"));
+    wConvert.addListener(SWT.Selection, e -> convert());
+
+    Button wConvertAll = new Button(composite, SWT.PUSH);
+    wConvertAll.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Button"));
+    wConvertAll.setToolTipText(
+        BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Tooltip"));
+    wConvertAll.addListener(SWT.Selection, e -> convertAll());
+
+    return new Button[] {wTest, wConvert, wConvertAll};
+  }
+
+  /** Convert all Neo4j connections of the project into graph database connections. */
+  public void convertAll() {
+    if (hasChanged()) {
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.SaveFirst.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.SaveFirst.Message"));
+      box.open();
+      return;
+    }
+    try {
+      IHopMetadataProvider metadataProvider = manager.getMetadataProvider();
+      // Only the Neo4j connections of the active project are converted, not those of a parent
+      //
+      List<String> convertible = NeoConnectionUtils.getConvertibleConnectionNames(metadataProvider);
+      List<String> otherProjects =
+          new ArrayList<>(
+              new TreeSet<>(metadataProvider.getSerializer(NeoConnection.class).listObjectNames()));
+      otherProjects.removeAll(convertible);
+      if (convertible.isEmpty()) {
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+        box.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Confirm.Title"));
+        StringBuilder nothing =
+            new StringBuilder(
+                BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Nothing.Message"));
+        if (!otherProjects.isEmpty()) {
+          nothing
+              .append(Const.CR)
+              .append(Const.CR)
+              .append(
+                  BaseMessages.getString(
+                      PKG,
+                      "NeoConnectionEditor.ConvertAll.Confirm.OtherProjects",
+                      String.join(", ", otherProjects)));
+        }
+        box.setMessage(nothing.toString());
+        box.open();
+        return;
+      }
+      String confirmMessage =
+          BaseMessages.getString(
+              PKG,
+              "NeoConnectionEditor.ConvertAll.Confirm.Message",
+              Integer.toString(convertible.size()));
+      if (!otherProjects.isEmpty()) {
+        confirmMessage +=
+            Const.CR
+                + Const.CR
+                + BaseMessages.getString(
+                    PKG,
+                    "NeoConnectionEditor.ConvertAll.Confirm.OtherProjects",
+                    String.join(", ", otherProjects));
+      }
+      MessageBox confirm = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      confirm.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Confirm.Title"));
+      confirm.setMessage(confirmMessage);
+      if ((confirm.open() & SWT.YES) == 0) {
+        return;
+      }
+      Map<String, String> skipped =
+          NeoConnectionUtils.convertAllToGraphConnections(metadataProvider);
+      int converted = 0;
+      for (String name : convertible) {
+        if (!skipped.containsKey(name)) {
+          converted++;
+        }
+      }
+
+      MetadataPerspective perspective = MetadataPerspective.getInstance();
+      if (!skipped.containsKey(metadata.getName())) {
+        perspective.remove(this);
+      }
+      perspective.refresh();
+
+      StringBuilder message =
+          new StringBuilder(
+              BaseMessages.getString(
+                  PKG,
+                  "NeoConnectionEditor.ConvertAll.Result.Message",
+                  Integer.toString(converted)));
+      if (!skipped.isEmpty()) {
+        message
+            .append(Const.CR)
+            .append(Const.CR)
+            .append(BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Result.Skipped"));
+      }
+      for (Map.Entry<String, String> entry : skipped.entrySet()) {
+        message
+            .append(Const.CR)
+            .append(" - ")
+            .append(entry.getKey())
+            .append(" : ")
+            .append(entry.getValue());
+      }
+      MessageBox box =
+          new MessageBox(
+              hopGui.getShell(),
+              SWT.OK | (skipped.isEmpty() ? SWT.ICON_INFORMATION : SWT.ICON_WARNING));
+      box.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Result.Title"));
+      box.setMessage(message.toString());
+      box.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Error.Title"),
+          BaseMessages.getString(PKG, "NeoConnectionEditor.ConvertAll.Error.Message"),
+          e);
+    }
+  }
+
+  /**
+   * Convert this Neo4j connection into a graph database connection with the same name and settings.
+   * Transforms and actions find connections by name, so they keep working unchanged.
+   */
+  public void convert() {
+    String name = metadata.getName();
+    if (hasChanged() || StringUtils.isEmpty(name)) {
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.SaveFirst.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.SaveFirst.Message"));
+      box.open();
+      return;
+    }
+    MessageBox confirm = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    confirm.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Confirm.Title"));
+    confirm.setMessage(
+        BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Confirm.Message", name));
+    if ((confirm.open() & SWT.YES) == 0) {
+      return;
+    }
+    try {
+      NeoConnectionUtils.convertToGraphConnection(manager.getMetadataProvider(), name);
+      MetadataPerspective perspective = MetadataPerspective.getInstance();
+      perspective.remove(this);
+      perspective.refresh();
+      new MetadataManager<>(
+              manager.getVariables(),
+              manager.getMetadataProvider(),
+              GraphDatabaseMeta.class,
+              hopGui.getShell())
+          .editMetadata(name);
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Error.Title"),
+          BaseMessages.getString(PKG, "NeoConnectionEditor.Convert.Error.Message", name),
+          e);
+    }
   }
 
   @Override

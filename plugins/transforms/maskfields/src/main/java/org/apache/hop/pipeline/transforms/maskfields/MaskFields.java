@@ -76,6 +76,8 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
             patterns.put(field.getPatternName(), pattern);
           }
           long start = parseStart(pattern);
+          // Check the hash secret before the mapping table is opened.
+          MaskingKey key = MaskingKey.forPattern(pattern, this);
           IMaskingStore store = storeFor(pattern, lease);
           bindings.add(
               new Binding(
@@ -85,7 +87,8 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
                   resolve(pattern.getSuffix()),
                   start,
                   store,
-                  sharedSequence(lease, transformName, field, pattern, start)));
+                  sharedSequence(lease, transformName, field, pattern, start),
+                  key));
         }
       }
       data.engine = new MaskingEngine(bindings);

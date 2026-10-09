@@ -29,7 +29,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.execution.path.PathResult;
-import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -49,11 +48,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Value;
-import org.neo4j.driver.types.Node;
-import org.neo4j.driver.types.Path;
 
 @GuiPlugin
 public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
@@ -213,34 +207,10 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
     String pathCypher = getPathToRootCypher();
 
     try {
-      getSession()
-          .executeRead(
-              tx -> {
-                Result pathResult = tx.run(pathCypher, pathParams);
-
-                while (pathResult.hasNext()) {
-                  Record pathRecord = pathResult.next();
-                  Value pathValue = pathRecord.get(0);
-                  Path path = pathValue.asPath();
-                  List<PathResult> shortestPath = new ArrayList<>();
-                  for (Node node : path.nodes()) {
-                    PathResult nodeResult = new PathResult();
-                    nodeResult.setId(LoggingCore.getStringValue(node, "id"));
-                    nodeResult.setName(LoggingCore.getStringValue(node, "name"));
-                    nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
-                    nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
-                    nodeResult.setRegistrationDate(
-                        LoggingCore.getDateValue(node, "registrationDate"));
-                    nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
-
-                    shortestPath.add(0, nodeResult);
-                  }
-                  shortestPaths.add(shortestPath);
-                }
-                return null;
-              });
+      shortestPaths.addAll(readPaths(pathCypher, pathParams));
     } catch (Exception e) {
-      new ErrorDialog(viewer.getShell(), "Error", "Error loading execution lineage from Neo4j", e);
+      new ErrorDialog(
+          viewer.getShell(), "Error", "Error loading execution lineage from the graph database", e);
     }
 
     return shortestPaths;

@@ -19,6 +19,9 @@ package org.apache.hop.workflow.actions.truncatetables;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
@@ -28,6 +31,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -216,13 +220,13 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
           }
         }
       } catch (Exception dbe) {
-        result.setNrErrors(1);
+        updateErrors();
         logError(
             BaseMessages.getString(
                 PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));
       }
     } else {
-      result.setNrErrors(1);
+      updateErrors();
       logError(BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection"));
     }
 
@@ -265,5 +269,37 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
 
   public void setArgFromPrevious(boolean argFromPrevious) {
     this.argFromPrevious = argFromPrevious;
+  }
+
+  @Override
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+
+    String realConnection = variables.resolve(connection);
+    if (Utils.isEmpty(realConnection)
+        || workflowMeta == null
+        || workflowMeta.findDatabase(realConnection, variables) == null) {
+      String message = BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection");
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
+    }
+
+    if (!argFromPrevious) {
+      if (Utils.isEmpty(items)) {
+        String message =
+            BaseMessages.getString(PKG, "ActionTruncateTables.CheckResult.NoTablesSelected");
+        remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
+      } else {
+        for (TruncateTableItem item : items) {
+          if (StringUtils.isEmpty(variables.resolve(item.getTableName()))) {
+            String message =
+                BaseMessages.getString(PKG, "ActionTruncateTables.CheckResult.TableNameIsEmpty");
+            remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
+          }
+        }
+      }
+    }
   }
 }

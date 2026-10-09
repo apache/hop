@@ -24,7 +24,9 @@ under the License.
 
 The Execution Information Location determines where Apache Hop can send information execution information to.
 
-After execution this information can be consulted from the xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective]
+After execution this information can be consulted from the xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective].
+
+Old executions can be removed from that perspective, or on a schedule with the xref:workflow/actions/deleteexecutioninfo.adoc[Delete execution information] action. The action deletes stored executions and leaves this metadata object in place.
 
 == Options
 
@@ -83,9 +85,9 @@ Options:
 * *Hop Server*: the remote Hop Server to write the execution information to.
 * *Execution Information Location*: the Execution Information Location to be used on the remote Hop Server.
 
-=== Neo4j location
+=== Graph database location
 
-With this location type you can store execution information in a xref:technology/neo4j/index.adoc[Neo4j] graph database.  For more information on this plugin, see the xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j location type] documentation.
+With this location type (previously Neo4j location) you can store execution information in a graph database which speaks Cypher: Neo4j, Memgraph, Amazon Neptune, FalkorDB or Apache AGE.  For more information on this plugin, see the xref:metadata-types/graphs/graph-database-location.adoc[graph database location type] documentation.
 
 === Elastic location
 

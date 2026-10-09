@@ -84,7 +84,7 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
     String text = data.inputRowMeta.getString(row, data.inputFieldIndex);
     data.pendingRows.add(row);
     // Null marks a row that needs no embedding. It still queues, so the output keeps input order.
-    data.pendingTexts.add(Utils.isEmpty(text) ? null : text);
+    data.pendingTexts.add(hasNothingToEmbed(text) ? null : text);
     if (data.pendingRows.size() >= data.batchSize) {
       flushBatch();
     }
@@ -158,6 +158,15 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
       }
       putRow(data.outputRowMeta, output);
     }
+  }
+
+  /**
+   * True for text that has no content to embed. langchain4j refuses a text segment that trims to
+   * nothing, which takes control characters as well as spaces, and would stop the transform before
+   * the provider is called. Unicode whitespace has nothing to embed either.
+   */
+  static boolean hasNothingToEmbed(String text) {
+    return text == null || text.trim().isEmpty() || text.isBlank();
   }
 
   private void withEmbedding(Object[] output, float[] vector) {

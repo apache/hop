@@ -424,6 +424,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
                       result);
               try {
                 destinationFileFolder.copyFrom(sourceFileFolder, textFileSelector);
+                textFileSelector.copyPendingFiles();
               } finally {
                 textFileSelector.shutdown();
               }
@@ -746,6 +747,8 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     }
   }
 
+  private record PendingFileCopy(FileObject source, FileObject target) {}
+
   private class TextFileSelector implements FileSelector {
     String fileWildcard = null;
     String sourceFolder = null;
@@ -758,6 +761,8 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     FileObject destinationFolderObject = null;
 
     private final Result copyResult;
+
+    private final List<PendingFileCopy> pendingFileCopies = new ArrayList<>();
 
     /**
      * @param selectedfile
@@ -798,7 +803,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
-      boolean streamCopied = false;
+      boolean deferred = false;
       FileObject filename = null;
       String addFileNameString = null;
       try {
@@ -994,9 +999,11 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
         }
 
         if (returncode && filename != null && info.getFile().getType() == FileType.FILE) {
-          long copied = copyFileWithByteTracking(info.getFile(), filename, copyResult);
-          ActionCopyFiles.this.emitCopyLineage(info.getFile(), filename, copied);
-          streamCopied = true;
+          // Copy after the traversal so files written into a destination below the source are
+          // not picked up again (see copyPendingFiles())
+          pendingFileCopies.add(new PendingFileCopy(info.getFile(), filename));
+          filename = null;
+          deferred = true;
         }
       } catch (Exception e) {
 
@@ -1022,6 +1029,12 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
           }
         }
       }
+      if (deferred) {
+        // Files are copied by copyPendingFiles(), which also registers them for removal and in
+        // the result. Returning true would make copyFrom copy them as well.
+        return false;
+      }
+
       if (returncode && removeSourceFiles) {
         // add this folder/file to remove files
         // This list will be fetched and all entries files
@@ -1035,9 +1048,46 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
             addFileNameString); // was a NPE before with the file_name=null above in the finally
       }
 
-      // File rows: we already copied bytes above when streamCopied; true would make copyFrom copy
-      // again. Folder rows: unchanged — still return returncode so VFS creates empty dirs.
-      return streamCopied ? false : returncode;
+      // Folders: VFS copyFrom creates them
+      return returncode;
+    }
+
+    /**
+     * Copies the files selected during the traversal. Copying while VFS still walks the source tree
+     * makes a destination folder below the source pick up the files already copied into it (#8800).
+     */
+    public void copyPendingFiles() {
+      for (PendingFileCopy copy : pendingFileCopies) {
+        if (parentjob.isStopped()) {
+          break;
+        }
+        FileObject target = copy.target();
+        try {
+          long copied = copyFileWithByteTracking(copy.source(), target, copyResult);
+          ActionCopyFiles.this.emitCopyLineage(copy.source(), target, copied);
+          if (removeSourceFiles) {
+            listFilesRemove.add(copy.source().toString());
+          }
+          if (addResultFilenames) {
+            listAddResult.add(target.toString());
+          }
+        } catch (Exception e) {
+          logError(
+              BaseMessages.getString(
+                  PKG,
+                  CONST_COPY_PROCESS,
+                  HopVfs.getFriendlyURI(copy.source()),
+                  HopVfs.getFriendlyURI(target),
+                  e.getMessage()));
+        } finally {
+          try {
+            target.close();
+          } catch (IOException ex) {
+            /* Ignore */
+          }
+        }
+      }
+      pendingFileCopies.clear();
     }
 
     @Override

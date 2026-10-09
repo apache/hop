@@ -106,4 +106,6 @@ The Hop-native parsers make a pipeline, a workflow or a metadata file retrievabl
 
 Chunk overlap applies to the Character strategy. The Paragraph and Structure strategies split on natural boundaries, where an overlap would duplicate whole paragraphs or sections between neighbouring chunks.
 
+The Structure strategy drops chunks that contain only whitespace. The chunk index and total chunk count cover only the chunks that are emitted. Text that yields no chunks produces a single row with an empty chunk and a total of 0, the same as empty text.
+
 Keep *Include metadata* enabled when the chunks are going into a vector store: the document ID and chunk index are what let a later search merge neighbouring chunks back into a passage, and re-index a single document without touching the rest.

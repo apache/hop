@@ -19,14 +19,18 @@ package org.apache.hop.ai.advisors.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.engine.AiProposalXmlSupportTest;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
@@ -65,6 +69,56 @@ class WorkflowAiProposalApplierTest {
     ActionMeta renamed = workflowMeta.findAction("Validated");
     assertNotNull(renamed);
     assertEquals(1, workflowMeta.nrWorkflowHops());
+  }
+
+  @Test
+  void aFailingProposalLeavesTheWorkflowUntouched() {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    ActionMeta start = new ActionMeta(new ActionDummy("Start"));
+    start.setLocation(100, 100);
+    workflowMeta.addAction(start);
+
+    assertThrows(
+        Exception.class,
+        () -> WorkflowAiProposalApplier.apply(workflowMeta, List.of(addCheck(), badHop())));
+    assertNull(workflowMeta.findAction("Check"), "the first proposal must not stay applied");
+    assertEquals(1, workflowMeta.nrActions());
+  }
+
+  @Test
+  void aProposalThatFailsAfterTheDryRunIsRolledBack() throws Exception {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    ActionMeta start = new ActionMeta(new ActionDummy("Start"));
+    start.setLocation(100, 100);
+    workflowMeta.addAction(start);
+    Variables variables = new Variables();
+    String before = workflowMeta.getXml(variables);
+
+    // Without the dry run, as when the workflow could not be copied.
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () ->
+                WorkflowAiProposalApplier.applyOrRestore(
+                    workflowMeta, before, List.of(addCheck(), badHop()), null, null, variables));
+    assertTrue(e.getMessage().contains("Proposal 2"), e.getMessage());
+    assertNull(workflowMeta.findAction("Check"), "the first proposal must be rolled back");
+    assertNotNull(workflowMeta.findAction("Start"));
+    assertEquals(1, workflowMeta.nrActions());
+  }
+
+  private static AiProposal addCheck() {
+    return proposal(
+        "ADD_ACTION",
+        Map.of(
+            "actionPluginId", "DUMMY",
+            "name", "Check",
+            "locationX", "250",
+            "locationY", "100"));
+  }
+
+  private static AiProposal badHop() {
+    return proposal("ADD_WORKFLOW_HOP", Map.of("fromAction", "Check", "toAction", "Missing"));
   }
 
   @Test

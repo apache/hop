@@ -48,6 +48,7 @@ From 2.22.0, direct_num_workers = 0 is supported.
 When direct_num_workers is set to 0, it will set the number of threads/subprocess to the number of cores of the machine where the pipeline is running.
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
 |Temp location|Path for temporary files.
+|GCP temp location|Optional `gs://` path for transforms that must stage in Cloud Storage, such as BigQuery. Empty leaves that option unset. It is separate from Temp location.
 |Plugins to stage (, delimited)|Comma separated list of plugins.
 |Transform plugin classes|List of transform plugin classes.
 |XP plugin classes|List of extensions point plugins.

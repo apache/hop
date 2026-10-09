@@ -29,6 +29,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -36,8 +38,6 @@ import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -106,9 +106,9 @@ class SparkLakeTableIcebergPathTest {
 
     Dataset<Row> source = spark.range(0, 18).toDF("id");
 
-    SparkLakeTableOutputMeta outMeta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta outMeta = new LakeTableOutputMeta();
     outMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    outMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    outMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     outMeta.setTablePath(tablePath.toString());
     outMeta.setSaveMode(SparkFileOutputMeta.MODE_OVERWRITE);
 
@@ -136,9 +136,9 @@ class SparkLakeTableIcebergPathTest {
 
     assertEquals(0, map.get("ice_out").count());
 
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    inMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    inMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     inMeta.setTablePath(tablePath.toString());
 
     TransformMeta inTm = new TransformMeta("ice_in", inMeta);
@@ -166,7 +166,7 @@ class SparkLakeTableIcebergPathTest {
 
   @Test
   void lakeSessionPlanCollectsIcebergFormat() throws Exception {
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
     inMeta.setTablePath("/tmp/x");
     TransformMeta inTm = new TransformMeta("in", inMeta);

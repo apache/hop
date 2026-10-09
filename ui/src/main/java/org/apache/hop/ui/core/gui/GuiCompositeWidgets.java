@@ -867,7 +867,34 @@ public class GuiCompositeWidgets {
     IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
     int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     MetaSelectionLine<? extends IHopMetadata> metaSelectionLine;
-    if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
+    Class<?> selectionLineClass = guiElements.getMetadataSelectionLine();
+    if (selectionLineClass != null
+        && selectionLineClass != Void.class
+        && MetaSelectionLine.class.isAssignableFrom(selectionLineClass)) {
+      try {
+        metaSelectionLine =
+            (MetaSelectionLine<? extends IHopMetadata>)
+                selectionLineClass
+                    .getConstructor(
+                        IVariables.class,
+                        IHopMetadataProvider.class,
+                        Composite.class,
+                        int.class,
+                        String.class,
+                        String.class)
+                    .newInstance(
+                        variables,
+                        metadataProvider,
+                        parent,
+                        flags,
+                        guiElements.getLabel(),
+                        guiElements.getToolTip());
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Unable to create metadata selection line " + selectionLineClass.getName(), e);
+        return lastControl;
+      }
+    } else if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
       metaSelectionLine =
           MetaSelectionLine.forMetadataKey(
               variables,
@@ -1847,6 +1874,21 @@ public class GuiCompositeWidgets {
                     + "' for primitive "
                     + parameterType.getName());
             return;
+          }
+
+          // Text, combo and metadata widgets read back a String. int and long setters reject that
+          // and the field keeps its old value. String setters are left alone.
+          //
+          if (value instanceof String text
+              && (parameterType == int.class || parameterType == long.class)) {
+            String trimmed = text.trim();
+            // Keep the two assignments separate. A ternary of int and long widens the int to long,
+            // and reflection then rejects that Long for an int setter.
+            if (parameterType == int.class) {
+              value = Const.toInt(trimmed, 0);
+            } else {
+              value = Const.toLong(trimmed, 0L);
+            }
           }
 
           if (value != null && !isAssignable(parameterType, value.getClass())) {

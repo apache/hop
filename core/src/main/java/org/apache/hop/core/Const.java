@@ -954,6 +954,17 @@ public class Const {
   public static final String HOP_MAX_TAB_LENGTH = "HOP_MAX_TAB_LENGTH";
 
   /**
+   * Spaces inserted or removed when Tab or Shift+Tab changes the indentation of the selected lines
+   * in a multi-line text field.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "2",
+      description =
+          "Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. A line that already starts with a tab gains another tab. Set the value to 0 to insert a tab. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. The default is 2.")
+  public static final String HOP_TEXT_TAB_SIZE = "HOP_TEXT_TAB_SIZE";
+
+  /**
    * A variable to configure VFS USER_DIR_IS_ROOT option: should be "true" or "false" {@linkplain
    * org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder}
    */
@@ -1001,7 +1012,9 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
-  @Variable(description = "A variable to configure the maximum file size of a single zip entry")
+  @Variable(
+      value = "4294967295",
+      description = "A variable to configure the maximum file size of a single zip entry")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE = "HOP_ZIP_MAX_ENTRY_SIZE";
 
   /**
@@ -1018,7 +1031,6 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    */
-  @Variable(description = "")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT);
 

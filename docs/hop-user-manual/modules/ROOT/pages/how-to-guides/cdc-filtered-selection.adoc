@@ -164,7 +164,7 @@ The run configuration of the workflow or pipeline you look up must actually writ
 These are alternatives to a control table or Execution information, not extra requirements:
 
 * xref:pipeline/transforms/getsystemdata.adoc[Get System Info] *Start / End date range (Pipeline)* and *Start / End date range (Workflow)* — the older log-table window, when those ETL log tables are in use
-* xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Logging Info] — previous (successful) execution dates when logging goes to `NEO4J_LOGGING_CONNECTION`
+* xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] — previous (successful) execution dates when logging goes to `HOP_GRAPH_LOGGING_CONNECTION`
 
 == Applying the extract
 

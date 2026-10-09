@@ -51,6 +51,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -65,6 +66,8 @@ public class BeamBQInputDialog extends BaseTransformDialog {
   private TextVar wDatasetId;
   private TextVar wTableId;
   private TextVar wQuery;
+  private TextVar wQueryLocation;
+  private Button wSkipQueryValidation;
   private TableView wFields;
 
   public BeamBQInputDialog(
@@ -168,6 +171,40 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdQuery.bottom = new FormAttachment(wlQuery, 250);
     wQuery.setLayoutData(fdQuery);
     lastControl = wQuery;
+
+    // #2416: query location and skipping validation.  These only apply to a query, so they sit
+    // directly under the query box.
+    //
+    Label wlQueryLocation = new Label(wContent, SWT.RIGHT);
+    wlQueryLocation.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.QueryLocation"));
+    PropsUi.setLook(wlQueryLocation);
+    FormData fdlQueryLocation = new FormData();
+    fdlQueryLocation.left = new FormAttachment(0, 0);
+    fdlQueryLocation.top = new FormAttachment(lastControl, margin);
+    fdlQueryLocation.right = new FormAttachment(middle, -margin);
+    wlQueryLocation.setLayoutData(fdlQueryLocation);
+    wQueryLocation = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wQueryLocation);
+    wQueryLocation.setToolTipText(
+        BaseMessages.getString(PKG, "BeamBQInputDialog.QueryLocation.ToolTip"));
+    FormData fdQueryLocation = new FormData();
+    fdQueryLocation.left = new FormAttachment(middle, 0);
+    fdQueryLocation.top = new FormAttachment(wlQueryLocation, 0, SWT.CENTER);
+    fdQueryLocation.right = new FormAttachment(100, 0);
+    wQueryLocation.setLayoutData(fdQueryLocation);
+    lastControl = wQueryLocation;
+
+    wSkipQueryValidation = new Button(wContent, SWT.CHECK);
+    wSkipQueryValidation.setText(
+        BaseMessages.getString(PKG, "BeamBQInputDialog.SkipQueryValidation"));
+    PropsUi.setLook(wSkipQueryValidation);
+    wSkipQueryValidation.setToolTipText(
+        BaseMessages.getString(PKG, "BeamBQInputDialog.SkipQueryValidation.ToolTip"));
+    FormData fdSkipQueryValidation = new FormData();
+    fdSkipQueryValidation.left = new FormAttachment(0, 0);
+    fdSkipQueryValidation.top = new FormAttachment(lastControl, margin);
+    wSkipQueryValidation.setLayoutData(fdSkipQueryValidation);
+    lastControl = wSkipQueryValidation;
 
     Label wlFields = new Label(wContent, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.Fields"));
@@ -287,6 +324,8 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wDatasetId.setText(Const.NVL(input.getDatasetId(), ""));
     wTableId.setText(Const.NVL(input.getTableId(), ""));
     wQuery.setText(Const.NVL(input.getQuery(), ""));
+    wQueryLocation.setText(Const.NVL(input.getQueryLocation(), ""));
+    wSkipQueryValidation.setSelection(input.isSkippingQueryValidation());
 
     for (int i = 0; i < input.getFields().size(); i++) {
       BQField field = input.getFields().get(i);
@@ -323,6 +362,8 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     in.setDatasetId(wDatasetId.getText());
     in.setTableId(wTableId.getText());
     in.setQuery(wQuery.getText());
+    in.setQueryLocation(wQueryLocation.getText());
+    in.setSkippingQueryValidation(wSkipQueryValidation.getSelection());
     in.getFields().clear();
     for (int i = 0; i < wFields.nrNonEmpty(); i++) {
       TableItem item = wFields.getNonEmpty(i);

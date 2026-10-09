@@ -31,6 +31,7 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.security.ActionPermissionMapper;
+import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.core.widget.TextLineClipboard;
 import org.apache.hop.ui.core.widget.TextSelectAll;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
@@ -155,11 +156,17 @@ public class HopGuiKeyHandler extends KeyAdapter {
     // RAP does not fire focus events for a focus change made in the browser.
     //
     // The key filter covers every shell on this display, including dialogs that never register
-    // here, so word-movement keys are not stolen, Ctrl/Cmd+A selects the text, and an empty
-    // Ctrl/Cmd+C/X copies or cuts the current line (issues #8362 and #8606).
+    // here, so word-movement keys are not stolen, Ctrl/Cmd+A selects the text, an empty
+    // Ctrl/Cmd+C/X copies or cuts the current line (issues #8362 and #8606), and Tab indents the
+    // selected lines of a multi-line text field (issue #8653).
     //
     if (display != null && !display.isDisposed() && filteredDisplays.add(display)) {
-      display.addFilter(SWT.FocusIn, event -> attachTo(event.widget));
+      display.addFilter(
+          SWT.FocusIn,
+          event -> {
+            attachTo(event.widget);
+            TextIndent.attach(event.widget);
+          });
       display.addFilter(SWT.KeyDown, this::filterTextEditingKey);
       display.addListener(SWT.Dispose, e -> filteredDisplays.remove(display));
     }
@@ -168,6 +175,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
   /** Display filter: runs before widget listeners, for shells that never got this handler. */
   private void filterTextEditingKey(Event event) {
     try {
+      if (event.widget instanceof Control control && isInTerminalWidget(control)) {
+        return;
+      }
+      if (TextIndent.handleKey(event)) {
+        return;
+      }
       if (applyTextEditingKey(
               event.widget, event.keyCode, event.stateMask, event.character, event.display)
           .consume) {
@@ -690,7 +703,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
   private static boolean isNativeTextEditingKey(int keyCode, int stateMask, char character) {
     if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
       char key = Character.toLowerCase((char) keyCode);
-      if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
+      // With SHIFT, A and C are app shortcuts (Ctrl/Cmd+Shift+A opens the AI Assistant, +C the
+      // configuration), not select all or copy. Shift+V and Shift+X stay with the widget: some
+      // editors paste as plain text or cut a line with them.
+      boolean shift = (stateMask & SWT.SHIFT) != 0;
+      if (key == 'v' || key == 'x' || (!shift && (key == 'a' || key == 'c'))) {
         return true;
       }
     }

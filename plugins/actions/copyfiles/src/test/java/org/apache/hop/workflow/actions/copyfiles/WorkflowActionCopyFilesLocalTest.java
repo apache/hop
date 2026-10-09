@@ -177,6 +177,45 @@ class WorkflowActionCopyFilesLocalTest {
     assertEquals("doc", Files.readString(copied, StandardCharsets.UTF_8));
   }
 
+  /** Issue #8800: copying a folder into a subfolder of itself must not copy the copies again. */
+  @Test
+  void copyFolderIntoOwnSubfolderDoesNotCopyTheCopies() throws Exception {
+    Path srcRoot = tempDir.resolve("project");
+    Files.createDirectories(srcRoot);
+    // Entries on both sides of "copy" in creation and in name order, so that whatever order the
+    // filesystem lists them in, some files are copied before the traversal reaches "copy"
+    for (int i = 0; i < 5; i++) {
+      Files.createDirectories(srcRoot.resolve("a" + i));
+      Files.writeString(srcRoot.resolve("a" + i + "/f.txt"), "a" + i, StandardCharsets.UTF_8);
+    }
+    Path destRoot = srcRoot.resolve("copy");
+    Files.createDirectories(destRoot);
+    for (int i = 0; i < 5; i++) {
+      Files.writeString(srcRoot.resolve("z" + i + ".txt"), "z" + i, StandardCharsets.UTF_8);
+    }
+
+    action.setDestinationIsAFile(false);
+    action.setIncludeSubFolders(true);
+    action.setCopyEmptyFolders(false);
+    action.setOverwriteFiles(true);
+    action.setCreateDestinationFolder(true);
+    action.setFileRows(
+        List.of(
+            new CopyFilesItem(
+                srcRoot.toAbsolutePath().toString(), destRoot.toAbsolutePath().toString(), "")));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult());
+    assertFalse(Files.exists(destRoot.resolve("copy")), "the destination must not be copied");
+    for (int i = 0; i < 5; i++) {
+      assertEquals(
+          "a" + i, Files.readString(destRoot.resolve("a" + i + "/f.txt"), StandardCharsets.UTF_8));
+      assertEquals(
+          "z" + i, Files.readString(destRoot.resolve("z" + i + ".txt"), StandardCharsets.UTF_8));
+    }
+  }
+
   @Test
   void removeSourceFilesDeletesSourceAfterFileToFileCopy() throws Exception {
     Path srcFile = tempDir.resolve("moveSrc/x.txt");

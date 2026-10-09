@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transforms.chunker.document.DocumentParserRegistr
 /**
  * Structure-aware chunking: parse document into sections, prefix each chunk with a breadcrumb path,
  * and fall back to {@link CharacterChunkingStrategy} when a section exceeds the size limit.
+ * Whitespace-only chunks are dropped; chunk indexes count only the chunks that are returned.
  */
 public class StructureChunkingStrategy implements ChunkingStrategy {
 
@@ -52,15 +53,14 @@ public class StructureChunkingStrategy implements ChunkingStrategy {
     List<DocumentNode.DocumentSection> sections = root.flattenSections();
 
     if (sections.isEmpty()) {
-      return fallback.chunk(text, maxSize, overlap);
+      return withoutBlankChunks(fallback.chunk(text, maxSize, overlap));
     }
 
     List<Chunk> chunks = new ArrayList<>();
-    int chunkIndex = 0;
 
     for (DocumentNode.DocumentSection section : sections) {
       String sectionText = formatSection(section);
-      if (sectionText.isEmpty()) {
+      if (sectionText.isBlank()) {
         continue;
       }
 
@@ -68,7 +68,7 @@ public class StructureChunkingStrategy implements ChunkingStrategy {
         chunks.add(
             new Chunk(
                 sectionText,
-                chunkIndex++,
+                chunks.size(),
                 section.getStartPosition(),
                 section.getStartPosition() + sectionText.length()));
       } else {
@@ -78,11 +78,14 @@ public class StructureChunkingStrategy implements ChunkingStrategy {
         int bodyMax = prefix.isEmpty() ? maxSize : Math.max(1, maxSize - prefix.length());
         List<Chunk> split = fallback.chunk(body, bodyMax, overlap);
         for (Chunk part : split) {
+          if (part.getContent().isBlank()) {
+            continue;
+          }
           String content = prefix.isEmpty() ? part.getContent() : prefix + part.getContent();
           chunks.add(
               new Chunk(
                   content,
-                  chunkIndex++,
+                  chunks.size(),
                   section.getStartPosition() + part.getStartPosition(),
                   section.getStartPosition() + part.getEndPosition()));
         }
@@ -90,10 +93,26 @@ public class StructureChunkingStrategy implements ChunkingStrategy {
     }
 
     if (chunks.isEmpty()) {
-      return fallback.chunk(text, maxSize, overlap);
+      return withoutBlankChunks(fallback.chunk(text, maxSize, overlap));
     }
 
     return chunks;
+  }
+
+  /** Drops whitespace-only chunks and renumbers the rest from 0. */
+  private static List<Chunk> withoutBlankChunks(List<Chunk> chunks) {
+    List<Chunk> result = new ArrayList<>();
+    for (Chunk chunk : chunks) {
+      if (!chunk.getContent().isBlank()) {
+        result.add(
+            new Chunk(
+                chunk.getContent(),
+                result.size(),
+                chunk.getStartPosition(),
+                chunk.getEndPosition()));
+      }
+    }
+    return result;
   }
 
   private static String formatSection(DocumentNode.DocumentSection section) {

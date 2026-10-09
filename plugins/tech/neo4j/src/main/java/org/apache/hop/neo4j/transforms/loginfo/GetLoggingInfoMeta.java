@@ -42,10 +42,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     id = "GetLoggingInfo",
     name = "i18n::GetLoggingInfoDialog.DialogTitle",
     description = "i18n::GetLoggingInfoDialog.Description",
-    categoryDescription = "Neo4j",
-    image = "systeminfo.svg",
+    categoryDescription = "Graph",
+    image = "graph_logging_info.svg",
     keywords = "i18n::GetLoggingInfoMeta.keyword",
-    documentationUrl = "/pipeline/transforms/neo4j-getloginfo.html")
+    documentationUrl = "/pipeline/transforms/get-graph-logging-info.html")
 @Getter
 @Setter
 public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLoggingInfoData> {

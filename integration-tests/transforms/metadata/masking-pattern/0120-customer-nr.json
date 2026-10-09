@@ -1,0 +1,17 @@
+{
+  "name": "0120-customer-nr",
+  "description": "Shared by two integer fields with different conversion masks",
+  "piiClassification": "Quasi-identifier",
+  "valueSource": "SYNTHETIC",
+  "token": "SEQUENCE",
+  "prefix": "",
+  "suffix": "",
+  "sequenceStart": "500",
+  "storage": "MEMORY",
+  "trimKey": false,
+  "ignoreCase": false,
+  "connection": "",
+  "schemaName": "",
+  "tableName": "",
+  "hashSecret": ""
+}

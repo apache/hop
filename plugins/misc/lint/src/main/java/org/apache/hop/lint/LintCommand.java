@@ -532,6 +532,18 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       System.out.printf("  %-40s %s%n", entry.getKey(), entry.getValue());
     }
     System.out.println();
+    // hasDefaultName and the like are worked out by the linter, not read from the plugin, and
+    // were missing from this list although a rule can use them on any transform or action.
+    Map<String, String> common =
+        "transform".equals(kind)
+            ? CustomRuleExecutor.TRANSFORM_FIELDS
+            : CustomRuleExecutor.ACTION_FIELDS;
+    System.out.println("Fields on every " + kind + ":");
+    System.out.println();
+    for (Map.Entry<String, String> entry : common.entrySet()) {
+      System.out.printf("  %-40s %s%n", entry.getKey(), entry.getValue());
+    }
+    System.out.println();
     System.out.println(
         "Nested values are reached with a dotted path, for example fileSettings.fileName.");
     return 0;

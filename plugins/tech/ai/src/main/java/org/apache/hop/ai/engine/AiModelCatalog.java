@@ -42,6 +42,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Live model-id lists for {@link AiProvider}. Uses langchain4j {@code ModelCatalog} where it exists
@@ -52,18 +53,19 @@ public final class AiModelCatalog {
 
   public static final int MAX_MODELS = 500;
 
+  private static final Class<?> PKG = AiModelCatalog.class;
+
   private AiModelCatalog() {}
 
   public static List<String> listModelNames(AiProvider provider, IVariables variables)
       throws HopException {
-    if (provider == null || provider.getProvider() == null) {
-      throw new HopException("Please select an AI provider type.");
+    if (provider == null || !provider.hasProviderType()) {
+      throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.NoType"));
     }
     IAiProvider backend = provider.getProvider();
     String hopType = Const.NVL(backend.getHopModelType(), "OPEN_AI");
     if ("HUGGING_FACE".equals(hopType)) {
-      throw new HopException(
-          "Hugging Face does not expose a model catalog. Enter a router model id or a dedicated endpoint URL.");
+      throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.HuggingFace"));
     }
     String baseUrl = resolve(variables, provider.getBaseUrl());
     if (Utils.isEmpty(baseUrl)) {
@@ -71,7 +73,7 @@ public final class AiModelCatalog {
     }
     String apiKey = resolve(variables, provider.getApiKey());
     if (backend.requiresApiKey() && Utils.isEmpty(apiKey)) {
-      throw new HopException("Set an API key (a variable is fine) before listing models.");
+      throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.NoApiKey"));
     }
     Duration timeout = timeoutOf(provider.getTimeoutSeconds());
     try {
@@ -95,15 +97,17 @@ public final class AiModelCatalog {
             default -> listOpenAiFamily(baseUrl, apiKey, timeout);
           };
       if (names.isEmpty()) {
-        throw new HopException("The provider returned no models.");
+        throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.NoModels"));
       }
       return names;
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
       throw new HopException(
-          "Could not list models: "
-              + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+          BaseMessages.getString(
+              PKG,
+              "AiModelCatalog.ListFailed",
+              e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
           e);
     }
   }
@@ -162,7 +166,7 @@ public final class AiModelCatalog {
   static List<String> listOpenAiHttp(String baseUrl, String apiKey, Duration timeout)
       throws Exception {
     if (Utils.isEmpty(baseUrl)) {
-      throw new HopException("Base URL is required to list models for this provider.");
+      throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.NoBaseUrl"));
     }
     String root = stripTrailingSlash(baseUrl);
     String body = httpGet(root + "/models", apiKey, timeout);
@@ -215,7 +219,8 @@ public final class AiModelCatalog {
         client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
     int status = response.statusCode();
     if (status < 200 || status >= 300) {
-      throw new HopException("HTTP " + status + " listing models from " + url);
+      throw new HopException(
+          BaseMessages.getString(PKG, "AiModelCatalog.HttpStatus", Integer.toString(status), url));
     }
     return Const.NVL(response.body(), "");
   }

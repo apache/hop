@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "title",
+          "data_set_field": "title"
+        },
+        {
+          "transform_field": "embedding",
+          "data_set_field": "embedding"
+        },
+        {
+          "transform_field": "tags",
+          "data_set_field": "tags"
+        }
+      ],
+      "field_order": [
+        "id",
+        "title",
+        "embedding",
+        "tags"
+      ],
+      "data_set_name": "output-array-support",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-output-array-support-3552-validation UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./tests/neo4j-output-array-support-3552/neo4j-output-array-support-3552-validation.hpl"
+}

@@ -22,9 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -424,5 +426,105 @@ class CachingFileExecutionInfoLocationTest {
     } finally {
       location.close();
     }
+  }
+
+  @Test
+  void readDeleteMetaStopsBeforeThePipelineXmlWhenTheProjectDoesNotMatch() throws Exception {
+    String json =
+        "{\"projectId\":\"finance\",\"execution\":{\"executorXml\":\""
+            + "x".repeat(50_000)
+            + "\",\"executionStartDate\":5}}";
+    CachingFileExecutionInfoLocation.DeleteMeta meta =
+        CachingFileExecutionInfoLocation.readDeleteMeta(
+            new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), true, "sales");
+
+    assertEquals("finance", meta.projectId);
+    assertNull(meta.start);
+  }
+
+  @Test
+  void readDeleteMetaReadsTheStartDateAndNotTheSamples() throws Exception {
+    String json =
+        "{"
+            + "\"id\":\"parent\","
+            + "\"projectId\":\"sales\","
+            + "\"execution\":{\"id\":\"parent\",\"executionStartDate\":1700000000000},"
+            + "\"childExecutionData\":{\"row\":\""
+            + "x".repeat(50_000)
+            + "\"}"
+            + "}";
+    CachingFileExecutionInfoLocation.DeleteMeta meta =
+        CachingFileExecutionInfoLocation.readDeleteMeta(
+            new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), true, "sales");
+
+    assertEquals("sales", meta.projectId);
+    assertEquals(new Date(1_700_000_000_000L), meta.start);
+  }
+
+  @Test
+  void deleteExecutionsRemovesUncachedFilesAndKeepsANewerOne() throws Exception {
+    Path root = tempDir.resolve("bulk-delete");
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      location.registerExecution(executionAt("old", new Date(1_000L)));
+      location.registerExecution(executionAt("recent", new Date(50_000L)));
+      location.clearCaches();
+
+      int deleted = location.deleteExecutions(new Date(10_000L));
+
+      assertEquals(1, deleted);
+      assertFalse(Files.exists(root.resolve("old.json")));
+      assertTrue(Files.exists(root.resolve("recent.json")));
+    } finally {
+      location.close();
+    }
+  }
+
+  @Test
+  void deleteExecutionsLeavesAnotherProjectsFile() throws Exception {
+    Path root = tempDir.resolve("project-delete");
+    Variables variables = new Variables();
+    variables.setVariable(Execution.VARIABLE_HOP_PROJECT_ID, "sales");
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(variables, null);
+    try {
+      location.registerExecution(execution("sales-run", "sales"));
+      location.registerExecution(execution("finance-run", "finance"));
+      location.clearCaches();
+
+      int deleted = location.deleteExecutions(null);
+
+      assertEquals(1, deleted);
+      assertFalse(Files.exists(root.resolve("sales-run.json")));
+      assertTrue(Files.exists(root.resolve("finance-run.json")));
+    } finally {
+      location.close();
+    }
+  }
+
+  @Test
+  void deleteExecutionRemovesAFileThatIsNotInTheCache() throws Exception {
+    Path root = tempDir.resolve("uncached-delete");
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      location.registerExecution(execution("gone", null));
+      location.clearCaches();
+
+      assertTrue(location.deleteExecution("gone"));
+      assertFalse(Files.exists(root.resolve("gone.json")));
+    } finally {
+      location.close();
+    }
+  }
+
+  private static Execution executionAt(String id, Date start) {
+    Execution execution = execution(id, null);
+    execution.setExecutionStartDate(start);
+    return execution;
   }
 }

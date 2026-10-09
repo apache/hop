@@ -22,100 +22,218 @@ limitations under the License.
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
-  <workflow_version/>
   <created_user>-</created_user>
-  <created_date>2022/12/02 13:51:33.435</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2022/12/02 13:51:33.435</modified_date>
-  <parameters>
-    </parameters>
+  <created_date>2022/12/02 13:51:33.435</created_date>
+  <modified_date>2026/10/06 19:47:22.336</modified_date>
+  <created_hop_version/>
+  <modified_hop_version>2.20.0-SNAPSHOT</modified_hop_version>
+  <workflow_version/>
+  <parameters/>
   <actions>
     <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <name>Start</name>
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <DayOfMonth>1</DayOfMonth>
-      <hour>12</hour>
-      <intervalMinutes>60</intervalMinutes>
-      <intervalSeconds>0</intervalSeconds>
-      <minutes>0</minutes>
-      <repeat>N</repeat>
-      <schedulerType>0</schedulerType>
-      <weekDay>1</weekDay>
-      <parallel>N</parallel>
       <xloc>80</xloc>
       <yloc>80</yloc>
+      <parallel>N</parallel>
       <attributes_hac/>
     </action>
     <action>
+      <filename>${PROJECT_HOME}/0029-sql-file-output.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
       <name>0029-sql-file-output.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <clear_files>N</clear_files>
-      <clear_rows>N</clear_rows>
-      <create_parent_folder>N</create_parent_folder>
-      <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/0029-sql-file-output.hpl</filename>
-      <loglevel>Basic</loglevel>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <params_from_previous>N</params_from_previous>
-      <run_configuration>local</run_configuration>
-      <set_append_logfile>N</set_append_logfile>
-      <set_logfile>N</set_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <parallel>N</parallel>
-      <xloc>272</xloc>
+      <xloc>224</xloc>
       <yloc>80</yloc>
+      <parallel>N</parallel>
       <attributes_hac/>
     </action>
     <action>
+      <filename>${PROJECT_HOME}/0029-sql-file-output-validate-file.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
       <name>0029-sql-file-output-validate-file.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <clear_files>N</clear_files>
-      <clear_rows>N</clear_rows>
-      <create_parent_folder>N</create_parent_folder>
-      <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/0029-sql-file-output-validate-file.hpl</filename>
-      <loglevel>Basic</loglevel>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <params_from_previous>N</params_from_previous>
-      <run_configuration>local</run_configuration>
-      <set_append_logfile>N</set_append_logfile>
-      <set_logfile>N</set_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <parallel>N</parallel>
-      <xloc>528</xloc>
+      <xloc>464</xloc>
       <yloc>80</yloc>
+      <parallel>N</parallel>
       <attributes_hac/>
     </action>
     <action>
-      <name>Delete folders</name>
-      <description/>
-      <type>DELETE_FOLDERS</type>
-      <attributes/>
       <arg_from_previous>N</arg_from_previous>
-      <success_condition>success_if_no_errors</success_condition>
-      <limit_folders>10</limit_folders>
       <fields>
         <field>
           <name>${PROJECT_HOME}/output</name>
         </field>
       </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <name>Delete folders</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <xloc>368</xloc>
+      <yloc>240</yloc>
       <parallel>N</parallel>
-      <xloc>800</xloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0029-sql-file-output-selected-fields.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <wait_timeout/>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>0029-sql-file-output-selected-fields.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>768</xloc>
       <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0029-sql-file-output-selected-fields-validate-file.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <wait_timeout/>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>0029-sql-file-output-selected-fields-validate-file.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>1136</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0029-sql-file-output-with-no-inserts.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <wait_timeout/>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>0029-sql-file-output-with-no-inserts.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>1136</xloc>
+      <yloc>240</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0029-sql-file-output-with-no-inserts-validate-file.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <wait_timeout/>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>0029-sql-file-output-with-no-inserts-validate-file.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>736</xloc>
+      <yloc>240</yloc>
+      <parallel>N</parallel>
       <attributes_hac/>
     </action>
   </actions>
@@ -123,26 +241,53 @@ limitations under the License.
     <hop>
       <from>Start</from>
       <to>0029-sql-file-output.hpl</to>
-      <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
     </hop>
     <hop>
       <from>0029-sql-file-output.hpl</from>
       <to>0029-sql-file-output-validate-file.hpl</to>
-      <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0029-sql-file-output-selected-fields.hpl</from>
+      <to>0029-sql-file-output-selected-fields-validate-file.hpl</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
     </hop>
     <hop>
       <from>0029-sql-file-output-validate-file.hpl</from>
-      <to>Delete folders</to>
+      <to>0029-sql-file-output-selected-fields.hpl</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
       <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0029-sql-file-output-with-no-inserts.hpl</from>
+      <to>0029-sql-file-output-with-no-inserts-validate-file.hpl</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0029-sql-file-output-selected-fields-validate-file.hpl</from>
+      <to>0029-sql-file-output-with-no-inserts.hpl</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0029-sql-file-output-with-no-inserts-validate-file.hpl</from>
+      <to>Delete folders</to>
       <evaluation>N</evaluation>
       <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
     </hop>
   </hops>
-  <notepads>
-  </notepads>
+  <notepads/>
   <attributes/>
 </workflow>

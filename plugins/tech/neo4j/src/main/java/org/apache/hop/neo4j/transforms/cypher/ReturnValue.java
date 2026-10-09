@@ -18,7 +18,16 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.graph.GraphNodeValue;
+import org.apache.hop.core.graph.GraphPathValue;
+import org.apache.hop.core.graph.GraphRelationshipValue;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
+import org.neo4j.driver.Value;
 
 public class ReturnValue {
   @HopMetadataProperty(
@@ -100,5 +109,59 @@ public class ReturnValue {
    */
   public void setSourceType(String sourceType) {
     this.sourceType = sourceType;
+  }
+
+  /**
+   * The return value of a column of a Bolt record, typed after the type of its value.
+   *
+   * @param name The column name
+   * @param value The value of the column in a record
+   * @return The return value
+   * @throws HopValueException If the type of the value can't be converted to a Hop type
+   */
+  public static ReturnValue fromBoltValue(String name, Value value) throws HopValueException {
+    String typeName = value.type().name().replaceAll("_", "").replace("LIST OF ANY?", "LIST");
+    return of(name, GraphPropertyDataType.parseCode(typeName));
+  }
+
+  /**
+   * The return value of a column of a result row of a graph connection, typed after its plain Java
+   * value.
+   *
+   * @param name The column name
+   * @param value The value of the column in a row
+   * @return The return value
+   * @throws HopValueException If the type of the value can't be converted to a Hop type
+   */
+  public static ReturnValue fromValue(String name, Object value) throws HopValueException {
+    return of(name, getSourceType(value));
+  }
+
+  /** The source type of a plain Java value as graph connections return them. */
+  static GraphPropertyDataType getSourceType(Object value) {
+    if (value instanceof GraphNodeValue) {
+      return GraphPropertyDataType.Node;
+    }
+    if (value instanceof GraphRelationshipValue) {
+      return GraphPropertyDataType.Relationship;
+    }
+    if (value instanceof GraphPathValue) {
+      return GraphPropertyDataType.Path;
+    }
+    if (value instanceof Integer
+        || value instanceof Short
+        || value instanceof Byte
+        || value instanceof BigInteger) {
+      return GraphPropertyDataType.Integer;
+    }
+    if (value instanceof Float || value instanceof BigDecimal) {
+      return GraphPropertyDataType.Float;
+    }
+    GraphPropertyDataType type = GraphPropertyDataType.getTypeFromValue(value);
+    return type == null ? GraphPropertyDataType.String : type;
+  }
+
+  private static ReturnValue of(String name, GraphPropertyDataType type) throws HopValueException {
+    return new ReturnValue(name, ValueMetaFactory.getValueMetaName(type.getHopType()), type.name());
   }
 }

@@ -1,0 +1,52 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "Person",
+      "name": "friend",
+      "nodeTarget": "Person",
+      "label": "is_friend_of",
+      "properties": []
+    },
+    {
+      "nodeSource": "Person",
+      "name": "enemy",
+      "description": "",
+      "nodeTarget": "Person",
+      "label": "is_enemy_of",
+      "properties": []
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 388,
+        "y": 376
+      },
+      "name": "Person",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "description",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Person"
+      ]
+    }
+  ],
+  "name": "Self",
+  "description": ""
+}

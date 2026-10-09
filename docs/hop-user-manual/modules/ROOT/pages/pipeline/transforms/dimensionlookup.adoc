@@ -27,6 +27,8 @@ The Dimension Lookup/Update transform allows you to implement Ralph Kimball's ht
 
 This transform can be used to populate a dimension table or to look up values in a slowly changing dimension without making any changes.
 
+When a type 2 load is large enough that one lookup per row is too slow, build the timeline in a single sorted pass. See xref:how-to-guides/high-volume-scd2.adoc[High-volume SCD2 loads].
+
 == Options
 
 === Common fields

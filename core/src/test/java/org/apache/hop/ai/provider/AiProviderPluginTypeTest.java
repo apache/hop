@@ -20,6 +20,7 @@ package org.apache.hop.ai.provider;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,6 +78,21 @@ class AiProviderPluginTypeTest {
     FakeProvider provider = new FakeProvider();
     provider.setPluginId("fake-openai");
     assertEquals("fake-openai", new AiProviderObjectFactory().getObjectId(provider));
+  }
+
+  @Test
+  void objectFactoryLoadsProviderSavedWithoutType() throws Exception {
+    Object object = new AiProviderObjectFactory().createObject("null", null);
+    assertTrue(object instanceof IAiProvider);
+    assertNull(((IAiProvider) object).getPluginId());
+  }
+
+  @Test
+  void objectFactoryRefusesToSaveProviderWithoutType() throws Exception {
+    PluginRegistry.addPluginType(AiProviderPluginType.getInstance());
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    Object object = factory.createObject("null", null);
+    assertThrows(HopException.class, () -> factory.getObjectId(object));
   }
 
   @Test

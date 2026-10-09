@@ -46,6 +46,8 @@ The information in the connection is used to select the appropriate dialect.
 * Add create table statement : check this if you want the "CREATE TABLE" statement to be included in the generated SQL
 * Add truncate table statement: check this if the table is expected to exist and you want the "TRUNCATE TABLE" statement to be included in the generated SQL.
 Note that this could also be a "DELETE FROM" statement, depending on the database dialect.
+* Do not add INSERT statements : only available when "Add create table statement" is checked.
+Enable this to generate only the CREATE TABLE statement, without an INSERT statement for every input row.
 * Start new line for each statement : Enable this to increase the readability of the file
 * Filename : the filename (without file extension)
 * Create parent folder : if you want the parent folder of the specified file to be created if it doesn't exist already.
@@ -68,4 +70,10 @@ A unique list is being kept in memory that can be used in the next workflow acti
 |Option|Description
 |Date format|Allows you to specify the date format.
 |Encoding|Allows you to specify the text file encoding
+|Specify table fields|Enable this to only use the fields listed below in the generated CREATE TABLE and INSERT statements. When disabled, all incoming fields are used.
+|Fields a|
+* Name : the name of the incoming field to include
+* Rename : optional new column name to use in the generated SQL
+
+Use the "Get fields" button to fill the grid with the fields of the previous transform.
 |===

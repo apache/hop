@@ -19,6 +19,7 @@ package org.apache.hop.ai.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,6 +98,65 @@ class AiChatFactoryTest {
     assertEquals("OLLAMA", ollamaMeta.getModelType());
     assertEquals("http://localhost:11434", ollamaMeta.getOllamaImageEndpoint());
     assertEquals("llama3.2", ollamaMeta.getOllamaModelName());
+  }
+
+  @Test
+  void ollamaGetsAContextWindowThatHoldsAnAdvisorPrompt() throws Exception {
+    AiProvider ollama = new AiProvider();
+    OllamaProvider backend = new OllamaProvider();
+    backend.setPluginId("ollama");
+    ollama.setProvider(backend);
+
+    LanguageModelChatMeta defaults = AiChatFactory.toLanguageModelChatMeta(ollama, new Variables());
+    assertEquals(AiProviderSettings.DEFAULT_OLLAMA_CONTEXT_SIZE, defaults.getOllamaNumCtx());
+    assertNull(defaults.getOllamaNumPredict());
+
+    Variables variables = new Variables();
+    variables.setVariable("AI_CTX", "32768");
+    ollama.setContextSize("${AI_CTX}");
+    ollama.setMaxOutputTokens("2000");
+    LanguageModelChatMeta configured = AiChatFactory.toLanguageModelChatMeta(ollama, variables);
+    assertEquals(32768, configured.getOllamaNumCtx());
+    assertEquals(2000, configured.getOllamaNumPredict());
+  }
+
+  @Test
+  void anthropicAnswersAreNotCutAtTheOldDefault() throws Exception {
+    AiProvider anthropic = new AiProvider();
+    AnthropicProvider backend = new AnthropicProvider();
+    backend.setPluginId("anthropic");
+    anthropic.setProvider(backend);
+    anthropic.setApiKey("claude-key");
+
+    LanguageModelChatMeta defaults =
+        AiChatFactory.toLanguageModelChatMeta(anthropic, new Variables());
+    assertEquals(
+        AiProviderSettings.DEFAULT_ANTHROPIC_MAX_OUTPUT_TOKENS, defaults.getAnthropicMaxTokens());
+
+    anthropic.setMaxOutputTokens("8000");
+    assertEquals(
+        8000,
+        AiChatFactory.toLanguageModelChatMeta(anthropic, new Variables()).getAnthropicMaxTokens());
+  }
+
+  @Test
+  void openAiMaxOutputTokensIsOptional() throws Exception {
+    AiProvider provider = new AiProvider();
+    OpenAiProvider backend = new OpenAiProvider();
+    backend.setPluginId("openai");
+    provider.setProvider(backend);
+    provider.setApiKey("sk-test");
+    assertNull(
+        AiChatFactory.toLanguageModelChatMeta(provider, new Variables()).getOpenAiMaxTokens());
+
+    provider.setMaxOutputTokens("not a number");
+    assertNull(
+        AiChatFactory.toLanguageModelChatMeta(provider, new Variables()).getOpenAiMaxTokens());
+
+    provider.setMaxOutputTokens("1500");
+    assertEquals(
+        1500,
+        AiChatFactory.toLanguageModelChatMeta(provider, new Variables()).getOpenAiMaxTokens());
   }
 
   @Test

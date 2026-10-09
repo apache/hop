@@ -20,6 +20,7 @@ package org.apache.hop.ai.advisors;
 public final class AiAdvisorInclusions {
 
   public static final String CHECKS = "checks";
+  public static final String SETTINGS = "settings";
   public static final String CATALOG = "catalog";
   public static final String XML = "xml";
   public static final String LOGS = "logs";

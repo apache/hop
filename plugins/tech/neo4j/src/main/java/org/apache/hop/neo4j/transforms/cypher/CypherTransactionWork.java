@@ -48,6 +48,8 @@ public class CypherTransactionWork implements TransactionCallback<Void> {
   @Override
   public Void execute(TransactionContext tx) {
     try {
+      // The driver can call this again on a transient error: drop the rows of the failed call
+      transform.startAttempt();
       Result result = tx.run(cypher, unwindMap);
       transform.getResultRows(result, currentRow, unwind);
       return null;

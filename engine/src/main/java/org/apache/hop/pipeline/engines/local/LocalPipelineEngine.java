@@ -78,6 +78,16 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     this.executionInfoLocation = executionInfoLocation;
   }
 
+  /**
+   * Held while the execution information is written: by a timer tick and by the final save and
+   * close. It is never the engine itself. A save can take as long as the location needs, and the
+   * transforms (finished listeners) and the GUI (stop) wait on the engine.
+   */
+  private final Object executionInfoLock = new Object();
+
+  /** Guards the timer fields only. It is never held while writing to the location. */
+  private final Object executionInfoTimerLock = new Object();
+
   private Timer transformExecutionInfoTimer;
   private TimerTask transformExecutionInfoTimerTask;
   private final AtomicInteger executionInfoLastLogLineNr = new AtomicInteger(0);
@@ -489,7 +499,13 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
   }
 
-  public synchronized void startTransformExecutionInfoTimer() throws HopException {
+  public void startTransformExecutionInfoTimer() throws HopException {
+    synchronized (executionInfoTimerLock) {
+      scheduleTransformExecutionInfoTimer();
+    }
+  }
+
+  private void scheduleTransformExecutionInfoTimer() throws HopException {
     if (executionInfoLocation == null) {
       return;
     }
@@ -522,9 +538,10 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         new TimerTask() {
           @Override
           public void run() {
-            // Hold the engine lock before the location lock. stopTransformExecutionInfoTimer()
-            // takes them in that order, and the reverse deadlocks a tick against shutdown.
-            synchronized (LocalPipelineEngine.this) {
+            // Not the engine lock: a slow location would block the transforms from finishing
+            // and the GUI from stopping the pipeline. stopTransformExecutionInfoTimer() waits on
+            // this lock for a running tick before the final save and close.
+            synchronized (executionInfoLock) {
               if (executionInfoLocation == null) {
                 return;
               }
@@ -611,14 +628,17 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
   }
 
-  private synchronized void cancelTransformExecutionInfoTimer() {
-    if (transformExecutionInfoTimerTask != null) {
-      transformExecutionInfoTimerTask.cancel();
-      transformExecutionInfoTimerTask = null;
-    }
-    if (transformExecutionInfoTimer != null) {
-      ExecutorUtil.cleanup(transformExecutionInfoTimer);
-      transformExecutionInfoTimer = null;
+  /** Cancels the timer without waiting for a running tick: a stop in the GUI must return. */
+  private void cancelTransformExecutionInfoTimer() {
+    synchronized (executionInfoTimerLock) {
+      if (transformExecutionInfoTimerTask != null) {
+        transformExecutionInfoTimerTask.cancel();
+        transformExecutionInfoTimerTask = null;
+      }
+      if (transformExecutionInfoTimer != null) {
+        ExecutorUtil.cleanup(transformExecutionInfoTimer);
+        transformExecutionInfoTimer = null;
+      }
     }
   }
 
@@ -655,46 +675,54 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     super.pipelineCompleted();
   }
 
-  public synchronized void stopTransformExecutionInfoTimer() {
+  public void stopTransformExecutionInfoTimer() {
     try {
       cancelTransformExecutionInfoTimer();
 
-      ExecutionInfoLocation location = executionInfoLocation;
-      executionInfoLocation = null;
-      if (location == null || location.getExecutionInfoLocation() == null) {
-        return;
-      }
-
-      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-
-      try {
-        // Register one final last state of the pipeline
-        //
-        writeExecutionInfoState(iLocation);
-
-        String dataProfileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
-        if (StringUtils.isNotEmpty(dataProfileName)) {
-          // Register the collected transform data for the last time
-          //
-          ExecutionDataBuilder dataBuilder =
-              ExecutionDataBuilder.fromAllTransformData(
-                  LocalPipelineEngine.this, samplerStoresMap, true);
-          iLocation.registerData(dataBuilder.build());
-          releasePublishedSamples();
-        }
-      } catch (Throwable e) {
-        log.logError("Error handling writing final pipeline state to location (non-fatal)", e);
-      } finally {
-        // We're now certain all listeners fired. We can close the location.
-        //
-        try {
-          iLocation.close();
-        } catch (Exception e) {
-          log.logError("Error closing execution information location: " + location.getName(), e);
-        }
+      // Wait for a running tick, then save and close. The cancelled timer starts no new tick.
+      //
+      synchronized (executionInfoLock) {
+        saveFinalExecutionInfoAndClose();
       }
     } catch (Throwable e) {
       log.logError("Error stopping transform execution info timer (non-fatal)", e);
+    }
+  }
+
+  private void saveFinalExecutionInfoAndClose() {
+    ExecutionInfoLocation location = executionInfoLocation;
+    executionInfoLocation = null;
+    if (location == null || location.getExecutionInfoLocation() == null) {
+      return;
+    }
+
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
+    try {
+      // Register one final last state of the pipeline
+      //
+      writeExecutionInfoState(iLocation);
+
+      String dataProfileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
+      if (StringUtils.isNotEmpty(dataProfileName)) {
+        // Register the collected transform data for the last time
+        //
+        ExecutionDataBuilder dataBuilder =
+            ExecutionDataBuilder.fromAllTransformData(
+                LocalPipelineEngine.this, samplerStoresMap, true);
+        iLocation.registerData(dataBuilder.build());
+        releasePublishedSamples();
+      }
+    } catch (Throwable e) {
+      log.logError("Error handling writing final pipeline state to location (non-fatal)", e);
+    } finally {
+      // We're now certain all listeners fired. We can close the location.
+      //
+      try {
+        iLocation.close();
+      } catch (Exception e) {
+        log.logError("Error closing execution information location: " + location.getName(), e);
+      }
     }
   }
 

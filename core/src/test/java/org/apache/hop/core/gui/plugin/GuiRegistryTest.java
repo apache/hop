@@ -19,6 +19,7 @@ package org.apache.hop.core.gui.plugin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,6 +27,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.action.GuiContextActionFilter;
+import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -115,6 +120,46 @@ class GuiRegistryTest {
     GuiElements elements = registry.findGuiElements(dataClassName, WidgetSample.PARENT_ID);
     assertEquals(1, elements.getChildren().size());
     assertTrue(elements.getChildren().get(0).isIgnored());
+  }
+
+  @Test
+  void actionFilterIdUsesPluginClassName() throws Exception {
+    Method method =
+        WidgetSample.class.getDeclaredMethod("sampleActionFilter", String.class, Object.class);
+    GuiContextActionFilter filter = method.getAnnotation(GuiContextActionFilter.class);
+    String className = WidgetSample.class.getName();
+    registry.addGuiActionFilter(className, method, filter, getClass().getClassLoader());
+
+    List<GuiActionFilter> filters = registry.getGuiContextActionFilters(WidgetSample.PARENT_ID);
+    assertNotNull(filters);
+    boolean found = false;
+    for (GuiActionFilter f : filters) {
+      if (f.getId().equals(className + ".sampleActionFilter")) {
+        found = true;
+        break;
+      }
+    }
+    assertTrue(found, "Action filter ID should use plugin class name, not java.lang.String");
+  }
+
+  @Test
+  void toolbarItemFilterIdUsesPluginClassName() throws Exception {
+    Method method = WidgetSample.class.getDeclaredMethod("sampleToolbarFilter", String.class);
+    GuiToolbarElementFilter filter = method.getAnnotation(GuiToolbarElementFilter.class);
+    String className = WidgetSample.class.getName();
+    registry.addGuiToolbarItemFilter(className, method, filter, getClass().getClassLoader());
+
+    List<GuiToolbarItemFilter> filters =
+        registry.getToolbarItemFiltersMap().get(WidgetSample.PARENT_ID);
+    assertNotNull(filters);
+    boolean found = false;
+    for (GuiToolbarItemFilter f : filters) {
+      if (f.getId().equals(className + ".sampleToolbarFilter")) {
+        found = true;
+        break;
+      }
+    }
+    assertTrue(found, "Toolbar item filter ID should use plugin class name, not java.lang.String");
   }
 
   @Test
@@ -232,6 +277,16 @@ class GuiRegistryTest {
     @GuiWidgetElement(id = "browse", type = GuiElementType.BUTTON, parentId = PARENT_ID)
     void browse() {
       // Only the annotation matters here.
+    }
+
+    @GuiContextActionFilter(parentId = PARENT_ID)
+    public boolean sampleActionFilter(String actionId, Object context) {
+      return true;
+    }
+
+    @GuiToolbarElementFilter(parentId = PARENT_ID)
+    public boolean sampleToolbarFilter(String toolbarId) {
+      return true;
     }
   }
 

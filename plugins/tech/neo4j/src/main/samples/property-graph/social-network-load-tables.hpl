@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>social-network-load-tables</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Load the node and edge tables of the SOCIAL_NETWORK property graph. The columns are the ones the
+      Create property graph action creates for the social-network graph model. Needs a relational
+      database connection called oracle-23ai.</description>
+    <extended_description />
+    <pipeline_version />
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/10/07 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/10/07 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <heigth>75</heigth>
+      <xloc>64</xloc>
+      <yloc>32</yloc>
+      <note>The tables are created by the Create property graph action in social-network-property-graph.hwf.
+Node tables have a column per property. Edge tables have source_&lt;key&gt; and target_&lt;key&gt; columns
+for the keys of the nodes they connect, and a column per relationship property.
+Each Table output truncates its table first, so the pipeline can run again.</note>
+      <width>640</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Person</from>
+      <to>Person table</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Company</from>
+      <to>Company table</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>KNOWS</from>
+      <to>KNOWS table</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>WORKS_AT</from>
+      <to>WORKS_AT table</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Person</name>
+    <type>DataGrid</type>
+    <description>Person nodes: id, name</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>name</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>Ann</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>Bob</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>Carla</item>
+      </line>
+      <line>
+        <item>4</item>
+        <item>Dirk</item>
+      </line>
+    </data>
+    <attributes />
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Person table</name>
+    <type>TableOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <commit>1000</commit>
+    <connection>oracle-23ai</connection>
+    <fields>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema />
+    <specify_fields>N</specify_fields>
+    <table>Person</table>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>Y</truncate>
+    <use_batch>Y</use_batch>
+    <attributes />
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Company</name>
+    <type>DataGrid</type>
+    <description>Company nodes: code, name</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>code</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>name</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>ACME</item>
+        <item>Acme Corporation</item>
+      </line>
+      <line>
+        <item>GLOBEX</item>
+        <item>Globex Corporation</item>
+      </line>
+    </data>
+    <attributes />
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Company table</name>
+    <type>TableOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <commit>1000</commit>
+    <connection>oracle-23ai</connection>
+    <fields>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema />
+    <specify_fields>N</specify_fields>
+    <table>Company</table>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>Y</truncate>
+    <use_batch>Y</use_batch>
+    <attributes />
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>KNOWS</name>
+    <type>DataGrid</type>
+    <description>KNOWS edges: the id of the source and target Person, since</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>source_id</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>target_id</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>since</name>
+        <type>Integer</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>2</item>
+        <item>2020</item>
+      </line>
+      <line>
+        <item>1</item>
+        <item>3</item>
+        <item>2018</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>4</item>
+        <item>2022</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>4</item>
+        <item>2021</item>
+      </line>
+    </data>
+    <attributes />
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>KNOWS table</name>
+    <type>TableOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <commit>1000</commit>
+    <connection>oracle-23ai</connection>
+    <fields>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema />
+    <specify_fields>N</specify_fields>
+    <table>KNOWS</table>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>Y</truncate>
+    <use_batch>Y</use_batch>
+    <attributes />
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>WORKS_AT</name>
+    <type>DataGrid</type>
+    <description>WORKS_AT edges: the id of the source Person, the code of the target Company</description>
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>source_id</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>target_code</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>ACME</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>ACME</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>GLOBEX</item>
+      </line>
+      <line>
+        <item>4</item>
+        <item>GLOBEX</item>
+      </line>
+    </data>
+    <attributes />
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>448</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>WORKS_AT table</name>
+    <type>TableOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <commit>1000</commit>
+    <connection>oracle-23ai</connection>
+    <fields>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema />
+    <specify_fields>N</specify_fields>
+    <table>WORKS_AT</table>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>Y</truncate>
+    <use_batch>Y</use_batch>
+    <attributes />
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>448</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes />
+</pipeline>

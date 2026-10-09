@@ -146,8 +146,10 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData>
 
     // Register a coder for the short time that KV<HopRow, GenericRecord> exists in Beam
     //
-    if (messageValueMeta.getType() == IValueMeta.TYPE_AVRO) {
-      ValueMetaAvroRecord valueMetaAvroRecord = (ValueMetaAvroRecord) messageValueMeta;
+    checkAvroMessageSchema(rowMeta, variables);
+    if (rowMeta.searchValueMeta(messageFieldName).getType() == IValueMeta.TYPE_AVRO) {
+      ValueMetaAvroRecord valueMetaAvroRecord =
+          (ValueMetaAvroRecord) rowMeta.searchValueMeta(messageFieldName);
       Schema schema = valueMetaAvroRecord.getSchema();
       AvroCoder<GenericRecord> coder = AvroCoder.of(schema);
       pipeline.getCoderRegistry().registerCoderForClass(GenericRecord.class, coder);
@@ -181,6 +183,36 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData>
             + transformMeta.getName()
             + ", gets data from "
             + previousTransform.getName());
+  }
+
+  /**
+   * Verify the message field exists and, when it is an Avro Record, that it actually carries a
+   * schema.
+   *
+   * <p>Beam's {@code AvroCoder.of(null)} throws a bare NullPointerException from inside its
+   * determinism checker, which tells the person editing the pipeline nothing. This turns it into a
+   * message naming the field and what to do about it (#2675).
+   */
+  void checkAvroMessageSchema(IRowMeta rowMeta, IVariables variables) throws HopException {
+    String field = variables.resolve(getMessageField());
+
+    IValueMeta valueMeta = rowMeta == null ? null : rowMeta.searchValueMeta(field);
+    if (valueMeta == null) {
+      throw new HopException("Error finding message/value field " + field + " in the input rows");
+    }
+
+    if (valueMeta.getType() == IValueMeta.TYPE_AVRO
+        && ((ValueMetaAvroRecord) valueMeta).getSchema() == null) {
+      throw new HopException(
+          "The Avro field '"
+              + field
+              + "' in Kafka produce transform '"
+              + getName()
+              + "' has no schema attached.  Beam cannot serialise an Avro value without one.  "
+              + "Attach a schema to the field, for example with an Avro Encode transform or an "
+              + "Avro Decode transform which reads the schema from a registry, before this "
+              + "transform.");
+    }
   }
 
   /**

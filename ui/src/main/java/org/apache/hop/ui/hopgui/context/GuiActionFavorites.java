@@ -85,12 +85,22 @@ public final class GuiActionFavorites {
    * @return description plus newline and hint
    */
   public static String tooltipWithFavoriteHint(String description, boolean favorite) {
+    return Const.NVL(description, "") + favoriteHint(favorite);
+  }
+
+  /**
+   * The favorites / placement hint on its own, for {@link GuiAction#getTooltipHints()}. Keeping it
+   * out of the tooltip stops its words ("select", "position", ...) from matching every action in
+   * the context dialog search (issue #8756).
+   *
+   * @param favorite true if the plugin is already a favorite (show remove hint)
+   * @return the hint
+   */
+  public static String favoriteHint(boolean favorite) {
     String modifier = ShortcutDisplayUtil.getAltModifierDisplay();
-    String hint =
-        favorite
-            ? BaseMessages.getString(PKG, "ContextDialog.Favorite.RemoveHint", modifier)
-            : BaseMessages.getString(PKG, "ContextDialog.Favorite.AddHint", modifier);
-    return Const.NVL(description, "") + hint;
+    return favorite
+        ? BaseMessages.getString(PKG, "ContextDialog.Favorite.RemoveHint", modifier)
+        : BaseMessages.getString(PKG, "ContextDialog.Favorite.AddHint", modifier);
   }
 
   public static List<String> getFavoriteIds(Kind kind) {

@@ -80,6 +80,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
   private Class<? extends ITypeFilename> typeFilename;
   private Class<? extends IHopMetadata> metadata;
   private String metadataKey;
+  private Class<?> metadataSelectionLine;
   private Method buttonMethod;
 
   private String group;
@@ -137,6 +138,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
     this.metadataKey = guiElement.metadataKey();
+    this.metadataSelectionLine = guiElement.metadataSelectionLine();
     this.buttonMethod = null;
     this.namingSchemeType = resolveNamingSchemeType(guiElement, field);
     copyGroup(guiElement, fieldPackageName, field.getDeclaringClass());
@@ -183,6 +185,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
     this.metadataKey = guiElement.metadataKey();
+    this.metadataSelectionLine = guiElement.metadataSelectionLine();
     this.classLoader = classLoader;
     this.buttonMethod = method;
     this.namingSchemeType = resolveNamingSchemeType(guiElement, null);
@@ -663,6 +666,17 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   public void setMetadataKey(String metadataKey) {
     this.metadataKey = metadataKey;
+  }
+
+  /**
+   * @return The metadata selection line subclass to use, {@link Void} for the standard widget
+   */
+  public Class<?> getMetadataSelectionLine() {
+    return metadataSelectionLine;
+  }
+
+  public void setMetadataSelectionLine(Class<?> metadataSelectionLine) {
+    this.metadataSelectionLine = metadataSelectionLine;
   }
 
   /**

@@ -20,11 +20,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -163,7 +171,12 @@ public class CustomRuleExecutor {
         }
         if (evaluateCondition(
             clause.getCondition(), clauseValue, clause.getConditionValue(), rule)) {
-          violated.add(clause.describe() + " (actual: " + describeValue(clauseValue) + ")");
+          violated.add(
+              clause.describe()
+                  + " (actual: "
+                  + describeValue(
+                      clauseValue, holdsASecret(rule, hopObject, clause.getTargetField()))
+                  + ")");
         } else if (rule.getCombinator() == RuleCombinator.ALL_OF && rule.isComposed()) {
           // allOf needs every clause broken, so one satisfied clause ends it.
           return results;
@@ -212,7 +225,9 @@ public class CustomRuleExecutor {
       boolean violatesRule = rule.isComposed() ? !violated.isEmpty() : violated.size() == 1;
 
       if (violatesRule) {
-        String message = generateErrorMessage(rule, fieldValue);
+        String message =
+            generateErrorMessage(
+                rule, holdsASecret(rule, hopObject, rule.getTargetField()) ? null : fieldValue);
         if (rule.isComposed()) {
           message =
               message
@@ -483,6 +498,41 @@ public class CustomRuleExecutor {
     return null;
   }
 
+  /**
+   * The fields every transform has, whatever its plugin, with their types. The linter works them
+   * out itself rather than reading them from the plugin, so {@code hop lint --list-fields} lists
+   * them from here. Keep in step with {@link #extractFieldFromTransform}.
+   */
+  public static final Map<String, String> TRANSFORM_FIELDS =
+      orderedFields(
+          "name", "String",
+          "description", "String",
+          "pluginId", "String",
+          "copies", "int",
+          "isDummy", "boolean",
+          "hasDefaultName", "boolean",
+          "isOrphaned", "boolean",
+          "isBlockingTransform", "boolean");
+
+  /**
+   * As {@link #TRANSFORM_FIELDS}, for actions. Keep in step with {@link #extractFieldFromAction}.
+   */
+  public static final Map<String, String> ACTION_FIELDS =
+      orderedFields(
+          "name", "String",
+          "description", "String",
+          "pluginId", "String",
+          "hasDefaultName", "boolean",
+          "isOrphaned", "boolean");
+
+  private static Map<String, String> orderedFields(String... namesAndTypes) {
+    Map<String, String> fields = new LinkedHashMap<>();
+    for (int i = 0; i < namesAndTypes.length; i += 2) {
+      fields.put(namesAndTypes[i], namesAndTypes[i + 1]);
+    }
+    return Collections.unmodifiableMap(fields);
+  }
+
   /** Extract field value from a transform using reflection */
   private static Object extractFieldFromTransform(
       TransformMeta transformMeta, String fieldName, CustomLintRule rule) {
@@ -501,7 +551,10 @@ public class CustomRuleExecutor {
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
-          return hasDefaultGeneratedName(transformMeta.getName());
+          return hasDefaultGeneratedName(
+              transformMeta.getName(),
+              transformMeta.getTransformPluginId(),
+              TransformPluginType.class);
         case "isOrphaned":
           return SUBJECT.get() instanceof PipelineMeta pipeline
               ? isOrphaned(transformMeta, pipeline.getPipelineHops(), pipeline.getTransforms())
@@ -534,7 +587,12 @@ public class CustomRuleExecutor {
         case "pluginId":
           return actionMeta.getAction().getPluginId();
         case "hasDefaultName":
-          return hasDefaultGeneratedName(actionMeta.getName());
+          // Every workflow starts at Start; there is no better name for it.
+          return !actionMeta.isStart()
+              && hasDefaultGeneratedName(
+                  actionMeta.getName(),
+                  actionMeta.getAction().getPluginId(),
+                  ActionPluginType.class);
         case "isOrphaned":
           return SUBJECT.get() instanceof WorkflowMeta workflow
               ? isOrphaned(actionMeta, workflow.getWorkflowHops(), workflow.getActions())
@@ -553,11 +611,35 @@ public class CustomRuleExecutor {
     }
   }
 
-  private static boolean hasDefaultGeneratedName(String name) {
+  /**
+   * Whether a transform or action still has the name Hop Gui gave it: the plugin's name, such as
+   * "Table input", followed by a number when that name was taken, as in "Dummy (do nothing) 2".
+   *
+   * <p>Only "Transform 1" and "Action 1" used to count, and Hop Gui never generates those. The
+   * plugin's name is the one of the language Hop runs in, so a name Hop Gui gave in another
+   * language is not recognised.
+   */
+  static boolean hasDefaultGeneratedName(
+      String name, String pluginId, Class<? extends IPluginType> pluginType) {
     if (Utils.isEmpty(name)) {
       return false;
     }
-    return name.matches("(?i)(Transform|Action)\\s+\\d+");
+    String trimmed = name.trim();
+    if (trimmed.matches("(?i)(Transform|Action)\\s+\\d+")) {
+      return true;
+    }
+    if (Utils.isEmpty(pluginId)) {
+      return false;
+    }
+    IPlugin plugin = PluginRegistry.getInstance().findPluginWithId(pluginType, pluginId);
+    if (plugin == null || Utils.isEmpty(plugin.getName())) {
+      return false;
+    }
+    String pluginName = plugin.getName().trim();
+    return trimmed.equalsIgnoreCase(pluginName)
+        || (trimmed.length() > pluginName.length() + 1
+            && trimmed.substring(0, pluginName.length()).equalsIgnoreCase(pluginName)
+            && trimmed.substring(pluginName.length()).matches("\\s+\\d+"));
   }
 
   /**
@@ -700,34 +782,12 @@ public class CustomRuleExecutor {
     try {
       Class<?> clazz = obj.getClass();
 
-      List<Field> fields = getAllFields(clazz);
-
-      // The name Hop serialises the property under comes first. That is the name a rule author
-      // actually sees, in the .hpl or .hwf file and in the metadata JSON, and it is the one that
-      // survives a rename of the Java field behind it.
-      for (Field field : fields) {
-        if (fieldName.equals(serialisedNameOf(field))) {
-          field.setAccessible(true);
-          return field.get(obj);
-        }
-      }
-
-      // Then a declared field anywhere in the hierarchy, and its value is returned as-is.
-      // Skipping null or empty values here used to make them indistinguishable from a missing
-      // field, so a rule like "url NOT_EMPTY" could never fire.
-      for (Field field : fields) {
-        if (field.getName().equals(fieldName)) {
-          field.setAccessible(true);
-          return field.get(obj);
-        }
-      }
-      // Then the same match ignoring case, because rules are hand-written YAML and Hop's own
-      // field names are inconsistent about it ("fileName" here, "filename" there).
-      for (Field field : fields) {
-        if (field.getName().equalsIgnoreCase(fieldName)) {
-          field.setAccessible(true);
-          return field.get(obj);
-        }
+      // The value is returned as-is. Skipping null or empty values here used to make them
+      // indistinguishable from a missing field, so a rule like "url NOT_EMPTY" could never fire.
+      Field named = fieldNamed(clazz, fieldName);
+      if (named != null) {
+        named.setAccessible(true);
+        return named.get(obj);
       }
 
       // Then a getter, which covers metas that expose a value they do not store directly.
@@ -800,9 +860,12 @@ public class CustomRuleExecutor {
   }
 
   /** A field value as it should read inside a composed rule's message. */
-  private static String describeValue(Object value) {
+  private static String describeValue(Object value, boolean secret) {
     if (value == null) {
       return "null";
+    }
+    if (secret) {
+      return "hidden";
     }
     String text = value.toString();
     return text.length() > 60 ? text.substring(0, 57) + "..." : text;
@@ -841,6 +904,40 @@ public class CustomRuleExecutor {
       return null;
     }
     return Utils.isEmpty(property.key()) ? field.getName() : property.key();
+  }
+
+  /**
+   * The declared field a rule's name refers to, or null when no field carries that name.
+   *
+   * @param clazz the class to look in, superclasses included
+   * @param fieldName the name the rule uses
+   * @return the field, or null
+   */
+  private static Field fieldNamed(Class<?> clazz, String fieldName) {
+    List<Field> fields = getAllFields(clazz);
+
+    // The name Hop serialises the property under comes first. That is the name a rule author
+    // actually sees, in the .hpl or .hwf file and in the metadata JSON, and it is the one that
+    // survives a rename of the Java field behind it.
+    for (Field field : fields) {
+      if (fieldName.equals(serialisedNameOf(field))) {
+        return field;
+      }
+    }
+    // Then a declared field anywhere in the hierarchy.
+    for (Field field : fields) {
+      if (field.getName().equals(fieldName)) {
+        return field;
+      }
+    }
+    // Then the same match ignoring case, because rules are hand-written YAML and Hop's own
+    // field names are inconsistent about it ("fileName" here, "filename" there).
+    for (Field field : fields) {
+      if (field.getName().equalsIgnoreCase(fieldName)) {
+        return field;
+      }
+    }
+    return null;
   }
 
   /** Get all fields from a class hierarchy */
@@ -945,23 +1042,86 @@ public class CustomRuleExecutor {
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
   }
 
+  /**
+   * Whether the value a clause reads is a secret, and so must stay out of the finding.
+   *
+   * <p>A finding's message ends up in CI build logs, JSON and SARIF reports and the GUI. DB-001
+   * used to report a hardcoded database password as "(current value: secret123)", decrypting an
+   * {@code Encrypted} one on the way, so the rule meant to catch exposed passwords exposed them.
+   *
+   * <p>The field decides, not the condition: Hop stores it as a password, or its name ends like a
+   * secret's, with the default name patterns as well as the rule's own. Underscores are ignored so
+   * the serialised {@code secret_access_key} matches {@code secretAccessKey}.
+   */
+  private static boolean holdsASecret(CustomLintRule rule, Object hopObject, String fieldName) {
+    if (Utils.isEmpty(fieldName)) {
+      return false;
+    }
+    if (storedAsPassword(hopObject, fieldName)) {
+      return true;
+    }
+    String name = withoutUnderscores(fieldName);
+    for (List<String> patterns :
+        List.of(DEFAULT_SECRET_FIELD_PATTERNS, getPasswordFieldPatterns(rule))) {
+      for (String pattern : patterns) {
+        if (!Utils.isEmpty(pattern) && name.endsWith(withoutUnderscores(pattern))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static String withoutUnderscores(String name) {
+    return name.trim().replace("_", "").toLowerCase();
+  }
+
+  /**
+   * Whether the field a rule reads is one Hop stores as a password ({@code @HopMetadataProperty
+   * password = true}), which covers secrets such as {@code accessKey} or {@code
+   * oauth_jwt_private_key} that no name pattern catches.
+   */
+  private static boolean storedAsPassword(Object hopObject, String fieldName) {
+    Object holder = hopObject;
+    if (hopObject instanceof TransformMeta transformMeta) {
+      holder = transformMeta.getTransform();
+    } else if (hopObject instanceof ActionMeta actionMeta) {
+      holder = actionMeta.getAction();
+    }
+    String name = fieldName;
+    int dot = fieldName.lastIndexOf('.');
+    if (dot > 0) {
+      holder = extractFieldFromObject(holder, fieldName.substring(0, dot));
+      name = fieldName.substring(dot + 1);
+    }
+    if (holder == null || holder == FIELD_NOT_FOUND) {
+      return false;
+    }
+    Field field = fieldNamed(holder.getClass(), name);
+    HopMetadataProperty property =
+        field != null ? field.getAnnotation(HopMetadataProperty.class) : null;
+    return property != null && property.password();
+  }
+
+  private static final List<String> DEFAULT_SECRET_FIELD_PATTERNS =
+      Arrays.asList(
+          "password",
+          "pwd",
+          "passwd",
+          "secret",
+          "secretKey",
+          "credential",
+          "credentials",
+          "apiKey",
+          "apikey",
+          "secretAccessKey",
+          "token",
+          "accessToken",
+          "authToken");
+
   /** Get password field patterns from rule parameters or return defaults */
   private static List<String> getPasswordFieldPatterns(CustomLintRule rule) {
-    List<String> defaultPatterns =
-        Arrays.asList(
-            "password",
-            "pwd",
-            "passwd",
-            "secret",
-            "secretKey",
-            "credential",
-            "credentials",
-            "apiKey",
-            "apikey",
-            "secretAccessKey",
-            "token",
-            "accessToken",
-            "authToken");
+    List<String> defaultPatterns = DEFAULT_SECRET_FIELD_PATTERNS;
 
     if (rule.getAdditionalParameters() != null) {
       Object patternsObj = rule.getAdditionalParameters().get("fieldPatterns");
@@ -1000,7 +1160,12 @@ public class CustomRuleExecutor {
       // fire on it. Hop returns null for an unset description, which is exactly the case
       // "description NOT_EMPTY" exists to catch; treating null as passing made those rules
       // fire only on a description explicitly set to "".
-      return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      if (condition != RuleCondition.NOT_MATCHES_PATTERN) {
+        return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      }
+      // A pattern that forbids blank values, such as SQL-002's "no row limit", must also see an
+      // unset value, so NOT_MATCHES_PATTERN reads null as "".
+      fieldValue = "";
     }
 
     // Handle null condition value for conditions that don't need it
@@ -1023,6 +1188,12 @@ public class CustomRuleExecutor {
 
       case NOT_EMPTY:
         return Utils.isEmpty(fieldValue.toString());
+
+      case IS_EMPTY:
+        // The opposite of NOT_EMPTY, so that a clause can require that a field is not set. Under
+        // allOf, url MATCHES_PATTERN ^https://.* and httpLogin IS_EMPTY report a plain http:// URL
+        // with a login.
+        return !Utils.isEmpty(fieldValue.toString());
 
       case NOT_NULL:
         return fieldValue == null;

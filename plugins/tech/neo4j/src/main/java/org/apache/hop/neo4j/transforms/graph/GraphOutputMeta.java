@@ -35,10 +35,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     id = "Neo4jGraphOutput",
     name = "i18n::GraphOutput.Name",
     description = "i18n::GraphOutput.Description",
-    image = "neo4j_graph_output.svg",
-    categoryDescription = "Neo4j",
+    image = "graph_output.svg",
+    categoryDescription = "Graph",
     keywords = "i18n::GraphOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/neo4j-graphoutput.html")
+    documentationUrl = "/pipeline/transforms/graph-output.html")
 public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputData> {
 
   @HopMetadataProperty(

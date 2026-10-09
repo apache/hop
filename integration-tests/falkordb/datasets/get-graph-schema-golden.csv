@@ -1,0 +1,8 @@
+element_type,name,property,property_types,mandatory,indexed,unique,start_labels,end_labels
+NODE,SchemaCompany,name,String,Y,N,N,,
+NODE,SchemaPerson,age,Integer,Y,N,N,,
+NODE,SchemaPerson,name,String,Y,Y,N,,
+NODE,SchemaPerson,score,Float,Y,N,N,,
+NODE,SchemaPerson,tags,List<String>,N,N,N,,
+RELATIONSHIP,SCHEMA_WORKS_AT,active,Boolean,N,N,N,SchemaPerson,SchemaCompany
+RELATIONSHIP,SCHEMA_WORKS_AT,since,Integer,Y,N,N,SchemaPerson,SchemaCompany

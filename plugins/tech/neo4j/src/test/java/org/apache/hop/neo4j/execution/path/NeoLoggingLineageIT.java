@@ -34,10 +34,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.graph.IGraphConnection;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingHierarchy;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.neo4j.bolt.BoltGraphConnection;
+import org.apache.hop.neo4j.bolt.Neo4jGraphDialect;
 import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerTabBase;
 import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.junit.jupiter.api.AfterAll;
@@ -79,7 +82,7 @@ class NeoLoggingLineageIT {
   private static ILogChannel log;
 
   @BeforeAll
-  static void setUp() {
+  static void setUp() throws Exception {
     assumeTrue(
         DockerClientFactory.instance().isDockerAvailable(),
         "Docker is required for NeoLoggingLineageIT");
@@ -145,11 +148,18 @@ class NeoLoggingLineageIT {
       }
 
       log = mock(ILogChannel.class);
-      session.executeWrite(
-          tx -> {
-            LoggingCore.writeHierarchies(log, null, tx, hierarchies, WORKFLOW_ID);
-            return null;
-          });
+      // Through a graph connection, as Neo4j logging does. Closing it closes its own driver.
+      //
+      Driver loggingDriver = GraphDatabase.driver(neo4j.getBoltUrl(), AuthTokens.none());
+      try (IGraphConnection connection =
+          new BoltGraphConnection(
+              loggingDriver, loggingDriver.session(), Neo4jGraphDialect.INSTANCE, log)) {
+        connection.executeWrite(
+            tx -> {
+              LoggingCore.writeHierarchies(log, tx, hierarchies, WORKFLOW_ID);
+              return null;
+            });
+      }
 
       // The final state updates of the execution information location merge on the ID only, so
       // they reach the nodes of Neo4j logging as well.
@@ -261,7 +271,7 @@ class NeoLoggingLineageIT {
       String id = node.get("id").asString();
       assertTrue(node.get("type").isNull(), "Execution " + id + " was written by Neo4j logging");
       assertNotNull(
-          LoggingCore.getDateValue(node, "registrationDate"),
+          LoggingCore.getDateValue(node.asMap(), "registrationDate"),
           "No registration date for execution " + id);
     }
   }

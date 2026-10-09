@@ -101,10 +101,12 @@ public class ContextDialog extends Dialog {
   public static final String TOOLBAR_ITEM_ENABLE_CATEGORIES =
       "ContextDialog-Toolbar-10030-EnableCategories";
   public static final String TOOLBAR_ITEM_FIXED_WIDTH = "ContextDialog-Toolbar-10040-FixedWidth";
+  public static final String TOOLBAR_ITEM_EXACT_MATCH = "ContextDialog-Toolbar-10050-ExactMatch";
   public static final String TOOLBAR_ITEM_CLEAR_SEARCH = "ContextDialog-Toolbar-10040-ClearSearch";
 
   public static final String AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES = "ContextDialogShowCategories";
   public static final String AUDIT_TYPE_TOOLBAR_FIXED_WIDTH = "ContextDialogFixedWidth";
+  public static final String AUDIT_TYPE_TOOLBAR_EXACT_MATCH = "ContextDialogExactMatch";
   public static final String AUDIT_TYPE_CONTEXT_DIALOG = "ContextDialog";
   public static final String AUDIT_NAME_CATEGORY_STATES = "CategoryStates";
 
@@ -634,6 +636,12 @@ public class ContextDialog extends Dialog {
       fixedWidthCheckBox.setSelection("Y".equalsIgnoreCase(Const.NVL(strUseFixedWidth, "Y")));
     }
 
+    Button exactMatchCheckBox = getExactMatchCheckBox();
+    if (exactMatchCheckBox != null) {
+      String strExactMatch = HopConfig.getGuiProperty(AUDIT_TYPE_TOOLBAR_EXACT_MATCH);
+      exactMatchCheckBox.setSelection("Y".equalsIgnoreCase(Const.NVL(strExactMatch, "N")));
+    }
+
     AuditState auditState =
         AuditManager.retrieveState(
             LogChannel.UI,
@@ -670,6 +678,12 @@ public class ContextDialog extends Dialog {
     if (fixedWidthCheckBox != null) {
       HopConfig.setGuiProperty(
           AUDIT_TYPE_TOOLBAR_FIXED_WIDTH, fixedWidthCheckBox.getSelection() ? "Y" : "N");
+    }
+
+    Button exactMatchCheckBox = getExactMatchCheckBox();
+    if (exactMatchCheckBox != null) {
+      HopConfig.setGuiProperty(
+          AUDIT_TYPE_TOOLBAR_EXACT_MATCH, exactMatchCheckBox.getSelection() ? "Y" : "N");
     }
 
     try {
@@ -775,6 +789,40 @@ public class ContextDialog extends Dialog {
     previousTotalContentHeight = 0;
     wCanvas.redraw();
     wSearch.setFocus();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EXACT_MATCH,
+      label = "i18n::ContextDialog.GuiAction.ExactMatch.Label",
+      toolTip = "i18n::ContextDialog.GuiAction.ExactMatch.Tooltip",
+      type = GuiToolbarElementType.CHECKBOX)
+  public void enableDisableExactMatch() {
+    filter(wSearch.getText());
+    wCanvas.redraw();
+    wSearch.setFocus();
+  }
+
+  private Button getExactMatchCheckBox() {
+    if (toolBarWidgets == null) {
+      return null;
+    }
+    Control control = toolBarWidgets.findControl(TOOLBAR_ITEM_EXACT_MATCH);
+    if (control instanceof Button button) {
+      return button;
+    }
+    ToolItem checkboxItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_EXACT_MATCH);
+    if (checkboxItem != null && checkboxItem.getControl() instanceof Button button) {
+      return button;
+    }
+    return null;
+  }
+
+  private boolean isExactMatch() {
+    Button exactMatchCheckBox = getExactMatchCheckBox();
+    return exactMatchCheckBox != null
+        && !exactMatchCheckBox.isDisposed()
+        && exactMatchCheckBox.getSelection();
   }
 
   private Button getCategoriesCheckBox() {
@@ -1478,7 +1526,7 @@ public class ContextDialog extends Dialog {
     } else {
 
       this.selectedItem = selectedItem;
-      wlTooltip.setText(Const.NVL(selectedItem.getAction().getTooltip(), ""));
+      wlTooltip.setText(selectedItem.getAction().getDisplayTooltip());
       selectedItem.setSelected(true);
 
       // See if we need to show the selected item.
@@ -1546,6 +1594,26 @@ public class ContextDialog extends Dialog {
     return StringUtils.isNotEmpty(wanted) && wanted.equalsIgnoreCase(Const.trim(name));
   }
 
+  /**
+   * Score a name for the "Exact match" option: the name must literally contain the search text,
+   * ignoring case, accents and surrounding space. No fuzzy matching, and descriptions, keywords and
+   * categories are not looked at. A name equal to the text ranks first, then names starting with
+   * it, then names containing it.
+   *
+   * @return a score in {@code [0,1]}; {@code 0} means no match
+   */
+  static double exactMatchScore(String name, String searchText) {
+    String wanted = SearchMatcher.normalize(searchText, false);
+    String candidate = SearchMatcher.normalize(name, false);
+    if (wanted.isEmpty() || !candidate.contains(wanted)) {
+      return 0.0;
+    }
+    if (candidate.equals(wanted)) {
+      return 1.0;
+    }
+    return candidate.startsWith(wanted) ? 0.9 : 0.8;
+  }
+
   public void filter(String text) {
 
     if (text == null) {
@@ -1556,12 +1624,16 @@ public class ContextDialog extends Dialog {
     if (StringUtils.isEmpty(text)) {
       filteredItems.addAll(items);
     } else {
-      // Score every action with the shared matcher (fuzzy + multi-term), keep the matches and sort
-      // them best-first.
+      // Score every action with the shared matcher (fuzzy + multi-term), or on its name alone when
+      // "Exact match" is on, keep the matches and sort them best-first.
+      boolean nameOnly = isExactMatch();
       SearchMatcher matcher = new SearchMatcher(text, false, false, true);
       Map<Item, Double> scores = new IdentityHashMap<>();
       for (Item item : items) {
-        double score = item.getAction().matchScore(matcher);
+        double score =
+            nameOnly
+                ? exactMatchScore(item.getAction().getName(), text)
+                : item.getAction().matchScore(matcher);
         if (score > 0.0) {
           scores.put(item, score);
           filteredItems.add(item);
