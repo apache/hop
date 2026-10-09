@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:Alice Doe
+UID:alice-doe
+EMAIL;TYPE=INTERNET:alice@apache.org
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:Bob Smith
+UID:bob-smith
+EMAIL;TYPE=INTERNET:bob@apache.org
+END:VCARD
