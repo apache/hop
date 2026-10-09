@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.NoneDatabaseMeta;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -210,6 +212,72 @@ public class OfferedFieldsTest {
         results.get(0).getMessage().contains("connection 'CRM'"), results.get(0).getMessage());
   }
 
+  /** A database type with settings of its own, as Oracle has walletPassword. */
+  public static class PluginDatabaseMeta extends NoneDatabaseMeta {
+    @HopMetadataProperty private String walletLocation;
+
+    @HopMetadataProperty(password = true)
+    private String walletPin;
+  }
+
+  /**
+   * The SSH passphrase is stored as a password on the database plugin, and its name ends in none of
+   * the secret suffixes, so it was printed as the current value.
+   */
+  @Test
+  public void theSshTunnelPassphraseStaysOutOfTheFinding() {
+    DatabaseMeta databaseMeta = connection();
+    databaseMeta.setSshTunnelPassphrase("hunter2");
+
+    List<LintResult> results =
+        lint(
+            rule(RuleTarget.DATABASE_CONNECTION, "sshTunnelPassphrase", RuleCondition.NO_HARDCODED),
+            databaseMeta);
+
+    assertEquals(1, results.size());
+    assertEquals("WARNING", results.get(0).getSeverity(), results.get(0).getMessage());
+    assertFalse(results.get(0).getMessage().contains("hunter2"), results.get(0).getMessage());
+  }
+
+  /** A setting only the database type has is read from it, password marker included. */
+  @Test
+  public void aDatabaseTypesOwnSettingsResolve() {
+    DatabaseMeta databaseMeta = connection();
+    PluginDatabaseMeta plugin = new PluginDatabaseMeta();
+    plugin.walletPin = "1234";
+    databaseMeta.setIDatabase(plugin);
+
+    List<LintResult> pin =
+        lint(
+            rule(RuleTarget.DATABASE_CONNECTION, "walletPin", RuleCondition.NO_HARDCODED),
+            databaseMeta);
+    assertEquals(1, pin.size());
+    assertEquals("WARNING", pin.get(0).getSeverity(), pin.get(0).getMessage());
+    assertFalse(pin.get(0).getMessage().contains("1234"), pin.get(0).getMessage());
+
+    List<LintResult> location =
+        lint(
+            rule(RuleTarget.DATABASE_CONNECTION, "walletLocation", RuleCondition.NOT_EMPTY),
+            databaseMeta);
+    assertEquals(1, location.size());
+    assertEquals("WARNING", location.get(0).getSeverity(), location.get(0).getMessage());
+  }
+
+  /** Connection flags have an is getter, such as isSshTunnelEnabled. */
+  @Test
+  public void aBooleanConnectionPropertyResolves() {
+    DatabaseMeta databaseMeta = connection();
+    databaseMeta.setSshTunnelEnabled(false);
+
+    List<LintResult> results =
+        lint(
+            rule(RuleTarget.DATABASE_CONNECTION, "sshTunnelEnabled", RuleCondition.MUST_BE_TRUE),
+            databaseMeta);
+
+    assertEquals(1, results.size());
+    assertEquals("WARNING", results.get(0).getSeverity(), results.get(0).getMessage());
+  }
+
   // ------------------------------------------------------------------ transforms
 
   private static PipelineMeta pipelineWithErrorHop(boolean errorHandlingEnabled) {
@@ -264,6 +332,26 @@ public class OfferedFieldsTest {
             .size());
   }
 
+  /**
+   * A hop whose transform name matches nothing loads with a null end. It is skipped, and the other
+   * hops still count, for this transform and for the others in the pipeline.
+   */
+  @Test
+  public void aBrokenHopDoesNotBlankTargetTransforms() {
+    PipelineMeta pipeline = pipelineWithErrorHop(true);
+    TransformMeta read = pipeline.findTransform("read");
+    pipeline.addPipelineHop(new PipelineHopMeta(read, null));
+    pipeline.addPipelineHop(new PipelineHopMeta(null, pipeline.findTransform("write")));
+    CustomLintRule rule =
+        rule(RuleTarget.TRANSFORM, "targetTransforms", RuleCondition.MAX_COLLECTION_SIZE);
+    rule.setConditionValue("0");
+
+    List<LintResult> results = lint(rule, read);
+    assertEquals(1, results.size());
+    assertTrue(
+        results.get(0).getMessage().contains("[write, errors]"), results.get(0).getMessage());
+  }
+
   // ------------------------------------------------------------------ actions
 
   private static WorkflowMeta workflow(boolean failureHop) {
@@ -303,5 +391,30 @@ public class OfferedFieldsTest {
     assertEquals(1, results.size());
     assertTrue(results.get(0).getMessage().contains("[load, alert]"), results.get(0).getMessage());
     assertTrue(lint(rule, workflow(false).findAction("check")).isEmpty());
+  }
+
+  /**
+   * A hop to an action name that matches nothing, and one from an action without its inner action,
+   * are skipped. ActionMeta.equals threw on the second.
+   */
+  @Test
+  public void brokenHopsDoNotBlankTheActionFields() {
+    WorkflowMeta workflow = workflow(true);
+    ActionMeta check = workflow.findAction("check");
+    workflow.addWorkflowHop(new WorkflowHopMeta(check, null));
+    WorkflowHopMeta fromEmpty = new WorkflowHopMeta(null, workflow.findAction("load"));
+    fromEmpty.setFromAction(new ActionMeta());
+    workflow.addWorkflowHop(fromEmpty);
+
+    CustomLintRule targets =
+        rule(RuleTarget.ACTION, "targetActions", RuleCondition.MAX_COLLECTION_SIZE);
+    targets.setConditionValue("0");
+    List<LintResult> results = lint(targets, check);
+    assertEquals(1, results.size());
+    assertTrue(results.get(0).getMessage().contains("[load, alert]"), results.get(0).getMessage());
+
+    assertTrue(
+        lint(rule(RuleTarget.ACTION, "errorHandling", RuleCondition.MUST_BE_TRUE), check)
+            .isEmpty());
   }
 }

@@ -451,8 +451,7 @@ public class CustomRuleExecutor {
             // The extra options are attributes too, stored as EXTRA_OPTION_<type>.<option>.
             return dbMeta.getAttributes();
           default:
-            // Any other connection property, such as manualUrl, by getter or field.
-            return extractFieldFromObject(dbMeta, fieldName);
+            return connectionField(dbMeta, fieldName);
         }
       } else if (hopObject instanceof PipelineHopMeta) {
         PipelineHopMeta hop = (PipelineHopMeta) hopObject;
@@ -516,6 +515,19 @@ public class CustomRuleExecutor {
   }
 
   /**
+   * Any other connection property, such as manualUrl or Oracle's walletPassword. The settings live
+   * on the database plugin's own meta, which is also what the connection's file stores, so that is
+   * looked at first; then the getters DatabaseMeta adds on top.
+   */
+  private static Object connectionField(DatabaseMeta dbMeta, String fieldName) {
+    Object value =
+        dbMeta.getIDatabase() != null
+            ? extractFieldFromObject(dbMeta.getIDatabase(), fieldName)
+            : FIELD_NOT_FOUND;
+    return value != FIELD_NOT_FOUND ? value : extractFieldFromObject(dbMeta, fieldName);
+  }
+
+  /**
    * The fields every transform has, whatever its plugin, with their types. The linter works them
    * out itself rather than reading them from the plugin, so {@code hop lint --list-fields} lists
    * them from here. Keep in step with {@link #extractFieldFromTransform}.
@@ -576,11 +588,20 @@ public class CustomRuleExecutor {
         case "errorHandling":
           return transformMeta.getTransform() != null && transformMeta.isDoingErrorHandling();
         case "targetTransforms":
-          return SUBJECT.get() instanceof PipelineMeta pipeline
-              ? pipeline.findNextTransforms(transformMeta).stream()
-                  .map(TransformMeta::getName)
-                  .toList()
-              : null;
+          // Not PipelineMeta.findNextTransforms: a hop whose transform name matches nothing loads
+          // with a null end, and that made it throw for every transform in the pipeline.
+          if (!(SUBJECT.get() instanceof PipelineMeta pipeline)) {
+            return null;
+          }
+          List<String> targets = new ArrayList<>();
+          for (PipelineHopMeta hop : pipeline.getPipelineHops()) {
+            if (hop.isEnabled()
+                && hop.getFromTransform() == transformMeta
+                && hop.getToTransform() != null) {
+              targets.add(hop.getToTransform().getName());
+            }
+          }
+          return targets;
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
@@ -622,18 +643,12 @@ public class CustomRuleExecutor {
         case "errorHandling":
           // An action handles its errors with a hop followed on failure.
           return SUBJECT.get() instanceof WorkflowMeta workflow
-              ? workflow.getWorkflowHops().stream()
-                  .anyMatch(
-                      hop ->
-                          hop.isEnabled()
-                              && actionMeta.equals(hop.getFromAction())
-                              && !hop.isUnconditional()
-                              && !hop.isEvaluation())
+              ? outgoingHops(actionMeta, workflow).stream()
+                  .anyMatch(hop -> !hop.isUnconditional() && !hop.isEvaluation())
               : null;
         case "targetActions":
           return SUBJECT.get() instanceof WorkflowMeta workflow
-              ? workflow.getWorkflowHops().stream()
-                  .filter(hop -> hop.isEnabled() && actionMeta.equals(hop.getFromAction()))
+              ? outgoingHops(actionMeta, workflow).stream()
                   .map(hop -> hop.getToAction().getName())
                   .toList()
               : null;
@@ -662,6 +677,22 @@ public class CustomRuleExecutor {
       log.logDetailed("Error extracting field " + fieldName + " from action: " + e.getMessage());
       return null;
     }
+  }
+
+  /**
+   * The enabled hops leaving this action that lead somewhere. A hop whose action name matches
+   * nothing loads with a null end, and is skipped rather than failing the field for the hops that
+   * are fine. The ends are compared by identity: ActionMeta.equals throws for an action without its
+   * inner action.
+   */
+  private static List<WorkflowHopMeta> outgoingHops(ActionMeta actionMeta, WorkflowMeta workflow) {
+    List<WorkflowHopMeta> hops = new ArrayList<>();
+    for (WorkflowHopMeta hop : workflow.getWorkflowHops()) {
+      if (hop.isEnabled() && hop.getFromAction() == actionMeta && hop.getToAction() != null) {
+        hops.add(hop);
+      }
+    }
+    return hops;
   }
 
   /**
@@ -844,8 +875,8 @@ public class CustomRuleExecutor {
       }
 
       // Then a getter, which covers metas that expose a value they do not store directly.
-      String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-      for (String candidate : new String[] {getterName, fieldName}) {
+      String capitalised = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+      for (String candidate : new String[] {"get" + capitalised, "is" + capitalised, fieldName}) {
         try {
           java.lang.reflect.Method getter = clazz.getMethod(candidate);
           return getter.invoke(obj);
@@ -1154,6 +1185,9 @@ public class CustomRuleExecutor {
       holder = transformMeta.getTransform();
     } else if (hopObject instanceof ActionMeta actionMeta) {
       holder = actionMeta.getAction();
+    } else if (hopObject instanceof DatabaseMeta databaseMeta) {
+      // A connection's settings, sshTunnelPassphrase among them, live on its database plugin.
+      holder = databaseMeta.getIDatabase();
     }
     String name = fieldName;
     int dot = fieldName.lastIndexOf('.');
@@ -1182,6 +1216,7 @@ public class CustomRuleExecutor {
           "apiKey",
           "apikey",
           "secretAccessKey",
+          "passphrase",
           "token",
           "accessToken",
           "authToken");
