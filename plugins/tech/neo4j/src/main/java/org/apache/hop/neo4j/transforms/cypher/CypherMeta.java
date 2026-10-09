@@ -39,10 +39,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     id = "Neo4jCypherOutput",
     name = "i18n::Cypher.Transform.Name",
     description = "i18n::Cypher.Transform.Description",
-    image = "neo4j_cypher.svg",
-    categoryDescription = "Neo4j",
+    image = "graph_query.svg",
+    categoryDescription = "Graph",
     keywords = "i18n::CypherMeta.keyword",
-    documentationUrl = "/pipeline/transforms/neo4j-cypher.html")
+    documentationUrl = "/pipeline/transforms/graph-query.html")
 public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
   @HopMetadataProperty(
       key = "connection",

@@ -17,20 +17,24 @@
 
 package org.apache.hop.neo4j.actions.constraint;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.graph.GraphConstraintType;
+import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.bolt.Neo4jGraphDialect;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionSelectionLine;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -51,7 +55,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
 
   private boolean changed;
 
-  private MetaSelectionLine<NeoConnection> wConnection;
+  private NeoConnectionSelectionLine wConnection;
   private TableView wUpdates;
 
   public Neo4jConstraintDialog(
@@ -74,14 +78,14 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     int margin = this.margin;
 
     wConnection =
-        new MetaSelectionLine<>(
+        new NeoConnectionSelectionLine(
             variables,
             getMetadataProvider(),
-            NeoConnection.class,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "Neo4jConstraintDialog.NeoConnection.Label"),
-            BaseMessages.getString(PKG, "Neo4jConstraintDialog.NeoConnection.Tooltip"));
+            BaseMessages.getString(PKG, "Neo4jConstraintDialog.NeoConnection.Tooltip"),
+            true);
     PropsUi.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();
@@ -122,7 +126,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
               BaseMessages.getString(
                   PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ConstraintType"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ConstraintType.getNames()),
+              GraphConstraintType.getNames()),
           new ColumnInfo(
               BaseMessages.getString(
                   PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ConstraintName"),
@@ -136,6 +140,34 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
                   PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectProperties"),
               ColumnInfo.COLUMN_TYPE_TEXT),
         };
+
+    // Only offer what the database of the selected connection supports
+    //
+    columns[1].setComboValuesSelectionListener(
+        (tableItem, rowNr, colNr) -> {
+          IGraphDialect dialect = getSelectedDialect();
+          List<String> objectTypes = new ArrayList<>();
+          if (!dialect.getNodeConstraintTypes().isEmpty()) {
+            objectTypes.add(ObjectType.NODE.name());
+          }
+          if (!dialect.getRelationshipConstraintTypes().isEmpty()) {
+            objectTypes.add(ObjectType.RELATIONSHIP.name());
+          }
+          return objectTypes.toArray(new String[0]);
+        });
+    columns[2].setComboValuesSelectionListener(
+        (tableItem, rowNr, colNr) -> {
+          IGraphDialect dialect = getSelectedDialect();
+          ObjectType objectType = ObjectType.getType(tableItem.getText(2));
+          List<String> constraintTypes = new ArrayList<>();
+          for (GraphConstraintType constraintType :
+              objectType == ObjectType.RELATIONSHIP
+                  ? dialect.getRelationshipConstraintTypes()
+                  : dialect.getNodeConstraintTypes()) {
+            constraintTypes.add(constraintType.name());
+          }
+          return constraintTypes.toArray(new String[0]);
+        });
 
     wUpdates =
         new TableView(
@@ -193,7 +225,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
       try {
         UpdateType type = UpdateType.getType(item.getText(1));
         ObjectType objectType = ObjectType.getType(item.getText(2));
-        ConstraintType constraintType = ConstraintType.getType(item.getText(3));
+        GraphConstraintType constraintType = GraphConstraintType.getType(item.getText(3));
         String constraintName = item.getText(4);
         String objectName = item.getText(5);
         String objectProperties = item.getText(6);
@@ -204,9 +236,12 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
 
         String cypher;
         if (type == UpdateType.CREATE) {
-          cypher = Neo4jConstraint.generateCreateConstraintCypher(constraintUpdate);
+          cypher =
+              Neo4jConstraint.generateCreateConstraintCypher(
+                  constraintUpdate, getSelectedDialect());
         } else {
-          cypher = Neo4jConstraint.generateDropConstraintCypher(constraintUpdate);
+          cypher =
+              Neo4jConstraint.generateDropConstraintCypher(constraintUpdate, getSelectedDialect());
         }
 
         cypherPreview.append("-- Constraint ").append(i + 1).append(Const.CR);
@@ -247,9 +282,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
 
   private void getData() {
     wName.setText(Const.NVL(meta.getName(), ""));
-    if (meta.getConnection() != null) {
-      wConnection.setText(Const.NVL(meta.getConnection().getName(), ""));
-    }
+    wConnection.setText(Const.NVL(meta.getConnectionName(), ""));
     for (int i = 0; i < meta.getConstraintUpdates().size(); i++) {
       TableItem item = wUpdates.table.getItem(i);
       ConstraintUpdate constraintUpdate = meta.getConstraintUpdates().get(i);
@@ -284,25 +317,14 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     // Grab the connection
     //
 
-    String connectionName = wConnection.getText();
-    if (StringUtils.isEmpty(connectionName)) {
-      meta.setConnection(null);
-    } else {
-      try {
-        meta.setConnection(
-            metadataProvider.getSerializer(NeoConnection.class).load(connectionName));
-      } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error finding connection " + connectionName, e);
-        return;
-      }
-    }
+    meta.setConnectionName(wConnection.getText());
 
     List<TableItem> items = wUpdates.getNonEmptyItems();
     meta.getConstraintUpdates().clear();
     for (TableItem item : items) {
       UpdateType type = UpdateType.getType(item.getText(1));
       ObjectType objectType = ObjectType.getType(item.getText(2));
-      ConstraintType constraintType = ConstraintType.getType(item.getText(3));
+      GraphConstraintType constraintType = GraphConstraintType.getType(item.getText(3));
       String constraintName = item.getText(4);
       String objectName = item.getText(5);
       String objectProperties = item.getText(6);
@@ -313,5 +335,20 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     }
 
     dispose();
+  }
+
+  /** The dialect of the selected connection, Neo4j when it can't be determined. */
+  private IGraphDialect getSelectedDialect() {
+    try {
+      NamedGraphConnection connection =
+          NeoConnectionUtils.findGraphConnection(
+              getMetadataProvider(), variables.resolve(wConnection.getText()));
+      if (connection != null) {
+        return connection.getDialect();
+      }
+    } catch (Exception e) {
+      // Fall back to Neo4j
+    }
+    return Neo4jGraphDialect.INSTANCE;
   }
 }

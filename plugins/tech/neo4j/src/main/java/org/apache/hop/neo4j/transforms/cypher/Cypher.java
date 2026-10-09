@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopConfigException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -34,20 +35,18 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.neo4j.core.data.GraphData;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.neo4j.shared.NeoHopData;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.json.simple.JSONValue;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.TransactionCallback;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.neo4j.driver.summary.Notification;
-import org.neo4j.driver.summary.ResultSummary;
 
 public class Cypher extends BaseTransform<CypherMeta, CypherData> {
 
@@ -76,10 +75,33 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       return false;
     }
     try {
+      NamedGraphConnection graphConnection =
+          NeoConnectionUtils.findGraphConnection(
+              metadataProvider, resolve(meta.getConnectionName()));
+      if (graphConnection != null && !NeoConnectionUtils.isBolt(graphConnection)) {
+        // Not Bolt: work through the generic graph connection
+        //
+        data.batchSize = Const.toLongExpanded(resolve(meta.getBatchSize()), 1);
+        data.attempts = 1 + Math.max(0, Const.toInt(resolve(meta.getNrRetriesOnError()), 0));
+        data.graphConnection = graphConnection.connect(getLogChannel(), this);
+        int attempts =
+            getAttempts(
+                data.attempts, meta.isReadOnly(), data.graphConnection.isSupportingTransactions());
+        if (attempts != data.attempts) {
+          // Without transactions a failed attempt can leave part of its changes behind: retrying
+          // it would apply them twice.
+          //
+          logBasic(
+              "Warning: graph database connection '"
+                  + graphConnection.name()
+                  + "' doesn't support transactions: statements which change data are not retried"
+                  + " on an error");
+          data.attempts = attempts;
+        }
+        return super.init();
+      }
       data.neoConnection =
-          metadataProvider
-              .getSerializer(NeoConnection.class)
-              .load(resolve(meta.getConnectionName()));
+          NeoConnectionUtils.loadConnection(metadataProvider, resolve(meta.getConnectionName()));
       if (data.neoConnection == null) {
         logError(
             "Connection '"
@@ -122,6 +144,22 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     return super.init();
   }
 
+  /**
+   * The number of attempts to execute statements. Without transactions a failed attempt can leave
+   * part of its changes behind, so statements which change data are tried once.
+   *
+   * @param attempts The configured number of attempts
+   * @param readOnly True if the statements only read data
+   * @param supportingTransactions True if the connection rolls back failed transactions
+   * @return The number of attempts to use
+   */
+  public static int getAttempts(int attempts, boolean readOnly, boolean supportingTransactions) {
+    if (attempts > 1 && !readOnly && !supportingTransactions) {
+      return 1;
+    }
+    return attempts;
+  }
+
   @Override
   public void dispose() {
 
@@ -132,6 +170,14 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
   }
 
   private void closeSessionDriver() {
+    if (data.graphConnection != null) {
+      try {
+        data.graphConnection.close();
+      } catch (HopException e) {
+        logError("Error closing the graph database connection", e);
+      }
+      data.graphConnection = null;
+    }
     if (data.session != null) {
       data.session.close();
     }
@@ -318,11 +364,53 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       return;
     }
 
+    if (data.graphConnection != null) {
+      runGenericStatementsBatch();
+      return;
+    }
+
+    // Statements the database doesn't run in a transaction, like SHOW INDEX INFO on Memgraph, run
+    // on their own. The statements between them run in transactions, in the same order.
+    //
+    IGraphDialect dialect = data.neoConnection.getDialect();
+    if (data.cypherStatements.stream()
+        .anyMatch(statement -> dialect.isRequiringAutoCommit(statement.getCypher()))) {
+      List<CypherStatement> statements = new ArrayList<>(data.cypherStatements);
+      List<CypherStatement> inTransaction = new ArrayList<>();
+      for (CypherStatement statement : statements) {
+        if (dialect.isRequiringAutoCommit(statement.getCypher())) {
+          runStatementsInTransaction(inTransaction);
+          inTransaction.clear();
+          runAutoCommitStatement(statement);
+        } else {
+          inTransaction.add(statement);
+        }
+      }
+      runStatementsInTransaction(inTransaction);
+      data.cypherStatements.clear();
+      return;
+    }
+
+    runStatementsInTransaction(data.cypherStatements);
+    data.cypherStatements.clear();
+  }
+
+  /** Run statements in one transaction, with the configured retries. */
+  private void runStatementsInTransaction(List<CypherStatement> cypherStatements)
+      throws HopException {
+    if (cypherStatements.isEmpty()) {
+      return;
+    }
+
+    beginWork();
+
     // Execute all the statements in there in one transaction...
     //
     TransactionCallback<Integer> transactionWork =
         transaction -> {
-          for (CypherStatement cypherStatement : data.cypherStatements) {
+          // The driver can call this again on a transient error: drop the rows of the failed call
+          startAttempt();
+          for (CypherStatement cypherStatement : cypherStatements) {
             Result result =
                 transaction.run(cypherStatement.getCypher(), cypherStatement.getParameters());
             try {
@@ -334,7 +422,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
             }
           }
 
-          return data.cypherStatements.size();
+          return cypherStatements.size();
         };
 
     try {
@@ -343,10 +431,10 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         try {
           if (meta.isReadOnly()) {
             nrProcessed = data.session.executeRead(transactionWork);
-            setLinesInput(getLinesInput() + data.cypherStatements.size());
+            setLinesInput(getLinesInput() + cypherStatements.size());
           } else {
             nrProcessed = data.session.executeWrite(transactionWork);
-            setLinesOutput(getLinesOutput() + data.cypherStatements.size());
+            setLinesOutput(getLinesOutput() + cypherStatements.size());
           }
           // If all went as expected we can stop retrying...
           //
@@ -364,23 +452,53 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         logDebug("Processed " + nrProcessed + " statements");
       }
 
-      // Clear out the batch of statements.
-      //
-      data.cypherStatements.clear();
-
     } catch (Exception e) {
+      dropAttemptRows();
       throw new HopException(
-          "Unable to execute batch of cypher statements (" + data.cypherStatements.size() + ")", e);
+          "Unable to execute batch of cypher statements (" + cypherStatements.size() + ")", e);
     }
+    flushOutputRows();
+  }
+
+  /** Run a statement on its own in an auto-commit transaction, with the configured retries. */
+  private void runAutoCommitStatement(CypherStatement cypherStatement) throws HopException {
+    beginWork();
+    for (int attempt = 0; attempt < data.attempts; attempt++) {
+      try {
+        startAttempt();
+        Result result =
+            data.session.run(cypherStatement.getCypher(), cypherStatement.getParameters());
+        getResultRows(result, cypherStatement.getRow(), false);
+        if (meta.isReadOnly()) {
+          incrementLinesInput();
+        } else {
+          incrementLinesOutput();
+        }
+        break;
+      } catch (Exception e) {
+        dropAttemptRows();
+        if (attempt + 1 >= data.attempts) {
+          throw new HopException(
+              "Unable to execute cypher statement '" + cypherStatement.getCypher() + "'", e);
+        }
+        logBasic("Retrying after attempt #" + (attempt + 1) + " with error : " + e.getMessage());
+      }
+    }
+    flushOutputRows();
   }
 
   private List<Object[]> writeUnwindList() throws HopException {
+    if (data.graphConnection != null) {
+      writeGenericUnwindList();
+      return null;
+    }
     HashMap<String, Object> unwindMap = new HashMap<>();
     unwindMap.put(data.unwindMapName, data.unwindList);
     List<Object[]> resultRows = null;
     CypherTransactionWork cypherTransactionWork =
         new CypherTransactionWork(this, new Object[0], true, data.cypher, unwindMap);
 
+    beginWork();
     try {
       for (int attempt = 0; attempt < data.attempts; attempt++) {
         if (attempt > 0) {
@@ -425,16 +543,135 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       }
 
     } catch (Exception e) {
+      dropAttemptRows();
       data.session.close();
       stopAll();
       setErrors(1L);
       setOutputDone();
       throw new HopException("Unexpected error writing unwind list to Neo4j", e);
     }
+    flushOutputRows();
     setLinesOutput(getLinesOutput() + data.unwindList.size());
     data.unwindList.clear();
     data.outputCount = 0;
     return resultRows;
+  }
+
+  /** Execute the batch of statements over a graph connection which isn't Bolt. */
+  void runGenericStatementsBatch() throws HopException {
+    executeGeneric(
+        () -> {
+          data.graphConnection.executeWrite(
+              transaction -> {
+                startAttempt();
+                for (CypherStatement cypherStatement : data.cypherStatements) {
+                  List<Map<String, Object>> rows =
+                      transaction.execute(
+                          cypherStatement.getCypher(), cypherStatement.getParameters());
+                  getGenericResultRows(rows, cypherStatement.getRow(), false);
+                }
+                return null;
+              });
+          if (meta.isReadOnly()) {
+            setLinesInput(getLinesInput() + data.cypherStatements.size());
+          } else {
+            setLinesOutput(getLinesOutput() + data.cypherStatements.size());
+          }
+        });
+    flushOutputRows();
+    data.cypherStatements.clear();
+  }
+
+  /** Execute the unwind statement over a graph connection which isn't Bolt. */
+  private void writeGenericUnwindList() throws HopException {
+    Map<String, Object> unwindMap = new HashMap<>();
+    unwindMap.put(data.unwindMapName, data.unwindList);
+    executeGeneric(
+        () ->
+            data.graphConnection.executeWrite(
+                transaction -> {
+                  startAttempt();
+                  getGenericResultRows(
+                      transaction.execute(data.cypher, unwindMap), new Object[0], true);
+                  return null;
+                }));
+    flushOutputRows();
+    setLinesOutput(getLinesOutput() + data.unwindList.size());
+    data.unwindList.clear();
+    data.outputCount = 0;
+  }
+
+  /** Work to retry the configured number of times. */
+  @FunctionalInterface
+  interface GenericWork {
+    void execute() throws HopException;
+  }
+
+  /**
+   * Execute work the configured number of times until it succeeds. The work starts with {@link
+   * #startAttempt()}, so that only the output rows of the attempt which succeeded remain, to be
+   * passed on with {@link #flushOutputRows()}. Without retries the rows can stream instead, see
+   * {@link #isStreamingRows()}.
+   */
+  void executeGeneric(GenericWork work) throws HopException {
+    beginWork();
+    for (int attempt = 0; attempt < data.attempts; attempt++) {
+      try {
+        work.execute();
+        return;
+      } catch (HopException e) {
+        dropAttemptRows();
+        if (attempt + 1 >= data.attempts) {
+          throw e;
+        }
+        logBasic("Retrying after attempt #" + (attempt + 1) + " with error : " + e.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Pass the result rows of a graph connection which isn't Bolt to the next transforms. The values
+   * are plain Java values: they are converted to the types of the return values.
+   */
+  private void getGenericResultRows(List<Map<String, Object>> rows, Object[] row, boolean unwind)
+      throws HopException {
+    if (meta.isReturningGraph()) {
+      // One row with the graph of all the nodes, relationships and paths in the results
+      GraphData graphData = GraphData.fromRows(rows);
+      graphData.setSourcePipelineName(getPipelineMeta().getName());
+      graphData.setSourceTransformName(getTransformName());
+      Object[] outputRow;
+      if (unwind) {
+        outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      } else {
+        outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
+      }
+      outputRow[data.hasInput && !unwind ? getInputRowMeta().size() : 0] = graphData;
+      addOutputRow(outputRow);
+      return;
+    }
+    if (meta.getReturnValues().isEmpty()) {
+      if (!unwind) {
+        addOutputRow(row);
+      }
+      return;
+    }
+    for (Map<String, Object> resultRow : rows) {
+      Object[] outputRow;
+      if (unwind) {
+        outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      } else {
+        outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
+      }
+      int index = data.hasInput && !unwind ? getInputRowMeta().size() : 0;
+      for (ReturnValue returnValue : meta.getReturnValues()) {
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(index);
+        outputRow[index++] =
+            NeoHopData.convertToHopValue(
+                returnValue.getName(), resultRow.get(returnValue.getName()), targetValueMeta);
+      }
+      addOutputRow(outputRow);
+    }
   }
 
   public void getResultRows(Result result, Object[] row, boolean unwind) throws HopException {
@@ -457,7 +694,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         int index = data.hasInput && !unwind ? getInputRowMeta().size() : 0;
 
         outputRowData[index] = graphData;
-        putRow(data.outputRowMeta, outputRowData);
+        addOutputRow(outputRowData);
 
       } else {
         // Are we returning values?
@@ -466,7 +703,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
           // If we're not returning any values then we simply need to pass the input rows without
           // We're consuming any optional results below
           //
-          putRow(data.outputRowMeta, row);
+          addOutputRow(row);
         } else {
           // If we're returning values we pass all result records per input row.
           // This can be 0, 1 or more per input row
@@ -496,133 +733,107 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
               outputRow[index++] = value;
             }
 
-            // Pass the rows to the next transform
+            // Pass the rows to the next transform once the transaction succeeded
             //
-            putRow(data.outputRowMeta, outputRow);
+            addOutputRow(outputRow);
           }
         }
       }
 
-      // Now that all result rows are consumed we can evaluate the result summary.
+      // Now that all result rows are consumed we can log the notifications of the result.
       //
-      if (processSummary(result)) {
-        setErrors(1L);
-        stopAll();
-        setOutputDone();
-        throw new HopException("Error found in executing cypher statement");
+      if (!meta.isUsingUnwind()) {
+        NeoConnectionUtils.logNotifications(
+            getLogChannel(), result.consume(), data.loggedNotifications);
       }
     }
   }
 
   /**
-   * Convert the given record value to String. For complex data types it's a conversion to JSON.
+   * Whether the output rows of the work about to be executed are passed on right away, or kept in
+   * memory until the work succeeded.
    *
-   * @param recordValue The record value to convert to String
-   * @param sourceType The Neo4j source type
-   * @return The String value of the record value
+   * <p>Work is executed again when it is retried after an error: by the configured retries
+   * (attempts larger than 1), by the Neo4j driver on transient errors in managed transactions
+   * (session.executeWrite/executeRead), by graph connections which retry in executeWrite, and after
+   * reconnecting on a disconnect. Rows passed on by a failed execution can't be taken back, so a
+   * retried execution would output them twice. Keeping them in memory until the work succeeded
+   * avoids that, but a query returning millions of rows then has to fit in memory.
+   *
+   * <p>The rule:
+   *
+   * <ul>
+   *   <li>With retries configured (attempts larger than 1), rows are kept until the attempt
+   *       succeeded.
+   *   <li>Without retries, rows stream when the statements only read data or when the transform has
+   *       no input: the one statement without input can return any number of rows. A re-execution
+   *       by the driver or after a reconnect is allowed as long as no row was passed on yet. After
+   *       that it fails, see {@link #startAttempt()}.
+   *   <li>Otherwise, statements which change data from input rows: rows are kept for each batch, so
+   *       that the driver can still retry a write on a transient error, like a deadlock. The batch
+   *       size limits the number of rows in memory.
+   * </ul>
    */
-  private String convertToString(Value recordValue, GraphPropertyDataType sourceType) {
-    if (recordValue == null) {
-      return null;
-    }
-    if (sourceType == null) {
-      return JSONValue.toJSONString(recordValue.asObject());
-    }
-    switch (sourceType) {
-      case String:
-        return recordValue.asString();
-      case List:
-        return JSONValue.toJSONString(recordValue.asList());
-      case Map:
-        return JSONValue.toJSONString(recordValue.asMap());
-      case Node:
-        {
-          GraphData graphData = new GraphData();
-          graphData.update(recordValue.asNode());
-          return graphData.toJson().toJSONString();
-        }
-      case Path:
-        {
-          GraphData graphData = new GraphData();
-          graphData.update(recordValue.asPath());
-          return graphData.toJson().toJSONString();
-        }
-      default:
-        return JSONValue.toJSONString(recordValue.asObject());
-    }
+  boolean isStreamingRows() {
+    return isStreamingRows(data.attempts, meta.isReadOnly(), data.hasInput);
   }
 
   /**
-   * Convert the given record value to String. For complex data types it's a conversion to JSON.
-   *
-   * @param recordValue The record value to convert to String
-   * @param sourceType The Neo4j source type
-   * @return The String value of the record value
+   * @see #isStreamingRows()
    */
-  private GraphData convertToGraphData(Value recordValue, GraphPropertyDataType sourceType)
-      throws HopException {
-    if (recordValue == null) {
-      return null;
-    }
-    if (sourceType == null) {
-      throw new HopException(
-          "Please specify a Neo4j source data type to convert to Graph.  NODE, RELATIONSHIP and PATH are supported.");
-    }
-    GraphData graphData;
-    switch (sourceType) {
-      case Node:
-        graphData = new GraphData();
-        graphData.update(recordValue.asNode());
-        break;
-
-      case Path:
-        graphData = new GraphData();
-        graphData.update(recordValue.asPath());
-        break;
-
-      default:
-        throw new HopException(
-            "We can only convert NODE, PATH and RELATIONSHIP source values to a Graph data type, not "
-                + sourceType.name());
-    }
-    return graphData;
+  static boolean isStreamingRows(int attempts, boolean readOnly, boolean hasInput) {
+    return attempts <= 1 && (readOnly || !hasInput);
   }
 
-  private boolean processSummary(Result result) {
-    if (meta.isUsingUnwind()) {
-      return false;
+  /**
+   * Start executing work: decide whether its output rows stream, see {@link #isStreamingRows()}.
+   */
+  void beginWork() {
+    data.streamingRows = isStreamingRows();
+    data.streamedRows = 0;
+    data.attemptRows.clear();
+  }
+
+  /**
+   * Start an attempt to execute statements: the output rows of a previous attempt are dropped. When
+   * rows stream and some were passed on already, the work can't be executed again without
+   * outputting them twice: that fails.
+   */
+  public void startAttempt() {
+    if (data.streamingRows && data.streamedRows > 0) {
+      throw new HopRuntimeException(
+          "The statements can't be executed again after an error: "
+              + data.streamedRows
+              + " result rows were passed on already. Set a number of retries on error to retry"
+              + " them safely.");
+    }
+    data.attemptRows.clear();
+  }
+
+  /** Drop the output rows of an attempt which failed. */
+  private void dropAttemptRows() {
+    data.attemptRows.clear();
+  }
+
+  /**
+   * Pass an output row on right away when rows stream. Otherwise keep it until the attempt
+   * producing it succeeded.
+   */
+  private void addOutputRow(Object[] outputRow) throws HopTransformException {
+    if (data.streamingRows) {
+      data.streamedRows++;
+      putRow(data.outputRowMeta, outputRow);
     } else {
-      boolean error = false;
-      ResultSummary summary = result.consume();
-      for (Notification notification : summary.notifications()) {
-        if (notification.rawSeverityLevel().filter("WARNING"::equalsIgnoreCase).isPresent()) {
-          // Log it
-          if (isBasic()) {
-            logBasic(
-                notification.rawSeverityLevel().orElse("")
-                    + " : "
-                    + notification.title()
-                    + " : "
-                    + notification.code()
-                    + " : "
-                    + notification.description()
-                    + ", position "
-                    + notification.position());
-          }
-        } else {
-          // This is an error
-          //
-          logError(notification.rawSeverityLevel().orElse("") + " : " + notification.title());
-          logError(
-              notification.code()
-                  + " : "
-                  + notification.description()
-                  + ", position "
-                  + notification.position());
-          error = true;
-        }
-      }
-      return error;
+      data.attemptRows.add(outputRow);
+    }
+  }
+
+  /** Pass the output rows of the attempt which succeeded to the next transforms. */
+  void flushOutputRows() throws HopTransformException {
+    List<Object[]> rows = new ArrayList<>(data.attemptRows);
+    data.attemptRows.clear();
+    for (Object[] outputRow : rows) {
+      putRow(data.outputRowMeta, outputRow);
     }
   }
 

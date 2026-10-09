@@ -16,35 +16,84 @@ under the License.
 ////
 :documentationPath: /technology/memgraph/
 :language: en_US
-:description: Apache Hop has extensive support for the Neo4j graph database. Memgraph is largely compatible with Neo4j and can use a lot of the Neo4j functionality in Apache Hop.
+:description: Apache Hop reads from and writes to Memgraph graphs with Cypher over the Bolt protocol.
 :page-marketplace: hop-tech-neo4j
 
 = Memgraph
 
 == Description
 
-https://www.memgraph.com[Memgraph^] is largely compatible with Neo4j and can use a lot of the Neo4j functionality in Apache Hop. Memgraph focuses on in-memory, realtime and scalable analytics.
-
-The Memgraph compatibility with Neo4j allows you to use a lot of the Neo4j functionality in Apache Hop with Memgraph.
+https://www.memgraph.com[Memgraph^] is an in-memory graph database for realtime and scalable analytics which speaks Cypher over the Bolt protocol.
+Hop connects to it with a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] of the Memgraph type.
+See xref:technology/graph-databases/index.adoc[Graph databases] for the other graph databases Hop works with.
 
 
 == Run Memgraph in docker
 
-The `--bolt-server-name-for-init=Neo4j/` parameter needs to be set to allow Apache Hop to connect to a Memgraph database over the `bolt` protocol. More information is available in the https://memgraph.com/docs/memgraph/connect-to-memgraph/drivers/java[memgraph docs^].
-
 Example command to start a Memgraph server in a container:
 
-`docker run -it -p 7687:7687 -p 7444:7444 -p 3000:3000 -e MEMGRAPH="--bolt-server-name-for-init=Neo4j/" memgraph/memgraph-platform`
+`docker run -it -p 7687:7687 memgraph/memgraph`
+
+Memgraph Lab, the browser of Memgraph, runs in a container of its own: `docker run -p 3000:3000 memgraph/lab`.
 
 == What works
 
-* xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j connections]: make sure to specify `bolt` instead of the default `neo4j` protocol
-* most of the xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j graph output], xref:pipeline/transforms/neo4j-output.adoc[Neo4j output], xref:pipeline/transforms/neo4j-cypher.adoc[Cypher transforms] and xref:workflow/actions/neo4j-cypherscript.adoc[actions] (except for index manipulation, see below) seem to work correctly. Please create a https://github.com/apache/hop/issues/[bug ticket] if you find any issues.
+Use a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] of the Memgraph type. With it, these work:
 
-== known issues
+* xref:pipeline/transforms/graph-query.adoc[Graph query], including *Return graph*
+* xref:pipeline/transforms/graph-output.adoc[Graph output], including the validation against the graph model and its indexes
+* xref:pipeline/transforms/cypher-output.adoc[Cypher output]
+* xref:pipeline/transforms/cypher-builder.adoc[Cypher builder]
+* xref:pipeline/transforms/split-graph.adoc[Split graph] and xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]
+* xref:workflow/actions/graph-script.adoc[Graph script]
+* xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint], in Memgraph's syntax, see <<_memgraph_syntax>>
+* xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections]
+* Execution logging (`HOP_GRAPH_LOGGING_CONNECTION`), the xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] transform and the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective]
+* The xref:metadata-types/graphs/graph-database-location.adoc[graph database location] for execution information
 
-Memgraph's index syntax differs from the Neo4j syntax, which causes the xref:workflow/actions/neo4j-index.adoc[Neo4j index] and xref:workflow/actions/neo4j-constraint.adoc[Neo4j constraint] actions to fail.
+== What doesn't work
 
-Creating indexes through a Cypher action or a Cypher transform fails with an error similar to `ERROR: org.neo4j.driver.exceptions.ClientException: Index manipulation not allowed in multicommand transactions.`.
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j import]: it runs neo4j-admin. Load the files of Generate graph CSVs with plain column names and `LOAD CSV` instead.
+* Named indexes and constraints: Memgraph identifies them by their label and properties. The Graph index and Graph constraint actions ignore the names you give them, and drop them by label and properties.
+* Node key constraints (a combination of properties which has to exist and be unique, a Neo4j Enterprise feature) and constraints on relationships: Memgraph doesn't have them. The Graph constraint action only offers unique and existence constraints on nodes.
+* Edge indexes on more than one property, and existence constraints on more than one property.
+
+== Memgraph syntax
+
+The Memgraph connection type makes Hop generate Memgraph's syntax, like a SQL dialect does for relational databases:
+
+[options="header",cols="1,2"]
+|===
+|Operation |Statement
+
+|Graph index: node index
+|`CREATE INDEX ON :Person(id)`, with several properties `CREATE INDEX ON :Person(a, b)`
+
+|Graph index: relationship index
+|`CREATE EDGE INDEX ON :KNOWS(since)`
+
+|Graph index: drop
+|`DROP INDEX ON :Person(id)`, `DROP EDGE INDEX ON :KNOWS(since)`
+
+|Graph constraint: unique
+|`CREATE CONSTRAINT ON (n:Person) ASSERT n.id IS UNIQUE`
+
+|Graph constraint: existence
+|`CREATE CONSTRAINT ON (n:Person) ASSERT EXISTS (n.name)`
+
+|Graph constraint: drop
+|`DROP CONSTRAINT ON (n:Person) ASSERT n.id IS UNIQUE`
+
+|Graph output and Cypher output with *Create indexes*
+|A unique constraint for a single key property, an index for several
+|===
+
+Memgraph doesn't run some statements in an explicit transaction: information queries like `SHOW INDEX INFO`, and index and constraint changes.
+Hop runs them on their own, in auto-commit transactions: in the Graph index and Graph constraint actions, in the Graph script action, and in the Graph query transform when every statement of a batch is one of them.
+
+== Known issues
+
+With a xref:metadata-types/graphs/neo4j-connection.adoc[Neo4j connection] (protocol `bolt`) instead of a Memgraph connection, Hop uses the Neo4j syntax and transactions: creating indexes and constraints fails, for example with `Index manipulation not allowed in multicommand transactions.`.
+Change the type of the connection to Memgraph to solve this: xref:metadata-types/graphs/graph-database-connection.adoc#_converting_a_neo4j_connection[convert] the Neo4j connection to a graph database connection and select the Memgraph type.
 
 Check the https://memgraph.com/docs/memgraph/reference-guide/indexing[Memgraph docs^] for more information on indexing.

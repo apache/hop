@@ -18,15 +18,13 @@
 package org.apache.hop.neo4j.actions.check;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -83,10 +81,7 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
     String[] availableConnectionNames;
     try {
-      IHopMetadataSerializer<NeoConnection> connectionSerializer =
-          getMetadataProvider().getSerializer(NeoConnection.class);
-      List<String> names = connectionSerializer.listObjectNames();
-      Collections.sort(names);
+      List<String> names = NeoConnectionUtils.getAllConnectionNames(getMetadataProvider());
       availableConnectionNames = names.toArray(new String[0]);
     } catch (HopException e) {
       availableConnectionNames = new String[] {};

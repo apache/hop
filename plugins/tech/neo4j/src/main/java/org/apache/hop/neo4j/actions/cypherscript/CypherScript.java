@@ -17,28 +17,30 @@
 
 package org.apache.hop.neo4j.actions.cypherscript;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.graph.IGraphConnection;
+import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.TransactionCallback;
 
 @Action(
     id = "NEO4J_CYPHER_SCRIPT",
-    name = "Neo4j Cypher script",
-    description = "Execute a Neo4j Cypher script",
-    image = "neo4j_cypher.svg",
+    name = "Graph script",
+    description = "Execute a script of Cypher statements or Gremlin traversals on a graph database",
+    image = "graph_script.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::CypherScript.keyword",
-    documentationUrl = "/workflow/actions/neo4j-cypherscript.html")
+    documentationUrl = "/workflow/actions/graph-script.html")
 public class CypherScript extends ActionBase implements IAction {
   @HopMetadataProperty(
       key = "connection",
@@ -65,27 +67,19 @@ public class CypherScript extends ActionBase implements IAction {
 
   @Override
   public Result execute(Result result, int nr) throws HopException {
-    IHopMetadataSerializer<NeoConnection> serializer =
-        getMetadataProvider().getSerializer(NeoConnection.class);
-
+    // Success unless something goes wrong, whatever the result of the previous action
+    result.setResult(true);
     // Replace variables & parameters
     //
-    NeoConnection connection;
+    NamedGraphConnection graphConnection;
     String realConnectionName = resolve(connectionName);
     try {
-      if (StringUtils.isEmpty(realConnectionName)) {
-        throw new HopException("The Neo4j connection name is not set");
-      }
-
-      connection = serializer.load(realConnectionName);
-      if (connection == null) {
-        throw new HopException("Unable to find connection with name '" + realConnectionName + "'");
-      }
+      graphConnection =
+          NeoConnectionUtils.getGraphConnection(getMetadataProvider(), realConnectionName);
     } catch (Exception e) {
       result.setResult(false);
       result.increaseErrors(1L);
-      throw new HopException(
-          "Unable to gencsv or find connection with name '" + realConnectionName + "'", e);
+      throw new HopException("Unable to find connection with name '" + realConnectionName + "'", e);
     }
 
     String realScript;
@@ -94,53 +88,45 @@ public class CypherScript extends ActionBase implements IAction {
     } else {
       realScript = script;
     }
+    List<String> statements = splitScript(realScript);
 
     int nrExecuted;
 
-    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
-
-      // Connect to the database
-      //
-      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-
-        TransactionCallback<Integer> transactionWork =
-            transaction -> {
-              int executed = 0;
-
-              try {
-                // Split the script into parts : semi-colon at the start of a separate line
-                //
-                String[] commands = realScript.split("\\r?\\n;");
-                for (String command : commands) {
-                  // Cleanup command: replace leading and trailing whitespaces and newlines
-                  //
-                  String cypher = command.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
-
-                  // Only execute if the statement is not empty
-                  //
-                  if (StringUtils.isNotEmpty(cypher)) {
-                    transaction.run(cypher);
-                    executed++;
-                    if (isDetailed()) {
-                      logDetailed("Executed cypher statement: " + cypher);
+    try (IGraphConnection connection = graphConnection.connect(getLogChannel(), this)) {
+      IGraphDialect dialect = connection.getGraphDialect();
+      if (dialect.isSupportingSchemaChangesInTransactions()
+          && connection.isSupportingTransactions()) {
+        try {
+          nrExecuted =
+              connection.executeWrite(
+                  transaction -> {
+                    int executed = 0;
+                    for (String cypher : statements) {
+                      transaction.execute(cypher, Map.of());
+                      executed++;
+                      if (isDetailed()) {
+                        logDetailed("Executed cypher statement: " + cypher);
+                      }
                     }
-                  }
-                }
-                // Transaction is automatically committed by executeWrite
-              } catch (Exception e) {
-                logError("Error executing cypher statements...", e);
-                result.increaseErrors(1L);
-                result.setResult(false);
-                // Transaction is automatically rolled back by executeWrite on exception
-              }
-
-              return executed;
-            };
-        nrExecuted = session.executeWrite(transactionWork);
+                    // The transaction is committed when this work returns, and rolled back when it
+                    // throws: a failed script keeps none of its statements.
+                    return executed;
+                  });
+        } catch (Exception e) {
+          logError("Error executing cypher statements, the transaction is rolled back", e);
+          result.setNrErrors(1);
+          result.setResult(false);
+          nrExecuted = 0;
+        }
+      } else {
+        // Index and constraint changes can't run in an explicit transaction here, or there are no
+        // transactions at all: run each statement on its own.
+        //
+        nrExecuted = executeAutoCommit(connection, statements, result);
       }
     }
 
-    if (result.getNrErrors() == 0) {
+    if (result.getResult()) {
       if (isBasic()) {
         logBasic("Neo4j script executed " + nrExecuted + " statements without error");
       }
@@ -151,6 +137,20 @@ public class CypherScript extends ActionBase implements IAction {
     }
 
     return result;
+  }
+
+  /** Split the script into statements: a semicolon at the start of a separate line. */
+  private static List<String> splitScript(String script) {
+    List<String> statements = new ArrayList<>();
+    for (String command : script.split("\\r?\\n;")) {
+      // Cleanup command: replace leading and trailing whitespaces and newlines
+      //
+      String cypher = command.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
+      if (StringUtils.isNotEmpty(cypher)) {
+        statements.add(cypher);
+      }
+    }
+    return statements;
   }
 
   @Override
@@ -209,5 +209,24 @@ public class CypherScript extends ActionBase implements IAction {
    */
   public void setReplacingVariables(boolean replacingVariables) {
     this.replacingVariables = replacingVariables;
+  }
+
+  private int executeAutoCommit(
+      IGraphConnection connection, List<String> statements, Result result) {
+    int executed = 0;
+    try {
+      for (String cypher : statements) {
+        connection.execute(cypher, Map.of());
+        executed++;
+        if (isDetailed()) {
+          logDetailed("Executed cypher statement: " + cypher);
+        }
+      }
+    } catch (Exception e) {
+      logError("Error executing cypher statements...", e);
+      result.setNrErrors(1);
+      result.setResult(false);
+    }
+    return executed;
   }
 }

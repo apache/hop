@@ -1,0 +1,141 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Read the entities in a text and the relationships between them with an AI provider, for a knowledge graph.
+
+= image:transforms/icons/extractgraph.svg[Extract graph transform Icon, role="image-doc-icon"] Extract graph
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Extract graph transform reads the entities a text mentions and the relationships between them, using the chat model of an xref:metadata-types/ai-provider.adoc[AI provider].
+"Ada Lovelace worked with Charles Babbage on the Analytical Engine" becomes the entities Ada Lovelace and Charles Babbage (Person) and the Analytical Engine (Product), and the relationships Ada Lovelace WORKED_WITH Charles Babbage and Ada Lovelace WORKED_ON the Analytical Engine.
+
+Every input row becomes one output row per entity and one per relationship, with the input fields kept, so the document and chunk an element came from stay attached to it.
+A row without text, or a text without any entity or relationship, produces nothing, unless *Pass through rows without results* is on: the row is then written once with the graph fields empty.
+
+This is the extraction step of GraphRAG: split documents with the xref:pipeline/transforms/textchunker.adoc[Text chunker], extract the graph from every chunk, and write the entities and relationships with xref:pipeline/transforms/graph-output.adoc[Graph output], next to the chunks and their xref:pipeline/transforms/embedtext.adoc[embeddings].
+See xref:technology/graph-databases/index.adoc#vectors[Vectors and embeddings] for storing and searching the embeddings in a graph database.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Output fields
+
+[options="header"]
+|===
+|Field |Entity rows |Relationship rows
+
+|Element kind (`graph_element`)|`ENTITY`|`RELATIONSHIP`
+|Entity name (`name`)|The name of the entity, as the text names it|Empty
+|Type (`type`)|The entity type|The relationship type
+|Description (`description`)|One sentence about the entity|One sentence about the relationship
+|Relationship source (`source`)|Empty|The name of the entity the relationship starts at
+|Relationship target (`target`)|Empty|The name of the entity the relationship ends at
+|===
+
+Entities come first, then relationships.
+Split them with a xref:pipeline/transforms/filterrows.adoc[Filter rows] on the element kind, and write each to its own node or relationship mapping in Graph output.
+
+== Entity and relationship types
+
+Without types the model picks its own, and relationship types are asked for in UPPER_SNAKE_CASE.
+List the types you want, comma separated, to hold the model to them: entity types such as `Person, Organization, Product` and relationship types such as `WORKS_FOR, MAKES`.
+A type that comes back in another case, such as `person`, is written as configured: `Person`.
+This is what keeps a graph built from many texts consistent: the same kind of thing gets the same type every time.
+Keep the lists broad enough for the texts, though.
+A list that leaves no fitting type forces the model to squeeze things into the wrong one, and a local model held to the schema may then not finish at all: the call runs until the AI provider's timeout.
+
+== How the model is constrained
+
+As with xref:pipeline/transforms/structuredextract.adoc[Structured extract], an Ollama or OpenAI provider gets a JSON schema with two lists, entities and relationships, and the configured types as the only values allowed.
+Other providers get the same shape described in the instructions, and the answer is checked on the way back.
+
+== What happens when extraction fails
+
+An answer that isn't readable JSON, or a failed call to the model, is an error that says what went wrong.
+With an error hop attached, that row is diverted and the rest of the stream continues. Without one, the pipeline stops.
+
+One call reads a whole text, so one stray element does not fail the row.
+These elements are left out, and each one is named in the log at the Basic level:
+
+* an entity or relationship with a type outside the configured types
+* a relationship whose source or target is not one of the entities of the same text, matched ignoring case and surrounding spaces. A relationship that is kept gets the source and target names exactly as the entities are written, so it always joins up with them.
+
+Entities without a name and relationships without a source or target carry nothing to put in a graph and are left out, as are exact duplicates within one text.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Transform name|Name of the transform, unique within the pipeline.
+|AI provider|The AI provider whose CHAT model reads the text.
+|Model name|Optional. Overrides the provider's CHAT model for this transform only. Accepts variables.
+|Text field|Field holding the text to read the graph from.
+|Entity types|Optional comma separated list of the only entity types allowed. Accepts variables.
+|Relationship types|Optional comma separated list of the only relationship types allowed. Accepts variables.
+|Instructions|Optional. Extra guidance for the model, for example about the domain or the language of the texts.
+|Pass through rows without results|Off by default: a row without text, or without any entity or relationship, produces no output. On: such a row is written once with all six graph fields empty, so it can still be counted or joined downstream. A row whose answer fails goes to the error hop either way.
+|Output fields|The names of the six output fields, see above. Accept variables.
+|===
+
+== Writing the results to a graph database
+
+The entity and relationship types differ per row, and a Graph output node or relationship mapping has a fixed label, so the generic way to store the results is one node label and one relationship type, with the extracted types as properties.
+The samples project has this ready:
+
+* the graph model `knowledge-graph`: an `Entity` node with the properties `name` (primary), `type` and `description`, and a `RELATED_TO` relationship from `Entity` to `Entity` with the properties `type` and `description`.
+* the pipeline `transforms/extract-graph-to-database.hpl`:
+.. Extract graph
+.. Filter rows on `graph_element` = `ENTITY`
+.. true: a Graph output that maps `name`, `type` and `description` to `Entity`
+.. false: a xref:pipeline/transforms/blockingtransform.adoc[Blocking transform] that passes all rows, then a xref:pipeline/transforms/blockuntiltransformsfinish.adoc[Block until transforms finish] that waits for the entity Graph output, then a second Graph output.
+This one maps `source` to `Entity.name` with the hint *Self relationship source node*, `target` to `Entity.name` with the hint *Self relationship target node*, and `type` and `description` to the `RELATED_TO` properties.
+* the workflow `transforms/extract-graph-to-database.hwf`, which creates a unique constraint on `Entity.name` with the xref:workflow/actions/graph-constraint.adoc[Graph constraint] action and then runs the pipeline.
+
+Relationships are written after the entities because two Graph outputs merging the same name at the same moment can create the node twice.
+The unique constraint guards against that, and against duplicates from earlier runs, on the databases that have one.
+
+This works on Neo4j, Memgraph, FalkorDB, Apache AGE and Gremlin databases: every vertex has the one label `Entity`, which is all AGE and Gremlin allow.
+Unique constraints exist on Neo4j and Memgraph only. On the other databases, remove the Graph constraint action from the workflow.
+
+`RELATED_TO` is merged per pair of entities and direction, so two types between the same two entities end up as one relationship with the last type written.
+To give every type its own label instead, list a fixed set of types in the transform and add them to the graph model:
+
+* for entities, the type labels on the `Entity` node, and a node mapping on the `type` field: *Use a field value to select a specific label* gives the node only its type label, *Add the specified label if a field contains a specific value* adds it next to `Entity`. Apache AGE and Gremlin vertices have one label, so use the first there.
+* for relationships, one relationship per type from `Entity` to `Entity`, and a relationship mapping *Update specific relationship using field value* on the `type` field.
+
+== Notes
+
+* Every text is one call to the model. Extraction is the slow and costly part of building a knowledge graph, so chunk sizes of one to a few paragraphs work well. Split long texts with the xref:pipeline/transforms/textchunker.adoc[Text chunker] rather than sending them whole: the chunk size is what bounds the size of each call.
+* The request timeout and the temperature are set on the xref:metadata-types/ai-provider.adoc[AI provider] and apply to every transform that uses it. There is no limit on the length of the answer. Use a separate AI provider for extraction when it needs other settings than the rest of the project.
+* Names are as the text writes them. The same entity can appear as "Ada Lovelace" in one chunk and "Lovelace" in another: merge such duplicates before writing, for example with a xref:pipeline/transforms/fuzzymatch.adoc[Fuzzy match].

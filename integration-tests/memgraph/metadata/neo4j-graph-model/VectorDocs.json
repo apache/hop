@@ -1,0 +1,38 @@
+{
+  "relationships": [],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "Doc",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "embedding",
+          "description": "",
+          "type": "Vector",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "VectorDoc"
+      ]
+    }
+  ],
+  "name": "VectorDocs",
+  "description": "A node with an embedding: a Vector property"
+}

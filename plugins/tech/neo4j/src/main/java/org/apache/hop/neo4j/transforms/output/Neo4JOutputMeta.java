@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.neo4j.transforms.output.fields.LabelField;
@@ -44,18 +45,21 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "Neo4JOutput",
-    image = "neo4j_output.svg",
+    image = "cypher_output.svg",
     name = "i18n::Neo4JOutput.Transform.Name",
     description = "i18n::Neo4JOutput.Transform.Description",
     categoryDescription = "i18n::Neo4JOutput.Transform.Category",
     keywords = "i18n::Neo4JOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/neo4j-output.html",
+    documentationUrl = "/pipeline/transforms/cypher-output.html",
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.GRAPH})
 @Getter
 @Setter
 public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputData> {
 
-  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTION")
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKey = "CONNECTION",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(key = "batch_size", injectionKey = "BATCH_SIZE")

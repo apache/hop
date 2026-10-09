@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.core.data;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.graph.GraphNodeValue;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.neo4j.driver.Value;
@@ -67,9 +68,27 @@ public class GraphNodeData {
       Object propertyObject = propertyValue.asObject();
       GraphPropertyDataType propertyType =
           GraphPropertyDataType.getTypeFromNeo4jValue(propertyObject);
+      if (propertyObject instanceof org.neo4j.driver.types.Vector vector) {
+        // A native Neo4j VECTOR: kept as a list of numbers, which converts to JSON
+        propertyObject = GraphVectors.toList(vector);
+      }
       properties.add(new GraphPropertyData(propertyKey, propertyObject, propertyType, false));
     }
     this.propertySetId = propertySet.toString();
+  }
+
+  /** A node from the results of a graph database connection. */
+  public GraphNodeData(GraphNodeValue node) {
+    this();
+    this.id = node.id();
+    labels.addAll(node.labels());
+    node.properties()
+        .forEach(
+            (key, value) ->
+                properties.add(
+                    new GraphPropertyData(
+                        key, value, GraphPropertyDataType.getTypeFromValue(value), false)));
+    this.propertySetId = String.join(",", labels);
   }
 
   public GraphNodeData(GraphNodeData graphNode) {

@@ -399,16 +399,25 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
         + ".csv";
   }
 
+  /** True for plain column names, false for the headers of neo4j-admin import. */
+  private boolean isPlainHeader() {
+    return meta.getHeaderFormat() == CsvHeaderFormat.PLAIN;
+  }
+
   private void writeNodeCsvHeader(OutputStream os, List<IdType> props, String idFieldName)
       throws HopException, IOException {
     // Write the values to the file...
     //
 
     StringBuffer header = new StringBuffer();
+    boolean plain = isPlainHeader();
 
     // The id...
     //
-    header.append(idFieldName).append(":ID");
+    header.append(idFieldName);
+    if (!plain) {
+      header.append(":ID");
+    }
 
     for (IdType prop : props) {
 
@@ -422,13 +431,14 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
                   + prop.getType().name()
                   + "' yet.");
         }
-        header.append(":").append(prop.getType().getImportType());
+        if (!plain) {
+          header.append(":").append(prop.getType().getImportType());
+        }
       }
     }
-    header.append(",:LABEL");
+    header.append(plain ? ",label" : ",:LABEL");
     header.append(Const.CR);
 
-    System.out.println("NODES HEADER: '" + header + "'");
     os.write(header.toString().getBytes(StandardCharsets.UTF_8));
   }
 
@@ -570,8 +580,9 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
       OutputStream os, List<IdType> props, Map<String, Integer> propertyIndexes)
       throws HopException, IOException {
     StringBuffer header = new StringBuffer();
+    boolean plain = isPlainHeader();
 
-    header.append(":START_ID");
+    header.append(plain ? "start_id" : ":START_ID");
 
     for (IdType prop : props) {
 
@@ -584,12 +595,12 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
                 + prop.getType().name()
                 + "' yet.");
       }
-      header.append(":").append(prop.getType().getImportType());
-
-      GraphPropertyDataType type = prop.getType();
+      if (!plain) {
+        header.append(":").append(prop.getType().getImportType());
+      }
     }
 
-    header.append(",:END_ID,:TYPE").append(Const.CR);
+    header.append(plain ? ",end_id,type" : ",:END_ID,:TYPE").append(Const.CR);
 
     os.write(header.toString().getBytes(StandardCharsets.UTF_8));
   }

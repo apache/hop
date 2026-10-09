@@ -1,0 +1,30 @@
+{
+  "graphDatabase": {
+    "NEPTUNE": {
+      "databaseName": "",
+      "manualUrls": [],
+      "automaticVariable": "",
+      "usingEncryptionVariable": "",
+      "maxTransactionRetryTime": "",
+      "connectionLivenessCheckTimeout": "",
+      "connectionTimeout": "",
+      "connectionAcquisitionTimeout": "",
+      "trustAllCertificatesVariable": "",
+      "maxConnectionLifetime": "",
+      "routingVariable": "",
+      "routingPolicy": "",
+      "trustAllCertificates": false,
+      "maxConnectionPoolSize": "",
+      "server": "${NEPTUNE_HOSTNAME}",
+      "boltPort": "${NEPTUNE_PORT}",
+      "browserPort": "",
+      "username": "",
+      "password": "",
+      "automatic": false,
+      "protocol": "bolt",
+      "routing": false,
+      "usingEncryption": true
+    }
+  },
+  "name": "demo-neptune"
+}

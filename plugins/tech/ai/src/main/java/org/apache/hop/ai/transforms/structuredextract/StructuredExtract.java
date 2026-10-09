@@ -18,11 +18,9 @@ package org.apache.hop.ai.transforms.structuredextract;
 
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ResponseFormat;
-import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.chat.request.json.JsonSchema;
 import java.util.ArrayList;
 import java.util.List;
@@ -196,9 +194,7 @@ public class StructuredExtract extends BaseTransform<StructuredExtractMeta, Stru
 
   /** The schema as a response format, or null when the model does not accept one. */
   static ResponseFormat responseFormatFor(ChatModel model, JsonSchema schema) {
-    return model.supportedCapabilities().contains(Capability.RESPONSE_FORMAT_JSON_SCHEMA)
-        ? ResponseFormat.builder().type(ResponseFormatType.JSON).jsonSchema(schema).build()
-        : null;
+    return AiChatModelFactory.responseFormatFor(model, schema);
   }
 
   @Override

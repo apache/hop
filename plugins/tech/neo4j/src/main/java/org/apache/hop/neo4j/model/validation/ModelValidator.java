@@ -22,24 +22,21 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.hop.core.graph.GraphIndex;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphNode;
 import org.apache.hop.neo4j.model.GraphProperty;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
 
-/** This class will help you validate data input and your Neo4j data against a Graph Model */
+/** Validates the data input and the indexes of a graph database against a graph model. */
 public class ModelValidator {
 
   private List<NodeProperty> usedNodeProperties;
   private GraphModel graphModel;
-  private List<IndexDetails> indexesList;
-  private List<ConstraintDetails> constraintsList;
+  private List<GraphIndex> indexesList;
 
   public ModelValidator() {
     indexesList = new ArrayList<>();
-    constraintsList = new ArrayList<>();
     usedNodeProperties = new ArrayList<>();
   }
 
@@ -50,21 +47,25 @@ public class ModelValidator {
   }
 
   /**
-   * Validate the existence of indexes and constraints in the Neo4j database before any load takes
-   * place
+   * Validate the used nodes and properties against the model and, if the database can list them,
+   * the existence of the indexes and constraints the model asks for, before any load takes place.
    *
-   * @param log The log channel to write to when there are validation errors. Validation successes
-   *     are logged in Detailed
-   * @param session The Neo4j session to use to validate
+   * @param log The log channel to write to when there are validation errors
+   * @param indexes The indexes and unique constraints of the database, null if it can't list them:
+   *     then only the model is validated
    * @return the number of validation errors
    */
-  public int validateBeforeLoad(ILogChannel log, Session session) {
-    // Validate the nodes
-    //
+  public int validateBeforeLoad(ILogChannel log, List<GraphIndex> indexes) {
     int nrErrors = 0;
 
-    readIndexesData(session);
-    readConstraintsData(session);
+    boolean validatingIndexes = indexes != null;
+    if (validatingIndexes) {
+      indexesList = indexes;
+    } else {
+      log.logBasic(
+          "This graph database can't list its indexes: only the use of the graph model is"
+              + " validated, not its indexes and unique constraints");
+    }
 
     for (NodeProperty nodeProperty : usedNodeProperties) {
       GraphNode node = graphModel.findNode(nodeProperty.getNodeName());
@@ -87,10 +88,10 @@ public class ModelValidator {
                   + graphModel.getName());
           nrErrors++;
         } else {
-          if (property.isIndexed()) {
+          if (validatingIndexes && property.isIndexed()) {
             nrErrors += validateNodePropertyIndexed(log, node, property, false);
           }
-          if (property.isUnique()) {
+          if (validatingIndexes && property.isUnique()) {
             nrErrors += validateNodePropertyIndexed(log, node, property, true);
           }
         }
@@ -163,11 +164,10 @@ public class ModelValidator {
       ILogChannel log, GraphNode node, GraphProperty property, boolean unique) {
     int nrErrors = 0;
     boolean found = false;
-    for (IndexDetails indexDetails : indexesList) {
-      if (!unique || "UNIQUE".equalsIgnoreCase(indexDetails.getUniqueness())) {
+    for (GraphIndex index : indexesList) {
+      if (!index.relationship() && (!unique || index.unique())) {
         for (String label : node.getLabels()) {
-          if (indexDetails.getLabelsOrTypes().contains(label)
-              && indexDetails.getProperties().contains(property.getName())) {
+          if (index.covers(label, property.getName())) {
             found = true;
           }
         }
@@ -186,32 +186,6 @@ public class ModelValidator {
     }
 
     return nrErrors;
-  }
-
-  private void readIndexesData(Session session) {
-    indexesList =
-        session.executeRead(
-            transaction -> {
-              List<IndexDetails> list = new ArrayList<>();
-              Result result = transaction.run("call db.indexes()");
-              while (result.hasNext()) {
-                list.add(new IndexDetails(result.next()));
-              }
-              return list;
-            });
-  }
-
-  private void readConstraintsData(Session session) {
-    constraintsList =
-        session.executeRead(
-            transaction -> {
-              List<ConstraintDetails> list = new ArrayList<>();
-              Result result = transaction.run("call db.constraints()");
-              while (result.hasNext()) {
-                list.add(new ConstraintDetails(result.next()));
-              }
-              return list;
-            });
   }
 
   /**
@@ -251,30 +225,14 @@ public class ModelValidator {
    *
    * @return value of indexesList
    */
-  public List<IndexDetails> getIndexesList() {
+  public List<GraphIndex> getIndexesList() {
     return indexesList;
   }
 
   /**
    * @param indexesList The indexesList to set
    */
-  public void setIndexesList(List<IndexDetails> indexesList) {
+  public void setIndexesList(List<GraphIndex> indexesList) {
     this.indexesList = indexesList;
-  }
-
-  /**
-   * Gets constraintsList
-   *
-   * @return value of constraintsList
-   */
-  public List<ConstraintDetails> getConstraintsList() {
-    return constraintsList;
-  }
-
-  /**
-   * @param constraintsList The constraintsList to set
-   */
-  public void setConstraintsList(List<ConstraintDetails> constraintsList) {
-    this.constraintsList = constraintsList;
   }
 }

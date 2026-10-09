@@ -1,0 +1,19 @@
+{
+  "variables": [
+    {
+      "name": "AGE_HOST",
+      "value": "age",
+      "description": "The PostgreSQL with Apache AGE hostname"
+    },
+    {
+      "name": "AGE_PORT",
+      "value": "5432",
+      "description": "The PostgreSQL port"
+    },
+    {
+      "name": "AGE_PASSWORD",
+      "value": "hop_password",
+      "description": "The password of the hop user, see the docker compose file"
+    }
+  ]
+}

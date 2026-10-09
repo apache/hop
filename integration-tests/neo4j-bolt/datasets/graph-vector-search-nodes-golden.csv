@@ -1,0 +1,6 @@
+query_id,seq,found_id,score
+q1,1,D1,1.00
+q1,2,D2,0.80
+q1,3,D3,0.60
+q2,4,D4,1.00
+q3,5,,

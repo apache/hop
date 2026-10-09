@@ -19,30 +19,37 @@ package org.apache.hop.neo4j.actions.constraint;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.graph.GraphConstraintDefinition;
+import org.apache.hop.core.graph.GraphObjectType;
+import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
+import org.apache.hop.neo4j.actions.index.Neo4jIndex;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
 
 @Action(
     id = "NEO4J_CONSTRAINT",
-    name = "Neo4j constraint",
-    description = "Create or delete constraints in a Neo4j database",
-    image = "neo4j_constraint.svg",
+    name = "Graph constraint",
+    description = "Create or delete constraints in a graph database",
+    image = "graph_constraint.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::Neo4jConstraint.keyword",
-    documentationUrl = "/workflow/actions/neo4j-constraint.html")
+    documentationUrl = "/workflow/actions/graph-constraint.html")
 public class Neo4jConstraint extends ActionBase implements IAction {
 
-  @HopMetadataProperty(key = "connection", storeWithName = true)
-  private NeoConnection connection;
+  /** The name of the Neo4j or Bolt graph database connection. */
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
+  private String connectionName;
+
+  private NamedGraphConnection connection;
 
   @HopMetadataProperty(groupKey = "updates", key = "update")
   private List<ConstraintUpdate> constraintUpdates;
@@ -62,6 +69,11 @@ public class Neo4jConstraint extends ActionBase implements IAction {
 
   @Override
   public Result execute(Result result, int nr) throws HopException {
+    // Success unless something goes wrong, whatever the result of the previous action
+    result.setResult(true);
+
+    connection =
+        NeoConnectionUtils.findGraphConnection(getMetadataProvider(), resolve(connectionName));
 
     if (connection == null) {
       result.setResult(false);
@@ -100,162 +112,52 @@ public class Neo4jConstraint extends ActionBase implements IAction {
   }
 
   /**
-   * Generate preview Cypher for dropping a constraint (without executing it)
+   * Generate the statement to drop a constraint in the given dialect.
    *
-   * @param constraintUpdate The constraint update configuration
-   * @return The generated Cypher statement
-   * @throws HopException If constraint name is missing for relationship constraints
+   * @throws HopException if the database doesn't support it or information is missing
    */
-  public static String generateDropConstraintCypher(ConstraintUpdate constraintUpdate)
-      throws HopException {
-    String cypher = "DROP CONSTRAINT ";
-
-    if (StringUtils.isNotEmpty(constraintUpdate.getConstraintName())) {
-      cypher += constraintUpdate.getConstraintName();
-    } else {
-      throw new HopException(
-          "Please drop constraint on relationship properties with the name of the constraint. This was for label: "
-              + constraintUpdate.getObjectName()
-              + ", properties: "
-              + constraintUpdate.getObjectProperties());
-    }
-    cypher += " IF EXISTS ";
-    return cypher;
-  }
-
-  private void dropConstraint(final ConstraintUpdate constraintUpdate) throws HopException {
-    String cypher = generateDropConstraintCypher(constraintUpdate);
-
-    // Run this cypher statement...
-    //
-    final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
-      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.executeWrite(
-            tx -> {
-              try {
-                logDetailed("Dropping constraint with cypher: " + _cypher);
-                org.neo4j.driver.Result result = tx.run(_cypher);
-                result.consume();
-                return true;
-              } catch (Throwable e) {
-                throw new HopRuntimeException(
-                    "Error dropping constraint with cypher [" + _cypher + "]", e);
-              }
-            });
-      }
-    }
+  public static String generateDropConstraintCypher(
+      ConstraintUpdate constraintUpdate, IGraphDialect dialect) throws HopException {
+    return dialect.getDropConstraintStatement(toConstraintDefinition(constraintUpdate));
   }
 
   /**
-   * Generate preview Cypher for creating a constraint (without executing it)
+   * Generate the statement to create a constraint in the given dialect.
    *
-   * @param constraintUpdate The constraint update configuration
-   * @return The generated Cypher statement
-   * @throws HopException If configuration is invalid
+   * @throws HopException if the database doesn't support it or information is missing
    */
-  public static String generateCreateConstraintCypher(ConstraintUpdate constraintUpdate)
-      throws HopException {
-    String cypher = "CREATE CONSTRAINT ";
-
-    if (StringUtils.isNotEmpty(constraintUpdate.getConstraintName())) {
-      cypher += constraintUpdate.getConstraintName();
-    } else {
-      throw new HopException(
-          "Please create constraints on relationship properties with a name for the constraint. This was for label: "
-              + constraintUpdate.getObjectName()
-              + ", properties: "
-              + constraintUpdate.getObjectProperties());
-    }
-
-    cypher += " IF NOT EXISTS FOR ";
-
-    if (constraintUpdate.getObjectType() == ObjectType.NODE) {
-      // Constraint on a node
-      //
-      cypher += "(n:" + constraintUpdate.getObjectName() + ") ";
-      cypher += "REQUIRE ";
-      switch (constraintUpdate.getConstraintType()) {
-        case UNIQUE:
-          cypher += " n." + constraintUpdate.getObjectProperties() + " IS UNIQUE ";
-          break;
-        case NOT_NULL:
-          cypher += " n." + constraintUpdate.getObjectProperties() + " IS NOT NULL ";
-          break;
-        case NODE_KEY:
-          // NODE_KEY requires multiple properties (comma-separated)
-          String properties = constraintUpdate.getObjectProperties();
-          if (StringUtils.isEmpty(properties)) {
-            throw new HopException(
-                "NODE_KEY constraint requires at least one property. Properties: " + properties);
-          }
-          String[] props = properties.split(",");
-          if (props.length < 1) {
-            throw new HopException(
-                "NODE_KEY constraint requires at least one property. Properties: " + properties);
-          }
-          // Format as (n.prop1, n.prop2, ...) IS NODE KEY
-          StringBuilder propsList = new StringBuilder("(");
-          for (int i = 0; i < props.length; i++) {
-            if (i > 0) {
-              propsList.append(", ");
-            }
-            propsList.append("n.").append(props[i].trim());
-          }
-          propsList.append(")");
-          cypher += propsList.toString() + " IS NODE KEY ";
-          break;
-        default:
-          throw new HopException(
-              "Unsupported constraint type: " + constraintUpdate.getConstraintType());
-      }
-
-    } else {
-      // constraint on a relationship
-      //
-      cypher += "()-[r:" + constraintUpdate.getObjectName() + "]-() ";
-      cypher += "REQUIRE ";
-      switch (constraintUpdate.getConstraintType()) {
-        case UNIQUE:
-          cypher += " r." + constraintUpdate.getObjectProperties() + " IS UNIQUE ";
-          break;
-        case NOT_NULL:
-          cypher += " r." + constraintUpdate.getObjectProperties() + " IS NOT NULL ";
-          break;
-        case NODE_KEY:
-          throw new HopException(
-              "NODE_KEY constraint type is only supported for nodes, not relationships");
-        default:
-          throw new HopException(
-              "Unsupported constraint type: " + constraintUpdate.getConstraintType());
-      }
-    }
-
-    return cypher;
+  public static String generateCreateConstraintCypher(
+      ConstraintUpdate constraintUpdate, IGraphDialect dialect) throws HopException {
+    return dialect.getCreateConstraintStatement(toConstraintDefinition(constraintUpdate));
   }
 
-  private void createConstraint(ConstraintUpdate constraintUpdate) throws HopException {
-    String cypher = generateCreateConstraintCypher(constraintUpdate);
+  static GraphConstraintDefinition toConstraintDefinition(ConstraintUpdate constraintUpdate) {
+    return new GraphConstraintDefinition(
+        constraintUpdate.getConstraintName(),
+        constraintUpdate.getObjectType() == ObjectType.RELATIONSHIP
+            ? GraphObjectType.RELATIONSHIP
+            : GraphObjectType.NODE,
+        constraintUpdate.getConstraintType(),
+        constraintUpdate.getObjectName(),
+        Neo4jIndex.splitProperties(constraintUpdate.getObjectProperties()));
+  }
+
+  private void dropConstraint(final ConstraintUpdate constraintUpdate) throws HopException {
+    String cypher = generateDropConstraintCypher(constraintUpdate, connection.getDialect());
 
     // Run this cypher statement...
     //
-    final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
-      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.executeWrite(
-            tx -> {
-              try {
-                logDetailed("Creating constraint with cypher: " + _cypher);
-                org.neo4j.driver.Result result = tx.run(_cypher);
-                result.consume();
-                return true;
-              } catch (Throwable e) {
-                throw new HopRuntimeException(
-                    "Error creating constraint with cypher [" + _cypher + "]", e);
-              }
-            });
-      }
-    }
+    NeoConnectionUtils.runSchemaStatement(
+        connection, getLogChannel(), this, cypher, "Dropping constraint");
+  }
+
+  private void createConstraint(ConstraintUpdate constraintUpdate) throws HopException {
+    String cypher = generateCreateConstraintCypher(constraintUpdate, connection.getDialect());
+
+    // Run this cypher statement...
+    //
+    NeoConnectionUtils.runSchemaStatement(
+        connection, getLogChannel(), this, cypher, "Creating constraint");
   }
 
   @Override
@@ -269,19 +171,19 @@ public class Neo4jConstraint extends ActionBase implements IAction {
   }
 
   /**
-   * Gets connection
+   * Gets the name of the connection
    *
-   * @return value of connection
+   * @return value of connectionName
    */
-  public NeoConnection getConnection() {
-    return connection;
+  public String getConnectionName() {
+    return connectionName;
   }
 
   /**
-   * @param connection The connection to set
+   * @param connectionName The name of the Neo4j or Bolt graph database connection to use
    */
-  public void setConnection(NeoConnection connection) {
-    this.connection = connection;
+  public void setConnectionName(String connectionName) {
+    this.connectionName = connectionName;
   }
 
   /**
