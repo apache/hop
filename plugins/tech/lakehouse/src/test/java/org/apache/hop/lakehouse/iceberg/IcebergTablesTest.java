@@ -148,7 +148,8 @@ class IcebergTablesTest {
   /**
    * The hint is a starting point: a writer publishes {@code v<N>.metadata.json} before it updates
    * the hint, so newer versions after the hinted one are followed, like Iceberg's Hadoop tables do,
-   * including gzip-compressed metadata. The walk stops at the first missing version.
+   * including both gzip spellings of the metadata file name. The walk stops at the first missing
+   * version.
    */
   @Test
   void versionHintIsAStartingPoint() throws Exception {
@@ -156,12 +157,14 @@ class IcebergTablesTest {
     Files.writeString(metadata.resolve("v1.metadata.json"), "{}");
     Files.writeString(metadata.resolve("v2.metadata.json"), "{}");
     Files.writeString(metadata.resolve("v3.gz.metadata.json"), "{}");
-    Files.writeString(metadata.resolve("v5.metadata.json"), "{}");
+    Files.writeString(metadata.resolve("v4.metadata.json.gz"), "{}");
+    Files.writeString(metadata.resolve("v6.metadata.json"), "{}");
     Files.writeString(metadata.resolve("version-hint.text"), "1\n");
 
     String root = tempDir.resolve("t").toUri().toString();
     assertEquals(
-        metadataFolder(root) + "/v3.gz.metadata.json", IcebergTables.currentMetadataFile(root));
+        metadataFolder(root) + "/v4.metadata.json.gz", IcebergTables.currentMetadataFile(root));
+    assertEquals(4, IcebergTables.metadataVersion("v4.metadata.json.gz"));
   }
 
   @Test

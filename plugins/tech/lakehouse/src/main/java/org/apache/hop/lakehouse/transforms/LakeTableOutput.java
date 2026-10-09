@@ -35,8 +35,10 @@ import org.apache.hop.lakehouse.iceberg.IcebergTables;
 import org.apache.hop.lakehouse.iceberg.IcebergTypeMapper;
 import org.apache.hop.lakehouse.iceberg.PluginClassLoader;
 import org.apache.hop.lakehouse.metadata.LakeCatalog;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.iceberg.PartitionSpec;
@@ -260,34 +262,42 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
     return builder.build();
   }
 
+  /**
+   * Commits when the pipeline has finished. Hop's own execution-finished listener, which marks the
+   * pipeline finished and stops it running, is put first in the list when the threads start, and
+   * this is called from processRow(), after that. On a local Pipeline the commit listener is
+   * therefore inserted in front of it: the commit runs while the pipeline still reports itself as
+   * running, so a status poll (the remote engine, a parent workflow) can't see "Finished" before
+   * the snapshot exists or before a failed commit is counted.
+   */
   private void commitWhenPipelineFinishes(CommitCoordinator coordinator) {
-    getPipeline()
-        .addExecutionFinishedListener(
-            pipeline -> {
-              // This runs on the thread of whichever transform finished last.
-              try (PluginClassLoader ignored = PluginClassLoader.activate()) {
-                finishRun(pipeline.getErrors() > 0 || pipeline.isStopped(), coordinator);
-              }
-            });
+    IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener =
+        pipeline -> {
+          // This runs on the thread of whichever transform finished last.
+          try (PluginClassLoader ignored = PluginClassLoader.activate()) {
+            finishRun(pipeline.getErrors() > 0 || pipeline.isStopped(), coordinator);
+          }
+        };
+    if (getPipeline() instanceof Pipeline local) {
+      List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> listeners =
+          local.getExecutionFinishedListeners();
+      synchronized (listeners) {
+        listeners.add(0, listener);
+      }
+    } else {
+      getPipeline().addExecutionFinishedListener(listener);
+    }
   }
 
   /**
-   * Commits or aborts the run. This runs from an execution-finished listener, after Hop has already
-   * marked the pipeline finished, so for the duration of the commit the pipeline reports itself as
-   * running again: a status poll (the remote engine, a parent workflow) can't see "Finished" before
-   * the snapshot exists. A failed commit is counted as an error of this transform before the
-   * listener returns, so it is part of the pipeline result that waiters read.
+   * Commits or aborts the run. A failed commit is counted as an error of this transform before the
+   * listener returns, so it is part of the pipeline result before anyone waiting is released.
    */
   private void finishRun(boolean failed, CommitCoordinator coordinator) throws HopException {
     if (failed) {
       coordinator.abort();
       logBasic("The pipeline didn't finish successfully: no rows were committed");
       return;
-    }
-    // On the local engine, and inside Hop Server for the remote engine, this is a Pipeline.
-    Pipeline pipeline = getPipeline() instanceof Pipeline local ? local : null;
-    if (pipeline != null) {
-      pipeline.setRunning(true);
     }
     try {
       Long snapshotId = coordinator.commit();
@@ -313,10 +323,6 @@ public class LakeTableOutput extends BaseTransform<LakeTableOutputMeta, LakeTabl
         coordinator.abort();
       }
       throw new HopException("Unable to commit to Iceberg table", e);
-    } finally {
-      if (pipeline != null) {
-        pipeline.setRunning(false);
-      }
     }
   }
 

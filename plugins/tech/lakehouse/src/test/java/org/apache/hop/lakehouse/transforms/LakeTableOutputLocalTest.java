@@ -459,4 +459,96 @@ class LakeTableOutputLocalTest {
     assertEquals(
         2, table().history().size(), "the overwrite didn't replace the other writer's data");
   }
+
+  /**
+   * An existing table without snapshots is protected too: a writer that gives it its first snapshot
+   * while an Overwrite runs makes the overwrite fail instead of being removed by it.
+   */
+  @Test
+  void overwriteOfAnEmptyTableDoesntRemoveAConcurrentFirstAppend() throws Exception {
+    org.apache.hop.lakehouse.iceberg.PathTableOperations ops =
+        new org.apache.hop.lakehouse.iceberg.PathTableOperations(tablePath);
+    org.apache.iceberg.Transactions.createTableTransaction(
+            tablePath,
+            ops,
+            org.apache.iceberg.TableMetadata.newTableMetadata(
+                org.apache.hop.lakehouse.iceberg.IcebergTypeMapper.toIcebergSchema(rowMeta),
+                org.apache.iceberg.PartitionSpec.unpartitioned(),
+                tablePath,
+                Map.of()))
+        .commitTransaction();
+    assertTrue(table().currentSnapshot() == null, "the table starts without a snapshot");
+    onFirstRow =
+        () -> {
+          Table other =
+              new org.apache.iceberg.BaseTable(
+                  new org.apache.hop.lakehouse.iceberg.PathTableOperations(tablePath), tablePath);
+          other
+              .newAppend()
+              .appendFile(
+                  org.apache.iceberg.DataFiles.builder(other.spec())
+                      .withPath(tablePath + "/data/first.parquet")
+                      .withFormat(org.apache.iceberg.FileFormat.PARQUET)
+                      .withFileSizeInBytes(10)
+                      .withRecordCount(1)
+                      .build())
+              .commit();
+        };
+
+    Run run = run(output(LakeTableOutputMeta.MODE_OVERWRITE), 1, rows(0, 20), false);
+
+    assertTrue(run.errors > 0, "the overwrite fails validation");
+    assertEquals(1, table().history().size(), "the other writer's first snapshot is kept");
+    assertEquals(
+        tablePath + "/data/first.parquet",
+        table().currentSnapshot().addedDataFiles(table().io()).iterator().next().location());
+  }
+
+  /**
+   * The commit runs while the pipeline still reports itself as running: whoever polls the status
+   * never sees "Finished" before the snapshot is in the table.
+   */
+  @Test
+  void statusIsNotFinishedBeforeTheSnapshotExists() throws Exception {
+    java.util.concurrent.atomic.AtomicReference<String> seenWhenFinished =
+        new java.util.concurrent.atomic.AtomicReference<>();
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("write-orders");
+    TransformMeta injector = new TransformMeta("injector", new InjectorMeta());
+    TransformMeta writer = new TransformMeta("output", output(LakeTableOutputMeta.MODE_ERROR));
+    writer.setCopies(3);
+    pipelineMeta.addTransform(injector);
+    pipelineMeta.addTransform(writer);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(injector, writer));
+    LocalPipelineEngine pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.setMetadataProvider(metadataProvider);
+    pipeline.prepareExecution();
+    RowProducer producer = pipeline.addRowProducer("injector", 0);
+    pipeline.startThreads();
+
+    Thread poller =
+        new Thread(
+            () -> {
+              while (seenWhenFinished.get() == null) {
+                if (pipeline
+                    .getStatus()
+                    .startsWith(org.apache.hop.pipeline.Pipeline.STRING_FINISHED)) {
+                  boolean exists =
+                      java.nio.file.Files.exists(
+                          tempDir.resolve("orders/metadata/v1.metadata.json"));
+                  seenWhenFinished.set(exists ? "snapshot" : "no snapshot");
+                }
+              }
+            });
+    poller.start();
+    for (Object[] row : rows(0, 3000)) {
+      producer.putRow(rowMeta, row.clone());
+    }
+    producer.finished();
+    pipeline.waitUntilFinished();
+    poller.join(10_000);
+
+    assertEquals(0, pipeline.getErrors());
+    assertEquals("snapshot", seenWhenFinished.get());
+  }
 }

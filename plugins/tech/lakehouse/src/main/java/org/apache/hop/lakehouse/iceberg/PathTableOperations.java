@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
@@ -52,9 +53,10 @@ import org.apache.iceberg.io.LocationProvider;
  * version's name with an operation that fails if that name is already taken. On a local file system
  * that is a hard link, which the operating system creates atomically, so two writers can't both
  * commit the same version, whether they run in one Hop instance or in several processes. Commits in
- * one JVM are also serialized per table location. Other file systems publish with a check followed
- * by a write, which isn't atomic across processes, so a path table there (including HDFS, object
- * stores and local file systems without hard links) should have one writer at a time. Tables
+ * one JVM are also serialized per table location. Where hard links aren't supported, a local commit
+ * uses an exclusive create instead, which is atomic too. Other file systems publish with a check
+ * followed by a write, which isn't atomic across processes, so a path table there (including HDFS,
+ * object stores and local file systems without hard links) should have one writer at a time. Tables
  * managed by a catalog should be written through the catalog instead. Nothing in a commit ever
  * deletes or replaces an existing version file.
  *
@@ -159,49 +161,80 @@ public class PathTableOperations implements TableOperations {
   /**
    * Publishes {@code temp} as {@code target}, failing with a {@link CommitFailedException} if
    * another writer committed that version first. Nothing here ever deletes or replaces an existing
-   * version file.
+   * version file, and a failed write never leaves a partial one behind.
    *
-   * <p>On a local file system with hard links, the link is atomic, so this also holds between
-   * processes. Everywhere else (HDFS, object stores, local file systems without hard links) the
-   * check and the write are separate steps, which is why path tables there support one writer at a
-   * time. A failure while writing the version file there is reported as a {@link
-   * CommitStateUnknownException}, since the file may already be visible.
+   * <p>On a local disk this is atomic, also between processes: a hard link, or where hard links
+   * aren't supported, an exclusive create ({@code O_EXCL}) of the target. Everywhere else (HDFS,
+   * object stores) Hop VFS has no exclusive create, so the target is checked and then written: path
+   * tables there support one writer at a time.
    */
   void publish(String temp, String target, int next) {
-    FileObject targetFile;
     try {
       FileObject tempFile = HopVfs.getFileObject(temp);
-      targetFile = HopVfs.getFileObject(target);
+      FileObject targetFile = HopVfs.getFileObject(target);
       if (tempFile instanceof LocalFile && targetFile instanceof LocalFile) {
-        try {
-          // link(2) fails with EEXIST if the name is taken, atomically.
-          Files.createLink(Paths.get(targetFile.getURI()), Paths.get(tempFile.getURI()));
-          return;
-        } catch (FileAlreadyExistsException e) {
-          throw e;
-        } catch (UnsupportedOperationException | FileSystemException noHardLinks) {
-          // No hard links on this file system: fall through to the single-writer path below.
-        }
-      }
-      if (targetFile.exists()) {
-        throw new FileAlreadyExistsException(target);
+        publishLocal(Paths.get(tempFile.getURI()), Paths.get(targetFile.getURI()));
+      } else {
+        publishRemote(temp, targetFile);
       }
     } catch (FileAlreadyExistsException e) {
       throw new CommitFailedException(
           "Version %d of table %s was committed by another writer", next, location);
+    } catch (CommitStateUnknownException e) {
+      throw e;
     } catch (Exception e) {
       throw new RuntimeIOException(
           new java.io.IOException("Unable to commit version " + next + " of " + location, e));
     }
-    // Write the new version file directly instead of moving the temp file: VFS moveTo deletes an
-    // existing destination, which would remove a version another writer just published.
+  }
+
+  private static void publishLocal(Path temp, Path target) throws java.io.IOException {
+    try {
+      // link(2) fails with EEXIST if the name is taken, atomically.
+      Files.createLink(target, temp);
+      return;
+    } catch (UnsupportedOperationException noHardLinks) {
+      // Fall through to the exclusive create below.
+    } catch (FileAlreadyExistsException | java.nio.file.NoSuchFileException e) {
+      throw e;
+    } catch (FileSystemException e) {
+      if (Files.exists(target)) {
+        throw new FileAlreadyExistsException(target.toString());
+      }
+      // Most likely a file system without hard links: fall through to the exclusive create.
+    }
+    // CREATE_NEW is an exclusive create (O_EXCL): it fails if the name exists, atomically.
+    boolean created = false;
+    try (OutputStream out =
+        Files.newOutputStream(target, java.nio.file.StandardOpenOption.CREATE_NEW)) {
+      created = true;
+      Files.copy(temp, out);
+    } catch (java.io.IOException e) {
+      if (created) {
+        // Never leave a partial version file that readers would take as the current one.
+        Files.deleteIfExists(target);
+      }
+      throw e;
+    }
+  }
+
+  private static void publishRemote(String temp, FileObject target) throws Exception {
+    if (target.exists()) {
+      throw new FileAlreadyExistsException(target.getName().getURI());
+    }
     try (InputStream in = HopVfs.getInputStream(temp);
-        OutputStream out = HopVfs.getOutputStream(targetFile, false)) {
+        OutputStream out = HopVfs.getOutputStream(target, false)) {
       in.transferTo(out);
     } catch (Exception e) {
-      throw new CommitStateUnknownException(
-          new java.io.IOException(
-              "Writing version " + next + " of " + location + " failed; it may be incomplete", e));
+      // The file didn't exist before this write, so a partial one is ours to remove.
+      try {
+        target.delete();
+      } catch (Exception deleteFailed) {
+        throw new CommitStateUnknownException(
+            new java.io.IOException(
+                "Writing " + target.getName().getURI() + " failed and it couldn't be removed", e));
+      }
+      throw e;
     }
   }
 

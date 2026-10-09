@@ -123,21 +123,22 @@ public class CommitCoordinator {
             OverwriteFiles overwrite =
                 table.newOverwrite().overwriteByRowFilter(Expressions.alwaysTrue());
             files.forEach(overwrite::addFile);
+            // Fail instead of silently replacing data another writer added in the meantime. With
+            // no starting snapshot (an empty table), every file now in the table counts as added
+            // since the start, so a writer that gave the table its first snapshot is caught too.
             if (startSnapshotId != null) {
-              // Fail instead of silently replacing data another writer added in the meantime.
-              overwrite.validateFromSnapshot(startSnapshotId).validateNoConflictingData();
+              overwrite.validateFromSnapshot(startSnapshotId);
             }
+            overwrite.validateNoConflictingData();
             yield overwrite;
           }
           case OVERWRITE_PARTITIONS -> {
             ReplacePartitions replace = table.newReplacePartitions();
             files.forEach(replace::addFile);
             if (startSnapshotId != null) {
-              replace
-                  .validateFromSnapshot(startSnapshotId)
-                  .validateNoConflictingData()
-                  .validateNoConflictingDeletes();
+              replace.validateFromSnapshot(startSnapshotId);
             }
+            replace.validateNoConflictingData().validateNoConflictingDeletes();
             yield replace;
           }
         };

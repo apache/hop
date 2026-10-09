@@ -46,7 +46,7 @@ public final class IcebergTables {
 
   /** Hadoop catalogs and Spark path tables name metadata files v1.metadata.json, v2... */
   private static final Pattern HADOOP_METADATA =
-      Pattern.compile("v(\\d+)(\\.gz)?\\.metadata\\.json");
+      Pattern.compile("v(\\d+)(?:(?:\\.gz)?\\.metadata\\.json|\\.metadata\\.json\\.gz)");
 
   /** Other catalogs name them 00001-<uuid>.metadata.json, 00002-... */
   private static final Pattern CATALOG_METADATA =
@@ -267,8 +267,13 @@ public final class IcebergTables {
 
   /** The metadata file of {@code version} in a path-table layout, or null if it doesn't exist. */
   private static String versionFile(String metadataFolder, long version) throws Exception {
+    // Iceberg's three spellings: plain, gzip, and the legacy gzip name (.metadata.json.gz).
     for (String name :
-        new String[] {"v" + version + ".metadata.json", "v" + version + ".gz.metadata.json"}) {
+        new String[] {
+          "v" + version + ".metadata.json",
+          "v" + version + ".gz.metadata.json",
+          "v" + version + ".metadata.json.gz"
+        }) {
       String file = metadataFolder + "/" + name;
       if (HopVfs.getFileObject(file).exists()) {
         return file;

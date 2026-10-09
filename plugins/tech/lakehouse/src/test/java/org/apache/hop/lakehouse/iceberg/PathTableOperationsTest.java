@@ -235,4 +235,19 @@ class PathTableOperationsTest {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
+
+  /** On a local disk the version is published as a hard link of the temp file, atomically. */
+  @Test
+  void localPublishUsesAHardLink() throws Exception {
+    org.junit.jupiter.api.Assumptions.assumeTrue(
+        java.nio.file.FileSystems.getDefault().supportedFileAttributeViews().contains("unix"));
+    Path temp = metadata("next.metadata.json.tmp");
+    Path target = metadata("v7.metadata.json");
+    Files.writeString(temp, "{}", StandardCharsets.UTF_8);
+
+    new PathTableOperations(location)
+        .publish(temp.toUri().toString(), target.toUri().toString(), 7);
+
+    assertEquals(2, Files.getAttribute(target, "unix:nlink"), "target and temp are one file");
+  }
 }
