@@ -76,6 +76,9 @@ A project chosen with `-j` or `-e` applies whatever is linted; for a target outs
 |`--baseline <file>`
 |Report only findings that are not in this baseline file
 
+|`--[no-]include-metadata`
+|Lint the metadata files in a folder too, such as connections. On by default.
+
 |`--write-baseline <file>`
 |Write today's findings to a baseline file and exit
 
@@ -116,7 +119,8 @@ A project chosen with `-j` or `-e` applies whatever is linted; for a target outs
 |No findings at or above the `--fail-on` threshold
 
 |`1`
-|Findings at or above the threshold, or more warnings than `--max-warnings`
+|Findings at or above the threshold, or more warnings than `--max-warnings`.
+Also when the project's `hop-lint.yml`, the `--config` file or an installed rule pack cannot be read: the error names the file or pack and what is wrong with it.
 |===
 
 == Continuous integration
@@ -132,6 +136,9 @@ hop lint --max-warnings 20 .
 `json` is there for everything else.
 Stdout carries only the report, in every format, so it can be piped or redirected.
 Hop's log lines and notes such as the baseline count go to stderr.
+
+To lint from a workflow instead, on Hop Server or in a container, use the xref:workflow/actions/runlinter.adoc[Run Linter] action.
+It gives the same findings and the same outcome as `hop lint` on the same project.
 
 [[baseline]]
 == Adopting the linter on an existing project

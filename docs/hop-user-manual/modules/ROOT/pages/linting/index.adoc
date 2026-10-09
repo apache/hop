@@ -35,7 +35,7 @@ A linter answers questions a review would otherwise have to catch by eye:
 Apache Hop ships a small set of rules that are enabled by default.
 Everything beyond those — naming conventions, size ceilings, mandatory descriptions — is a matter of house style, so those rules ship disabled or come from a xref:linting/lint-rule-packs.adoc[rule pack] you install or write yourself.
 
-See xref:linting/lint-rules.adoc[Lint rules] for the rules themselves and how to configure them, and xref:hop-tools/hop-lint.adoc[hop lint] for the command line.
+See xref:linting/lint-rules.adoc[Lint rules] for the rules themselves and how to configure them, xref:hop-tools/hop-lint.adoc[hop lint] for the command line, and xref:workflow/actions/runlinter.adoc[Run Linter] for linting from a workflow.
 
 == Installing
 
@@ -107,6 +107,7 @@ A rule's severity is part of the rule, and a project can override it.
 
 Linter behaviour is configured under *Configuration -> Linter* in Hop Gui, and stored in `hop-config.json`.
 The linter can be switched off entirely there, and each of its parts — linting while you edit, the problems bar, the canvas overlays, the checks added to *Verify*, and blocking git commits — can be switched off individually.
+Switching the linter off applies to Hop Gui: `hop lint` and the xref:workflow/actions/runlinter.adoc[Run Linter] action still lint when they are run.
 
 Blocking git commits is *off by default*. Nothing about committing changes until you switch it on, and see xref:hop-tools/hop-lint.adoc[hop lint] for which git operations it applies to.
 

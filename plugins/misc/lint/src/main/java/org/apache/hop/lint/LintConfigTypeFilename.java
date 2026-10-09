@@ -14,23 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.lint.registry;
+package org.apache.hop.lint;
 
-/**
- * Thrown when the project's {@code hop-lint.yml}, or an installed rule pack, cannot be read.
- *
- * <p>The project's own configuration always fails: the user wrote it and needs to be told it is
- * broken, rather than silently getting default rules. A broken installed pack is skipped with a
- * logged error in Hop Gui, so one bad vendor jar does not stop the editor, but fails {@code hop
- * lint} and the Run Linter action, where a pass has to mean every rule ran.
- */
-public class LintConfigurationException extends RuntimeException {
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+import org.apache.hop.i18n.BaseMessages;
 
-  public LintConfigurationException(String message) {
-    super(message);
+/** The files the Run Linter action offers for its configuration: hop-lint.yml and the like. */
+public class LintConfigTypeFilename implements ITypeFilename {
+  @Override
+  public String getDefaultFileExtension() {
+    return ".yml";
   }
 
-  public LintConfigurationException(String message, Throwable cause) {
-    super(message, cause);
+  @Override
+  public String[] getFilterExtensions() {
+    return new String[] {"*.yml;*.yaml", "*"};
+  }
+
+  @Override
+  public String[] getFilterNames() {
+    return new String[] {
+      BaseMessages.getString(LintConfigTypeFilename.class, "LintConfigTypeFilename.Yaml"),
+      BaseMessages.getString(LintConfigTypeFilename.class, "LintConfigTypeFilename.All")
+    };
   }
 }

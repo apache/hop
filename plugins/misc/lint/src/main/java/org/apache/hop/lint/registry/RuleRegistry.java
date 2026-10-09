@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lint.CustomLintRule;
@@ -38,7 +39,7 @@ public class RuleRegistry {
 
   private static final RuleRegistry INSTANCE = new RuleRegistry();
 
-  private final RulePackDiscovery packDiscovery = new RulePackDiscovery();
+  private final RulePackDiscovery packDiscovery;
 
   /**
    * Rules contributed by the installed packs, cached after the first resolution.
@@ -52,11 +53,29 @@ public class RuleRegistry {
   private volatile Map<String, CustomLintRule> packRules;
 
   /**
+   * Why each installed pack that could not be loaded failed, recorded with {@link #packRules}.
+   *
+   * <p>Hop Gui carries on without such a pack, but {@code hop lint} and the Run Linter action fail
+   * on it: a build that passes because a pack's rules never ran is a build that passed for the
+   * wrong reason.
+   */
+  private volatile List<String> packErrors = List.of();
+
+  /**
    * The unknown rule id warnings already logged, per hop-lint.yml. Resolution runs once per file
    * and on every background check, so logging each time repeated the same line for as long as the
    * project kept the id.
    */
   private final Set<String> loggedWarnings = ConcurrentHashMap.newKeySet();
+
+  private RuleRegistry() {
+    this(new RulePackDiscovery());
+  }
+
+  /** A registry over the packs this discovery finds; for tests. */
+  RuleRegistry(RulePackDiscovery packDiscovery) {
+    this.packDiscovery = packDiscovery;
+  }
 
   public static RuleRegistry getInstance() {
     return INSTANCE;
@@ -72,6 +91,7 @@ public class RuleRegistry {
         return packRules;
       }
       Map<String, CustomLintRule> loaded = new LinkedHashMap<>();
+      List<String> errors = new ArrayList<>();
       for (IHopLintRulePack pack : packDiscovery.discoverAll()) {
         try {
           mergePack(loaded, pack);
@@ -82,13 +102,40 @@ public class RuleRegistry {
                   + pack.getOwner().getDisplayName()
                   + ")");
         } catch (Exception e) {
-          LogChannel.GENERAL.logError(
-              "Failed to load rule pack " + pack.getPackId() + ": " + e.getMessage(), e);
+          String error =
+              "Rule pack '" + pack.getPackId() + "' could not be loaded: " + messagesOf(e);
+          errors.add(error);
+          LogChannel.GENERAL.logError(error, e);
         }
       }
+      packErrors = List.copyOf(errors);
       packRules = loaded;
       return loaded;
     }
+  }
+
+  /** Why each installed pack that could not be loaded failed, empty when all of them loaded. */
+  public List<String> getPackErrors() {
+    loadPackRules();
+    return packErrors;
+  }
+
+  /**
+   * The messages along an exception's cause chain, so a YAML error wrapped in "Failed to load rule
+   * pack from ..." still names the line that is wrong.
+   */
+  static String messagesOf(Throwable throwable) {
+    List<String> messages = new ArrayList<>();
+    // getThrowableList stops at a cause seen before, so a cause chain that loops cannot hang the
+    // registry while it holds its lock.
+    for (Throwable t : ExceptionUtils.getThrowableList(throwable)) {
+      String message = t.getMessage();
+      if (!Utils.isEmpty(message)
+          && messages.stream().noneMatch(known -> known.contains(message))) {
+        messages.add(message);
+      }
+    }
+    return messages.isEmpty() ? throwable.toString() : String.join(": ", messages);
   }
 
   /**
@@ -180,10 +227,7 @@ public class RuleRegistry {
         LogChannel.GENERAL.logError(
             "Failed to load project hop-lint.yml: " + projectYaml.getAbsolutePath(), e);
         throw new LintConfigurationException(
-            "Invalid lint configuration in "
-                + projectYaml.getAbsolutePath()
-                + ": "
-                + e.getMessage(),
+            "Invalid lint configuration in " + projectYaml.getAbsolutePath() + ": " + messagesOf(e),
             e);
       }
     }
