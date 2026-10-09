@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditActions;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -117,6 +118,9 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
 
   /** Free-form human-readable text / message body. */
   public static final String STYLE_TYPE_TEXT = "Text";
+
+  /** Markdown source, including canvas notes edited as Markdown. */
+  public static final String STYLE_TYPE_MARKDOWN = "Markdown";
 
   /** Cassandra Query Language. */
   public static final String STYLE_TYPE_CQL = "CQL";
@@ -290,6 +294,7 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL, getCharCount() > 0);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FIND, true);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FIND_REPLACE, editable);
+    MarkdownEditActions.updateTextComposite(this);
   }
 
   // --- Toolbar actions (static so they resolve for every TextComposite subclass) ---

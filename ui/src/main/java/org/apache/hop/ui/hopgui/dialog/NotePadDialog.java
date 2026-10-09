@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditContext;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -277,7 +278,9 @@ public class NotePadDialog extends Dialog {
             variables,
             wNoteContentComp,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            TextComposite.STYLE_TYPE_TEXT);
+            TextComposite.STYLE_TYPE_MARKDOWN);
+    MarkdownEditContext.attach(
+        wDesc, variables, () -> baseFilename, () -> wMarkdown.getSelection());
     wDesc.setText("");
     // Standard widget look (theme-aware). Do not paint note fill/font colors into the editor —
     // those are canvas-only and break dark mode. Use a fixed-width font for Markdown source.
@@ -706,6 +709,9 @@ public class NotePadDialog extends Dialog {
     // Font & style are system-owned in Markdown mode
     if (wNoteFontComp != null && !wNoteFontComp.isDisposed()) {
       setEnabledRecursive(wNoteFontComp, !markdown);
+    }
+    if (wDesc != null && !wDesc.isDisposed()) {
+      wDesc.updateToolbar();
     }
   }
 

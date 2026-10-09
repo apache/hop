@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditActions;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.remote.AbstractOperationHandler;
@@ -113,6 +114,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     RapContentEditorWidget widget = new RapContentEditorWidget(root, text, languageId);
     Control toolbar = addToolbar(root, widget);
     text.setLayoutData(FormDataBuilder.builder().top(toolbar).bottom().fullWidth().build());
+    text.addListener(SWT.Selection, event -> widget.updateToolbar());
     text.addListener(
         SWT.KeyDown,
         event -> {
@@ -208,6 +210,15 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
                 }
                 if (properties.get("end") != null) {
                   selectionEnd = properties.get("end").asInt();
+                }
+                Display current = host.getDisplay();
+                if (current != null && !current.isDisposed() && !host.isDisposed()) {
+                  current.asyncExec(
+                      () -> {
+                        if (!host.isDisposed()) {
+                          updateToolbar();
+                        }
+                      });
                 }
                 return;
               }
@@ -458,12 +469,18 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     }
 
     @Override
+    public GuiToolbarWidgets getToolbarWidgets() {
+      return toolbarWidgets;
+    }
+
+    @Override
     public void updateToolbar() {
       if (toolbarWidgets == null) {
         return;
       }
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, isEditable());
+      MarkdownEditActions.updateContentEditor(this);
     }
 
     private int clampedOffset(int offset) {
@@ -613,6 +630,17 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     }
 
     @Override
+    public int getSelectionStart() {
+      org.eclipse.swt.graphics.Point range = text.getSelection();
+      return range == null ? 0 : range.x;
+    }
+
+    @Override
+    public GuiToolbarWidgets getToolbarWidgets() {
+      return toolbarWidgets;
+    }
+
+    @Override
     public void setCaretPosition(int position) {
       text.setSelection(position);
     }
@@ -639,6 +667,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       }
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, isEditable());
+      MarkdownEditActions.updateContentEditor(this);
     }
   }
 }

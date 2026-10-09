@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditActions;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -301,6 +302,7 @@ public class ContentEditorWidget implements IContentEditorWidget {
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
       toolbarWidgets.enableToolbarItem(
           ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, sourceViewer.isEditable());
+      MarkdownEditActions.updateContentEditor(this);
     }
 
     // Update the HopGui main menu items. There is no main menu when the editor is built outside a
@@ -333,6 +335,11 @@ public class ContentEditorWidget implements IContentEditorWidget {
   @Override
   public Control getControl() {
     return control;
+  }
+
+  @Override
+  public GuiToolbarWidgets getToolbarWidgets() {
+    return toolbarWidgets;
   }
 
   @Override
