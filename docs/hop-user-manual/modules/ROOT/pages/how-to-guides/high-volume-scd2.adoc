@@ -32,7 +32,7 @@ Read one or more sources that share a business key and a change timestamp. Give 
 
 Ask the source database to sort. In xref:pipeline/transforms/tableinput.adoc[Table Input] that is an `ORDER BY business_key, changed_date_ts`. When the source is a file or another non-database input, sort it in the pipeline with xref:pipeline/transforms/sort.adoc[Sort Rows].
 
-On an incremental load, include the latest version of each business key from the target dimension as one more source. That current row then takes part in the new timeline, which is how its `to_ts` gets closed when a later change arrives. See the tip on the xref:pipeline/transforms/repeatfields.adoc[Repeat fields] page.
+On an incremental load, include the current target row only for a business key that appears in the delta, as one more source. A key with no new change is not read and not written. The current row carries the attributes already stored, so a later change can close its `to_ts`. Read that row with the stored `from_ts` as `changed_date_ts`, and set `record_source` to a value no delta source uses, for example `target`. The rebuilt `from_ts` is that same timestamp, so an update on `business_key` and `from_ts` still finds the stored row. See the tip on the xref:pipeline/transforms/repeatfields.adoc[Repeat fields] page.
 
 [WARNING]
 ====
@@ -51,7 +51,7 @@ Rename the source's own change timestamp to `changed_date_ts` here when the upst
 
 Combine the streams with xref:pipeline/transforms/sortedschemamerge.adoc[Sorted schema merge], sorted on `business_key` and `changed_date_ts`. Both keys have to exist on every input.
 
-The output is one stream in that order. It is a sparse matrix: a row carries values only for the source it came from, and the attributes of the other sources are null. On a first load, every source row is a change, so the stream contains those full extracts. On a later load it contains only the changes you read, plus the current target row when you included it.
+The output is one stream in that order. It is a sparse matrix: a row carries values only for the source it came from, and the attributes of the other sources are null. On a first load, every source row is a change, so the stream contains those full extracts. On a later load it contains only the changes you read, plus the current target row for a business key that appears in those changes.
 
 == Repeat the last known attributes
 
@@ -63,9 +63,11 @@ A second xref:pipeline/transforms/selectvalues.adoc[Select values] is a convenie
 
 == Calculate the validity range
 
-Each version needs a date range. Add it with xref:pipeline/transforms/analyticquery.adoc[Analytic Query]. Group by `business_key`. The stream is already sorted by `business_key` and `changed_date_ts`, which is the order the transform requires.
+Each version needs a date range. `from_ts` is the row's own `changed_date_ts`, not the timestamp of the previous row. Copy `changed_date_ts` to `from_ts` in the Select values transform in front of this step: select `changed_date_ts` a second time and rename that copy to `from_ts`. See xref:pipeline/transforms/selectvalues.adoc#_duplicating_fields[Duplicating fields].
 
-image:how-to-guides/high-volume-scd2/analytic-query.png[Analytic Query: from_ts lags changed_date_ts by one row, to_ts leads it by one row, width="100%"]
+`to_ts` is the next row's `changed_date_ts`. Add it with xref:pipeline/transforms/analyticquery.adoc[Analytic Query]. Group by `business_key`. The stream is already sorted by `business_key` and `changed_date_ts`, which is the order the transform requires.
+
+image:how-to-guides/high-volume-scd2/analytic-query.png[Analytic Query: to_ts leads changed_date_ts by one row, width="100%"]
 
 [cols="1,2,3,1",options="header"]
 |===
@@ -74,18 +76,13 @@ image:how-to-guides/high-volume-scd2/analytic-query.png[Analytic Query: from_ts 
 |Type
 |N
 
-|`from_ts`
-|`changed_date_ts`
-|Lag 1 row backward
-|1
-
 |`to_ts`
 |`changed_date_ts`
 |Lead 1 row forward
 |1
 |===
 
-Inside one business key, `from_ts` is the change timestamp of the previous row and `to_ts` is the change timestamp of the next row. The first row of a key has a null `from_ts`. The last row has a null `to_ts`.
+Inside one business key, `from_ts` is that row's `changed_date_ts` and `to_ts` is the change timestamp of the next row. The last row has a null `to_ts`. The first row does not: its `from_ts` is its own change timestamp.
 
 Take three versions of customer 1 after Repeat fields:
 
@@ -108,7 +105,7 @@ Take three versions of customer 1 after Repeat fields:
 |active
 |===
 
-The analytic query turns that into:
+After that copy and the analytic query, the rows are:
 
 [cols="2,2,2,2,2",options="header"]
 |===
@@ -121,23 +118,23 @@ The analytic query turns that into:
 |2024-01-01 00:00:00
 |Gent
 |null
-|null
+|2024-01-01 00:00:00
 |2024-06-01 00:00:00
 
 |2024-06-01 00:00:00
 |Gent
 |active
-|2024-01-01 00:00:00
+|2024-06-01 00:00:00
 |2025-02-01 00:00:00
 
 |2025-02-01 00:00:00
 |Brussels
 |active
-|2024-06-01 00:00:00
+|2025-02-01 00:00:00
 |null
 |===
 
-A timestamp later than the latest `changed_date_ts` matches only the open row. An earlier timestamp can match two rows: `from_ts` is the previous change, and `to_ts` is already the next change, so neighboring ranges overlap.
+Neighboring ranges meet and do not overlap. A version starts at its own `changed_date_ts` and ends at the next one. A fact timestamp matches one row when it is greater than or equal to `from_ts` and strictly less than `to_ts`. An inclusive end matches two rows when the fact timestamp equals a change timestamp. A timestamp later than the latest `changed_date_ts` matches only the open row.
 
 == Close the open ends
 
@@ -160,7 +157,7 @@ image:how-to-guides/high-volume-scd2/if-null.png[If null replaces a null from_ts
 |yyyy-MM-dd HH:mm:ss
 |===
 
-Pick the sentinels your warehouse already uses. After this step the first customer version above starts at 1900-01-01, and the last one ends at 9999-12-31.
+Pick the sentinels your warehouse already uses. `from_ts` is the row's own `changed_date_ts`, so the first customer version above stays at 2024-01-01. That value is not null, and If null does not replace it with 1900-01-01. The 1900-01-01 replacement applies only when `from_ts` itself is null. The last version has a null `to_ts`, which becomes 9999-12-31.
 
 == Collapse identical versions
 
@@ -205,19 +202,19 @@ On a first load, bulk load the stream into the target table. The example at the 
 
 === Incremental load
 
-Include the current target row for each business key as one of the sorted sources, as described above. After the timeline is rebuilt, split the stream on the end date.
+Read the current target rows for the delta's business keys only, as described above. After the timeline is rebuilt, insert a row only when it did not come from the target, and update a stored row only when a later change closed it.
 
-Bulk load every row that still ends at `9999-12-31`. That row is a new current version.
+Filter the insert on `record_source`. Insert when that value does not contain the target source, `target` in this guide. That is a new version: the open row, whose `to_ts` is still `9999-12-31`, and a version whose `to_ts` is already closed because a later change arrived in the same run. Do not insert a row whose `record_source` contains `target`. That row is the stored current version, including one that Group By collapsed a delta into because the attributes did not change. Inserting it again duplicates the open row. Bulk load the rows that pass the filter. The example initial load uses xref:pipeline/transforms/tableoutput.adoc[Table Output].
 
-The other rows already have a real end date. Update those in place with xref:pipeline/transforms/update.adoc[Update]:
+Update the stored row in place with xref:pipeline/transforms/update.adoc[Update]:
 
-* The lookup keys are `business_key` and `from_ts`. Together they identify the version that is already stored.
+* The lookup keys are `business_key` and `from_ts`. Together they identify the version that is already stored. The rebuilt `from_ts` matches because the target row was read with the stored `from_ts` as `changed_date_ts`.
 * The field to update is `to_ts`.
-* Send a row to this update only when its end date is not `9999-12-31`. That is a version whose open end was closed because a later change arrived.
+* Send a row to this update only when its `record_source` contains `target` and its end date is not `9999-12-31`. That is a stored version whose open end was closed because a later change arrived.
 
-When one business key gets several changes in the same run, a new version can already have a closed `to_ts` and still be absent from the table. Insert that row as well. The update applies to a `business_key` and `from_ts` that are already stored.
+A row that contains `target` and still ends at `9999-12-31` is unchanged. Do not insert it and do not update it.
 
-When that update is slow and the database can merge a staged set, use xref:pipeline/transforms/filterrows.adoc[Filter rows] to set aside the rows whose end date is not `9999-12-31`, write them to a separate file, and bulk load them as well.
+When that update is slow and the database can merge a staged set, use xref:pipeline/transforms/filterrows.adoc[Filter rows] to set aside the closed target rows, write them to a separate file, and merge them. The rows that do not contain `target` are still bulk loaded.
 
 == Example: a customer dimension from four satellites
 
@@ -246,13 +243,13 @@ image:how-to-guides/high-volume-scd2/initial-load-pipeline.png[Initial load of a
 |Repeat fields, *Current when indicated*, grouped by the business key.
 
 |`select_repeated`
-|Select values. Columns that continue to the dimension.
+|Select values. Columns that continue to the dimension. Copies `changed_date_ts` to `from_ts`.
 
 |`analytic_customer_360_bv`
-|Analytic Query. Adds `from_ts` and `to_ts` as in the figure above.
+|Analytic Query. Sets `to_ts` to the next `changed_date_ts`, as in the figure above.
 
 |`sentinels`
-|If null. Replaces a null `from_ts` or `to_ts` with the start and end sentinels.
+|If null. Replaces a null `to_ts` with the end sentinel. A null `from_ts` would become the start sentinel, which the first version does not need.
 
 |`collapse_customer_360_bv`
 |Group By. Collapses consecutive versions whose attributes are identical.
@@ -261,24 +258,24 @@ image:how-to-guides/high-volume-scd2/initial-load-pipeline.png[Initial load of a
 |Table Output. Bulk loads the first version of the dimension.
 |===
 
-An incremental run of the same dimension adds the current target rows as a fifth sorted input. It bulk-loads rows that still end at `9999-12-31`, and updates `to_ts` on the stored version matched by `business_key` and `from_ts` when the new end date is not `9999-12-31`.
+An incremental run of the same dimension reads the current target row only for business keys that appear in the delta. That input sets `record_source` to `target` and exposes the stored `from_ts` as `changed_date_ts`. The run bulk-loads rows whose `record_source` does not contain `target`, and updates `to_ts` on the stored version matched by `business_key` and `from_ts` when that version came from the target and the new end date is not `9999-12-31`. A current row that is still open is not written again.
 
 == Link a fact to the SCD2 row and to a current SCD1
 
 A fact can carry two references:
 
-* an SCD2 version whose `from_ts` / `to_ts` range contains the fact timestamp, so the fact stays attached to the changes you track
+* an SCD2 version that contains the fact timestamp, `fact_ts >= from_ts` and `fact_ts < to_ts`, so the fact stays attached to one version
 * an SCD1 dimension that has only the current attributes
 
 Reports that follow history use the SCD2 reference. Reports that want the name, status, or address as it is today use the SCD1 reference. The cost is one extra column on the fact and one extra object to maintain.
 
-That SCD1 object is often a view over the SCD2 table. `now()` stands in for the current-timestamp function of the database that owns the view:
+That SCD1 object is often a view over the SCD2 table. `now()` stands in for the current-timestamp function of the database that owns the view. The end is exclusive, so a timestamp that falls on a change matches the version that starts there and not the one that ends there:
 
 [source,sql]
 ----
 SELECT *
 FROM customer_scd2
-WHERE now() BETWEEN from_ts AND to_ts
+WHERE from_ts <= now() AND now() < to_ts
 ----
 
 == See also
