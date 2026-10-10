@@ -20,6 +20,7 @@ package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
@@ -28,6 +29,7 @@ import com.google.storage.control.v2.StorageControlClient;
 import com.google.storage.control.v2.StorageControlSettings;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -36,17 +38,28 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 import org.threeten.bp.Duration;
 
 public class GoogleStorageFileSystem extends AbstractFileSystem {
 
-  Storage storage = null;
+  /**
+   * Volatile, and set after {@link #stallLimits}: a thread that finds the client built by another
+   * thread must also find the limits that go with it.
+   */
+  volatile Storage storage = null;
+
+  /** When to report or end a transfer, from the same settings {@link #storage} was built with. */
+  private GoogleStorageStallWatchdog.Limits stallLimits;
+
   StorageControlClient storageControlClient = null;
   FileSystemOptions fileSystemOptions;
 
   private GoogleStorageListCache listCache;
+
+  private final AtomicBoolean credentialsProblemLogged = new AtomicBoolean();
 
   protected GoogleStorageFileSystem(
       FileName rootName, FileObject parentLayer, FileSystemOptions fileSystemOptions)
@@ -77,7 +90,7 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     caps.addAll(GoogleStorageFileProvider.capabilities);
   }
 
-  Storage setupStorage() {
+  Storage setupStorage() throws IOException {
     if (storage != null) {
       return storage;
     }
@@ -85,9 +98,9 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
 
     StorageOptions.Builder optionsBuilder = buildStorageOptions(config);
-    optionsBuilder.setCredentials(
-        GoogleStorageFileSystemConfigBuilder.getInstance().getGoogleCredentials(fileSystemOptions));
+    optionsBuilder.setCredentials(credentials());
 
+    stallLimits = GoogleStorageStallWatchdog.Limits.from(config);
     return storage = optionsBuilder.build().getService();
   }
 
@@ -97,10 +110,23 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
    * wiring can be exercised from a test against a local endpoint.
    */
   static StorageOptions.Builder buildStorageOptions(GoogleCloudConfig config) {
+    return buildStorageOptions(
+        config, new LoggingStorageRetryStrategy(selectRetryStrategy(config), config));
+  }
+
+  /** As {@link #buildStorageOptions(GoogleCloudConfig)}, reporting retries to the given log. */
+  static StorageOptions.Builder buildStorageOptions(
+      GoogleCloudConfig config, LoggingStorageRetryStrategy.RetryLog retryLog) {
+    return buildStorageOptions(
+        config, new LoggingStorageRetryStrategy(selectRetryStrategy(config), config, retryLog));
+  }
+
+  private static StorageOptions.Builder buildStorageOptions(
+      GoogleCloudConfig config, StorageRetryStrategy retryStrategy) {
     return StorageOptions.newBuilder()
         .setRetrySettings(buildRetrySettings(config))
         .setTransportOptions(buildTransportOptions(config))
-        .setStorageRetryStrategy(selectRetryStrategy(config));
+        .setStorageRetryStrategy(retryStrategy);
   }
 
   /**
@@ -135,6 +161,17 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
         .setRpcTimeoutMultiplier(Const.toDouble(config.getRpcTimeoutMultiplier(), 1.0))
         .setMaxRpcTimeout(Duration.ofSeconds(maxRpcTimeout))
         .build();
+  }
+
+  /**
+   * The limits are taken from the settings the client was built with, so that the watchdog and the
+   * client it watches always agree on the timeouts, even after the settings changed.
+   *
+   * @return how long a read or write may go without progress before it is reported or ended
+   */
+  GoogleStorageStallWatchdog.Limits stallLimits() throws IOException {
+    setupStorage();
+    return stallLimits;
   }
 
   static HttpTransportOptions buildTransportOptions(GoogleCloudConfig config) {
@@ -186,6 +223,29 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     }
   }
 
+  /**
+   * The credentials the provider loaded. When it could not, the Google client would fail with a
+   * bare NullPointerException; instead say why, once in the log and every time in the error.
+   */
+  private GoogleCredentials credentials() throws IOException {
+    GoogleStorageFileSystemConfigBuilder builder =
+        GoogleStorageFileSystemConfigBuilder.getInstance();
+    GoogleCredentials credentials = builder.getGoogleCredentials(fileSystemOptions);
+    if (credentials != null) {
+      return credentials;
+    }
+    String problem = builder.getCredentialsProblem(fileSystemOptions);
+    String message =
+        "Google Cloud Storage: no credentials to access "
+            + Const.NVL(builder.getSchema(fileSystemOptions), "gs")
+            + "://: "
+            + Const.NVL(problem, "none were configured");
+    if (!credentialsProblemLogged.getAndSet(true)) {
+      LogChannel.GENERAL.logError(message);
+    }
+    throw new IOException(message);
+  }
+
   StorageControlClient getStorageControlClient() throws IOException {
     if (storageControlClient != null) {
       return storageControlClient;
@@ -193,10 +253,7 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     RetrySettings retrySettings = buildRetrySettings(GoogleCloudConfigSingleton.getConfig());
     StorageControlSettings.Builder builder =
         StorageControlSettings.newBuilder()
-            .setCredentialsProvider(
-                FixedCredentialsProvider.create(
-                    GoogleStorageFileSystemConfigBuilder.getInstance()
-                        .getGoogleCredentials(fileSystemOptions)));
+            .setCredentialsProvider(FixedCredentialsProvider.create(credentials()));
     // This client was left on the library defaults, so the configured retry behaviour never
     // reached HNS folder operations.
     builder.applyToAllUnaryMethods(

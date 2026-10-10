@@ -21,6 +21,8 @@ package org.apache.hop.vfs.gs;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Set;
@@ -40,6 +42,9 @@ import org.apache.hop.vfs.gs.metadatatype.GoogleStorageMetadataType;
 
 public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
   private FileSystemOptions newFileSystemOptions = new FileSystemOptions();
+
+  /** Why {@link #tryApplicationDefaultCredentials()} last came back empty-handed. */
+  private String applicationDefaultProblem;
 
   public GoogleStorageFileProvider() {
     super();
@@ -80,32 +85,59 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
     return new GoogleStorageFileSystem(rootName, null, newFileSystemOptions);
   }
 
+  /**
+   * Load the credentials for this provider. A problem is not logged here for the default {@code
+   * gs://} scheme: every Hop installation creates that provider, also where nobody uses Google
+   * Cloud Storage. Instead the reason is kept with the file system options, so the first actual use
+   * of {@code gs://} can report it and fail clearly, see {@link
+   * GoogleStorageFileSystem#setupStorage()}.
+   */
   private void setServiceAccountCredentials(
       IVariables variables, GoogleStorageMetadataType googleStorageMetadataType) {
+    GoogleStorageFileSystemConfigBuilder builder =
+        GoogleStorageFileSystemConfigBuilder.getInstance();
+    boolean defaultScheme = variables == null && googleStorageMetadataType == null;
+    String scheme = defaultScheme ? "gs" : googleStorageMetadataType.getName();
+    builder.setSchema(newFileSystemOptions, scheme);
     try {
-      GoogleCredentials credentials = null;
-      String scheme = "gs";
-
-      if (variables == null && googleStorageMetadataType == null) {
+      GoogleCredentials credentials;
+      if (defaultScheme) {
         // Default configuration: prefer explicit key file; ADC only as optional fallback.
         // Do not call ADC first — on non-GCP clusters (e.g. Databricks AWS) it probes metadata
         // and can throw NoClassDefFoundError for io.grpc.Context when gRPC is not on the fat jar.
         GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
-        if (!StringUtils.isEmpty(config.getServiceAccountKeyFile())) {
-          credentials =
-              ServiceAccountCredentials.fromStream(
-                  new FileInputStream(config.getServiceAccountKeyFile()));
+        String keyFile = config.getServiceAccountKeyFile();
+        if (!StringUtils.isEmpty(keyFile)) {
+          try {
+            credentials = readKeyFile(keyFile);
+          } catch (Exception | LinkageError e) {
+            // A LinkageError too: the handler below is about Application Default Credentials.
+            builder.setCredentialsProblem(
+                newFileSystemOptions,
+                "the service account key file '"
+                    + keyFile
+                    + "' set in the Google Cloud options could not be read ("
+                    + describe(e)
+                    + ")");
+            return;
+          }
         } else {
           credentials = tryApplicationDefaultCredentials();
+          if (credentials == null) {
+            builder.setCredentialsProblem(
+                newFileSystemOptions,
+                "no service account key file is set in the Google Cloud options, and Application"
+                    + " Default Credentials are not available ("
+                    + applicationDefaultProblem
+                    + "). Set a key file, or run 'gcloud auth application-default login'");
+            return;
+          }
         }
       } else {
-        scheme = googleStorageMetadataType.getName();
         switch (googleStorageMetadataType.getStorageCredentialsType()) {
           case KEY_FILE:
             credentials =
-                ServiceAccountCredentials.fromStream(
-                    new FileInputStream(
-                        variables.resolve(googleStorageMetadataType.getStorageAccountKey())));
+                readKeyFile(variables.resolve(googleStorageMetadataType.getStorageAccountKey()));
             break;
           case KEY_STRING:
             credentials =
@@ -118,60 +150,94 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
             credentials = tryApplicationDefaultCredentials();
             break;
         }
+        if (credentials == null) {
+          builder.setCredentialsProblem(
+              newFileSystemOptions,
+              "Google Storage connection '"
+                  + scheme
+                  + "' uses Application Default Credentials, which are not available ("
+                  + applicationDefaultProblem
+                  + ")");
+          return;
+        }
       }
-      if (credentials != null) {
-        GoogleStorageFileSystemConfigBuilder.getInstance()
-            .setGoogleCredentials(newFileSystemOptions, credentials);
-      }
-      GoogleStorageFileSystemConfigBuilder.getInstance().setSchema(newFileSystemOptions, scheme);
+      builder.setGoogleCredentials(newFileSystemOptions, credentials);
     } catch (Exception e) {
-      // Do not log error for the default GS account
-      if (googleStorageMetadataType != null) {
-        LogChannel.GENERAL.logError(
-            "Unable to set service account credentials for vfs name: "
-                + googleStorageMetadataType.getName(),
-            e);
-      }
+      // Only a named connection gets here: it is configured on purpose, so say so right away.
+      LogChannel.GENERAL.logError(
+          "Google Cloud Storage: Unable to set service account credentials for vfs name: " + scheme,
+          e);
+      builder.setCredentialsProblem(
+          newFileSystemOptions,
+          "the credentials of Google Storage connection '"
+              + scheme
+              + "' could not be loaded ("
+              + describe(e)
+              + ")");
     } catch (LinkageError e) {
       // NoClassDefFoundError (e.g. io.grpc.Context) must not prevent HopEnvironment.init
-      if (googleStorageMetadataType != null) {
+      if (defaultScheme) {
+        LogChannel.GENERAL.logDetailed(
+            "Google Cloud Storage: Application Default Credentials unavailable ("
+                + describe(e)
+                + "). gs:// will work after configuring a service account key.");
+        builder.setCredentialsProblem(
+            newFileSystemOptions,
+            "Application Default Credentials are not available ("
+                + describe(e)
+                + "). Set a service account key file in the Google Cloud options");
+      } else {
         LogChannel.GENERAL.logError(
-            "Unable to set service account credentials for vfs name: "
-                + googleStorageMetadataType.getName()
+            "Google Cloud Storage: Unable to set service account credentials for vfs name: "
+                + scheme
                 + " (missing dependency: "
                 + e.getMessage()
                 + ")",
             e);
-      } else {
-        LogChannel.GENERAL.logDetailed(
-            "Google Storage VFS: Application Default Credentials unavailable ("
-                + e.getClass().getSimpleName()
-                + ": "
+        builder.setCredentialsProblem(
+            newFileSystemOptions,
+            "the credentials of Google Storage connection '"
+                + scheme
+                + "' could not be loaded (missing dependency: "
                 + e.getMessage()
-                + "). gs:// will work after configuring a service account key.");
+                + ")");
       }
     }
   }
 
   /**
-   * Best-effort ADC. Returns null if unavailable (not on GCE/GCP, or gRPC/auth deps missing from
-   * classpath — common with native-provided fat jars on Databricks/AWS).
+   * A plain file, not Hop VFS: this runs while the VFS providers themselves are being set up.
+   *
+   * @param keyFile the service account key file
+   * @return the credentials in it
    */
-  static GoogleCredentials tryApplicationDefaultCredentials() {
+  private static GoogleCredentials readKeyFile(String keyFile) throws IOException {
+    try (InputStream in = new FileInputStream(keyFile)) {
+      return ServiceAccountCredentials.fromStream(in);
+    }
+  }
+
+  /**
+   * Best-effort ADC. Returns null if unavailable (not on GCE/GCP, or gRPC/auth deps missing from
+   * classpath — common with native-provided fat jars on Databricks/AWS), keeping the reason in
+   * {@link #applicationDefaultProblem}.
+   */
+  GoogleCredentials tryApplicationDefaultCredentials() {
     try {
       return GoogleCredentials.getApplicationDefault();
-    } catch (Exception e) {
+    } catch (Exception | LinkageError e) {
+      applicationDefaultProblem = describe(e);
       LogChannel.GENERAL.logDetailed(
-          "Google Storage VFS: Application Default Credentials not available: " + e.getMessage());
-      return null;
-    } catch (LinkageError e) {
-      LogChannel.GENERAL.logDetailed(
-          "Google Storage VFS: Application Default Credentials not available ("
-              + e.getClass().getSimpleName()
-              + ": "
-              + e.getMessage()
+          "Google Cloud Storage: Application Default Credentials not available ("
+              + applicationDefaultProblem
               + ")");
       return null;
     }
+  }
+
+  private static String describe(Throwable e) {
+    return e.getMessage() == null
+        ? e.getClass().getSimpleName()
+        : e.getClass().getSimpleName() + ": " + e.getMessage();
   }
 }
