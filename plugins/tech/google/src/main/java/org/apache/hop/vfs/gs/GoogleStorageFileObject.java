@@ -31,7 +31,6 @@ import com.google.cloud.storage.Storage.BlobListOption;
 import com.google.storage.control.v2.DeleteFolderRequest;
 import com.google.storage.control.v2.FolderName;
 import com.google.storage.control.v2.StorageControlClient;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,10 +43,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import org.apache.commons.vfs2.FileNotFolderException;
+import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.hop.core.Const;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
@@ -154,7 +156,8 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected InputStream doGetInputStream() throws Exception {
     if (!isFile()) {
-      throw new FileNotFoundException();
+      // VFS reports this as "not a file"; a java.io exception would become a generic read error
+      throw new FileNotFoundException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
     if (blob != null) {
@@ -201,14 +204,14 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected String[] doListChildren() throws Exception {
     if (!isFolder()) {
-      throw new IOException("Object is not a directory");
+      throw new FileNotFolderException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
     List<String> results = new ArrayList<>();
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {
-        results.add(b.getName());
+        results.add(UriParser.encode(b.getName()));
       }
     } else {
       String prefix;
@@ -230,7 +233,8 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
         if (stripTrailingSlash(b.getName()).equals(stripTrailingSlash(bucketPath))) {
           continue;
         }
-        results.add(lastPathElement(stripTrailingSlash(b.getName())));
+        // Child names are parsed as URI paths: escape '%' so it is read literally
+        results.add(UriParser.encode(lastPathElement(stripTrailingSlash(b.getName()))));
         FileType childType = b.isDirectory() ? FileType.FOLDER : FileType.FILE;
         long childSize = b.getSize() != null ? b.getSize() : 0L;
         Instant childLastMod =
@@ -400,14 +404,14 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected FileObject[] doListChildrenResolved() throws Exception {
     if (!isFolder()) {
-      throw new IOException("Object is not a directory");
+      throw new FileNotFolderException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
     List<FileObject> results = new ArrayList<>();
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {
-        results.add(getAbstractFileSystem().resolveFile("/" + b.getName()));
+        results.add(getAbstractFileSystem().resolveFile("/" + UriParser.encode(b.getName())));
       }
     } else {
       String prefix;
@@ -439,7 +443,8 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
             b.getName(), new GoogleStorageListCache.ChildInfo(childType, childSize, childLastMod));
         results.add(
             getAbstractFileSystem()
-                .resolveFile("/" + bucketName + "/" + stripTrailingSlash(b.getName())));
+                .resolveFile(
+                    "/" + bucketName + "/" + UriParser.encode(stripTrailingSlash(b.getName()))));
       }
       if (!cacheEntries.isEmpty()) {
         getAbstractFileSystem().putListCache(bucketName, prefix, cacheEntries);

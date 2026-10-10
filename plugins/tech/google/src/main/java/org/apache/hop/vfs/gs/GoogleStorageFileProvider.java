@@ -86,6 +86,18 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
   }
 
   /**
+   * Look file systems up by this provider's own options, the ones they are created with. Commons
+   * VFS caches a file system under its own options but looks it up under the caller's; those never
+   * matched, so every resolve built a new file system, storage client and list cache, and the
+   * provider kept all of them.
+   */
+  @Override
+  protected synchronized FileSystem getFileSystem(
+      FileName rootFileName, FileSystemOptions fileSystemOptions) throws FileSystemException {
+    return super.getFileSystem(rootFileName, newFileSystemOptions);
+  }
+
+  /**
    * Load the credentials for this provider. A problem is not logged here for the default {@code
    * gs://} scheme: every Hop installation creates that provider, also where nobody uses Google
    * Cloud Storage. Instead the reason is kept with the file system options, so the first actual use
