@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.cube.CubeFilename;
 
 /**
  * Outputs a stream/series of rows to a file, effectively building a sort of (compressed) microcube.
@@ -69,9 +70,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
         if (data.outputMeta == null) {
           logBasic(
               BaseMessages.getString(
-                  PKG,
-                  "CubeOutput.Log.UnableToDetermineEmptyStreamLayout",
-                  resolve(meta.getFilename())));
+                  PKG, "CubeOutput.Log.UnableToDetermineEmptyStreamLayout", resolvedFilename()));
           data.outputMeta = new RowMeta();
         }
       }
@@ -199,9 +198,13 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
     return false;
   }
 
+  private String resolvedFilename() {
+    return CubeFilename.resolve(this, meta.getFilename(), meta.isIncludeTransformNr(), getCopy());
+  }
+
   private void prepareFile() throws HopFileException {
     try {
-      String filename = resolve(meta.getFilename());
+      String filename = resolvedFilename();
 
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
 
