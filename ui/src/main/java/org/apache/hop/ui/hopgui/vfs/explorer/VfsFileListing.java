@@ -20,7 +20,6 @@ package org.apache.hop.ui.hopgui.vfs.explorer;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
 
@@ -29,23 +28,47 @@ public final class VfsFileListing {
 
   private VfsFileListing() {}
 
-  public static List<VfsFileRow> childrenOf(FileObject folder) throws FileSystemException {
+  public static List<VfsFileRow> childrenOf(FileObject folder) throws Exception {
     FileObject[] children = folder.getChildren();
     if (children == null || children.length == 0) {
       return List.of();
     }
     List<VfsFileRow> rows = new ArrayList<>(children.length);
+    Exception firstFailure = null;
     for (FileObject child : children) {
       if (child == null) {
         continue;
       }
       try {
         rows.add(VfsFileDetails.read(child));
-      } catch (Exception ignored) {
-        // One unreadable child does not hide the rest of the folder.
+      } catch (Exception e) {
+        // A missing library or a broken provider fails the whole folder. One unreadable child
+        // does not hide the rest.
+        if (isDriverFailure(e)) {
+          throw e;
+        }
+        if (firstFailure == null) {
+          firstFailure = e;
+        }
       }
     }
+    if (rows.isEmpty() && firstFailure != null) {
+      throw firstFailure;
+    }
     return rows;
+  }
+
+  /** A linkage or class-loading failure means the provider itself is unusable. */
+  static boolean isDriverFailure(Throwable thrown) {
+    Throwable current = thrown;
+    while (current != null) {
+      if (current instanceof Error || current instanceof ClassNotFoundException) {
+        return true;
+      }
+      Throwable cause = current.getCause();
+      current = cause == current ? null : cause;
+    }
+    return false;
   }
 
   /**

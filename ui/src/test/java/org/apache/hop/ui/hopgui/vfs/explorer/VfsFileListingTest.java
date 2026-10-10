@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,7 +32,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
@@ -180,6 +185,77 @@ class VfsFileListingTest {
     assertEquals(
         "jar:zip:file:///tmp/outer.zip!/nested.jar!/",
         HopVfsFileDialog.buildArchiveBrowseUri("jar", "zip:file:///tmp/outer.zip!/nested.jar"));
+  }
+
+  @Test
+  void driverFailureFailsTheFolder() throws Exception {
+    FileObject folder = mock(FileObject.class);
+    FileObject child = namedChild("data.csv");
+    NoClassDefFoundError missing = new NoClassDefFoundError("com.example.Missing");
+    when(child.isFolder()).thenThrow(new FileSystemException("Could not read child", missing));
+    when(folder.getChildren()).thenReturn(new FileObject[] {child});
+
+    Exception thrown = assertThrows(Exception.class, () -> VfsFileListing.childrenOf(folder));
+    assertTrue(VfsFileListing.isDriverFailure(thrown));
+    assertSame(missing, thrown.getCause());
+  }
+
+  @Test
+  void missingClassOnAChildIsNotSwallowed() throws Exception {
+    FileObject folder = mock(FileObject.class);
+    FileObject child = namedChild("data.csv");
+    when(child.isFolder()).thenThrow(new NoClassDefFoundError("com.example.Missing"));
+    when(folder.getChildren()).thenReturn(new FileObject[] {child});
+
+    NoClassDefFoundError thrown =
+        assertThrows(NoClassDefFoundError.class, () -> VfsFileListing.childrenOf(folder));
+    assertEquals("com.example.Missing", thrown.getMessage());
+  }
+
+  @Test
+  void oneUnreadableChildDoesNotHideTheRest() throws Exception {
+    FileObject folder = mock(FileObject.class);
+    FileObject good = readableFile("notes.txt", "ram:///notes.txt");
+    FileObject bad = namedChild("locked.bin");
+    when(bad.isFolder()).thenThrow(new FileSystemException("permission denied"));
+    when(folder.getChildren()).thenReturn(new FileObject[] {good, bad});
+
+    List<VfsFileRow> rows = VfsFileListing.childrenOf(folder);
+    assertEquals(List.of("notes.txt"), rows.stream().map(VfsFileRow::getName).toList());
+  }
+
+  @Test
+  void folderThatCannotBeReadIsNotAnEmptyListing() throws Exception {
+    FileObject folder = mock(FileObject.class);
+    FileObject child = namedChild("locked.bin");
+    FileSystemException failure = new FileSystemException("permission denied");
+    when(child.isFolder()).thenThrow(failure);
+    when(folder.getChildren()).thenReturn(new FileObject[] {child});
+
+    Exception thrown = assertThrows(Exception.class, () -> VfsFileListing.childrenOf(folder));
+    assertSame(failure, thrown);
+  }
+
+  private static FileObject namedChild(String baseName) throws Exception {
+    FileObject child = mock(FileObject.class);
+    FileName name = mock(FileName.class);
+    when(child.getName()).thenReturn(name);
+    when(name.getBaseName()).thenReturn(baseName);
+    return child;
+  }
+
+  private static FileObject readableFile(String baseName, String uri) throws Exception {
+    FileObject file = namedChild(baseName);
+    FileName name = file.getName();
+    FileContent content = mock(FileContent.class);
+    when(name.getRootURI()).thenReturn("ram:///");
+    when(name.getURI()).thenReturn(uri);
+    when(file.isFolder()).thenReturn(false);
+    when(file.getContent()).thenReturn(content);
+    when(content.getSize()).thenReturn(4L);
+    when(content.getLastModifiedTime()).thenReturn(1_700_000_000_000L);
+    when(content.getAttributes()).thenReturn(Map.of());
+    return file;
   }
 
   private static VfsFileRow find(List<VfsFileRow> rows, String name) {
