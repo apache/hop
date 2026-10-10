@@ -26,7 +26,6 @@ import java.util.zip.GZIPInputStream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -288,27 +287,17 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
       IResourceNaming iResourceNaming,
       IHopMetadataProvider metadataProvider)
       throws HopException {
-    try {
-      // The object that we're modifying here is a copy of the original.
-      // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
-      // To   : /home/matt/test/files/foo/bar.data
-      //
-      // A name that contains the copy variable is exported as copy 0, the file getFields opens.
-      // The suffix is cleared so the exported name is not numbered a second time.
-      String resolved =
-          CubeFilename.resolve(variables, getFilename(), usesTransformNrInFilename(), 0);
-      FileObject fileObject = HopVfs.getFileObject(resolved, variables);
-
-      if (fileObject.exists()) {
-        file.name = iResourceNaming.nameResource(fileObject, variables, true);
-        this.filename = file.name;
-        includeTransformNr = false;
-        return file.name;
-      }
+    // The object that we're modifying here is a copy of the original.
+    // Map the folder of copy 0 and keep the stored file name, so each copy still opens its own
+    // file after export.
+    String exported =
+        CubeFilename.exportResourceName(
+            variables, getFilename(), usesTransformNrInFilename(), iResourceNaming);
+    if (exported == null) {
       return null;
-    } catch (Exception e) {
-      throw new HopException(e);
     }
+    setFilename(exported);
+    return exported;
   }
 
   /** Browse filter for {@code *.cube} files. */

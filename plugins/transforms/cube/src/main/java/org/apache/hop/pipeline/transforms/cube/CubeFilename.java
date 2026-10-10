@@ -18,9 +18,13 @@
 package org.apache.hop.pipeline.transforms.cube;
 
 import java.util.regex.Pattern;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.resource.IResourceNaming;
 
 /**
  * Resolves a cube filename the same way at design time and at runtime.
@@ -70,6 +74,62 @@ public final class CubeFilename {
       name = insertCopyBeforeExtension(name, copy);
     }
     return name;
+  }
+
+  /**
+   * Point an exported pipeline at the folder of the copy-0 file and keep the stored file name.
+   *
+   * <p>Copy 0 is opened only to find that folder. The stored base name is appended unchanged, so a
+   * copy-number variable and the include-transform-nr option still select a file per copy. Returns
+   * null when that copy-0 file does not exist.
+   */
+  public static String exportResourceName(
+      IVariables variables, String filename, boolean includeTransformNr, IResourceNaming naming)
+      throws HopException {
+    try {
+      String resolved = resolve(variables, filename, includeTransformNr, 0);
+      FileObject fileObject = HopVfs.getFileObject(resolved, variables);
+      if (!fileObject.exists()) {
+        return null;
+      }
+      FileObject parent = fileObject.getParent();
+      if (parent == null) {
+        return naming.nameResource(fileObject, variables, true);
+      }
+      // The flag means "include the file name" in SimpleResourceNaming, despite the interface
+      // calling it pathOnly. false maps the folder and leaves the name for us to append.
+      String folder = naming.nameResource(parent, variables, false);
+      String baseName = baseName(filename);
+      if (baseName.isEmpty()) {
+        baseName = fileObject.getName().getBaseName();
+      }
+      return appendBaseName(folder, baseName);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(e);
+    }
+  }
+
+  private static String baseName(String filename) {
+    if (filename == null || filename.isEmpty()) {
+      return "";
+    }
+    int slash = Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\'));
+    if (slash < 0) {
+      return filename;
+    }
+    return filename.substring(slash + 1);
+  }
+
+  private static String appendBaseName(String folder, String baseName) {
+    if (folder == null || folder.isEmpty()) {
+      return baseName;
+    }
+    if (folder.endsWith("/") || folder.endsWith("\\")) {
+      return folder + baseName;
+    }
+    return folder + "/" + baseName;
   }
 
   private static String replaceCopyNr(String name, String copy) {

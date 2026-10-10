@@ -182,30 +182,46 @@ class CubeInputMetaTest {
   }
 
   @Test
-  void exportResourcesFindsCopyZero() throws Exception {
+  void exportResourcesKeepsANamePerCopy() throws Exception {
     writeCube(tempDir.resolve("export_0.cube"));
+    Variables variables = new Variables();
+    variables.setVariable("DIR", tempDir.toString());
     CubeInputMeta meta = new CubeInputMeta();
     meta.setDefault();
-    meta.getFile().setName(tempDir.resolve("export_${Internal.Transform.CopyNr}.cube").toString());
+    meta.getFile().setName("${DIR}/export_${Internal.Transform.CopyNr}.cube");
 
-    String exported = meta.exportResources(new Variables(), null, new SimpleResourceNaming(), null);
+    String exported = meta.exportResources(variables, null, new SimpleResourceNaming(), null);
 
-    assertNotNull(exported, "copy 0 of a copy-number variable name is exported");
-    assertTrue(exported.contains("export_0"), exported);
-    assertFalse(meta.getFilename().contains("Internal.Transform.CopyNr"), meta.getFilename());
+    assertNotNull(exported);
+    assertTrue(exported.contains("/export_${Internal.Transform.CopyNr}.cube"), exported);
+    assertFalse(exported.contains("export_0"), exported);
+    assertTrue(meta.getFilename().contains("Internal.Transform.CopyNr"), meta.getFilename());
+    assertFalse(meta.isIncludeTransformNr());
 
     writeCube(tempDir.resolve("numbered_0.cube"));
     CubeInputMeta numbered = new CubeInputMeta();
     numbered.setDefault();
     numbered.setIncludeTransformNr(true);
-    numbered.getFile().setName(tempDir.resolve("numbered.cube").toString());
+    numbered.getFile().setName("${DIR}/numbered.cube");
 
     String numberedExport =
-        numbered.exportResources(new Variables(), null, new SimpleResourceNaming(), null);
+        numbered.exportResources(variables, null, new SimpleResourceNaming(), null);
 
     assertNotNull(numberedExport);
-    assertTrue(numberedExport.contains("numbered_0"), numberedExport);
-    assertFalse(numbered.isIncludeTransformNr());
+    assertTrue(numberedExport.contains("/numbered.cube"), numberedExport);
+    assertFalse(numberedExport.contains("numbered_0"), numberedExport);
+    assertTrue(numbered.isIncludeTransformNr());
+
+    writeCube(tempDir.resolve("plain.cube"));
+    CubeInputMeta plain = new CubeInputMeta();
+    plain.setDefault();
+    plain.getFile().setName(tempDir.resolve("plain.cube").toString());
+
+    String plainExport =
+        plain.exportResources(new Variables(), null, new SimpleResourceNaming(), null);
+
+    assertNotNull(plainExport);
+    assertTrue(plainExport.endsWith("/plain.cube"), plainExport);
   }
 
   private IRowMeta readFields(String filename, Variables variables) throws Exception {

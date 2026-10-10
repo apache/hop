@@ -202,10 +202,13 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
   public boolean init() {
 
     if (super.init()) {
-      if (meta.isFilenameInField()) {
-        return true;
-      }
       try {
+        if (meta.isFilenameInField()) {
+          // Downstream fields come from the sample file. Keep that layout as the reference so the
+          // first file named in the field is checked against it too.
+          rememberSampleLayout();
+          return true;
+        }
         String filename =
             CubeFilename.resolve(
                 this, meta.getFilename(), meta.usesTransformNrInFilename(), getCopy());
@@ -219,6 +222,27 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
       }
     }
     return false;
+  }
+
+  /** Read the dialog filename's layout and close it. Rows still come from the filename field. */
+  private void rememberSampleLayout() throws HopException {
+    // Copy 0 matches getFields(), which is the layout downstream transforms already have.
+    String filename = CubeFilename.resolve(this, meta.getFilename(), false, 0);
+    if (Utils.isEmpty(filename)) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "CubeInputMeta.Exception.NoFilenameSpecified"));
+    }
+    try (InputStream is = HopVfs.getInputStream(filename, variables);
+        GZIPInputStream fis = new GZIPInputStream(is);
+        DataInputStream dis = new DataInputStream(fis)) {
+      data.meta = new RowMeta(dis);
+      data.referenceFilename = filename;
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "CubeInput.Log.ErrorReadingFromDataCube") + filename, e);
+    }
   }
 
   private void closeFile() {

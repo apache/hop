@@ -169,6 +169,58 @@ class CubeParallelFileTest {
     assertTrue(log.contains(first.getFileName().toString()), log);
   }
 
+  @Test
+  void theFirstFilenameFromAFieldIsCheckedAgainstTheSample() throws Exception {
+    Path sample = tempDir.resolve("sample.cube");
+    Path first = tempDir.resolve("first.cube");
+    writeCube(sample, "value", "sample-row");
+    writeCube(first, "other", "beta");
+
+    InjectorMeta injectorMeta = new InjectorMeta();
+    injectorMeta.getInjectorFields().add(new InjectorField("filename", "String", "-1", "-1"));
+    CubeInputMeta inputMeta = new CubeInputMeta();
+    inputMeta.setDefault();
+    inputMeta.setFilenameInField(true);
+    inputMeta.setFilenameField("filename");
+    inputMeta.getFile().setName(sample.toString());
+
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("sample layout");
+    TransformMeta injector = new TransformMeta("injector", injectorMeta);
+    TransformMeta input = new TransformMeta("read", inputMeta);
+    pipelineMeta.addTransform(injector);
+    pipelineMeta.addTransform(input);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(injector, input));
+
+    LocalPipelineEngine pipeline =
+        new LocalPipelineEngine(pipelineMeta, new Variables(), new LoggingObject("sample layout"));
+    pipeline.prepareExecution();
+    List<String> read = new CopyOnWriteArrayList<>();
+    pipeline
+        .getTransform("read", 0)
+        .addRowListener(
+            new RowAdapter() {
+              @Override
+              public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+                read.add(String.valueOf(row[0]));
+              }
+            });
+    RowProducer producer = pipeline.addRowProducer("injector", 0);
+    pipeline.startThreads();
+    producer.putRow(filenameRowMeta(), new Object[] {first.toString()});
+    producer.finished();
+    pipeline.waitUntilFinished();
+
+    assertTrue(pipeline.getErrors() > 0, "the first file must be checked against the sample");
+    assertTrue(read.isEmpty(), "rows from a mismatched first file must not go downstream");
+    String log =
+        HopLogStore.getAppender()
+            .getBuffer(pipeline.getTransform("read", 0).getLogChannel().getLogChannelId(), false)
+            .toString();
+    assertTrue(log.contains(first.getFileName().toString()), log);
+    assertTrue(log.contains(sample.getFileName().toString()), log);
+  }
+
   private void writeTwoValues(Path base) throws Exception {
     InjectorMeta injectorMeta = new InjectorMeta();
     injectorMeta.getInjectorFields().add(new InjectorField("value", "String", "-1", "-1"));

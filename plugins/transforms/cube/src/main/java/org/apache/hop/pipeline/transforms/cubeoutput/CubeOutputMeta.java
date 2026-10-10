@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -33,7 +32,6 @@ import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataWrapper;
@@ -186,22 +184,16 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
       IResourceNaming iResourceNaming,
       IHopMetadataProvider metadataProvider)
       throws HopException {
-    try {
-      // The object that we're modifying here is a copy of the original.
-      // A name that contains the copy variable is exported as copy 0. The suffix is cleared so
-      // the exported name is not numbered a second time.
-      String resolved = CubeFilename.resolve(variables, filename, includeTransformNr, 0);
-      FileObject fileObject = HopVfs.getFileObject(resolved, variables);
-
-      if (fileObject.exists()) {
-        filename = iResourceNaming.nameResource(fileObject, variables, true);
-        includeTransformNr = false;
-        return filename;
-      }
+    // The object that we're modifying here is a copy of the original.
+    // Map the folder of copy 0 and keep the stored file name, so each copy still opens its own
+    // file after export.
+    String exported =
+        CubeFilename.exportResourceName(variables, filename, includeTransformNr, iResourceNaming);
+    if (exported == null) {
       return null;
-    } catch (Exception e) {
-      throw new HopException(e);
     }
+    filename = exported;
+    return filename;
   }
 
   /** Browse filter for {@code *.cube} files. */
