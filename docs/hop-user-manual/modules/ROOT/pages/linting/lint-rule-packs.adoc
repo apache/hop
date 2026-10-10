@@ -54,6 +54,7 @@ rules:
 ----
 
 The rules themselves are written exactly as described in xref:linting/lint-rules.adoc[Lint rules].
+Give rules `tags` and a `helpUri` to carry your own category, owner or policy reference into the SARIF and JSON reports, as described in xref:linting/lint-rules.adoc#tags[Tags and help links].
 
 [cols="1,3", options="header"]
 |===
@@ -120,5 +121,5 @@ Rule ids are matched ignoring case.
 An id that no installed pack defines, such as a typo, is reported as a warning in the Hop log and by `hop lint`, with the closest id as a suggestion, and the override is ignored.
 
 The rule manager in Hop Gui writes these overrides for you.
-Editing a pack rule there never changes the pack: a change to its severity, threshold or enabled state is written to `hop-lint.yml` as an override, and a change to what the rule actually looks at is written there as a complete rule which replaces the pack rule of that id.
+Editing a pack rule there never changes the pack: a change to its severity, threshold, enabled state, tags or help URL is written to `hop-lint.yml` as an override, and a change to what the rule actually looks at is written there as a complete rule which replaces the pack rule of that id.
 Pack rules cannot be deleted, only switched off.

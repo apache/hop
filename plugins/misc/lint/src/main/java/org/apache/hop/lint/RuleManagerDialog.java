@@ -171,6 +171,10 @@ public class RuleManagerDialog extends Dialog {
     enabledColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.Enabled"));
     enabledColumn.setWidth(80);
 
+    TableColumn tagsColumn = new TableColumn(rulesTable, SWT.LEFT);
+    tagsColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.Tags"));
+    tagsColumn.setWidth(200);
+
     FormData tableData = new FormData();
     tableData.left = new FormAttachment(0, margin);
     tableData.right = new FormAttachment(100, -(BUTTON_PANEL_WIDTH + 2 * margin));
@@ -304,6 +308,7 @@ public class RuleManagerDialog extends Dialog {
       }
       item.setText(7, rule.getSeverity() != null ? rule.getSeverity() : "WARNING");
       item.setText(8, rule.isEnabled() ? "✓" : "✗");
+      item.setText(9, String.join(", ", LintRuleDetails.flatTags(rule.getTags())));
       item.setData(rule);
     }
   }

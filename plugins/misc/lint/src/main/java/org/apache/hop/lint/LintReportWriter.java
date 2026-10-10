@@ -122,6 +122,7 @@ public final class LintReportWriter {
         source.put("kind", result.getSource().getKind().name());
         source.put("name", result.getSource().getName());
       }
+      putTags(finding.putObject("tags"), result.getRuleDetails());
     }
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root) + "\n";
   }
@@ -144,25 +145,48 @@ public final class LintReportWriter {
       driver.put("version", toolVersion);
     }
 
-    // SARIF wants each rule declared once, then referenced by index from every result.
+    // SARIF wants each rule declared once, then referenced by index from every result. The rule is
+    // described by the first finding of that id which carries the rule's details, so a finding
+    // without them, such as a remark checked without the native rules, cannot hide the tags.
+    Map<String, LintResult> describing = new LinkedHashMap<>();
+    for (LintResult result : results) {
+      LintResult current = describing.get(result.getRuleId());
+      if (current == null
+          || (LintRuleDetails.NONE.equals(current.getRuleDetails())
+              && !LintRuleDetails.NONE.equals(result.getRuleDetails()))) {
+        describing.put(result.getRuleId(), result);
+      }
+    }
     Map<String, Integer> ruleIndex = new LinkedHashMap<>();
     ArrayNode rules = driver.putArray("rules");
-    for (LintResult result : results) {
-      ruleIndex.computeIfAbsent(
-          result.getRuleId(),
-          id -> {
-            ObjectNode rule = rules.addObject();
-            rule.put("id", id);
-            // The id is the only stable per-rule name available: Hop's own verify remarks all share
-            // one rule id while carrying the transform name as their result name, so using that
-            // here would label the rule after whichever transform happened to be reported first.
-            rule.put("name", id);
-            rule.putObject("shortDescription")
-                .put("text", result.getRuleName() != null ? result.getRuleName() : id);
-            rule.putObject("defaultConfiguration").put("level", sarifLevel(result.getSeverity()));
-            return rules.size() - 1;
-          });
-    }
+    describing.forEach(
+        (id, result) -> {
+          ruleIndex.put(id, rules.size());
+          ObjectNode rule = rules.addObject();
+          rule.put("id", id);
+          // The id is the only stable per-rule name available: Hop's own verify remarks all share
+          // one rule id while carrying the transform name as their result name, so using that
+          // here would label the rule after whichever transform happened to be reported first.
+          rule.put("name", id);
+          rule.putObject("shortDescription")
+              .put("text", result.getRuleName() != null ? result.getRuleName() : id);
+          LintRuleDetails details = result.getRuleDetails();
+          if (!details.description().isBlank()) {
+            rule.putObject("fullDescription").put("text", details.description());
+          }
+          if (details.helpUri() != null && !details.helpUri().isBlank()) {
+            rule.put("helpUri", details.helpUri());
+          }
+          rule.putObject("defaultConfiguration").put("level", sarifLevel(result.getSeverity()));
+          if (details.hasTags()) {
+            ObjectNode properties = rule.putObject("properties");
+            // GitHub code scanning and Azure DevOps read tags as a flat list of strings, so a
+            // key with several values becomes several key:value entries.
+            ArrayNode flat = properties.putArray("tags");
+            LintRuleDetails.flatTags(details.tags()).forEach(flat::add);
+            putTags(properties.putObject("hopTags"), details);
+          }
+        });
 
     ArrayNode sarifResults = run.putArray("results");
     for (LintResult result : results) {
@@ -195,6 +219,20 @@ public final class LintReportWriter {
       return result.getMessage();
     }
     return result.getSource().getName() + ": " + result.getMessage();
+  }
+
+  /**
+   * Write a rule's tags as an object of arrays. Every value is an array, also a single one, so a
+   * consumer reads one shape whatever the pack wrote.
+   */
+  private static void putTags(ObjectNode target, LintRuleDetails details) {
+    details
+        .tags()
+        .forEach(
+            (key, values) -> {
+              ArrayNode array = target.putArray(key);
+              values.forEach(array::add);
+            });
   }
 
   private static String sarifLevel(String severity) {

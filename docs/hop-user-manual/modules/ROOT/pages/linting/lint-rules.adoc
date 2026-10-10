@@ -292,6 +292,52 @@ suppress:
     reason: "Fields in these templates arrive through metadata injection"
 ----
 
+[[tags]]
+== Tags and help links
+
+A rule can carry `tags`: labels a team or vendor attaches to it, such as a category, the team that owns it or the policy it enforces.
+Each value is a string or a list of strings.
+
+[source,yaml]
+----
+rules:
+  ACME-002:
+    type: custom
+    # ...the rule as before...
+    helpUri: https://wiki.example.com/lint/ACME-002
+    tags:
+      category: secrets
+      owner: platform-team
+      policy: ["SEC-POL-4", "SEC-POL-7"]
+----
+
+The linter never evaluates tags, so changing them cannot change what a rule finds.
+They are written to the reports, on every finding the rule produces:
+
+* `sarif`: on the rule, `properties.tags` holds one `key:value` string per value (`category:secrets`, `policy:SEC-POL-4`, `policy:SEC-POL-7`), the form GitHub code scanning and Azure DevOps read, and `properties.hopTags` holds the same tags as a map. The rule's `description` is written as `fullDescription`, and `helpUri` as `helpUri`.
+* `json`: each finding has a `tags` object. Every value is written as a list, also a single one.
+
+Tags work the same on a native rule.
+
+A project sets tags on any rule, a pack's included, in its own `hop-lint.yml`.
+Each key replaces the pack's values for that key and leaves the pack's other tags as they are; a key with no values removes the pack's tag:
+
+[source,yaml]
+----
+rules:
+  DB-001:
+    tags:
+      owner: data-team    # replaces the pack's owner, if it has one
+      policy: []          # removes the pack's policy tag
+    helpUri: https://wiki.example.com/lint/DB-001
+----
+
+In Hop Gui, the rule editor has a *Help URL* field and a *Tags* table with one row per key and value; repeat a key to give it several values.
+Saving a pack rule there writes only the changed keys to `hop-lint.yml`, as above.
+The rule manager lists each rule's tags in its *Tags* column.
+
+A key the linter does not know, such as `tag:` for `tags:`, is logged as a warning and ignored.
+
 == The rules Hop ships
 
 Hop's core rule pack is deliberately small. A rule is enabled by default only when a violation is defensible as a defect in any project, whatever the house style.
