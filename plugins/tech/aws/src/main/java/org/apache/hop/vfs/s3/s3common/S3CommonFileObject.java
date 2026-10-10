@@ -31,6 +31,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.hop.core.logging.LogChannel;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -75,8 +76,20 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
   @Override
   protected InputStream doGetInputStream() throws Exception {
     LogChannel.GENERAL.logDebug("Accessing content {0}", getQualifiedName());
+    // A folder or a missing object has no content: say so, not "could not read"
+    if (!getType().hasContent()) {
+      throw new org.apache.commons.vfs2.FileNotFoundException(getName());
+    }
     closeS3Object();
-    ResponseInputStream<GetObjectResponse> stream = getObjectStream(bucketName, key);
+    ResponseInputStream<GetObjectResponse> stream;
+    try {
+      stream = getObjectStream(bucketName, key);
+    } catch (S3Exception e) {
+      if (isNotFound(e)) {
+        throw new org.apache.commons.vfs2.FileNotFoundException(getName(), e);
+      }
+      throw e;
+    }
     return new S3CommonFileInputStream(stream, stream);
   }
 
@@ -87,15 +100,27 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   protected String[] doListChildren() throws Exception {
-    List<String> childrenList = new ArrayList<>();
-    if (getType() == FileType.FOLDER || isRootBucket()) {
-      childrenList = getS3ObjectsFromVirtualFolder(key, bucketName);
+    if (getType() != FileType.FOLDER && !isRootBucket()) {
+      // null tells VFS this is not a folder, as for local files, instead of an empty folder
+      return null;
     }
-    return childrenList.toArray(new String[0]);
+    return getS3ObjectsFromVirtualFolder(key, bucketName).toArray(new String[0]);
+  }
+
+  /**
+   * The path with its %nn escapes decoded: the object key "file%.txt" is the name "file%25.txt".
+   * The parser already validated the escapes, so decoding can't fail on a parsed name.
+   */
+  private String decodedPath() {
+    try {
+      return getName().getPathDecoded();
+    } catch (FileSystemException e) {
+      return getName().getPath();
+    }
   }
 
   protected String getS3BucketName() {
-    String path = getName().getPath();
+    String path = decodedPath();
     if (path == null) {
       return "";
     }
@@ -120,7 +145,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
       List<Bucket> buckets = fileSystem.getS3Client().listBuckets().buckets();
       if (buckets != null) {
         for (Bucket b : buckets) {
-          childrenList.add(b.name() + DELIMITER);
+          childrenList.add(UriParser.encode(b.name()) + DELIMITER);
         }
       }
     } else {
@@ -146,7 +171,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
         for (S3Object s3o : response.contents()) {
           if (!s3o.key().equals(realKey)) {
             String childName = s3o.key().substring(prefix.length());
-            childrenList.add(childName);
+            childrenList.add(UriParser.encode(childName));
             cacheEntries.put(
                 s3o.key(),
                 new S3ListCache.ChildInfo(
@@ -160,7 +185,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
         for (CommonPrefix cp : response.commonPrefixes()) {
           String p = cp.prefix();
           if (!p.equals(realKey)) {
-            childrenList.add(p.substring(prefix.length()));
+            childrenList.add(UriParser.encode(p.substring(prefix.length())));
             cacheEntries.put(p, new S3ListCache.ChildInfo(FileType.FOLDER, 0, Instant.EPOCH));
           }
         }
@@ -174,7 +199,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
   }
 
   protected String getBucketRelativeS3Path() {
-    String path = getName().getPath();
+    String path = decodedPath();
     if (path == null) {
       return "";
     }
@@ -217,6 +242,9 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
   @Override
   public void doAttach() throws Exception {
     LogChannel.GENERAL.logDebug("Attach called on {0}", getQualifiedName());
+    // An earlier attach may have appended '/' to a folder's key; starting from it would look up
+    // the wrong parent in the list cache and probe "folder//", turning the folder IMAGINARY.
+    this.key = getBucketRelativeS3Path();
     injectType(FileType.IMAGINARY);
 
     if (isRootBucket()) {
