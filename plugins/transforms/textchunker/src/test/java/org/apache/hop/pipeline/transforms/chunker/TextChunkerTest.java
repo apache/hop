@@ -143,6 +143,22 @@ class TextChunkerTest {
     assertEquals(0L, output.get(0)[totalPos]);
   }
 
+  @Test
+  void emitsASingleRowForWhitespaceOnlyTextWithStructure() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkingStrategy(ChunkingStrategyType.STRUCTURE);
+
+    run(meta, rowMeta(), List.<Object[]>of(new Object[] {"  \n\n \t \n"}));
+
+    int chunkPos = outputRowMeta.indexOfValue("chunk_text");
+    int totalPos = outputRowMeta.indexOfValue("total_chunks");
+    assertEquals(1, output.size());
+    assertEquals("", output.get(0)[chunkPos]);
+    assertEquals(0L, output.get(0)[totalPos]);
+  }
+
   private static IRowMeta rowMeta() {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("text"));

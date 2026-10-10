@@ -29,7 +29,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.CypherConnectionSelectionLine;
+import org.apache.hop.neo4j.shared.NeoConnectionSelectionLine;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.BaseOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.CreateOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.DeleteOperation;
@@ -53,7 +54,6 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -98,7 +98,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   // The options tab
   //
-  private MetaSelectionLine<NeoConnection> wConnection;
+  private NeoConnectionSelectionLine wConnection;
   private TextVar wBatchSize;
   private TextVar wUnwindAlias;
   private TextVar wRetries;
@@ -175,14 +175,13 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     wOptionsComp.setLayout(new FormLayout());
 
     wConnection =
-        new MetaSelectionLine<>(
+        new CypherConnectionSelectionLine(
             variables,
             metadataProvider,
-            NeoConnection.class,
             wOptionsComp,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            "Neo4j Connection",
-            "The name of the Neo4j connection to use");
+            "Graph database connection",
+            "The name of the graph database connection to use");
     PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
@@ -285,7 +284,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
           new ColumnInfo("Parameter", ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo("Input field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
           new ColumnInfo(
-              "Neo4j Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
+              "Graph type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
         };
 
     Label wlParameters = new Label(wParametersComp, SWT.LEFT);

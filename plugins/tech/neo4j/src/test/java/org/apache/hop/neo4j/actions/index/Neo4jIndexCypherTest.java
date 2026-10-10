@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.neo4j.bolt.Neo4jGraphDialect;
 import org.junit.jupiter.api.Test;
 
 class Neo4jIndexCypherTest {
@@ -31,7 +32,9 @@ class Neo4jIndexCypherTest {
     IndexUpdate update = new IndexUpdate(UpdateType.DROP, ObjectType.NODE, "", "Person", "id");
 
     HopException exception =
-        assertThrows(HopException.class, () -> Neo4jIndex.generateDropIndexCypher(update));
+        assertThrows(
+            HopException.class,
+            () -> Neo4jIndex.generateDropIndexCypher(update, Neo4jGraphDialect.INSTANCE));
     assertTrue(exception.getMessage().contains("Please drop indexes with the name of the index"));
   }
 
@@ -40,16 +43,18 @@ class Neo4jIndexCypherTest {
     IndexUpdate update =
         new IndexUpdate(UpdateType.DROP, ObjectType.NODE, "idx_person_id", "Person", "id");
 
-    assertEquals("DROP INDEX idx_person_id IF EXISTS", Neo4jIndex.generateDropIndexCypher(update));
+    assertEquals(
+        "DROP INDEX `idx_person_id` IF EXISTS",
+        Neo4jIndex.generateDropIndexCypher(update, Neo4jGraphDialect.INSTANCE));
   }
 
   @Test
-  void createUsesForOnSyntax() {
+  void createUsesForOnSyntax() throws HopException {
     IndexUpdate update =
         new IndexUpdate(UpdateType.CREATE, ObjectType.NODE, "idx_person_id", "Person", "id,name");
 
-    String cypher = Neo4jIndex.generateCreateIndexCypher(update);
-    assertTrue(cypher.contains("CREATE INDEX idx_person_id IF NOT EXISTS FOR (n:Person)"));
-    assertTrue(cypher.contains("ON (n.id, n.name)"));
+    String cypher = Neo4jIndex.generateCreateIndexCypher(update, Neo4jGraphDialect.INSTANCE);
+    assertTrue(cypher.contains("CREATE INDEX `idx_person_id` IF NOT EXISTS FOR (n:`Person`)"));
+    assertTrue(cypher.contains("ON (n.`id`, n.`name`)"));
   }
 }

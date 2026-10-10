@@ -56,6 +56,8 @@ You can set the following system environment variables:
 * `AWS_ACCESS_KEY_ID` : set it to your AWS access key
 * `AWS_SECRET_ACCESS_KEY` : set it to your secret access key
 
+TIP: Running Hop in Docker? See xref:docker-container.adoc#CloudCredentials[Cloud storage credentials] to pass these settings to the container.
+
 == S3-compatible services
 
 Storage services that implement the S3 API can be used through this plugin as well.

@@ -1,0 +1,39 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+:page-marketplace: hop-tech-neo4j
+:page-aliases: hop-gui/perspective-neo4j.adoc
+
+= Graph Logging Perspective
+
+Icon: image:icons/graph_logging.svg[width="24px"]
+
+== Description
+
+The Graph logging perspective (previously Neo4j perspective) provides a view on and allows you to query Hop execution history from a graph database: Neo4j, Memgraph, Amazon Neptune, FalkorDB or Apache AGE.
+
+The perspective shows the value of `HOP_GRAPH_LOGGING_CONNECTION` (used to log executions to a graph database; `NEO4J_LOGGING_CONNECTION` works as well), allows to select a workflow or pipeline to display logging for (optionally, specify the number of executions and only show root executions).
+
+For the selected workflow or pipeline, or all executions if none selected), the id, name, type, number of rows read, written, input, output and rejected, the number of error rows and the execution date and duration are shown.
+
+In the bottom half of the perspective dialog, the logging text, path to errors and a number of useful cypher queries are shown.
+
+Selecting an execution and clicking Open takes you to the pipeline or workflow behind it, with the failing transform or action selected.
+
+IMPORTANT: This perspective only shows executions written by the execution logging in `HOP_GRAPH_LOGGING_CONNECTION`. Executions written by a xref:metadata-types/graphs/graph-database-location.adoc[graph database] xref:metadata-types/execution-information-location.adoc[execution information location] are stored with a different set of properties and do not appear here: they are shown in the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective], which gains extra Lineage, Error path and Cypher tabs when the location is a Neo4j one. Both write `Execution` nodes and `EXECUTES` relationships, so point them at separate databases if you use both.
+
+TIP: While fully functional we recommend you use the xref:metadata-types/graphs/graph-database-location.adoc[graph database] xref:metadata-types/execution-information-location.adoc[execution information location] plugin.

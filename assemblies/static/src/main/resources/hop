@@ -121,6 +121,10 @@ fi
 if [ -d "plugins/engines/beam/lib-beam" ]; then
   CLASSPATH="${CLASSPATH}:plugins/engines/beam/lib-beam/*"
 fi
+# snowflake-jdbc is here, not in lib/core: the jar embeds its own zstd classes.
+if [ -d "plugins/engines/beam/lib" ]; then
+  CLASSPATH="${CLASSPATH}:plugins/engines/beam/lib/*"
+fi
 if [ -d "plugins/engines/beam" ]; then
   # Hop Beam plugin jars at the plugin root (exclude subdirs via non-recursive glob is fine for /*.jar intent;
   # shell * includes jars and may pick non-jars; match historical lib/* style)

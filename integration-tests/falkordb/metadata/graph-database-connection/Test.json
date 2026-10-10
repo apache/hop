@@ -1,0 +1,13 @@
+{
+  "graphDatabase": {
+    "FALKORDB": {
+      "hostname": "${FALKORDB_HOST}",
+      "port": "${FALKORDB_PORT}",
+      "graphName": "hop_it",
+      "username": "",
+      "password": "",
+      "usingTls": false
+    }
+  },
+  "name": "Test"
+}

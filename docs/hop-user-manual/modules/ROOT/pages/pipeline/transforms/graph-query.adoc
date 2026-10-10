@@ -1,0 +1,83 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Graph query transform runs Cypher statements, or Gremlin traversals, on a graph database with parameters from the input rows.
+
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-marketplace: hop-tech-neo4j
+:page-aliases: pipeline/transforms/neo4j-cypher.adoc
+
+= image:transforms/icons/graph_query.svg[Graph query transform Icon, role="image-doc-icon"] Graph query
+
+== Description
+
+The Graph query transform (previously Neo4j Cypher) runs statements on a graph database, with parameter values from the input rows.
+It reads, writes or both, and can call procedures and return their output.
+
+It works with every xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] and with Neo4j connections.
+On Cypher databases (Neo4j, Memgraph, Amazon Neptune, FalkorDB and Apache AGE) the statements are Cypher, on Gremlin servers they are Gremlin traversals.
+
+The Cypher language differs a bit between databases: write the statements in the dialect of yours.
+On Apache AGE, name every value a statement returns (`RETURN n.name AS name`, no `RETURN *`).
+
+== Notable options
+
+|===
+|Option |Description
+
+|Graph database connection
+|The connection to run the statements on.
+
+|Get Cypher from input field
+|instead of hard coding statements you can actually have them created in for example a bit of JavaScript.
+Then each row can contain a different statement to be executed by this transform.
+
+|Cypher
+|the statement to execute.
+You can use variables substitution (for example `+${MY_VARIABLE}+`) and parameters (for example `+$MY_PARAMETER+`).
+Parameters can be specified in the next section of the options.
+
+|Use UNWIND to collect parameter values?
+|This option collects all the parameters in a map, adds all the row maps together in a list and passes this to the UNWIND statement.
+Consider this example:
+
+`UNWIND $customers AS customer CREATE (c:Customer { id : customer.id, name : customer.name })`
+
+we pick up `customer.id` and `customer.name` as parameters.
+The `customers` parameter comes from the name of the unwind map.
+
+|Name of UNWIND values map
+|the name of the map containing all the rows and values for the UNWIND statement.
+
+|Parameters
+|You can pick any valid parameter name (without spaces and so on), the field to use and the graph data type to convert to.
+Pick `Vector` to pass an embedding, see xref:technology/graph-databases/index.adoc#vectors[Vectors and embeddings].
+
+|Return graph
+|Return the nodes, relationships and paths in the results of a statement as one value of the Graph data type, for example to split it with the xref:pipeline/transforms/split-graph.adoc[Split graph] transform.
+This works with every graph database.
+
+|Returns
+|this transform can return one or more rows of data.
+You can specify the return values here.
+For every input row you can then have 0, 1 or more output rows.
+If you do not specify any return values the output will simply be the same as the input.
+Give a return value the type `Vector` to read a stored embedding into a Vector field.
+On Gremlin servers a traversal returns a row per result: maps, from `project()` or `elementMap()` for example, are rows of their own, anything else is a value called `result`.
+
+|===

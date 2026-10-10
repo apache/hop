@@ -1,0 +1,10 @@
+{
+  "dataStream": {
+    "ArrowStreamFile": {
+      "filename": "${java.io.tmpdir}/sample-data-stream.arrow",
+      "batchSize": "500"
+    }
+  },
+  "name": "sample-data-stream",
+  "description": "Arrow stream file used by the data-stream-output and data-stream-input samples"
+}

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.vfs2.FileName;
@@ -166,6 +167,13 @@ public abstract class Workflow extends Variables
 
   protected Set<ActionMeta> activeActions;
 
+  /**
+   * Join actions that one branch has claimed to run. A branch claims a Join before it publishes its
+   * own result and the claim is released when the Join's body returns. A branch that cannot claim
+   * the Join leaves it to the pending run, which cannot complete without seeing that result.
+   */
+  protected Set<ActionMeta> claimedJoins;
+
   /** Parameters of the workflow. */
   protected INamedParameters namedParams = new NamedParameters();
 
@@ -214,6 +222,7 @@ public abstract class Workflow extends Variables
 
     // this map is being modified concurrently and must be thread-safe
     activeActions = Collections.synchronizedSet(new HashSet<>());
+    claimedJoins = ConcurrentHashMap.newKeySet();
 
     extensionDataMap = new HashMap<>();
 
@@ -410,6 +419,7 @@ public abstract class Workflow extends Variables
 
       setFinished(false);
       setStopped(false);
+      claimedJoins.clear();
       HopEnvironment.setExecutionInformation(this);
 
       log.logBasic(BaseMessages.getString(PKG, CONST_WORKFLOW_STARTED));
@@ -583,6 +593,7 @@ public abstract class Workflow extends Variables
     setFinished(false);
     setActive(true);
     setInitialized(true);
+    claimedJoins.clear();
     HopEnvironment.setExecutionInformation(this);
 
     // Where do we start?
@@ -756,6 +767,7 @@ public abstract class Workflow extends Variables
     Result res = null;
 
     if (isStopped()) {
+      releaseJoin(actionMeta);
       res = newResult();
       res.setEntryNr(nr);
       res.setStopped(true);
@@ -771,6 +783,7 @@ public abstract class Workflow extends Variables
     // if we didn't have a previous result, create one, otherwise, copy the content...
     //
     final Result newResult;
+    final Set<ActionMeta> joinClaims;
     Result prevResult = null;
     if (previousResult != null) {
       prevResult = previousResult.clone();
@@ -791,6 +804,8 @@ public abstract class Workflow extends Variables
 
     if (!extension.executeAction) {
       newResult = prevResult;
+      releaseJoin(actionMeta);
+      joinClaims = claimJoinsToFollow(actionMeta, newResult);
     } else {
       if (log.isDetailed()) {
         log.logDetailed(
@@ -839,7 +854,11 @@ public abstract class Workflow extends Variables
       activeActions.add(actionMeta.clone());
 
       log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
-      newResult = cloneAction.execute(prevResult, nr);
+      try {
+        newResult = cloneAction.execute(prevResult, nr);
+      } finally {
+        releaseJoin(actionMeta);
+      }
       log.snap(Metrics.METRIC_ACTION_STOP, cloneAction.toString());
 
       // Action execution duration
@@ -847,6 +866,9 @@ public abstract class Workflow extends Variables
       newResult.setEntryNr(nr);
 
       activeActions.remove(actionMeta);
+
+      // Claim the Joins this action leads to before its result is published below
+      joinClaims = claimJoinsToFollow(actionMeta, newResult);
 
       for (IActionListener actionListener : actionListeners) {
         actionListener.afterExecution(this, actionMeta, cloneAction, newResult);
@@ -953,11 +975,11 @@ public abstract class Workflow extends Variables
       // If the start point was an evaluation and the link color is correct:
       // green or red, execute the next action...
       //
-      if (hopMeta.isUnconditional()
-          || (actionMeta.isEvaluation() && (hopMeta.isEvaluation() == newResult.isResult()))) {
+      if (isHopFollowed(actionMeta, hopMeta, newResult)) {
 
-        // If the next action is a join, only execute once
-        if (nextAction.isJoin() && activeActions.contains(nextAction)) {
+        // Only the branch that claimed a Join runs it. Without a claim, another branch has a run
+        // of that Join pending, and that run waits for the result of this action.
+        if (nextAction.isJoin() && !joinClaims.remove(nextAction)) {
           continue;
         }
 
@@ -1021,6 +1043,11 @@ public abstract class Workflow extends Variables
           }
         }
       }
+    }
+
+    // Release the claims on Joins that were not launched, for example because the workflow stopped
+    for (ActionMeta join : joinClaims) {
+      claimedJoins.remove(join);
     }
 
     // OK, if we run in parallel, we need to wait for all the actions to
@@ -1092,6 +1119,44 @@ public abstract class Workflow extends Variables
     }
 
     return res;
+  }
+
+  /** True when the hop from {@code actionMeta} is followed given the result of that action. */
+  private static boolean isHopFollowed(
+      ActionMeta actionMeta, WorkflowHopMeta hopMeta, Result result) {
+    return hopMeta.isUnconditional()
+        || (actionMeta.isEvaluation() && (hopMeta.isEvaluation() == result.isResult()));
+  }
+
+  /**
+   * Claims the Joins that {@code actionMeta} will follow given its result. Call this before the
+   * result is published to the workflow tracker: a Join run that is still pending then cannot
+   * complete without seeing that result, so a branch that fails to claim it can safely skip it.
+   *
+   * @return the Joins this branch claimed and must launch
+   */
+  private Set<ActionMeta> claimJoinsToFollow(ActionMeta actionMeta, Result result) {
+    Set<ActionMeta> claims = new HashSet<>();
+    int nrNext = workflowMeta.findNrNextActions(actionMeta);
+    for (int i = 0; i < nrNext; i++) {
+      ActionMeta nextAction = workflowMeta.findNextAction(actionMeta, i);
+      if (nextAction.isJoin()
+          && isHopFollowed(actionMeta, workflowMeta.findWorkflowHop(actionMeta, nextAction), result)
+          && claimedJoins.add(nextAction)) {
+        claims.add(nextAction);
+      }
+    }
+    return claims;
+  }
+
+  /**
+   * Releases the claim on a Join once its body has returned. A branch that finishes after this
+   * point was not seen by that run, so it may claim and run the Join again.
+   */
+  private void releaseJoin(ActionMeta actionMeta) {
+    if (actionMeta.isJoin()) {
+      claimedJoins.remove(actionMeta);
+    }
   }
 
   /**

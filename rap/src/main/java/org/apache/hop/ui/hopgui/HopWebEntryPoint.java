@@ -36,6 +36,7 @@ import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
 import org.apache.hop.ui.hopgui.explorer.RapExplorerFileService;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
@@ -221,6 +222,12 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     jsLoader.require(resourceManager.getLocation("js/text-line-clipboard.js"));
     // Ctrl/Cmd+A selects the field. CANCEL_KEYS would otherwise swallow it (issue #8606).
     jsLoader.require(resourceManager.getLocation("js/text-select-all.js"));
+    // Tab and Shift+Tab indent the selected lines of a multi-line field (issue #8653).
+    jsLoader.require(resourceManager.getLocation("js/text-indent.js"));
+    JavaScriptExecutor indentSize = RWT.getClient().getService(JavaScriptExecutor.class);
+    if (indentSize != null) {
+      indentSize.execute("window.hopTextTabSize=" + TextIndent.tabSize() + ";");
+    }
 
     // Configure keyboard shortcuts for RAP dynamically from annotations
     // ACTIVE_KEYS tells RAP to send these key combinations to the server

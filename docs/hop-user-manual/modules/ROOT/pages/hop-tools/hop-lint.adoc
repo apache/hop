@@ -76,6 +76,9 @@ A project chosen with `-j` or `-e` applies whatever is linted; for a target outs
 |`--baseline <file>`
 |Report only findings that are not in this baseline file
 
+|`--[no-]include-metadata`
+|Lint the metadata files in a folder too, such as connections. On by default.
+
 |`--write-baseline <file>`
 |Write today's findings to a baseline file and exit
 
@@ -116,7 +119,8 @@ A project chosen with `-j` or `-e` applies whatever is linted; for a target outs
 |No findings at or above the `--fail-on` threshold
 
 |`1`
-|Findings at or above the threshold, or more warnings than `--max-warnings`
+|Findings at or above the threshold, or more warnings than `--max-warnings`.
+Also when the project's `hop-lint.yml`, the `--config` file or an installed rule pack cannot be read: the error names the file or pack and what is wrong with it.
 |===
 
 == Continuous integration
@@ -133,6 +137,9 @@ hop lint --max-warnings 20 .
 Both carry the tags a rule pack gives its rules; see xref:linting/lint-rules.adoc#tags[Tags and help links].
 Stdout carries only the report, in every format, so it can be piped or redirected.
 Hop's log lines and notes such as the baseline count go to stderr.
+
+To lint from a workflow instead, on Hop Server or in a container, use the xref:workflow/actions/runlinter.adoc[Run Linter] action.
+It gives the same findings and the same outcome as `hop lint` on the same project.
 
 [[baseline]]
 == Adopting the linter on an existing project
@@ -165,7 +172,7 @@ This writes a `pre-commit` hook into the current repository's `.git/hooks`.
 The hook lints the staged Hop files and blocks the commit when they fail.
 It is a copy, so run `hop lint --install-hook` again after upgrading Hop to pick up changes to it.
 
-Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Linter -> Block Git Commits*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.
+Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Plugins -> Linter -> Block Git Commits on Lint Failures*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.
 
 As with git's own `pre-commit` hook, only commits you author are checked.
 Reverting a file and cherry-picking a file are not, because both replay content that is already in the history — and reverting is often how you fix a lint failure in the first place.

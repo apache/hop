@@ -1,0 +1,17 @@
+{
+  "name": "0047-first-name",
+  "description": "Database mapping with a hash secret on a table that holds plain-text keys",
+  "piiClassification": "Direct identifier",
+  "valueSource": "SYNTHETIC",
+  "token": "SEQUENCE",
+  "prefix": "fn",
+  "suffix": "",
+  "sequenceStart": "1",
+  "storage": "DATABASE",
+  "trimKey": false,
+  "ignoreCase": false,
+  "connection": "unit-test-db",
+  "schemaName": "public",
+  "tableName": "mask_0047",
+  "hashSecret": "it-0047-secret"
+}

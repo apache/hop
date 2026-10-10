@@ -1,0 +1,68 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+:documentationPath: /pipeline/beam/
+:language: en_US
+:description: How a Hop transform is turned into an Apache Beam pipeline.
+
+= Developing a Beam transform
+
+This page is the path from a Hop pipeline to a Beam graph. It uses the current classes in the Beam engine plugin. A transform that only serializes metadata, or that only passes a unit test written against a hand-built handler call, is not yet a Beam transform.
+
+== From the engine to the graph
+
+`BeamPipelineEngine.prepareExecution()` checks that the run configuration is a `IBeamPipelineEngineRunConfiguration`, then builds a `HopPipelineMetaToBeamPipelineConverter`. `createPipeline()` creates the Beam `Pipeline`, registers `HopRowCoder` for `HopRow`, and walks the Hop pipeline in three steps:
+
+. `handleBeamInputTransforms()` for transforms whose metadata says they are inputs.
+. `handleGenericTransform()` for the transforms in between.
+. `handleBeamOutputTransforms()` for transforms whose metadata says they are outputs.
+
+A handler is resolved in this order:
+
+. An entry in the converter's handler map, keyed by the transform plugin id. This is an explicitly registered handler class.
+. The metadata object itself, when it implements `IBeamPipelineTransformHandler`. MQTT, Debezium, Elasticsearch, Splunk output, and Snowflake input and output use this form.
+. For anything else, `handleGenericTransform()` tries to run the ordinary Hop transform inside a Beam `DoFn`.
+
+The generic fallback is not a compatibility promise. It gives every worker its own copy of the transform. A transform that opens one file, one sequence, or one database session will do that once per worker. Sources that read a filename from an incoming field also fail there, because the generic path has no real input row.
+
+== What a handler receives
+
+`handleBeamInputTransforms()` always calls `handleTransform` with a null predecessor list and a null input `PCollection`. That is the production call. It does not mean the transform has no incoming hops. `BeamSourceTopology.rejectIncomingRows()` treats a non-null list as the caller's topology. A null list is resolved with `PipelineMeta.findPreviousTransforms(transformMeta, false)`, which includes enabled main hops and error hops and skips informational hops. Reject those rows before expanding the source. `BeamSourceConverterTest` builds real Hop graphs and runs them through the converter; a test that only calls the handler with an empty list does not catch this.
+
+Outputs receive the real predecessor list and the incoming `PCollection`. A sink that needs exactly one incoming transform checks that list before it expands.
+
+== Metadata, dialog, and worker code
+
+Keep the four roles separate:
+
+* The `*Meta` class holds `@HopMetadataProperty` fields and, for a self-handling transform, implements `IBeamPipelineTransformHandler`. User-visible fields also use `@GuiWidgetElement` inside a group, so the dialog is a `GuiCompositeWidgets` container rather than a hand-built form.
+* The dialog reads and writes that metadata. On OK it calls `getWidgetsContents`. It does not copy fields by hand.
+* The runtime `*Transform` class extends `BaseTransform` and refuses `processRow()` outside a Beam pipeline. Beam execution does not call it.
+* Worker functions, such as a `DoFn` or a Snowflake mapper, call `BeamHop.init()` before they touch Hop metadata. Row metadata travels as XML from `IRowMeta.getMetaXml()`, including storage type and string encoding. Do not rebuild a row meta from a type name alone.
+
+Variables are resolved while the graph is built, on the machine that submits the pipeline. A secret is decrypted there and must not be copied into an error message. Encrypt password fields with `password = true` on `@HopMetadataProperty`.
+
+== Metrics
+
+`BeamPipelineEngine` copies Beam counters onto the Hop transform by counter name. `READ` becomes lines read, `WRITTEN` becomes lines written, `INPUT` becomes lines input, and `OUTPUT` becomes lines output. Increment `WRITTEN` only after a confirmed write. The current IO transforms increment `READ` and `OUTPUT` when a row is converted and handed to Beam. That is not an acknowledgement from the remote system, and lines written stays empty.
+
+== Dependencies and compatibility
+
+A new IO library has to be a runtime dependency of `hop-engines-beam`. The plugin assembly copies runtime dependencies into `lib/core`. A jar that is only on the compiler classpath is missing on a worker. Declare `@Transform` compatibility with the engines that can run the transform. `supportedEngines = {"Beam*"}` matches every Beam engine id, including Spark, so it cannot exclude Spark. `excludedEngines` is enforced by `EngineCompatibilityResolver` when the pipeline is prepared, and it is skipped when `HOP_ALLOW_UNSUPPORTED` is set. A declared engine is not a remote-runner certification.
+
+== What to test
+
+Test the converter path, not only a mapper. For a source, assert that an enabled incoming hop fails before the source expands, and that a disabled or informational hop does not. For a sink, assert the incoming-hop rule. Apply the Beam transform with `Pipeline.create()` when the runner would contact a service you do not have, and do not call `run()` or `waitUntilFinish()` in that test. A serialization test proves the metadata round trip. It does not prove the graph, the worker classpath, or delivery.

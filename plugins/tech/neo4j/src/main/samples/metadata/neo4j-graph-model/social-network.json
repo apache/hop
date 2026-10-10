@@ -1,0 +1,96 @@
+{
+  "name": "social-network",
+  "description": "People who know each other and the companies they work at. Used by the property-graph samples to create a SQL/PGQ property graph.",
+  "nodes": [
+    {
+      "presentation": {
+        "x": 100,
+        "y": 100
+      },
+      "name": "Person",
+      "description": "A person. Stored in the Person table, keyed on id.",
+      "labels": [
+        "Person"
+      ],
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "The unique id of the person",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "description": "The name of the person",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "presentation": {
+        "x": 400,
+        "y": 100
+      },
+      "name": "Company",
+      "description": "A company. Stored in the Company table, keyed on code.",
+      "labels": [
+        "Company"
+      ],
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "code",
+          "description": "The unique code of the company",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "description": "The name of the company",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "nodeSource": "Person",
+      "nodeTarget": "Person",
+      "name": "KNOWS",
+      "description": "A person knows another person. Stored in the KNOWS table with the columns source_id, target_id and since.",
+      "label": "KNOWS",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "since",
+          "description": "The year they met",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "nodeSource": "Person",
+      "nodeTarget": "Company",
+      "name": "WORKS_AT",
+      "description": "A person works at a company. Stored in the WORKS_AT table with the columns source_id and target_code.",
+      "label": "WORKS_AT",
+      "properties": []
+    }
+  ]
+}

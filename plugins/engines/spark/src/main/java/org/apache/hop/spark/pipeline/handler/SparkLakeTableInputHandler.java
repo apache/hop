@@ -24,13 +24,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.table.SparkLakeTableSupport;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -60,7 +60,7 @@ public class SparkLakeTableInputHandler extends SparkBaseTransformHandler {
       Dataset<Row> input)
       throws HopException {
 
-    SparkLakeTableInputMeta meta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta meta = new LakeTableInputMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
     String pathSchemeMap = runConfiguration != null ? runConfiguration.getPathSchemeMap() : null;
@@ -71,8 +71,7 @@ public class SparkLakeTableInputHandler extends SparkBaseTransformHandler {
     transformDatasetMap.put(transformMeta.getName(), dataset);
 
     String target =
-        SparkLakeTableInputMeta.MODE_TABLE.equalsIgnoreCase(
-                String.valueOf(meta.getIdentifierMode()))
+        LakeTableInputMeta.MODE_TABLE.equalsIgnoreCase(String.valueOf(meta.getIdentifierMode()))
             ? "table=" + variables.resolve(meta.getTableIdentifier())
             : "path=" + variables.resolve(meta.getTablePath());
     log.logBasic(

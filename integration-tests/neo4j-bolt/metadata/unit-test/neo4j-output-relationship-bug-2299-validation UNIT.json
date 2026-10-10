@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "from_id",
+          "data_set_field": "from_id"
+        },
+        {
+          "transform_field": "to_id",
+          "data_set_field": "to_id"
+        },
+        {
+          "transform_field": "rel_type",
+          "data_set_field": "rel_type"
+        }
+      ],
+      "field_order": [
+        "from_id",
+        "to_id",
+        "rel_type"
+      ],
+      "data_set_name": "output-relationship-2299",
+      "transform_name": "OUTPUT"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-output-relationship-bug-2299-validation UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./tests/neo4j-output-relationship-bug-2299/neo4j-output-relationship-bug-2299-validation.hpl"
+}

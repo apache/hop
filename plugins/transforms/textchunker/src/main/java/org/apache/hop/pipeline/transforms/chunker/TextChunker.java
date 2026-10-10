@@ -124,7 +124,9 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
     String text = data.inputRowMeta.getString(row, data.inputFieldIndex);
     String documentIdValue = resolveDocumentId(row);
 
-    if (Utils.isEmpty(text)) {
+    List<Chunk> chunks = Utils.isEmpty(text) ? List.of() : chunk(row, text);
+    if (chunks.isEmpty()) {
+      // Empty text, or text that yields no chunks (e.g. whitespace-only for Structure).
       if (isRowLevel()) {
         logRowlevel(BaseMessages.getString(PKG, "TextChunker.Log.EmptyText"));
       }
@@ -132,7 +134,6 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
       return;
     }
 
-    List<Chunk> chunks = chunk(row, text);
     int totalChunks = chunks.size();
 
     // Output each chunk as a new row (must copy row data per chunk; the buffer is reused).

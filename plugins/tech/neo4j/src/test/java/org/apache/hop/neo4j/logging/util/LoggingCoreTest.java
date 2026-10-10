@@ -25,13 +25,9 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.neo4j.driver.Value;
-import org.neo4j.driver.Values;
-import org.neo4j.driver.internal.InternalNode;
-import org.neo4j.driver.types.Node;
 
 /**
  * The registration date of an Execution node is written by both the Neo4j execution information
@@ -39,8 +35,11 @@ import org.neo4j.driver.types.Node;
  */
 class LoggingCoreTest {
 
-  private static Node execution(Value registrationDate) {
-    return new InternalNode(1, List.of("Execution"), Map.of("registrationDate", registrationDate));
+  /** The properties of an Execution node, as a graph connection returns them. */
+  private static Map<String, Object> execution(Object registrationDate) {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("registrationDate", registrationDate);
+    return properties;
   }
 
   private static Date toDate(LocalDateTime localDateTime) {
@@ -52,8 +51,7 @@ class LoggingCoreTest {
     LocalDateTime registered = LocalDateTime.of(2026, 9, 30, 14, 15, 16);
 
     assertEquals(
-        toDate(registered),
-        LoggingCore.getDateValue(execution(Values.value(registered)), "registrationDate"));
+        toDate(registered), LoggingCore.getDateValue(execution(registered), "registrationDate"));
   }
 
   @Test
@@ -62,8 +60,7 @@ class LoggingCoreTest {
     //
     assertEquals(
         toDate(LocalDateTime.of(2026, 9, 30, 14, 15, 16)),
-        LoggingCore.getDateValue(
-            execution(Values.value("2026/09/30T14:15:16")), "registrationDate"));
+        LoggingCore.getDateValue(execution("2026/09/30T14:15:16"), "registrationDate"));
   }
 
   @Test
@@ -72,23 +69,29 @@ class LoggingCoreTest {
 
     assertEquals(
         Date.from(registered.toInstant()),
-        LoggingCore.getDateValue(execution(Values.value(registered)), "registrationDate"));
+        LoggingCore.getDateValue(execution(registered), "registrationDate"));
+  }
+
+  @Test
+  void isoStringWrittenByTheExecutionInformationLocationOnFalkorDbAndAge() {
+    assertEquals(
+        toDate(LocalDateTime.of(2026, 9, 30, 14, 15, 16)),
+        LoggingCore.getDateValue(execution("2026-09-30T14:15:16"), "registrationDate"));
   }
 
   @Test
   void unparsableStringIsNull() {
-    assertNull(LoggingCore.getDateValue(execution(Values.value("not a date")), "registrationDate"));
+    assertNull(LoggingCore.getDateValue(execution("not a date"), "registrationDate"));
   }
 
   @Test
   void otherTypeIsNull() {
-    assertNull(LoggingCore.getDateValue(execution(Values.value(42)), "registrationDate"));
+    assertNull(LoggingCore.getDateValue(execution(42), "registrationDate"));
   }
 
   @Test
   void missingPropertyIsNull() {
-    assertNull(LoggingCore.getDateValue(execution(Values.NULL), "registrationDate"));
-    assertNull(
-        LoggingCore.getDateValue(new InternalNode(1, List.of("Execution"), Map.of()), "other"));
+    assertNull(LoggingCore.getDateValue(execution(null), "registrationDate"));
+    assertNull(LoggingCore.getDateValue(Map.of(), "other"));
   }
 }

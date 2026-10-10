@@ -21,6 +21,7 @@ package org.apache.hop.neo4j.transforms.cypherbuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.graph.IGraphConnection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
@@ -40,6 +41,10 @@ public class CypherBuilderData extends BaseTransformData {
   public NeoConnection connection;
   public Driver driver;
   public Session session;
+
+  /** The connection to a graph database which isn't spoken to over Bolt, null for Bolt. */
+  public IGraphConnection graphConnection;
+
   public String unwindAlias;
   public String cypher;
   public IRowMeta outputRowMeta;

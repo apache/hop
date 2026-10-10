@@ -19,10 +19,18 @@ package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class CreditCardVerifierTest {
 
@@ -55,5 +63,30 @@ class CreditCardVerifierTest {
     assertFalse(CreditCardVerifier.isNumber("a"));
     assertTrue(CreditCardVerifier.isNumber("1"));
     assertTrue(CreditCardVerifier.isNumber("1.01"));
+  }
+
+  @Test
+  void testBinDatabaseValidAndTypeSpecificError(@TempDir Path tempDir) throws Exception {
+    Path file = tempDir.resolve("bins.csv");
+    try (OutputStream out = Files.newOutputStream(file)) {
+      out.write(
+          ("BIN,CARDTYPE,ISSUERS,COUNTRY\n" + "512003,MASTERCARD,BCA,INDONESIA\n")
+              .getBytes(StandardCharsets.UTF_8));
+    }
+
+    BinDatabase db = new BinDatabase();
+    db.load(
+        new Variables(), file.toUri().toString(), "", new ArrayList<>(), ",", "\"", "UTF-8", true);
+
+    // Valid Luhn number for the BIN 512003 length 16.
+    ReturnIndicator valid = CreditCardVerifier.checkCC("5120031234567898", db);
+    assertTrue(valid.CardValid);
+    assertEquals("MASTERCARD", valid.CardType);
+
+    // Same BIN but failing Luhn -> type-specific message.
+    ReturnIndicator invalid = CreditCardVerifier.checkCC("5120031234567890", db);
+    assertFalse(invalid.CardValid);
+    assertNotNull(invalid.UnValidMsg);
+    assertTrue(invalid.UnValidMsg.contains("MASTERCARD"));
   }
 }

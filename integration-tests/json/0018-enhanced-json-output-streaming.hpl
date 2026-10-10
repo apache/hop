@@ -63,8 +63,9 @@ limitations under the License.
       <height>60</height>
       <xloc>64</xloc>
       <yloc>144</yloc>
-      <note>Run by main-0018 in a separate hop-run with a small heap. The JSON file is several
-times larger than that heap, so it only gets written when the transform streams it.</note>
+      <note>Run by main-0018 in a separate hop-run with -Xmx128m. The JSON file is about 127MB,
+smaller than that heap, so it catches a retained document rather than a file larger than the
+entire heap. One unlimited group is still held until the group ends.</note>
       <width>560</width>
     </notepad>
   </notepads>

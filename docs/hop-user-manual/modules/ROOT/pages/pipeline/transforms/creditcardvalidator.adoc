@@ -30,6 +30,8 @@ The Credit Card Validator transform will help you check the following:
 
 == Options
 
+=== Fields tab
+
 * transform name: the transform name, unique in a pipeline
 * Credit card field: the name of the input field that will contain the credit card number during execution
 * Get only digits?
@@ -37,4 +39,34 @@ The Credit Card Validator transform will help you check the following:
 * Output Fields
 ** Result fieldname: the name of the (Boolean) output field indicating the validity of the number
 ** Credit card type field: the name of the output field that will hold the credit card type (vendor)
-** Not valid message: the name of the output field that will hold the error message.
+** Not valid message: the name of the output field that will hold the error message. When the BIN database recognizes a card type but the number fails validation, the message is `Not a valid number for {card type}.`
+
+=== BIN Files tab
+
+The BIN Files tab enables an optional lookup against an external Bank Identification Number (BIN) CSV database. When disabled, the built-in card type detection is used.
+
+* Use BIN database: enable to validate the card against an external CSV BIN database
+* BIN database file: the CSV file containing the BIN database (browsable)
+* Delimiter: the delimiter character used in the CSV file (default `,`)
+* Enclosure: the enclosure (quote) character used in the CSV file (default `"`)
+* Encoding: the character encoding of the CSV file (default UTF-8)
+* Header row present: when enabled, the first row of the CSV is treated as a header. When disabled, columns are mapped by fixed position (`BIN, card type, issuer, country`).
+* BIN CSV Column: the CSV header column that contains the BIN values. When empty, the transform tries to auto-detect a `bin` column.
+* Get columns: reads the CSV header and populates the BIN CSV Column dropdown and the extra output fields.
+* Extra output fields: a table mapping CSV columns to output fields.
+** Field name: the name of the output field
+** CSV column: the CSV column to map from
+** Type: the Hop data type of the output field
+** Format: the conversion mask
+** Length: the field length
+** Precision: the field precision
+** Currency, Decimal, Group: the numeric/currency symbols
+** Trim: the trim type
+
+The card number length is validated against a built-in card scheme table (Visa, Mastercard, American Express, Discover, JCB, Diners Club, UnionPay, Maestro, Verve), independent of the CSV file.
+
+NOTE: Only the BIN column is required in the CSV. The card type, issuer and country columns are optional and are detected by common column names such as `cardtype`, `issuer`, `country` when not explicitly mapped.
+
+NOTE: BIN values are limited to 8 digits. Rows whose BIN is empty, longer than 8 digits, or non-numeric are skipped, and the number of skipped rows is logged when the transform initializes.
+
+NOTE: When you uncheck *Header row present* while header-based column mappings (the *BIN CSV Column* or any extra output *CSV column*) are still configured, you are prompted to confirm. Confirming clears those mappings and switches to fixed-position mapping; cancelling keeps the header mode and its mappings.

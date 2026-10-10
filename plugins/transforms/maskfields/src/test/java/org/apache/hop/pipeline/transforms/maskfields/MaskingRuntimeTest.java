@@ -18,15 +18,26 @@
 package org.apache.hop.pipeline.transforms.maskfields;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.maskfields.MaskingEngine.Binding;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class MaskingRuntimeTest {
+
+  @BeforeAll
+  static void initHop() throws Exception {
+    HopEnvironment.init();
+  }
 
   @Test
   void memoryIsSharedInsideOneExecutionAndResetForTheNext() throws Exception {
@@ -123,6 +134,23 @@ class MaskingRuntimeTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString(name));
     return rowMeta;
+  }
+
+  @Test
+  void aManualUrlIsKeyedOnTheUrlAConnectionOpens() throws Exception {
+    DatabaseMeta databaseMeta =
+        new DatabaseMeta("mask", "H2", "Native", "", "unused", "", "sa", "");
+    databaseMeta.setManualUrl("jdbc:h2:mem:${MASK_DB}");
+    Variables one = new Variables();
+    one.setVariable("MASK_DB", "one");
+    Variables two = new Variables();
+    two.setVariable("MASK_DB", "two");
+
+    String key = MaskingRuntime.databaseKey(one, databaseMeta, null, "mask_map");
+    assertEquals("jdbc:h2:mem:one", key.substring(0, key.indexOf('\0')));
+    assertNotEquals(key, MaskingRuntime.databaseKey(two, databaseMeta, null, "mask_map"));
+    // Unresolved, the URL does not say which database it opens.
+    assertNull(MaskingRuntime.databaseKey(new Variables(), databaseMeta, null, "mask_map"));
   }
 
   private static String uniqueId() {

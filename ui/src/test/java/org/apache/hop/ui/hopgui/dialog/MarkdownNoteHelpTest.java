@@ -33,5 +33,8 @@ class MarkdownNoteHelpTest {
     assertTrue(html.contains(".hpl"));
     assertTrue(html.contains("What is supported"));
     assertTrue(html.contains("What is not supported"));
+    assertTrue(html.contains("Editing toolbar"));
+    assertTrue(html.contains("__text__"));
+    assertTrue(html.contains(".md"));
   }
 }

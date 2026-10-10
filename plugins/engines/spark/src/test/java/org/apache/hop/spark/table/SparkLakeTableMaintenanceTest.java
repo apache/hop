@@ -31,6 +31,9 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -38,9 +41,6 @@ import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableMaintenanceHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -83,9 +83,9 @@ class SparkLakeTableMaintenanceTest {
 
   @Test
   void vacuumRequiresAcknowledge() {
-    SparkLakeTableMaintenanceMeta meta = new SparkLakeTableMaintenanceMeta();
+    LakeTableMaintenanceMeta meta = new LakeTableMaintenanceMeta();
     meta.setFormat(SparkLakeFormats.FORMAT_DELTA);
-    meta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    meta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     meta.setTablePath("/tmp/t");
     meta.setOperation(SparkMaintenanceSqlBuilder.OP_VACUUM);
     meta.setRetentionHours("168");
@@ -139,9 +139,9 @@ class SparkLakeTableMaintenanceTest {
     // Seed small table
     writeDelta(tablePath.toString(), spark.range(0, 50).toDF("id"));
 
-    SparkLakeTableMaintenanceMeta meta = new SparkLakeTableMaintenanceMeta();
+    LakeTableMaintenanceMeta meta = new LakeTableMaintenanceMeta();
     meta.setFormat(SparkLakeFormats.FORMAT_DELTA);
-    meta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    meta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     meta.setTablePath(tablePath.toString());
     meta.setOperation(SparkMaintenanceSqlBuilder.OP_OPTIMIZE);
     meta.setAcknowledgeDestructive(false);
@@ -177,9 +177,9 @@ class SparkLakeTableMaintenanceTest {
   }
 
   private void writeDelta(String path, Dataset<Row> data) throws Exception {
-    SparkLakeTableOutputMeta outMeta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta outMeta = new LakeTableOutputMeta();
     outMeta.setFormat(SparkLakeFormats.FORMAT_DELTA);
-    outMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    outMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     outMeta.setTablePath(path);
     outMeta.setSaveMode(SparkFileOutputMeta.MODE_OVERWRITE);
     TransformMeta outTm = new TransformMeta("seed", outMeta);

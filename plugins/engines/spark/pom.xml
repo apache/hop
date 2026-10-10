@@ -120,6 +120,22 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Lake table transform metadata and the catalog metadata type. Only the plugin jar is
+             used: at runtime dependencies.xml doesn't load the lakehouse lib/ folder either, and
+             its unshaded Iceberg modules would clash with iceberg-spark-runtime. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-lakehouse</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Transform metadata for native shuffle-aware handlers (driver-side only) -->
         <dependency>
             <groupId>org.apache.hop</groupId>

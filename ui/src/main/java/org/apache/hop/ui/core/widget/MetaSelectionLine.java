@@ -240,6 +240,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
     toolbarWidgets.registerGuiPluginObject(this);
     toolbarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    if (!isCreatingNewElements()) {
+      toolbarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, false);
+    }
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if (flags != SWT.NONE) {
@@ -291,8 +294,11 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       toolTip = "i18n::MetadataElement.Edit.Tooltip",
       imageMethod = "getEditIcon")
   public void editMetadataElement() {
-    if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
-    else this.editMetadata();
+    if (!Utils.isEmpty(wCombo.getText())) {
+      this.editMetadata();
+    } else if (isCreatingNewElements()) {
+      this.newMetadata();
+    }
   }
 
   public static String getEditIcon(Object guiPluginObject) {
@@ -312,6 +318,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       toolTip = "i18n::MetadataElement.New.Tooltip",
       image = "ui/images/new.svg")
   public void newMetadataElement() {
+    if (!isCreatingNewElements()) {
+      return;
+    }
     T element = newMetadata();
     if (element != null) {
       wCombo.setText(Const.NVL(element.getName(), ""));
@@ -366,8 +375,27 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     return manager.editMetadata(selected);
   }
 
+  /**
+   * New elements can be created with this line, unless the metadata type is {@link
+   * HopMetadata#deprecated() deprecated}.
+   */
+  private boolean isCreatingNewElements() {
+    return !HopMetadataUtil.isDeprecated(managedClass);
+  }
+
+  /**
+   * The element the "New" button opens in the editor. Override to preset values, for example a
+   * type.
+   *
+   * @return the new element, or null for an empty element of the managed class
+   */
+  protected T createNewElement() {
+    return null;
+  }
+
   private T newMetadata() {
-    T element = manager.newMetadata();
+    T preset = createNewElement();
+    T element = preset == null ? manager.newMetadata() : manager.newMetadata(preset);
     if (element != null) {
       try {
         fillItems();

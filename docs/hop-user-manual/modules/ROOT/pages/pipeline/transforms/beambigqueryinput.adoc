@@ -36,6 +36,12 @@ The BigQuery input transform reads data from a link:https://cloud.google.com/big
 |Data set ID|The BigQuery dataset ID.
 |Table ID|The BigQuery table ID.
 |Query|The input query, blank means everything from the table.
+|Query location|The BigQuery dataset location that runs the query, for example `EU` or `US`.
+Leave blank to use the location of the job itself.
+Applies to a query only.
+|Skip query validation|Do not validate the query before the job starts.
+Applies to a query only.
+Use this when the query is created or changed by an earlier step, and is therefore not registered when the job is submitted.
 |Return fields selection|A list of result fields.
 |BQ Field name|The field name in the BigQuery table.
 |Rename to... (optional)|The name to be given to a column.

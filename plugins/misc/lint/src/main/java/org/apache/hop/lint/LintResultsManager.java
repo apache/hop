@@ -80,7 +80,13 @@ public class LintResultsManager {
    * HopGui, so there it is still one set.
    */
   public static LintResultsManager getInstance() {
-    HopGui hopGui = HopGui.peekInstance();
+    HopGui hopGui = null;
+    try {
+      hopGui = HopGui.peekInstance();
+    } catch (LinkageError e) {
+      // Hop Server, hop lint and the Run Linter action have no Hop Gui to ask, and may not have
+      // its classes either. They keep the shared set below.
+    }
     if (hopGui != null) {
       return hopGui.getSessionSingleton(LintResultsManager.class, LintResultsManager::new);
     }

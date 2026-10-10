@@ -65,6 +65,9 @@ This is required if you want to run your pipeline using the Dataflow managed ser
 Also used when updating an existing pipeline.
 |Staging location|Cloud Storage path for staging local files.
 Must be a valid Cloud Storage URL, beginning with gs://.
+|GCP temp location|Cloud Storage path used by the transforms which must stage their data in Cloud Storage, for example the BigQuery transforms.
+Must be a valid Cloud Storage URL, beginning with gs://.
+This is a different option from the general `Temp location` below.
 |Initial number of workers|The initial number of Google Compute Engine instances to use when executing your pipeline.
 This option determines how many workers the Dataflow service starts up when your job begins.
 |Maximum number of workers|The maximum number of Compute Engine instances to be made available to your pipeline during execution.

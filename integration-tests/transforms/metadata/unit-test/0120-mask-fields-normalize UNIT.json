@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": false,
+  "description": "Spaces, case and conversion masks do not change a remembered replacement",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "firstName",
+          "data_set_field": "firstName"
+        },
+        {
+          "transform_field": "customerNr",
+          "data_set_field": "customerNr"
+        },
+        {
+          "transform_field": "customerNrPlain",
+          "data_set_field": "customerNrPlain"
+        }
+      ],
+      "field_order": [
+        "id",
+        "firstName",
+        "customerNr",
+        "customerNrPlain"
+      ],
+      "data_set_name": "golden-0120-mask-fields-normalize",
+      "transform_name": "Result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0120-mask-fields-normalize UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0120-mask-fields-normalize.hpl"
+}

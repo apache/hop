@@ -167,8 +167,15 @@ public class HopLinterTest {
         linter.loadConfig(tempFile.getAbsolutePath());
         fail("Should have thrown IOException for invalid YAML");
       } catch (IOException e) {
-        // Expected
-        assertTrue(e.getMessage().contains("Failed to load configuration"));
+        // Expected: the file, and what is wrong with it, named once
+        assertTrue(e.getMessage().contains("Invalid lint configuration in"), e.getMessage());
+        assertEquals(
+            1,
+            e.getMessage()
+                    .split(java.util.regex.Pattern.quote(tempFile.getAbsolutePath()), -1)
+                    .length
+                - 1,
+            e.getMessage());
       }
 
     } finally {

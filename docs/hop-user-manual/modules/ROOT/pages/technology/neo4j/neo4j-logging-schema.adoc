@@ -23,8 +23,9 @@ under the License.
 
 Apache Hop can write execution information to Neo4j so you can inspect pipeline and workflow metadata, execution results, logging text, and lineage as a graph.
 
-The Neo4j logging graph is enabled by setting the `NEO4J_LOGGING_CONNECTION` variable to the name of a xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection].
-Set the variable to `-` to explicitly disable Neo4j logging.
+The logging graph is enabled by setting the `HOP_GRAPH_LOGGING_CONNECTION` variable to the name of a xref:metadata-types/graphs/neo4j-connection.adoc[Neo4j Connection] or of a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] of a Cypher database: Neo4j, Memgraph, Amazon Neptune, FalkorDB or Apache AGE.
+`NEO4J_LOGGING_CONNECTION` works as well, `HOP_GRAPH_LOGGING_CONNECTION` takes precedence.
+Set the variable to `-` to explicitly disable the logging.
 
 == Pipeline logging
 
@@ -135,7 +136,7 @@ Parent and child log channel objects are linked with the `EXECUTES` relationship
 
 == Querying logged executions
 
-The xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Logging Info] transform reads from the `Execution` nodes to find previous pipeline and workflow execution dates.
+The xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] transform reads from the `Execution` nodes to find previous pipeline and workflow execution dates.
 It can return previous execution or previous successful execution dates by matching the execution `name`, `type`, `status`, `errors`, and `executionStart` properties.
 
 == Neo4j execution information location

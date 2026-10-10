@@ -27,7 +27,7 @@ under the License.
 
 Lake Table transforms in **TABLE** mode can reference a Spark Catalog by name. Hop expands the entry into `spark.sql.catalog.<catalogName>.*` configuration when building or preparing the session (`LakeSessionPlan` / `SparkCatalogApplier`).
 
-PATH-mode Iceberg tables do **not** require this metadata type — the engine auto-registers a built-in Hadoop catalog named `hop_iceberg`. Use Spark Catalog for production Iceberg warehouses, REST catalogs, and other named catalogs.
+PATH-mode Iceberg tables do **not** require this metadata type — the engine registers a Hadoop catalog for the folder that holds each table (`hop_iceberg_<hash>`). Use Spark Catalog for production Iceberg warehouses, REST catalogs, and other named catalogs.
 
 Connector packaging and session matrix: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 

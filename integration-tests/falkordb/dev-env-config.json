@@ -1,0 +1,14 @@
+{
+  "variables": [
+    {
+      "name": "FALKORDB_HOST",
+      "value": "falkordb",
+      "description": "The FalkorDB hostname"
+    },
+    {
+      "name": "FALKORDB_PORT",
+      "value": "6379",
+      "description": "The FalkorDB Redis port"
+    }
+  ]
+}

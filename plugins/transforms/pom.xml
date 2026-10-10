@@ -173,6 +173,7 @@
         <module>validator</module>
         <module>valuemapper</module>
         <module>vcard</module>
+        <module>watchfiles</module>
         <module>webserviceavailable</module>
         <module>webservices</module>
         <module>workflowexecutor</module>

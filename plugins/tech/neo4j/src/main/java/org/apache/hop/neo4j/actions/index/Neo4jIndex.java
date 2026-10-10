@@ -24,26 +24,34 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.graph.GraphIndexDefinition;
+import org.apache.hop.core.graph.GraphObjectType;
+import org.apache.hop.core.graph.GraphVectorIndexDefinition;
+import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
 
 @Action(
     id = "NEO4J_INDEX",
-    name = "Neo4j index",
-    description = "Create or delete indexes in a Neo4j database",
-    image = "neo4j_index.svg",
+    name = "Graph index",
+    description = "Create or delete indexes in a graph database",
+    image = "graph_index.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::Neo4jIndex.keyword",
-    documentationUrl = "/workflow/actions/neo4j-index.html")
+    documentationUrl = "/workflow/actions/graph-index.html")
 public class Neo4jIndex extends ActionBase implements IAction {
 
-  @HopMetadataProperty(key = "connection", storeWithName = true)
-  private NeoConnection connection;
+  /** The name of the Neo4j or Bolt graph database connection. */
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
+  private String connectionName;
+
+  private NamedGraphConnection connection;
 
   @HopMetadataProperty(groupKey = "updates", key = "update")
   private List<IndexUpdate> indexUpdates;
@@ -63,6 +71,11 @@ public class Neo4jIndex extends ActionBase implements IAction {
 
   @Override
   public Result execute(Result result, int nr) throws HopException {
+    // Success unless something goes wrong, whatever the result of the previous action
+    result.setResult(true);
+
+    connection =
+        NeoConnectionUtils.findGraphConnection(getMetadataProvider(), resolve(connectionName));
 
     if (connection == null) {
       result.setResult(false);
@@ -101,119 +114,125 @@ public class Neo4jIndex extends ActionBase implements IAction {
   }
 
   /**
-   * Generate preview Cypher for dropping an index (without executing it)
+   * Generate the statement to drop an index in the given dialect.
    *
-   * @param indexUpdate The index update configuration
-   * @return The generated Cypher statement
-   * @throws HopException If configuration is invalid
+   * @throws HopException if the database doesn't support it or information is missing
    */
-  public static String generateDropIndexCypher(IndexUpdate indexUpdate) throws HopException {
-    String cypher = "DROP INDEX ";
-
-    if (StringUtils.isEmpty(indexUpdate.getIndexName())) {
-      throw new HopException(
-          "Please drop indexes with the name of the index. Object: "
-              + indexUpdate.getObjectName()
-              + ", properties: "
-              + indexUpdate.getObjectProperties());
+  public static String generateDropIndexCypher(IndexUpdate indexUpdate, IGraphDialect dialect)
+      throws HopException {
+    if (indexUpdate.isVector()) {
+      return dialect.getDropVectorIndexStatement(toVectorIndexDefinition(indexUpdate, false));
     }
-    cypher += indexUpdate.getIndexName();
-    cypher += " IF EXISTS";
-    return cypher;
-  }
-
-  private void dropIndex(final IndexUpdate indexUpdate) throws HopException {
-    String cypher = generateDropIndexCypher(indexUpdate);
-
-    // Run this cypher statement...
-    //
-    final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
-      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.executeWrite(
-            tx -> {
-              try {
-                if (isDetailed()) {
-                  logDetailed("Dropping index with cypher: " + _cypher);
-                }
-                org.neo4j.driver.Result result = tx.run(_cypher);
-                result.consume();
-                return true;
-              } catch (Throwable e) {
-                throw new HopRuntimeException(
-                    "Error dropping index with cypher [" + _cypher + "]", e);
-              }
-            });
-      }
-    }
+    return dialect.getDropIndexStatement(toIndexDefinition(indexUpdate));
   }
 
   /**
-   * Generate preview Cypher for creating an index (without executing it)
+   * Generate the statement to create an index in the given dialect.
    *
-   * @param indexUpdate The index update configuration
-   * @return The generated Cypher statement
+   * @throws HopException if the database doesn't support it or information is missing
    */
-  public static String generateCreateIndexCypher(IndexUpdate indexUpdate) {
-    String cypher = "CREATE INDEX ";
-
-    if (StringUtils.isNotEmpty(indexUpdate.getIndexName())) {
-      cypher += indexUpdate.getIndexName();
+  public static String generateCreateIndexCypher(IndexUpdate indexUpdate, IGraphDialect dialect)
+      throws HopException {
+    if (indexUpdate.isVector()) {
+      return dialect.getCreateVectorIndexStatement(toVectorIndexDefinition(indexUpdate, true));
     }
-
-    cypher += " IF NOT EXISTS";
-
-    String[] properties = indexUpdate.getObjectProperties().split(",");
-
-    cypher += " FOR ";
-    switch (indexUpdate.getObjectType()) {
-      case NODE:
-        cypher += "(n:" + indexUpdate.getObjectName() + ") ";
-        break;
-      case RELATIONSHIP:
-        cypher += "()-[n:" + indexUpdate.getObjectName() + "]-() ";
-        break;
-    }
-
-    // Add the properties to index:
-    //
-    cypher += "ON (";
-    for (int i = 0; i < properties.length; i++) {
-      String property = properties[i];
-      if (i > 0) {
-        cypher += ", ";
-      }
-      cypher += "n." + Const.trim(property);
-    }
-    cypher += ")";
-
-    return cypher;
+    return dialect.getCreateIndexStatement(toIndexDefinition(indexUpdate));
   }
 
-  private void createIndex(IndexUpdate indexUpdate) throws HopException {
-    String cypher = generateCreateIndexCypher(indexUpdate);
+  /** A copy of the update with the variables in its vector settings resolved. */
+  private IndexUpdate resolved(IndexUpdate indexUpdate) {
+    IndexUpdate copy = new IndexUpdate(indexUpdate);
+    copy.setVectorDimensions(resolve(indexUpdate.getVectorDimensions()));
+    copy.setVectorCapacity(resolve(indexUpdate.getVectorCapacity()));
+    return copy;
+  }
+
+  private void dropIndex(final IndexUpdate indexUpdate) throws HopException {
+    String cypher = generateDropIndexCypher(resolved(indexUpdate), connection.getDialect());
 
     // Run this cypher statement...
     //
-    final String _cypher = cypher;
-    try (Driver driver = connection.getDriver(getLogChannel(), this)) {
-      try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.executeWrite(
-            tx -> {
-              try {
-                if (isDetailed()) {
-                  logDetailed("Creating index with cypher: " + _cypher);
-                }
-                org.neo4j.driver.Result result = tx.run(_cypher);
-                result.consume();
-                return true;
-              } catch (Throwable e) {
-                throw new HopRuntimeException(
-                    "Error creating index with cypher [" + _cypher + "]", e);
-              }
-            });
-      }
+    NeoConnectionUtils.runSchemaStatement(
+        connection, getLogChannel(), this, cypher, "Dropping index");
+  }
+
+  private void createIndex(IndexUpdate indexUpdate) throws HopException {
+    String cypher = generateCreateIndexCypher(resolved(indexUpdate), connection.getDialect());
+
+    // Run this cypher statement...
+    //
+    NeoConnectionUtils.runSchemaStatement(
+        connection, getLogChannel(), this, cypher, "Creating index");
+  }
+
+  static GraphIndexDefinition toIndexDefinition(IndexUpdate indexUpdate) {
+    return new GraphIndexDefinition(
+        indexUpdate.getIndexName(),
+        toGraphObjectType(indexUpdate.getObjectType()),
+        indexUpdate.getObjectName(),
+        splitProperties(indexUpdate.getObjectProperties()));
+  }
+
+  /**
+   * @param creating True to create the index: the vector settings are needed and validated
+   */
+  static GraphVectorIndexDefinition toVectorIndexDefinition(
+      IndexUpdate indexUpdate, boolean creating) throws HopException {
+    Integer dimensions = null;
+    Integer capacity = null;
+    if (creating) {
+      dimensions = parsePositive(indexUpdate.getVectorDimensions(), "vector dimensions", false);
+      capacity = parsePositive(indexUpdate.getVectorCapacity(), "vector capacity", true);
     }
+    return new GraphVectorIndexDefinition(
+        indexUpdate.getIndexName(),
+        toGraphObjectType(indexUpdate.getObjectType()),
+        indexUpdate.getObjectName(),
+        splitProperties(indexUpdate.getObjectProperties()),
+        dimensions,
+        indexUpdate.getVectorSimilarity(),
+        capacity);
+  }
+
+  static GraphObjectType toGraphObjectType(ObjectType objectType) {
+    return objectType == ObjectType.RELATIONSHIP
+        ? GraphObjectType.RELATIONSHIP
+        : GraphObjectType.NODE;
+  }
+
+  /** The comma separated properties, trimmed. Empty for an empty list. */
+  public static List<String> splitProperties(String properties) {
+    List<String> list = new ArrayList<>();
+    if (StringUtils.isEmpty(properties)) {
+      return list;
+    }
+    for (String property : properties.split(",")) {
+      list.add(Const.trim(property));
+    }
+    return list;
+  }
+
+  /**
+   * @param optional True if the value may be empty, which gives null
+   */
+  private static Integer parsePositive(String value, String what, boolean optional)
+      throws HopException {
+    if (StringUtils.isBlank(value)) {
+      if (optional) {
+        return null;
+      }
+      throw new HopException("Please specify the " + what + " of the vector index");
+    }
+    try {
+      int number = Integer.parseInt(value.trim());
+      if (number > 0) {
+        return number;
+      }
+    } catch (NumberFormatException e) {
+      // Reported below
+    }
+    throw new HopException(
+        "The " + what + " of a vector index must be a positive number: " + value);
   }
 
   @Override
@@ -227,19 +246,19 @@ public class Neo4jIndex extends ActionBase implements IAction {
   }
 
   /**
-   * Gets connection
+   * Gets the name of the connection
    *
-   * @return value of connection
+   * @return value of connectionName
    */
-  public NeoConnection getConnection() {
-    return connection;
+  public String getConnectionName() {
+    return connectionName;
   }
 
   /**
-   * @param connection The connection to set
+   * @param connectionName The name of the Neo4j or Bolt graph database connection to use
    */
-  public void setConnection(NeoConnection connection) {
-    this.connection = connection;
+  public void setConnectionName(String connectionName) {
+    this.connectionName = connectionName;
   }
 
   /**

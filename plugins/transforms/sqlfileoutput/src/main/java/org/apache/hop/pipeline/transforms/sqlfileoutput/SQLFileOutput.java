@@ -68,8 +68,19 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-      data.insertRowMeta = getInputRowMeta().clone();
-
+      // Columns written in the CREATE TABLE and INSERT statements. This fails with a clear
+      // error if "Specify table fields" is enabled with an empty grid or an unknown field.
+      data.insertRowMeta = meta.getSqlRowMeta(getInputRowMeta());
+      if (meta.isSpecifyFields()) {
+        // positions of the selected fields in the incoming row (validated just above)
+        data.fieldIndexes = new int[meta.getSqlFileOutputFields().size()];
+        for (int i = 0; i < data.fieldIndexes.length; i++) {
+          data.fieldIndexes[i] =
+              getInputRowMeta().indexOfValue(meta.getSqlFileOutputFields().get(i).getName());
+        }
+      } else {
+        data.fieldIndexes = null;
+      }
       if (meta.getFile().isDoNotOpenNewFileInit() && !openNewFile()) {
         logError("Couldn't open file [" + buildFilename() + "]");
         setErrors(1);
@@ -124,15 +135,29 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
     }
 
     try {
-      String sql =
-          data.db.getSqlOutput(schemaName, tableName, data.insertRowMeta, r, meta.getDateFormat())
-              + ";";
+      String sql = "";
+      // Inserts are only skipped together with "Add create table statement", as in the dialog.
+      boolean skipInserts = meta.isDoNotAddInsertStatements() && meta.isCreateTable();
+      if (!skipInserts) {
+        // Build the reduced data row matching data.insertRowMeta
+        Object[] insertRowData = r;
+        if (data.fieldIndexes != null) {
+          insertRowData = new Object[data.fieldIndexes.length];
+          for (int i = 0; i < data.fieldIndexes.length; i++) {
+            insertRowData[i] = r[data.fieldIndexes[i]];
+          }
+        }
 
-      // Do we start a new line for this statement ?
-      if (meta.isStartNewLine()) {
-        sql = sql + Const.CR;
+        sql =
+            data.db.getSqlOutput(
+                    schemaName, tableName, data.insertRowMeta, insertRowData, meta.getDateFormat())
+                + ";";
+
+        // Do we start a new line for this statement ?
+        if (meta.isStartNewLine()) {
+          sql = sql + Const.CR;
+        }
       }
-
       if (isRowLevel()) {
         logRowlevel(BaseMessages.getString(PKG, "SQLFileOutputLog.OutputSQL", sql));
       }

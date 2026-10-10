@@ -867,7 +867,34 @@ public class GuiCompositeWidgets {
     IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
     int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     MetaSelectionLine<? extends IHopMetadata> metaSelectionLine;
-    if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
+    Class<?> selectionLineClass = guiElements.getMetadataSelectionLine();
+    if (selectionLineClass != null
+        && selectionLineClass != Void.class
+        && MetaSelectionLine.class.isAssignableFrom(selectionLineClass)) {
+      try {
+        metaSelectionLine =
+            (MetaSelectionLine<? extends IHopMetadata>)
+                selectionLineClass
+                    .getConstructor(
+                        IVariables.class,
+                        IHopMetadataProvider.class,
+                        Composite.class,
+                        int.class,
+                        String.class,
+                        String.class)
+                    .newInstance(
+                        variables,
+                        metadataProvider,
+                        parent,
+                        flags,
+                        guiElements.getLabel(),
+                        guiElements.getToolTip());
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Unable to create metadata selection line " + selectionLineClass.getName(), e);
+        return lastControl;
+      }
+    } else if (StringUtils.isNotEmpty(guiElements.getMetadataKey())) {
       metaSelectionLine =
           MetaSelectionLine.forMetadataKey(
               variables,

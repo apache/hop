@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "n.a",
+          "data_set_field": "n.a"
+        },
+        {
+          "transform_field": "n.b",
+          "data_set_field": "n.b"
+        },
+        {
+          "transform_field": "labels",
+          "data_set_field": "labels"
+        }
+      ],
+      "field_order": [
+        "n.a",
+        "n.b",
+        "labels"
+      ],
+      "transform_name": "AB",
+      "data_set_name": "rel-mapping-none-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-graph-output-validation-relationship-mapping-none UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-graph-output/neo4j-graph-output-validation-relationship-mapping-none.hpl",
+  "test_type": "UNIT_TEST"
+}

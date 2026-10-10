@@ -45,6 +45,7 @@ Where you go next depends on what you're trying to do.
 * xref:database/databases.adoc[Databases] - relational connections and the drivers Hop ships
 * xref:vfs.adoc[VFS] - read and write on AWS, Azure and GCP as if they were local files
 * xref:how-to-guides/change-data-capture.adoc[Change Data Capture] - log sniffing, filtered selection and snapshot comparison
+* xref:how-to-guides/high-volume-scd2.adoc[High-volume SCD2 loads] - a type 2 dimension built in one sorted pass
 * xref:metadata-types/index.adoc[Metadata types] - everything you can define once and reuse
 
 == Run it somewhere else

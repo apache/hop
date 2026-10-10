@@ -41,6 +41,7 @@
         <module>createfolder</module>
         <module>dbt</module>
         <module>delay</module>
+        <module>deleteexecutioninfo</module>
         <module>deletefile</module>
         <module>deletefiles</module>
         <module>deletefolders</module>

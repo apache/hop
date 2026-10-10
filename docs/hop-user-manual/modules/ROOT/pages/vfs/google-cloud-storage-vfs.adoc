@@ -51,11 +51,46 @@ Once done you will see a `googleCloud` entry in the central `hop-config.json` fi
 }
 ----
 
+TIP: Running Hop in Docker? See xref:docker-container.adoc#CloudCredentials[Cloud storage credentials] to pass these settings to the container.
+
+Without a key file, Hop falls back to Application Default Credentials, for example those of `gcloud auth application-default login` or of the machine it runs on in Google Cloud.
+If no credentials can be found, Hop does not report it when it starts, as most installations never use `gs://`.
+The first use of `gs://` fails instead, with an error that says why, for example that the key file could not be read.
+
 == Options
 
 The options below are the ones in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective]. Each is also settable with `hop-conf`.
 
 include::partial$config/GoogleCloudStorageConfigPlugin.adoc[]
+
+== Retries, timeouts and stalled transfers
+
+The Google Cloud Storage client retries timeouts and temporary errors, such as HTTP 503, by itself, following the options above.
+Hop logs every retry, so a slow or unreliable connection does not look like a hang:
+
+[source]
+----
+Google Cloud Storage: No response in time while accessing gs://bucket/data.csv (Read timed out), trying again. The connection timeout is 20 seconds, the read timeout 20 seconds.
+----
+
+A download can also stall without failing.
+The client then reconnects and tries again within the same read, and never gives up by itself, whatever the number of attempts.
+Hop therefore watches every read and write of a `gs://` file:
+
+* A read that makes no progress for three read timeouts, and at least 60 seconds, is reported.
+It is reported again after every further period without progress, and once more if it starts moving again.
+* A read that still makes no progress after the time the retry options allow for one request is ended.
+The transform reading the file then fails with an error that ends in `giving up`.
+That time is *Max number of attempts* × (*Connect timeout* + *Read timeout*), plus the retry delays between the attempts, and at most the *Total timeout*.
+With the default options that is 6 × (20 + 20) + 1 + 2 + 4 + 8 + 16 = 271 seconds.
+With an unlimited number of attempts (`0`), or a connect or read timeout of `0` (no timeout), only the total timeout applies.
+When the total timeout is shorter than the time after which a read is reported, the read is reported and ended when the total timeout is reached.
+To wait longer before giving up, raise the number of attempts or the timeouts.
+* An upload sends the file in parts of 16 MB, so a slow upload cannot be told apart from a stalled one.
+A write is reported when one part takes longer than it would at 100 KB per second, 164 seconds with the default options.
+A write is never ended.
+
+These messages are written to the general Hop log with the prefix `Google Cloud Storage:`, for example in the console output of `hop-run`.
 
 == Usage and testing
 

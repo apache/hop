@@ -36,7 +36,9 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditActions;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -218,7 +220,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
           new org.eclipse.swt.graphics.Color(control.getDisplay(), 120, 120, 120);
       lineNumberColumn.setForeground(lineNumFg);
     }
-    sourceViewer.getTextWidget().setTabs(4);
+    int tabStops = TextIndent.tabSize();
+    sourceViewer.getTextWidget().setTabs(tabStops < 1 ? TextIndent.DEFAULT_SIZE : tabStops);
+    TextIndent.attach(sourceViewer.getTextWidget());
     sourceViewer
         .getDocument()
         .addDocumentListener(
@@ -298,6 +302,7 @@ public class ContentEditorWidget implements IContentEditorWidget {
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
       toolbarWidgets.enableToolbarItem(
           ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, sourceViewer.isEditable());
+      MarkdownEditActions.updateContentEditor(this);
     }
 
     // Update the HopGui main menu items. There is no main menu when the editor is built outside a
@@ -333,6 +338,11 @@ public class ContentEditorWidget implements IContentEditorWidget {
   }
 
   @Override
+  public GuiToolbarWidgets getToolbarWidgets() {
+    return toolbarWidgets;
+  }
+
+  @Override
   public String getText() {
     IDocument doc = sourceViewer.getDocument();
     return doc != null ? doc.get() : "";
@@ -356,6 +366,11 @@ public class ContentEditorWidget implements IContentEditorWidget {
       IDocument doc = sourceViewer.getDocument();
       if (doc != null) {
         doc.set(text);
+      }
+      // doc.set is an undoable insert from the empty document. The loaded text is the floor.
+      IUndoManager undoManager = sourceViewer.getUndoManager();
+      if (undoManager != null) {
+        undoManager.reset();
       }
       sourceViewer.setSelectedRange(0, 0);
       sourceViewer.invalidateTextPresentation();

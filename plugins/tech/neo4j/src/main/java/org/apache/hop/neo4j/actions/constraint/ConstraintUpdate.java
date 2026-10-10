@@ -17,6 +17,7 @@
 
 package org.apache.hop.neo4j.actions.constraint;
 
+import org.apache.hop.core.graph.GraphConstraintType;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ConstraintUpdate {
@@ -36,10 +37,10 @@ public class ConstraintUpdate {
   private String objectProperties;
 
   @HopMetadataProperty(key = "constraint_type")
-  private ConstraintType constraintType;
+  private GraphConstraintType constraintType;
 
   public ConstraintUpdate() {
-    constraintType = ConstraintType.UNIQUE;
+    constraintType = GraphConstraintType.UNIQUE;
     updateType = UpdateType.CREATE;
   }
 
@@ -55,7 +56,7 @@ public class ConstraintUpdate {
   public ConstraintUpdate(
       UpdateType updateType,
       ObjectType objectType,
-      ConstraintType constraintType,
+      GraphConstraintType constraintType,
       String constraintName,
       String objectName,
       String objectProperties) {
@@ -152,14 +153,14 @@ public class ConstraintUpdate {
    *
    * @return value of constraintType
    */
-  public ConstraintType getConstraintType() {
+  public GraphConstraintType getConstraintType() {
     return constraintType;
   }
 
   /**
    * @param constraintType The constraintType to set
    */
-  public void setConstraintType(ConstraintType constraintType) {
+  public void setConstraintType(GraphConstraintType constraintType) {
     this.constraintType = constraintType;
   }
 }

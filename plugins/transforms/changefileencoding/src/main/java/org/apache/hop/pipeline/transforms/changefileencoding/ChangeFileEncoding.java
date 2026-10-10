@@ -19,10 +19,9 @@ package org.apache.hop.pipeline.transforms.changefileencoding;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -153,21 +152,22 @@ public class ChangeFileEncoding
                 PKG, "ChangeFileEncoding.Error.SourceFileNotAFile", sourceFilename));
       }
 
-      // create directory only if not exists
-      if (!data.sourceFile.getParent().exists()) {
+      data.targetFile = HopVfs.getFileObject(targetFilename, variables);
+
+      // create the folder of the target file only if it does not exist
+      FileObject targetFolder = data.targetFile.getParent();
+      if (!targetFolder.exists()) {
         if (meta.isCreateParentFolder()) {
-          data.sourceFile.getParent().createFolder();
+          targetFolder.createFolder();
         } else {
           throw new HopException(
               BaseMessages.getString(
-                  PKG,
-                  "ChangeFileEncoding.Error.ParentFolderNotExist",
-                  data.sourceFile.getParent().toString()));
+                  PKG, "ChangeFileEncoding.Error.ParentFolderNotExist", targetFolder.toString()));
         }
       }
 
       // Change file encoding
-      changeEncoding(sourceFilename, targetFilename);
+      changeEncoding(targetFilename);
 
       putRow(data.inputRowMeta, outputRow); // copy row to output rowset(s)
 
@@ -209,7 +209,7 @@ public class ChangeFileEncoding
     return true;
   }
 
-  private void changeEncoding(String sourceFilename, String targetFilename) throws HopException {
+  private void changeEncoding(String targetFilename) throws HopException {
 
     BufferedWriter buffWriter = null;
     BufferedReader buffReader = null;
@@ -218,13 +218,14 @@ public class ChangeFileEncoding
       buffWriter =
           new BufferedWriter(
               new OutputStreamWriter(
-                  new FileOutputStream(targetFilename, false), data.targetEncoding));
+                  HopVfs.getOutputStream(data.targetFile, false), data.targetEncoding));
       if (Utils.isEmpty(data.sourceEncoding)) {
-        buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFilename)));
+        buffReader =
+            new BufferedReader(new InputStreamReader(HopVfs.getInputStream(data.sourceFile)));
       } else {
         buffReader =
             new BufferedReader(
-                new InputStreamReader(new FileInputStream(sourceFilename), data.sourceEncoding));
+                new InputStreamReader(HopVfs.getInputStream(data.sourceFile), data.sourceEncoding));
       }
 
       char[] cBuf = new char[8192];
@@ -258,7 +259,7 @@ public class ChangeFileEncoding
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL,
-                HopVfs.getFileObject(targetFilename, variables),
+                data.targetFile,
                 getPipelineMeta().getName(),
                 getTransformName());
         resultFile.setComment(
@@ -296,6 +297,13 @@ public class ChangeFileEncoding
     if (data.sourceFile != null) {
       try {
         data.sourceFile.close();
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+    if (data.targetFile != null) {
+      try {
+        data.targetFile.close();
       } catch (Exception e) {
         // ignore
       }

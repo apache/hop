@@ -100,7 +100,7 @@ Aliases accepted for operation: `COMPACT` / `REWRITE_DATA_FILES` → OPTIMIZE; `
 == Behaviour
 
 * SQL is executed as a Spark action during graph materialisation; an empty leaf Dataset is registered afterward.
-* Iceberg CALL procedures use the catalog name from TABLE mode (`lake` in `lake.db.t`) or `hop_iceberg` for PATH mode.
+* Iceberg CALL procedures use the catalog name from TABLE mode (`lake` in `lake.db.t`) or, for PATH mode, the `hop_iceberg_<hash>` catalog of the folder that holds the table.
 * Metrics are **log-only**; expect little or no GUI row traffic on this sink.
 
 == Metadata injection

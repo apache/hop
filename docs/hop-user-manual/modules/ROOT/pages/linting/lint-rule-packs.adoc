@@ -99,6 +99,9 @@ The reason is that a pack could otherwise stand in for Hop's hardcoded-password 
 Copy the pack folder into `plugins/misc/` in your Hop installation and restart Hop Gui.
 The Hop log reports how many packs were discovered.
 
+A pack that cannot be read is left out in Hop Gui, with the error in the Hop log.
+`hop lint` and the xref:workflow/actions/runlinter.adoc[Run Linter] action fail on it instead, with the pack's error, so a build never passes without the rules it was meant to check.
+
 Because a pack is a folder of text, it version controls and distributes like any other project: a git repository holding a `hop-lint-pack.yml` is a complete, shareable rule pack.
 
 == Overriding a pack's rules in a project

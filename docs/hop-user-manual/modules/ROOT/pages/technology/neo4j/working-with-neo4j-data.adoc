@@ -45,7 +45,7 @@ Create a new environment configuration file and set the variables in there.
 
 === Graph Output : The beers Wikipedia example
 
-The xref:pipeline/transforms/neo4j-graphoutput.adoc[Graph Output] transform is a useful transform which is capable of updating multiple nodes and relationships at the same time.
+The xref:pipeline/transforms/graph-output.adoc[Graph output] transform is a useful transform which is capable of updating multiple nodes and relationships at the same time.
 To get started with this transform you can take a look at workflow `neo4j/beers-wikipedia-graph.hwf`.
 
 image::tech/neo4j/beers-wikipedia-graph-workflow.png[The beers wikipedia workflow,width=75%]
@@ -69,15 +69,15 @@ As you can see above this transform doesn't require any technical knowledge.
 You can use the "Map fields" button to use a GUI to map the input fields on the left with the various node and relationship properties in your graph model.
 You can also do this manually.
 
-=== Neo4j output : parallel data loading
+=== Cypher output : parallel data loading
 
-The xref:pipeline/transforms/neo4j-output.adoc[Neo4j output] transform is useful for simple data loading into one node, two nodes and/or a relationship.
+The xref:pipeline/transforms/cypher-output.adoc[Cypher output] transform is useful for simple data loading into one node, two nodes and/or a relationship.
 It doesn't require any knowledge of Cypher to use.
 Take a look at workflow `neo4j/neo4j-output-parallel-load.hpl`:
 
 image::tech/neo4j/neo4j-output-parallel-load-pipeline.png[Neo4j output parallel load,width=75%]
 
-In this particular example we simply map the fields into the properties of a single node so we can use the Neo4j output transform instead of Graph Output described above.
+In this particular example we simply map the fields into the properties of a single node so we can use the Cypher output transform instead of Graph output described above.
 The advantage is in this case that we have a simpler mapping and can potentially load data faster.
 
 image::tech/neo4j/neo4j-output-parallel-load-transform.png[Neo4j output parallel load transform,width=75%]
@@ -88,7 +88,7 @@ In fact this pipeline has a parameter called `COPIES` set to 4 by default which 
 
 === Cypher : a simple unwind example
 
-The xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher] transform is the Swiss army knife in our Neo4j toolbox.
+The xref:pipeline/transforms/graph-query.adoc[Graph query] transform is the Swiss army knife in our Neo4j toolbox.
 It's capable of doing pretty much everything Neo4j related if you have knowledge of Cypher.
 In example `neo4j/neo4j-cypher-unwind-simple.hpl`:
 
@@ -129,7 +129,7 @@ That handler might have a hard time deleting very large amounts of nodes or rela
 
 === Cypher : complex returns
 
-As mentioned above, the xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher] transform can not only be used to load data but also to retrieve it.
+As mentioned above, the xref:pipeline/transforms/graph-query.adoc[Graph query] transform can not only be used to load data but also to retrieve it.
 Example pipeline `neo4j/neo4j-cypher-complex-returns.hpl` shows how to return complex data types like List, Map and Node from a Neo4j graph:
 
 image::tech/neo4j/neo4j-cypher-complex-returns-pipeline.png[Neo4j Cypher : complex returns,width=75%]
@@ -147,11 +147,11 @@ It works by loading CSV files which are expected to be in a particular format to
 
 To help out with imports we have a number of tools at your disposal:
 
-* The Graph data type: transforms xref:pipeline/transforms/neo4j-output.adoc[Neo4j output] and xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j graph output] have options to write their output to a field of type `Graph`.
+* The Graph data type: transforms xref:pipeline/transforms/cypher-output.adoc[Cypher output] and xref:pipeline/transforms/graph-output.adoc[Graph output] have options to write their output to a field of type `Graph`.
 These transforms are capable of flagging the primary key field of nodes which encapsulates enough information to generate CSV files with...
-* xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j split graph] : With this transform we can split up the multiple nodes and relationships stored in a single Graph field produced by the Graph Output transform.
+* xref:pipeline/transforms/split-graph.adoc[Split graph] : With this transform we can split up the multiple nodes and relationships stored in a single Graph field produced by the Graph Output transform.
 You can then filter out particular nodes or relationships to guarantee uniqueness or other post processing.
-* xref:pipeline/transforms/neo4j-gencsv.adoc[Neo4j generate CSVs] : this transform will help you with the creation of the CSV files for import.
+* xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs] : this transform will help you with the creation of the CSV files for import.
 * xref:pipeline/transforms/neo4j-import.adoc[Neo4j import] : this transform will generate the `neo4j-admin import` statement for you and execute it.
 It uses the list of CSV files and their types (node/relationship) to do this as well as the options you selected in the transform dialog.
 

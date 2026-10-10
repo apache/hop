@@ -26,19 +26,19 @@ import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 
 @Action(
     id = "NEO4J_CHECK_CONNECTIONS",
-    name = "Check Neo4j connections",
-    description = "Check to see if we can connect to the listed Neo4j databases",
-    image = "neo4j_check.svg",
+    name = "Check graph database connections",
+    description = "Check to see if we can connect to the listed graph databases",
+    image = "graph_check.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
     keywords = "i18n::CheckConnections.keyword",
-    documentationUrl = "/workflow/actions/neo4j-checkconnections.html",
+    documentationUrl = "/workflow/actions/check-graph-database-connections.html",
     actionTransformTypes = {ActionTransformType.ENV_CHECK, ActionTransformType.GRAPH})
 public class CheckConnections extends ActionBase implements IAction {
 
@@ -65,9 +65,8 @@ public class CheckConnections extends ActionBase implements IAction {
 
   @Override
   public Result execute(Result result, int nr) throws HopException {
-
-    IHopMetadataSerializer<NeoConnection> serializer =
-        getMetadataProvider().getSerializer(NeoConnection.class);
+    // Success unless something goes wrong, whatever the result of the previous action
+    result.setResult(true);
 
     // Replace variables & parameters
     //
@@ -80,10 +79,12 @@ public class CheckConnections extends ActionBase implements IAction {
     // Check 'm all though, report on all, nr of errors is nr of failed connections
     //
     int testCount = 0;
+    int nrErrors = 0;
     for (String connectionName : realConnectionNames) {
       testCount++;
       try {
-        NeoConnection connection = serializer.load(connectionName);
+        NamedGraphConnection connection =
+            NeoConnectionUtils.findGraphConnection(getMetadataProvider(), connectionName);
         if (connection == null) {
           throw new HopException("Unable to find connection with name '" + connectionName + "'");
         }
@@ -93,16 +94,19 @@ public class CheckConnections extends ActionBase implements IAction {
       } catch (Exception e) {
         // Something bad happened, log the error, flag error
         //
-        result.increaseErrors(1);
-        result.setResult(false);
+        nrErrors++;
         logError("Error on connection: " + connectionName, e);
       }
     }
 
-    if (result.getNrErrors() == 0) {
-      logBasic(testCount + " Neo4j connections tested without error");
+    if (nrErrors == 0) {
+      logBasic(testCount + " graph database connections tested without error");
     } else {
-      logBasic(testCount + " Neo4j connections tested with " + result.getNrErrors() + " error(s)");
+      // Like Check Db connections: the number of errors is the number of failed connections
+      //
+      result.setNrErrors(nrErrors);
+      result.setResult(false);
+      logBasic(testCount + " graph database connections tested with " + nrErrors + " error(s)");
     }
 
     return result;

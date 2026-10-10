@@ -47,6 +47,7 @@ public class BeamWindowDialog extends BaseTransformDialog {
 
   private Combo wWindowType;
   private TextVar wDuration;
+  private TextVar wKeyField;
   private TextVar wEvery;
   private TextVar wStartTimeField;
   private TextVar wEndTimeField;
@@ -121,6 +122,27 @@ public class BeamWindowDialog extends BaseTransformDialog {
     fdDuration.right = new FormAttachment(100, 0);
     wDuration.setLayoutData(fdDuration);
     lastControl = wDuration;
+
+    // #2275: optional key to window on. Left blank the windows are computed across the whole
+    // stream, which is how the transform behaved before.
+    //
+    Label wlKeyField = new Label(wContent, SWT.RIGHT);
+    wlKeyField.setText(BaseMessages.getString(PKG, "BeamWindowDialog.KeyField"));
+    PropsUi.setLook(wlKeyField);
+    FormData fdlKeyField = new FormData();
+    fdlKeyField.left = new FormAttachment(0, 0);
+    fdlKeyField.top = new FormAttachment(lastControl, margin);
+    fdlKeyField.right = new FormAttachment(middle, -margin);
+    wlKeyField.setLayoutData(fdlKeyField);
+    wKeyField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wKeyField);
+    wKeyField.setToolTipText(BaseMessages.getString(PKG, "BeamWindowDialog.KeyField.ToolTip"));
+    FormData fdKeyField = new FormData();
+    fdKeyField.left = new FormAttachment(middle, 0);
+    fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
+    fdKeyField.right = new FormAttachment(100, 0);
+    wKeyField.setLayoutData(fdKeyField);
+    lastControl = wKeyField;
 
     Label wlEvery = new Label(wContent, SWT.RIGHT);
     wlEvery.setText(BaseMessages.getString(PKG, "BeamWindowDialog.Every"));
@@ -261,6 +283,7 @@ public class BeamWindowDialog extends BaseTransformDialog {
   public void getData() {
     wWindowType.setText(Const.NVL(input.getWindowType(), ""));
     wDuration.setText(Const.NVL(input.getDuration(), ""));
+    wKeyField.setText(Const.NVL(input.getKeyField(), ""));
     wEvery.setText(Const.NVL(input.getEvery(), ""));
     wStartTimeField.setText(Const.NVL(input.getStartWindowField(), ""));
     wEndTimeField.setText(Const.NVL(input.getEndWindowField(), ""));
@@ -293,6 +316,7 @@ public class BeamWindowDialog extends BaseTransformDialog {
 
     in.setWindowType(wWindowType.getText());
     in.setDuration(wDuration.getText());
+    in.setKeyField(wKeyField.getText());
     in.setEvery(wEvery.getText());
     in.setStartWindowField(wStartTimeField.getText());
     in.setEndWindowField(wEndTimeField.getText());

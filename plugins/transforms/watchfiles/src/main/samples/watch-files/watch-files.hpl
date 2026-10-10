@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements. See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>watch-files</name>
+    <description>Observe stable CSV file changes, stop, and restart with persistent state.</description>
+    <parameters/>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Create or modify CSV files in ${PROJECT_HOME}/watch-files/input. Stop the pipeline to finish. Checkpoints live in watch-files/state. Restart after adding a file while stopped to observe recovery.</note>
+      <xloc>40</xloc><yloc>40</yloc><width>700</width><height>80</height>
+    </notepad>
+  </notepads>
+  <order><hop><from>Watch directory</from><to>Log changes</to><enabled>Y</enabled></hop></order>
+  <transform>
+    <name>Watch directory</name><type>WatchFiles</type><copies>1</copies><distribute>Y</distribute>
+    <directory>${PROJECT_HOME}/watch-files/input</directory>
+    <watchId>sample-watch-files</watchId>
+    <patternSyntax>REGEXP</patternSyntax>
+    <includeWildcard>.*\.csv</includeWildcard>
+    <excludeWildcard>.*\.tmp</excludeWildcard>
+    <includeSubdirectories>Y</includeSubdirectories>
+    <strategy>AUTO</strategy>
+    <created>Y</created><modified>Y</modified><deleted>Y</deleted>
+    <pollingInterval>5000</pollingInterval>
+    <reconciliationInterval>60000</reconciliationInterval>
+    <eventCapacity>4096</eventCapacity><maximumEntries>100000</maximumEntries>
+    <waitUntilStable>Y</waitUntilStable><minimumAge>2000</minimumAge>
+    <stabilityChecks>2</stabilityChecks><stabilityInterval>1000</stabilityInterval>
+    <stateDirectory>${PROJECT_HOME}/watch-files/state</stateDirectory>
+    <initialScan>COMPARE_WITH_STATE</initialScan><checkpointInterval>5000</checkpointInterval>
+    <GUI><xloc>160</xloc><yloc>180</yloc></GUI>
+  </transform>
+  <transform>
+    <name>Log changes</name><type>WriteToLog</type><copies>1</copies><distribute>Y</distribute>
+    <loglevel>log_level_basic</loglevel><displayHeader>Y</displayHeader>
+    <limitRows>N</limitRows><limitRowsNumber>0</limitRowsNumber><logmessage>Stable filesystem change</logmessage>
+    <fields>
+      <field><name>filename</name></field><field><name>event_type</name></field>
+      <field><name>size</name></field><field><name>last_modified</name></field>
+    </fields>
+    <GUI><xloc>400</xloc><yloc>180</yloc></GUI>
+  </transform>
+</pipeline>

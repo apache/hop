@@ -1,0 +1,71 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/age/
+:language: en_US
+:description: Apache Hop reads from and writes to Apache AGE graphs in PostgreSQL with Cypher.
+:page-marketplace: hop-tech-age
+
+= Apache AGE
+
+== Description
+
+https://age.apache.org[Apache AGE^] is a PostgreSQL extension which adds graphs, queried with Cypher, to PostgreSQL.
+Hop connects to it through the PostgreSQL JDBC driver which comes with Hop, with a xref:metadata-types/graphs/graph-database-connection.adoc[graph database connection] of the Apache AGE type, from the optional Apache AGE plugin.
+
+A connection works with one graph: the graph name is one of its options, and Hop can create the graph when it doesn't exist.
+Hop loads the AGE extension in every connection, so there is no need to set `shared_preload_libraries` for Hop.
+
+== Run Apache AGE in docker
+
+`docker run -p 5432:5432 -e POSTGRES_USER=hop -e POSTGRES_PASSWORD=hop -e POSTGRES_DB=hop apache/age`
+
+== What works
+
+* xref:pipeline/transforms/graph-query.adoc[Graph query], including *Return graph*
+* xref:pipeline/transforms/graph-output.adoc[Graph output], including the validation against the graph model and its indexes
+* xref:pipeline/transforms/cypher-output.adoc[Cypher output]
+* xref:pipeline/transforms/cypher-builder.adoc[Cypher builder]
+* xref:pipeline/transforms/split-graph.adoc[Split graph] and xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]
+* xref:workflow/actions/graph-script.adoc[Graph script]
+* xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections]
+* Execution logging (`HOP_GRAPH_LOGGING_CONNECTION`), the xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] transform and the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective]
+* The xref:metadata-types/graphs/graph-database-location.adoc[graph database location] for execution information
+
+== What doesn't work
+
+* The xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint] actions: AGE indexes and constraints are PostgreSQL indexes and constraints, created with SQL, see below.
+* *Create indexes* in Graph output and Cypher output, for the same reason.
+* `RETURN *` and statements which return unnamed values.
+* Nodes with more than one label, and labels with spaces.
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j import]: load the files of Generate graph CSVs with plain column names with the `load_labels_from_file` and `load_edges_from_file` functions of AGE instead.
+
+== Differences with Neo4j
+
+* Statements which return values need to name them, for example `RETURN n.name AS name`: AGE needs to know how many values come back. `RETURN *` isn't supported.
+* A node has one label, and label names can't contain spaces. Graph names have at least 3 characters.
+* AGE has no temporal types: dates and times are stored as ISO strings.
+* Indexes are PostgreSQL indexes on the tables AGE keeps per label, created with SQL.
+The xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint] actions don't support AGE, but the *Show indexes DDL* button of the graph database location gives the SQL for its indexes, for example:
++
+[source,sql]
+----
+CREATE INDEX IF NOT EXISTS "idx_execution_id" ON "hop_graph"."Execution"
+  (ag_catalog.agtype_access_operator(VARIADIC ARRAY[properties, '"id"'::ag_catalog.agtype]))
+----
++
+Graph output validation against a graph model takes these indexes into account.
+* There is no browser in the AGE image itself: query the graph with `psql`, for example `SELECT * FROM cypher('hop_graph', $$ MATCH (n) RETURN count(n) $$) AS (c agtype);` after `LOAD 'age'; SET search_path = ag_catalog, "$user", public;`.

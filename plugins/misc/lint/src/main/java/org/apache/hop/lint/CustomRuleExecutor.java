@@ -20,10 +20,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILogChannel;
@@ -171,7 +173,12 @@ public class CustomRuleExecutor {
         }
         if (evaluateCondition(
             clause.getCondition(), clauseValue, clause.getConditionValue(), rule)) {
-          violated.add(clause.describe() + " (actual: " + describeValue(clauseValue) + ")");
+          violated.add(
+              clause.describe()
+                  + " (actual: "
+                  + describeValue(
+                      clauseValue, holdsASecret(rule, hopObject, clause.getTargetField()))
+                  + ")");
         } else if (rule.getCombinator() == RuleCombinator.ALL_OF && rule.isComposed()) {
           // allOf needs every clause broken, so one satisfied clause ends it.
           return results;
@@ -198,8 +205,9 @@ public class CustomRuleExecutor {
         // A rule that named specific plugin types asserted the field exists on them, so a
         // missing field is a mistake in the rule and is reported rather than passed over.
         // Unscoped rules stay opportunistic: they run across every transform, most of which
-        // legitimately do not have the field.
-        if (!rule.getAppliesTo().isEmpty()) {
+        // legitimately do not have the field. Every connection has the same fields, so there a
+        // missing one is always a mistake in the rule.
+        if (!rule.getAppliesTo().isEmpty() || hopObject instanceof DatabaseMeta) {
           results.add(
               createResult(
                   rule,
@@ -209,7 +217,10 @@ public class CustomRuleExecutor {
                       + rule.getTargetField()
                       + "', which does not exist on "
                       + describe(hopObject)
-                      + ". Check the field name against this transform or action.",
+                      + ". Check the field name against "
+                      + (hopObject instanceof DatabaseMeta
+                          ? "the fields offered for database connections."
+                          : "this transform or action."),
                   fileName,
                   hopObject,
                   "ERROR"));
@@ -220,7 +231,9 @@ public class CustomRuleExecutor {
       boolean violatesRule = rule.isComposed() ? !violated.isEmpty() : violated.size() == 1;
 
       if (violatesRule) {
-        String message = generateErrorMessage(rule, fieldValue);
+        String message =
+            generateErrorMessage(
+                rule, holdsASecret(rule, hopObject, rule.getTargetField()) ? null : fieldValue);
         if (rule.isComposed()) {
           message =
               message
@@ -417,6 +430,8 @@ public class CustomRuleExecutor {
             return dbMeta.getAttributes() != null
                 ? dbMeta.getAttributes().getOrDefault("description", "")
                 : "";
+          case "databaseType":
+            return dbMeta.getPluginId();
           case "hostname":
             return dbMeta.getHostname();
           case "port":
@@ -427,9 +442,17 @@ public class CustomRuleExecutor {
             return dbMeta.getUsername();
           case "password":
             return dbMeta.getPassword();
+          case "servername":
+            return dbMeta.getServername();
+          case "dataTablespace":
+            return dbMeta.getDataTablespace();
+          case "indexTablespace":
+            return dbMeta.getIndexTablespace();
+          case "attributes":
+            // The extra options are attributes too, stored as EXTRA_OPTION_<type>.<option>.
+            return dbMeta.getAttributes();
           default:
-            log.logDetailed("Unknown database field: " + fieldName);
-            return null;
+            return connectionField(dbMeta, fieldName);
         }
       } else if (hopObject instanceof PipelineHopMeta) {
         PipelineHopMeta hop = (PipelineHopMeta) hopObject;
@@ -493,6 +516,19 @@ public class CustomRuleExecutor {
   }
 
   /**
+   * Any other connection property, such as manualUrl or Oracle's walletPassword. The settings live
+   * on the database plugin's own meta, which is also what the connection's file stores, so that is
+   * looked at first; then the getters DatabaseMeta adds on top.
+   */
+  private static Object connectionField(DatabaseMeta dbMeta, String fieldName) {
+    Object value =
+        dbMeta.getIDatabase() != null
+            ? extractFieldFromObject(dbMeta.getIDatabase(), fieldName)
+            : FIELD_NOT_FOUND;
+    return value != FIELD_NOT_FOUND ? value : extractFieldFromObject(dbMeta, fieldName);
+  }
+
+  /**
    * The fields every transform has, whatever its plugin, with their types. The linter works them
    * out itself rather than reading them from the plugin, so {@code hop lint --list-fields} lists
    * them from here. Keep in step with {@link #extractFieldFromTransform}.
@@ -503,6 +539,9 @@ public class CustomRuleExecutor {
           "description", "String",
           "pluginId", "String",
           "copies", "int",
+          "distributes", "boolean",
+          "errorHandling", "boolean",
+          "targetTransforms", "List",
           "isDummy", "boolean",
           "hasDefaultName", "boolean",
           "isOrphaned", "boolean",
@@ -516,6 +555,9 @@ public class CustomRuleExecutor {
           "name", "String",
           "description", "String",
           "pluginId", "String",
+          "errorHandling", "boolean",
+          "targetActions", "List",
+          "isStart", "boolean",
           "hasDefaultName", "boolean",
           "isOrphaned", "boolean");
 
@@ -542,6 +584,25 @@ public class CustomRuleExecutor {
         case "copies":
           return transformMeta.getCopies(
               org.apache.hop.core.variables.Variables.getADefaultVariableSpace());
+        case "distributes":
+          return transformMeta.isDistributes();
+        case "errorHandling":
+          return transformMeta.getTransform() != null && transformMeta.isDoingErrorHandling();
+        case "targetTransforms":
+          // Not PipelineMeta.findNextTransforms: a hop whose transform name matches nothing loads
+          // with a null end, and that made it throw for every transform in the pipeline.
+          if (!(SUBJECT.get() instanceof PipelineMeta pipeline)) {
+            return null;
+          }
+          List<String> targets = new ArrayList<>();
+          for (PipelineHopMeta hop : pipeline.getPipelineHops()) {
+            if (hop.isEnabled()
+                && hop.getFromTransform() == transformMeta
+                && hop.getToTransform() != null) {
+              targets.add(hop.getToTransform().getName());
+            }
+          }
+          return targets;
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
@@ -580,6 +641,20 @@ public class CustomRuleExecutor {
           return actionMeta.getDescription();
         case "pluginId":
           return actionMeta.getAction().getPluginId();
+        case "errorHandling":
+          // An action handles its errors with a hop followed on failure.
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? outgoingHops(actionMeta, workflow).stream()
+                  .anyMatch(hop -> !hop.isUnconditional() && !hop.isEvaluation())
+              : null;
+        case "targetActions":
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? outgoingHops(actionMeta, workflow).stream()
+                  .map(hop -> hop.getToAction().getName())
+                  .toList()
+              : null;
+        case "isStart":
+          return actionMeta.isStart();
         case "hasDefaultName":
           // Every workflow starts at Start; there is no better name for it.
           return !actionMeta.isStart()
@@ -603,6 +678,22 @@ public class CustomRuleExecutor {
       log.logDetailed("Error extracting field " + fieldName + " from action: " + e.getMessage());
       return null;
     }
+  }
+
+  /**
+   * The enabled hops leaving this action that lead somewhere. A hop whose action name matches
+   * nothing loads with a null end, and is skipped rather than failing the field for the hops that
+   * are fine. The ends are compared by identity: ActionMeta.equals throws for an action without its
+   * inner action.
+   */
+  private static List<WorkflowHopMeta> outgoingHops(ActionMeta actionMeta, WorkflowMeta workflow) {
+    List<WorkflowHopMeta> hops = new ArrayList<>();
+    for (WorkflowHopMeta hop : workflow.getWorkflowHops()) {
+      if (hop.isEnabled() && hop.getFromAction() == actionMeta && hop.getToAction() != null) {
+        hops.add(hop);
+      }
+    }
+    return hops;
   }
 
   /**
@@ -776,39 +867,17 @@ public class CustomRuleExecutor {
     try {
       Class<?> clazz = obj.getClass();
 
-      List<Field> fields = getAllFields(clazz);
-
-      // The name Hop serialises the property under comes first. That is the name a rule author
-      // actually sees, in the .hpl or .hwf file and in the metadata JSON, and it is the one that
-      // survives a rename of the Java field behind it.
-      for (Field field : fields) {
-        if (fieldName.equals(serialisedNameOf(field))) {
-          field.setAccessible(true);
-          return field.get(obj);
-        }
-      }
-
-      // Then a declared field anywhere in the hierarchy, and its value is returned as-is.
-      // Skipping null or empty values here used to make them indistinguishable from a missing
-      // field, so a rule like "url NOT_EMPTY" could never fire.
-      for (Field field : fields) {
-        if (field.getName().equals(fieldName)) {
-          field.setAccessible(true);
-          return field.get(obj);
-        }
-      }
-      // Then the same match ignoring case, because rules are hand-written YAML and Hop's own
-      // field names are inconsistent about it ("fileName" here, "filename" there).
-      for (Field field : fields) {
-        if (field.getName().equalsIgnoreCase(fieldName)) {
-          field.setAccessible(true);
-          return field.get(obj);
-        }
+      // The value is returned as-is. Skipping null or empty values here used to make them
+      // indistinguishable from a missing field, so a rule like "url NOT_EMPTY" could never fire.
+      Field named = fieldNamed(clazz, fieldName);
+      if (named != null) {
+        named.setAccessible(true);
+        return named.get(obj);
       }
 
       // Then a getter, which covers metas that expose a value they do not store directly.
-      String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-      for (String candidate : new String[] {getterName, fieldName}) {
+      String capitalised = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+      for (String candidate : new String[] {"get" + capitalised, "is" + capitalised, fieldName}) {
         try {
           java.lang.reflect.Method getter = clazz.getMethod(candidate);
           return getter.invoke(obj);
@@ -876,12 +945,26 @@ public class CustomRuleExecutor {
   }
 
   /** A field value as it should read inside a composed rule's message. */
-  private static String describeValue(Object value) {
+  private static String describeValue(Object value, boolean secret) {
     if (value == null) {
       return "null";
     }
-    String text = value.toString();
+    if (secret) {
+      return "hidden";
+    }
+    String text = shown(value).toString();
     return text.length() > 60 ? text.substring(0, 57) + "..." : text;
+  }
+
+  /**
+   * A value as a finding may show it. Of a map only the keys: a connection's attributes hold its
+   * extra options, and an option such as a token or a key would otherwise land in the report.
+   */
+  private static Object shown(Object value) {
+    if (value instanceof Map<?, ?> map) {
+      return new TreeSet<>(map.keySet().stream().map(String::valueOf).toList());
+    }
+    return value;
   }
 
   /** Human-readable label for a transform or action, used in configuration error messages. */
@@ -897,6 +980,9 @@ public class CustomRuleExecutor {
       String pluginId =
           actionMeta.getAction() != null ? actionMeta.getAction().getPluginId() : "unknown";
       return "action '" + actionMeta.getName() + "' (" + pluginId + ")";
+    }
+    if (hopObject instanceof DatabaseMeta databaseMeta) {
+      return "connection '" + databaseMeta.getName() + "'";
     }
     return hopObject != null ? hopObject.getClass().getSimpleName() : "null";
   }
@@ -917,6 +1003,40 @@ public class CustomRuleExecutor {
       return null;
     }
     return Utils.isEmpty(property.key()) ? field.getName() : property.key();
+  }
+
+  /**
+   * The declared field a rule's name refers to, or null when no field carries that name.
+   *
+   * @param clazz the class to look in, superclasses included
+   * @param fieldName the name the rule uses
+   * @return the field, or null
+   */
+  private static Field fieldNamed(Class<?> clazz, String fieldName) {
+    List<Field> fields = getAllFields(clazz);
+
+    // The name Hop serialises the property under comes first. That is the name a rule author
+    // actually sees, in the .hpl or .hwf file and in the metadata JSON, and it is the one that
+    // survives a rename of the Java field behind it.
+    for (Field field : fields) {
+      if (fieldName.equals(serialisedNameOf(field))) {
+        return field;
+      }
+    }
+    // Then a declared field anywhere in the hierarchy.
+    for (Field field : fields) {
+      if (field.getName().equals(fieldName)) {
+        return field;
+      }
+    }
+    // Then the same match ignoring case, because rules are hand-written YAML and Hop's own
+    // field names are inconsistent about it ("fileName" here, "filename" there).
+    for (Field field : fields) {
+      if (field.getName().equalsIgnoreCase(fieldName)) {
+        return field;
+      }
+    }
+    return null;
   }
 
   /** Get all fields from a class hierarchy */
@@ -1021,23 +1141,90 @@ public class CustomRuleExecutor {
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
   }
 
+  /**
+   * Whether the value a clause reads is a secret, and so must stay out of the finding.
+   *
+   * <p>A finding's message ends up in CI build logs, JSON and SARIF reports and the GUI. DB-001
+   * used to report a hardcoded database password as "(current value: secret123)", decrypting an
+   * {@code Encrypted} one on the way, so the rule meant to catch exposed passwords exposed them.
+   *
+   * <p>The field decides, not the condition: Hop stores it as a password, or its name ends like a
+   * secret's, with the default name patterns as well as the rule's own. Underscores are ignored so
+   * the serialised {@code secret_access_key} matches {@code secretAccessKey}.
+   */
+  private static boolean holdsASecret(CustomLintRule rule, Object hopObject, String fieldName) {
+    if (Utils.isEmpty(fieldName)) {
+      return false;
+    }
+    if (storedAsPassword(hopObject, fieldName)) {
+      return true;
+    }
+    String name = withoutUnderscores(fieldName);
+    for (List<String> patterns :
+        List.of(DEFAULT_SECRET_FIELD_PATTERNS, getPasswordFieldPatterns(rule))) {
+      for (String pattern : patterns) {
+        if (!Utils.isEmpty(pattern) && name.endsWith(withoutUnderscores(pattern))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static String withoutUnderscores(String name) {
+    return name.trim().replace("_", "").toLowerCase();
+  }
+
+  /**
+   * Whether the field a rule reads is one Hop stores as a password ({@code @HopMetadataProperty
+   * password = true}), which covers secrets such as {@code accessKey} or {@code
+   * oauth_jwt_private_key} that no name pattern catches.
+   */
+  private static boolean storedAsPassword(Object hopObject, String fieldName) {
+    Object holder = hopObject;
+    if (hopObject instanceof TransformMeta transformMeta) {
+      holder = transformMeta.getTransform();
+    } else if (hopObject instanceof ActionMeta actionMeta) {
+      holder = actionMeta.getAction();
+    } else if (hopObject instanceof DatabaseMeta databaseMeta) {
+      // A connection's settings, sshTunnelPassphrase among them, live on its database plugin.
+      holder = databaseMeta.getIDatabase();
+    }
+    String name = fieldName;
+    int dot = fieldName.lastIndexOf('.');
+    if (dot > 0) {
+      holder = extractFieldFromObject(holder, fieldName.substring(0, dot));
+      name = fieldName.substring(dot + 1);
+    }
+    if (holder == null || holder == FIELD_NOT_FOUND) {
+      return false;
+    }
+    Field field = fieldNamed(holder.getClass(), name);
+    HopMetadataProperty property =
+        field != null ? field.getAnnotation(HopMetadataProperty.class) : null;
+    return property != null && property.password();
+  }
+
+  private static final List<String> DEFAULT_SECRET_FIELD_PATTERNS =
+      Arrays.asList(
+          "password",
+          "pwd",
+          "passwd",
+          "secret",
+          "secretKey",
+          "credential",
+          "credentials",
+          "apiKey",
+          "apikey",
+          "secretAccessKey",
+          "passphrase",
+          "token",
+          "accessToken",
+          "authToken");
+
   /** Get password field patterns from rule parameters or return defaults */
   private static List<String> getPasswordFieldPatterns(CustomLintRule rule) {
-    List<String> defaultPatterns =
-        Arrays.asList(
-            "password",
-            "pwd",
-            "passwd",
-            "secret",
-            "secretKey",
-            "credential",
-            "credentials",
-            "apiKey",
-            "apikey",
-            "secretAccessKey",
-            "token",
-            "accessToken",
-            "authToken");
+    List<String> defaultPatterns = DEFAULT_SECRET_FIELD_PATTERNS;
 
     if (rule.getAdditionalParameters() != null) {
       Object patternsObj = rule.getAdditionalParameters().get("fieldPatterns");
@@ -1181,34 +1368,20 @@ public class CustomRuleExecutor {
         return !(fieldValue instanceof Boolean) || ((Boolean) fieldValue);
 
       case NOT_EMPTY_COLLECTION:
-        if (fieldValue instanceof List) {
-          return ((List<?>) fieldValue).isEmpty();
-        }
-        return false;
+        return sizeOf(fieldValue) == 0;
 
       case MAX_COLLECTION_SIZE:
-        if (fieldValue instanceof List) {
-          int size = ((List<?>) fieldValue).size();
-          try {
-            int maxSize = Integer.parseInt(conditionValue);
-            return size > maxSize;
-          } catch (NumberFormatException e) {
-            return false;
-          }
-        }
-        return false;
-
       case MIN_COLLECTION_SIZE:
-        if (fieldValue instanceof List) {
-          int size = ((List<?>) fieldValue).size();
-          try {
-            int minSize = Integer.parseInt(conditionValue);
-            return size < minSize;
-          } catch (NumberFormatException e) {
-            return false;
-          }
+        int size = sizeOf(fieldValue);
+        if (size < 0) {
+          return false;
         }
-        return false;
+        try {
+          int limit = Integer.parseInt(conditionValue);
+          return condition == RuleCondition.MAX_COLLECTION_SIZE ? size > limit : size < limit;
+        } catch (NumberFormatException e) {
+          return false;
+        }
 
       default:
         // Returning false here would report the rule as passing, which is the worst
@@ -1223,6 +1396,20 @@ public class CustomRuleExecutor {
                 + ", which this version of the linter cannot evaluate. Remove the rule or"
                 + " use a supported condition.");
     }
+  }
+
+  /**
+   * The number of entries in a list, set or map, or -1 for anything else. A connection's {@code
+   * attributes} are a map, which the collection conditions did not count.
+   */
+  private static int sizeOf(Object value) {
+    if (value instanceof Collection<?> collection) {
+      return collection.size();
+    }
+    if (value instanceof Map<?, ?> map) {
+      return map.size();
+    }
+    return -1;
   }
 
   /** Helper method for numeric condition evaluation */
@@ -1262,7 +1449,7 @@ public class CustomRuleExecutor {
     message.append(headline);
 
     if (fieldValue != null) {
-      message.append(" (current value: ").append(fieldValue).append(")");
+      message.append(" (current value: ").append(shown(fieldValue)).append(")");
     }
 
     if (!Utils.isEmpty(rule.getConditionValue())) {

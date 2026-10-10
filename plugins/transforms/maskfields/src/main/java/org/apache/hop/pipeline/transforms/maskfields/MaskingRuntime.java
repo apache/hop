@@ -17,12 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.maskfields.store.DatabaseMaskingStore;
 import org.apache.hop.pipeline.transforms.maskfields.store.MemoryMaskingStore;
@@ -59,6 +63,7 @@ public final class MaskingRuntime {
     private final String executionId;
     private final ExecutionState state;
     private final Set<String> databaseKeys = ConcurrentHashMap.newKeySet();
+    private final List<DatabaseMaskingStore> ownStores = new CopyOnWriteArrayList<>();
     private boolean released;
 
     private Lease(String executionId, ExecutionState state) {
@@ -79,7 +84,12 @@ public final class MaskingRuntime {
       return state.sequences.computeIfAbsent(key, name -> new AtomicLong(start));
     }
 
-    /** One open connection for this database target, shared by every copy in the JVM. */
+    /**
+     * One open connection for this database target, shared by every copy in the JVM. The target is
+     * the resolved URL and user, so two projects with a connection of the same name that point at
+     * different databases do not share a store. A URL that still holds a variable does not say
+     * which database it opens, so this copy gets a store of its own.
+     */
     public DatabaseMaskingStore database(
         ILoggingObject parent,
         IVariables variables,
@@ -87,7 +97,19 @@ public final class MaskingRuntime {
         String schemaName,
         String tableName)
         throws HopException {
-      String key = databaseKey(databaseMeta, schemaName, tableName);
+      String key = databaseKey(variables, databaseMeta, schemaName, tableName);
+      if (key == null) {
+        DatabaseMaskingStore store =
+            new DatabaseMaskingStore(parent, variables, databaseMeta, schemaName, tableName);
+        try {
+          store.open();
+        } catch (HopException e) {
+          store.close();
+          throw e;
+        }
+        ownStores.add(store);
+        return store;
+      }
       while (true) {
         DatabaseEntry entry = databases.computeIfAbsent(key, name -> new DatabaseEntry());
         synchronized (entry) {
@@ -131,6 +153,9 @@ public final class MaskingRuntime {
           state.memory.close();
         }
       }
+      for (DatabaseMaskingStore store : ownStores) {
+        store.close();
+      }
       for (String key : databaseKeys) {
         DatabaseEntry entry = databases.get(key);
         if (entry == null) {
@@ -150,12 +175,22 @@ public final class MaskingRuntime {
     }
   }
 
-  private static String databaseKey(
-      DatabaseMeta databaseMeta, String schemaName, String tableName) {
-    String name = databaseMeta == null ? "" : databaseMeta.getName();
-    String schema = schemaName == null ? "" : schemaName;
-    String table = tableName == null ? "" : tableName;
-    return name + "\0" + schema + "\0" + table;
+  /**
+   * @return the URL a connection opens, its user and the table, or null when the URL still holds a
+   *     variable
+   */
+  static String databaseKey(
+      IVariables variables, DatabaseMeta databaseMeta, String schemaName, String tableName)
+      throws HopException {
+    // A manual URL comes back from getURL() as entered. Database.connect() resolves it.
+    String url = Const.NVL(variables.resolve(databaseMeta.getURL(variables)), "");
+    if (StringUtil.containsVariableToken(url)) {
+      return null;
+    }
+    String user = Const.NVL(variables.resolve(databaseMeta.getUsername()), "");
+    String schema = Const.NVL(schemaName, "");
+    String table = Const.NVL(tableName, "");
+    return url + "\0" + user + "\0" + schema + "\0" + table;
   }
 
   private static final class ExecutionState {

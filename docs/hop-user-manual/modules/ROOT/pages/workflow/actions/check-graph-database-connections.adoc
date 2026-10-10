@@ -1,0 +1,36 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Check graph database connections action lines up a list of graph database connections that you want to check for availability.
+:page-marketplace: hop-tech-neo4j
+:page-aliases: workflow/actions/neo4j-checkconnections.adoc
+
+= Check graph database connections
+
+== Description
+
+The `Check graph database connections` action (previously Check Neo4j connections) lines up a list of graph database connections and Neo4j connections that you want to check for availability.
+
+A small static value will be retrieved from the server to see if it's properly up-and-running.
+
+== Configuration
+
+Enter the names of the connections you want to check in the dialog.
+
+NOTE: This action does not (yet) retrieve the list of connections. You really need to enter them manually.
+

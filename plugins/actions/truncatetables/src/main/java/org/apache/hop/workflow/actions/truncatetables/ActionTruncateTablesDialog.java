@@ -17,11 +17,15 @@
 
 package org.apache.hop.workflow.actions.truncatetables;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -302,38 +306,83 @@ public class ActionTruncateTablesDialog extends ActionDialog {
   }
 
   private void getTableName() {
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
-    if (databaseMeta != null) {
+    String connectionName = wConnection.getText();
+    if (Utils.isEmpty(connectionName)) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setMessage(BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection"));
+      mb.open();
+      return;
+    }
 
-      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
-        database.connect();
-        String[] tableNames = database.getTablenames();
-        Arrays.sort(tableNames);
-        EnterSelectionDialog dialog =
-            new EnterSelectionDialog(
-                shell,
-                tableNames,
-                BaseMessages.getString(PKG, "ActionTruncateTables.SelectTables.Title"),
-                BaseMessages.getString(PKG, "ActionTruncateTables.SelectTables.Message"));
-        dialog.setMulti(true);
-        dialog.setAvoidQuickSearch();
-        if (dialog.open() != null) {
-          int[] idx = dialog.getSelectionIndeces();
-          for (int j : idx) {
-            TableItem tableItem = new TableItem(wFields.table, SWT.NONE);
-            tableItem.setText(1, tableNames[j]);
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(connectionName, variables);
+    if (databaseMeta == null) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setMessage(BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection"));
+      mb.open();
+      return;
+    }
+
+    try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+      database.connect();
+      Map<String, Collection<String>> tableMap = database.getTableMap();
+      List<String> displayList = new ArrayList<>();
+      List<String[]> schemaTableList = new ArrayList<>();
+
+      if (tableMap != null && !tableMap.isEmpty()) {
+        List<String> schemas = new ArrayList<>(tableMap.keySet());
+        Collections.sort(schemas, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER));
+        for (String schema : schemas) {
+          Collection<String> tableCollection = tableMap.get(schema);
+          if (tableCollection != null) {
+            List<String> tables = new ArrayList<>(tableCollection);
+            Collections.sort(tables, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER));
+            for (String table : tables) {
+              String displayName = Utils.isEmpty(schema) ? table : schema + "." + table;
+              displayList.add(displayName);
+              schemaTableList.add(new String[] {table, Const.NVL(schema, "")});
+            }
           }
         }
-      } catch (HopDatabaseException e) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-            BaseMessages.getString(PKG, "ActionTruncateTables.ConnectionError.DialogMessage"),
-            e);
       }
-      wFields.removeEmptyRows();
-      wFields.setRowNums();
-      wFields.optWidth(true);
+
+      if (displayList.isEmpty()) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Warning.Title"));
+        mb.setMessage(
+            BaseMessages.getString(PKG, "ActionTruncateTables.ConnectionError.DialogMessage"));
+        mb.open();
+        return;
+      }
+
+      String[] displayArray = displayList.toArray(new String[0]);
+      EnterSelectionDialog dialog =
+          new EnterSelectionDialog(
+              shell,
+              displayArray,
+              BaseMessages.getString(PKG, "ActionTruncateTables.SelectTables.Title"),
+              BaseMessages.getString(PKG, "ActionTruncateTables.SelectTables.Message"));
+      dialog.setMulti(true);
+      dialog.setAvoidQuickSearch();
+      if (dialog.open() != null) {
+        int[] idx = dialog.getSelectionIndeces();
+        for (int j : idx) {
+          String[] st = schemaTableList.get(j);
+          TableItem tableItem = new TableItem(wFields.table, SWT.NONE);
+          tableItem.setText(1, st[0]);
+          tableItem.setText(2, st[1]);
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          BaseMessages.getString(PKG, "ActionTruncateTables.ConnectionError.DialogMessage"),
+          e);
     }
+    wFields.removeEmptyRows();
+    wFields.setRowNums();
+    wFields.optWidth(true);
   }
 }
