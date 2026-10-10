@@ -22,21 +22,19 @@
 # Use this file for per-project overrides only.
 
 rules:
-  TRANS-001:
+  # Switch on a rule the core pack ships disabled, and set its ceiling
+  STRUCT-001:
     enabled: true
     severity: WARNING
-    parameters:
-      maxTransforms: 20
+    conditionValue: "20"
 
   TRANS-002:
     enabled: true
     severity: WARNING
-    parameters: {}
 
   DB-001:
     enabled: true
     severity: ERROR
-    parameters: {}
 
   # Hop's own transform and action checks. A check that reports an error code
   # is reported under that code, and answers to HOP-CHECK as well, so a rule or

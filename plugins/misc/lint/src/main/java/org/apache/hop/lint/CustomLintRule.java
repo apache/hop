@@ -21,12 +21,23 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.lint.registry.RulePackIds;
 import org.apache.hop.lint.registry.RulePackOwner;
 
 /** Represents a user-defined linting rule */
 public class CustomLintRule {
+
+  /** The field name patterns a hardcoded-secret rule looks for, replacing the default list. */
+  public static final String PARAMETER_FIELD_PATTERNS = "fieldPatterns";
+
+  /** The transform plugin ids {@code isBlockingTransform} counts, replacing the default list. */
+  public static final String PARAMETER_BLOCKING_TRANSFORMS = "blockingTransforms";
+
+  /** Every parameter the linter reads. A rule pack or hop-lint.yml naming another is warned. */
+  public static final Set<String> PARAMETERS =
+      Set.of(PARAMETER_FIELD_PATTERNS, PARAMETER_BLOCKING_TRANSFORMS);
 
   private String id;
   private String name;

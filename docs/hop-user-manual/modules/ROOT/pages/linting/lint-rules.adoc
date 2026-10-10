@@ -101,7 +101,7 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |is a collection with at least one entry
 
 |`NO_HARDCODED`
-|is empty, or is a variable reference rather than a literal value
+|is empty, or takes its value from a variable (`${NAME}`, `%%NAME%%`) or a variable resolver (`#{vault:path:key}`) rather than holding a literal value. An `Encrypted` value is a literal value: Hop obfuscates it, and anyone with Hop and the same encoder key can read it back
 
 |`MAX_VALUE`, `MIN_VALUE`, `EXACT_VALUE`
 |compares as required against `conditionValue`
@@ -245,6 +245,32 @@ A rule aimed at `TRANSFORM` runs against every transform in the pipeline.
 
 A scoped rule naming a field the transform does not have is reported as a configuration error rather than passing quietly, so that a typo in a field name is visible instead of looking like a clean result.
 
+== Parameters
+
+A few rules read extra settings from a `parameters:` block:
+
+[cols="1,3", options="header"]
+|===
+|Parameter |Read by
+
+|`fieldPatterns`
+|A `NO_HARDCODED` rule on `TRANSFORM` or `ACTION` whose `targetField` is `password`, `secret` or `credential`. The list of field name endings that hold a secret, replacing the default list
+
+|`blockingTransforms`
+|`isBlockingTransform`. The transform plugin ids that count as blocking, replacing the default list
+|===
+
+[source,yaml]
+----
+  SEC-002:
+    parameters:
+      fieldPatterns:
+        - "password"
+        - "apiKey"
+----
+
+Any other parameter is ignored, and a warning in the log names it, in a rule pack and in `hop-lint.yml` alike.
+
 == Hop's own verify remarks
 
 Every transform and action has a `check()` method of its own, the one behind the *Verify* button, and the linter reports what those find alongside its own rules.
@@ -378,6 +404,15 @@ Hop's core rule pack is deliberately small. A rule is enabled by default only wh
 `TRANS-002` and `WORKFLOW-002` report on the transform or action itself, so the finding names it and the canvas can point at it.
 The only element in a file is not an orphan — there is nothing for it to be disconnected from — and neither is one whose hops are all disabled: it has hops, and whether a disabled hop is a problem is what `STRUCT-003` asks.
 
+An orphaned action never runs, because nothing leads to it from Start.
+An orphaned transform does run: Hop starts every transform in a pipeline, connected or not.
+`TRANS-002` warns that it runs as a stream of its own, which is rarely what was meant.
+A pipeline that deliberately runs two independent streams can accept the finding on that transform, see <<accept-on-transform>>.
+
+`SEC-002` and `SEC-003` look at every text field of the transform or action whose name ends in one of the rule's `fieldPatterns`, such as `password`, `token` or `passphrase`.
+They also look inside the settings the transform or action stores in the file, such as the list of files PGP Decrypt Files decrypts, each with its own passphrase.
+`DB-001`, `SEC-002` and `SEC-003` count an `Encrypted` value as hardcoded.
+
 Hop ships no narrowed `native` rule of its own.
 A check that is simply wrong is fixed in the transform rather than silenced from a rule pack, which would leave it firing for everyone who presses *Verify*.
 `appliesTo` and `messageKey` are there for a project that disagrees with a check the platform is right to ship.
@@ -510,6 +545,7 @@ Both are in *Tools -> Lint* as well.
 
 A file covered by a broader pattern, `templates/**` rather than its own name, is left alone: which entry to change is a decision for you rather than a guess by the menu.
 
+[[accept-on-transform]]
 == Accepting findings on a single transform or action
 
 An exclusion covers a whole file, which is right for a template that is dynamic from end to end and too much for one that is only partly dynamic.
