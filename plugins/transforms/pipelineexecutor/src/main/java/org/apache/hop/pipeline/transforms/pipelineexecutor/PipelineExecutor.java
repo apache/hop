@@ -251,10 +251,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   @VisibleForTesting
   Result executePipelineAttempt(List<String> parameterValues, long timeoutMs) throws HopException {
     PipelineExecutorData pipelineExecutorData = getData();
-
-    if (first) {
-      discardLogLines(pipelineExecutorData);
-    }
+    cleanupPreviousAttemptPipeline(pipelineExecutorData);
 
     IPipelineEngine<PipelineMeta> executorPipeline = createInternalPipeline();
     pipelineExecutorData.setExecutorPipeline(executorPipeline);
@@ -293,6 +290,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       logError("An error occurred executing the pipeline: ", e);
       result.setResult(false);
       result.setNrErrors(1);
+      cleanupPreviousAttemptPipeline(pipelineExecutorData);
     }
     return result;
   }
@@ -306,43 +304,58 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   Result executeWithRetries(List<String> parameterValues) throws HopException {
-    int retryAttempts = Math.max(0, Const.toInt(resolve(meta.getRetryAttempts()), 0));
-    long retryDelayMs = Math.max(0L, Const.toLong(resolve(meta.getRetryDelay()), 0L));
+    int retryAttempts = Math.max(0, Const.toIntExpanded(resolve(meta.getRetryAttempts()), 0));
+    long retryDelayMs = Math.max(0L, Const.toLongExpanded(resolve(meta.getRetryDelay()), 0L));
     long configuredTimeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
-    long retryStartTime = System.currentTimeMillis();
 
     Result result = null;
     for (int attempt = 0; attempt <= retryAttempts; attempt++) {
-      long timeoutForAttemptMs = configuredTimeoutMs;
-      if (configuredTimeoutMs > 0) {
-        long elapsedMs = System.currentTimeMillis() - retryStartTime;
-        long remainingMs = configuredTimeoutMs - elapsedMs;
-        if (remainingMs <= 0) {
-          if (result == null) {
-            result = new Result();
-            result.setResult(false);
-            result.setNrErrors(1);
-          }
-          break;
+      if (isStopped()) {
+        if (result == null) {
+          result = new Result();
+          result.setResult(false);
+          result.setNrErrors(1);
         }
-        timeoutForAttemptMs = remainingMs;
+        break;
       }
 
-      result = executePipelineAttempt(parameterValues, timeoutForAttemptMs);
+      result = executePipelineAttempt(parameterValues, configuredTimeoutMs);
       if (!isFailedResult(result) || attempt == retryAttempts) {
         break;
       }
-      if (retryDelayMs > 0) {
-        try {
-          Thread.sleep(retryDelayMs);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          logError("Interrupted while waiting before retrying failed child pipeline execution", e);
-          break;
-        }
+      if (!waitRetryDelay(retryDelayMs)) {
+        break;
       }
     }
     return result;
+  }
+
+  private boolean waitRetryDelay(long retryDelayMs) {
+    long remainingDelayMs = retryDelayMs;
+    while (remainingDelayMs > 0) {
+      if (isStopped()) {
+        return false;
+      }
+      long sleepMs = Math.min(remainingDelayMs, 100L);
+      try {
+        Thread.sleep(sleepMs);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        logError(BaseMessages.getString(PKG, "PipelineExecutor.Log.RetryInterrupted"), e);
+        return false;
+      }
+      remainingDelayMs -= sleepMs;
+    }
+    return !isStopped();
+  }
+
+  @VisibleForTesting
+  void cleanupPreviousAttemptPipeline(PipelineExecutorData pipelineExecutorData) {
+    IPipelineEngine<PipelineMeta> executorPipeline = pipelineExecutorData.getExecutorPipeline();
+    if (executorPipeline != null && executorPipeline.isRunning()) {
+      executorPipeline.stopAll();
+    }
+    discardLogLines(pipelineExecutorData);
   }
 
   @VisibleForTesting
