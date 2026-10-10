@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -114,6 +115,56 @@ public class CreditCardVerifier {
       } else {
         ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
       }
+    }
+
+    return ri;
+  }
+
+  /** Validate a card number against an external BIN database. */
+  public static ReturnIndicator checkCC(String cardNumber, BinDatabase binDatabase) {
+    ReturnIndicator ri = new ReturnIndicator();
+
+    if (Utils.isEmpty(cardNumber)) {
+      ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.EmptyNumber");
+      return ri;
+    }
+
+    Matcher m = Pattern.compile("[^\\d\\s.-]").matcher(cardNumber);
+    if (m.find()) {
+      ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.OnlyNumbers");
+      return ri;
+    }
+
+    String digits = Const.getDigitsOnly(cardNumber);
+    if (binDatabase == null) {
+      if (luhnValidate(digits)) {
+        ri.CardValid = true;
+      } else {
+        ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+      }
+      return ri;
+    }
+
+    BinDatabase.BinRecord record = binDatabase.lookup(digits);
+    if (record == null) {
+      ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+      return ri;
+    }
+
+    if (!CardScheme.isValidLength(digits, digits.length())) {
+      ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+      return ri;
+    }
+
+    if (luhnValidate(digits)) {
+      ri.CardValid = true;
+      ri.CardType = record.getCardType();
+      ri.extraValues = record.getExtraValues();
+    } else {
+      ri.CardValid = false;
+      ri.UnValidMsg =
+          BaseMessages.getString(
+              PKG, "CreditCardValidator.Log.NotValidCardType", record.getCardType());
     }
 
     return ri;

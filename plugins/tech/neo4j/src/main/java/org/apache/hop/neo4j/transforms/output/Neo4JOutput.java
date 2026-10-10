@@ -27,8 +27,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.graph.CypherGraphDialect;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -42,7 +42,6 @@ import org.apache.hop.neo4j.core.data.GraphPropertyData;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.core.data.GraphRelationshipData;
 import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.neo4j.transforms.BaseNeoTransform;
 import org.apache.hop.neo4j.transforms.output.fields.LabelField;
@@ -51,9 +50,6 @@ import org.apache.hop.neo4j.transforms.output.fields.PropertyField;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.summary.Notification;
-import org.neo4j.driver.summary.ResultSummary;
 
 public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputData> {
 
@@ -215,8 +211,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       if (meta.isReturningGraph()) {
         logBasic("Writing to output graph field, not to Neo4j");
       } else {
-        data.driver = data.neoConnection.getDriver(getLogChannel(), this);
-        data.session = data.neoConnection.getSession(getLogChannel(), data.driver, this);
+        data.connection = data.graphConnection.connect(getLogChannel(), this);
 
         // Create indexes for the primary properties of the From and To nodes
         //
@@ -484,7 +479,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           cypher
               .append("MERGE (f)-[")
               .append("r:")
-              .append(relationshipLabelToUse)
+              .append(CypherGraphDialect.quote(relationshipLabelToUse))
               .append("]->(t) ")
               .append(Const.CR)
               .append(relationshipSetClause)
@@ -495,7 +490,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           cypher
               .append("CREATE (f)-[")
               .append("r:")
-              .append(relationshipLabelToUse)
+              .append(CypherGraphDialect.quote(relationshipLabelToUse))
               .append("]->(t) ")
               .append(Const.CR)
               .append(getSetClause("r", meta.getRelProps(), data.relPropIndexes))
@@ -515,17 +510,11 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         logDebug("properties list size : " + data.unwindList.size());
       }
 
-      // Run it always without beginTransaction()...
-      // In Neo4j 5.x, Result must be consumed within the callback
+      // Run it always in a write transaction. The connection logs the notifications.
       //
-      data.session.executeWrite(
+      data.connection.executeWrite(
           tx -> {
-            Result result = tx.run(data.cypher, properties);
-            try {
-              processSummary(result);
-            } catch (HopException e) {
-              throw new HopRuntimeException("Error processing result summary", e);
-            }
+            tx.execute(data.cypher, properties);
             return null;
           });
 
@@ -842,9 +831,16 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
 
       try {
-        data.neoConnection =
-            metadataProvider.getSerializer(NeoConnection.class).load(resolve(meta.getConnection()));
-        if (data.neoConnection == null) {
+        data.graphConnection =
+            NeoConnectionUtils.findGraphConnection(metadataProvider, resolve(meta.getConnection()));
+        if (data.graphConnection != null && !data.graphConnection.getDialect().isCypher()) {
+          logError(
+              "Cypher output writes Cypher, which connection '"
+                  + resolve(meta.getConnection())
+                  + "' doesn't speak. Use Graph output with a graph model instead.");
+          return false;
+        }
+        if (data.graphConnection == null) {
           logError(
               "Connection '"
                   + resolve(meta.getConnection())
@@ -879,11 +875,13 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
     }
 
-    if (data.session != null) {
-      data.session.close();
-    }
-    if (data.driver != null) {
-      data.driver.close();
+    if (data.connection != null) {
+      try {
+        data.connection.close();
+      } catch (HopException e) {
+        logError("Error closing the graph database connection", e);
+      }
+      data.connection = null;
     }
 
     super.dispose();
@@ -901,24 +899,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       labels.append(escapeLabel(nodeLabel));
     }
     return labels.toString();
-  }
-
-  private void processSummary(Result result) throws HopException {
-    boolean error = false;
-    ResultSummary summary = result.consume();
-    for (Notification notification : summary.notifications()) {
-      logError(notification.title() + " (" + notification.rawSeverityLevel().orElse("") + ")");
-      logError(
-          notification.code()
-              + " : "
-              + notification.description()
-              + ", position "
-              + notification.position());
-      error = true;
-    }
-    if (error) {
-      throw new HopException("Error found while executing cypher statement(s)");
-    }
   }
 
   public List<String> getNodeLabels(
@@ -941,11 +921,12 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     return labels;
   }
 
+  /**
+   * Quote a label or relationship type with backticks, doubling the backticks in it, so that any
+   * value of a label field is used as a name and never as Cypher.
+   */
   public String escapeLabel(String str) {
-    if (str.contains(" ") || str.contains(".")) {
-      str = "`" + str + "`";
-    }
-    return str;
+    return CypherGraphDialect.quote(str);
   }
 
   private void createNodePropertyIndexes(
@@ -964,7 +945,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
   private void createIndexForNode(
       Neo4JOutputData data, NodeField theNode, IRowMeta rowMeta, Object[] rowData)
-      throws HopValueException {
+      throws HopException {
 
     // Which labels to index?
     //
@@ -998,7 +979,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       if (label != null && !primaryProperties.isEmpty()) {
         NeoConnectionUtils.createNodeIndex(
-            getLogChannel(), data.session, Collections.singletonList(label), primaryProperties);
+            getLogChannel(), data.connection, Collections.singletonList(label), primaryProperties);
       }
     }
   }
@@ -1162,13 +1143,21 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       switch (relOpType) {
         case CREATE:
-          cypher.append("CREATE (f)-[r:").append(relLabel).append("]->(t)").append(Const.CR);
+          cypher
+              .append("CREATE (f)-[r:")
+              .append(escapeLabelForPreview(relLabel))
+              .append("]->(t)")
+              .append(Const.CR);
           if (StringUtils.isNotEmpty(relSetClause)) {
             cypher.append(relSetClause).append(Const.CR);
           }
           break;
         case MERGE:
-          cypher.append("MERGE (f)-[r:").append(relLabel).append("]->(t)").append(Const.CR);
+          cypher
+              .append("MERGE (f)-[r:")
+              .append(escapeLabelForPreview(relLabel))
+              .append("]->(t)")
+              .append(Const.CR);
           if (StringUtils.isNotEmpty(relSetClause)) {
             cypher.append(relSetClause).append(Const.CR);
           }
@@ -1205,11 +1194,11 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
   /** Escape label name for preview (same logic as in Neo4JOutput.escapeLabel) */
   private static String escapeLabelForPreview(String label) {
-    // Simple escaping - backticks for labels with special characters
-    if (label.contains(" ") || label.contains("-") || label.contains(".")) {
-      return "`" + label + "`";
+    if (label.startsWith("${")) {
+      // A placeholder for a label from a field
+      return label;
     }
-    return label;
+    return CypherGraphDialect.quote(label);
   }
 
   /** Build preview match clause from property fields (primary properties only) */

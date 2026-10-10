@@ -23,11 +23,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.spark.metadata.SparkCatalog;
+import org.apache.hop.lakehouse.metadata.LakeCatalog;
 import org.apache.spark.sql.SparkSession;
 
 /**
- * Expands {@link SparkCatalog} metadata into {@code spark.sql.catalog.<name>.*} configuration for
+ * Expands {@link LakeCatalog} metadata into {@code spark.sql.catalog.<name>.*} configuration for
  * hop-run builders and active sessions.
  */
 public final class SparkCatalogApplier {
@@ -38,7 +38,7 @@ public final class SparkCatalogApplier {
    * Build Spark conf key/value pairs for a catalog definition. Does not log credential or confExtra
    * values.
    */
-  public static Map<String, String> toSparkConfigs(SparkCatalog catalog, IVariables variables)
+  public static Map<String, String> toSparkConfigs(LakeCatalog catalog, IVariables variables)
       throws HopException {
     if (catalog == null) {
       throw new HopException("SparkCatalog is null");
@@ -62,7 +62,7 @@ public final class SparkCatalogApplier {
     }
 
     String type =
-        StringUtils.defaultIfBlank(catalog.getCatalogType(), SparkCatalog.TYPE_HADOOP)
+        StringUtils.defaultIfBlank(catalog.getCatalogType(), LakeCatalog.TYPE_HADOOP)
             .trim()
             .toLowerCase(Locale.ROOT);
 
@@ -75,7 +75,7 @@ public final class SparkCatalogApplier {
     }
 
     switch (type) {
-      case SparkCatalog.TYPE_HADOOP -> {
+      case LakeCatalog.TYPE_HADOOP -> {
         conf.put(prefix, impl);
         conf.put(prefix + ".type", "hadoop");
         String warehouse = resolve(variables, catalog.getWarehouse());
@@ -85,7 +85,7 @@ public final class SparkCatalogApplier {
         }
         conf.put(prefix + ".warehouse", toUriIfLocalPath(warehouse));
       }
-      case SparkCatalog.TYPE_REST -> {
+      case LakeCatalog.TYPE_REST -> {
         conf.put(prefix, impl);
         conf.put(prefix + ".type", "rest");
         String uri = resolve(variables, catalog.getUri());
@@ -99,10 +99,10 @@ public final class SparkCatalogApplier {
           conf.put(prefix + ".warehouse", toUriIfLocalPath(warehouse));
         }
       }
-      case SparkCatalog.TYPE_CUSTOM -> {
+      case LakeCatalog.TYPE_CUSTOM -> {
         conf.put(prefix, impl);
       }
-      case SparkCatalog.TYPE_HIVE, SparkCatalog.TYPE_GLUE -> {
+      case LakeCatalog.TYPE_HIVE, LakeCatalog.TYPE_GLUE -> {
         // Advanced: operator supplies full conf via confExtra / implementation
         if (StringUtils.isNotEmpty(impl)) {
           conf.put(prefix, impl);
@@ -121,7 +121,7 @@ public final class SparkCatalogApplier {
     // Optional credential — only if operator maps it via confExtra typically; expose as token
     // property for REST when set
     String credential = resolve(variables, catalog.getCredential());
-    if (StringUtils.isNotEmpty(credential) && SparkCatalog.TYPE_REST.equals(type)) {
+    if (StringUtils.isNotEmpty(credential) && LakeCatalog.TYPE_REST.equals(type)) {
       conf.putIfAbsent(prefix + ".token", credential);
     }
 
@@ -155,15 +155,14 @@ public final class SparkCatalogApplier {
   }
 
   public static void applyToBuilder(
-      SparkSession.Builder builder, SparkCatalog catalog, IVariables variables)
-      throws HopException {
+      SparkSession.Builder builder, LakeCatalog catalog, IVariables variables) throws HopException {
     for (Map.Entry<String, String> e : toSparkConfigs(catalog, variables).entrySet()) {
       builder.config(e.getKey(), e.getValue());
     }
   }
 
-  public static void applyToSession(
-      SparkSession session, SparkCatalog catalog, IVariables variables) throws HopException {
+  public static void applyToSession(SparkSession session, LakeCatalog catalog, IVariables variables)
+      throws HopException {
     for (Map.Entry<String, String> e : toSparkConfigs(catalog, variables).entrySet()) {
       session.conf().set(e.getKey(), e.getValue());
     }

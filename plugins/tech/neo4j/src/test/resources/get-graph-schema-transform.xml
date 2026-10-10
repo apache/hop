@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <connection>graph</connection>
+    <sample_size>250</sample_size>
+    <element_type_field>kind</element_type_field>
+    <name_field>label</name_field>
+    <property_field>property</property_field>
+    <property_types_field>types</property_types_field>
+    <mandatory_field>mandatory</mandatory_field>
+    <indexed_field/>
+    <unique_field>unique</unique_field>
+    <start_labels_field>from_labels</start_labels_field>
+    <end_labels_field>to_labels</end_labels_field>
+</transform>

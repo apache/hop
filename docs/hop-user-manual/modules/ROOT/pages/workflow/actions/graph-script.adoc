@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Graph script action executes Cypher statements, or Gremlin traversals, on a graph database in a workflow.
+:page-marketplace: hop-tech-neo4j
+:page-aliases: workflow/actions/neo4j-cypherscript.adoc
+
+
+= Graph script
+
+== Description
+
+The `Graph script` action (previously Neo4j Cypher script) executes statements on a graph database in a workflow: Cypher statements, or Gremlin traversals on Gremlin servers.
+
+As with all actions, the goal is not to retrieve data but to execute various statements like creating or dropping indexes, calling APOC procedures, add or delete some static data and so on. +
+The result of this action is a `true` or `false` exit code that determines if a success or failure hop to the next action in the workflow is chosen.
+
+== Important
+
+**To allow you to enter semi-colons (;) in commands, strings and so on we require you to separate commands with a semi-colon on a new line**
+
+== Configuration options
+
+|===
+|Option |Description
+
+|Connection name
+|The name of the connection on which you want to execute the cypher statements.
+
+|Script
+|The script with cypher commands seperated by a semi-colon (;) on a new line.
+For examples see below.
+
+|Replace variables
+|Check this option if you want to replace variables in the format `+${VARIABLE_NAME}+` in the script prior to execution.
+|===
+
+== Example
+
+[source,CREATE INDEX idx_person_name on :Person(name)]
+----
+CREATE INDEX idx_company_id on :Company(id)
+;
+CREATE INDEX idx_company_id on :Company(id)
+;
+----
+

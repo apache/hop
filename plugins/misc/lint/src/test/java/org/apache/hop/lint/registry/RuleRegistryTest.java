@@ -522,4 +522,58 @@ public class RuleRegistryTest {
 
     assertFalse(warning.contains("Did you mean"), warning);
   }
+
+  /**
+   * A pack that cannot be read is skipped by Hop Gui, but its error is kept, so hop lint and the
+   * Run Linter action can fail with the pack's own message instead of passing without its rules.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8826">#8826</a>
+   */
+  @Test
+  public void aBrokenPackIsRecordedWithItsOwnError() throws Exception {
+    File yaml = File.createTempFile("broken-pack", ".yml");
+    yaml.deleteOnExit();
+    Files.writeString(yaml.toPath(), "rules:\n  - id: [unterminated\n");
+    IHopLintRulePack broken =
+        EagerRulePack.of(new FileYamlRulePack(yaml, "acme", "Acme", RulePackOwner.VENDOR, 100));
+    RulePackDiscovery discovery =
+        new RulePackDiscovery() {
+          @Override
+          public List<IHopLintRulePack> discoverAll() {
+            return List.of(new HopCoreRulePack(), broken);
+          }
+        };
+
+    RuleRegistry registry = new RuleRegistry(discovery);
+
+    List<String> errors = registry.getPackErrors();
+    assertEquals(1, errors.size(), errors.toString());
+    assertTrue(errors.get(0).startsWith("Rule pack 'acme' could not be loaded"), errors.get(0));
+    // The parser's own words, with the line, and not only "Failed to load rule pack from ...".
+    assertTrue(errors.get(0).contains("line 2"), errors.get(0));
+    assertFalse(registry.resolve(null).getRules().isEmpty(), "the other packs still load");
+  }
+
+  @Test
+  public void packsThatLoadLeaveNoErrors() {
+    RulePackDiscovery discovery =
+        new RulePackDiscovery() {
+          @Override
+          public List<IHopLintRulePack> discoverAll() {
+            return List.of(new HopCoreRulePack());
+          }
+        };
+
+    assertTrue(new RuleRegistry(discovery).getPackErrors().isEmpty());
+  }
+
+  /** A cause chain that loops back on itself must not hang the registry while it holds its lock. */
+  @Test
+  public void aLoopingCauseChainEnds() {
+    Exception outer = new Exception("outer");
+    Exception inner = new Exception("inner", outer);
+    outer.initCause(inner);
+
+    assertEquals("outer: inner", RuleRegistry.messagesOf(outer));
+  }
 }

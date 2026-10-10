@@ -20,6 +20,7 @@ package org.apache.hop.execution.elastic;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 class ElasticExecutionInfoLocationProjectIdTest {
@@ -56,6 +57,28 @@ class ElasticExecutionInfoLocationProjectIdTest {
     String body = ElasticExecutionInfoLocation.createIndexBody();
     assertTrue(body.contains("\"projectId\": { \"type\": \"keyword\" }"));
     assertTrue(ElasticExecutionInfoLocation.projectIdMappingBody().contains("keyword"));
+  }
+
+  @Test
+  void deleteByQueryUsesARangeAndKeepsTheProjectFilter() {
+    Date cutoff = new Date(1_700_000_000_000L);
+    String body = ElasticExecutionInfoLocation.deleteByQueryBody("sales", cutoff);
+
+    assertTrue(body.contains("\"projectId\": \"sales\""));
+    assertTrue(body.contains("execution.executionStartDate"));
+    assertTrue(body.contains("\"lt\": " + cutoff.getTime()));
+    assertTrue(body.contains("must_not"));
+    assertFalse(body.contains("\"size\""));
+  }
+
+  @Test
+  void deleteByQueryWithoutACutoffMatchesTheProject() {
+    String body = ElasticExecutionInfoLocation.deleteByQueryBody("sales", null);
+    assertTrue(body.contains("\"projectId\": \"sales\""));
+    assertFalse(body.contains("execution.executionStartDate"));
+
+    String all = ElasticExecutionInfoLocation.deleteByQueryBody(null, null);
+    assertTrue(all.contains("match_all"));
   }
 
   @Test

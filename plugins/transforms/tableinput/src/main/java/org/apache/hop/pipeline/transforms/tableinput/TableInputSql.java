@@ -166,12 +166,17 @@ public final class TableInputSql {
   }
 
   /**
-   * Bind incoming row values to the named parameters in {@code parsed}. When the SQL has no named
-   * parameters the original parameter metadata and data are passed through (positional {@code ?}).
+   * Bind incoming row values to the named parameters in {@code parsed}. When the SQL has no
+   * parameters at all (no named, no positional {@code ?}) the bound statement must not receive any
+   * parameter metadata or data: binding values to a statement without placeholders fails on every
+   * driver (ORA-17003 on Oracle, "Parameter index out of range" on H2).
    */
   public static Bound bind(Parsed parsed, IRowMeta parametersMeta, Object[] parameters)
       throws HopException {
     if (!parsed.hasNamedParameters()) {
+      if (parsed.getPositionalParameterCount() == 0) {
+        return new Bound(parsed.getJdbcSql(), null, null);
+      }
       return new Bound(parsed.getJdbcSql(), parametersMeta, parameters);
     }
     if (parametersMeta == null) {
@@ -206,6 +211,80 @@ public final class TableInputSql {
   }
 
   /**
+   * Count real JDBC positional placeholders ({@code ?}) outside string literals, quoted
+   * identifiers, comments and Hop variables. Used when named parameters are disabled so SQL is
+   * passed through unchanged; values must only be bound when the statement really has placeholders
+   * (otherwise every driver fails: ORA-17003 on Oracle, "Parameter index out of range" on H2).
+   */
+  public static int countPositionalPlaceholders(String sql) {
+    if (sql == null) {
+      return 0;
+    }
+    int count = 0;
+    int i = 0;
+    final int n = sql.length();
+    while (i < n) {
+      char c = sql.charAt(i);
+      char next = (i + 1 < n) ? sql.charAt(i + 1) : 0;
+
+      if (c == '-' && next == '-') {
+        int end = indexOfNewline(sql, i + 2);
+        if (end < 0) {
+          break;
+        }
+        i = end;
+        continue;
+      }
+      if (c == '/' && next == '*') {
+        int end = sql.indexOf("*/", i + 2);
+        if (end < 0) {
+          break;
+        }
+        i = end + 2;
+        continue;
+      }
+      if (c == '\'') {
+        i = skipQuoted(sql, i, '\'');
+        continue;
+      }
+      if (c == '"') {
+        i = skipQuoted(sql, i, '"');
+        continue;
+      }
+      if (c == '$' && next == '{') {
+        int end = sql.indexOf('}', i + 2);
+        if (end < 0) {
+          break;
+        }
+        i = end + 1;
+        continue;
+      }
+      if (c == '?') {
+        count++;
+      }
+      i++;
+    }
+    return count;
+  }
+
+  private static int skipQuoted(String sql, int start, char quote) {
+    int j = start + 1;
+    final int n = sql.length();
+    while (j < n) {
+      char ch = sql.charAt(j);
+      if (ch == quote) {
+        if (j + 1 < n && sql.charAt(j + 1) == quote) {
+          j += 2;
+          continue;
+        }
+        return j + 1;
+      }
+      j++;
+    }
+    return n;
+  }
+
+  /**
    * Bind named parameters only when {@code useNamedParameters} is true. Otherwise the SQL is passed
    * through unchanged so existing {@code {braces}} in queries stay literal.
    */
@@ -213,6 +292,9 @@ public final class TableInputSql {
       boolean useNamedParameters, String sql, IRowMeta parametersMeta, Object[] parameters)
       throws HopException {
     if (!useNamedParameters) {
+      if (countPositionalPlaceholders(sql) == 0) {
+        return new Bound(sql, null, null);
+      }
       return new Bound(sql, parametersMeta, parameters);
     }
     return prepare(sql, parametersMeta, parameters);

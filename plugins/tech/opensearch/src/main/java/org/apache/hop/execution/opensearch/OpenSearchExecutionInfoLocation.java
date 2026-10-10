@@ -23,8 +23,10 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -32,6 +34,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -39,6 +42,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.ExecutionDeleter;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionSelector;
@@ -303,7 +307,9 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                 ignoreSsl,
                 getHeaders());
         responseBody = deleteRestCaller.execute();
-        checkStatusCode(responseBody, deleteRestCaller.getStatusCode(), 200L);
+        // A stale search still returns a document that this loop already deleted. OpenSearch then
+        // answers 404. The document is gone, so that is a successful delete.
+        checkStatusCode(responseBody, deleteRestCaller.getStatusCode(), 200L, 404L);
       }
     } catch (Exception e) {
       throw new HopException("Error deleting caching file entry from OpenSearch", e);
@@ -514,6 +520,158 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       }
     } catch (Exception e) {
       throw new HopException("Error finding execution ids from OpenSearch", e);
+    }
+  }
+
+  /**
+   * Parent executions to delete. {@code creationDate} is the timestamp this location lists by. A
+   * null cutoff keeps every row the project filter allows. A missing creation date is included when
+   * a cutoff is set. The limit is the caller's page size, not a fixed 50.
+   */
+  static String cleanupSql(String indexName, String projectId, Date olderThan, int limit) {
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT id FROM ").append(indexName).append(" WHERE 1=1 ");
+    String projectClause = projectIdWhereClause(projectId);
+    if (StringUtils.isNotEmpty(projectClause)) {
+      sql.append("AND ").append(projectClause).append(' ');
+    }
+    if (olderThan != null) {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      format.setTimeZone(TimeZone.getTimeZone("UTC"));
+      sql.append("AND (creationDate < datetime('")
+          .append(format.format(olderThan))
+          .append("') OR creationDate IS NULL) ");
+    }
+    int page = limit > 0 ? limit : ExecutionDeleter.PAGE_SIZE;
+    sql.append("ORDER BY creationDate LIMIT ").append(page);
+    return sql.toString();
+  }
+
+  static String sqlRequestBody(String sql) {
+    return "{ \"query\": \"" + jsonEscape(sql) + "\" }";
+  }
+
+  private static String jsonEscape(String value) {
+    return value
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r");
+  }
+
+  /** Index path of a refresh call. The next SQL page must not see documents just deleted. */
+  static String refreshPath(String indexName) {
+    return indexName + "/_refresh";
+  }
+
+  @Override
+  public int deleteExecutions(Date olderThan, IProgressMonitor monitor) throws HopException {
+    int deleted = 0;
+    int failed = 0;
+    HopException firstFailure = null;
+    List<String> previousIds = List.of();
+    while (monitor == null || !monitor.isCanceled()) {
+      String sql =
+          cleanupSql(actualIndexName, getActiveProjectId(), olderThan, ExecutionDeleter.PAGE_SIZE);
+      List<String> ids = queryIds(sql);
+      // The same page twice means the refresh did not move the search view. Stop rather than
+      // delete the same ids until the client runs out of memory.
+      if (ids.isEmpty() || ids.equals(previousIds)) {
+        break;
+      }
+      previousIds = List.copyOf(ids);
+      int removed = 0;
+      for (String id : ids) {
+        if (monitor != null && monitor.isCanceled()) {
+          break;
+        }
+        if (monitor != null) {
+          monitor.subTask("Deleting execution " + (deleted + removed + 1) + ": " + id);
+        }
+        try {
+          CacheEntry entry = cache.remove(id);
+          if (entry == null) {
+            entry = new CacheEntry();
+            entry.setId(id);
+          }
+          deleteCacheEntry(entry);
+          removed++;
+        } catch (Exception e) {
+          failed++;
+          if (firstFailure == null) {
+            firstFailure =
+                new HopException("Error deleting execution " + id + " from OpenSearch", e);
+          }
+        }
+      }
+      deleted += removed;
+      if (removed == 0) {
+        break;
+      }
+      refreshIndex();
+    }
+    ExecutionDeleter.throwIfFailed(deleted, failed, firstFailure);
+    return deleted;
+  }
+
+  /** Make the deletes of the page visible before the next SQL query. */
+  private void refreshIndex() throws HopException {
+    try {
+      URI uri = URI.create(actualUrl);
+      URI refreshUri = uri.resolve(refreshPath(actualIndexName));
+      RestCaller restCaller =
+          new RestCaller(
+              metadataProvider,
+              refreshUri.toString(),
+              actualUsername,
+              actualPassword,
+              "POST",
+              "",
+              ignoreSsl,
+              getHeaders());
+      String responseBody = restCaller.execute();
+      checkStatusCode(responseBody, restCaller.getStatusCode(), 200L);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Error refreshing OpenSearch index " + actualIndexName, e);
+    }
+  }
+
+  private List<String> queryIds(String sql) throws HopException {
+    try {
+      URI uri = URI.create(actualUrl);
+      URI postUri = uri.resolve("_plugins/_sql");
+      RestCaller restCaller =
+          new RestCaller(
+              metadataProvider,
+              postUri.toString(),
+              actualUsername,
+              actualPassword,
+              "POST",
+              sqlRequestBody(sql),
+              ignoreSsl,
+              getHeaders());
+      String responseBody = restCaller.execute();
+      checkStatusCode(responseBody, restCaller.getStatusCode(), 200L, 201L);
+      JSONParser parser = new JSONParser();
+      JSONObject json = (JSONObject) parser.parse(responseBody);
+      JSONArray dataRows = (JSONArray) json.get("datarows");
+      List<String> ids = new ArrayList<>();
+      if (dataRows == null) {
+        return ids;
+      }
+      for (Object row : dataRows) {
+        JSONArray dataRow = (JSONArray) row;
+        if (dataRow != null && !dataRow.isEmpty() && dataRow.get(0) != null) {
+          ids.add(String.valueOf(dataRow.get(0)));
+        }
+      }
+      return ids;
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Error listing executions to delete from OpenSearch", e);
     }
   }
 

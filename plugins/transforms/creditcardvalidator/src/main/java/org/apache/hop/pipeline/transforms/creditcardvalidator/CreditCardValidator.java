@@ -19,7 +19,9 @@ package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -91,6 +93,19 @@ public class CreditCardValidator
       }
       data.realCardTypeFieldname = resolve(meta.getCardType());
       data.realNotValidMsgFieldname = resolve(meta.getNotValidMessage());
+      data.outputFieldMetas.clear();
+      if (meta.isUseBinDatabase()) {
+        for (BinOutputField outputField : meta.getOutputFields()) {
+          String realName = resolve(outputField.getName());
+          if (!Utils.isEmpty(realName)) {
+            try {
+              data.outputFieldMetas.add(outputField.createValueMeta(realName));
+            } catch (Exception e) {
+              throw new HopException(e);
+            }
+          }
+        }
+      }
     } // End If first
 
     Object[] outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
@@ -101,7 +116,12 @@ public class CreditCardValidator
         fieldValue = Const.getDigitsOnly(fieldValue);
       }
 
-      ReturnIndicator rt = CreditCardVerifier.checkCC(fieldValue);
+      ReturnIndicator rt;
+      if (data.binDatabase != null) {
+        rt = CreditCardVerifier.checkCC(fieldValue, data.binDatabase);
+      } else {
+        rt = CreditCardVerifier.checkCC(fieldValue);
+      }
 
       // Check if Card is Valid?
       isValid = rt.CardValid;
@@ -127,10 +147,21 @@ public class CreditCardValidator
       if (!Utils.isEmpty(data.realNotValidMsgFieldname)) {
         outputRow[rowIndex++] = unValid;
       }
+      // add extra output fields?
+      if (meta.isUseBinDatabase() && rt.extraValues != null) {
+        for (int i = 0; i < meta.getOutputFields().size(); i++) {
+          BinOutputField outputField = meta.getOutputFields().get(i);
+          String realName = resolve(outputField.getName());
+          if (!Utils.isEmpty(realName)) {
+            String value = rt.extraValues.get(realName);
+            IValueMeta valueMeta = data.outputFieldMetas.get(i);
+            outputRow[rowIndex++] = convertValue(valueMeta, value);
+          }
+        }
+      }
 
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
-
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
@@ -167,12 +198,51 @@ public class CreditCardValidator
     return true;
   }
 
+  private Object convertValue(IValueMeta valueMeta, String value) throws Exception {
+    if (value == null) {
+      return null;
+    }
+    return valueMeta.convertDataFromString(
+        value, new ValueMetaString(valueMeta.getName()), null, null, valueMeta.getTrimType());
+  }
+
   @Override
   public boolean init() {
     if (super.init()) {
       if (Utils.isEmpty(meta.getResultFieldName())) {
         logError(BaseMessages.getString(PKG, "CreditCardValidator.Error.ResultFieldMissing"));
         return false;
+      }
+      if (meta.isUseBinDatabase()) {
+        String fileName = resolve(meta.getBinFileName());
+        if (Utils.isEmpty(fileName)) {
+          logError(BaseMessages.getString(PKG, "CreditCardValidator.Error.BinFileNameMissing"));
+          return false;
+        }
+        try {
+          data.binDatabase = new BinDatabase();
+          data.binDatabase.load(
+              this,
+              fileName,
+              resolve(meta.getBinCsvColumn()),
+              meta.getOutputFields(),
+              resolve(meta.getBinDelimiter()),
+              resolve(meta.getBinEnclosure()),
+              resolve(meta.getBinEncoding()),
+              meta.isBinHeaderPresent());
+          if (data.binDatabase.getSkippedRows() > 0) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG,
+                    "CreditCardValidator.Log.SkippedBinRows",
+                    data.binDatabase.getSkippedRows()));
+          }
+        } catch (HopException e) {
+          logError(
+              BaseMessages.getString(PKG, "CreditCardValidator.Error.BinDatabaseLoad")
+                  + e.getMessage());
+          return false;
+        }
       }
       return true;
     }

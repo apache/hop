@@ -84,10 +84,10 @@ public class LintSuppressDialog extends Dialog {
 
     createContents();
 
-    shell.setSize(560, 420);
+    shell.setSize(640, 440);
     shell.setLocation(
-        parent.getLocation().x + (parent.getSize().x - 560) / 2,
-        parent.getLocation().y + (parent.getSize().y - 420) / 2);
+        parent.getLocation().x + (parent.getSize().x - 640) / 2,
+        parent.getLocation().y + (parent.getSize().y - 440) / 2);
     shell.open();
 
     Display display = parent.getDisplay();
@@ -102,7 +102,8 @@ public class LintSuppressDialog extends Dialog {
   private void createContents() {
     int margin = 10;
 
-    Label header = new Label(shell, SWT.LEFT);
+    // Wrapped: at the default width the line was cut off before it said where the decision goes.
+    Label header = new Label(shell, SWT.LEFT | SWT.WRAP);
     header.setText(BaseMessages.getString(PKG, "LintSuppressDialog.Label.Element", elementName));
     FormData headerData = new FormData();
     headerData.left = new FormAttachment(0, margin);
@@ -138,10 +139,10 @@ public class LintSuppressDialog extends Dialog {
     allRulesButton.setLayoutData(allRulesData);
 
     listedRulesButton = new Button(shell, SWT.RADIO);
-    listedRulesButton.setText(
-        BaseMessages.getString(PKG, "LintSuppressDialog.Scope.ListedRules", ruleList()));
+    // The rules are listed in the findings above; in the label a long list was cut off.
+    listedRulesButton.setText(BaseMessages.getString(PKG, "LintSuppressDialog.Scope.ListedRules"));
     listedRulesButton.setToolTipText(
-        BaseMessages.getString(PKG, "LintSuppressDialog.Scope.ListedRules.ToolTip"));
+        BaseMessages.getString(PKG, "LintSuppressDialog.Scope.ListedRules.ToolTip", ruleList()));
     listedRulesButton.setEnabled(!ruleIdsOfFindings().isEmpty());
     FormData listedRulesData = new FormData();
     listedRulesData.left = new FormAttachment(0, margin);
@@ -149,9 +150,12 @@ public class LintSuppressDialog extends Dialog {
     listedRulesData.top = new FormAttachment(allRulesButton, margin / 2);
     listedRulesButton.setLayoutData(listedRulesData);
 
-    // Accepting everything on the element is the metadata injection case, which is the reason
-    // this dialog exists; naming the rules is the careful option for anyone who wants it.
-    allRulesButton.setSelection(true);
+    // Naming the rules reported now is the default: ignoring everything on the element also
+    // ignores rules added later, security ones included. That broad option is for an element
+    // filled in at runtime, such as by metadata injection, and it is a deliberate choice.
+    boolean rulesToName = !ruleIdsOfFindings().isEmpty();
+    listedRulesButton.setSelection(rulesToName);
+    allRulesButton.setSelection(!rulesToName);
 
     Label reasonLabel = new Label(shell, SWT.LEFT);
     reasonLabel.setText(BaseMessages.getString(PKG, "LintSuppressDialog.Label.Reason"));

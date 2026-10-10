@@ -59,6 +59,12 @@ limitations under the License.
       <line>
         <item># Title&#10;&#10;Intro line.&#10;&#10;## Section A&#10;&#10;Body A.&#10;&#10;## Section B&#10;&#10;Body B.</item>
       </line>
+      <line>
+        <item>  &#10;&#10; &#9; &#10;</item>
+      </line>
+      <line>
+        <item>alpha                                                                                                                                                                                                                                                                                                                                                                                                                                                                  beta</item>
+      </line>
     </data>
     <fields>
       <field>

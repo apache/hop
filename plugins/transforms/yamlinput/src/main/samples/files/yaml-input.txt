@@ -1,0 +1,5 @@
+engine: hop
+version: 2.20
+pipelines:
+  - name: yaml-input
+    type: sample

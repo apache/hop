@@ -1,0 +1,197 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "Customer",
+      "name": "Customer - City",
+      "description": "",
+      "nodeTarget": "City",
+      "label": "IN_CITY",
+      "properties": []
+    },
+    {
+      "nodeSource": "Customer",
+      "name": "Customer - House",
+      "nodeTarget": "House",
+      "label": "IN_HOUSE",
+      "properties": []
+    },
+    {
+      "nodeSource": "Customer",
+      "name": "Customer - State",
+      "nodeTarget": "State",
+      "label": "IN_STATE",
+      "properties": []
+    },
+    {
+      "nodeSource": "Customer",
+      "name": "Customer - Street",
+      "nodeTarget": "Street",
+      "label": "IN_STREET",
+      "properties": []
+    },
+    {
+      "nodeSource": "Customer",
+      "name": "Customer - Zip",
+      "nodeTarget": "Zip",
+      "label": "IN_ZIP",
+      "properties": []
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 101,
+        "y": 154
+      },
+      "name": "Customer",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "firstname",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "birthdate",
+          "type": "LocalDateTime",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Customer"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 399,
+        "y": 37
+      },
+      "name": "City",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "city",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "City"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 343,
+        "y": 362
+      },
+      "name": "State",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "stateCode",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "state",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "State"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 498,
+        "y": 126
+      },
+      "name": "Street",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "street",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Street"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 495,
+        "y": 259
+      },
+      "name": "House",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "housenr",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "House"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "Zip",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "zip",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Zip"
+      ]
+    }
+  ],
+  "name": "Customers",
+  "description": ""
+}

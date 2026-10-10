@@ -248,7 +248,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       if (serviceAccountKeyFile != null) {
         config.setServiceAccountKeyFile(serviceAccountKeyFile);
         log.logBasic(
-            "The Google Cloud service account JSON jey file is set to '"
+            "Google Cloud Storage: the service account JSON key file is set to '"
                 + serviceAccountKeyFile
                 + "'");
 
@@ -258,81 +258,81 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       if (scanFoldersForLastModifDate != null && scanFoldersForLastModifDate.equals(Boolean.TRUE)) {
         config.setScanFoldersForLastModifDate(scanFoldersForLastModifDate);
         log.logBasic(
-            "Google Cloud Storage service will scan folders for the last file modification time.");
+            "Google Cloud Storage: folders will be scanned for the last file modification time.");
         changed = true;
       }
 
       if (maxAttempts != null) {
         config.setMaxAttempts(maxAttempts);
-        log.logBasic("Google Cloud service max attempts set to " + maxAttempts);
+        log.logBasic("Google Cloud Storage: max attempts set to " + maxAttempts);
         changed = true;
       }
 
       if (initialRetryDelay != null) {
         config.setInitialRetryDelay(initialRetryDelay);
-        log.logBasic("Google Cloud service initialRetryDelay set to " + initialRetryDelay);
+        log.logBasic("Google Cloud Storage: initialRetryDelay set to " + initialRetryDelay);
         changed = true;
       }
 
       if (retryDelayMultiplier != null) {
         config.setRetryDelayMultiplier(retryDelayMultiplier);
-        log.logBasic("Google Cloud service retryDelayMultiplier set to " + retryDelayMultiplier);
+        log.logBasic("Google Cloud Storage: retryDelayMultiplier set to " + retryDelayMultiplier);
         changed = true;
       }
 
       if (maxRetryDelay != null) {
         config.setMaxRetryDelay(maxRetryDelay);
-        log.logBasic("Google Cloud service maxRetryDelay set to " + maxRetryDelay);
+        log.logBasic("Google Cloud Storage: maxRetryDelay set to " + maxRetryDelay);
         changed = true;
       }
 
       if (totalTimeout != null) {
         config.setTotalTimeout(totalTimeout);
-        log.logBasic("Google Cloud service totalTimeout set to " + totalTimeout);
+        log.logBasic("Google Cloud Storage: totalTimeout set to " + totalTimeout);
         changed = true;
       }
 
       if (initialRpcTimeout != null) {
         config.setInitialRpcTimeout(initialRpcTimeout);
-        log.logBasic("Google Cloud service initialRpcTimeout set to " + initialRpcTimeout);
+        log.logBasic("Google Cloud Storage: initialRpcTimeout set to " + initialRpcTimeout);
         changed = true;
       }
 
       if (rpcTimeoutMultiplier != null) {
         config.setRpcTimeoutMultiplier(rpcTimeoutMultiplier);
-        log.logBasic("Google Cloud service rpcTimeoutMultiplier set to " + rpcTimeoutMultiplier);
+        log.logBasic("Google Cloud Storage: rpcTimeoutMultiplier set to " + rpcTimeoutMultiplier);
         changed = true;
       }
 
       if (maxRpcTimeout != null) {
         config.setMaxRpcTimeout(maxRpcTimeout);
-        log.logBasic("Google Cloud service maxRpcTimeout set to " + maxRpcTimeout);
+        log.logBasic("Google Cloud Storage: maxRpcTimeout set to " + maxRpcTimeout);
         changed = true;
       }
 
       if (connectionTimeout != null) {
         config.setConnectionTimeout(connectionTimeout);
-        log.logBasic("Google Cloud service connectionTimeout set to " + connectionTimeout);
+        log.logBasic("Google Cloud Storage: connectionTimeout set to " + connectionTimeout);
         changed = true;
       }
 
       if (readTimeout != null) {
         config.setReadTimeout(readTimeout);
-        log.logBasic("Google Cloud service readTimeout set to " + readTimeout);
+        log.logBasic("Google Cloud Storage: readTimeout set to " + readTimeout);
         changed = true;
       }
 
       if (retryNonIdempotentOperations != null) {
         config.setRetryNonIdempotentOperations(retryNonIdempotentOperations);
         log.logBasic(
-            "Google Cloud service retry of non-idempotent operations set to "
+            "Google Cloud Storage: retry of non-idempotent operations set to "
                 + retryNonIdempotentOperations);
         changed = true;
       }
 
       if (cacheTtlSeconds != null) {
         config.setCacheTtlSeconds(cacheTtlSeconds);
-        log.logBasic("Google Cloud list cache TTL (seconds) set to " + cacheTtlSeconds);
+        log.logBasic("Google Cloud Storage: list cache TTL (seconds) set to " + cacheTtlSeconds);
         changed = true;
       }
 

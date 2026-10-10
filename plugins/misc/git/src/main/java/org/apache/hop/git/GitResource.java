@@ -64,6 +64,7 @@ public class GitResource {
   @Getter private final Image restoreImage;
   @Getter private final Image resetImage;
   @Getter private final Image tagImage;
+  @Getter private final Image revisionImage;
 
   /** Utility class */
   GitResource() {
@@ -114,6 +115,7 @@ public class GitResource {
     remoteImage = getImage("remote.svg");
     restoreImage = getImage("git-restore.svg");
     resetImage = getImage("git-reset.svg");
+    revisionImage = getImage("revision.svg");
     tagImage = getImage("tag.svg");
   }
 

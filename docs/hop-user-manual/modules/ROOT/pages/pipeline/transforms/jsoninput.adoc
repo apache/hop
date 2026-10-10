@@ -40,7 +40,7 @@ Use JSON Input when each column should come from its *own JsonPath* (or you are 
 
 == Examples
 * For example, connect a REST client to a JSON input transform to read JSON into data rows.
-* To read nested JSON elements, use a sequence of JSON Input transforms, where the first JSON Input transform reads the nested element as a String field. In the second JSON Input transform, use the `Source is from a previous transform` option to select the String field you used in the first JSON Input transform to read the information from the nested element. 
+* To read a nested JSON value, use either a String field containing serialized JSON or a JSON-typed field containing a Jackson JSON value. In the next JSON Input transform, enable *Source is from a previous transform* and select that field. Leave *Use field as file names* and *Read source as URL* cleared for direct JSON content. A filename or URL source remains a String field; an arbitrary Java Object is not a supported JSON source.
 
 
 Check the `json-input-nested-elements.hpl` sample in the Samples project for an example.
@@ -116,6 +116,10 @@ Results are not limited when set to zero.
 |Add filenames to result|Select to add processed files to the result file list.
 |===
 
+=== JSONPath tab
+
+*Resolve variables in JSONPath* is enabled by default, including for existing pipelines. Clear it to use every extraction Path literally. This is required for root-array paths such as `$[0].similarity`, whose `$[0]` otherwise has a meaning in Hop variable resolution. Clearing it also disables `${VARIABLE}` substitution inside extraction paths. File and URL settings continue to resolve variables normally.
+
 === Fields Tab
 
 The Fields tab displays field definitions to extract values from the JSON structure.
@@ -156,11 +160,9 @@ Click Select fields from snippet button and paste the entire JSON text and it wi
 For Hop types of Date and Timestamp, use the Format column to specify the incoming format. E.g. for Date: yyyy-MM-dd. You can either select a format from the dropdown or enter format text directly.
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 
-*Examples of Timestamp formats:*
+For Timestamp values, match the fraction width in the Format column. For example, `2025-02-13T02:10:14.746582` uses `yyyy-MM-dd'T'HH:mm:ss.SSSSSS`. Timestamp preserves the six fractional digits; Date has millisecond precision.
 
-* Format: yyyy-MM-dd'T'HH:mm:ss.SSSZ and Result: 2021-10-26T20:51:43.795+0000
-
-* Format: 2024-04-22T00:00:00.000Z and Result: 2024-04-22T00:00:00.000Z
+`XXX` requires an offset such as `Z` or `+02:00` in the input. Do not use `XXX` for a value that contains no offset. A mismatched format must report a conversion error, not silently assume an offset or discard precision.
 
 
 *Regex*
@@ -176,6 +178,12 @@ The aggregation functions provided by JayWay can be used at the end of a Path ex
 *Example Path to retrieve the number of elements of an array:* $.someArray.length()
 
 A function is applied to the value the Path points to. When the Path points to a single value, the function produces a single value and therefore a single output row, even when that value is itself a list, as with `keys()`.
+
+*Object keys and array indexes*
+
+A key containing a dot is one key, not a nested path. Use `$['doc.tipo']` to retrieve its value. The existing `$.keys()` function returns the object's keys as one JSON value; it does not define portable object-member ordering or return a key/value pair by ordinal.
+
+Array indexes address array elements. To select the first key/value pair by position, make the order explicit in the source, for example `[{"name":"doc.tipo","value":"XG"}]`, and use `$[0].name` and `$[0].value` with JsonPath variable resolution disabled. The expressions `$.[0].name()` and `$.[0]` do not define positional access to object members.
 
 When the Path contains a wildcard before the function, the function is applied to every match and produces one row per match. For example, `$.orders[*].lines.length()` returns the number of lines of each order. To aggregate over all matches instead, use a deep scan or pass the Path as a parameter to the function: `$..price.sum()` or `$.sum($.orders[*].price)`. Note that `$.orders[*].price.sum()` does not work: the sum is applied to each single price.
 

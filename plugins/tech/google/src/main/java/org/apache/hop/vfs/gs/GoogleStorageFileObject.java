@@ -93,6 +93,12 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
 
   @Override
   protected void doAttach() throws Exception {
+    try (GoogleStorageObjectContext.Scope ignored = GoogleStorageObjectContext.enter(uri())) {
+      attach();
+    }
+  }
+
+  private void attach() throws Exception {
     Storage storage = getAbstractFileSystem().setupStorage();
     if (!bucketName.isEmpty()) {
       if (this.bucket == null) {
@@ -152,9 +158,24 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     }
     Storage storage = getAbstractFileSystem().setupStorage();
     if (blob != null) {
-      return new ReadChannelInputStream(storage.reader(blob.getBlobId()));
+      return new ReadChannelInputStream(storage.reader(blob.getBlobId()), reading());
     }
-    return new ReadChannelInputStream(storage.reader(BlobId.of(bucketName, bucketPath)));
+    return new ReadChannelInputStream(storage.reader(BlobId.of(bucketName, bucketPath)), reading());
+  }
+
+  /** How this object is named in the retry and stall log. */
+  private String uri() {
+    return getName().getFriendlyURI();
+  }
+
+  private GoogleStorageStallWatchdog.Transfer reading() throws IOException {
+    return GoogleStorageStallWatchdog.getInstance()
+        .reading(uri(), getAbstractFileSystem().stallLimits());
+  }
+
+  private GoogleStorageStallWatchdog.Transfer writing() throws IOException {
+    return GoogleStorageStallWatchdog.getInstance()
+        .writing(uri(), getAbstractFileSystem().stallLimits());
   }
 
   @Override
@@ -357,7 +378,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       this.blob = storage.create(BlobInfo.newBuilder(bucket, objectName).build());
     }
     getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
-    return new WriteChannelOutputStream(storage.writer(blob));
+    return new WriteChannelOutputStream(storage.writer(blob), writing());
   }
 
   /**
@@ -366,12 +387,14 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
    * target. See <a href="https://cloud.google.com/storage/docs/composite-objects#appends">GCS
    * appends</a>.
    */
-  private OutputStream openComposeAppendStream(Storage storage, Blob current, String objectName) {
+  private OutputStream openComposeAppendStream(Storage storage, Blob current, String objectName)
+      throws IOException {
     String tempName = objectName + ".hop-append-" + UUID.randomUUID() + ".tmp";
+    GoogleStorageStallWatchdog.Transfer transfer = writing();
     WriteChannel tempChannel = storage.writer(BlobInfo.newBuilder(bucketName, tempName).build());
     getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
     return new ComposeAppendOutputStream(
-        storage, bucketName, objectName, tempName, current.getGeneration(), tempChannel);
+        storage, bucketName, objectName, tempName, current.getGeneration(), tempChannel, transfer);
   }
 
   @Override
@@ -482,7 +505,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     return Objects.hash(getName().getPath());
   }
 
-  private OffsetDateTime getLatestModifiedFileTime() {
+  private OffsetDateTime getLatestModifiedFileTime() throws IOException {
     Storage storage = getAbstractFileSystem().setupStorage();
     OffsetDateTime latest = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
     Page<Blob> page =

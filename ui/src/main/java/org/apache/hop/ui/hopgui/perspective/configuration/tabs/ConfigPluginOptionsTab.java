@@ -145,6 +145,20 @@ public class ConfigPluginOptionsTab {
   }
 
   /**
+   * Let a plugin that listens to its widgets save changes, and tell it the widgets are filled.
+   * Filling the widgets fires no events, so without that call the plugin cannot set up which
+   * widgets are enabled until the user changes something.
+   */
+  static void attachWidgetsListener(GuiCompositeWidgets compositeWidgets, Object pluginSourceData) {
+    if (pluginSourceData instanceof IGuiPluginCompositeWidgetsListener listener) {
+      // This listener saves the changed values immediately, so we don't have to worry about that.
+      //
+      compositeWidgets.setWidgetsListener(listener);
+      listener.widgetsPopulated(compositeWidgets);
+    }
+  }
+
+  /**
    * Show settings for a specific plugin. This is called from the tree selection in
    * ConfigurationPerspective.
    */
@@ -181,12 +195,7 @@ public class ConfigPluginOptionsTab {
     compositeWidgets.createCompositeWidgets(
         pluginSourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
     compositeWidgets.setWidgetsContents(pluginSourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);
-    if (pluginSourceData
-        instanceof IGuiPluginCompositeWidgetsListener iGuiPluginCompositeWidgetsListener) {
-      // This listener saves the changed values immediately, so we don't have to worry about that.
-      //
-      compositeWidgets.setWidgetsListener(iGuiPluginCompositeWidgetsListener);
-    }
+    attachWidgetsListener(compositeWidgets, pluginSourceData);
 
     wPluginsComp.layout();
     wPluginsComp.pack();

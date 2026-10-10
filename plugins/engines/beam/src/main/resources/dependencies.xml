@@ -17,6 +17,7 @@
   -->
 
 <dependencies>
+    <folder>../../transforms/addsequence</folder>
     <folder>../../transforms/constant</folder>
     <folder>../../transforms/filterrows</folder>
     <folder>../../transforms/groupby</folder>

@@ -28,10 +28,12 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.GraphPropertyType;
+import org.apache.hop.neo4j.shared.CypherConnectionSelectionLine;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NeoConnectionSelectionLine;
+import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.neo4j.transforms.output.fields.LabelField;
 import org.apache.hop.neo4j.transforms.output.fields.NodeFromField;
 import org.apache.hop.neo4j.transforms.output.fields.NodeToField;
@@ -44,7 +46,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -74,7 +75,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
 
   private Neo4JOutputMeta input;
 
-  private MetaSelectionLine<NeoConnection> wConnection;
+  private NeoConnectionSelectionLine wConnection;
   private Label wlBatchSize;
   private TextVar wBatchSize;
   private Label wlCreateIndexes;
@@ -147,14 +148,13 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     Control lastControl = wSpacer;
 
     wConnection =
-        new MetaSelectionLine<>(
+        new CypherConnectionSelectionLine(
             variables,
             metadataProvider,
-            NeoConnection.class,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            "Neo4j Connection",
-            "The name of the Neo4j connection to use");
+            "Graph database connection",
+            "The name of the graph database connection to use");
     PropsUi.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();
@@ -1059,9 +1059,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     // Verify that the defined connection is available
     //
     try {
-      IHopMetadataSerializer<NeoConnection> connectionSerializer =
-          metadataProvider.getSerializer(NeoConnection.class);
-      NeoConnection connection = connectionSerializer.load(input.getConnection());
+      NeoConnection connection =
+          NeoConnectionUtils.loadConnection(metadataProvider, input.getConnection());
       if (connection == null) {
         message.append(Const.CR);
         message.append(

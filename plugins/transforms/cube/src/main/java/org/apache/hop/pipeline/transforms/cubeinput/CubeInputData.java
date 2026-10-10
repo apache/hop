@@ -32,6 +32,12 @@ public class CubeInputData extends BaseTransformData implements ITransformData {
 
   public IRowMeta meta;
 
+  /**
+   * File whose layout {@link #meta} was read from. Every file opened after that, including the
+   * first name from a field, is compared with it.
+   */
+  public String referenceFilename;
+
   public CubeInputData() {
     super();
   }

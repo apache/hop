@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "CustomerFirstname",
+          "data_set_field": "firstname"
+        },
+        {
+          "transform_field": "CustomerId",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "CustomerName",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "rename",
+      "data_set_name": "customers"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-cypher-unwind-create-read-validation",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-cypher-unwind/neo4j-cypher-unwind-create-read-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

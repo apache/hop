@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -37,8 +39,10 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.perspective.database.DatabaseWorkbenchDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -80,6 +84,9 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
 
   private Button wAddCreate;
 
+  private Label wlDoNotAddInsertStmt;
+  private Button wDoNotAddInsertStmt;
+
   private TextVar wFilename;
 
   private TextVar wExtension;
@@ -105,6 +112,12 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
   private Button wDoNotOpenNewFileInit;
 
   private final SQLFileOutputMeta input;
+
+  private TableView wFields;
+
+  private Button wSpecifyFields;
+
+  private Button wGet;
 
   public SQLFileOutputDialog(
       Shell parent,
@@ -267,6 +280,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateTruncate();
+            activateDoNotAddInsertStmt();
             input.setChanged();
           }
         };
@@ -299,13 +313,40 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
         };
     wTruncate.addSelectionListener(lsSelTMod);
 
+    // Do not create insert statements
+    wlDoNotAddInsertStmt = new Label(wFileName, SWT.RIGHT);
+    wlDoNotAddInsertStmt.setText(
+        BaseMessages.getString(PKG, "SQLFileOutputDialog.DoNotAddInsertStatements.Label"));
+    PropsUi.setLook(wlDoNotAddInsertStmt);
+    FormData fdlDoNotAddInsertStmt = new FormData();
+    fdlDoNotAddInsertStmt.left = new FormAttachment(0, 0);
+    fdlDoNotAddInsertStmt.top = new FormAttachment(wTruncate, margin);
+    fdlDoNotAddInsertStmt.right = new FormAttachment(middle, -margin);
+    wlDoNotAddInsertStmt.setLayoutData(fdlDoNotAddInsertStmt);
+    wDoNotAddInsertStmt = new Button(wFileName, SWT.CHECK);
+    wDoNotAddInsertStmt.setToolTipText(
+        BaseMessages.getString(PKG, "SQLFileOutputDialog.DoNotAddInsertStatements.Tooltip"));
+    PropsUi.setLook(wDoNotAddInsertStmt);
+    FormData fdDoNotAddInsertStmt = new FormData();
+    fdDoNotAddInsertStmt.left = new FormAttachment(middle, 0);
+    fdDoNotAddInsertStmt.top = new FormAttachment(wlDoNotAddInsertStmt, 0, SWT.CENTER);
+    fdDoNotAddInsertStmt.right = new FormAttachment(100, 0);
+    wDoNotAddInsertStmt.setLayoutData(fdDoNotAddInsertStmt);
+    wDoNotAddInsertStmt.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+
     // Start New Line For each statement
     Label wlStartNewLine = new Label(wFileName, SWT.RIGHT);
     wlStartNewLine.setText(BaseMessages.getString(PKG, "SQLFileOutputDialog.StartNewLine.Label"));
     PropsUi.setLook(wlStartNewLine);
     FormData fdlStartNewLine = new FormData();
     fdlStartNewLine.left = new FormAttachment(0, 0);
-    fdlStartNewLine.top = new FormAttachment(wTruncate, margin);
+    fdlStartNewLine.top = new FormAttachment(wDoNotAddInsertStmt, margin);
     fdlStartNewLine.right = new FormAttachment(middle, -margin);
     wlStartNewLine.setLayoutData(fdlStartNewLine);
     wStartNewLine = new Button(wFileName, SWT.CHECK);
@@ -645,11 +686,27 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
+    Group wGFormatEncodage = new Group(wContentComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wGFormatEncodage);
+    wGFormatEncodage.setText(
+        BaseMessages.getString(PKG, "SQLFileOutputDialog.Group.FormatEncodageInfos.Label"));
+
+    FormLayout groupFormatEncodageLayout = new FormLayout();
+    groupFormatEncodageLayout.marginWidth = 10;
+    groupFormatEncodageLayout.marginHeight = 10;
+    wGFormatEncodage.setLayout(groupFormatEncodageLayout);
+
+    FormData fdGFormatEncodage = new FormData();
+    fdGFormatEncodage.left = new FormAttachment(0, margin);
+    fdGFormatEncodage.top = new FormAttachment(0, margin);
+    fdGFormatEncodage.right = new FormAttachment(100, -margin);
+    wGFormatEncodage.setLayoutData(fdGFormatEncodage);
+
     // Prepare a list of possible formats...
     String[] dats = Const.getDateFormats();
 
     // format
-    Label wlFormat = new Label(wContentComp, SWT.RIGHT);
+    Label wlFormat = new Label(wGFormatEncodage, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "SQLFileOutputDialog.DateFormat.Label"));
     PropsUi.setLook(wlFormat);
     FormData fdlFormat = new FormData();
@@ -657,7 +714,8 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdlFormat.top = new FormAttachment(0, margin);
     fdlFormat.right = new FormAttachment(middle, -margin);
     wlFormat.setLayoutData(fdlFormat);
-    wFormat = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
+
+    wFormat = new CCombo(wGFormatEncodage, SWT.BORDER | SWT.READ_ONLY);
     wFormat.setEditable(true);
     PropsUi.setLook(wFormat);
     wFormat.addModifyListener(lsMod);
@@ -672,7 +730,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     }
 
     // Encoding
-    Label wlEncoding = new Label(wContentComp, SWT.RIGHT);
+    Label wlEncoding = new Label(wGFormatEncodage, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "SQLFileOutputDialog.Encoding.Label"));
     PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
@@ -680,7 +738,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdlEncoding.top = new FormAttachment(wFormat, margin);
     fdlEncoding.right = new FormAttachment(middle, -margin);
     wlEncoding.setLayoutData(fdlEncoding);
-    wEncoding = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
+    wEncoding = new CCombo(wGFormatEncodage, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
     PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
@@ -705,6 +763,83 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
             busy.dispose();
           }
         });
+
+    // Specify table fields
+    wSpecifyFields = new Button(wContentComp, SWT.CHECK);
+    wSpecifyFields.setText(
+        BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.SpecifyTableFields"));
+    PropsUi.setLook(wSpecifyFields);
+    FormData fdSpecifyFields = new FormData();
+    fdSpecifyFields.left = new FormAttachment(0, margin);
+    fdSpecifyFields.top = new FormAttachment(wGFormatEncodage, margin);
+    wSpecifyFields.setLayoutData(fdSpecifyFields);
+    wSpecifyFields.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            activateFieldsTable();
+            input.setChanged();
+          }
+        });
+
+    Group wGFields = new Group(wContentComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wGFields);
+    wGFields.setText(BaseMessages.getString(PKG, "SQLFileOutputMeta.Group.SelectFields"));
+
+    FormLayout groupFieldsLayout = new FormLayout();
+    groupFieldsLayout.marginWidth = 10;
+    groupFieldsLayout.marginHeight = 10;
+    wGFields.setLayout(groupFieldsLayout);
+
+    FormData fdGFields = new FormData();
+    fdGFields.left = new FormAttachment(0, margin);
+    fdGFields.top = new FormAttachment(wSpecifyFields, margin);
+    fdGFields.right = new FormAttachment(100, -margin);
+    fdGFields.bottom = new FormAttachment(100, -margin);
+    wGFields.setLayoutData(fdGFields);
+
+    wGet = new Button(wGFields, SWT.PUSH);
+    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
+    PropsUi.setLook(wGet);
+    FormData fdGet = new FormData();
+    fdGet.left = new FormAttachment(0, 0);
+    fdGet.bottom = new FormAttachment(100, 0);
+    wGet.setLayoutData(fdGet);
+    wGet.addListener(SWT.Selection, e -> get());
+
+    // Select fields table
+    ColumnInfo[] colinf =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.Fieldname"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.Loading")},
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.RenameTo"),
+              ColumnInfo.COLUMN_TYPE_TEXT)
+        };
+
+    colinf[0].setWidth(150); // width for "Name"
+    colinf[1].setWidth(100); // width for "Rename"
+
+    int nrFields = 0;
+    wFields =
+        new TableView(
+            variables,
+            wGFields,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            colinf,
+            nrFields,
+            null,
+            props);
+
+    FormData fdFields = new FormData();
+    fdFields.left = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(0, 0);
+    fdFields.right = new FormAttachment(100, 0);
+    fdFields.bottom = new FormAttachment(wGet, -margin);
+    wFields.setLayoutData(fdFields);
 
     wContentComp.setLayoutData(wContentComp);
     wContentComp.layout();
@@ -745,11 +880,33 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
 
     getData();
     activateTruncate();
+    activateDoNotAddInsertStmt();
+
+    try {
+      IRowMeta prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (prevFields != null) {
+        colinf[0].setComboValues(prevFields.getFieldNames());
+      }
+    } catch (HopException ke) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
+          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          ke);
+    }
+
     input.setChanged(changed);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void activateFieldsTable() {
+    boolean specify = wSpecifyFields.getSelection();
+    wFields.setEnabled(specify);
+    wFields.table.setEnabled(specify);
+    wGet.setEnabled(specify);
   }
 
   private void activateTruncate() {
@@ -758,6 +915,15 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     wTruncate.setEnabled(!wAddCreate.getSelection());
     if (wAddCreate.getSelection()) {
       wTruncate.setSelection(false);
+    }
+  }
+
+  private void activateDoNotAddInsertStmt() {
+    boolean createTable = wAddCreate.getSelection();
+    wlDoNotAddInsertStmt.setEnabled(createTable);
+    wDoNotAddInsertStmt.setEnabled(createTable);
+    if (!createTable) {
+      wDoNotAddInsertStmt.setSelection(false);
     }
   }
 
@@ -803,6 +969,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     wAddTransformNr.setSelection(input.getFile().isTransformNrInFilename());
 
     wTruncate.setSelection(input.isTruncateTable());
+    wDoNotAddInsertStmt.setSelection(input.isDoNotAddInsertStatements());
     wAddCreate.setSelection(input.isCreateTable());
 
     if (input.getEncoding() != null) {
@@ -811,6 +978,18 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     wAddToResult.setSelection(input.isAddToResult());
     wStartNewLine.setSelection(input.isStartNewLine());
     wDoNotOpenNewFileInit.setSelection(input.getFile().isDoNotOpenNewFileInit());
+
+    if (input.getSqlFileOutputFields() != null && !input.getSqlFileOutputFields().isEmpty()) {
+      wFields.table.removeAll();
+      for (SQLFileOutputField field : input.getSqlFileOutputFields()) {
+        wFields.add(Const.NVL(field.getName(), ""), Const.NVL(field.getRename(), ""));
+      }
+    }
+    wFields.setRowNums();
+    wFields.optWidth(true);
+
+    wSpecifyFields.setSelection(input.isSpecifyFields());
+    activateFieldsTable();
   }
 
   private void cancel() {
@@ -824,6 +1003,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     info.setTableName(wTable.getText());
     info.setConnection(wConnection.getText());
     info.setTruncateTable(wTruncate.getSelection());
+    info.setDoNotAddInsertStatements(wDoNotAddInsertStmt.getSelection());
     info.getFile().setCreateParentFolder(wCreateParentFolder.getSelection());
 
     info.setCreateTable(wAddCreate.getSelection());
@@ -841,6 +1021,20 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     info.setAddToResult(wAddToResult.getSelection());
     info.setStartNewLine(wStartNewLine.getSelection());
     info.getFile().setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+    info.setSpecifyFields(wSpecifyFields.getSelection());
+
+    int nrFields = wFields.nrNonEmpty();
+    List<SQLFileOutputField> targetFields = new ArrayList<>();
+    for (int i = 0; i < nrFields; i++) {
+      org.eclipse.swt.widgets.TableItem item = wFields.getNonEmpty(i);
+
+      SQLFileOutputField field = new SQLFileOutputField();
+      field.setName(item.getText(1)); // get column 1 (Fieldname)
+      field.setRename(item.getText(2)); // get column 2 (Rename to)
+
+      targetFields.add(field);
+    }
+    info.setSqlFileOutputFields(targetFields);
   }
 
   private void ok() {
@@ -921,6 +1115,32 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "SQLFileOutputDialog.ConnectionError2.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.open();
+    }
+  }
+
+  private void get() {
+    try {
+      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (r != null && !r.isEmpty()) {
+        BaseTransformDialog.getFieldsFromPrevious(
+            r,
+            wFields,
+            1,
+            new int[] {1}, // Only fill the Name column, Rename stays empty unless set by the user
+            new int[] {},
+            -1,
+            -1,
+            null);
+
+        wSpecifyFields.setSelection(true);
+        activateFieldsTable();
+      }
+    } catch (HopException ke) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
+          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          ke);
     }
   }
 

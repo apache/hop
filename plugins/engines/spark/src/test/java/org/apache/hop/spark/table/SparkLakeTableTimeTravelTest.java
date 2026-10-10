@@ -29,6 +29,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -36,8 +38,6 @@ import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -108,7 +108,7 @@ class SparkLakeTableTimeTravelTest {
         readLake(
             tablePath.toString(),
             SparkLakeFormats.FORMAT_DELTA,
-            SparkLakeTableInputMeta.TIME_TRAVEL_VERSION,
+            LakeTableInputMeta.TIME_TRAVEL_VERSION,
             "0"));
   }
 
@@ -151,14 +151,14 @@ class SparkLakeTableTimeTravelTest {
         readLake(
             tablePath.toString(),
             SparkLakeFormats.FORMAT_ICEBERG,
-            SparkLakeTableInputMeta.TIME_TRAVEL_VERSION,
+            LakeTableInputMeta.TIME_TRAVEL_VERSION,
             Long.toString(firstSnap)));
   }
 
   private void writeLake(String path, String format, Dataset<Row> data) throws Exception {
-    SparkLakeTableOutputMeta outMeta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta outMeta = new LakeTableOutputMeta();
     outMeta.setFormat(format);
-    outMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    outMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     outMeta.setTablePath(path);
     outMeta.setSaveMode(SparkFileOutputMeta.MODE_OVERWRITE);
 
@@ -187,9 +187,9 @@ class SparkLakeTableTimeTravelTest {
 
   private long readLake(String path, String format, String ttType, String version)
       throws Exception {
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(format);
-    inMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    inMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     inMeta.setTablePath(path);
     if (ttType != null) {
       inMeta.setTimeTravelType(ttType);

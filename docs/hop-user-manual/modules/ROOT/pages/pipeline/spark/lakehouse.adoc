@@ -160,13 +160,15 @@ Hop’s `LakeSessionPlan` scans Lake Table transforms before the session is used
 |`spark.sql.extensions` includes `io.delta.sql.DeltaSparkSessionExtension` **and** `spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog`
 
 |Any Iceberg PATH use
-|Iceberg extensions + built-in Hadoop catalog **`hop_iceberg`** (`type=hadoop`, warehouse under tmp)
+|Iceberg extensions + a Hadoop catalog per table folder, **`hop_iceberg_<hash>`** (`type=hadoop`, warehouse = the folder that holds the table)
 
 |Iceberg TABLE
 |`spark.sql.catalog.<name>=org.apache.iceberg.spark.SparkCatalog` (+ `type`, `warehouse` / `uri`, …) from xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata
 |===
 
-IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, not only the extension. Iceberg bare `format("iceberg").load(path)` is **not** used — it defaults toward HiveCatalog and fails without HMS. PATH mode uses `hop_iceberg.\`file:///…\`` (or equivalent URI) instead.
+IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, not only the extension. Iceberg bare `format("iceberg").load(path)` is **not** used — it defaults toward HiveCatalog and fails without HMS. PATH mode uses `hop_iceberg_<hash>.\`<table>\``, where the catalog's warehouse is the table's parent folder, so the table is read and written at its path.
+
+NOTE: Before Hop 2.20, Iceberg PATH tables written by the Spark engine were stored under `<java.io.tmpdir>/hop-iceberg-path-catalog-warehouse/` instead of at the table path. To keep such a table, copy its folder from there (it is in a sub-folder named after the full table URI) to the table path before running the pipeline with Hop 2.20 or later.
 
 [[path-vs-table]]
 == PATH vs TABLE
@@ -198,8 +200,8 @@ IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, no
 | `format("delta").mode(…).save(path)`
 
 | **Iceberg**
-| SQL over `hop_iceberg.uri`
-| `writeTo(hop_iceberg.uri).using("iceberg")`
+| SQL over `hop_iceberg_<hash>.table`
+| `writeTo(hop_iceberg_<hash>.table).using("iceberg")`
 
 |===
 
@@ -290,7 +292,7 @@ Standalone *Spark lake table maintenance*:
 |`spark_catalog` must be `DeltaCatalog` when using Delta (hop-run sets this when Delta transforms are present)
 
 |Iceberg PATH fails with HiveCatalog / HMS
-|Do not use bare `format("iceberg")` outside Hop; ensure Iceberg transforms run under hop-run so `hop_iceberg` is registered, or pass equivalent conf on submit
+|Do not use bare `format("iceberg")` outside Hop; ensure Iceberg transforms run under hop-run so the per-folder `hop_iceberg_<hash>` catalogs are registered
 
 |TABLE unresolved
 |Spark Catalog metadata exported? Catalog name matches the first segment of `catalog.ns.table`? Warehouse / URI reachable from driver and executors?

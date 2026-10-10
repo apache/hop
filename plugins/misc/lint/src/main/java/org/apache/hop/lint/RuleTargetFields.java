@@ -89,11 +89,7 @@ public class RuleTargetFields {
             "servername",
             "dataTablespace",
             "indexTablespace",
-            "attributes",
-            "connectionPoolingParameters",
-            "partitioningInformation",
-            "maxConnectionPoolSize",
-            "initialPoolSize"));
+            "attributes"));
 
     // Transform fields
     TARGET_FIELDS.put(
@@ -104,11 +100,8 @@ public class RuleTargetFields {
             "pluginId",
             "copies",
             "distributes",
-            "location",
-            "selected",
             "errorHandling",
             "targetTransforms",
-            "isStart",
             "isDummy",
             "isOrphaned",
             "isBlockingTransform",
@@ -126,8 +119,6 @@ public class RuleTargetFields {
             "name",
             "description",
             "pluginId",
-            "location",
-            "selected",
             "errorHandling",
             "targetActions",
             "isStart",
@@ -182,6 +173,16 @@ public class RuleTargetFields {
         return "Credential field (checks all credential-related fields in transforms/actions)";
       case "username":
         return "Database connection username";
+      case "databaseType":
+        return "Database type, the plugin id such as POSTGRESQL";
+      case "attributes":
+        return "Connection attributes, extra options included";
+      case "errorHandling":
+        return "Whether errors go to an error hop (transform) or a failure hop (action)";
+      case "targetTransforms":
+        return "Names of the transforms this transform sends rows to";
+      case "targetActions":
+        return "Names of the actions this action leads to";
       case "apiKey":
         return "API key field";
       case "token":
@@ -206,6 +207,7 @@ public class RuleTargetFields {
     } else if (isFlagName(field)
         || field.equals("enabled")
         || field.equals("distributes")
+        || field.equals("errorHandling")
         || field.equals("unconditional")
         || field.equals("evaluation")) {
       // Boolean fields
@@ -214,7 +216,10 @@ public class RuleTargetFields {
         || field.equals("actions")
         || field.equals("hops")
         || field.equals("parameters")
-        || field.equals("variables")) {
+        || field.equals("variables")
+        || field.equals("attributes")
+        || field.equals("targetTransforms")
+        || field.equals("targetActions")) {
       // Collection fields
       return Arrays.asList(
           RuleCondition.NOT_EMPTY_COLLECTION,
@@ -225,6 +230,7 @@ public class RuleTargetFields {
       return Arrays.asList(
           RuleCondition.NOT_EMPTY,
           RuleCondition.NOT_NULL,
+          RuleCondition.IS_EMPTY,
           RuleCondition.NO_HARDCODED,
           RuleCondition.MATCHES_PATTERN,
           RuleCondition.NOT_MATCHES_PATTERN,

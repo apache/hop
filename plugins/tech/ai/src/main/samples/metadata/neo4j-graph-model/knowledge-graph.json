@@ -1,0 +1,75 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "Entity",
+      "name": "RELATED_TO",
+      "description": "A relationship the Extract graph transform read between two entities. Its type is a property.",
+      "nodeTarget": "Entity",
+      "label": "RELATED_TO",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "description": "The relationship type, for example WORKED_WITH",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "description",
+          "description": "One sentence about the relationship",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 300,
+        "y": 200
+      },
+      "name": "Entity",
+      "description": "An entity the Extract graph transform read from a text. Its type is a property.",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "name",
+          "description": "The name of the entity, as the text names it",
+          "type": "String",
+          "mandatory": true,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "description": "The entity type, for example Person",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "description",
+          "description": "One sentence about the entity",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Entity"
+      ]
+    }
+  ],
+  "name": "knowledge-graph",
+  "description": "A generic knowledge graph for the Extract graph transform: one Entity node and one RELATED_TO relationship, with the types as properties."
+}

@@ -191,8 +191,18 @@ class BaseGuiContextHandlerFilterTest {
     }
   }
 
-  /** {@code getInstance()} returns null and the context does not hold this plugin. */
+  /**
+   * {@code getInstance()} returns null and this plugin has no zero-arg constructor, so the filter
+   * cannot be created.
+   */
   public static final class NullPlugin {
+    @SuppressWarnings("unused")
+    private final int marker;
+
+    private NullPlugin(int marker) {
+      this.marker = marker;
+    }
+
     public static NullPlugin getInstance() {
       return null;
     }
@@ -241,9 +251,19 @@ class BaseGuiContextHandlerFilterTest {
     }
   }
 
-  /** {@code getInstance()} returns null. Preparing the menu must not call it once per action. */
+  /**
+   * {@code getInstance()} returns null and there is no zero-arg constructor. Preparing the menu
+   * calls that lookup once.
+   */
   public static final class CountingPlugin {
     static int lookups;
+
+    @SuppressWarnings("unused")
+    private final int marker;
+
+    private CountingPlugin(int marker) {
+      this.marker = marker;
+    }
 
     public static CountingPlugin getInstance() {
       lookups++;

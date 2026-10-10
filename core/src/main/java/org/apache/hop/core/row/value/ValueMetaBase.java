@@ -388,6 +388,7 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
         }
+        valueMeta.setIndex(index);
         break;
 
       case STORAGE_TYPE_BINARY_STRING:
@@ -443,6 +444,12 @@ public class ValueMetaBase implements IValueMeta {
     }
     valueMeta.setLenientStringToNumber(
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "lenient_string_to_number")));
+    // Absent on metadata written before string encoding was stored. Leaving it unset keeps the
+    // previous "no encoding" behavior.
+    String stringEncoding = XmlHandler.getTagValue(node, "string_encoding");
+    if (!Utils.isEmpty(stringEncoding)) {
+      valueMeta.setStringEncoding(stringEncoding);
+    }
   }
 
   /**
@@ -4024,6 +4031,9 @@ public class ValueMetaBase implements IValueMeta {
             "date_format_timezone",
             dateFormatTimeZone != null ? dateFormatTimeZone.getID() : null));
     xml.append(XmlHandler.addTagValue("lenient_string_to_number", lenientStringToNumber));
+    if (!Utils.isEmpty(stringEncoding)) {
+      xml.append(XmlHandler.addTagValue("string_encoding", stringEncoding));
+    }
 
     xml.append(XmlHandler.closeTag(XML_META_TAG));
 
@@ -4491,7 +4501,7 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_NONE, TYPE_STRING -> meta2.getString(data2);
       case TYPE_NUMBER -> meta2.getNumber(data2);
       case TYPE_INTEGER -> meta2.getInteger(data2);
-      case TYPE_DATE -> meta2.getDate(data2);
+      case TYPE_DATE -> toDate(meta2.getDate(data2));
       case TYPE_BIGNUMBER -> meta2.getBigNumber(data2);
       case TYPE_BOOLEAN -> meta2.getBoolean(data2);
       case TYPE_BINARY -> meta2.getBinary(data2);
@@ -4515,13 +4525,25 @@ public class ValueMetaBase implements IValueMeta {
       case TYPE_STRING -> meta2.getCompatibleString(data2);
       case TYPE_NUMBER -> meta2.getNumber(data2);
       case TYPE_INTEGER -> meta2.getInteger(data2);
-      case TYPE_DATE -> meta2.getDate(data2);
+      case TYPE_DATE -> toDate(meta2.getDate(data2));
       case TYPE_BIGNUMBER -> meta2.getBigNumber(data2);
       case TYPE_BOOLEAN -> meta2.getBoolean(data2);
       case TYPE_BINARY -> meta2.getBinary(data2);
       case TYPE_JSON -> meta2.getJson(data2);
       default -> throw new HopValueException(this + CONST_CANNOT_CONVERT + getType());
     };
+  }
+
+  /**
+   * A conversion to Date must not keep a {@link java.sql.Timestamp} or {@link java.sql.Date}. Both
+   * extend {@link Date}, and JDBC treats those subclasses differently. An instance that is already
+   * a plain {@code Date} is returned as-is. Timestamp fields do not use this method.
+   */
+  private static Date toDate(Date date) {
+    if (date == null || date.getClass() == Date.class) {
+      return date;
+    }
+    return new Date(date.getTime());
   }
 
   /**
@@ -4800,9 +4822,9 @@ public class ValueMetaBase implements IValueMeta {
         // If there are no encodings set, then we're certain we don't have to
         // convert as well.
         //
-        if (getStringEncoding() != null
-                && getStringEncoding().equals(storageMetadata.getStringEncoding())
-            || getStringEncoding() == null && storageMetadata.getStringEncoding() == null) {
+        if ((getStringEncoding() != null
+                && getStringEncoding().equals(storageMetadata.getStringEncoding()))
+            || (getStringEncoding() == null && storageMetadata.getStringEncoding() == null)) {
 
           // However, perhaps the conversion mask changed since we read the
           // binary string?
@@ -4856,7 +4878,15 @@ public class ValueMetaBase implements IValueMeta {
             } else {
               identicalFormat = false;
             }
+          } else {
+            // String and the other non-numeric types: matching encodings mean the stored bytes
+            // already have this field's format.
+            identicalFormat = true;
           }
+        } else {
+          // The bytes were stored in another encoding, so they have to be decoded with the storage
+          // metadata before this field can use them.
+          identicalFormat = false;
         }
       }
     }

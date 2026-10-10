@@ -18,8 +18,11 @@
 package org.apache.hop.spark.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +32,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lakehouse.transforms.LakeTableInputMeta;
+import org.apache.hop.lakehouse.transforms.LakeTableOutputMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -36,8 +41,6 @@ import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
-import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -80,11 +83,26 @@ class SparkLakeTableIcebergPathTest {
 
   @Test
   void icebergPathOutputThenInputRoundTrip() throws Exception {
+    roundTrip(tempDir.resolve("orders_iceberg"));
+  }
+
+  /**
+   * A folder with spaces: the path reaches Spark escaped ({@code my%20lake}), and Hadoop doesn't
+   * treat {@code %} as an escape, so without decoding the table would land in a folder literally
+   * named {@code my%20lake}.
+   */
+  @Test
+  void icebergPathWithSpacesIsWrittenThere() throws Exception {
+    Path tablePath = tempDir.resolve("my lake").resolve("my orders");
+    roundTrip(tablePath);
+    assertFalse(Files.exists(tempDir.resolve("my%20lake")), "no folder with an escaped name");
+  }
+
+  private void roundTrip(Path tablePath) throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
         "Iceberg connector not on classpath; connectors missing from test classpath");
 
-    Path tablePath = tempDir.resolve("orders_iceberg");
     Path warehouse = tempDir.resolve("iceberg_wh");
     spark =
         SparkSession.builder()
@@ -106,9 +124,9 @@ class SparkLakeTableIcebergPathTest {
 
     Dataset<Row> source = spark.range(0, 18).toDF("id");
 
-    SparkLakeTableOutputMeta outMeta = new SparkLakeTableOutputMeta();
+    LakeTableOutputMeta outMeta = new LakeTableOutputMeta();
     outMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    outMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    outMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     outMeta.setTablePath(tablePath.toString());
     outMeta.setSaveMode(SparkFileOutputMeta.MODE_OVERWRITE);
 
@@ -135,10 +153,15 @@ class SparkLakeTableIcebergPathTest {
             source);
 
     assertEquals(0, map.get("ice_out").count());
+    // The table is written at its path, not under a catalog warehouse elsewhere.
+    assertTrue(
+        Files.exists(tablePath.resolve("metadata/version-hint.text")),
+        "Iceberg metadata is written under the table path");
+    assertFalse(Files.exists(warehouse), "nothing is written to the hop_iceberg warehouse");
 
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
-    inMeta.setIdentifierMode(SparkLakeTableInputMeta.MODE_PATH);
+    inMeta.setIdentifierMode(LakeTableInputMeta.MODE_PATH);
     inMeta.setTablePath(tablePath.toString());
 
     TransformMeta inTm = new TransformMeta("ice_in", inMeta);
@@ -166,7 +189,7 @@ class SparkLakeTableIcebergPathTest {
 
   @Test
   void lakeSessionPlanCollectsIcebergFormat() throws Exception {
-    SparkLakeTableInputMeta inMeta = new SparkLakeTableInputMeta();
+    LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);
     inMeta.setTablePath("/tmp/x");
     TransformMeta inTm = new TransformMeta("in", inMeta);

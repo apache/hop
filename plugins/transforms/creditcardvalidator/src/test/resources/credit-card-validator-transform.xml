@@ -32,6 +32,19 @@
     <cardtype>card type</cardtype>
     <onlydigits>Y</onlydigits>
     <notvalidmsg>not valid message</notvalidmsg>
+    <usebindatabase>Y</usebindatabase>
+    <binfilename>${BIN_FILE}</binfilename>
+    <bindelimiter>,</bindelimiter>
+    <binenclosure>"</binenclosure>
+    <binencoding>UTF-8</binencoding>
+    <binheaderpresent>Y</binheaderpresent>
+    <bincsvcolumn>BIN</bincsvcolumn>
+    <outputfields>
+        <outputfield>
+            <name>bank_name</name>
+            <column>ISSUERS</column>
+        </outputfield>
+    </outputfields>
     <attributes></attributes>
     <GUI>
         <xloc>320</xloc>

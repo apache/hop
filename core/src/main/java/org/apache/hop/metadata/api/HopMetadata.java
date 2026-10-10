@@ -89,4 +89,15 @@ public @interface HopMetadata {
    * @return the class loader group, empty for the default one-class-loader-per-plugin-folder
    */
   String classLoaderGroup() default "";
+
+  /**
+   * Set this when a metadata type is replaced by another one. Existing objects of a deprecated type
+   * keep loading, are listed and can be edited as before, but the GUI no longer offers to create
+   * new ones: the type is left out of the "new" menus and dialogs, and its folder in the metadata
+   * perspective is only shown when it holds objects. Mention the deprecation and the replacement in
+   * the name or description of the type.
+   *
+   * @return true if no new objects of this metadata type should be created in the GUI
+   */
+  boolean deprecated() default false;
 }

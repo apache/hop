@@ -77,6 +77,27 @@ class StructureChunkingStrategyTest {
   }
 
   @Test
+  void whitespaceOnlyTextYieldsNoChunks() {
+    assertTrue(strategy.chunk("   \n\n\t  \n", 5, 0, ContentType.PLAIN).isEmpty());
+    assertTrue(strategy.chunk("   \n\n\t  \n", 5, 0, ContentType.MARKDOWN).isEmpty());
+  }
+
+  @Test
+  void dropsWhitespaceOnlyPartsOfLargeSectionAndRenumbers() {
+    // A preamble without heading has no breadcrumb, so its character-split parts are emitted as-is.
+    String text = "alpha" + " ".repeat(30) + "beta";
+
+    List<Chunk> chunks = strategy.chunk(text, 10, 0, ContentType.PLAIN);
+
+    assertTrue(chunks.stream().noneMatch(c -> c.getContent().isBlank()));
+    for (int i = 0; i < chunks.size(); i++) {
+      assertEquals(i, chunks.get(i).getIndex());
+    }
+    assertTrue(chunks.get(0).getContent().contains("alpha"));
+    assertTrue(chunks.get(chunks.size() - 1).getContent().contains("beta"));
+  }
+
+  @Test
   void strategyTypeIsStructure() {
     assertEquals(ChunkingStrategyType.STRUCTURE, strategy.getType());
   }

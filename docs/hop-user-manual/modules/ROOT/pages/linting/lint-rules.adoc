@@ -94,6 +94,9 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |`NOT_EMPTY`, `NOT_NULL`
 |has a value
 
+|`IS_EMPTY`
+|has no value
+
 |`NOT_EMPTY_COLLECTION`
 |is a collection with at least one entry
 
@@ -140,14 +143,28 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |Whether any other file in the project calls this pipeline or workflow. Only a project lint can answer this, see <<project-rules>>
 
 |`hasDefaultName`
-|The transform or action still carries its auto-generated name
+|The transform or action still carries the name Hop Gui gave it: the plugin's name, such as `Table input`, followed by a number when that name was taken, as in `Dummy (do nothing) 2`. The plugin name is the one of the language Hop runs in. A workflow's Start action never counts
 
 |`isDummy`
 |The transform is a Dummy
 
 |`isBlockingTransform`
 |The transform blocks until all rows have arrived
+
+|`errorHandling`
+|A transform sends its error rows to another transform; an action has a hop that is followed on failure
+
+|`targetTransforms`, `targetActions`
+|The names of the transforms or actions that the enabled hops lead to
+
+|`databaseType`
+|The type of a database connection, as its plugin id, for example `POSTGRESQL`
+
+|`attributes`
+|The attributes of a database connection, including its extra options. A finding lists the attribute names, not their values
 |===
+
+A database connection rule that names a field the connection does not have is reported as an error against the rule.
 
 Nested properties are reached with a dotted path:
 
@@ -183,15 +200,22 @@ Some problems are only worth reporting when several things are wrong together, a
       - TableInput
     allOf:
       - targetField: sql
-        condition: MATCHES_PATTERN
+        condition: NOT_MATCHES_PATTERN
         conditionValue: "(?is).*\\bselect\\s+\\*.*"
       - targetField: rowLimit
-        condition: NOT_EMPTY
+        condition: NOT_MATCHES_PATTERN
+        conditionValue: "^\\s*([+-]?0*|-\\d+)\\s*$"
     name: "Unbounded SELECT *"
     description: "A Table Input that selects every column and sets no row limit"
 ----
 
-`allOf` reports only when *every* clause is broken, `anyOf` when *at least one* is.
+As everywhere else, each condition says what is *required*, and the rule reports when that is not met.
+`allOf` reports only when *every* condition is not met, `anyOf` when *at least one* is not.
+The rule above reports a Table Input whose SQL selects every column *and* whose row limit is unset, `0` or negative, which Hop reads as no limit.
+
+To report something that is set, require it to be empty: a plain `http://` URL with a login is `url` `MATCHES_PATTERN` `^https://.*` (not met for `http://`) together with `httpLogin` `IS_EMPTY` (not met when a login is set), under `allOf`.
+
+A rule with `allOf` or `anyOf` and a `target` is a rule definition even without `type: custom`.
 Each clause names its own field, condition and value, and the finding says which clauses were broken and what the values actually were.
 
 A rule with neither block behaves exactly as before, so nothing that was written against the single-condition form needs changing.
@@ -268,6 +292,52 @@ suppress:
     reason: "Fields in these templates arrive through metadata injection"
 ----
 
+[[tags]]
+== Tags and help links
+
+A rule can carry `tags`: labels a team or vendor attaches to it, such as a category, the team that owns it or the policy it enforces.
+Each value is a string or a list of strings.
+
+[source,yaml]
+----
+rules:
+  ACME-002:
+    type: custom
+    # ...the rule as before...
+    helpUri: https://wiki.example.com/lint/ACME-002
+    tags:
+      category: secrets
+      owner: platform-team
+      policy: ["SEC-POL-4", "SEC-POL-7"]
+----
+
+The linter never evaluates tags, so changing them cannot change what a rule finds.
+They are written to the reports, on every finding the rule produces:
+
+* `sarif`: on the rule, `properties.tags` holds one `key:value` string per value (`category:secrets`, `policy:SEC-POL-4`, `policy:SEC-POL-7`), the form GitHub code scanning and Azure DevOps read, and `properties.hopTags` holds the same tags as a map. The rule's `description` is written as `fullDescription`, and `helpUri` as `helpUri`.
+* `json`: each finding has a `tags` object. Every value is written as a list, also a single one.
+
+Tags work the same on a native rule.
+
+A project sets tags on any rule, a pack's included, in its own `hop-lint.yml`.
+Each key replaces the pack's values for that key and leaves the pack's other tags as they are; a key with no values removes the pack's tag:
+
+[source,yaml]
+----
+rules:
+  DB-001:
+    tags:
+      owner: data-team    # replaces the pack's owner, if it has one
+      policy: []          # removes the pack's policy tag
+    helpUri: https://wiki.example.com/lint/DB-001
+----
+
+In Hop Gui, the rule editor has a *Help URL* field and a *Tags* table with one row per key and value; repeat a key to give it several values.
+Saving a pack rule there writes only the changed keys to `hop-lint.yml`, as above.
+The rule manager lists each rule's tags in its *Tags* column.
+
+A key the linter does not know, such as `tag:` for `tags:`, is logged as a warning and ignored.
+
 == The rules Hop ships
 
 Hop's core rule pack is deliberately small. A rule is enabled by default only when a violation is defensible as a defect in any project, whatever the house style.
@@ -298,7 +368,7 @@ Hop's core rule pack is deliberately small. A rule is enabled by default only wh
 
 |`NAMING-004`
 |WARNING
-|A transform still carrying its auto-generated name
+|A transform still carrying the name Hop Gui gave it, such as `Table input` or `Table input 2`
 
 |`HOP-CHECK`
 |WARNING
@@ -464,7 +534,7 @@ suppress:
 `rule: "*"` accepts whatever is reported on that element, including a rule that starts reporting on it later, which is what a transform filled in at runtime needs.
 It is only accepted together with a `path` or a `source`: on its own it would be the linter switched off under another name, and it is refused the same way an entry without a rule is.
 
-An element whose findings are accepted is drawn with a muted outline on the canvas rather than nothing at all, so the absence of a warning reads as somebody's decision rather than as a check that never ran.
+An element whose findings are accepted is drawn with a dashed outline and a small greyed-out info badge on the canvas rather than nothing at all, so the absence of a warning reads as somebody's decision rather than as a check that never ran.
 Turn that off with *Mark Ignored Transforms and Actions* in the linter options.
 
 == How the effective rule set is built

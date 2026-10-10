@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,11 +34,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.graph.GraphIndex;
+import org.apache.hop.core.graph.GraphUpsertNode;
+import org.apache.hop.core.graph.GraphUpsertRelationship;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.GraphUsage;
 import org.apache.hop.neo4j.core.data.GraphData;
@@ -51,18 +57,16 @@ import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.model.GraphRelationship;
 import org.apache.hop.neo4j.model.validation.ModelValidator;
 import org.apache.hop.neo4j.model.validation.NodeProperty;
-import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.neo4j.transforms.BaseNeoTransform;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.summary.Notification;
-import org.neo4j.driver.summary.ResultSummary;
 
 @SuppressWarnings("java:S1104")
 public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData> {
+
+  private static final Class<?> PKG = GraphOutputMeta.class;
 
   public GraphOutput(
       TransformMeta transformMeta,
@@ -80,32 +84,33 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       if (!meta.isReturningGraph()) {
         // Verify some extra metadata...
         //
-        if (StringUtils.isEmpty(meta.getConnectionName())) {
+        String connectionName = resolve(meta.getConnectionName());
+        if (StringUtils.isEmpty(connectionName)) {
           logError("You need to specify a Neo4j connection to use in this transform");
           return false;
         }
 
-        IHopMetadataSerializer<NeoConnection> serializer =
-            metadataProvider.getSerializer(NeoConnection.class);
-        data.neoConnection = serializer.load(meta.getConnectionName());
-        if (data.neoConnection == null) {
+        data.graphConnection =
+            NeoConnectionUtils.findGraphConnection(metadataProvider, connectionName);
+        if (data.graphConnection == null) {
           logError(
               "Connection '"
-                  + meta.getConnectionName()
+                  + connectionName
                   + "' could not be found in the metadata : "
                   + metadataProvider.getDescription());
           return false;
         }
 
         try {
-          data.driver = data.neoConnection.getDriver(getLogChannel(), this);
-          data.session = data.neoConnection.getSession(getLogChannel(), data.driver, this);
+          data.connection = data.graphConnection.connect(getLogChannel(), this);
+          data.upserting =
+              !data.graphConnection.getDialect().isCypher()
+                  && data.connection.isSupportingUpserts();
+          data.upsertNodes = new ArrayList<>();
+          data.upsertRelationships = new ArrayList<>();
+          data.upsertRowCount = 0;
         } catch (Exception e) {
-          logError(
-              "Unable to get or create Neo4j database driver for database '"
-                  + data.neoConnection.getName()
-                  + "'",
-              e);
+          logError("Unable to connect to graph database '" + data.graphConnection.name() + "'", e);
           return false;
         }
 
@@ -128,13 +133,40 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       //
       data.graphModel.validateIntegrity();
 
+      // A node is merged on its primary properties: without one of them mapped to a field the
+      // merge would match every node with the label.
+      //
+      if (!meta.isReturningGraph()) {
+        List<String> nodesWithoutKey =
+            findNodesWithoutMappedPrimaryProperty(data.graphModel, meta.getFieldModelMappings());
+        if (!nodesWithoutKey.isEmpty()) {
+          for (String nodeName : nodesWithoutKey) {
+            logError(
+                BaseMessages.getString(PKG, "GraphOutput.Error.NoPrimaryPropertyMapped", nodeName));
+          }
+          return false;
+        }
+      }
+
       data.modelValidator = null;
       if (meta.isValidatingAgainstModel()) {
         // Validate the model...
         //
         List<NodeProperty> usedNodeProperties = findUsedNodeProperties();
         data.modelValidator = new ModelValidator(data.graphModel, usedNodeProperties);
-        int nrErrors = data.modelValidator.validateBeforeLoad(getLogChannel(), data.session);
+        // Without a connection (when only returning a graph) only the use of the model is validated
+        List<GraphIndex> indexes;
+        try {
+          indexes = data.connection == null ? null : data.connection.getIndexes();
+        } catch (HopException e) {
+          logError(
+              "Unable to list the indexes of graph database connection '"
+                  + meta.getConnectionName()
+                  + "' to validate against the graph model",
+              e);
+          return false;
+        }
+        int nrErrors = data.modelValidator.validateBeforeLoad(getLogChannel(), indexes);
         if (nrErrors > 0) {
           // There were validation errors, we can stop here...
           logError(
@@ -150,11 +182,47 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         }
       }
     } catch (HopException e) {
-      logError("Could not find Neo4j connection'" + meta.getConnectionName() + "'", e);
+      logError("Error preparing graph database connection '" + meta.getConnectionName() + "'", e);
       return false;
     }
 
     return super.init();
+  }
+
+  /**
+   * The nodes which the field mappings write to without mapping any of their primary properties to
+   * a field.
+   *
+   * @param graphModel The graph model
+   * @param mappings The field mappings
+   * @return The names of these nodes, in the order of the mappings
+   */
+  static List<String> findNodesWithoutMappedPrimaryProperty(
+      GraphModel graphModel, List<FieldModelMapping> mappings) {
+    Set<String> usedNodes = new LinkedHashSet<>();
+    Set<String> keyedNodes = new HashSet<>();
+    for (FieldModelMapping mapping : mappings) {
+      if (mapping.getTargetType() != ModelTargetType.Node) {
+        continue;
+      }
+      String nodeName = mapping.getTargetName();
+      usedNodes.add(nodeName);
+      GraphNode node = graphModel.findNode(nodeName);
+      if (node == null || StringUtils.isEmpty(mapping.getField())) {
+        continue;
+      }
+      GraphProperty property = node.findProperty(mapping.getTargetProperty());
+      if (property != null && property.isPrimary()) {
+        keyedNodes.add(nodeName);
+      }
+    }
+    List<String> nodesWithoutKey = new ArrayList<>();
+    for (String nodeName : usedNodes) {
+      if (!keyedNodes.contains(nodeName)) {
+        nodesWithoutKey.add(nodeName);
+      }
+    }
+    return nodesWithoutKey;
   }
 
   private List<NodeProperty> findUsedNodeProperties() {
@@ -174,11 +242,13 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     wrapUpTransaction();
 
-    if (data.session != null) {
-      data.session.close();
-    }
-    if (data.driver != null) {
-      data.driver.close();
+    if (data.connection != null) {
+      try {
+        data.connection.close();
+      } catch (HopException e) {
+        logError("Error closing the graph database connection", e);
+      }
+      data.connection = null;
     }
     if (data.cypherMap != null) {
       data.cypherMap.clear();
@@ -441,6 +511,17 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
       putRow(data.outputRowMeta, outputRowData);
 
+    } else if (data.upserting) {
+
+      // No Cypher: collect the nodes and relationships of this row and upsert them per batch
+      //
+      addUpserts(getGraphData(row, getInputRowMeta()));
+      incrementLinesOutput();
+      if (data.upsertRowCount >= Math.max(1L, data.batchSize)) {
+        writeUpserts();
+      }
+      putRow(getInputRowMeta(), row);
+
     } else {
 
       // Calculate cypher statement, parameters, ... based on field-model-mappings
@@ -519,7 +600,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     //
     for (GraphNode node : nodePropertiesMap.keySet()) {
       NeoConnectionUtils.createNodeIndex(
-          getLogChannel(), data.session, node.getLabels(), nodePropertiesMap.get(node));
+          getLogChannel(), data.connection, node.getLabels(), nodePropertiesMap.get(node));
     }
   }
 
@@ -527,8 +608,12 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       GraphOutputData data, String cypher, Map<String, Object> parameters) {
     boolean errors = false;
     if (data.batchSize <= 1) {
-      Result result = data.session.run(cypher, parameters);
-      errors = processSummary(result);
+      try {
+        data.connection.execute(cypher, parameters);
+      } catch (HopException e) {
+        logError("Error executing statement", e);
+        errors = true;
+      }
     } else {
 
       if (meta.isOutOfOrderAllowed()) {
@@ -557,20 +642,24 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       } else {
         // Normal batching
         //
-        if (data.outputCount == 0) {
-          data.transaction = data.session.beginTransaction();
-        }
+        try {
+          if (data.outputCount == 0) {
+            data.transaction = data.connection.beginTransaction();
+          }
 
-        Result result = data.transaction.run(cypher, parameters);
-        errors = processSummary(result);
+          data.transaction.execute(cypher, parameters);
 
-        data.outputCount++;
-        incrementLinesOutput();
+          data.outputCount++;
+          incrementLinesOutput();
 
-        if (!errors && data.outputCount >= data.batchSize) {
-          data.transaction.commit();
-          data.transaction.close();
-          data.outputCount = 0;
+          if (data.outputCount >= data.batchSize) {
+            data.transaction.commit();
+            data.transaction.close();
+            data.outputCount = 0;
+          }
+        } catch (HopException e) {
+          logError("Error executing statement in a transaction", e);
+          errors = true;
         }
       }
     }
@@ -603,31 +692,16 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       // Execute this unwind cypher statement...
       // In Neo4j 5.x, Result must be consumed within the callback
       //
-      boolean statementErrors =
-          data.session.executeWrite(
-              tx -> {
-                Result result = tx.run(unwindCypher, props);
-                // Consume the result and check for errors
-                ResultSummary summary = result.consume();
-                boolean hasErrors = false;
-                for (Notification notification : summary.notifications()) {
-                  logError(
-                      notification.title()
-                          + " ("
-                          + notification.rawSeverityLevel().orElse("")
-                          + ")");
-                  logError(
-                      notification.code()
-                          + " : "
-                          + notification.description()
-                          + ", position "
-                          + notification.position());
-                  hasErrors = true;
-                }
-                return hasErrors;
-              });
-
-      errors = statementErrors;
+      try {
+        data.connection.executeWrite(
+            tx -> {
+              tx.execute(unwindCypher, props);
+              return null;
+            });
+      } catch (HopException e) {
+        logError("Error executing statement: " + unwindCypher, e);
+        errors = true;
+      }
 
       if (errors) {
         // The error is already logged, simply break out of the loop...
@@ -641,22 +715,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     data.unwindCount = 0;
     data.unwindMapList.clear();
 
-    return errors;
-  }
-
-  private boolean processSummary(Result result) {
-    boolean errors = false;
-    ResultSummary summary = result.consume();
-    for (Notification notification : summary.notifications()) {
-      logError(notification.title() + " (" + notification.rawSeverityLevel().orElse("") + ")");
-      logError(
-          notification.code()
-              + " : "
-              + notification.description()
-              + ", position "
-              + notification.position());
-      errors = true;
-    }
     return errors;
   }
 
@@ -874,7 +932,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                 Object neoValue =
                     relProp.getType().convertFromHop(sourceFieldMeta, sourceFieldValue);
                 parameters.put(parameterName, neoValue);
-                cypher.append(buildParameterClause(parameterName));
+                cypher.append(buildValueClause(parameterName, relProp.getType()));
 
                 TargetParameter targetParameter =
                     new TargetParameter(
@@ -1294,7 +1352,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
           cypher
               .append(napd.property.getName())
               .append(" : ")
-              .append(buildParameterClause(parameterName))
+              .append(buildValueClause(parameterName, napd.property.getType()))
               .append(" ");
 
           firstPrimary = false;
@@ -1324,7 +1382,9 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
           if (isNull) {
             matchCypher.append("NULL ");
           } else {
-            matchCypher.append(buildParameterClause(parameterName)).append(" ");
+            matchCypher
+                .append(buildValueClause(parameterName, napd.property.getType()))
+                .append(" ");
           }
 
           if (isDebug()) {
@@ -1378,6 +1438,15 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     }
   }
 
+  /** The parameter clause for a property value, wrapped the way the database stores vectors. */
+  private String buildValueClause(String parameterName, GraphPropertyType type) {
+    String clause = buildParameterClause(parameterName);
+    if (type == GraphPropertyType.Vector) {
+      return data.graphConnection.getDialect().vectorValue(clause);
+    }
+    return clause;
+  }
+
   private String buildParameterClause(String parameterName) {
     if (meta.isOutOfOrderAllowed()) {
       return "pr." + parameterName;
@@ -1393,6 +1462,17 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
   private void wrapUpTransaction() {
 
+    if (data.upserting) {
+      try {
+        writeUpserts();
+      } catch (HopException e) {
+        logError("Error writing nodes and relationships", e);
+        stopAll();
+        setErrors(1L);
+      }
+      return;
+    }
+
     if (meta.isOutOfOrderAllowed()) {
       boolean errors = emptyUnwindMap();
       if (errors) {
@@ -1401,14 +1481,80 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       }
     } else {
       if (data.outputCount > 0) {
-        data.transaction.commit();
-        data.transaction.close();
+        try {
+          data.transaction.commit();
+          data.transaction.close();
+        } catch (HopException e) {
+          logError("Error committing the transaction", e);
+          stopAll();
+          setErrors(1L);
+        }
 
         // Force creation of a new transaction on the next batch of records
         //
         data.outputCount = 0;
       }
     }
+  }
+
+  /**
+   * Add the nodes and relationships of a row to the upserts. A node is identified by its primary
+   * properties and gets its first label: Gremlin vertices have one label.
+   */
+  private void addUpserts(GraphData graphData) throws HopException {
+    Map<String, GraphUpsertNode> nodesById = new HashMap<>();
+    for (GraphNodeData nodeData : graphData.getNodes()) {
+      Map<String, Object> keys = new LinkedHashMap<>();
+      Map<String, Object> properties = new LinkedHashMap<>();
+      for (GraphPropertyData property : nodeData.getProperties()) {
+        if (property.isPrimary()) {
+          keys.put(property.getId(), property.getValue());
+        } else {
+          properties.put(property.getId(), property.getValue());
+        }
+      }
+      String label =
+          nodeData.getLabels().isEmpty()
+              ? nodeData.getPropertySetId()
+              : nodeData.getLabels().get(0);
+      if (keys.isEmpty()) {
+        // Init makes sure that a primary property is mapped and nodes with a null key are
+        // skipped, so this is a programming error: never upsert a node matching every vertex.
+        //
+        throw new HopException(
+            "Node '"
+                + nodeData.getPropertySetId()
+                + "' has no primary property value to upsert on");
+      }
+      GraphUpsertNode node = new GraphUpsertNode(label, keys, properties);
+      nodesById.put(nodeData.getId(), node);
+      data.upsertNodes.add(node);
+    }
+    for (GraphRelationshipData relationshipData : graphData.getRelationships()) {
+      GraphUpsertNode source = nodesById.get(relationshipData.getSourceNodeId());
+      GraphUpsertNode target = nodesById.get(relationshipData.getTargetNodeId());
+      if (source == null || target == null) {
+        continue;
+      }
+      Map<String, Object> properties = new LinkedHashMap<>();
+      for (GraphPropertyData property : relationshipData.getProperties()) {
+        properties.put(property.getId(), property.getValue());
+      }
+      data.upsertRelationships.add(
+          new GraphUpsertRelationship(relationshipData.getLabel(), source, target, properties));
+    }
+    data.upsertRowCount++;
+  }
+
+  /** Upsert the nodes and relationships collected so far. */
+  private void writeUpserts() throws HopException {
+    if (data.upsertRowCount == 0) {
+      return;
+    }
+    data.connection.upsert(data.upsertNodes, data.upsertRelationships);
+    data.upsertNodes.clear();
+    data.upsertRelationships.clear();
+    data.upsertRowCount = 0;
   }
 
   /**
@@ -1608,28 +1754,32 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     // Calculate the node labels
     //
-    graphNodeData.getLabels().addAll(node.getNode().getLabels());
+    if (data.upserting) {
+      // The labels selected for this row, which can come from a field value, in model order
+      //
+      for (String label : node.getNode().getLabels()) {
+        if (node.getLabels().contains(label)) {
+          graphNodeData.getLabels().add(label);
+        }
+      }
+      for (String label : node.getLabels()) {
+        if (!graphNodeData.getLabels().contains(label)) {
+          graphNodeData.getLabels().add(label);
+        }
+      }
+    } else {
+      graphNodeData.getLabels().addAll(node.getNode().getLabels());
+    }
+
+    graphNodeData.setId(getGraphNodeDataId(node, nodeProperties));
 
     // Look up the properties to update in the node
     //
-    boolean firstPrimary = true;
-    boolean firstMatch = true;
     for (NodeAndPropertyData napd : nodeProperties) {
       if (napd.node.equals(node)) {
         // Handle the property
         //
         boolean isNull = napd.sourceValueMeta.isNull(napd.sourceValueData);
-
-        if (napd.property.isPrimary()) {
-
-          String oldId = graphNodeData.getId();
-          String propertyString = napd.sourceValueMeta.getString(napd.sourceValueData);
-          if (oldId == null) {
-            graphNodeData.setId(propertyString);
-          } else {
-            graphNodeData.setId(oldId + "-" + propertyString);
-          }
-        }
 
         if (!isNull) {
           GraphPropertyData propertyData = new GraphPropertyData();
@@ -1649,12 +1799,19 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
   public String getGraphNodeDataId(SelectedNode node, List<NodeAndPropertyData> nodeProperties)
       throws HopValueException {
 
-    StringBuffer id = new StringBuffer();
+    StringBuilder id = new StringBuilder();
 
+    // When upserting, nodes of different types can have the same key values: qualify the ID with
+    // the node name so that relationships connect the right nodes.
+    //
+    if (data.upserting) {
+      id.append(node.getNode().getName()).append(':');
+    }
+    int prefixLength = id.length();
     for (NodeAndPropertyData napd : nodeProperties) {
       if (napd.node.equals(node) && napd.property.isPrimary()) {
         String propertyString = napd.sourceValueMeta.getString(napd.sourceValueData);
-        if (!id.isEmpty()) {
+        if (id.length() > prefixLength) {
           id.append("-");
         }
         id.append(propertyString);

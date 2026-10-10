@@ -31,15 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
@@ -59,7 +56,6 @@ import org.apache.hop.lint.registry.EffectiveRuleSet;
 import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import picocli.CommandLine;
@@ -144,6 +140,16 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       paramLabel = "<n>",
       description = "Exit 1 when more than this many warnings are reported")
   private int maxWarnings = -1;
+
+  @Option(
+      names = "--include-metadata",
+      negatable = true,
+      defaultValue = "true",
+      fallbackValue = "true",
+      description =
+          "Lint the metadata files in a folder too, such as connections. On by default; "
+              + "--no-include-metadata lints pipelines and workflows only.")
+  private boolean includeMetadata = true;
 
   @Option(
       names = {"-l", "--list-rules"},
@@ -286,10 +292,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       prepare();
       applyProjectTo(target);
 
-      HopLinter linter = new HopLinter();
-      loadConfiguration(linter, target);
-
-      List<LintResult> results = applyBaseline(runLinting(linter, target));
+      LintRun.Outcome outcome = lint(target);
+      List<LintResult> results = outcome.getResults();
 
       if (writeBaselineFile != null) {
         // Written before the severity filter: baselining a filtered run would mark
@@ -311,13 +315,20 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       // --severity narrows what is printed, never what fails the build. Deciding the exit
       // code from the filtered list would mean "--severity WARNING" exits 0 on a project full
       // of errors, which is exactly the sort of quiet pass a linter exists to prevent.
-      int exitCode = exitCode(results);
+      if (outcome.isFailedOnWarnings() && !outcome.isFailedOnSeverity() && !quiet) {
+        System.err.println(
+            "Failing: "
+                + outcome.count(LintSeverity.Level.WARNING)
+                + " warnings exceeds --max-warnings "
+                + maxWarnings
+                + ".");
+      }
 
       if (reportOwnsStdout) {
         System.setOut(stdout);
       }
-      report(results, exitCode != 0);
-      return exitCode;
+      report(results, outcome.isFailed());
+      return outcome.isFailed() ? 1 : 0;
     } finally {
       System.setOut(stdout);
     }
@@ -328,22 +339,77 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
    * {@code -s WARNING} on a project with errors has to show the errors.
    */
   List<LintResult> filterForDisplay(List<LintResult> results) {
-    if (severityFilter == null) {
-      return results;
-    }
-    return results.stream()
-        .filter(result -> atOrAbove(result.getSeverity(), severityFilter))
-        .collect(Collectors.toList());
+    return LintRun.filterForDisplay(results, severityFilter);
   }
 
-  /** A severity this build does not know is shown rather than hidden. */
-  private static boolean atOrAbove(String severity, LintSeverity.Level minimum) {
-    for (LintSeverity.Level level : LintSeverity.Level.values()) {
-      if (level.name().equalsIgnoreCase(severity)) {
-        return level.ordinal() <= minimum.ordinal();
-      }
+  /**
+   * Lint the target the way the Run Linter action does, and report the baseline's effect.
+   *
+   * <p>Everything that decides the findings and the exit code is in {@link LintRun}, so the two
+   * cannot drift apart.
+   */
+  private LintRun.Outcome lint(String targetPath) throws Exception {
+    File targetFile = new File(targetPath);
+    LintRun run = new LintRun();
+    run.setTarget(targetFile);
+    run.setIncludeMetadata(includeMetadata);
+    run.setConfigFile(configFile == null ? null : new File(configFile));
+    run.setSeverityFilter(severityFilter);
+    run.setFailOn(LintSeverity.parseFailOn(failOn));
+    run.setMaxWarnings(maxWarnings);
+    run.setBaseline(readBaseline());
+
+    if (verbose) {
+      System.out.println(
+          configFile != null
+              ? "Using configuration: " + configFile
+              : "Loading linter configuration for: " + targetPath);
+      System.out.println(
+          (targetFile.isFile() ? "Linting file: " : "Linting directory: ") + targetPath);
     }
-    return true;
+
+    IVariables variables = variables();
+    LintRun.Outcome outcome =
+        run.execute(resolveMetadataProvider(targetFile, variables), variables);
+
+    if (run.getBaseline() != null) {
+      printBaselineNote(outcome.getBaselineHidden(), outcome.getBaselineStale());
+    }
+    return outcome;
+  }
+
+  /** Say how many findings the baseline hid, and how many of its entries no longer occur. */
+  private void printBaselineNote(int hidden, int stale) {
+    if (quiet) {
+      return;
+    }
+    StringBuilder note = new StringBuilder();
+    note.append("Baseline: ").append(hidden).append(" accepted finding(s) hidden");
+    if (stale > 0) {
+      note.append(", ")
+          .append(stale)
+          .append(" baseline entr(y/ies) no longer occur and can be removed");
+    }
+    System.err.println(note + ".");
+  }
+
+  /**
+   * The baseline given with {@code --baseline}, or null.
+   *
+   * <p>A missing baseline file is an error rather than an empty baseline: silently treating every
+   * finding as new would fail a build for the wrong reason, and silently treating none as new would
+   * pass one that should have failed.
+   */
+  private LintBaseline readBaseline() throws IOException {
+    if (baselineFile == null) {
+      return null;
+    }
+    Path path = Paths.get(baselineFile);
+    if (!Files.isRegularFile(path)) {
+      throw new IOException(
+          "Baseline file not found: " + baselineFile + ". Create it with --write-baseline.");
+    }
+    return LintBaseline.read(path);
   }
 
   /**
@@ -370,60 +436,16 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     outputResults(shown, hidden);
   }
 
-  /**
-   * Hide the findings a project has already accepted, so a run reports only what is new.
-   *
-   * <p>A missing baseline file is an error rather than an empty baseline: silently treating every
-   * finding as new would fail a build for the wrong reason, and silently treating none as new would
-   * pass one that should have failed.
-   */
+  /** Hide the findings a project has already accepted, so a run reports only what is new. */
   private List<LintResult> applyBaseline(List<LintResult> results) throws IOException {
-    if (baselineFile == null) {
+    LintBaseline baseline = readBaseline();
+    if (baseline == null) {
       return results;
     }
-    Path path = Paths.get(baselineFile);
-    if (!Files.isRegularFile(path)) {
-      throw new IOException(
-          "Baseline file not found: " + baselineFile + ". Create it with --write-baseline.");
-    }
-
-    LintBaseline baseline = LintBaseline.read(path);
     List<LintResult> fresh = baseline.filter(results, reportBaseDirectory());
-
-    if (!quiet) {
-      int hidden = results.size() - fresh.size();
-      int stale = baseline.countStaleEntries(results, reportBaseDirectory());
-      StringBuilder note = new StringBuilder();
-      note.append("Baseline: ").append(hidden).append(" accepted finding(s) hidden");
-      if (stale > 0) {
-        note.append(", ")
-            .append(stale)
-            .append(" baseline entr(y/ies) no longer occur and can be removed");
-      }
-      System.err.println(note + ".");
-    }
+    printBaselineNote(
+        results.size() - fresh.size(), baseline.countStaleEntries(results, reportBaseDirectory()));
     return fresh;
-  }
-
-  /**
-   * Exit non-zero when the run should fail the build, either because a finding met the {@code
-   * --fail-on} threshold or because warnings exceeded {@code --max-warnings}.
-   */
-  private int exitCode(List<LintResult> results) {
-    if (shouldFail(results, LintSeverity.parseFailOn(failOn))) {
-      return 1;
-    }
-    if (maxWarnings >= 0) {
-      long warnings = results.stream().filter(r -> "WARNING".equals(r.getSeverity())).count();
-      if (warnings > maxWarnings) {
-        if (!quiet) {
-          System.err.println(
-              "Failing: " + warnings + " warnings exceeds --max-warnings " + maxWarnings + ".");
-        }
-        return 1;
-      }
-    }
-    return 0;
   }
 
   private static int parseMaxWarnings(String value) {
@@ -532,6 +554,18 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       System.out.printf("  %-40s %s%n", entry.getKey(), entry.getValue());
     }
     System.out.println();
+    // hasDefaultName and the like are worked out by the linter, not read from the plugin, and
+    // were missing from this list although a rule can use them on any transform or action.
+    Map<String, String> common =
+        "transform".equals(kind)
+            ? CustomRuleExecutor.TRANSFORM_FIELDS
+            : CustomRuleExecutor.ACTION_FIELDS;
+    System.out.println("Fields on every " + kind + ":");
+    System.out.println();
+    for (Map.Entry<String, String> entry : common.entrySet()) {
+      System.out.printf("  %-40s %s%n", entry.getKey(), entry.getValue());
+    }
+    System.out.println();
     System.out.println(
         "Nested values are reached with a dotted path, for example fileSettings.fileName.");
     return 0;
@@ -565,16 +599,6 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     }
   }
 
-  /** The Hop version, as {@code hop --version} and {@code hop lint --version} print it. */
-  private static String toolVersion() {
-    String[] version = new HopVersionProvider().getVersion();
-    if (version.length > 0 && !Utils.isEmpty(version[0])) {
-      return version[0];
-    }
-    String lintVersion = LintCommand.class.getPackage().getImplementationVersion();
-    return lintVersion != null ? lintVersion : "development build";
-  }
-
   private int runPreCommit() throws Exception {
     String envFailOn = System.getenv("HOP_LINT_FAIL_ON");
     if (!Utils.isEmpty(envFailOn)) {
@@ -595,8 +619,11 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       return 0;
     }
 
+    // As strict as a plain run: a commit is not checked against default rules because the
+    // project's hop-lint.yml or an installed pack could not be read.
+    LintRun.checkRulePacks();
     HopLinter linter = new HopLinter();
-    linter.loadConfigurationForContext(stagedFiles.get(0));
+    linter.loadConfigurationStrictly(stagedFiles.get(0));
 
     // The lint target for path-relative purposes is the project the staged files live in.
     target = projectRootOf(stagedFiles.get(0));
@@ -627,7 +654,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
 
     PreCommitLintService.Result result =
         PreCommitLintService.lintFiles(
-            toLint, LintSeverity.parseFailOn(failOn), variables, metadataProvider);
+            toLint, LintSeverity.parseFailOn(failOn), variables, metadataProvider, true);
 
     // The baseline matters most here: touching a legacy file would otherwise block the commit
     // on findings that were already there before the change.
@@ -667,11 +694,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
   }
 
   private boolean shouldFail(List<LintResult> results, LintSeverity.FailOn threshold) {
-    if (threshold == LintSeverity.FailOn.NONE) {
-      return false;
-    }
-    return results.stream()
-        .anyMatch(result -> LintSeverity.meetsFailOnThreshold(result.getSeverity(), threshold));
+    return LintRun.meetsFailOn(results, threshold);
   }
 
   private void printRunHeader(String targetPath) {
@@ -824,54 +847,6 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     LogChannel.GENERAL.setLogLevel(LogLevel.MINIMAL);
   }
 
-  private void loadConfiguration(HopLinter linter, String targetPath) throws IOException {
-    if (configFile != null) {
-      if (!new File(configFile).exists()) {
-        throw new IOException("Configuration file not found: " + configFile);
-      }
-      linter.loadConfig(configFile);
-      if (verbose) {
-        System.out.println("Loaded configuration from: " + configFile);
-      }
-      return;
-    }
-
-    linter.loadConfigurationForContext(new File(targetPath));
-    if (verbose) {
-      System.out.println("Loaded linter configuration for: " + targetPath);
-    }
-  }
-
-  private List<LintResult> runLinting(HopLinter linter, String targetPath) throws Exception {
-    File targetFile = new File(targetPath);
-    IVariables variables = variables();
-    IHopMetadataProvider metadataProvider = resolveMetadataProvider(targetFile, variables);
-
-    if (targetFile.isFile()) {
-      if (verbose) {
-        System.out.println("Linting file: " + targetPath);
-      }
-      // A file in a project is judged against the whole project, so it can be reported as
-      // called by nothing; outside one there is nothing to judge it against.
-      CustomRuleExecutor.setProjectIndex(
-          linter.buildProjectIndex(targetPath, metadataProvider, variables));
-      try {
-        return new ArrayList<>(linter.processFile(targetFile, metadataProvider, variables));
-      } finally {
-        CustomRuleExecutor.setProjectIndex(null);
-      }
-    }
-    if (targetFile.isDirectory()) {
-      if (verbose) {
-        System.out.println("Linting directory: " + targetPath);
-      }
-      // The run indexes the project's references itself, for the rules that need the project
-      // as a whole: whether a pipeline is called by anything, whether a connection is used.
-      return new ArrayList<>(linter.run(targetPath, metadataProvider, variables, null));
-    }
-    throw new IllegalArgumentException("Target does not exist: " + targetPath);
-  }
-
   /**
    * Build a metadata provider over the project's {@code metadata/} folder.
    *
@@ -883,37 +858,23 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
   private IHopMetadataProvider resolveMetadataProvider(File target, IVariables variables) {
     // An enabled project brings its own metadata, parent projects included, from wherever its
     // configuration says it lives.
-    if (projectEnabled && metadataProvider != null) {
-      if (verbose) {
+    IHopMetadataProvider projectMetadata = projectEnabled ? metadataProvider : null;
+    if (verbose) {
+      File metadataFolder = findMetadataFolder(target);
+      if (projectMetadata != null) {
         System.out.println(
             "Using the metadata of project home: " + variables.getVariable("PROJECT_HOME"));
-      }
-      return metadataProvider;
-    }
-    File metadataFolder = findMetadataFolder(target);
-    if (metadataFolder == null) {
-      if (verbose) {
+      } else if (metadataFolder == null) {
         System.out.println("No metadata/ folder found; linting without a metadata provider.");
+      } else {
+        System.out.println("Using metadata folder: " + metadataFolder.getAbsolutePath());
       }
-      return HopMetadataUtil.getStandardHopMetadataProvider(variables);
     }
-    if (verbose) {
-      System.out.println("Using metadata folder: " + metadataFolder.getAbsolutePath());
-    }
-    variables.setVariable(Const.HOP_METADATA_FOLDER, metadataFolder.getAbsolutePath());
-    return new JsonMetadataProvider(Encr.getEncoder(), metadataFolder.getAbsolutePath(), variables);
+    return LintRun.metadataProviderFor(target, variables, projectMetadata);
   }
 
   private static File findMetadataFolder(File target) {
-    File directory = target.isDirectory() ? target : target.getParentFile();
-    while (directory != null) {
-      File candidate = new File(directory, "metadata");
-      if (candidate.isDirectory()) {
-        return candidate;
-      }
-      directory = directory.getParentFile();
-    }
-    return null;
+    return LintRun.findMetadataFolder(target);
   }
 
   /**
@@ -1010,7 +971,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       } else if (format == LintReportFormat.TEXT) {
         report = LintReportWriter.renderText(results, !quiet);
       } else {
-        report = LintReportWriter.render(format, results, toolVersion(), reportBaseDirectory());
+        report =
+            LintReportWriter.render(format, results, LintRun.toolVersion(), reportBaseDirectory());
       }
     } catch (Exception e) {
       System.err.println("Error rendering the " + format.getId() + " report: " + e.getMessage());
@@ -1048,11 +1010,6 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
 
   /** Findings are reported relative to the lint target, so CI paths match the repository. */
   private Path reportBaseDirectory() {
-    if (Utils.isEmpty(target)) {
-      return null;
-    }
-    File targetFile = new File(target);
-    File directory = targetFile.isDirectory() ? targetFile : targetFile.getParentFile();
-    return directory != null ? directory.toPath().toAbsolutePath() : null;
+    return Utils.isEmpty(target) ? null : LintRun.baseDirectoryOf(new File(target));
   }
 }

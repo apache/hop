@@ -111,6 +111,7 @@ public class StyledTextComp extends TextComposite {
 
     super(parent, SWT.NONE, toolbarEnabled, styleType);
     textWidget = new Text(this, args);
+    TextIndent.attach(textWidget);
     popupMenu = new Menu(parent.getShell(), SWT.POP_UP);
 
     buildingStyledTextMenu(popupMenu);
@@ -179,6 +180,12 @@ public class StyledTextComp extends TextComposite {
   @Override
   public int getCaretPosition() {
     return textWidget.getCaretPosition();
+  }
+
+  @Override
+  public int getSelectionStart() {
+    org.eclipse.swt.graphics.Point range = textWidget.getSelection();
+    return range == null ? 0 : range.x;
   }
 
   @Override

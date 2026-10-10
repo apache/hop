@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="42px" height="42px" viewBox="0 0 42 42">
+  <path d="M27,8 L18,20" stroke="#0E3A5A" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M27,8 L36,20" stroke="#0E3A5A" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M18,20 L36,20" stroke="#0E3A5A" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="27" cy="8" r="3.4" fill="#C9E8FB" stroke="#0E3A5A" stroke-width="2"/>
+  <circle cx="18" cy="20" r="3.4" fill="#C9E8FB" stroke="#0E3A5A" stroke-width="2"/>
+  <circle cx="36" cy="20" r="3.4" fill="#C9E8FB" stroke="#0E3A5A" stroke-width="2"/>
+  <rect x="4" y="26" width="34" height="13" rx="1.5" fill="#FFFFFF" stroke="#0E3A5A" stroke-width="2"/>
+  <path d="M4,32.5 L38,32.5" stroke="#0E3A5A" stroke-width="1.4"/>
+  <path d="M16,26 L16,39" stroke="#0E3A5A" stroke-width="1.4"/>
+  <path d="M27,26 L27,39" stroke="#0E3A5A" stroke-width="1.4"/>
+</svg>

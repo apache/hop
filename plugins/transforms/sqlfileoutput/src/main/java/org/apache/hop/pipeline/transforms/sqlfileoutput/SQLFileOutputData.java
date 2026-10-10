@@ -49,6 +49,8 @@ public class SQLFileOutputData extends BaseTransformData implements ITransformDa
 
   public IRowMeta insertRowMeta;
 
+  public int[] fieldIndexes;
+
   public SQLFileOutputData() {
     super();
 

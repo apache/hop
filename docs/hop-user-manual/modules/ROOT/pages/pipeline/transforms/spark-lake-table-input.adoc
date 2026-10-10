@@ -104,7 +104,7 @@ Typical pattern: template pipeline with Lake Table Input; injecting pipeline sup
 
 == Notes
 
-* Prefer Lake Table Input over *Spark file input* for `delta` / `iceberg` so session extensions, `hop_iceberg` PATH catalog, and probes stay consistent.
+* Prefer Lake Table Input over *Spark file input* for `delta` / `iceberg` so session extensions, Iceberg PATH catalogs, and probes stay consistent.
 * See the xref:pipeline/spark/lakehouse.adoc[lakehouse guide] for packaging, PATH vs TABLE, and troubleshooting.
 
 == Related pages

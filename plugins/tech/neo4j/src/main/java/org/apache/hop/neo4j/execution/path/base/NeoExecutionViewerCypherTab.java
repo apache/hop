@@ -43,7 +43,7 @@ public class NeoExecutionViewerCypherTab extends NeoExecutionViewerTabBase {
 
   public void addNeo4jCypherTab(CTabFolder tabFolder) {
     Image neo4jImage =
-        GuiResource.getInstance().getImage("neo4j_cypher.svg", classLoader, iconSize, iconSize);
+        GuiResource.getInstance().getImage("graph_query.svg", classLoader, iconSize, iconSize);
     CTabItem cypherTab = new CTabItem(tabFolder, SWT.NONE);
     cypherTab.setFont(GuiResource.getInstance().getFontDefault());
     cypherTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Cypher.Tab"));

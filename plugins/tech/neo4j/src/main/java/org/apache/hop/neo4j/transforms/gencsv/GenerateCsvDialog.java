@@ -48,6 +48,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
   private CCombo wGraphField;
   private TextVar wBaseFolder;
   private CCombo wStrategy;
+  private CCombo wHeaderFormat;
   private TextVar wFilesPrefix;
   private TextVar wFilenameField;
   private TextVar wFileTypeField;
@@ -180,6 +181,29 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     wStrategy.setLayoutData(fdStrategy);
     lastControl = wStrategy;
 
+    Label wlHeaderFormat = new Label(wComposite, SWT.RIGHT);
+    wlHeaderFormat.setText("CSV header format ");
+    wlHeaderFormat.setToolTipText(
+        "neo4j-admin import: the headers neo4j-admin import needs, with types and :ID, :LABEL,"
+            + " :START_ID, :END_ID and :TYPE columns."
+            + Const.CR
+            + "Plain column names: just the names, to load the files into other graph databases.");
+    PropsUi.setLook(wlHeaderFormat);
+    FormData fdlHeaderFormat = new FormData();
+    fdlHeaderFormat.left = new FormAttachment(0, 0);
+    fdlHeaderFormat.right = new FormAttachment(middle, -margin);
+    fdlHeaderFormat.top = new FormAttachment(lastControl, margin);
+    wlHeaderFormat.setLayoutData(fdlHeaderFormat);
+    wHeaderFormat = new CCombo(wComposite, SWT.FLAT | SWT.BORDER | SWT.READ_ONLY);
+    wHeaderFormat.setItems(CsvHeaderFormat.getDescriptions());
+    PropsUi.setLook(wHeaderFormat);
+    FormData fdHeaderFormat = new FormData();
+    fdHeaderFormat.left = new FormAttachment(middle, 0);
+    fdHeaderFormat.right = new FormAttachment(100, 0);
+    fdHeaderFormat.top = new FormAttachment(wlHeaderFormat, 0, SWT.CENTER);
+    wHeaderFormat.setLayoutData(fdHeaderFormat);
+    lastControl = wHeaderFormat;
+
     Label wlFilenameField = new Label(wComposite, SWT.RIGHT);
     wlFilenameField.setText("Filename field) ");
     PropsUi.setLook(wlFilenameField);
@@ -247,6 +271,9 @@ public class GenerateCsvDialog extends BaseTransformDialog {
           Const.indexOfString(input.getUniquenessStrategy().name(), UniquenessStrategy.getNames());
       wStrategy.select(idx);
     }
+    CsvHeaderFormat headerFormat =
+        input.getHeaderFormat() == null ? CsvHeaderFormat.NEO4J_ADMIN : input.getHeaderFormat();
+    wHeaderFormat.setText(headerFormat.getDescription());
     wFilesPrefix.setText(Const.NVL(input.getFilesPrefix(), ""));
     wFilenameField.setText(Const.NVL(input.getFilenameField(), ""));
     wFileTypeField.setText(Const.NVL(input.getFileTypeField(), ""));
@@ -265,6 +292,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     meta.setGraphFieldName(wGraphField.getText());
     meta.setBaseFolder(wBaseFolder.getText());
     meta.setUniquenessStrategy(UniquenessStrategy.getStrategyFromName(wStrategy.getText()));
+    meta.setHeaderFormat(CsvHeaderFormat.lookup(wHeaderFormat.getText()));
     meta.setFilesPrefix(wFilesPrefix.getText());
     meta.setFilenameField(wFilenameField.getText());
     meta.setFileTypeField(wFileTypeField.getText());

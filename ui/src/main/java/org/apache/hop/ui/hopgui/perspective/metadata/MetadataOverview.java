@@ -54,7 +54,8 @@ public class MetadataOverview extends Composite {
       String description,
       String image,
       ClassLoader imageClassLoader,
-      int count) {}
+      int count,
+      boolean creatable) {}
 
   private final MetadataPerspective perspective;
   private final ScrolledComposite scrolledComposite;
@@ -180,11 +181,17 @@ public class MetadataOverview extends Composite {
       PropsUi.setLook(description);
     }
 
-    Button newButton = new Button(row, SWT.PUSH);
-    newButton.setText(BaseMessages.getString(PKG, "MetadataPerspective.Overview.New.Button"));
-    newButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-    newButton.addListener(
-        SWT.Selection, e -> perspective.createNewMetadataFromOverview(card.key()));
-    PropsUi.setLook(newButton);
+    if (card.creatable()) {
+      Button newButton = new Button(row, SWT.PUSH);
+      newButton.setText(BaseMessages.getString(PKG, "MetadataPerspective.Overview.New.Button"));
+      newButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+      newButton.addListener(
+          SWT.Selection, e -> perspective.createNewMetadataFromOverview(card.key()));
+      PropsUi.setLook(newButton);
+    } else {
+      // Keep the three column layout: no new objects of a deprecated type are created.
+      Label placeholder = new Label(row, SWT.NONE);
+      PropsUi.setLook(placeholder);
+    }
   }
 }

@@ -30,6 +30,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -521,6 +522,87 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         }
         """
         .formatted(limitClause, listQueryClause(activeProjectId));
+  }
+
+  /**
+   * Body for {@code _delete_by_query}. A null cutoff deletes every execution that the list query
+   * would see for this project. A cutoff also deletes documents that have no start date. The range
+   * value is epoch milliseconds, which the date mapping accepts.
+   */
+  static String deleteByQueryBody(String activeProjectId, Date olderThan) {
+    String query;
+    if (olderThan == null) {
+      query = listQueryClause(activeProjectId);
+    } else {
+      String range =
+          "{ \"bool\": { \"should\": [ "
+              + "{ \"range\": { \"execution.executionStartDate\": { \"lt\": "
+              + olderThan.getTime()
+              + " } } }, "
+              + "{ \"bool\": { \"must_not\": { \"exists\": { \"field\": \"execution.executionStartDate\" } } } } "
+              + "], \"minimum_should_match\": 1 } }";
+      if (StringUtils.isEmpty(activeProjectId)) {
+        query = range;
+      } else {
+        query =
+            "{ \"bool\": { \"must\": [ "
+                + listQueryClause(activeProjectId)
+                + ", "
+                + range
+                + " ] } }";
+      }
+    }
+    return "{ \"query\": " + query + " }";
+  }
+
+  @Override
+  public int deleteExecutions(Date olderThan, IProgressMonitor monitor) throws HopException {
+    if (monitor != null && monitor.isCanceled()) {
+      return 0;
+    }
+    if (monitor != null) {
+      monitor.subTask("Deleting executions from Elastic");
+    }
+    String body = deleteByQueryBody(getActiveProjectId(), olderThan);
+    int deleted = postDeleteByQuery(body);
+    clearCaches();
+    return deleted;
+  }
+
+  private int postDeleteByQuery(String body) throws HopException {
+    try {
+      HttpClient client = HttpClient.newHttpClient();
+      URI uri = URI.create(actualUrl);
+      URI postUri =
+          uri.resolve(actualIndexName + "/_delete_by_query?conflicts=proceed&refresh=true");
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(postUri)
+              .header("Content-Type", "application/json")
+              .header("Accept", "application/json")
+              .header("Authorization", "ApiKey " + actualApiKey)
+              .POST(HttpRequest.BodyPublishers.ofString(body))
+              .build();
+      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() != 200) {
+        throw new HopException(
+            "Status code "
+                + response.statusCode()
+                + " received from Elastic while deleting executions: "
+                + response.body());
+      }
+      JSONParser parser = new JSONParser();
+      JSONObject json = (JSONObject) parser.parse(response.body());
+      Object deleted = json.get("deleted");
+      if (deleted instanceof Number number) {
+        return number.intValue();
+      }
+      return 0;
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Error deleting executions from Elastic", e);
+    }
   }
 
   static String listQueryClause(String activeProjectId) {

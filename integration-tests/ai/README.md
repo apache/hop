@@ -42,3 +42,4 @@ standard suite. See `disabled.txt`.
 | Test | Covers |
 |---|---|
 | `0001-embed-text` | The Embed text transform against `nomic-embed-text`: the vector width, the model name on the row, and that an embedding comes back. The vector values themselves vary per call, so they are not compared. |
+| `0004-embed-blank-text` | Embed text with empty and whitespace-only values in the same batch as real text: those rows pass through without an embedding, the others get one, and no row is lost. |

@@ -18,22 +18,31 @@
 
 package org.apache.hop.execution.local;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.FileTypeSelector;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -44,6 +53,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.DefaultExecutionSelector;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDeleter;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
@@ -179,24 +189,226 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public synchronized boolean deleteExecution(String executionId) throws HopException {
     try {
-      // Get the children of this execution and delete those first.
-      //
-      List<Execution> childExecutions = findExecutions(executionId);
-      for (Execution childExecution : childExecutions) {
-        deleteExecution(childExecution.getId());
-      }
-
-      // Delete the folder and everything in it
-      //
-      FileObject executionFolder = HopVfs.getFileObject(getSubFolder(executionId), variables);
-      for (FileObject child : executionFolder.getChildren()) {
-        child.delete();
-      }
-      executionFolder.delete();
-
+      // One pass over the folder names and the id/parent fields. Loading every execution document
+      // (pipeline XML and state logging) for every parent is what ran the GUI out of memory.
+      deleteTree(executionId, childrenByParent(listHeaders(false)));
       return true;
     } catch (Exception e) {
       throw new HopException("Error deleting execution with ID " + executionId, e);
+    }
+  }
+
+  @Override
+  public synchronized int deleteExecutions(Date olderThan, IProgressMonitor monitor)
+      throws HopException {
+    List<Header> headers = listHeaders(olderThan != null);
+    Map<String, List<String>> children = childrenByParent(headers);
+    int deleted = 0;
+    int failed = 0;
+    HopException firstFailure = null;
+    for (Header header : headers) {
+      if (monitor != null && monitor.isCanceled()) {
+        break;
+      }
+      if (StringUtils.isNotEmpty(header.parentId)) {
+        continue;
+      }
+      if (olderThan != null && header.start != null && !header.start.before(olderThan)) {
+        continue;
+      }
+      if (monitor != null) {
+        monitor.subTask("Deleting execution " + (deleted + 1) + ": " + header.id);
+      }
+      try {
+        deleteTree(header.id, children);
+        deleted++;
+      } catch (Exception e) {
+        failed++;
+        if (firstFailure == null) {
+          firstFailure = new HopException("Error deleting execution " + header.id, e);
+        }
+      }
+    }
+    ExecutionDeleter.throwIfFailed(deleted, failed, firstFailure);
+    return deleted;
+  }
+
+  private void deleteTree(String executionId, Map<String, List<String>> children)
+      throws HopException {
+    deleteTree(executionId, children, new HashSet<>());
+  }
+
+  private void deleteTree(String executionId, Map<String, List<String>> children, Set<String> done)
+      throws HopException {
+    if (StringUtils.isEmpty(executionId) || !done.add(executionId)) {
+      return;
+    }
+    for (String childId : children.getOrDefault(executionId, List.of())) {
+      deleteTree(childId, children, done);
+    }
+    deleteFolder(executionId);
+  }
+
+  private void deleteFolder(String executionId) throws HopException {
+    FileObject executionFolder = null;
+    try {
+      executionFolder = HopVfs.getFileObject(getSubFolder(executionId), variables);
+      if (executionFolder == null || !executionFolder.exists()) {
+        return;
+      }
+      FileObject[] contents = executionFolder.getChildren();
+      if (contents != null) {
+        for (FileObject child : contents) {
+          try {
+            child.delete();
+          } finally {
+            child.close();
+          }
+        }
+      }
+      executionFolder.delete();
+    } catch (Exception e) {
+      throw new HopException("Error deleting execution with ID " + executionId, e);
+    } finally {
+      if (executionFolder != null) {
+        try {
+          executionFolder.close();
+        } catch (Exception ignored) {
+          // The folder is already deleted or was never opened.
+        }
+      }
+    }
+  }
+
+  /** Id, parent id, and start date. The pipeline XML and the state log are not kept. */
+  private static final class Header {
+    private String id;
+    private String parentId;
+    private Date start;
+  }
+
+  private List<Header> listHeaders(boolean needStart) throws HopException {
+    List<Header> headers = new ArrayList<>();
+    FileObject root = null;
+    try {
+      root = HopVfs.getFileObject(variables.resolve(rootFolder), variables);
+      if (root == null || !root.exists()) {
+        return headers;
+      }
+      FileObject[] children = root.getChildren();
+      if (children == null) {
+        return headers;
+      }
+      for (FileObject child : children) {
+        try {
+          if (child == null || !child.isFolder()) {
+            continue;
+          }
+          FileObject executionFile = child.getChild(FILENAME_EXECUTION_JSON);
+          if (executionFile == null || !executionFile.exists()) {
+            continue;
+          }
+          try (InputStream inputStream = HopVfs.getInputStream(executionFile)) {
+            Header header = readHeader(inputStream, needStart);
+            if (StringUtils.isEmpty(header.id)) {
+              header.id = child.getName().getBaseName();
+            }
+            headers.add(header);
+          } finally {
+            executionFile.close();
+          }
+        } finally {
+          if (child != null) {
+            child.close();
+          }
+        }
+      }
+      return headers;
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Error listing executions to delete", e);
+    } finally {
+      if (root != null) {
+        try {
+          root.close();
+        } catch (Exception ignored) {
+          // Listing already finished.
+        }
+      }
+    }
+  }
+
+  private static Map<String, List<String>> childrenByParent(List<Header> headers) {
+    Map<String, List<String>> children = new HashMap<>();
+    for (Header header : headers) {
+      if (StringUtils.isEmpty(header.id) || StringUtils.isEmpty(header.parentId)) {
+        continue;
+      }
+      children.computeIfAbsent(header.parentId, key -> new ArrayList<>()).add(header.id);
+    }
+    return children;
+  }
+
+  /**
+   * Reads identity fields and then stops. {@code executorXml} and {@code metadataJson} follow the
+   * parent id and are the large parts of the file. The start date is only read when a cutoff needs
+   * it, because that field is stored after the XML.
+   */
+  private static Header readHeader(InputStream inputStream, boolean needStart) throws IOException {
+    Header header = new Header();
+    boolean parentSeen = false;
+    try (JsonParser parser = HopJson.newFactory().createParser(inputStream)) {
+      if (parser.nextToken() != JsonToken.START_OBJECT) {
+        return header;
+      }
+      while (parser.nextToken() != null && parser.currentToken() != JsonToken.END_OBJECT) {
+        if (parser.currentToken() != JsonToken.FIELD_NAME) {
+          continue;
+        }
+        String field = parser.currentName();
+        if (!needStart && header.id != null && parentSeen && isHeavyExecutionField(field)) {
+          return header;
+        }
+        if (parser.nextToken() == null) {
+          break;
+        }
+        switch (field) {
+          case "id" -> header.id = parser.getValueAsString();
+          case "parentId" -> {
+            header.parentId = parser.getValueAsString();
+            parentSeen = true;
+          }
+          case "executionStartDate" -> header.start = readDate(parser);
+          default -> parser.skipChildren();
+        }
+        if (needStart && header.id != null && parentSeen && "executionStartDate".equals(field)) {
+          return header;
+        }
+      }
+    }
+    return header;
+  }
+
+  private static boolean isHeavyExecutionField(String field) {
+    return "executorXml".equals(field) || "metadataJson".equals(field);
+  }
+
+  private static Date readDate(JsonParser parser) throws IOException {
+    if (parser.currentToken() == null || parser.currentToken() == JsonToken.VALUE_NULL) {
+      return null;
+    }
+    if (parser.currentToken().isNumeric()) {
+      return new Date(parser.getLongValue());
+    }
+    String text = parser.getValueAsString();
+    if (StringUtils.isEmpty(text)) {
+      return null;
+    }
+    try {
+      return new Date(Long.parseLong(text));
+    } catch (NumberFormatException e) {
+      return Date.from(Instant.parse(text));
     }
   }
 

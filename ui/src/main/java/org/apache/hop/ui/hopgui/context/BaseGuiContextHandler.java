@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.context;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -144,22 +146,30 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
                 + actionFilter.getId());
       }
 
+      // The handler can be the plugin itself.
+      //
+      if (filterClass.isInstance(this)) {
+        return this;
+      }
+
       // The context already holds the graph that was clicked. getInstance() only returns the
       // active tab, and that is null when a test (or another caller) drives a graph that is not
-      // the active file. Invoking the filter on that null is what logged a stack trace for every
-      // context action.
+      // the active file. Prefer that graph over any other getter and over getInstance().
       //
       Object guiPlugin = pluginInstanceFromContext(filterClass);
       if (guiPlugin == null) {
-        guiPlugin = newFilterInstance(filterClass);
+        guiPlugin = pluginFromMethod(filterClass);
       }
       if (guiPlugin == null) {
+        guiPlugin = pluginFromField(filterClass);
+      }
+      if (guiPlugin == null) {
+        guiPlugin = newFilterInstance(filterClass);
+      }
+
+      if (guiPlugin == null) {
         throw new HopException(
-            "No instance of "
-                + actionFilter.getGuiPluginClassName()
-                + " for action filter "
-                + actionFilter.getId()
-                + ". getInstance() returned null and this context does not hold that plugin.");
+            "Couldn't find, load or create object for action filter " + actionFilter.getId());
       }
 
       return guiPlugin;
@@ -196,38 +206,86 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
     }
   }
 
-  private Object newFilterInstance(Class<?> filterClass) throws Exception {
-    try {
-      Method getInstanceMethod = filterClass.getDeclaredMethod("getInstance");
-      return getInstanceMethod.invoke(null, (Object[]) null);
-    } catch (Exception noSingleton) {
-      // On the rebound we'll try to simply construct a new instance...
-      // This makes the plugins even simpler.
-      //
-      try {
-        return filterClass.getDeclaredConstructor().newInstance();
-      } catch (Exception e) {
-        throw noSingleton;
+  /** A no-arg method on this handler whose return type is the filter class. */
+  private Object pluginFromMethod(Class<?> filterClass) {
+    for (Method method : getClass().getMethods()) {
+      if (method.getParameterCount() == 0 && filterClass.isAssignableFrom(method.getReturnType())) {
+        try {
+          Object candidate = method.invoke(this);
+          if (candidate != null) {
+            return candidate;
+          }
+        } catch (Exception ignored) {
+          // Continue searching
+        }
       }
     }
+    return null;
+  }
+
+  /** A field on this handler whose type is the filter class. */
+  private Object pluginFromField(Class<?> filterClass) {
+    Class<?> clazz = getClass();
+    while (clazz != null && clazz != Object.class) {
+      for (Field field : clazz.getDeclaredFields()) {
+        if (filterClass.isAssignableFrom(field.getType())) {
+          try {
+            field.setAccessible(true);
+            Object candidate = field.get(this);
+            if (candidate != null) {
+              return candidate;
+            }
+          } catch (Exception ignored) {
+            // Continue searching
+          }
+        }
+      }
+      clazz = clazz.getSuperclass();
+    }
+    return null;
+  }
+
+  /**
+   * {@code getInstance()} when it returns a plugin, otherwise a new instance. A null singleton is
+   * not a plugin, so the constructor is still tried.
+   */
+  private Object newFilterInstance(Class<?> filterClass) {
+    Object guiPlugin = null;
+    try {
+      Method getInstanceMethod = filterClass.getDeclaredMethod("getInstance");
+      guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
+    } catch (Exception ignored) {
+      // No singleton. A new instance is just as usable for these filters.
+    }
+    if (guiPlugin == null) {
+      try {
+        Constructor<?> constructor = filterClass.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        guiPlugin = constructor.newInstance();
+      } catch (Exception ignored) {
+        // No instance available.
+      }
+    }
+    return guiPlugin;
   }
 
   public Method getFilterMethod(Class<?> filterClass, GuiActionFilter actionFilter)
       throws HopException {
     try {
-
-      Method method =
-          filterClass.getMethod(actionFilter.getGuiPluginMethodName(), String.class, getClass());
-      if (method == null) {
-        throw new HopException(
-            "Couldn't find method "
-                + actionFilter.getGuiPluginMethodName()
-                + " class "
-                + actionFilter.getGuiPluginClassName()
-                + " for action filter "
-                + actionFilter.getId());
+      try {
+        return filterClass.getMethod(
+            actionFilter.getGuiPluginMethodName(), String.class, getClass());
+      } catch (NoSuchMethodException nsme) {
+        for (Method method : filterClass.getMethods()) {
+          if (method.getName().equals(actionFilter.getGuiPluginMethodName())
+              && method.getParameterCount() == 2
+              && method.getParameterTypes()[0].isAssignableFrom(String.class)
+              && method.getParameterTypes()[1].isAssignableFrom(getClass())) {
+            return method;
+          }
+        }
+        throw nsme;
       }
-      return method;
     } catch (Exception e) {
       throw new HopException("Error finding action filter method " + actionFilter.getId(), e);
     }
@@ -238,6 +296,10 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
 
     try {
       Object guiPlugin = getFilterObject(actionFilter);
+      if (guiPlugin == null) {
+        throw new HopException(
+            "Couldn't find, load or create object for action filter " + actionFilter.getId());
+      }
       Method method = getFilterMethod(guiPlugin.getClass(), actionFilter);
 
       // Invoke the action filter method...

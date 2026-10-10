@@ -245,6 +245,7 @@ The provider-specific part is narrow, and it is already documented per provider:
 
 * *Storage* — xref:vfs.adoc[Virtual File System], with pages for xref:vfs/aws-s3-vfs.adoc[Amazon S3], xref:vfs/azure-blob-storage-vfs.adoc[Azure Storage], xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage], xref:vfs/minio-vfs.adoc[MinIO] and xref:vfs/databricks-vfs.adoc[Databricks].
 Any S3-compatible service, including those of providers without a dedicated page, is reachable through the S3 or MinIO file system.
+In a container, pass the credentials as described in xref:docker-container.adoc#CloudCredentials[Cloud storage credentials].
 * *Secrets* — xref:metadata-types/variable-resolver/index.adoc[Variable Resolver], with resolvers for xref:metadata-types/variable-resolver/aws-secrets-manager-variable-resolver.adoc[AWS Secrets Manager], xref:metadata-types/variable-resolver/azure-key-vault-variable-resolver.adoc[Azure Key Vault], xref:metadata-types/variable-resolver/google-secret-manager-variable-resolver.adoc[Google Secret Manager], xref:metadata-types/variable-resolver/hashicorp-vault-variable-resolver.adoc[HashiCorp Vault] and xref:metadata-types/variable-resolver/openbao-variable-resolver.adoc[OpenBAO].
 * *Databases* — xref:database/databases.adoc[Relational Database Connections].
 Managed database services are ordinary JDBC connections; the driver still has to be in the image.

@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "ip",
+          "data_set_field": "ip"
+        },
+        {
+          "transform_field": "label1",
+          "data_set_field": "label1"
+        },
+        {
+          "transform_field": "label2",
+          "data_set_field": "label2"
+        }
+      ],
+      "field_order": [
+        "ip",
+        "label1",
+        "label2"
+      ],
+      "transform_name": "Validation",
+      "data_set_name": "node-mapping-set-label-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "neo4j-graph-output-validation-node-mapping-set-label UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/neo4j-graph-output/neo4j-graph-output-validation-node-mapping-set-label.hpl",
+  "test_type": "UNIT_TEST"
+}

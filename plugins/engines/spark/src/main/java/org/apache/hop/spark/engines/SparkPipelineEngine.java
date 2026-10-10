@@ -1118,7 +1118,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       }
     }
 
-    // Lakehouse: Delta/Iceberg extensions, hop_iceberg PATH catalog, SparkCatalog metadata.
+    // Lakehouse: Delta/Iceberg extensions, hop_iceberg PATH catalog, LakeCatalog metadata.
     // Applied after run-config sparkConfigs so lake defaults fill gaps; explicit run-config
     // keys already set above win if the user overrode them (except catalog apply overwrites).
     if (!lakePlan.isEmpty()) {

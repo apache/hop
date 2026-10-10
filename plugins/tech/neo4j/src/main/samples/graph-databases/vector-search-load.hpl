@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>vector-search-load</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Write documents and topics with Vector properties through the vector-docs graph model. Run it from vector-search.hwf, which creates the vector indexes first.</description>
+    <extended_description />
+    <pipeline_version />
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/10/07 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/10/07 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <heigth>75</heigth>
+      <xloc>48</xloc>
+      <yloc>16</yloc>
+      <note>The embedding fields have the Vector value type. In the vector-docs graph model the properties
+Doc.embedding and ABOUT.embedding have the type Vector, so Graph output writes them as vectors:
+a list of floats on Neo4j and Memgraph, vecf32() on FalkorDB.
+In a real pipeline the vectors come from the Embed text transform. These have 3 dimensions.</note>
+      <width>640</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Documents</from>
+      <to>Write documents and topics</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Documents</name>
+    <type>DataGrid</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>doc_id</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>title</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>doc_embedding</name>
+        <type>Vector</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>topic</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>passage</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>about_embedding</name>
+        <type>Vector</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>D1</item>
+        <item>Brewing Belgian beer</item>
+        <item>[0.9,0.1,0.0]</item>
+        <item>beer</item>
+        <item>Mashing, boiling and fermenting</item>
+        <item>[0.95,0.05,0.0]</item>
+      </line>
+      <line>
+        <item>D2</item>
+        <item>Hop varieties</item>
+        <item>[0.8,0.2,0.1]</item>
+        <item>beer</item>
+        <item>Bitterness and aroma of hops</item>
+        <item>[0.7,0.3,0.0]</item>
+      </line>
+      <line>
+        <item>D3</item>
+        <item>Graph databases</item>
+        <item>[0.0,0.9,0.2]</item>
+        <item>data</item>
+        <item>Nodes, relationships and properties</item>
+        <item>[0.0,1.0,0.1]</item>
+      </line>
+      <line>
+        <item>D4</item>
+        <item>Vector search</item>
+        <item>[0.1,0.7,0.6]</item>
+        <item>data</item>
+        <item>Indexes for nearest neighbours</item>
+        <item>[0.1,0.6,0.7]</item>
+      </line>
+      <line>
+        <item>D5</item>
+        <item>Cycling in Flanders</item>
+        <item>[0.1,0.0,0.9]</item>
+        <item>sport</item>
+        <item>Cobbles and climbs</item>
+        <item>[0.0,0.1,0.95]</item>
+      </line>
+    </data>
+    <attributes />
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Write documents and topics</name>
+    <type>Neo4jGraphOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <batch_size>100</batch_size>
+    <connection>demo-neo4j</connection>
+    <create_indexes>N</create_indexes>
+    <mappings>
+      <mapping>
+        <source_field>doc_id</source_field>
+        <target_hint>None</target_hint>
+        <target_name>Doc</target_name>
+        <target_property>id</target_property>
+        <target_type>Node</target_type>
+      </mapping>
+      <mapping>
+        <source_field>title</source_field>
+        <target_hint>None</target_hint>
+        <target_name>Doc</target_name>
+        <target_property>title</target_property>
+        <target_type>Node</target_type>
+      </mapping>
+      <mapping>
+        <source_field>doc_embedding</source_field>
+        <target_hint>None</target_hint>
+        <target_name>Doc</target_name>
+        <target_property>embedding</target_property>
+        <target_type>Node</target_type>
+      </mapping>
+      <mapping>
+        <source_field>topic</source_field>
+        <target_hint>None</target_hint>
+        <target_name>Topic</target_name>
+        <target_property>name</target_property>
+        <target_type>Node</target_type>
+      </mapping>
+      <mapping>
+        <source_field>passage</source_field>
+        <target_hint>None</target_hint>
+        <target_name>ABOUT</target_name>
+        <target_property>passage</target_property>
+        <target_type>Relationship</target_type>
+      </mapping>
+      <mapping>
+        <source_field>about_embedding</source_field>
+        <target_hint>None</target_hint>
+        <target_name>ABOUT</target_name>
+        <target_property>embedding</target_property>
+        <target_type>Relationship</target_type>
+      </mapping>
+    </mappings>
+    <model>vector-docs</model>
+    <node_mappings>
+    </node_mappings>
+    <out_of_order_allowed>N</out_of_order_allowed>
+    <relationship_mappings>
+    </relationship_mappings>
+    <return_graph_field>graph</return_graph_field>
+    <returning_graph>N</returning_graph>
+    <validate_against_model>N</validate_against_model>
+    <attributes />
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes />
+</pipeline>

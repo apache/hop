@@ -108,6 +108,17 @@ class JsonInputMetaTest {
         "valueField must sync acceptingField after XML load");
   }
 
+  @Test
+  void missingResolveJsonPathsPropertyDefaultsToTrue() throws Exception {
+    JsonInputMeta loaded = new JsonInputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString("<transform><fields/></transform>", TransformMeta.XML_TAG),
+        JsonInputMeta.class,
+        loaded,
+        new MemoryMetadataProvider());
+    assertTrue(loaded.isResolveJsonPaths());
+  }
+
   private static void validate(JsonInputMeta meta) {
     assertNotNull(meta.getInputFields());
     assertNotNull(meta.getFileInput().getInputFiles());

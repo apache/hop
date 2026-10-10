@@ -250,12 +250,35 @@ public class ProgressMonitorDialog {
     }
   }
 
+  /**
+   * SWT builds a {@code char[length * 2]} copy of a label to escape mnemonics. A progress line is
+   * one row, and an unbounded string here is what ran the GUI out of heap while deleting.
+   */
+  static final int MAX_LABEL_CHARS = 2000;
+
+  static String labelText(String message) {
+    String text = Const.NVL(message, "");
+    if (text.length() <= MAX_LABEL_CHARS) {
+      return text;
+    }
+    return text.substring(0, MAX_LABEL_CHARS);
+  }
+
   private class ProgressMonitor implements IProgressMonitor {
 
     /** IProgressMonitor.worked() reports deltas; we accumulate for the SWT progress bar. */
     private int workedAccumulated;
 
     private final AtomicBoolean workedFlushScheduled = new AtomicBoolean(false);
+
+    /** Only the latest sub-task is queued. One event per execution exhausts the heap. */
+    private volatile String pendingSubTask;
+
+    private final AtomicBoolean subTaskFlushScheduled = new AtomicBoolean(false);
+
+    private volatile String pendingTaskName;
+
+    private final AtomicBoolean taskNameFlushScheduled = new AtomicBoolean(false);
 
     private final Runnable workedFlushRunnable =
         () -> {
@@ -284,7 +307,7 @@ public class ProgressMonitorDialog {
                 return;
               }
               try {
-                wlTask.setText(Const.NVL(message, ""));
+                wlTask.setText(labelText(message));
                 wProgressBar.setMaximum(nrWorks);
                 wProgressBar.setSelection(0);
               } catch (Exception e) {
@@ -294,21 +317,31 @@ public class ProgressMonitorDialog {
           });
     }
 
+    private final Runnable subTaskFlushRunnable =
+        () -> {
+          subTaskFlushScheduled.set(false);
+          String message = pendingSubTask;
+          synchronized (shell) {
+            if (shell.isDisposed() || wlSubTask.isDisposed()) {
+              return;
+            }
+            try {
+              wlSubTask.setText(labelText(message));
+            } catch (Exception e) {
+              // Ignore race condition
+            }
+          }
+        };
+
     @Override
     public void subTask(String message) {
-      display.asyncExec(
-          () -> {
-            synchronized (shell) {
-              if (shell.isDisposed() || wlSubTask.isDisposed()) {
-                return;
-              }
-              try {
-                wlSubTask.setText(Const.NVL(message, ""));
-              } catch (Exception e) {
-                // Ignore race condition
-              }
-            }
-          });
+      pendingSubTask = message;
+      if (display == null || display.isDisposed()) {
+        return;
+      }
+      if (subTaskFlushScheduled.compareAndSet(false, true)) {
+        display.asyncExec(subTaskFlushRunnable);
+      }
     }
 
     @Override
@@ -334,21 +367,31 @@ public class ProgressMonitorDialog {
       dispose();
     }
 
+    private final Runnable taskNameFlushRunnable =
+        () -> {
+          taskNameFlushScheduled.set(false);
+          String taskName = pendingTaskName;
+          synchronized (shell) {
+            if (shell.isDisposed() || wlTask.isDisposed()) {
+              return;
+            }
+            try {
+              wlTask.setText(labelText(taskName));
+            } catch (Exception e) {
+              // Ignore race condition
+            }
+          }
+        };
+
     @Override
     public void setTaskName(String taskName) {
-      display.asyncExec(
-          () -> {
-            synchronized (shell) {
-              if (shell.isDisposed() || wlTask.isDisposed()) {
-                return;
-              }
-              try {
-                wlTask.setText(Const.NVL(taskName, ""));
-              } catch (Exception e) {
-                // Ignore race condition
-              }
-            }
-          });
+      pendingTaskName = taskName;
+      if (display == null || display.isDisposed()) {
+        return;
+      }
+      if (taskNameFlushScheduled.compareAndSet(false, true)) {
+        display.asyncExec(taskNameFlushRunnable);
+      }
     }
   }
 }

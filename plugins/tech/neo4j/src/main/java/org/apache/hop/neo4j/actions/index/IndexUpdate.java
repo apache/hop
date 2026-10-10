@@ -17,8 +17,13 @@
 
 package org.apache.hop.neo4j.actions.index;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.core.graph.GraphVectorSimilarity;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class IndexUpdate {
   @HopMetadataProperty(key = "object_type")
   private ObjectType objectType;
@@ -34,6 +39,22 @@ public class IndexUpdate {
 
   @HopMetadataProperty(key = "update_type")
   private UpdateType type;
+
+  /** RANGE (the default, also for actions saved before vector indexes) or VECTOR. */
+  @HopMetadataProperty(key = "index_type")
+  private IndexType indexType;
+
+  /** VECTOR indexes: the number of dimensions of the vectors. */
+  @HopMetadataProperty(key = "vector_dimensions")
+  private String vectorDimensions;
+
+  /** VECTOR indexes: how vectors are compared, COSINE when not set. */
+  @HopMetadataProperty(key = "vector_similarity")
+  private GraphVectorSimilarity vectorSimilarity;
+
+  /** VECTOR indexes on Memgraph: the number of vectors to reserve room for. */
+  @HopMetadataProperty(key = "vector_capacity")
+  private String vectorCapacity;
 
   public IndexUpdate() {}
 
@@ -56,85 +77,30 @@ public class IndexUpdate {
     this.objectName = i.objectName;
     this.objectProperties = i.objectProperties;
     this.type = i.type;
+    this.indexType = i.indexType;
+    this.vectorDimensions = i.vectorDimensions;
+    this.vectorSimilarity = i.vectorSimilarity;
+    this.vectorCapacity = i.vectorCapacity;
   }
 
-  /**
-   * Gets objectType
-   *
-   * @return value of objectType
-   */
-  public ObjectType getObjectType() {
-    return objectType;
+  /** A vector index update. */
+  public static IndexUpdate vector(
+      UpdateType type,
+      ObjectType objectType,
+      String indexName,
+      String objectName,
+      String property,
+      String dimensions,
+      GraphVectorSimilarity similarity) {
+    IndexUpdate update = new IndexUpdate(type, objectType, indexName, objectName, property);
+    update.setIndexType(IndexType.VECTOR);
+    update.setVectorDimensions(dimensions);
+    update.setVectorSimilarity(similarity);
+    return update;
   }
 
-  /**
-   * @param objectType The objectType to set
-   */
-  public void setObjectType(ObjectType objectType) {
-    this.objectType = objectType;
-  }
-
-  /**
-   * Gets indexName
-   *
-   * @return value of indexName
-   */
-  public String getIndexName() {
-    return indexName;
-  }
-
-  /**
-   * @param indexName The indexName to set
-   */
-  public void setIndexName(String indexName) {
-    this.indexName = indexName;
-  }
-
-  /**
-   * Gets nodeName
-   *
-   * @return value of nodeName
-   */
-  public String getObjectName() {
-    return objectName;
-  }
-
-  /**
-   * @param objectName The nodeName to set
-   */
-  public void setObjectName(String objectName) {
-    this.objectName = objectName;
-  }
-
-  /**
-   * Gets properties
-   *
-   * @return value of properties
-   */
-  public String getObjectProperties() {
-    return objectProperties;
-  }
-
-  /**
-   * @param objectProperties The properties to set
-   */
-  public void setObjectProperties(String objectProperties) {
-    this.objectProperties = objectProperties;
-  }
-
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public UpdateType getType() {
-    return type;
-  }
-
-  /**
-   * @param type The type to set
-   */
-  public void setType(UpdateType type) {
-    this.type = type;
+  /** True for a vector index. */
+  public boolean isVector() {
+    return indexType == IndexType.VECTOR;
   }
 }

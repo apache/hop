@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.variables;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -49,5 +51,23 @@ class VariableRegistryTest {
     assertEquals(
         "Specifies the password encoder plugin to use by ID (Hop is the default).",
         describedVariable.getDescription());
+  }
+
+  @Test
+  void testZipMaxEntrySizeMetadata() throws Exception {
+    HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
+
+    VariableRegistry.init();
+    VariableRegistry registry = VariableRegistry.getInstance();
+    DescribedVariable describedVariable =
+        registry.findDescribedVariable(Const.HOP_ZIP_MAX_ENTRY_SIZE);
+
+    assertNotNull(describedVariable);
+    assertAll(
+        () ->
+            assertEquals(Const.HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING, describedVariable.getValue()),
+        () -> assertFalse(describedVariable.getDescription().isBlank()),
+        () -> assertNull(registry.findDescribedVariable("HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING")));
   }
 }

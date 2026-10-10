@@ -20,13 +20,12 @@ package org.apache.hop.neo4j.transforms.output;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.graph.IGraphConnection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NamedGraphConnection;
 import org.apache.hop.neo4j.transforms.BaseNeoTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
 
 @SuppressWarnings("java:S1104")
 public class Neo4JOutputData extends BaseNeoTransformData implements ITransformData {
@@ -35,10 +34,9 @@ public class Neo4JOutputData extends BaseNeoTransformData implements ITransformD
 
   public String[] fieldNames;
 
-  public NeoConnection neoConnection;
+  public NamedGraphConnection graphConnection;
+  public IGraphConnection connection;
   public String url;
-  public Driver driver;
-  public Session session;
 
   public long batchSize;
   public long outputCount;

@@ -30,6 +30,7 @@ The Sorted schema merge transform combines the behavior of xref:pipeline/transfo
 * Fields that are not present on a given input stream are left *null* (sparse row layout) on rows that come from that stream.
 
 A typical use case is combining data from multiple Data Vault satellites that share business keys and load timestamps, then using xref:pipeline/transforms/repeatfields.adoc[Repeat fields] to fill previously known attribute values when building an SCD2 table.
+The steps around that merge are described in xref:how-to-guides/high-volume-scd2.adoc[High-volume SCD2 loads].
 
 IMPORTANT: Each input stream must already be sorted on the configured sort keys (for example with `ORDER BY` in xref:pipeline/transforms/tableinput.adoc[Table Input], or with xref:pipeline/transforms/sort.adoc[Sort Rows]). This transform does *not* re-sort within each stream; it only merges already-sorted streams.
 

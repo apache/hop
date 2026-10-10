@@ -1,0 +1,50 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Get graph logging info transform gets the dates of earlier executions from the execution logging in a graph database.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-marketplace: hop-tech-neo4j
+:page-aliases: pipeline/transforms/neo4j-getloginfo.adoc
+
+= image:transforms/icons/graph_logging_info.svg[Get graph logging info transform Icon, role="image-doc-icon"] Get graph logging info
+
+== Description
+
+The Get graph logging info transform (previously Get Neo4j logging info) gets the dates of earlier executions of pipelines and workflows from the execution logging in a graph database.
+Use it for example to load only what changed since the last successful run.
+
+The execution logging goes to the connection named in the variable `HOP_GRAPH_LOGGING_CONNECTION`: a Neo4j connection or a graph database connection of a Cypher database.
+`NEO4J_LOGGING_CONNECTION` works as well, `HOP_GRAPH_LOGGING_CONNECTION` takes precedence.
+Check the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective] for more details.
+
+== Options
+
+Specify a field for every date you need.
+
+[options="header"]
+|===
+|Type|Argument|Output
+|Specified pipeline: Start of date range|the pipeline name|the start date of the pipeline's last finished execution
+|Specified pipeline: End of date range|the pipeline name|the current date
+|Specified pipeline : Previous execution date|the pipeline name|the start date of the last finished execution of the pipeline
+|Specified pipeline : Previous success date|the pipeline name|the start date of the last execution of the pipeline which finished without errors
+|Specified workflow: Start of date range|the workflow name|the start date of the workflow's last finished execution
+|Specified workflow: End of date range|the workflow name|the current date
+|Specified workflow: Previous execution date|the workflow name|the start date of the last finished execution of the workflow
+|Specified workflow: Previous success date|the workflow name|the start date of the last execution of the workflow which finished without errors
+|===

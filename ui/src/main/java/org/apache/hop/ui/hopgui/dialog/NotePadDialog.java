@@ -28,8 +28,11 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.StyledTextVar;
 import org.apache.hop.ui.core.widget.TextComposite;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditContext;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -60,7 +63,7 @@ public class NotePadDialog extends Dialog {
 
   private NotePadMeta notePadMeta;
 
-  private StyledTextComp wDesc;
+  private TextComposite wDesc;
 
   private Button wMarkdown;
 
@@ -272,17 +275,23 @@ public class NotePadDialog extends Dialog {
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(wNoteType, margin);
     wlDesc.setLayoutData(fdlDesc);
-    wDesc =
-        new StyledTextComp(
-            variables,
-            wNoteContentComp,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            TextComposite.STYLE_TYPE_TEXT);
+    // Hop Web (RAP) has no StyledText. Desktop uses StyledTextVar so undo and redo work.
+    int noteStyle = SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL;
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      wDesc =
+          new StyledTextComp(
+              variables, wNoteContentComp, noteStyle, TextComposite.STYLE_TYPE_MARKDOWN);
+    } else {
+      wDesc =
+          new StyledTextVar(
+              variables, wNoteContentComp, noteStyle, TextComposite.STYLE_TYPE_MARKDOWN);
+    }
+    MarkdownEditContext.attach(
+        wDesc, variables, () -> baseFilename, () -> wMarkdown.getSelection());
     wDesc.setText("");
     // Standard widget look (theme-aware). Do not paint note fill/font colors into the editor —
     // those are canvas-only and break dark mode. Use a fixed-width font for Markdown source.
     PropsUi.setLook(wDesc);
-    PropsUi.setLook(wDesc.getTextWidget());
     wDesc.setFont(GuiResource.getInstance().getFontFixed());
     FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);
@@ -706,6 +715,9 @@ public class NotePadDialog extends Dialog {
     // Font & style are system-owned in Markdown mode
     if (wNoteFontComp != null && !wNoteFontComp.isDisposed()) {
       setEnabledRecursive(wNoteFontComp, !markdown);
+    }
+    if (wDesc != null && !wDesc.isDisposed()) {
+      wDesc.updateToolbar();
     }
   }
 

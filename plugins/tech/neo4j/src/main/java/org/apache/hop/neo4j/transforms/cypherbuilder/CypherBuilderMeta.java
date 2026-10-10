@@ -41,10 +41,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     id = "Neo4jCypherBuilder",
     name = "i18n::CypherBuilderMeta.name",
     description = "i18n::CypherBuilderMeta.description",
-    image = "neo4j_cypher.svg",
-    categoryDescription = "Neo4j",
+    image = "cypher_builder.svg",
+    categoryDescription = "Graph",
     keywords = "i18n::CypherBuilderMeta.keyword",
-    documentationUrl = "/pipeline/transforms/neo4j-cypher-builder.html")
+    documentationUrl = "/pipeline/transforms/cypher-builder.html")
 public class CypherBuilderMeta extends BaseTransformMeta<CypherBuilder, CypherBuilderData> {
   public static final String ROWS_UNWIND_MAP_ENTRY = "rows";
 

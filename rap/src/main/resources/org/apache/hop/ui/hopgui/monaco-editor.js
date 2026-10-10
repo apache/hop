@@ -327,6 +327,10 @@
         if (self._destroyed || !self._container || !self._container.parentNode) return;
 
         var langForEditor = toMonacoLang(self._language);
+        var tabSize = window.hopTextTabSize;
+        if (typeof tabSize !== 'number' || tabSize < 1 || tabSize > 32) {
+          tabSize = 2;
+        }
         self._editor = window.monaco.editor.create(container, {
           value: self._content,
           language: langForEditor,
@@ -334,6 +338,8 @@
           readOnly: self._readOnly,
           // Copy or cut the current line when nothing is selected, same as the other text fields.
           emptySelectionClipboard: true,
+          // Width only. Detection stays on, so a Makefile or a tab-indented file keeps its own indent.
+          tabSize: tabSize,
           automaticLayout: true,
           scrollBeyondLastLine: false,
           minimap: { enabled: true },

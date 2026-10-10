@@ -1,0 +1,31 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements. See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+== Elasticsearch and OpenSearch compatibility
+
+These transforms use Apache Beam **2.74.0** `ElasticsearchIO` and its transitive Elasticsearch low-level REST client **7.17.22**.
+The link:https://github.com/apache/beam/blob/v2.74.0/sdks/java/io/elasticsearch/src/main/java/org/apache/beam/sdk/io/elasticsearch/ElasticsearchIO.java[Beam implementation] discovers the backend version from `GET /` and accepts Elasticsearch major versions **5, 6, 7, 8 and 9**; support for 5 and 6 is deprecated upstream.
+This is Beam's version gate, not a certification of every server version, distribution, security configuration or runner.
+
+* For Elasticsearch 5/6 output, supply the legacy document type required by your index. Input may use a type to restrict the search.
+* For Elasticsearch 7 and later, leave document type blank for typeless endpoints; typed paths are deprecated in 7 and removed in 8 and later.
+* OpenSearch is **not a supported native backend** for this connector. Native OpenSearch version responses with major versions 1, 2 or 3 are rejected by Beam's version detection before reading documents.
+* A server or proxy that reports an Elasticsearch-compatible version can bypass that check, but this does **not** establish OpenSearch compatibility. Scroll, index statistics, bulk request/response formats, privileges and authentication must be verified for that exact deployment. Hop does not override or spoof the backend version.
+* Only basic username/password authentication is exposed. AWS SigV4 signing, API keys, bearer tokens, custom HTTP headers and mutual TLS configuration are not provided by these dialogs.
+* HTTPS uses the REST client's normal certificate and hostname verification. There is no trust-all switch. Supply the necessary trusted CA through the worker JVM trust configuration on **every worker**.
+
+The automated tests exercise the real Beam Direct runner and ElasticsearchIO against an in-process HTTP protocol fixture, including version discovery, sliced scroll requests, bulk payloads and item errors.
+They do not use a live Elasticsearch/OpenSearch cluster and do not certify those products or remote runners.

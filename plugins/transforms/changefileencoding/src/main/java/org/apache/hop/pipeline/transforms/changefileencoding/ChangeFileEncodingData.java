@@ -27,6 +27,7 @@ public class ChangeFileEncodingData extends BaseTransformData implements ITransf
   public int indexOfFileename;
   public int indexOfTargetFileename;
   public FileObject sourceFile;
+  public FileObject targetFile;
 
   public String sourceEncoding;
   public String targetEncoding;
@@ -38,6 +39,7 @@ public class ChangeFileEncodingData extends BaseTransformData implements ITransf
     indexOfFileename = -1;
     indexOfTargetFileename = -1;
     sourceFile = null;
+    targetFile = null;
     sourceEncoding = null;
     targetEncoding = null;
   }

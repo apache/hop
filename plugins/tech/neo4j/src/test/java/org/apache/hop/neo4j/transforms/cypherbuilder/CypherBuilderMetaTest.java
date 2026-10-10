@@ -62,7 +62,7 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(merge);
 
     assertEquals(
-        "MERGE(n:Customer {id:{pId}} ) SET n.lastName={pLastName}, n.firstName={pFirstName} "
+        "MERGE(n:Customer {id:$pId} ) SET n.lastName=$pLastName, n.firstName=$pFirstName "
             + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
@@ -102,7 +102,7 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(create);
 
     assertEquals(
-        "CREATE(n:Customer {id:{pId}} ) SET n.firstName={pFirstName} " + Const.CR,
+        "CREATE(n:Customer {id:$pId} ) SET n.firstName=$pFirstName " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -139,7 +139,7 @@ class CypherBuilderMetaTest {
     match.setKeys(List.of(new Property("id", "pId")));
     meta.getOperations().add(match);
 
-    assertEquals("MATCH(c:Customer {id:{pId}} ) " + Const.CR, meta.getCypher(variables));
+    assertEquals("MATCH(c:Customer {id:$pId} ) " + Const.CR, meta.getCypher(variables));
     testSerialization(meta);
   }
 
@@ -180,7 +180,7 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(ret);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) "
+        "MATCH(c:Customer {id:$pId} ) "
             + Const.CR
             + "RETURN c.firstName AS first_name, c.lastName AS last_name "
             + Const.CR,
@@ -209,9 +209,9 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(edgeCreate);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) "
+        "MATCH(c:Customer {id:$pId} ) "
             + Const.CR
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) "
+            + "MATCH(o:Location {zipCode:$pZipCode} ) "
             + Const.CR
             + "MATCH(c)-[r:HAS_LOCATION]->(o) "
             + Const.CR,
@@ -240,9 +240,9 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(edgeCreate);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) "
+        "MATCH(c:Customer {id:$pId} ) "
             + Const.CR
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) "
+            + "MATCH(o:Location {zipCode:$pZipCode} ) "
             + Const.CR
             + "CREATE(c)-[r:HAS_LOCATION]->(o) "
             + Const.CR,
@@ -271,9 +271,9 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(edgeCreate);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) "
+        "MATCH(c:Customer {id:$pId} ) "
             + Const.CR
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) "
+            + "MATCH(o:Location {zipCode:$pZipCode} ) "
             + Const.CR
             + "MERGE(c)-[r:HAS_LOCATION]->(o) "
             + Const.CR,
@@ -310,9 +310,9 @@ class CypherBuilderMetaTest {
     meta.getOperations().add(ret);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) "
+        "MATCH(c:Customer {id:$pId} ) "
             + Const.CR
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) "
+            + "MATCH(o:Location {zipCode:$pZipCode} ) "
             + Const.CR
             + "MATCH(c)-[r:HAS_LOCATION]->(o) "
             + Const.CR

@@ -35,7 +35,7 @@
   ],
   "input_data_sets": [],
   "name": "0115-text-chunker-structure-markdown UNIT",
-  "description": "Structure chunking of Markdown: one chunk per section, prefixed with its heading path",
+  "description": "Structure chunking of Markdown: one chunk per section, prefixed with its heading path; whitespace-only chunks are dropped",
   "trans_test_tweaks": [],
   "persist_filename": "",
   "pipeline_filename": "./0115-text-chunker-structure-markdown.hpl",

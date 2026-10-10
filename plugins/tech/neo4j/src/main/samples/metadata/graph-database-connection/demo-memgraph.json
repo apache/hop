@@ -1,0 +1,30 @@
+{
+  "graphDatabase": {
+    "MEMGRAPH": {
+      "databaseName": "",
+      "manualUrls": [],
+      "automaticVariable": "",
+      "usingEncryptionVariable": "",
+      "maxTransactionRetryTime": "",
+      "connectionLivenessCheckTimeout": "",
+      "connectionTimeout": "",
+      "connectionAcquisitionTimeout": "",
+      "trustAllCertificatesVariable": "",
+      "maxConnectionLifetime": "",
+      "routingVariable": "",
+      "routingPolicy": "",
+      "trustAllCertificates": false,
+      "maxConnectionPoolSize": "",
+      "server": "${MEMGRAPH_HOSTNAME}",
+      "boltPort": "${MEMGRAPH_PORT}",
+      "browserPort": "",
+      "username": "",
+      "password": "",
+      "automatic": false,
+      "protocol": "bolt",
+      "routing": false,
+      "usingEncryption": false
+    }
+  },
+  "name": "demo-memgraph"
+}

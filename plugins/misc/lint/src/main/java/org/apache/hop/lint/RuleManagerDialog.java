@@ -171,6 +171,10 @@ public class RuleManagerDialog extends Dialog {
     enabledColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.Enabled"));
     enabledColumn.setWidth(80);
 
+    TableColumn tagsColumn = new TableColumn(rulesTable, SWT.LEFT);
+    tagsColumn.setText(BaseMessages.getString(PKG, "RuleManagerDialog.Column.Tags"));
+    tagsColumn.setWidth(200);
+
     FormData tableData = new FormData();
     tableData.left = new FormAttachment(0, margin);
     tableData.right = new FormAttachment(100, -(BUTTON_PANEL_WIDTH + 2 * margin));
@@ -294,7 +298,9 @@ public class RuleManagerDialog extends Dialog {
       if (rule.isComposed()) {
         item.setText(
             4, rule.getClauses().size() + " fields (" + rule.getCombinator().getYamlKey() + ")");
-        item.setText(5, rule.getCombinator() == RuleCombinator.ALL_OF ? "All of" : "Any of");
+        // A condition says what is required; the rule reports when the conditions are not met.
+        item.setText(
+            5, rule.getCombinator() == RuleCombinator.ALL_OF ? "All not met" : "Any not met");
         item.setText(6, "");
       } else {
         item.setText(5, rule.getCondition() != null ? rule.getCondition().getDisplayName() : "");
@@ -302,6 +308,7 @@ public class RuleManagerDialog extends Dialog {
       }
       item.setText(7, rule.getSeverity() != null ? rule.getSeverity() : "WARNING");
       item.setText(8, rule.isEnabled() ? "✓" : "✗");
+      item.setText(9, String.join(", ", LintRuleDetails.flatTags(rule.getTags())));
       item.setData(rule);
     }
   }

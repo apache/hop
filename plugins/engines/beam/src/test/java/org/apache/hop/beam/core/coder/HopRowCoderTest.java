@@ -66,6 +66,17 @@ class HopRowCoderTest {
   }
 
   @Test
+  void integerIndexRoundTripsWithoutBecomingALong() throws IOException {
+    HopRow row = new HopRow(new Object[] {Integer.valueOf(1), 2L});
+    hopRowCoder.encode(row, outputStream);
+    HopRow decoded = hopRowCoder.decode(new ByteArrayInputStream(outputStream.toByteArray()));
+    assertEquals(Integer.class, decoded.getRow()[0].getClass());
+    assertEquals(1, decoded.getRow()[0]);
+    assertEquals(Long.class, decoded.getRow()[1].getClass());
+    assertEquals(2L, decoded.getRow()[1]);
+  }
+
+  @Test
   void testEncodeDecodeAvro() throws Exception {
     String schemaJson =
         """

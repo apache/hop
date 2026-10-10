@@ -17,9 +17,11 @@
 
 package org.apache.hop.spark.util;
 
+import org.apache.hop.lakehouse.LakehouseConst;
+
 public final class SparkConst {
 
-  public static final String PLUGIN_ID = "SparkPipelineEngine";
+  public static final String PLUGIN_ID = LakehouseConst.SPARK_ENGINE_ID;
   public static final String PLUGIN_NAME = "Native Spark pipeline engine";
 
   public static final String INJECTOR_TRANSFORM_NAME = "_INJECTOR_";
@@ -45,13 +47,17 @@ public final class SparkConst {
   public static final String SPARK_FILE_OUTPUT_PLUGIN_ID = "SparkFileOutput";
 
   /** Open table format (Delta / Iceberg) path and catalog I/O — native Spark only. */
-  public static final String SPARK_LAKE_TABLE_INPUT_PLUGIN_ID = "SparkLakeTableInput";
+  public static final String SPARK_LAKE_TABLE_INPUT_PLUGIN_ID =
+      LakehouseConst.LAKE_TABLE_INPUT_PLUGIN_ID;
 
-  public static final String SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID = "SparkLakeTableOutput";
+  public static final String SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID =
+      LakehouseConst.LAKE_TABLE_OUTPUT_PLUGIN_ID;
 
-  public static final String SPARK_LAKE_TABLE_MERGE_PLUGIN_ID = "SparkLakeTableMerge";
+  public static final String SPARK_LAKE_TABLE_MERGE_PLUGIN_ID =
+      LakehouseConst.LAKE_TABLE_MERGE_PLUGIN_ID;
 
-  public static final String SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID = "SparkLakeTableMaintenance";
+  public static final String SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID =
+      LakehouseConst.LAKE_TABLE_MAINTENANCE_PLUGIN_ID;
 
   /** Spark SQL over the Datasets of the incoming transforms — native Spark only. */
   public static final String SPARK_SQL_PLUGIN_ID = "SparkSql";

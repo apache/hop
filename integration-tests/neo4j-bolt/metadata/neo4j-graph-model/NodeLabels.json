@@ -1,0 +1,40 @@
+{
+  "relationships": [],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "One",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "value",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "label1",
+        "label2",
+        "label3"
+      ]
+    }
+  ],
+  "name": "NodeLabels",
+  "description": ""
+}

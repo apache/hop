@@ -1,0 +1,79 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "From",
+      "name": "From - To",
+      "description": "",
+      "nodeTarget": "To",
+      "label": "VECTOR_SEARCH_LINK",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "embedding",
+          "description": "",
+          "type": "Vector",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 100,
+        "y": 100
+      },
+      "name": "From",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "VectorSearchFrom"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 400,
+        "y": 100
+      },
+      "name": "To",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "VectorSearchTo"
+      ]
+    }
+  ],
+  "name": "VectorSearchLinks",
+  "description": "Relationships with an embedding, searched with Graph vector search"
+}
