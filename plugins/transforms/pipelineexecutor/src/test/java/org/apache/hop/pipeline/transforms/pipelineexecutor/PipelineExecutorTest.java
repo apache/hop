@@ -479,6 +479,53 @@ class PipelineExecutorTest {
   }
 
   @Test
+  void executeWithRetriesCleansUpPreviousAttemptOnlyWhenRetrying() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("1");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+    Result success = new Result();
+    success.setResult(true);
+    success.setNrErrors(0);
+
+    doReturn(failed, success).when(executor).executePipelineAttempt(any(), anyLong());
+    doNothing().when(executor).cleanupPreviousAttemptPipeline(any());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertTrue(result.isResult());
+    verify(executor, times(1)).cleanupPreviousAttemptPipeline(any());
+  }
+
+  @Test
+  void executeWithRetriesDoesNotCleanUpWhenNoRetryWillRun() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("0");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+    doNothing().when(executor).cleanupPreviousAttemptPipeline(any());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, never()).cleanupPreviousAttemptPipeline(any());
+  }
+
+  @Test
   void executePipelineAttemptStopsCurrentChildWhenStartThreadsThrows() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
@@ -501,6 +548,7 @@ class PipelineExecutorTest {
 
     assertFalse(result.isResult());
     verify(child).stopAll();
+    verify(executor, never()).discardLogLines(any());
   }
 
   @Test
