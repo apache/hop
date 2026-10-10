@@ -29,8 +29,13 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataSetMeta;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionSelector;
@@ -150,6 +155,91 @@ class BaseCachingExecutionInfoLocationTest {
     location.close();
     assertTrue(location.getCache().isEmpty());
     assertTrue(location.persisted.contains(id));
+  }
+
+  @Test
+  void testParentChildLinkResolution() throws Exception {
+    FakeLocation location = new FakeLocation();
+    String workflowId = "wf-1";
+    String actionId = "act-1";
+    String pipelineId = "pipe-1";
+
+    Execution wf = new Execution();
+    wf.setId(workflowId);
+    wf.setName("Workflow");
+    wf.setExecutionType(ExecutionType.Workflow);
+    wf.setRegistrationDate(new Date());
+
+    Execution action = new Execution();
+    action.setId(actionId);
+    action.setName("ActionPipeline");
+    action.setParentId(workflowId);
+    action.setExecutionType(ExecutionType.Action);
+    action.setRegistrationDate(new Date());
+
+    Execution pipe = new Execution();
+    pipe.setId(pipelineId);
+    pipe.setName("Pipeline");
+    pipe.setParentId(actionId);
+    pipe.setExecutionType(ExecutionType.Pipeline);
+    pipe.setRegistrationDate(new Date());
+
+    location.registerExecution(wf);
+    location.registerExecution(action);
+    location.registerExecution(pipe);
+
+    assertEquals(actionId, location.findParentId(pipelineId));
+    assertEquals(workflowId, location.findParentId(actionId));
+    assertNull(location.findParentId(workflowId));
+
+    Execution retrievedAction = location.getExecution(actionId);
+    assertNotNull(retrievedAction);
+    assertEquals(actionId, retrievedAction.getId());
+    assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
+
+    java.util.List<Execution> actionChildren = location.findExecutions(actionId);
+    assertEquals(1, actionChildren.size());
+    assertEquals(pipelineId, actionChildren.get(0).getId());
+
+    java.util.List<Execution> wfChildren = location.findExecutions(workflowId);
+    assertTrue(wfChildren.stream().anyMatch(e -> e.getId().equals(actionId)));
+  }
+
+  @Test
+  void testAddExecutionDataRetainsNonEmptySamples() {
+    CacheEntry entry = new CacheEntry();
+    entry.setId("pipe-1");
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("col1"));
+
+    RowBuffer bufferWithRows = new RowBuffer(rowMeta);
+    bufferWithRows.addRow(new Object[] {"value1"});
+
+    ExecutionData data1 = new ExecutionData();
+    data1.setOwnerId("all-transforms");
+    data1.getDataSets().put("set1", bufferWithRows);
+    data1
+        .getSetMetaData()
+        .put("set1", new ExecutionDataSetMeta("set1", "log1", "transform1", "0", "desc1"));
+
+    entry.addExecutionData(data1);
+
+    assertEquals(1, entry.getExecutionData("all-transforms").getDataSets().get("set1").size());
+
+    // Subsequent tick with empty rows
+    RowBuffer emptyBuffer = new RowBuffer(rowMeta);
+    ExecutionData data2 = new ExecutionData();
+    data2.setOwnerId("all-transforms");
+    data2.getDataSets().put("set1", emptyBuffer);
+    data2
+        .getSetMetaData()
+        .put("set1", new ExecutionDataSetMeta("set1", "log1", "transform1", "0", "desc1"));
+
+    entry.addExecutionData(data2);
+
+    // Verify samples were preserved
+    assertEquals(1, entry.getExecutionData("all-transforms").getDataSets().get("set1").size());
   }
 
   private static Execution pipeline(String id, String name) {

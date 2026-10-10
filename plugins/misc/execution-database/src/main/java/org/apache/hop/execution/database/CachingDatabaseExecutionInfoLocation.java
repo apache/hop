@@ -720,6 +720,63 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   }
 
   @Override
+  protected CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
+    if (StringUtils.isEmpty(childId)) {
+      return null;
+    }
+    try {
+      String columns = databaseMeta.quoteField(COL_JSON);
+      if (stateJsonColumnAvailable) {
+        columns += ", " + databaseMeta.quoteField(COL_STATE_JSON);
+      }
+      String sql =
+          "SELECT "
+              + columns
+              + " FROM "
+              + getQuotedSchemaTable()
+              + " WHERE "
+              + databaseMeta.quoteField(COL_JSON)
+              + " LIKE ?"
+              + (stateJsonColumnAvailable
+                  ? " OR " + databaseMeta.quoteField(COL_STATE_JSON) + " LIKE ?"
+                  : "");
+      IRowMeta paramMeta = new RowMeta();
+      paramMeta.addValueMeta(new ValueMetaString("p1", 100, -1));
+      List<Object> params = new ArrayList<>();
+      params.add("%" + childId + "%");
+      if (stateJsonColumnAvailable) {
+        paramMeta.addValueMeta(new ValueMetaString("p2", 100, -1));
+        params.add("%" + childId + "%");
+      }
+
+      return callWithDatabase(
+          () -> {
+            RowMetaAndData row = database.getOneRow(sql, paramMeta, params.toArray());
+            if (row == null || row.getData() == null || row.getData()[0] == null) {
+              return null;
+            }
+            CacheEntry entry = JSON_MAPPER.readValue(row.getData()[0].toString(), CacheEntry.class);
+            if (stateJsonColumnAvailable
+                && row.getData().length > 1
+                && row.getData()[1] != null
+                && StringUtils.isNotEmpty(row.getData()[1].toString())) {
+              applyStateOverlay(
+                  entry, JSON_MAPPER.readValue(row.getData()[1].toString(), CacheEntry.class));
+            }
+            if (entry != null) {
+              cache.put(entry.getId(), entry);
+              enforceMaxCacheSize();
+            }
+            return entry;
+          });
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Error finding cache entry containing child " + childId + " from database", e);
+      return null;
+    }
+  }
+
+  @Override
   public void deleteCacheEntry(CacheEntry cacheEntry) throws HopException {
     if (cacheEntry == null || StringUtils.isEmpty(cacheEntry.getId())) {
       return;

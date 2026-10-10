@@ -784,9 +784,15 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public synchronized String findParentId(String childId) throws HopException {
     try {
+      Execution execution = getExecution(childId);
+      if (execution != null && StringUtils.isNotEmpty(execution.getParentId())) {
+        return execution.getParentId();
+      }
       for (String id : getExecutionIds(true, 100)) {
         ExecutionState executionState = getExecutionState(id);
-        if (executionState.getChildIds().contains(childId)) {
+        if (executionState != null
+            && executionState.getChildIds() != null
+            && executionState.getChildIds().contains(childId)) {
           return id;
         }
       }

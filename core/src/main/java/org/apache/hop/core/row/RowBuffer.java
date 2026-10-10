@@ -48,7 +48,13 @@ public class RowBuffer {
    */
   public RowBuffer(IRowMeta rowMeta, List<Object[]> buffer) {
     this.rowMeta = rowMeta;
-    this.buffer = buffer;
+    if (buffer == null) {
+      this.buffer = Collections.synchronizedList(new ArrayList<>());
+    } else {
+      synchronized (buffer) {
+        this.buffer = Collections.synchronizedList(new ArrayList<>(buffer));
+      }
+    }
   }
 
   /**

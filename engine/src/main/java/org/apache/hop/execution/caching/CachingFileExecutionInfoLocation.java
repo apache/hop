@@ -23,10 +23,12 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -410,13 +412,63 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
-      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
+      ObjectMapper objectMapper = HopJson.newMapper();
       return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information location file for executionId '" + executionId + "'",
           e);
     }
+  }
+
+  @Override
+  protected synchronized CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
+    if (StringUtils.isEmpty(childId)) {
+      return null;
+    }
+    try {
+      FileObject[] files = getAllFileObjects(actualRootFolder);
+      if (files == null || files.length == 0) {
+        return null;
+      }
+
+      Arrays.sort(
+          files,
+          (f1, f2) -> {
+            try {
+              return Long.compare(
+                  f2.getContent().getLastModifiedTime(), f1.getContent().getLastModifiedTime());
+            } catch (Exception e) {
+              return 0;
+            }
+          });
+
+      for (FileObject file : files) {
+        try {
+          String id = getIdFromFileName(file);
+          if (id.equals(childId)) {
+            continue;
+          }
+          String content =
+              HopVfs.getTextFileContent(file.getName().getURI(), StandardCharsets.UTF_8);
+          if (content != null && content.contains(childId)) {
+            CacheEntry entry = loadCacheEntry(id);
+            if (entry != null
+                && (entry.peekChildExecution(childId) != null
+                    || (entry.getChildIds() != null && entry.getChildIds().contains(childId)))) {
+              cache.put(entry.getId(), entry);
+              enforceMaxCacheSize();
+              return entry;
+            }
+          }
+        } finally {
+          closeQuietly(file);
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError("Error searching for cache entry containing child " + childId, e);
+    }
+    return null;
   }
 
   @Override

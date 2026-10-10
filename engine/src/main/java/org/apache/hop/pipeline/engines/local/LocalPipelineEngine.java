@@ -565,7 +565,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
               try {
                 writeExecutionInfoState(iLocation);
-                releasePublishedSamples();
               } catch (Exception e) {
                 log.logError(
                     "Warning: unable to register execution state at location "
@@ -711,7 +710,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
             ExecutionDataBuilder.fromAllTransformData(
                 LocalPipelineEngine.this, samplerStoresMap, true);
         iLocation.registerData(dataBuilder.build());
-        releasePublishedSamples();
       }
     } catch (Throwable e) {
       log.logError("Error handling writing final pipeline state to location (non-fatal)", e);
@@ -722,6 +720,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         iLocation.close();
       } catch (Exception e) {
         log.logError("Error closing execution information location: " + location.getName(), e);
+      } finally {
+        releasePublishedSamples();
       }
     }
   }

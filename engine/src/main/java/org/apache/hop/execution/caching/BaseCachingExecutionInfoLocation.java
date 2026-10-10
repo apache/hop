@@ -799,7 +799,16 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   public synchronized Execution getExecution(String executionId) throws HopException {
     CacheEntry entry = findCacheEntry(executionId);
     if (entry == null) {
+      entry = findCacheEntryWithChild(executionId);
+    }
+    if (entry == null) {
       return null;
+    }
+    if (!entry.getId().equals(executionId)) {
+      Execution childExecution = entry.getChildExecution(executionId);
+      if (childExecution != null) {
+        return childExecution;
+      }
     }
     Execution execution = entry.getExecution();
     if (execution != null
@@ -829,9 +838,25 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     try {
       Set<Execution> executions = new HashSet<>();
 
-      for (String id : getExecutionIds(true, 10000)) {
+      if (StringUtils.isNotEmpty(parentExecutionId)) {
+        CacheEntry parentEntry = findCacheEntry(parentExecutionId);
+        if (parentEntry == null) {
+          parentEntry = findCacheEntryWithChild(parentExecutionId);
+        }
+        if (parentEntry != null && parentEntry.getChildExecutions() != null) {
+          for (Execution childExecution : parentEntry.getChildExecutions().values()) {
+            if (childExecution != null && parentExecutionId.equals(childExecution.getParentId())) {
+              executions.add(childExecution);
+            }
+          }
+        }
+      }
+
+      for (String id : getExecutionIds(false, 10000)) {
         Execution execution = getExecution(id);
-        if (execution != null && parentExecutionId.equals(execution.getParentId())) {
+        if (execution != null
+            && parentExecutionId != null
+            && parentExecutionId.equals(execution.getParentId())) {
           executions.add(execution);
         }
       }
@@ -974,10 +999,38 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   @Override
   public String findParentId(String childId) throws HopException {
+    if (StringUtils.isEmpty(childId)) {
+      return null;
+    }
     CacheEntry cacheEntry = findCacheEntry(childId);
+    if (cacheEntry == null) {
+      cacheEntry = findCacheEntryWithChild(childId);
+    }
     if (cacheEntry == null) {
       return null;
     }
+    if (cacheEntry.getId().equals(childId)) {
+      return cacheEntry.getExecution() != null ? cacheEntry.getExecution().getParentId() : null;
+    }
     return cacheEntry.getId();
+  }
+
+  protected synchronized CacheEntry findCacheEntryWithChild(String childId) throws HopException {
+    if (StringUtils.isEmpty(childId)) {
+      return null;
+    }
+    for (CacheEntry cacheEntry : cache.values()) {
+      if (cacheEntry.peekChildExecution(childId) != null
+          || (cacheEntry.getChildIds() != null && cacheEntry.getChildIds().contains(childId))) {
+        cache.get(cacheEntry.getId());
+        cacheEntry.markRead();
+        return cacheEntry;
+      }
+    }
+    return loadCacheEntryWithChild(childId);
+  }
+
+  protected CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
+    return null;
   }
 }
