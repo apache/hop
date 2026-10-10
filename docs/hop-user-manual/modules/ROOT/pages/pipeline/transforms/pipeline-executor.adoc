@@ -88,7 +88,9 @@ The filename may contain variables (for example, you can use the built-in Intern
 
 *NOTE:* It must be considered that, by specifying the pipeline file name using this option, we can experience a little performance penalty because the pipeline that will be executed will be initialized at runtime and not during the initialization phase as usual. On the other side this option gives greater flexibility in specifying the pipeline filename dynamically and this could be useful for many use-cases.
 |Run configuration|Specify the Pipeline Run Configuration to be used for execution.
-|Stop after (milliseconds)|Maximum time to wait for the child pipeline to complete. Empty or 0 means wait indefinitely. When the time is reached the child pipeline is stopped and the execution-results stream reports a failure (`ExecutionResult=N`, `ExecutionNrErrors>=1`). The value may contain a variable.
+|Stop after (milliseconds)|Maximum time to wait for each child pipeline execution attempt. Empty or 0 means wait indefinitely. When the time is reached the child pipeline is stopped and the execution-results stream reports a failure (`ExecutionResult=N`, `ExecutionNrErrors>=1`) for that attempt. The value may contain a variable.
+|Retry attempts on failure|Number of retries after a failed child pipeline execution attempt. `0` means no retries (default), so the transform executes the child once. The value can use integer shorthand and variables (for example `1,000`, `100k`, `1.5m`, `1e3`, `'${PIPELINE_RETRY_ATTEMPTS}'`).
+|Retry delay (milliseconds)|Delay between retry attempts. Empty or `0` means retry immediately. The delay happens only between attempts and is not part of the per-attempt stop-after timeout. The value can use integer shorthand and variables (for example `1,000`, `100k`, `1.5m`, `1e3`, `'${PIPELINE_RETRY_DELAY_MS}'`).
 
 |===
 
@@ -252,4 +254,3 @@ Here you can specify where to send the result files from the pipeline execution.
 |Result file name field  
 |Specify the name of the field for the result files.
 |===
-

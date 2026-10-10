@@ -95,6 +95,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   private Label wlWaitTimeout;
   private TextVar wWaitTimeout;
+  private TextVar wRetryAttempts;
+  private TextVar wRetryDelay;
 
   private Button wbPipelineNameInField;
 
@@ -287,6 +289,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdWaitTimeout.top = new FormAttachment(wlWaitTimeout, 0, SWT.CENTER);
     fdWaitTimeout.right = new FormAttachment(100, 0);
     wWaitTimeout.setLayoutData(fdWaitTimeout);
+    wWaitTimeout.addModifyListener(lsMod);
 
     //
     // Add a tab folder for the parameters and various input and output
@@ -308,6 +311,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     addParametersTab();
     addExecutionResultTab();
     addRowGroupTab();
+    addRetryTab(lsMod);
     addResultRowsTab();
     addResultFilesTab();
 
@@ -438,6 +442,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     }
 
     wWaitTimeout.setText(Const.NVL(pipelineExecutorMeta.getWaitTimeout(), ""));
+    wRetryAttempts.setText(Const.NVL(pipelineExecutorMeta.getRetryAttempts(), ""));
+    wRetryDelay.setText(Const.NVL(pipelineExecutorMeta.getRetryDelay(), ""));
 
     //  throw in a separate thread.
     //
@@ -841,6 +847,67 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wTabFolder.setSelection(wTab);
   }
 
+  private void addRetryTab(ModifyListener lsMod) {
+    final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
+    wTab.setFont(GuiResource.getInstance().getFontDefault());
+    wTab.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.Retry.Title"));
+    wTab.setToolTipText(BaseMessages.getString(PKG, "PipelineExecutorDialog.Retry.Tooltip"));
+
+    Composite wInputComposite = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wInputComposite);
+
+    FormLayout tabLayout = new FormLayout();
+    tabLayout.marginWidth = 15;
+    tabLayout.marginHeight = 15;
+    wInputComposite.setLayout(tabLayout);
+
+    Label wlRetryAttempts = new Label(wInputComposite, SWT.RIGHT);
+    PropsUi.setLook(wlRetryAttempts);
+    wlRetryAttempts.setText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.RetryAttempts.Label"));
+    FormData fdlRetryAttempts = new FormData();
+    fdlRetryAttempts.left = new FormAttachment(0, 0);
+    fdlRetryAttempts.top = new FormAttachment(0, 0);
+    fdlRetryAttempts.right = new FormAttachment(middle, -margin);
+    wlRetryAttempts.setLayoutData(fdlRetryAttempts);
+
+    wRetryAttempts = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRetryAttempts.enableExpandedInteger();
+    PropsUi.setLook(wRetryAttempts);
+    wRetryAttempts.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.RetryAttempts.Tooltip"));
+    FormData fdRetryAttempts = new FormData();
+    fdRetryAttempts.left = new FormAttachment(middle, 0);
+    fdRetryAttempts.top = new FormAttachment(wlRetryAttempts, 0, SWT.CENTER);
+    fdRetryAttempts.right = new FormAttachment(100, 0);
+    wRetryAttempts.setLayoutData(fdRetryAttempts);
+    wRetryAttempts.addModifyListener(lsMod);
+
+    Label wlRetryDelay = new Label(wInputComposite, SWT.RIGHT);
+    PropsUi.setLook(wlRetryDelay);
+    wlRetryDelay.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.RetryDelay.Label"));
+    FormData fdlRetryDelay = new FormData();
+    fdlRetryDelay.left = new FormAttachment(0, 0);
+    fdlRetryDelay.top = new FormAttachment(wRetryAttempts, margin);
+    fdlRetryDelay.right = new FormAttachment(middle, -margin);
+    wlRetryDelay.setLayoutData(fdlRetryDelay);
+
+    wRetryDelay = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRetryDelay.enableExpandedInteger();
+    PropsUi.setLook(wRetryDelay);
+    wRetryDelay.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.RetryDelay.Tooltip"));
+    FormData fdRetryDelay = new FormData();
+    fdRetryDelay.left = new FormAttachment(middle, 0);
+    fdRetryDelay.top = new FormAttachment(wlRetryDelay, 0, SWT.CENTER);
+    fdRetryDelay.right = new FormAttachment(100, 0);
+    wRetryDelay.setLayoutData(fdRetryDelay);
+    wRetryDelay.addModifyListener(lsMod);
+
+    wTab.setControl(wInputComposite);
+    wTabFolder.setSelection(wTab);
+  }
+
   private void addExecutionResultTab() {
 
     final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
@@ -1235,6 +1302,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     pipelineExecutorMeta.setFilenameField(wPipelineNameField.getText());
     pipelineExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
     pipelineExecutorMeta.setWaitTimeout(wWaitTimeout.getText());
+    pipelineExecutorMeta.setRetryAttempts(wRetryAttempts.getText());
+    pipelineExecutorMeta.setRetryDelay(wRetryDelay.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

@@ -23,11 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -121,6 +127,23 @@ class PipelineExecutorTest {
 
     assertNotNull(executor);
     executor.discardLogLines(data);
+  }
+
+  @Test
+  void cleanupPreviousAttemptPipelineStopsRunningChildPipeline() {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    PipelineExecutorData data = new PipelineExecutorData();
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> previousChild = mock(IPipelineEngine.class);
+    when(previousChild.isRunning()).thenReturn(true);
+    when(previousChild.getLogChannelId()).thenReturn("previous-child-channel");
+    data.setExecutorPipeline(previousChild);
+    PipelineExecutor executor = newExecutor(meta, data);
+
+    executor.cleanupPreviousAttemptPipeline(data);
+
+    verify(previousChild).stopAll();
   }
 
   @Test
@@ -429,5 +452,188 @@ class PipelineExecutorTest {
 
     assertNotNull(loaded);
     assertFalse(loaded.getTransforms().isEmpty());
+  }
+
+  @Test
+  void executeWithRetriesRetriesFailedAttemptUntilSuccess() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("2");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+    Result success = new Result();
+    success.setResult(true);
+    success.setNrErrors(0);
+
+    doReturn(failed, success).when(executor).executePipelineAttempt(any(), anyLong());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertTrue(result.isResult());
+    verify(executor, times(2)).executePipelineAttempt(any(), anyLong());
+  }
+
+  @Test
+  void executeWithRetriesCleansUpPreviousAttemptOnlyWhenRetrying() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("1");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+    Result success = new Result();
+    success.setResult(true);
+    success.setNrErrors(0);
+
+    doReturn(failed, success).when(executor).executePipelineAttempt(any(), anyLong());
+    doNothing().when(executor).cleanupPreviousAttemptPipeline(any());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertTrue(result.isResult());
+    verify(executor, times(1)).cleanupPreviousAttemptPipeline(any());
+  }
+
+  @Test
+  void executeWithRetriesDoesNotCleanUpWhenNoRetryWillRun() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("0");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+    doNothing().when(executor).cleanupPreviousAttemptPipeline(any());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, never()).cleanupPreviousAttemptPipeline(any());
+  }
+
+  @Test
+  void executePipelineAttemptStopsCurrentChildWhenStartThreadsThrows() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupBuffer = new ArrayList<>();
+    data.groupBuffer.add(new RowMetaAndData(new RowMeta(), new Object[0]));
+
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> child = mock(IPipelineEngine.class);
+    when(child.getLogChannelId()).thenReturn("failing-child-channel");
+    when(child.isRunning()).thenReturn(true);
+    doThrow(new HopException("start failed")).when(child).startThreads();
+
+    PipelineExecutor executor = spy(newExecutor(meta, data));
+    doReturn(child).when(executor).createInternalPipeline();
+    doNothing().when(executor).passParametersToPipeline(any());
+
+    Result result = executor.executePipelineAttempt(Collections.emptyList(), 0);
+
+    assertFalse(result.isResult());
+    verify(child).stopAll();
+    verify(executor, never()).discardLogLines(any());
+  }
+
+  @Test
+  void executeWithRetriesParsesExpandedRetryAttempts() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("1e0");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, times(2)).executePipelineAttempt(any(), anyLong());
+  }
+
+  @Test
+  void executeWithRetriesDoesNotRetryWhenRetriesAreDisabled() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("0");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, times(1)).executePipelineAttempt(any(), anyLong());
+  }
+
+  @Test
+  void executeWithRetriesUsesConfiguredStopAfterForEachAttempt() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setWaitTimeout("1");
+    meta.setRetryAttempts("5");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, times(6)).executePipelineAttempt(any(), eq(1L));
+  }
+
+  @Test
+  void executeWithRetriesDoesNotStartAnotherAttemptAfterTransformStop() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("5");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+
+    doReturn(failed).when(executor).executePipelineAttempt(any(), anyLong());
+    doReturn(false, true).when(executor).isStopped();
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertFalse(result.isResult());
+    verify(executor, times(1)).executePipelineAttempt(any(), anyLong());
   }
 }

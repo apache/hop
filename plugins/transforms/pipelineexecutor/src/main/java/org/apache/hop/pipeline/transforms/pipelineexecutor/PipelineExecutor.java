@@ -232,31 +232,39 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     }
     pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
 
-    if (first) {
-      discardLogLines(pipelineExecutorData);
+    List<String> parameterValues = incomingFieldValues;
+    if (parameterValues == null) {
+      List<String> lastIncomingFieldValues = getLastIncomingFieldValues();
+      parameterValues = !Utils.isEmpty(lastIncomingFieldValues) ? lastIncomingFieldValues : null;
     }
+
+    // Execute the pipeline with retries if necessary
+    Result result = executeWithRetries(parameterValues);
+
+    collectPipelineResults(result);
+    collectExecutionResults(result);
+    collectExecutionResultFiles(result);
+
+    pipelineExecutorData.groupBuffer.clear();
+  }
+
+  @VisibleForTesting
+  Result executePipelineAttempt(List<String> parameterValues, long timeoutMs) throws HopException {
+    PipelineExecutorData pipelineExecutorData = getData();
 
     IPipelineEngine<PipelineMeta> executorPipeline = createInternalPipeline();
     pipelineExecutorData.setExecutorPipeline(executorPipeline);
-    if (incomingFieldValues != null) {
-      // Pass parameter values
-      passParametersToPipeline(incomingFieldValues);
-    } else {
-      List<String> lastIncomingFieldValues = getLastIncomingFieldValues();
-      // incomingFieldValues == null-  There are no more rows - Last Case - pass previous values if
-      // exists
-      // If not still pass the null parameter values
-      passParametersToPipeline(
-          !Utils.isEmpty(lastIncomingFieldValues) ? lastIncomingFieldValues : incomingFieldValues);
-    }
+
+    passParametersToPipeline(parameterValues);
 
     // keep track for drill down in HopGui...
     getPipeline().addActiveSubPipeline(getTransformName(), executorPipeline);
 
-    Result result = new Result();
-    result.setRows(pipelineExecutorData.groupBuffer);
-    executorPipeline.setPreviousResult(result);
+    Result previousResult = new Result();
+    previousResult.setRows(pipelineExecutorData.groupBuffer);
+    executorPipeline.setPreviousResult(previousResult);
 
+    Result result = new Result();
     try {
       executorPipeline.prepareExecution();
 
@@ -264,17 +272,16 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       executorPipeline.startThreads();
 
       // Wait a while until we're done with the pipeline
-      long timeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
       boolean finishedInTime = ExecutionWait.waitForPipeline(executorPipeline, timeoutMs);
 
       result = executorPipeline.getResult();
+      if (result == null) {
+        result = new Result();
+      }
       if (!finishedInTime) {
         logError(
             BaseMessages.getString(
                 PKG, "PipelineExecutor.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
-        if (result == null) {
-          result = new Result();
-        }
         result.setResult(false);
         result.setNrErrors(Math.max(1, result.getNrErrors()));
       }
@@ -282,13 +289,77 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       logError("An error occurred executing the pipeline: ", e);
       result.setResult(false);
       result.setNrErrors(1);
+      stopPreviousAttemptPipeline(pipelineExecutorData);
     }
+    return result;
+  }
 
-    collectPipelineResults(result);
-    collectExecutionResults(result);
-    collectExecutionResultFiles(result);
+  private boolean isFailedResult(Result result) {
+    if (result == null) {
+      return true;
+    }
+    return !result.isResult() || result.getNrErrors() > 0;
+  }
 
-    pipelineExecutorData.groupBuffer.clear();
+  @VisibleForTesting
+  Result executeWithRetries(List<String> parameterValues) throws HopException {
+    int retryAttempts = Math.max(0, Const.toIntExpanded(resolve(meta.getRetryAttempts()), 0));
+    long retryDelayMs = Math.max(0L, Const.toLongExpanded(resolve(meta.getRetryDelay()), 0L));
+    long configuredTimeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
+
+    Result result = null;
+    for (int attempt = 0; attempt <= retryAttempts; attempt++) {
+      if (isStopped()) {
+        if (result == null) {
+          result = new Result();
+          result.setResult(false);
+          result.setNrErrors(1);
+        }
+        break;
+      }
+
+      result = executePipelineAttempt(parameterValues, configuredTimeoutMs);
+      if (!isFailedResult(result) || attempt == retryAttempts) {
+        break;
+      }
+      if (!waitRetryDelay(retryDelayMs)) {
+        break;
+      }
+      cleanupPreviousAttemptPipeline(getData());
+    }
+    return result;
+  }
+
+  private boolean waitRetryDelay(long retryDelayMs) {
+    long remainingDelayMs = retryDelayMs;
+    while (remainingDelayMs > 0) {
+      if (isStopped()) {
+        return false;
+      }
+      long sleepMs = Math.min(remainingDelayMs, 100L);
+      try {
+        Thread.sleep(sleepMs);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        logError(BaseMessages.getString(PKG, "PipelineExecutor.Log.RetryInterrupted"), e);
+        return false;
+      }
+      remainingDelayMs -= sleepMs;
+    }
+    return !isStopped();
+  }
+
+  @VisibleForTesting
+  void cleanupPreviousAttemptPipeline(PipelineExecutorData pipelineExecutorData) {
+    stopPreviousAttemptPipeline(pipelineExecutorData);
+    discardLogLines(pipelineExecutorData);
+  }
+
+  private void stopPreviousAttemptPipeline(PipelineExecutorData pipelineExecutorData) {
+    IPipelineEngine<PipelineMeta> executorPipeline = pipelineExecutorData.getExecutorPipeline();
+    if (executorPipeline != null && executorPipeline.isRunning()) {
+      executorPipeline.stopAll();
+    }
   }
 
   @VisibleForTesting
