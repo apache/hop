@@ -251,7 +251,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   @VisibleForTesting
   Result executePipelineAttempt(List<String> parameterValues, long timeoutMs) throws HopException {
     PipelineExecutorData pipelineExecutorData = getData();
-    cleanupPreviousAttemptPipeline(pipelineExecutorData);
 
     IPipelineEngine<PipelineMeta> executorPipeline = createInternalPipeline();
     pipelineExecutorData.setExecutorPipeline(executorPipeline);
@@ -290,7 +289,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       logError("An error occurred executing the pipeline: ", e);
       result.setResult(false);
       result.setNrErrors(1);
-      cleanupPreviousAttemptPipeline(pipelineExecutorData);
+      stopPreviousAttemptPipeline(pipelineExecutorData);
     }
     return result;
   }
@@ -326,6 +325,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       if (!waitRetryDelay(retryDelayMs)) {
         break;
       }
+      cleanupPreviousAttemptPipeline(getData());
     }
     return result;
   }
@@ -351,11 +351,15 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   void cleanupPreviousAttemptPipeline(PipelineExecutorData pipelineExecutorData) {
+    stopPreviousAttemptPipeline(pipelineExecutorData);
+    discardLogLines(pipelineExecutorData);
+  }
+
+  private void stopPreviousAttemptPipeline(PipelineExecutorData pipelineExecutorData) {
     IPipelineEngine<PipelineMeta> executorPipeline = pipelineExecutorData.getExecutorPipeline();
     if (executorPipeline != null && executorPipeline.isRunning()) {
       executorPipeline.stopAll();
     }
-    discardLogLines(pipelineExecutorData);
   }
 
   @VisibleForTesting
