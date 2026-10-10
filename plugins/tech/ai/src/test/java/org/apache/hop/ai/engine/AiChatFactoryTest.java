@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
+import org.apache.hop.pipeline.transforms.languagemodelchat.internals.OllamaThink;
 import org.junit.jupiter.api.Test;
 
 class AiChatFactoryTest {
@@ -118,6 +119,71 @@ class AiChatFactoryTest {
     LanguageModelChatMeta configured = AiChatFactory.toLanguageModelChatMeta(ollama, variables);
     assertEquals(32768, configured.getOllamaNumCtx());
     assertEquals(2000, configured.getOllamaNumPredict());
+  }
+
+  @Test
+  void ollamaThinkingReachesLanguageModelChat() throws Exception {
+    AiProvider ollama = new AiProvider();
+    OllamaProvider backend = new OllamaProvider();
+    backend.setPluginId("ollama");
+    ollama.setProvider(backend);
+
+    // Default sets nothing, so the model decides as it did before the option existed.
+    assertEquals(
+        OllamaThink.DEFAULT,
+        AiChatFactory.toLanguageModelChatMeta(ollama, new Variables()).getOllamaThink());
+
+    ollama.setThinking("Off");
+    assertEquals(
+        OllamaThink.OFF,
+        AiChatFactory.toLanguageModelChatMeta(ollama, new Variables()).getOllamaThink());
+
+    Variables variables = new Variables();
+    variables.setVariable("AI_THINKING", "On");
+    ollama.setThinking("${AI_THINKING}");
+    assertEquals(
+        OllamaThink.ON, AiChatFactory.toLanguageModelChatMeta(ollama, variables).getOllamaThink());
+  }
+
+  @Test
+  void overlayWithThinkingDefaultKeepsTheInlineThink() throws Exception {
+    MemoryMetadataProvider metadata = new MemoryMetadataProvider();
+    AiProvider provider = new AiProvider();
+    OllamaProvider backend = new OllamaProvider();
+    backend.setPluginId("ollama");
+    provider.setName("local");
+    provider.setProvider(backend);
+    metadata.getSerializer(AiProvider.class).save(provider);
+
+    LanguageModelChatMeta source = new LanguageModelChatMeta();
+    source.setDefault();
+    source.setOllamaThink(OllamaThink.OFF);
+
+    assertEquals(
+        OllamaThink.OFF,
+        AiChatFactory.overlayNamedProvider(source, "local", new Variables(), metadata)
+            .getOllamaThink());
+
+    provider.setThinking("On");
+    metadata.getSerializer(AiProvider.class).save(provider);
+    assertEquals(
+        OllamaThink.ON,
+        AiChatFactory.overlayNamedProvider(source, "local", new Variables(), metadata)
+            .getOllamaThink());
+  }
+
+  @Test
+  void thinkingIsIgnoredForOtherProviderTypes() throws Exception {
+    AiProvider openAi = new AiProvider();
+    OpenAiProvider backend = new OpenAiProvider();
+    backend.setPluginId("openai");
+    openAi.setProvider(backend);
+    openAi.setApiKey("sk-test");
+    openAi.setThinking("Off");
+
+    assertEquals(
+        OllamaThink.DEFAULT,
+        AiChatFactory.toLanguageModelChatMeta(openAi, new Variables()).getOllamaThink());
   }
 
   @Test

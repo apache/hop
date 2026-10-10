@@ -134,6 +134,12 @@ public final class AiChatModelFactory {
     if (settings.maxOutputTokens() != null) {
       builder.numPredict(settings.maxOutputTokens());
     }
+    if (settings.think() != null) {
+      builder.think(settings.think());
+    }
+    // Only drops the separate thinking field. With think unset, the model and the Ollama version
+    // decide whether the answer carries <think> tags, as before this option existed.
+    builder.returnThinking(false);
     return builder.build();
   }
 

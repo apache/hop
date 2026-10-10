@@ -124,6 +124,37 @@ class AiProviderSettingsTest {
     assertTrue(e.getMessage().contains("half-configured"), e.getMessage());
   }
 
+  @Test
+  void thinkingDefaultLeavesThinkUnset() throws Exception {
+    assertNull(AiProviderSettings.of(provider(p -> {}), vars()).think());
+    assertNull(AiProviderSettings.of(provider(p -> p.setThinking("Default")), vars()).think());
+    // A provider saved before the option existed has no value at all.
+    assertNull(AiProviderSettings.of(provider(p -> p.setThinking(null)), vars()).think());
+  }
+
+  @Test
+  void thinkingOffAndOnSetThink() throws Exception {
+    assertEquals(
+        Boolean.FALSE, AiProviderSettings.of(provider(p -> p.setThinking("Off")), vars()).think());
+    assertEquals(
+        Boolean.TRUE, AiProviderSettings.of(provider(p -> p.setThinking("ON")), vars()).think());
+  }
+
+  @Test
+  void thinkingResolvesAVariable() throws Exception {
+    IVariables variables = vars();
+    variables.setVariable("AI_THINKING", "off");
+
+    assertEquals(
+        Boolean.FALSE,
+        AiProviderSettings.of(provider(p -> p.setThinking("${AI_THINKING}")), variables).think());
+  }
+
+  @Test
+  void anUnknownThinkingValueLeavesThinkUnset() throws Exception {
+    assertNull(AiProviderSettings.of(provider(p -> p.setThinking("maybe")), vars()).think());
+  }
+
   private static IVariables vars() {
     return new Variables();
   }

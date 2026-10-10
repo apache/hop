@@ -22,8 +22,11 @@ import static org.apache.commons.lang3.StringUtils.trim;
 import static org.apache.commons.lang3.math.NumberUtils.isCreatable;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ModelType.OLLAMA;
 
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+import org.apache.hop.pipeline.transforms.languagemodelchat.internals.OllamaThink;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.CompositeParameters;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.widgets.Label;
 
 public class OllamaComposite extends AbstractModelComposite {
@@ -46,6 +49,8 @@ public class OllamaComposite extends AbstractModelComposite {
   private final TextVar numPredictInput;
   private final Label numCtxLabel;
   private final TextVar numCtxInput;
+  private final Label thinkLabel;
+  private final CCombo thinkInput;
   private final Label formatLabel;
   private final TextVar formatInput;
   private final Label timeoutLabel;
@@ -102,6 +107,13 @@ public class OllamaComposite extends AbstractModelComposite {
     numCtxInput = createTextVar();
     prepare("NumCtx", numCtxLabel, numCtxInput);
 
+    // Think: Default leaves it to the model, Off and On set it
+    thinkLabel = createLabel();
+    thinkInput = createComboBox();
+    thinkInput.setItems(IEnumHasCodeAndDescription.getDescriptions(OllamaThink.class));
+    thinkInput.select(0);
+    prepare("Think", thinkLabel, thinkInput);
+
     // Format
     formatLabel = createLabel();
     formatInput = createTextVar();
@@ -150,6 +162,7 @@ public class OllamaComposite extends AbstractModelComposite {
     if (meta.getOllamaNumCtx() != null) {
       numCtxInput.setText("" + meta.getOllamaNumCtx());
     }
+    thinkInput.select(thinkIndex(meta.getOllamaThink()));
     if (meta.getOllamaFormat() != null) {
       formatInput.setText(meta.getOllamaFormat());
     }
@@ -192,10 +205,30 @@ public class OllamaComposite extends AbstractModelComposite {
     meta.setOllamaSeed(trimIntegerToNull(seedInput.getText()));
     meta.setOllamaNumPredict(trimIntegerToNull(numPredictInput.getText()));
     meta.setOllamaNumCtx(trimIntegerToNull(numCtxInput.getText()));
+    meta.setOllamaThink(think(thinkInput.getSelectionIndex()));
     // TODO  meta.setOllamaStop();
     meta.setOllamaFormat(trimStringToNull(formatInput.getText())); // TODO Review
     meta.setOllamaTimeout(trimIntegerToNull(timeoutInput.getText()));
     meta.setOllamaMaxRetries(trimIntegerToNull(maxRetriesInput.getText()));
+  }
+
+  /** The combo entry for a setting. An older transform loads without one: Default. */
+  static int thinkIndex(OllamaThink think) {
+    return think == null ? OllamaThink.DEFAULT.ordinal() : think.ordinal();
+  }
+
+  /** The setting for a combo entry. No selection leaves it to the model. */
+  static OllamaThink think(int index) {
+    OllamaThink[] values = OllamaThink.values();
+    return index >= 0 && index < values.length ? values[index] : OllamaThink.DEFAULT;
+  }
+
+  public Label getThinkLabel() {
+    return thinkLabel;
+  }
+
+  public CCombo getThinkInput() {
+    return thinkInput;
   }
 
   public Label getNumPredictLabel() {

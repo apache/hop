@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.languagemodelchat.internals;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.net.httpserver.HttpServer;
@@ -134,6 +136,39 @@ class LanguageModelFacadeChatTest {
     assertEquals("four", response.aiMessage().text());
     assertEquals(11, response.tokenUsage().inputTokenCount());
     assertTrue(compactRequestBody().contains("\"format\":\"json\""), lastRequestBody.get());
+  }
+
+  @Test
+  void ollamaThink() throws Exception {
+    // A thinking model answers with its reasoning in a field of its own.
+    respondWith(
+        "/api/chat",
+        """
+        {"model":"qwen3","created_at":"2026-10-10T00:00:00Z",
+         "message":{"role":"assistant","content":"four","thinking":"Two and two make four."},
+         "done":true,"done_reason":"stop","prompt_eval_count":11,"eval_count":22}
+        """);
+
+    LanguageModelChatMeta meta = new LanguageModelChatMeta();
+    meta.setModelType(ModelType.OLLAMA.code());
+    meta.setOllamaImageEndpoint(baseUrl);
+    meta.setOllamaModelName("qwen3");
+
+    // Not set: the model decides, as before the option existed.
+    ChatResponse response = chat(meta, "two plus two");
+    assertFalse(compactRequestBody().contains("\"think\""), lastRequestBody.get());
+    assertEquals("four", response.aiMessage().text());
+    assertNull(response.aiMessage().thinking());
+
+    meta.setOllamaThink(OllamaThink.OFF);
+    chat(meta, "two plus two");
+    assertTrue(compactRequestBody().contains("\"think\":false"), lastRequestBody.get());
+
+    meta.setOllamaThink(OllamaThink.ON);
+    response = chat(meta, "two plus two");
+    assertTrue(compactRequestBody().contains("\"think\":true"), lastRequestBody.get());
+    assertEquals("four", response.aiMessage().text());
+    assertNull(response.aiMessage().thinking());
   }
 
   @Test
