@@ -26,6 +26,8 @@ import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -393,7 +395,7 @@ public class VfsFileExplorerLocation extends Composite {
                       }
                       explorer.refreshOperations();
                     });
-              } catch (Exception e) {
+              } catch (Throwable e) {
                 fail(operation, e);
                 refreshPanel(display);
               }
@@ -508,7 +510,7 @@ public class VfsFileExplorerLocation extends Composite {
                       }
                       explorer.refreshOperations();
                     });
-              } catch (Exception e) {
+              } catch (Throwable e) {
                 fail(operation, e);
                 refreshPanel(display);
               }
@@ -791,7 +793,7 @@ public class VfsFileExplorerLocation extends Composite {
       if (archiveUri != null) {
         navigateTo(archiveUri, true);
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       failOnUi(e);
     }
   }
@@ -1090,7 +1092,7 @@ public class VfsFileExplorerLocation extends Composite {
                       }
                       explorer.refreshOperations();
                     });
-              } catch (Exception e) {
+              } catch (Throwable e) {
                 fail(operation, e);
                 refreshPanel(display);
               }
@@ -1116,7 +1118,7 @@ public class VfsFileExplorerLocation extends Composite {
                 }
                 show = change.run();
                 operation.complete();
-              } catch (Exception e) {
+              } catch (Throwable e) {
                 fail(operation, e);
               }
               String folder = show;
@@ -1538,7 +1540,7 @@ public class VfsFileExplorerLocation extends Composite {
         return;
       }
       type.openFile(explorer.getHopGui(), row.getUri(), variables);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       failOnUi(e);
     }
   }
@@ -1901,21 +1903,24 @@ public class VfsFileExplorerLocation extends Composite {
     return !isDisposed() && generation.isCurrent(token);
   }
 
-  private void fail(VfsExplorerOperation operation, Exception exception) {
-    if (operation.isCancelled() || Thread.currentThread().isInterrupted()) {
-      operation.complete();
-      return;
+  /**
+   * Finish {@code operation} after a driver failure. {@link Error} (a missing library, a broken
+   * static initializer) is not an {@link Exception}. Leaving it uncaught keeps the status line
+   * ticking and prints the stack only on the Hop GUI console.
+   */
+  private void fail(VfsExplorerOperation operation, Throwable thrown) {
+    operation.failUnlessCancelled(thrown);
+    if (operation.getStatus() == VfsExplorerOperation.Status.FAILED
+        && HopLogStore.isInitialized()) {
+      LogChannel.UI.logError(Const.NVL(operation.getDescription(), ""), thrown);
     }
-    operation.fail(
-        Const.NVL(exception.getMessage(), exception.toString()),
-        Const.getClassicStackTrace(exception));
   }
 
-  private void failOnUi(Exception exception) {
+  private void failOnUi(Throwable thrown) {
     VfsExplorerOperation operation =
         explorer.beginOperation(
             BaseMessages.getString(PKG, "VfsFileExplorer.Error.Title"), getLocationText());
-    fail(operation, exception);
+    fail(operation, thrown);
     explorer.refreshOperations();
   }
 
