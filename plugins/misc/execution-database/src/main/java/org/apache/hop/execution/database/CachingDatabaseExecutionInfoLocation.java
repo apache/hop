@@ -720,6 +720,89 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   }
 
   @Override
+  protected CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
+    if (StringUtils.isEmpty(childId)) {
+      return null;
+    }
+    try {
+      String columns = databaseMeta.quoteField(COL_JSON);
+      if (stateJsonColumnAvailable) {
+        columns += ", " + databaseMeta.quoteField(COL_STATE_JSON);
+      }
+      StringBuilder sql = new StringBuilder();
+      sql.append("SELECT ")
+          .append(columns)
+          .append(" FROM ")
+          .append(getQuotedSchemaTable())
+          .append(" WHERE (")
+          .append(databaseMeta.quoteField(COL_JSON))
+          .append(" LIKE ?");
+      if (stateJsonColumnAvailable) {
+        sql.append(" OR ").append(databaseMeta.quoteField(COL_STATE_JSON)).append(" LIKE ?");
+      }
+      sql.append(") AND ")
+          .append(databaseMeta.quoteField(COL_ID))
+          .append(" != ?")
+          .append(" ORDER BY ")
+          .append(databaseMeta.quoteField(COL_EXECUTION_START_DATE))
+          .append(" DESC")
+          .append(databaseMeta.getLimitClause(20));
+
+      IRowMeta paramMeta = new RowMeta();
+      paramMeta.addValueMeta(new ValueMetaString("p1", 100, -1));
+      List<Object> params = new ArrayList<>();
+      params.add("%" + childId + "%");
+      if (stateJsonColumnAvailable) {
+        paramMeta.addValueMeta(new ValueMetaString("p2", 100, -1));
+        params.add("%" + childId + "%");
+      }
+      paramMeta.addValueMeta(new ValueMetaString("p_not_id", 100, -1));
+      params.add(childId);
+
+      return callWithDatabase(
+          () -> {
+            ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
+            try {
+              Object[] row = database.getRow(rs);
+              while (row != null) {
+                if (row[0] != null) {
+                  try {
+                    CacheEntry entry = JSON_MAPPER.readValue(row[0].toString(), CacheEntry.class);
+                    if (entry != null && !entry.getId().equals(childId)) {
+                      if (stateJsonColumnAvailable
+                          && row.length > 1
+                          && row[1] != null
+                          && StringUtils.isNotEmpty(row[1].toString())) {
+                        applyStateOverlay(
+                            entry, JSON_MAPPER.readValue(row[1].toString(), CacheEntry.class));
+                      }
+                      if (entry.peekChildExecution(childId) != null
+                          || (entry.getChildIds() != null
+                              && entry.getChildIds().contains(childId))) {
+                        cache.put(entry.getId(), entry);
+                        enforceMaxCacheSize();
+                        return entry;
+                      }
+                    }
+                  } catch (Exception e) {
+                    // Ignore corrupted candidate and continue checking other rows
+                  }
+                }
+                row = database.getRow(rs);
+              }
+              return null;
+            } finally {
+              database.closeQuery(rs);
+            }
+          });
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Error finding cache entry containing child " + childId + " from database", e);
+      return null;
+    }
+  }
+
+  @Override
   public void deleteCacheEntry(CacheEntry cacheEntry) throws HopException {
     if (cacheEntry == null || StringUtils.isEmpty(cacheEntry.getId())) {
       return;

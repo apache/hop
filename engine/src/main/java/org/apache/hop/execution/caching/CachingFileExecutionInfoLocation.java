@@ -23,11 +23,14 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
@@ -410,13 +413,70 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
-      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
+      ObjectMapper objectMapper = HopJson.newMapper();
       return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information location file for executionId '" + executionId + "'",
           e);
     }
+  }
+
+  public static final int MAX_CHILD_SEARCH_SCAN = 100;
+
+  @Override
+  protected synchronized CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
+    if (StringUtils.isEmpty(childId)) {
+      return null;
+    }
+    try {
+      FileObject[] files = getAllFileObjects(actualRootFolder);
+      if (files == null || files.length == 0) {
+        return null;
+      }
+
+      try {
+        record FileWithTimestamp(FileObject file, long lastModified) {}
+        List<FileWithTimestamp> fileList = new ArrayList<>(files.length);
+        for (FileObject file : files) {
+          long lastModified = 0L;
+          try {
+            lastModified = file.getContent().getLastModifiedTime();
+          } catch (Exception ignored) {
+          }
+          fileList.add(new FileWithTimestamp(file, lastModified));
+        }
+        fileList.sort((a, b) -> Long.compare(b.lastModified, a.lastModified));
+
+        int maxScan = Math.min(fileList.size(), Math.max(MAX_CHILD_SEARCH_SCAN, maxSize * 2));
+        for (int i = 0; i < maxScan; i++) {
+          FileObject file = fileList.get(i).file();
+          String id = getIdFromFileName(file);
+          if (id.equals(childId)) {
+            continue;
+          }
+          String content =
+              HopVfs.getTextFileContent(file.getName().getURI(), StandardCharsets.UTF_8);
+          if (content != null && content.contains(childId)) {
+            CacheEntry entry = HopJson.newMapper().readValue(content, CacheEntry.class);
+            if (entry != null
+                && (entry.peekChildExecution(childId) != null
+                    || (entry.getChildIds() != null && entry.getChildIds().contains(childId)))) {
+              cache.put(entry.getId(), entry);
+              enforceMaxCacheSize();
+              return entry;
+            }
+          }
+        }
+      } finally {
+        for (FileObject file : files) {
+          closeQuietly(file);
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError("Error searching for cache entry containing child " + childId, e);
+    }
+    return null;
   }
 
   @Override

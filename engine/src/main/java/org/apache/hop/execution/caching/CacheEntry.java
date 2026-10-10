@@ -35,6 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.Execution;
@@ -168,7 +170,7 @@ public class CacheEntry {
     // was created successfully via VFS. Named schemes (db-volume://) need variables so providers
     // load from project metadata.
     try (OutputStream os = HopVfs.getOutputStream(filename, false, variables)) {
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = HopJson.newMapper();
       objectMapper.writeValue(os, this);
     } catch (Exception e) {
       throw new HopException("Error writing cache entry to file '" + targetFilename + "'", e);
@@ -257,7 +259,30 @@ public class CacheEntry {
   }
 
   public void addExecutionData(ExecutionData executionData) {
-    childExecutionData.put(executionData.getOwnerId(), executionData);
+    ExecutionData existing = childExecutionData.get(executionData.getOwnerId());
+    if (existing == null) {
+      childExecutionData.put(executionData.getOwnerId(), executionData);
+    } else {
+      existing.setFinished(executionData.isFinished() || existing.isFinished());
+      existing.setCollectionDate(executionData.getCollectionDate());
+      if (executionData.getDataSetMeta() != null) {
+        existing.setDataSetMeta(executionData.getDataSetMeta());
+      }
+      if (executionData.getSetMetaData() != null) {
+        existing.getSetMetaData().putAll(executionData.getSetMetaData());
+      }
+      if (executionData.getDataSets() != null) {
+        for (Map.Entry<String, RowBuffer> entry : executionData.getDataSets().entrySet()) {
+          RowBuffer newBuffer = entry.getValue();
+          RowBuffer existingBuffer = existing.getDataSets().get(entry.getKey());
+          if (newBuffer != null && !newBuffer.isEmpty()) {
+            existing.getDataSets().put(entry.getKey(), newBuffer);
+          } else if (existingBuffer == null) {
+            existing.getDataSets().put(entry.getKey(), newBuffer);
+          }
+        }
+      }
+    }
     flagDirty();
   }
 
@@ -287,7 +312,7 @@ public class CacheEntry {
   }
 
   /** Read a child without counting as a cache hit. */
-  Execution peekChildExecution(String id) {
+  public Execution peekChildExecution(String id) {
     if (childExecutions == null) {
       return null;
     }

@@ -522,6 +522,69 @@ class CachingFileExecutionInfoLocationTest {
     }
   }
 
+  @Test
+  void testUncachedParentChildLinkResolution() throws Exception {
+    Path root = tempDir.resolve("uncached-parent-child");
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      String workflowId = "wf-1";
+      String actionId = "act-1";
+      String pipelineId = "pipe-1";
+
+      Execution wf = new Execution();
+      wf.setId(workflowId);
+      wf.setName("Workflow");
+      wf.setExecutionType(ExecutionType.Workflow);
+      wf.setRegistrationDate(new Date());
+
+      Execution action = new Execution();
+      action.setId(actionId);
+      action.setName("ActionPipeline");
+      action.setParentId(workflowId);
+      action.setExecutionType(ExecutionType.Action);
+      action.setRegistrationDate(new Date());
+
+      Execution pipe = new Execution();
+      pipe.setId(pipelineId);
+      pipe.setName("Pipeline");
+      pipe.setParentId(actionId);
+      pipe.setExecutionType(ExecutionType.Pipeline);
+      pipe.setRegistrationDate(new Date());
+
+      location.registerExecution(wf);
+      location.registerExecution(action);
+      location.registerExecution(pipe);
+
+      // Persist to disk and clear cache so nothing is in memory
+      for (CacheEntry entry : location.getCache().values()) {
+        location.persistCacheEntry(entry);
+      }
+      location.clearCaches();
+
+      assertEquals(actionId, location.findParentId(pipelineId));
+      assertEquals(workflowId, location.findParentId(actionId));
+      assertNull(location.findParentId(workflowId));
+
+      Execution retrievedAction = location.getExecution(actionId);
+      assertNotNull(retrievedAction);
+      assertEquals(actionId, retrievedAction.getId());
+      assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
+
+      assertNull(location.getExecution("non-existent-id"));
+
+      List<Execution> actionChildren = location.findExecutions(actionId);
+      assertEquals(1, actionChildren.size());
+      assertEquals(pipelineId, actionChildren.get(0).getId());
+
+      List<Execution> wfChildren = location.findExecutions(workflowId);
+      assertTrue(wfChildren.stream().anyMatch(e -> e.getId().equals(actionId)));
+    } finally {
+      location.close();
+    }
+  }
+
   private static Execution executionAt(String id, Date start) {
     Execution execution = execution(id, null);
     execution.setExecutionStartDate(start);
