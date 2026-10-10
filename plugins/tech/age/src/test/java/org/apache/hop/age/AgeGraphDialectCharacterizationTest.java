@@ -217,12 +217,18 @@ class AgeGraphDialectCharacterizationTest {
 
   /**
    * Changed on purpose since the dialect SPI: AGE|executionIndex: the SQL index statement, as for
-   * an AGE graph database connection before.
+   * an AGE graph database connection before. Since #8836: index.create|A, index.drop|A and the
+   * nodeIndexes flag, AGE creates and drops named node indexes.
    */
   static Map<String, String> expected() {
     Map<String, String> e = new LinkedHashMap<>();
-    e.put("AGE|index.create|A", "!ERROR");
-    e.put("AGE|index.drop|A", "!ERROR");
+    e.put(
+        "AGE|index.create|A",
+        "DO $hop$ BEGIN IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_label l JOIN ag_catalog.ag_graph g ON g.graphid = l.graph WHERE g.name = 'hop_graph' AND l.kind = 'v' AND l.name = 'Person') THEN PERFORM ag_catalog.create_vlabel('hop_graph', 'Person'); END IF; END $hop$;\n"
+            + "CREATE INDEX IF NOT EXISTS \"idx\" ON \"hop_graph\".\"Person\" ("
+            + "ag_catalog.agtype_access_operator(VARIADIC ARRAY[properties, '\"name\"'::ag_catalog.agtype]), "
+            + "ag_catalog.agtype_access_operator(VARIADIC ARRAY[properties, '\"age\"'::ag_catalog.agtype]))");
+    e.put("AGE|index.drop|A", "DROP INDEX IF EXISTS \"hop_graph\".\"idx\"");
     e.put("AGE|index.create|B", "!ERROR");
     e.put("AGE|index.drop|B", "!ERROR");
     e.put("AGE|index.create|C", "!ERROR");
@@ -280,7 +286,7 @@ class AgeGraphDialectCharacterizationTest {
     e.put("AGE|vectorValue|$p", "$p");
     e.put("AGE|vectorValue|pr.p", "pr.p");
     e.put("AGE|flag|cypher", "true");
-    e.put("AGE|flag|nodeIndexes", "false");
+    e.put("AGE|flag|nodeIndexes", "true");
     e.put("AGE|flag|relationshipIndexes", "false");
     e.put("AGE|flag|schemaChangesInTransactions", "true");
     e.put("AGE|flag|vectorIndexes", "false");

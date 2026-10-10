@@ -18,11 +18,16 @@
 package org.apache.hop.age;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.graph.GraphIndexDefinition;
 import org.apache.hop.core.graph.IGraphDialect;
 
 /**
  * Apache AGE speaks Cypher, but its indexes and constraints are PostgreSQL ones: the Cypher index
- * and constraint statements are not supported. The indexes on node properties are created in SQL.
+ * and constraint statements are not supported. The indexes on node properties are created in SQL,
+ * run by {@link AgeGraphConnection#executeSchemaStatement}. There are no vector indexes, no indexes
+ * on relationship properties and no constraints.
  */
 public class AgeGraphDialect implements IGraphDialect {
 
@@ -43,6 +48,82 @@ public class AgeGraphDialect implements IGraphDialect {
   @Override
   public String toString() {
     return getId();
+  }
+
+  @Override
+  public boolean isSupportingNodeIndexes() {
+    return true;
+  }
+
+  /**
+   * Create the label if it doesn't exist yet, then the index on its table: the index can be created
+   * before the nodes are loaded.
+   */
+  @Override
+  public String getCreateIndexStatement(GraphIndexDefinition index) throws HopException {
+    validateIndex(index);
+    if (index.properties().isEmpty()) {
+      throw new HopException("Please specify the properties to index on " + index.objectName());
+    }
+    return getCreateLabelStatement(index.objectName())
+        + ";\n"
+        + getCreateNodeIndexStatement(index.name(), index.objectName(), index.properties());
+  }
+
+  @Override
+  public String getDropIndexStatement(GraphIndexDefinition index) throws HopException {
+    validateIndex(index);
+    return "DROP INDEX IF EXISTS "
+        + quoteIdentifier(graphName)
+        + '.'
+        + quoteIdentifier(index.name());
+  }
+
+  /** Only named indexes on nodes: PostgreSQL needs the name to create the index if not exists. */
+  private void validateIndex(GraphIndexDefinition index) throws HopException {
+    if (index.isRelationship()) {
+      throw IGraphDialect.indexesNotSupported(this, index.objectType(), index.objectName());
+    }
+    if (StringUtils.isEmpty(index.objectName())) {
+      throw new HopException("Please specify the label of the index " + index.name());
+    }
+    if (StringUtils.isEmpty(index.name())) {
+      throw new HopException(
+          "Apache AGE indexes need a name. Label: "
+              + index.objectName()
+              + ", properties: "
+              + String.join(",", index.properties()));
+    }
+  }
+
+  /**
+   * A block creating the node label in the graph unless it exists: AGE creates the table of a label
+   * with the first node.
+   */
+  String getCreateLabelStatement(String label) {
+    String graphLiteral = quoteLiteral(graphName);
+    String labelLiteral = quoteLiteral(label);
+    String body =
+        "BEGIN IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_label l"
+            + " JOIN ag_catalog.ag_graph g ON g.graphid = l.graph WHERE g.name = "
+            + graphLiteral
+            + " AND l.kind = 'v' AND l.name = "
+            + labelLiteral
+            + ") THEN PERFORM ag_catalog.create_vlabel("
+            + graphLiteral
+            + ", "
+            + labelLiteral
+            + "); END IF; END";
+    String tag = "$hop$";
+    for (int i = 1; body.contains(tag); i++) {
+      tag = "$hop" + i + "$";
+    }
+    return "DO " + tag + " " + body + " " + tag;
+  }
+
+  /** A PostgreSQL string literal: between single quotes, with the single quotes in it doubled. */
+  static String quoteLiteral(String value) {
+    return '\'' + value.replace("'", "''") + '\'';
   }
 
   /**

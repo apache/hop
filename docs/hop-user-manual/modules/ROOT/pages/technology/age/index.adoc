@@ -41,13 +41,14 @@ Hop loads the AGE extension in every connection, so there is no need to set `sha
 * xref:pipeline/transforms/cypher-builder.adoc[Cypher builder]
 * xref:pipeline/transforms/split-graph.adoc[Split graph] and xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]
 * xref:workflow/actions/graph-script.adoc[Graph script]
+* The xref:workflow/actions/graph-index.adoc[Graph index] action, for named indexes on node properties: it creates PostgreSQL indexes, see below.
 * xref:workflow/actions/check-graph-database-connections.adoc[Check graph database connections]
 * Execution logging (`HOP_GRAPH_LOGGING_CONNECTION`), the xref:pipeline/transforms/get-graph-logging-info.adoc[Get graph logging info] transform and the xref:hop-gui/perspective-graph-logging.adoc[Graph logging perspective]
 * The xref:metadata-types/graphs/graph-database-location.adoc[graph database location] for execution information
 
 == What doesn't work
 
-* The xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint] actions: AGE indexes and constraints are PostgreSQL indexes and constraints, created with SQL, see below.
+* The xref:workflow/actions/graph-constraint.adoc[Graph constraint] action, and the Graph index action for vector indexes and indexes on relationship properties: AGE indexes and constraints are PostgreSQL indexes and constraints.
 * *Create indexes* in Graph output and Cypher output, for the same reason.
 * `RETURN *` and statements which return unnamed values.
 * Nodes with more than one label, and labels with spaces.
@@ -59,7 +60,8 @@ Hop loads the AGE extension in every connection, so there is no need to set `sha
 * A node has one label, and label names can't contain spaces. Graph names have at least 3 characters.
 * AGE has no temporal types: dates and times are stored as ISO strings.
 * Indexes are PostgreSQL indexes on the tables AGE keeps per label, created with SQL.
-The xref:workflow/actions/graph-index.adoc[Graph index] and xref:workflow/actions/graph-constraint.adoc[Graph constraint] actions don't support AGE, but the *Show indexes DDL* button of the graph database location gives the SQL for its indexes, for example:
+The xref:workflow/actions/graph-index.adoc[Graph index] action creates them on node properties, and creates the label first when it has no nodes yet.
+The *Show indexes DDL* button of the graph database location gives the SQL for its indexes, for example:
 +
 [source,sql]
 ----

@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -78,6 +79,23 @@ public class AgeGraphConnection implements IGraphConnection {
         }
       }
       return rows;
+    } catch (SQLException e) {
+      throw new HopException(
+          "Error executing statement on Apache AGE graph " + graphName + ": " + statement, e);
+    }
+  }
+
+  /**
+   * The index statements of {@link AgeGraphDialect} are SQL: they run as they are, not in {@code
+   * cypher()}. PostgreSQL runs the statements of one call in one transaction.
+   */
+  @Override
+  public void executeSchemaStatement(String statement, boolean inTransaction) throws HopException {
+    if (log != null && log.isDebug()) {
+      log.logDebug("Apache AGE schema statement: " + statement);
+    }
+    try (Statement sqlStatement = connection.createStatement()) {
+      sqlStatement.execute(statement);
     } catch (SQLException e) {
       throw new HopException(
           "Error executing statement on Apache AGE graph " + graphName + ": " + statement, e);

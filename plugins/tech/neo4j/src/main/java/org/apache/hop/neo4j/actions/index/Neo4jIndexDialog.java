@@ -146,6 +146,9 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
         };
     columns[5].setToolTip(
         BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.IndexType.Tooltip"));
+    columns[2].setUsingVariables(true);
+    columns[3].setUsingVariables(true);
+    columns[4].setUsingVariables(true);
     columns[6].setUsingVariables(true);
     columns[8].setUsingVariables(true);
     columns[8].setToolTip(
@@ -213,10 +216,8 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
     for (int i = 0; i < items.size(); i++) {
       TableItem item = items.get(i);
       try {
-        IndexUpdate indexUpdate = toIndexUpdate(item);
+        IndexUpdate indexUpdate = Neo4jIndex.resolved(toIndexUpdate(item), variables);
         UpdateType type = indexUpdate.getType();
-        indexUpdate.setVectorDimensions(variables.resolve(indexUpdate.getVectorDimensions()));
-        indexUpdate.setVectorCapacity(variables.resolve(indexUpdate.getVectorCapacity()));
 
         String cypher;
         if (type == UpdateType.CREATE) {
@@ -341,7 +342,7 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
           NeoConnectionUtils.findGraphConnection(
               getMetadataProvider(), variables.resolve(wConnection.getText()));
       if (connection != null) {
-        return connection.getDialect();
+        return connection.getDialect(variables);
       }
     } catch (Exception e) {
       // Fall back to Neo4j
