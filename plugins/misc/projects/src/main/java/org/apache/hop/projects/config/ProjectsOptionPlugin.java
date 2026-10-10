@@ -134,8 +134,22 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       }
     }
 
+    // Did the user choose a project here? Otherwise it is inherited from an earlier mixin, or the
+    // default project of the configuration is used.
+    //
+    boolean explicitSelection =
+        StringUtils.isNotEmpty(projectOption)
+            || StringUtils.isNotEmpty(environmentOption)
+            || !registeredProjects.isEmpty();
+
     return configure(
-        log, variables, hasHopMetadataProvider, projectName, environmentName, extraConfigFiles);
+        log,
+        variables,
+        hasHopMetadataProvider,
+        projectName,
+        environmentName,
+        extraConfigFiles,
+        explicitSelection);
   }
 
   public static final boolean configure(
@@ -162,6 +176,30 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       String environmentName,
       List<String> extraConfigFiles)
       throws HopException {
+    return configure(
+        log,
+        variables,
+        hasHopMetadataProvider,
+        projectName,
+        environmentName,
+        extraConfigFiles,
+        StringUtils.isNotEmpty(projectName) || StringUtils.isNotEmpty(environmentName));
+  }
+
+  /**
+   * @param explicitSelection true when the caller chose the project or environment. When it did not
+   *     and the default project of the configuration is enabled, {@link
+   *     Defaults#VARIABLE_HOP_PROJECT_IS_DEFAULT} is set to "Y".
+   */
+  public static final boolean configure(
+      ILogChannel log,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider,
+      String projectName,
+      String environmentName,
+      List<String> extraConfigFiles,
+      boolean explicitSelection)
+      throws HopException {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig;
     List<String> configurationFiles = new ArrayList<>();
@@ -186,8 +224,10 @@ public class ProjectsOptionPlugin implements IConfigOptions {
 
     // If there is no project specified but we have a default set, take that one...
     //
+    boolean defaultProject = false;
     if (StringUtils.isEmpty(projectName)) {
       projectName = config.getDefaultProject();
+      defaultProject = StringUtils.isEmpty(environmentName);
     }
 
     // See if a project is mandatory...
@@ -251,6 +291,11 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       // hop-server rebuilds HopServerConfig after the mixin runs; a different IVariables than
       // the one that was first enabled must still resolve ${PROJECT_HOME}. See issue #8284.
       applyEnabledProjectVariables(variables, projectConfig, configurationFiles, environmentName);
+      // A later mixin inherits the project of the first one, so it keeps how that one was chosen.
+      markDefaultProject(
+          variables,
+          !explicitSelection
+              && (defaultProject || ProjectsConfigHelper.isLastEnabledDefaultProject()));
       MultiMetadataProvider current = HopMetadataInstance.getMetadataProvider();
       if (hasHopMetadataProvider != null && current != null) {
         hasHopMetadataProvider.setMetadataProvider(current);
@@ -275,10 +320,18 @@ public class ProjectsOptionPlugin implements IConfigOptions {
           configurationFiles,
           environmentName,
           hasHopMetadataProvider);
+      markDefaultProject(variables, !explicitSelection && defaultProject);
 
       return true;
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "'", e);
+    }
+  }
+
+  private static void markDefaultProject(IVariables variables, boolean defaultProject) {
+    ProjectsConfigHelper.markEnabledDefaultProject(defaultProject);
+    if (variables != null) {
+      variables.setVariable(Defaults.VARIABLE_HOP_PROJECT_IS_DEFAULT, defaultProject ? "Y" : null);
     }
   }
 

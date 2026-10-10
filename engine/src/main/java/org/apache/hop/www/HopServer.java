@@ -789,7 +789,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
             + ", PROJECT_HOME="
             + Const.NVL(projectHome, "")
             + ", HOP_METADATA_FOLDER="
-            + Const.NVL(metadataFolder, ""));
+            + Const.NVL(metadataFolder, "")
+            + ", HOP_PROJECT_IS_DEFAULT="
+            + Const.NVL(variables.getVariable("HOP_PROJECT_IS_DEFAULT"), "N"));
     if (StringUtils.isNotEmpty(projectName) && StringUtils.isEmpty(projectHome)) {
       throw new HopException(
           "Project '"

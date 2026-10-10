@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.engines.remote;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -259,6 +261,16 @@ class RemotePipelineEngineTest {
     assertTrue(
         e.getMessage().contains(SERVER_NAME),
         "It should get as far as looking for the server: " + e);
+  }
+
+  /**
+   * The server computes HOP_VERSION itself. Sending the client's version along made a pipeline on a
+   * server report the version of the client that started it. See issue #8263.
+   */
+  @Test
+  void hopVersionIsNotPassedToTheServer() {
+    assertFalse(RemotePipelineEngine.isVariablePassedToRemoteServer(Const.HOP_VERSION));
+    assertTrue(RemotePipelineEngine.isVariablePassedToRemoteServer("MY_VARIABLE"));
   }
 
   private static PipelineRunConfiguration remote(String name, String runConfigurationName) {

@@ -82,8 +82,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     workflow.initializeFrom(null);
     workflow.getWorkflowMeta().setMetadataProvider(metadataProvider);
     workflow.getWorkflowMeta().setInternalHopVariables(workflow);
-    workflow.setVariables(
-        workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap());
+    applyClientVariables(
+        workflow,
+        workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap(),
+        workflowConfiguration.isExported());
 
     copyWorkflowParameters(workflow, workflowExecutionConfiguration.getParametersMap());
 

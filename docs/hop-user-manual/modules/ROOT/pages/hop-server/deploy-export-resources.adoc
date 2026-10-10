@@ -21,6 +21,8 @@ under the License.
 = Remote run with export resources
 
 Hop Server runs on a machine -- or in a stock `apache/hop` long-lived container -- *without* a project of its own.
+(Such a server still enables the `default` project of its configuration, but an exported run keeps the client's project and variables.
+See xref:hop-server/server-metadata-and-variables.adoc[Metadata and variables on Hop Server].)
 A client (Hop Gui, xref:hop-run/index.adoc[hop-run], an Airflow worker that has a Hop client) executes a workflow or pipeline with a xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote] run configuration and *Export linked resources to server* enabled.
 Everything Hop can pack is sent to the server in a ZIP.
 
