@@ -309,6 +309,7 @@ public final class YamlRulePackParser {
         projectRules.add(rule);
       } else {
         warnUnknownKeys(ruleId, location, ruleData, OVERRIDE_KEYS);
+        warnUnknownParameters(ruleId, location, ruleData.get("parameters"));
         overlays.put(
             ruleId, ProjectYamlOverlay.ProjectRuleOverlay.fromMap(ruleId, ruleData, location));
       }
@@ -553,6 +554,7 @@ public final class YamlRulePackParser {
     }
     applyDocumentation(customRule, ruleData, location);
     warnUnknownKeys(ruleId, location, ruleData, CUSTOM_RULE_KEYS);
+    warnUnknownParameters(ruleId, location, parameters);
     return customRule;
   }
 
@@ -636,6 +638,30 @@ public final class YamlRulePackParser {
    */
   static List<String> unknownKeyWarnings(
       String ruleId, String location, Map<String, Object> ruleData, Set<String> knownKeys) {
+    return unknownNameWarnings(ruleId, location, ruleData, knownKeys, "key");
+  }
+
+  /**
+   * One warning for each parameter on the rule that the linter does not read.
+   *
+   * <p>A parameter nothing reads looks like configuration and changes nothing. DB-001 used to carry
+   * {@code checkPasswords} and {@code checkUsernames}, which no code ever looked at.
+   *
+   * @param parameters the rule's {@code parameters:} block, or null
+   */
+  static List<String> unknownParameterWarnings(String ruleId, String location, Object parameters) {
+    if (!(parameters instanceof Map<?, ?> map)) {
+      return new ArrayList<>();
+    }
+    return unknownNameWarnings(ruleId, location, map, CustomLintRule.PARAMETERS, "parameter");
+  }
+
+  private static void warnUnknownParameters(String ruleId, String location, Object parameters) {
+    unknownParameterWarnings(ruleId, location, parameters).forEach(YamlRulePackParser::warn);
+  }
+
+  private static List<String> unknownNameWarnings(
+      String ruleId, String location, Map<?, ?> ruleData, Set<String> knownKeys, String what) {
     List<String> warnings = new ArrayList<>();
     if (ruleData == null) {
       return warnings;
@@ -650,7 +676,9 @@ public final class YamlRulePackParser {
               .append(ruleId)
               .append("' ")
               .append(location)
-              .append(" has an unknown key '")
+              .append(" has an unknown ")
+              .append(what)
+              .append(" '")
               .append(name)
               .append("', which is ignored.");
       String closest = RuleRegistry.closestId(name, knownKeys);
