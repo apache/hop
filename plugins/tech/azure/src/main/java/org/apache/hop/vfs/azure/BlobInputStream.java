@@ -19,73 +19,84 @@
 package org.apache.hop.vfs.azure;
 
 import com.azure.storage.file.datalake.models.DataLakeFileOpenInputStreamResult;
+import com.azure.storage.file.datalake.models.PathProperties;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Reads an Azure file and never returns more than {@code fileSize} bytes: a blob padded to a page
+ * boundary reads as zeroes past its real size. Every read and skip advances one position counter,
+ * which drives the clamp and {@link #available()}.
+ */
 public class BlobInputStream extends InputStream {
 
-  private InputStream inputStream;
-  private long fileSize;
-  private long totalRead = 0;
+  private final InputStream inputStream;
+  private final long fileSize;
+  private long position = 0;
+  private long markedPosition = 0;
 
+  /**
+   * @param fileSize the size known to the caller, used only when the opened stream reports none; it
+   *     can be stale (list cache), while the stream's own properties describe the version read
+   */
   public BlobInputStream(DataLakeFileOpenInputStreamResult inputStream, long fileSize) {
     this.inputStream = inputStream.getInputStream();
-    this.fileSize = fileSize;
+    PathProperties properties = inputStream.getProperties();
+    this.fileSize = properties != null ? properties.getFileSize() : fileSize;
+  }
+
+  private long remaining() {
+    return Math.max(0L, fileSize - position);
   }
 
   @Override
   public int read() throws IOException {
-    int c = inputStream.read();
-    totalRead++;
-    if (totalRead > fileSize) {
+    if (remaining() == 0) {
       return -1;
+    }
+    int c = inputStream.read();
+    if (c >= 0) {
+      position++;
     }
     return c;
   }
 
   @Override
   public int read(byte[] bytes) throws IOException {
-    int readSize = inputStream.read(bytes);
+    return read(bytes, 0, bytes.length);
+  }
+
+  @Override
+  public int read(byte[] bytes, int offset, int length) throws IOException {
+    if (length == 0) {
+      return 0;
+    }
+    long remaining = remaining();
+    if (remaining == 0) {
+      return -1;
+    }
+    int readSize = inputStream.read(bytes, offset, (int) Math.min(length, remaining));
     if (readSize > 0) {
-      totalRead += readSize;
+      position += readSize;
     }
     return readSize;
   }
 
   @Override
-  public int read(byte[] bytes, int i, int i1) throws IOException {
-    int readSize = inputStream.read(bytes, i, i1);
-    if (readSize > 0 && totalRead + readSize > fileSize) {
-      // This blob is padded to a page boundary
-      // Just return the remainder.  The rest are 0 anyway
-      //
-      int actuallyRead = (int) (fileSize - totalRead);
-      totalRead = fileSize;
-      return actuallyRead;
+  public long skip(long length) throws IOException {
+    if (length <= 0) {
+      return 0;
     }
-    return readSize;
-  }
-
-  @Override
-  public long skip(long l) throws IOException {
-    long skippedLength = inputStream.skip(l);
-    if (skippedLength > 0) {
-      totalRead += skippedLength;
-      // This blob is padded to a page boundary
-      // Just return the remainder.  The rest are 0 anyway
-      //
-      if (totalRead + skippedLength > fileSize) {
-        int actuallyRead = (int) (fileSize - totalRead);
-        totalRead = fileSize;
-        return actuallyRead;
-      }
+    long skipped = inputStream.skip(Math.min(length, remaining()));
+    if (skipped > 0) {
+      position += skipped;
     }
-    return skippedLength;
+    return Math.max(0L, skipped);
   }
 
   @Override
   public int available() throws IOException {
-    return (int) (fileSize - totalRead);
+    return (int) Math.min(Integer.MAX_VALUE, remaining());
   }
 
   @Override
@@ -94,13 +105,15 @@ public class BlobInputStream extends InputStream {
   }
 
   @Override
-  public synchronized void mark(int i) {
-    inputStream.mark(i);
+  public synchronized void mark(int readLimit) {
+    inputStream.mark(readLimit);
+    markedPosition = position;
   }
 
   @Override
   public synchronized void reset() throws IOException {
     inputStream.reset();
+    position = markedPosition;
   }
 
   @Override
