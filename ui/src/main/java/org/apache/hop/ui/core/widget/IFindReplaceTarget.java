@@ -49,6 +49,18 @@ public interface IFindReplaceTarget {
   int getSelectionCount();
 
   /**
+   * Start offset of the selection. The caret may sit at either end, so this is not {@link
+   * #getCaretPosition()} minus {@link #getSelectionCount()} on every widget.
+   *
+   * @return inclusive start offset
+   */
+  default int getSelectionStart() {
+    int caret = getCaretPosition();
+    int count = getSelectionCount();
+    return Math.max(0, caret - count);
+  }
+
+  /**
    * Select the range {@code [start, end)}.
    *
    * @param start start offset (inclusive)

@@ -183,6 +183,12 @@ public class StyledTextComp extends TextComposite {
   }
 
   @Override
+  public int getSelectionStart() {
+    org.eclipse.swt.graphics.Point range = textWidget.getSelection();
+    return range == null ? 0 : range.x;
+  }
+
+  @Override
   public void setCaretPosition(int offset) {
     // Text has no caret offset API; move the selection to a zero-width range.
     textWidget.setSelection(offset);
