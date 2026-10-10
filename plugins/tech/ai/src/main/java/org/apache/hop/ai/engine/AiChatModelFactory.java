@@ -134,6 +134,11 @@ public final class AiChatModelFactory {
     if (settings.maxOutputTokens() != null) {
       builder.numPredict(settings.maxOutputTokens());
     }
+    if (settings.think() != null) {
+      builder.think(settings.think());
+    }
+    // A thinking model's reasoning never ends up in an output field, whatever think is set to.
+    builder.returnThinking(false);
     return builder.build();
   }
 

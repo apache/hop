@@ -51,6 +51,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.languagemodelchat.internals.OllamaThink;
 
 @Transform(
     id = "LanguageModelChat",
@@ -163,6 +164,10 @@ public class LanguageModelChatMeta
   @HopMetadataProperty private Integer ollamaNumCtx;
   // TODO private List<String> ollamaStop;
   @HopMetadataProperty private String ollamaFormat;
+
+  /** Whether a thinking model reasons before it answers. Default leaves it to the model. */
+  @HopMetadataProperty private OllamaThink ollamaThink = OllamaThink.DEFAULT;
+
   @HopMetadataProperty private Integer ollamaTimeout = 60;
   @HopMetadataProperty private Integer ollamaMaxRetries = 3;
 

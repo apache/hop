@@ -105,6 +105,7 @@ class AiProviderTest {
     source.setProvider(backend);
     source.setApiKey("secret");
     source.setModelName("gpt-4o-mini");
+    source.setThinking("Off");
 
     AiProvider copy = new AiProvider(source);
     assertEquals("prod-openai", copy.getName());
@@ -112,6 +113,39 @@ class AiProviderTest {
     assertEquals("gpt-4o-mini", copy.getModelName());
     assertEquals("openai", copy.getPluginId());
     assertEquals("OpenAI", copy.getPluginName());
+    assertEquals("Off", copy.getThinking());
+  }
+
+  @Test
+  void thinkingAcceptsEachSettingAVariableOrNothing() {
+    for (String value : new String[] {"", "Default", "Off", "On", "off", "ON", "${AI_THINKING}"}) {
+      AiProvider provider = ollama();
+      provider.setThinking(value);
+      assertTrue(provider.validate().isEmpty(), value + ": " + provider.validate());
+    }
+  }
+
+  @Test
+  void anUnknownThinkingValueIsReported() {
+    AiProvider provider = ollama();
+    provider.setThinking("maybe");
+
+    List<String> problems = provider.validate();
+    assertEquals(1, problems.size(), problems.toString());
+    assertTrue(problems.get(0).contains("maybe"), problems.get(0));
+  }
+
+  @Test
+  void thinkingChoicesAreTheSettingsInOrder() {
+    assertEquals(List.of("Default", "Off", "On"), ollama().getThinkingChoices(null, null));
+  }
+
+  private static AiProvider ollama() {
+    AiProvider provider = new AiProvider();
+    OllamaProvider backend = new OllamaProvider();
+    backend.setPluginId("ollama");
+    provider.setProvider(backend);
+    return provider;
   }
 
   @Test

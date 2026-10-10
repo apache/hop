@@ -95,6 +95,20 @@ class AiProviderSerializationTest {
     assertEquals("llama3.2", provider.getModelName());
   }
 
+  @Test
+  void thinkingSurvivesASaveAndAnOldProviderLoadsWithout() throws Exception {
+    AiProvider old =
+        load(
+            "{\"name\":\"local\",\"provider\":{\"ollama\":{}},"
+                + "\"baseUrl\":\"http://localhost:11434\",\"modelName\":\"qwen3\"}");
+    assertEquals("", old.getThinking());
+
+    old.setThinking("Off");
+    JSONObject saved = parser.getJsonObject(old);
+    assertEquals("Off", saved.get("thinking"), saved.toJSONString());
+    assertEquals("Off", load(saved.toJSONString()).getThinking());
+  }
+
   private static AiProvider load(String json) throws Exception {
     try (JsonParser jsonParser = new JsonFactory().createParser(json)) {
       jsonParser.nextToken();

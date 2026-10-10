@@ -67,6 +67,7 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   public static final String WIDGET_TEMPERATURE = "0500-temperature";
   public static final String WIDGET_CONTEXT_SIZE = "0510-context-size";
   public static final String WIDGET_MAX_OUTPUT_TOKENS = "0520-max-output-tokens";
+  public static final String WIDGET_THINKING = "0525-thinking";
   public static final String WIDGET_STRUCTURED_ANSWERS = "0530-structured-answers";
   public static final String WIDGET_MODELS = "0600-models";
 
@@ -172,6 +173,24 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   private String maxOutputTokens = "";
 
   /**
+   * Whether the model reasons before it answers: one of the {@link AiThinking} settings, or a
+   * variable that resolves to one. Empty leaves it to the model. Only Ollama applies it so far.
+   */
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_THINKING,
+      order = "0525",
+      type = GuiElementType.COMBO,
+      comboValuesMethod = "getThinkingChoices",
+      parentId = GUI_WIDGETS_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = "i18n::AiProviderEditor.Group.Model",
+      groupOrder = "20",
+      label = "i18n::AiProvider.Thinking.Label",
+      toolTip = "i18n::AiProvider.Thinking.Tooltip")
+  private String thinking = "";
+
+  /**
    * Have the AI Assistant's answers follow a JSON schema, where the provider type can hold a model
    * to one (Ollama, OpenAI, Anthropic, Mistral). Off by default until it is checked with the
    * evaluation set for the models in use.
@@ -225,6 +244,7 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
     this.temperature = other.temperature;
     this.contextSize = other.contextSize;
     this.maxOutputTokens = other.maxOutputTokens;
+    this.thinking = other.thinking;
     this.structuredAnswers = other.structuredAnswers;
     for (AiProviderModel model : other.models) {
       this.models.add(new AiProviderModel(model));
@@ -329,6 +349,14 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
     checkPositiveInt(problems, "AiProvider.Timeout.Label", timeoutSeconds);
     checkPositiveInt(problems, "AiProvider.ContextSize.Label", contextSize);
     checkPositiveInt(problems, "AiProvider.MaxOutputTokens.Label", maxOutputTokens);
+    if (!isVariable(thinking) && AiThinking.lookup(thinking) == null) {
+      problems.add(
+          BaseMessages.getString(
+              PKG,
+              "AiProvider.Validate.Thinking",
+              thinking,
+              String.join(", ", AiThinking.descriptions())));
+    }
     return problems;
   }
 
@@ -357,6 +385,11 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
 
   public String test(IVariables variables) throws HopException {
     return AiChatFactory.healthCheck(this, variables);
+  }
+
+  /** The Thinking settings, by the label the editor shows. */
+  public List<String> getThinkingChoices(ILogChannel log, IHopMetadataProvider metadataProvider) {
+    return List.of(AiThinking.descriptions());
   }
 
   /**

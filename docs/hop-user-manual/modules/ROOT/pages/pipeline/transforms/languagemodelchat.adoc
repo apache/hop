@@ -97,6 +97,9 @@ When *AI Provider* is set, the transform starts from its own settings and then c
 
 | Timeout
 | The provider's *Timeout (seconds)* if it resolves to a whole number, otherwise the inline timeout.
+
+| Thinking (Ollama)
+| The provider's *Thinking* if it is *Off* or *On*, otherwise the inline *Thinking*.
 |===
 
 Variables in provider fields are resolved first, so apart from *Temperature*, a field holding a variable that resolves to an empty value counts as empty. Empty provider fields fall back to the inline values, not to the defaults listed for each provider type on the xref:metadata-types/ai-provider.adoc[AI Provider] page.
@@ -136,6 +139,7 @@ Below is a table detailing parameters specific to individual language model APIs
 |Wait for Model | ❌ | ❌ | ✅ | ❌ | ❌
 |Use Proxy | ✅ | ❌ | ❌ | ❌ | ❌
 |Context Window Size | ❌ | ❌ | ❌ | ❌ | ✅
+|Thinking | ❌ | ❌ | ❌ | ❌ | ✅
 |===
 
 
@@ -154,6 +158,9 @@ Below is a table detailing parameters specific to individual language model APIs
 
 |Context Window Size
 |Specifies how much input tokens the model can consider at once.
+
+|Thinking
+|Whether a thinking model (qwen3, deepseek-r1, gpt-oss, …) reasons before it answers. *Default* leaves it to the model, *Off* answers right away, which is much faster when the model is called once per row, and *On* always reasons. The reasoning itself is never written to the output.
 
 |Timeout
 |Determines how long to wait for a response before giving up.

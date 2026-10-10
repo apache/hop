@@ -1,0 +1,13 @@
+{
+  "modelName": "qwen3-hop-it",
+  "baseUrl": "http://ollama:11434",
+  "apiKey": "Encrypted ",
+  "provider": {
+    "ollama": {}
+  },
+  "name": "ollama-thinking-off",
+  "temperature": "0",
+  "timeoutSeconds": "300",
+  "maxOutputTokens": "512",
+  "thinking": "Off"
+}
