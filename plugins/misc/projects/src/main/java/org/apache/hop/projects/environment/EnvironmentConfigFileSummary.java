@@ -216,13 +216,22 @@ public final class EnvironmentConfigFileSummary {
     return line;
   }
 
-  private static boolean maskValue(DescribedVariable variable) {
-    String name = variable.getName();
+  /**
+   * A variable whose name looks like a secret, or whose value is an encrypted Hop password.
+   *
+   * @param name variable name, may be null
+   * @param value variable value, may be null
+   * @return true when the value should not be shown or copied into a project file
+   */
+  static boolean looksLikeSecret(String name, String value) {
     if (name != null && SECRET_NAME.matcher(name).matches()) {
       return true;
     }
-    String value = variable.getValue();
     return value != null && value.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX);
+  }
+
+  private static boolean maskValue(DescribedVariable variable) {
+    return variable != null && looksLikeSecret(variable.getName(), variable.getValue());
   }
 
   private static String message(String key) {

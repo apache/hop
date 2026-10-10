@@ -1,0 +1,55 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hop.projects.environment;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * A variable declared on an embedded environment. {@code defaultValue} is checked in with the
+ * project.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class EmbeddedEnvironmentVariable {
+
+  private String name;
+
+  private String defaultValue;
+
+  private String description;
+
+  /** True when a person has to set this variable on their own computer. */
+  private boolean mandatory;
+
+  /** True when this value is a secret, such as a password or a token. */
+  private boolean secret;
+
+  public EmbeddedEnvironmentVariable(String name, String defaultValue, String description) {
+    this(name, defaultValue, description, false, false);
+  }
+
+  public EmbeddedEnvironmentVariable(
+      String name, String defaultValue, String description, boolean mandatory) {
+    this(name, defaultValue, description, mandatory, false);
+  }
+}

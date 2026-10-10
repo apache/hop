@@ -18,6 +18,7 @@
 package org.apache.hop.projects.project;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -126,10 +128,16 @@ class ProjectReferencesTest {
         "{ not json",
         StandardCharsets.UTF_8);
 
+    int from = HopLogStore.getLastBufferLineNr();
     List<String> references =
         ProjectsUtil.getParentProjectReferences("ref-parent", new Variables(), LogChannel.GENERAL);
 
     assertEquals(List.of("ref-child"), references);
+    String skipped = messagesSince(from);
+    assertTrue(skipped.contains("Caught an error loading project 'ref-broken'"));
+    assertTrue(skipped.contains("That project was skipped."));
+    assertFalse(skipped.contains("at org.apache"));
+    assertFalse(skipped.contains("\n"));
   }
 
   @Test
@@ -298,8 +306,13 @@ class ProjectReferencesTest {
     assumeTrue(secondHome.setWritable(false) && !secondHome.canWrite());
 
     try {
+      int from = HopLogStore.getLastBufferLineNr();
       HopException exception =
           assertThrows(HopException.class, () -> rename(parentConfig, "ref-parent", "ref-renamed"));
+      String caught = messagesSince(from);
+      assertTrue(caught.contains("Caught an error restoring parent project 'ref-parent'"));
+      assertTrue(caught.contains("of project 'ref-child-b'"));
+      assertFalse(caught.contains("at org.apache"));
 
       assertTrue(
           exception
@@ -338,6 +351,23 @@ class ProjectReferencesTest {
             .getCause()
             .getMessage()
             .contains("'ref-parent' can't be deleted, it is the parent project of: ref-child"));
+  }
+
+  private static String messagesSince(int from) {
+    List<HopLoggingEvent> events =
+        HopLogStore.getLogBufferFromTo(
+            List.of(LogChannel.GENERAL.getLogChannelId()),
+            true,
+            from,
+            HopLogStore.getLastBufferLineNr());
+    StringBuilder text = new StringBuilder();
+    for (HopLoggingEvent event : events) {
+      if (text.length() > 0) {
+        text.append('\n');
+      }
+      text.append(event.getMessage());
+    }
+    return text.toString();
   }
 
   /** Rename the registered instance in place, the way the project dialogs do. */
