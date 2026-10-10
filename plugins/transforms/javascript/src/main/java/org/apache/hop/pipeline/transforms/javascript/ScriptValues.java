@@ -303,6 +303,19 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         for (int i = 0; i < meta.getScriptFields().size(); i++) {
           ScriptValuesMeta.ScriptField field = meta.getScriptFields().get(i);
           Object result = data.scope.get(field.getName(), data.scope);
+          if (result == Scriptable.NOT_FOUND && data.replaceIndex[i] >= 0) {
+            // The script never assigned the field it replaces: keep the input value. Whether
+            // the input field was bound depends on its name appearing in the script, comments
+            // included, so writing null here made the output depend on a comment.
+            //
+            int index = data.replaceIndex[i];
+            IValueMeta inputValueMeta = rowMeta.getValueMeta(index);
+            IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta(index);
+            if (inputValueMeta.getType() != outputValueMeta.getType()) {
+              outputRow[index] = outputValueMeta.convertData(inputValueMeta, outputRow[index]);
+            }
+            continue;
+          }
           Object valueData = getValueFromJScript(result, i);
           if (data.replaceIndex[i] < 0) {
             outputRow[outputIndex++] = valueData;

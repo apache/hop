@@ -1,0 +1,40 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "#8724 : replaced fields not assigned by the script keep their input value, also via rename",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "test_int",
+          "data_set_field": "test_int"
+        },
+        {
+          "transform_field": "other_int",
+          "data_set_field": "other_int"
+        },
+        {
+          "transform_field": "doubled",
+          "data_set_field": "doubled"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-javascript-replaced-field-8724",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0087-javascript-replaced-field-8724 UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0087-javascript-replaced-field-8724.hpl"
+}
