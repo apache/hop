@@ -962,6 +962,21 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
             </value>
             <conditions/>
           </condition>
+          <condition>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <leftvalue>filename</leftvalue>
+            <function>CONTAINS</function>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>/requires-setup/</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+            <conditions/>
+          </condition>
         </conditions>
       </condition>
     </compare>

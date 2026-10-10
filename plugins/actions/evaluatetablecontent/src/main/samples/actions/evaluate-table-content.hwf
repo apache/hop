@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>evaluate-table-content</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/10/07 10:00:00.000</created_date>
+  <modified_date>2026/10/07 10:00:00.000</modified_date>
+  <created_hop_version/>
+  <modified_hop_version/>
+  <workflow_version/>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>80</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <sql>CREATE TABLE IF NOT EXISTS PUBLIC.SAMPLE_EVALUATE_TABLE
+(
+  id INT
+, name VARCHAR(50)
+);
+
+DELETE FROM PUBLIC.SAMPLE_EVALUATE_TABLE;
+
+INSERT INTO PUBLIC.SAMPLE_EVALUATE_TABLE VALUES
+(1, 'Apache Hop'),
+(2, 'Apache Beam'),
+(3, 'Apache Spark');</sql>
+      <connection>hop-samples</connection>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <sqlfromfile>N</sqlfromfile>
+      <sendOneStatement>N</sendOneStatement>
+      <name>Create and fill table</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <xloc>272</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <is_usevars>N</is_usevars>
+      <is_custom_sql>N</is_custom_sql>
+      <custom_sql/>
+      <connection>hop-samples</connection>
+      <tablename>SAMPLE_EVALUATE_TABLE</tablename>
+      <schemaname>PUBLIC</schemaname>
+      <limit>0</limit>
+      <success_condition>rows_count_greater</success_condition>
+      <name>Table not empty?</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <xloc>464</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <is_usevars>N</is_usevars>
+      <is_custom_sql>Y</is_custom_sql>
+      <custom_sql>SELECT * FROM PUBLIC.SAMPLE_EVALUATE_TABLE WHERE name = 'Apache Hop'</custom_sql>
+      <connection>hop-samples</connection>
+      <tablename/>
+      <schemaname/>
+      <limit>1</limit>
+      <success_condition>rows_count_equal</success_condition>
+      <name>One Apache Hop row?</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <xloc>656</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <loglevel>Basic</loglevel>
+      <logsubject/>
+      <logmessage>Both checks on SAMPLE_EVALUATE_TABLE succeeded.</logmessage>
+      <name>Done</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <message>SAMPLE_EVALUATE_TABLE should not be empty</message>
+      <loglevel>Error</loglevel>
+      <name>Table is empty</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <xloc>464</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <message>Expected exactly one Apache Hop row</message>
+      <loglevel>Error</loglevel>
+      <name>Apache Hop not found</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <xloc>656</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Create and fill table</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Create and fill table</from>
+      <to>Table not empty?</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table not empty?</from>
+      <to>One Apache Hop row?</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table not empty?</from>
+      <to>Table is empty</to>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>One Apache Hop row?</from>
+      <to>Done</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>One Apache Hop row?</from>
+      <to>Apache Hop not found</to>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>The Evaluate rows number in a table action counts the rows in a table, or the rows returned by a custom SQL query,
+and compares the count with a value (equal, different, smaller, greater, ...).
+
+This sample fills the table SAMPLE_EVALUATE_TABLE with three rows, then checks that the table has more than 0 rows
+and that a custom query finds exactly one row named 'Apache Hop'.
+The hop-samples connection is an in-memory H2 database, so no database server is needed to run this sample.</note>
+      <markdown>N</markdown>
+      <notetype>GENERAL</notetype>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>32</yloc>
+      <width>928</width>
+      <height>174</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>
