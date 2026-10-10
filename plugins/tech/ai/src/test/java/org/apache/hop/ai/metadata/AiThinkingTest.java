@@ -53,6 +53,29 @@ class AiThinkingTest {
   }
 
   @Test
+  void aRecognisedValueIsStoredAsItsCode() {
+    assertEquals("OFF", AiThinking.toCode("Off"));
+    assertEquals("ON", AiThinking.toCode(" on "));
+    assertEquals("DEFAULT", AiThinking.toCode("Default"));
+    assertEquals("OFF", AiThinking.toCode("OFF"));
+  }
+
+  @Test
+  void anythingElseIsStoredAsItIs() {
+    assertEquals("${AI_THINKING}", AiThinking.toCode("${AI_THINKING}"));
+    assertEquals("maybe", AiThinking.toCode("maybe"));
+    assertEquals("", AiThinking.toCode(""));
+    assertNull(AiThinking.toCode(null));
+  }
+
+  @Test
+  void aStoredCodeIsShownAsItsLabel() {
+    assertEquals(AiThinking.OFF.getDescription(), AiThinking.toDescription("OFF"));
+    assertEquals("${AI_THINKING}", AiThinking.toDescription("${AI_THINKING}"));
+    assertEquals("", AiThinking.toDescription(""));
+  }
+
+  @Test
   void theCodeIsTheConstantName() {
     for (AiThinking thinking : AiThinking.values()) {
       assertEquals(thinking.name(), thinking.getCode());

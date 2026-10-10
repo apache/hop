@@ -137,7 +137,8 @@ public final class AiChatModelFactory {
     if (settings.think() != null) {
       builder.think(settings.think());
     }
-    // A thinking model's reasoning never ends up in an output field, whatever think is set to.
+    // Only drops the separate thinking field. With think unset, the model and the Ollama version
+    // decide whether the answer carries <think> tags, as before this option existed.
     builder.returnThinking(false);
     return builder.build();
   }

@@ -21,10 +21,11 @@ limitations under the License.
   <info>
     <name>0006-structured-extract-thinking-off</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Structured extract with a thinking model, through an AI provider whose Thinking
-      option is Off. This is the path Extract graph, Structured extract and the AI Assistant build
-      their model on. A thinking model held to a JSON schema must still return both required
-      fields typed and non null with think set to false.</description>
+    <description>Structured extract with the thinking model qwen3, through an AI provider whose
+      Thinking option is Off. This checks that a thinking model held to a JSON schema still returns
+      both required fields typed and non null with that setting. It does not show that think was
+      sent: Structured extract reports no token counts, and with think on the JSON still comes back
+      in the answer. StructuredExtractThinkingTest checks the flag on this request.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>

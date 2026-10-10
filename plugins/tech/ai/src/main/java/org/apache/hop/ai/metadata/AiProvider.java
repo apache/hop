@@ -173,8 +173,12 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
   private String maxOutputTokens = "";
 
   /**
-   * Whether the model reasons before it answers: one of the {@link AiThinking} settings, or a
-   * variable that resolves to one. Empty leaves it to the model. Only Ollama applies it so far.
+   * Whether the model reasons before it answers: the code of one of the {@link AiThinking}
+   * settings, or a variable that resolves to one. Empty leaves it to the model. Only Ollama applies
+   * it so far.
+   *
+   * <p>The editor shows the label and {@link #setThinking} stores the code, so a provider saved in
+   * one language loads the same in another.
    */
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -182,6 +186,7 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
       order = "0525",
       type = GuiElementType.COMBO,
       comboValuesMethod = "getThinkingChoices",
+      getterMethod = "getThinkingLabel",
       parentId = GUI_WIDGETS_PARENT_ID,
       groupType = GuiWidgetGroupType.TABS,
       group = "i18n::AiProviderEditor.Group.Model",
@@ -385,6 +390,19 @@ public class AiProvider extends HopMetadataBase implements IHopMetadata {
 
   public String test(IVariables variables) throws HopException {
     return AiChatFactory.healthCheck(this, variables);
+  }
+
+  /**
+   * Stores the code of a recognised setting, given as a code or a label. A variable, or a value
+   * that is not a setting, is kept as it is so it can be resolved or reported later.
+   */
+  public void setThinking(String thinking) {
+    this.thinking = AiThinking.toCode(thinking);
+  }
+
+  /** The label the editor shows for the stored setting. */
+  public String getThinkingLabel() {
+    return AiThinking.toDescription(thinking);
   }
 
   /** The Thinking settings, by the label the editor shows. */

@@ -200,7 +200,8 @@ public class LanguageModelFacade {
         .numPredict(numPredict)
         .numCtx(numCtx)
         .responseFormat(toResponseFormat(format))
-        // Null leaves think unset, so the model decides. The reasoning never reaches the output.
+        // Null leaves think unset, so the model and the Ollama version decide, and the answer may
+        // carry <think> tags as before. returnThinking(false) only drops the separate field.
         .think(think)
         .returnThinking(false)
         .timeout(timeout == null ? null : ofSeconds(timeout))

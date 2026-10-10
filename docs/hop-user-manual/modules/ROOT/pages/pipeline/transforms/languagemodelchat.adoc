@@ -160,7 +160,7 @@ Below is a table detailing parameters specific to individual language model APIs
 |Specifies how much input tokens the model can consider at once.
 
 |Thinking
-|Whether a thinking model (qwen3, deepseek-r1, gpt-oss, …) reasons before it answers. *Default* leaves it to the model, *Off* answers right away, which is much faster when the model is called once per row, and *On* always reasons. The reasoning itself is never written to the output.
+|Whether a thinking model (qwen3, deepseek-r1, gpt-oss, …) reasons before it answers. *Default* leaves it to the model, *Off* answers right away, which is much faster when the model is called once per row, and *On* always reasons. With *Off* or *On* the reasoning is kept out of the output; with *Default* the model and the Ollama version decide, and the output can include the reasoning between `<think>` tags.
 
 |Timeout
 |Determines how long to wait for a response before giving up.

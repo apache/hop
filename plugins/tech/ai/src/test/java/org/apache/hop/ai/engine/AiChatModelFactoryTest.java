@@ -119,8 +119,13 @@ class AiChatModelFactoryTest {
     assertTrue(compactRequestBody().contains("\"think\":false"), lastRequestBody.get());
   }
 
+  /**
+   * The separate thinking field is never returned. With think unset, whether the answer text itself
+   * carries {@code <think>} tags is up to the model and the Ollama version, which this stub cannot
+   * show.
+   */
   @Test
-  void theReasoningNeverReachesTheAnswer() throws Exception {
+  void theSeparateThinkingFieldIsNotReturned() throws Exception {
     for (String thinking : new String[] {"", "Off", "On"}) {
       ChatResponse response =
           model(thinking)

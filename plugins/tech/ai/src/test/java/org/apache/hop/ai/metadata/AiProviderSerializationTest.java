@@ -103,10 +103,31 @@ class AiProviderSerializationTest {
                 + "\"baseUrl\":\"http://localhost:11434\",\"modelName\":\"qwen3\"}");
     assertEquals("", old.getThinking());
 
+    // The editor hands over the label; the code is what is saved.
     old.setThinking("Off");
     JSONObject saved = parser.getJsonObject(old);
-    assertEquals("Off", saved.get("thinking"), saved.toJSONString());
-    assertEquals("Off", load(saved.toJSONString()).getThinking());
+    assertEquals("OFF", saved.get("thinking"), saved.toJSONString());
+    assertEquals("OFF", load(saved.toJSONString()).getThinking());
+  }
+
+  @Test
+  void aProviderSavedWithTheLabelLoadsAsTheCode() throws Exception {
+    AiProvider provider =
+        load(
+            "{\"name\":\"local\",\"provider\":{\"ollama\":{}},"
+                + "\"modelName\":\"qwen3\",\"thinking\":\"Off\"}");
+
+    assertEquals("OFF", provider.getThinking());
+  }
+
+  @Test
+  void aThinkingVariableIsSavedAsTyped() throws Exception {
+    AiProvider provider =
+        load(
+            "{\"name\":\"local\",\"provider\":{\"ollama\":{}},"
+                + "\"modelName\":\"qwen3\",\"thinking\":\"${AI_THINKING}\"}");
+
+    assertEquals("${AI_THINKING}", parser.getJsonObject(provider).get("thinking"));
   }
 
   private static AiProvider load(String json) throws Exception {

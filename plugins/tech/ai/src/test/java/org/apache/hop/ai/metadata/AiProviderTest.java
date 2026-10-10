@@ -113,7 +113,29 @@ class AiProviderTest {
     assertEquals("gpt-4o-mini", copy.getModelName());
     assertEquals("openai", copy.getPluginId());
     assertEquals("OpenAI", copy.getPluginName());
-    assertEquals("Off", copy.getThinking());
+    assertEquals("OFF", copy.getThinking());
+  }
+
+  @Test
+  void thinkingStoresTheCodeAndShowsTheLabel() {
+    AiProvider provider = ollama();
+
+    provider.setThinking(AiThinking.OFF.getDescription());
+    assertEquals("OFF", provider.getThinking());
+    assertEquals("Off", provider.getThinkingLabel());
+
+    provider.setThinking("on");
+    assertEquals("ON", provider.getThinking());
+    assertEquals("On", provider.getThinkingLabel());
+
+    // A variable is resolved when the provider is used, so it is stored as typed.
+    provider.setThinking("${AI_THINKING}");
+    assertEquals("${AI_THINKING}", provider.getThinking());
+    assertEquals("${AI_THINKING}", provider.getThinkingLabel());
+
+    provider.setThinking("");
+    assertEquals("", provider.getThinking());
+    assertEquals("", provider.getThinkingLabel());
   }
 
   @Test

@@ -139,13 +139,13 @@ A value that is too low cuts answers and proposals short.
 |Thinking
 |Whether a thinking model (qwen3, deepseek-r1, gpt-oss, …) reasons before it answers.
 
-* *Default*: leave it to the model. Most thinking models then reason. This is the value for providers created before the option existed.
+* *Default*: leave it to the model. Most thinking models then reason. Depending on the model and the Ollama version, the answer can then include the reasoning between `<think>` tags. This is the value for providers created before the option existed, and it keeps their output as it was.
 * *Off*: answer right away (`think: false`).
 * *On*: always reason first (`think: true`).
 
 For transforms that call the model once per row, the reasoning usually takes most of the run time: a short Extract graph call that writes thousands of reasoning tokens with the default writes about a hundred with *Off*.
 Adding `/no_think` to a prompt is not a reliable alternative: not every model honours it.
-The reasoning itself is never written to an output field, whichever value is set.
+With *Off* or *On* the reasoning is kept out of the answer.
 The value can be a variable, such as `+'${AI_THINKING}'+`, that resolves to `Default`, `Off` or `On`.
 Applies to Ollama only for now; other provider types ignore it.
 

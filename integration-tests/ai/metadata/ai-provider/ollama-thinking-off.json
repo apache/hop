@@ -9,5 +9,5 @@
   "temperature": "0",
   "timeoutSeconds": "300",
   "maxOutputTokens": "512",
-  "thinking": "Off"
+  "thinking": "OFF"
 }

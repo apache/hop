@@ -62,8 +62,8 @@ public enum AiThinking implements IEnumHasCodeAndDescription {
   }
 
   /**
-   * The setting a stored value stands for. The editor stores the label it shows, so a label is
-   * accepted as well as a code, both ignoring case.
+   * The setting a stored value stands for. A code or a label is accepted, both ignoring case: a
+   * provider saved before codes were stored holds the label.
    *
    * @param value the resolved field value
    * @return the setting, {@link #DEFAULT} for an empty value, or null when the value is not one of
@@ -81,6 +81,27 @@ public enum AiThinking implements IEnumHasCodeAndDescription {
       }
     }
     return null;
+  }
+
+  /**
+   * The code to store for a value: the code of the setting it names, or the value as it is when it
+   * is empty, a variable or not a setting.
+   */
+  public static String toCode(String value) {
+    if (value == null || value.isBlank()) {
+      return value;
+    }
+    AiThinking thinking = lookup(value);
+    return thinking == null ? value : thinking.getCode();
+  }
+
+  /** The label to show for a stored value, or the value as it is when it names no setting. */
+  public static String toDescription(String value) {
+    if (value == null || value.isBlank()) {
+      return value;
+    }
+    AiThinking thinking = lookup(value);
+    return thinking == null ? value : thinking.getDescription();
   }
 
   /** The labels the editor offers, in order. */
