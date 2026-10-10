@@ -80,6 +80,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       "11000-google-cloud-service-retry-non-idempotent";
   private static final String WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS =
       "11100-google-cloud-cache-ttl-seconds";
+  private static final String WIDGET_ID_GOOGLE_CLOUD_READ_BLOCK_SIZE =
+      "11200-google-cloud-read-block-size";
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY_FILE,
@@ -210,6 +212,18 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       toolTip = "i18n::GoogleCloudPlugin.CacheTtlSeconds.Description")
   private String cacheTtlSeconds;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_GOOGLE_CLOUD_READ_BLOCK_SIZE,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "i18n::GoogleCloudPlugin.ReadBlockSize.Label",
+      toolTip = "i18n::GoogleCloudPlugin.ReadBlockSize.Description")
+  @CommandLine.Option(
+      names = {"-gcrbs", "--google-cloud-read-block-size"},
+      description = "Configure the bytes per request when reading a file in blocks, like 8MB")
+  private String readBlockSize;
+
   /**
    * Gets instance
    *
@@ -233,6 +247,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     instance.readTimeout = config.getReadTimeout();
     instance.retryNonIdempotentOperations = config.getRetryNonIdempotentOperations();
     instance.cacheTtlSeconds = config.getCacheTtlSeconds();
+    instance.readBlockSize = config.getReadBlockSize();
 
     return instance;
   }
@@ -336,6 +351,12 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         changed = true;
       }
 
+      if (readBlockSize != null) {
+        config.setReadBlockSize(readBlockSize);
+        log.logBasic("Google Cloud Storage: read block size set to " + readBlockSize);
+        changed = true;
+      }
+
       // Save to file if anything changed
       //
       if (changed) {
@@ -425,6 +446,10 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         case WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS:
           cacheTtlSeconds = ((TextVar) control).getText();
           GoogleCloudConfigSingleton.getConfig().setCacheTtlSeconds(cacheTtlSeconds);
+          break;
+        case WIDGET_ID_GOOGLE_CLOUD_READ_BLOCK_SIZE:
+          readBlockSize = ((TextVar) control).getText();
+          GoogleCloudConfigSingleton.getConfig().setReadBlockSize(readBlockSize);
           break;
         default:
           break;

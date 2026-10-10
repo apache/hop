@@ -501,6 +501,16 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Commons VFS provider test cases: they only run inside a provider suite -->
+                        <exclude>org/apache/commons/vfs2/*Tests.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
@@ -511,6 +521,9 @@
                             <includes>
                                 <include>org/apache/hop/junit/**</include>
                                 <include>org/apache/hop/concurrency/**</include>
+                                <!-- Shared Commons VFS provider test suite and its fixtures -->
+                                <include>org/apache/commons/vfs2/**</include>
+                                <include>vfs-provider-test-data/**</include>
                             </includes>
                         </configuration>
                     </execution>

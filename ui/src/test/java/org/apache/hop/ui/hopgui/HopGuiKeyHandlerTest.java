@@ -420,6 +420,10 @@ class HopGuiKeyHandlerTest {
       assertEquals(0, graph.undos, "Ctrl+Z in a script editor must not undo the graph");
       assertTrue(undo.doit, "The editor performs undo; this handler must not consume the key");
 
+      KeyEvent command = keyEvent(editor, 'z', SWT.COMMAND);
+      keyHandler.keyPressed(command);
+      assertEquals(0, graph.undos, "Cmd+Z in a script editor must not undo the graph either");
+
       KeyEvent upper = keyEvent(editor, 'Z', SWT.CONTROL);
       keyHandler.keyPressed(upper);
       assertEquals(0, graph.undos, "Ctrl+Z must match regardless of key-code case");

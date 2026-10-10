@@ -637,7 +637,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
     if (!(widget instanceof Control control) || !editorOwnsHistoryKeys(control)) {
       return false;
     }
-    if ((stateMask & SWT.MOD1) == 0) {
+    // Ctrl as well as Command on macOS: the shortcuts below treat Ctrl as Command there (Hop Web
+    // sends Command as Ctrl), so Ctrl+Z would otherwise undo the graph.
+    if ((stateMask & (SWT.CONTROL | SWT.COMMAND)) == 0) {
       return false;
     }
     char key = Character.toLowerCase((char) (keyCode & SWT.KEY_MASK));

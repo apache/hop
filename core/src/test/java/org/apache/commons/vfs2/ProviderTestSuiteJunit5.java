@@ -45,6 +45,8 @@ public class ProviderTestSuiteJunit5 extends AbstractProviderTestSuite {
     addTests(ProviderWriteTests.class);
     addTests(ProviderWriteAppendTests.class);
     addTests(ProviderRandomReadTests.class);
+    addTests(ProviderLargeReadTests.class);
+    addTests(ProviderRangeReadTests.class);
     addTests(ProviderRandomReadWriteTests.class);
     addTests(ProviderRandomSetLengthTests.class);
     addTests(ProviderRenameTests.class);

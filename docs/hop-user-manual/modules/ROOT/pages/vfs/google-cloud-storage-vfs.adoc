@@ -63,6 +63,11 @@ The options below are the ones in the *Plugins* section of the xref:hop-gui/pers
 
 include::partial$config/GoogleCloudStorageConfigPlugin.adoc[]
 
+== Read block size
+
+Files are downloaded in pieces of the *Read block size* option, 8MB when it's left empty, instead of the 2MB the Google Cloud client uses on its own.
+Transforms that read a file in blocks, such as Text File Input fetching ahead, download several blocks at a time, each with one request for exactly its bytes.
+
 == Retries, timeouts and stalled transfers
 
 The Google Cloud Storage client retries timeouts and temporary errors, such as HTTP 503, by itself, following the options above.

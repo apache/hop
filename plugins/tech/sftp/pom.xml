@@ -80,7 +80,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>org/apache/commons/vfs2/*Tests.java</exclude>
                         <exclude>**/SftpMultiThreadWriteTests.java</exclude>
                     </excludes>
                 </configuration>

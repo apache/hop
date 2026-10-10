@@ -39,6 +39,7 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 import org.threeten.bp.Duration;
@@ -182,6 +183,18 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
   GoogleStorageStallWatchdog.Limits stallLimits() throws IOException {
     setupStorage();
     return stallLimits;
+  }
+
+  /**
+   * The bytes per request when reading a file, from the Google Cloud configuration; the default
+   * when it isn't set or isn't a valid size.
+   */
+  int getReadBlockSize() {
+    try {
+      return HopVfs.parseReadBlockSize(GoogleCloudConfigSingleton.getConfig().getReadBlockSize());
+    } catch (IllegalArgumentException e) {
+      return HopVfs.DEFAULT_READ_BLOCK_SIZE;
+    }
   }
 
   static HttpTransportOptions buildTransportOptions(GoogleCloudConfig config) {

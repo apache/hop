@@ -17,8 +17,10 @@
 
 package org.apache.hop.core.vfs;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,18 +33,22 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.CacheStrategy;
+import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.cache.SoftRefFilesCache;
+import org.apache.commons.vfs2.impl.DecoratedFileObject;
 import org.apache.commons.vfs2.impl.DefaultFileReplicator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.impl.FileContentInfoFilenameFactory;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.commons.vfs2.provider.local.LocalFile;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -51,6 +57,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.StorageUnitConverter;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
@@ -640,6 +647,204 @@ public class HopVfs {
   public static InputStream getInputStream(FileObject fileObject) throws FileSystemException {
     FileContent content = fileObject.getContent();
     return content.getInputStream();
+  }
+
+  /**
+   * Whether reading the file can start at a byte offset without fetching the bytes before it. True
+   * when its provider implements random access, not just declares it.
+   *
+   * @param fileObject the file to read
+   * @return true if {@link #getInputStream(FileObject, long)} starts reading at the offset directly
+   */
+  public static boolean supportsRangeRead(FileObject fileObject) {
+    if (!fileObject.getFileSystem().hasCapability(Capability.RANDOM_ACCESS_READ)) {
+      return false;
+    }
+    // Some providers declare the capability without implementing it. Opening costs nothing here:
+    // nothing is read until the first read.
+    try (RandomAccessContent ignored =
+        fileObject.getContent().getRandomAccessContent(RandomAccessMode.READ)) {
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Opens a file for reading from a byte offset. Where {@link #supportsRangeRead(FileObject)}
+   * holds, reading starts at the offset and closing the stream early stops the transfer; otherwise
+   * the bytes before the offset are read and thrown away. An offset at or past the end gives an
+   * empty stream. Closing the stream releases everything it opened.
+   *
+   * @param fileObject the file to read
+   * @param offset the first byte to read
+   * @return a stream positioned at the offset
+   * @throws IOException if the file can't be opened
+   */
+  public static InputStream getInputStream(FileObject fileObject, long offset) throws IOException {
+    if (offset < 0) {
+      throw new IOException("Can't read from a negative offset: " + offset);
+    }
+    // Also at offset 0: a ranged stream closed early stops reading (on S3 a plain stream would
+    // download the rest of the object first)
+    if (fileObject.getFileSystem().hasCapability(Capability.RANDOM_ACCESS_READ)) {
+      RandomAccessContent content = null;
+      try {
+        content = fileObject.getContent().getRandomAccessContent(RandomAccessMode.READ);
+      } catch (FileSystemException e) {
+        // Declared but not implemented: read from the start below
+      }
+      if (content != null) {
+        try {
+          content.seek(offset);
+          return new RandomAccessInputStream(content);
+        } catch (IOException e) {
+          content.close();
+          throw e;
+        }
+      }
+    }
+    InputStream in = getInputStream(fileObject);
+    try {
+      in.skipNBytes(offset);
+    } catch (EOFException e) {
+      // The offset is past the end: the stream is at the end, so reading gives nothing
+    } catch (IOException e) {
+      in.close();
+      throw e;
+    }
+    return in;
+  }
+
+  /** The read block size of storage that doesn't say what it reads best. */
+  public static final int DEFAULT_READ_BLOCK_SIZE = 8 * 1024 * 1024;
+
+  /**
+   * Parses a read block size setting of a storage connection: a size like {@code 8MB} or {@code
+   * 512KB}, or a number of bytes. Blank means {@link #DEFAULT_READ_BLOCK_SIZE}.
+   *
+   * @param value the setting, variables resolved
+   * @return the read block size in bytes, from 64KB to 256MB
+   * @throws IllegalArgumentException if the setting isn't a size in that range
+   */
+  public static int parseReadBlockSize(String value) {
+    if (value == null || value.isBlank()) {
+      return DEFAULT_READ_BLOCK_SIZE;
+    }
+    String text = value.trim();
+    long bytes =
+        text.chars().allMatch(Character::isDigit)
+            ? Long.parseLong(text)
+            : new StorageUnitConverter().displaySizeToByteCount(text);
+    if (bytes < 64 * 1024 || bytes > 256L * 1024 * 1024) {
+      throw new IllegalArgumentException(
+          "Invalid read block size '" + value + "': use a size from 64KB to 256MB, like 8MB");
+    }
+    return (int) bytes;
+  }
+
+  /** The provider's file object behind decorations such as a refreshing wrapper. */
+  private static FileObject undecorated(FileObject fileObject) {
+    FileObject file = fileObject;
+    while (file instanceof DecoratedFileObject decorated) {
+      file = decorated.getDecoratedFileObject();
+    }
+    return file;
+  }
+
+  /**
+   * The bytes per request the storage of a file reads best: the read block size of its connection
+   * where the provider has one (see {@link IRangeReadableFile}), otherwise {@link
+   * #DEFAULT_READ_BLOCK_SIZE}.
+   *
+   * @param fileObject the file
+   * @return the read block size
+   */
+  public static int getReadBlockSize(FileObject fileObject) {
+    int size = getStorageReadBlockSize(fileObject);
+    return size > 0 ? size : DEFAULT_READ_BLOCK_SIZE;
+  }
+
+  /**
+   * The read block size the storage of a file reports itself (see {@link IRangeReadableFile}), or 0
+   * when it doesn't report one, as local files don't.
+   *
+   * @param fileObject the file
+   * @return the storage's read block size, or 0
+   */
+  public static int getStorageReadBlockSize(FileObject fileObject) {
+    if (undecorated(fileObject) instanceof IRangeReadableFile rangeReadable) {
+      return Math.max(0, rangeReadable.getReadBlockSize());
+    }
+    return 0;
+  }
+
+  /**
+   * Opens a byte range of a file. Where the provider supports it (see {@link IRangeReadableFile})
+   * the range is read with one request for exactly its bytes; otherwise this is {@link
+   * #getInputStream(FileObject, long)}, and the caller stops reading after {@code length} bytes.
+   *
+   * @param fileObject the file to read
+   * @param offset the first byte to read
+   * @param length the number of bytes the caller reads
+   * @return a stream positioned at the offset
+   * @throws IOException if the file can't be opened
+   */
+  public static InputStream getInputStream(FileObject fileObject, long offset, long length)
+      throws IOException {
+    if (offset < 0 || length < 0) {
+      throw new IOException("Can't read a negative offset or length: " + offset + ", " + length);
+    }
+    if (undecorated(fileObject) instanceof IRangeReadableFile rangeReadable) {
+      return rangeReadable.getInputStream(offset, length);
+    }
+    return getInputStream(fileObject, offset);
+  }
+
+  /**
+   * Opens a file for reading from a byte offset, fetching blocks ahead with several ranged requests
+   * at a time (see {@link ReadAheadInputStream}), in blocks of the storage's read block size (see
+   * {@link #getReadBlockSize(FileObject)}). On local files, on storage that can't start reading at
+   * an offset, or with {@code blocks} below 1, nothing is fetched ahead: the operating system or a
+   * single stream does the reading.
+   *
+   * @param fileObject the file to read
+   * @param offset the first byte to read
+   * @param readAheadEnd how far to fetch ahead; past it a block is fetched only when it is reached
+   * @param blocks how many blocks to keep in flight; below 1 reads without fetching ahead
+   * @return a stream positioned at the offset
+   * @throws IOException if the file can't be opened
+   */
+  public static InputStream getReadAheadInputStream(
+      FileObject fileObject, long offset, long readAheadEnd, int blocks) throws IOException {
+    if ("file".equals(fileObject.getName().getScheme())) {
+      return offset == 0 ? getInputStream(fileObject) : getInputStream(fileObject, offset);
+    }
+    if (blocks < 1 || !supportsRangeRead(fileObject)) {
+      return getInputStream(fileObject, offset);
+    }
+    long size = fileObject.getContent().getSize();
+    return new ReadAheadInputStream(
+        fileObject, size, offset, readAheadEnd, getReadBlockSize(fileObject), blocks);
+  }
+
+  /** The stream of a random-access content at its position; closing it closes the content too. */
+  private static final class RandomAccessInputStream extends FilterInputStream {
+    private final RandomAccessContent content;
+
+    RandomAccessInputStream(RandomAccessContent content) throws IOException {
+      super(content.getInputStream());
+      this.content = content;
+    }
+
+    @Override
+    public void close() throws IOException {
+      try {
+        super.close();
+      } finally {
+        content.close();
+      }
+    }
   }
 
   public static InputStream getInputStream(String vfsFilename) throws HopFileException {

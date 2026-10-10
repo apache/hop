@@ -29,9 +29,11 @@ import com.azure.storage.file.datalake.DataLakeDirectoryClient;
 import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeServiceClient;
+import com.azure.storage.file.datalake.models.FileRange;
 import com.azure.storage.file.datalake.models.ListFileSystemsOptions;
 import com.azure.storage.file.datalake.models.ListPathsOptions;
 import com.azure.storage.file.datalake.models.PathItem;
+import com.azure.storage.file.datalake.options.DataLakeFileInputStreamOptions;
 import com.azure.storage.file.datalake.options.DataLakePathDeleteOptions;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,11 +49,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.IRangeReadableFile;
+import org.apache.hop.core.vfs.RangeReadRandomAccessContent;
 
-public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
+public class AzureFileObject extends AbstractFileObject<AzureFileSystem>
+    implements IRangeReadableFile {
 
   public class BlockBlobOutputStream extends OutputStream {
 
@@ -574,10 +581,69 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       if (!fileSystemClient.exists() || !fileClient.exists()) {
         throw new FileSystemException("File not found: " + currentFilePath);
       }
-      return new BlobInputStream(fileClient.openInputStream(), size);
+      return new BlobInputStream(
+          fileClient.openInputStream(
+              new DataLakeFileInputStreamOptions()
+                  .setBlockSize(getAbstractFileSystem().getReadBlockSize())),
+          size);
     } else {
       throw new UnsupportedOperationException();
     }
+  }
+
+  /** The read block size of the connection. */
+  @Override
+  public int getReadBlockSize() {
+    return getAbstractFileSystem().getReadBlockSize();
+  }
+
+  /**
+   * Reads a byte range with one request: the range has an end, and the SDK's block covers all of
+   * it, so nothing past the range is downloaded whatever the connection's read block size.
+   */
+  @Override
+  public InputStream getInputStream(long offset, long length) throws IOException {
+    if (currentFilePath.equals("") || type != FileType.FILE) {
+      throw new org.apache.commons.vfs2.FileNotFoundException(getName());
+    }
+    long count = Math.min(length, size - offset);
+    if (count <= 0) {
+      return InputStream.nullInputStream();
+    }
+    DataLakeFileClient fileClient =
+        service.getFileSystemClient(containerName).getFileClient(currentFilePath);
+    return fileClient
+        .openInputStream(
+            new DataLakeFileInputStreamOptions()
+                .setRange(new FileRange(offset, count))
+                .setBlockSize((int) Math.min(count, Integer.MAX_VALUE)))
+        .getInputStream();
+  }
+
+  /**
+   * Random access by ranged reads: a seek costs nothing, the next read opens the file at the new
+   * position. The SDK downloads its first block (the connection's read block size) when a range is
+   * opened.
+   */
+  @Override
+  protected RandomAccessContent doGetRandomAccessContent(RandomAccessMode mode) throws Exception {
+    if (currentFilePath.equals("") || type != FileType.FILE) {
+      throw new org.apache.commons.vfs2.FileNotFoundException(getName());
+    }
+    final DataLakeFileClient fileClient =
+        service.getFileSystemClient(containerName).getFileClient(currentFilePath);
+    return new RangeReadRandomAccessContent(size) {
+      @Override
+      protected InputStream openStream(long offset) {
+        // Not wrapped in BlobInputStream: its size limit counts from the start of the file
+        return fileClient
+            .openInputStream(
+                new DataLakeFileInputStreamOptions()
+                    .setRange(new FileRange(offset))
+                    .setBlockSize(getAbstractFileSystem().getReadBlockSize()))
+            .getInputStream();
+      }
+    };
   }
 
   @Override

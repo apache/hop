@@ -19,8 +19,8 @@ package org.apache.hop.beam.transforms.snowflake;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -31,7 +31,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.testing.SwtBotTestBase;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -62,9 +64,7 @@ class BeamSnowflakeOutputDialogTest extends SwtBotTestBase {
           dialog.text(2).setText("hop");
           dialog.text(3).setText("secret-password");
           display.syncExec(
-              () ->
-                  assertNotEquals(
-                      0, dialog.text(3).widget.getEchoChar(), "password must be masked"));
+              () -> assertTrue(isMasked(dialog.text(3).widget), "password must be masked"));
           dialog.cTabItem("Staging").activate();
           dialog.text(1).setText("gs://hop-stage/out/");
           dialog.text(2).setText("HOP_INT");
@@ -109,5 +109,10 @@ class BeamSnowflakeOutputDialogTest extends SwtBotTestBase {
     } catch (ReflectiveOperationException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  /** GTK and Windows report the echo character; macOS masks a password field natively instead. */
+  private static boolean isMasked(Text text) {
+    return text.getEchoChar() != 0 || (text.getStyle() & SWT.PASSWORD) != 0;
   }
 }

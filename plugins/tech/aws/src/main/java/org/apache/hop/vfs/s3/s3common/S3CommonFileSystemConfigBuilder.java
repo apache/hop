@@ -36,6 +36,8 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
   private static final String ENDPOINT = "endpoint";
   private static final String PATH_STYLE_ACCESS = "pathSyleAccess";
   private static final String CACHE_TTL_SECONDS = "cacheTtlSeconds";
+  private static final String READ_BLOCK_SIZE = "readBlockSize";
+  private static final String MAX_CONNECTIONS = "maxConnections";
   private static final String USE_ANONYMOUS_ACCESS = "useAnonymousAccess";
 
   @Getter @Setter private FileSystemOptions fileSystemOptions;
@@ -114,6 +116,22 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
 
   public String getCacheTtlSeconds() {
     return (String) this.getParam(getFileSystemOptions(), CACHE_TTL_SECONDS);
+  }
+
+  public void setReadBlockSize(String readBlockSize) {
+    this.setParam(getFileSystemOptions(), READ_BLOCK_SIZE, readBlockSize);
+  }
+
+  public String getReadBlockSize() {
+    return (String) this.getParam(getFileSystemOptions(), READ_BLOCK_SIZE);
+  }
+
+  public void setMaxConnections(String maxConnections) {
+    this.setParam(getFileSystemOptions(), MAX_CONNECTIONS, maxConnections);
+  }
+
+  public String getMaxConnections() {
+    return (String) this.getParam(getFileSystemOptions(), MAX_CONNECTIONS);
   }
 
   public void setUseAnonymousAccess(boolean useAnonymousAccess) {

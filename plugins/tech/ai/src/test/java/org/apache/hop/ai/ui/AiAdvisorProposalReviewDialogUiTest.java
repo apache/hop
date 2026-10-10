@@ -26,6 +26,7 @@ import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.testing.SwtBotTestBase;
+import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -61,7 +62,10 @@ class AiAdvisorProposalReviewDialogUiTest extends SwtBotTestBase {
                   proposal -> "preview of " + proposal.getDescription()));
           applied.set(dialog.get().open());
         },
-        bot -> {
+        swtBot -> {
+          // Search the dialog itself: swtBot.table() only looks in the active shell, and a test run
+          // from a terminal on macOS never makes the dialog the active shell
+          SWTBot bot = swtBot.shell(text("AiAdvisorProposalReviewDialog.Title")).bot();
           SWTBotTable table = bot.table();
           assertEquals(text("AiAdvisorProposalReviewDialog.State.Apply"), table.cell(0, 0));
           assertEquals(text("AiAdvisorProposalReviewDialog.State.Skip"), table.cell(1, 0));

@@ -152,6 +152,14 @@ public class S3FileProvider extends S3CommonFileProvider {
     if (StringUtils.isNotEmpty(cacheTtl)) {
       config.setCacheTtlSeconds(cacheTtl);
     }
+    String readBlockSize = variables.resolve(s3Meta.getReadBlockSize());
+    if (StringUtils.isNotEmpty(readBlockSize)) {
+      config.setReadBlockSize(readBlockSize);
+    }
+    String maxConnections = variables.resolve(s3Meta.getMaxConnections());
+    if (StringUtils.isNotEmpty(maxConnections)) {
+      config.setMaxConnections(maxConnections);
+    }
     return options;
   }
 }
