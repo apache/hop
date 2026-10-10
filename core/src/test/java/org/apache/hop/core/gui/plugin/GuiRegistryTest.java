@@ -236,6 +236,56 @@ class GuiRegistryTest {
     assertNull(registry.findGuiElements(dataClassName, TableHost.PARENT_ID));
   }
 
+  @Test
+  void actionFilterIdUsesThePluginClassName() throws Exception {
+    String className = getClass().getName();
+    Method method = getClass().getDeclaredMethod("filterSample");
+    registry.addGuiActionFilter(
+        className,
+        method,
+        method.getAnnotation(GuiContextActionFilter.class),
+        getClass().getClassLoader());
+
+    String expectedId = className + ".filterSample";
+    GuiActionFilter registered =
+        registry.getGuiContextActionFilters("GuiRegistryTest-action-filter").stream()
+            .filter(filter -> expectedId.equals(filter.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(className, registered.getGuiPluginClassName());
+    assertEquals("filterSample", registered.getGuiPluginMethodName());
+  }
+
+  @Test
+  void toolbarFilterIdUsesThePluginClassName() throws Exception {
+    String className = getClass().getName();
+    Method method = getClass().getDeclaredMethod("filterToolbarItem");
+    registry.addGuiToolbarItemFilter(
+        className,
+        method,
+        method.getAnnotation(GuiToolbarElementFilter.class),
+        getClass().getClassLoader());
+
+    String expectedId = className + ".filterToolbarItem";
+    GuiToolbarItemFilter registered =
+        registry.getToolbarItemFiltersMap().get("GuiRegistryTest-toolbar-filter").stream()
+            .filter(filter -> expectedId.equals(filter.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(className, registered.getGuiPluginClassName());
+    assertEquals("filterToolbarItem", registered.getGuiPluginMethodName());
+  }
+
+  @GuiContextActionFilter(parentId = "GuiRegistryTest-action-filter")
+  void filterSample() {
+    // Registered by actionFilterIdUsesThePluginClassName. The method is never called.
+  }
+
+  @GuiToolbarElementFilter(parentId = "GuiRegistryTest-toolbar-filter")
+  void filterToolbarItem() {
+    // Registered by toolbarFilterIdUsesThePluginClassName. The method is never called.
+  }
+
   private void registerTableFields(String dataClassName) throws Exception {
     for (Field field : TableHost.class.getDeclaredFields()) {
       GuiWidgetElement element = field.getAnnotation(GuiWidgetElement.class);

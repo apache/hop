@@ -62,31 +62,15 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
     List<GuiActionFilter> actionFilters =
         GuiRegistry.getInstance().getGuiContextActionFilters(getContextId());
 
-    // Evaluate all the actions and see if any of the filters remove it from the list...
+    // A filter that cannot be created (for example getInstance() returned null) used to throw
+    // once per action and print a full stack trace every time. Resolve each filter once. A
+    // failure leaves every action visible, which is what the per-action catch did before.
     //
+    List<ResolvedActionFilter> resolvedFilters = resolveActionFilters(actionFilters);
+
     List<GuiAction> filteredActions = new ArrayList<>();
     for (GuiAction action : actions) {
-      boolean retain = true;
-      if (actionFilters != null) {
-        for (GuiActionFilter actionFilter : actionFilters) {
-          boolean retainAction = false;
-          try {
-            retainAction = evaluateActionFilter(action, actionFilter);
-            if (!retainAction) {
-              retain = false;
-              break;
-            }
-          } catch (HopException e) {
-            LogChannel.UI.logError(
-                "Error filtering out action "
-                    + action.getId()
-                    + " with filter "
-                    + actionFilter.getId(),
-                e);
-          }
-        }
-      }
-      if (retain) {
+      if (isActionRetained(action, resolvedFilters)) {
         filteredActions.add(action);
       }
     }
@@ -97,6 +81,47 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
     }
 
     return actions;
+  }
+
+  private List<ResolvedActionFilter> resolveActionFilters(List<GuiActionFilter> actionFilters) {
+    if (actionFilters == null) {
+      return Collections.emptyList();
+    }
+    List<ResolvedActionFilter> resolvedFilters = new ArrayList<>();
+    for (GuiActionFilter actionFilter : actionFilters) {
+      try {
+        Object guiPlugin = getFilterObject(actionFilter);
+        Method method = getFilterMethod(guiPlugin.getClass(), actionFilter);
+        resolvedFilters.add(new ResolvedActionFilter(actionFilter, guiPlugin, method));
+      } catch (HopException e) {
+        LogChannel.UI.logError(
+            "Error preparing action filter "
+                + actionFilter.getId()
+                + ". Actions stay visible because this filter could not be created.",
+            e);
+      }
+    }
+    return resolvedFilters;
+  }
+
+  private boolean isActionRetained(GuiAction action, List<ResolvedActionFilter> resolvedFilters) {
+    for (ResolvedActionFilter resolvedFilter : resolvedFilters) {
+      try {
+        boolean retainAction =
+            (boolean) resolvedFilter.method.invoke(resolvedFilter.guiPlugin, action.getId(), this);
+        if (!retainAction) {
+          return false;
+        }
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Error filtering out action "
+                + action.getId()
+                + " with filter "
+                + resolvedFilter.actionFilter.getId(),
+            e);
+      }
+    }
+    return true;
   }
 
   public ClassLoader findClassLoader(GuiActionFilter actionFilter) {
@@ -121,63 +146,25 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
                 + actionFilter.getId());
       }
 
-      // 1. If this context handler is itself an instance of the filter class
+      // The handler can be the plugin itself.
+      //
       if (filterClass.isInstance(this)) {
         return this;
       }
 
-      // 2. Check if this context handler has a method returning an instance of filterClass
-      for (Method method : getClass().getMethods()) {
-        if (method.getParameterCount() == 0
-            && filterClass.isAssignableFrom(method.getReturnType())) {
-          try {
-            Object candidate = method.invoke(this);
-            if (candidate != null) {
-              return candidate;
-            }
-          } catch (Exception ignored) {
-            // Continue searching
-          }
-        }
-      }
-
-      // 3. Check declared fields on this context handler hierarchy
-      Class<?> clazz = getClass();
-      while (clazz != null && clazz != Object.class) {
-        for (Field field : clazz.getDeclaredFields()) {
-          if (filterClass.isAssignableFrom(field.getType())) {
-            try {
-              field.setAccessible(true);
-              Object candidate = field.get(this);
-              if (candidate != null) {
-                return candidate;
-              }
-            } catch (Exception ignored) {
-              // Continue searching
-            }
-          }
-        }
-        clazz = clazz.getSuperclass();
-      }
-
-      // 4. Try static getInstance() method
-      Object guiPlugin = null;
-      try {
-        Method getInstanceMethod = filterClass.getDeclaredMethod("getInstance");
-        guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
-      } catch (Exception ignored) {
-        // Continue searching
-      }
-
-      // 5. Try default constructor
+      // The context already holds the graph that was clicked. getInstance() only returns the
+      // active tab, and that is null when a test (or another caller) drives a graph that is not
+      // the active file. Prefer that graph over any other getter and over getInstance().
+      //
+      Object guiPlugin = pluginInstanceFromContext(filterClass);
       if (guiPlugin == null) {
-        try {
-          Constructor<?> constructor = filterClass.getDeclaredConstructor();
-          constructor.setAccessible(true);
-          guiPlugin = constructor.newInstance();
-        } catch (Exception ignored) {
-          // Continue searching
-        }
+        guiPlugin = pluginFromMethod(filterClass);
+      }
+      if (guiPlugin == null) {
+        guiPlugin = pluginFromField(filterClass);
+      }
+      if (guiPlugin == null) {
+        guiPlugin = newFilterInstance(filterClass);
       }
 
       if (guiPlugin == null) {
@@ -186,10 +173,100 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
       }
 
       return guiPlugin;
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException(
           "Error finding, loading or creating object for action filter " + actionFilter.getId(), e);
     }
+  }
+
+  /**
+   * The pipeline or workflow graph this context was opened on, when that graph owns the filter.
+   * Other plugins (unit tests, drill-down, and so on) are not held here and still use {@code
+   * getInstance()}.
+   */
+  protected Object pluginInstanceFromContext(Class<?> pluginClass) {
+    Object pipelineGraph = graphFromGetter("getPipelineGraph");
+    if (pluginClass.isInstance(pipelineGraph)) {
+      return pipelineGraph;
+    }
+    Object workflowGraph = graphFromGetter("getWorkflowGraph");
+    if (pluginClass.isInstance(workflowGraph)) {
+      return workflowGraph;
+    }
+    return null;
+  }
+
+  private Object graphFromGetter(String getterName) {
+    try {
+      return getClass().getMethod(getterName).invoke(this);
+    } catch (ReflectiveOperationException e) {
+      return null;
+    }
+  }
+
+  /** A no-arg method on this handler whose return type is the filter class. */
+  private Object pluginFromMethod(Class<?> filterClass) {
+    for (Method method : getClass().getMethods()) {
+      if (method.getParameterCount() == 0 && filterClass.isAssignableFrom(method.getReturnType())) {
+        try {
+          Object candidate = method.invoke(this);
+          if (candidate != null) {
+            return candidate;
+          }
+        } catch (Exception ignored) {
+          // Continue searching
+        }
+      }
+    }
+    return null;
+  }
+
+  /** A field on this handler whose type is the filter class. */
+  private Object pluginFromField(Class<?> filterClass) {
+    Class<?> clazz = getClass();
+    while (clazz != null && clazz != Object.class) {
+      for (Field field : clazz.getDeclaredFields()) {
+        if (filterClass.isAssignableFrom(field.getType())) {
+          try {
+            field.setAccessible(true);
+            Object candidate = field.get(this);
+            if (candidate != null) {
+              return candidate;
+            }
+          } catch (Exception ignored) {
+            // Continue searching
+          }
+        }
+      }
+      clazz = clazz.getSuperclass();
+    }
+    return null;
+  }
+
+  /**
+   * {@code getInstance()} when it returns a plugin, otherwise a new instance. A null singleton is
+   * not a plugin, so the constructor is still tried.
+   */
+  private Object newFilterInstance(Class<?> filterClass) {
+    Object guiPlugin = null;
+    try {
+      Method getInstanceMethod = filterClass.getDeclaredMethod("getInstance");
+      guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
+    } catch (Exception ignored) {
+      // No singleton. A new instance is just as usable for these filters.
+    }
+    if (guiPlugin == null) {
+      try {
+        Constructor<?> constructor = filterClass.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        guiPlugin = constructor.newInstance();
+      } catch (Exception ignored) {
+        // No instance available.
+      }
+    }
+    return guiPlugin;
   }
 
   public Method getFilterMethod(Class<?> filterClass, GuiActionFilter actionFilter)
@@ -236,6 +313,19 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
               + " against filter "
               + actionFilter.getId(),
           e);
+    }
+  }
+
+  /** A filter whose plugin instance and method were loaded once for this context. */
+  private static final class ResolvedActionFilter {
+    private final GuiActionFilter actionFilter;
+    private final Object guiPlugin;
+    private final Method method;
+
+    private ResolvedActionFilter(GuiActionFilter actionFilter, Object guiPlugin, Method method) {
+      this.actionFilter = actionFilter;
+      this.guiPlugin = guiPlugin;
+      this.method = method;
     }
   }
 }
