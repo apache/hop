@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.graph.GraphConstraintDefinition;
 import org.apache.hop.core.graph.GraphObjectType;
 import org.apache.hop.core.graph.IGraphDialect;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.neo4j.actions.index.Neo4jIndex;
@@ -142,8 +143,29 @@ public class Neo4jConstraint extends ActionBase implements IAction {
         Neo4jIndex.splitProperties(constraintUpdate.getObjectProperties()));
   }
 
+  /**
+   * A copy of the update with the variables resolved in its constraint name, object name and
+   * properties.
+   */
+  ConstraintUpdate resolved(ConstraintUpdate constraintUpdate) {
+    return resolved(constraintUpdate, this);
+  }
+
+  /**
+   * A copy of the update with the variables resolved in its constraint name, object name and
+   * properties.
+   */
+  public static ConstraintUpdate resolved(ConstraintUpdate constraintUpdate, IVariables variables) {
+    ConstraintUpdate copy = new ConstraintUpdate(constraintUpdate);
+    copy.setConstraintName(variables.resolve(constraintUpdate.getConstraintName()));
+    copy.setObjectName(variables.resolve(constraintUpdate.getObjectName()));
+    copy.setObjectProperties(variables.resolve(constraintUpdate.getObjectProperties()));
+    return copy;
+  }
+
   private void dropConstraint(final ConstraintUpdate constraintUpdate) throws HopException {
-    String cypher = generateDropConstraintCypher(constraintUpdate, connection.getDialect());
+    String cypher =
+        generateDropConstraintCypher(resolved(constraintUpdate), connection.getDialect(this));
 
     // Run this cypher statement...
     //
@@ -152,7 +174,8 @@ public class Neo4jConstraint extends ActionBase implements IAction {
   }
 
   private void createConstraint(ConstraintUpdate constraintUpdate) throws HopException {
-    String cypher = generateCreateConstraintCypher(constraintUpdate, connection.getDialect());
+    String cypher =
+        generateCreateConstraintCypher(resolved(constraintUpdate), connection.getDialect(this));
 
     // Run this cypher statement...
     //

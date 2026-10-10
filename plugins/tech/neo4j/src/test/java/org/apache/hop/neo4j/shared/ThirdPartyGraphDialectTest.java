@@ -31,6 +31,7 @@ import org.apache.hop.core.graph.GraphDatabaseMeta;
 import org.apache.hop.core.graph.GraphIndexDefinition;
 import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.neo4j.actions.index.IndexUpdate;
@@ -104,6 +105,41 @@ class ThirdPartyGraphDialectTest {
     NeoConnectionUtils.createNodeIndex(
         new LogChannel("test"), database.newConnection(), List.of("Person"), List.of("id"));
     assertEquals("ACME KEY `Person`", database.executed.get(1));
+  }
+
+  /**
+   * The actions use the dialect of the connection with its settings resolved: the statements of
+   * Apache AGE, for example, name the graph, which can be a variable.
+   */
+  @Test
+  void testActionsUseTheDialectWithResolvedSettings() throws Exception {
+    FakeGraphDatabase database =
+        new FakeGraphDatabase(new AcmeGraphDialect(), null) {
+          @Override
+          public IGraphDialect getGraphDialect(IVariables variables) {
+            String graph = variables.resolve("${ACME_GRAPH}");
+            return new AcmeGraphDialect() {
+              @Override
+              public String getCreateIndexStatement(GraphIndexDefinition index) {
+                return "ACME CREATE INDEX ON " + graph + "." + quote(index.objectName());
+              }
+            };
+          }
+        };
+    MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
+    metadataProvider
+        .getSerializer(GraphDatabaseMeta.class)
+        .save(new GraphDatabaseMeta("acme", database));
+
+    Neo4jIndex action = new Neo4jIndex("index");
+    action.setVariable("ACME_GRAPH", "test_graph");
+    action.setConnectionName("acme");
+    action
+        .getIndexUpdates()
+        .add(new IndexUpdate(UpdateType.CREATE, ObjectType.NODE, "i", "Person", "id"));
+    action.setMetadataProvider(metadataProvider);
+    assertTrue(action.execute(new Result(), 0).getResult());
+    assertEquals(List.of("ACME CREATE INDEX ON test_graph.`Person`"), database.executed);
   }
 
   /** The dialect decides which errors mean the index exists already. */

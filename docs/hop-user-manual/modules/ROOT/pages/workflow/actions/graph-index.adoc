@@ -24,7 +24,7 @@ under the License.
 
 == Description
 
-The `Graph index` action (previously Neo4j index) creates or drops indexes on node or relationship properties in a graph database, in the syntax of the database: Neo4j, Memgraph or FalkorDB.
+The `Graph index` action (previously Neo4j index) creates or drops indexes on node or relationship properties in a graph database, in the syntax of the database: Neo4j, Memgraph, FalkorDB or Apache AGE.
 
 For similar operations on constraints, check the xref:workflow/actions/graph-constraint.adoc[Graph constraint] action.
 
@@ -42,7 +42,25 @@ For similar operations on constraints, check the xref:workflow/actions/graph-con
 ** Vector similarity: VECTOR only, COSINE (the default) or EUCLIDEAN
 ** Vector capacity: VECTOR on Memgraph only, the number of vectors to reserve room for, 1000 when empty
 
-Vector dimensions and capacity can be variables.
+The index name, object name, properties, vector dimensions and vector capacity can be variables, for example `${CHUNK_INDEX}` to keep a test and a production index apart.
+The action resolves them before it builds the statement, for create and drop, and the Cypher preview shows the resolved values.
+Use the same variable for the index name in xref:pipeline/transforms/graph-vector-search.adoc[Graph vector search].
+
+== Databases
+
+[options="header"]
+|===
+|Database |Range index |Vector index
+
+|Neo4j |Nodes and relationships |Nodes and relationships
+|Memgraph |Nodes and relationships |Nodes and relationships
+|FalkorDB |Nodes and relationships |Nodes and relationships
+|Apache AGE |Nodes, with a name |No
+|Amazon Neptune, Gremlin |No |No
+|===
+
+On Apache AGE an index is a PostgreSQL index on the table of the label, created and dropped with SQL.
+The action creates the label first when there are no nodes with it yet, so the index can be created before the data is loaded.
 
 == Vector indexes
 

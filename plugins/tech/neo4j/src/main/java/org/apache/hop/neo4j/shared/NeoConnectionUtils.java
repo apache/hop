@@ -356,7 +356,7 @@ public class NeoConnectionUtils {
       String cypher,
       String description)
       throws HopException {
-    IGraphDialect dialect = graphConnection.getDialect();
+    IGraphDialect dialect = graphConnection.getDialect(variables);
     // Connecting is outside the try which tolerates existing or missing indexes: a connection
     // error always fails, whatever its message says.
     //
@@ -370,16 +370,10 @@ public class NeoConnectionUtils {
     try (connection) {
       log.logDetailed(description + " with cypher: " + cypher);
       try {
-        if (!dialect.isSupportingSchemaChangesInTransactions()
-            || !connection.isSupportingTransactions()) {
-          connection.execute(cypher, Map.of());
-        } else {
-          connection.executeWrite(
-              transaction -> {
-                transaction.execute(cypher, Map.of());
-                return true;
-              });
-        }
+        connection.executeSchemaStatement(
+            cypher,
+            dialect.isSupportingSchemaChangesInTransactions()
+                && connection.isSupportingTransactions());
       } catch (HopException e) {
         if (dialect.isExistingOrMissingIndexError(e)) {
           log.logDetailed(description + ": nothing to do, " + Const.getSimpleStackTrace(e));

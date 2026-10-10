@@ -33,6 +33,21 @@ limitations under the License.
       <default_value>graph-vector-search-nodes</default_value>
       <description/>
     </parameter>
+    <parameter>
+      <name>VECTOR_INDEX</name>
+      <default_value>graph_vector_search_nodes</default_value>
+      <description>The vector index: the actions and Graph vector search resolve its name</description>
+    </parameter>
+    <parameter>
+      <name>VECTOR_LABEL</name>
+      <default_value>VectorSearchDoc</default_value>
+      <description>The label of the vector index</description>
+    </parameter>
+    <parameter>
+      <name>VECTOR_PROPERTY</name>
+      <default_value>embedding</default_value>
+      <description>The property of the vector index</description>
+    </parameter>
   </parameters>
   <actions>
     <action>
@@ -61,9 +76,9 @@ limitations under the License.
       <connection>Test</connection>
       <updates>
         <update>
-          <index_name>graph_vector_search_nodes</index_name>
-          <object_name>VectorSearchDoc</object_name>
-          <object_properties>embedding</object_properties>
+          <index_name>${VECTOR_INDEX}</index_name>
+          <object_name>${VECTOR_LABEL}</object_name>
+          <object_properties>${VECTOR_PROPERTY}</object_properties>
           <object_type>NODE</object_type>
           <update_type>DROP</update_type>
           <index_type>VECTOR</index_type>
@@ -110,9 +125,9 @@ limitations under the License.
       <connection>Test</connection>
       <updates>
         <update>
-          <index_name>graph_vector_search_nodes</index_name>
-          <object_name>VectorSearchDoc</object_name>
-          <object_properties>embedding</object_properties>
+          <index_name>${VECTOR_INDEX}</index_name>
+          <object_name>${VECTOR_LABEL}</object_name>
+          <object_properties>${VECTOR_PROPERTY}</object_properties>
           <object_type>NODE</object_type>
           <update_type>CREATE</update_type>
           <index_type>VECTOR</index_type>
@@ -176,9 +191,9 @@ limitations under the License.
       <connection>Test</connection>
       <updates>
         <update>
-          <index_name>graph_vector_search_nodes</index_name>
-          <object_name>VectorSearchDoc</object_name>
-          <object_properties>embedding</object_properties>
+          <index_name>${VECTOR_INDEX}</index_name>
+          <object_name>${VECTOR_LABEL}</object_name>
+          <object_properties>${VECTOR_PROPERTY}</object_properties>
           <object_type>NODE</object_type>
           <update_type>DROP</update_type>
           <index_type>VECTOR</index_type>
@@ -199,9 +214,9 @@ limitations under the License.
       <connection>Test</connection>
       <updates>
         <update>
-          <index_name>graph_vector_search_nodes</index_name>
-          <object_name>VectorSearchDoc</object_name>
-          <object_properties>embedding</object_properties>
+          <index_name>${VECTOR_INDEX}</index_name>
+          <object_name>${VECTOR_LABEL}</object_name>
+          <object_properties>${VECTOR_PROPERTY}</object_properties>
           <object_type>NODE</object_type>
           <update_type>DROP</update_type>
           <index_type>VECTOR</index_type>

@@ -28,6 +28,7 @@ import org.apache.hop.core.graph.GraphIndexDefinition;
 import org.apache.hop.core.graph.GraphObjectType;
 import org.apache.hop.core.graph.GraphVectorIndexDefinition;
 import org.apache.hop.core.graph.IGraphDialect;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.neo4j.shared.NamedGraphConnection;
@@ -139,16 +140,30 @@ public class Neo4jIndex extends ActionBase implements IAction {
     return dialect.getCreateIndexStatement(toIndexDefinition(indexUpdate));
   }
 
-  /** A copy of the update with the variables in its vector settings resolved. */
-  private IndexUpdate resolved(IndexUpdate indexUpdate) {
+  /**
+   * A copy of the update with the variables resolved in its index name, object name, properties and
+   * vector settings.
+   */
+  IndexUpdate resolved(IndexUpdate indexUpdate) {
+    return resolved(indexUpdate, this);
+  }
+
+  /**
+   * A copy of the update with the variables resolved in its index name, object name, properties and
+   * vector settings.
+   */
+  public static IndexUpdate resolved(IndexUpdate indexUpdate, IVariables variables) {
     IndexUpdate copy = new IndexUpdate(indexUpdate);
-    copy.setVectorDimensions(resolve(indexUpdate.getVectorDimensions()));
-    copy.setVectorCapacity(resolve(indexUpdate.getVectorCapacity()));
+    copy.setIndexName(variables.resolve(indexUpdate.getIndexName()));
+    copy.setObjectName(variables.resolve(indexUpdate.getObjectName()));
+    copy.setObjectProperties(variables.resolve(indexUpdate.getObjectProperties()));
+    copy.setVectorDimensions(variables.resolve(indexUpdate.getVectorDimensions()));
+    copy.setVectorCapacity(variables.resolve(indexUpdate.getVectorCapacity()));
     return copy;
   }
 
   private void dropIndex(final IndexUpdate indexUpdate) throws HopException {
-    String cypher = generateDropIndexCypher(resolved(indexUpdate), connection.getDialect());
+    String cypher = generateDropIndexCypher(resolved(indexUpdate), connection.getDialect(this));
 
     // Run this cypher statement...
     //
@@ -157,7 +172,7 @@ public class Neo4jIndex extends ActionBase implements IAction {
   }
 
   private void createIndex(IndexUpdate indexUpdate) throws HopException {
-    String cypher = generateCreateIndexCypher(resolved(indexUpdate), connection.getDialect());
+    String cypher = generateCreateIndexCypher(resolved(indexUpdate), connection.getDialect(this));
 
     // Run this cypher statement...
     //
