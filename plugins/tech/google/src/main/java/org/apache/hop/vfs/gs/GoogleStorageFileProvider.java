@@ -21,6 +21,8 @@ package org.apache.hop.vfs.gs;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Set;
@@ -107,8 +109,9 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
         String keyFile = config.getServiceAccountKeyFile();
         if (!StringUtils.isEmpty(keyFile)) {
           try {
-            credentials = ServiceAccountCredentials.fromStream(new FileInputStream(keyFile));
-          } catch (Exception e) {
+            credentials = readKeyFile(keyFile);
+          } catch (Exception | LinkageError e) {
+            // A LinkageError too: the handler below is about Application Default Credentials.
             builder.setCredentialsProblem(
                 newFileSystemOptions,
                 "the service account key file '"
@@ -134,9 +137,7 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
         switch (googleStorageMetadataType.getStorageCredentialsType()) {
           case KEY_FILE:
             credentials =
-                ServiceAccountCredentials.fromStream(
-                    new FileInputStream(
-                        variables.resolve(googleStorageMetadataType.getStorageAccountKey())));
+                readKeyFile(variables.resolve(googleStorageMetadataType.getStorageAccountKey()));
             break;
           case KEY_STRING:
             credentials =
@@ -201,6 +202,18 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
                 + e.getMessage()
                 + ")");
       }
+    }
+  }
+
+  /**
+   * A plain file, not Hop VFS: this runs while the VFS providers themselves are being set up.
+   *
+   * @param keyFile the service account key file
+   * @return the credentials in it
+   */
+  private static GoogleCredentials readKeyFile(String keyFile) throws IOException {
+    try (InputStream in = new FileInputStream(keyFile)) {
+      return ServiceAccountCredentials.fromStream(in);
     }
   }
 

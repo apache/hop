@@ -32,6 +32,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -166,5 +168,26 @@ class ReadChannelInputStreamTest {
     IOException again = assertThrows(IOException.class, () -> in.read(new byte[16]));
     assertTrue(
         again.getMessage().contains("giving up"), "not end-of-stream: the file is cut short");
+  }
+
+  /** An Error from the client used to leave the transfer busy, and its thread interruptible. */
+  @Test
+  void anErrorFromTheClientStillEndsTheTransfer() throws Exception {
+    List<String> logged = new ArrayList<>();
+    long[] now = {TimeUnit.HOURS.toNanos(1)};
+    GoogleStorageStallWatchdog watchdog =
+        new GoogleStorageStallWatchdog(logged::add, () -> now[0], null, Runnable::run);
+
+    ReadChannel broken = mock(ReadChannel.class);
+    when(broken.read(any(ByteBuffer.class))).thenThrow(new NoClassDefFoundError("io/grpc/Context"));
+    ReadChannelInputStream in =
+        new ReadChannelInputStream(broken, watchdog.reading("gs://bucket/file.txt", LIMITS));
+
+    assertThrows(NoClassDefFoundError.class, () -> in.read(new byte[16], 0, 16));
+
+    now[0] += TimeUnit.HOURS.toNanos(1);
+    watchdog.check();
+    assertTrue(logged.isEmpty(), "no longer watched: " + logged);
+    assertFalse(Thread.currentThread().isInterrupted());
   }
 }

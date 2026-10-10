@@ -89,13 +89,22 @@ public class ReadChannelInputStream extends InputStream {
       if (len < bytes.remaining()) {
         bytes.limit(len);
       }
-      int res;
+      int res = -1;
+      boolean returned = false;
+      boolean aborted = false;
       transfer.begin();
-      try (GoogleStorageObjectContext.Scope ignored =
-          GoogleStorageObjectContext.enter(transfer.uri())) {
-        res = ch.read(bytes);
+      try {
+        try (GoogleStorageObjectContext.Scope ignored =
+            GoogleStorageObjectContext.enter(transfer.uri())) {
+          res = ch.read(bytes);
+          returned = true;
+        } finally {
+          // Also on an Error: a transfer left busy could have its thread interrupted later on.
+          // Ended by the watchdog just as the data arrived: the read succeeded, so carry on.
+          aborted = returned ? transfer.end(res) : transfer.failed();
+        }
       } catch (IOException e) {
-        if (transfer.end(0)) {
+        if (aborted) {
           // The watchdog interrupted a read that made no progress for too long.
           failure = transfer.abortedError(e);
           throw failure;
@@ -108,14 +117,12 @@ public class ReadChannelInputStream extends InputStream {
         throw e;
       } catch (RuntimeException e) {
         // However the client reports the interrupt, the reason it came is the watchdog's.
-        if (transfer.end(0)) {
+        if (aborted) {
           failure = transfer.abortedError(e);
           throw failure;
         }
         throw e;
       }
-      // Ended by the watchdog just as the data arrived: the read succeeded, so carry on.
-      transfer.end(res);
       if (res < 0) {
         close();
         return -1;

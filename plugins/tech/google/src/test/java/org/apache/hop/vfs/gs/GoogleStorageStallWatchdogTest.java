@@ -416,15 +416,82 @@ class GoogleStorageStallWatchdogTest {
         "unlimited attempts are bounded by the total timeout alone");
   }
 
+  /** A cap below three read timeouts used to be raised back to the warning, past the cap. */
+  @Test
+  void aTotalTimeoutBelowTheWarningEndsAndReportsTheReadInTime() {
+    GoogleCloudConfig config = new GoogleCloudConfig();
+    config.setReadTimeout("120");
+    config.setTotalTimeout("2");
+
+    GoogleStorageStallWatchdog.Limits limits = GoogleStorageStallWatchdog.Limits.from(config);
+
+    assertEquals(Duration.ofMinutes(2), limits.readAbort(), "never later than the total timeout");
+    assertEquals(Duration.ofMinutes(2), limits.readWarning(), "reported when it is ended");
+  }
+
   @Test
   void noTimeoutCountsAsTheDefault() {
     GoogleCloudConfig config = new GoogleCloudConfig();
-    config.setReadTimeout("0");
-    config.setConnectionTimeout("0");
+    config.setReadTimeout("");
+    config.setConnectionTimeout("-1");
 
     assertEquals(
         GoogleStorageStallWatchdog.Limits.from(new GoogleCloudConfig()),
         GoogleStorageStallWatchdog.Limits.from(config));
+  }
+
+  /** The client takes a timeout of zero as no timeout: an attempt can then take forever. */
+  @Test
+  void aZeroTimeoutLeavesOnlyTheTotalTimeout() {
+    for (String zero : List.of("read", "connect")) {
+      GoogleCloudConfig config = new GoogleCloudConfig();
+      if (zero.equals("read")) {
+        config.setReadTimeout("0");
+      } else {
+        config.setConnectionTimeout("0");
+      }
+
+      GoogleStorageStallWatchdog.Limits limits = GoogleStorageStallWatchdog.Limits.from(config);
+
+      assertEquals(Duration.ofMinutes(50), limits.readAbort(), zero + " timeout of zero");
+      assertEquals(Duration.ofSeconds(60), limits.readWarning(), zero + " timeout of zero");
+    }
+  }
+
+  /** close() sends the last upload chunk while a write() can still be inside the client. */
+  @Test
+  void overlappingCallsStayWatchedUntilTheLastOneIsDone() throws Exception {
+    GoogleStorageStallWatchdog.Transfer transfer = watchdog.writing(URI, LIMITS);
+    transfer.begin();
+    advance(30);
+
+    Thread closer = new Thread(transfer::begin);
+    closer.start();
+    closer.join();
+
+    // The write gives up; the close is still inside the client, and that clock kept running.
+    transfer.failed();
+    advance(30);
+    watchdog.check();
+
+    assertEquals(1, logged.size(), "still watched after the first call ended: " + logged);
+    assertTrue(logged.get(0).contains("for 60 seconds"), logged.get(0));
+  }
+
+  @Test
+  void aStalledReadThatFailsIsNotReportedAsResumed() {
+    GoogleStorageStallWatchdog.Transfer transfer = watchdog.reading(URI, LIMITS);
+    transfer.begin();
+    advance(60);
+    watchdog.check();
+    advance(15);
+
+    assertFalse(transfer.failed());
+    assertEquals(1, logged.size(), "only the stall: " + logged);
+
+    advance(3600);
+    watchdog.check();
+    assertEquals(1, logged.size(), "and no longer watched");
   }
 
   private void advance(long seconds) {

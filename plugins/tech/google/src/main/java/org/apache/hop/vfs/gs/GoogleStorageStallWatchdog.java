@@ -20,6 +20,8 @@ package org.apache.hop.vfs.gs;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -105,8 +107,11 @@ final class GoogleStorageStallWatchdog {
      *       single timed-out attempt is already reported as a retry.
      *   <li>A read is ended after the time the retry settings allow for one call - every attempt
      *       running into both the connection and the read timeout, plus the delays between them -
-     *       capped at the total timeout, and never before it was reported. Until then the client
-     *       may still give up by itself, with its own error.
+     *       and never before it was reported. Until then the client may still give up by itself,
+     *       with its own error. A timeout of zero is no timeout at all, so an attempt is not
+     *       bounded and neither is that time.
+     *   <li>The total timeout caps both: a read is never ended later than that, and when that comes
+     *       before the warning, it is reported and ended at the same moment.
      *   <li>A write is reported once one upload chunk has taken longer than it would at the slowest
      *       rate we still call working, and not before a read would be.
      * </ul>
@@ -119,16 +124,22 @@ final class GoogleStorageStallWatchdog {
       long connectTimeout = timeoutSeconds(config.getConnectionTimeout());
       Duration readWarning = Duration.ofSeconds(Math.max(MINIMUM_WARNING_SECONDS, 3 * readTimeout));
 
-      Duration readAbort = retryBudget(config, connectTimeout + readTimeout);
+      Duration readAbort =
+          readTimeout == 0 || connectTimeout == 0
+              ? Duration.ZERO
+              : retryBudget(config, connectTimeout + readTimeout);
+      if (!readAbort.isZero() && readAbort.compareTo(readWarning) < 0) {
+        readAbort = readWarning;
+      }
       long totalTimeoutMinutes = Const.toLong(config.getTotalTimeout(), 50);
       if (totalTimeoutMinutes > 0) {
         Duration totalTimeout = Duration.ofMinutes(totalTimeoutMinutes);
         if (readAbort.isZero() || readAbort.compareTo(totalTimeout) > 0) {
           readAbort = totalTimeout;
         }
-      }
-      if (!readAbort.isZero() && readAbort.compareTo(readWarning) < 0) {
-        readAbort = readWarning;
+        if (readWarning.compareTo(readAbort) > 0) {
+          readWarning = readAbort;
+        }
       }
 
       long chunkSeconds =
@@ -139,10 +150,13 @@ final class GoogleStorageStallWatchdog {
       return new Limits(readWarning, readAbort, writeWarning);
     }
 
-    /** A configured timeout in seconds; none at all counts as the default, to size the limits. */
+    /**
+     * A configured timeout in seconds, the way the client takes it: none at all, or a negative one,
+     * is the 20 second default, and zero is no timeout.
+     */
     private static long timeoutSeconds(String configured) {
       long seconds = Const.toInt(configured, 20);
-      return seconds > 0 ? seconds : 20;
+      return seconds < 0 ? 20 : seconds;
     }
 
     /** Every attempt running into its timeouts, plus the delays between them. */
@@ -274,7 +288,9 @@ final class GoogleStorageStallWatchdog {
 
   /**
    * One object being read or written. The stream marks each call into the client with {@link
-   * #begin()} and {@link #end(long)}.
+   * #begin()}, and with {@link #end(long)} or {@link #failed()} from a {@code finally}. Calls may
+   * overlap - a stream's {@code close()} sends the last upload chunk while a {@code write()} may
+   * still be inside the client - and the transfer stays busy until the last of them is done.
    */
   static final class Transfer {
     private final GoogleStorageStallWatchdog watchdog;
@@ -291,7 +307,10 @@ final class GoogleStorageStallWatchdog {
     private final Object interruptLock = new Object();
 
     private long bytes;
-    private Thread thread;
+
+    /** The threads inside the client right now, one entry per call. Busy while not empty. */
+    private final List<Thread> threads = new ArrayList<>();
+
     private long busySince;
     private long nextReport;
     private boolean stalled;
@@ -328,55 +347,75 @@ final class GoogleStorageStallWatchdog {
       return uri;
     }
 
-    /** A call into the client is about to start on the current thread. */
+    /**
+     * A call into the client is about to start on the current thread. While another call is already
+     * inside the client, the time without progress keeps counting from when that one began.
+     */
     void begin() {
       if (watchdog == null) {
         return;
       }
       synchronized (this) {
-        thread = Thread.currentThread();
-        busySince = watchdog.clock.getAsLong();
-        nextReport = busySince + warnAfterNanos;
-        stalled = false;
-        abortMessage = null;
-        interrupting = false;
+        if (threads.isEmpty()) {
+          busySince = watchdog.clock.getAsLong();
+          nextReport = busySince + warnAfterNanos;
+          stalled = false;
+          abortMessage = null;
+          interrupting = false;
+          watchdog.busy.add(this);
+        }
+        threads.add(Thread.currentThread());
       }
-      watchdog.busy.add(this);
       watchdog.startChecking();
     }
 
     /**
-     * The call into the client returned or failed. When the watchdog ended it, the interrupt it
-     * used is cleared here, so it does not leak into whatever the thread does next.
+     * The call into the client on the current thread returned. When the watchdog ended it, the
+     * interrupt it used is cleared here, so it does not leak into whatever the thread does next.
      *
      * @param transferred the number of bytes it moved
      * @return true when the watchdog ended the call; {@link #abortedError(Throwable)} says why
      */
     boolean end(long transferred) {
+      return leave(transferred, true);
+    }
+
+    /**
+     * The call into the client on the current thread threw. A transfer that was reported as stalled
+     * is not reported as resumed: the error says what happened.
+     *
+     * @return true when the watchdog ended the call; {@link #abortedError(Throwable)} says why
+     */
+    boolean failed() {
+      return leave(0, false);
+    }
+
+    private boolean leave(long transferred, boolean returned) {
       if (watchdog == null) {
         return false;
       }
-      watchdog.busy.remove(this);
       String resumed = null;
       boolean aborted;
       synchronized (interruptLock) {
         synchronized (this) {
           bytes += Math.max(0, transferred);
-          // The watchdog may still be holding this transfer from before it was removed.
-          nextReport = Long.MAX_VALUE;
-          thread = null;
+          threads.remove(Thread.currentThread());
           aborted = abortMessage != null;
           if (aborted) {
             Thread.interrupted();
-          } else if (stalled) {
-            resumed =
-                BaseMessages.getString(
-                    PKG,
-                    "GoogleStorageStallWatchdog.Resumed." + direction.key,
-                    uri,
-                    seconds(watchdog.clock.getAsLong() - busySince));
           }
-          stalled = false;
+          if (threads.isEmpty()) {
+            watchdog.busy.remove(this);
+            if (!aborted && stalled && returned) {
+              resumed =
+                  BaseMessages.getString(
+                      PKG,
+                      "GoogleStorageStallWatchdog.Resumed." + direction.key,
+                      uri,
+                      seconds(watchdog.clock.getAsLong() - busySince));
+            }
+            stalled = false;
+          }
         }
       }
       if (resumed != null) {
@@ -397,7 +436,8 @@ final class GoogleStorageStallWatchdog {
       String message = null;
       boolean interrupt = false;
       synchronized (this) {
-        if (thread == null) {
+        // The watchdog may still be holding this transfer from before it was removed.
+        if (threads.isEmpty()) {
           return;
         }
         if (abortAfterNanos > 0 && now - busySince >= abortAfterNanos) {
@@ -443,19 +483,19 @@ final class GoogleStorageStallWatchdog {
     }
 
     /**
-     * Interrupt the thread, but only while it is still inside the call the watchdog ended: holding
-     * the {@link #interruptLock} that {@link #end(long)} needs makes sure an interrupt never
-     * reaches a thread that has moved on to something else. The transfer's own lock is let go
+     * Interrupt the threads, but only while they are still inside the call the watchdog ended:
+     * holding the {@link #interruptLock} that {@link #end(long)} needs makes sure an interrupt
+     * never reaches a thread that has moved on to something else. The transfer's own lock is let go
      * before the interrupt, so the checks never wait for it.
      */
     private void interruptIfStillBusy() {
       synchronized (interruptLock) {
-        Thread target;
+        List<Thread> targets;
         synchronized (this) {
-          target = abortMessage == null ? null : thread;
+          targets = abortMessage == null ? List.of() : new ArrayList<>(threads);
         }
         try {
-          if (target != null) {
+          for (Thread target : targets) {
             target.interrupt();
           }
         } finally {

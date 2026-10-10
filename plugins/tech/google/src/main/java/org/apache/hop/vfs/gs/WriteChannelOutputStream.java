@@ -90,11 +90,17 @@ public class WriteChannelOutputStream extends OutputStream {
               throw new ClosedChannelException();
             }
             int written = 0;
+            boolean returned = false;
             transfer.begin();
             try {
               written = ch.write(bytes);
+              returned = true;
             } finally {
-              transfer.end(written);
+              if (returned) {
+                transfer.end(written);
+              } else {
+                transfer.failed();
+              }
             }
             if (written <= 0) {
               if (++noProgress > MAX_NO_PROGRESS_WRITES) {
@@ -121,13 +127,20 @@ public class WriteChannelOutputStream extends OutputStream {
     WriteChannel ch = channel;
     if (ch != null) {
       channel = null;
-      // The last part of the upload happens here.
+      // The last part of the upload happens here, possibly while a write() is still inside the
+      // client: the transfer counts both calls and stays watched until the last one is done.
+      boolean returned = false;
       transfer.begin();
       try (GoogleStorageObjectContext.Scope ignored =
           GoogleStorageObjectContext.enter(transfer.uri())) {
         ch.close();
+        returned = true;
       } finally {
-        transfer.end(0);
+        if (returned) {
+          transfer.end(0);
+        } else {
+          transfer.failed();
+        }
       }
     }
   }

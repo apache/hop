@@ -19,10 +19,15 @@
 package org.apache.hop.vfs.gs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.logging.HopLogStore;
@@ -36,6 +41,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 /**
  * Credentials that cannot be loaded used to surface as a bare NullPointerException from the Google
@@ -82,6 +91,30 @@ class GoogleStorageCredentialsTest {
     assertThrows(IOException.class, fileSystem::setupStorage);
     assertThrows(IOException.class, fileSystem::getStorageControlClient);
     assertEquals(1, loggedLinesContaining(MISSING_KEY_FILE));
+  }
+
+  /**
+   * A missing dependency while reading the key file used to be reported as missing Application
+   * Default Credentials, telling the user to set the key file they had already set.
+   */
+  @Test
+  void aLinkageErrorReadingTheKeyFileBlamesTheKeyFile(@TempDir Path folder) throws Exception {
+    Path keyFile = Files.writeString(folder.resolve("key.json"), "{}");
+    GoogleCloudConfigSingleton.getConfig().setServiceAccountKeyFile(keyFile.toString());
+
+    GoogleStorageFileSystem fileSystem;
+    try (MockedStatic<ServiceAccountCredentials> credentials =
+        Mockito.mockStatic(ServiceAccountCredentials.class)) {
+      credentials
+          .when(() -> ServiceAccountCredentials.fromStream(ArgumentMatchers.any(InputStream.class)))
+          .thenThrow(new NoClassDefFoundError("io/grpc/Context"));
+      fileSystem = fileSystem(new GoogleStorageFileProvider(), "gs");
+    }
+
+    String message = assertThrows(IOException.class, fileSystem::setupStorage).getMessage();
+    assertTrue(message.contains("the service account key file '" + keyFile + "'"), message);
+    assertTrue(message.contains("NoClassDefFoundError: io/grpc/Context"), message);
+    assertFalse(message.contains("Application Default Credentials"), message);
   }
 
   @Test

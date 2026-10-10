@@ -83,7 +83,8 @@ It is reported again after every further period without progress, and once more 
 The transform reading the file then fails with an error that ends in `giving up`.
 That time is *Max number of attempts* × (*Connect timeout* + *Read timeout*), plus the retry delays between the attempts, and at most the *Total timeout*.
 With the default options that is 6 × (20 + 20) + 1 + 2 + 4 + 8 + 16 = 271 seconds.
-With an unlimited number of attempts (`0`) only the total timeout applies.
+With an unlimited number of attempts (`0`), or a connect or read timeout of `0` (no timeout), only the total timeout applies.
+When the total timeout is shorter than the time after which a read is reported, the read is reported and ended when the total timeout is reached.
 To wait longer before giving up, raise the number of attempts or the timeouts.
 * An upload sends the file in parts of 16 MB, so a slow upload cannot be told apart from a stalled one.
 A write is reported when one part takes longer than it would at 100 KB per second, 164 seconds with the default options.
