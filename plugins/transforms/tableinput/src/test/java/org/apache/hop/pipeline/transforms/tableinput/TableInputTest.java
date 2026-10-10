@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.notNull;
@@ -33,6 +35,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
@@ -46,6 +49,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.databases.h2.H2DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeAll;
@@ -257,5 +261,55 @@ class TableInputTest {
 
     assertQueryWithoutBind(db, "SELECT '?' AS Q FROM T WHERE X = 1");
     assertSucceeded(tableInput);
+  }
+
+  /**
+   * Pipeline.stopTransform marks the transform stopped before stopRunning(). The open statement
+   * must still be cancelled, or drivers such as SQL Server keep streaming the rest of the result
+   * set while the pipeline stays in Halting.
+   */
+  @Test
+  void stopRunningCancelsQueryWhenTransformIsAlreadyStopped() throws Exception {
+    doReturn(mock(Connection.class)).when(db).getConnection();
+    tableInput.setStopped(true);
+
+    tableInput.stopRunning();
+
+    verify(db, times(1)).cancelQuery();
+    assertTrue(data.isCanceled);
+    assertTrue(tableInput.isStopped());
+  }
+
+  @Test
+  void stopRunningDoesNotCancelTwice() throws Exception {
+    doReturn(mock(Connection.class)).when(db).getConnection();
+
+    tableInput.stopRunning();
+    tableInput.stopRunning();
+
+    verify(db, times(1)).cancelQuery();
+    assertTrue(data.isCanceled);
+  }
+
+  @Test
+  void stopRunningDoesNothingWhenDisposed() throws Exception {
+    doReturn(mock(Connection.class)).when(db).getConnection();
+    data.setStatus(ComponentExecutionStatus.STATUS_DISPOSED);
+
+    tableInput.stopRunning();
+
+    verify(db, never()).cancelQuery();
+    assertFalse(data.isCanceled);
+  }
+
+  @Test
+  void stopRunningDoesNothingWhenConnectionIsMissing() throws Exception {
+    doReturn(null).when(db).getConnection();
+
+    tableInput.stopRunning();
+
+    verify(db, never()).cancelQuery();
+    assertFalse(data.isCanceled);
+    assertTrue(tableInput.isStopped());
   }
 }

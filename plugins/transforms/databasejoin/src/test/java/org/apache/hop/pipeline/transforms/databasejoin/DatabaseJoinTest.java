@@ -83,38 +83,41 @@ class DatabaseJoinTest {
                 mockPipeline));
   }
 
+  /**
+   * Pipeline.stopTransform marks the transform stopped before stopRunning(). That flag must not
+   * skip the cancel.
+   */
   @Test
-  void testStopRunningWhenTransformIsStopped() throws HopException {
+  void testStopRunningCancelsWhenTransformIsAlreadyStopped() throws HopException {
     doReturn(true).when(mockDatabaseJoin).isStopped();
-
-    mockDatabaseJoin.stopRunning();
-
-    verify(mockDatabaseJoin, times(1)).isStopped();
-    verify(mockTransformDataInterface, times(0)).isDisposed();
-  }
-
-  @Test
-  void testStopRunningWhenTransformDataInterfaceIsDisposed() throws HopException {
-    doReturn(false).when(mockDatabaseJoin).isStopped();
-    doReturn(true).when(mockTransformDataInterface).isDisposed();
-
-    mockDatabaseJoin.stopRunning();
-
-    verify(mockDatabaseJoin, times(1)).isStopped();
-    verify(mockTransformDataInterface, times(1)).isDisposed();
-  }
-
-  @Test
-  void
-      testStopRunningWhenTransformIsNotStoppedNorTransformDataInterfaceIsDisposedAndDatabaseConnectionIsValid()
-          throws HopException {
-    doReturn(false).when(mockDatabaseJoin).isStopped();
     doReturn(false).when(mockTransformDataInterface).isDisposed();
     when(mockTransformDataInterface.db.getConnection()).thenReturn(mock(Connection.class));
 
     mockDatabaseJoin.stopRunning();
 
-    verify(mockDatabaseJoin, times(1)).isStopped();
+    verify(mockTransformDataInterface.db, times(1)).cancelStatement(any(PreparedStatement.class));
+    assertTrue(mockTransformDataInterface.isCanceled);
+    verify(mockDatabaseJoin, times(1)).setStopped(true);
+  }
+
+  @Test
+  void testStopRunningWhenTransformDataInterfaceIsDisposed() throws HopException {
+    doReturn(true).when(mockTransformDataInterface).isDisposed();
+
+    mockDatabaseJoin.stopRunning();
+
+    verify(mockTransformDataInterface, times(1)).isDisposed();
+    verify(mockTransformDataInterface.db, times(0)).cancelStatement(any(PreparedStatement.class));
+    assertFalse(mockTransformDataInterface.isCanceled);
+  }
+
+  @Test
+  void testStopRunningCancelsWhenDatabaseConnectionIsValid() throws HopException {
+    doReturn(false).when(mockTransformDataInterface).isDisposed();
+    when(mockTransformDataInterface.db.getConnection()).thenReturn(mock(Connection.class));
+
+    mockDatabaseJoin.stopRunning();
+
     verify(mockTransformDataInterface, times(1)).isDisposed();
     verify(mockTransformDataInterface.db, times(1)).getConnection();
     verify(mockTransformDataInterface.db, times(1)).cancelStatement(any(PreparedStatement.class));
@@ -122,16 +125,24 @@ class DatabaseJoinTest {
   }
 
   @Test
-  void
-      testStopRunningWhenTransformIsNotStoppedNorTransformDataInterfaceIsDisposedAndDatabaseConnectionIsNotValid()
-          throws HopException {
-    doReturn(false).when(mockDatabaseJoin).isStopped();
+  void testStopRunningDoesNotCancelTwice() throws HopException {
+    doReturn(false).when(mockTransformDataInterface).isDisposed();
+    when(mockTransformDataInterface.db.getConnection()).thenReturn(mock(Connection.class));
+
+    mockDatabaseJoin.stopRunning();
+    mockDatabaseJoin.stopRunning();
+
+    verify(mockTransformDataInterface.db, times(1)).cancelStatement(any(PreparedStatement.class));
+    assertTrue(mockTransformDataInterface.isCanceled);
+  }
+
+  @Test
+  void testStopRunningWhenDatabaseConnectionIsNotValid() throws HopException {
     doReturn(false).when(mockTransformDataInterface).isDisposed();
     when(mockTransformDataInterface.db.getConnection()).thenReturn(null);
 
     mockDatabaseJoin.stopRunning();
 
-    verify(mockDatabaseJoin, times(1)).isStopped();
     verify(mockTransformDataInterface, times(1)).isDisposed();
     verify(mockTransformDataInterface.db, times(1)).getConnection();
     verify(mockTransformDataInterface.db, times(0)).cancelStatement(any(PreparedStatement.class));
