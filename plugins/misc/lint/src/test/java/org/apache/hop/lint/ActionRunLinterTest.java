@@ -301,6 +301,21 @@ public class ActionRunLinterTest {
     assertEquals(1, cliErrors("--fail-on", "NONE", "--no-include-metadata", project.toString()));
   }
 
+  /** A report under folders that do not exist yet creates them. */
+  @Test
+  public void theReportFolderIsCreated() throws Exception {
+    Path report = dir.resolve("output").resolve("lint").resolve("report.sarif");
+    ActionRunLinter action = action(project);
+    action.setFailOn(LintSeverity.FailOn.NONE);
+    action.setReportFile(report.toString());
+
+    Result result = action.execute(new Result(), 0);
+
+    assertEquals(0, result.getNrErrors());
+    assertTrue(result.getResult());
+    assertTrue(Files.exists(report), report.toString());
+  }
+
   /** The errors hop lint reports, read from its JSON report. */
   private int cliErrors(String... args) throws Exception {
     Path report = dir.resolve("cli-errors.json");

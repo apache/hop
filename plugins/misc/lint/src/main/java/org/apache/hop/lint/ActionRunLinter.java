@@ -376,6 +376,10 @@ public class ActionRunLinter extends ActionBase implements IAction {
             : run.renderReport(outcome.getShown(), format);
 
     FileObject fileObject = HopVfs.getFileObject(resolved, this);
+    FileObject parent = fileObject.getParent();
+    if (parent != null && !parent.exists()) {
+      parent.createFolder();
+    }
     try (OutputStream out = HopVfs.getOutputStream(fileObject, false)) {
       out.write(report.getBytes(StandardCharsets.UTF_8));
     }
