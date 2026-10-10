@@ -105,6 +105,16 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
   }
 
   /**
+   * Use a client built elsewhere instead of one built from the configuration and credentials, for
+   * example one pointing at a storage emulator in a test. The stall limits still come from the
+   * configuration.
+   */
+  void useStorage(Storage storage) {
+    stallLimits = GoogleStorageStallWatchdog.Limits.from(GoogleCloudConfigSingleton.getConfig());
+    this.storage = storage;
+  }
+
+  /**
    * Assemble everything about the client that depends only on the configuration. Kept separate from
    * {@link #setupStorage()} - which additionally needs credentials and a live service - so the
    * wiring can be exercised from a test against a local endpoint.
@@ -184,13 +194,24 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
   }
 
   String getBucketName(FileName name) {
-
-    String path = name.getPath();
+    String path = decodedPath(name);
     int idx = path.indexOf('/', 1);
     if (idx > -1) {
-      return name.getPath().substring(1, idx);
+      return path.substring(1, idx);
     } else {
-      return name.getPath().substring(1);
+      return path.substring(1);
+    }
+  }
+
+  /**
+   * The path with its %nn escapes decoded: the object "file%.txt" has the name "file%25.txt". The
+   * parser already validated the escapes, so decoding can't fail on a parsed name.
+   */
+  private static String decodedPath(FileName name) {
+    try {
+      return name.getPathDecoded();
+    } catch (FileSystemException e) {
+      return name.getPath();
     }
   }
 
@@ -215,9 +236,10 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
   }
 
   String getBucketPath(FileName name) {
-    int idx = name.getPath().indexOf('/', 1);
+    String path = decodedPath(name);
+    int idx = path.indexOf('/', 1);
     if (idx > -1) {
-      return name.getPath().substring(idx + 1);
+      return path.substring(idx + 1);
     } else {
       return "";
     }
