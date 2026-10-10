@@ -29,8 +29,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
@@ -97,9 +99,28 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
           data.isWriteToFile && meta.getKeyFields().isEmpty() && !meta.isUseSingleItemPerGroup();
       data.collectGroupItems = data.isOutputValue || (data.isWriteToFile && !data.streamFileRows);
 
-      if (data.isWriteToFile) {
-        if (!meta.getFileSettings().isDoNotOpenNewFileInit() && !openNewFile()) {
-          logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+      if (meta.isNewlineDelimited()
+          && meta.getOperationType() != JsonEOutputMeta.OperationType.OUTPUT_VALUE
+          && (meta.isJsonPrettified()
+              || !Const.UTF_8.equalsIgnoreCase(resolve(meta.getEncoding())))) {
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonSettings"));
+        setErrors(1);
+        stopAll();
+        return false;
+      }
+
+      if (data.isWriteToFile && !meta.getFileSettings().isDoNotOpenNewFileInit()) {
+        try {
+          if (!openNewFile()) {
+            logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+            stopAll();
+            setErrors(1);
+            return false;
+          }
+        } catch (HopTransformException e) {
+          // The NDJSON append check names the boundary. Do not replace it with a generic open
+          // failure.
+          logError(e.getSuperMessage());
           stopAll();
           setErrors(1);
           return false;
@@ -339,16 +360,16 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     Object[] keyRow = getKeyValues(rowData);
 
-    Object[] additionalRowFields = new Object[2];
-
-    additionalRowFields[0] = data.jsonSerialized;
-
-    // Fill accessory fields
-    if (!Utils.isEmpty(meta.getJsonSizeFieldName())) {
-      additionalRowFields[1] = data.jsonLength;
-    }
+    Object[] additionalRowFields =
+        Utils.isEmpty(meta.getJsonSizeFieldName())
+            ? new Object[] {data.jsonSerialized}
+            : new Object[] {data.jsonSerialized, data.jsonLength};
 
     Object[] outputRowData = RowDataUtil.addRowData(keyRow, keyRow.length, additionalRowFields);
+    // addRowData over-allocates. The published row matches the metadata width.
+    if (outputRowData.length != data.outputRowMeta.size()) {
+      outputRowData = Arrays.copyOf(outputRowData, data.outputRowMeta.size());
+    }
     incrementLinesOutput();
 
     putRow(data.outputRowMeta, outputRowData);
@@ -419,6 +440,10 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
    * forced.
    */
   private void writeFileItem(JsonNode item) throws HopException {
+    if (meta.isNewlineDelimited()) {
+      writeNdJsonItem(item);
+      return;
+    }
     try {
       if (data.fileItemCount == 0) {
         data.pendingFileItem = item;
@@ -455,18 +480,58 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     if (meta.isJsonPrettified()) {
       data.fileGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
     }
-    if (!Utils.isEmpty(meta.getJsonBloc())) {
+    if (!Utils.isEmpty(data.realBlocName)) {
       data.fileGenerator.writeStartObject();
-      data.fileGenerator.writeFieldName(meta.getJsonBloc());
+      data.fileGenerator.writeFieldName(data.realBlocName);
     }
     if (array) {
       data.fileGenerator.writeStartArray();
     }
   }
 
+  /** One compact JSON value followed by LF. There is no outer document array. */
+  private void writeNdJsonItem(JsonNode item) throws HopException {
+    try {
+      if (!openNewFile()) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonEOutput.Error.OpenNewFile", buildFilename()));
+      }
+      if (data.fileGenerator == null) {
+        data.fileGenerator = fileMapper.getFactory().createGenerator(data.writer);
+        // The file is closed separately, with its lineage.
+        data.fileGenerator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        data.fileGenerator.setPrettyPrinter(null);
+        data.fileGenerator.setRootValueSeparator(null);
+      }
+      if (!Utils.isEmpty(data.realBlocName)) {
+        data.fileGenerator.writeStartObject();
+        data.fileGenerator.writeFieldName(data.realBlocName);
+      }
+      data.fileGenerator.writeTree(item);
+      if (!Utils.isEmpty(data.realBlocName)) {
+        data.fileGenerator.writeEndObject();
+      }
+      data.fileGenerator.writeRaw('\n');
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
+    }
+    data.fileItemCount++;
+    if (!data.isOutputValue) {
+      incrementLinesOutput();
+    }
+    int split = meta.getFileSettings().getSplitOutputAfter();
+    if (split > 0 && data.fileItemCount >= split) {
+      finishFile();
+    }
+  }
+
   /** Close the JSON document and the file, if any item was written to it. */
   private void finishFile() throws HopTransformException {
     if (data.fileItemCount == 0) {
+      return;
+    }
+    if (meta.isNewlineDelimited()) {
+      closeNdJsonFile();
       return;
     }
     try {
@@ -477,7 +542,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       if (data.fileItemCount > 1 || meta.isUseArrayWithSingleInstance()) {
         data.fileGenerator.writeEndArray();
       }
-      if (!Utils.isEmpty(meta.getJsonBloc())) {
+      if (!Utils.isEmpty(data.realBlocName)) {
         data.fileGenerator.writeEndObject();
       }
       data.fileGenerator.close();
@@ -490,14 +555,33 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     closeFile();
   }
 
+  /** Close the NDJSON generator, then the writer. Do not finish an outer array or object. */
+  private void closeNdJsonFile() throws HopTransformException {
+    try {
+      if (data.fileGenerator != null) {
+        data.fileGenerator.close();
+      }
+    } catch (IOException e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
+    }
+    String filename = data.openedFilename;
+    data.fileGenerator = null;
+    data.pendingFileItem = null;
+    data.fileItemCount = 0;
+    if (!closeFile()) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", filename));
+    }
+  }
+
   private void serializeJson(List<ObjectNode> jsonItemsList) throws HopException {
     ObjectNode theNode = new ObjectNode(nc);
     Object listValue = meta.isUseArrayWithSingleInstance() ? jsonItemsList : jsonItemsList.get(0);
     try {
-      if (!Utils.isEmpty(meta.getJsonBloc())) {
+      if (!Utils.isEmpty(data.realBlocName)) {
         // TBD Try to understand if this can have a performance impact and do it better...
         theNode.set(
-            meta.getJsonBloc(),
+            data.realBlocName,
             mapper.readTree(
                 mapper.writeValueAsString(jsonItemsList.size() > 1 ? jsonItemsList : listValue)));
         if (meta.isJsonPrettified()) {
@@ -534,18 +618,16 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     first = false;
     data.inputRowMeta = getInputRowMeta();
     data.inputRowMetaSize = data.inputRowMeta.size();
+    data.keysGroupIndexes = meta.resolveKeyFieldIndexes(data.inputRowMeta);
 
     // Init previous row copy to this first row
     prevRow = data.inputRowMeta.cloneRow(r); // copy the row to previous
 
     // Create new structure for output fields
     data.outputRowMeta = new RowMeta();
-    List<JsonEOutputKeyField> keyFields = meta.getKeyFields();
     for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      IValueMeta vmi =
-          data.inputRowMeta.getValueMeta(
-              data.inputRowMeta.indexOfValue(keyFields.get(i).getFieldName()));
-      data.outputRowMeta.addValueMeta(i, vmi);
+      data.outputRowMeta.addValueMeta(
+          data.inputRowMeta.getValueMeta(data.keysGroupIndexes[i]).clone());
     }
 
     // This is JSON block's column
@@ -560,7 +642,6 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
     initDataFieldsPositionsArray();
 
-    if (initKeyFieldsPositionArray(r)) return true;
     return false;
   }
 
@@ -591,21 +672,6 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
   }
 
-  private boolean initKeyFieldsPositionArray(Object[] r) {
-    data.keysGroupIndexes = new int[meta.getKeyFields().size()];
-
-    for (int i = 0; i < meta.getKeyFields().size(); i++) {
-      data.keysGroupIndexes[i] =
-          data.inputRowMeta.indexOfValue(meta.getKeyFields().get(i).getFieldName());
-      if ((r != null) && (data.keysGroupIndexes[i] < 0)) {
-        setErrors(1);
-        stopAll();
-        return true;
-      }
-    }
-    return false;
-  }
-
   @Override
   public void dispose() {
 
@@ -613,17 +679,15 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       data.jsonKeyGroupItems = null;
     }
 
-    // The file was not finished, for example after an error: flush what was written and close any
-    // open array or object, so the partial file is at least well-formed.
-    if (data.fileGenerator != null) {
+    // The parked item is a finished row or group. Write it, then close the file. Do not finish
+    // the group that is still being built. End-of-input has already set the count to 0.
+    if (data.fileItemCount > 0) {
       try {
-        data.fileGenerator.close();
-      } catch (IOException e) {
-        logError(BaseMessages.getString(PKG, "JsonOutput.Error.ClosingFile", e.toString()));
+        finishFile();
+      } catch (HopTransformException e) {
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", e.toString()));
         setErrors(1);
       }
-      data.fileGenerator = null;
-      data.pendingFileItem = null;
     }
 
     closeFile();
@@ -679,7 +743,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
   }
 
-  public boolean openNewFile() {
+  public boolean openNewFile() throws HopTransformException {
 
     if (data.writer != null) return true;
     boolean retval = false;
@@ -687,6 +751,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
       String filename = buildFilename();
       createParentFolder(filename);
+      validateNdJsonAppend(filename);
       if (meta.isAddingToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
@@ -721,11 +786,36 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
       retval = true;
 
+    } catch (NdJsonAppendBoundaryException e) {
+      throw new HopTransformException(e.getMessage(), e);
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpeningFile", e.toString()));
     }
 
     return retval;
+  }
+
+  /** An appended NDJSON file must already end in LF. The check does not read the earlier lines. */
+  private void validateNdJsonAppend(String filename) throws Exception {
+    if (!meta.isNewlineDelimited() || !meta.getFileSettings().isFileAppended()) {
+      return;
+    }
+    try (FileObject file = HopVfs.getFileObject(filename, variables)) {
+      if (!file.exists()) {
+        return;
+      }
+      long size = file.getContent().getSize();
+      if (size == 0) {
+        return;
+      }
+      try (var stream = HopVfs.getInputStream(file)) {
+        stream.skipNBytes(size - 1);
+        if (stream.read() != '\n') {
+          throw new NdJsonAppendBoundaryException(
+              BaseMessages.getString(PKG, "JsonEOutput.Error.NdJsonAppendBoundary", filename));
+        }
+      }
+    }
   }
 
   public String buildFilename() {
@@ -764,5 +854,14 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     }
 
     return retval;
+  }
+
+  /** Append was refused before the output stream existed, so the existing file is unchanged. */
+  private static final class NdJsonAppendBoundaryException extends IOException {
+    @Serial private static final long serialVersionUID = 1L;
+
+    private NdJsonAppendBoundaryException(String message) {
+      super(message);
+    }
   }
 }

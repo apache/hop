@@ -630,7 +630,9 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     JsonInputField[] inputFields = new JsonInputField[data.nrInputFields];
     for (int i = 0; i < data.nrInputFields; i++) {
       JsonInputField field = new JsonInputField(meta.getInputFields().get(i));
-      field.setPath(resolve(field.getPath()));
+      if (meta.isResolveJsonPaths()) {
+        field.setPath(resolve(field.getPath()));
+      }
       inputFields[i] = field;
     }
     // Instead of putting in the meta.inputFields, we put in our json path resolved input fields
