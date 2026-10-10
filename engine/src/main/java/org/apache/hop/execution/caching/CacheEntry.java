@@ -312,7 +312,7 @@ public class CacheEntry {
   }
 
   /** Read a child without counting as a cache hit. */
-  Execution peekChildExecution(String id) {
+  public Execution peekChildExecution(String id) {
     if (childExecutions == null) {
       return null;
     }

@@ -28,8 +28,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
@@ -421,6 +422,8 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     }
   }
 
+  public static final int MAX_CHILD_SEARCH_SCAN = 100;
+
   @Override
   protected synchronized CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
     if (StringUtils.isEmpty(childId)) {
@@ -432,19 +435,22 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         return null;
       }
 
-      Arrays.sort(
-          files,
-          (f1, f2) -> {
-            try {
-              return Long.compare(
-                  f2.getContent().getLastModifiedTime(), f1.getContent().getLastModifiedTime());
-            } catch (Exception e) {
-              return 0;
-            }
-          });
+      try {
+        record FileWithTimestamp(FileObject file, long lastModified) {}
+        List<FileWithTimestamp> fileList = new ArrayList<>(files.length);
+        for (FileObject file : files) {
+          long lastModified = 0L;
+          try {
+            lastModified = file.getContent().getLastModifiedTime();
+          } catch (Exception ignored) {
+          }
+          fileList.add(new FileWithTimestamp(file, lastModified));
+        }
+        fileList.sort((a, b) -> Long.compare(b.lastModified, a.lastModified));
 
-      for (FileObject file : files) {
-        try {
+        int maxScan = Math.min(fileList.size(), Math.max(MAX_CHILD_SEARCH_SCAN, maxSize * 2));
+        for (int i = 0; i < maxScan; i++) {
+          FileObject file = fileList.get(i).file();
           String id = getIdFromFileName(file);
           if (id.equals(childId)) {
             continue;
@@ -452,7 +458,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           String content =
               HopVfs.getTextFileContent(file.getName().getURI(), StandardCharsets.UTF_8);
           if (content != null && content.contains(childId)) {
-            CacheEntry entry = loadCacheEntry(id);
+            CacheEntry entry = HopJson.newMapper().readValue(content, CacheEntry.class);
             if (entry != null
                 && (entry.peekChildExecution(childId) != null
                     || (entry.getChildIds() != null && entry.getChildIds().contains(childId)))) {
@@ -461,7 +467,9 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
               return entry;
             }
           }
-        } finally {
+        }
+      } finally {
+        for (FileObject file : files) {
           closeQuietly(file);
         }
       }

@@ -805,10 +805,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       return null;
     }
     if (!entry.getId().equals(executionId)) {
-      Execution childExecution = entry.getChildExecution(executionId);
-      if (childExecution != null) {
-        return childExecution;
-      }
+      return entry.getChildExecution(executionId);
     }
     Execution execution = entry.getExecution();
     if (execution != null
@@ -1012,7 +1009,15 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     if (cacheEntry.getId().equals(childId)) {
       return cacheEntry.getExecution() != null ? cacheEntry.getExecution().getParentId() : null;
     }
-    return cacheEntry.getId();
+    Execution child = cacheEntry.getChildExecution(childId);
+    if (child != null && child.getParentId() != null) {
+      return child.getParentId();
+    }
+    if (child != null
+        || (cacheEntry.getChildIds() != null && cacheEntry.getChildIds().contains(childId))) {
+      return cacheEntry.getId();
+    }
+    return null;
   }
 
   protected synchronized CacheEntry findCacheEntryWithChild(String childId) throws HopException {

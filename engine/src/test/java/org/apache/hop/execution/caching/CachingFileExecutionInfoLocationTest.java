@@ -572,6 +572,8 @@ class CachingFileExecutionInfoLocationTest {
       assertEquals(actionId, retrievedAction.getId());
       assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
 
+      assertNull(location.getExecution("non-existent-id"));
+
       List<Execution> actionChildren = location.findExecutions(actionId);
       assertEquals(1, actionChildren.size());
       assertEquals(pipelineId, actionChildren.get(0).getId());
