@@ -29,6 +29,11 @@
     <name>Hop Plugins Technology Apache AGE</name>
 
     <properties>
+        <!-- The driver is provided so AGE compiles against JDBC. It already ships in lib/jdbc
+             with the PostgreSQL database plugin. Copying this provided jar into lib/core makes
+             DriverManager return an app-classloader PgConnection that PostgreSQL Bulk Loader
+             cannot cast to the database plugin's PGConnection. -->
+        <hop.libcore.exclude1>org.postgresql:postgresql</hop.libcore.exclude1>
         <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 

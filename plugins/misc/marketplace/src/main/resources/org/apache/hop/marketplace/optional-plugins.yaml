@@ -247,6 +247,14 @@ plugins:
     description: HDFS via WebHDFS, HttpFS or Knox (Kerberos). No Hadoop client libraries.
     installPath: plugins/tech/hadoop
     modulePath: plugins/tech/hadoop
+  - artifactId: hop-tech-lakehouse
+    name: Lakehouse
+    category: Technology
+    description: >-
+      Lake table input and output for Apache Iceberg. The native Spark engine loads these
+      transform classes from this plugin, so install it together with the Spark engine.
+    installPath: plugins/tech/lakehouse
+    modulePath: plugins/tech/lakehouse
   - artifactId: hop-tech-databricks
     name: Databricks
     category: Technology
