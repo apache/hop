@@ -17,10 +17,19 @@
 
 package org.apache.hop.lakehouse.transforms;
 
+import org.apache.hop.lakehouse.iceberg.CommitCoordinator;
+import org.apache.hop.lakehouse.iceberg.IcebergRowWriter;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 public class LakeTableOutputData extends BaseTransformData implements ITransformData {
+
+  /** Shared by all copies of the transform: commits their files once the pipeline is done. */
+  public CommitCoordinator coordinator;
+
+  /** Writes this copy's data files, or null when nothing is written. */
+  public IcebergRowWriter writer;
+
   public LakeTableOutputData() {
     super();
   }
