@@ -18,7 +18,6 @@ package org.apache.hop.lint.registry;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.lint.CustomLintRule;
 
 /**
@@ -38,30 +37,37 @@ final class EagerRulePack implements IHopLintRulePack {
   private final List<CustomLintRule> rules;
   private final List<String> overrides;
 
+  /** Why the rules could not be read, or null when they were. */
+  private final RuntimeException loadFailure;
+
   private EagerRulePack(
       String packId,
       String displayName,
       RulePackOwner owner,
       int priority,
       List<CustomLintRule> rules,
-      List<String> overrides) {
+      List<String> overrides,
+      RuntimeException loadFailure) {
     this.packId = packId;
     this.displayName = displayName;
     this.owner = owner;
     this.priority = priority;
     this.rules = rules;
     this.overrides = overrides;
+    this.loadFailure = loadFailure;
   }
 
   /** Read a discovered pack's rules now, so its classloader can be released. */
   static EagerRulePack of(IHopLintRulePack pack) {
     List<CustomLintRule> loaded;
+    RuntimeException failure = null;
     try {
       loaded = List.copyOf(pack.loadRules());
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError(
-          "Failed to read rules from pack " + pack.getPackId() + ": " + e.getMessage(), e);
+    } catch (RuntimeException e) {
+      // Kept rather than logged here: loadRules() throws it again, so the registry records the
+      // pack as broken in the same place as a pack that fails any other way.
       loaded = Collections.emptyList();
+      failure = e;
     }
     return new EagerRulePack(
         pack.getPackId(),
@@ -69,7 +75,8 @@ final class EagerRulePack implements IHopLintRulePack {
         pack.getOwner(),
         pack.getPriority(),
         loaded,
-        pack.getOverrides());
+        pack.getOverrides(),
+        failure);
   }
 
   @Override
@@ -94,6 +101,9 @@ final class EagerRulePack implements IHopLintRulePack {
 
   @Override
   public List<CustomLintRule> loadRules() {
+    if (loadFailure != null) {
+      throw loadFailure;
+    }
     return rules;
   }
 

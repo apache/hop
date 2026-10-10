@@ -429,6 +429,7 @@ under the License.
 *** xref:workflow/actions/ftpput.adoc[Put a file with FTP]
 *** xref:workflow/actions/sftpput.adoc[Put a file with SFTP]
 *** xref:workflow/actions/repeat.adoc[Repeat]
+*** xref:workflow/actions/runlinter.adoc[Run Linter]
 *** xref:workflow/actions/runpipelinetests.adoc[Run pipeline unit tests]
 *** xref:workflow/actions/sendnagiospassivecheck.adoc[Send Nagios passive check]
 *** xref:workflow/actions/snmptrap.adoc[Send SNMP trap]

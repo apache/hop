@@ -1,0 +1,113 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Run Linter action lints a project or a folder, and succeeds or fails on a severity threshold.
+:page-marketplace: hop-misc-lint
+
+= Run Linter
+
+== Description
+
+The Run Linter action lints a project or a folder and succeeds or fails according to the thresholds you set.
+It uses the same engine, the same rule packs and the same `hop-lint.yml` as xref:hop-tools/hop-lint.adoc[hop lint], so the two give the same findings and the same outcome on the same project.
+
+A scheduled or pre-deployment lint becomes an ordinary workflow, which runs on Hop Server and in containers without wrapping `hop lint` in a Shell action.
+
+The action is part of the Lint plugin. See xref:linting/index.adoc#_installing[Installing].
+
+The name avoids confusion with *Tools -> Lint -> Lint Project* in Hop Gui, which shows the findings in a window instead.
+
+== Options
+
+[cols="1,1,3", options="header"]
+|===
+|Option |`hop lint` |Description
+
+|Project or folder
+|`<directory>`
+|The folder to lint.
+Leave it empty to lint the current project (`+${PROJECT_HOME}+`).
+Only local folders can be linted.
+
+|Include metadata
+|`--[no-]include-metadata`
+|Lint the metadata files in the folder too, such as connections, not only pipelines and workflows.
+On by default.
+
+|Config file
+|`--config`
+|A `hop-lint.yml` to use instead of the project's.
+Leave it empty to use the `hop-lint.yml` in or above the folder.
+
+|Minimum severity
+|`--severity`
+|Report only findings at this severity or above, in the result rows and the report.
+It does not change whether the action fails, nor the counts in the variables. Default `Info`.
+
+|Fail on
+|`--fail-on`
+|Fail when a finding reaches this severity: `Error` (the default), `Warning` or `None`.
+
+|Max warnings
+|`--max-warnings`
+|Fail when more warnings than this are found. Leave it empty for no limit.
+
+|Baseline file
+|`--baseline`
+|Ignore the findings recorded in this file with `hop lint --write-baseline`, and report only new ones.
+A baseline file that does not exist fails the action.
+
+|Report file
+|`--output`
+|Write the report to this file. Leave it empty to write no report.
+
+|Report format
+|`--format`
+|`SARIF` (the default), `JSON` or `Text`.
+|===
+
+== Result
+
+* The action succeeds or fails according to *Fail on* and *Max warnings*.
+* One result row per reported finding, with the fields `severity`, `rule_id`, `rule_name`, `message`, `file`, `element_type` and `element_name`.
+* Variables for the actions that follow:
++
+[cols="1,3", options="header"]
+|===
+|Variable |Value
+
+|`LINT_ERRORS`
+|The number of errors
+
+|`LINT_WARNINGS`
+|The number of warnings
+
+|`LINT_INFOS`
+|The number of informational findings
+
+|`LINT_REPORT_FILE`
+|The report file, or empty when none is written
+|===
++
+The counts leave out the findings in the baseline, and include those below the minimum severity.
+* The report file is added to the result files, so a Mail action can attach it.
+
+The action lints even when the linter is switched off under *Configuration -> Linter*: that switch is for Hop Gui.
+
+The action fails with an error, rather than on its findings, when the folder does not exist, or when the project's `hop-lint.yml`, the config file or an installed rule pack cannot be read.
+The error names the file or pack and what is wrong with it.
