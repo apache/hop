@@ -954,10 +954,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.DrillDown.Tooltip",
       image = "ui/images/down.svg")
   public void drillDown() {
-    if (selectedExecutionData == null) {
-      return;
-    }
-
     ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
     if (location == null) {
       return;
@@ -967,7 +963,26 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     // We need to look up a pipeline or workflow execution where the parent is the ID of the action
     //
     try {
-      String id = selectedExecutionData.getOwnerId();
+      String id = null;
+      if (selectedExecutionData != null) {
+        id = selectedExecutionData.getOwnerId();
+      } else if (selectedAction != null) {
+        List<String> childIds = iLocation.findChildIds(ExecutionType.Workflow, execution.getId());
+        if (childIds != null) {
+          for (String childId : childIds) {
+            Execution childExec = iLocation.getExecution(childId);
+            if (childExec != null && selectedAction.getName().equals(childExec.getName())) {
+              id = childId;
+              break;
+            }
+          }
+        }
+      }
+
+      if (id == null) {
+        return;
+      }
+
       List<Execution> childExecutions = iLocation.findExecutions(id);
       if (childExecutions.isEmpty()) {
         return;
