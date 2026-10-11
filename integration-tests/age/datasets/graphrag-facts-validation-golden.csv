@@ -1,0 +1,4 @@
+chunk_id,facts
+d1#0,Ada Lovelace (Person) -WORKED_WITH-> Charles Babbage; Charles Babbage (Person) -CREATED-> Analytical Engine
+d1#1,Analytical Engine (Product); Charles Babbage (Person) -CREATED-> Analytical Engine
+d2#0,
