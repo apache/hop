@@ -160,6 +160,7 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -313,6 +314,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Getter private String rootName;
   private String dragFile;
   private int dropOperation;
+  private long dragScrollTime;
   @Getter private List<IExplorerFilePaintListener> filePaintListeners;
   @Getter private List<IExplorerRootChangedListener> rootChangedListeners;
   @Getter private List<IExplorerRefreshListener> refreshListeners;
@@ -942,6 +944,72 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /**
+   * Scrolls the tree by one item when a drag hovers near its top or bottom edge, so that a folder
+   * outside the visible area can be reached. The native FEEDBACK_SCROLL is not enough: it only
+   * reacts on the very first or last visible item and not at all on some platforms.
+   */
+  private void scrollTreeOnDragOver(final Tree tree, final DropTargetEvent event) {
+    // Drag over events are fired continuously, so limit the scroll speed
+    long now = System.currentTimeMillis();
+    if (now - dragScrollTime < 100) {
+      return;
+    }
+
+    Point point = tree.toControl(event.x, event.y);
+    Rectangle area = tree.getClientArea();
+    int margin = tree.getItemHeight();
+
+    if (point.y < area.y + margin) {
+      TreeItem item = getPreviousVisibleItem(tree, tree.getTopItem());
+      if (item != null) {
+        tree.setTopItem(item);
+        dragScrollTime = now;
+      }
+    } else if (point.y > area.y + area.height - margin && event.item instanceof TreeItem treeItem) {
+      TreeItem item = getNextVisibleItem(tree, treeItem);
+      if (item != null) {
+        tree.showItem(item);
+        dragScrollTime = now;
+      }
+    }
+  }
+
+  /** Returns the item displayed just above the given one, or null if it is the first one. */
+  private TreeItem getPreviousVisibleItem(final Tree tree, final TreeItem item) {
+    if (item == null) {
+      return null;
+    }
+    TreeItem parent = item.getParentItem();
+    int index = parent == null ? tree.indexOf(item) : parent.indexOf(item);
+    if (index <= 0) {
+      return parent;
+    }
+    TreeItem previous = parent == null ? tree.getItem(index - 1) : parent.getItem(index - 1);
+    while (previous.getExpanded() && previous.getItemCount() > 0) {
+      previous = previous.getItem(previous.getItemCount() - 1);
+    }
+    return previous;
+  }
+
+  /** Returns the item displayed just below the given one, or null if it is the last one. */
+  private TreeItem getNextVisibleItem(final Tree tree, final TreeItem item) {
+    if (item.getExpanded() && item.getItemCount() > 0) {
+      return item.getItem(0);
+    }
+    TreeItem current = item;
+    while (current != null) {
+      TreeItem parent = current.getParentItem();
+      int index = parent == null ? tree.indexOf(current) : parent.indexOf(current);
+      int count = parent == null ? tree.getItemCount() : parent.getItemCount();
+      if (index + 1 < count) {
+        return parent == null ? tree.getItem(index + 1) : parent.getItem(index + 1);
+      }
+      current = parent;
+    }
+    return null;
+  }
+
+  /**
    * Creates the Drag & Drop DropTarget for items being dropped onto the tree.
    *
    * @return the DropTarget for the tree
@@ -1008,11 +1076,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           @Override
           public void dragOver(final DropTargetEvent event) {
+            // Always keep FEEDBACK_SCROLL, even when the item under the cursor is not a valid drop
+            // target, otherwise the tree stops scrolling as soon as the cursor is over a file and
+            // folders outside the visible area can not be reached.
+            scrollTreeOnDragOver(tree, event);
+
             // No tree item under the cursor (empty area / between items). Reject so RAP/Hop Web
             // does not attempt an invalid drop that can NPE and kill the session (#7933).
             if (event.item == null) {
               event.detail = DND.DROP_NONE;
-              event.feedback = DND.FEEDBACK_NONE;
+              event.feedback = DND.FEEDBACK_SCROLL;
               return;
             }
 
@@ -1043,11 +1116,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                 }
               } else {
                 event.detail = DND.DROP_NONE;
-                event.feedback = DND.FEEDBACK_NONE;
+                event.feedback = DND.FEEDBACK_SCROLL;
               }
             } else {
               event.detail = DND.DROP_NONE;
-              event.feedback = DND.FEEDBACK_NONE;
+              event.feedback = DND.FEEDBACK_SCROLL;
             }
           }
 
