@@ -1,0 +1,8 @@
+check,n
+1 documents,2
+2 chunks,3
+3 entities,3
+4 has_chunk,3
+5 mentions,4
+6 related_to,2
+7 related_to from a chunk,2

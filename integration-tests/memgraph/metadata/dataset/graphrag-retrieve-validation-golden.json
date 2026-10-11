@@ -1,0 +1,40 @@
+{
+  "base_filename": "graphrag-retrieve-validation-golden.csv",
+  "name": "graphrag-retrieve-validation-golden",
+  "description": "The chunks per query vector, best first, and their facts",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "query_id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "rank"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "chunk_id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "facts"
+    }
+  ],
+  "folder_name": ""
+}

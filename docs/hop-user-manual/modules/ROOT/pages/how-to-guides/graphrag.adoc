@@ -1,0 +1,102 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[GraphRAG]]
+:imagesdir: ../../assets/images
+:description: Index documents into a knowledge graph with chunks, embeddings, entities and relationships, and answer questions from it with a language model.
+
+= GraphRAG: answer questions from a knowledge graph
+
+Retrieval-augmented generation (RAG) answers a question with the passages of your documents that are closest to it. GraphRAG also uses what a knowledge graph knows about the entities in those passages, so a language model can connect facts that are spread over several documents.
+
+This guide walks through the GraphRAG samples in the `samples` project. They use standard Hop transforms only: xref:pipeline/transforms/textchunker.adoc[Text chunker], xref:pipeline/transforms/embedtext.adoc[Embed text], xref:pipeline/transforms/extractgraph.adoc[Extract graph], xref:pipeline/transforms/graph-output.adoc[Graph output], xref:pipeline/transforms/graph-query.adoc[Graph query], xref:pipeline/transforms/graph-vector-search.adoc[Graph vector search] and xref:pipeline/transforms/languagemodelchat.adoc[Language model chat].
+
+== The graph
+
+The samples write the graph model `graphrag`:
+
+[source]
+----
+(:Document {id, title})-[:HAS_CHUNK]->(:Chunk {id, chunk_index, text, embedding})
+(:Chunk)-[:MENTIONS]->(:Entity {key, name, type, description})
+(:Entity)-[:RELATED_TO {type, chunk_id, description}]->(:Entity)
+----
+
+* A chunk's id is the document id and the chunk index, for example `ada-lovelace#0`.
+* Entities are merged on their key: the name in lowercase without spaces or punctuation. "Hop Run", "hop run" and "hop-run" are one entity, and an entity that several chunks mention connects them.
+* A RELATED_TO relationship carries the relationship type and the chunk it was read from. There is one per type and source chunk.
+
+== Choose a database
+
+[options="header"]
+|===
+|Database |Samples |Vector search
+|Neo4j 5, Memgraph or FalkorDB |`graphrag-index.hwf`, `graphrag-ask.hpl` |in the graph: a vector index on the chunk embeddings
+|Apache AGE and PostgreSQL with pgvector |`graphrag-index-hybrid.hpl`, `graphrag-ask-hybrid.hpl` |in pgvector
+|===
+
+Apache AGE has no vector index, so the hybrid samples keep the embeddings in pgvector and write the same chunks, without embeddings, to the graph. Both use the chunk id, which joins a pgvector match to its Chunk node. AGE with pgvector is a fully Apache-licensed setup.
+
+FalkorDB works with the samples, but the FalkorDB server is licensed under the SSPL. Hop ships only its client.
+
+== What the samples need
+
+* A graph database connection: the samples use `demo-neo4j` (Neo4j 5.18 or later) and `demo-age` for the hybrid samples, both in the `samples` project. For Memgraph or FalkorDB, select `demo-memgraph` or `demo-falkordb` in the actions and transforms. See xref:metadata-types/graphs/graph-database-connection.adoc[Graph database connection].
+* For the hybrid samples, a relational database connection called `pgvector` to PostgreSQL with the `vector` extension.
+* An xref:metadata-types/ai-provider.adoc[AI provider] called `ollama-embeddings` with an embedding model. The samples expect 768 dimensions, the size of `nomic-embed-text`. For another model, change the dimensions in the Graph index action of `graphrag-index.hwf` and in the pgvector upsert transform.
+* An AI provider called `ollama-local` with a chat model. If the model thinks before it answers (qwen3, qwen3.5, deepseek-r1, …), set *Thinking* to Off: Extract graph calls the model once per chunk, and thinking makes that several times slower.
+
+Use the names of your own connections and providers if they differ: they are set in the transforms.
+
+== Index documents
+
+Run `graphrag-index.hwf`. It first creates the indexes: lookup indexes on `Document.id`, `Chunk.id` and `Entity.key`, and the vector index `graphrag_chunks` on `Chunk.embedding`. Then it runs `graphrag-index.hpl`:
+
+. *Documents* holds three short texts: about Ada Lovelace, the Analytical Engine and Charles Babbage. Replace it with your own documents, for example with a Text file input.
+. *Split into chunks* and *Chunk ID* cut each document into chunks of at most 1,500 characters.
+. *Embed chunks* adds an embedding to each chunk, and *Write documents and chunks* writes the Document and Chunk nodes.
+. Once every chunk is written, *Extract graph* asks the chat model for the entities and relationships in each chunk. The entity and relationship types it looks for are set in the transform: adapt them to your documents.
+. *Write mentions* writes an Entity per key and the chunk's MENTIONS relationship to it. *Write relationships* then writes RELATED_TO with Graph query.
+
+For Apache AGE, run `graphrag-index-hybrid.hpl` instead. It upserts the chunks into the pgvector table `graphrag_chunks` (the transform creates the table and an HNSW index, and deletes a document's old rows before writing its new ones) and writes the graph the same way.
+
+== Ask a question
+
+Run `graphrag-ask.hpl`, or `graphrag-ask-hybrid.hpl` for AGE, with the question in the `QUESTION` parameter. The default question is "In which city did the designer of the machine Ada Lovelace wrote an algorithm for live?". No single sample document answers it.
+
+. *Embed the question* turns the question into an embedding.
+. *Vector search on chunks* finds the three closest chunks: with Graph vector search, or with pgvector search in the hybrid sample.
+. *Facts of the chunk* is a Graph query that returns the entities each chunk mentions and their relationships, as facts such as `Charles Babbage (Person) -LIVED_IN-> London`.
+. *Label the excerpts*, *Context* and *Prompt* build a prompt with each chunk's text and facts.
+. *Answer the question* sends it to the chat model. *Answer* logs the question and the answer, in `llm_output`.
+
+The facts connect the excerpts: Ada Lovelace wrote an algorithm for the Analytical Engine, Charles Babbage designed it, and Babbage lived in London.
+
+== Check the extraction
+
+The graph is only as good as what Extract graph reads from the text. Before you index a large set of documents, run Extract graph on a few dozen chunks and check:
+
+* that the entities appear in the chunk text. Some models invent entities, or copy the examples from the instructions into the graph: don't put named examples in the instructions;
+* that the entity and relationship types fit your documents. Without suitable types, a model files dialog options and settings under whatever type is closest;
+* how long a chunk takes. A hosted model, or a local model with thinking switched off, needs a few seconds per chunk.
+
+== Limits
+
+* The samples name the vector index `graphrag_chunks`. A database can hold only one index with that name, so indexes with different dimensions need different databases, or a different name in the samples.
+* Graph output merges a relationship on its two nodes only, so a second relationship type between the same entities would overwrite the first. That's why the samples write RELATED_TO with Graph query, merging on the type and the chunk id.
+* *Write relationships* runs a Graph query per relationship, one transaction each. That is fine for samples and small sets; for thousands of chunks, write them in batches with the *Use UNWIND to collect parameter values?* option of xref:pipeline/transforms/graph-query.adoc[Graph query].
+* Entities are merged on their key, which only absorbs case, spaces and punctuation: "Babbage" and "Charles Babbage" are two entities.
+* Indexing a changed document again gives it new chunks. The relationships read from its old chunks stay until you remove them: their `chunk_id` tells which ones.

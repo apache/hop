@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "chunk_id",
+          "data_set_field": "chunk_id"
+        },
+        {
+          "transform_field": "facts",
+          "data_set_field": "facts"
+        }
+      ],
+      "field_order": [
+        "chunk_id"
+      ],
+      "transform_name": "Validation",
+      "data_set_name": "graphrag-facts-validation-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "graphrag-facts-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/graphrag/graphrag-facts-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
