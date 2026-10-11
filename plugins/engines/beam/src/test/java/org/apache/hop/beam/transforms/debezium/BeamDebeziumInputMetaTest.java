@@ -129,7 +129,7 @@ class BeamDebeziumInputMetaTest {
   }
 
   @Test
-  void distributedPostgresConnectorAndDriverInstantiateWithoutOptionalJars() throws Exception {
+  void distributedPostgresConnectorInstantiatesWithoutTheJdbcDriver() throws Exception {
     org.apache.kafka.connect.source.SourceConnector connector =
         new io.debezium.connector.postgresql.PostgresConnector();
     assertNotNull(connector.config());
@@ -138,7 +138,9 @@ class BeamDebeziumInputMetaTest {
         io.debezium.data.SchemaUtil.copySchemaBasics(
             org.apache.kafka.connect.data.Schema.STRING_SCHEMA));
     assertNotNull(connector.taskClass().getConstructor().newInstance());
-    assertNotNull(Class.forName("org.postgresql.Driver").getConstructor().newInstance());
+    // The hop launcher puts plugins/engines/beam/lib on the application classpath. The
+    // PostgreSQL driver must stay with the database plugin, not on this module's classpath.
+    assertThrows(ClassNotFoundException.class, () -> Class.forName("org.postgresql.Driver"));
   }
 
   @Test
