@@ -40,7 +40,8 @@ The same pattern applies to every other secret in the project: never hard-code i
 See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information].
 
 The xref:pipeline/transforms/languagemodelchat.adoc[Language model chat] transform can optionally select a named AI Provider.
-The provider's type, base URL, API key, chat model, timeout and temperature then take precedence over the transform's inline values; an inline value is only used when the provider leaves that field empty.
+The provider's type, base URL, API key, chat model, timeout, temperature, max output tokens and thinking then take precedence over the transform's inline values; an inline value is only used when the provider leaves that field empty.
+With an Ollama provider, the context size always comes from the provider (16384 when it is empty), and an Anthropic provider without *Max output tokens* sends 4096 rather than the transform's value.
 In particular, a temperature set on the provider overrides the temperature on every transform that uses it, so leave *Temperature* empty here if transforms need their own.
 Input/output mapping, mock mode, proxy and retries stay on the transform.
 See xref:pipeline/transforms/languagemodelchat.adoc#ai-provider-precedence[AI Provider and inline settings] for the details.

@@ -98,15 +98,21 @@ When *AI Provider* is set, the transform starts from its own settings and then c
 | Timeout
 | The provider's *Timeout (seconds)* if it resolves to a whole number, otherwise the inline timeout.
 
+| Max New Tokens
+| The provider's *Max output tokens* if it resolves to a positive whole number, otherwise the inline *Max New Tokens*. An Anthropic provider without one sends 4096, not the inline value.
+
+| Context Window Size (Ollama)
+| The provider's *Context size (tokens)* if it resolves to a positive whole number, otherwise 16384. The inline *Context Window Size* is not used.
+
 | Thinking (Ollama)
 | The provider's *Thinking* if it is *Off* or *On*, otherwise the inline *Thinking*.
 |===
 
-Variables in provider fields are resolved first, so apart from *Temperature*, a field holding a variable that resolves to an empty value counts as empty. Empty provider fields fall back to the inline values, not to the defaults listed for each provider type on the xref:metadata-types/ai-provider.adoc[AI Provider] page.
+Variables in provider fields are resolved first, so apart from *Temperature*, a field holding a variable that resolves to an empty value counts as empty. Empty provider fields fall back to the inline values, not to the defaults listed for each provider type on the xref:metadata-types/ai-provider.adoc[AI Provider] page. The exceptions are *Max New Tokens* for Anthropic and *Context Window Size* for Ollama, described above.
 
 The inline fallbacks come from the provider's model type, not from the *Model API* selected on the transform. With an Anthropic provider, for example, an empty provider *Model name* falls back to the inline Anthropic model name, even when the transform itself was set up for OpenAI.
 
-All other options always come from the transform: mock mode, parallelism and the input and output fields, and the model-specific options such as Top P, Top K, maximum tokens, response format, proxy, retries and logging. The model-specific ones are read from the transform's fields for the provider's model type.
+All other options always come from the transform: mock mode, parallelism and the input and output fields, and the model-specific options such as Top P, Top K, response format, proxy, retries and logging. The model-specific ones are read from the transform's fields for the provider's model type.
 
 To tune the temperature per transform while sharing one provider, leave *Temperature* empty on the provider and set it on each transform.
 
