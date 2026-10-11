@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0005-core-rule-pack</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Issue #8591: SEC-002 reads nested settings and accepts every variable syntax Hop resolves, TRANS-002 reports a transform with no hops and says it still runs, and a parameter no rule reads is logged.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/10/10 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/10/10 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Lint the core-rules folder</name>
+      <description/>
+      <type>RUN_LINTER</type>
+      <attributes/>
+      <target>${PROJECT_HOME}/core-rules</target>
+      <include_metadata>N</include_metadata>
+      <config_file/>
+      <minimum_severity>INFO</minimum_severity>
+      <fail_on>NONE</fail_on>
+      <max_warnings/>
+      <baseline_file/>
+      <report_file>${PROJECT_HOME}/output/core-rules-findings.json</report_file>
+      <report_format>JSON</report_format>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check the findings</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+# Note on ${} below: Hop resolves its own variables in this script before running it, so only Hop
+# variables are written with braces. Shell variables are written without them. The Windows-style
+# variable and the resolver in nested-secrets.hpl are not spelled out here for the same reason.
+
+set -u
+
+PROJECT_DIR="${PROJECT_HOME}"
+REPORT="$PROJECT_DIR/output/core-rules-findings.json"
+
+failures=0
+
+# $1 label, $2 actual, $3 expected
+expect() {
+  if [ "$2" != "$3" ]; then
+    echo "FAIL: $1: expected '$3', got '$2'"
+    failures=$((failures + 1))
+  else
+    echo "OK: $1 = $2"
+  fi
+}
+
+if [ ! -s "$REPORT" ]; then
+  echo "FAIL: the action wrote no report at $REPORT"
+  exit 1
+fi
+
+# One finding per line, so a rule id and the transform it names can be matched together.
+FINDINGS=$(tr -d '\n' &lt; "$REPORT" | sed 's/}, {/\n/g')
+
+# $1 and $2 are fixed strings that must both be on the finding's line
+count() {
+  printf '%s\n' "$FINDINGS" | grep -F -- "$1" | grep -cF -- "$2"
+}
+
+echo "=== SEC-002 reads the password the Excel writer keeps at file.password ==="
+expect "literal password" \
+  "$(count '"ruleId" : "SEC-002"' "Transform 'Literal password' has hardcoded value in field 'file.password'")" "1"
+expect "Encrypted password" \
+  "$(count '"ruleId" : "SEC-002"' "Transform 'Encrypted password' has hardcoded value in field 'file.password'")" "1"
+expect "Windows-style variable" \
+  "$(count '"ruleId" : "SEC-002"' "Transform 'Password from a Windows-style variable'")" "0"
+expect "variable resolver" \
+  "$(count '"ruleId" : "SEC-002"' "Transform 'Password from a variable resolver'")" "0"
+
+echo "=== TRANS-002 reports only the transform with no hops, and says it still runs ==="
+expect "TRANS-002 findings" "$(count '"ruleId" : "TRANS-002"' '"ruleId"')" "1"
+expect "TRANS-002 on Left over" "$(count '"ruleId" : "TRANS-002"' '"name" : "Left over"')" "1"
+expect "TRANS-002 wording" "$(count '"ruleId" : "TRANS-002"' 'It still runs')" "1"
+
+echo "=== A parameter no rule reads is logged when hop-lint.yml is loaded ==="
+HOP_CLI="${user.dir}/hop"
+if [ ! -x "$HOP_CLI" ]; then
+  echo "FAIL: no hop CLI at $HOP_CLI"
+  exit 1
+fi
+export HOP_CONFIG_FOLDER="$PROJECT_DIR"
+CLI_LOG="$PROJECT_DIR/output/core-rules-cli.log"
+"$HOP_CLI" lint "$PROJECT_DIR/core-rules" --fail-on NONE --format json \
+  --output "$PROJECT_DIR/output/core-rules-findings-cli.json" &gt; "$CLI_LOG" 2&gt;&amp;1
+expect "unknown parameter warning" \
+  "$(grep -cF "has an unknown parameter 'checkPasswords', which is ignored." "$CLI_LOG")" "1"
+
+if [ $failures -gt 0 ]; then
+  echo "$failures check(s) failed."
+  exit 1
+fi
+echo "All checks passed."
+exit 0
+</script>
+      <loglevel>Basic</loglevel>
+      <nr>0</nr>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Lint the core-rules folder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Lint the core-rules folder</from>
+      <to>Check the findings</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check the findings</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
