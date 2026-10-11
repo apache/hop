@@ -18,7 +18,7 @@
 package org.apache.hop.age;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +31,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.graph.BaseGraphDatabase;
@@ -43,6 +44,8 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
@@ -60,6 +63,8 @@ public class AgeGraphDatabase extends BaseGraphDatabase {
   private static final Map<String, Object> GRAPH_CREATION_LOCKS = new ConcurrentHashMap<>();
 
   private static final String GROUP = "i18n::AgeGraphDatabase.Group.Connection";
+  private static final String POSTGRESQL_PLUGIN_ID = "POSTGRESQL";
+  private static final String POSTGRESQL_DRIVER_CLASS = "org.postgresql.Driver";
 
   @GuiWidgetElement(
       id = "hostname",
@@ -190,10 +195,14 @@ public class AgeGraphDatabase extends BaseGraphDatabase {
     }
     Connection connection;
     try {
-      connection = DriverManager.getConnection(getUrl(variables), properties);
+      connection = postgresqlDriver().connect(getUrl(variables), properties);
     } catch (SQLException e) {
       throw new HopException(
           "Unable to connect to " + getUrl(variables) + " for " + connectionName, e);
+    }
+    if (connection == null) {
+      throw new HopException(
+          "The PostgreSQL driver does not accept " + getUrl(variables) + " for " + connectionName);
     }
     try {
       prepareSession(log, connection, realGraphName, getUrl(variables) + "|" + realGraphName);
@@ -205,6 +214,30 @@ public class AgeGraphDatabase extends BaseGraphDatabase {
         // Report the first error
       }
       throw new HopException("Unable to use Apache AGE graph " + realGraphName, e);
+    }
+  }
+
+  /**
+   * The PostgreSQL driver from the PostgreSQL database plugin. That plugin's classloader holds the
+   * shared JDBC folders (lib/jdbc, or HOP_SHARED_JDBC_FOLDERS), which a graph database plugin does
+   * not see. A driver on lib/core would break PostgreSQL Bulk Loader.
+   */
+  private static Driver postgresqlDriver() throws HopException {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    IPlugin plugin = registry.getPlugin(DatabasePluginType.class, POSTGRESQL_PLUGIN_ID);
+    if (plugin == null) {
+      throw new HopException("Apache AGE needs the PostgreSQL database plugin");
+    }
+    try {
+      return (Driver)
+          registry
+              .getClassLoader(plugin)
+              .loadClass(POSTGRESQL_DRIVER_CLASS)
+              .getDeclaredConstructor()
+              .newInstance();
+    } catch (Exception | LinkageError e) {
+      throw new HopException(
+          "Unable to load " + POSTGRESQL_DRIVER_CLASS + " from the PostgreSQL database plugin", e);
     }
   }
 
