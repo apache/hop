@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -765,7 +767,8 @@ public class CustomRuleExecutor {
    */
   private static List<String> getBlockingTransformPlugins(CustomLintRule rule) {
     if (rule != null && rule.getAdditionalParameters() != null) {
-      Object configured = rule.getAdditionalParameters().get("blockingTransforms");
+      Object configured =
+          rule.getAdditionalParameters().get(CustomLintRule.PARAMETER_BLOCKING_TRANSFORMS);
       if (configured instanceof List) {
         @SuppressWarnings("unchecked")
         List<String> ids = (List<String>) configured;
@@ -1072,36 +1075,26 @@ public class CustomRuleExecutor {
         return results;
       }
 
-      // Get field patterns from rule parameters or use defaults
       List<String> fieldPatterns = getPasswordFieldPatterns(rule);
+      Map<String, Field> hardcoded = new LinkedHashMap<>();
+      collectHardcodedSecrets(
+          transformOrAction,
+          "",
+          fieldPatterns,
+          Collections.newSetFromMap(new IdentityHashMap<>()),
+          0,
+          hardcoded);
 
-      // Check all password-related fields
-      Class<?> clazz = transformOrAction.getClass();
-      for (Field field : getAllFields(clazz)) {
-        for (String pattern : fieldPatterns) {
-          if (namesASecret(field, pattern)) {
-            try {
-              field.setAccessible(true);
-              Object value = field.get(transformOrAction);
-              if (value != null && !Utils.isEmpty(value.toString())) {
-                String strValue = value.toString();
-                // Check if it's hardcoded (not a variable)
-                if (!isVariable(strValue)) {
-                  String message =
-                      String.format(
-                          "%s '%s' has hardcoded value in field '%s'. Consider using a variable instead (e.g., ${%s})",
-                          rule.getTarget() == RuleTarget.TRANSFORM ? "Transform" : "Action",
-                          objectName,
-                          field.getName(),
-                          field.getName().toUpperCase().replaceAll("[^A-Z0-9]", "_"));
-                  results.add(createResult(rule, message, fileName, hopObject));
-                }
-              }
-            } catch (Exception e) {
-              log.logDetailed("Error checking field " + field.getName() + ": " + e.getMessage());
-            }
-          }
-        }
+      for (Map.Entry<String, Field> entry : hardcoded.entrySet()) {
+        String fieldName = entry.getValue().getName();
+        String message =
+            String.format(
+                "%s '%s' has hardcoded value in field '%s'. Consider using a variable instead (e.g., ${%s})",
+                rule.getTarget() == RuleTarget.TRANSFORM ? "Transform" : "Action",
+                objectName,
+                entry.getKey(),
+                fieldName.toUpperCase().replaceAll("[^A-Z0-9]", "_"));
+        results.add(createResult(rule, message, fileName, hopObject));
       }
 
     } catch (Exception e) {
@@ -1139,6 +1132,82 @@ public class CustomRuleExecutor {
       return false;
     }
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
+  }
+
+  /** How deep {@link #collectHardcodedSecrets} follows settings nested in settings. */
+  private static final int MAX_SECRET_DEPTH = 4;
+
+  /**
+   * Collect the fields holding a hardcoded secret, keyed by their path from the transform or
+   * action.
+   *
+   * <p>A secret is not always a field of the transform or action itself. PGP Decrypt Files keeps a
+   * passphrase on every file it decrypts, at {@code filesToDecrypt[0].passphrase}. Only the
+   * properties Hop stores in the file ({@link HopMetadataProperty}) are followed, which keeps the
+   * walk out of references such as the parent transform and the pipeline behind it.
+   */
+  private static void collectHardcodedSecrets(
+      Object holder,
+      String path,
+      List<String> fieldPatterns,
+      Set<Object> visited,
+      int depth,
+      Map<String, Field> hardcoded) {
+    if (holder == null || !visited.add(holder)) {
+      return;
+    }
+    for (Field field : getAllFields(holder.getClass())) {
+      if (Modifier.isStatic(field.getModifiers())) {
+        continue;
+      }
+      try {
+        if (fieldPatterns.stream().anyMatch(pattern -> namesASecret(field, pattern))) {
+          field.setAccessible(true);
+          Object value = field.get(holder);
+          if (value != null && !Utils.isEmpty(value.toString()) && !isVariable(value.toString())) {
+            hardcoded.put(path + field.getName(), field);
+          }
+        } else if (depth < MAX_SECRET_DEPTH
+            && field.isAnnotationPresent(HopMetadataProperty.class)) {
+          field.setAccessible(true);
+          Object value = field.get(holder);
+          String nestedPath = path + field.getName();
+          if (value instanceof Collection<?> collection) {
+            int i = 0;
+            for (Object element : collection) {
+              walkInto(
+                  element, nestedPath + "[" + i++ + "].", fieldPatterns, visited, depth, hardcoded);
+            }
+          } else if (value instanceof Object[] array) {
+            for (int i = 0; i < array.length; i++) {
+              walkInto(
+                  array[i], nestedPath + "[" + i + "].", fieldPatterns, visited, depth, hardcoded);
+            }
+          } else {
+            walkInto(value, nestedPath + ".", fieldPatterns, visited, depth, hardcoded);
+          }
+        }
+      } catch (Exception e) {
+        log.logDetailed("Error checking field " + path + field.getName() + ": " + e.getMessage());
+      }
+    }
+  }
+
+  /** Follow a nested value when it is a settings object rather than a plain value. */
+  private static void walkInto(
+      Object value,
+      String path,
+      List<String> fieldPatterns,
+      Set<Object> visited,
+      int depth,
+      Map<String, Field> hardcoded) {
+    if (value == null
+        || value instanceof Enum<?>
+        || value.getClass().isArray()
+        || value.getClass().getName().startsWith("java.")) {
+      return;
+    }
+    collectHardcodedSecrets(value, path, fieldPatterns, visited, depth + 1, hardcoded);
   }
 
   /**
@@ -1227,7 +1296,8 @@ public class CustomRuleExecutor {
     List<String> defaultPatterns = DEFAULT_SECRET_FIELD_PATTERNS;
 
     if (rule.getAdditionalParameters() != null) {
-      Object patternsObj = rule.getAdditionalParameters().get("fieldPatterns");
+      Object patternsObj =
+          rule.getAdditionalParameters().get(CustomLintRule.PARAMETER_FIELD_PATTERNS);
       if (patternsObj instanceof List) {
         @SuppressWarnings("unchecked")
         List<String> patterns = (List<String>) patternsObj;
@@ -1240,19 +1310,17 @@ public class CustomRuleExecutor {
     return defaultPatterns;
   }
 
-  /** Check if a string is a Hop variable (enclosed in ${...}) */
-  private static boolean isVariable(String value) {
-    if (Utils.isEmpty(value)) {
-      return false;
-    }
+  /**
+   * A reference Hop resolves when it runs: a variable written as {@code ${NAME}} or {@code
+   * %%NAME%%}, or a variable resolver such as {@code #{vault:path:key}}. {@code $[..]} is not one:
+   * it spells literal characters in hex.
+   */
+  private static final Pattern VARIABLE_REFERENCE =
+      Pattern.compile("\\$\\{[^}]+}|%%[^%]+%%|#\\{[^}]+}");
 
-    // Check if it's a simple variable like ${VAR_NAME}
-    if (value.startsWith("${") && value.endsWith("}")) {
-      return true;
-    }
-
-    // Check if it contains variables (might be mixed with other text)
-    return value.contains("${") && value.contains("}");
+  /** Whether the value takes something from a variable or resolver rather than the file. */
+  static boolean isVariable(String value) {
+    return !Utils.isEmpty(value) && VARIABLE_REFERENCE.matcher(value).find();
   }
 
   /** Evaluate a condition against a field value */

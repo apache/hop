@@ -291,6 +291,41 @@ public class YamlRulePackParserTagsTest {
             YamlRulePackParser.OVERRIDE_KEYS));
   }
 
+  /**
+   * DB-001 carried checkPasswords and checkUsernames, which no code read, so they looked like
+   * settings and changed nothing.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8591">#8591</a>
+   */
+  @Test
+  public void anUnknownParameterIsReportedWithTheClosestKnownOne() {
+    Map<String, Object> parameters = new LinkedHashMap<>();
+    parameters.put("checkPasswords", true);
+    parameters.put("fieldPattern", List.of("password"));
+    parameters.put("blockingTransforms", List.of("SortRows"));
+
+    List<String> warnings =
+        YamlRulePackParser.unknownParameterWarnings(
+            "DB-001", YamlRulePackParser.inPack("acme"), parameters);
+
+    assertEquals(
+        List.of(
+            "Warning: rule 'DB-001' in pack 'acme' has an unknown parameter 'checkPasswords',"
+                + " which is ignored.",
+            "Warning: rule 'DB-001' in pack 'acme' has an unknown parameter 'fieldPattern',"
+                + " which is ignored. Did you mean fieldPatterns?"),
+        warnings);
+  }
+
+  @Test
+  public void noParametersProduceNoWarning() {
+    assertTrue(
+        YamlRulePackParser.unknownParameterWarnings("DB-001", "in pack 'acme'", null).isEmpty());
+    assertTrue(
+        YamlRulePackParser.unknownParameterWarnings("DB-001", "in pack 'acme'", Map.of())
+            .isEmpty());
+  }
+
   /** Every key the core pack uses has to be a known key, or Hop warns about its own rules. */
   @Test
   public void theCorePackUsesOnlyKnownKeys() throws Exception {
@@ -310,6 +345,10 @@ public class YamlRulePackParserTagsTest {
             List.of(),
             YamlRulePackParser.unknownKeyWarnings(
                 entry.getKey(), YamlRulePackParser.inPack("hop-core"), ruleData, known));
+        assertEquals(
+            List.of(),
+            YamlRulePackParser.unknownParameterWarnings(
+                entry.getKey(), YamlRulePackParser.inPack("hop-core"), ruleData.get("parameters")));
       }
     }
   }
