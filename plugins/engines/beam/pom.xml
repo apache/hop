@@ -307,11 +307,20 @@
         </dependency>
         <!-- DebeziumIO provides the CDC source but not a database connector.
              Packaged with its PostgreSQL driver under plugins/engines/beam/lib, not lib/core.
-             A driver on the application classpath breaks PostgreSQL Bulk Loader. -->
+             A driver on the application classpath breaks PostgreSQL Bulk Loader.
+             The driver is a direct dependency on purpose: the Beam assembly exclude is not
+             applied to transitive jars, so a driver pulled only through Debezium still lands
+             in lib/core. -->
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
             <version>3.1.3.Final</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
@@ -1655,6 +1664,13 @@
                     <artifactId>snappy-java</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- Direct, not a Debezium transitive: the Beam assembly exclude does not apply to
+             transitive jars, and this driver must stay out of lib/core. -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.12</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>

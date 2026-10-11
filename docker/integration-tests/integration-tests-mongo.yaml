@@ -23,23 +23,31 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+      mongo-atlas:
+        condition: service_healthy
     links:
       - mongo
+      - mongo-atlas
 
   mongo-atlas:
     image: mongodb/mongodb-atlas-local
-    hostname: mongo
+    # The replica set member host is this hostname. It must be the Compose DNS name clients use.
+    # "mongo" is the other service on this network, and a member named mongo talks to mongo:8.
+    hostname: mongo-atlas
     environment:
       - MONGODB_INITDB_ROOT_USERNAME=root
       - MONGODB_INITDB_ROOT_PASSWORD=example
     ports:
       - 27017:27017
+    # The image's own check waits until mongod has finished its init restart. A plain ping
+    # succeeds during that restart, and the next SCRAM handshake then fails with
+    # InterruptedAtShutdown.
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "runner", "healthcheck"]
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      timeout: 10s
+      retries: 12
+      start_period: 40s
 
   mongo:
     image: mongo:8

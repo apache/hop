@@ -112,9 +112,12 @@ public class LoadBalancingWorkflowEngine extends RemoteWorkflowEngine {
           assignment.setStatus(LoadBalancingAssignment.STATUS_RETRYING);
           coordinator.saveAssignment(assignment);
         }
-        if (HopServerAdmission.isRetryableRegistrationFailure(e, containerId)
-            && retry.canAttempt()) {
-          logCapacityWait(attempt, e);
+        if (retry.canAttempt() && isRetryablePrepareFailure(e, containerId)) {
+          if (LoadBalancingCoordinator.isTransientProbeFailure(e)) {
+            logProbeWait(attempt, e);
+          } else {
+            logCapacityWait(attempt, e);
+          }
           sleepBackoff(retry);
           continue;
         }
@@ -154,6 +157,20 @@ public class LoadBalancingWorkflowEngine extends RemoteWorkflowEngine {
     next.setOccupyingSlotsAtAssignment(snapshot.getOccupyingSlots());
     next.setMaxConcurrent(snapshot.getMaxConcurrent());
     return next;
+  }
+
+  private static boolean isRetryablePrepareFailure(Exception error, String containerId) {
+    return HopServerAdmission.isRetryableRegistrationFailure(error, containerId)
+        || (StringUtils.isEmpty(containerId)
+            && LoadBalancingCoordinator.isTransientProbeFailure(error));
+  }
+
+  private void logProbeWait(int attempt, Exception error) {
+    logChannel.logBasic(
+        "Load-balancing attempt "
+            + attempt
+            + " waiting for a Hop server to answer: "
+            + error.getMessage());
   }
 
   private void logCapacityWait(int attempt, Exception error) {
