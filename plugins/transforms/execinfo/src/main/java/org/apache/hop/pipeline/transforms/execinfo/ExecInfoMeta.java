@@ -97,6 +97,7 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
             new RowMetaBuilder()
                 .addString("executionId")
                 .addString("parentId")
+                .addString("launchedById")
                 .addString("name")
                 .addString("executionType")
                 .addString("filename")

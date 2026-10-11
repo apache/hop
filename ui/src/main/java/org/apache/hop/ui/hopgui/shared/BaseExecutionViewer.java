@@ -28,6 +28,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
@@ -38,6 +39,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -133,6 +135,54 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       }
     }
     return null;
+  }
+
+  /**
+   * The pipeline or workflow that owns this execution. A document written before that link was
+   * stored points {@code parentId} at the action or transform, so open that executor's parent.
+   */
+  protected Execution parentExecutor(IExecutionInfoLocation location) throws HopException {
+    if (location == null || execution == null || Utils.isEmpty(execution.getParentId())) {
+      return null;
+    }
+    Execution parent = location.getExecution(execution.getParentId());
+    if (parent == null) {
+      return null;
+    }
+    if (parent.getExecutionType() == ExecutionType.Action
+        || parent.getExecutionType() == ExecutionType.Transform) {
+      if (Utils.isEmpty(parent.getParentId())) {
+        return null;
+      }
+      return location.getExecution(parent.getParentId());
+    }
+    return parent;
+  }
+
+  /**
+   * Pipeline or workflow executions started by an action or transform. Uses the ids stored on that
+   * launcher, then executions whose parent or launcher id matches for documents that predate the
+   * stored link.
+   */
+  protected List<Execution> launchedExecutions(IExecutionInfoLocation location, String launcherId)
+      throws HopException {
+    if (location == null || Utils.isEmpty(launcherId)) {
+      return List.of();
+    }
+    Execution launcher = location.getExecution(launcherId);
+    if (launcher != null && !Utils.isEmpty(launcher.getChildExecutionIds())) {
+      List<Execution> children = new ArrayList<>();
+      for (String childId : launcher.getChildExecutionIds()) {
+        Execution child = location.getExecution(childId);
+        if (child != null) {
+          children.add(child);
+        }
+      }
+      if (!children.isEmpty()) {
+        return children;
+      }
+    }
+    return location.findExecutions(launcherId);
   }
 
   protected String formatDate(Date date) {

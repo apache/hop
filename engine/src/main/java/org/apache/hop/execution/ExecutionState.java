@@ -38,8 +38,9 @@ public class ExecutionState {
   private ExecutionType executionType;
 
   /**
-   * The unique ID of the parent executor. If this is an action or transform update, this is the ID
-   * of that executor.
+   * The pipeline or workflow that owns this update. For an action or transform this is that
+   * executor. For a pipeline or workflow started by an action or transform, this is the same owner
+   * stored on {@link Execution#getParentId()}.
    */
   private String parentId;
 

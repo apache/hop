@@ -456,7 +456,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
           }
         }
 
-        // Create a new workflow
+        // Create a new workflow. The last argument is the logging parent (this action), so log
+        // lines nest under the action. ExecutionBuilder stores the workflow log channel id as the
+        // execution parent.
         //
         workflow =
             WorkflowEngineFactory.createWorkflowEngine(

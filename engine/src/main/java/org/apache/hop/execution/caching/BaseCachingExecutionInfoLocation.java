@@ -350,8 +350,49 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       if (entry != null) {
         persistCacheEntry(entry);
       }
+      rememberLaunchedChild(execution);
     } else {
       addChildExecutionToCache(execution);
+    }
+  }
+
+  /**
+   * Record this pipeline or workflow on the action or transform that started it, inside the parent
+   * document. A missing parent or launcher is skipped: the child document still has {@code
+   * parentId} and {@code launchedById}.
+   */
+  private void rememberLaunchedChild(Execution child) {
+    if (child == null
+        || StringUtils.isEmpty(child.getId())
+        || StringUtils.isEmpty(child.getParentId())
+        || StringUtils.isEmpty(child.getLaunchedById())) {
+      return;
+    }
+    try {
+      CacheEntry parent = findCacheEntry(child.getParentId());
+      if (parent == null) {
+        return;
+      }
+      Execution launcher = parent.peekChildExecution(child.getLaunchedById());
+      if (launcher == null) {
+        return;
+      }
+      if (!launcher.addChildExecutionId(child.getId())) {
+        return;
+      }
+      parent.setDirty(true);
+      persistCacheEntry(parent);
+      // This location may be a different instance from the one running the parent. Leave the loaded
+      // entry clean so close() does not write a stale copy back over the parent.
+      parent.setDirty(false);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Unable to record child execution '"
+              + child.getId()
+              + "' on '"
+              + child.getParentId()
+              + "' (non-fatal)",
+          e);
     }
   }
 
@@ -799,9 +840,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   public synchronized Execution getExecution(String executionId) throws HopException {
     CacheEntry entry = findCacheEntry(executionId);
     if (entry == null) {
-      entry = findCacheEntryWithChild(executionId);
-    }
-    if (entry == null) {
       return null;
     }
     if (!entry.getId().equals(executionId)) {
@@ -837,9 +875,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
       if (StringUtils.isNotEmpty(parentExecutionId)) {
         CacheEntry parentEntry = findCacheEntry(parentExecutionId);
-        if (parentEntry == null) {
-          parentEntry = findCacheEntryWithChild(parentExecutionId);
-        }
         if (parentEntry != null && parentEntry.getChildExecutions() != null) {
           for (Execution childExecution : parentEntry.getChildExecutions().values()) {
             if (childExecution != null && parentExecutionId.equals(childExecution.getParentId())) {
@@ -853,7 +888,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         Execution execution = getExecution(id);
         if (execution != null
             && parentExecutionId != null
-            && parentExecutionId.equals(execution.getParentId())) {
+            && (parentExecutionId.equals(execution.getParentId())
+                || parentExecutionId.equals(execution.getLaunchedById()))) {
           executions.add(execution);
         }
       }
@@ -1001,9 +1037,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
     CacheEntry cacheEntry = findCacheEntry(childId);
     if (cacheEntry == null) {
-      cacheEntry = findCacheEntryWithChild(childId);
-    }
-    if (cacheEntry == null) {
       return null;
     }
     if (cacheEntry.getId().equals(childId)) {
@@ -1017,25 +1050,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         || (cacheEntry.getChildIds() != null && cacheEntry.getChildIds().contains(childId))) {
       return cacheEntry.getId();
     }
-    return null;
-  }
-
-  protected synchronized CacheEntry findCacheEntryWithChild(String childId) throws HopException {
-    if (StringUtils.isEmpty(childId)) {
-      return null;
-    }
-    for (CacheEntry cacheEntry : cache.values()) {
-      if (cacheEntry.peekChildExecution(childId) != null
-          || (cacheEntry.getChildIds() != null && cacheEntry.getChildIds().contains(childId))) {
-        cache.get(cacheEntry.getId());
-        cacheEntry.markRead();
-        return cacheEntry;
-      }
-    }
-    return loadCacheEntryWithChild(childId);
-  }
-
-  protected CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
     return null;
   }
 }

@@ -270,6 +270,7 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
 
     outputRow[index++] = execution.getId();
     outputRow[index++] = execution.getParentId();
+    outputRow[index++] = execution.getLaunchedById();
     outputRow[index++] = execution.getName();
     outputRow[index++] = execution.getExecutionType().name();
     outputRow[index++] = execution.getFilename();

@@ -180,7 +180,8 @@ class BaseCachingExecutionInfoLocationTest {
     Execution pipe = new Execution();
     pipe.setId(pipelineId);
     pipe.setName("Pipeline");
-    pipe.setParentId(actionId);
+    pipe.setParentId(workflowId);
+    pipe.setLaunchedById(actionId);
     pipe.setExecutionType(ExecutionType.Pipeline);
     pipe.setRegistrationDate(new Date());
 
@@ -188,7 +189,7 @@ class BaseCachingExecutionInfoLocationTest {
     location.registerExecution(action);
     location.registerExecution(pipe);
 
-    assertEquals(actionId, location.findParentId(pipelineId));
+    assertEquals(workflowId, location.findParentId(pipelineId));
     assertEquals(workflowId, location.findParentId(actionId));
     assertNull(location.findParentId(workflowId));
 
@@ -196,6 +197,7 @@ class BaseCachingExecutionInfoLocationTest {
     assertNotNull(retrievedAction);
     assertEquals(actionId, retrievedAction.getId());
     assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
+    assertEquals(java.util.List.of(pipelineId), retrievedAction.getChildExecutionIds());
 
     java.util.List<Execution> actionChildren = location.findExecutions(actionId);
     assertEquals(1, actionChildren.size());

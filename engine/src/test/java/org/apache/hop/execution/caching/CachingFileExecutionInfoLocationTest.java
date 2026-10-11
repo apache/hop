@@ -549,7 +549,8 @@ class CachingFileExecutionInfoLocationTest {
       Execution pipe = new Execution();
       pipe.setId(pipelineId);
       pipe.setName("Pipeline");
-      pipe.setParentId(actionId);
+      pipe.setParentId(workflowId);
+      pipe.setLaunchedById(actionId);
       pipe.setExecutionType(ExecutionType.Pipeline);
       pipe.setRegistrationDate(new Date());
 
@@ -557,20 +558,32 @@ class CachingFileExecutionInfoLocationTest {
       location.registerExecution(action);
       location.registerExecution(pipe);
 
+      // A later write of the workflow must keep the child id recorded on the action.
+      Execution cachedAction = location.getExecution(actionId);
+      assertEquals(List.of(pipelineId), cachedAction.getChildExecutionIds());
+      cachedAction.getChildExecutionIds().clear();
+      location.persistCacheEntry(location.getCache().get(workflowId));
+
       // Persist to disk and clear cache so nothing is in memory
       for (CacheEntry entry : location.getCache().values()) {
         location.persistCacheEntry(entry);
       }
       location.clearCaches();
 
-      assertEquals(actionId, location.findParentId(pipelineId));
-      assertEquals(workflowId, location.findParentId(actionId));
-      assertNull(location.findParentId(workflowId));
+      assertEquals(workflowId, location.findParentId(pipelineId));
+      // The action lives in the workflow file. It is not a file of its own, and loading the
+      // pipeline does not load it.
+      assertNull(location.findParentId(actionId));
+      assertNull(location.getExecution(actionId));
 
+      assertNull(location.findParentId(workflowId));
+      Execution reloadedWorkflow = location.getExecution(workflowId);
+      assertNotNull(reloadedWorkflow);
       Execution retrievedAction = location.getExecution(actionId);
       assertNotNull(retrievedAction);
       assertEquals(actionId, retrievedAction.getId());
       assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
+      assertEquals(List.of(pipelineId), retrievedAction.getChildExecutionIds());
 
       assertNull(location.getExecution("non-existent-id"));
 

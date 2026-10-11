@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.IProgressMonitor;
@@ -226,6 +227,28 @@ public interface IExecutionInfoLocation extends Cloneable {
    * @throws HopException In case something goes wrong
    */
   List<String> findExecutionIDs(IExecutionSelector selector) throws HopException;
+
+  /**
+   * Rows for the execution tree. Name, type, dates, and status are enough. The pipeline or workflow
+   * document stays unread until that execution is opened. The default loads each id in full;
+   * locations that store a summary separately override this.
+   */
+  default List<ListedExecution> listExecutions(IExecutionSelector selector) throws HopException {
+    IExecutionSelector active = selector == null ? IExecutionSelector.ALL : selector;
+    List<ListedExecution> listed = new ArrayList<>();
+    for (String id : findExecutionIDs(active)) {
+      Execution execution = getExecution(id);
+      if (execution == null || !active.isSelected(execution)) {
+        continue;
+      }
+      ExecutionState state = getExecutionState(id);
+      if (!active.isSelected(state)) {
+        continue;
+      }
+      listed.add(new ListedExecution(execution, state));
+    }
+    return listed;
+  }
 
   /**
    * Get execution data for transforms or an action. The parent ID would typically be a pipeline ID,

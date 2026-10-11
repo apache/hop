@@ -23,14 +23,11 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
@@ -51,6 +48,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionDeleter;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
@@ -183,7 +181,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (onDisk == null) {
         return;
       }
-      mergeMap(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
+      mergeChildExecutions(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
       mergeMap(onDisk.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
       mergeMap(onDisk.getChildExecutionData(), cacheEntry.getChildExecutionData());
       cacheEntry.keepStoredProjectId(onDisk);
@@ -200,6 +198,24 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     }
     for (Map.Entry<K, V> e : fromDisk.entrySet()) {
       into.putIfAbsent(e.getKey(), e.getValue());
+    }
+  }
+
+  /**
+   * Same as {@link #mergeMap}, and when both sides already have an action or transform, keep the
+   * child execution ids recorded by either writer.
+   */
+  private static void mergeChildExecutions(
+      Map<String, Execution> fromDisk, Map<String, Execution> into) {
+    if (fromDisk == null || fromDisk.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<String, Execution> entry : fromDisk.entrySet()) {
+      Execution stored = entry.getValue();
+      Execution kept = into.putIfAbsent(entry.getKey(), stored);
+      if (kept != null && stored != null) {
+        kept.unionChildExecutionIds(stored);
+      }
     }
   }
 
@@ -420,63 +436,6 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           "Error loading execution information location file for executionId '" + executionId + "'",
           e);
     }
-  }
-
-  public static final int MAX_CHILD_SEARCH_SCAN = 100;
-
-  @Override
-  protected synchronized CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
-    if (StringUtils.isEmpty(childId)) {
-      return null;
-    }
-    try {
-      FileObject[] files = getAllFileObjects(actualRootFolder);
-      if (files == null || files.length == 0) {
-        return null;
-      }
-
-      try {
-        record FileWithTimestamp(FileObject file, long lastModified) {}
-        List<FileWithTimestamp> fileList = new ArrayList<>(files.length);
-        for (FileObject file : files) {
-          long lastModified = 0L;
-          try {
-            lastModified = file.getContent().getLastModifiedTime();
-          } catch (Exception ignored) {
-          }
-          fileList.add(new FileWithTimestamp(file, lastModified));
-        }
-        fileList.sort((a, b) -> Long.compare(b.lastModified, a.lastModified));
-
-        int maxScan = Math.min(fileList.size(), Math.max(MAX_CHILD_SEARCH_SCAN, maxSize * 2));
-        for (int i = 0; i < maxScan; i++) {
-          FileObject file = fileList.get(i).file();
-          String id = getIdFromFileName(file);
-          if (id.equals(childId)) {
-            continue;
-          }
-          String content =
-              HopVfs.getTextFileContent(file.getName().getURI(), StandardCharsets.UTF_8);
-          if (content != null && content.contains(childId)) {
-            CacheEntry entry = HopJson.newMapper().readValue(content, CacheEntry.class);
-            if (entry != null
-                && (entry.peekChildExecution(childId) != null
-                    || (entry.getChildIds() != null && entry.getChildIds().contains(childId)))) {
-              cache.put(entry.getId(), entry);
-              enforceMaxCacheSize();
-              return entry;
-            }
-          }
-        }
-      } finally {
-        for (FileObject file : files) {
-          closeQuietly(file);
-        }
-      }
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError("Error searching for cache entry containing child " + childId, e);
-    }
-    return null;
   }
 
   @Override

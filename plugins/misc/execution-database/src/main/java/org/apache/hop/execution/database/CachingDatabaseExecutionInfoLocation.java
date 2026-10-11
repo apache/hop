@@ -53,9 +53,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
+import org.apache.hop.execution.ListedExecution;
 import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.caching.CacheEntry;
 import org.apache.hop.execution.caching.DatedId;
@@ -502,7 +504,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       if (existing == null) {
         return;
       }
-      mergeMap(existing.getChildExecutions(), cacheEntry.getChildExecutions());
+      mergeChildExecutions(existing.getChildExecutions(), cacheEntry.getChildExecutions());
       mergeMap(existing.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
       mergeMap(existing.getChildExecutionData(), cacheEntry.getChildExecutionData());
       cacheEntry.keepStoredProjectId(existing);
@@ -518,6 +520,24 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     }
     for (Map.Entry<K, V> e : fromStore.entrySet()) {
       into.putIfAbsent(e.getKey(), e.getValue());
+    }
+  }
+
+  /**
+   * Same as {@link #mergeMap}, and when both sides already have an action or transform, keep the
+   * child execution ids recorded by either writer.
+   */
+  private static void mergeChildExecutions(
+      Map<String, Execution> fromStore, Map<String, Execution> into) {
+    if (fromStore == null || fromStore.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<String, Execution> entry : fromStore.entrySet()) {
+      Execution stored = entry.getValue();
+      Execution kept = into.putIfAbsent(entry.getKey(), stored);
+      if (kept != null && stored != null) {
+        kept.unionChildExecutionIds(stored);
+      }
     }
   }
 
@@ -720,89 +740,6 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
   }
 
   @Override
-  protected CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
-    if (StringUtils.isEmpty(childId)) {
-      return null;
-    }
-    try {
-      String columns = databaseMeta.quoteField(COL_JSON);
-      if (stateJsonColumnAvailable) {
-        columns += ", " + databaseMeta.quoteField(COL_STATE_JSON);
-      }
-      StringBuilder sql = new StringBuilder();
-      sql.append("SELECT ")
-          .append(columns)
-          .append(" FROM ")
-          .append(getQuotedSchemaTable())
-          .append(" WHERE (")
-          .append(databaseMeta.quoteField(COL_JSON))
-          .append(" LIKE ?");
-      if (stateJsonColumnAvailable) {
-        sql.append(" OR ").append(databaseMeta.quoteField(COL_STATE_JSON)).append(" LIKE ?");
-      }
-      sql.append(") AND ")
-          .append(databaseMeta.quoteField(COL_ID))
-          .append(" != ?")
-          .append(" ORDER BY ")
-          .append(databaseMeta.quoteField(COL_EXECUTION_START_DATE))
-          .append(" DESC")
-          .append(databaseMeta.getLimitClause(20));
-
-      IRowMeta paramMeta = new RowMeta();
-      paramMeta.addValueMeta(new ValueMetaString("p1", 100, -1));
-      List<Object> params = new ArrayList<>();
-      params.add("%" + childId + "%");
-      if (stateJsonColumnAvailable) {
-        paramMeta.addValueMeta(new ValueMetaString("p2", 100, -1));
-        params.add("%" + childId + "%");
-      }
-      paramMeta.addValueMeta(new ValueMetaString("p_not_id", 100, -1));
-      params.add(childId);
-
-      return callWithDatabase(
-          () -> {
-            ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
-            try {
-              Object[] row = database.getRow(rs);
-              while (row != null) {
-                if (row[0] != null) {
-                  try {
-                    CacheEntry entry = JSON_MAPPER.readValue(row[0].toString(), CacheEntry.class);
-                    if (entry != null && !entry.getId().equals(childId)) {
-                      if (stateJsonColumnAvailable
-                          && row.length > 1
-                          && row[1] != null
-                          && StringUtils.isNotEmpty(row[1].toString())) {
-                        applyStateOverlay(
-                            entry, JSON_MAPPER.readValue(row[1].toString(), CacheEntry.class));
-                      }
-                      if (entry.peekChildExecution(childId) != null
-                          || (entry.getChildIds() != null
-                              && entry.getChildIds().contains(childId))) {
-                        cache.put(entry.getId(), entry);
-                        enforceMaxCacheSize();
-                        return entry;
-                      }
-                    }
-                  } catch (Exception e) {
-                    // Ignore corrupted candidate and continue checking other rows
-                  }
-                }
-                row = database.getRow(rs);
-              }
-              return null;
-            } finally {
-              database.closeQuery(rs);
-            }
-          });
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError(
-          "Error finding cache entry containing child " + childId + " from database", e);
-      return null;
-    }
-  }
-
-  @Override
   public void deleteCacheEntry(CacheEntry cacheEntry) throws HopException {
     if (cacheEntry == null || StringUtils.isEmpty(cacheEntry.getId())) {
       return;
@@ -826,6 +763,136 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
           "Error deleting execution information from database for id '" + cacheEntry.getId() + "'",
           e);
     }
+  }
+
+  /** Same cap as {@link BaseCachingExecutionInfoLocation#findExecutionIDs}. */
+  private static final int LIST_LIMIT = 50;
+
+  /**
+   * One query of the summary columns. The {@code json} and {@code state_json} documents, which hold
+   * the pipeline XML, metadata, and sample rows, are not read.
+   */
+  @Override
+  public List<ListedExecution> listExecutions(IExecutionSelector selector) throws HopException {
+    final IExecutionSelector active = selector == null ? IExecutionSelector.ALL : selector;
+    try {
+      StringBuilder sql = new StringBuilder();
+      sql.append("SELECT ")
+          .append(databaseMeta.quoteField(COL_ID))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_NAME))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_EXECUTION_TYPE))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_PARENT_ID))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_REGISTRATION_DATE))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_EXECUTION_START_DATE))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_EXECUTION_END_DATE))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_FAILED))
+          .append(", ")
+          .append(databaseMeta.quoteField(COL_STATUS_DESCRIPTION))
+          .append(" FROM ")
+          .append(getQuotedSchemaTable());
+
+      List<Object> params = new ArrayList<>();
+      IRowMeta paramMeta = new RowMeta();
+      List<String> where = new ArrayList<>();
+      appendSelectorFilters(active, where, paramMeta, params);
+      if (!where.isEmpty()) {
+        sql.append(" WHERE ");
+        sql.append(String.join(" AND ", where));
+      }
+      sql.append(" ORDER BY ")
+          .append(databaseMeta.quoteField(COL_EXECUTION_START_DATE))
+          .append(" DESC");
+      sql.append(databaseMeta.getLimitClause(LIST_LIMIT));
+
+      return callWithDatabase(
+          () -> {
+            List<ListedExecution> listed = new ArrayList<>();
+            ResultSet rs = database.openQuery(sql.toString(), paramMeta, params.toArray());
+            try {
+              Object[] row = database.getRow(rs);
+              while (row != null) {
+                ListedExecution item = toListedExecution(row);
+                if (item != null
+                    && active.isSelected(item.execution())
+                    && active.isSelected(item.state())) {
+                  listed.add(item);
+                }
+                row = database.getRow(rs);
+              }
+            } finally {
+              database.closeQuery(rs);
+            }
+            return listed;
+          });
+    } catch (Exception e) {
+      throw new HopException(
+          "Error listing executions from database table " + getQuotedSchemaTable(), e);
+    }
+  }
+
+  private static ListedExecution toListedExecution(Object[] row) {
+    String id = asString(row[0]);
+    if (StringUtils.isEmpty(id)) {
+      return null;
+    }
+    ExecutionType type;
+    try {
+      type = ExecutionType.valueOf(asString(row[2]));
+    } catch (Exception e) {
+      return null;
+    }
+    Execution execution = new Execution();
+    execution.setId(id);
+    execution.setName(asString(row[1]));
+    execution.setExecutionType(type);
+    execution.setParentId(asString(row[3]));
+    execution.setRegistrationDate(asDate(row[4]));
+    execution.setExecutionStartDate(asDate(row[5]));
+
+    ExecutionState state = new ExecutionState();
+    state.setId(id);
+    state.setName(execution.getName());
+    state.setExecutionType(type);
+    state.setParentId(execution.getParentId());
+    state.setExecutionEndDate(asDate(row[6]));
+    state.setFailed(asBoolean(row[7]));
+    state.setStatusDescription(Const.NVL(asString(row[8]), ""));
+    // The row has no last-update time. Null is not treated as stale, so a running execution keeps
+    // its status color. Opening the execution loads the real state.
+    state.setUpdateTime(null);
+    return new ListedExecution(execution, state);
+  }
+
+  private static String asString(Object value) {
+    return value == null ? null : value.toString();
+  }
+
+  private static Date asDate(Object value) {
+    if (value instanceof Date date) {
+      return date;
+    }
+    return null;
+  }
+
+  private static boolean asBoolean(Object value) {
+    if (value instanceof Boolean bool) {
+      return bool;
+    }
+    if (value instanceof Number number) {
+      return number.intValue() != 0;
+    }
+    if (value == null) {
+      return false;
+    }
+    String text = value.toString();
+    return "Y".equalsIgnoreCase(text) || "true".equalsIgnoreCase(text);
   }
 
   @Override

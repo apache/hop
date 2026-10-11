@@ -54,6 +54,7 @@ import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
+import org.apache.hop.execution.ListedExecution;
 import org.apache.hop.execution.caching.CachingFileExecutionInfoLocation;
 import org.apache.hop.execution.local.FileExecutionInfoLocation;
 import org.apache.hop.history.AuditList;
@@ -647,9 +648,14 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
         } else if (treeItem.getData() instanceof Execution execution) {
           ExecutionInfoLocation location =
               (ExecutionInfoLocation) treeItem.getParentItem().getData();
-          ExecutionState executionState =
-              location.getExecutionInfoLocation().getExecutionState(execution.getId());
-          createExecutionViewer(location.getName(), execution, executionState);
+          // The tree row has no pipeline XML. Load the stored document to open the viewer.
+          IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+          Execution full = iLocation.getExecution(execution.getId());
+          if (full == null) {
+            full = execution;
+          }
+          ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+          createExecutionViewer(location.getName(), full, executionState);
         } else if (treeItem.getData(CONST_ERROR) instanceof Exception exception) {
           new ErrorDialog(getShell(), CONST_ERROR1, "Location error:", exception);
         }
@@ -905,7 +911,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     Cursor busyCursor = getBusyCursor();
 
     try {
-      getShell().setCursor(busyCursor);
+      // On GTK the tree and toolbar windows do not use the shell cursor. Show the wait cursor
+      // before the list query blocks this UI thread.
+      showBusyCursor(busyCursor);
 
       // If there are any cached locations we want to close them before initializing new ones
       //
@@ -981,37 +989,29 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
                       onlyShowingPipelines,
                       filterText,
                       timeFilter);
-              List<String> ids = iLocation.findExecutionIDs(executionSelector);
-
-              // Display the executions
+              // Name, dates, and status only. The stored document is loaded when the row is opened.
               //
-              for (String id : ids) {
-                try {
-                  Execution execution = iLocation.getExecution(id);
-                  if (execution != null) {
-                    // Apply an extra filter to make sure
-                    //
-                    if (!executionSelector.isSelected(execution)) {
-                      continue;
-                    }
-                    // We only need to consider the state after the previous filtering
-                    //
-                    ExecutionState state = iLocation.getExecutionState(id);
-                    if (!executionSelector.isSelected(state)) {
-                      continue;
-                    }
+              List<ListedExecution> listed = iLocation.listExecutions(executionSelector);
 
-                    TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
-                    switch (execution.getExecutionType()) {
-                      case Pipeline:
-                        decoratePipelineTreeItem(executionItem, location, execution, state);
-                        break;
-                      case Workflow:
-                        decorateWorkflowTreeItem(executionItem, location, execution, state);
-                        break;
-                      default:
-                        break;
-                    }
+              for (ListedExecution listedExecution : listed) {
+                Execution execution = listedExecution.execution();
+                String id = execution == null ? "" : Const.NVL(execution.getId(), "");
+                try {
+                  if (execution == null || execution.getExecutionType() == null) {
+                    continue;
+                  }
+                  ExecutionState state = listedExecution.state();
+                  TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
+                  switch (execution.getExecutionType()) {
+                    case Pipeline:
+                      decoratePipelineTreeItem(executionItem, location, execution, state);
+                      break;
+                    case Workflow:
+                      decorateWorkflowTreeItem(executionItem, location, execution, state);
+                      break;
+                    default:
+                      executionItem.dispose();
+                      break;
                   }
                 } catch (Exception e) {
                   TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
@@ -1051,14 +1051,32 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       tree.setRedraw(true);
       updateSelection();
     } catch (Exception e) {
-      getShell().setCursor(null);
+      showBusyCursor(null);
       new ErrorDialog(
           getShell(),
           BaseMessages.getString(PKG, "ExecutionPerspective.Refresh.Error.Header"),
           BaseMessages.getString(PKG, "ExecutionPerspective.Refresh.Error.Message"),
           e);
     } finally {
-      getShell().setCursor(null);
+      showBusyCursor(null);
+      busyCursor.dispose();
+    }
+  }
+
+  /** Wait cursor on the shell, the tree, and the toolbar. {@code null} restores the default. */
+  private void showBusyCursor(Cursor cursor) {
+    Shell shell = getShell();
+    if (shell != null && !shell.isDisposed()) {
+      shell.setCursor(cursor);
+    }
+    if (tree != null && !tree.isDisposed()) {
+      tree.setCursor(cursor);
+    }
+    if (toolBar != null && !toolBar.isDisposed()) {
+      toolBar.setCursor(cursor);
+    }
+    if (shell != null && !shell.isDisposed()) {
+      shell.getDisplay().update();
     }
   }
 

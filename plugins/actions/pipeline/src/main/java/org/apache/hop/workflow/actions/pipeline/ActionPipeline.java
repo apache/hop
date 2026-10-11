@@ -520,6 +520,8 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         pipeline =
             PipelineEngineFactory.createPipelineEngine(
                 this, runConfiguration, getMetadataProvider(), pipelineMeta);
+        // Logging parent stays this action so log lines nest under it. ExecutionBuilder stores the
+        // workflow log channel id as the execution parent.
         pipeline.setParent(this);
 
         // set the parent workflow on the pipeline, variables are taken from here...
