@@ -3310,8 +3310,9 @@ public class TableView extends Composite {
 
     // A single-line editor can't represent a multi-line value (control-char boxes on Windows), so
     // edit values that contain a line break in the multi-line pop-out editor instead.
-    if ((colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT
-            || colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
+    // Do not enable the multi-line editor for columns of type ColumnInfo.COLUMN_TYPE_TEXT_BUTTON
+    // (Issue #8861)
+    if ((colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT)
         && indexOfLineBreak(getCellValue(row, colNr)) >= 0) {
       editMultiline(row, rowNr, colNr, colinfo);
       return;
