@@ -56,6 +56,15 @@
             <artifactId>postgresql</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- AgeGraphDatabase loads the JDBC driver from this plugin. The assembled client
+             already has it. These tests need it on the classpath, and test scope keeps the
+             plugin jar out of lib/core. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-postgresql</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-neo4j</artifactId>
