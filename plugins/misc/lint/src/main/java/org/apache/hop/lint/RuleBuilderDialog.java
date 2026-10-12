@@ -17,12 +17,18 @@
 package org.apache.hop.lint;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lint.registry.ProjectLintYamlExporter;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -51,12 +57,16 @@ public class RuleBuilderDialog extends Dialog {
 
   private static final Class<?> PKG = RuleBuilderDialog.class; // for i18n purposes
 
+  /** A rule id is a YAML key, a SARIF rule id and a word on the command line. */
+  private static final Pattern RULE_ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_.-]*");
+
   private Shell shell;
   private Shell parent;
   private CustomLintRule rule;
   private boolean ok = false;
 
   // UI components
+  private Text idText;
   private Text nameText;
   private Text descriptionText;
   private Combo targetCombo;
@@ -84,11 +94,32 @@ public class RuleBuilderDialog extends Dialog {
   /** Guards the widget listeners while the widgets are being loaded from a clause. */
   private boolean loadingClause = false;
 
+  /** The target shown, so choosing it again changes nothing. */
+  private int shownTarget = -1;
+
+  /** The ids of the other rules, upper case, which this rule's id must not clash with. */
+  private final Set<String> takenIds = new TreeSet<>();
+
   public RuleBuilderDialog(Shell parent, CustomLintRule rule) {
     super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
     this.parent = parent;
     this.rule = rule != null ? rule : new CustomLintRule();
-    setText(rule != null ? "Edit Lint Rule" : "Add Lint Rule");
+    setText(
+        BaseMessages.getString(
+            PKG, rule != null ? "RuleBuilderDialog.Title.Edit" : "RuleBuilderDialog.Title.Add"));
+  }
+
+  /**
+   * @param takenIds the ids of every other rule, compared ignoring case; the rule's own id may be
+   *     among them
+   */
+  public void setTakenIds(Collection<String> takenIds) {
+    this.takenIds.clear();
+    for (String id : takenIds) {
+      if (id != null && !id.equalsIgnoreCase(rule.getId())) {
+        this.takenIds.add(id.toUpperCase(Locale.ROOT));
+      }
+    }
   }
 
   public CustomLintRule open() {
@@ -134,20 +165,37 @@ public class RuleBuilderDialog extends Dialog {
     int margin = 10;
     int labelWidth = 120;
 
+    // Rule ID: what findings, SARIF, --list-rules and hop-lint.yml call the rule.
+    Label idLabel = new Label(shell, SWT.RIGHT);
+    idLabel.setText(BaseMessages.getString(PKG, "RuleBuilderDialog.Label.RuleId"));
+    FormData idLabelData = new FormData();
+    idLabelData.left = new FormAttachment(0, margin);
+    idLabelData.right = new FormAttachment(0, labelWidth);
+    idLabelData.top = new FormAttachment(0, margin);
+    idLabel.setLayoutData(idLabelData);
+
+    idText = new Text(shell, SWT.BORDER);
+    idText.setToolTipText(BaseMessages.getString(PKG, "RuleBuilderDialog.RuleId.Tooltip"));
+    FormData idData = new FormData();
+    idData.left = new FormAttachment(idLabel, margin);
+    idData.right = new FormAttachment(100, -margin);
+    idData.top = new FormAttachment(0, margin);
+    idText.setLayoutData(idData);
+
     // Rule Name
     Label nameLabel = new Label(shell, SWT.RIGHT);
     nameLabel.setText(BaseMessages.getString(PKG, "RuleBuilderDialog.Label.RuleName"));
     FormData nameLabelData = new FormData();
     nameLabelData.left = new FormAttachment(0, margin);
     nameLabelData.right = new FormAttachment(0, labelWidth);
-    nameLabelData.top = new FormAttachment(0, margin);
+    nameLabelData.top = new FormAttachment(idText, margin);
     nameLabel.setLayoutData(nameLabelData);
 
     nameText = new Text(shell, SWT.BORDER);
     FormData nameData = new FormData();
     nameData.left = new FormAttachment(nameLabel, margin);
     nameData.right = new FormAttachment(100, -margin);
-    nameData.top = new FormAttachment(0, margin);
+    nameData.top = new FormAttachment(idText, margin);
     nameText.setLayoutData(nameData);
 
     // Description
@@ -184,7 +232,7 @@ public class RuleBuilderDialog extends Dialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            updateFieldCombo(null);
+            targetChanged();
           }
         });
     FormData targetData = new FormData();
@@ -285,8 +333,7 @@ public class RuleBuilderDialog extends Dialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            updateConditionCombo(null);
-            captureWidgetsIntoSelectedClause();
+            fieldChanged();
           }
         });
     FormData fieldData = new FormData();
@@ -309,8 +356,7 @@ public class RuleBuilderDialog extends Dialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            updateValueField();
-            captureWidgetsIntoSelectedClause();
+            conditionChanged();
           }
         });
     FormData conditionData = new FormData();
@@ -455,6 +501,11 @@ public class RuleBuilderDialog extends Dialog {
   }
 
   private void populateControls() {
+    idText.setText(rule.getId() != null ? rule.getId() : "");
+    // A pack rule keeps the pack's id: hop-lint.yml names it to change it. So does a project rule
+    // which redefines a pack rule, since another id would bring the pack rule back beside it.
+    idText.setEditable(
+        rule.isProjectEditable() && ProjectLintYamlExporter.packRule(rule.getId()) == null);
     if (rule.getName() != null) {
       nameText.setText(rule.getName());
     }
@@ -463,6 +514,7 @@ public class RuleBuilderDialog extends Dialog {
     }
     if (rule.getTarget() != null) {
       targetCombo.select(rule.getTarget().ordinal());
+      shownTarget = rule.getTarget().ordinal();
       updateFieldCombo(null);
     }
     // Selected by index: setText does nothing on a read-only combo, which left WARNING showing for
@@ -542,15 +594,94 @@ public class RuleBuilderDialog extends Dialog {
 
   private void updateValueField() {
     RuleCondition condition = selectedCondition();
-    if (condition != null) {
-      valueLabel.setVisible(condition.requiresValue());
-      valueText.setVisible(condition.requiresValue());
-
-      if (condition.requiresValue()) {
-        valueText.setToolTipText(condition.getDescription());
-      }
+    boolean usesValue = condition == null || condition.requiresValue();
+    valueLabel.setVisible(usesValue);
+    valueText.setVisible(usesValue);
+    if (condition != null && condition.requiresValue()) {
+      valueText.setToolTipText(condition.getDescription());
     }
     shell.layout(true, true);
+  }
+
+  /**
+   * A field the new target also has stays, with its condition and value; a field it does not have
+   * empties its clause. Back on the rule's own target, an emptied clause gets the rule's clause
+   * back, so a trip to another target does not lose a field the list does not know, such as a Table
+   * Input's {@code sql}.
+   */
+  private void targetChanged() {
+    int targetIndex = targetCombo.getSelectionIndex();
+    if (targetIndex < 0 || targetIndex == shownTarget) {
+      return;
+    }
+    shownTarget = targetIndex;
+    RuleTarget target = RuleTarget.values()[targetIndex];
+    List<String> fields = RuleTargetFields.getFieldsForTarget(target);
+    List<RuleClause> original = target == rule.getTarget() ? rule.getClauses() : List.of();
+    for (int i = 0; i < editingClauses.size(); i++) {
+      RuleClause clause = editingClauses.get(i);
+      if (!Utils.isEmpty(clause.getTargetField()) && !fields.contains(clause.getTargetField())) {
+        clause.setTargetField("");
+        clause.setCondition(null);
+        clause.setConditionValue("");
+      }
+      if (Utils.isEmpty(clause.getTargetField())
+          && i < original.size()
+          && !Utils.isEmpty(original.get(i).getTargetField())) {
+        editingClauses.set(i, original.get(i).copy());
+      }
+    }
+    refreshClauseTable();
+    loadSelectedClauseIntoWidgets();
+  }
+
+  /**
+   * Choosing the field the clause already reads changes nothing. Another field keeps the condition
+   * when that field offers it too.
+   */
+  private void fieldChanged() {
+    RuleClause clause = selectedClause();
+    if (clause == null) {
+      return;
+    }
+    String field = fieldCombo.getText();
+    if (field.equals(clause.getTargetField())) {
+      return;
+    }
+    RuleCondition condition = clause.getCondition();
+    if (condition != null && !RuleTargetFields.getCompatibleConditions(field).contains(condition)) {
+      condition = null;
+    }
+    clause.setTargetField(field);
+    clause.setCondition(condition);
+    if (condition == null || !condition.requiresValue()) {
+      clause.setConditionValue("");
+    }
+    refreshClauseTable();
+    loadSelectedClauseIntoWidgets();
+  }
+
+  /**
+   * A condition without a value clears the value. Hidden but kept, it was saved with the new
+   * condition, where it could be neither seen nor removed.
+   */
+  private void conditionChanged() {
+    RuleCondition condition = selectedCondition();
+    if (condition != null && !condition.requiresValue()) {
+      loadingClause = true;
+      try {
+        valueText.setText("");
+      } finally {
+        loadingClause = false;
+      }
+    }
+    updateValueField();
+    captureWidgetsIntoSelectedClause();
+  }
+
+  private RuleClause selectedClause() {
+    int index = clauseTable.getSelectionIndex();
+    return index < 0 || index >= editingClauses.size() ? null : editingClauses.get(index);
   }
 
   private void ok() {
@@ -562,8 +693,15 @@ public class RuleBuilderDialog extends Dialog {
   }
 
   private boolean validate() {
+    if (idText.getEditable()) {
+      String problem = ruleIdProblem(idText.getText().trim(), takenIds);
+      if (problem != null) {
+        showError(problem);
+        return false;
+      }
+    }
     if (Utils.isEmpty(nameText.getText())) {
-      showError("Rule name is required");
+      showError(BaseMessages.getString(PKG, "RuleBuilderDialog.Error.NameRequired"));
       return false;
     }
     // A row with only a key or only a value is not a tag. Saving would drop it without a word.
@@ -577,29 +715,65 @@ public class RuleBuilderDialog extends Dialog {
       return true;
     }
     if (targetCombo.getSelectionIndex() < 0) {
-      showError("Target type must be selected");
-      return false;
-    }
-    if (fieldCombo.getSelectionIndex() < 0) {
-      showError("Field must be selected");
-      return false;
-    }
-    if (conditionCombo.getSelectionIndex() < 0) {
-      showError("Condition must be selected");
+      showError(BaseMessages.getString(PKG, "RuleBuilderDialog.Error.TargetRequired"));
       return false;
     }
 
-    // Check if condition requires a value
-    RuleCondition condition = selectedCondition();
-    if (condition != null && condition.requiresValue() && Utils.isEmpty(valueText.getText())) {
-      showError("Value is required for this condition");
-      return false;
+    // Every clause, not only the one on show: an empty extra clause passed, and saving then failed
+    // on its missing condition with a NullPointerException message.
+    captureWidgetsIntoSelectedClause();
+    for (int i = 0; i < editingClauses.size(); i++) {
+      String problem = clauseProblem(editingClauses.get(i));
+      if (problem != null) {
+        clauseTable.setSelection(i);
+        loadSelectedClauseIntoWidgets();
+        showError(
+            editingClauses.size() == 1
+                ? problem
+                : BaseMessages.getString(
+                    PKG, "RuleBuilderDialog.Error.Clause", String.valueOf(i + 1), problem));
+        return false;
+      }
     }
-
     return true;
   }
 
+  /**
+   * What is wrong with a rule id, or null when it can be used.
+   *
+   * @param takenIds the other rules' ids, upper case
+   */
+  static String ruleIdProblem(String id, Set<String> takenIds) {
+    if (id.isEmpty()) {
+      return BaseMessages.getString(PKG, "RuleBuilderDialog.Error.RuleIdRequired");
+    }
+    if (!RULE_ID.matcher(id).matches()) {
+      return BaseMessages.getString(PKG, "RuleBuilderDialog.Error.RuleIdInvalid", id);
+    }
+    if (takenIds.contains(id.toUpperCase(Locale.ROOT))) {
+      return BaseMessages.getString(PKG, "RuleBuilderDialog.Error.RuleIdTaken", id);
+    }
+    return null;
+  }
+
+  /** What is missing from a clause, or null when it is complete. */
+  static String clauseProblem(RuleClause clause) {
+    if (Utils.isEmpty(clause.getTargetField())) {
+      return BaseMessages.getString(PKG, "RuleBuilderDialog.Error.FieldRequired");
+    }
+    if (clause.getCondition() == null) {
+      return BaseMessages.getString(PKG, "RuleBuilderDialog.Error.ConditionRequired");
+    }
+    if (clause.getCondition().requiresValue() && Utils.isEmpty(clause.getConditionValue())) {
+      return BaseMessages.getString(PKG, "RuleBuilderDialog.Error.ValueRequired");
+    }
+    return null;
+  }
+
   private void saveRule() {
+    if (idText.getEditable()) {
+      rule.setId(idText.getText().trim());
+    }
     rule.setName(nameText.getText());
     rule.setDescription(descriptionText.getText());
     rule.setSeverity(severityCombo.getText());
@@ -612,6 +786,12 @@ public class RuleBuilderDialog extends Dialog {
     }
 
     captureWidgetsIntoSelectedClause();
+    for (RuleClause clause : editingClauses) {
+      // No value where the condition takes none, and none rather than an empty one.
+      if (!clause.getCondition().requiresValue() || Utils.isEmpty(clause.getConditionValue())) {
+        clause.setConditionValue(null);
+      }
+    }
     rule.setTarget(RuleTarget.values()[targetCombo.getSelectionIndex()]);
     rule.setCombinator(
         combinatorCombo.getSelectionIndex() == 1 ? RuleCombinator.ANY_OF : RuleCombinator.ALL_OF);
@@ -735,11 +915,11 @@ public class RuleBuilderDialog extends Dialog {
     }
     RuleClause clause = editingClauses.get(index);
     clause.setTargetField(fieldCombo.getText());
+    // Null too, so the table never shows a condition the combo no longer has.
     RuleCondition condition = selectedCondition();
-    if (condition != null) {
-      clause.setCondition(condition);
-    }
-    clause.setConditionValue(valueText.getText());
+    clause.setCondition(condition);
+    clause.setConditionValue(
+        condition == null || condition.requiresValue() ? valueText.getText() : "");
     refreshClauseTable();
   }
 

@@ -19,9 +19,11 @@ package org.apache.hop.lint.registry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.apache.hop.lint.CustomLintRule;
 import org.apache.hop.lint.RuleClause;
 import org.yaml.snakeyaml.DumperOptions;
@@ -84,6 +86,30 @@ public final class ProjectLintYamlExporter {
     return null;
   }
 
+  /**
+   * Whether saving this rule writes it out in full over a pack rule of the same id, so that it no
+   * longer follows the pack. A change to the name, description, severity, value or tags is an
+   * override and keeps the rule tied to the pack; a change to what it checks is not.
+   */
+  public static boolean redefinesPackRule(CustomLintRule desired) {
+    CustomLintRule packDefault = packDefaults().get(desired.generateRuleId());
+    return packDefault != null && structurallyDiffersFromPackDefault(desired, packDefault);
+  }
+
+  /**
+   * The rule a pack defines under this id, before the project changes it, or null when no pack
+   * defines one.
+   */
+  public static CustomLintRule packRule(String ruleId) {
+    CustomLintRule packDefault = packDefaults().get(ruleId);
+    return packDefault != null ? packDefault.copy() : null;
+  }
+
+  /** The ids of the rules the packs define, as they are written. */
+  public static Set<String> packRuleIds() {
+    return new LinkedHashSet<>(packDefaults().keySet());
+  }
+
   /** The rules as the packs define them, before any project changes them. */
   private static Map<String, CustomLintRule> packDefaults() {
     Map<String, CustomLintRule> packDefaults = new LinkedHashMap<>();
@@ -98,9 +124,11 @@ public final class ProjectLintYamlExporter {
     return desired.isEnabled() != packDefault.isEnabled()
         || !Objects.equals(desired.getSeverity(), packDefault.getSeverity())
         || !Objects.equals(desired.getAdditionalParameters(), packDefault.getAdditionalParameters())
-        || !Objects.equals(desired.getConditionValue(), packDefault.getConditionValue())
+        || !sameText(desired.getConditionValue(), packDefault.getConditionValue())
         || !Objects.equals(desired.getHelpUri(), packDefault.getHelpUri())
         || !Objects.equals(desired.getTags(), packDefault.getTags())
+        || !Objects.equals(desired.getName(), packDefault.getName())
+        || !sameText(desired.getDescription(), packDefault.getDescription())
         || structurallyDiffersFromPackDefault(desired, packDefault);
   }
 
@@ -121,9 +149,7 @@ public final class ProjectLintYamlExporter {
         || !Objects.equals(desired.getCondition(), packDefault.getCondition())
         || !Objects.equals(desired.getAppliesTo(), packDefault.getAppliesTo())
         || !Objects.equals(desired.getType(), packDefault.getType())
-        || !Objects.equals(desired.getMessageKey(), packDefault.getMessageKey())
-        || !Objects.equals(desired.getName(), packDefault.getName())
-        || !Objects.equals(desired.getDescription(), packDefault.getDescription());
+        || !Objects.equals(desired.getMessageKey(), packDefault.getMessageKey());
   }
 
   /**
@@ -140,6 +166,16 @@ public final class ProjectLintYamlExporter {
     return shape;
   }
 
+  /**
+   * An empty text and no text are the same thing: the editor cannot tell them apart, and a pack
+   * reads a missing conditionValue as an empty one.
+   */
+  private static boolean sameText(String first, String second) {
+    return Objects.equals(
+        first == null || first.isEmpty() ? null : first,
+        second == null || second.isEmpty() ? null : second);
+  }
+
   private static Map<String, Object> toOverrideMap(
       CustomLintRule desired, CustomLintRule packDefault) {
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
@@ -149,7 +185,7 @@ public final class ProjectLintYamlExporter {
     if (!Objects.equals(desired.getSeverity(), packDefault.getSeverity())) {
       ruleConfig.put("severity", desired.getSeverity());
     }
-    if (!Objects.equals(desired.getConditionValue(), packDefault.getConditionValue())
+    if (!sameText(desired.getConditionValue(), packDefault.getConditionValue())
         && desired.getConditionValue() != null) {
       ruleConfig.put("conditionValue", desired.getConditionValue());
     }
@@ -160,6 +196,16 @@ public final class ProjectLintYamlExporter {
     if (!Objects.equals(desired.getHelpUri(), packDefault.getHelpUri())) {
       // An empty value is how a project removes the pack's link.
       ruleConfig.put("helpUri", desired.getHelpUri() != null ? desired.getHelpUri() : "");
+    }
+    if (!Objects.equals(desired.getName(), packDefault.getName())
+        && desired.getName() != null
+        && !desired.getName().isEmpty()) {
+      ruleConfig.put("name", desired.getName());
+    }
+    if (!sameText(desired.getDescription(), packDefault.getDescription())) {
+      // An empty value is how a project clears the pack's description.
+      ruleConfig.put(
+          "description", desired.getDescription() != null ? desired.getDescription() : "");
     }
     Map<String, Object> tags = tagOverrides(desired.getTags(), packDefault.getTags());
     if (!tags.isEmpty()) {
@@ -220,7 +266,10 @@ public final class ProjectLintYamlExporter {
     } else {
       ruleConfig.put("targetField", rule.getTargetField());
       ruleConfig.put("condition", rule.getCondition().name());
-      ruleConfig.put("conditionValue", rule.getConditionValue());
+      // Left out when there is none, as in a composed rule's clauses: conditionValue: '' was noise.
+      if (rule.getConditionValue() != null && !rule.getConditionValue().isEmpty()) {
+        ruleConfig.put("conditionValue", rule.getConditionValue());
+      }
     }
     ruleConfig.put("name", rule.getName());
     ruleConfig.put("description", rule.getDescription());

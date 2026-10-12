@@ -604,10 +604,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
   public void saveProjectRule(CustomLintRule rule, String previousId) throws IOException {
     Path path = Paths.get(resolveProjectConfigPath());
     String ruleId = rule.generateRuleId();
-    if (!Utils.isEmpty(previousId) && !previousId.equalsIgnoreCase(ruleId)) {
-      LintPolicyYamlWriter.removeRule(path, previousId);
-    }
-    LintPolicyYamlWriter.putRule(path, ruleId, ProjectLintYamlExporter.entryFor(rule));
+    LintPolicyYamlWriter.putRule(path, ruleId, ProjectLintYamlExporter.entryFor(rule), previousId);
     log.logBasic("Saved lint rule " + ruleId + " to " + path);
   }
 

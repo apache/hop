@@ -108,6 +108,42 @@ public class LintRuleYamlWriterTest {
     assertEquals(1, policy.getSuppressions().size());
   }
 
+  /**
+   * A new id and the removal of the old one go into the file together. Removing first and writing
+   * second lost the rule from the file when the write was refused.
+   */
+  @Test
+  public void aNewIdReplacesTheOldEntryInOneWrite() throws Exception {
+    Files.writeString(yaml(), PROJECT_FILE, StandardCharsets.UTF_8);
+
+    LintPolicyYamlWriter.putRule(
+        yaml(), "CRM-NAMING", entry("type", "custom", "enabled", false), "CRM-001");
+
+    Map<String, ?> rules = rulesIn(Files.readString(yaml(), StandardCharsets.UTF_8));
+    assertFalse(rules.containsKey("CRM-001"), "the old id is gone");
+    assertEquals(entry("type", "custom", "enabled", false), rules.get("CRM-NAMING"));
+    assertTrue(rules.containsKey("DOC-001") && rules.containsKey("SEC-002"));
+  }
+
+  @Test
+  public void aRefusedNewIdLeavesTheFileAsItWas() throws Exception {
+    String inline = "rules: {CRM-001: {enabled: false}}\n";
+    Files.writeString(yaml(), inline, StandardCharsets.UTF_8);
+
+    assertThrows(
+        IOException.class,
+        () ->
+            LintPolicyYamlWriter.putRule(yaml(), "CRM-NAMING", entry("enabled", true), "CRM-001"));
+
+    assertEquals(inline, Files.readString(yaml(), StandardCharsets.UTF_8));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, ?> rulesIn(String yaml) {
+    Map<String, ?> root = new org.yaml.snakeyaml.Yaml().load(yaml);
+    return (Map<String, ?>) root.get("rules");
+  }
+
   @Test
   public void aRuleWithAnInlineCommentIsReplacedWhole() throws Exception {
     String after =
