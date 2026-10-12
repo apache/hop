@@ -50,6 +50,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.action.validator.FileExistsValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -688,7 +689,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
         ActionValidatorUtils.andValidator()
             .validate(
                 this,
-                "arguments",
+                "sourceFiles",
                 remarks,
                 AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
@@ -696,13 +697,21 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
       return;
     }
 
+    // Only static file/folder rows are checkable here; previous/result filenames are runtime-only.
+    if (sourceFilesType != SourceFilesType.FILES || sourceFiles == null) {
+      return;
+    }
+
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    AbstractFileValidator.putVariableSpace(ctx, variables);
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
+    // Default is false: missing files would pass Check silently while execute() fails.
+    FileExistsValidator.putFailIfDoesNotExist(ctx, true);
 
     for (int i = 0; i < sourceFiles.size(); i++) {
-      ActionValidatorUtils.andValidator().validate(this, "arguments[" + (i++) + "]", remarks, ctx);
+      ActionValidatorUtils.andValidator()
+          .validate(this, "sourceFiles[" + i + "].sourceFileFolder", remarks, ctx);
     }
   }
 
