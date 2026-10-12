@@ -5058,7 +5058,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (extraViewShell != null || extraViewTabFolder == null || extraViewTabFolder.isDisposed()) {
       return;
     }
-    int selection = extraViewTabFolder.getSelectionIndex();
+    String selection = selectedExtraViewTab();
 
     // Tear down the docked folder without flipping the "show results" toolbar state.
     extraViewTabFolder.dispose();
@@ -5094,7 +5094,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (extraViewShell == null) {
       return;
     }
-    int selection = extraViewTabFolder == null ? 0 : extraViewTabFolder.getSelectionIndex();
+    String selection = extraViewTabFolder == null ? null : selectedExtraViewTab();
 
     if (extraViewTabFolder != null && !extraViewTabFolder.isDisposed()) {
       extraViewTabFolder.dispose();
@@ -5112,12 +5112,30 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     selectExtraViewTab(selection);
   }
 
-  private void selectExtraViewTab(int index) {
-    if (extraViewTabFolder != null
-        && !extraViewTabFolder.isDisposed()
-        && extraViewTabFolder.getItemCount() > 0) {
-      extraViewTabFolder.setSelection(
-          Math.max(0, Math.min(index, extraViewTabFolder.getItemCount() - 1)));
+  /** The title of the selected execution-results tab, or null when none is selected. */
+  private String selectedExtraViewTab() {
+    CTabItem item = extraViewTabFolder.getSelection();
+    return item == null ? null : item.getText();
+  }
+
+  /**
+   * Select the tab with this title. Found by title, not by position: detaching rebuilds every tab,
+   * so a panel which only showed Problems opened on Logging instead.
+   */
+  private void selectExtraViewTab(String title) {
+    if (extraViewTabFolder == null
+        || extraViewTabFolder.isDisposed()
+        || extraViewTabFolder.getItemCount() == 0) {
+      return;
+    }
+    for (CTabItem item : extraViewTabFolder.getItems()) {
+      if (item.getText().equals(title)) {
+        extraViewTabFolder.setSelection(item);
+        return;
+      }
+    }
+    if (extraViewTabFolder.getSelectionIndex() < 0) {
+      extraViewTabFolder.setSelection(0);
     }
   }
 
