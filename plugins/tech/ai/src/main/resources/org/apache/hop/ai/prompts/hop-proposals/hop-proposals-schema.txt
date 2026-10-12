@@ -1,56 +1,8 @@
-Proposal JSON (when suggesting graph edits, clipboard XML/JSON, or metadata saves). Example: add a Dummy after "Output" and connect it.
-```hop_proposals
-{
-  "proposals": [
-    {
-      "id": "1",
-      "description": "Add a Dummy transform after Output",
-      "riskLevel": "LOW",
-      "type": "ADD_TRANSFORM",
-      "parameters": {"transformPluginId": "Dummy", "name": "Dummy", "locationX": "400", "locationY": "100"}
-    },
-    {
-      "id": "2",
-      "description": "Connect Output to Dummy",
-      "riskLevel": "LOW",
-      "type": "ADD_PIPELINE_HOP",
-      "parameters": {"fromTransform": "Output", "toTransform": "Dummy", "enabled": "Y"}
-    }
-  ]
-}
-```
-Each proposal has exactly ONE type. Never combine types like "ADD_TRANSFORM|ADD_PIPELINE_HOP": make one proposal per change, so adding a transform with its hop takes two proposals.
+Each proposal has exactly ONE type. Never join two types with "|" in one proposal: make one proposal per change, so adding a transform or action with its hop takes two proposals.
 riskLevel is one of LOW, MEDIUM, HIGH.
-Pipeline types: ADD_TRANSFORM, DELETE_TRANSFORM, RENAME_TRANSFORM, ADD_PIPELINE_HOP, DELETE_PIPELINE_HOP, SET_TRANSFORM_LOCATION, ADD_PIPELINE_NOTE, CONFIGURE_TRANSFORM, CLIPBOARD_TRANSFORMS, REPLACE_TRANSFORM.
-Workflow types: ADD_ACTION, DELETE_ACTION, RENAME_ACTION, ADD_WORKFLOW_HOP, DELETE_WORKFLOW_HOP, SET_ACTION_LOCATION, ADD_WORKFLOW_NOTE, CONFIGURE_ACTION, CLIPBOARD_ACTIONS, REPLACE_ACTION.
-Metadata types (pipeline or workflow): CLIPBOARD_METADATA, SAVE_METADATA.
-Use pipeline types for a pipeline and workflow types for a workflow.
+Metadata types: CLIPBOARD_METADATA, SAVE_METADATA.
 
-Pipeline parameter reference:
-- ADD_TRANSFORM: transformPluginId, name, locationX, locationY, plus plugin fields (sql, connection, filename or file.name, sheet or file.sheetname, header, …). Optional xml. Optional config JSON object.
-- CONFIGURE_TRANSFORM: transformName plus the same plugin fields as ADD_TRANSFORM (use when the node already exists)
-- DELETE_TRANSFORM: transformName
-- RENAME_TRANSFORM: transformName, newName
-- ADD_PIPELINE_HOP: fromTransform, toTransform, enabled (Y/N, default Y)
-- DELETE_PIPELINE_HOP: fromTransform, toTransform
-- SET_TRANSFORM_LOCATION: transformName, locationX, locationY
-- ADD_PIPELINE_NOTE: text, locationX, locationY (optional width, height)
-- CLIPBOARD_TRANSFORMS: xml (Hop transform clipboard XML; a <transform> element or pipeline-transforms envelope)
-- REPLACE_TRANSFORM: transformName, xml (same XML as CLIPBOARD_TRANSFORMS; plugin type must match the existing transform)
-
-Workflow parameter reference:
-- ADD_ACTION: actionPluginId, name, locationX, locationY, plus plugin fields the action dialog needs. Optional xml. Optional config JSON object.
-- CONFIGURE_ACTION: actionName plus plugin fields (use when the node already exists)
-- DELETE_ACTION: actionName
-- RENAME_ACTION: actionName, newName
-- ADD_WORKFLOW_HOP: fromAction, toAction, unconditional (Y/N), evaluation (Y/N, default Y)
-- DELETE_WORKFLOW_HOP: fromAction, toAction
-- SET_ACTION_LOCATION: actionName, locationX, locationY
-- ADD_WORKFLOW_NOTE: text, locationX, locationY (optional width, height)
-- CLIPBOARD_ACTIONS: xml (Hop action clipboard XML; an <action> element or workflow-actions envelope)
-- REPLACE_ACTION: actionName, xml (same XML as CLIPBOARD_ACTIONS; plugin type must match the existing action)
-
-Metadata parameter reference (pipeline or workflow session):
+Metadata parameter reference:
 - CLIPBOARD_METADATA: typeKey, json, optional name (JSON is copied to the clipboard)
 - SAVE_METADATA: typeKey, json (string or nested object), optional name (JSON is saved through the metadata serializer; name overrides the object name). For rdbms you may instead send hostname, port, databaseName, username, password, pluginId (POSTGRESQL, MYSQL, …).
 

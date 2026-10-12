@@ -33,7 +33,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -69,6 +71,18 @@ public class AiAdvisorMetadataSelectionDialog {
   }
 
   public List<AiAdvisorMetadataSelection> open() {
+    createShell();
+    shell.open();
+    while (!shell.isDisposed()) {
+      if (!parent.getDisplay().readAndDispatch()) {
+        parent.getDisplay().sleep();
+      }
+    }
+    return accepted ? result : null;
+  }
+
+  /** Build the window without opening it. */
+  Shell createShell() {
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
     shell.setText(BaseMessages.getString(PKG, "AiAdvisorMetadataSelectionDialog.Title"));
@@ -109,9 +123,16 @@ public class AiAdvisorMetadataSelectionDialog {
     wlTree.setLayoutData(
         new FormDataBuilder().left(0, margin).top(wFilter, margin).right(100, -margin).result());
 
-    wTree = new Tree(shell, SWT.BORDER | SWT.CHECK | SWT.V_SCROLL | SWT.H_SCROLL);
+    // The frame carries the border, so the checkboxes get some room from it, as in other trees.
+    Composite treeFrame = new Composite(shell, SWT.BORDER);
+    FormLayout frameLayout = new FormLayout();
+    frameLayout.marginLeft = margin;
+    treeFrame.setLayout(frameLayout);
+    wTree = new Tree(treeFrame, SWT.CHECK | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
-    wTree.setLayoutData(
+    treeFrame.setBackground(wTree.getBackground());
+    wTree.setLayoutData(new FormDataBuilder().fullSize().result());
+    treeFrame.setLayoutData(
         new FormDataBuilder()
             .left(0, margin)
             .top(wlTree, margin)
@@ -122,13 +143,11 @@ public class AiAdvisorMetadataSelectionDialog {
 
     rebuildTree();
     BaseTransformDialog.setSize(shell);
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!parent.getDisplay().readAndDispatch()) {
-        parent.getDisplay().sleep();
-      }
-    }
-    return accepted ? result : null;
+    return shell;
+  }
+
+  Tree getTree() {
+    return wTree;
   }
 
   private void rebuildTree() {

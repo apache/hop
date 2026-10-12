@@ -17,9 +17,11 @@
 
 package org.apache.hop.ai.ui;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -68,10 +70,12 @@ import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
@@ -93,7 +97,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 
 /** Chat UI for the selected {@link AiAdvisorSession}. */
@@ -136,6 +139,10 @@ public class AiAdvisorSessionPane extends Composite {
   private Button wMetadataSelect;
   private final List<IPlugin> advisorPlugins = new ArrayList<>();
   private final SendShortcutGuard sendShortcutGuard = new SendShortcutGuard();
+  private final TextUndoHistory undoHistory = new TextUndoHistory();
+  private String undoText = "";
+  private int undoCaret;
+  private boolean applyingUndo;
 
   /** Sessions with a question sent from this view, for {@link #cancelWhenClosed()}. */
   private final Set<AiAdvisorSession> sentFromHere =
@@ -203,6 +210,7 @@ public class AiAdvisorSessionPane extends Composite {
     wPrompt.setLayoutData(
         new FormDataBuilder().left().right(wSend, -margin).top(wlStatus, margin).bottom().result());
     installSendShortcut(wPrompt);
+    installUndo(wPrompt);
     wPrompt.addListener(SWT.KeyDown, this::browseHistory);
     wPrompt.addListener(
         SWT.Modify,
@@ -212,7 +220,9 @@ public class AiAdvisorSessionPane extends Composite {
             historyIndex = -1;
           }
         });
-    wSend.setLayoutData(new FormDataBuilder().right().top(wPrompt, 0, SWT.CENTER).result());
+    // Aligned with the bottom of the field, which is at least as high as the button; centered on a
+    // lower field the button would stick out and lose its bottom edge.
+    wSend.setLayoutData(new FormDataBuilder().right().bottom().result());
 
     wPrompt.addListener(SWT.Modify, e -> sizeQuestionArea());
     addListener(SWT.Resize, e -> sizeQuestionArea());
@@ -350,6 +360,7 @@ public class AiAdvisorSessionPane extends Composite {
             trim,
             getClientArea().height,
             getClientArea().height - headerBottom - status - margins);
+    prompt = Math.max(prompt, wSend.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
     int height = prompt + status + margins;
     if (questionData.height != height) {
       questionData.height = height;
@@ -511,6 +522,168 @@ public class AiAdvisorSessionPane extends Composite {
     prompt.addListener(SWT.KeyDown, listener);
     prompt.addListener(SWT.Traverse, listener);
     prompt.addListener(SWT.Verify, listener);
+  }
+
+  /**
+   * Ctrl/Cmd+Z undoes the typing in the question field, Ctrl/Cmd+Shift+Z and Ctrl+Y redo it. The
+   * field says it handles those keys itself, so they do not reach Edit → Undo and change the open
+   * pipeline or workflow instead. Hop Web leaves undo to the browser.
+   */
+  private void installUndo(Text prompt) {
+    prompt.setData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY, Boolean.TRUE);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    prompt.addListener(
+        SWT.Modify,
+        e -> {
+          if (!applyingUndo) {
+            undoHistory.changed(
+                new TextUndoHistory.State(undoText, undoCaret),
+                prompt.getText(),
+                System.currentTimeMillis());
+          }
+          undoText = prompt.getText();
+          undoCaret = prompt.getCaretPosition();
+        });
+    prompt.addListener(
+        SWT.KeyDown,
+        e -> {
+          int key = Character.toLowerCase((char) (e.keyCode & SWT.KEY_MASK));
+          if ((e.stateMask & SWT.MOD1) == 0 || (e.stateMask & SWT.ALT) != 0) {
+            return;
+          }
+          boolean shift = (e.stateMask & SWT.SHIFT) != 0;
+          TextUndoHistory.State current =
+              new TextUndoHistory.State(prompt.getText(), prompt.getCaretPosition());
+          TextUndoHistory.State next;
+          if (key == 'z' && !shift) {
+            next = undoHistory.undo(current);
+          } else if (key == 'z' || key == 'y' && !shift) {
+            next = undoHistory.redo(current);
+          } else {
+            return;
+          }
+          e.doit = false;
+          if (next != null) {
+            applyingUndo = true;
+            try {
+              prompt.setText(next.text());
+              prompt.setSelection(Math.min(next.caret(), prompt.getCharCount()));
+            } finally {
+              applyingUndo = false;
+            }
+          }
+        });
+  }
+
+  Text getPromptWidget() {
+    return wPrompt;
+  }
+
+  Button getSendButton() {
+    return wSend;
+  }
+
+  Combo getAdvisorCombo() {
+    return wAdvisor;
+  }
+
+  Label getStatusLabel() {
+    return wlStatus;
+  }
+
+  /** Empty the question field after a send; the sent question is not something to undo into. */
+  private void clearPrompt() {
+    applyingUndo = true;
+    try {
+      wPrompt.setText("");
+    } finally {
+      applyingUndo = false;
+    }
+    undoHistory.reset();
+  }
+
+  /**
+   * Undo and redo for a plain text field, which has none of its own on every platform. Typing in
+   * quick succession is one step, as in most editors.
+   */
+  static final class TextUndoHistory {
+    static final int MAX_STEPS = 200;
+    static final long MERGE_MILLIS = 1000;
+
+    record State(String text, int caret) {}
+
+    private final Deque<State> undo = new ArrayDeque<>();
+    private final Deque<State> redo = new ArrayDeque<>();
+    private long lastChange;
+    private boolean lastWasTyping;
+    private boolean lastWasSpace;
+
+    /**
+     * The text changed from {@code before} to {@code after}. Characters typed in quick succession
+     * are one step, up to the start of the next word.
+     */
+    void changed(State before, String after, long now) {
+      String old = Const.NVL(before.text(), "");
+      String text = Const.NVL(after, "");
+      if (old.equals(text)) {
+        return;
+      }
+      boolean typing = text.length() == old.length() + 1;
+      boolean space = typing && Character.isWhitespace(typedChar(old, text));
+      boolean merge =
+          typing
+              && lastWasTyping
+              && now - lastChange < MERGE_MILLIS
+              && !(lastWasSpace && !space)
+              && !undo.isEmpty();
+      if (!merge) {
+        undo.push(before);
+        if (undo.size() > MAX_STEPS) {
+          undo.removeLast();
+        }
+      }
+      redo.clear();
+      lastChange = now;
+      lastWasTyping = typing;
+      lastWasSpace = space;
+    }
+
+    /** The character that was typed: the first one where the two texts differ. */
+    private static char typedChar(String old, String text) {
+      int i = 0;
+      while (i < old.length() && old.charAt(i) == text.charAt(i)) {
+        i++;
+      }
+      return text.charAt(i);
+    }
+
+    /** The state to go back to, or null when there is nothing to undo. */
+    State undo(State current) {
+      if (undo.isEmpty()) {
+        return null;
+      }
+      redo.push(current);
+      lastWasTyping = false;
+      return undo.pop();
+    }
+
+    /** The state to go forward to, or null when there is nothing to redo. */
+    State redo(State current) {
+      if (redo.isEmpty()) {
+        return null;
+      }
+      undo.push(current);
+      lastWasTyping = false;
+      return redo.pop();
+    }
+
+    void reset() {
+      undo.clear();
+      redo.clear();
+      lastWasTyping = false;
+    }
   }
 
   static boolean shouldEatSendNewline(int stateMask, String text) {
@@ -922,12 +1095,19 @@ public class AiAdvisorSessionPane extends Composite {
         // readable.
         setInputEnabled(false);
         updateFocus();
-        setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.NoSession"));
+        setStatus(
+            BaseMessages.getString(
+                PKG,
+                HopAiConfigSingleton.getConfig().isAiEnabled()
+                    ? "AiAdvisor.Status.NoSession"
+                    : "AiAdvisor.Status.Disabled"));
         transcript.showSession(null);
         updateSendButton();
         return;
       }
-      setInputEnabled(true);
+      boolean enabled = HopAiConfigSingleton.getConfig().isAiEnabled();
+      setInputEnabled(enabled);
+      wAdvisor.setEnabled(enabled && applicableAdvisorCount() > 1);
       selectAdvisor(session.getAdvisorPluginId());
       reloadScenariosAndInclusions();
       selectScenario(session.getScenarioId());
@@ -936,10 +1116,15 @@ public class AiAdvisorSessionPane extends Composite {
       updateFocus();
       updateMetadataSelectButton();
       updateInclusionPickerButtons();
-      setStatus(
-          Utils.isEmpty(session.getStatusMessage()) && advisorPlugins.isEmpty()
-              ? noAdvisorMessage()
-              : Const.NVL(session.getStatusMessage(), ""));
+      if (!enabled) {
+        // The conversation stays readable; nothing can be asked until the assistant is enabled.
+        setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.Disabled"));
+      } else {
+        setStatus(
+            Utils.isEmpty(session.getStatusMessage()) && advisorPlugins.isEmpty()
+                ? noAdvisorMessage()
+                : Const.NVL(session.getStatusMessage(), ""));
+      }
       transcript.showSession(session, this::reviewProposalsForTurn);
       updateSendButton();
       startWorkingLine(session);
@@ -1020,6 +1205,34 @@ public class AiAdvisorSessionPane extends Composite {
         control.setEnabled(enabled);
       }
     }
+  }
+
+  /** The pipeline and workflow assistants work on the open file, so they need one linked. */
+  static boolean needsArtifact(IAiAdvisor advisor) {
+    return advisor instanceof PipelineAiAdvisor || advisor instanceof WorkflowAiAdvisor;
+  }
+
+  /**
+   * The assistants this session can use. A linked session lists those for its kind of file; an
+   * unlinked one can use none that needs a file, and linking picks the assistant anyway. The choice
+   * is only offered when there is one to make.
+   */
+  private int applicableAdvisorCount() {
+    int count = 0;
+    for (IPlugin plugin : advisorPlugins) {
+      if (session != null && session.getArtifact() != null) {
+        count++;
+        continue;
+      }
+      try {
+        if (!needsArtifact(AiAdvisorPlugins.load(plugin.getIds()[0]))) {
+          count++;
+        }
+      } catch (HopException e) {
+        // An assistant that does not load is no choice either.
+      }
+    }
+    return count;
   }
 
   /** Why no advisor is offered: none is installed, or none works without a pipeline or workflow. */
@@ -1490,8 +1703,9 @@ public class AiAdvisorSessionPane extends Composite {
           gui.getImage(
               "ui/images/logo_icon.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE));
       wSend.setToolTipText(BaseMessages.getString(PKG, "AiAdvisor.Send.Tooltip"));
-      // Stays clickable when AI is off or something is missing: Send then says what to do.
-      wSend.setEnabled(session != null);
+      // Stays clickable when something is missing: Send then says what to do. While the assistant
+      // is disabled the status line says so already.
+      wSend.setEnabled(session != null && HopAiConfigSingleton.getConfig().isAiEnabled());
     }
   }
 
@@ -1513,6 +1727,13 @@ public class AiAdvisorSessionPane extends Composite {
     IAiAdvisor advisor = loadSelectedAdvisor();
     if (advisor == null) {
       setStatus(noAdvisorMessage());
+      return;
+    }
+    if (session.getArtifact() == null && needsArtifact(advisor)) {
+      // Said once, here. The question stays in the field for when the session is linked. Kept on
+      // the session, so the message stays when the view is redrawn.
+      session.setStatusMessage(BaseMessages.getString(PKG, "AiAdvisor.Status.NotBound"));
+      setStatus(session.getStatusMessage());
       return;
     }
     if (!providerExists(wProvider.getText())) {
@@ -1539,30 +1760,44 @@ public class AiAdvisorSessionPane extends Composite {
     turn.setUserPrompt(prompt);
     turn.setStartedAtMillis(System.currentTimeMillis());
     session.addTurn(turn);
-    session.setCancelled(false);
-    session.setWorking(true);
-    // The transcript shows a live waiting line; the status line is for problems.
-    session.setStatusMessage("");
-    wPrompt.setText("");
-    updateSendButton();
-    setStatus(session.getStatusMessage());
-    transcript.showSession(session, this::reviewProposalsForTurn);
-    store.fireChanged();
 
     AiAdvisorSession target = session;
-    sentFromHere.add(target);
     // Build the question here on the UI thread: the log widgets are SWT, and the pipeline or
     // workflow may be edited while the model works. Only the model call runs in the background.
-    AiAdvisorEngine.Prepared prepared;
+    AiAdvisorEngine.Prepared preparing = null;
+    Exception prepareError = null;
     try {
       String logExcerpt = target.getLogSupplier() != null ? target.getLogSupplier().get() : null;
-      prepared =
+      preparing =
           AiAdvisorEngine.prepare(
               target, advisor, host.getVariables(), host.getMetadataProvider(), logExcerpt);
     } catch (Exception e) {
-      completeTurn(target, turn, null, e);
+      prepareError = e;
+    }
+    if (prepareError != null && isExplained(prepareError)) {
+      // Nothing was sent: the question is not part of the conversation, and stays in the field to
+      // send again once the problem is solved. The status line is the one place that says why.
+      target.removeTurn(turn);
+      target.setStatusMessage(userVisibleError(prepareError));
+      setStatus(target.getStatusMessage());
       return;
     }
+
+    target.setCancelled(false);
+    target.setWorking(true);
+    // The transcript shows a live waiting line; the status line is for problems.
+    target.setStatusMessage("");
+    clearPrompt();
+    updateSendButton();
+    setStatus(target.getStatusMessage());
+    transcript.showSession(target, this::reviewProposalsForTurn);
+    store.fireChanged();
+    sentFromHere.add(target);
+    if (prepareError != null) {
+      completeTurn(target, turn, null, prepareError);
+      return;
+    }
+    AiAdvisorEngine.Prepared prepared = preparing;
     turn.setSentAppliedSummaries(prepared.request().getAppliedChangeSummaries());
     turn.setEstimatedPromptTokens(prepared.estimatedTokens());
     turn.setProviderLabel(prepared.provider().getName());

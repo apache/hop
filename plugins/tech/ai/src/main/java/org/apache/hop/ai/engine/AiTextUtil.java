@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 public final class AiTextUtil {
 
@@ -52,11 +53,19 @@ public final class AiTextUtil {
               + NAME_PREFIX
               + "(?:"
               + SECRET_NAME
-              + ")\"?\\s*[:=]\\s*)(\"(?:\\\\.|[^\"\\\\])*\"|'[^']*'|[^\\s,;}]+)");
+              + ")\"?\\s*[:=]\\s*)(\"(?:\\\\.|[^\"\\\\])*\"|'[^']*'|[^\\s,;}&\"'<>\\\\]+)");
 
-  /** {@code scheme://user:password@host}: keep the user, mask the password. */
+  /**
+   * {@code scheme://user:password@host}: keep the user, mask the password. Also in JSON, which
+   * writes the slashes as {@code \/}.
+   */
   private static final Pattern URL_CREDENTIALS =
-      Pattern.compile("(?i)\\b([a-z][a-z0-9+.-]*://[^/\\s:@\"'<>]+:)[^@\\s/\"'<>]+@");
+      Pattern.compile(
+          "(?i)\\b([a-z][a-z0-9+.-]*:(?:\\\\?/){2}[^/\\\\\\s:@\"'<>]+:)[^@\\s/\\\\\"'<>]+@");
+
+  /** Values a field with a secret-like name has when it is a flag, not a secret. */
+  private static final Pattern FLAG_VALUE =
+      Pattern.compile("(?i)[\"']?(?:true|false|y|n|yes|no|null)?[\"']?");
 
   /** {@code ${VAR}}, {@code %%VAR%%} or {@code $[hex]}, alone. */
   private static final Pattern VARIABLE_REFERENCE =
@@ -146,6 +155,55 @@ public final class AiTextUtil {
         .replaceAll("<$1 $2>");
   }
 
+  /**
+   * Local paths as the model needs them: the project folder as {@code ${PROJECT_HOME}} and the
+   * user's home folder as {@code ${user.home}}. File names, logs and settings name the folders a
+   * pipeline uses on this computer, and the user name with them, which a hosted provider does not
+   * need to see. Both are variables Hop resolves, so a path the model proposes still works.
+   */
+  public static String shortenPaths(String text, IVariables variables) {
+    if (Utils.isEmpty(text)) {
+      return text != null ? text : "";
+    }
+    String result = text;
+    String projectHome = variables != null ? variables.getVariable("PROJECT_HOME") : null;
+    if (!Utils.isEmpty(projectHome) && !projectHome.contains("${")) {
+      result = replaceFolder(result, projectHome, "${PROJECT_HOME}");
+    }
+    result = replaceFolder(result, System.getProperty("user.home"), "${user.home}");
+    return result;
+  }
+
+  /**
+   * Replace a folder in every form it is written in: as a path, as a {@code file://} URL, and
+   * escaped in JSON. Only whole folder names: {@code /home/ann} is not replaced in {@code
+   * /home/anna}.
+   */
+  static String replaceFolder(String text, String folder, String replacement) {
+    if (Utils.isEmpty(folder)) {
+      return text;
+    }
+    String path = folder.replaceFirst("^file:(//)?", "");
+    while (path.length() > 1 && (path.endsWith("/") || path.endsWith("\\"))) {
+      path = path.substring(0, path.length() - 1);
+    }
+    if (path.length() < 2) {
+      return text;
+    }
+    Set<String> forms = new LinkedHashSet<>();
+    forms.add(path);
+    forms.add(path.replace("/", "\\/"));
+    forms.add(path.replace("\\", "\\\\"));
+    String result = text;
+    for (String form : forms) {
+      result =
+          Pattern.compile("(file:(?://)?)?" + Pattern.quote(form) + "(?![\\w.-])")
+              .matcher(result)
+              .replaceAll(Matcher.quoteReplacement(replacement));
+    }
+    return result;
+  }
+
   public static String jsonString(String value) {
     if (value == null) {
       return "null";
@@ -180,16 +238,40 @@ public final class AiTextUtil {
     redacted =
         SECRET_XML_ATTR.matcher(redacted).replaceAll(m -> masked(m, m.group(2), "$1=\"***\""));
     redacted =
-        SECRET_KEY_VALUE.matcher(redacted).replaceAll(m -> masked(m, m.group(2), "$1\"***\""));
+        SECRET_KEY_VALUE
+            .matcher(redacted)
+            .replaceAll(m -> masked(m, m.group(2), maskedValue(m.group(2))));
     redacted = URL_CREDENTIALS.matcher(redacted).replaceAll("$1***@");
     return redacted;
   }
 
   private static String masked(MatchResult match, String secret, String replacement) {
-    if (isVariableReference(secret)) {
+    if (isVariableReference(secret) || isFlag(secret)) {
       return Matcher.quoteReplacement(match.group());
     }
     return replacement;
+  }
+
+  /**
+   * The mask keeps the quotes of the value, and adds none: an unquoted {@code password=abc} in a
+   * URL becomes {@code password=***}, not a quote in the middle of a JSON string.
+   */
+  private static String maskedValue(String value) {
+    if (value.startsWith("\"")) {
+      return "$1\"***\"";
+    }
+    if (value.startsWith("'")) {
+      return "$1'***'";
+    }
+    return "$1***";
+  }
+
+  /**
+   * A yes/no or empty value: {@code sshTunnelUsePrivateKey} says whether a key is used, it holds
+   * none.
+   */
+  static boolean isFlag(String value) {
+    return value != null && FLAG_VALUE.matcher(value.trim()).matches();
   }
 
   static boolean isVariableReference(String value) {

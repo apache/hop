@@ -31,6 +31,7 @@ import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiProposalNormalizer;
 import org.apache.hop.ai.engine.AiProposalPreview;
+import org.apache.hop.ai.engine.AiUserException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -154,7 +155,7 @@ public class PipelineAiAdvisor implements IAiAdvisor {
   public void applyProposals(AiAdvisorRequest request, List<AiProposal> selected)
       throws HopException {
     if (!(request.getArtifact() instanceof PipelineMeta pipelineMeta)) {
-      throw new HopException(
+      throw new AiUserException(
           BaseMessages.getString(AiAdvisorEngine.class, "AiContextBuilder.NotLinked.Pipeline"));
     }
     HopGui hopGui = hopGuiFrom(request);

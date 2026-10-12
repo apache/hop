@@ -32,12 +32,47 @@ public final class AiM2PromptSupport {
 
   private AiM2PromptSupport() {}
 
+  public static final String KIND_PIPELINE = "pipeline";
+  public static final String KIND_WORKFLOW = "workflow";
+
+  /** The proposal format for pipelines and workflows both. */
   public static String buildSupplement() throws HopException {
-    return AiPromptLoader.load(PROMPT_ROOT, "preamble-m2.txt")
-        + "\n\n"
-        + AiPromptLoader.load(PROMPT_ROOT, "hop-proposals-schema.txt")
-        + "\n"
-        + savableMetadata();
+    return buildSupplement(null);
+  }
+
+  /**
+   * The proposal format with the types and parameters of one kind of file. A pipeline session has
+   * no use for the workflow types, and the other way round.
+   *
+   * @param kind {@link #KIND_PIPELINE}, {@link #KIND_WORKFLOW}, or null for both
+   */
+  public static String buildSupplement(String kind) throws HopException {
+    StringBuilder supplement =
+        new StringBuilder(AiPromptLoader.load(PROMPT_ROOT, "preamble-m2.txt")).append("\n\n");
+    if (!KIND_WORKFLOW.equals(kind)) {
+      supplement.append(AiPromptLoader.load(PROMPT_ROOT, "hop-proposals-pipeline.txt"));
+      supplement.append("\n");
+    }
+    if (!KIND_PIPELINE.equals(kind)) {
+      supplement.append(AiPromptLoader.load(PROMPT_ROOT, "hop-proposals-workflow.txt"));
+      supplement.append("\n");
+    }
+    if (kind == null) {
+      supplement.append("Use pipeline types for a pipeline and workflow types for a workflow.\n\n");
+    }
+    return supplement
+        .append(AiPromptLoader.load(PROMPT_ROOT, "hop-proposals-schema.txt"))
+        .append("\n")
+        .append(savableMetadata())
+        .toString();
+  }
+
+  /**
+   * What the instructions say instead of the proposal format when the question only asks for an
+   * explanation; see {@link AiProposalIntent}.
+   */
+  public static String buildProseOnly() throws HopException {
+    return AiPromptLoader.load(PROMPT_ROOT, "prose-only.txt");
   }
 
   /**

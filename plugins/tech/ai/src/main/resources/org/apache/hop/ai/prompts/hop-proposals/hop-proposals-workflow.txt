@@ -1,0 +1,33 @@
+Proposal JSON (when suggesting graph edits, clipboard XML/JSON, or metadata saves). Example: add a Dummy action after "Load" and connect it.
+```hop_proposals
+{
+  "proposals": [
+    {
+      "id": "1",
+      "description": "Add a Dummy action after Load",
+      "riskLevel": "LOW",
+      "type": "ADD_ACTION",
+      "parameters": {"actionPluginId": "DUMMY", "name": "Dummy", "locationX": "400", "locationY": "100"}
+    },
+    {
+      "id": "2",
+      "description": "Connect Load to Dummy on success",
+      "riskLevel": "LOW",
+      "type": "ADD_WORKFLOW_HOP",
+      "parameters": {"fromAction": "Load", "toAction": "Dummy", "unconditional": "N", "evaluation": "Y"}
+    }
+  ]
+}
+```
+Workflow types: ADD_ACTION, DELETE_ACTION, RENAME_ACTION, ADD_WORKFLOW_HOP, DELETE_WORKFLOW_HOP, SET_ACTION_LOCATION, ADD_WORKFLOW_NOTE, CONFIGURE_ACTION, CLIPBOARD_ACTIONS, REPLACE_ACTION.
+Workflow parameter reference:
+- ADD_ACTION: actionPluginId, name, locationX, locationY, plus plugin fields the action dialog needs. Optional xml. Optional config JSON object.
+- CONFIGURE_ACTION: actionName plus plugin fields (use when the node already exists)
+- DELETE_ACTION: actionName
+- RENAME_ACTION: actionName, newName
+- ADD_WORKFLOW_HOP: fromAction, toAction, unconditional (Y/N), evaluation (Y/N, default Y)
+- DELETE_WORKFLOW_HOP: fromAction, toAction
+- SET_ACTION_LOCATION: actionName, locationX, locationY
+- ADD_WORKFLOW_NOTE: text, locationX, locationY (optional width, height)
+- CLIPBOARD_ACTIONS: xml (Hop action clipboard XML; an <action> element or workflow-actions envelope)
+- REPLACE_ACTION: actionName, xml (same XML as CLIPBOARD_ACTIONS; plugin type must match the existing action)

@@ -35,10 +35,17 @@ public class HopAiConfig {
   public static final String DEFAULT_EXTRA_CONTEXT_FILES = "";
 
   /**
-   * Hop-wide standing notes sent with every advisor. Short facts models otherwise get wrong
-   * (case-sensitive metadata names, run-configuration types, terminology).
+   * Default extra notes: none. The facts models otherwise get wrong (case-sensitive metadata names,
+   * run-configuration types, terminology) come with the plugin in {@code ai-context.md}.
    */
-  public static final String DEFAULT_EXTRA_CONTEXT =
+  public static final String DEFAULT_EXTRA_CONTEXT = "";
+
+  /**
+   * The extra notes earlier versions set by default. They repeat {@code ai-context.md}, so a
+   * configuration that still holds them unchanged is read as having none; see {@link
+   * #normalizeExtraContext(String)}.
+   */
+  static final String LEGACY_DEFAULT_EXTRA_CONTEXT =
       """
       Hop metadata names are case-sensitive.
       Pipeline run configurations and workflow run configurations are different metadata types.
@@ -77,6 +84,28 @@ public class HopAiConfig {
   private String extraContextFiles = DEFAULT_EXTRA_CONTEXT_FILES;
 
   public HopAiConfig() {}
+
+  /**
+   * The notes as they are kept: blank is none, and the unchanged notes of earlier versions are none
+   * as well, since the plugin's own notes now say the same.
+   */
+  public static String normalizeExtraContext(String notes) {
+    if (notes == null || notes.isBlank()) {
+      return "";
+    }
+    if (collapse(notes).equals(collapse(LEGACY_DEFAULT_EXTRA_CONTEXT))) {
+      return "";
+    }
+    return notes;
+  }
+
+  private static String collapse(String text) {
+    return text.strip().replaceAll("\\s+", " ");
+  }
+
+  public void setExtraContext(String extraContext) {
+    this.extraContext = normalizeExtraContext(extraContext);
+  }
 
   /** Never null, also for a configuration saved before the option existed. */
   public AiRequestOnClose getRequestOnClose() {
