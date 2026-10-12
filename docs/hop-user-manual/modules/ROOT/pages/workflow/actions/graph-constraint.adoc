@@ -39,6 +39,9 @@ For similar operations on indexes, check the xref:workflow/actions/graph-index.a
 ** Object name: the label of the node or relationship you want to update a constraint for
 ** Property: the property to put the constraint on (for NODE_KEY, use comma-separated properties like "id,name")
 
+The constraint name, object name and properties can be variables, for example `${PERSON_KEY}`.
+The action resolves them before it builds the statement, for create and drop, and the Cypher preview shows the resolved values.
+
 [NOTE]
 ====
 NODE_KEY constraints are only available in Neo4j Enterprise Edition. NODE_KEY constraints require multiple properties (comma-separated) and can only be applied to nodes, not relationships.

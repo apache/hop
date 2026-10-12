@@ -58,6 +58,25 @@ public interface IGraphConnection extends AutoCloseable {
   }
 
   /**
+   * Run an index or constraint statement of the dialect. By default the statement is run like any
+   * other, in a write transaction or on its own.
+   *
+   * @param statement The statement from the dialect
+   * @param inTransaction True to run it in a write transaction, false to run it on its own
+   */
+  default void executeSchemaStatement(String statement, boolean inTransaction) throws HopException {
+    if (inTransaction) {
+      executeWrite(
+          transaction -> {
+            transaction.execute(statement, Map.of());
+            return true;
+          });
+    } else {
+      execute(statement, Map.of());
+    }
+  }
+
+  /**
    * @return The dialect of the database: what it supports and the syntax of its index and
    *     constraint statements. By default Cypher with the syntax of Neo4j 5.
    */
