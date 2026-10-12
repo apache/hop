@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -64,8 +65,9 @@ public class LintResultsManager {
   // Track when results were last updated
   private long lastUpdateTime = 0;
 
-  // Listeners for result changes
-  private final List<LintResultsListener> listeners = new ArrayList<>();
+  // Listeners for result changes. Notified from lint threads while a window closing on the UI
+  // thread removes its own, so iteration has to tolerate a concurrent removal.
+  private final List<LintResultsListener> listeners = new CopyOnWriteArrayList<>();
 
   private LintResultsManager() {
     // Singleton
