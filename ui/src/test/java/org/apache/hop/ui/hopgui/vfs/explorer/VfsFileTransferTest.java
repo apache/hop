@@ -230,6 +230,96 @@ class VfsFileTransferTest {
   }
 
   @Test
+  void aStoppedFolderCopyRemovesTheFolderItCreated() throws Exception {
+    FileObject source = folder(root, "data");
+    write(source, "a.txt", "first");
+    write(source, "b.txt", "second");
+    FileObject dest = folder(root, "dest");
+    int[] checks = {0};
+
+    assertThrows(
+        CancellationException.class,
+        () ->
+            VfsFileTransfer.transfer(
+                source, dest, VfsFileTransfer.Mode.COPY, SKIP, () -> ++checks[0] > 4, null));
+
+    assertEquals(List.of(), names(dest));
+  }
+
+  @Test
+  void aCutWithSkipsAndRefusalsMovesOnlyTheRest() throws Exception {
+    FileObject source = folder(root, "source");
+    FileObject skipped = write(source, "skipped.txt", "new");
+    FileObject moved = write(source, "moved.txt", "moved");
+    FileObject dest = folder(root, "dest");
+    write(dest, "skipped.txt", "old");
+    List<VfsFileTransfer.Entry> entries =
+        List.of(
+            entry(skipped, false),
+            entry(dest, true), // into itself: refused
+            entry(root.resolveFile("source/missing.txt"), false), // fails
+            entry(moved, false));
+
+    VfsFileTransfer.BatchResult result =
+        VfsFileTransfer.transferAll(
+            entries, dest, VfsFileTransfer.Mode.MOVE, SKIP, null, null, HopVfs::getFileObject);
+
+    assertFalse(result.isCancelled());
+    assertEquals(2, result.getFailures().size());
+    assertEquals(VfsFileTransfer.Refusal.INTO_ITSELF, result.getFailures().get(0).getRefusal());
+    assertEquals("missing.txt", result.getFailures().get(1).getName());
+    assertTrue(result.getFailures().get(1).getError() != null);
+    // The moved file is gone from the source, and so is the one that was never there. The skipped
+    // and refused entries stay on the clipboard, so the cut can be finished.
+    assertEquals(
+        List.of("skipped.txt", "dest"),
+        result.getRemaining().stream().map(VfsFileTransfer.Entry::getName).toList());
+    assertEquals("old", read(dest.resolveFile("skipped.txt")));
+    assertEquals("moved", read(dest.resolveFile("moved.txt")));
+    assertFalse(moved.exists());
+
+    VfsFileClipboard clipboard = VfsFileClipboard.of(null);
+    clipboard.set(VfsFileTransfer.Mode.MOVE, entries);
+    clipboard.retain(clipboard.entries(), result.getRemaining());
+    assertEquals(2, clipboard.entries().size());
+    assertEquals(VfsFileTransfer.Mode.MOVE, clipboard.mode());
+  }
+
+  @Test
+  void aStoppedBatchKeepsWhatWasNotMoved() throws Exception {
+    FileObject source = folder(root, "source");
+    FileObject first = write(source, "1.txt", "1");
+    FileObject second = write(source, "2.txt", "2");
+    FileObject dest = folder(root, "dest");
+    List<VfsFileTransfer.Entry> entries = List.of(entry(first, false), entry(second, false));
+    int[] checks = {0};
+
+    VfsFileTransfer.BatchResult result =
+        VfsFileTransfer.transferAll(
+            entries,
+            dest,
+            VfsFileTransfer.Mode.MOVE,
+            SKIP,
+            () -> ++checks[0] > 3,
+            null,
+            HopVfs::getFileObject);
+
+    assertTrue(result.isCancelled());
+    assertFalse(first.exists());
+    assertEquals(
+        List.of("2.txt"),
+        result.getRemaining().stream().map(VfsFileTransfer.Entry::getName).toList());
+  }
+
+  @Test
+  void aDroppedPathInsideAnotherIsLeftOut() {
+    assertEquals(
+        List.of("/data", "/other.txt"),
+        VfsFileTransfer.withoutNestedPaths(
+            List.of("/data/in/a.txt", "/data", "/other.txt", "file:///data/in", "/other.txt")));
+  }
+
+  @Test
   void nestedSelectionKeepsTheParentOnly() {
     VfsFileTransfer.Entry parent = new VfsFileTransfer.Entry("ram:///a", "a", true);
     VfsFileTransfer.Entry child = new VfsFileTransfer.Entry("ram:///a/b", "b", true);
@@ -248,6 +338,11 @@ class VfsFileTransferTest {
     assertNotSame(first, second);
     assertTrue(second.isEmpty());
     assertFalse(first.isEmpty());
+  }
+
+  private static VfsFileTransfer.Entry entry(FileObject file, boolean folder) {
+    return new VfsFileTransfer.Entry(
+        HopVfs.getFilename(file), file.getName().getBaseName(), folder);
   }
 
   private static FileObject folder(FileObject parent, String name) throws Exception {

@@ -102,7 +102,10 @@ A folder is not copied into itself or one of its own subfolders.
 
 You can also drag files and folders onto a folder in the tree or in the table, or onto the table to drop them in the folder you are viewing.
 A drop copies the files: the originals stay where they are.
+On the desktop, hold Shift while dropping (on Linux and Windows) to move them instead.
+On Hop Web a drop always copies: use cut and paste to move files.
 Files dragged from the File Explorer perspective or, on the desktop, from your file manager are accepted too.
+When a folder and a file or folder inside it are dropped together, the folder is copied once with everything in it.
 
 When a file already exists in the target folder you choose, for that file, between **Replace**, **Skip** and **Cancel**.
 **Replace all** and **Skip all** answer for the remaining files of the same paste.
@@ -110,8 +113,14 @@ A folder that already exists is merged: its other files stay, and each file that
 A file is never replaced by a folder, or a folder by a file.
 
 A replaced file is first written next to the original under a temporary hidden name.
-The original is removed only once the new copy is complete, so a failed or stopped copy leaves it untouched.
-A new file that is only partly written when a copy fails or is stopped is removed.
+Only once the new copy is complete is the original set aside, the new copy given its name, and the original removed.
+A failed or stopped copy leaves the original untouched, and so does a failed rename: the original is put back.
+If even that is not possible, the error names the hidden files that hold the original and the new copy.
+A new file that is only partly written when a copy fails or is stopped is removed, and so is a new folder with what was already copied into it.
+
+When some files of a paste cannot be copied or moved, the others still are, and the error lists each file that failed.
+After a cut and paste, the files that were moved leave the explorer clipboard.
+Files you skipped, or that could not be moved, stay on it, so you can paste them again.
 
 Right-click a file or folder and choose **Copy path** to put its path on the system clipboard.
 **Copy path as '${PROJECT_HOME}/...'** writes it relative to the project home folder, ready to paste into a transform or action.
@@ -133,7 +142,8 @@ It needs the export permission.
 
 == Permissions on Hop Web
 
-When Hop Web runs with users and roles, a user who may not change files in the explorer (`explorer.write`) can browse and copy to the explorer clipboard, but cannot paste, cut, rename, delete, create folders, save a copy or upload.
+When Hop Web runs with users and roles, a user who may not change files in the explorer (`explorer.write`) can browse and copy to the explorer clipboard, but cannot paste, cut, rename, delete, create folders, save a copy, upload or drag files.
+The File Explorer perspective also refuses a drop from such a user.
 Opening the explorer needs `file.view`.
 Each Hop Web session has its own explorer clipboard.
 

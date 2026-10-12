@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.variables.Variables;
+import org.eclipse.swt.dnd.DND;
 import org.junit.jupiter.api.Test;
 
 class VfsPlacesTest {
@@ -58,6 +59,20 @@ class VfsPlacesTest {
   @Test
   void withoutAMetadataProviderThereAreNoConnections() {
     assertTrue(VfsPlaces.connections(null, new Variables()).isEmpty());
+  }
+
+  @Test
+  void aDropWithoutAModifierCopies() {
+    int both = DND.DROP_COPY | DND.DROP_MOVE;
+    // The desktop: no modifier, Ctrl, and the move modifier.
+    assertEquals(
+        DND.DROP_COPY, VfsFileExplorerLocation.dropOperation(DND.DROP_DEFAULT, both, false));
+    assertEquals(DND.DROP_COPY, VfsFileExplorerLocation.dropOperation(DND.DROP_COPY, both, false));
+    assertEquals(DND.DROP_MOVE, VfsFileExplorerLocation.dropOperation(DND.DROP_MOVE, both, false));
+    // Hop Web reports no modifier as a move: always a copy there.
+    assertEquals(DND.DROP_COPY, VfsFileExplorerLocation.dropOperation(DND.DROP_MOVE, both, true));
+    assertEquals(
+        DND.DROP_NONE, VfsFileExplorerLocation.dropOperation(DND.DROP_MOVE, DND.DROP_MOVE, true));
   }
 
   @Test

@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -64,6 +65,14 @@ public abstract class BrowserFileTransferFacade {
     }
   }
 
+  /**
+   * A new temporary file for a download. On Hop Web it is in the session's temporary folder, which
+   * is removed when the session ends.
+   */
+  public static Path createTempFile(String prefix) throws IOException {
+    return IMPL.createTempFileInternal(prefix);
+  }
+
   /** True on Hop Web. */
   public static boolean isSupported() {
     return IMPL.isSupportedInternal();
@@ -89,6 +98,10 @@ public abstract class BrowserFileTransferFacade {
   }
 
   abstract boolean isSupportedInternal();
+
+  Path createTempFileInternal(String prefix) throws IOException {
+    return Files.createTempFile(prefix, ".tmp");
+  }
 
   abstract void uploadInternal(long sizeLimit, IUploadListener listener);
 

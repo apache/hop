@@ -70,6 +70,21 @@ public final class VfsFileClipboard {
     return entries.isEmpty();
   }
 
+  /**
+   * After a paste of {@code pasted}, keep only {@code remaining}: the moved files are no longer
+   * where the clipboard points. Left alone when something else was copied or cut in the meantime.
+   */
+  public synchronized void retain(
+      List<VfsFileTransfer.Entry> pasted, List<VfsFileTransfer.Entry> remaining) {
+    if (!entries.equals(pasted)) {
+      return;
+    }
+    entries = remaining == null ? List.of() : List.copyOf(remaining);
+    if (entries.isEmpty()) {
+      mode = VfsFileTransfer.Mode.COPY;
+    }
+  }
+
   public synchronized void clear() {
     entries = List.of();
     mode = VfsFileTransfer.Mode.COPY;

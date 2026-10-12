@@ -67,6 +67,11 @@ public class BrowserFileTransferFacadeImpl extends BrowserFileTransferFacade {
   }
 
   @Override
+  Path createTempFileInternal(String prefix) throws IOException {
+    return Files.createTempFile(HopWebUserFilePlugin.getSessionTempDirectory(), prefix, ".tmp");
+  }
+
+  @Override
   void downloadInternal(String filename, Path source) throws IOException {
     transfer().download(filename, "application/octet-stream", source);
   }

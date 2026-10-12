@@ -17,10 +17,8 @@
 
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -366,8 +364,9 @@ public class VfsFileExplorerLocation extends Composite {
   /**
    * Drag folders from the tree and rows from the file list, and drop on a folder. The paths travel
    * as a {@link FileTransfer}, as in the File Explorer perspective, so files dragged between the
-   * two or from the operating system are accepted too. A drop copies unless a move is asked for:
-   * the source and target are often different stores.
+   * two or from the operating system are accepted too. A drop copies: the source and target are
+   * often different stores. Only the move modifier of the desktop platform moves, see {@link
+   * #dropOperation}.
    */
   private void installDragAndDrop() {
     FileTransfer fileTransfer = FileTransfer.getInstance();
@@ -380,7 +379,9 @@ public class VfsFileExplorerLocation extends Composite {
     tableSource.setTransfer(transfers);
     tableSource.addDragListener(dragListener(this::selectedFileEntries));
 
-    DropTarget treeTarget = new DropTarget(tree, DND.DROP_COPY | DND.DROP_MOVE);
+    // DROP_DEFAULT: without it GTK and Cocoa report a drag without a modifier as a move.
+    int dropStyle = DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_DEFAULT;
+    DropTarget treeTarget = new DropTarget(tree, dropStyle);
     treeTarget.setTransfer(transfers);
     treeTarget.addDropListener(
         dropListener(
@@ -388,7 +389,7 @@ public class VfsFileExplorerLocation extends Composite {
               FolderNode node = event.item instanceof TreeItem item ? nodeOf(item) : null;
               return node == null ? null : node.uri;
             }));
-    DropTarget tableTarget = new DropTarget(table, DND.DROP_COPY | DND.DROP_MOVE);
+    DropTarget tableTarget = new DropTarget(table, dropStyle);
     tableTarget.setTransfer(transfers);
     tableTarget.addDropListener(
         dropListener(
@@ -409,7 +410,8 @@ public class VfsFileExplorerLocation extends Composite {
     return new DragSourceAdapter() {
       @Override
       public void dragStart(DragSourceEvent event) {
-        List<String> uris = urisOf(selection.get());
+        // A drop elsewhere, for example on the File Explorer perspective, writes or moves files.
+        List<String> uris = canWrite() ? urisOf(selection.get()) : List.of();
         event.doit = !uris.isEmpty();
         draggedUris = uris;
         if (EnvironmentUtils.getInstance().isWeb()) {
@@ -441,9 +443,8 @@ public class VfsFileExplorerLocation extends Composite {
     return new DropTargetAdapter() {
       @Override
       public void dragEnter(DropTargetEvent event) {
-        if (event.detail == DND.DROP_DEFAULT) {
-          event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
-        }
+        event.detail =
+            dropOperation(event.detail, event.operations, EnvironmentUtils.getInstance().isWeb());
       }
 
       @Override
@@ -457,8 +458,9 @@ public class VfsFileExplorerLocation extends Composite {
         String target = targetOf.apply(event);
         if (!canWrite() || StringUtils.isBlank(target) || !canDropInto(draggedUris, target)) {
           event.detail = DND.DROP_NONE;
-        } else if (event.detail == DND.DROP_NONE || event.detail == DND.DROP_DEFAULT) {
-          event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_MOVE;
+        } else {
+          event.detail =
+              dropOperation(event.detail, event.operations, EnvironmentUtils.getInstance().isWeb());
         }
       }
 
@@ -472,8 +474,9 @@ public class VfsFileExplorerLocation extends Composite {
           event.detail = DND.DROP_NONE;
           return;
         }
-        List<String> uris = List.of(paths);
-        if (!canDropInto(uris, target)) {
+        // A folder and a path inside it are one transfer: the folder copy includes the rest.
+        List<String> uris = VfsFileTransfer.withoutNestedPaths(List.of(paths));
+        if (uris.isEmpty() || !canDropInto(uris, target)) {
           event.detail = DND.DROP_NONE;
           return;
         }
@@ -481,8 +484,10 @@ public class VfsFileExplorerLocation extends Composite {
         for (String uri : uris) {
           entries.add(new VfsFileTransfer.Entry(uri, titleOf(uri), false));
         }
+        int operation =
+            dropOperation(event.detail, event.operations, EnvironmentUtils.getInstance().isWeb());
         VfsFileTransfer.Mode mode =
-            event.detail == DND.DROP_MOVE ? VfsFileTransfer.Mode.MOVE : VfsFileTransfer.Mode.COPY;
+            operation == DND.DROP_MOVE ? VfsFileTransfer.Mode.MOVE : VfsFileTransfer.Mode.COPY;
         String key =
             mode == VfsFileTransfer.Mode.MOVE
                 ? "VfsFileExplorer.Operation.Moving"
@@ -491,6 +496,19 @@ public class VfsFileExplorerLocation extends Composite {
             target, entries, mode, BaseMessages.getString(PKG, key, entries.get(0).getName()));
       }
     };
+  }
+
+  /**
+   * The operation a drop performs. Only an explicit move, the platform's move modifier on the
+   * desktop, moves files; everything else copies. Hop Web reports a drag without a modifier as a
+   * move, so a drop always copies there: Cut and Paste move files.
+   */
+  static int dropOperation(int detail, int operations, boolean web) {
+    boolean canCopy = (operations & DND.DROP_COPY) != 0;
+    if (!web && detail == DND.DROP_MOVE && (operations & DND.DROP_MOVE) != 0) {
+      return DND.DROP_MOVE;
+    }
+    return canCopy ? DND.DROP_COPY : DND.DROP_NONE;
   }
 
   /**
@@ -1153,28 +1171,46 @@ public class VfsFileExplorerLocation extends Composite {
     String sourceUri = row.getUri();
     String name = row.getName();
     Display display = getDisplay();
+    Path local;
+    try {
+      // In the session's temporary folder, which Hop Web removes when the session ends.
+      local = BrowserFileTransferFacade.createTempFile("download-");
+    } catch (Exception e) {
+      failOnUi(e);
+      return;
+    }
     runChange(
         BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Downloading", name),
         sourceUri,
         false,
         operation -> {
-          Path local = Files.createTempFile("hop-vfs-download-", ".tmp");
-          try (InputStream in = HopVfs.getInputStream(sourceUri, variables)) {
-            Files.copy(in, local, StandardCopyOption.REPLACE_EXISTING);
-          } catch (Exception e) {
-            Files.deleteIfExists(local);
-            throw e;
+          boolean handedOver = false;
+          try {
+            FileObject source = HopVfs.getFileObject(sourceUri, variables);
+            FileObject target = HopVfs.getFileObject(local.toUri().toString());
+            // Stops between chunks, and removes a partly written copy.
+            VfsFileTransfer.copy(source, target, operation::isCancelled, operation.progress());
+            if (operation.isCancelled()) {
+              throw new CancellationException();
+            }
+            display.asyncExec(
+                () -> {
+                  try {
+                    if (!operation.isCancelled() && !isDisposed()) {
+                      BrowserFileTransferFacade.download(name, local);
+                    }
+                  } catch (Exception e) {
+                    failOnUi(e);
+                  } finally {
+                    deleteLocalQuietly(local);
+                  }
+                });
+            handedOver = true;
+          } finally {
+            if (!handedOver) {
+              deleteLocalQuietly(local);
+            }
           }
-          display.asyncExec(
-              () -> {
-                try {
-                  BrowserFileTransferFacade.download(name, local);
-                } catch (Exception e) {
-                  failOnUi(e);
-                } finally {
-                  deleteLocalQuietly(local);
-                }
-              });
           return null;
         });
   }
@@ -1250,7 +1286,7 @@ public class VfsFileExplorerLocation extends Composite {
     try {
       Files.deleteIfExists(file);
     } catch (Exception ignored) {
-      // A temporary file: the session folder is removed when the session ends.
+      // A file in the session's temporary folder: Hop Web removes that folder with the session.
     }
   }
 
@@ -2094,31 +2130,28 @@ public class VfsFileExplorerLocation extends Composite {
           if (!destination.isFolder()) {
             throw new IllegalStateException(destinationUri);
           }
-          List<String> errors = new ArrayList<>();
-          VfsFileTransfer.ConflictResolver resolver = conflictResolver();
-          int done = 0;
-          for (VfsFileTransfer.Entry entry : entries) {
-            if (operation.isCancelled()) {
-              throw new CancellationException();
-            }
-            FileObject source = HopVfs.getFileObject(entry.getUri(), variables);
-            try {
-              VfsFileTransfer.transfer(
-                  source,
+          VfsFileTransfer.BatchResult result =
+              VfsFileTransfer.transferAll(
+                  entries,
                   destination,
                   mode,
-                  resolver,
+                  conflictResolver(),
                   operation::isCancelled,
-                  operation.progress());
-              done++;
-            } catch (VfsFileTransfer.RefusedException e) {
-              errors.add(transferMessage(e.getRefusal(), e.getName()));
+                  operation.progress(),
+                  uri -> HopVfs.getFileObject(uri, variables));
+          if (clipboard != null && mode == VfsFileTransfer.Mode.MOVE) {
+            // Moved files are gone from where the cut was. Skipped, refused and failed ones stay
+            // on the clipboard, so the cut can be finished.
+            clipboard.retain(entries, result.getRemaining());
+          }
+          if (result.isCancelled()) {
+            throw new CancellationException();
+          }
+          if (!result.getFailures().isEmpty()) {
+            List<String> errors = new ArrayList<>();
+            for (VfsFileTransfer.Failure failure : result.getFailures()) {
+              errors.add(failureMessage(failure));
             }
-          }
-          if (clipboard != null && mode == VfsFileTransfer.Mode.MOVE && done > 0) {
-            clipboard.clear();
-          }
-          if (!errors.isEmpty()) {
             throw new IllegalStateException(String.join("\n", errors));
           }
           return null;
@@ -2552,6 +2585,17 @@ public class VfsFileExplorerLocation extends Composite {
       names.add(entry.getName());
     }
     return names;
+  }
+
+  private static String failureMessage(VfsFileTransfer.Failure failure) {
+    if (failure.getRefusal() != null) {
+      return transferMessage(failure.getRefusal(), failure.getName());
+    }
+    return BaseMessages.getString(
+        PKG,
+        "VfsFileExplorer.Transfer.Failed",
+        failure.getName(),
+        VfsExplorerOperation.describe(failure.getError()));
   }
 
   private static String transferMessage(VfsFileTransfer.Refusal refusal, String name) {

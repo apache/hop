@@ -30,6 +30,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Copy and move of VFS files and folders. Refuses a copy onto itself or into its own child. An
@@ -112,6 +113,8 @@ public final class VfsFileTransfer {
     }
   }
 
+  private static final Class<?> PKG = VfsFileExplorer.class;
+
   static final String TEMP_PREFIX = ".hop-transfer-";
 
   private static final int BUFFER_SIZE = 64 * 1024;
@@ -145,6 +148,123 @@ public final class VfsFileTransfer {
       }
     }
     return kept;
+  }
+
+  /**
+   * Drop a path that sits inside another path of the list, and repeated paths. A path that holds
+   * another one is a folder, so this needs no file system access: the folder transfer already
+   * includes the rest.
+   */
+  public static List<String> withoutNestedPaths(List<String> paths) {
+    List<String> kept = new ArrayList<>();
+    if (paths == null) {
+      return kept;
+    }
+    for (int i = 0; i < paths.size(); i++) {
+      String path = paths.get(i);
+      if (path == null || path.isBlank()) {
+        continue;
+      }
+      boolean nested = false;
+      for (int j = 0; j < paths.size() && !nested; j++) {
+        String other = paths.get(j);
+        if (j == i || other == null || other.isBlank()) {
+          continue;
+        }
+        nested =
+            VfsLocations.isUnder(other, path) || (j < i && VfsLocations.sameLocation(other, path));
+      }
+      if (!nested) {
+        kept.add(path);
+      }
+    }
+    return kept;
+  }
+
+  /** Opens the file of an entry. */
+  @FunctionalInterface
+  public interface FileResolver {
+    FileObject resolve(String uri) throws Exception;
+  }
+
+  /** One entry of a batch that was not transferred: refused, or failed with an error. */
+  @Getter
+  public static final class Failure {
+    private final String name;
+
+    /** Why it was refused, or null when it failed with {@link #error}. */
+    private final Refusal refusal;
+
+    private final Exception error;
+
+    Failure(String name, Refusal refusal, Exception error) {
+      this.name = name;
+      this.refusal = refusal;
+      this.error = error;
+    }
+  }
+
+  /** What a copy or move of several entries did. */
+  @Getter
+  public static final class BatchResult {
+    private final List<Failure> failures = new ArrayList<>();
+
+    /**
+     * Entries whose source is still in place. After a move these are the ones that were skipped,
+     * refused, failed or not reached; after a copy, all of them.
+     */
+    private final List<Entry> remaining = new ArrayList<>();
+
+    private boolean cancelled;
+  }
+
+  /**
+   * Copy or move every entry into {@code destinationFolder}. A refusal or an error on one entry is
+   * recorded and the next entry is still transferred. A stop ends the batch.
+   */
+  public static BatchResult transferAll(
+      List<Entry> entries,
+      FileObject destinationFolder,
+      Mode mode,
+      ConflictResolver resolver,
+      BooleanSupplier cancelled,
+      Progress progress,
+      FileResolver files) {
+    BatchResult result = new BatchResult();
+    for (Entry entry : entries) {
+      if (isCancelled(cancelled)) {
+        result.cancelled = true;
+        break;
+      }
+      try {
+        transfer(
+            files.resolve(entry.getUri()), destinationFolder, mode, resolver, cancelled, progress);
+      } catch (RefusedException e) {
+        result.failures.add(new Failure(entry.getName(), e.getRefusal(), null));
+      } catch (CancellationException e) {
+        result.cancelled = true;
+        break;
+      } catch (Exception e) {
+        result.failures.add(new Failure(entry.getName(), null, e));
+      }
+    }
+    for (Entry entry : entries) {
+      if (mode == Mode.COPY || stillInPlace(files, entry)) {
+        result.remaining.add(entry);
+      }
+    }
+    return result;
+  }
+
+  /** True when the source of {@code entry} exists, or when that cannot be told. */
+  private static boolean stillInPlace(FileResolver files, Entry entry) {
+    try {
+      FileObject file = files.resolve(entry.getUri());
+      file.refresh();
+      return file.exists();
+    } catch (Exception e) {
+      return true;
+    }
   }
 
   /**
@@ -275,17 +395,37 @@ public final class VfsFileTransfer {
   public static void replaceFile(
       FileObject source, FileObject target, Mode mode, BooleanSupplier cancelled, Progress progress)
       throws IOException {
-    FileObject temp = target.getParent().resolveFile(TEMP_PREFIX + UUID.randomUUID() + ".tmp");
+    FileObject folder = target.getParent();
+    String id = UUID.randomUUID().toString();
+    FileObject temp = folder.resolveFile(TEMP_PREFIX + id + ".tmp");
     // copyFile removes a partly written temp file itself.
     copyFile(source, temp, cancelled, progress == null ? Progress.NONE : progress);
+    // Keep the original under a hidden name until the new copy has the real name. On an object
+    // store a rename is a copy and a delete, so it can fail half way.
+    FileObject backup = folder.resolveFile(TEMP_PREFIX + id + ".bak");
     try {
-      target.delete();
-    } catch (FileSystemException | RuntimeException e) {
+      target.moveTo(backup);
+    } catch (IOException | RuntimeException e) {
       deleteQuietly(temp);
       throw e;
     }
-    // From here the new content is only in the temp file: it is kept if the rename fails.
-    temp.moveTo(target);
+    try {
+      temp.moveTo(target);
+    } catch (IOException | RuntimeException e) {
+      if (restore(backup, target)) {
+        deleteQuietly(temp);
+        throw e;
+      }
+      throw new IOException(
+          BaseMessages.getString(
+              PKG,
+              "VfsFileExplorer.Transfer.Stranded",
+              target.getName().getBaseName(),
+              backup.getName().getBaseName(),
+              temp.getName().getBaseName()),
+          e);
+    }
+    deleteQuietly(backup);
     if (mode == Mode.MOVE) {
       source.delete();
     }
@@ -342,6 +482,23 @@ public final class VfsFileTransfer {
     copyTree(source, target, cancelled, progress == null ? Progress.NONE : progress);
   }
 
+  /** Put the original back after the new copy could not take its name. */
+  private static boolean restore(FileObject backup, FileObject target) {
+    try {
+      if (target.exists()) {
+        target.delete();
+      }
+      backup.moveTo(target);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
+   * A folder this creates is removed again when the copy fails or is stopped, with whatever was
+   * already copied into it.
+   */
   private static void copyTree(
       FileObject source, FileObject target, BooleanSupplier cancelled, Progress progress)
       throws IOException {
@@ -351,8 +508,17 @@ public final class VfsFileTransfer {
       return;
     }
     target.createFolder();
-    for (FileObject child : source.getChildren()) {
-      copyTree(child, target.resolveFile(child.getName().getBaseName()), cancelled, progress);
+    try {
+      for (FileObject child : source.getChildren()) {
+        copyTree(child, target.resolveFile(child.getName().getBaseName()), cancelled, progress);
+      }
+    } catch (IOException | RuntimeException e) {
+      try {
+        delete(target);
+      } catch (Exception ignored) {
+        // The failure itself is what gets reported.
+      }
+      throw e;
     }
   }
 
@@ -380,9 +546,14 @@ public final class VfsFileTransfer {
   }
 
   private static void checkCancelled(BooleanSupplier cancelled) {
-    if ((cancelled != null && cancelled.getAsBoolean()) || Thread.currentThread().isInterrupted()) {
+    if (isCancelled(cancelled)) {
       throw new CancellationException();
     }
+  }
+
+  private static boolean isCancelled(BooleanSupplier cancelled) {
+    return (cancelled != null && cancelled.getAsBoolean())
+        || Thread.currentThread().isInterrupted();
   }
 
   private static void deleteQuietly(FileObject file) {
