@@ -321,7 +321,9 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
                 //
                 while (!AzureListener.this.isStopped() && !AzureListener.this.outputIsDone()) {
                   try {
-                    Thread.sleep(0, 100);
+                    // A real 1 ms pause: sleep(0, 100) did that until JDK 21, which sleeps
+                    // 100 ns (JDK-8305092)
+                    Thread.sleep(1);
                   } catch (InterruptedException e) {
                     // Ignore
                   }

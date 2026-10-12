@@ -140,7 +140,8 @@ public class ActionWorkflowRunner implements Runnable {
   public void waitUntilFinished() {
     while (!isFinished() && !workflow.isStopped()) {
       try {
-        Thread.sleep(0, 1);
+        // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
+        Thread.sleep(1);
       } catch (InterruptedException e) {
         // Ignore errors
       }
