@@ -33,6 +33,8 @@ The transform runs on two engines:
 * On the *Hop engine* (local and remote) it writes Apache Iceberg tables with the Iceberg Java library, through Hop VFS, and passes the rows on unchanged. See <<hop-engine>>.
 * On the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] it writes the incoming `Dataset` to a Delta Lake or Iceberg table. Connectors ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
+The transform is part of the Lakehouse plugin (`hop-tech-lakehouse`). On the native Spark engine the Native Spark engine plugin (`hop-engines-spark`) is needed as well. Both can be installed with the marketplace when they aren't in your Hop distribution.
+
 == Options
 
 [options="header",cols="1,3"]
@@ -105,7 +107,10 @@ Every copy of the transform writes its own Parquet files. Nothing is visible in 
 |The table is created
 |===
 
-A new table gets its columns from the incoming rows (Integer as `long`, Number as `double`, BigNumber as `decimal` with the field's length and precision, String as `string`, Boolean as `boolean`, Date and Timestamp as `timestamp` without time zone, in UTC, Binary as `binary`) and identity partitions on the *Partition by* columns. It is created in the same commit as its first rows, so a failed run doesn't leave an empty table behind. When the table exists, the rows are matched to its columns by name.
+A new table gets its columns from the incoming rows (Integer as `long`, Number as `double`, BigNumber as `decimal`, String as `string`, Boolean as `boolean`, Date and Timestamp as `timestamp` without time zone, Binary as `binary`) and identity partitions on the *Partition by* columns. It is created in the same commit as its first rows, so a failed run doesn't leave an empty table behind. When the table exists, the rows are matched to its columns by name.
+
+* A BigNumber column gets the field's length as precision (at most 38) and its precision as scale when the length is greater than 0; otherwise it is `decimal(38, 10)`.
+* Dates and timestamps are written as the wall-clock time in the time zone of the Hop JVM, so they read back unchanged on the Hop engine, as with Parquet Output. Into an existing `timestamptz` column they are written as instants.
 
 Unlike the Spark engine, Overwrite on the Hop engine keeps the table's schema and partitioning and only replaces its rows.
 
@@ -114,7 +119,7 @@ Unlike the Spark engine, Overwrite on the Hop engine keeps the table's schema an
 * *PATH* mode writes the table in the given Hop VFS folder, in the layout of Hadoop catalogs and of the Spark engine's PATH mode (`metadata/v<N>.metadata.json` plus `version-hint.text`). The Spark and Hop engines can read and write the same table. A folder that holds a table managed by a catalog is refused: write that table through its catalog in TABLE mode.
 * *TABLE* mode writes through the selected lakehouse catalog. The Hop engine supports the `hadoop` and `rest` catalog types.
 
-On a local file system that supports hard links (the usual case on Linux, macOS and Windows NTFS), a PATH table commit publishes the new metadata file with an operation that fails if another writer already committed that version, so several pipelines can write the same table: one of two conflicting commits fails and is retried. On other file systems, including HDFS, object stores like S3 and local file systems without hard links, a PATH table should have one writer at a time. When several pipelines write the same table at the same time there, use a REST catalog.
+On a local file system (`file://`), a PATH table commit publishes the new metadata file with an operation that fails if another writer already committed that version: a hard link, or an exclusive create where hard links aren't supported. Several pipelines can write the same table there; of two conflicting commits one fails and is retried. On HDFS, object stores like S3 and other non-local Hop VFS locations, the commit checks that the version is free and then writes it, which isn't atomic between writers, so a PATH table there should have one writer at a time. When several pipelines write such a table at the same time, use a REST catalog.
 
 == On the Spark engine
 

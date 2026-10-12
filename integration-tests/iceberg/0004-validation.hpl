@@ -19,7 +19,7 @@ limitations under the License.
   <info>
     <name>0004-validation</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Validate 0001 extract against golden</description>
+    <description>Validate 0004 extract against golden</description>
     <pipeline_type>Normal</pipeline_type>
     <parameters/>
     <capture_transform_performance>N</capture_transform_performance>

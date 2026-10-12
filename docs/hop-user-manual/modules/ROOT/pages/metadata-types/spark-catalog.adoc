@@ -144,11 +144,11 @@ When both Delta and Iceberg are used in one session, keep **Delta** on `spark_ca
 
 == spark-submit
 
-Export project metadata JSON that includes every Spark Catalog entry referenced by the pipeline (and any used only via run configuration). Alternatively, pass equivalent `--conf spark.sql.catalog.…` flags on the submit command. Paths and warehouses must be reachable from the driver and executors.
+Export project metadata JSON that includes every lakehouse catalog entry referenced by the pipeline (and any used only via run configuration). Alternatively, pass equivalent `--conf spark.sql.catalog.…` flags on the submit command. Paths and warehouses must be reachable from the driver and executors.
 
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output]
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]

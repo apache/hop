@@ -157,7 +157,7 @@ This is the fastest way to learn: Spark runs *inside* the Hop process using all 
 
 TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit*, *Databricks*, *YARN*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
-TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc[Spark Catalog] entry and use **Load catalog template** (Hadoop local/object store, REST, Hive, Glue, Nessie, …). Each preset starts **Extra conf** with a commented `# docs:` link to vendor documentation.
+TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] entry and use **Load catalog template** (Hadoop local/object store, REST, Hive, Glue, Nessie, …). Each preset starts **Extra conf** with a commented `# docs:` link to vendor documentation.
 
 . Open *Metadata* → *Pipeline run configuration* → *New*.
 . Give it a clear name, for example `spark-local`.
@@ -445,9 +445,9 @@ Writes run as Spark *actions* when the engine materialises the graph. Prefer *Sp
 
 Classic *Spark File* transforms cover `csv` / `parquet` / `json` / `orc` / `text` only. For ACID lake tables use the dedicated **Lake Table** transforms (Big Data category):
 
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output]
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata for Iceberg TABLE mode
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] metadata for Iceberg TABLE mode
 
 Connector JARs **ship in the default Hop assembly** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
@@ -711,6 +711,6 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 * xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations]
 * xref:metadata-types/execution-information-location.adoc[Execution information location]
 * xref:metadata-types/execution-data-profile.adoc[Execution data profile]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog]
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog]
 * xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective]
 * xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf] (fat jar, metadata export)

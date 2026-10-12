@@ -33,11 +33,11 @@ It assumes you already have a working *Native Spark* pipeline run configuration 
 |===
 | Capability | How
 
-| Read / write ACID tables | xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+| Read / write ACID tables | xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output]
 
 | Path-based tables | Identifier mode **PATH** (local, HDFS, object-store URIs Spark can open)
 
-| Catalog tables | Identifier mode **TABLE** + xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata (Iceberg-first). Use **Load catalog template** on the metadata editor for Hadoop/REST/Hive/Glue/Nessie skeletons.
+| Catalog tables | Identifier mode **TABLE** + xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] metadata (Iceberg-first). Use **Load catalog template** on the metadata editor for Hadoop/REST/Hive/Glue/Nessie skeletons.
 
 | Time travel | Version / snapshot id or timestamp on Input
 
@@ -126,7 +126,7 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-provided.jar \
   --spark-client-version=native-provided
 
-# Export project metadata (run config + any Spark Catalog entries) to JSON, then:
+# Export project metadata (run config + any lakehouse catalog entries) to JSON, then:
 "${SPARK_HOME}/bin/spark-submit" \
   --master spark://your-master:7077 \
   --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
@@ -163,7 +163,7 @@ Hop’s `LakeSessionPlan` scans Lake Table transforms before the session is used
 |Iceberg extensions + a Hadoop catalog per table folder, **`hop_iceberg_<hash>`** (`type=hadoop`, warehouse = the folder that holds the table)
 
 |Iceberg TABLE
-|`spark.sql.catalog.<name>=org.apache.iceberg.spark.SparkCatalog` (+ `type`, `warehouse` / `uri`, …) from xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata
+|`spark.sql.catalog.<name>=org.apache.iceberg.spark.SparkCatalog` (+ `type`, `warehouse` / `uri`, …) from xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] metadata
 |===
 
 IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, not only the extension. Iceberg bare `format("iceberg").load(path)` is **not** used — it defaults toward HiveCatalog and fails without HMS. PATH mode uses `hop_iceberg_<hash>.\`<table>\``, where the catalog's warehouse is the table's parent folder, so the table is read and written at its path.
@@ -184,7 +184,7 @@ NOTE: Before Hop 2.20, Iceberg PATH tables written by the Spark engine were stor
 |Local lakes, object-store folders, quick prototypes
 
 |**TABLE**
-|Multi-part name (`catalog.namespace.table`) + optional Spark Catalog metadata name
+|Multi-part name (`catalog.namespace.table`) + optional lakehouse catalog metadata name
 |Production catalogs (Iceberg Hadoop warehouse, REST, …)
 
 |===
@@ -228,8 +228,8 @@ NOTE: Before Hop 2.20, Iceberg PATH tables written by the Spark engine were stor
 
 All four live under the **Big Data** category and are **native Spark only** (not Beam Spark, not the local Hop engine).
 
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] — read, optional projection, time travel
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output] — append / overwrite / …; **default save mode is ErrorIfExists**
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] — read, optional projection, time travel
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output] — append / overwrite / …; **default save mode is ErrorIfExists**
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] — single upstream hop is the source; target is PATH or TABLE
 * xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance] — zero-input action (OPTIMIZE, VACUUM, expire, …)
 
@@ -252,12 +252,12 @@ Injection keys are documented on each transform page. Shared identity keys: `FOR
 
 . Install Delta jars (see above) and restart Hop.
 . Create a *Native Spark* run configuration (`local[*]`).
-. Pipeline: *Row Generator* (or *Spark file input*) → *Spark lake table output*
+. Pipeline: *Row Generator* (or *Spark file input*) → *Lake table output*
  ** Format: `delta`
  ** Identifier mode: `PATH`
  ** Table path: e.g. `+${PROJECT_HOME}/output/delta-orders+`
  ** Save mode: `Overwrite` for a first write (default is *ErrorIfExists*)
-. Second pipeline or hop: *Spark lake table input* on the same path → *Spark file output* or preview.
+. Second pipeline or hop: *Lake table input* on the same path → *Spark file output* or preview.
 . Run with the native Spark run configuration.
 
 === Time travel sketch
@@ -295,7 +295,7 @@ Standalone *Spark lake table maintenance*:
 |Do not use bare `format("iceberg")` outside Hop; ensure Iceberg transforms run under hop-run so the per-folder `hop_iceberg_<hash>` catalogs are registered
 
 |TABLE unresolved
-|Spark Catalog metadata exported? Catalog name matches the first segment of `catalog.ns.table`? Warehouse / URI reachable from driver and executors?
+|Lakehouse catalog metadata exported? Catalog name matches the first segment of `catalog.ns.table`? Warehouse / URI reachable from driver and executors?
 
 |Destructive maintenance rejected
 |Set retention hours / WHERE and enable acknowledge flag
@@ -308,9 +308,9 @@ Standalone *Spark lake table maintenance*:
 
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output]
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge]
 * xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
 * Developer notes and spike findings: `plugins/engines/spark/README.md` in the Hop source tree

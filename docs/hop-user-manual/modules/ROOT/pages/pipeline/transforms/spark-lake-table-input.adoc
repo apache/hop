@@ -35,6 +35,8 @@ The transform runs on two engines:
 
 It isn't available on Beam engines.
 
+The transform is part of the Lakehouse plugin (`hop-tech-lakehouse`). On the native Spark engine the Native Spark engine plugin (`hop-engines-spark`) is needed as well. Both can be installed with the marketplace when they aren't in your Hop distribution.
+
 == Options
 
 [options="header",cols="1,3"]
@@ -111,7 +113,7 @@ On the local and remote Hop engines the transform reads Apache Iceberg tables. D
 
 * Iceberg plans the read: it skips the files and row groups that can't match, using the statistics in the table metadata.
 * Delete files written by other engines (position and equality deletes, for example from Flink or Spark) are applied.
-* Without a field list all columns are returned, with these Hop types: booleans as Boolean, integers as Integer, floating point numbers as Number, decimals as BigNumber, dates as Date, timestamps as Timestamp, binary values as Binary and everything else as String. Timestamps without a time zone are read as UTC. With a field list the columns are returned in the order of the list and converted to the type of each field.
+* Without a field list all columns are returned, with these Hop types: booleans as Boolean, integers as Integer, floating point numbers as Number, decimals as BigNumber, dates as Date, timestamps as Timestamp, binary values as Binary and everything else as String. Dates and timestamps without a time zone (`date`, `timestamp`, `timestamp_ns`) are read as local dates and date-times in the time zone of the Hop JVM, as Parquet Input does, so the wall-clock value in the table is kept. Timestamps with a time zone (`timestamptz`) are instants and keep their point in time. With a field list the columns are returned in the order of the list and converted to the type of each field.
 * When the transform runs as several copies, the copies share the table between them. Each part of a data file is read by exactly one copy.
 * A time travel timestamp without a time zone is in the time zone of the Hop server.
 

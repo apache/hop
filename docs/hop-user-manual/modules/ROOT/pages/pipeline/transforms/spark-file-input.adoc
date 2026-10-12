@@ -94,5 +94,5 @@ Field group `FIELDS`: `NAME`, `TYPE`, `LENGTH`, `PRECISION`, `FORMAT_MASK`.
 
 * xref:pipeline/transforms/spark-file-output.adoc[Spark file output]
 * xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] for Delta Lake and Apache Iceberg tables
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] for Delta Lake and Apache Iceberg tables
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]
