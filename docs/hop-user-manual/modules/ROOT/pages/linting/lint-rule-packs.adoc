@@ -124,6 +124,7 @@ The rule manager in Hop Gui writes these overrides for you.
 Editing a pack rule there never changes the pack: a change to its name, description, severity, threshold, enabled state, tags or help URL is written to `hop-lint.yml` as an override, and the rule goes on following the pack.
 
 A change to what the rule actually looks at, its target, a field or a condition, is written to `hop-lint.yml` as a complete rule which replaces the pack rule of that id.
+So is a changed value in any clause of a composed rule but the first: an override carries one `conditionValue`, the first clause's.
 From then on, changes to that rule in a newer version of the pack no longer apply, so the rule manager asks before it saves such a change.
 The rule is then listed as a project rule, and *Restore Pack Rule* removes it from `hop-lint.yml` and brings the pack's rule back.
 

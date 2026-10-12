@@ -20,9 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -182,6 +186,115 @@ class RuleBuilderDialogClauseTest extends SwtBotTestBase {
     assertEquals("sql", saved.get().getTargetField());
     assertEquals(RuleCondition.NOT_MATCHES_PATTERN, saved.get().getCondition());
     assertEquals("(?i)select \\*", saved.get().getConditionValue());
+  }
+
+  /** An edit made before the trip to another target is what comes back, not the rule as opened. */
+  @Test
+  void backOnItsOwnTargetAClauseKeepsItsEdits() {
+    CustomLintRule rule = rule(RuleTarget.TRANSFORM, "sql", RuleCondition.NOT_MATCHES_PATTERN, "a");
+    AtomicReference<CustomLintRule> saved = new AtomicReference<>();
+
+    withDialog(
+        parent -> saved.set(new RuleBuilderDialog(parent, rule).open()),
+        bot -> {
+          SWTBot dialog = bot.shell("Edit Lint Rule").bot();
+          dialog.textWithLabel("Value:").setText("b");
+          dialog
+              .comboBoxWithLabel("Target Type:")
+              .setSelection(RuleTarget.PIPELINE.getDisplayName());
+          dialog
+              .comboBoxWithLabel("Target Type:")
+              .setSelection(RuleTarget.TRANSFORM.getDisplayName());
+          dialog.button("OK").click();
+        });
+
+    assertNotNull(saved.get(), "the dialog refused to save");
+    assertEquals("sql", saved.get().getTargetField());
+    assertEquals("b", saved.get().getConditionValue());
+  }
+
+  /** OK checks every clause, and shows the first incomplete one. */
+  @Test
+  void anEmptyClauseThatIsNotOnShowIsRefused() {
+    CustomLintRule rule = rule(RuleTarget.PIPELINE, "name", RuleCondition.NOT_NULL, null);
+    rule.setAdditionalClauses(new ArrayList<>(List.of(new RuleClause("", null, ""))));
+
+    Refusal refusal = pressOkExpectingRefusal(rule);
+
+    assertEquals(List.of("Clause 2: Field must be selected"), refusal.errors());
+    assertEquals("", refusal.selectedField(), "the empty clause is selected");
+  }
+
+  @Test
+  void aMissingValueInAClauseThatIsNotOnShowIsRefused() {
+    CustomLintRule rule = rule(RuleTarget.PIPELINE, "name", RuleCondition.NOT_NULL, null);
+    rule.setAdditionalClauses(
+        new ArrayList<>(List.of(new RuleClause("description", RuleCondition.MATCHES_PATTERN, ""))));
+
+    Refusal refusal = pressOkExpectingRefusal(rule);
+
+    assertEquals(List.of("Clause 2: Value is required for this condition"), refusal.errors());
+    assertEquals("description", refusal.selectedField());
+  }
+
+  /** A value left on a condition that takes none is no reason to refuse; it is just not saved. */
+  @Test
+  void aLeftoverValueOnAConditionWithoutValueIsDropped() {
+    CustomLintRule rule = rule(RuleTarget.PIPELINE, "name", RuleCondition.NOT_NULL, "^X$");
+    rule.setAdditionalClauses(
+        new ArrayList<>(List.of(new RuleClause("description", RuleCondition.NOT_EMPTY, "left"))));
+    AtomicReference<CustomLintRule> saved = new AtomicReference<>();
+    List<String> errors = new CopyOnWriteArrayList<>();
+
+    withDialog(
+        parent -> {
+          RuleBuilderDialog dialog = new RuleBuilderDialog(parent, rule);
+          dialog.errorReporter = errors::add;
+          saved.set(dialog.open());
+        },
+        bot -> bot.shell("Edit Lint Rule").bot().button("OK").click());
+
+    assertEquals(List.of(), errors);
+    assertNotNull(saved.get(), "the dialog refused to save");
+    assertNull(saved.get().getConditionValue());
+    assertNull(saved.get().getAdditionalClauses().get(0).getConditionValue());
+  }
+
+  private record Refusal(List<String> errors, String selectedField) {}
+
+  /** Press OK, wait for the refusal, note the selected clause's field and cancel. */
+  private Refusal pressOkExpectingRefusal(CustomLintRule rule) {
+    List<String> errors = new CopyOnWriteArrayList<>();
+    AtomicReference<CustomLintRule> saved = new AtomicReference<>();
+    AtomicReference<String> selectedField = new AtomicReference<>();
+
+    withDialog(
+        parent -> {
+          RuleBuilderDialog dialog = new RuleBuilderDialog(parent, rule);
+          dialog.errorReporter = errors::add;
+          saved.set(dialog.open());
+        },
+        bot -> {
+          SWTBot dialog = bot.shell("Edit Lint Rule").bot();
+          dialog.button("OK").click();
+          bot.waitUntil(
+              new DefaultCondition() {
+                @Override
+                public boolean test() {
+                  return !errors.isEmpty();
+                }
+
+                @Override
+                public String getFailureMessage() {
+                  return "OK was not refused";
+                }
+              });
+          selectedField.set(dialog.table().selection().get(0, 0));
+          dialog.button("Cancel").click();
+        });
+
+    assertNull(saved.get(), "a refused rule is not saved");
+    return new Refusal(errors, selectedField.get());
   }
 
   @Test

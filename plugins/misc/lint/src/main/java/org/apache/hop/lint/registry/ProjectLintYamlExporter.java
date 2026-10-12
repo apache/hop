@@ -153,17 +153,26 @@ public final class ProjectLintYamlExporter {
   }
 
   /**
-   * What a rule looks at, ignoring the values it compares against.
+   * What a rule looks at: every clause's field and condition, and the values of the clauses after
+   * the first.
    *
-   * <p>A changed threshold is a tune and an override block carries it. A changed field or condition
-   * is a redefinition and it cannot, so only those count as structural.
+   * <p>An override block carries one {@code conditionValue}, the first clause's, so a changed
+   * threshold there is a tune. A changed field or condition, or a changed value in any later
+   * clause, can only be written as the whole rule.
    */
   private static List<String> clauseShape(CustomLintRule rule) {
     List<String> shape = new ArrayList<>();
-    for (RuleClause clause : rule.getClauses()) {
-      shape.add(clause.getTargetField() + "|" + clause.getCondition());
+    List<RuleClause> clauses = rule.getClauses();
+    for (int i = 0; i < clauses.size(); i++) {
+      RuleClause clause = clauses.get(i);
+      String value = i == 0 ? "" : emptyToNull(clause.getConditionValue());
+      shape.add(clause.getTargetField() + "|" + clause.getCondition() + "|" + value);
     }
     return shape;
+  }
+
+  private static String emptyToNull(String text) {
+    return text == null || text.isEmpty() ? null : text;
   }
 
   /**
@@ -171,9 +180,7 @@ public final class ProjectLintYamlExporter {
    * reads a missing conditionValue as an empty one.
    */
   private static boolean sameText(String first, String second) {
-    return Objects.equals(
-        first == null || first.isEmpty() ? null : first,
-        second == null || second.isEmpty() ? null : second);
+    return Objects.equals(emptyToNull(first), emptyToNull(second));
   }
 
   private static Map<String, Object> toOverrideMap(
@@ -266,7 +273,7 @@ public final class ProjectLintYamlExporter {
     } else {
       ruleConfig.put("targetField", rule.getTargetField());
       ruleConfig.put("condition", rule.getCondition().name());
-      // Left out when there is none, as in a composed rule's clauses: conditionValue: '' was noise.
+      // Left out when there is none, as in a composed rule's clauses.
       if (rule.getConditionValue() != null && !rule.getConditionValue().isEmpty()) {
         ruleConfig.put("conditionValue", rule.getConditionValue());
       }

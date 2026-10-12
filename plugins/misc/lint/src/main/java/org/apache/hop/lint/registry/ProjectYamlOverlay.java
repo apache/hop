@@ -121,7 +121,7 @@ public final class ProjectYamlOverlay {
         Object value = ruleData.get("helpUri");
         helpUri = value != null ? value.toString().trim() : "";
       }
-      // Renaming a pack rule used to write it out in full, which replaced the pack rule for good.
+      // A name or description renames the pack rule in place; it stays the pack's rule.
       String name = ruleData.get("name") != null ? String.valueOf(ruleData.get("name")) : null;
       String description =
           ruleData.containsKey("description")

@@ -18,12 +18,14 @@ package org.apache.hop.lint;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
@@ -94,8 +96,22 @@ public class RuleBuilderDialog extends Dialog {
   /** Guards the widget listeners while the widgets are being loaded from a clause. */
   private boolean loadingClause = false;
 
+  /**
+   * Where validation errors go instead of a message box. A native message box cannot be driven from
+   * a UI test, so the tests collect the messages here.
+   */
+  Consumer<String> errorReporter;
+
   /** The target shown, so choosing it again changes nothing. */
   private int shownTarget = -1;
+
+  /**
+   * Clauses a target change emptied, as they were just before, by the clause they were taken from.
+   * Going back to that target puts a clause back while it is still empty.
+   */
+  private final Map<RuleClause, EmptiedClause> emptiedClauses = new IdentityHashMap<>();
+
+  private record EmptiedClause(RuleTarget target, RuleClause clause) {}
 
   /** The ids of the other rules, upper case, which this rule's id must not clash with. */
   private final Set<String> takenIds = new TreeSet<>();
@@ -605,30 +621,33 @@ public class RuleBuilderDialog extends Dialog {
 
   /**
    * A field the new target also has stays, with its condition and value; a field it does not have
-   * empties its clause. Back on the rule's own target, an emptied clause gets the rule's clause
-   * back, so a trip to another target does not lose a field the list does not know, such as a Table
-   * Input's {@code sql}.
+   * empties its clause. Going back to the target a clause was emptied on puts it back as it was
+   * then, edits included, as long as it is still empty. That covers a field the list does not know,
+   * such as a Table Input's {@code sql}.
    */
   private void targetChanged() {
     int targetIndex = targetCombo.getSelectionIndex();
     if (targetIndex < 0 || targetIndex == shownTarget) {
       return;
     }
+    RuleTarget previousTarget = shownTarget < 0 ? null : RuleTarget.values()[shownTarget];
     shownTarget = targetIndex;
     RuleTarget target = RuleTarget.values()[targetIndex];
     List<String> fields = RuleTargetFields.getFieldsForTarget(target);
-    List<RuleClause> original = target == rule.getTarget() ? rule.getClauses() : List.of();
-    for (int i = 0; i < editingClauses.size(); i++) {
-      RuleClause clause = editingClauses.get(i);
+    for (RuleClause clause : editingClauses) {
       if (!Utils.isEmpty(clause.getTargetField()) && !fields.contains(clause.getTargetField())) {
+        emptiedClauses.put(clause, new EmptiedClause(previousTarget, clause.copy()));
         clause.setTargetField("");
         clause.setCondition(null);
         clause.setConditionValue("");
-      }
-      if (Utils.isEmpty(clause.getTargetField())
-          && i < original.size()
-          && !Utils.isEmpty(original.get(i).getTargetField())) {
-        editingClauses.set(i, original.get(i).copy());
+      } else if (Utils.isEmpty(clause.getTargetField())) {
+        EmptiedClause emptied = emptiedClauses.get(clause);
+        if (emptied != null && emptied.target() == target) {
+          clause.setTargetField(emptied.clause().getTargetField());
+          clause.setCondition(emptied.clause().getCondition());
+          clause.setConditionValue(emptied.clause().getConditionValue());
+          emptiedClauses.remove(clause);
+        }
       }
     }
     refreshClauseTable();
@@ -662,8 +681,8 @@ public class RuleBuilderDialog extends Dialog {
   }
 
   /**
-   * A condition without a value clears the value. Hidden but kept, it was saved with the new
-   * condition, where it could be neither seen nor removed.
+   * A condition without a value clears the value: the value field is hidden then, and a value
+   * nobody can see must not be saved.
    */
   private void conditionChanged() {
     RuleCondition condition = selectedCondition();
@@ -719,8 +738,7 @@ public class RuleBuilderDialog extends Dialog {
       return false;
     }
 
-    // Every clause, not only the one on show: an empty extra clause passed, and saving then failed
-    // on its missing condition with a NullPointerException message.
+    // Every clause, not only the one on show. Saving relies on each having a field and condition.
     captureWidgetsIntoSelectedClause();
     for (int i = 0; i < editingClauses.size(); i++) {
       String problem = clauseProblem(editingClauses.get(i));
@@ -947,6 +965,10 @@ public class RuleBuilderDialog extends Dialog {
   }
 
   private void showError(String message) {
+    if (errorReporter != null) {
+      errorReporter.accept(message);
+      return;
+    }
     MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
     messageBox.setText(
         BaseMessages.getString(PKG, "RuleBuilderDialog.Dialog.ValidationError.Title"));

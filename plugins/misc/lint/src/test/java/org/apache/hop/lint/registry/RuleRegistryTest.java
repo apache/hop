@@ -346,6 +346,43 @@ public class RuleRegistryTest {
     assertEquals("TRANS-002", ProjectLintYamlExporter.packRule("TRANS-002").generateRuleId());
   }
 
+  /**
+   * An override carries the first clause's value only, so a changed value in a later clause makes
+   * the rule a redefinition, written whole with every clause.
+   */
+  @Test
+  public void aChangedValueInALaterClauseRedefinesTheRule() throws Exception {
+    CustomLintRule edited = packRule("SQL-002");
+    edited.getAdditionalClauses().get(0).setConditionValue("^\\s*0\\s*$");
+
+    assertTrue(ProjectLintYamlExporter.redefinesPackRule(edited));
+    String yaml = ProjectLintYamlExporter.export(List.of(edited));
+    assertTrue(yaml.contains("type: custom"), yaml);
+
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), yaml);
+    try {
+      CustomLintRule loaded =
+          RuleRegistry.getInstance().resolve(projectYaml).getRules().stream()
+              .filter(rule -> "SQL-002".equals(rule.generateRuleId()))
+              .findFirst()
+              .orElseThrow();
+      assertEquals(edited.getClauses(), loaded.getClauses(), "both patterns are written");
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  @Test
+  public void aChangedValueInTheFirstClauseStaysAnOverride() {
+    CustomLintRule edited = packRule("SQL-002");
+    edited.setConditionValue("(?is).*\\bselect\\s+\\*\\s+from.*");
+
+    assertFalse(ProjectLintYamlExporter.redefinesPackRule(edited));
+    Map<String, Object> entry = ProjectLintYamlExporter.entryFor(edited);
+    assertEquals(Map.of("conditionValue", edited.getConditionValue()), entry);
+  }
+
   /** {@code conditionValue: ''} was written for every rule whose condition takes no value. */
   @Test
   public void aRuleWithoutAValueIsWrittenWithoutConditionValue() {

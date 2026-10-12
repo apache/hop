@@ -237,8 +237,8 @@ public final class LintPolicyYamlWriter {
   }
 
   /**
-   * Write a rule under a new id and remove the entry under its old one, in a single write. Removing
-   * first and writing second lost the rule from the file when the write was refused.
+   * Write a rule under a new id and remove the entry under its old one, in a single write: a
+   * refused write leaves the file as it was.
    *
    * @param previousId the id the rule was saved under before; null or the same id changes nothing
    *     else

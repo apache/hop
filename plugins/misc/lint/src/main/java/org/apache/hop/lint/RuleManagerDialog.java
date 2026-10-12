@@ -385,8 +385,7 @@ public class RuleManagerDialog extends Dialog {
     editButton.setEnabled(hasSelection);
     deleteButton.setEnabled(projectEditable);
     toggleButton.setEnabled(hasSelection);
-    // A project rule with a pack rule's id replaces it. Removing it brings the pack rule back,
-    // which "Delete" did not say.
+    // A project rule with a pack rule's id replaces it, so removing it brings the pack rule back.
     deleteButton.setText(
         BaseMessages.getString(
             PKG,
@@ -454,7 +453,7 @@ public class RuleManagerDialog extends Dialog {
     }
     newRule.setPackId(RulePackIds.PROJECT);
     newRule.setPackOwner(RulePackOwner.PROJECT);
-    // Listed only once it is saved: a rule which failed to save went on showing as if added.
+    // Listed only once it is saved, so the table never shows a rule hop-lint.yml does not have.
     if (saveRule(newRule, null)) {
       rules.add(newRule);
       populateTable();
