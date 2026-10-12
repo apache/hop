@@ -123,6 +123,37 @@ class ActionEvalFilesMetricsCheckTest {
         "Filenames-result mode has no static paths to verify at check time: " + errors);
   }
 
+  @Test
+  void blankSourceFileFolderIsReportedEvenWithWildcard() {
+    ActionEvalFilesMetrics action = new ActionEvalFilesMetrics("metrics");
+    action.setSourceFilesType(ActionEvalFilesMetrics.SourceFilesType.FILES);
+    ActionEvalFilesMetrics.SourceFile row = sourceFile("");
+    row.setSourceWildcard(".*\\.txt");
+    action.setSourceFiles(List.of(row));
+
+    List<String> errors = errorTexts(action);
+
+    assertTrue(
+        errors.stream().anyMatch(t -> t.contains("sourceFiles[0].sourceFileFolder")),
+        "Blank folder must fail Check (must not treat \"\" as CWD): " + errors);
+  }
+
+  @Test
+  void sourceFileFolderResolvingToBlankIsReported() {
+    ActionEvalFilesMetrics action = new ActionEvalFilesMetrics("metrics");
+    action.setSourceFilesType(ActionEvalFilesMetrics.SourceFilesType.FILES);
+    action.setSourceFiles(List.of(sourceFile("${EMPTY_FOLDER}")));
+
+    Variables variables = new Variables();
+    variables.setVariable("EMPTY_FOLDER", "");
+
+    List<String> errors = errorTexts(action, variables);
+
+    assertTrue(
+        errors.stream().anyMatch(t -> t.contains("sourceFiles[0].sourceFileFolder")),
+        "Variable resolving to blank must fail Check: " + errors);
+  }
+
   private static ActionEvalFilesMetrics actionWithFiles(Path first, Path second) {
     ActionEvalFilesMetrics action = new ActionEvalFilesMetrics("metrics");
     action.setSourceFilesType(ActionEvalFilesMetrics.SourceFilesType.FILES);
@@ -142,8 +173,12 @@ class ActionEvalFilesMetricsCheckTest {
   }
 
   private static List<String> errorTexts(ActionEvalFilesMetrics action) {
+    return errorTexts(action, new Variables());
+  }
+
+  private static List<String> errorTexts(ActionEvalFilesMetrics action, Variables variables) {
     List<ICheckResult> remarks = new ArrayList<>();
-    action.check(remarks, new WorkflowMeta(), new Variables(), new MemoryMetadataProvider());
+    action.check(remarks, new WorkflowMeta(), variables, new MemoryMetadataProvider());
     List<String> errors = new ArrayList<>();
     for (ICheckResult remark : remarks) {
       if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR) {

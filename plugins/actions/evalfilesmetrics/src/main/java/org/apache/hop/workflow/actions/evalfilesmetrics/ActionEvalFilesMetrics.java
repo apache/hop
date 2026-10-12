@@ -704,14 +704,27 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
 
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace(ctx, variables);
+    // notBlank rejects literal "" / whitespace; notNull would accept "".
     AndValidator.putValidators(
-        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
+        ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
     // Default is false: missing files would pass Check silently while execute() fails.
     FileExistsValidator.putFailIfDoesNotExist(ctx, true);
 
     for (int i = 0; i < sourceFiles.size(); i++) {
-      ActionValidatorUtils.andValidator()
-          .validate(this, "sourceFiles[" + i + "].sourceFileFolder", remarks, ctx);
+      String propertyName = "sourceFiles[" + i + "].sourceFileFolder";
+      // Align with processFileFolder(): empty after variable resolve is an error. An empty
+      // resolved path must not reach FileExistsValidator — HopVfs treats "" as the CWD.
+      String resolved =
+          variables.resolve(
+              sourceFiles.get(i).getSourceFileFolder() == null
+                  ? ""
+                  : sourceFiles.get(i).getSourceFileFolder());
+      if (Utils.isEmpty(resolved)) {
+        ActionValidatorUtils.addFailureRemark(
+            this, propertyName, "notBlank", remarks, ICheckResult.TYPE_RESULT_ERROR);
+        continue;
+      }
+      ActionValidatorUtils.andValidator().validate(this, propertyName, remarks, ctx);
     }
   }
 
