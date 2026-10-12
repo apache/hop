@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -303,10 +304,10 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         for (int i = 0; i < meta.getScriptFields().size(); i++) {
           ScriptValuesMeta.ScriptField field = meta.getScriptFields().get(i);
           Object result = data.scope.get(field.getName(), data.scope);
-          if (result == Scriptable.NOT_FOUND && data.replaceIndex[i] >= 0) {
-            // The script never assigned the field it replaces: keep the input value. Whether
-            // the input field was bound depends on its name appearing in the script, comments
-            // included, so writing null here made the output depend on a comment.
+          if (data.replaceIndex[i] >= 0 && isNotAssigned(rowMeta, field, i, result)) {
+            // The script never assigned the field it replaces: keep the input value. Converting
+            // the bound JavaScript wrapper back would lose precision (BigNumber, large Integer),
+            // leak a NativeBoolean, and round differently than a field that was never bound.
             //
             int index = data.replaceIndex[i];
             IValueMeta inputValueMeta = rowMeta.getValueMeta(index);
@@ -387,7 +388,26 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     }
   }
 
+  /**
+   * A replaced field was not assigned by the script when the scope holds nothing under its name, or
+   * still holds the exact object addFieldsToScope() bound for it. Any assignment, also of the same
+   * value or of null, replaces that object.
+   */
+  private boolean isNotAssigned(
+      IRowMeta rowMeta, ScriptValuesMeta.ScriptField field, int i, Object result) {
+    if (result == Scriptable.NOT_FOUND) {
+      return true;
+    }
+    int index = data.replaceIndex[i];
+    return field.getName().equals(rowMeta.getValueMeta(index).getName())
+        && result == data.boundValues[index];
+  }
+
   private void addFieldsToScope(IRowMeta rowMeta, Object[] row) throws HopValueException {
+    if (data.boundValues == null) {
+      data.boundValues = new Object[rowMeta.size()];
+      Arrays.fill(data.boundValues, Scriptable.NOT_FOUND);
+    }
     for (int i = 0; i < data.fieldsUsed.length; i++) {
       IValueMeta valueMeta = rowMeta.getValueMeta(data.fieldsUsed[i]);
       Object valueData = row[data.fieldsUsed[i]];
@@ -400,6 +420,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         jsarg = null;
       }
       data.scope.put(valueMeta.getName(), data.scope, jsarg);
+      data.boundValues[data.fieldsUsed[i]] = jsarg;
     }
   }
 

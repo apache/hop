@@ -1,7 +1,7 @@
 {
   "database_replacements": [],
   "autoOpening": true,
-  "description": "#8724 : replaced fields not assigned by the script keep their input value, also via rename",
+  "description": "#8724 : replaced fields the script does not assign keep their input value",
   "persist_filename": "",
   "test_type": "UNIT_TEST",
   "variableValues": [],
@@ -18,8 +18,24 @@
           "data_set_field": "test_int"
         },
         {
+          "transform_field": "plain_int",
+          "data_set_field": "plain_int"
+        },
+        {
           "transform_field": "other_int",
           "data_set_field": "other_int"
+        },
+        {
+          "transform_field": "big_num",
+          "data_set_field": "big_num"
+        },
+        {
+          "transform_field": "flag",
+          "data_set_field": "flag"
+        },
+        {
+          "transform_field": "half",
+          "data_set_field": "half"
         },
         {
           "transform_field": "doubled",

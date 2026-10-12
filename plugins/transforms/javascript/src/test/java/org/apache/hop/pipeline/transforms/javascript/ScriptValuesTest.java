@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,11 +29,16 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
@@ -40,6 +46,7 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.function.Executable;
 
 class ScriptValuesTest {
   @RegisterExtension
@@ -306,6 +313,99 @@ class ScriptValuesTest {
     Object[] row = PipelineTestingUtil.execute(transform, 1, false).get(0);
     assertEquals(1L, row[0]);
     assertEquals(0, transform.getErrors());
+  }
+
+  /** Runs one row through a script that replaces input field test_int with the given type. */
+  private static Object replacedValue(IValueMeta inputMeta, Object value, int type, String script)
+      throws Exception {
+    RowMeta input = new RowMeta();
+    input.addValueMeta(inputMeta);
+
+    ScriptValuesMeta meta = metaWith(ScriptValuesScript.TRANSFORM_SCRIPT, script, null);
+    ScriptValuesMeta.ScriptField field = new ScriptValuesMeta.ScriptField();
+    field.setName("test_int");
+    field.setType(type);
+    field.setReplace(true);
+    meta.getScriptFields().add(field);
+
+    ScriptValues transform = newTransform(meta, input);
+    doReturn(new Object[] {value}).doReturn(null).when(transform).getRow();
+    assertTrue(transform.init());
+
+    Object[] row = PipelineTestingUtil.execute(transform, 1, false).get(0);
+    assertEquals(0, transform.getErrors(), script);
+    return row[0];
+  }
+
+  private static final String[] NOT_ASSIGNING_SCRIPTS = {
+    "var other = 0;", "//var test_int = 0;\nvar other = 0;", "var other = test_int;"
+  };
+
+  /**
+   * Mentioning a replaced field without assigning it (in a comment, or only reading it) binds the
+   * field as a JavaScript wrapper. Converting that wrapper back lost precision, failed on a Boolean
+   * and rounded differently than leaving the field out of the script entirely.
+   */
+  @Test
+  void replacedFieldNotAssignedKeepsValueWhetherMentionedOrNot() {
+    BigDecimal big = new BigDecimal("12345678901234567890.123456789");
+    List<Executable> checks = new ArrayList<>();
+    for (String script : NOT_ASSIGNING_SCRIPTS) {
+      checks.add(
+          () ->
+              assertEquals(
+                  big,
+                  replacedValue(
+                      new ValueMetaBigNumber("test_int"), big, IValueMeta.TYPE_BIGNUMBER, script),
+                  "BigNumber: " + script));
+      checks.add(
+          () ->
+              assertEquals(
+                  9007199254740993L,
+                  replacedValue(
+                      new ValueMetaInteger("test_int"),
+                      9007199254740993L,
+                      IValueMeta.TYPE_INTEGER,
+                      script),
+                  "Integer: " + script));
+      checks.add(
+          () ->
+              assertEquals(
+                  Boolean.TRUE,
+                  replacedValue(
+                      new ValueMetaBoolean("test_int"),
+                      Boolean.TRUE,
+                      IValueMeta.TYPE_BOOLEAN,
+                      script),
+                  "Boolean: " + script));
+      checks.add(
+          () ->
+              assertEquals(
+                  11L,
+                  replacedValue(
+                      new ValueMetaNumber("test_int"), 10.5, IValueMeta.TYPE_INTEGER, script),
+                  "Number to Integer: " + script));
+    }
+    assertAll(checks);
+  }
+
+  /** An assignment still wins over the input value, also an assignment of null. */
+  @Test
+  void replacedFieldAssignedByScriptWins() throws Exception {
+    assertEquals(
+        5L,
+        replacedValue(
+            new ValueMetaInteger("test_int"), 1L, IValueMeta.TYPE_INTEGER, "test_int = 5;"));
+    assertNull(
+        replacedValue(
+            new ValueMetaInteger("test_int"), 1L, IValueMeta.TYPE_INTEGER, "test_int = null;"));
+    assertEquals(
+        2L,
+        replacedValue(
+            new ValueMetaInteger("test_int"),
+            1L,
+            IValueMeta.TYPE_INTEGER,
+            "test_int = test_int + 1;"));
   }
 
   /**

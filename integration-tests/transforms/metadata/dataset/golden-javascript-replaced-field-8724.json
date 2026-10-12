@@ -24,7 +24,39 @@
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
+      "field_name": "plain_int",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
       "field_name": "other_int",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 30,
+      "field_type": 6,
+      "field_precision": 9,
+      "field_name": "big_num",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": 0,
+      "field_name": "flag",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "half",
       "field_format": "####0;-####0"
     },
     {
