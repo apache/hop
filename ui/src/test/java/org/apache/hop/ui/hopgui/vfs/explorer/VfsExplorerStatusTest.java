@@ -101,6 +101,9 @@ class VfsExplorerStatusTest {
   void oneRowUsesTheSingular() {
     VfsListingCounts counts = new VfsListingCounts(1, 5, 1, 5);
     assertEquals(" - 1 file (5B) - 1 file selected (5B)", counts.statusSuffix());
+    assertEquals(
+        " - 1 file (5B) - 1 file selected (5B) - 3 more not loaded",
+        new VfsListingCounts(1, 5, 1, 5, 3).statusSuffix());
   }
 
   @Test

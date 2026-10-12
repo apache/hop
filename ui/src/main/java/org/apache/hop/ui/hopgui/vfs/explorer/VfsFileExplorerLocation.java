@@ -17,33 +17,42 @@
 
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.DialogBoxWithButtons;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.FolderTreeIcons;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
+import org.apache.hop.ui.hopgui.BrowserFileTransferFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -52,9 +61,19 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.raw.RawExplorerFileType;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -72,7 +91,9 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
 
 /**
  * One location tab: lazy folder tree, file details, filter and bookmarks. Listings run off the UI
@@ -112,21 +133,32 @@ public class VfsFileExplorerLocation extends Composite {
   private static final String DETAILS_PASTE = "VfsFileExplorer-Details-0060-Paste";
   private static final String DETAILS_RENAME = "VfsFileExplorer-Details-0070-Rename";
   private static final String DETAILS_DELETE = "VfsFileExplorer-Details-0100-Delete";
+  private static final String DETAILS_MORE = "VfsFileExplorer-Details-0150-More";
   private static final String DETAILS_HIDDEN = "VfsFileExplorer-Details-0160-Hidden";
   private static final String DETAILS_COLUMNS = "VfsFileExplorer-Details-0200-Columns";
 
   private static final String BOOKMARK_ADD = "VfsFileExplorer-Bookmarks-0010-Add";
   private static final String BOOKMARK_REMOVE = "VfsFileExplorer-Bookmarks-0030-Remove";
+  private static final String PLACES_REFRESH = "VfsFileExplorer-Bookmarks-0100-Refresh";
+
+  private static final String PROJECT_HOME = "PROJECT_HOME";
+
+  /** The largest file a Hop Web user can upload into a folder. */
+  private static final long BROWSER_UPLOAD_LIMIT = 512L * 1024 * 1024;
+
+  /** Typing in the filter waits this long before the table is filled again. */
+  private static final int FILTER_DELAY_MS = 250;
 
   private final VfsFileExplorer explorer;
   private final IVariables variables;
+  private final Runnable delayedRefill = this::refillTableIfAlive;
   private final VfsListingGeneration generation = new VfsListingGeneration();
   private final List<String> history = new ArrayList<>();
   private final TextVar locationText;
   private final Text filterText;
   private final HopTree tree;
   private final Table table;
-  private final org.eclipse.swt.widgets.List bookmarksList;
+  private final Tree placesTree;
   private final GuiToolbarWidgets navigateToolbar;
   private final GuiToolbarWidgets treeToolbar;
   private final GuiToolbarWidgets detailsToolbar;
@@ -141,6 +173,9 @@ public class VfsFileExplorerLocation extends Composite {
   private boolean enteringLocation;
   private FolderNode shown;
   private List<VfsFileRow> shownRows = List.of();
+
+  /** The paths of the dragged selection. Set when the drag starts, read when it is dropped here. */
+  private List<String> draggedUris = List.of();
 
   public VfsFileExplorerLocation(Composite parent, VfsFileExplorer explorer) {
     super(parent, SWT.NONE);
@@ -228,7 +263,6 @@ public class VfsFileExplorerLocation extends Composite {
         SWT.Selection, e -> onTreeSelected(e.item instanceof TreeItem treeItem ? treeItem : null));
     tree.addListener(SWT.Expand, e -> onTreeExpand((TreeItem) e.item));
     tree.addListener(SWT.MenuDetect, e -> showFolderMenu());
-    tree.addListener(SWT.FocusIn, e -> explorer.activate());
 
     Composite bookmarksComposite = new Composite(left, SWT.NONE);
     bookmarksComposite.setLayout(new FormLayout());
@@ -243,16 +277,19 @@ public class VfsFileExplorerLocation extends Composite {
     bookmarksToolbar.registerGuiPluginObject(this);
     bookmarksToolbar.createToolbarWidgets(bookmarkBar, BOOKMARKS_TOOLBAR_PARENT_ID);
     bookmarkBarControl.pack();
-    bookmarksList =
-        new org.eclipse.swt.widgets.List(
-            bookmarksComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
-    PropsUi.setLook(bookmarksList);
-    bookmarksList.setLayoutData(
+    placesTree =
+        new Tree(bookmarksComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+    PropsUi.setLook(placesTree);
+    placesTree.setLayoutData(
         new FormDataBuilder().top(bookmarkBarControl, 0).bottom().fullWidth().result());
-    bookmarksList.addListener(SWT.DefaultSelection, e -> openSelectedBookmark());
-    bookmarksList.addListener(SWT.Selection, e -> updateToolbar());
-    left.setWeights(75, 25);
-    SashFormMemory.persist(left, "vfs-explorer-bookmarks-height", 75, 25);
+    placesTree.addListener(
+        SWT.Selection,
+        e -> {
+          updateToolbar();
+          openPlace(e.item);
+        });
+    left.setWeights(65, 35);
+    SashFormMemory.persist(left, "vfs-explorer-bookmarks-height", 65, 35);
 
     Composite details = new Composite(horizontal, SWT.NONE);
     details.setLayout(new FormLayout());
@@ -265,7 +302,12 @@ public class VfsFileExplorerLocation extends Composite {
     filterText.setMessage(BaseMessages.getString(PKG, "VfsFileExplorer.Filter.Placeholder"));
     PropsUi.setLook(filterText, PropsUi.WIDGET_STYLE_TOOLBAR);
     filterText.setLayoutData(new FormDataBuilder().right().top().width(220).result());
-    filterText.addListener(SWT.Modify, e -> refillTable());
+    filterText.addListener(
+        SWT.Modify,
+        e -> {
+          getDisplay().timerExec(-1, delayedRefill);
+          getDisplay().timerExec(FILTER_DELAY_MS, delayedRefill);
+        });
     IToolbarContainer detailsBar =
         ToolbarFacade.createToolbarContainer(detailsRow, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     Control detailsBarControl = detailsBar.getControl();
@@ -275,25 +317,40 @@ public class VfsFileExplorerLocation extends Composite {
     detailsToolbar = new GuiToolbarWidgets();
     detailsToolbar.registerGuiPluginObject(this);
     detailsToolbar.createToolbarWidgets(detailsBar, DETAILS_TOOLBAR_PARENT_ID);
+    if (BrowserFileTransferFacade.isSupported()) {
+      detailsToolbar.setToolbarItemToolTip(
+          DETAILS_DOWNLOAD,
+          BaseMessages.getString(PKG, "VfsFileExplorer.Details.Download.Web.Tooltip"));
+      detailsToolbar.setToolbarItemToolTip(
+          DETAILS_UPLOAD,
+          BaseMessages.getString(PKG, "VfsFileExplorer.Details.Upload.Web.Tooltip"));
+    }
     detailsBarControl.pack();
 
     table =
         new Table(
-            details, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+            details,
+            SWT.BORDER
+                | SWT.FULL_SELECTION
+                | SWT.MULTI
+                | SWT.H_SCROLL
+                | SWT.V_SCROLL
+                | SWT.VIRTUAL);
     PropsUi.setLook(table);
     table.setHeaderVisible(true);
     table.setLinesVisible(false);
     table.setLayoutData(new FormDataBuilder().top(detailsRow, 0).bottom().fullWidth().result());
+    table.addListener(SWT.SetData, e -> fillItem((TableItem) e.item));
     table.addListener(SWT.Selection, e -> updateToolbar());
     table.addListener(SWT.DefaultSelection, e -> onTableDefaultSelection());
     table.addListener(SWT.MenuDetect, e -> showFileMenu());
-    table.addListener(SWT.FocusIn, e -> explorer.activate());
     rebuildColumns();
+
+    installDragAndDrop();
 
     horizontal.setWeights(28, 72);
     SashFormMemory.persist(horizontal, "vfs-explorer-tree-width", 28, 72);
 
-    addListener(SWT.FocusIn, e -> explorer.activate());
     addDisposeListener(
         e -> {
           invalidate();
@@ -302,8 +359,169 @@ public class VfsFileExplorerLocation extends Composite {
           detailsToolbar.dispose();
           bookmarksToolbar.dispose();
         });
-    refreshBookmarks();
+    refreshPlaces();
     updateToolbar();
+  }
+
+  /**
+   * Drag folders from the tree and rows from the file list, and drop on a folder. The paths travel
+   * as a {@link FileTransfer}, as in the File Explorer perspective, so files dragged between the
+   * two or from the operating system are accepted too. A drop copies unless a move is asked for:
+   * the source and target are often different stores.
+   */
+  private void installDragAndDrop() {
+    FileTransfer fileTransfer = FileTransfer.getInstance();
+    Transfer[] transfers = {fileTransfer};
+
+    DragSource treeSource = new DragSource(tree, DND.DROP_COPY | DND.DROP_MOVE);
+    treeSource.setTransfer(transfers);
+    treeSource.addDragListener(dragListener(this::selectedFolderEntries));
+    DragSource tableSource = new DragSource(table, DND.DROP_COPY | DND.DROP_MOVE);
+    tableSource.setTransfer(transfers);
+    tableSource.addDragListener(dragListener(this::selectedFileEntries));
+
+    DropTarget treeTarget = new DropTarget(tree, DND.DROP_COPY | DND.DROP_MOVE);
+    treeTarget.setTransfer(transfers);
+    treeTarget.addDropListener(
+        dropListener(
+            event -> {
+              FolderNode node = event.item instanceof TreeItem item ? nodeOf(item) : null;
+              return node == null ? null : node.uri;
+            }));
+    DropTarget tableTarget = new DropTarget(table, DND.DROP_COPY | DND.DROP_MOVE);
+    tableTarget.setTransfer(transfers);
+    tableTarget.addDropListener(
+        dropListener(
+            event -> {
+              // A folder row is the target. Anywhere else in the list is the folder being viewed.
+              if (event.item instanceof TableItem item && !item.isDisposed()) {
+                int index = table.indexOf(item);
+                if (index >= 0 && index < shownRows.size() && shownRows.get(index).isFolder()) {
+                  return shownRows.get(index).getUri();
+                }
+              }
+              return currentFolderUri();
+            }));
+  }
+
+  private DragSourceAdapter dragListener(
+      java.util.function.Supplier<List<VfsFileTransfer.Entry>> selection) {
+    return new DragSourceAdapter() {
+      @Override
+      public void dragStart(DragSourceEvent event) {
+        List<String> uris = urisOf(selection.get());
+        event.doit = !uris.isEmpty();
+        draggedUris = uris;
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          // RAP has no native drag image to fall back on.
+          event.image = GuiResource.getInstance().getImageFolder();
+        }
+      }
+
+      @Override
+      public void dragSetData(DragSourceEvent event) {
+        // Read the selection again rather than the paths kept at drag start: Hop Web can finish
+        // the drag before it asks for the data, and dragFinished has cleared them by then.
+        if (FileTransfer.getInstance().isSupportedType(event.dataType)) {
+          List<String> uris = urisOf(selection.get());
+          event.doit = !uris.isEmpty();
+          event.data = uris.toArray(new String[0]);
+        }
+      }
+
+      @Override
+      public void dragFinished(DragSourceEvent event) {
+        draggedUris = List.of();
+      }
+    };
+  }
+
+  private DropTargetAdapter dropListener(
+      java.util.function.Function<DropTargetEvent, String> targetOf) {
+    return new DropTargetAdapter() {
+      @Override
+      public void dragEnter(DropTargetEvent event) {
+        if (event.detail == DND.DROP_DEFAULT) {
+          event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
+        }
+      }
+
+      @Override
+      public void dragOperationChanged(DropTargetEvent event) {
+        dragEnter(event);
+      }
+
+      @Override
+      public void dragOver(DropTargetEvent event) {
+        event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL | DND.FEEDBACK_EXPAND;
+        String target = targetOf.apply(event);
+        if (!canWrite() || StringUtils.isBlank(target) || !canDropInto(draggedUris, target)) {
+          event.detail = DND.DROP_NONE;
+        } else if (event.detail == DND.DROP_NONE || event.detail == DND.DROP_DEFAULT) {
+          event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_MOVE;
+        }
+      }
+
+      @Override
+      public void drop(DropTargetEvent event) {
+        String target = targetOf.apply(event);
+        if (!(event.data instanceof String[] paths)
+            || paths.length == 0
+            || StringUtils.isBlank(target)
+            || !checkWrite()) {
+          event.detail = DND.DROP_NONE;
+          return;
+        }
+        List<String> uris = List.of(paths);
+        if (!canDropInto(uris, target)) {
+          event.detail = DND.DROP_NONE;
+          return;
+        }
+        List<VfsFileTransfer.Entry> entries = new ArrayList<>();
+        for (String uri : uris) {
+          entries.add(new VfsFileTransfer.Entry(uri, titleOf(uri), false));
+        }
+        VfsFileTransfer.Mode mode =
+            event.detail == DND.DROP_MOVE ? VfsFileTransfer.Mode.MOVE : VfsFileTransfer.Mode.COPY;
+        String key =
+            mode == VfsFileTransfer.Mode.MOVE
+                ? "VfsFileExplorer.Operation.Moving"
+                : "VfsFileExplorer.Operation.Copying";
+        copyIntoFolder(
+            target, entries, mode, BaseMessages.getString(PKG, key, entries.get(0).getName()));
+      }
+    };
+  }
+
+  /**
+   * A drop into a folder is refused onto one of the dragged items itself, into its own subfolder,
+   * or into the folder the items already sit in. Paths from outside this tab are not known while
+   * dragging, so they are accepted here and checked by the copy itself.
+   */
+  static boolean canDropInto(List<String> uris, String target) {
+    if (uris.isEmpty()) {
+      return true;
+    }
+    boolean allInTarget = true;
+    for (String uri : uris) {
+      if (VfsLocations.sameLocation(uri, target) || VfsLocations.isUnder(uri, target)) {
+        return false;
+      }
+      if (!VfsLocations.sameLocation(VfsLocations.parentOf(uri), target)) {
+        allInTarget = false;
+      }
+    }
+    return !allInTarget;
+  }
+
+  /** For UI tests. */
+  Table fileTable() {
+    return table;
+  }
+
+  /** For UI tests. */
+  Tree folderTree() {
+    return tree;
   }
 
   void setTabItem(CTabItem tabItem) {
@@ -349,60 +567,59 @@ public class VfsFileExplorerLocation extends Composite {
         explorer.beginOperation(
             BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Opening", resolved), resolved);
     Display display = getDisplay();
-    Thread thread =
-        BackgroundThreadFacade.start(
-            () -> {
-              try {
-                if (stopped(operation, token)) {
-                  operation.complete();
-                  refreshPanel(display);
-                  return;
-                }
-                FileObject file = HopVfs.getFileObject(resolved, variables);
-                file.refresh();
-                String selectName = null;
-                FileObject folder = file;
-                if (!file.isFolder()) {
-                  selectName = file.getName().getBaseName();
-                  if (file.getParent() != null) {
-                    folder = file.getParent();
-                    folder.refresh();
-                  }
-                }
-                String folderUri = HopVfs.getFilename(folder);
-                List<VfsFileRow> rows = VfsFileListing.childrenOf(folder);
-                if (stopped(operation, token)) {
-                  operation.complete();
-                  refreshPanel(display);
-                  return;
-                }
-                operation.complete();
-                String selected = selectName;
-                display.asyncExec(
-                    () -> {
-                      if (!canApply(token)) {
-                        explorer.refreshOperations();
-                        return;
-                      }
-                      List<VfsFileRow> published =
-                          VfsFileListing.publish(generation, token, List.of(), rows);
-                      installRoot(folderUri, published);
-                      if (recordHistory) {
-                        recordHistory(folderUri);
-                      }
-                      if (selected != null) {
-                        selectTableName(selected);
-                      }
-                      explorer.refreshOperations();
-                    });
-              } catch (Throwable e) {
-                fail(operation, e);
-                refreshPanel(display);
+    runInBackground(
+        operation,
+        () -> {
+          try {
+            if (stopped(operation, token)) {
+              operation.cancelFromWorker();
+              refreshPanel(display);
+              return;
+            }
+            FileObject file = HopVfs.getFileObject(resolved, variables);
+            file.refresh();
+            String selectName = null;
+            FileObject folder = file;
+            if (!file.isFolder()) {
+              selectName = file.getName().getBaseName();
+              if (file.getParent() != null) {
+                folder = file.getParent();
+                folder.refresh();
               }
-            },
-            "hop-vfs-explorer");
-    operation.attachThread(thread);
-    explorer.refreshOperations();
+            }
+            String folderUri = HopVfs.getFilename(folder);
+            FileObject[] children = VfsFileListing.listChildren(folder);
+            int read = Math.min(children.length, VfsFileListing.PAGE_SIZE);
+            List<VfsFileRow> rows = VfsFileListing.rowsOf(children, 0, read);
+            if (stopped(operation, token)) {
+              operation.cancelFromWorker();
+              refreshPanel(display);
+              return;
+            }
+            operation.complete();
+            String selected = selectName;
+            display.asyncExec(
+                () -> {
+                  if (!canApply(token)) {
+                    explorer.refreshOperations();
+                    return;
+                  }
+                  List<VfsFileRow> published =
+                      VfsFileListing.publish(generation, token, List.of(), rows);
+                  installRoot(folderUri, published, children, read);
+                  if (recordHistory) {
+                    recordHistory(folderUri);
+                  }
+                  if (selected != null) {
+                    selectTableName(selected);
+                  }
+                  explorer.refreshOperations();
+                });
+          } catch (Throwable e) {
+            fail(operation, e);
+            refreshPanel(display);
+          }
+        });
   }
 
   public void refreshFolder() {
@@ -432,21 +649,128 @@ public class VfsFileExplorerLocation extends Composite {
     }
   }
 
+  /** Delete removes the selection of the tree or the file list, whichever has focus. */
+  public void deleteFromShortcut() {
+    Control focus = getDisplay().getFocusControl();
+    if (isUnder(table, focus)) {
+      deleteSelectedFiles();
+    } else if (isUnder(tree, focus)) {
+      deleteSelectedFolders();
+    }
+  }
+
+  public void copyFromShortcut() {
+    Control focus = getDisplay().getFocusControl();
+    if (isUnder(table, focus)) {
+      copySelectedFiles();
+    } else if (isUnder(tree, focus)) {
+      copySelectedFolders();
+    }
+  }
+
+  public void cutFromShortcut() {
+    Control focus = getDisplay().getFocusControl();
+    if (isUnder(table, focus)) {
+      cutSelectedFiles();
+    } else if (isUnder(tree, focus)) {
+      cutSelectedFolders();
+    }
+  }
+
+  public void focusLocation() {
+    if (!locationText.isDisposed()) {
+      locationText.setFocus();
+      locationText.selectAll();
+    }
+  }
+
   public void publishCounts() {
     if (isDisposed()) {
       return;
     }
-    explorer.setListingCounts(this, VfsListingCounts.of(shownRows, selectedTableRows()));
+    int unread = shown == null ? 0 : shown.unread();
+    explorer.setListingCounts(this, VfsListingCounts.of(shownRows, selectedTableRows(), unread));
   }
 
-  public void refreshBookmarks() {
-    if (bookmarksList.isDisposed()) {
+  /**
+   * Fill the places: the project, the named connections, this computer (the server on Hop Web) and
+   * the bookmarks. Connections are read again, so a connection saved since shows up.
+   */
+  public void refreshPlaces() {
+    if (placesTree.isDisposed()) {
       return;
     }
-    List<String> names = new ArrayList<>(explorer.bookmarks().keySet());
-    Collections.sort(names);
-    bookmarksList.setItems(names.toArray(new String[0]));
+    placesTree.removeAll();
+    HopGui hopGui = explorer.getHopGui();
+    addPlaces(
+        "VfsFileExplorer.Places.Project",
+        VfsPlaces.project(variables, BaseMessages.getString(PKG, "VfsFileExplorer.Places.Home")));
+    addPlaces(
+        "VfsFileExplorer.Places.Connections",
+        VfsPlaces.connections(hopGui == null ? null : hopGui.getMetadataProvider(), variables));
+    addPlaces(
+        EnvironmentUtils.getInstance().isWeb()
+            ? "VfsFileExplorer.Places.Server"
+            : "VfsFileExplorer.Places.Local",
+        VfsPlaces.local(BaseMessages.getString(PKG, "VfsFileExplorer.Places.UserHome")));
+    addPlaces("VfsFileExplorer.Places.Bookmarks", VfsPlaces.bookmarks(explorer.bookmarks()));
     updateToolbar();
+  }
+
+  /** A section with its places, expanded. An empty section is left out. */
+  private void addPlaces(String titleKey, List<VfsPlaces.Place> places) {
+    if (places.isEmpty()) {
+      return;
+    }
+    TreeItem section = new TreeItem(placesTree, SWT.NONE);
+    section.setText(BaseMessages.getString(PKG, titleKey));
+    for (VfsPlaces.Place place : places) {
+      TreeItem item = new TreeItem(section, SWT.NONE);
+      item.setText(place.getName());
+      item.setImage(placeImage(place));
+      item.setData(place);
+    }
+    section.setExpanded(true);
+  }
+
+  private Image placeImage(VfsPlaces.Place place) {
+    GuiResource resource = GuiResource.getInstance();
+    try {
+      return switch (place.getKind()) {
+        case PROJECT -> resource.getImage("ui/images/home.svg");
+        case BOOKMARK -> resource.getImage("ui/images/bookmark-add.svg");
+        case CONNECTION ->
+            place.getImage() == null
+                ? folderImage
+                : resource.getImage(
+                    place.getImage(),
+                    place.getClassLoader(),
+                    ConstUi.SMALL_ICON_SIZE,
+                    ConstUi.SMALL_ICON_SIZE);
+        case LOCAL -> folderImage;
+      };
+    } catch (Exception e) {
+      return folderImage;
+    }
+  }
+
+  private VfsPlaces.Place selectedPlace() {
+    if (placesTree.isDisposed()) {
+      return null;
+    }
+    TreeItem[] selection = placesTree.getSelection();
+    return selection.length == 1 && selection[0].getData() instanceof VfsPlaces.Place place
+        ? place
+        : null;
+  }
+
+  private void openPlace(Widget item) {
+    if (item instanceof TreeItem treeItem
+        && !treeItem.isDisposed()
+        && treeItem.getData() instanceof VfsPlaces.Place place
+        && StringUtils.isNotEmpty(place.getUri())) {
+      navigateTo(place.getUri(), true);
+    }
   }
 
   @GuiToolbarElement(
@@ -455,7 +779,7 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Navigate.Home.Tooltip",
       image = "ui/images/home.svg")
   public void navigateHome() {
-    navigateTo(System.getProperty("user.home"), true);
+    navigateTo(VfsFileExplorerViews.defaultLocation(variables), true);
   }
 
   @GuiToolbarElement(
@@ -485,39 +809,36 @@ public class VfsFileExplorerLocation extends Composite {
         explorer.beginOperation(
             BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Opening", uri), uri);
     Display display = getDisplay();
-    Thread thread =
-        BackgroundThreadFacade.start(
-            () -> {
-              try {
-                if (stopped(operation, token)) {
-                  operation.complete();
-                  refreshPanel(display);
-                  return;
-                }
-                FileObject folder = HopVfs.getFileObject(uri, variables);
-                FileObject parent = folder.getParent();
-                if (parent == null) {
-                  operation.complete();
-                  refreshPanel(display);
-                  return;
-                }
-                String parentUri = HopVfs.getFilename(parent);
-                operation.complete();
-                display.asyncExec(
-                    () -> {
-                      if (canApply(token)) {
-                        navigateTo(parentUri, true);
-                      }
-                      explorer.refreshOperations();
-                    });
-              } catch (Throwable e) {
-                fail(operation, e);
-                refreshPanel(display);
-              }
-            },
-            "hop-vfs-explorer");
-    operation.attachThread(thread);
-    explorer.refreshOperations();
+    runInBackground(
+        operation,
+        () -> {
+          try {
+            if (stopped(operation, token)) {
+              operation.cancelFromWorker();
+              refreshPanel(display);
+              return;
+            }
+            FileObject folder = HopVfs.getFileObject(uri, variables);
+            FileObject parent = folder.getParent();
+            if (parent == null) {
+              operation.complete();
+              refreshPanel(display);
+              return;
+            }
+            String parentUri = HopVfs.getFilename(parent);
+            operation.complete();
+            display.asyncExec(
+                () -> {
+                  if (canApply(token)) {
+                    navigateTo(parentUri, true);
+                  }
+                  explorer.refreshOperations();
+                });
+          } catch (Throwable e) {
+            fail(operation, e);
+            refreshPanel(display);
+          }
+        });
   }
 
   @GuiToolbarElement(
@@ -563,6 +884,9 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Tree.CreateFolder.Tooltip",
       image = "ui/images/folder-add.svg")
   public void createFolder() {
+    if (!checkWrite()) {
+      return;
+    }
     FolderNode node = shown != null ? shown : selectedNode();
     if (node == null) {
       return;
@@ -580,7 +904,7 @@ public class VfsFileExplorerLocation extends Composite {
     runChange(
         BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Creating", name),
         node.uri,
-        () -> {
+        operation -> {
           FileObject folder = HopVfs.getFileObject(node.uri, variables);
           folder.resolveFile(name).createFolder();
           return null;
@@ -603,6 +927,9 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Tree.Cut.Tooltip",
       image = "ui/images/cut.svg")
   public void cutSelectedFolders() {
+    if (!checkWrite()) {
+      return;
+    }
     copyEntries(selectedFolderEntries(), VfsFileTransfer.Mode.MOVE);
   }
 
@@ -622,6 +949,9 @@ public class VfsFileExplorerLocation extends Composite {
       image = "ui/images/delete.svg",
       separator = true)
   public void deleteSelectedFolders() {
+    if (!checkWrite()) {
+      return;
+    }
     List<VfsFileTransfer.Entry> folders = selectedFolderEntries();
     if (folders.isEmpty() || !confirmDelete(namesOf(folders))) {
       return;
@@ -630,7 +960,7 @@ public class VfsFileExplorerLocation extends Composite {
     runChange(
         BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Deleting", folders.get(0).getName()),
         folders.get(0).getUri(),
-        () -> deleteEntries(folders, shownUri));
+        operation -> deleteEntries(folders, shownUri));
   }
 
   @GuiToolbarElement(
@@ -639,6 +969,9 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Tree.Rename.Tooltip",
       image = "ui/images/rename.svg")
   public void renameSelectedFolder() {
+    if (!checkWrite()) {
+      return;
+    }
     List<VfsFileTransfer.Entry> folders = selectedFolderEntries();
     if (folders.size() != 1) {
       return;
@@ -652,7 +985,7 @@ public class VfsFileExplorerLocation extends Composite {
     runChange(
         BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Renaming", folder.getName()),
         uri,
-        () -> renameEntry(uri, newName));
+        operation -> renameEntry(uri, newName));
   }
 
   @GuiToolbarElement(
@@ -701,6 +1034,13 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Details.Download.Tooltip",
       image = "ui/images/download.svg")
   public void downloadSelected() {
+    if (BrowserFileTransferFacade.isSupported()) {
+      downloadToBrowser();
+      return;
+    }
+    if (!checkWrite()) {
+      return;
+    }
     VfsFileRow row = singleFileRow();
     if (row == null) {
       return;
@@ -722,9 +1062,9 @@ public class VfsFileExplorerLocation extends Composite {
     String sourceUri = row.getUri();
     String sourceName = row.getName();
     runChange(
-        BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Downloading", sourceName),
+        BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Copying", sourceName),
         destination,
-        () -> {
+        operation -> {
           FileObject source = HopVfs.getFileObject(sourceUri, variables);
           FileObject chosen = HopVfs.getFileObject(destination, variables);
           FileObject target = chosen;
@@ -735,13 +1075,27 @@ public class VfsFileExplorerLocation extends Composite {
             throw new IllegalStateException(
                 BaseMessages.getString(PKG, "VfsFileExplorer.Transfer.Same", sourceName));
           }
-          if (target.exists()) {
-            if (!askOverwrite()) {
-              return null;
-            }
-            VfsFileTransfer.delete(target);
+          if (!target.exists()) {
+            VfsFileTransfer.copy(source, target, operation::isCancelled, operation.progress());
+            return null;
           }
-          target.copyFrom(source, Selectors.SELECT_ALL);
+          if (target.isFolder()) {
+            throw new IllegalStateException(
+                transferMessage(
+                    VfsFileTransfer.Refusal.OTHER_KIND, target.getName().getBaseName()));
+          }
+          VfsFileTransfer.Resolution resolution = conflictResolver().resolve(source, target);
+          if (resolution == VfsFileTransfer.Resolution.CANCEL) {
+            throw new CancellationException();
+          }
+          if (resolution == VfsFileTransfer.Resolution.REPLACE) {
+            VfsFileTransfer.replaceFile(
+                source,
+                target,
+                VfsFileTransfer.Mode.COPY,
+                operation::isCancelled,
+                operation.progress());
+          }
           return null;
         });
   }
@@ -752,6 +1106,13 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Details.Upload.Tooltip",
       image = "ui/images/upload.svg")
   public void uploadSelected() {
+    if (BrowserFileTransferFacade.isSupported()) {
+      uploadFromBrowser();
+      return;
+    }
+    if (!checkWrite()) {
+      return;
+    }
     List<VfsFileTransfer.Entry> files = selectedUploadEntries();
     if (files.isEmpty()) {
       return;
@@ -772,9 +1133,125 @@ public class VfsFileExplorerLocation extends Composite {
     String description =
         files.size() == 1
             ? BaseMessages.getString(
-                PKG, "VfsFileExplorer.Operation.Uploading", files.get(0).getName())
-            : BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Uploading.Many", files.size());
+                PKG, "VfsFileExplorer.Operation.Copying", files.get(0).getName())
+            : BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Copying.Many", files.size());
     copyIntoFolder(destination, files, VfsFileTransfer.Mode.COPY, description);
+  }
+
+  /**
+   * Hop Web: send the selected file to the browser. It is read into a server-side temporary file
+   * first, because a remote file cannot be streamed to the browser directly.
+   */
+  private void downloadToBrowser() {
+    if (!HopSecurityUi.check(Permission.FILE_EXPORT)) {
+      return;
+    }
+    VfsFileRow row = singleFileRow();
+    if (row == null) {
+      return;
+    }
+    String sourceUri = row.getUri();
+    String name = row.getName();
+    Display display = getDisplay();
+    runChange(
+        BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Downloading", name),
+        sourceUri,
+        false,
+        operation -> {
+          Path local = Files.createTempFile("hop-vfs-download-", ".tmp");
+          try (InputStream in = HopVfs.getInputStream(sourceUri, variables)) {
+            Files.copy(in, local, StandardCopyOption.REPLACE_EXISTING);
+          } catch (Exception e) {
+            Files.deleteIfExists(local);
+            throw e;
+          }
+          display.asyncExec(
+              () -> {
+                try {
+                  BrowserFileTransferFacade.download(name, local);
+                } catch (Exception e) {
+                  failOnUi(e);
+                } finally {
+                  deleteLocalQuietly(local);
+                }
+              });
+          return null;
+        });
+  }
+
+  /** Hop Web: upload a file from the user's computer into the folder being viewed. */
+  private void uploadFromBrowser() {
+    if (!checkWrite()) {
+      return;
+    }
+    String folderUri = currentFolderUri();
+    if (StringUtils.isBlank(folderUri)) {
+      return;
+    }
+    BrowserFileTransferFacade.upload(
+        BROWSER_UPLOAD_LIMIT,
+        new BrowserFileTransferFacade.IUploadListener() {
+          @Override
+          public void uploaded(String filename, Path uploadedFile) {
+            storeUpload(folderUri, filename, uploadedFile);
+          }
+
+          @Override
+          public void error(Exception exception) {
+            failOnUi(exception);
+          }
+        });
+  }
+
+  private void storeUpload(String folderUri, String filename, Path uploadedFile) {
+    if (StringUtils.isBlank(filename)
+        || filename.contains("/")
+        || filename.contains("\\")
+        || filename.equals("..")) {
+      deleteLocalQuietly(uploadedFile);
+      failOnUi(new IllegalArgumentException(filename));
+      return;
+    }
+    runChange(
+        BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Uploading", filename),
+        folderUri,
+        operation -> {
+          try {
+            FileObject source = HopVfs.getFileObject(uploadedFile.toUri().toString());
+            FileObject target = HopVfs.getFileObject(folderUri, variables).resolveFile(filename);
+            if (!target.exists()) {
+              VfsFileTransfer.copy(source, target, operation::isCancelled, operation.progress());
+              return null;
+            }
+            if (target.isFolder()) {
+              throw new IllegalStateException(
+                  transferMessage(VfsFileTransfer.Refusal.OTHER_KIND, filename));
+            }
+            VfsFileTransfer.Resolution resolution = conflictResolver().resolve(source, target);
+            if (resolution == VfsFileTransfer.Resolution.CANCEL) {
+              throw new CancellationException();
+            }
+            if (resolution == VfsFileTransfer.Resolution.REPLACE) {
+              VfsFileTransfer.replaceFile(
+                  source,
+                  target,
+                  VfsFileTransfer.Mode.COPY,
+                  operation::isCancelled,
+                  operation.progress());
+            }
+            return null;
+          } finally {
+            deleteLocalQuietly(uploadedFile);
+          }
+        });
+  }
+
+  private static void deleteLocalQuietly(Path file) {
+    try {
+      Files.deleteIfExists(file);
+    } catch (Exception ignored) {
+      // A temporary file: the session folder is removed when the session ends.
+    }
   }
 
   @GuiToolbarElement(
@@ -814,6 +1291,9 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Details.Cut.Tooltip",
       image = "ui/images/cut.svg")
   public void cutSelectedFiles() {
+    if (!checkWrite()) {
+      return;
+    }
     copyEntries(selectedFileEntries(), VfsFileTransfer.Mode.MOVE);
   }
 
@@ -832,6 +1312,9 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Details.Rename.Tooltip",
       image = "ui/images/rename.svg")
   public void renameSelectedFile() {
+    if (!checkWrite()) {
+      return;
+    }
     VfsFileRow row = singleFileRow();
     if (row == null) {
       return;
@@ -844,7 +1327,7 @@ public class VfsFileExplorerLocation extends Composite {
     runChange(
         BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Renaming", row.getName()),
         uri,
-        () -> {
+        operation -> {
           renameEntry(uri, newName);
           return null;
         });
@@ -857,6 +1340,9 @@ public class VfsFileExplorerLocation extends Composite {
       image = "ui/images/delete.svg",
       separator = true)
   public void deleteSelectedFiles() {
+    if (!checkWrite()) {
+      return;
+    }
     List<VfsFileTransfer.Entry> entries = selectedFileEntries();
     if (entries.isEmpty() || !confirmDelete(namesOf(entries))) {
       return;
@@ -865,7 +1351,64 @@ public class VfsFileExplorerLocation extends Composite {
     runChange(
         BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Deleting", entries.get(0).getName()),
         entries.get(0).getUri(),
-        () -> deleteEntries(entries, shownUri));
+        operation -> deleteEntries(entries, shownUri));
+  }
+
+  @GuiToolbarElement(
+      root = DETAILS_TOOLBAR_PARENT_ID,
+      id = DETAILS_MORE,
+      toolTip = "i18n::VfsFileExplorer.Details.More.Tooltip",
+      image = "ui/images/arrow-down.svg",
+      separator = true)
+  public void loadMore() {
+    FolderNode node = shown;
+    if (node == null || node.unread() == 0) {
+      return;
+    }
+    FileObject[] children = node.all;
+    int from = node.read;
+    int to = Math.min(children.length, from + VfsFileListing.PAGE_SIZE);
+    int token = generation.next();
+    VfsExplorerOperation operation =
+        explorer.beginOperation(
+            BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Listing", node.uri), node.uri);
+    Display display = getDisplay();
+    runInBackground(
+        operation,
+        () -> {
+          try {
+            List<VfsFileRow> rows = VfsFileListing.rowsOf(children, from, to);
+            if (stopped(operation, token)) {
+              operation.cancelFromWorker();
+              refreshPanel(display);
+              return;
+            }
+            operation.complete();
+            display.asyncExec(
+                () -> {
+                  // A refresh in the meantime replaced the children: drop this page.
+                  if (!canApply(token) || node.all != children || node.read != from) {
+                    explorer.refreshOperations();
+                    return;
+                  }
+                  List<VfsFileRow> merged = new ArrayList<>(node.children);
+                  merged.addAll(rows);
+                  node.children = merged;
+                  node.read = to;
+                  TreeItem item = findTreeItem(node.uri);
+                  if (item != null && nodeOf(item) == node) {
+                    boolean expanded = item.getExpanded();
+                    replaceChildren(item, node.children);
+                    FolderTreeIcons.setExpanded(item, expanded);
+                  }
+                  fillTable(node);
+                  explorer.refreshOperations();
+                });
+          } catch (Throwable e) {
+            fail(operation, e);
+            refreshPanel(display);
+          }
+        });
   }
 
   @GuiToolbarElement(
@@ -979,11 +1522,21 @@ public class VfsFileExplorerLocation extends Composite {
       toolTip = "i18n::VfsFileExplorer.Bookmark.Remove.Tooltip",
       image = "ui/images/delete.svg")
   public void removeBookmark() {
-    String[] selection = bookmarksList.getSelection();
-    if (selection.length != 1) {
+    VfsPlaces.Place place = selectedPlace();
+    if (place == null || place.getKind() != VfsPlaces.Kind.BOOKMARK) {
       return;
     }
-    explorer.removeBookmark(selection[0]);
+    explorer.removeBookmark(place.getName());
+  }
+
+  @GuiToolbarElement(
+      root = BOOKMARKS_TOOLBAR_PARENT_ID,
+      id = PLACES_REFRESH,
+      toolTip = "i18n::VfsFileExplorer.Places.Refresh.Tooltip",
+      image = "ui/images/refresh.svg",
+      separator = true)
+  public void refreshPlacesFromToolbar() {
+    refreshPlaces();
   }
 
   private void onTreeSelected(TreeItem item) {
@@ -1051,108 +1604,171 @@ public class VfsFileExplorerLocation extends Composite {
     navigateTo(row.getUri(), true);
   }
 
+  /**
+   * List {@code node}. A listing for the table replaces whatever the table was waiting for. A
+   * listing that only expands the tree has its own token per folder, so it does not drop the
+   * table's listing or another folder's.
+   */
   private void startList(TreeItem item, FolderNode node, boolean showTable) {
-    int token = generation.next();
+    VfsListingGeneration listing = showTable ? generation : node.listing;
+    int token = listing.next();
     String uri = node.uri;
     VfsExplorerOperation operation =
         explorer.beginOperation(
             BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Listing", uri), uri);
     Display display = getDisplay();
-    Thread thread =
-        BackgroundThreadFacade.start(
-            () -> {
-              try {
-                if (stopped(operation, token)) {
-                  operation.complete();
-                  refreshPanel(display);
-                  return;
-                }
-                FileObject folder = HopVfs.getFileObject(uri, variables);
-                folder.refresh();
-                List<VfsFileRow> rows = VfsFileListing.childrenOf(folder);
-                if (stopped(operation, token)) {
-                  operation.complete();
-                  refreshPanel(display);
-                  return;
-                }
-                operation.complete();
-                display.asyncExec(
-                    () -> {
-                      if (!canApply(token) || item.isDisposed()) {
-                        explorer.refreshOperations();
-                        return;
-                      }
-                      node.children =
-                          VfsFileListing.publish(generation, token, node.children, rows);
-                      node.loaded = true;
-                      replaceChildren(item, node.children);
-                      if (showTable || isSelected(item)) {
-                        setLocationText(uri);
-                        fillTable(node);
-                      }
-                      explorer.refreshOperations();
-                    });
-              } catch (Throwable e) {
-                fail(operation, e);
-                refreshPanel(display);
-              }
-            },
-            "hop-vfs-explorer");
+    runInBackground(
+        operation,
+        () -> {
+          try {
+            if (operation.isCancelled() || !listing.isCurrent(token)) {
+              dropListing(operation, display, item, node);
+              return;
+            }
+            FileObject folder = HopVfs.getFileObject(uri, variables);
+            folder.refresh();
+            FileObject[] children = VfsFileListing.listChildren(folder);
+            int read = Math.min(children.length, VfsFileListing.PAGE_SIZE);
+            List<VfsFileRow> rows = VfsFileListing.rowsOf(children, 0, read);
+            if (operation.isCancelled() || !listing.isCurrent(token)) {
+              dropListing(operation, display, item, node);
+              return;
+            }
+            operation.complete();
+            display.asyncExec(
+                () -> {
+                  if (isDisposed() || !listing.isCurrent(token) || item.isDisposed()) {
+                    explorer.refreshOperations();
+                    return;
+                  }
+                  node.children = VfsFileListing.publish(listing, token, node.children, rows);
+                  node.all = children;
+                  node.read = read;
+                  node.loaded = true;
+                  replaceChildren(item, node.children);
+                  if (showTable || isSelected(item)) {
+                    setLocationText(uri);
+                    fillTable(node);
+                  }
+                  explorer.refreshOperations();
+                });
+          } catch (Throwable e) {
+            fail(operation, e);
+            collapseUnloaded(display, item, node);
+          }
+        });
+  }
+
+  /**
+   * Run {@code work} on its own thread. A hung server keeps its thread, so past {@link
+   * VfsFileExplorer#MAX_RUNNING_OPERATIONS} unfinished operations a new one fails instead of
+   * starting yet another thread.
+   */
+  private void runInBackground(VfsExplorerOperation operation, Runnable work) {
+    if (explorer.runningOperations() > VfsFileExplorer.MAX_RUNNING_OPERATIONS) {
+      operation.fail(
+          BaseMessages.getString(
+              PKG, "VfsFileExplorer.Error.TooManyRunning", VfsFileExplorer.MAX_RUNNING_OPERATIONS),
+          null);
+      explorer.refreshOperations();
+      return;
+    }
+    Thread thread = BackgroundThreadFacade.start(work, "hop-vfs-explorer");
     operation.attachThread(thread);
     explorer.refreshOperations();
+  }
+
+  /** A stopped or replaced listing shows as cancelled, not as done. */
+  private void dropListing(
+      VfsExplorerOperation operation, Display display, TreeItem item, FolderNode node) {
+    operation.cancelFromWorker();
+    collapseUnloaded(display, item, node);
+  }
+
+  /**
+   * A folder whose listing did not finish keeps only its placeholder row. Collapse it, so expanding
+   * it again lists it again.
+   */
+  private void collapseUnloaded(Display display, TreeItem item, FolderNode node) {
+    if (display == null || display.isDisposed()) {
+      return;
+    }
+    display.asyncExec(
+        () -> {
+          if (!isDisposed()) {
+            explorer.refreshOperations();
+          }
+          if (item != null && !item.isDisposed() && !node.loaded) {
+            FolderTreeIcons.setExpanded(item, false);
+          }
+        });
   }
 
   private void runChange(String description, String location, Change change) {
+    runChange(description, location, true, change);
+  }
+
+  /**
+   * Run a file change in the background. With {@code reload}, the folder being viewed is listed
+   * again afterwards, or the folder the change returns is opened.
+   */
+  private void runChange(String description, String location, boolean reload, Change change) {
     TreeItem item = findTreeItem(currentFolderUri());
     VfsExplorerOperation operation = explorer.beginOperation(description, location);
     Display display = getDisplay();
-    Thread thread =
-        BackgroundThreadFacade.start(
-            () -> {
-              String show = null;
-              try {
-                if (operation.isCancelled()) {
-                  operation.complete();
-                  refreshPanel(display);
+    runInBackground(
+        operation,
+        () -> {
+          String show = null;
+          try {
+            if (operation.isCancelled()) {
+              operation.complete();
+              refreshPanel(display);
+              return;
+            }
+            show = change.run(operation);
+            operation.complete();
+          } catch (CancellationException e) {
+            operation.cancelFromWorker();
+          } catch (Throwable e) {
+            fail(operation, e);
+          }
+          String folder = show;
+          display.asyncExec(
+              () -> {
+                explorer.refreshOperations();
+                if (isDisposed()) {
                   return;
                 }
-                show = change.run();
-                operation.complete();
-              } catch (Throwable e) {
-                fail(operation, e);
-              }
-              String folder = show;
-              display.asyncExec(
-                  () -> {
-                    explorer.refreshOperations();
-                    if (isDisposed()) {
-                      return;
-                    }
-                    if (StringUtils.isNotEmpty(folder)) {
-                      navigateTo(folder, true);
-                      return;
-                    }
-                    TreeItem refreshItem = item;
-                    if (refreshItem == null || refreshItem.isDisposed()) {
-                      refreshItem = findTreeItem(currentFolderUri());
-                    }
-                    FolderNode node = nodeOf(refreshItem);
-                    if (refreshItem != null && node != null) {
-                      startList(refreshItem, node, true);
-                    }
-                    updateToolbar();
-                  });
-            },
-            "hop-vfs-explorer");
-    operation.attachThread(thread);
-    explorer.refreshOperations();
+                if (!reload) {
+                  updateToolbar();
+                  return;
+                }
+                if (StringUtils.isNotEmpty(folder)) {
+                  navigateTo(folder, true);
+                  return;
+                }
+                TreeItem refreshItem = item;
+                if (refreshItem == null || refreshItem.isDisposed()) {
+                  refreshItem = findTreeItem(currentFolderUri());
+                }
+                FolderNode node = nodeOf(refreshItem);
+                if (refreshItem != null && node != null) {
+                  startList(refreshItem, node, true);
+                }
+                updateToolbar();
+              });
+        });
   }
 
-  private void installRoot(String folderUri, List<VfsFileRow> rows) {
+  private void installRoot(
+      String folderUri, List<VfsFileRow> rows, FileObject[] children, int read) {
     tree.removeAll();
     FolderNode node = new FolderNode(folderUri, titleOf(folderUri));
     node.loaded = true;
     node.children = rows;
+    node.all = children;
+    node.read = read;
     TreeItem item = new TreeItem(tree, SWT.NONE);
     item.setText(node.name);
     item.setImage(folderImage);
@@ -1207,17 +1823,31 @@ public class VfsFileExplorerLocation extends Composite {
             state.getSortColumn(),
             state.isAscending());
     shownRows = rows;
-    table.removeAll();
-    List<VfsFileColumn> columns = shownColumns();
-    for (VfsFileRow row : rows) {
-      TableItem item = new TableItem(table, SWT.NONE);
-      item.setData(row);
-      item.setImage(imageFor(row));
-      for (int i = 0; i < columns.size(); i++) {
-        item.setText(i, textFor(row, columns.get(i)));
-      }
-    }
+    table.deselectAll();
+    table.clearAll();
+    table.setItemCount(rows.size());
     updateToolbar();
+  }
+
+  /** Virtual table: an item is filled when it is first shown. */
+  private void fillItem(TableItem item) {
+    int index = table.indexOf(item);
+    if (index < 0 || index >= shownRows.size()) {
+      return;
+    }
+    VfsFileRow row = shownRows.get(index);
+    List<VfsFileColumn> columns = shownColumns();
+    item.setData(row);
+    item.setImage(imageFor(row));
+    for (int i = 0; i < columns.size(); i++) {
+      item.setText(i, textFor(row, columns.get(i)));
+    }
+  }
+
+  private void refillTableIfAlive() {
+    if (!isDisposed() && !table.isDisposed()) {
+      refillTable();
+    }
   }
 
   private void rebuildColumns() {
@@ -1276,9 +1906,9 @@ public class VfsFileExplorerLocation extends Composite {
   }
 
   private void selectTableName(String name) {
-    for (TableItem item : table.getItems()) {
-      if (item.getData() instanceof VfsFileRow row && name.equals(row.getName())) {
-        table.setSelection(item);
+    for (int i = 0; i < shownRows.size(); i++) {
+      if (name.equals(shownRows.get(i).getName())) {
+        table.setSelection(i);
         table.showSelection();
         updateToolbar();
         return;
@@ -1317,15 +1947,18 @@ public class VfsFileExplorerLocation extends Composite {
     }
     navigateToolbar.enableToolbarItem(NAVIGATE_BACK, historyIndex > 0);
     navigateToolbar.enableToolbarItem(NAVIGATE_FORWARD, historyIndex + 1 < history.size());
+    boolean canWrite = canWrite();
     List<VfsFileTransfer.Entry> folders = selectedFolderEntries();
     boolean folderSelected = !folders.isEmpty();
     boolean oneFolder = folders.size() == 1;
-    boolean canPaste = !VfsFileClipboard.isEmpty() && StringUtils.isNotEmpty(currentFolderUri());
+    boolean canPaste =
+        canWrite && !clipboard().isEmpty() && StringUtils.isNotEmpty(currentFolderUri());
+    treeToolbar.enableToolbarItem(TREE_CREATE, canWrite);
     treeToolbar.enableToolbarItem(TREE_COPY, folderSelected);
-    treeToolbar.enableToolbarItem(TREE_CUT, folderSelected);
+    treeToolbar.enableToolbarItem(TREE_CUT, canWrite && folderSelected);
     treeToolbar.enableToolbarItem(TREE_PASTE, canPaste);
-    treeToolbar.enableToolbarItem(TREE_DELETE, folderSelected);
-    treeToolbar.enableToolbarItem(TREE_RENAME, oneFolder);
+    treeToolbar.enableToolbarItem(TREE_DELETE, canWrite && folderSelected);
+    treeToolbar.enableToolbarItem(TREE_RENAME, canWrite && oneFolder);
     syncHiddenImage(treeToolbar, TREE_HIDDEN, explorer.getViewState().isShowHiddenFolders());
 
     VfsFileRow row = singleTableRow();
@@ -1334,17 +1967,20 @@ public class VfsFileExplorerLocation extends Composite {
     boolean tableSelected = !tableRows.isEmpty();
     detailsToolbar.enableToolbarItem(DETAILS_OPEN, row != null && canOpen(row));
     detailsToolbar.enableToolbarItem(DETAILS_OPEN_TEXT, file != null);
-    detailsToolbar.enableToolbarItem(DETAILS_DOWNLOAD, file != null);
-    detailsToolbar.enableToolbarItem(DETAILS_UPLOAD, hasSelectedFiles());
+    detailsToolbar.enableToolbarItem(DETAILS_DOWNLOAD, file != null && canDownload());
+    detailsToolbar.enableToolbarItem(DETAILS_UPLOAD, canUpload());
     detailsToolbar.enableToolbarItem(
         DETAILS_DRILL, file != null && HopVfsFileDialog.getArchiveScheme(file.getName()) != null);
     detailsToolbar.enableToolbarItem(DETAILS_COPY, tableSelected);
-    detailsToolbar.enableToolbarItem(DETAILS_CUT, tableSelected);
+    detailsToolbar.enableToolbarItem(DETAILS_CUT, canWrite && tableSelected);
     detailsToolbar.enableToolbarItem(DETAILS_PASTE, canPaste);
-    detailsToolbar.enableToolbarItem(DETAILS_RENAME, file != null);
-    detailsToolbar.enableToolbarItem(DETAILS_DELETE, tableSelected);
+    detailsToolbar.enableToolbarItem(DETAILS_RENAME, canWrite && file != null);
+    detailsToolbar.enableToolbarItem(DETAILS_DELETE, canWrite && tableSelected);
+    detailsToolbar.enableToolbarItem(DETAILS_MORE, shown != null && shown.unread() > 0);
     syncHiddenImage(detailsToolbar, DETAILS_HIDDEN, explorer.getViewState().isShowHiddenFiles());
-    bookmarksToolbar.enableToolbarItem(BOOKMARK_REMOVE, bookmarksList.getSelectionIndex() >= 0);
+    VfsPlaces.Place place = selectedPlace();
+    bookmarksToolbar.enableToolbarItem(
+        BOOKMARK_REMOVE, place != null && place.getKind() == VfsPlaces.Kind.BOOKMARK);
     publishCounts();
   }
 
@@ -1388,17 +2024,6 @@ public class VfsFileExplorerLocation extends Composite {
     return fileImage;
   }
 
-  private void openSelectedBookmark() {
-    String[] selection = bookmarksList.getSelection();
-    if (selection.length != 1) {
-      return;
-    }
-    String path = explorer.bookmarks().get(selection[0]);
-    if (StringUtils.isNotEmpty(path)) {
-      navigateTo(path, true);
-    }
-  }
-
   private String currentFolderUri() {
     if (shown != null) {
       return shown.uri;
@@ -1410,12 +2035,16 @@ public class VfsFileExplorerLocation extends Composite {
     if (entries.isEmpty()) {
       return;
     }
-    VfsFileClipboard.set(mode, entries);
+    clipboard().set(mode, entries);
     updateToolbar();
   }
 
-  private void pasteClipboard() {
-    List<VfsFileTransfer.Entry> entries = VfsFileClipboard.entries();
+  void pasteClipboard() {
+    if (!checkWrite()) {
+      return;
+    }
+    VfsFileClipboard clipboard = clipboard();
+    List<VfsFileTransfer.Entry> entries = clipboard.entries();
     if (entries.isEmpty()) {
       return;
     }
@@ -1423,7 +2052,7 @@ public class VfsFileExplorerLocation extends Composite {
     if (StringUtils.isBlank(destinationUri)) {
       return;
     }
-    VfsFileTransfer.Mode mode = VfsFileClipboard.mode();
+    VfsFileTransfer.Mode mode = clipboard.mode();
     String operationKey =
         mode == VfsFileTransfer.Mode.MOVE
             ? "VfsFileExplorer.Operation.Moving"
@@ -1432,7 +2061,8 @@ public class VfsFileExplorerLocation extends Composite {
         destinationUri,
         entries,
         mode,
-        BaseMessages.getString(PKG, operationKey, entries.get(0).getName()));
+        BaseMessages.getString(PKG, operationKey, entries.get(0).getName()),
+        clipboard);
   }
 
   private void copyIntoFolder(
@@ -1440,44 +2070,53 @@ public class VfsFileExplorerLocation extends Composite {
       List<VfsFileTransfer.Entry> entries,
       VfsFileTransfer.Mode mode,
       String description) {
+    copyIntoFolder(destinationUri, entries, mode, description, null);
+  }
+
+  /**
+   * Copy or move {@code entries} into a folder in the background. A move pasted from {@code
+   * clipboard} empties it: the files are no longer where it points.
+   */
+  private void copyIntoFolder(
+      String destinationUri,
+      List<VfsFileTransfer.Entry> entries,
+      VfsFileTransfer.Mode mode,
+      String description,
+      VfsFileClipboard clipboard) {
     if (StringUtils.isBlank(destinationUri) || entries.isEmpty()) {
       return;
     }
     runChange(
         description,
         destinationUri,
-        () -> {
+        operation -> {
           FileObject destination = HopVfs.getFileObject(destinationUri, variables);
           if (!destination.isFolder()) {
             throw new IllegalStateException(destinationUri);
           }
           List<String> errors = new ArrayList<>();
-          boolean overwrite = false;
-          boolean asked = false;
+          VfsFileTransfer.ConflictResolver resolver = conflictResolver();
           int done = 0;
           for (VfsFileTransfer.Entry entry : entries) {
-            if (Thread.currentThread().isInterrupted()) {
-              break;
+            if (operation.isCancelled()) {
+              throw new CancellationException();
             }
             FileObject source = HopVfs.getFileObject(entry.getUri(), variables);
-            VfsFileTransfer.Refusal refusal = VfsFileTransfer.refusal(source, destination);
-            if (refusal == VfsFileTransfer.Refusal.EXISTS) {
-              if (!asked) {
-                overwrite = askOverwrite();
-                asked = true;
-              }
-              if (!overwrite) {
-                continue;
-              }
-            } else if (refusal != VfsFileTransfer.Refusal.NONE) {
-              errors.add(transferMessage(refusal, entry.getName()));
-              continue;
+            try {
+              VfsFileTransfer.transfer(
+                  source,
+                  destination,
+                  mode,
+                  resolver,
+                  operation::isCancelled,
+                  operation.progress());
+              done++;
+            } catch (VfsFileTransfer.RefusedException e) {
+              errors.add(transferMessage(e.getRefusal(), e.getName()));
             }
-            VfsFileTransfer.transfer(source, destination, mode, overwrite);
-            done++;
           }
-          if (mode == VfsFileTransfer.Mode.MOVE && done > 0) {
-            VfsFileClipboard.clear();
+          if (clipboard != null && mode == VfsFileTransfer.Mode.MOVE && done > 0) {
+            clipboard.clear();
           }
           if (!errors.isEmpty()) {
             throw new IllegalStateException(String.join("\n", errors));
@@ -1496,7 +2135,7 @@ public class VfsFileExplorerLocation extends Composite {
       }
       FileObject file = HopVfs.getFileObject(entry.getUri(), variables);
       boolean containsShown =
-          VfsFileExplorer.sameLocation(shownUri, entry.getUri())
+          VfsLocations.sameLocation(shownUri, entry.getUri())
               || VfsLocations.isUnder(entry.getUri(), shownUri);
       if (containsShown) {
         FileObject parent = file.getParent();
@@ -1575,23 +2214,65 @@ public class VfsFileExplorerLocation extends Composite {
     return box.open() == SWT.YES;
   }
 
-  private boolean askOverwrite() {
-    boolean[] yes = {false};
+  /**
+   * Asks about each file that already exists, on the UI thread. Replace all and Skip all answer the
+   * remaining files of the same paste.
+   */
+  private VfsFileTransfer.ConflictResolver conflictResolver() {
+    VfsFileTransfer.Resolution[] always = {null};
+    return (source, target) -> {
+      if (always[0] != null) {
+        return always[0];
+      }
+      int choice = askConflict(target);
+      return switch (choice) {
+        case 0 -> VfsFileTransfer.Resolution.REPLACE;
+        case 1 -> always[0] = VfsFileTransfer.Resolution.REPLACE;
+        case 2 -> VfsFileTransfer.Resolution.SKIP;
+        case 3 -> always[0] = VfsFileTransfer.Resolution.SKIP;
+        default -> VfsFileTransfer.Resolution.CANCEL;
+      };
+    };
+  }
+
+  /** Button index of the answer, or -1 when the dialog was closed. */
+  private int askConflict(FileObject target) {
+    int[] choice = {-1};
     Display display = getDisplay();
     if (display == null || display.isDisposed()) {
-      return false;
+      return -1;
     }
+    String name = target.getName().getBaseName();
+    String folder = parentText(target);
     display.syncExec(
         () -> {
           if (isDisposed()) {
             return;
           }
-          MessageBox box = new MessageBox(getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-          box.setText(BaseMessages.getString(PKG, "VfsFileExplorer.Paste.Overwrite.Title"));
-          box.setMessage(BaseMessages.getString(PKG, "VfsFileExplorer.Paste.Overwrite.Message"));
-          yes[0] = box.open() == SWT.YES;
+          DialogBoxWithButtons box =
+              new DialogBoxWithButtons(
+                  getShell(),
+                  BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.Title"),
+                  BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.Message", name, folder),
+                  new String[] {
+                    BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.Replace"),
+                    BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.ReplaceAll"),
+                    BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.Skip"),
+                    BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.SkipAll"),
+                    BaseMessages.getString(PKG, "VfsFileExplorer.Conflict.Cancel")
+                  });
+          choice[0] = box.open();
         });
-    return yes[0];
+    return choice[0];
+  }
+
+  private static String parentText(FileObject file) {
+    try {
+      FileObject parent = file.getParent();
+      return parent == null ? "" : HopVfs.getFilename(parent);
+    } catch (Exception e) {
+      return "";
+    }
   }
 
   private void showFolderMenu() {
@@ -1600,28 +2281,36 @@ public class VfsFileExplorerLocation extends Composite {
     }
     List<VfsFileTransfer.Entry> folders = selectedFolderEntries();
     boolean any = !folders.isEmpty();
+    boolean canWrite = canWrite();
     Menu menu = new Menu(tree);
     menuItem(
         menu, "VfsFileExplorer.Menu.Copy", "ui/images/copy.svg", any, this::copySelectedFolders);
-    menuItem(menu, "VfsFileExplorer.Menu.Cut", "ui/images/cut.svg", any, this::cutSelectedFolders);
+    menuItem(
+        menu,
+        "VfsFileExplorer.Menu.Cut",
+        "ui/images/cut.svg",
+        canWrite && any,
+        this::cutSelectedFolders);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Paste",
         "ui/images/paste.svg",
-        !VfsFileClipboard.isEmpty(),
+        canWrite && !clipboard().isEmpty(),
         this::pasteIntoFolder);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Rename",
         "ui/images/rename.svg",
-        folders.size() == 1,
+        canWrite && folders.size() == 1,
         this::renameSelectedFolder);
+    new MenuItem(menu, SWT.SEPARATOR);
+    addCopyPathItems(menu, urisOf(folders));
     new MenuItem(menu, SWT.SEPARATOR);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Delete",
         "ui/images/delete.svg",
-        any,
+        canWrite && any,
         this::deleteSelectedFolders);
     replaceMenu(tree, menu);
   }
@@ -1633,6 +2322,7 @@ public class VfsFileExplorerLocation extends Composite {
     VfsFileRow row = singleTableRow();
     VfsFileRow file = singleFileRow();
     boolean any = !selectedTableRows().isEmpty();
+    boolean canWrite = canWrite();
     Menu menu = new Menu(table);
     menuItem(
         menu,
@@ -1646,17 +2336,18 @@ public class VfsFileExplorerLocation extends Composite {
         "ui/images/file.svg",
         file != null,
         this::openSelectedAsText);
+    boolean web = BrowserFileTransferFacade.isSupported();
     menuItem(
         menu,
-        "VfsFileExplorer.Menu.Download",
+        web ? "VfsFileExplorer.Menu.Download.Web" : "VfsFileExplorer.Menu.Download",
         "ui/images/download.svg",
-        file != null,
+        file != null && canDownload(),
         this::downloadSelected);
     menuItem(
         menu,
-        "VfsFileExplorer.Menu.Upload",
+        web ? "VfsFileExplorer.Menu.Upload.Web" : "VfsFileExplorer.Menu.Upload",
         "ui/images/upload.svg",
-        hasSelectedFiles(),
+        canUpload(),
         this::uploadSelected);
     menuItem(
         menu,
@@ -1666,27 +2357,83 @@ public class VfsFileExplorerLocation extends Composite {
         this::drillInto);
     new MenuItem(menu, SWT.SEPARATOR);
     menuItem(menu, "VfsFileExplorer.Menu.Copy", "ui/images/copy.svg", any, this::copySelectedFiles);
-    menuItem(menu, "VfsFileExplorer.Menu.Cut", "ui/images/cut.svg", any, this::cutSelectedFiles);
+    menuItem(
+        menu,
+        "VfsFileExplorer.Menu.Cut",
+        "ui/images/cut.svg",
+        canWrite && any,
+        this::cutSelectedFiles);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Paste",
         "ui/images/paste.svg",
-        !VfsFileClipboard.isEmpty(),
+        canWrite && !clipboard().isEmpty(),
         this::pasteIntoFileList);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Rename",
         "ui/images/rename.svg",
-        file != null,
+        canWrite && file != null,
         this::renameSelectedFile);
+    new MenuItem(menu, SWT.SEPARATOR);
+    addCopyPathItems(menu, urisOf(selectedFileEntries()));
     new MenuItem(menu, SWT.SEPARATOR);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Delete",
         "ui/images/delete.svg",
-        any,
+        canWrite && any,
         this::deleteSelectedFiles);
     replaceMenu(table, menu);
+  }
+
+  /**
+   * Copy the paths to the system clipboard, as they are or relative to the project home. One path
+   * per line.
+   */
+  private void addCopyPathItems(Menu menu, List<String> uris) {
+    menuItem(
+        menu,
+        "VfsFileExplorer.Menu.CopyPath",
+        "ui/images/copy.svg",
+        !uris.isEmpty(),
+        () -> GuiResource.getInstance().toClipboard(String.join(Const.CR, uris)));
+    List<String> relative = relativeToProject(uris);
+    menuItem(
+        menu,
+        "VfsFileExplorer.Menu.CopyProjectPath",
+        "ui/images/copy.svg",
+        relative != null,
+        () -> GuiResource.getInstance().toClipboard(String.join(Const.CR, relative)));
+  }
+
+  /** The paths relative to {@code PROJECT_HOME}, or null when one of them is outside it. */
+  private List<String> relativeToProject(List<String> uris) {
+    if (uris.isEmpty() || variables == null) {
+      return null;
+    }
+    String projectHome = variables.getVariable(PROJECT_HOME);
+    if (StringUtils.isBlank(projectHome)) {
+      return null;
+    }
+    projectHome = variables.resolve(projectHome);
+    List<String> relative = new ArrayList<>();
+    for (String uri : uris) {
+      String path = VfsLocations.relativeTo(uri, PROJECT_HOME, projectHome);
+      if (path == null) {
+        return null;
+      }
+      relative.add(path);
+    }
+    return relative;
+  }
+
+  private static List<String> urisOf(List<VfsFileTransfer.Entry> entries) {
+    List<String> uris = new ArrayList<>();
+    for (VfsFileTransfer.Entry entry : entries) {
+      uris.add(entry.getUri());
+    }
+    return uris;
   }
 
   private void menuItem(Menu menu, String key, String image, boolean enabled, Runnable action) {
@@ -1813,6 +2560,7 @@ public class VfsFileExplorerLocation extends Composite {
           case SAME -> "VfsFileExplorer.Transfer.Same";
           case INTO_ITSELF -> "VfsFileExplorer.Transfer.IntoItself";
           case EXISTS -> "VfsFileExplorer.Transfer.Exists";
+          case OTHER_KIND -> "VfsFileExplorer.Transfer.OtherKind";
           default -> "VfsFileExplorer.Error.Title";
         };
     return BaseMessages.getString(PKG, key, name);
@@ -1831,7 +2579,7 @@ public class VfsFileExplorerLocation extends Composite {
         continue;
       }
       FolderNode node = nodeOf(item);
-      if (node != null && VfsFileExplorer.sameLocation(uri, node.uri)) {
+      if (node != null && VfsLocations.sameLocation(uri, node.uri)) {
         return item;
       }
       TreeItem nested = findTreeItem(item.getItems(), uri);
@@ -1872,14 +2620,18 @@ public class VfsFileExplorerLocation extends Composite {
 
   private boolean isSelected(TreeItem item) {
     FolderNode node = nodeOf(item);
-    return node != null && shown != null && VfsFileExplorer.sameLocation(node.uri, shown.uri);
+    return node != null && shown != null && VfsLocations.sameLocation(node.uri, shown.uri);
   }
 
   private List<VfsFileRow> selectedTableRows() {
     List<VfsFileRow> rows = new ArrayList<>();
-    for (TableItem item : table.getSelection()) {
-      if (item.getData() instanceof VfsFileRow row) {
-        rows.add(row);
+    if (table.isDisposed()) {
+      return rows;
+    }
+    // By index: a virtual table has no data on items that were never shown, e.g. after Ctrl+A.
+    for (int index : table.getSelectionIndices()) {
+      if (index >= 0 && index < shownRows.size()) {
+        rows.add(shownRows.get(index));
       }
     }
     return rows;
@@ -1893,6 +2645,37 @@ public class VfsFileExplorerLocation extends Composite {
   private VfsFileRow singleFileRow() {
     VfsFileRow row = singleTableRow();
     return row != null && !row.isFolder() ? row : null;
+  }
+
+  private VfsFileClipboard clipboard() {
+    return VfsFileClipboard.of(getDisplay());
+  }
+
+  /** Hop Web users without explorer write access may browse, but not change files. */
+  private static boolean canWrite() {
+    return HopSecurity.allows(Permission.EXPLORER_WRITE);
+  }
+
+  /** A browser download is an export on Hop Web. On the desktop it writes a copy. */
+  private static boolean canDownload() {
+    return BrowserFileTransferFacade.isSupported()
+        ? HopSecurity.allows(Permission.FILE_EXPORT)
+        : canWrite();
+  }
+
+  /** A browser upload goes into the folder being viewed. On the desktop it copies the selection. */
+  private boolean canUpload() {
+    if (!canWrite()) {
+      return false;
+    }
+    return BrowserFileTransferFacade.isSupported()
+        ? StringUtils.isNotEmpty(currentFolderUri())
+        : hasSelectedFiles();
+  }
+
+  /** Shortcuts reach the actions even when their buttons are disabled. */
+  private static boolean checkWrite() {
+    return HopSecurityUi.check(Permission.EXPLORER_WRITE);
   }
 
   private boolean stopped(VfsExplorerOperation operation, int token) {
@@ -1976,19 +2759,32 @@ public class VfsFileExplorerLocation extends Composite {
 
   @FunctionalInterface
   private interface Change {
-    /** Folder to open when the current one was renamed or removed, or null to reload it. */
-    String run() throws Exception;
+    /**
+     * Folder to open when the current one was renamed or removed, or null to reload it. Long
+     * changes check {@code operation} to stop early.
+     */
+    String run(VfsExplorerOperation operation) throws Exception;
   }
 
   private static final class FolderNode {
     private final String uri;
     private final String name;
+    private final VfsListingGeneration listing = new VfsListingGeneration();
     private boolean loaded;
     private List<VfsFileRow> children = List.of();
+
+    /** Every child of the folder. The details of the first {@link #read} are in the rows. */
+    private FileObject[] all = new FileObject[0];
+
+    private int read;
 
     private FolderNode(String uri, String name) {
       this.uri = uri;
       this.name = StringUtils.isBlank(name) ? uri : name;
+    }
+
+    private int unread() {
+      return Math.max(0, all.length - read);
     }
   }
 }

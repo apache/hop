@@ -107,14 +107,13 @@ public class VfsFileExplorer extends Composite {
     tabFolder.addListener(
         SWT.Selection,
         e -> {
-          activate();
           VfsFileExplorerLocation location = activeLocation();
           if (location != null) {
             location.publishCounts();
           }
         });
 
-    operationsPanel = new VfsExplorerOperationsPanel(sash, this, this);
+    operationsPanel = new VfsExplorerOperationsPanel(sash, this);
     operationsPanel.setExpandedListener(this::layoutOperations);
     sash.setWeights(80, 20);
     layoutOperations(false);
@@ -129,13 +128,15 @@ public class VfsFileExplorer extends Composite {
         });
   }
 
-  /** Open {@code location}, or the user home folder when it is blank. Focus an existing tab. */
+  /** Open {@code location}, or the project or user home when it is blank. Focus an existing tab. */
   public void openLocation(String location) {
     String target =
-        StringUtils.isBlank(location) ? System.getProperty("user.home") : location.trim();
+        StringUtils.isBlank(location)
+            ? VfsFileExplorerViews.defaultLocation(variables)
+            : location.trim();
     for (CTabItem item : tabFolder.getItems()) {
       if (item.getData() instanceof VfsFileExplorerLocation tab
-          && sameLocation(tab.getLocationText(), target)) {
+          && VfsLocations.sameLocation(tab.getLocationText(), target)) {
         tabFolder.setSelection(item);
         return;
       }
@@ -154,12 +155,16 @@ public class VfsFileExplorer extends Composite {
     tab.navigateTo(target, true);
   }
 
-  public void activate() {
-    VfsFileExplorers.activate(this);
-  }
-
   public Map<String, String> bookmarks() {
     return bookmarks;
+  }
+
+  /** Unfinished operations a host may have before it refuses new ones. */
+  public static final int MAX_RUNNING_OPERATIONS = 16;
+
+  /** Operations whose worker has not returned yet, including stopped ones still blocked in I/O. */
+  public int runningOperations() {
+    return operationsPanel.isDisposed() ? 0 : operationsPanel.runningCount();
   }
 
   public VfsExplorerOperation beginOperation(String description, String location) {
@@ -215,7 +220,7 @@ public class VfsFileExplorer extends Composite {
     VfsFileExplorerLocation location = activeLocation();
     String target = location == null ? "" : location.shownFolder();
     if (StringUtils.isBlank(target)) {
-      target = System.getProperty("user.home");
+      target = VfsFileExplorerViews.defaultLocation(variables);
     }
     newTab(target);
   }
@@ -263,6 +268,56 @@ public class VfsFileExplorer extends Composite {
     }
   }
 
+  @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
+  public void deleteActive() {
+    withActive(VfsFileExplorerLocation::deleteFromShortcut);
+  }
+
+  @GuiKeyboardShortcut(control = true, key = 'c')
+  @GuiOsxKeyboardShortcut(command = true, key = 'c')
+  public void copyActive() {
+    withActive(VfsFileExplorerLocation::copyFromShortcut);
+  }
+
+  @GuiKeyboardShortcut(control = true, key = 'x')
+  @GuiOsxKeyboardShortcut(command = true, key = 'x')
+  public void cutActive() {
+    withActive(VfsFileExplorerLocation::cutFromShortcut);
+  }
+
+  @GuiKeyboardShortcut(control = true, key = 'v')
+  @GuiOsxKeyboardShortcut(command = true, key = 'v')
+  public void pasteActive() {
+    withActive(VfsFileExplorerLocation::pasteClipboard);
+  }
+
+  /** Backspace in the tree or the file list. In the location field it still deletes text. */
+  @GuiKeyboardShortcut(key = SWT.BS)
+  @GuiOsxKeyboardShortcut(key = SWT.BS)
+  public void upActive() {
+    withActive(VfsFileExplorerLocation::navigateUp);
+  }
+
+  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
+  public void upActiveWithArrow() {
+    withActive(VfsFileExplorerLocation::navigateUp);
+  }
+
+  @GuiKeyboardShortcut(control = true, key = 'l')
+  @GuiOsxKeyboardShortcut(command = true, key = 'l')
+  public void focusLocationActive() {
+    withActive(VfsFileExplorerLocation::focusLocation);
+  }
+
+  private void withActive(java.util.function.Consumer<VfsFileExplorerLocation> action) {
+    VfsFileExplorerLocation location = activeLocation();
+    if (location != null) {
+      action.accept(location);
+    }
+  }
+
   private void layoutOperations(boolean expanded) {
     if (sash.isDisposed()) {
       return;
@@ -288,7 +343,7 @@ public class VfsFileExplorer extends Composite {
     layout(true, true);
   }
 
-  private VfsFileExplorerLocation activeLocation() {
+  VfsFileExplorerLocation activeLocation() {
     if (tabFolder.isDisposed()) {
       return null;
     }
@@ -308,7 +363,7 @@ public class VfsFileExplorer extends Composite {
   private void refreshBookmarkLists() {
     for (CTabItem item : tabFolder.getItems()) {
       if (item.getData() instanceof VfsFileExplorerLocation location) {
-        location.refreshBookmarks();
+        location.refreshPlaces();
       }
     }
   }
@@ -323,20 +378,5 @@ public class VfsFileExplorer extends Composite {
       operation.fail(Const.NVL(e.getMessage(), e.toString()), Const.getClassicStackTrace(e));
       refreshOperations();
     }
-  }
-
-  static boolean sameLocation(String left, String right) {
-    return stripTrailingSlash(left).equals(stripTrailingSlash(right));
-  }
-
-  private static String stripTrailingSlash(String value) {
-    if (value == null) {
-      return "";
-    }
-    String stripped = value;
-    while (stripped.length() > 1 && (stripped.endsWith("/") || stripped.endsWith("\\"))) {
-      stripped = stripped.substring(0, stripped.length() - 1);
-    }
-    return stripped;
   }
 }

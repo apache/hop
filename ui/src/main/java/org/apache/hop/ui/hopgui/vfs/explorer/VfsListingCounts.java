@@ -38,17 +38,31 @@ public final class VfsListingCounts {
   private final int selected;
   private final long selectedBytes;
 
+  /** Children of the folder whose details are not read yet. */
+  private final int unread;
+
   public VfsListingCounts(int listed, long listedBytes, int selected, long selectedBytes) {
+    this(listed, listedBytes, selected, selectedBytes, 0);
+  }
+
+  public VfsListingCounts(
+      int listed, long listedBytes, int selected, long selectedBytes, int unread) {
     this.listed = listed;
     this.listedBytes = Math.max(0, listedBytes);
     this.selected = Math.max(0, selected);
     this.selectedBytes = Math.max(0, selectedBytes);
+    this.unread = Math.max(0, unread);
   }
 
   public static VfsListingCounts of(List<VfsFileRow> listed, List<VfsFileRow> selected) {
+    return of(listed, selected, 0);
+  }
+
+  public static VfsListingCounts of(
+      List<VfsFileRow> listed, List<VfsFileRow> selected, int unread) {
     List<VfsFileRow> rows = listed == null ? List.of() : listed;
     List<VfsFileRow> picked = selected == null ? List.of() : selected;
-    return new VfsListingCounts(rows.size(), bytes(rows), picked.size(), bytes(picked));
+    return new VfsListingCounts(rows.size(), bytes(rows), picked.size(), bytes(picked), unread);
   }
 
   /** Sum of known file sizes. Folders and missing sizes add nothing. */
@@ -89,15 +103,20 @@ public final class VfsListingCounts {
     return size + "B";
   }
 
-  /** {@code - 200 files (2.1GB) - 10 files selected (120MB)}, or empty when nothing is listed. */
+  /**
+   * {@code - 200 files (2.1GB) - 10 files selected (120MB)}, followed by the number not loaded yet
+   * when there is one, or empty when nothing is listed.
+   */
   public String statusSuffix() {
     if (listed < 0) {
       return "";
     }
-    return " - "
-        + phrase(listed, listedBytes, false)
-        + " - "
-        + phrase(selected, selectedBytes, true);
+    String suffix =
+        " - " + phrase(listed, listedBytes, false) + " - " + phrase(selected, selectedBytes, true);
+    if (unread > 0) {
+      suffix += " - " + BaseMessages.getString(PKG, "VfsFileExplorer.Status.Unread", unread);
+    }
+    return suffix;
   }
 
   private static String phrase(int count, long bytes, boolean selected) {

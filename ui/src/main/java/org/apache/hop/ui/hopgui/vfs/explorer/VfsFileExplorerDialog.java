@@ -18,11 +18,13 @@
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.eclipse.swt.SWT;
@@ -56,7 +58,10 @@ public class VfsFileExplorerDialog {
     openAt(hopGui, null);
   }
 
-  /** Open or focus the window and show {@code location}. A blank location uses the user home. */
+  /**
+   * Open or focus the window and show {@code location}. A blank location uses the project or user
+   * home.
+   */
   public static void openAt(HopGui hopGui, String location) {
     VfsFileExplorerDialog dialog = openOrCreate(hopGui);
     if (dialog == null || dialog.explorer == null || dialog.explorer.isDisposed()) {
@@ -70,6 +75,9 @@ public class VfsFileExplorerDialog {
 
   static VfsFileExplorerDialog openOrCreate(HopGui hopGui) {
     if (hopGui == null || hopGui.getShell() == null || hopGui.getShell().isDisposed()) {
+      return null;
+    }
+    if (!HopSecurityUi.check(Permission.FILE_VIEW)) {
       return null;
     }
     Object existing = hopGui.getShell().getData(SHELL_DATA_KEY);
@@ -94,9 +102,6 @@ public class VfsFileExplorerDialog {
     shell.setMinimized(false);
     shell.setActive();
     shell.forceActive();
-    if (explorer != null && !explorer.isDisposed()) {
-      explorer.activate();
-    }
   }
 
   private void openShell() {
@@ -112,7 +117,6 @@ public class VfsFileExplorerDialog {
     explorer = new VfsFileExplorer(shell, hopGui);
     explorer.setLayoutData(new FormDataBuilder().fullSize().result());
     explorer.openLocation(null);
-    explorer.activate();
 
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(explorer);

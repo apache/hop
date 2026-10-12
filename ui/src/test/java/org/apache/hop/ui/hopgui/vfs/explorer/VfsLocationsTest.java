@@ -52,4 +52,29 @@ class VfsLocationsTest {
     assertFalse(VfsLocations.isUnder("ram:///a", "ram:///a"));
     assertFalse(VfsLocations.isUnder("ram:///a/", "ram:///a"));
   }
+
+  @Test
+  void aPlainPathAndItsFileUriAreTheSameLocation() {
+    assertTrue(VfsLocations.sameLocation("/home/x", "file:///home/x/"));
+    assertTrue(VfsLocations.sameLocation("C:\\data\\in", "file:///C:/data/in"));
+    assertTrue(VfsLocations.sameLocation("C:\\", "file:///C:/"));
+    assertFalse(VfsLocations.sameLocation("/home/x", "file:///home/xy"));
+    assertFalse(VfsLocations.sameLocation("/home/x", "s3:///home/x"));
+    assertTrue(VfsLocations.isUnder("/home/x", "file:///home/x/sub"));
+    assertTrue(VfsLocations.isUnder("file:///home/x", "/home/x/sub/deeper"));
+    assertFalse(VfsLocations.isUnder("/home/x", "file:///home/xy"));
+  }
+
+  @Test
+  void aPathInsideTheProjectIsWrittenWithTheVariable() {
+    assertEquals(
+        "${PROJECT_HOME}/data/in.csv",
+        VfsLocations.relativeTo("/home/p/data/in.csv", "PROJECT_HOME", "/home/p/"));
+    assertEquals(
+        "${PROJECT_HOME}/data",
+        VfsLocations.relativeTo("file:///home/p/data", "PROJECT_HOME", "/home/p"));
+    assertEquals("${PROJECT_HOME}", VfsLocations.relativeTo("/home/p", "PROJECT_HOME", "/home/p"));
+    assertNull(VfsLocations.relativeTo("/home/pq/x", "PROJECT_HOME", "/home/p"));
+    assertNull(VfsLocations.relativeTo("s3:///bucket/x", "PROJECT_HOME", "/home/p"));
+  }
 }

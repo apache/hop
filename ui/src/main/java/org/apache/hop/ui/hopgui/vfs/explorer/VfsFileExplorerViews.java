@@ -20,6 +20,8 @@ package org.apache.hop.ui.hopgui.vfs.explorer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.security.Permission;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.IVfsBrowseLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -27,6 +29,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -91,6 +94,9 @@ public class VfsFileExplorerViews {
         return;
       }
       if (editor.hasChanged()) {
+        if (!confirmSave(editor)) {
+          return;
+        }
         editor.save();
       }
       String root = location.getBrowseRoot(editor.getHopGui().getVariables());
@@ -111,13 +117,21 @@ public class VfsFileExplorerViews {
     }
   }
 
+  /** VFS resolves the saved connection, so unsaved edits are saved first, after asking. */
+  private static boolean confirmSave(MetadataEditor<?> editor) {
+    MessageBox box = new MessageBox(editor.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText(BaseMessages.getString(PKG, "VfsFileExplorer.Explore.Save.Title"));
+    box.setMessage(BaseMessages.getString(PKG, "VfsFileExplorer.Explore.Save.Message"));
+    return box.open() == SWT.YES;
+  }
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static void copyWidgets(MetadataEditor editor) {
     editor.getWidgetsContent(editor.getMetadata());
   }
 
   public static void openDock(HopGui hopGui, String location) {
-    if (hopGui == null) {
+    if (hopGui == null || !HopSecurityUi.check(Permission.FILE_VIEW)) {
       return;
     }
     HopGuiBottomDock dock = hopGui.getTerminalPanel();
@@ -132,11 +146,10 @@ public class VfsFileExplorerViews {
             GuiResource.getInstance().getImageFolder(),
             true,
             container -> createDockedExplorer(container, hopGui, location));
-    if (control instanceof VfsFileExplorer explorer && !explorer.isDisposed()) {
-      explorer.activate();
-      if (StringUtils.isNotEmpty(location)) {
-        explorer.openLocation(location);
-      }
+    if (control instanceof VfsFileExplorer explorer
+        && !explorer.isDisposed()
+        && StringUtils.isNotEmpty(location)) {
+      explorer.openLocation(location);
     }
   }
 
@@ -144,7 +157,6 @@ public class VfsFileExplorerViews {
     VfsFileExplorer explorer = new VfsFileExplorer(container, hopGui);
     explorer.setLayoutData(new FormDataBuilder().fullSize().result());
     explorer.openLocation(location);
-    explorer.activate();
     return explorer;
   }
 
@@ -186,21 +198,21 @@ public class VfsFileExplorerViews {
     if (isDockOpen(hopGui)) {
       CTabItem item = dock.findToolTab(DOCK_TOOL_ID);
       dock.selectTab(item);
-      Control control = dock.getToolContent(item);
-      if (control instanceof VfsFileExplorer explorer && !explorer.isDisposed()) {
-        explorer.activate();
-      }
       return;
     }
-    openDock(hopGui, defaultDockLocation(hopGui));
+    openDock(hopGui, defaultLocation(hopGui.getVariables()));
   }
 
-  private static String defaultDockLocation(HopGui hopGui) {
+  /**
+   * Where a new explorer starts: the project home, or the user home without a project. On Hop Web
+   * the user home is the server's, so the project comes first.
+   */
+  public static String defaultLocation(IVariables variables) {
     try {
-      if (hopGui.getVariables() != null) {
-        String projectHome = hopGui.getVariables().getVariable("PROJECT_HOME");
+      if (variables != null) {
+        String projectHome = variables.getVariable("PROJECT_HOME");
         if (StringUtils.isNotEmpty(projectHome)) {
-          projectHome = hopGui.getVariables().resolve(projectHome);
+          projectHome = variables.resolve(projectHome);
           if (StringUtils.isNotEmpty(projectHome)) {
             return projectHome;
           }
