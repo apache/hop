@@ -25,9 +25,11 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
+import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
+import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorTurn;
@@ -97,6 +99,30 @@ class AiAdvisorEngineTest {
     assertFalse(session.getAttributes().containsKey("mutated"));
     assertEquals(
         List.of("SRC_ORDERS", "SRC_CUSTOMER"), session.getInclusionSelections().get("catalog"));
+  }
+
+  @Test
+  void theMinimumLeavesOutEverythingUnderSharing() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("orders");
+    AiAdvisorSession session = new AiAdvisorSession();
+    session.setArtifact(pipelineMeta);
+    AiAdvisorTurn turn = new AiAdvisorTurn();
+    turn.setUserPrompt("Why did it fail?");
+    session.addTurn(turn);
+    session.getInclusions().put(AiAdvisorInclusions.LOGS, true);
+    session.setLogSupplier(() -> "ERROR row rejected\n".repeat(500));
+    PipelineAiAdvisor advisor = new PipelineAiAdvisor();
+
+    AiAdvisorPrompt full =
+        advisor.buildPrompt(AiAdvisorEngine.toRequest(session, new Variables(), null, null));
+    int fullTokens =
+        AiAdvisorEngine.estimateTokens(full.getSystemPrompt())
+            + AiAdvisorEngine.estimateTokens(full.getUserPrompt());
+    int minimum = AiAdvisorEngine.minimumTokens(session, advisor, new Variables(), null);
+
+    assertTrue(minimum > 0);
+    assertTrue(minimum < fullTokens - 2_000, minimum + " of " + fullTokens);
   }
 
   @Test

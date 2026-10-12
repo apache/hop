@@ -31,9 +31,31 @@ class HopAiConfigTest {
     assertFalse(config.isAiEnabled());
     assertEquals("", config.getDefaultProviderName());
     assertFalse(config.isAllowSendFullXml());
-    assertEquals(HopAiConfig.DEFAULT_EXTRA_CONTEXT, config.getExtraContext());
-    assertTrue(config.getExtraContext().contains("case-sensitive"));
+    // The plugin's ai-context.md holds the standing notes; the user's notes start empty.
+    assertEquals("", config.getExtraContext());
     assertEquals(HopAiConfig.DEFAULT_EXTRA_CONTEXT_FILES, config.getExtraContextFiles());
+  }
+
+  @Test
+  void theNotesEarlierVersionsSetByDefaultAreReadAsNone() {
+    HopAiConfig config = new HopAiConfig();
+    config.setExtraContext(HopAiConfig.LEGACY_DEFAULT_EXTRA_CONTEXT);
+    assertEquals("", config.getExtraContext());
+    // As hop-config.json may hold them, with other line ends.
+    config.setExtraContext(HopAiConfig.LEGACY_DEFAULT_EXTRA_CONTEXT.replace("\n", "\r\n") + "\n");
+    assertEquals("", config.getExtraContext());
+    config.setExtraContext(
+        HopAiConfig.LEGACY_DEFAULT_EXTRA_CONTEXT + "Our tables are in the dwh schema.");
+    assertTrue(config.getExtraContext().contains("dwh schema"), "edited notes are kept");
+  }
+
+  @Test
+  void blankNotesAreNone() {
+    HopAiConfig config = new HopAiConfig();
+    config.setExtraContext("\n");
+    assertEquals("", config.getExtraContext());
+    config.setExtraContext(null);
+    assertEquals("", config.getExtraContext());
   }
 
   @Test

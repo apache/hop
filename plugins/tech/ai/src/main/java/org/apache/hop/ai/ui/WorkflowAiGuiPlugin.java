@@ -17,6 +17,7 @@
 
 package org.apache.hop.ai.ui;
 
+import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.ai.advisors.workflow.WorkflowAiAdvisor;
@@ -30,6 +31,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
 
 @GuiPlugin(description = "i18n::WorkflowAiGuiPlugin.Description", classLoaderGroup = "hop-ai")
 public class WorkflowAiGuiPlugin {
@@ -46,7 +48,17 @@ public class WorkflowAiGuiPlugin {
     if (workflowGraph == null) {
       return;
     }
-    openAiAdvisor(workflowGraph, null);
+    // With one action selected the question is about that action, as from its context menu.
+    openAiAdvisor(workflowGraph, singleSelectedAction(workflowGraph));
+  }
+
+  /** The name of the only selected action, or null when none or several are selected. */
+  static String singleSelectedAction(HopGuiWorkflowGraph workflowGraph) {
+    if (workflowGraph.getWorkflowMeta() == null) {
+      return null;
+    }
+    List<ActionMeta> selected = workflowGraph.getWorkflowMeta().getSelectedActions();
+    return selected != null && selected.size() == 1 ? selected.get(0).getName() : null;
   }
 
   @GuiContextAction(
@@ -70,7 +82,7 @@ public class WorkflowAiGuiPlugin {
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::WorkflowAiGuiPlugin.AiHelp.Name",
-      tooltip = "i18n::WorkflowAiGuiPlugin.AiHelp.Tooltip",
+      tooltip = "i18n::WorkflowAiGuiPlugin.AiHelp.Node.Tooltip",
       image = "ai-provider.svg",
       category =
           "i18n:org.apache.hop.ui.hopgui.file.workflow:HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",

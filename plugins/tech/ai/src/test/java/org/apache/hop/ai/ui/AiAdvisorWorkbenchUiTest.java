@@ -19,6 +19,7 @@ package org.apache.hop.ai.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,6 +33,7 @@ import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.ai.advisor.AiAdvisorPlugin;
 import org.apache.hop.ai.advisor.AiAdvisorPluginType;
 import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
+import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorSessionStore;
 import org.apache.hop.ai.session.AiAdvisorTurn;
@@ -47,6 +49,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -64,6 +67,8 @@ class AiAdvisorWorkbenchUiTest extends SwtBotTestBase {
   @BeforeAll
   static void init() throws Exception {
     HopGuiEnvironment.init();
+    // The toolbar is disabled while the AI Assistant is; see AiAdvisorSessionPaneUiTest
+    HopAiConfigSingleton.getConfig().setAiEnabled(true);
     PluginRegistry.addPluginType(AiAdvisorPluginType.getInstance());
     if (PluginRegistry.getInstance()
             .findPluginWithId(AiAdvisorPluginType.class, PipelineAiAdvisor.ID)
@@ -108,7 +113,9 @@ class AiAdvisorWorkbenchUiTest extends SwtBotTestBase {
               onUi(() -> item(workbench.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_LINK).isEnabled()));
           assertTrue(
               onUi(() -> item(workbench.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_CLOSE).isEnabled()));
-          assertEquals(List.of(session.displayTitle()), onUi(() -> sessionTitles(workbench.get())));
+          assertEquals(
+              List.of(session.displayTitle() + " (not linked)"),
+              onUi(() -> sessionTitles(workbench.get())));
         });
   }
 
@@ -216,6 +223,58 @@ class AiAdvisorWorkbenchUiTest extends SwtBotTestBase {
               onUi(() -> item(docked.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_FLOAT).isEnabled()));
           assertFalse(
               onUi(() -> item(docked.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_DOCK).isEnabled()));
+        });
+  }
+
+  @Test
+  void whileTheAssistantIsDisabledNoSessionCanBeStartedOrLinked() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorSession unlinked = store.open(pipelineRequest("orders"));
+    unlinked.setArtifact(null);
+    AtomicReference<AiAdvisorWorkbench> workbench = new AtomicReference<>();
+    HopAiConfigSingleton.getConfig().setAiEnabled(false);
+    try {
+      withScene(
+          shell ->
+              workbench.set(
+                  newWorkbench(shell, store, IAiAdvisorWorkbenchHost.ViewKind.PERSPECTIVE)),
+          bot -> {
+            assertFalse(
+                onUi(() -> item(workbench.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_NEW).isEnabled()));
+            assertFalse(
+                onUi(
+                    () -> item(workbench.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_LINK).isEnabled()));
+            // The conversation can still be read and closed.
+            assertTrue(
+                onUi(
+                    () ->
+                        item(workbench.get(), AiAdvisorWorkbench.TOOLBAR_ITEM_CLOSE).isEnabled()));
+          });
+    } finally {
+      HopAiConfigSingleton.getConfig().setAiEnabled(true);
+    }
+  }
+
+  @Test
+  void aSessionWhoseFileIsClosedIsGreyAndSaysSo() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    AiAdvisorSession open = store.open(pipelineRequest("customers"));
+    AiAdvisorSession closed = store.open(pipelineRequest("orders"));
+    closed.setArtifact(null);
+    AtomicReference<AiAdvisorWorkbench> workbench = new AtomicReference<>();
+    withScene(
+        shell ->
+            workbench.set(newWorkbench(shell, store, IAiAdvisorWorkbenchHost.ViewKind.PERSPECTIVE)),
+        bot -> {
+          assertEquals(
+              List.of("customers", "orders (closed)"), onUi(() -> sessionTitles(workbench.get())));
+          Color grey =
+              onUi(() -> Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+          TreeItem openItem = onUi(() -> workbench.get().getTree().getItem(0).getItem(0));
+          TreeItem closedItem = onUi(() -> workbench.get().getTree().getItem(0).getItem(1));
+          assertEquals(grey, onUi(closedItem::getForeground));
+          assertNotEquals(grey, onUi(openItem::getForeground));
+          assertEquals(open.getId(), onUi(openItem::getData));
         });
   }
 

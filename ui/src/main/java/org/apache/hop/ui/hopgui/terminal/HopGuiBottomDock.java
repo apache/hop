@@ -251,6 +251,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
             return;
           }
           lastContentTab = item;
+          updateFontToolItems();
           ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
           if (widget != null) {
             Composite composite = widget.getTerminalComposite();
@@ -369,7 +370,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     registerTerminal(terminalId, workingDirectory, shellPath);
 
     if (reveal) {
-      terminalTabs.setSelection(terminalTab);
+      selectAndUpdate(terminalTab);
       if (!isDockVisible()) {
         showDock();
       }
@@ -544,7 +545,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       return;
     }
     showDock();
-    terminalTabs.setSelection(item);
+    selectAndUpdate(item);
     hopGui.refreshSidebarToolbarButtonStates();
   }
 
@@ -625,7 +626,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     CTabItem existing = findToolTab(toolId);
     if (existing != null) {
       showDock();
-      terminalTabs.setSelection(existing);
+      selectAndUpdate(existing);
       return (Control) existing.getData(DATA_TOOL_CONTENT);
     }
     return createToolTab(toolId, title, image, closable, contentFactory);
@@ -690,7 +691,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     hopGui.replaceKeyboardShortcutListeners(container, HopGuiKeyHandler.getInstance());
 
     showDock();
-    terminalTabs.setSelection(item);
+    selectAndUpdate(item);
     return content;
   }
 
@@ -774,6 +775,8 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     }
 
     tabItem.dispose();
+    // The folder selects the next tab without a Selection event.
+    updateFontToolItems();
     hopGui.refreshSidebarToolbarButtonStates();
   }
 
@@ -837,7 +840,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       dockToolBar.setBackground(terminalTabs.getBackground());
     }
 
-    createFontToolItems();
+    // The font-size controls come with the first terminal tab; see updateFontToolItems().
 
     // Maximize/Minimize button
     final ToolItem maximizeItem = new ToolItem(dockToolBar, SWT.PUSH);
@@ -871,6 +874,44 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
 
     int height = dockToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     terminalTabs.setTabHeight(Math.max(height, terminalTabs.getTabHeight()));
+  }
+
+  private void selectAndUpdate(CTabItem item) {
+    terminalTabs.setSelection(item);
+    updateFontToolItems();
+  }
+
+  /**
+   * The font-size controls only resize terminal text, so they are shown while a terminal tab is
+   * selected and not on the search, database, file explorer or other tool tabs. The "+" tab, which
+   * is only selected while its menu is open, leaves them as they are.
+   */
+  void updateFontToolItems() {
+    if (terminalTabs == null || terminalTabs.isDisposed()) {
+      return;
+    }
+    CTabItem selected = terminalTabs.getSelection();
+    if (selected != null && selected == newTerminalTab) {
+      return;
+    }
+    boolean terminal =
+        terminalsEnabled
+            && selected != null
+            && !selected.isDisposed()
+            && selected.getData("terminalWidget") != null;
+    boolean shown = increaseFontItem != null && !increaseFontItem.isDisposed();
+    if (terminal == shown) {
+      return;
+    }
+    if (terminal) {
+      createFontToolItems();
+    } else {
+      disposeFontToolItems();
+    }
+    if (dockToolBar != null && !dockToolBar.isDisposed()) {
+      dockToolBar.pack();
+    }
+    terminalTabs.layout(true, true);
   }
 
   /** Font-size controls sit in front of maximize and close, and only while the terminal is on. */
@@ -960,7 +1001,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
                               || terminalTabs.getSelection() == newTerminalTab)
                           && restore != null
                           && !restore.isDisposed()) {
-                        terminalTabs.setSelection(restore);
+                        selectAndUpdate(restore);
                       }
                       if (!menu.isDisposed()) {
                         menu.dispose();
@@ -1024,13 +1065,11 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       // later restore (after the user turns the terminal back on) can recreate them.
       saveOpenTerminals();
       disposeTerminalTabs();
-      disposeFontToolItems();
       if (!hasContentTabs()) {
         hideDock();
       }
-    } else {
-      createFontToolItems();
     }
+    updateFontToolItems();
   }
 
   /**

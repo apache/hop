@@ -19,10 +19,13 @@ package org.apache.hop.ai.ui;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
+import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorSessionStore;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.util.Utils;
@@ -30,6 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -44,7 +48,6 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -215,7 +218,39 @@ public class AiAdvisorWorkbench extends Composite {
       box.open();
       return;
     }
+    if (!confirmLinkToOtherFile.test(session, request)) {
+      return;
+    }
     store.link(session, request);
+  }
+
+  /**
+   * Asks whether a session started on one file may be linked to another. Replaceable so tests need
+   * no native message box.
+   */
+  BiPredicate<AiAdvisorSession, AiAdvisorOpenRequest> confirmLinkToOtherFile =
+      this::askToLinkOtherFile;
+
+  private boolean askToLinkOtherFile(AiAdvisorSession session, AiAdvisorOpenRequest request) {
+    String started = session.getArtifactFilename();
+    String open = AiAdvisorSessionStore.filenameOf(request.getArtifact());
+    if (!isOtherFile(started, open)) {
+      return true;
+    }
+    MessageBox box = new MessageBox(host.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    box.setText(BaseMessages.getString(PKG, "AiAdvisor.Link.OtherFile.Title"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "AiAdvisor.Link.OtherFile.Message",
+            started,
+            Utils.isEmpty(open) ? Const.NVL(request.getArtifactName(), "") : open));
+    return box.open() == SWT.YES;
+  }
+
+  /** Whether linking would attach a session started on one saved file to a different one. */
+  static boolean isOtherFile(String startedOn, String openFile) {
+    return !Utils.isEmpty(startedOn) && !startedOn.equals(openFile);
   }
 
   @GuiToolbarElement(
@@ -322,7 +357,11 @@ public class AiAdvisorWorkbench extends Composite {
           groups.put(area, group);
         }
         TreeItem item = new TreeItem(group, SWT.NONE);
-        item.setText(session.displayTitle());
+        item.setText(treeLabel(session));
+        if (session.getArtifact() == null) {
+          // Nothing can be asked until it is linked again.
+          item.setForeground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+        }
         item.setData(session.getId());
         group.setExpanded(true);
         if (session.getId().equals(store.getActiveSessionId())) {
@@ -337,10 +376,28 @@ public class AiAdvisorWorkbench extends Composite {
     }
   }
 
+  /**
+   * The title, marked when the session's pipeline or workflow is closed, or there never was one.
+   */
+  static String treeLabel(AiAdvisorSession session) {
+    if (session.getArtifact() != null) {
+      return session.displayTitle();
+    }
+    boolean hadFile =
+        !Utils.isEmpty(session.getArtifactFilename()) || !Utils.isEmpty(session.getArtifactKind());
+    return BaseMessages.getString(
+        PKG,
+        hadFile ? "AiAdvisor.Sessions.Closed" : "AiAdvisor.Sessions.NotLinked",
+        session.displayTitle());
+  }
+
   private void updateToolbar() {
     AiAdvisorSession active = store.getActiveSession();
     boolean hasSession = active != null;
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_LINK, hasSession && active.getArtifact() == null);
+    boolean enabled = HopAiConfigSingleton.getConfig().isAiEnabled();
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, enabled);
+    toolBarWidgets.enableToolbarItem(
+        TOOLBAR_ITEM_LINK, enabled && hasSession && active.getArtifact() == null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, hasSession);
     toolBarWidgets.enableToolbarItem(
         TOOLBAR_ITEM_FLOAT, host.getViewKind() != IAiAdvisorWorkbenchHost.ViewKind.FLOATING);

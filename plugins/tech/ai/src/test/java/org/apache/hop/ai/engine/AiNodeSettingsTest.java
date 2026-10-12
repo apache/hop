@@ -55,7 +55,9 @@ class AiNodeSettingsTest {
 
     @HopMetadataProperty private String emptyText = "";
     @HopMetadataProperty private boolean lazy;
+    @HopMetadataProperty private boolean cached = true;
     @HopMetadataProperty private int limit = 100;
+    @HopMetadataProperty private String encoding = "UTF-8";
 
     @HopMetadataProperty(key = "field")
     private List<Field> fields = new ArrayList<>(List.of(new Field("id", "Integer")));
@@ -63,18 +65,38 @@ class AiNodeSettingsTest {
     private String notAProperty = "hidden";
   }
 
+  /** A transform whose settings all differ from the defaults, except for the encoding. */
+  private static ReadTableMeta changed() {
+    ReadTableMeta meta = new ReadTableMeta();
+    meta.setConnection("warehouse");
+    meta.setSql("SELECT id, amount FROM orders WHERE status = 'OPEN' AND amount > 0");
+    meta.setLazy(true);
+    meta.setCached(false);
+    meta.setLimit(500);
+    meta.setFields(new ArrayList<>(List.of(new Field("amount", "Number"))));
+    return meta;
+  }
+
   @Test
   void readsPropertiesAndSkipsPasswordsAndEmptyValues() {
-    String json = AiNodeSettings.toJson(new ReadTableMeta());
-    assertTrue(json.contains("\"connection\":\"sales\""), json);
+    String json = AiNodeSettings.toJson(changed());
+    assertTrue(json.contains("\"connection\":\"warehouse\""), json);
     assertTrue(json.contains("SELECT id, amount FROM orders"), json);
-    assertTrue(json.contains("\"limit\":100"), json);
-    assertTrue(json.contains("\"field\":[{\"name\":\"id\",\"type\":\"Integer\"}]"), json);
+    assertTrue(json.contains("\"limit\":500"), json);
+    assertTrue(json.contains("\"field\":[{\"name\":\"amount\",\"type\":\"Number\"}]"), json);
     assertFalse(json.contains("password"), json);
     assertFalse(json.contains("2be98afc"), json);
     assertFalse(json.contains("emptyText"), json);
-    assertTrue(json.contains("\"lazy\":false"), "an option that is off is not unset: " + json);
+    assertTrue(json.contains("\"lazy\":true"), json);
+    assertTrue(json.contains("\"cached\":false"), "an option switched off is kept: " + json);
     assertFalse(json.contains("hidden"), json);
+  }
+
+  @Test
+  void leavesOutTheDefaults() {
+    String json = AiNodeSettings.toJson(changed());
+    assertFalse(json.contains("encoding"), json);
+    assertNull(AiNodeSettings.toJson(new ReadTableMeta()), "only defaults: nothing to say");
   }
 
   @Test

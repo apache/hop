@@ -109,6 +109,11 @@ public class AiAdvisorSession {
     turns.add(turn);
   }
 
+  /** Take back a question that could not be sent, so it is not part of the conversation. */
+  public void removeTurn(AiAdvisorTurn turn) {
+    turns.remove(turn);
+  }
+
   public void requestCancel() {
     cancelled = true;
     Thread thread = workerThread;

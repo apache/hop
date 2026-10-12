@@ -243,7 +243,7 @@ public class AiAdvisorSessionStore {
     return sameFile;
   }
 
-  static String filenameOf(Object artifact) {
+  public static String filenameOf(Object artifact) {
     return artifact instanceof IHasFilename hasFilename ? hasFilename.getFilename() : null;
   }
 
@@ -267,6 +267,34 @@ public class AiAdvisorSessionStore {
         session.setArtifact(null);
         session.setLogSupplier(null);
         session.setRunIdSupplier(null);
+        changed = true;
+      }
+    }
+    if (changed) {
+      fireChanged();
+    }
+  }
+
+  /**
+   * A pipeline or workflow was saved. Its sessions take the file name, and the name the file gives
+   * it: a new pipeline is called after its file once it is first saved.
+   *
+   * @param name the name of the pipeline or workflow after the save
+   */
+  public void artifactSaved(Object artifact, String name) {
+    boolean changed = false;
+    for (AiAdvisorSession session : sessions) {
+      if (artifact == null || session.getArtifact() != artifact) {
+        continue;
+      }
+      session.setArtifactFilename(filenameOf(artifact));
+      if (!Utils.isEmpty(name) && !name.equals(session.getArtifactName())) {
+        // A title the user gave stays; one taken from the file follows it.
+        if (Utils.isEmpty(session.getTitle())
+            || Objects.equals(session.getTitle(), session.getArtifactName())) {
+          session.setTitle(name);
+        }
+        session.setArtifactName(name);
         changed = true;
       }
     }

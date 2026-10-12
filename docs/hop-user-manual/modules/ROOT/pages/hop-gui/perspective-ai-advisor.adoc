@@ -43,9 +43,11 @@ image::hop-gui/ai-advisor/ai-advisor-perspective.jpg[The AI Assistant perspectiv
 
 . Open the Configuration perspective → *Plugins* → *AI Assistant*.
 . Check *Enable the AI Assistant*.
+  While it is off, the assistant does not open from the toolbar, the canvas, the *Tools* menu or the shortcut; they say where to enable it. The perspective still shows saved conversations, but nothing can be asked.
 . Optionally pick a *Default AI provider*.
-. *Extra context* is sent with every question. The default includes that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different metadata types, and that Hop uses pipelines/workflows (not Kettle transformations/jobs). Add project conventions here.
-. *Context files* is empty by default. List VFS paths, one per line, of files with standing instructions for the assistant, for example `+${PROJECT_HOME}/ai-assistant.md+`. Existing files are appended to the instructions; missing files are skipped.
+  The setting applies to every project, while AI providers are metadata of a project. When the open project has no provider by that name, a note below the field says so, and new sessions use the provider picked last in that project.
+. *Extra context* is sent with every question. It is empty by default: the notes that come with the AI plugin (see <<always-sent>>) already say that metadata names are case-sensitive (`local` is not `Local`), that pipeline and workflow run configurations are different metadata types, and that Hop uses pipelines and workflows, not Kettle transformations and jobs. Add project conventions here.
+. *Context files* is empty by default. List VFS paths, one per line, of files with standing instructions for the assistant, for example `+${PROJECT_HOME}/ai-assistant.md+`. *Add a file...* browses for one and adds it on a new line; a file in the project is added as `+${PROJECT_HOME}/...+`. Existing files are appended to the instructions; missing files are skipped.
   Only list files you wrote for the AI Assistant. A project's `AGENTS.md` is usually written for coding agents, and a file from a project you did not write can steer the assistant.
 . Leave *Allow sending full XML* unchecked unless you explicitly want questions to include the full pipeline or workflow XML.
   This is a second gate: the session checkbox cannot send XML until this option is on.
@@ -77,7 +79,7 @@ The assistant shows this reminder on an empty session, in Configuration → *Plu
 
 From a pipeline or workflow graph:
 
-* toolbar *AI Assistant*
+* toolbar *AI Assistant* (with exactly one transform or action selected, that node is the focus)
 * right-click the canvas → *Basic* → *AI Assistant*
 * right-click a transform or action → *Basic* → *AI Assistant* (sets that node as the focus)
 
@@ -89,7 +91,7 @@ Two files with the same name in different folders each get their own session.
 
 *New session* (`+`) starts a session for the pipeline or workflow that is open in the Explorer perspective.
 With no file open it starts a session that is not linked to one; the pipeline and workflow advisors need a file, so open one and click *Link to the open file* on the session toolbar.
-`CTRL-SHIFT-A` opens the perspective.
+`CTRL-SHIFT-A` (macOS: `Cmd-Shift-A`) on an open pipeline or workflow does what *AI Assistant* on its toolbar does. Elsewhere it opens the perspective.
 
 Sessions belong to the project they were started in: switching projects shows that project's sessions.
 With *Keep conversations after Hop GUI closes* (Configuration → *Plugins* → *AI Assistant*, on by default) they are saved per project in the audit folder, `+${HOP_AUDIT_FOLDER}+`, where Hop GUI also remembers the open files of each project.
@@ -137,6 +139,7 @@ For a hosted provider without a *Context size*, the question is checked against 
 
 The assistant answers in the language of your question.
 
+[[always-sent]]
 === Always sent
 
 Regardless of the checkboxes, every turn includes:
@@ -146,7 +149,11 @@ Regardless of the checkboxes, every turn includes:
 * *Extra context* and *Context files* from Configuration → *Plugins* → *AI Assistant* (when notes are filled in, or when listed files such as `+${PROJECT_HOME}/ai-assistant.md+` exist)
 * plugin notes from `ai-context.md`, and `ai-context/pipeline-advisor.md` or `ai-context/workflow-advisor.md`, in the AI plugin folder (`plugins/tech/ai`). Hop ships facts there that small models often get wrong, such as case-sensitive metadata names and run-configuration types. You can read and edit them; other plugins can add their own
 
-Every turn also includes a short *summary* (file name, counts, parameter *names* — not values), *metadata type keys* (for example `rdbms`), and *database plugin ids* (`POSTGRESQL`, `MYSQL`, …) so `SAVE_METADATA` can set the connection type.
+Every turn also includes a short *summary* (file name, counts, parameter *names* — not values).
+A question that asks for a change also gets the proposal format for its kind of file and the *metadata type keys* (for example `rdbms`); when it concerns a database, also the *database plugin ids* (`POSTGRESQL`, `MYSQL`, …) so `SAVE_METADATA` can set the connection type.
+A question that only asks for an explanation ("what does this do?", "why did it fail?") goes without them, which saves about 3,000 tokens.
+Transform and action settings list only the values that differ from the plugin's defaults.
+Local folders are sent as variables: the project folder as `+${PROJECT_HOME}+` and your home folder as `+${user.home}+`.
 
 That is usually enough for "what does this graph do?", hop problems, and naming questions.
 
@@ -273,6 +280,7 @@ The same workbench can run outside the perspective, like the Database perspectiv
 
 Hop GUI remembers where you put it: after *Dock*, *AI Assistant* on a toolbar opens it in the dock, and the dock tab is opened again when Hop GUI starts.
 *Float* and *Dock* move the assistant: moving it from the dock to a floating window closes the dock tab, and the other way around. The button of the place you are in is disabled.
+The assistant is open in one place at a time. *Float* or *Dock* in the perspective switches back to the files, opening the perspective closes the floating window and the dock tab, and *Tools → AI Assistant window* moves the assistant from the dock to a floating window, as *Float* does.
 
 image::hop-gui/ai-advisor/ai-advisor-floating-window.jpg[AI Assistant floating over a failed workflow and its execution log,width="90%"]
 

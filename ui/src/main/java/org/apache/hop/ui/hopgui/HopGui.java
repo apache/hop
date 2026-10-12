@@ -982,6 +982,11 @@ public class HopGui
         KeyboardShortcut shortcut =
             GuiRegistry.getInstance()
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
+        if (shortcut == null) {
+          // A perspective can open itself from a method of its own, which does more than
+          // activate it.
+          shortcut = findGlobalShortcut(perspectiveClass.getName());
+        }
 
         if (shortcut != null) {
           tooltip += " (" + shortcut + ")";
@@ -1005,6 +1010,19 @@ public class HopGui
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
+  }
+
+  /** The first global keyboard shortcut of a class for this platform, or null. */
+  private static KeyboardShortcut findGlobalShortcut(String className) {
+    List<KeyboardShortcut> shortcuts = GuiRegistry.getInstance().getKeyboardShortcuts(className);
+    if (shortcuts != null) {
+      for (KeyboardShortcut shortcut : shortcuts) {
+        if (shortcut.isGlobal() && shortcut.isOsx() == Const.isOSX()) {
+          return shortcut;
+        }
+      }
+    }
+    return null;
   }
 
   private ToolItem addWebToolbarButton(
