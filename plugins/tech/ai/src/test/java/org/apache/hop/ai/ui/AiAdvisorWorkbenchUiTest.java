@@ -45,6 +45,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.testing.SwtBotTestBase;
@@ -268,8 +269,7 @@ class AiAdvisorWorkbenchUiTest extends SwtBotTestBase {
         bot -> {
           assertEquals(
               List.of("customers", "orders (closed)"), onUi(() -> sessionTitles(workbench.get())));
-          Color grey =
-              onUi(() -> Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+          Color grey = onUi(() -> GuiResource.getInstance().getColorDarkGray());
           TreeItem openItem = onUi(() -> workbench.get().getTree().getItem(0).getItem(0));
           TreeItem closedItem = onUi(() -> workbench.get().getTree().getItem(0).getItem(1));
           assertEquals(grey, onUi(closedItem::getForeground));

@@ -45,6 +45,7 @@ import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -497,7 +498,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
           if (text.getCharCount() > 0) {
             return;
           }
-          e.gc.setForeground(text.getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+          e.gc.setForeground(GuiResource.getInstance().getColorDarkGray());
           e.gc.drawText(hint, PropsUi.getMargin(), PropsUi.getMargin() / 2, true);
         });
     text.addListener(SWT.Modify, e -> text.redraw());

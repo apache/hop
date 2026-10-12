@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -360,7 +361,8 @@ public class AiAdvisorWorkbench extends Composite {
         item.setText(treeLabel(session));
         if (session.getArtifact() == null) {
           // Nothing can be asked until it is linked again.
-          item.setForeground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+          // Not a system color: on GTK the dark shadow color is black, like any other text.
+          item.setForeground(GuiResource.getInstance().getColorDarkGray());
         }
         item.setData(session.getId());
         group.setExpanded(true);
