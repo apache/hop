@@ -224,7 +224,8 @@ class AgeGraphDialectCharacterizationTest {
     Map<String, String> e = new LinkedHashMap<>();
     e.put(
         "AGE|index.create|A",
-        "DO $hop$ BEGIN IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_label l JOIN ag_catalog.ag_graph g ON g.graphid = l.graph WHERE g.name = 'hop_graph' AND l.kind = 'v' AND l.name = 'Person') THEN PERFORM ag_catalog.create_vlabel('hop_graph', 'Person'); END IF; END $hop$;\n"
+        "DO $hop$ BEGIN IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_label l JOIN ag_catalog.ag_graph g ON g.graphid = l.graph WHERE g.name = 'hop_graph' AND l.kind = 'v' AND l.name = 'Person') THEN BEGIN PERFORM ag_catalog.create_vlabel('hop_graph', 'Person');"
+            + " EXCEPTION WHEN OTHERS THEN IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_label l JOIN ag_catalog.ag_graph g ON g.graphid = l.graph WHERE g.name = 'hop_graph' AND l.kind = 'v' AND l.name = 'Person') THEN RAISE; END IF; END; END IF; END $hop$;\n"
             + "CREATE INDEX IF NOT EXISTS \"idx\" ON \"hop_graph\".\"Person\" ("
             + "ag_catalog.agtype_access_operator(VARIADIC ARRAY[properties, '\"name\"'::ag_catalog.agtype]), "
             + "ag_catalog.agtype_access_operator(VARIADIC ARRAY[properties, '\"age\"'::ag_catalog.agtype]))");

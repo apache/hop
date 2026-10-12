@@ -98,22 +98,29 @@ public class AgeGraphDialect implements IGraphDialect {
 
   /**
    * A block creating the node label in the graph unless it exists: AGE creates the table of a label
-   * with the first node.
+   * with the first node. Another session can create the same label between the check and the
+   * creation: the error is ignored if the label exists when checked again.
    */
   String getCreateLabelStatement(String label) {
     String graphLiteral = quoteLiteral(graphName);
     String labelLiteral = quoteLiteral(label);
-    String body =
-        "BEGIN IF NOT EXISTS (SELECT 1 FROM ag_catalog.ag_label l"
+    String labelExists =
+        "EXISTS (SELECT 1 FROM ag_catalog.ag_label l"
             + " JOIN ag_catalog.ag_graph g ON g.graphid = l.graph WHERE g.name = "
             + graphLiteral
             + " AND l.kind = 'v' AND l.name = "
             + labelLiteral
-            + ") THEN PERFORM ag_catalog.create_vlabel("
+            + ")";
+    String body =
+        "BEGIN IF NOT "
+            + labelExists
+            + " THEN BEGIN PERFORM ag_catalog.create_vlabel("
             + graphLiteral
             + ", "
             + labelLiteral
-            + "); END IF; END";
+            + "); EXCEPTION WHEN OTHERS THEN IF NOT "
+            + labelExists
+            + " THEN RAISE; END IF; END; END IF; END";
     String tag = "$hop$";
     for (int i = 1; body.contains(tag); i++) {
       tag = "$hop" + i + "$";
