@@ -226,7 +226,7 @@ NOTE: Before Hop 2.20, Iceberg PATH tables written by the Spark engine were stor
 
 == Lake Table transforms
 
-All four live under the **Big Data** category and are **native Spark only** (not Beam Spark, not the local Hop engine).
+All four live under the **Big Data** category. Lake table merge and Lake table maintenance run on the native Spark engine only; Lake table input and Lake table output also run on the Hop engine (Apache Iceberg only). None of them run on Beam engines.
 
 * xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] — read, optional projection, time travel
 * xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output] — append / overwrite / …; **default save mode is ErrorIfExists**
