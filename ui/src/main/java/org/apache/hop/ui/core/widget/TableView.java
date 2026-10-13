@@ -184,6 +184,12 @@ public class TableView extends Composite {
   @Getter @Setter private boolean readonly;
 
   /**
+   * The last right-click landed beside or below the cells, so the context menu has no cell to act
+   * on even though an earlier click left an active cell behind.
+   */
+  private boolean contextMenuOffCell;
+
+  /**
    * Draw long / multi-line text cells shortened and single-lined (see {@link
    * #formatCellValueForDisplay(String)}). Off by default: it was added to keep the data-heavy grids
    * responsive — the row preview and the data grids — and elsewhere it only changes how a
@@ -772,9 +778,23 @@ public class TableView extends Composite {
       // text selected.
       @Override
       public void mouseDoubleClick(MouseEvent event) {
-        if (readonly && event.button == 1 && activeTableItem != null && activeTableColumn > 0) {
-          edit(activeTableRow, activeTableColumn);
+        if (!readonly
+            || event.button != 1
+            || activeTableItem == null
+            || activeTableItem.isDisposed()
+            || activeTableColumn < 1) {
+          return;
         }
+        // A click beside or below the rows leaves the active cell where it was: only open the cell
+        // the click actually landed in.
+        if (!activeTableItem.getBounds(activeTableColumn).contains(event.x, event.y)) {
+          return;
+        }
+        // Where the owner picks or opens the double-clicked row, that is all a double-click does.
+        if (ownerHandlesRowActivation()) {
+          return;
+        }
+        edit(activeTableRow, activeTableColumn);
       }
 
       @Override
@@ -788,6 +808,8 @@ public class TableView extends Composite {
           boolean shift = (event.stateMask & SWT.SHIFT) != 0;
           boolean control = (event.stateMask & SWT.MOD1) != 0;
           if (!shift && !control) {
+            // Cleared below as soon as the click turns out to be on a cell.
+            contextMenuOffCell = rightClick;
             Rectangle clientArea = table.getClientArea();
             Point pt = new Point(event.x, event.y);
             int index = table.getTopIndex();
@@ -800,6 +822,7 @@ public class TableView extends Composite {
                   activeTableItem = item;
                   activeTableColumn = i;
                   activeTableRow = index;
+                  contextMenuOffCell = false;
 
                   if (!rightClick) {
                     editSelected();
@@ -879,7 +902,7 @@ public class TableView extends Composite {
       }
       final int rowNr = table.indexOf(row);
       final int colNr = activeTableColumn;
-      if (isColumnReadOnly(colNr)) {
+      if (isViewOnly(colNr)) {
         // Nothing is typed into a view-only editor, so there is nothing to write back.
         return;
       }
@@ -1356,7 +1379,7 @@ public class TableView extends Composite {
         final Composite fholder = inlineEditorHolder;
 
         // The editor on a read-only cell is a viewer: it just goes away, it never writes back.
-        if (isColumnReadOnly(colNr)) {
+        if (isViewOnly(colNr)) {
           disposeInlineEditor(ftext, fholder);
           return;
         }
@@ -1547,6 +1570,7 @@ public class TableView extends Composite {
               BaseMessages.getString(PKG, "TableView.menu.CopyCellValue")));
       miCopyCell.setImage(GuiResource.getInstance().getImageCopy());
       miCopyCell.addListener(SWT.Selection, e -> clipCell());
+      mRow.addListener(SWT.Show, e -> miCopyCell.setEnabled(hasCellToCopy()));
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_PASTE_TO_TABLE)) {
@@ -2042,12 +2066,23 @@ public class TableView extends Composite {
     disposeInlineEditor(text, inlineEditorHolder);
   }
 
-  /** True when the given (1-based) table column is read-only, so its editor is view-only. */
-  private boolean isColumnReadOnly(int colNr) {
-    return colNr > 0
-        && colNr - 1 < columns.length
-        && columns[colNr - 1] != null
-        && columns[colNr - 1].isReadOnly();
+  /**
+   * True when the editor on the given (1-based) table column is only a viewer: the whole grid is
+   * read-only, or that column is.
+   */
+  private boolean isViewOnly(int colNr) {
+    return readonly
+        || (colNr > 0
+            && colNr - 1 < columns.length
+            && columns[colNr - 1] != null
+            && columns[colNr - 1].isReadOnly());
+  }
+
+  /** True when the grid's owner already acts on a double-clicked row, to pick or open it. */
+  private boolean ownerHandlesRowActivation() {
+    // Our own mouse listener is one of the double-click listeners, so look for another.
+    return table.isListening(SWT.DefaultSelection)
+        || table.getListeners(SWT.MouseDoubleClick).length > 1;
   }
 
   /** Variant for call sites that captured the editor and its holder before going asynchronous. */
@@ -2083,7 +2118,7 @@ public class TableView extends Composite {
       return;
     }
     // The editor on a read-only cell is a viewer: take it down again without touching the value.
-    if (isColumnReadOnly(colNr)) {
+    if (isViewOnly(colNr)) {
       disposeInlineEditor();
       table.setFocus();
       return;
@@ -2231,9 +2266,9 @@ public class TableView extends Composite {
       multilineShell.setFocus();
       return;
     }
-    // On a read-only column the pop-out is a value viewer: same box, but it can't be typed in and
-    // it never writes back to the cell.
-    final boolean viewOnly = colinfo.isReadOnly();
+    // On a read-only column or grid the pop-out is a value viewer: same box, but it can't be typed
+    // in and it never writes back to the cell.
+    final boolean viewOnly = isViewOnly(colNr);
     // If an inline editor is already open on this cell, carry over its current (possibly edited)
     // text; otherwise start from the stored cell value. Read it before disposing the inline editor.
     String seed;
@@ -2931,10 +2966,19 @@ public class TableView extends Composite {
   }
 
   public void clipCell() {
-    if (activeTableItem == null || activeTableItem.isDisposed() || activeTableColumn < 1) {
+    if (!hasCellToCopy()) {
       return;
     }
     GuiResource.getInstance().toClipboard(getCellValue(activeTableItem, activeTableColumn));
+  }
+
+  /** A value cell is active, and the context menu was not opened beside or below the cells. */
+  private boolean hasCellToCopy() {
+    return !contextMenuOffCell
+        && activeTableItem != null
+        && !activeTableItem.isDisposed()
+        && activeTableColumn > 0
+        && activeTableColumn < table.getColumnCount();
   }
 
   private String getSelectedText() {
@@ -3307,8 +3351,9 @@ public class TableView extends Composite {
     // A read-only cell can't be edited, but its value still has to be readable and selectable: it
     // is drawn shortened and single-lined, so without an editor there is no way to see the rest of
     // it. Give it the same inline editor (and expand icon), only view-only. Columns that hand their
-    // click to a selection adapter keep doing nothing, as before.
-    final boolean viewOnly = colinfo.isReadOnly();
+    // click to a selection adapter keep doing nothing, as before. A read-only grid makes every one
+    // of its cells read-only.
+    final boolean viewOnly = isViewOnly(colNr);
     if (viewOnly && colinfo.getSelectionAdapter() != null) {
       return;
     }
@@ -3440,7 +3485,12 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     } else {
-      Text textWidget = new Text(editorParent, viewOnly ? SWT.READ_ONLY : SWT.NONE);
+      // A view-only password stays masked: it is opened to be looked at, not to be revealed.
+      int style = SWT.NONE;
+      if (viewOnly) {
+        style = SWT.READ_ONLY | (passwordField ? SWT.PASSWORD : SWT.NONE);
+      }
+      Text textWidget = new Text(editorParent, style);
       text = textWidget;
       textWidget.setText(content);
       // A view-only editor never changes anything, so it takes no modify/undo listeners.
@@ -3531,9 +3581,7 @@ public class TableView extends Composite {
     expandLabel.setToolTipText(
         BaseMessages.getString(
             PKG,
-            colinfo.isReadOnly()
-                ? "TableView.tooltip.ViewValue"
-                : "TableView.tooltip.ExpandValue"));
+            isViewOnly(colNr) ? "TableView.tooltip.ViewValue" : "TableView.tooltip.ExpandValue"));
 
     // The holder sits on top of the table cell, so without a background of its own the cell's own
     // text shows through around the icon. Take the editor's background so the two read as one field
@@ -3632,6 +3680,12 @@ public class TableView extends Composite {
     beforeEdit = getItemText(item);
     fieldChanged = false;
     ColumnInfo columnInfo = columns[colNr - 1];
+
+    // A read-only combo column still lets the user pick another value, so a read-only grid gets no
+    // combo at all. Its values are short and already shown in full.
+    if (readonly) {
+      return;
+    }
 
     if (columnInfo.isReadOnly() && columnInfo.getSelectionAdapter() != null) {
       return;
@@ -3752,7 +3806,7 @@ public class TableView extends Composite {
 
     ColumnInfo columnInfo = columns[colNr - 1];
 
-    if (columnInfo.isReadOnly()) {
+    if (readonly || columnInfo.isReadOnly()) {
       return;
     }
 
