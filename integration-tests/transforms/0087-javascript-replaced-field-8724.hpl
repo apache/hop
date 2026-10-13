@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0087-javascript-replaced-field-8724</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>#8724 : a replaced field the script does not assign keeps its input value</description>
+    <extended_description>test_int, big_num, flag and half are only mentioned in a comment, plain_int not at all, new_value replaces other_int through Rename to.</extended_description>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/10/09 00:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/10/12 00:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Input</from>
+      <to>JavaScript</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>JavaScript</from>
+      <to>validate</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Input</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>1</item>
+        <item>10</item>
+        <item>40</item>
+        <item>100</item>
+        <item>12345678901234567890.123456789</item>
+        <item>Y</item>
+        <item>10.5</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>20</item>
+        <item>50</item>
+        <item>200</item>
+        <item>22345678901234567890.123456789</item>
+        <item>N</item>
+        <item>20.5</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>30</item>
+        <item>60</item>
+        <item>300</item>
+        <item>32345678901234567890.123456789</item>
+        <item>Y</item>
+        <item>30.5</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>test_int</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>plain_int</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>other_int</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>big_num</name>
+        <type>BigNumber</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>flag</name>
+        <type>Boolean</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>half</name>
+        <type>Number</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>JavaScript</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>test_int</name>
+        <precision>-1</precision>
+        <rename>test_int</rename>
+        <replace>Y</replace>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>plain_int</name>
+        <precision>-1</precision>
+        <rename>plain_int</rename>
+        <replace>Y</replace>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>new_value</name>
+        <precision>-1</precision>
+        <rename>other_int</rename>
+        <replace>Y</replace>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>big_num</name>
+        <precision>-1</precision>
+        <rename>big_num</rename>
+        <replace>Y</replace>
+        <type>BigNumber</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>flag</name>
+        <precision>-1</precision>
+        <rename>flag</rename>
+        <replace>Y</replace>
+        <type>Boolean</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>half</name>
+        <precision>-1</precision>
+        <rename>half</rename>
+        <replace>Y</replace>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>doubled</name>
+        <precision>-1</precision>
+        <rename>doubled</rename>
+        <replace>N</replace>
+        <type>Integer</type>
+      </field>
+    </fields>
+    <jsScripts>
+      <jsScript>
+        <jsScript_name>transformScript</jsScript_name>
+        <jsScript_script>
+// Only mentioned here, never assigned: test_int, big_num, flag, half
+var doubled = id * 2;
+</jsScript_script>
+        <jsScript_type>0</jsScript_type>
+      </jsScript>
+    </jsScripts>
+    <optimizationLevel>9</optimizationLevel>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>validate</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
