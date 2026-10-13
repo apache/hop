@@ -59,9 +59,15 @@ import org.apache.hop.core.security.Permission;
  *       the authenticated principal's roles.
  * </ul>
  *
+ * <p>The path used for that decision is the container-mapped path ({@code getServletPath()} +
+ * {@code getPathInfo()}). Tomcat fills those from the normalized URI, which is also what {@code
+ * HopServerServlet} dispatches on. The raw request URI is ignored, so a non-canonical request line
+ * such as {@code //hop/execPipeline} cannot skip this filter or be judged as a different endpoint.
+ *
  * <p>Unknown {@code /hop/*} paths (a servlet not in the built-in table, e.g. a third-party plugin)
  * are denied by default in the authenticated modes, so a newly added servlet cannot silently widen
- * the authenticated attack surface. It becomes reachable once its path is added to the mapper.
+ * the authenticated attack surface. It becomes reachable once its path is added to the mapper. A
+ * request whose mapped path is missing or not under {@code /hop} is denied as well.
  *
  * <p>This filter does not authenticate; if no principal is present in an authenticated mode the
  * upstream auth filter has already redirected or challenged, so a missing principal here is treated
@@ -90,10 +96,15 @@ public class HopServerAuthorizationFilter implements Filter {
     HopSecurityConfig config = HopSecurityConfig.load();
     HopSecurityConfig.AuthMode mode = config.getAuthMode();
 
-    String path = pathWithinApp(httpRequest);
+    String path = endpointPath(httpRequest);
     if (path == null || !path.startsWith("/hop")) {
-      // Not a Hop Server endpoint (filter is mapped to /hop/* but stay defensive).
-      chain.doFilter(request, response);
+      // Fail closed. The raw request URI is not a safe signal: Tomcat maps //hop/... onto this
+      // filter and then dispatches the normalized path.
+      LOG.log(
+          Level.FINE,
+          "Denying request with no Hop Server mapping (path={0})",
+          String.valueOf(path));
+      deny(httpResponse, "Not authorized for this endpoint", HttpServletResponse.SC_FORBIDDEN);
       return;
     }
 
@@ -189,19 +200,35 @@ public class HopServerAuthorizationFilter implements Filter {
     response.getWriter().write(message);
   }
 
-  private static String pathWithinApp(HttpServletRequest request) {
-    String contextPath = request.getContextPath();
-    String uri = request.getRequestURI();
-    if (uri == null) {
+  /**
+   * Path the container will dispatch. {@code servletPath} and {@code pathInfo} are already
+   * context-relative and decoded, and on Tomcat they are the normalized form of the request URI.
+   *
+   * @return the mapped path, or {@code null} when the container did not map a path
+   */
+  private static String endpointPath(HttpServletRequest request) {
+    String servletPath = request.getServletPath();
+    String pathInfo = request.getPathInfo();
+    boolean noServletPath = servletPath == null || servletPath.isEmpty();
+    boolean noPathInfo = pathInfo == null || pathInfo.isEmpty();
+    if (noServletPath && noPathInfo) {
       return null;
     }
-    if (contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath)) {
-      uri = uri.substring(contextPath.length());
+    if (noServletPath) {
+      return pathInfo;
     }
-    if (uri.isEmpty()) {
-      return "/";
+    if (noPathInfo) {
+      return servletPath;
     }
-    return uri;
+    boolean servletSlash = servletPath.endsWith("/");
+    boolean infoSlash = pathInfo.startsWith("/");
+    if (servletSlash && infoSlash) {
+      return servletPath.substring(0, servletPath.length() - 1) + pathInfo;
+    }
+    if (!servletSlash && !infoSlash) {
+      return servletPath + "/" + pathInfo;
+    }
+    return servletPath + pathInfo;
   }
 
   @Override
