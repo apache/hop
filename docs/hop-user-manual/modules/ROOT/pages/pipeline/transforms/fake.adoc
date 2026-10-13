@@ -16,14 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Fake Data tranform allows you to generate fake data using the Java Faker library.
+:description: The Fake Data transform allows you to generate fake data using the Java Faker library.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/fake.svg[Fake data transform Icon, role="image-doc-icon"] Fake data
 
 == Description
 
-The Fake Data tranform allows you to generate fake data using the Java Faker library (link:https://github.com/DiUS/java-faker[documentation]).
+The Fake Data transform allows you to generate fake data using the Java Faker library (link:https://github.com/DiUS/java-faker[documentation]).
 
 It can be used to generate pretty data for development, testing or showcasing a project.
 

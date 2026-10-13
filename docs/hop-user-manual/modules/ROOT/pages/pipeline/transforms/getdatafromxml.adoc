@@ -142,7 +142,7 @@ You can also do this using the xref:pipeline/transforms/xmlinputstream.adoc[XML 
 |Type|The data type to convert to
 |Format|The format or conversion mask to use in the data type conversion.
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
-|Length|The maximum number of characters in the the output data value
+|Length|The maximum number of characters in the output data value
 |Precision|The number of decimal places used to display numbers in the output data
 |Currency|The currency symbol to use for monetary values.
 |Decimal|The numeric decimal symbol to use for floating-point numbers.

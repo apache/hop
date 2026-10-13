@@ -202,10 +202,9 @@ If the pipeline runs with all tests passed, you'll receive a notification in the
 2025/04/02 21:16:43 - count by year.0 - Finished processing (I=0, O=0, R=10000, W=22, U=0, E=0)
 2025/04/02 21:16:43 - sort by year.0 - Finished processing (I=0, O=0, R=22, W=22, U=0, E=0)
 2025/04/02 21:16:43 - customers by year out.0 - Finished processing (I=0, O=0, R=22, W=22, U=0, E=0)
-2025/04/02 21:16:43 - read-customers - Unit test 'read-customers UNIT' passed succesfully
+2025/04/02 21:16:43 - read-customers - Unit test 'read-customers UNIT' passed successfully
 2025/04/02 21:16:43 - read-customers - ----------------------------------------------
-2025/04/02 21:16:43 - read-customers - customers by year out - customers-by-year : Test passed succesfully against golden data set
-2025/04/02 21:16:43 - read-customers - Test passed succesfully against unit test
+2025/04/02 21:16:43 - read-customers - customers by year out - customers-by-year : Test passed successfully against golden data set
 2025/04/02 21:16:43 - read-customers - ----------------------------------------------
 2025/04/02 21:16:43 - read-customers - Pipeline duration : 0.108 seconds [  0.108 ]
 2025/04/02 21:16:43 - read-customers - Execution finished on a local pipeline engine with run configuration 'local'
@@ -217,7 +216,7 @@ In the example below, the number of rows for the year 1990 was changed from 486 
 
 image::pipeline-unit-testing-test-failed.png[Unit test - failed,width="90%"]
 
-While successful test show 'Test passed succesfully against golden data set' and 'Test passed succesfully against unit test', failed unit tests may show one of the error messages listed below:
+While successful tests show 'Test passed successfully against golden data set', failed unit tests may show one of the error messages listed below:
 
 * `Incorrect number of rows received from transform, golden data set <GOLDEN_DATASET_NAME> has <GOLDEN_DATASET_ROWS> rows in it and we received <NB_ROWS_FOUND>`
 * `Validation against golden data failed for row number <ROW_NUMBER>, field <FIELD_NAME>: transform value [<FIELD_VALUE>] does not correspond to data set value [<GOLDEN_DATASET_VALUE>]`
@@ -261,10 +260,9 @@ In the workflow logging output, you'll find information about the exit state of 
 
 [source,bash]
 ----
-2025/04/02 10:05:23 - read-customers - Unit test 'read-customers UNIT' passed succesfully
+2025/04/02 10:05:23 - read-customers - Unit test 'read-customers UNIT' passed successfully
 2025/04/02 10:05:23 - read-customers - ----------------------------------------------
-2025/04/02 10:05:23 - read-customers - customers by year out - customers-by-year : Test passed succesfully against golden data set
-2025/04/02 10:05:23 - read-customers - Test passed succesfully against unit test
+2025/04/02 10:05:23 - read-customers - customers by year out - customers-by-year : Test passed successfully against golden data set
 2025/04/02 10:05:23 - read-customers - ----------------------------------------------
 2025/04/02 10:05:23 - read-customers - Pipeline duration : 0.227 seconds [  0.227" ]
 ----

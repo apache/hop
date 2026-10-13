@@ -43,7 +43,7 @@ The result of this action is a `true` or `false` exit code that determines if a 
 |The name of the connection on which you want to execute the cypher statements.
 
 |Script
-|The script with cypher commands seperated by a semi-colon (;) on a new line.
+|The script with cypher commands separated by a semi-colon (;) on a new line.
 For examples see below.
 
 |Replace variables
