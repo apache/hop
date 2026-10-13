@@ -16,8 +16,13 @@
  */
 package org.apache.hop.vfs.sftp.provider;
 
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.FileNameParser;
 import org.apache.commons.vfs2.provider.URLFileNameParser;
+import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.commons.vfs2.provider.VfsComponentContext;
 
 /** Implementation for SFTP. Sets the default port to 22. */
 public class SftpFileNameParser extends URLFileNameParser {
@@ -38,5 +43,88 @@ public class SftpFileNameParser extends URLFileNameParser {
   /** Constructs a new instance with the default port 22. */
   public SftpFileNameParser() {
     super(DEFAULT_PORT);
+  }
+
+  /**
+   * As {@link URLFileNameParser#parseUri}, but a path rooted at a second slash keeps it.
+   *
+   * <p>The prefix is taken off before the path is canonicalized and normalised, because
+   * normalisation is what would drop it, and it is put in the root of a {@link SftpFileName} rather
+   * than left in the path so that it survives every child and every parent derived from this name.
+   */
+  @Override
+  public FileName parseUri(VfsComponentContext context, FileName base, String fileName)
+      throws FileSystemException {
+    StringBuilder name = new StringBuilder();
+
+    Authority auth = extractToPath(context, fileName, name);
+    String queryString = UriParser.extractQueryString(name);
+    String rootPrefix = resolveRootPrefix(name, fileName, base);
+
+    UriParser.canonicalizePath(name, 0, name.length(), this);
+    UriParser.fixSeparators(name);
+    FileType fileType = UriParser.normalisePath(name);
+
+    return new SftpFileName(
+        auth.getScheme(),
+        auth.getHostName(),
+        auth.getPort(),
+        getDefaultPort(),
+        auth.getUserName(),
+        auth.getPassword(),
+        name.toString(),
+        fileType,
+        queryString,
+        rootPrefix);
+  }
+
+  /**
+   * The prefix for a path, taken from the base name whenever this URI was built out of it.
+   *
+   * <p>The textual rule cannot be trusted on a derived name. {@link
+   * org.apache.commons.vfs2.impl.DefaultFileSystemManager#resolveName} rebuilds every child, every
+   * parent and every root lookup as {@code base.getRootURI() + path}, and since the root URI ends
+   * in a separator and the path begins with one, that concatenation manufactures a {@code //} at
+   * the boundary which is indistinguishable from one a user typed. It is also the reason Commons
+   * VFS collapses {@code //} at all. A URI built that way starts with the root URI of the base it
+   * came from, and the base already knows what it is rooted at, so ask it.
+   *
+   * <p>The one thing this cannot tell apart is a full URI handed to {@code
+   * FileObject.resolveFile(String)} on a file of the same file system, which looks exactly like a
+   * derived name. Resolving from a base is for relative paths; an absolute URI belongs to {@code
+   * HopVfs.getFileObject}, which has no base and is read as written.
+   *
+   * @param path the path, with the scheme and the authority already taken off
+   * @param uri the whole URI being parsed
+   * @param base the name this one is being derived from, null if there is none
+   */
+  public static String resolveRootPrefix(StringBuilder path, String uri, FileName base) {
+    if (base instanceof IRootPrefixFileName prefixed && uri.startsWith(base.getRootURI())) {
+      return prefixed.getRootPrefix();
+    }
+    return extractRootPrefix(path);
+  }
+
+  /**
+   * Takes the second slash off a path which starts with exactly two, leaving an ordinary absolute
+   * path behind.
+   *
+   * <p>Exactly two is what POSIX gives a meaning of its own and what z/OS reads as an MVS data set;
+   * three or more mean the same as one, so those are left for the normaliser to collapse. Only a
+   * literal slash counts - a {@code %2F} is an escaped slash, which is to say not a separator at
+   * all.
+   *
+   * @param path the path, with the scheme and the authority already taken off
+   * @return {@code "/"} if a second slash was taken off, {@code ""} otherwise
+   */
+  public static String extractRootPrefix(StringBuilder path) {
+    if (path.length() >= 2
+        && path.charAt(0) == '/'
+        && path.charAt(1) == '/'
+        && (path.length() == 2 || path.charAt(2) != '/')) {
+      path.deleteCharAt(0);
+      return "/";
+    }
+    return "";
   }
 }

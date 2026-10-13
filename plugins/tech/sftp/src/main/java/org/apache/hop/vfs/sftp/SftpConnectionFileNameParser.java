@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.SftpFileNameParser;
 
 /**
  * Turns {@code <connection name>://path} (any number of slashes after the scheme) into a {@link
@@ -51,6 +52,7 @@ public class SftpConnectionFileNameParser extends AbstractFileNameParser {
     }
 
     StringBuilder buffer = new StringBuilder();
+    String rootPrefix = "";
     String scheme =
         UriParser.extractScheme(context.getFileSystemManager().getSchemes(), uri, buffer);
     if (scheme == null) {
@@ -68,15 +70,17 @@ public class SftpConnectionFileNameParser extends AbstractFileNameParser {
               + scheme
               + "\"");
     } else {
-      // Everything after the scheme is a path on the server: prod://tmp/x, prod:///tmp/x and
-      // prod:////tmp/x all point at /tmp/x.
+      // Everything after the scheme is a path on the server. The two slashes behind the scheme are
+      // the separator, as in any URI, and what is left is the path: prod://tmp/x and prod:///tmp/x
+      // both point at /tmp/x. A path which then still starts with two slashes keeps the second one
+      // - prod:////A.B.C is the MVS data set //A.B.C, the same way file:////server/share is a UNC
+      // share - and three or more collapse to one, as they do everywhere else.
       //
-      int slashes = 0;
-      while (slashes < buffer.length() && buffer.charAt(slashes) == '/') {
-        slashes++;
+      buffer.delete(0, Math.min(2, leadingSlashes(buffer)));
+      if (buffer.isEmpty() || buffer.charAt(0) != '/') {
+        buffer.insert(0, '/');
       }
-      buffer.delete(0, slashes);
-      buffer.insert(0, '/');
+      rootPrefix = SftpFileNameParser.resolveRootPrefix(buffer, uri, base);
     }
 
     UriParser.canonicalizePath(buffer, 0, buffer.length(), this);
@@ -94,6 +98,15 @@ public class SftpConnectionFileNameParser extends AbstractFileNameParser {
     String user = variables.resolve(connection.getUsername());
     String password = Utils.resolvePassword(variables, connection.getPassword());
 
-    return new SftpConnectionFileName(connectionName, host, port, user, password, path, fileType);
+    return new SftpConnectionFileName(
+        connectionName, host, port, user, password, path, fileType, rootPrefix);
+  }
+
+  private static int leadingSlashes(StringBuilder buffer) {
+    int slashes = 0;
+    while (slashes < buffer.length() && buffer.charAt(slashes) == '/') {
+      slashes++;
+    }
+    return slashes;
   }
 }

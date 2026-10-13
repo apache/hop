@@ -54,6 +54,27 @@ class SftpConnectionsTest {
         SftpConnections.buildUri(connection, "\\tmp\\upload", "file.txt"));
   }
 
+  /**
+   * Exactly two leading slashes is a path of its own - on z/OS {@code //A.B.C} is an MVS data set
+   * and {@code /A.B.C} a USS path - so it reaches the parser as {@code prod:////A.B.C}. Three or
+   * more still mean the same as one.
+   */
+  @Test
+  void testBuildUriKeepsAPathRootedAtASecondSlash() {
+    assertEquals(
+        "prod:////EDIJP.NAB.CRERESP/AAMIPI",
+        SftpConnections.buildUri(connection, "//EDIJP.NAB.CRERESP", "AAMIPI"));
+    assertEquals(
+        "prod:////EDIJP.NAB.CRERESP",
+        SftpConnections.buildUri(connection, "//EDIJP.NAB.CRERESP", null));
+    assertEquals(
+        "prod:////EDIJP.NAB.CRERESP/AAMIPI",
+        SftpConnections.buildUri(connection, null, "//EDIJP.NAB.CRERESP/AAMIPI"));
+    assertEquals(
+        "prod://tmp/upload/file.txt",
+        SftpConnections.buildUri(connection, "///tmp/upload", "file.txt"));
+  }
+
   private SftpConnection connection() {
     SftpConnection sftpConnection = new SftpConnection();
     sftpConnection.setName("prod");
