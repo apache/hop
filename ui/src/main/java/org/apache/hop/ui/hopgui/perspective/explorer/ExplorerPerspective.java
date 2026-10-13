@@ -1129,6 +1129,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             // Guard every precondition: uncaught exceptions in RAP DND listeners can tear down
             // the Hop Web UI session (see #7933).
             try {
+              // A drop writes, and a move also deletes the source. The VFS File Explorer drags
+              // files from anywhere, so the perspective checks the permission itself.
+              if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+                event.detail = DND.DROP_NONE;
+                return;
+              }
               if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)
                   || event.item == null
                   || event.data == null

@@ -53,6 +53,22 @@ class VfsFileListingTest {
   }
 
   @Test
+  void aLargeFolderIsReadOnePageAtATime() throws Exception {
+    FileObject folder = HopVfs.getFileObject("ram:///vfs-explorer-pages/");
+    folder.createFolder();
+    for (int i = 0; i < 5; i++) {
+      folder.resolveFile("file" + i + ".txt").createFile();
+    }
+    folder.refresh();
+
+    FileObject[] children = VfsFileListing.listChildren(folder);
+    assertEquals(5, children.length);
+    assertEquals(2, VfsFileListing.rowsOf(children, 0, 2).size());
+    assertEquals(3, VfsFileListing.rowsOf(children, 2, 10).size());
+    assertTrue(VfsFileListing.rowsOf(children, 5, 7).isEmpty());
+  }
+
+  @Test
   void ramFileHasNameExtensionAndSizeButNoOwner() throws Exception {
     FileObject folder = HopVfs.getFileObject("ram:///vfs-explorer/");
     folder.createFolder();

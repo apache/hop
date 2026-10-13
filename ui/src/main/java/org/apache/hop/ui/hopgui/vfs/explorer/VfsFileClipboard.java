@@ -19,38 +19,73 @@ package org.apache.hop.ui.hopgui.vfs.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Files and folders copied or cut inside the VFS File Explorer. This is not the operating-system
- * clipboard, so text in a location field is left alone. One clipboard is shared by every explorer
- * in the session, including the window and the bottom panel.
+ * clipboard, so text in a location field is left alone. The window and the bottom panel share one
+ * clipboard. It is kept on the display: Hop Web has a display per session, so one user's cut files
+ * never show up in another user's paste.
  */
 public final class VfsFileClipboard {
 
-  private static List<VfsFileTransfer.Entry> entries = List.of();
-  private static VfsFileTransfer.Mode mode = VfsFileTransfer.Mode.COPY;
+  static final String DISPLAY_DATA_KEY = VfsFileClipboard.class.getName();
 
-  private VfsFileClipboard() {}
+  private List<VfsFileTransfer.Entry> entries = List.of();
+  private VfsFileTransfer.Mode mode = VfsFileTransfer.Mode.COPY;
 
-  public static synchronized void set(
-      VfsFileTransfer.Mode mode, List<VfsFileTransfer.Entry> items) {
-    VfsFileClipboard.mode = mode == null ? VfsFileTransfer.Mode.COPY : mode;
+  VfsFileClipboard() {}
+
+  /**
+   * The clipboard of {@code display}. Call on the UI thread. Without a display a new, unshared
+   * clipboard is returned.
+   */
+  public static VfsFileClipboard of(Display display) {
+    if (display == null || display.isDisposed()) {
+      return new VfsFileClipboard();
+    }
+    Object existing = display.getData(DISPLAY_DATA_KEY);
+    if (existing instanceof VfsFileClipboard clipboard) {
+      return clipboard;
+    }
+    VfsFileClipboard clipboard = new VfsFileClipboard();
+    display.setData(DISPLAY_DATA_KEY, clipboard);
+    return clipboard;
+  }
+
+  public synchronized void set(VfsFileTransfer.Mode mode, List<VfsFileTransfer.Entry> items) {
+    this.mode = mode == null ? VfsFileTransfer.Mode.COPY : mode;
     entries = List.copyOf(VfsFileTransfer.withoutNested(items));
   }
 
-  public static synchronized List<VfsFileTransfer.Entry> entries() {
+  public synchronized List<VfsFileTransfer.Entry> entries() {
     return new ArrayList<>(entries);
   }
 
-  public static synchronized VfsFileTransfer.Mode mode() {
+  public synchronized VfsFileTransfer.Mode mode() {
     return mode;
   }
 
-  public static synchronized boolean isEmpty() {
+  public synchronized boolean isEmpty() {
     return entries.isEmpty();
   }
 
-  public static synchronized void clear() {
+  /**
+   * After a paste of {@code pasted}, keep only {@code remaining}: the moved files are no longer
+   * where the clipboard points. Left alone when something else was copied or cut in the meantime.
+   */
+  public synchronized void retain(
+      List<VfsFileTransfer.Entry> pasted, List<VfsFileTransfer.Entry> remaining) {
+    if (!entries.equals(pasted)) {
+      return;
+    }
+    entries = remaining == null ? List.of() : List.copyOf(remaining);
+    if (entries.isEmpty()) {
+      mode = VfsFileTransfer.Mode.COPY;
+    }
+  }
+
+  public synchronized void clear() {
     entries = List.of();
     mode = VfsFileTransfer.Mode.COPY;
   }

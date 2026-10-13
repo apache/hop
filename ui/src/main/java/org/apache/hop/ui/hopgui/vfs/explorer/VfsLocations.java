@@ -57,14 +57,68 @@ public final class VfsLocations {
     return parent;
   }
 
+  /** True when both name the same folder, also when one is a plain path and the other a URI. */
+  public static boolean sameLocation(String left, String right) {
+    return normalize(left).equals(normalize(right));
+  }
+
   /** True when {@code childUri} is strictly inside {@code parentUri}. */
   public static boolean isUnder(String parentUri, String childUri) {
-    String parent = stripTrailingSeparator(parentUri);
-    String child = stripTrailingSeparator(childUri);
+    String parent = normalize(parentUri);
+    String child = normalize(childUri);
     if (parent.isEmpty() || child.isEmpty() || parent.equals(child)) {
       return false;
     }
-    return child.startsWith(parent + "/") || child.startsWith(parent + "\\");
+    return child.startsWith(parent.endsWith("/") ? parent : parent + "/");
+  }
+
+  /**
+   * {@code location} written relative to a variable, for example {@code
+   * ${PROJECT_HOME}/data/in.csv}.
+   *
+   * @param location the file or folder
+   * @param variable the variable name, without {@code ${}}
+   * @param value the resolved value of the variable
+   * @return the relative form, or null when {@code location} is not {@code value} or inside it
+   */
+  public static String relativeTo(String location, String variable, String value) {
+    if (location == null || location.isBlank() || value == null || value.isBlank()) {
+      return null;
+    }
+    String expression = "${" + variable + "}";
+    if (sameLocation(location, value)) {
+      return expression;
+    }
+    if (!isUnder(value, location)) {
+      return null;
+    }
+    String rest = normalize(location).substring(normalize(value).length());
+    return expression + (rest.startsWith("/") ? rest : "/" + rest);
+  }
+
+  /**
+   * A comparable form: a local path such as {@code /home/x} or {@code C:\\x} becomes the {@code
+   * file://} URI VFS reports for it, separators become {@code /}, and a trailing separator is
+   * dropped. Does not touch the file system.
+   */
+  static String normalize(String location) {
+    String value = stripTrailingSeparator(location == null ? "" : location.trim());
+    if (value.isEmpty()) {
+      return "";
+    }
+    if (value.length() >= 2
+        && Character.isLetter(value.charAt(0))
+        && value.charAt(1) == ':'
+        && (value.length() == 2 || value.charAt(2) == '\\' || value.charAt(2) == '/')) {
+      return "file:///" + value.replace('\\', '/');
+    }
+    if (value.startsWith("/")) {
+      return "file://" + value;
+    }
+    if (value.regionMatches(true, 0, "file:", 0, 5)) {
+      return value.replace('\\', '/');
+    }
+    return value;
   }
 
   public static String stripTrailingSeparator(String value) {

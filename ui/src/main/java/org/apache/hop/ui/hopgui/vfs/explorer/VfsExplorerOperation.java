@@ -17,8 +17,11 @@
 
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.Getter;
 import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
 
 /** One listing or file change. Stop interrupts the worker; it does not close the file system. */
 @Getter
@@ -42,6 +45,11 @@ public class VfsExplorerOperation {
   private volatile boolean cancelled;
   private volatile Thread worker;
 
+  /** Files and bytes a copy or move wrote so far. */
+  private final AtomicInteger filesDone = new AtomicInteger();
+
+  private final AtomicLong bytesDone = new AtomicLong();
+
   public VfsExplorerOperation(String description, String location) {
     this.description = description == null ? "" : description;
     this.location = location == null ? "" : location;
@@ -60,6 +68,12 @@ public class VfsExplorerOperation {
     if (thread != null) {
       thread.interrupt();
     }
+  }
+
+  /** The worker itself stopped, for example on Cancel in a prompt. Does not interrupt. */
+  void cancelFromWorker() {
+    cancelled = true;
+    complete();
   }
 
   public boolean isCancelled() {
@@ -153,6 +167,43 @@ public class VfsExplorerOperation {
 
   private static boolean isBlank(String text) {
     return text == null || text.isBlank();
+  }
+
+  /** Progress for {@link VfsFileTransfer}, counted on this operation. */
+  public VfsFileTransfer.Progress progress() {
+    return new VfsFileTransfer.Progress() {
+      @Override
+      public void bytes(long count) {
+        bytesDone.addAndGet(count);
+      }
+
+      @Override
+      public void fileDone() {
+        filesDone.incrementAndGet();
+      }
+    };
+  }
+
+  public int getFilesDone() {
+    return filesDone.get();
+  }
+
+  public long getBytesDone() {
+    return bytesDone.get();
+  }
+
+  /** {@code 3 files - 120MB}, or empty when nothing was written. */
+  public String progressText() {
+    int files = filesDone.get();
+    long bytes = bytesDone.get();
+    if (files == 0 && bytes == 0) {
+      return "";
+    }
+    return BaseMessages.getString(
+        VfsFileExplorer.PKG,
+        "VfsFileExplorer.Operations.Progress",
+        files,
+        VfsListingCounts.formatSize(bytes));
   }
 
   public boolean isFinished() {

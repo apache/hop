@@ -23,27 +23,48 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
 
-/** Lists one folder and presents those rows. One {@code getChildren()} call, no content reads. */
+/**
+ * Lists one folder and presents those rows. One {@code getChildren()} call, no content reads. The
+ * details of a large folder are read one page at a time.
+ */
 public final class VfsFileListing {
+
+  /** Rows read per page. A folder with more children shows "load more". */
+  public static final int PAGE_SIZE = 5000;
 
   private VfsFileListing() {}
 
+  /** All rows of {@code folder}. */
   public static List<VfsFileRow> childrenOf(FileObject folder) throws Exception {
+    FileObject[] children = listChildren(folder);
+    return rowsOf(children, 0, children.length);
+  }
+
+  /** The children of {@code folder}, without reading their details. */
+  public static FileObject[] listChildren(FileObject folder) throws Exception {
     FileObject[] children = folder.getChildren();
-    if (children == null || children.length == 0) {
+    return children == null ? new FileObject[0] : children;
+  }
+
+  /**
+   * Rows for {@code children[from..to)}. One unreadable child is left out. A missing library or a
+   * broken provider fails the whole page, and so does a page where no child could be read.
+   */
+  public static List<VfsFileRow> rowsOf(FileObject[] children, int from, int to) throws Exception {
+    if (children == null || from >= to) {
       return List.of();
     }
-    List<VfsFileRow> rows = new ArrayList<>(children.length);
+    int end = Math.min(to, children.length);
+    List<VfsFileRow> rows = new ArrayList<>(Math.max(0, end - from));
     Exception firstFailure = null;
-    for (FileObject child : children) {
+    for (int i = from; i < end; i++) {
+      FileObject child = children[i];
       if (child == null) {
         continue;
       }
       try {
         rows.add(VfsFileDetails.read(child));
       } catch (Exception e) {
-        // A missing library or a broken provider fails the whole folder. One unreadable child
-        // does not hide the rest.
         if (isDriverFailure(e)) {
           throw e;
         }

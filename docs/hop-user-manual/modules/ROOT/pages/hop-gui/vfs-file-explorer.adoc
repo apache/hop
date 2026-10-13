@@ -27,6 +27,8 @@ The same browser can sit in the bottom panel while you work on a pipeline or wor
 Use the dock and undock buttons to move the current location between the window and that panel.
 Each host keeps its own tabs.
 
+A new explorer starts in the project home folder, or in your home folder when no project is enabled.
+
 == What you see
 
 Each tab is one location.
@@ -36,21 +38,33 @@ Enter a path or a VFS URI to go there.
 Variables are resolved.
 * The tree on the left lists folders and loads a folder when you expand it.
 Select more than one folder to copy, cut or delete them together.
+* Below the tree, **Places** lists:
+** **Project**: the project home folder.
+** **Connections**: every saved file-storage connection of the project (S3, MinIO, Azure, Google Storage, FTP, SFTP, WebDAV, HDFS, Databricks, and so on).
+Click one to open its root.
+Use the refresh button after you create or rename a connection.
+** **This computer**: your home folder and the file system roots, such as `/` or the drive letters on Windows.
+On Hop Web this section is called **Server**, because it is the disk of the Hop Web server.
+** **Bookmarks**: the same list as in the file dialog, including the option that makes them global or per project.
 * The table on the right lists the files and folders in the selected folder.
 You can sort by clicking a column.
 Name is always shown.
 Size, last modified, owner, extension and permissions can be turned off from the columns button.
 Owner and permissions stay empty when the VFS provider does not report them.
+* A folder with more than 5000 entries shows the first 5000.
+The status line says how many are not loaded yet.
+**Load more** adds the next 5000.
+Sorting and the filter apply to the entries that are loaded.
 * The filter box limits the table to the current folder.
 It does not search subfolders.
 * **Show or hide hidden folders** applies to the tree.
 **Show or hide hidden files** applies to the table.
 A hidden name starts with a dot.
 The two switches are independent.
-* Bookmarks are the same list as in the file dialog, including the option that makes them global or per project.
 * The status line shows the listing or file change that is running, how long it took, how many rows are listed and their size, and how many rows are selected and their size.
-Stop interrupts that work.
-Expand shows the recent operations.
+A copy or move also shows how many files and bytes it wrote so far.
+Stop interrupts the operation that is shown, and only that one.
+Expand shows the recent operations: there, Stop interrupts the selected operation.
 * **Open a new location** adds a tab for the folder you are viewing.
 Ctrl+T does the same, and Cmd+T on macOS.
 
@@ -58,21 +72,80 @@ Double-click a folder to open it.
 Double-click a Hop file (a pipeline, a workflow, a text file, and so on) to open it in Hop.
 Double-click a zip, jar, tar, tgz or tbz2 archive to browse inside it.
 
-== Copy, rename and download
+== Keyboard shortcuts
+
+[options="header"]
+|===
+|Key |Action
+|Ctrl+C, Ctrl+X, Ctrl+V |Copy, cut or paste the selection of the tree or of the table, whichever has focus
+|Delete |Delete the selection of the tree or of the table
+|F2 |Rename
+|F5 |Refresh
+|Backspace, Alt+Up |Go to the parent folder
+|Ctrl+L |Go to the location bar
+|Ctrl+T |Open a new location tab
+|===
+
+On macOS use Cmd instead of Ctrl, and Cmd+Up to go to the parent folder.
+In the location bar and the filter box the usual text editing keys apply instead.
+
+== Copy, move and delete
 
 The folder toolbar copies, cuts, pastes, renames and deletes folders.
 Rename applies to one folder.
 Delete is set apart on the right-click menu so it is not next to the other actions.
 
 The file toolbar copies, cuts, pastes and deletes the rows you select, and renames a file when exactly one file is selected.
-**Download** opens the VFS save dialog with that file's name so you can store a copy somewhere else.
-**Upload** is next to it.
-Select one or more files, then choose the folder to place them in.
-That folder can be any VFS location, including a named cloud connection.
-**Open as text file** opens the file in a text editor even when Hop has a richer editor for it.
 Paste goes into the folder you are viewing.
 Copy and cut stay inside Hop: they are not the system clipboard.
-A folder is not copied into itself, its parent, or one of its own subfolders.
+A folder is not copied into itself or one of its own subfolders.
+
+You can also drag files and folders onto a folder in the tree or in the table, or onto the table to drop them in the folder you are viewing.
+A drop copies the files: the originals stay where they are.
+On the desktop, hold Shift while dropping (on Linux and Windows) to move them instead.
+On Hop Web a drop always copies: use cut and paste to move files.
+Files dragged from the File Explorer perspective or, on the desktop, from your file manager are accepted too.
+When a folder and a file or folder inside it are dropped together, the folder is copied once with everything in it.
+
+When a file already exists in the target folder you choose, for that file, between **Replace**, **Skip** and **Cancel**.
+**Replace all** and **Skip all** answer for the remaining files of the same paste.
+A folder that already exists is merged: its other files stay, and each file that exists in both is asked about.
+A file is never replaced by a folder, or a folder by a file.
+
+A replaced file is first written next to the original under a temporary hidden name.
+Only once the new copy is complete is the original set aside, the new copy given its name, and the original removed.
+A failed or stopped copy leaves the original untouched, and so does a failed rename: the original is put back.
+If even that is not possible, the error names the hidden files that hold the original and the new copy.
+A new file that is only partly written when a copy fails or is stopped is removed, and so is a new folder with what was already copied into it.
+
+When some files of a paste cannot be copied or moved, the others still are, and the error lists each file that failed.
+After a cut and paste, the files that were moved leave the explorer clipboard.
+Files you skipped, or that could not be moved, stay on it, so you can paste them again.
+
+Right-click a file or folder and choose **Copy path** to put its path on the system clipboard.
+**Copy path as '${PROJECT_HOME}/...'** writes it relative to the project home folder, ready to paste into a transform or action.
+
+== Save a copy, copy to a folder, download and upload
+
+On the desktop:
+
+* **Save a copy as** opens the VFS save dialog with the name of the selected file, so you can store a copy anywhere, including on a named connection.
+* **Copy to folder** copies the selected files to a folder you choose.
+
+On Hop Web the same buttons move files between the browser and the server:
+
+* **Download** sends the selected file to your browser.
+It needs the export permission.
+* **Upload to this folder** uploads a file from your computer into the folder you are viewing, up to 512 MB.
+
+**Open as text file** opens the file in a text editor even when Hop has a richer editor for it.
+
+== Permissions on Hop Web
+
+When Hop Web runs with users and roles, a user who may not change files in the explorer (`explorer.write`) can browse and copy to the explorer clipboard, but cannot paste, cut, rename, delete, create folders, save a copy, upload or drag files.
+The File Explorer perspective also refuses a drop from such a user.
+Opening the explorer needs `file.view`.
+Each Hop Web session has its own explorer clipboard.
 
 == Named connections
 
@@ -80,7 +153,8 @@ On the editor of a file-storage connection (S3, MinIO, Azure, Google Storage, FT
 An HDFS connection opens at `+name://+`.
 That is the root of the connection.
 A configured default path, such as an HDFS default root or a Databricks base path, is applied by the connection itself.
-Save the connection first: Explore follows the saved definition, and saves unsaved edits before it opens.
+Explore follows the saved definition.
+When the editor has unsaved changes, it asks to save them first.
 
 == From the File Explorer perspective
 
@@ -89,3 +163,9 @@ A folder opens itself.
 A file opens its parent folder.
 When the VFS File Explorer is already showing in the bottom panel, the folder is added there.
 Otherwise it opens in the window.
+
+== Operations that do not respond
+
+A server that stops responding can keep an operation running after you stop it, until the connection's own timeout ends it.
+When more than 16 operations of one explorer are still running, a new one is refused with a message.
+Check the connection, or wait for the running operations to end.
