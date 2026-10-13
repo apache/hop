@@ -285,6 +285,11 @@ public interface IExecutionInfoLocation extends Cloneable {
   List<String> findChildIds(ExecutionType parentExecutionType, String parentExecutionId)
       throws HopException;
 
+  /**
+   * The workflow or pipeline that owns {@code childId}. An execution written before Hop 2.20 stored
+   * the action or transform that started it here. That id is now {@code launchedById} on {@link
+   * Execution}.
+   */
   String findParentId(String childId) throws HopException;
 
   /**

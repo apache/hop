@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.variables.Variables;
@@ -125,6 +126,23 @@ class FileExecutionInfoLocationTest {
     assertNull(location.getExecution("parent"));
     assertNull(location.getExecution("child"));
     assertNull(location.getExecution("grandchild"));
+  }
+
+  @Test
+  void findExecutionsMatchesTheLauncherAsWellAsTheOwner() throws Exception {
+    FileExecutionInfoLocation location = openLocation();
+    Execution pipe = execution("pipe", "workflow", new Date(1_000L));
+    pipe.setLaunchedById("action");
+    location.registerExecution(pipe);
+
+    List<Execution> byOwner = location.findExecutions("workflow");
+    List<Execution> byLauncher = location.findExecutions("action");
+
+    assertEquals(1, byOwner.size());
+    assertEquals("pipe", byOwner.get(0).getId());
+    assertEquals(1, byLauncher.size());
+    assertEquals("pipe", byLauncher.get(0).getId());
+    assertEquals("workflow", location.findParentId("pipe"));
   }
 
   private FileExecutionInfoLocation openLocation() throws Exception {

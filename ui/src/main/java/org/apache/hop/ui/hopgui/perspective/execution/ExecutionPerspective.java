@@ -1368,10 +1368,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.Copy.Tooltip",
       image = "ui/images/copy.svg")
   public void copyToClipboard() {
-    Execution execution = getSelectedExecution();
-    if (execution == null) {
+    Execution selected = getSelectedExecution();
+    if (selected == null) {
       return;
     }
+    // The tree row is a summary and has no filename. The stored execution does.
+    Execution execution = executionForCopy(selected);
 
     String filename = execution.getFilename();
     String relativeFilename = toProjectRelativePath(filename);
@@ -1410,6 +1412,38 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     positionCopyMenu(menu);
     menu.addListener(SWT.Hide, event -> menu.getDisplay().asyncExec(menu::dispose));
     menu.setVisible(true);
+  }
+
+  /**
+   * Load the stored execution when the selected row has no filename. A summary row from the
+   * database location omits it. A failure keeps the summary, so the id can still be copied.
+   */
+  private Execution executionForCopy(Execution selected) {
+    if (StringUtils.isNotEmpty(selected.getFilename()) || StringUtils.isEmpty(selected.getId())) {
+      return selected;
+    }
+    ExecutionInfoLocation location = getSelectedExecutionLocation();
+    if (location == null) {
+      return selected;
+    }
+    try {
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+      if (iLocation == null) {
+        return selected;
+      }
+      Execution stored = iLocation.getExecution(selected.getId());
+      if (stored != null) {
+        return stored;
+      }
+    } catch (Exception e) {
+      if (hopGui != null && hopGui.getLog() != null) {
+        hopGui
+            .getLog()
+            .logError(
+                "Unable to load execution '" + selected.getId() + "' to copy its filename", e);
+      }
+    }
+    return selected;
   }
 
   private void addCopyMenuItem(Menu menu, String label, String value, boolean enabled) {

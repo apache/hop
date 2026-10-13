@@ -829,6 +829,9 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
             } finally {
               database.closeQuery(rs);
             }
+            for (ListedExecution item : listed) {
+              copyUpdateTimeWhenUnfinished(item);
+            }
             return listed;
           });
     } catch (Exception e) {
@@ -864,10 +867,31 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     state.setExecutionEndDate(asDate(row[6]));
     state.setFailed(asBoolean(row[7]));
     state.setStatusDescription(Const.NVL(asString(row[8]), ""));
-    // The row has no last-update time. Null is not treated as stale, so a running execution keeps
-    // its status color. Opening the execution loads the real state.
+    // The summary columns have no last-update time. listExecutions fills it for a row that has
+    // not ended, so a run whose process died is stale instead of running forever.
     state.setUpdateTime(null);
     return new ListedExecution(execution, state);
+  }
+
+  /**
+   * A finished row does not go stale. An unfinished row needs the update time stored in its state.
+   */
+  private void copyUpdateTimeWhenUnfinished(ListedExecution item) {
+    ExecutionState state = item == null ? null : item.state();
+    if (state == null
+        || state.getExecutionEndDate() != null
+        || StringUtils.isEmpty(state.getId())) {
+      return;
+    }
+    try {
+      CacheEntry stored = loadCacheEntry(state.getId());
+      if (stored != null && stored.getExecutionState() != null) {
+        state.setUpdateTime(stored.getExecutionState().getUpdateTime());
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Unable to read the update time of execution '" + state.getId() + "'", e);
+    }
   }
 
   private static String asString(Object value) {

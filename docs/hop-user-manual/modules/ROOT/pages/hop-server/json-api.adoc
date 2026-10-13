@@ -229,7 +229,7 @@ They are the JSON equivalent of the `hop/getExecInfo` and `hop/registerExecInfo`
 
 |`GET`
 |`+location/{location}/executions/{id}/parent+`
-|Find the parent execution ID.
+|Find the parent execution ID. This is the workflow or pipeline that owns the execution. Before Hop 2.20 it was the action or transform that started it.
 
 |`GET`
 |`+location/{location}/executions/{id}/data?parentId=+`

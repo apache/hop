@@ -97,7 +97,6 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
             new RowMetaBuilder()
                 .addString("executionId")
                 .addString("parentId")
-                .addString("launchedById")
                 .addString("name")
                 .addString("executionType")
                 .addString("filename")
@@ -112,6 +111,7 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
                 .addBoolean("failed")
                 .addString("statusDescription")
                 .addDate("executionEndDate")
+                .addString("launchedById")
                 .build());
         return;
       case DeleteExecution:

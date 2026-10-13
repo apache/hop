@@ -177,6 +177,46 @@ class CachingDatabaseExecutionInfoLocationTest {
   }
 
   @Test
+  void listExecutionsLoadsUpdateTimeOnlyForUnfinishedRows() throws Exception {
+    CountingLocation counting = new CountingLocation();
+    counting.setConnectionName("h2-exec");
+    counting.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    counting.setPersistenceDelay("60000");
+    counting.setMaxCacheAge("86400000");
+    counting.setDatabaseMeta(databaseMeta);
+    counting.initialize(variables, metadataProvider);
+    try {
+      String runningId = UUID.randomUUID().toString();
+      Date stale = new Date(1_000L);
+      CacheEntry running = sampleEntry(runningId, "Live", ExecutionType.Pipeline, false, "Running");
+      running.getExecution().setFilename("/files/live.hpl");
+      running.getExecutionState().setExecutionEndDate(null);
+      running.getExecutionState().setUpdateTime(stale);
+      counting.persistCacheEntry(running);
+
+      String finishedId = UUID.randomUUID().toString();
+      counting.persistCacheEntry(
+          sampleEntry(finishedId, "Done", ExecutionType.Pipeline, false, "Finished"));
+      counting.clearCaches();
+      counting.loads = 0;
+
+      List<ListedExecution> listed = counting.listExecutions(IExecutionSelector.ALL);
+
+      ListedExecution live =
+          listed.stream()
+              .filter(item -> runningId.equals(item.execution().getId()))
+              .findFirst()
+              .orElseThrow();
+      assertEquals(stale, live.state().getUpdateTime());
+      assertTrue(live.state().isStale(20_000L));
+      assertNull(live.execution().getFilename());
+      assertEquals(1, counting.loads);
+    } finally {
+      counting.close();
+    }
+  }
+
+  @Test
   void upsertUpdatesFilterColumnsAndJson() throws Exception {
     String id = UUID.randomUUID().toString();
     CacheEntry entry = sampleEntry(id, "FlowA", ExecutionType.Workflow, false, "Running");

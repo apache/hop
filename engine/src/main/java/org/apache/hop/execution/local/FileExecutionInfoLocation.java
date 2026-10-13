@@ -729,7 +729,13 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
       for (String id : getExecutionIds(true, 10000)) {
         Execution execution = getExecution(id);
-        if (parentExecutionId.equals(execution.getParentId())) {
+        if (execution == null) {
+          continue;
+        }
+        // parentId is the owning workflow or pipeline. launchedById is the action or transform
+        // that started this execution. Callers pass either one.
+        if (parentExecutionId.equals(execution.getParentId())
+            || parentExecutionId.equals(execution.getLaunchedById())) {
           executions.add(execution);
         }
       }

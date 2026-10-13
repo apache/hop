@@ -358,8 +358,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   /**
    * Record this pipeline or workflow on the action or transform that started it, inside the parent
-   * document. A missing parent or launcher is skipped: the child document still has {@code
-   * parentId} and {@code launchedById}.
+   * document. A launcher that is not stored yet is written as a minimal entry; the parent's next
+   * save keeps that child id when it merges. The child document still has {@code parentId} and
+   * {@code launchedById}.
    */
   private void rememberLaunchedChild(Execution child) {
     if (child == null
@@ -368,22 +369,30 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         || StringUtils.isEmpty(child.getLaunchedById())) {
       return;
     }
+    // This location is often a different instance from the one running the parent. Do not keep the
+    // loaded parent: a later state update must not match it, and close() must not write it back.
+    boolean loadedForLink = !cache.containsKey(child.getParentId());
     try {
       CacheEntry parent = findCacheEntry(child.getParentId());
-      if (parent == null) {
+      if (parent == null || parent.getExecution() == null) {
+        LogChannel.GENERAL.logBasic(
+            "Child execution '"
+                + child.getId()
+                + "' was not linked: parent '"
+                + child.getParentId()
+                + "' is not stored yet");
         return;
       }
       Execution launcher = parent.peekChildExecution(child.getLaunchedById());
       if (launcher == null) {
-        return;
+        launcher = minimalLauncher(child, parent.getExecution());
+        parent.addChildExecution(launcher);
       }
       if (!launcher.addChildExecutionId(child.getId())) {
         return;
       }
       parent.setDirty(true);
       persistCacheEntry(parent);
-      // This location may be a different instance from the one running the parent. Leave the loaded
-      // entry clean so close() does not write a stale copy back over the parent.
       parent.setDirty(false);
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
@@ -393,7 +402,28 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
               + child.getParentId()
               + "' (non-fatal)",
           e);
+    } finally {
+      if (loadedForLink) {
+        cache.remove(child.getParentId());
+      }
     }
+  }
+
+  /**
+   * An action or transform that has not been flushed yet. The id and the child link are enough for
+   * drill-down. The parent's next save replaces this with the real launcher and keeps the child id.
+   */
+  private static Execution minimalLauncher(Execution child, Execution parentExecution) {
+    Execution launcher = new Execution();
+    launcher.setId(child.getLaunchedById());
+    launcher.setParentId(child.getParentId());
+    launcher.setExecutionType(
+        parentExecution.getExecutionType() == ExecutionType.Workflow
+            ? ExecutionType.Action
+            : ExecutionType.Transform);
+    launcher.setRegistrationDate(
+        child.getRegistrationDate() != null ? child.getRegistrationDate() : new Date());
+    return launcher;
   }
 
   @Override
@@ -575,6 +605,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     Collection<CacheEntry> values = cache.values();
     for (CacheEntry cacheEntry : values) {
       if (cacheEntry.getExecution() == null) {
+        continue;
+      }
+      // The parent document is not a place to store this execution's state.
+      if (parentId.equals(cacheEntry.getId())) {
         continue;
       }
       String execParent = cacheEntry.getExecution().getParentId();

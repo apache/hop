@@ -114,6 +114,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_COPY_NR = "copyNr";
   public static final String EP_FILENAME = "filename";
   public static final String EP_PARENT_ID = "parentId";
+  public static final String EP_LAUNCHED_BY_ID = "launchedById";
   public static final String EP_EXECUTION_TYPE = "executionType";
   public static final String EP_EXECUTOR_XML = "executorXml";
   public static final String EP_METADATA_JSON = "metadataJson";
@@ -293,6 +294,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     addIndex(cypher, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
     addIndex(cypher, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
     addIndex(cypher, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
+    addIndex(cypher, "idx_execution_launched_by_id", EL_EXECUTION, EP_LAUNCHED_BY_ID);
     addIndex(
         cypher,
         "idx_execution_metric_id",
@@ -382,6 +384,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       addIndex(neo4jIndex, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
       addIndex(neo4jIndex, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
       addIndex(neo4jIndex, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
+      addIndex(neo4jIndex, "idx_execution_launched_by_id", EL_EXECUTION, EP_LAUNCHED_BY_ID);
       addIndex(
           neo4jIndex,
           "idx_execution_metric_id",
@@ -485,6 +488,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_COPY_NR, execution.getCopyNr())
               .withValue(EP_FILENAME, execution.getFilename())
               .withValue(EP_PARENT_ID, execution.getParentId())
+              .withValue(EP_LAUNCHED_BY_ID, execution.getLaunchedById())
               .withValue(EP_EXECUTION_TYPE, execution.getExecutionType().name())
               .withValue(EP_EXECUTOR_XML, execution.getExecutorXml())
               .withValue(EP_METADATA_JSON, execution.getMetadataJson())
@@ -497,12 +501,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       execute(transaction, builder);
 
       if (StringUtils.isNotEmpty(execution.getParentId())) {
-        CypherRelationshipBuilder selfRelationshipBuilder =
-            CypherRelationshipBuilder.of()
-                .withMatch(EL_EXECUTION, "e1", EP_ID, execution.getId())
-                .withMatch(EL_EXECUTION, "e2", EP_ID, execution.getParentId())
-                .withMerge("e2", "e1", R_EXECUTES);
-        execute(transaction, selfRelationshipBuilder);
+        linkExecutes(transaction, execution.getParentId(), execution.getId());
+      }
+      // The action or transform that started this execution. Link it when that node is already
+      // stored. A missing launcher must not roll back the execution itself.
+      if (StringUtils.isNotEmpty(execution.getLaunchedById())
+          && !execution.getLaunchedById().equals(execution.getParentId())
+          && executionNodeExists(transaction, execution.getLaunchedById())) {
+        linkExecutes(transaction, execution.getLaunchedById(), execution.getId());
       }
 
       // See if we need to cache this
@@ -515,6 +521,42 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       // Transaction is automatically rolled back by executeWrite on exception
       throw new HopRuntimeException("Error registering new Execution in Neo4j", e);
     }
+  }
+
+  /** {@code (from)-[:EXECUTES]->(to)} when both nodes are already stored. */
+  private void linkExecutes(IGraphTransaction transaction, String fromId, String toId) {
+    execute(
+        transaction,
+        CypherRelationshipBuilder.of()
+            .withMatch(EL_EXECUTION, "e2", EP_ID, fromId)
+            .withMatch(EL_EXECUTION, "e1", EP_ID, toId)
+            .withMerge("e2", "e1", R_EXECUTES));
+  }
+
+  private boolean executionNodeExists(IGraphTransaction transaction, String executionId) {
+    List<Map<String, Object>> found =
+        execute(
+            transaction,
+            CypherQueryBuilder.of()
+                .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
+                .withReturnValues("n", EP_ID));
+    return !found.isEmpty();
+  }
+
+  /**
+   * Executions whose owner or launcher is {@code executionId}. {@code parentId} is the workflow or
+   * pipeline. {@code launchedById} is the action or transform that started the execution.
+   */
+  static CypherQueryBuilder executionsWithParentOrLauncher(String executionId) {
+    CypherQueryBuilder builder = CypherQueryBuilder.of().withLabelWithoutKey("n", EL_EXECUTION);
+    builder.withExtraClause(
+        "WHERE (n."
+            + EP_PARENT_ID
+            + " = $executionId OR n."
+            + EP_LAUNCHED_BY_ID
+            + " = $executionId) ");
+    builder.parameters().put("executionId", executionId);
+    return builder;
   }
 
   /**
@@ -652,9 +694,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             List<Map<String, Object>> result =
                 execute(
                     transaction,
-                    CypherQueryBuilder.of()
-                        .withLabelAndKey("n", EL_EXECUTION, EP_PARENT_ID, parentExecutionId)
-                        .withReturnValues("n", EP_ID));
+                    executionsWithParentOrLauncher(parentExecutionId).withReturnValues("n", EP_ID));
             for (Map<String, Object> record : result) {
               ids.add(getString(record, EP_ID));
             }
@@ -719,6 +759,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_COPY_NR,
                 EP_FILENAME,
                 EP_PARENT_ID,
+                EP_LAUNCHED_BY_ID,
                 EP_EXECUTION_TYPE,
                 EP_EXECUTOR_XML,
                 EP_METADATA_JSON,
@@ -747,6 +788,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return ExecutionBuilder.of()
         .withId(executionId)
         .withParentId(getString(record, EP_PARENT_ID))
+        .withLaunchedById(getString(record, EP_LAUNCHED_BY_ID))
         .withName(getString(record, EP_NAME))
         .withCopyNr(getString(record, EP_COPY_NR))
         .withFilename(getString(record, EP_FILENAME))
@@ -866,6 +908,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         EP_COPY_NR,
         EP_FILENAME,
         EP_PARENT_ID,
+        EP_LAUNCHED_BY_ID,
         EP_EXECUTION_TYPE,
         EP_EXECUTOR_XML,
         EP_METADATA_JSON,
@@ -1181,10 +1224,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   /**
-   * Find those Executions that have a matching parentId
+   * Executions owned by this id, or started by the action or transform with this id.
    *
    * @param transaction The read transaction to use
-   * @param parentExecutionId The parent execution ID
+   * @param parentExecutionId The owner or launcher execution ID
    * @return The list of executions or an empty list if nothing was found
    */
   private List<Execution> findNeo4jExecutions(
@@ -1194,9 +1237,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     List<Map<String, Object>> result =
         execute(
             transaction,
-            CypherQueryBuilder.of()
-                .withLabelAndKey("n", EL_EXECUTION, EP_PARENT_ID, parentExecutionId)
-                .withReturnValues("n", EP_ID));
+            executionsWithParentOrLauncher(parentExecutionId).withReturnValues("n", EP_ID));
     for (Map<String, Object> record : result) {
       String executionId = getString(record, EP_ID);
 

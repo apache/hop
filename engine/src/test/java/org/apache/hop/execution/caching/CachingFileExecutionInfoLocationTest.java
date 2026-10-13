@@ -46,6 +46,7 @@ import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionSelector;
 import org.junit.jupiter.api.AfterEach;
@@ -596,6 +597,90 @@ class CachingFileExecutionInfoLocationTest {
     } finally {
       location.close();
     }
+  }
+
+  @Test
+  void aSecondLocationRecordsTheChildWhenTheLauncherIsNotOnDiskYet() throws Exception {
+    Path root = tempDir.resolve("two-locations");
+    String rootFolder = root.toAbsolutePath().toString();
+    CachingFileExecutionInfoLocation parentLocation = open(rootFolder);
+    CachingFileExecutionInfoLocation childLocation = open(rootFolder);
+    try {
+      Execution pipeline = new Execution();
+      pipeline.setId("pipe");
+      pipeline.setName("Pipe");
+      pipeline.setExecutionType(ExecutionType.Pipeline);
+      pipeline.setRegistrationDate(new Date());
+      parentLocation.registerExecution(pipeline);
+
+      ExecutionState parentState = new ExecutionState();
+      parentState.setId("pipe");
+      parentState.setName("Pipe");
+      parentState.setExecutionType(ExecutionType.Pipeline);
+      parentState.setStatusDescription("parent-status");
+      parentState.setUpdateTime(new Date());
+      parentLocation.updateExecutionState(parentState);
+      parentLocation.persistCacheEntry(parentLocation.getCache().get("pipe"));
+
+      // The transform is in this process only. The 5s timer has not written it yet.
+      Execution transform = new Execution();
+      transform.setId("transform");
+      transform.setName("Executor");
+      transform.setParentId("pipe");
+      transform.setExecutionType(ExecutionType.Transform);
+      transform.setRegistrationDate(new Date());
+      parentLocation.registerExecution(transform);
+
+      Execution child = new Execution();
+      child.setId("child");
+      child.setName("Child");
+      child.setExecutionType(ExecutionType.Pipeline);
+      child.setParentId("pipe");
+      child.setLaunchedById("transform");
+      child.setRegistrationDate(new Date());
+      childLocation.registerExecution(child);
+
+      assertNull(childLocation.getCache().get("pipe"));
+
+      // The child's own file is gone, so a state update can only fall back to a cached parent.
+      childLocation.getCache().remove("child");
+      Files.deleteIfExists(root.resolve("child.json"));
+      ExecutionState childState = new ExecutionState();
+      childState.setId("child");
+      childState.setName("Child");
+      childState.setExecutionType(ExecutionType.Pipeline);
+      childState.setParentId("pipe");
+      childState.setStatusDescription("child-status");
+      childState.setUpdateTime(new Date());
+      childLocation.updateExecutionState(childState);
+      childLocation.close();
+
+      CachingFileExecutionInfoLocation reader = open(rootFolder);
+      try {
+        assertEquals("parent-status", reader.getExecutionState("pipe").getStatusDescription());
+      } finally {
+        reader.close();
+      }
+
+      parentLocation.persistCacheEntry(parentLocation.getCache().get("pipe"));
+      parentLocation.clearCaches();
+
+      assertNotNull(parentLocation.getExecution("pipe"));
+      Execution launcher = parentLocation.getExecution("transform");
+      assertNotNull(launcher);
+      assertEquals("Executor", launcher.getName());
+      assertEquals(List.of("child"), launcher.getChildExecutionIds());
+    } finally {
+      childLocation.close();
+      parentLocation.close();
+    }
+  }
+
+  private static CachingFileExecutionInfoLocation open(String rootFolder) throws Exception {
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(rootFolder);
+    location.initialize(new Variables(), null);
+    return location;
   }
 
   private static Execution executionAt(String id, Date start) {

@@ -270,7 +270,6 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
 
     outputRow[index++] = execution.getId();
     outputRow[index++] = execution.getParentId();
-    outputRow[index++] = execution.getLaunchedById();
     outputRow[index++] = execution.getName();
     outputRow[index++] = execution.getExecutionType().name();
     outputRow[index++] = execution.getFilename();
@@ -285,8 +284,12 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
       outputRow[index++] = executionState.getLoggingText();
       outputRow[index++] = executionState.isFailed();
       outputRow[index++] = executionState.getStatusDescription();
-      outputRow[index] = executionState.getExecutionEndDate();
+      outputRow[index++] = executionState.getExecutionEndDate();
+    } else {
+      // updateTime, loggingText, failed, statusDescription, executionEndDate
+      index += 5;
     }
+    outputRow[index] = execution.getLaunchedById();
     putRow(data.outputRowMeta, outputRow);
   }
 
