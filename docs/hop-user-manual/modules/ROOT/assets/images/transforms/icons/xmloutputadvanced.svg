@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="42px" height="42px" viewBox="0 0 42 42" enable-background="new 0 0 42 42">
+  <g>
+    <polygon fill="#3D6480" points="5.534,11.803 11.922,11.802 11.922,5.475 10.021,5.475 10.021,8.558 4.798,3.334 3.454,4.677
+              8.678,9.903 5.534,9.903"/>
+    <path fill="#DBF3DB" d="M30.036,33.223L29.978,13.07h-4.257V8.812h-6.806l-6.573,6.572v17.839H30.036z"/>
+    <polygon fill="#3D6480" points="31.678,13.08 29.969,11.371 27.421,11.371 27.421,8.823 25.711,7.113 20.614,7.113 18.915,8.812
+              25.721,8.812 25.721,13.07 29.978,13.07 30.036,33.223 12.342,33.223 12.342,15.384 10.642,17.085 10.642,34.923 31.741,34.923"/>
+    <!-- "AX" wordmark in the document body -->
+    <text x="13.5" y="24.0" font-family="Arial, Helvetica, sans-serif" font-size="6.5" font-weight="bold"
+          fill="#3D6480" letter-spacing="0">AXO</text>
+    <!-- Tree marker indicating hierarchical structure -->
+    <g fill="#3D6480">
+      <rect x="14" y="26" width="1.2" height="5"/>
+      <rect x="14" y="27.5" width="3" height="1.2"/>
+      <rect x="14" y="29.8" width="3" height="1.2"/>
+      <rect x="18" y="27.0" width="2.5" height="1.2"/>
+      <rect x="18" y="29.3" width="2.5" height="1.2"/>
+    </g>
+  </g>
+</svg>

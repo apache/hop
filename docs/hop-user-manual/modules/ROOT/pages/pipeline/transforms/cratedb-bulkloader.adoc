@@ -19,7 +19,7 @@ under the License.
 :description: The CrateDB Bulk Loader transform loads data from Apache Hop to CrateDB both with HTTP endpoint and COPY command.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
-= image:transforms/icons/cratedbulkloader.svg[CrateDB Bulk Loader transform Icon, role="image-doc-icon"] CrateDB Bulk Loader
+= image:transforms/icons/cratedbbulkloader.svg[CrateDB Bulk Loader transform Icon, role="image-doc-icon"] CrateDB Bulk Loader
 
 == Description
 
