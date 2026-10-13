@@ -221,6 +221,9 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
   void applyEnabledState() {
     if (!isLinterEnabled()) {
       LintResultsManager.getInstance().clearResults();
+      // Without this, switching the linter back on skips every file that has not changed since it
+      // was last checked, and the project comes back without findings.
+      BackgroundLintService.getInstance().getTracker().clear();
       try {
         LintProblemsBarManager.getInstance().refreshAllOpenEditors();
       } catch (Exception | LinkageError e) {

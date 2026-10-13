@@ -22,10 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Switching the linter off has to stop marking files.
@@ -58,6 +61,22 @@ class DisabledLinterTest {
     config.applyEnabledState();
 
     assertTrue(manager.getAllResults().isEmpty(), "a disabled linter must not leave a file marked");
+  }
+
+  @Test
+  void switchingTheLinterOffForgetsWhichFilesWereChecked(@TempDir File folder) throws Exception {
+    File file = new File(folder, "example.hpl");
+    Files.writeString(file.toPath(), "<pipeline/>");
+    LintCheckTracker tracker = BackgroundLintService.getInstance().getTracker();
+    tracker.markChecked(file.getAbsolutePath());
+
+    LinterConfigPlugin config = LinterConfigPlugin.getInstance();
+    config.setLinterEnabled(false);
+    config.applyEnabledState();
+
+    assertTrue(
+        tracker.needsLinting(file.getAbsolutePath()),
+        "switching the linter back on would skip the file and leave it without findings");
   }
 
   @Test
