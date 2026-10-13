@@ -97,6 +97,7 @@
     </distributionManagement>
 
     <properties>
+        <animal-sniffer-annotations.version>1.26</animal-sniffer-annotations.version>
         <apache-beam.version>2.74.0</apache-beam.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
@@ -106,6 +107,7 @@
         <byte-buddy.version>1.18.11</byte-buddy.version>
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
+        <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <!-- Build the upstreams of every impacted module, not only of the directly changed
              ones. With the default (changed), a REST change selects hop-tech-opensearch as
@@ -132,6 +134,8 @@
         <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
+        <google-api-common.version>2.55.2</google-api-common.version>
+        <google-auth-library.version>1.41.0</google-auth-library.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
@@ -201,6 +205,63 @@
         <tm4e.core.version>0.17.2</tm4e.core.version>
         <ui.test.argLine></ui.test.argLine>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.21.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.21.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.21</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.api</groupId>
+                <artifactId>api-common</artifactId>
+                <version>${google-api-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auth</groupId>
+                <artifactId>google-auth-library-credentials</artifactId>
+                <version>${google-auth-library.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auth</groupId>
+                <artifactId>google-auth-library-oauth2-http</artifactId>
+                <version>${google-auth-library.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${error-prone-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex</artifactId>
+                <version>${jandex.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-annotations</artifactId>
+                <version>${animal-sniffer-annotations.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>

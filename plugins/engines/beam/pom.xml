@@ -70,6 +70,13 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.beam</groupId>
                 <artifactId>beam-sdks-java-google-cloud-platform-bom</artifactId>
                 <version>${apache-beam.version}</version>
@@ -102,12 +109,10 @@
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-credentials</artifactId>
-            <version>1.30.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.30.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.grpc</groupId>
