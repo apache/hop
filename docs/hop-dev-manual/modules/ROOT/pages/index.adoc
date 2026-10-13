@@ -19,7 +19,7 @@ under the License.
 = Development documentation
 
 This manual is for people working *on* Hop: contributors to the Hop codebase, and anyone writing a plugin for it.
-For using Hop, see the xref:manual::index.adoc[user manual].
+For using Hop, see the xref:{page-component-version}@manual::index.adoc[user manual].
 
 == New here?
 

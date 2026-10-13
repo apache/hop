@@ -113,7 +113,7 @@ Annotation:: `@HopPerspectivePlugin`
 Implement:: `IHopPerspective`
 Plugin type:: `HopPerspectivePluginType`, id `HOP_PERSPECTIVES`
 Examples:: `ui/src/main/java/org/apache/hop/ui/hopgui/perspective`
-Related:: xref:manual::hop-gui/perspective-plugin.adoc[the user manual page on perspectives]
+Related:: xref:{page-component-version}@manual::hop-gui/perspective-plugin.adoc[the user manual page on perspectives]
 
 Perspectives are sorted by id, so ids carry a numeric prefix that decides the sidebar order:
 

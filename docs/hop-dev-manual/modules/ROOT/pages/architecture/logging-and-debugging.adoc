@@ -47,7 +47,7 @@ String logText =
 ----
 
 The second argument clears the buffer as it is read.
-This is the same path a `logBasic()` call from a xref:manual::pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class] takes: the transform's own channel, the same store.
+This is the same path a `logBasic()` call from a xref:{page-component-version}@manual::pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class] takes: the transform's own channel, the same store.
 
 === SLF4J and the Log4j2 binding
 
