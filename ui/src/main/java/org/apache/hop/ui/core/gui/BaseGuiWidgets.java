@@ -36,6 +36,12 @@ import org.eclipse.swt.widgets.Listener;
 public class BaseGuiWidgets {
 
   /**
+   * The id the GUI plugin objects are registered under when the widgets are built without a Hop
+   * GUI, for example a dialog in a unit test or a standalone tool.
+   */
+  static final String NO_HOP_GUI_ID = "no-hop-gui";
+
+  /**
    * Every set of widgets (toolbar, composite, menu, ...) gets its own unique ID It will cause a new
    * object to be created per unique ID for the listener or GUI plugins if this plugin wasn't
    * registered yet.
@@ -50,6 +56,9 @@ public class BaseGuiWidgets {
 
   /** The plugin object which is registered */
   protected Object guiPluginObject;
+
+  /** The id of the Hop GUI the plugin objects are registered under, see {@link #getHopGuiId()} */
+  private String hopGuiId;
 
   public BaseGuiWidgets(String instanceId) {
     this.instanceId = instanceId;
@@ -79,29 +88,54 @@ public class BaseGuiWidgets {
     this.guiPluginObject = guiPluginObject;
     this.guiPluginClassName = guiPluginClassName;
     GuiRegistry.getInstance()
-        .registerGuiPluginObject(
-            HopGui.getInstance().getId(), guiPluginClassName, instanceId, guiPluginObject);
+        .registerGuiPluginObject(getHopGuiId(), guiPluginClassName, instanceId, guiPluginObject);
   }
 
   protected void addDeRegisterGuiPluginObjectListener(Control control) {
     control.addDisposeListener(
-        e ->
-            GuiRegistry.getInstance()
-                .removeGuiPluginObjects(HopGui.getInstance().getId(), instanceId));
+        e -> GuiRegistry.getInstance().removeGuiPluginObjects(getHopGuiId(), instanceId));
   }
 
   public void dispose() {
-    String hopGuiId = HopGui.getInstance().getId();
-    GuiRegistry.getInstance().removeGuiPluginObjects(hopGuiId, instanceId);
+    GuiRegistry.getInstance().removeGuiPluginObjects(getHopGuiId(), instanceId);
+  }
+
+  /**
+   * The id of the Hop GUI the plugin objects of these widgets are registered under. It is taken
+   * once, so that they are registered, found and removed under the same id, even when a HopGui only
+   * comes into existence after the widgets were built.
+   *
+   * @return the id of the running Hop GUI, or {@link #NO_HOP_GUI_ID} when there was none
+   */
+  public String getHopGuiId() {
+    if (hopGuiId == null) {
+      hopGuiId = currentHopGuiId();
+    }
+    return hopGuiId;
+  }
+
+  /**
+   * The id of the running Hop GUI, or {@link #NO_HOP_GUI_ID} when there is none. This only peeks:
+   * building a toolbar or a table must not start a whole HopGui as a side effect. In a test JVM
+   * with a display that GUI would outlive the test and change what every later test sees.
+   */
+  static String currentHopGuiId() {
+    HopGui hopGui = HopGui.peekInstance();
+    return hopGui == null ? NO_HOP_GUI_ID : hopGui.getId();
   }
 
   protected static Object findGuiPluginInstance(
       ClassLoader classLoader, String listenerClassName, String instanceId) throws Exception {
+    return findGuiPluginInstance(currentHopGuiId(), classLoader, listenerClassName, instanceId);
+  }
+
+  protected static Object findGuiPluginInstance(
+      String hopGuiId, ClassLoader classLoader, String listenerClassName, String instanceId)
+      throws Exception {
     try {
       // This is the class that owns the listener method
       // It's a GuiPlugin class in other words
       //
-      String hopGuiId = HopGui.getInstance().getId();
       Object guiPluginObject =
           GuiRegistry.getInstance().findGuiPluginObject(hopGuiId, listenerClassName, instanceId);
       if (guiPluginObject == null) {
@@ -130,7 +164,10 @@ public class BaseGuiWidgets {
     try {
       Object singleton =
           findGuiPluginInstance(
-              toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
+              getHopGuiId(),
+              toolbarItem.getClassLoader(),
+              toolbarItem.getListenerClass(),
+              instanceId);
       if (singleton == null) {
         LogChannel.UI.logError(
             "Could not get instance of class '"
@@ -232,7 +269,7 @@ public class BaseGuiWidgets {
         }
 
         Object guiPluginInstance =
-            findGuiPluginInstance(classLoader, listenerClassName, instanceId);
+            findGuiPluginInstance(getHopGuiId(), classLoader, listenerClassName, instanceId);
         // Prefer a method that accepts the SWT Event (e.g. to read modifier keys such as Shift).
         try {
           Method withEvent =

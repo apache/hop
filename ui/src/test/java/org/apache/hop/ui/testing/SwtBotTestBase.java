@@ -33,6 +33,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Display;
@@ -88,6 +90,9 @@ public abstract class SwtBotTestBase {
     HopEnvironment.init();
     keepAuditStateOutOfSourceTree();
     ensureDisplay();
+    // The namespace a running Hop GUI sets, and that dialogs read their last used values under.
+    // Do not leave it to whichever test happens to construct a HopGui first.
+    HopNamespace.setNamespace(HopGui.DEFAULT_HOP_GUI_NAMESPACE);
     // Warm up the Hop look-and-feel (fonts, zoom factor) against this display.
     PropsUi.getInstance();
     GuiResource.getInstance();
