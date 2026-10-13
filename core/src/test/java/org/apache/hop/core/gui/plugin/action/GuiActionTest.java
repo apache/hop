@@ -18,6 +18,7 @@
 package org.apache.hop.core.gui.plugin.action;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.search.SearchMatcher;
@@ -92,5 +93,41 @@ class GuiActionTest {
     assertEquals(original.getTooltipHints(), copy.getTooltipHints());
     copy.getTooltipHints().clear();
     assertEquals(1, original.getTooltipHints().size());
+  }
+
+  @Test
+  void matchReportsTheFieldThatPutTheActionInTheList() {
+    SearchMatcher select = new SearchMatcher("select", false, false, true);
+
+    GuiAction.Match onName = selectValues().match(select);
+    assertEquals(GuiAction.MatchSource.NAME, onName.source());
+    assertEquals("Select values", onName.matchedText());
+
+    GuiAction tableInput =
+        new GuiAction(
+            "create-transform-TableInput",
+            GuiActionType.Create,
+            "Table input",
+            "Read information from a database table.",
+            null,
+            (shift, control, t) -> {});
+    tableInput.getKeywords().add("sql,query,database,select,jdbc");
+    tableInput.setCategory("Input");
+    GuiAction.Match onKeyword = tableInput.match(select);
+    assertEquals(GuiAction.MatchSource.KEYWORD, onKeyword.source());
+    // Only the comma separated part that matched, not the whole keyword list
+    assertEquals("select", onKeyword.matchedText());
+    assertEquals(tableInput.matchScore(select), onKeyword.score());
+
+    GuiAction.Match onCategory = tableInput.match(new SearchMatcher("input", false, false, true));
+    assertEquals(GuiAction.MatchSource.NAME, onCategory.source());
+
+    assertNull(dummy().match(select));
+  }
+
+  @Test
+  void matchOnDescription() {
+    GuiAction.Match match = selectValues().match(new SearchMatcher("remove", false, false, true));
+    assertEquals(GuiAction.MatchSource.DESCRIPTION, match.source());
   }
 }
