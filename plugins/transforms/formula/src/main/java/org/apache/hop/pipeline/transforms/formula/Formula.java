@@ -24,6 +24,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -37,6 +38,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.formula.config.FormulaConfig;
 import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler;
 import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.CompiledFormula;
 import org.apache.hop.pipeline.transforms.formula.util.FormulaParser;
@@ -133,13 +135,13 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       // compile each formula for the fast path when it is within the supported subset: the
       // resolved formula goes through the same variable resolution and field replacement as the
       // regular POI path, so both evaluate exactly the same expression. The compiler returns
-      // NOT_ELIGIBLE (fastPath=false) for anything unsupported, when the pipeline opted out via
-      // the HOP_FORMULA_FAST_PATH_ENABLED Hop variable, or when the master
-      // -Dorg.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled=false
-      // kill switch is set; in those cases the POI path is used instead.
+      // NOT_ELIGIBLE (fastPath=false) for anything unsupported, and for everything when the fast
+      // path is switched off in hop-config.json or with the HOP_FORMULA_FAST_PATH_ENABLED Hop
+      // variable; in those cases the POI path is used instead.
       //
       boolean fastEnabled =
-          Boolean.parseBoolean(getVariable(FastFormulaCompiler.FAST_PATH_VARIABLE, "true"));
+          FormulaConfig.isFastPathEnabled()
+              && Const.toBoolean(getVariable(FastFormulaCompiler.FAST_PATH_VARIABLE, "Y"));
       int formulaCount = meta.getFormulas().size();
       fastCompiled = new CompiledFormula[formulaCount];
       fastFieldIndices = new int[formulaCount][];

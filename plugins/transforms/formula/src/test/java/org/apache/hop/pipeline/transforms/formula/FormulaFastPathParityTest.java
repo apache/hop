@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -38,6 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.apache.hop.pipeline.transforms.formula.config.FormulaConfig;
 import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -55,8 +57,13 @@ import org.mockito.ArgumentCaptor;
 class FormulaFastPathParityTest {
   private TransformMockHelper<FormulaMeta, FormulaData> transformMockHelper;
 
+  /** The hop-config.json option as it was before the test, put back afterwards. */
+  private Object savedFastPathOption;
+
   @BeforeEach
   void setUp() {
+    savedFastPathOption =
+        HopConfig.getInstance().getConfigMap().remove(FormulaConfig.OPTION_FAST_PATH_ENABLED);
     FastFormulaCompiler.clear();
     transformMockHelper =
         new TransformMockHelper<>("Formula", FormulaMeta.class, FormulaData.class);
@@ -69,8 +76,38 @@ class FormulaFastPathParityTest {
   @AfterEach
   void tearDown() {
     FastFormulaCompiler.clear();
-    FastFormulaCompiler.setEnabled(true);
+    if (savedFastPathOption == null) {
+      HopConfig.getInstance().getConfigMap().remove(FormulaConfig.OPTION_FAST_PATH_ENABLED);
+    } else {
+      HopConfig.getInstance()
+          .getConfigMap()
+          .put(FormulaConfig.OPTION_FAST_PATH_ENABLED, savedFastPathOption);
+    }
     transformMockHelper.cleanUp();
+  }
+
+  private static final Scenario SUM =
+      new Scenario(
+          "[left] + [right]",
+          IValueMeta.TYPE_NUMBER,
+          "sum",
+          List.of(
+              new Field(new ValueMetaInteger("left"), 10L),
+              new Field(new ValueMetaInteger("right"), 20L)),
+          false);
+
+  @Test
+  void theFastPathIsOnWhenNothingSwitchesItOff() throws Exception {
+    run(SUM, null, true);
+  }
+
+  @Test
+  void theHopConfigOptionSwitchesTheFastPathOff() throws Exception {
+    HopConfig.getInstance().getConfigMap().put(FormulaConfig.OPTION_FAST_PATH_ENABLED, false);
+
+    run(SUM, null, false);
+    // A pipeline can not switch it back on.
+    run(SUM, "Y", false);
   }
 
   private record Field(IValueMeta meta, Object value) {}
@@ -252,8 +289,8 @@ class FormulaFastPathParityTest {
                 false));
 
     for (Scenario scenario : scenarios) {
-      List<Object[]> fastRows = run(scenario, true);
-      List<Object[]> poiRows = run(scenario, false);
+      List<Object[]> fastRows = run(scenario, "Y", true);
+      List<Object[]> poiRows = run(scenario, "N", false);
       assertRowsEqual(scenario, fastRows, poiRows);
     }
   }
@@ -271,8 +308,17 @@ class FormulaFastPathParityTest {
     }
   }
 
-  private List<Object[]> run(Scenario scenario, boolean enabled) throws HopException {
-    FastFormulaCompiler.setEnabled(enabled);
+  /**
+   * Run one row through the transform.
+   *
+   * @param scenario the formula and the row
+   * @param fastPathVariable the value of {@link FastFormulaCompiler#FAST_PATH_VARIABLE}, null to
+   *     leave it unset
+   * @param expectFastPath whether the formula has to take the fast path
+   * @return the rows written
+   */
+  private List<Object[]> run(Scenario scenario, String fastPathVariable, boolean expectFastPath)
+      throws HopException {
     try {
       FastFormulaCompiler.clear();
 
@@ -305,6 +351,9 @@ class FormulaFastPathParityTest {
       when(transformMockHelper.transformMeta.isDoingErrorHandling()).thenReturn(false);
       org.junit.jupiter.api.Assertions.assertTrue(
           formula.init(), "init failed for " + scenario.formula());
+      if (fastPathVariable != null) {
+        formula.setVariable(FastFormulaCompiler.FAST_PATH_VARIABLE, fastPathVariable);
+      }
       formula.setInputRowMeta(inputMeta);
 
       Object[] inputRow = new Object[scenario.inputFields().size()];
@@ -320,7 +369,7 @@ class FormulaFastPathParityTest {
       // A NOT_ELIGIBLE formula would make both legs use POI and pass vacuously, so each scenario
       // must prove the fast path was taken when it is enabled and not taken when disabled.
       org.junit.jupiter.api.Assertions.assertEquals(
-          enabled,
+          expectFastPath,
           formula.compiledFormula(0).fastPath(),
           "fast path usage for " + scenario.formula());
       formula.processRow();

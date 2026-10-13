@@ -323,22 +323,6 @@ class FastFormulaCompilerTest {
   }
 
   @Test
-  void disabledFastPathReportsNotEligible() {
-    add(new ValueMetaInteger("amount"));
-    boolean previous = FastFormulaCompiler.isEnabled();
-    try {
-      FastFormulaCompiler.setEnabled(false);
-      FastFormulaCompiler.clear();
-      CompiledFormula compiled =
-          FastFormulaCompiler.compile("[amount] + 1", List.of("amount"), rowMeta, false);
-      assertFalse(compiled.fastPath());
-    } finally {
-      FastFormulaCompiler.setEnabled(previous);
-      FastFormulaCompiler.clear();
-    }
-  }
-
-  @Test
   void callerOptOutReportsNotEligible() {
     add(new ValueMetaInteger("amount"));
     CompiledFormula compiled =

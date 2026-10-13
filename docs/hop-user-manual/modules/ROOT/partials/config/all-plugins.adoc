@@ -211,6 +211,18 @@ These options are stored under `pass:c[explorer-perspective]` in `hop-config.jso
 
 |===
 
+== Formula
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Fast formula evaluation]
+|pass:c[Evaluate the formulas that only use the supported functions and operators without Apache POI, which is many times faster. Formulas using anything else are always evaluated with Apache POI. Clear this to evaluate every formula with Apache POI. A pipeline can also switch it off with the variable HOP_FORMULA_FAST_PATH_ENABLED set to N.]
+|`pass:c[true]`
+
+|===
+
 == Git
 
 These options are stored under `pass:c[gitConfig]` in `hop-config.json`.

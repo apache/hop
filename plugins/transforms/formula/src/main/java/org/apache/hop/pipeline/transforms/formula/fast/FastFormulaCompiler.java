@@ -34,28 +34,23 @@ import org.apache.hop.pipeline.transforms.formula.fast.FastFormulaEvaluator.Node
  * eligibility decision are cached, so a pipeline only pays the parse once per distinct formula.
  *
  * <p>The maximum number of cached entries is a {@code -D} property, {@value #MAX_SIZE_PROPERTY},
- * and defaults to {@value #DEFAULT_MAX_SIZE}. The whole fast path can be disabled with {@value
- * #ENABLED_PROPERTY}, which makes {@link #compile} always report "not eligible"; pipelines can also
- * opt out per transform through the {@link #FAST_PATH_VARIABLE} Hop variable.
+ * and defaults to {@value #DEFAULT_MAX_SIZE}. Whether the fast path is used at all is up to the
+ * caller: the Formula transform switches it off when the {@code hop-config.json} option of {@link
+ * org.apache.hop.pipeline.transforms.formula.config.FormulaConfig} or the {@link
+ * #FAST_PATH_VARIABLE} Hop variable says so.
  */
 public final class FastFormulaCompiler {
 
   public static final String MAX_SIZE_PROPERTY =
       "org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.maxSize";
-  public static final String ENABLED_PROPERTY =
-      "org.apache.hop.pipeline.transforms.formula.fast.FastFormulaCompiler.enabled";
 
   /**
-   * Hop variable (values "true"/"false") that turns the fast path off for a pipeline without a JVM
-   * flag. Read by the Formula transform and passed to {@link #compile}; the system property stays
-   * the master kill switch.
+   * Hop variable that switches the fast path off for one pipeline when set to {@code N}. The
+   * Formula transform reads it and passes the outcome to {@link #compile}.
    */
   public static final String FAST_PATH_VARIABLE = "HOP_FORMULA_FAST_PATH_ENABLED";
 
   public static final int DEFAULT_MAX_SIZE = 1024;
-
-  /** Test override for {@link #isEnabled()}; {@code null} means "follow the system property". */
-  private static volatile Boolean enabledOverride;
 
   /** Binds a formula to its compiled function (or states it is not eligible). */
   public record CompiledFormula(boolean fastPath, Function<Object[], Object> function) {
@@ -92,10 +87,9 @@ public final class FastFormulaCompiler {
    * @param rowMeta the row metadata, used for the value types of the fields
    * @param setNa whether null fields are turned into {@code #N/A}
    * @param enabled whether the caller wants the fast path at all; the Formula transform reads the
-   *     {@link #FAST_PATH_VARIABLE} Hop variable into this
+   *     {@code hop-config.json} option and the {@link #FAST_PATH_VARIABLE} Hop variable into this
    * @return the compiled formula, whose {@link CompiledFormula#fastPath()} is false when the
-   *     formula is out of the fast-path subset, the caller or the master {@value #ENABLED_PROPERTY}
-   *     switch disabled the fast path
+   *     formula is out of the fast-path subset or the caller disabled the fast path
    */
   public static CompiledFormula compile(
       String resolvedFormula,
@@ -103,7 +97,7 @@ public final class FastFormulaCompiler {
       IRowMeta rowMeta,
       boolean setNa,
       boolean enabled) {
-    if (!enabled || !isEnabled()) {
+    if (!enabled) {
       return CompiledFormula.NOT_ELIGIBLE;
     }
     int[] indices = eligibleIndices(fieldNames, rowMeta);
@@ -185,22 +179,6 @@ public final class FastFormulaCompiler {
       key.append(':').append(rowMeta.getValueMeta(indices[i]).getType());
     }
     return key.toString();
-  }
-
-  /**
-   * Whether the fast path is enabled. Reads {@value #ENABLED_PROPERTY} live, so the master kill
-   * switch also works without a JVM restart; {@link #setEnabled} overrides it for tests.
-   */
-  public static boolean isEnabled() {
-    Boolean override = enabledOverride;
-    return override != null
-        ? override
-        : Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "true"));
-  }
-
-  /** Overrides whether the fast path is enabled. Intended for tests. */
-  public static void setEnabled(boolean value) {
-    enabledOverride = value;
   }
 
   private static int maxSize() {
