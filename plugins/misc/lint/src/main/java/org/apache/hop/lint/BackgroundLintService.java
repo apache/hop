@@ -66,6 +66,14 @@ public class BackgroundLintService {
   private final LintCheckTracker tracker;
   private final Map<String, AtomicInteger> deferredGenerations = new ConcurrentHashMap<>();
 
+  /**
+   * Bumped whenever another project is enabled. A pass remembers the value it started with and does
+   * not publish once it has changed: its findings belong to the project that was left.
+   */
+  private final AtomicInteger projectGeneration = new AtomicInteger(0);
+
+  private String currentProjectPath;
+
   private BackgroundLintService() {
     this.tracker = new LintCheckTracker();
   }
@@ -141,11 +149,62 @@ public class BackgroundLintService {
         });
   }
 
+  /**
+   * Called when a project is enabled. When it is another project than before, the findings and the
+   * record of what was checked belong to the project that was left: drop both, and stop the passes
+   * still running for it from publishing.
+   *
+   * <p>The tracker has to go as well. It skips files that have not changed since they were last
+   * checked, so switching back to a project would otherwise leave it without findings.
+   */
+  public void switchProject(String projectPath) {
+    String normalized = Utils.isEmpty(projectPath) ? "" : LintPathUtils.normalizePath(projectPath);
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      if (normalized.equals(currentProjectPath)) {
+        return;
+      }
+      // The first project of the session: nothing to drop, and the editors it just restored may
+      // already have published their findings.
+      boolean firstProject = currentProjectPath == null;
+      currentProjectPath = normalized;
+      projectGeneration.incrementAndGet();
+      if (!firstProject) {
+        tracker.clear();
+        manager.clearResults();
+      }
+    }
+  }
+
+  /** The value a pass starts with, to hand to {@link #publish} when it is done. */
+  int currentProjectGeneration() {
+    return projectGeneration.get();
+  }
+
+  /**
+   * Publish the findings of a pass, unless another project was enabled since it started.
+   *
+   * <p>Checked and published under the lock {@link #switchProject} clears the results with, so a
+   * pass cannot slip its findings in right after the switch.
+   */
+  boolean publish(String filePath, List<LintResult> results, int generation) {
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      if (generation != projectGeneration.get()) {
+        return false;
+      }
+      tracker.markChecked(filePath);
+      manager.updateResultsForFile(filePath, results);
+      return true;
+    }
+  }
+
   public void lintProjectAsync(
       String projectPath, IHopMetadataProvider metadataProvider, IVariables variables) {
     if (!isEnabled() || Utils.isEmpty(projectPath)) {
       return;
     }
+    int generation = currentProjectGeneration();
     submit(
         () -> {
           try {
@@ -161,12 +220,16 @@ public class BackgroundLintService {
 
             List<LintResult> accumulated = new ArrayList<>();
             for (String filePath : filesToCheck) {
+              if (generation != projectGeneration.get()) {
+                log.logBasic("Background linting of " + projectPath + " stopped: project switched");
+                return;
+              }
               try {
                 List<LintResult> results =
                     lintFileForGui(filePath, linter, metadataProvider, variables);
-                accumulated.addAll(results);
-                tracker.markChecked(filePath);
-                LintResultsManager.getInstance().updateResultsForFile(filePath, results);
+                if (publish(filePath, results, generation)) {
+                  accumulated.addAll(results);
+                }
               } catch (Exception e) {
                 log.logError("Error linting " + filePath, e);
               }

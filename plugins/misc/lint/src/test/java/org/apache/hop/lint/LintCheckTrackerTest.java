@@ -74,4 +74,17 @@ public class LintCheckTrackerTest {
 
     assertTrue(tracker.needsLinting(temp.getAbsolutePath()));
   }
+
+  @Test
+  public void clearForcesRecheckOfEveryFile() throws IOException {
+    File temp = File.createTempFile("lint-tracker", ".hpl");
+    temp.deleteOnExit();
+    Files.writeString(temp.toPath(), "test");
+
+    LintCheckTracker tracker = new LintCheckTracker();
+    tracker.markChecked(temp.getAbsolutePath());
+    tracker.clear();
+
+    assertTrue(tracker.needsLinting(temp.getAbsolutePath()));
+  }
 }

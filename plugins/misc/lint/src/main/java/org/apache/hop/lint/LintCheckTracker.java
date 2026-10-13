@@ -63,6 +63,12 @@ public class LintCheckTracker {
     }
   }
 
+  /** Forget every file, so the next pass lints all of them again. */
+  public void clear() {
+    lastCheckTimes.clear();
+    lastModifiedTimes.clear();
+  }
+
   private String normalize(String filePath) {
     try {
       return new File(filePath).getAbsolutePath();
