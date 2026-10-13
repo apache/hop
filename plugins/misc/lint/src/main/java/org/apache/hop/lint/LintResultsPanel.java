@@ -26,10 +26,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -46,6 +48,13 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   private static final ILogChannel log = LogChannel.GENERAL;
 
   private LintResultsManager resultsManager;
+
+  /**
+   * Kept from the start: results arrive on lint threads, and asking a panel that has just been
+   * disposed for its display throws.
+   */
+  private final Display display;
+
   private Tree resultsTree;
   private LintResultGrouping.SortKey sortKey = LintResultGrouping.SortKey.FILE;
   private boolean sortAscending = true;
@@ -56,9 +65,13 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
 
   public LintResultsPanel(Composite parent, int style) {
     super(parent, style);
+    this.display = parent.getDisplay();
 
     this.resultsManager = LintResultsManager.getInstance();
     this.resultsManager.addListener(this);
+    // A dispose listener, not an override of dispose(): closing the window disposes the panel
+    // without calling its dispose().
+    addDisposeListener(e -> resultsManager.removeListener(this));
 
     createContents();
     refreshResults();
@@ -128,7 +141,18 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
     // Tree columns
     TreeColumn severityColumn = new TreeColumn(resultsTree, SWT.LEFT);
     severityColumn.setText(BaseMessages.getString(PKG, "LintResultsPanel.Column.Severity"));
-    severityColumn.setWidth(80);
+    // The widest text in the column, WARNING or the header, plus room for the expand arrow, the
+    // indent of the child rows and the cell margins.
+    GC gc = new GC(resultsTree);
+    try {
+      int textWidth =
+          Math.max(
+              gc.textExtent(LintSeverity.Level.WARNING.getCode()).x,
+              gc.textExtent(severityColumn.getText()).x);
+      severityColumn.setWidth(textWidth + 40);
+    } finally {
+      gc.dispose();
+    }
 
     TreeColumn ruleColumn = new TreeColumn(resultsTree, SWT.LEFT);
     ruleColumn.setText(BaseMessages.getString(PKG, "LintResultsPanel.Column.Rule"));
@@ -182,58 +206,58 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   }
 
   private void refreshResults() {
+    if (isDisposed() || display.isDisposed()) {
+      return;
+    }
     // The panel's own display, not Display.getDefault(): results arrive on lint threads, and in
     // Hop Web a thread that was started without a session has no default display to find.
-    getDisplay()
-        .asyncExec(
-            () -> {
-              if (isDisposed()) {
-                return;
-              }
+    display.asyncExec(
+        () -> {
+          if (isDisposed()) {
+            return;
+          }
 
-              resultsTree.removeAll();
+          resultsTree.removeAll();
 
-              List<LintResult> displayedResults = getDisplayedResults();
+          List<LintResult> displayedResults = getDisplayedResults();
 
-              if (displayedResults.isEmpty()) {
-                if (fileFilter != null) {
-                  statusLabel.setText(
-                      "No lint issues for "
-                          + LintEditorGraphHelper.displayName(fileFilter)
-                          + ". Run lint on this file or check Tools → Lint → Show Lint Results.");
-                } else {
-                  statusLabel.setText(
-                      BaseMessages.getString(PKG, "LintResultsPanel.Status.NoResults"));
-                }
-                detailsText.setText(
-                    BaseMessages.getString(PKG, "LintResultsPanel.Details.NoResults"));
-                return;
-              }
-
-              int errorCount = 0;
-              int warningCount = 0;
-              for (LintResult result : displayedResults) {
-                if ("ERROR".equalsIgnoreCase(result.getSeverity())) {
-                  errorCount++;
-                } else if ("WARNING".equalsIgnoreCase(result.getSeverity())) {
-                  warningCount++;
-                }
-              }
-
-              String scope =
-                  fileFilter != null ? " for " + LintEditorGraphHelper.displayName(fileFilter) : "";
+          if (displayedResults.isEmpty()) {
+            if (fileFilter != null) {
               statusLabel.setText(
-                  String.format(
-                      "Found %d issues%s (%d errors, %d warnings)",
-                      displayedResults.size(), scope, errorCount, warningCount));
+                  "No lint issues for "
+                      + LintEditorGraphHelper.displayName(fileFilter)
+                      + ". Run lint on this file or check Tools → Lint → Show Lint Results.");
+            } else {
+              statusLabel.setText(BaseMessages.getString(PKG, "LintResultsPanel.Status.NoResults"));
+            }
+            detailsText.setText(BaseMessages.getString(PKG, "LintResultsPanel.Details.NoResults"));
+            return;
+          }
 
-              Map<String, List<LintResult>> resultsBySeverity = groupBySeverity(displayedResults);
-              List<String> severities = new java.util.ArrayList<>(resultsBySeverity.keySet());
-              severities.sort(LintResultGrouping.severityOrder());
-              for (String severity : severities) {
-                addSeverityGroup(severity, resultsBySeverity.get(severity));
-              }
-            });
+          int errorCount = 0;
+          int warningCount = 0;
+          for (LintResult result : displayedResults) {
+            if ("ERROR".equalsIgnoreCase(result.getSeverity())) {
+              errorCount++;
+            } else if ("WARNING".equalsIgnoreCase(result.getSeverity())) {
+              warningCount++;
+            }
+          }
+
+          String scope =
+              fileFilter != null ? " for " + LintEditorGraphHelper.displayName(fileFilter) : "";
+          statusLabel.setText(
+              String.format(
+                  "Found %d issues%s (%d errors, %d warnings)",
+                  displayedResults.size(), scope, errorCount, warningCount));
+
+          Map<String, List<LintResult>> resultsBySeverity = groupBySeverity(displayedResults);
+          List<String> severities = new java.util.ArrayList<>(resultsBySeverity.keySet());
+          severities.sort(LintResultGrouping.severityOrder());
+          for (String severity : severities) {
+            addSeverityGroup(severity, resultsBySeverity.get(severity));
+          }
+        });
   }
 
   private void addSeverityGroup(String severity, List<LintResult> results) {
@@ -344,13 +368,5 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
   @Override
   public void onResultsUpdated() {
     refreshResults();
-  }
-
-  @Override
-  public void dispose() {
-    if (resultsManager != null) {
-      resultsManager.removeListener(this);
-    }
-    super.dispose();
   }
 }
