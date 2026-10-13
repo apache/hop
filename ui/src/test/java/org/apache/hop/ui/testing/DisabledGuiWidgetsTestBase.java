@@ -39,7 +39,6 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.eclipse.swt.SWT;
@@ -401,13 +400,13 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
 
   /**
    * Registers the object Hop hands to this toolbar's callbacks for {@code className}, under that
-   * class's own name and this toolbar's instance id - which is exactly where {@code
+   * class's own name and this toolbar's Hop GUI and instance ids - which is exactly where {@code
    * BaseGuiWidgets.findGuiPluginInstance} looks before it falls back to constructing one itself.
    */
   private void registerToolbarObject(GuiToolbarWidgets widgets, String className) {
     GuiRegistry.getInstance()
         .registerGuiPluginObject(
-            HopGui.getInstance().getId(),
+            widgets.getHopGuiId(),
             className,
             widgets.getInstanceId(),
             toolbarSourceObject(className));

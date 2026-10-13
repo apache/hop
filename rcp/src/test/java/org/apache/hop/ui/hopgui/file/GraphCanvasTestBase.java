@@ -131,6 +131,10 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
    */
   protected static synchronized HopGui hopGui() {
     if (hopGui == null) {
+      // The canvas handlers also reach for the application's HopGui. Build that one up front too:
+      // created by the first click, its shell would be caught as a dialog that click opened.
+      //
+      HopGui.getInstance();
       hopGui = new MenulessHopGui();
       hopGui.setProps(PropsUi.getInstance());
     }
