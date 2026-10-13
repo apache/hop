@@ -69,6 +69,11 @@ public final class ProjectYamlOverlay {
     private final Map<String, Object> parameters;
     private final String helpUri;
 
+    /** A name and description of the project's own, for a pack rule it only renames. */
+    private final String name;
+
+    private final String description;
+
     /**
      * Tags the project sets on the pack's rule, by key. A key replaces the pack's values for that
      * key and leaves its other tags alone; a key with no values removes the pack's tag.
@@ -81,12 +86,16 @@ public final class ProjectYamlOverlay {
         String conditionValue,
         Map<String, Object> parameters,
         String helpUri,
+        String name,
+        String description,
         Map<String, List<String>> tags) {
       this.enabled = enabled;
       this.severity = severity;
       this.conditionValue = conditionValue;
       this.parameters = parameters;
       this.helpUri = helpUri;
+      this.name = name;
+      this.description = description;
       this.tags = tags != null ? tags : Collections.emptyMap();
     }
 
@@ -112,9 +121,18 @@ public final class ProjectYamlOverlay {
         Object value = ruleData.get("helpUri");
         helpUri = value != null ? value.toString().trim() : "";
       }
+      // A name or description renames the pack rule in place; it stays the pack's rule.
+      String name = ruleData.get("name") != null ? String.valueOf(ruleData.get("name")) : null;
+      String description =
+          ruleData.containsKey("description")
+              ? (ruleData.get("description") != null
+                  ? String.valueOf(ruleData.get("description"))
+                  : "")
+              : null;
       Map<String, List<String>> tags =
           YamlRulePackParser.tagsValue(ruleData.get("tags"), ruleId, location, true);
-      return new ProjectRuleOverlay(enabled, severity, conditionValue, parameters, helpUri, tags);
+      return new ProjectRuleOverlay(
+          enabled, severity, conditionValue, parameters, helpUri, name, description, tags);
     }
 
     public void applyTo(org.apache.hop.lint.CustomLintRule rule) {
@@ -132,6 +150,12 @@ public final class ProjectYamlOverlay {
       }
       if (helpUri != null) {
         rule.setHelpUri(helpUri.isEmpty() ? null : helpUri);
+      }
+      if (name != null && !name.trim().isEmpty()) {
+        rule.setName(name);
+      }
+      if (description != null) {
+        rule.setDescription(description);
       }
       tags.forEach(
           (key, values) -> {

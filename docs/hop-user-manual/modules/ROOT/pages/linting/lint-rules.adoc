@@ -497,6 +497,11 @@ rules:
     enabled: true
     conditionValue: "30"
 
+  # Use your own wording for a pack rule
+  DOC-002:
+    name: "Workflows need a description"
+    description: "Say what the workflow does and who to ask about it"
+
   # A rule that exists only in this project
   LOCAL-001:
     type: custom
@@ -510,6 +515,12 @@ rules:
 
 *Tools -> Lint -> Manage Custom Rules* writes this file for you.
 It changes only the entry of the rule you added, edited, switched or deleted: the other rules, the `exclude` and `suppress` sections and your comments stay as you wrote them.
+
+A rule you add there gets its id in the *Rule ID* field, suggested as `PROJECT-001`, `PROJECT-002` and so on.
+Findings, SARIF reports, `hop lint --list-rules` and `hop-lint.yml` all name the rule by this id, so pick one that says what the rule is about.
+An id holds letters, digits, hyphens, underscores and dots, and no two rules can share one, whatever the case.
+A project rule's id can be changed later; a `suppress` entry naming the old id does not follow it.
+A pack rule keeps the pack's id.
 
 A parse error in `hop-lint.yml` is reported rather than ignored, so that a typo cannot leave you linting with the defaults while believing otherwise.
 

@@ -77,7 +77,15 @@ public final class YamlRulePackParser {
 
   /** The keys a project's hop-lint.yml may use to tune a rule from a pack. */
   static final Set<String> OVERRIDE_KEYS =
-      Set.of("enabled", "severity", "conditionValue", "parameters", "tags", "helpUri");
+      Set.of(
+          "enabled",
+          "severity",
+          "conditionValue",
+          "parameters",
+          "tags",
+          "helpUri",
+          "name",
+          "description");
 
   private YamlRulePackParser() {}
 
