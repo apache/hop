@@ -5076,7 +5076,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       TreeItem item = findTreeItem(filename);
       if (item != null) {
         for (IExplorerRefreshListener listener : refreshListeners) {
-          listener.beforeRefresh();
+          listener.beforeFileRefresh(filename);
         }
         callPaintListeners(tree, item, filename, fileTypeHandler.getName());
       }

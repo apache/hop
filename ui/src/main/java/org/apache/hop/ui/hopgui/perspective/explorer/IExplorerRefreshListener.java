@@ -20,4 +20,15 @@ package org.apache.hop.ui.hopgui.perspective.explorer;
 
 public interface IExplorerRefreshListener {
   void beforeRefresh();
+
+  /**
+   * Called before the tree item of one file is repainted, which an open editor asks for on nearly
+   * every click. Update only what this file needs; the default does a full {@link
+   * #beforeRefresh()}.
+   *
+   * @param filename the absolute filename
+   */
+  default void beforeFileRefresh(String filename) {
+    beforeRefresh();
+  }
 }
