@@ -19,6 +19,11 @@ under the License.
 = Hop Search
 
 Hop Search is a command line tool to search for metadata in Hop or a Hop project.
+It is particularly useful when you work on a remote server over an SSH connection and need to find a value, setting, transform or action.
+
+The search matches names, keys, values, descriptions and so on.
+
+Without `-j` and `-e`, Hop Search uses the default project and environment from the Hop configuration.
 
 &nbsp; +
 
@@ -65,7 +70,7 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
 
 == Examples
 
-Example command: search for the string 'json' (case insensitive) in the 'hop-samples' project.
+Example command: search for the string 'switch-case' (case insensitive) in the 'samples' project.
 
 [tabs]
 ====

@@ -29,6 +29,7 @@ The technologies supported by Hop currently include:
 * xref:technology/age/index.adoc[Apache AGE]
 * xref:technology/arrow/apache-arrow.adoc[Apache Arrow]
 * xref:technology/calcite/index.adoc[Apache Calcite]
+* xref:technology/avro/index.adoc[Avro]
 * xref:technology/azure/index.adoc[Azure]
 * xref:technology/cassandra/index.adoc[Apache Cassandra]
 * xref:technology/falkordb/index.adoc[FalkorDB]
