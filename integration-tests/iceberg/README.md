@@ -17,8 +17,8 @@ limitations under the License.
 
 # iceberg integration tests (iceberg)
 
-End-to-end Hop IT for **Spark Lake Table** transforms on the native Spark engine
-using **iceberg** PATH mode.
+End-to-end Hop IT for the **Lake table** transforms with **iceberg** PATH tables, on the
+native Spark engine and on the local Hop engine.
 
 ## Prerequisites
 
@@ -33,6 +33,7 @@ using **iceberg** PATH mode.
 | `main-0001-input-output` | Data Grid → Lake Output → Lake Input → CSV → golden (10 rows) |
 | `main-0002-overwrite-timetravel` | Write 5, overwrite 20, read current (and time travel where applicable) |
 | `main-0003-merge` | Seed (1,a)(2,b), MERGE update/insert → golden 3 rows |
+| `main-0004-local-input-output` | Same round trip as 0001 on the local engine: Data Grid → Lake Output → Lake Input → Text file output → golden (10 rows) |
 
 0002 validates double Overwrite + current read. Iceberg snapshot-id time travel is covered in Java unit tests (`SparkLakeTableTimeTravelTest`).
 

@@ -88,5 +88,5 @@ All options support xref:pipeline/metadata-injection.adoc[metadata injection].
 
 * xref:pipeline/transforms/spark-file-input.adoc[Spark file input]
 * xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output] for Delta Lake and Apache Iceberg tables
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output] for Delta Lake and Apache Iceberg tables
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]

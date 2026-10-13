@@ -692,4 +692,4 @@ Databricks does **not** expose a standard content MD5/SHA for volume files compa
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark run configuration]
 * xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
 * xref:database/databases/databricks.adoc[Databricks JDBC] (SQL warehouse — separate use case)
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog] (Unity Catalog templates for lakehouse TABLE mode)
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] (Unity Catalog templates for lakehouse TABLE mode)

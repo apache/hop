@@ -65,7 +65,7 @@ For the full list of Hop VFS schemes, see xref:vfs.adoc[Virtual File Systems].
 |**Spark URI**
 |e.g. `file:///…`, `s3a://bucket/table` — see xref:pipeline/spark/lakehouse.adoc[Lakehouse]
 
-|Spark Catalog warehouse / Iceberg `io-impl`
+|Lakehouse catalog warehouse / Iceberg `io-impl`
 |**Spark URI**
 |Templates use `s3a://` and `file:///`
 
@@ -310,4 +310,4 @@ See xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started w
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]
 * xref:vfs.adoc[Virtual File Systems]
 * xref:metadata-types/minio-connection.adoc[Minio Connection]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog]
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog]

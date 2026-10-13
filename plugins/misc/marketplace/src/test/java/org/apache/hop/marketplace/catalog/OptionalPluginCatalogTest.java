@@ -33,6 +33,7 @@ class OptionalPluginCatalogTest {
     List<String> ids = OptionalPluginCatalog.artifactIds();
     assertTrue(ids.contains("hop-tech-parquet"));
     assertTrue(ids.contains("hop-engines-spark"));
+    assertTrue(ids.contains("hop-tech-lakehouse"));
     assertTrue(ids.contains("hop-engines-beam"));
     assertTrue(ids.contains("hop-transform-edi2xml"));
   }
