@@ -68,7 +68,7 @@ public class DataSetOutputMeta extends BaseTransformMeta<DataSetOutput, DataSetO
 `id`::
 Stable name of this widget.
 Dialog code uses it to find the control, and a distribution can hide the widget by listing the id in `disabledGuiElements`.
-See xref:manual::hop-gui/disable-ui-elements.adoc[Disabling UI elements].
+See xref:{page-component-version}@manual::hop-gui/disable-ui-elements.adoc[Disabling UI elements].
 
 `order`::
 Sort key among the widgets in this parent, compared as a string.

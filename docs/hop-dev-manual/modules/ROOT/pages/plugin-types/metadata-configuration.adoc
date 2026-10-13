@@ -177,7 +177,7 @@ It is selected by the `HOP_PASSWORD_ENCODER_PLUGIN` variable or system property 
 ====
 Obfuscation is not encryption.
 The default encoder keeps passwords out of plain sight in files; it does not protect them from someone who has the files.
-See xref:manual::password/passwords.adoc[the password documentation] for what the guarantees actually are.
+See xref:{page-component-version}@manual::password/passwords.adoc[the password documentation] for what the guarantees actually are.
 ====
 
 == Authentication provider and consumer

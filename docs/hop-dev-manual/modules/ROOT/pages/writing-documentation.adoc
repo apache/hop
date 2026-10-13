@@ -43,7 +43,10 @@ Without it, Apache RAT fails the build.
 . Add a `:description:` line. It is used as the page summary and for search.
 . Add the page to `modules/ROOT/nav.adoc`, or it will not be published.
 . Link between pages with an `xref` macro, with the path relative to `pages/` rather than to the current file: `+xref:database/index.adoc[Database plugins]+`.
-Across manuals, prefix the component name — `manual` or `dev-manual`: `+xref:manual::pipeline/transforms/tableinput.adoc[Table input]+`.
+Across manuals, prefix the component name — `manual` or `dev-manual` — and pin the version with `+{page-component-version}@+`: `+xref:{page-component-version}@manual::pipeline/transforms/tableinput.adoc[Table input]+`.
+Without the version, Antora links to the latest stable release of the other manual, not to the version of the current page.
+A link to a page that is not in that release yet then breaks the website build, even though the pull request build passed.
+The pull request build rejects cross-manual xrefs without a version.
 
 == Documenting a plugin
 
