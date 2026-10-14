@@ -20,6 +20,7 @@ under the License.
 
 Documentation lives in the Hop repository next to the code it describes, in `docs/`.
 Changing it is an ordinary pull request, which makes it one of the easiest ways to make a first contribution.
+The https://hop.apache.org/community/contribution-guides/documentation-contribution-guide/[Documentation Contribution Guide] on the website walks through forking the repository and opening that pull request.
 
 == The three manuals
 
@@ -64,11 +65,60 @@ The path is relative to the user manual on the website, and it is what the help 
 
 Anything a plugin developer needs — rather than a user — belongs in this manual instead.
 
+== Previewing the documentation locally
+
+The manuals are published by the Antora playbooks in the https://github.com/apache/hop-website[apache/hop-website] repository, not this one.
+To see a change the way the website will show it, build the manuals with that repository's `antora-playbook-hop.yml`, which is what the pull request build does too.
+
+. Check out apache/hop-website next to your Hop checkout.
+The playbook reads `../hop`, so the Hop checkout has to be in a folder named `hop`:
++
+----
+work/
+├── hop/            your Hop checkout, on the branch you want to preview
+└── hop-website/    a checkout of apache/hop-website, on main
+----
+. Install Node.js 22, the version the pull request build uses.
+. In `hop-website`, install the site generator and generate the files the site's look and navigation need:
++
+[source,bash]
+----
+npm ci --ignore-scripts
+node tools/sync-tokens.mjs
+node tools/sync-nav.mjs
+node tools/sync-vendor.mjs
+----
+. Build the manuals:
++
+[source,bash]
+----
+npx antora --log-level=warn --log-failure-level=error antora-playbook-hop.yml
+----
++
+The build reads the working tree of `../hop`, so uncommitted edits are included.
+It fails on the same errors as the pull request build: unresolved xrefs, missing includes and malformed tables.
+. Serve the result and open it in a browser:
++
+[source,bash]
+----
+npm run serve
+----
++
+The pages are at `+http://localhost:4000/manual/latest/+` and `+http://localhost:4000/dev-manual/latest/+`.
+
+Things that are different from the website:
+
+* The pages are under `latest`, not `next`. The build only contains the version on your branch, so Antora publishes it as the latest one.
+* The sections in the navigation do not expand.
+The script that does this comes from the website's own build, which this one skips.
+Copy it in with `cp -R static/js public/` after each build.
+* Pages you deleted or moved are still served, because the build does not empty `public/` first.
+Delete `public/` before building when you remove or rename a page.
+
 [NOTE]
 ====
 This page is a scaffold. Still to write:
 
-* Building the documentation locally to preview it. The Antora playbook lives in the Hop website repository, not this one; the exact steps need writing down.
 * The AsciiDoc conventions this project actually follows: one sentence per line, admonition usage, image sizing, how snippets under `pages/snippets` are included.
 * How a page reaches hop.apache.org, and how versioned manuals are cut at release time.
 ====
