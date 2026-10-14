@@ -68,52 +68,31 @@ Anything a plugin developer needs — rather than a user — belongs in this man
 == Previewing the documentation locally
 
 The manuals are published by the Antora playbooks in the https://github.com/apache/hop-website[apache/hop-website] repository, not this one.
-To see a change the way the website will show it, build the manuals with that repository's `antora-playbook-hop.yml`, which is what the pull request build does too.
+Its `run-website-local.sh` script builds the website with the documentation from your Hop checkout and serves it.
 
+. Install Node.js 22, the version the pull request build uses.
 . Check out apache/hop-website next to your Hop checkout.
-The playbook reads `../hop`, so the Hop checkout has to be in a folder named `hop`:
+The build reads `../hop`, so the Hop checkout has to be in a folder named `hop`:
 +
 ----
 work/
 ├── hop/            your Hop checkout, on the branch you want to preview
 └── hop-website/    a checkout of apache/hop-website, on main
 ----
-. Install Node.js 22, the version the pull request build uses.
-. In `hop-website`, install the site generator and generate the files the site's look and navigation need:
+. In `hop-website`, run the script:
 +
 [source,bash]
 ----
-npm ci --ignore-scripts
-node tools/sync-tokens.mjs
-node tools/sync-nav.mjs
-node tools/sync-vendor.mjs
-----
-. Build the manuals:
-+
-[source,bash]
-----
-npx antora --log-level=warn --log-failure-level=error antora-playbook-hop.yml
+./run-website-local.sh
 ----
 +
-The build reads the working tree of `../hop`, so uncommitted edits are included.
-It fails on the same errors as the pull request build: unresolved xrefs, missing includes and malformed tables.
-. Serve the result and open it in a browser:
-+
-[source,bash]
-----
-npm run serve
-----
-+
-The pages are at `+http://localhost:4000/manual/latest/+` and `+http://localhost:4000/dev-manual/latest/+`.
+It reads the working tree of `../hop`, so uncommitted edits are included.
+When the server is up, the manuals are at `+http://localhost:4000/manual/latest/+` and `+http://localhost:4000/dev-manual/latest/+`.
 
-Things that are different from the website:
+After the first build, `./run-website-local.sh --fast` re-renders only the manuals, which takes seconds.
+Run a full build again when you delete or rename a page: `--fast` does not remove the pages it built before.
 
-* The pages are under `latest`, not `next`. The build only contains the version on your branch, so Antora publishes it as the latest one.
-* The sections in the navigation do not expand.
-The script that does this comes from the website's own build, which this one skips.
-Copy it in with `cp -R static/js public/` after each build.
-* Pages you deleted or moved are still served, because the build does not empty `public/` first.
-Delete `public/` before building when you remove or rename a page.
+The pages are under `latest`, not `next` as on the website: the build only contains the version on your branch, so Antora publishes it as the latest one.
 
 [NOTE]
 ====
