@@ -40,5 +40,9 @@
 
     <properties>
         <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+        <!-- The hop-assemblies aggregate zips (web, plugins, static, ...) are staged to
+             dist.apache.org; the parent keeps them out of Nexus/Maven Central by default.
+             hop-client overrides maven.deploy.skip back to false so it is deployed too. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 </project>

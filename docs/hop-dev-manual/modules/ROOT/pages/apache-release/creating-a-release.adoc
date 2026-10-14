@@ -70,26 +70,32 @@ Two independent switches control this, and mixing them up is what breaks the mar
 |`assemblies`
 |The `assemblies/` reactor — `hop-assemblies-plugins` and the hop-client / hop-web
 products — plus the `hop-core` / `hop-engine` / `hop-ui` / `hop-ui-rcp` zips, which exist
-only to be unpacked into those products. None of these are staged to Maven Central; the
-client and the source release go to dist.apache.org. The release turns this off via
-`-P=-assemblies`, so a normal build still produces everything `assemblies/client` needs.
+only to be unpacked into those products. The release still builds these here (the old
+`-P=-assemblies` release toggle was removed), so `hop-client-<version>.zip` is available as
+a normal `release:perform` output and can be renamed/copied to dist.apache.org. The
+`assemblies` parent sets `<maven.deploy.skip>true</maven.deploy.skip>` to keep `hop-web` /
+`hop-assemblies-*` out of Maven Central; `hop-client` overrides it back to `false` so it is
+deployed like any other release artifact.
 
 |`module.zips`
 |The per-module `artifactId-version.zip` attached next to each plugin jar. This is the
 artifact the marketplace installs, so a release must **never** disable it.
 |===
 
-Net effect on a release: every plugin zip is staged, and no `hop-assemblies-*` or
-core/engine/ui/rcp zip is.
+Net effect on a release: every plugin zip is staged, `hop-client` is deployed to Maven
+Central alongside its `hop-client-<version>.zip`, and the other `assemblies/` zips
+(`hop-web`, `hop-assemblies-*`) are *built* but kept out of Central via the parent's
+`maven.deploy.skip` (they go to dist.apache.org instead).
 
 They used to share the single `assemblies` property, so one `-Dassemblies=false` silently
 dropped every plugin zip while the build still reported `BUILD SUCCESS`. That is why the
 zips are missing from Maven Central for 2.12.0-2.14.0 and 2.16.0-2.18.1.
 
-WARNING: Do not add `-Dassemblies=false`, `-Dmodule.zips=false` or `-P=-assembly` to the
-release commands, and do not pass `-Darguments="..."` on the command line — it replaces the
-`<arguments>` configured in the root pom wholesale, taking the `-P=-assemblies` with it.
-Older versions of this guide included both; that is the bug described above.
+WARNING: Do not add `-Dassemblies=false` or `-Dmodule.zips=false` to the release commands,
+and do not pass `-Darguments="..."` on the command line — it replaces the `<arguments>`
+configured in the root pom wholesale. Older versions of this guide also excluded the
+assemblies reactor via `-P=-assemblies`; that toggle has been removed so the release builds
+the client.
 
 So `release:perform` publishes both the jar and the zip under the same GAV, for example:
 
