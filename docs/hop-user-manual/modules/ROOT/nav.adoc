@@ -192,6 +192,7 @@ under the License.
 *** xref:pipeline/transforms/filestoresult.adoc[Files to result]
 *** xref:pipeline/transforms/filterrows.adoc[Filter Rows]
 *** xref:pipeline/transforms/formula.adoc[Formula]
+*** xref:pipeline/transforms/openformula.adoc[OpenFormula]
 *** xref:pipeline/transforms/fuzzymatch.adoc[Fuzzy match]
 *** xref:pipeline/transforms/generate-graph-csvs.adoc[Generate graph CSVs]
 *** xref:pipeline/transforms/generaterandomvalue.adoc[Generate Random Value]

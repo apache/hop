@@ -1082,6 +1082,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-openformula</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-fuzzymatch</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
