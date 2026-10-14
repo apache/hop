@@ -111,6 +111,7 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
                 .addBoolean("failed")
                 .addString("statusDescription")
                 .addDate("executionEndDate")
+                .addString("launchedById")
                 .build());
         return;
       case DeleteExecution:

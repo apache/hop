@@ -86,7 +86,7 @@ The transform always needs input rows. Which input fields are required, and whic
 
 |Find executions
 |Execution parent ID
-|One output row per child execution, with execution and state columns
+|One output row per child execution, with execution and state columns. The id may be the owning workflow or pipeline, or the action or transform that started the child.
 
 |Find last execution
 |Execution name, Execution type
@@ -102,7 +102,7 @@ The transform always needs input rows. Which input fields are required, and whic
 
 |Find parent ID
 |Execution ID
-|`id`
+|`id` of the workflow or pipeline that owns the execution. Before Hop 2.20 this was the action or transform that started it. That id is now `launchedById` on the execution.
 
 |Get execution data
 |Execution ID, Execution parent ID
@@ -117,7 +117,9 @@ Execution *type* is the `ExecutionType` name: `Pipeline`, `Workflow`, `Transform
 
 Find last execution / Find previous successful execution / Get execution and state add:
 
-`executionId`, `parentId`, `name`, `executionType`, `filename`, `executorXml`, `metadataJson`, `registrationDate`, `executionStartDate`, `runConfigurationName`, `logLevel`, `updateTime`, `loggingText`, `failed`, `statusDescription`, `executionEndDate`.
+`executionId`, `parentId`, `name`, `executionType`, `filename`, `executorXml`, `metadataJson`, `registrationDate`, `executionStartDate`, `runConfigurationName`, `logLevel`, `updateTime`, `loggingText`, `failed`, `statusDescription`, `executionEndDate`, `launchedById`.
+
+`launchedById` is the action or transform that started the execution. It is empty when nothing did, and it is the last column so a pipeline that reads these fields by position keeps the columns it already uses.
 
 If no execution matches, the transform writes no output row for that input.
 

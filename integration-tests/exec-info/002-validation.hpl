@@ -218,8 +218,8 @@ limitations under the License.
         <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>
-if (executionId == null || parentId == null) {
-  throw "Pipeline execution ID or parent action ID is null!";
+if (executionId == null || parentId == null || launchedById == null) {
+  throw "Pipeline execution is missing its parent workflow or the action that started it!";
 }
 </jsScript_script>
       </jsScript>
@@ -274,7 +274,7 @@ if (executionId == null || parentId == null) {
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>
 if (id == null || !id.equals(parentId)) {
-  throw "findParentId(pipelineId) [" + id + "] did not match parent action ID [" + parentId + "]!";
+  throw "findParentId(pipelineId) [" + id + "] did not match parent workflow ID [" + parentId + "]!";
 }
 </jsScript_script>
       </jsScript>
@@ -366,7 +366,7 @@ if (id == null || !id.equals(parentId)) {
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>
 if (id == null || id.equals("") || id.equals(parentId)) {
-  throw "findParentId(actionId) [" + id + "] is null or equal to actionId itself!";
+  throw "findParentId(workflowId) [" + id + "] is null or equal to the workflow itself!";
 }
 </jsScript_script>
       </jsScript>
@@ -391,7 +391,7 @@ if (id == null || id.equals("") || id.equals(parentId)) {
     </partitioning>
     <fields>
       <field>
-        <name>parentId</name>
+        <name>launchedById</name>
       </field>
       <field>
         <name>executionId</name>
@@ -419,7 +419,7 @@ if (id == null || id.equals("") || id.equals(parentId)) {
     <location>caching-file</location>
     <operationType>FindExecutions</operationType>
     <idFieldName/>
-    <parentIdFieldName>parentId</parentIdFieldName>
+    <parentIdFieldName>launchedById</parentIdFieldName>
     <typeFieldName/>
     <nameFieldName/>
     <includeChildrenFieldName/>
@@ -448,7 +448,7 @@ if (id == null || id.equals("") || id.equals(parentId)) {
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>
 if (executionId == null || !executionId.equals(origPipelineId)) {
-  throw "findExecutions(actionId) did not return expected pipeline execution ID [" + origPipelineId + "]! Got: [" + executionId + "]";
+  throw "findExecutions(launchedById) did not return expected pipeline execution ID [" + origPipelineId + "]! Got: [" + executionId + "]";
 }
 </jsScript_script>
       </jsScript>

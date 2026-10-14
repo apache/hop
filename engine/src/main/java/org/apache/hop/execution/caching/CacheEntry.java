@@ -254,6 +254,10 @@ public class CacheEntry {
   }
 
   public void addChildExecution(Execution childExecution) {
+    Execution existing = childExecutions.get(childExecution.getId());
+    if (existing != null) {
+      childExecution.unionChildExecutionIds(existing);
+    }
     childExecutions.put(childExecution.getId(), childExecution);
     flagDirty();
   }

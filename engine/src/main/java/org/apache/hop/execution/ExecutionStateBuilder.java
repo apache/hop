@@ -97,9 +97,6 @@ public final class ExecutionStateBuilder {
 
   public static ExecutionStateBuilder fromExecutor(
       IPipelineEngine<PipelineMeta> pipeline, Integer lastLogLineNr) {
-    String parentLogChannelId =
-        pipeline.getParent() == null ? null : pipeline.getParent().getLogChannelId();
-
     // The last log line nr for this pipeline?
     // Look it up before querying the store to avoid missing lines
     //
@@ -107,7 +104,7 @@ public final class ExecutionStateBuilder {
 
     ExecutionStateBuilder builder =
         of().withExecutionType(ExecutionType.Pipeline)
-            .withParentId(parentLogChannelId)
+            .withParentId(ExecutionBuilder.executionParentId(pipeline.getParent()))
             .withId(pipeline.getLogChannelId())
             .withName(pipeline.getPipelineMeta().getName())
             .withLoggingText(getLoggingText(pipeline.getLogChannelId(), lastLogLineNr))
@@ -261,9 +258,6 @@ public final class ExecutionStateBuilder {
 
   public static ExecutionStateBuilder fromExecutor(
       IWorkflowEngine<WorkflowMeta> workflow, Integer lastLogLineNr) {
-    String parentLogChannelId =
-        workflow.getParent() == null ? null : workflow.getParent().getLogChannelId();
-
     // The last log line nr for this workflow?
     // Look it up before querying the store to avoid missing lines
     //
@@ -271,7 +265,7 @@ public final class ExecutionStateBuilder {
     Result result = workflow.getResult();
 
     return of().withExecutionType(ExecutionType.Workflow)
-        .withParentId(parentLogChannelId)
+        .withParentId(ExecutionBuilder.executionParentId(workflow.getParent()))
         .withId(workflow.getLogChannelId())
         .withName(workflow.getWorkflowMeta().getName())
         .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))

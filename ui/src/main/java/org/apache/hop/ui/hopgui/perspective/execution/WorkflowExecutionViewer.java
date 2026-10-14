@@ -983,7 +983,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         return;
       }
 
-      List<Execution> childExecutions = iLocation.findExecutions(id);
+      List<Execution> childExecutions = launchedExecutions(iLocation, id);
       if (childExecutions.isEmpty()) {
         return;
       }
@@ -1039,31 +1039,20 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       image = "ui/images/up.svg")
   public void goUp() {
     try {
-      String parentId = execution.getParentId();
-      if (parentId == null) {
-        return;
-      }
-
       ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
       if (location == null) {
         return;
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-
-      // This parent ID is the ID of the transform or action.
-      // We need to find the parent of this child
-      //
-      String grandParentId = iLocation.findParentId(parentId);
-      if (grandParentId == null) {
+      Execution parent = parentExecutor(iLocation);
+      if (parent == null) {
         return;
       }
 
-      Execution grandParent = iLocation.getExecution(grandParentId);
-
       // Open this execution with state. Don't load the logging text.
       //
-      ExecutionState state = iLocation.getExecutionState(grandParent.getId(), false);
-      perspective.createExecutionViewer(locationName, grandParent, state);
+      ExecutionState state = iLocation.getExecutionState(parent.getId(), false);
+      perspective.createExecutionViewer(locationName, parent, state);
     } catch (Exception e) {
       new ErrorDialog(getShell(), CONST_ERROR, "Error navigating up to parent execution", e);
     }

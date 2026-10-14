@@ -350,9 +350,80 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       if (entry != null) {
         persistCacheEntry(entry);
       }
+      rememberLaunchedChild(execution);
     } else {
       addChildExecutionToCache(execution);
     }
+  }
+
+  /**
+   * Record this pipeline or workflow on the action or transform that started it, inside the parent
+   * document. A launcher that is not stored yet is written as a minimal entry; the parent's next
+   * save keeps that child id when it merges. The child document still has {@code parentId} and
+   * {@code launchedById}.
+   */
+  private void rememberLaunchedChild(Execution child) {
+    if (child == null
+        || StringUtils.isEmpty(child.getId())
+        || StringUtils.isEmpty(child.getParentId())
+        || StringUtils.isEmpty(child.getLaunchedById())) {
+      return;
+    }
+    // This location is often a different instance from the one running the parent. Do not keep the
+    // loaded parent: a later state update must not match it, and close() must not write it back.
+    boolean loadedForLink = !cache.containsKey(child.getParentId());
+    try {
+      CacheEntry parent = findCacheEntry(child.getParentId());
+      if (parent == null || parent.getExecution() == null) {
+        LogChannel.GENERAL.logBasic(
+            "Child execution '"
+                + child.getId()
+                + "' was not linked: parent '"
+                + child.getParentId()
+                + "' is not stored yet");
+        return;
+      }
+      Execution launcher = parent.peekChildExecution(child.getLaunchedById());
+      if (launcher == null) {
+        launcher = minimalLauncher(child, parent.getExecution());
+        parent.addChildExecution(launcher);
+      }
+      if (!launcher.addChildExecutionId(child.getId())) {
+        return;
+      }
+      parent.setDirty(true);
+      persistCacheEntry(parent);
+      parent.setDirty(false);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Unable to record child execution '"
+              + child.getId()
+              + "' on '"
+              + child.getParentId()
+              + "' (non-fatal)",
+          e);
+    } finally {
+      if (loadedForLink) {
+        cache.remove(child.getParentId());
+      }
+    }
+  }
+
+  /**
+   * An action or transform that has not been flushed yet. The id and the child link are enough for
+   * drill-down. The parent's next save replaces this with the real launcher and keeps the child id.
+   */
+  private static Execution minimalLauncher(Execution child, Execution parentExecution) {
+    Execution launcher = new Execution();
+    launcher.setId(child.getLaunchedById());
+    launcher.setParentId(child.getParentId());
+    launcher.setExecutionType(
+        parentExecution.getExecutionType() == ExecutionType.Workflow
+            ? ExecutionType.Action
+            : ExecutionType.Transform);
+    launcher.setRegistrationDate(
+        child.getRegistrationDate() != null ? child.getRegistrationDate() : new Date());
+    return launcher;
   }
 
   @Override
@@ -534,6 +605,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     Collection<CacheEntry> values = cache.values();
     for (CacheEntry cacheEntry : values) {
       if (cacheEntry.getExecution() == null) {
+        continue;
+      }
+      // The parent document is not a place to store this execution's state.
+      if (parentId.equals(cacheEntry.getId())) {
         continue;
       }
       String execParent = cacheEntry.getExecution().getParentId();
@@ -799,9 +874,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   public synchronized Execution getExecution(String executionId) throws HopException {
     CacheEntry entry = findCacheEntry(executionId);
     if (entry == null) {
-      entry = findCacheEntryWithChild(executionId);
-    }
-    if (entry == null) {
       return null;
     }
     if (!entry.getId().equals(executionId)) {
@@ -837,9 +909,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
       if (StringUtils.isNotEmpty(parentExecutionId)) {
         CacheEntry parentEntry = findCacheEntry(parentExecutionId);
-        if (parentEntry == null) {
-          parentEntry = findCacheEntryWithChild(parentExecutionId);
-        }
         if (parentEntry != null && parentEntry.getChildExecutions() != null) {
           for (Execution childExecution : parentEntry.getChildExecutions().values()) {
             if (childExecution != null && parentExecutionId.equals(childExecution.getParentId())) {
@@ -853,7 +922,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         Execution execution = getExecution(id);
         if (execution != null
             && parentExecutionId != null
-            && parentExecutionId.equals(execution.getParentId())) {
+            && (parentExecutionId.equals(execution.getParentId())
+                || parentExecutionId.equals(execution.getLaunchedById()))) {
           executions.add(execution);
         }
       }
@@ -1001,9 +1071,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
     CacheEntry cacheEntry = findCacheEntry(childId);
     if (cacheEntry == null) {
-      cacheEntry = findCacheEntryWithChild(childId);
-    }
-    if (cacheEntry == null) {
       return null;
     }
     if (cacheEntry.getId().equals(childId)) {
@@ -1017,25 +1084,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         || (cacheEntry.getChildIds() != null && cacheEntry.getChildIds().contains(childId))) {
       return cacheEntry.getId();
     }
-    return null;
-  }
-
-  protected synchronized CacheEntry findCacheEntryWithChild(String childId) throws HopException {
-    if (StringUtils.isEmpty(childId)) {
-      return null;
-    }
-    for (CacheEntry cacheEntry : cache.values()) {
-      if (cacheEntry.peekChildExecution(childId) != null
-          || (cacheEntry.getChildIds() != null && cacheEntry.getChildIds().contains(childId))) {
-        cache.get(cacheEntry.getId());
-        cacheEntry.markRead();
-        return cacheEntry;
-      }
-    }
-    return loadCacheEntryWithChild(childId);
-  }
-
-  protected CacheEntry loadCacheEntryWithChild(String childId) throws HopException {
     return null;
   }
 }

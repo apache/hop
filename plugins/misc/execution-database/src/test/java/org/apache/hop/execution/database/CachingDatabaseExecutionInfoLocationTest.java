@@ -52,6 +52,7 @@ import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
+import org.apache.hop.execution.ListedExecution;
 import org.apache.hop.execution.caching.CacheEntry;
 import org.apache.hop.execution.caching.DatedId;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -144,6 +145,75 @@ class CachingDatabaseExecutionInfoLocationTest {
 
     location.deleteCacheEntry(entry);
     assertNull(location.loadCacheEntry(id));
+  }
+
+  @Test
+  void listExecutionsDoesNotReadTheJsonDocument() throws Exception {
+    CountingLocation counting = new CountingLocation();
+    counting.setConnectionName("h2-exec");
+    counting.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    counting.setPersistenceDelay("60000");
+    counting.setMaxCacheAge("86400000");
+    counting.setDatabaseMeta(databaseMeta);
+    counting.initialize(variables, metadataProvider);
+    try {
+      counting.persistCacheEntry(
+          sampleEntry(
+              UUID.randomUUID().toString(), "Listed", ExecutionType.Pipeline, false, "Finished"));
+      counting.clearCaches();
+      counting.loads = 0;
+
+      List<ListedExecution> listed = counting.listExecutions(IExecutionSelector.ALL);
+
+      assertEquals(1, listed.size());
+      assertEquals("Listed", listed.getFirst().execution().getName());
+      assertEquals("Finished", listed.getFirst().state().getStatusDescription());
+      assertFalse(listed.getFirst().state().isFailed());
+      assertNull(listed.getFirst().execution().getExecutorXml());
+      assertEquals(0, counting.loads);
+    } finally {
+      counting.close();
+    }
+  }
+
+  @Test
+  void listExecutionsLoadsUpdateTimeOnlyForUnfinishedRows() throws Exception {
+    CountingLocation counting = new CountingLocation();
+    counting.setConnectionName("h2-exec");
+    counting.setTableName(CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME);
+    counting.setPersistenceDelay("60000");
+    counting.setMaxCacheAge("86400000");
+    counting.setDatabaseMeta(databaseMeta);
+    counting.initialize(variables, metadataProvider);
+    try {
+      String runningId = UUID.randomUUID().toString();
+      Date stale = new Date(1_000L);
+      CacheEntry running = sampleEntry(runningId, "Live", ExecutionType.Pipeline, false, "Running");
+      running.getExecution().setFilename("/files/live.hpl");
+      running.getExecutionState().setExecutionEndDate(null);
+      running.getExecutionState().setUpdateTime(stale);
+      counting.persistCacheEntry(running);
+
+      String finishedId = UUID.randomUUID().toString();
+      counting.persistCacheEntry(
+          sampleEntry(finishedId, "Done", ExecutionType.Pipeline, false, "Finished"));
+      counting.clearCaches();
+      counting.loads = 0;
+
+      List<ListedExecution> listed = counting.listExecutions(IExecutionSelector.ALL);
+
+      ListedExecution live =
+          listed.stream()
+              .filter(item -> runningId.equals(item.execution().getId()))
+              .findFirst()
+              .orElseThrow();
+      assertEquals(stale, live.state().getUpdateTime());
+      assertTrue(live.state().isStale(20_000L));
+      assertNull(live.execution().getFilename());
+      assertEquals(1, counting.loads);
+    } finally {
+      counting.close();
+    }
   }
 
   @Test
@@ -782,7 +852,8 @@ class CachingDatabaseExecutionInfoLocationTest {
       Execution pipe = new Execution();
       pipe.setId(pipelineId);
       pipe.setName("Pipeline");
-      pipe.setParentId(actionId);
+      pipe.setParentId(workflowId);
+      pipe.setLaunchedById(actionId);
       pipe.setExecutionType(ExecutionType.Pipeline);
       pipe.setRegistrationDate(new Date());
 
@@ -790,20 +861,30 @@ class CachingDatabaseExecutionInfoLocationTest {
       location.registerExecution(action);
       location.registerExecution(pipe);
 
+      Execution cachedAction = location.getExecution(actionId);
+      assertEquals(List.of(pipelineId), cachedAction.getChildExecutionIds());
+      cachedAction.getChildExecutionIds().clear();
+      location.persistCacheEntry(location.getCache().get(workflowId));
+
       // Persist to database and clear in-memory cache so nothing is in memory
       for (CacheEntry entry : location.getCache().values()) {
         location.persistCacheEntry(entry);
       }
       location.clearCaches();
 
-      assertEquals(actionId, location.findParentId(pipelineId));
-      assertEquals(workflowId, location.findParentId(actionId));
-      assertNull(location.findParentId(workflowId));
+      assertEquals(workflowId, location.findParentId(pipelineId));
+      // The action lives in the workflow row. It is not a row of its own, and loading the pipeline
+      // does not load it.
+      assertNull(location.findParentId(actionId));
+      assertNull(location.getExecution(actionId));
 
+      assertNull(location.findParentId(workflowId));
+      assertNotNull(location.getExecution(workflowId));
       Execution retrievedAction = location.getExecution(actionId);
       assertNotNull(retrievedAction);
       assertEquals(actionId, retrievedAction.getId());
       assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
+      assertEquals(List.of(pipelineId), retrievedAction.getChildExecutionIds());
 
       assertNull(location.getExecution("non-existent-id"));
 

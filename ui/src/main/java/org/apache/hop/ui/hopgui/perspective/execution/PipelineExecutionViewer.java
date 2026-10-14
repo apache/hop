@@ -1121,7 +1121,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       for (ExecutionDataSetMeta setMeta : selectedTransformData.getSetMetaData().values()) {
         if (setMeta.getName().equals(selectedTransform.getName())) {
           String parentId = setMeta.getLogChannelId();
-          List<Execution> childExecutions = iLocation.findExecutions(parentId);
+          List<Execution> childExecutions = launchedExecutions(iLocation, parentId);
           if (childExecutions.isEmpty()) {
             break;
           }
@@ -1169,7 +1169,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Now we have the transform execution that we want we can look for the execution(s) with this
       // as parent
       //
-      List<Execution> childExecutions = iLocation.findExecutions(transformExecution.getId());
+      List<Execution> childExecutions = launchedExecutions(iLocation, transformExecution.getId());
       if (childExecutions.isEmpty()) {
         return;
       }
@@ -1230,34 +1230,23 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       image = "ui/images/up.svg")
   public void goUp() {
     try {
-      String parentId = execution.getParentId();
-      if (parentId == null) {
-        return;
-      }
-
       ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
       if (location == null) {
         return;
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-
-      // This parent ID is the ID of the transform or action.
-      // We need to find the parent of this child
-      //
-      String grandParentId = iLocation.findParentId(parentId);
-      if (grandParentId == null) {
+      Execution parent = parentExecutor(iLocation);
+      if (parent == null) {
         return;
       }
 
-      Execution grandParent = iLocation.getExecution(grandParentId);
-
       // Don't load execution logging text to prevent memory issues.
       //
-      ExecutionState executionState = iLocation.getExecutionState(grandParent.getId(), false);
+      ExecutionState executionState = iLocation.getExecutionState(parent.getId(), false);
 
       // Open this one
       //
-      perspective.createExecutionViewer(locationName, grandParent, executionState);
+      perspective.createExecutionViewer(locationName, parent, executionState);
     } catch (Exception e) {
       new ErrorDialog(getShell(), CONST_ERROR, "Error navigating up to parent execution", e);
     }
