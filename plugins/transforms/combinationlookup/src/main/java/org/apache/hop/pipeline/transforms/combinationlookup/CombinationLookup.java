@@ -87,7 +87,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
   private void determineTechKeyCreation() {
     String keyCreation = meta.getFields().getReturnFields().getTechKeyCreation();
-    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+    DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
     if (databaseMeta.supportsAutoinc()
         && CombinationLookupMeta.CREATION_METHOD_AUTOINC.equals(keyCreation)) {
       setTechKeyCreation(CREATION_METHOD_AUTOINC);
@@ -99,15 +99,51 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     }
   }
 
-  private Long lookupInCache(IRowMeta rowMeta, Object[] row) {
+  /**
+   * A cache key that carries the hash code of the key fields, so a lookup calculates it once for
+   * the hash field, the cache lookup and the cache store.
+   */
+  static final class CacheKey extends RowMetaAndData {
+    private final int hash;
+
+    CacheKey(IRowMeta rowMeta, Object[] row, int hash) {
+      super(rowMeta, row);
+      this.hash = hash;
+    }
+
+    @Override
+    public int hashCode() {
+      return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      // The key fields decide, the hash is only the hash code of those fields
+      return super.equals(obj);
+    }
+  }
+
+  /**
+   * The cache key of a row. The hash this transform calculates for the hash field is the same hash
+   * code, so it is reused. A hash read from the stream can be any number, so the cache does not use
+   * it: entries loaded from the table are keyed by the hash code of the key fields.
+   */
+  CacheKey cacheKey(Object[] hashRow, Long valHash) throws HopValueException {
+    if (valHash != null && data.hashFieldNr < 0) {
+      return new CacheKey(data.hashRowMeta, hashRow, valHash.intValue());
+    }
+    return new CacheKey(data.hashRowMeta, hashRow, data.hashRowMeta.hashCode(hashRow));
+  }
+
+  private Long lookupInCache(CacheKey key) {
     // Short circuit if cache is disabled.
-    if (meta.getCacheSize() == -1) {
+    if (key == null) {
       return null;
     }
 
     // try to find the row in the cache...
     //
-    return data.cache.get(new RowMetaAndData(rowMeta, row));
+    return data.cache.get(key);
   }
 
   /**
@@ -117,19 +153,18 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
    * <p>Key: - natural key fields Value: - Technical key - lookup fields / extra fields (allows us
    * to compare or retrieve) - Date_from - Date_to
    *
-   * @param rowMeta
-   * @param row
+   * @param cacheKey
    * @param tk
    * @throws HopValueException
    */
-  private void addToCache(IRowMeta rowMeta, Object[] row, Long tk) throws HopValueException {
+  private void addToCache(CacheKey cacheKey, Long tk) throws HopValueException {
     // Short circuit if cache is disabled.
-    if (meta.getCacheSize() == -1) {
+    if (cacheKey == null) {
       return;
     }
 
     // store it in the cache if needed.
-    data.cache.put(new RowMetaAndData(rowMeta, row), tk);
+    data.cache.put(cacheKey, tk);
 
     // check if the size is not too big...
     // Allow for a buffer overrun of 20% and then remove those 20% in one go.
@@ -196,7 +231,11 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     }
 
     if (isRowLevel()) {
-      logRowlevel("Cache store: key=" + rowMeta.getString(row) + "    key=" + tk);
+      logRowlevel(
+          "Cache store: key="
+              + cacheKey.getRowMeta().getString(cacheKey.getData())
+              + "    key="
+              + tk);
     }
   }
 
@@ -204,54 +243,32 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     return techKeyCreation == CREATION_METHOD_AUTOINC;
   }
 
-  private Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
+  Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     Long valKey = null;
     Long valHash = null;
-    Object[] hashRow = null;
+    CacheKey cacheKey = null;
     CFields fields = meta.getFields();
     List<KeyField> keyFields = fields.getKeyFields();
     ReturnFields returnFields = fields.getReturnFields();
 
-    Object[] lookupRow = new Object[data.lookupRowMeta.size()];
-    int lookupIndex = 0;
-
     if (meta.isUseHash() || meta.getCacheSize() >= 0) {
-      hashRow = new Object[data.hashRowMeta.size()];
+      Object[] hashRow = new Object[data.hashRowMeta.size()];
       for (int i = 0; i < keyFields.size(); i++) {
         hashRow[i] = row[data.keynrs[i]];
       }
 
       if (meta.isUseHash()) {
         valHash = hashValue(rowMeta, row, hashRow);
-        lookupRow[lookupIndex] = valHash;
-        lookupIndex++;
       }
-    }
-
-    for (int i = 0; i < keyFields.size(); i++) {
-      // Determine the index of this Key Field in the row meta/data
-      int rowIndex = data.keynrs[i];
-      lookupRow[lookupIndex] = row[rowIndex]; // KEYi = ?
-      lookupIndex++;
-
-      DatabaseMeta databaseMeta =
-          getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
-      if (databaseMeta.requiresCastToVariousForIsNull()
-          && rowMeta.getValueMeta(rowIndex).getType() == IValueMeta.TYPE_STRING) {
-        lookupRow[lookupIndex] =
-            rowMeta.getValueMeta(rowIndex).isNull(row[rowIndex]) ? null : "NotNull"; // KEYi IS
-        // NULL or
-        // ? IS
-        // NULL
-      } else {
-        lookupRow[lookupIndex] = row[data.keynrs[i]]; // KEYi IS NULL or ? IS NULL
+      if (meta.getCacheSize() >= 0) {
+        cacheKey = cacheKey(hashRow, valHash);
       }
-      lookupIndex++;
     }
 
     // Before doing the actual lookup in the database, see if it's not in the cache...
-    valKey = lookupInCache(data.hashRowMeta, hashRow);
+    valKey = lookupInCache(cacheKey);
     if (valKey == null) {
+      Object[] lookupRow = lookupRow(rowMeta, row, valHash);
       data.db.setValues(data.lookupRowMeta, lookupRow, data.prepStatementLookup);
       Object[] add = data.db.getLookup(data.prepStatementLookup);
       incrementLinesInput();
@@ -293,7 +310,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         }
 
         // Also store it in our Hashtable...
-        addToCache(data.hashRowMeta, hashRow, valKey);
+        addToCache(cacheKey, valKey);
       } else {
         // Entry already exists...
         //
@@ -301,7 +318,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
             data.db
                 .getReturnRowMeta()
                 .getInteger(add, 0); // Sometimes it's not an integer, believe it or not.
-        addToCache(data.hashRowMeta, hashRow, valKey);
+        addToCache(cacheKey, valKey);
       }
     }
 
@@ -327,6 +344,35 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     outputRow[outputIndex] = valKey;
 
     return outputRow;
+  }
+
+  /**
+   * The parameters of the lookup statement: the hash (if used), then for every key KEYi = ? and
+   * KEYi IS NULL AND ? IS NULL. Only needed when the cache misses.
+   */
+  private Object[] lookupRow(IRowMeta rowMeta, Object[] row, Long valHash)
+      throws HopValueException {
+    Object[] lookupRow = new Object[data.lookupRowMeta.size()];
+    int lookupIndex = 0;
+
+    if (meta.isUseHash()) {
+      lookupRow[lookupIndex++] = valHash;
+    }
+
+    for (int i = 0; i < data.keynrs.length; i++) {
+      // Determine the index of this Key Field in the row meta/data
+      int rowIndex = data.keynrs[i];
+      lookupRow[lookupIndex++] = row[rowIndex]; // KEYi = ?
+
+      if (data.nullCheckFlags[i]) {
+        // CAST(? AS VARCHAR(256)) IS NULL
+        lookupRow[lookupIndex++] =
+            rowMeta.getValueMeta(rowIndex).isNull(row[rowIndex]) ? null : "NotNull";
+      } else {
+        lookupRow[lookupIndex++] = row[rowIndex]; // ? IS NULL
+      }
+    }
+    return lookupRow;
   }
 
   Long hashValue(IRowMeta rowMeta, Object[] row, Object[] hashRow) throws HopValueException {
@@ -364,8 +410,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      DatabaseMeta databaseMeta =
-          getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+      DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
       data.schemaTable =
           databaseMeta.getQuotedSchemaTableCombination(
               this, data.realSchemaName, data.realTableName);
@@ -441,10 +486,11 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   }
 
   public void setCombiLookup(IRowMeta inputRowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+    DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
     CFields fields = meta.getFields();
     List<KeyField> keyFields = fields.getKeyFields();
     ReturnFields returnFields = fields.getReturnFields();
+    data.nullCheckFlags = new boolean[keyFields.size()];
 
     String sql = "";
     boolean comma;
@@ -489,6 +535,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       sql += " IS NULL AND ";
       if (databaseMeta.requiresCastToVariousForIsNull()) {
         sql += "CAST(? AS VARCHAR(256)) IS NULL";
+        // A string key is bound as a null/not-null flag
+        data.nullCheckFlags[i] =
+            inputRowMeta.getValueMeta(data.keynrs[i]).getType() == IValueMeta.TYPE_STRING;
       } else {
         sql += "? IS NULL";
       }
@@ -518,7 +567,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   public Long combiInsert(IRowMeta rowMeta, Object[] row, Long valKey, Long valCrc)
       throws HopDatabaseException {
     String debug = "Combination insert";
-    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+    DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
     CFields fields = meta.getFields();
     List<KeyField> keyFields = fields.getKeyFields();
     ReturnFields returnFields = fields.getReturnFields();
@@ -789,8 +838,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         throw new HopConfigException(
             BaseMessages.getString(PKG, CONST_COMBINATION_LOOKUP_LOG_UNEXPECTED_ERROR));
       }
-      DatabaseMeta databaseMeta =
-          getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+      DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
       if (databaseMeta == null) {
         throw new HopConfigException(
             BaseMessages.getString(PKG, CONST_COMBINATION_LOOKUP_LOG_UNEXPECTED_ERROR));
@@ -853,7 +901,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         // Assumes the technical key is at position 0 !!
         System.arraycopy(cacheRow, 1, hashRow, 0, hashRow.length);
         // Potential Cache Overflow is ahndled inside
-        addToCache(hashRowMeta, hashRow, (Long) cacheRow[0]);
+        addToCache(cacheKey(hashRow, null), (Long) cacheRow[0]);
         incrementLinesInput();
       }
     }
