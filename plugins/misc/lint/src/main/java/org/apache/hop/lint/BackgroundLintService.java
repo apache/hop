@@ -67,10 +67,11 @@ public class BackgroundLintService {
   private final Map<String, AtomicInteger> deferredGenerations = new ConcurrentHashMap<>();
 
   /**
-   * Bumped whenever another project is enabled. A pass remembers the value it started with and does
-   * not publish once it has changed: its findings belong to the project that was left.
+   * Bumped whenever the findings already published stop counting: another project was enabled, or
+   * the linter was switched off. A pass remembers the value it started with and does not publish
+   * once it has changed, nor mark its file as checked.
    */
-  private final AtomicInteger projectGeneration = new AtomicInteger(0);
+  private final AtomicInteger generation = new AtomicInteger(0);
 
   private String currentProjectPath;
 
@@ -122,7 +123,8 @@ public class BackgroundLintService {
       LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
       return;
     }
-    submit(() -> lintFileInternal(filePath, graphId));
+    int passGeneration = currentGeneration();
+    submit(() -> lintFileInternal(filePath, graphId, passGeneration));
   }
 
   public void scheduleGraphLint(HopGuiAbstractGraph graph, boolean force) {
@@ -168,7 +170,7 @@ public class BackgroundLintService {
       // already have published their findings.
       boolean firstProject = currentProjectPath == null;
       currentProjectPath = normalized;
-      projectGeneration.incrementAndGet();
+      generation.incrementAndGet();
       if (!firstProject) {
         tracker.clear();
         manager.clearResults();
@@ -176,27 +178,77 @@ public class BackgroundLintService {
     }
   }
 
-  /** The value a pass starts with, to hand to {@link #publish} when it is done. */
-  int currentProjectGeneration() {
-    return projectGeneration.get();
+  /**
+   * Called after the linter was switched off. Drops the findings and the record of what was
+   * checked, and stops the passes still running from publishing or marking a file as checked.
+   *
+   * <p>The tracker has to go: switching the linter back on would otherwise skip every file that has
+   * not changed since it was last checked, and the project would come back without findings.
+   */
+  public void discardResults() {
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      generation.incrementAndGet();
+      tracker.clear();
+      manager.clearResults();
+    }
   }
 
   /**
-   * Publish the findings of a pass, unless another project was enabled since it started.
-   *
-   * <p>Checked and published under the lock {@link #switchProject} clears the results with, so a
-   * pass cannot slip its findings in right after the switch.
+   * The value a pass takes when it starts, to hand to {@link #publish} when it is done. Read it
+   * where the pass is started, on the UI thread: that is where a project switch happens.
    */
-  boolean publish(String filePath, List<LintResult> results, int generation) {
+  int currentGeneration() {
+    return generation.get();
+  }
+
+  /**
+   * Publish the findings of a pass, unless the project was switched or the linter switched off
+   * since it started.
+   *
+   * <p>Checked and published under the lock {@link #switchProject} and {@link #discardResults}
+   * clear the results with, so a pass cannot slip its findings in right after either.
+   *
+   * @return false when the findings were dropped
+   */
+  boolean publish(String filePath, List<LintResult> results, int passGeneration) {
+    return publish(filePath, results, passGeneration, false);
+  }
+
+  /** {@link #publish}, and record the file as checked so an unchanged file is not linted again. */
+  private boolean publishChecked(String filePath, List<LintResult> results, int passGeneration) {
+    return publish(filePath, results, passGeneration, true);
+  }
+
+  private boolean publish(
+      String filePath, List<LintResult> results, int passGeneration, boolean markChecked) {
     LintResultsManager manager = LintResultsManager.getInstance();
     synchronized (manager) {
-      if (generation != projectGeneration.get()) {
+      if (!isCurrent(passGeneration)) {
         return false;
       }
-      tracker.markChecked(filePath);
+      if (markChecked) {
+        tracker.markChecked(filePath);
+      }
       manager.updateResultsForFile(filePath, results);
       return true;
     }
+  }
+
+  /** {@link #publish} for a pass over the whole project, which replaces every finding. */
+  boolean publishAll(List<LintResult> results, int passGeneration) {
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      if (!isCurrent(passGeneration)) {
+        return false;
+      }
+      manager.updateResults(results);
+      return true;
+    }
+  }
+
+  private boolean isCurrent(int passGeneration) {
+    return passGeneration == generation.get() && isEnabled();
   }
 
   public void lintProjectAsync(
@@ -204,7 +256,7 @@ public class BackgroundLintService {
     if (!isEnabled() || Utils.isEmpty(projectPath)) {
       return;
     }
-    int generation = currentProjectGeneration();
+    int passGeneration = currentGeneration();
     submit(
         () -> {
           try {
@@ -220,14 +272,15 @@ public class BackgroundLintService {
 
             List<LintResult> accumulated = new ArrayList<>();
             for (String filePath : filesToCheck) {
-              if (generation != projectGeneration.get()) {
-                log.logBasic("Background linting of " + projectPath + " stopped: project switched");
+              if (passGeneration != generation.get()) {
+                log.logBasic(
+                    "Background linting of " + projectPath + " stopped: results discarded");
                 return;
               }
               try {
                 List<LintResult> results =
                     lintFileForGui(filePath, linter, metadataProvider, variables);
-                if (publish(filePath, results, generation)) {
+                if (publishChecked(filePath, results, passGeneration)) {
                   accumulated.addAll(results);
                 }
               } catch (Exception e) {
@@ -272,6 +325,7 @@ public class BackgroundLintService {
       return;
     }
 
+    int passGeneration = currentGeneration();
     HopGui hopGuiForSnapshot = HopGui.peekInstance();
     EditorSnapshot snapshot =
         snapshotOf(graph, hopGuiForSnapshot != null ? hopGuiForSnapshot.getVariables() : null);
@@ -291,9 +345,9 @@ public class BackgroundLintService {
 
             List<LintResult> results =
                 lintSnapshot(snapshot, normalizedPath, metadataProvider, variables);
-            tracker.markChecked(filename);
-
-            LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
+            if (!publishChecked(filename, results, passGeneration)) {
+              return;
+            }
             Display display = graph.getDisplay();
             if (display != null && !display.isDisposed()) {
               display.asyncExec(
@@ -386,7 +440,11 @@ public class BackgroundLintService {
     }
   }
 
-  private void lintFileInternal(String filePath, String graphId) {
+  /**
+   * Lint a saved file and publish what it finds, unless the results were discarded since the pass
+   * was scheduled. Runs on a worker thread.
+   */
+  void lintFileInternal(String filePath, String graphId, int passGeneration) {
     try {
       HopGui hopGui = HopGui.peekInstance();
       IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
@@ -394,9 +452,9 @@ public class BackgroundLintService {
 
       HopLinter linter = new HopLinter();
       List<LintResult> results = lintFileForGui(filePath, linter, metadataProvider, variables);
-      tracker.markChecked(filePath);
-
-      LintResultsManager.getInstance().updateResultsForFile(filePath, results);
+      if (!publishChecked(filePath, results, passGeneration)) {
+        return;
+      }
       LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
       log.logDetailed("Linted " + filePath + ": " + results.size() + " issues");
     } catch (Exception e) {

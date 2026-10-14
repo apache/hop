@@ -79,6 +79,31 @@ class DisabledLinterTest {
         "switching the linter back on would skip the file and leave it without findings");
   }
 
+  /**
+   * A pass still running when the linter is switched off finishes after the tracker was cleared. If
+   * it marked its file as checked, switching the linter back on would skip that file.
+   */
+  @Test
+  void aPassFinishingAfterTheLinterIsOffDoesNotMarkItsFile(@TempDir File folder) throws Exception {
+    String file = ProjectSwitchLintTest.writeWorkflow(folder);
+    BackgroundLintService service = BackgroundLintService.getInstance();
+    LintCheckTracker tracker = service.getTracker();
+
+    // Control: the same pass, still current, does mark the file.
+    service.lintFileInternal(file, null, service.currentGeneration());
+    assertFalse(tracker.needsLinting(file), "a current pass marks its file");
+
+    tracker.invalidate(file);
+    int startedBefore = service.currentGeneration();
+    LinterConfigPlugin config = LinterConfigPlugin.getInstance();
+    config.setLinterEnabled(false);
+    config.applyEnabledState();
+    service.lintFileInternal(file, null, startedBefore);
+
+    assertTrue(tracker.needsLinting(file), "switching back on would skip the file");
+    assertTrue(LintResultsManager.getInstance().getAllResults().isEmpty());
+  }
+
   @Test
   void anInFlightUpdateDoesNotPublishAfterTheLinterIsOff() {
     LinterConfigPlugin config = LinterConfigPlugin.getInstance();

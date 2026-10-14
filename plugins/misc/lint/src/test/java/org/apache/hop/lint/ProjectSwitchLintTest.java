@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,7 +82,7 @@ class ProjectSwitchLintTest {
   @Test
   void aPassStillRunningForThePreviousProjectDoesNotPublish() throws Exception {
     service.switchProject(projectA.getAbsolutePath());
-    int generation = service.currentProjectGeneration();
+    int generation = service.currentGeneration();
     File file = new File(projectA, "a.hpl");
     Files.writeString(file.toPath(), "<pipeline/>");
 
@@ -109,6 +111,42 @@ class ProjectSwitchLintTest {
     assertTrue(
         service.getTracker().needsLinting(file.getAbsolutePath()),
         "project A would come back without findings");
+  }
+
+  /**
+   * A file lint already on the pool when the project is switched, from an editor that was closed or
+   * a file opened just before. It finishes afterwards and must not bring the previous project back.
+   */
+  @Test
+  void aFileLintScheduledBeforeTheSwitchDoesNotReappear() throws Exception {
+    service.switchProject(projectA.getAbsolutePath());
+    String file = writeWorkflow(projectA);
+
+    // Control: the same pass, still current, does publish. lintFileInternal swallows errors, so
+    // without this a file that fails to lint would pass the test below for the wrong reason.
+    service.lintFileInternal(file, null, service.currentGeneration());
+    assertFalse(service.getTracker().needsLinting(file), "a current pass publishes");
+
+    service.getTracker().invalidate(file);
+    int scheduledBefore = service.currentGeneration();
+    service.switchProject(projectB.getAbsolutePath());
+    service.lintFileInternal(file, null, scheduledBefore);
+
+    assertTrue(manager.getAllResults().isEmpty(), "project A's file must not reappear");
+    assertTrue(
+        service.getTracker().needsLinting(file), "a dropped pass must not mark the file checked");
+  }
+
+  /**
+   * A workflow, not a pipeline: without Hop GUI there is no metadata provider, and a pipeline
+   * refuses to load without one.
+   */
+  static String writeWorkflow(File folder) throws Exception {
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    workflowMeta.setName("example");
+    File file = new File(folder, "example.hwf");
+    Files.writeString(file.toPath(), workflowMeta.getXml(Variables.getADefaultVariableSpace()));
+    return file.getAbsolutePath();
   }
 
   private static LintResult finding(String file) {
