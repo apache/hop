@@ -100,6 +100,11 @@
                      pulls org.postgresql:postgresql back into the runtime tree. -->
                 <exclude>io.debezium:debezium-connector-postgres</exclude>
                 <exclude>org.postgresql:postgresql</exclude>
+                <!-- hadoop-common depends on com.jcraft:jsch 0.1.55. A second jsch jar
+                     in lib/core is loaded in filesystem order. 0.1.55 fails the SSH
+                     private-key test with "Auth fail" against OpenSSH 9.x. mwiede
+                     jsch, packaged by hop-core, stays. -->
+                <exclude>com.jcraft:jsch</exclude>
             </excludes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
