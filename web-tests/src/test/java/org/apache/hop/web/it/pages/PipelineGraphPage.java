@@ -45,15 +45,24 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class PipelineGraphPage {
 
   /**
+   * The graph canvas widget of the tab on screen.
+   *
+   * <p>Every open tab keeps a widget of its own, and a tab that is not on top is hidden rather than
+   * removed, so the one to read is the one that is displayed.
+   */
+  private static final String WIDGET =
+      "const widget=[...document.querySelectorAll('[data-hop-id=\"pipeline-graph-canvas\"]')]"
+          + ".find(e=>e.offsetParent!==null);";
+
+  /**
    * The overlay Hop Web draws the graph on, and hangs the graph model off.
    *
-   * <p>One per session rather than one per tab: the client keeps a single renderer and moves its
-   * overlay to whichever canvas is on top, so there is nothing to disambiguate.
+   * <p>One per canvas, so one per tab, and taken from the widget on screen. There is deliberately
+   * no fallback to "any overlay": while a new tab is still coming up, that read the graph of a
+   * hidden tab, and a brand new pipeline appeared to hold that tab's transforms.
    */
   private static final String OVERLAY =
-      "const overlay=[...document.querySelectorAll('[data-hop-canvas=\"graph\"]')]"
-          + ".find(e=>e.offsetParent!==null)"
-          + "||document.querySelector('[data-hop-canvas=\"graph\"]');";
+      WIDGET + "const overlay=widget?widget.querySelector('[data-hop-canvas=\"graph\"]'):null;";
 
   /** Every transform on the graph, with the rectangle it is drawn in right now. */
   private static final String NODES =
@@ -66,8 +75,7 @@ public class PipelineGraphPage {
    * the same size in exactly the same place, and a perspective that is not on top keeps its own.
    */
   private static final String GRAPH_CANVAS =
-      "const widget=[...document.querySelectorAll('[data-hop-id=\"pipeline-graph-canvas\"]')]"
-          + ".find(e=>e.offsetParent!==null);"
+      WIDGET
           + "if(widget){const inner=widget.querySelector('canvas');if(inner)return inner;}"
           + "return [...document.querySelectorAll('canvas')].find(c=>{"
           + "const r=c.getBoundingClientRect();"
@@ -99,10 +107,30 @@ public class PipelineGraphPage {
     this.wait = wait;
   }
 
-  void awaitReady() {
-    wait.until(d -> canvas() != null && hasGraphModel());
-    // Also the wait for the new tab to actually be the one on screen.
+  /**
+   * Waits for a new, empty graph to take the place of the one that was on screen.
+   *
+   * <p>"The graph on screen is empty" is not enough on its own: when the tab on top before was an
+   * empty pipeline as well, it holds straight away and the wait ends before the new tab exists.
+   *
+   * @param previous what {@link #widget()} returned before the new graph was asked for
+   */
+  void awaitNewGraph(WebElement previous) {
+    wait.until(
+        d -> {
+          WebElement current = widget();
+          return current != null
+              && !current.equals(previous)
+              && canvas() != null
+              && hasGraphModel();
+        });
     wait.until(d -> isEmpty());
+  }
+
+  /** The graph widget of the tab on screen, or null. It stays the same while the tab is open. */
+  WebElement widget() {
+    return (WebElement)
+        ((JavascriptExecutor) driver).executeScript(WIDGET + "return widget||null;");
   }
 
   /** Waits until the graph on screen is the one holding this transform. */

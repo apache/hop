@@ -504,10 +504,11 @@ public class HopGuiPage {
 
   /** Creates a new pipeline and returns its graph, ready to be edited. */
   public PipelineGraphPage newPipeline() {
+    PipelineGraphPage graph = new PipelineGraphPage(driver, wait);
+    WebElement previous = graph.widget();
     clickWidget(NEW_FILE);
     clickMenuItem("Pipeline");
-    PipelineGraphPage graph = new PipelineGraphPage(driver, wait);
-    graph.awaitReady();
+    graph.awaitNewGraph(previous);
     return graph;
   }
 
