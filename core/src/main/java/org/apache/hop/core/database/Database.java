@@ -118,7 +118,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static final String CONST_INOUT = "INOUT";
   private static final String CONST_BETWEEN = "BETWEEN";
   private static final String CONST_IS_NULL = "IS NULL";
-  private static final String CONST_IS_NOT_NULL = "IS NULL";
+  private static final String CONST_IS_NOT_NULL = "IS NOT NULL";
   private static final String CONST_BETWEEN_AND = " BETWEEN ? AND ? ";
   private static final String CONST_TRUNCATE_NOT_SUPPORTED = "Truncate table not supported by ";
   private static final String CONST_TABLE_CAT = "TABLE_CAT";
