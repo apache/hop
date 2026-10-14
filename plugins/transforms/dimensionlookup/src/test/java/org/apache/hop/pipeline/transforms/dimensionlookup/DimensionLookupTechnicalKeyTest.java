@@ -21,15 +21,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 
 import java.math.BigDecimal;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 /**
  * The technical key travels between two descriptions that need not agree: the key column decides
@@ -60,6 +66,22 @@ class DimensionLookupTechnicalKeyTest {
         DimensionLookup.asType(new ValueMetaInteger("dimension_id"), new BigDecimal("42"));
 
     assertEquals(42L, handedOn);
+  }
+
+  /**
+   * This runs for every output row. Guessing the value's metadata constructs a value meta, which is
+   * expensive (B436), so a value that already has the declared type must not need one.
+   */
+  @Test
+  void aValueThatAlreadyMatchesCreatesNoValueMetadata() throws HopValueException {
+    try (MockedStatic<ValueMetaFactory> factory =
+        mockStatic(ValueMetaFactory.class, CALLS_REAL_METHODS)) {
+      DimensionLookup.asType(new ValueMetaInteger("dimension_id"), 42L);
+      DimensionLookup.asType(new ValueMetaBigNumber("dimension_id", 38, 0), BigDecimal.ONE);
+      DimensionLookup.asType(new ValueMetaString("dimension_id", 36, 0), "a-uuid");
+
+      factory.verify(() -> ValueMetaFactory.guessValueMetaInterface(any()), never());
+    }
   }
 
   @Test
