@@ -17,8 +17,6 @@
 
 package org.apache.hop.openformula.function.datetime;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;

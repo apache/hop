@@ -17,7 +17,8 @@
 
 package org.apache.hop.openformula.typing;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.openformula.EvaluationException;
 import org.apache.hop.openformula.Formula;

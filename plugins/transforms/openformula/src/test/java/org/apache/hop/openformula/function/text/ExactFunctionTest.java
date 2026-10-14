@@ -17,8 +17,6 @@
 
 package org.apache.hop.openformula.function.text;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.apache.hop.openformula.common.FormulaTestBase;
 import org.junit.jupiter.api.Test;
 

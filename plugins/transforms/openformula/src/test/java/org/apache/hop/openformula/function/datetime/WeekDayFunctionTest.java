@@ -17,7 +17,7 @@
 
 package org.apache.hop.openformula.function.datetime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import org.apache.hop.openformula.common.FormulaTestBase;

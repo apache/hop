@@ -17,8 +17,6 @@
 
 package org.apache.hop.openformula.function.text;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;

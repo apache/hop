@@ -17,8 +17,6 @@
 
 package org.apache.hop.openformula.operators;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.math.BigDecimal;
 import java.util.TimeZone;
 import org.apache.hop.openformula.common.FormulaTestBase;

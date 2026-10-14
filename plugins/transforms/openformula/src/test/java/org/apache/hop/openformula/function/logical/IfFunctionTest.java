@@ -17,8 +17,6 @@
 
 package org.apache.hop.openformula.function.logical;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.math.BigDecimal;
 import org.apache.hop.openformula.common.FormulaTestBase;
 import org.apache.hop.openformula.error.FormulaErrorValue;

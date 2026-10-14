@@ -17,8 +17,6 @@
 
 package org.apache.hop.openformula.function.datetime;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Locale;
 import java.util.TimeZone;
 import org.apache.hop.openformula.DefaultFormulaContext;

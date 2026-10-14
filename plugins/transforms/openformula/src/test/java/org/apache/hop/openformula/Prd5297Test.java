@@ -17,7 +17,7 @@
 
 package org.apache.hop.openformula;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.openformula.function.FunctionDescription;
 import org.apache.hop.openformula.function.FunctionRegistry;
