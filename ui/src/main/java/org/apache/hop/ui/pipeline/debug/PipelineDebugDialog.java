@@ -191,21 +191,19 @@ public class PipelineDebugDialog extends Dialog {
     wTransforms.setLayoutData(fdTransform);
     wTransforms.table.setHeaderVisible(false);
 
-    // If someone clicks on a row, we want to refresh the right pane...
+    // If someone clicks on a row, we want to refresh the right pane. Listen for the selection
+    // only: a double-click on a row is left to the grid, which opens the cell.
     //
-    wTransforms.table.addSelectionListener(
-        new SelectionAdapter() {
+    wTransforms.table.addListener(
+        SWT.Selection,
+        e -> {
+          // Before we show anything, make sure to save the content of the screen...
+          //
+          getTransformDebugMeta();
 
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            // Before we show anything, make sure to save the content of the screen...
-            //
-            getTransformDebugMeta();
-
-            // Now show the information...
-            //
-            showTransformDebugInformation();
-          }
+          // Now show the information...
+          //
+          showTransformDebugInformation();
         });
 
     // If someone presses enter, launch the pipeline (this allows for "quick-preview")
