@@ -37,7 +37,8 @@ Staged:: added to git's index with 'Add', part of the next commit.
 Unstaged:: changed files that git tracks, but the changes are not in the index.
 Untracked:: files git doesn't know about yet, because they were never added.
 
-The toolbar and right-click options act on the files whose checkbox is ticked, not on the highlighted row.
+Add, Unstage, Restore, Delete and Add to .gitignore act on the files whose checkbox is ticked, not on the highlighted row.
+Show text diff and Show visual diff follow the first highlighted file instead.
 Staged and unstaged files are ticked for you, so a commit takes your work in progress along: untick a file (or unstage it) to leave it out.
 Untracked files are listed but never ticked: committing a file for the first time is something you decide, tick it yourself to include it.
 
@@ -47,19 +48,21 @@ Untracked files are listed but never ticked: committing a file for the first tim
 |image:icons/refresh.svg[width="24px"]|Refresh|Reload the list of staged and unstaged files.|F5
 |image:icons/git-add.svg[width="24px"]|Add|Stage the checked unstaged or untracked files. They move to 'Staged' and become part of the next commit. For an untracked file this is also what puts it under version control.|CTRL+ALT+A
 |image:icons/git-unstage.svg[width="24px"]|Unstage|Take the checked files out of the next commit. They move back to 'Unstaged' (or to 'Untracked' if they were never committed before), your changes are kept.|CTRL+ALT+U
-|image:icons/git-restore.svg[width="24px"]|Restore|Throw the changes in the checked files away and restore the last committed version (HEAD). Asks for confirmation.|CTRL+ALT+Z
+|image:icons/git-restore.svg[width="24px"]|Restore|Discard staged edits to files git already tracks and restore the last committed version (HEAD). A staged new file is only unstaged and stays on disk, unless 'Delete local copies of added files' is checked. That toggle is off by default. Asks for confirmation.|CTRL+ALT+Z
 |image:icons/delete.svg[width="24px"]|Delete|Delete the checked files from disk.|DEL
 |===
 
 WARNING: Unstage and Restore both act on staged files, but they do very different things.
-Unstage only takes a file out of the next commit and keeps your work, Restore throws your changes away.
+Unstage only takes a file out of the next commit and keeps your work.
+Restore discards staged edits to files git already tracks.
+A staged new file is only unstaged unless you check 'Delete local copies of added files'.
 That is why Restore asks for confirmation and Unstage does not: nothing is lost by unstaging, you can stage the file again with 'Add'.
 
 The same options are available in the right-click menu of the file list, together with:
 
 * Add to .gitignore: have git ignore the file from now on.
-* Show text diff (`CTRL+D`): the changes in the file as text.
-* Show visual diff (`CTRL+SHIFT+D`): for a pipeline or workflow, open the before and after versions side by side.
+* Show text diff (`CTRL+D`): the changes in the first highlighted file as text. This follows the highlight, not the checkbox.
+* Show visual diff (`CTRL+SHIFT+D`): for a pipeline or workflow, open the before and after versions of the first highlighted file side by side. This follows the highlight, not the checkbox.
 
 == Committing
 

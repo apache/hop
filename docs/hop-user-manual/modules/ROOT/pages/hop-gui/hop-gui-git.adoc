@@ -52,13 +52,13 @@ The available options to work with files and the available git operations in thi
 |image:getting-started/icons/hide.svg[width="24px"]|Show or hide files|Show or hide files or directories.|
 |image:icons/select-target.svg[width="24px"]|Select opened file|Selects the file of the active editor tab in the tree.|ALT+F1
 |image:icons/git-info.svg[width="24px"]|Git info|Opens a tab with the git information of the selected file or folder: status, branch, revisions and changed files.|
-|image:icons/git-add.svg[width="24px"]|Git Add|Add the selected file to version control.|
-|image:icons/git-revert.svg[width="24px"]|Git Revert|Revert the changed files in the selection to the last committed version (HEAD). A dialog lets you pick the files.|
+|image:icons/git-add.svg[width="24px"]|Git Add|Stage the unstaged changes in the selection, including edits to files git already tracks.|
+|image:icons/git-revert.svg[width="24px"]|Git Revert|Restore modified files in the selection from the last committed version (HEAD). A new staged file is only unstaged and stays on disk; deleting it is Git Clean. A dialog lets you pick the files.|
 |image:icons/git-delete.svg[width="24px"]|Git Clean|Delete files that git does not track from disk. A dialog lets you pick the files.|
 |image:icons/git-commit.svg[width="24px"]|Git commit|Opens the xref:hop-gui/perspective-git-commit.adoc[Git commit perspective] to review and commit your changes. In Hop Web it opens a commit dialog instead.|
 |===
 
-NOTE: Only the options that apply are available at a given time. E.g. `git add` will not be available for files that already are in version control.
+NOTE: Only the options that apply are available at a given time. Git Add is available when the selection still has unstaged changes, and it is disabled once those changes are staged.
 
 The git options are also available in the right-click menu of the file explorer tree.
 
@@ -66,14 +66,15 @@ The git options are also available in the right-click menu of the file explorer 
 
 In the folder and file structure tree below the toolbar, files use a color coding scheme to indicate the git status of a file:
 
-* black: unchanged.
-This is the latest version of the file available in git, no changes detected.
+* black: unchanged, or a deleted path.
+An unchanged file is the latest version in git.
+A deletion stays black whether or not it is staged, so it is not red.
 * grey: this file is ignored
-* green: a new file, staged for commit.
-* blue: a changed file, staged for commit.
+* green: a staged add, copy, or rename.
+* blue: a staged content change.
 This file is ready to be committed ('Git Commit')
-* red: not staged for commit.
-Add this file to git before changes can be committed ('Git Add').
+* red: an unstaged add, copy, rename, or content change.
+Stage it with 'Git Add' before the changes can be committed.
 
 == Branches in the status bar
 
@@ -82,13 +83,13 @@ Click it to open the branch menu:
 
 * Create branch, Merge branch, Rename branch and Delete branch.
 * Push and Pull.
-* The local branches. The current one is checked; click another to check it out.
+* The local and remote-tracking branches. The current local branch is marked; click another name, including a remote-tracking name, to check that ref out.
 
 == Working with files in git
 
 Add a file::
 Click on a file that is not yet staged for commit (red), click 'Git Add'.
-The color of the file changes to green (new file) or blue (changed file): staged for commit.
+The color of the file changes to green (staged add, copy, or rename) or blue (staged content change).
 
 Commit a file::
 Click 'Git Commit' to open the xref:hop-gui/perspective-git-commit.adoc[Git commit perspective], check the files to commit, enter a commit message and click 'Commit'.

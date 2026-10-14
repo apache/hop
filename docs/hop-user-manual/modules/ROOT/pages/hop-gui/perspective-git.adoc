@@ -33,8 +33,8 @@ See xref:hop-gui/hop-gui-git.adoc[Working with git] for the other git options in
 The perspective has four parts:
 
 . On the left, the branches and tags: Local, Remote and Tags.
+A search field above Local, Remote and Tags filters the commit list by message, author and abbreviated id.
 . In the middle, the commit history: a graph of the branches, with their names next to the commits they point to, and the message, author, date and id of each commit.
-Use the search field to find a commit.
 When you have uncommitted changes, they are shown as the first line.
 . On the right, the files changed in the selected commit.
 . Below them, the differences in the selected file.
@@ -49,15 +49,17 @@ Right-click a branch or tag on the left:
 |Checkout|Check out the branch or tag.|
 |Create branch from|Create a new branch that starts at this branch or tag.|
 |Merge into|Merge this branch into the current branch.|
-|Fetch, Pull, Push|Exchange commits with the remote.|
-|Rename|Rename the branch.|F2
+|Fetch|Fetch from the remote. Available on any branch or tag.|
+|Pull|Pull the current branch from the remote. Offered only when a local branch is selected.|
+|Push|Push the selected local branch or tag. Not available on a remote-tracking branch.|
+|Rename|Rename a local branch, or a remote-tracking branch other than the remote's default branch. Not available on a tag.|F2
 |Delete|Delete the branch or tag.|DEL
 |===
 
 == The commit history
 
 The toolbar above the history refreshes it, creates a branch or tag at the selected commit, cherry-picks the selected commit, and fetches, pulls (`CTRL+T`) and pushes.
-Its eye button shows or hides the commits of the other branches and tags in the history.
+Its eye button shows or hides commits that are only reachable from other local branches.
 
 Right-click a commit for more:
 
