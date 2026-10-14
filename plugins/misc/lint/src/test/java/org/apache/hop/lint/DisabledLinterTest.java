@@ -90,7 +90,7 @@ class DisabledLinterTest {
     LintCheckTracker tracker = service.getTracker();
 
     // Control: the same pass, still current, does mark the file.
-    service.lintFileInternal(file, null, service.currentGeneration());
+    assertTrue(service.lintAndPublishFile(file, service.currentGeneration()));
     assertFalse(tracker.needsLinting(file), "a current pass marks its file");
 
     tracker.invalidate(file);
@@ -98,7 +98,7 @@ class DisabledLinterTest {
     LinterConfigPlugin config = LinterConfigPlugin.getInstance();
     config.setLinterEnabled(false);
     config.applyEnabledState();
-    service.lintFileInternal(file, null, startedBefore);
+    assertFalse(service.lintAndPublishFile(file, startedBefore));
 
     assertTrue(tracker.needsLinting(file), "switching back on would skip the file");
     assertTrue(LintResultsManager.getInstance().getAllResults().isEmpty());

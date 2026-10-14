@@ -440,23 +440,12 @@ public class BackgroundLintService {
     }
   }
 
-  /**
-   * Lint a saved file and publish what it finds, unless the results were discarded since the pass
-   * was scheduled. Runs on a worker thread.
-   */
-  void lintFileInternal(String filePath, String graphId, int passGeneration) {
+  /** Runs on a worker thread. */
+  private void lintFileInternal(String filePath, String graphId, int passGeneration) {
     try {
-      HopGui hopGui = HopGui.peekInstance();
-      IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
-      IVariables variables = hopGui != null ? hopGui.getVariables() : null;
-
-      HopLinter linter = new HopLinter();
-      List<LintResult> results = lintFileForGui(filePath, linter, metadataProvider, variables);
-      if (!publishChecked(filePath, results, passGeneration)) {
-        return;
+      if (lintAndPublishFile(filePath, passGeneration)) {
+        LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
       }
-      LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
-      log.logDetailed("Linted " + filePath + ": " + results.size() + " issues");
     } catch (Exception e) {
       log.logError("Error linting file " + filePath + ": " + e.getMessage(), e);
     } finally {
@@ -464,6 +453,26 @@ public class BackgroundLintService {
         deferredGenerations.remove(graphId);
       }
     }
+  }
+
+  /**
+   * Lint a saved file and publish what it finds, unless the results were discarded since the pass
+   * was scheduled. Touches no widget, so it can run without a display.
+   *
+   * @return false when the findings were dropped
+   */
+  boolean lintAndPublishFile(String filePath, int passGeneration) throws HopException {
+    HopGui hopGui = HopGui.peekInstance();
+    IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
+    IVariables variables = hopGui != null ? hopGui.getVariables() : null;
+
+    HopLinter linter = new HopLinter();
+    List<LintResult> results = lintFileForGui(filePath, linter, metadataProvider, variables);
+    if (!publishChecked(filePath, results, passGeneration)) {
+      return false;
+    }
+    log.logDetailed("Linted " + filePath + ": " + results.size() + " issues");
+    return true;
   }
 
   private List<LintResult> lintFileForGui(

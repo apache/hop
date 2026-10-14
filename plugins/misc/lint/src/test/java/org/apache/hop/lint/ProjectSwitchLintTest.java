@@ -122,15 +122,15 @@ class ProjectSwitchLintTest {
     service.switchProject(projectA.getAbsolutePath());
     String file = writeWorkflow(projectA);
 
-    // Control: the same pass, still current, does publish. lintFileInternal swallows errors, so
-    // without this a file that fails to lint would pass the test below for the wrong reason.
-    service.lintFileInternal(file, null, service.currentGeneration());
+    // Control: the same pass, still current, does publish. Without it, a file that cannot be
+    // linted would pass the test below for the wrong reason.
+    assertTrue(service.lintAndPublishFile(file, service.currentGeneration()));
     assertFalse(service.getTracker().needsLinting(file), "a current pass publishes");
 
     service.getTracker().invalidate(file);
     int scheduledBefore = service.currentGeneration();
     service.switchProject(projectB.getAbsolutePath());
-    service.lintFileInternal(file, null, scheduledBefore);
+    assertFalse(service.lintAndPublishFile(file, scheduledBefore));
 
     assertTrue(manager.getAllResults().isEmpty(), "project A's file must not reappear");
     assertTrue(
