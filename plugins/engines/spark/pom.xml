@@ -120,9 +120,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Lake table transform metadata and the catalog metadata type. Only the plugin jar is
-             used: at runtime dependencies.xml doesn't load the lakehouse lib/ folder either, and
-             its unshaded Iceberg modules would clash with iceberg-spark-runtime. -->
+        <!-- Lake table transform metadata and the catalog metadata type. Only this jar is
+             packaged (under plugins/engines/spark/lib): dependencies.xml does not load the
+             lakehouse plugin's lib/ either, and its unshaded Iceberg modules would clash with
+             iceberg-spark-runtime. The copy in lib/ is what lets the engine resolve these
+             classes when the lakehouse plugin itself is not installed. -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-lakehouse</artifactId>
