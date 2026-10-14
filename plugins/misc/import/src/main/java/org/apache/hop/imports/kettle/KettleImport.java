@@ -931,12 +931,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 transExecutorStep = true;
               }
               if (childNode.getNodeName().equals("type")
-                  && childNode.getChildNodes().item(0) != null
-                  && "Formula".equals(childNode.getChildNodes().item(0).getNodeValue())) {
-                // Kettle/PDI Formula uses OpenFormula (semicolon arguments). Hop's Formula
-                // transform is the POI engine, so imported steps take the OpenFormula id.
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("Formula")) {
                 entryType = EntryType.FORMULA;
-                childNode.setTextContent("OpenFormula");
               }
               if (childNode.getNodeName().equals("type")
                   && childNode
@@ -1022,6 +1018,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
           // reset the entry type to OTHER because we left the formula nodeset
           entryType = EntryType.OTHER;
           firstFormulaNode = null;
+        } else if (entryType == EntryType.FORMULA
+            && currentNode.getNodeName().equals("formula_string")) {
+          String formulaValue = currentNode.getFirstChild().getNodeValue();
+          currentNode.getFirstChild().setNodeValue(formulaValue.replaceAll(";", ","));
         } else if (entryType == EntryType.FORMULA
             && currentNode.getNodeName().equals("value_type")) {
           String formulaType = currentNode.getFirstChild().getNodeValue();

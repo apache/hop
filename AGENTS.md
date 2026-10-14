@@ -34,10 +34,6 @@ concise — we will expand the sections below over time.
 
 - **Formatting:** code is formatted with Spotless. Run `./mvnw spotless:apply`
   before committing; CI runs `spotless:check`.
-- **Imports:** never use a star import, static or otherwise
-  (`import org.example.*`, `import static org.junit.jupiter.api.Assertions.*`).
-  Checkstyle `AvoidStarImport` fails the build. Import each type and each
-  static method by name. Drop an import that nothing in the file calls.
 - **License headers:** every new source/text file needs the Apache License 2.0
   header — Apache RAT fails the build otherwise.
 - **Contributing & PRs:** see [CONTRIBUTING.md](./CONTRIBUTING.md).
