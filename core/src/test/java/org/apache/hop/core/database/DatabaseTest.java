@@ -53,6 +53,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
@@ -72,6 +73,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class DatabaseTest {
@@ -296,6 +298,81 @@ class DatabaseTest {
     Database db = new Database(log, variables, meta);
     db.getLookup(ps);
     verify(rsMetaData, times(1)).getColumnCount();
+  }
+
+  /**
+   * IS NULL and IS NOT NULL compare against nothing, so the WHERE clause must not get a "?" for
+   * them. A wrong CONST_IS_NOT_NULL value turned "IS NOT NULL" into "IS NOT NULL ?" (#8897).
+   */
+  @Test
+  void testSetLookupNullConditionsHaveNoPlaceholder() throws Exception {
+    Database db = databaseForGeneratedSql();
+    db.setLookup(
+        "lookup_table",
+        new String[] {"id", "code", "deleted_at"},
+        new String[] {"=", "IS NOT NULL", "IS NULL"},
+        new String[] {"value"},
+        new String[] {null},
+        null);
+
+    assertNullConditionsHaveNoPlaceholder(capturedSql());
+  }
+
+  @Test
+  void testPrepareUpdateNullConditionsHaveNoPlaceholder() throws Exception {
+    Database db = databaseForGeneratedSql();
+    assertTrue(
+        db.prepareUpdate(
+            "lookup_table",
+            new String[] {"id", "code", "deleted_at"},
+            new String[] {"=", "IS NOT NULL", "IS NULL"},
+            new String[] {"value"}));
+
+    assertNullConditionsHaveNoPlaceholder(capturedSql());
+  }
+
+  @Test
+  void testPrepareDeleteNullConditionsHaveNoPlaceholder() throws Exception {
+    Database db = databaseForGeneratedSql();
+    assertTrue(
+        db.prepareDelete(
+            "lookup_table",
+            new String[] {"id", "code", "deleted_at"},
+            new String[] {"=", "IS NOT NULL", "IS NULL"}));
+
+    assertNullConditionsHaveNoPlaceholder(capturedSql());
+  }
+
+  private Database databaseForGeneratedSql() throws SQLException {
+    when(meta.getQuotedSchemaTableCombination(
+            nullable(IVariables.class), nullable(String.class), anyString()))
+        .thenAnswer(invocation -> invocation.getArgument(2));
+    when(meta.quoteField(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(meta.getSqlUpdateStmt(anyString()))
+        .thenAnswer(invocation -> "UPDATE " + invocation.getArgument(0) + " SET ");
+    when(meta.getSqlDeleteStmt(anyString()))
+        .thenAnswer(invocation -> "DELETE FROM " + invocation.getArgument(0));
+    when(meta.stripCR(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(meta.stripCR(any(StringBuilder.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0).toString());
+    when(conn.prepareStatement(anyString())).thenReturn(ps);
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  private String capturedSql() throws SQLException {
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    verify(conn).prepareStatement(sql.capture());
+    return sql.getValue();
+  }
+
+  private static void assertNullConditionsHaveNoPlaceholder(String sql) {
+    assertTrue(Pattern.compile("id\\s+=\\s+\\?").matcher(sql).find(), sql);
+    assertTrue(sql.contains("code IS NOT NULL"), sql);
+    assertTrue(sql.contains("deleted_at IS NULL"), sql);
+    assertFalse(Pattern.compile("NULL\\s*\\?").matcher(sql).find(), sql);
   }
 
   @Test

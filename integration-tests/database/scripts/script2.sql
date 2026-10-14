@@ -51,3 +51,19 @@ INSERT INTO foo (id, name, description) VALUES (7, 'Alice', 'Life is what happen
 INSERT INTO foo (id, name, description) VALUES (8, 'Bob', 'If life were predictable it would cease to be life, and be without flavor. -Eleanor Roosevelt');
 INSERT INTO foo (id, name, description) VALUES (9, 'Bob', 'If you look at what you have in life, youll always have more. -Oprah Winfrey');
 INSERT INTO foo (id, name, description) VALUES (10, 'Alice', 'Your time is limited, dont waste it living someone elses life. -Steve Jobs');
+
+-- #8897: one id with a NULL and a non-NULL code, for the IS NOT NULL lookup key
+DROP TABLE IF EXISTS public.lookup_is_not_null;
+
+CREATE TABLE public.lookup_is_not_null
+(
+    id    varchar,
+    code  varchar NULL,
+    value varchar
+);
+
+INSERT INTO public.lookup_is_not_null
+    (id, code, value)
+VALUES ('1', NULL, 'code is null'),
+       ('1', 'A', 'code is not null')
+;
