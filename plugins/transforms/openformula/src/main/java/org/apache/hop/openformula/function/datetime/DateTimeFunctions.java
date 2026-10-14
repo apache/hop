@@ -468,8 +468,9 @@ public final class DateTimeFunctions {
         throws EvaluationException {
       if (params.getParameterCount() != 2)
         throw new EvaluationException(FormulaErrorValue.ERROR_ARGUMENTS_VALUE);
-      Date start = context.getTypeRegistry().convertToDate(params.getType(0), params.getValue(0));
-      Date end = context.getTypeRegistry().convertToDate(params.getType(1), params.getValue(1));
+      // Part 2, 6.10.6: DAYS(EndDate; StartDate) is EndDate minus StartDate.
+      Date end = context.getTypeRegistry().convertToDate(params.getType(0), params.getValue(0));
+      Date start = context.getTypeRegistry().convertToDate(params.getType(1), params.getValue(1));
       long diffMillis = end.getTime() - start.getTime();
       long diffDays = Math.round((double) diffMillis / DateUtil.MILLIS_PER_DAY);
       return TypedValue.ofNumber(BigDecimal.valueOf(diffDays));
