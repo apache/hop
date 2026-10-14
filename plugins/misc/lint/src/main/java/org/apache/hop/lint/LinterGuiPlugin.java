@@ -127,6 +127,11 @@ public class LinterGuiPlugin {
       final String finalProjectName =
           !Utils.isEmpty(projectName) ? projectName : new java.io.File(projectPath).getName();
 
+      // The progress dialog does not block the rest of Hop GUI, so another project can be enabled
+      // while this runs. The report still shows what was found; the stored findings do not take it.
+      final BackgroundLintService service = BackgroundLintService.getInstance();
+      final int passGeneration = service.currentGeneration();
+
       // Run linter in background thread
       BackgroundThreadFacade.start(
           () -> {
@@ -152,8 +157,9 @@ public class LinterGuiPlugin {
                       () -> {
                         try {
                           // Update results manager for GUI integration
-                          LintResultsManager.getInstance().updateResults(results);
-                          LintProblemsBarManager.getInstance().refreshAllOpenEditors();
+                          if (service.publishAll(results, passGeneration)) {
+                            LintProblemsBarManager.getInstance().refreshAllOpenEditors();
+                          }
 
                           LinterGuiPlugin plugin = new LinterGuiPlugin();
                           plugin.displayResults(results, totalLintTime, finalProjectName);

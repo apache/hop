@@ -34,12 +34,14 @@ public class ProjectLoadedLintExtension implements IExtensionPoint<Object> {
       ILogChannel log, org.apache.hop.core.variables.IVariables variables, Object object)
       throws HopException {
     String projectPath = variables != null ? variables.getVariable("PROJECT_HOME") : null;
+    BackgroundLintService service = BackgroundLintService.getInstance();
+    // Before the empty check: leaving a project for none must still drop its findings.
+    service.switchProject(projectPath);
     if (Utils.isEmpty(projectPath)) {
       return;
     }
     HopGui hopGui = HopGui.peekInstance();
-    BackgroundLintService.getInstance()
-        .lintProjectAsync(
-            projectPath, hopGui != null ? hopGui.getMetadataProvider() : null, variables);
+    service.lintProjectAsync(
+        projectPath, hopGui != null ? hopGui.getMetadataProvider() : null, variables);
   }
 }

@@ -321,6 +321,8 @@ public class ExplorerLintGuiPlugin {
 
     final HopGuiAbstractGraph graph = (HopGuiAbstractGraph) handler;
     final IHopFileTypeHandler openHandler = handler;
+    final BackgroundLintService service = BackgroundLintService.getInstance();
+    final int passGeneration = service.currentGeneration();
 
     BackgroundThreadFacade.start(
         () -> {
@@ -328,7 +330,10 @@ public class ExplorerLintGuiPlugin {
             List<LintResult> results =
                 lintFileResults(normalizedPath, openHandler, metadataProvider, variables);
 
-            LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
+            // Another project was enabled, or the linter switched off, while this ran.
+            if (!service.publish(normalizedPath, results, passGeneration)) {
+              return;
+            }
 
             Display.getDefault()
                 .asyncExec(
@@ -398,6 +403,8 @@ public class ExplorerLintGuiPlugin {
         LintEditorGraphHelper.findOpenHandlerForPath(normalizedPath);
     final IVariables variables = hopGui.getVariables();
     final IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    final BackgroundLintService service = BackgroundLintService.getInstance();
+    final int passGeneration = service.currentGeneration();
 
     BackgroundThreadFacade.start(
         () -> {
@@ -405,7 +412,10 @@ public class ExplorerLintGuiPlugin {
             List<LintResult> results =
                 lintFileResults(normalizedPath, openHandler, metadataProvider, variables);
 
-            LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
+            // Another project was enabled, or the linter switched off, while this ran.
+            if (!service.publish(normalizedPath, results, passGeneration)) {
+              return;
+            }
 
             Display.getDefault()
                 .asyncExec(
@@ -510,6 +520,10 @@ public class ExplorerLintGuiPlugin {
     final IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
     final LinterProgressDialog progressDialog = new LinterProgressDialog(hopGui.getShell());
+    // The dialog does not block the rest of Hop GUI, so another project can be enabled while
+    // this runs. The report still lists what was found; the stored findings do not take it.
+    final BackgroundLintService service = BackgroundLintService.getInstance();
+    final int passGeneration = service.currentGeneration();
 
     BackgroundThreadFacade.start(
         () -> {
@@ -570,8 +584,7 @@ public class ExplorerLintGuiPlugin {
                     fileResults = linter.processFile(file, metadataProvider, variables);
                   }
                   results.addAll(fileResults);
-                  LintResultsManager.getInstance()
-                      .updateResultsForFile(normalizedPath, fileResults);
+                  service.publish(normalizedPath, fileResults, passGeneration);
                   processedFilesCount++;
                 } catch (Exception e) {
                   log.logError("Error processing file: " + file.getAbsolutePath(), e);
@@ -583,10 +596,10 @@ public class ExplorerLintGuiPlugin {
                           "Failed to process file: " + e.getMessage(),
                           LintPathUtils.normalizePath(file.getAbsolutePath()));
                   results.add(errorResult);
-                  LintResultsManager.getInstance()
-                      .updateResultsForFile(
-                          LintPathUtils.normalizePath(file.getAbsolutePath()),
-                          List.of(errorResult));
+                  service.publish(
+                      LintPathUtils.normalizePath(file.getAbsolutePath()),
+                      List.of(errorResult),
+                      passGeneration);
                   processedFilesCount++;
                 }
               }

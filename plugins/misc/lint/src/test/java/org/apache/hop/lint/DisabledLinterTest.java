@@ -22,10 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Switching the linter off has to stop marking files.
@@ -58,6 +61,47 @@ class DisabledLinterTest {
     config.applyEnabledState();
 
     assertTrue(manager.getAllResults().isEmpty(), "a disabled linter must not leave a file marked");
+  }
+
+  @Test
+  void switchingTheLinterOffForgetsWhichFilesWereChecked(@TempDir File folder) throws Exception {
+    File file = new File(folder, "example.hpl");
+    Files.writeString(file.toPath(), "<pipeline/>");
+    LintCheckTracker tracker = BackgroundLintService.getInstance().getTracker();
+    tracker.markChecked(file.getAbsolutePath());
+
+    LinterConfigPlugin config = LinterConfigPlugin.getInstance();
+    config.setLinterEnabled(false);
+    config.applyEnabledState();
+
+    assertTrue(
+        tracker.needsLinting(file.getAbsolutePath()),
+        "switching the linter back on would skip the file and leave it without findings");
+  }
+
+  /**
+   * A pass still running when the linter is switched off finishes after the tracker was cleared. If
+   * it marked its file as checked, switching the linter back on would skip that file.
+   */
+  @Test
+  void aPassFinishingAfterTheLinterIsOffDoesNotMarkItsFile(@TempDir File folder) throws Exception {
+    String file = ProjectSwitchLintTest.writeWorkflow(folder);
+    BackgroundLintService service = BackgroundLintService.getInstance();
+    LintCheckTracker tracker = service.getTracker();
+
+    // Control: the same pass, still current, does mark the file.
+    assertTrue(service.lintAndPublishFile(file, service.currentGeneration()));
+    assertFalse(tracker.needsLinting(file), "a current pass marks its file");
+
+    tracker.invalidate(file);
+    int startedBefore = service.currentGeneration();
+    LinterConfigPlugin config = LinterConfigPlugin.getInstance();
+    config.setLinterEnabled(false);
+    config.applyEnabledState();
+    assertFalse(service.lintAndPublishFile(file, startedBefore));
+
+    assertTrue(tracker.needsLinting(file), "switching back on would skip the file");
+    assertTrue(LintResultsManager.getInstance().getAllResults().isEmpty());
   }
 
   @Test

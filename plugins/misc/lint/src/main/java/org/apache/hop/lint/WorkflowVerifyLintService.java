@@ -46,6 +46,8 @@ public final class WorkflowVerifyLintService {
       delegate.addWorkflowCheck();
       graph.extraViewTabFolder.setSelection(delegate.getWorkflowCheckTab());
 
+      BackgroundLintService service = BackgroundLintService.getInstance();
+      int passGeneration = service.currentGeneration();
       HopGui hopGui = HopGui.peekInstance();
       WorkflowMeta workflowMeta = graph.getWorkflowMeta();
       String fileName = LintPathUtils.normalizePath(workflowMeta.getFilename());
@@ -57,8 +59,9 @@ public final class WorkflowVerifyLintService {
               hopGui != null ? hopGui.getMetadataProvider() : null,
               graph.getVariables());
 
-      LintResultsManager.getInstance().updateResultsForFile(fileName, results);
-      LintProblemsBarManager.getInstance().updateProblemsBar(fileName);
+      if (service.publish(fileName, results, passGeneration)) {
+        LintProblemsBarManager.getInstance().updateProblemsBar(fileName);
+      }
       WorkflowProblemsTabSync.refreshGraph(graph, results);
 
       log.logDetailed(

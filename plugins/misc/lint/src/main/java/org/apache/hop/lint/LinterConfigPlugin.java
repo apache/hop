@@ -220,7 +220,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
    */
   void applyEnabledState() {
     if (!isLinterEnabled()) {
-      LintResultsManager.getInstance().clearResults();
+      BackgroundLintService.getInstance().discardResults();
       try {
         LintProblemsBarManager.getInstance().refreshAllOpenEditors();
       } catch (Exception | LinkageError e) {
