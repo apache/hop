@@ -23,9 +23,15 @@ import org.apache.hop.openformula.EvaluationException;
 import org.apache.hop.openformula.error.FormulaErrorValue;
 
 /**
- * Standard comparator following OpenFormula rules: - Numbers compare numerically. - Text compares
- * lexicographically (case-insensitive for equals/comparison). - Dates compare by timestamp. -
- * Booleans compare FALSE < TRUE. - Type ordering for mixed types: Numbers < Text < Booleans.
+ * Standard comparator following OpenFormula rules.
+ *
+ * <ul>
+ *   <li>Numbers compare numerically.
+ *   <li>Text compares lexicographically (case-insensitive for equals and comparison).
+ *   <li>Dates compare by timestamp.
+ *   <li>Booleans compare false before true.
+ *   <li>Mixed types order as number, then text, then boolean.
+ * </ul>
  */
 public class DefaultComparator implements ExtendedComparator {
   private final TypeRegistry typeRegistry;
