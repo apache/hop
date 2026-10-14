@@ -17,7 +17,9 @@
 
 package org.apache.hop.core.security;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Used by the Hop Web authorization filter so the embedded Hop Server API honours the same
  * role-based access control as the RAP UI. Lives in {@code hop-core} so it carries no servlet
  * dependency and can be unit tested in isolation; the servlet filter supplies the request path.
+ *
+ * <p>Before matching, the path is normalized: a query string and per-segment matrix parameters are
+ * removed, and {@code .} and {@code ..} are resolved. The lookup therefore sees the same endpoint
+ * the servlet container will dispatch, including when a caller still holds a raw request path.
+ * Percent-decoding is left to the container so a value is not decoded twice.
  *
  * <p>Matching is by longest context-path prefix, because most servlets accept trailing path
  * segments (for example {@code /hop/pipelineStatus/<name>/<id>}). Endpoints not listed here are
@@ -317,27 +324,54 @@ public final class HopServerEndpointPermissionMapper {
         || requiredPermission(null, path).isPresent();
   }
 
+  /**
+   * Query string off, matrix parameters off per segment, then {@code .} and {@code ..} resolved.
+   * Casing is preserved: the servlet registry keys endpoints case-sensitively (for example
+   * camelCase {@code startPipeline}), so the table keys must match the endpoint segment exactly. A
+   * {@code ..} that would climb above the root returns {@code null}, which the lookup denies.
+   */
   private static String normalize(String path) {
     if (path == null || path.isBlank()) {
       return null;
     }
     String p = path.trim();
-    // Strip a ;jsessionid= or matrix params
-    int semi = p.indexOf(';');
-    if (semi >= 0) {
-      p = p.substring(0, semi);
+    int query = p.indexOf('?');
+    if (query >= 0) {
+      p = p.substring(0, query);
     }
-    // Strip a query string if one slipped in
-    int q = p.indexOf('?');
-    if (q >= 0) {
-      p = p.substring(0, q);
+    if (p.isEmpty()) {
+      return null;
     }
-    // Drop a trailing slash (but keep a bare "/"). Casing is preserved: the servlet registry keys
-    // endpoints case-sensitively (e.g. camelCase "startPipeline"), so the table keys must match
-    // exactly on the endpoint segment.
-    while (p.length() > 1 && p.endsWith("/")) {
-      p = p.substring(0, p.length() - 1);
+    boolean absolute = p.startsWith("/");
+    List<String> segments = new ArrayList<>();
+    for (String raw : p.split("/", -1)) {
+      int semi = raw.indexOf(';');
+      String segment = semi >= 0 ? raw.substring(0, semi) : raw;
+      if (segment.isEmpty() || ".".equals(segment)) {
+        continue;
+      }
+      if ("..".equals(segment)) {
+        if (segments.isEmpty()) {
+          return null;
+        }
+        segments.remove(segments.size() - 1);
+        continue;
+      }
+      segments.add(segment);
     }
-    return p;
+    if (segments.isEmpty()) {
+      return absolute ? "/" : null;
+    }
+    StringBuilder normalized = new StringBuilder();
+    if (absolute) {
+      normalized.append('/');
+    }
+    for (int i = 0; i < segments.size(); i++) {
+      if (i > 0) {
+        normalized.append('/');
+      }
+      normalized.append(segments.get(i));
+    }
+    return normalized.toString();
   }
 }
