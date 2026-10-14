@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../assets/images
 :page-pagination:
 :page-pagination-no-next:
-:description: Compatibility with Kettle/PDI was never a goal for Apache Hop, but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop community provides a way to import Kettle/PDI code into Hop and convert the imported code the the Hop ways of working.
+:description: Compatibility with Kettle/PDI was never a goal for Apache Hop, but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop community provides a way to import Kettle/PDI code into Hop and convert the imported code to the Hop ways of working.
 
 = Import Kettle (PDI) Projects in Apache Hop
 

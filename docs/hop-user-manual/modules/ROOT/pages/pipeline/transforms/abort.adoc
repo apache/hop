@@ -16,14 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Abort tranform aborts a running pipeline.
+:description: The Abort transform aborts a running pipeline.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 
 = image:transforms/icons/abort.svg[Abort Icon, role="image-doc-icon"] Abort
 
 == Description
-The Abort tranform aborts a running pipeline as soon as it receives input data. The main use case for this transform is to throw an error when an unexpected or unwanted situation occurs.
+The Abort transform aborts a running pipeline as soon as it receives input data. The main use case for this transform is to throw an error when an unexpected or unwanted situation occurs.
 
 For example, you can use this transform so that a pipeline can be aborted after x number of rows flow to over an error hop.
 
