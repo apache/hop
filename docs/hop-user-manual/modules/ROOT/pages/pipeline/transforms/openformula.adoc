@@ -1,0 +1,113 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The OpenFormula transform evaluates Kettle/PDI formula expressions on pipeline fields without Apache POI.
+
+:toc: macro
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+
+= image:transforms/icons/openformula.svg[OpenFormula transform Icon, role="image-doc-icon"] OpenFormula
+
+== Description
+
+The OpenFormula transform calculates new fields, or replaces existing fields, with OpenFormula expressions. The syntax is the one used by Kettle/PDI Formula steps.
+
+Hop also ships xref:pipeline/transforms/formula.adoc[Formula], which evaluates Excel-style formulas with Apache POI. That transform stays in place. OpenFormula does not use Apache POI. Pipelines that already use Formula keep using it.
+
+== Syntax
+
+* No leading `=`.
+* A field reference is the field name in square brackets: `[field]`.
+* Function arguments are separated by `;`.
+* Example: `IF([flag];"Y";"N")`.
+
+There are no cell ranges and no sheet references. Each expression sees the current row only.
+
+The dialog lists the functions the engine knows. Double-click a formula cell to open the editor. The editor inserts `[field]` for a field and a function call with `;` separators.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|New field|Name of the field to add. When Replace value is set, this name is kept in the metadata and the result is written over the replaced field.
+|Formula|OpenFormula expression.
+|Value type|Hop type of the result.
+|Length|Length of the result. Empty means no length.
+|Precision|Precision of the result. Empty means no precision.
+|Replace value|Incoming field whose value is replaced. Leave it empty to append a new field.
+|===
+
+== Differences from the Formula transform
+
+|===
+| |OpenFormula|Formula
+
+|Engine
+|OpenFormula calculation engine
+|Apache POI
+
+|Argument separator
+|`;`
+|`,`
+
+|Leading `=`
+|Leave it off
+|Excel formulas often start with `=`
+
+|`set_na`
+|Not stored
+|Optional. A null result can be written as `#N/A`
+
+|Date serial zero
+|1900-01-01
+|Excel serial dates, which reject dates before 1899-12-31
+
+|===
+
+`DATE` with a year below 1900 adds 1900, which is the Kettle/PDI rule. `DATE(50;1;1)` is 1950-01-01.
+
+`HASCHANGED` does not observe previous-row changes in this version. It returns false.
+
+Import of a Kettle/PDI Formula step produces an OpenFormula transform and keeps the `;` separators. An existing Hop pipeline that uses the Formula transform is left as it is. Recreate an expression on OpenFormula when you want the Kettle/PDI dialect. The two dialects are not rewritten into each other.
+
+== Error handling
+
+A formula that fails for a row stops the pipeline and names the field and the formula. The transform supports the error hop, so those rows can be sent to an error handling path instead.
+
+`ISERROR`, `ISNA`, `ISERR`, and `IFNA` can catch an error inside the expression. A caught error does not fail the row.
+
+== Functions
+
+The rounding function is `INT`.
+
+Logical: `AND`, `OR`, `NOT`, `XOR`, `TRUE`, `FALSE`, `IF`, `IFNA`.
+
+Math: `ABS`, `ACOS`, `ACOSH`, `ASIN`, `ATAN`, `ATAN2`, `AVERAGE`, `AVERAGEA`, `COS`, `EVEN`, `EXP`, `LN`, `LOG`, `LOG10`, `MAX`, `MAXA`, `MIN`, `MINA`, `MOD`, `N`, `ODD`, `PI`, `POWER`, `SIN`, `SQRT`, `SUM`, `SUMA`, `VAR`.
+
+Text: `ASC`, `CHAR`, `CLEAN`, `CODE`, `CONCATENATE`, `DOLLAR`, `EXACT`, `FIND`, `FIXED`, `LEFT`, `LEN`, `LOWER`, `MESSAGE`, `MID`, `PROPER`, `REPLACE`, `REPT`, `RIGHT`, `SEARCH`, `STRINGCOUNT`, `SUBSTITUTE`, `T`, `TEXT`, `TRIM`, `UNICHAR`, `UNICODE`, `UPPER`, `URLBUILDER`, `URLENCODE`.
+
+Date and time: `DATE`, `DATEDIF`, `DATETIMEVALUE`, `DATEVALUE`, `DAY`, `DAYS`, `HOUR`, `MINUTE`, `MONTH`, `MONTHEND`, `NOW`, `PREVWEEKDAY`, `SECOND`, `TIME`, `TIMEVALUE`, `TODAY`, `WEEKDAY`, `YEAR`, `YESTERDAY`.
+
+Information: `CHOOSE`, `COUNT`, `COUNTA`, `COUNTBLANK`, `ERROR`, `HASCHANGED`, `INDEX`, `ISBLANK`, `ISERR`, `ISERROR`, `ISEVEN`, `ISLOGICAL`, `ISNA`, `ISNONTEXT`, `ISNUMBER`, `ISODD`, `ISREF`, `ISTEXT`, `LOOKUP`, `NA`, `VALUE`.
+
+String predicates carried over from Kettle/PDI: `BEGINSWITH`, `CONTAINS`, `ENDSWITH`, `EQUALS`, `IN`, `LIKE`.
+
+Arrays and parsing: `ARRAYCONCATENATE`, `ARRAYCONTAINS`, `ARRAYLEFT`, `ARRAYMID`, `ARRAYRIGHT`, `CSVARRAY`, `CSVTEXT`, `NORMALIZEARRAY`, `NULL`, `PARSEDATE`, `SEQUENCEQUOTER`.
+
+Operators are `+`, `-`, `*`, `/`, `^`, `%`, `&`, and the comparisons `=`, `<>`, `<`, `<=`, `>`, `>=`.

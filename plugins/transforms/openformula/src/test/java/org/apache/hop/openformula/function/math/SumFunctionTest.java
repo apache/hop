@@ -1,0 +1,83 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hop.openformula.function.math;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.math.BigDecimal;
+import org.apache.hop.openformula.FormulaContext;
+import org.apache.hop.openformula.common.FormulaTestBase;
+import org.apache.hop.openformula.common.TestFormulaContext;
+import org.apache.hop.openformula.error.FormulaErrorValue;
+import org.apache.hop.openformula.typing.TypedValue;
+import org.junit.jupiter.api.Test;
+
+/**
+ * @author Cedric Pronzato
+ */
+public class SumFunctionTest extends FormulaTestBase {
+  private static final String FORMULA_NAME = "SUM";
+
+  private FormulaContext context = new TestFormulaContext();
+
+  /** A list of valid values to be given to the function and the (expected) resulting value */
+  private static final Object[][] VALID_EXAMPLES = {
+    // Only numbers
+    {BigDecimal.TEN, new Object[] {0, 1, 2, 3, 4}},
+    // Number as a string
+    {BigDecimal.TEN, new Object[] {0, 1, 2, 3, 4}},
+    // Logical values
+    {BigDecimal.TEN, new Object[] {false, true, 2, 3, 4}},
+    // Number as a string and Logical values
+    {BigDecimal.TEN, new Object[] {false, true, "2", 3, "4"}},
+    // Array
+    {BigDecimal.TEN, new Object[] {false, new Object[] {1, 2, 3}, "4"}}
+  };
+
+  @Override
+  public Object[][] createDataTest() {
+    // Ignore this feature
+    return null;
+  }
+
+  @Test
+  public void testValidExamples() throws Exception {
+    for (Object[] testValues : VALID_EXAMPLES) {
+      BigDecimal expectedResult = (BigDecimal) testValues[0];
+      Object[] parameters = (Object[]) testValues[1];
+
+      TypedValue res = evaluateFormula(getFormulaText(FORMULA_NAME, parameters), context);
+      assertNotNull(res);
+      Object resValue = res.getValue();
+      assertNotNull(resValue);
+      assertTrue(resValue instanceof BigDecimal);
+      assertEquals(expectedResult, resValue);
+    }
+  }
+
+  @Test
+  public void testZeroParameters() throws Exception {
+    TypedValue res = evaluateFormula(getFormulaText(FORMULA_NAME, null), context);
+    assertNotNull(res);
+    Object resValue = res.getValue();
+    assertNotNull(resValue);
+    assertEquals(FormulaErrorValue.ERROR_ARGUMENTS_VALUE, resValue);
+  }
+}

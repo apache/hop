@@ -34,6 +34,8 @@ under the License.
 
 The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
 
+Kettle/PDI formula syntax (semicolon arguments, no leading `=`) is a different transform: xref:pipeline/transforms/openformula.adoc[OpenFormula].
+
 With a formula you are not limited to comparing to three fields like in the Calculator. This is where you can set and compare Date and Times as well.
 
 == Usage
