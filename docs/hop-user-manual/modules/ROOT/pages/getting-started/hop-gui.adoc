@@ -54,16 +54,18 @@ image:getting-started/gs-hop-gui-overview-1.png[The Hop Gui window]
 
 {nbsp} +
 
-There are two toolbars, and everything else is the work area.
+The window has five parts.
 
-image:getting-started/gs-hop-gui-overview-2.png[The Hop Gui toolbars]
+image:getting-started/gs-hop-gui-overview-2.png[The parts of the Hop Gui window]
 
-The **main toolbar**, along the top, creates new files (pipelines, workflows, metadata), opens and saves them, and holds the run and preview controls for whatever you have open.
-
-The **perspectives toolbar**, down the left-hand side, switches between the different things you can do in Hop Gui.
-
-At the **bottom left** of the status bar you'll find the active project and environment.
-You'll use those in xref:getting-started/hop-projects.adoc[Projects and environments].
+. The **main toolbar**, along the top, opens the Hop menu, creates new files (pipelines, workflows, metadata), opens and saves them, and opens the Marketplace.
+. The **perspectives toolbar**, down the left-hand side, switches between the different things you can do in Hop Gui.
+The two buttons at the bottom of it show or hide the execution results and the bottom panel.
+. The **active perspective**, here File Explorer, with its own toolbar.
+In File Explorer, the toolbar acts on the files and folders of your project, including git operations.
+. The **open file**, with a tab for each pipeline or workflow you have open and the toolbar of its editor: run, stop, check, undo and redo, and zoom.
+. The **status bar**, along the bottom, shows the active project and environment and, when the project is in a git repository, the current branch.
+You'll use the project and environment in xref:getting-started/hop-projects.adoc[Projects and environments].
 
 == Perspectives
 
