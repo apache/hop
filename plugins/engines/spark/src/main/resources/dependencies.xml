@@ -16,7 +16,8 @@
   ~
   -->
 <dependencies>
-    <!-- Native handlers need transform metadata classes on the driver -->
+    <!-- Same metadata jar as the one packaged in lib/. When the lakehouse plugin is installed,
+         the plugin class loader searches lib/ first, so the copy built with this engine wins. -->
     <folder>../../tech/lakehouse</folder>
     <folder>../../transforms/memgroupby</folder>
     <folder>../../transforms/mergejoin</folder>

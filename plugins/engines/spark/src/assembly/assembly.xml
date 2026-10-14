@@ -42,6 +42,19 @@
             </includes>
             <outputDirectory>plugins/engines/spark</outputDirectory>
         </dependencySet>
+        <!-- LakeCatalog and the lake table metadata classes. The lakehouse plugin registers the
+             transforms; this copy is what the engine links against, so a marketplace install of
+             Spark onto the plain client can start without that plugin. It lives under lib/ so the
+             plugin scanner does not register the transforms twice. Transitives stay out: the
+             unshaded Iceberg modules would clash with iceberg-spark-runtime. -->
+        <dependencySet>
+            <scope>provided</scope>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.apache.hop:hop-tech-lakehouse:jar</include>
+            </includes>
+            <outputDirectory>plugins/engines/spark/lib</outputDirectory>
+        </dependencySet>
         <!-- Spark and transitive runtime jars for local[*] execution from Hop.
              Jackson core/databind/annotations MUST NOT be packaged here: HopURLClassLoader
              is child-first, and dual ObjectMapper classes (plugin lib vs Hop lib/core)
