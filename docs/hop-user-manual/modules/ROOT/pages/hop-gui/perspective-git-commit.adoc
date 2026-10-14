@@ -1,0 +1,73 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images
+:description: The Git commit perspective lists your staged, unstaged and untracked changes so you can review them and commit them, with or without a push.
+
+= Git Commit Perspective
+
+Icon: image:icons/git-commit-perspective.svg[width="24px"]
+
+Keyboard shortcut: `CTRL+SHIFT+O` (`CMD+SHIFT+O` on macOS)
+
+== Description
+
+The Git commit perspective is where you review the changes in your project and commit them.
+It is available when the project folder is a git repository.
+See xref:hop-gui/hop-gui-git.adoc[Working with git] for the other git options in Hop Gui.
+
+== The list of changes
+
+The perspective lists your changes in the same three groups `git status` reports:
+
+Staged:: added to git's index with 'Add', part of the next commit.
+Unstaged:: changed files that git tracks, but the changes are not in the index.
+Untracked:: files git doesn't know about yet, because they were never added.
+
+The toolbar and right-click options act on the files whose checkbox is ticked, not on the highlighted row.
+Staged and unstaged files are ticked for you, so a commit takes your work in progress along: untick a file (or unstage it) to leave it out.
+Untracked files are listed but never ticked: committing a file for the first time is something you decide, tick it yourself to include it.
+
+[options="header", cols="1,2,5,1"]
+|===
+|icon|action|description|shortcut
+|image:icons/refresh.svg[width="24px"]|Refresh|Reload the list of staged and unstaged files.|F5
+|image:icons/git-add.svg[width="24px"]|Add|Stage the checked unstaged or untracked files. They move to 'Staged' and become part of the next commit. For an untracked file this is also what puts it under version control.|CTRL+ALT+A
+|image:icons/git-unstage.svg[width="24px"]|Unstage|Take the checked files out of the next commit. They move back to 'Unstaged' (or to 'Untracked' if they were never committed before), your changes are kept.|CTRL+ALT+U
+|image:icons/git-restore.svg[width="24px"]|Restore|Throw the changes in the checked files away and restore the last committed version (HEAD). Asks for confirmation.|CTRL+ALT+Z
+|image:icons/delete.svg[width="24px"]|Delete|Delete the checked files from disk.|DEL
+|===
+
+WARNING: Unstage and Restore both act on staged files, but they do very different things.
+Unstage only takes a file out of the next commit and keeps your work, Restore throws your changes away.
+That is why Restore asks for confirmation and Unstage does not: nothing is lost by unstaging, you can stage the file again with 'Add'.
+
+The same options are available in the right-click menu of the file list, together with:
+
+* Add to .gitignore: have git ignore the file from now on.
+* Show text diff (`CTRL+D`): the changes in the file as text.
+* Show visual diff (`CTRL+SHIFT+D`): for a pipeline or workflow, open the before and after versions side by side.
+
+== Committing
+
+Enter a commit message below the list of changes, then click:
+
+Commit:: commit the checked files.
+Commit and Push:: commit the checked files and push the commit to the remote.
+
+Tick 'Amend' first to put the checked files into your last commit instead of creating a new one.
+
+`CTRL+K` (`CMD+K` on macOS) ticks all staged and unstaged files and moves the cursor to the commit message, so committing all your work in progress is `CTRL+K`, typing the message and 'Commit'.

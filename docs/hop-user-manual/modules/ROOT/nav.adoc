@@ -45,6 +45,8 @@ under the License.
 ** xref:hop-gui/perspective-ai-advisor.adoc[AI Assistant]
 ** xref:hop-gui/perspective-database.adoc[Database perspective]
 ** xref:hop-gui/perspective-search.adoc[Search]
+** xref:hop-gui/perspective-git-commit.adoc[Git commit perspective]
+** xref:hop-gui/perspective-git.adoc[Git perspective]
 ** xref:hop-gui/hop-gui-git.adoc[Working with git]
 ** xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]
 ** xref:hop-gui/canvas-mouse.adoc[Canvas Mouse Gestures]

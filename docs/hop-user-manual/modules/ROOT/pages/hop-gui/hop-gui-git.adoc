@@ -15,16 +15,21 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../../assets/images
-:description: Version control is an important aspect of any serious data orchestration project.. Hop's file explorer perspective offers the basic functionality to manage your work in git: pull, push, visual diff, commit etc are all available from a user friendly ui.
+:description: Version control is an important aspect of any serious data orchestration project. Hop Gui lets you manage your work in git: commit, push, pull, branches, history and visual diffs.
 
 = Working with git
 
 Version control is an important aspect of any serious data orchestration project.
-Hop wants to make it as easy as possible to manage versions for your workflows and pipelines through the integrated git options in the xref:hop-gui/perspective-file-explorer.adoc[File Explorer perspective].
+Hop wants to make it as easy as possible to manage versions for your workflows and pipelines.
+When your project folder is a git repository, Hop Gui adds git options in three places:
+
+* the toolbar, right-click menu and file colors of the xref:hop-gui/perspective-file-explorer.adoc[File Explorer perspective], described on this page;
+* the branch menu in the status bar, described on this page;
+* two perspectives of their own: xref:hop-gui/perspective-git-commit.adoc[Git commit] to review and commit your changes, and xref:hop-gui/perspective-git.adoc[Git] for branches, tags and the commit history.
 
 == File Explorer Toolbar
 
-If you open the file explorer for a project that is not version controlled in git, the git icons in the file explorer's main toolbar (top left) will be shown as greyed-out and disabled.
+If you open the file explorer for a project that is not version controlled in git, the git icons in the file explorer's toolbar will be shown as greyed-out and disabled.
 
 image::hop-gui/hop-gui-no-git.png[No git available,width="50%"]
 
@@ -37,7 +42,7 @@ The available options to work with files and the available git operations in thi
 [options="header", cols="1,2,5,1"]
 |===
 |icon|action|description|shortcut
-|image:icons/arrow-right.svg[width="24px"]|Open selected file|Opens the selected file in the appropriate editor (pipeline or workflow editor for workflows and pipelines, text editor for other file.|double-click
+|image:icons/arrow-right.svg[width="24px"]|Open selected file|Opens the selected file in the appropriate editor (pipeline or workflow editor for workflows and pipelines, text editor for other files).|F3, double-click
 |image:icons/folder-add.svg[width="24px"]|Add folder|adds a new folder at the selected location. A popup is shown for the folder name.|
 |image:getting-started/icons/expand-all.svg[width="24px"]|Expand all folders|Display all nested folders in the directory tree.|
 |image:getting-started/icons/collapse-all.svg[width="24px"]|Collapse all folders|Hide all nested folders in the directory tree.|
@@ -45,16 +50,17 @@ The available options to work with files and the available git operations in thi
 |image:icons/rename.svg[width="24px"]|Rename the selected file|Makes the selected file name editable to allow renaming.|F2
 |image:icons/refresh.svg[width="24px"]|Refresh|Refreshes the projects folder and file structure.|F5
 |image:getting-started/icons/hide.svg[width="24px"]|Show or hide files|Show or hide files or directories.|
-|image:icons/git-info.svg[width="24px"]|Git info|Populates the file explorer's git dialog with version information for the selected file.|
+|image:icons/select-target.svg[width="24px"]|Select opened file|Selects the file of the active editor tab in the tree.|ALT+F1
+|image:icons/git-info.svg[width="24px"]|Git info|Opens a tab with the git information of the selected file or folder: status, branch, revisions and changed files.|
 |image:icons/git-add.svg[width="24px"]|Git Add|Add the selected file to version control.|
-|image:icons/git-revert.svg[width="24px"]|Git Revert|Revert file to last committed version (HEAD).|
-|image:icons/git-commit.svg[width="24px"]|Git commit|Commit the latest changes for the selected file (providing a commit message).|
-|image:icons/push.svg[width="24px"]|Git push|Push the recent changes to the remote repository.|
-|image:icons/pull.svg[width="24px"]|Git pull|Pull the latest changes from the remote repository.|
+|image:icons/git-revert.svg[width="24px"]|Git Revert|Revert the changed files in the selection to the last committed version (HEAD). A dialog lets you pick the files.|
+|image:icons/git-delete.svg[width="24px"]|Git Clean|Delete files that git does not track from disk. A dialog lets you pick the files.|
+|image:icons/git-commit.svg[width="24px"]|Git commit|Opens the xref:hop-gui/perspective-git-commit.adoc[Git commit perspective] to review and commit your changes. In Hop Web it opens a commit dialog instead.|
 |===
 
-NOTE: Only the available options are availabe at a given time. E.g. `git add` will not be available for files that already are in version control.
+NOTE: Only the options that apply are available at a given time. E.g. `git add` will not be available for files that already are in version control.
 
+The git options are also available in the right-click menu of the file explorer tree.
 
 == File Explorer Tree
 
@@ -63,27 +69,35 @@ In the folder and file structure tree below the toolbar, files use a color codin
 * black: unchanged.
 This is the latest version of the file available in git, no changes detected.
 * grey: this file is ignored
-* blue: staged for commit.
+* green: a new file, staged for commit.
+* blue: a changed file, staged for commit.
 This file is ready to be committed ('Git Commit')
 * red: not staged for commit.
 Add this file to git before changes can be committed ('Git Add').
+
+== Branches in the status bar
+
+The status bar at the bottom of the window shows the current branch next to the active project and environment.
+Click it to open the branch menu:
+
+* Create branch, Merge branch, Rename branch and Delete branch.
+* Push and Pull.
+* The local branches. The current one is checked; click another to check it out.
 
 == Working with files in git
 
 Add a file::
 Click on a file that is not yet staged for commit (red), click 'Git Add'.
-The color of the file changes to blue (staged for commit).
+The color of the file changes to green (new file) or blue (changed file): staged for commit.
 
 Commit a file::
-Click on a file that is staged for commit (blue), click 'Git Commit'.
-A popup dialog will ask to confirm the file to commit, and will show a popup for your commit message.
-Change the default 'Commit Message' to a commit message that describes the changes you made to the file.
+Click 'Git Commit' to open the xref:hop-gui/perspective-git-commit.adoc[Git commit perspective], check the files to commit, enter a commit message and click 'Commit'.
 The file color changes to black (no changes).
 
 Show git info::
 Click on a file that is under version control (black or blue).
 The file explorer will show the git status for this file: the file or folder, status, branch and a revisions table (list of previous commits).
-Select one of the available commits to show the changed files to show the changed files for that revision.
+Select one of the available commits to show the changed files for that revision.
 Select any of the files in the revision from the 'Changed files' list to show the git diff information on the right hand side.
 For workflows and pipelines, click 'Visual diff' to open the before and after versions of the file in new tabs.
 Hop will show an additional icon in the upper right corner of the action or transform icon to indicate the git change that was made (green for added or yellow for changed)
@@ -95,35 +109,7 @@ Uncheck "Ignore position in the visual diff" in the configuration options below 
 
 A transform or action that was renamed is marked as changed, rather than as one that was removed and another that was added.
 The hops around it are left alone.
-This is recognised as long as the rename is all that happened to it, a move aside: renaming and editing in the same commit still shows up as a removal plus an addition, because there is nothing left to recognise it by.
-
-== Git Commit Perspective
-
-The git commit perspective (`CTRL+SHIFT+O`, `CMD+SHIFT+O` on macOS) lists your changes in the same three groups `git status` reports:
-
-Staged:: added to git's index with 'Add', part of the next commit.
-Unstaged:: changed files that git tracks, but the changes are not in the index.
-Untracked:: files git doesn't know about yet, because they were never added.
-
-The toolbar and right-click options act on the files whose checkbox is ticked, not on the highlighted row.
-Staged and unstaged files are ticked for you, so a commit takes your work in progress along: untick a file (or unstage it) to leave it out.
-Untracked files are listed but never ticked: committing a file for the first time is something you decide, tick it yourself to include it.
-
-[options="header", cols="1,2,5,1"]
-|===
-|icon|action|description|shortcut
-|image:icons/refresh.svg[width="24px"]|Refresh|Reload the list of staged and unstaged files.|F5
-|image:icons/git-add.svg[width="24px"]|Add|Stage the checked unstaged or untracked files. They move to 'Staged' and become part of the next commit. For an untracked file this is also what puts it under version control.|CTRL+ALT+A
-|image:icons/git-unstage.svg[width="24px"]|Unstage|Take the checked files out of the next commit. They move back to 'Unstaged' (or to 'Untracked' if they were never committed before), your changes are kept.|CTRL+ALT+U
-|image:icons/git-restore.svg[width="24px"]|Restore|Throw the changes in the checked files away and restore the last committed version (HEAD). Asks for confirmation.|CTRL+ALT+Z
-|image:icons/delete.svg[width="24px"]|Delete|Delete the checked files from disk.|DEL
-|===
-
-WARNING: Unstage and Restore both act on staged files, but they do very different things.
-Unstage only takes a file out of the next commit and keeps your work, Restore throws your changes away.
-That is why Restore asks for confirmation and Unstage does not: nothing is lost by unstaging, you can stage the file again with 'Add'.
-
-The same options are available in the right-click menu of the file list.
+This is recognised as long as the rename is all that happened to it, apart from a move: renaming and editing in the same commit still shows up as a removal plus an addition, because there is nothing left to recognise it by.
 
 == Git Configuration options
 
