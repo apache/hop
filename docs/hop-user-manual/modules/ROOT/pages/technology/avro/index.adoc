@@ -31,7 +31,9 @@ First and foremost we support Avro as a data type called "Avro Record".  It simp
 == Pipeline Transforms
 
 * xref:pipeline/transforms/avro-decode.adoc[Avro decode]: This allows you to extract Hop values from an Avro Record data type.
-* xref:pipeline/transforms/avro-encode.adoc[Avro encode]: This allows you to extract Hop values from an Avro Record data type.
+* xref:pipeline/transforms/avro-encode.adoc[Avro encode]: This allows you to build an Avro Record from a selection of Hop fields.
+* xref:pipeline/transforms/avro-file-input.adoc[Avro file input]: This allows you to read Avro records from one or more files.
+* xref:pipeline/transforms/avro-file-output.adoc[Avro file output]: This allows you to write Avro records to a file or a field.
 
 == Kafka producer transforms
 
