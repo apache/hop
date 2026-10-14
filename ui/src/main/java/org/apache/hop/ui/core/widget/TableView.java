@@ -184,10 +184,10 @@ public class TableView extends Composite {
   @Getter @Setter private boolean readonly;
 
   /**
-   * The last right-click landed beside or below the cells, so the context menu has no cell to act
-   * on even though an earlier click left an active cell behind.
+   * Where the row context menu was last opened with the mouse, in table coordinates, or null when
+   * it was opened from the keyboard. Set on every {@link SWT#MenuDetect}, whatever the modifiers.
    */
-  private boolean contextMenuOffCell;
+  private Point contextMenuPoint;
 
   /**
    * Draw long / multi-line text cells shortened and single-lined (see {@link
@@ -808,8 +808,6 @@ public class TableView extends Composite {
           boolean shift = (event.stateMask & SWT.SHIFT) != 0;
           boolean control = (event.stateMask & SWT.MOD1) != 0;
           if (!shift && !control) {
-            // Cleared below as soon as the click turns out to be on a cell.
-            contextMenuOffCell = rightClick;
             Rectangle clientArea = table.getClientArea();
             Point pt = new Point(event.x, event.y);
             int index = table.getTopIndex();
@@ -822,7 +820,6 @@ public class TableView extends Composite {
                   activeTableItem = item;
                   activeTableColumn = i;
                   activeTableRow = index;
-                  contextMenuOffCell = false;
 
                   if (!rightClick) {
                     editSelected();
@@ -1570,7 +1567,9 @@ public class TableView extends Composite {
               BaseMessages.getString(PKG, "TableView.menu.CopyCellValue")));
       miCopyCell.setImage(GuiResource.getInstance().getImageCopy());
       miCopyCell.addListener(SWT.Selection, e -> clipCell());
-      mRow.addListener(SWT.Show, e -> miCopyCell.setEnabled(hasCellToCopy()));
+      mRow.addListener(
+          SWT.Show,
+          e -> miCopyCell.setEnabled(hasActiveValueCell() && isContextMenuOnActiveCell()));
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_PASTE_TO_TABLE)) {
@@ -2078,7 +2077,14 @@ public class TableView extends Composite {
             && columns[colNr - 1].isReadOnly());
   }
 
-  /** True when the grid's owner already acts on a double-clicked row, to pick or open it. */
+  /**
+   * True when the grid's owner already acts on a double-clicked row, to pick or open it.
+   *
+   * <p>{@code table.addSelectionListener(...)} and {@code table.addMouseListener(...)} also listen
+   * for {@link SWT#DefaultSelection} and {@link SWT#MouseDoubleClick}. An owner that only reacts to
+   * a selection or a mouse-down should use {@code table.addListener(SWT.Selection, ...)}, or a
+   * double-click in its read-only grid no longer opens the cell.
+   */
   private boolean ownerHandlesRowActivation() {
     // Our own mouse listener is one of the double-click listeners, so look for another.
     return table.isListening(SWT.DefaultSelection)
@@ -2210,16 +2216,16 @@ public class TableView extends Composite {
       return;
     }
 
-    if (readonly) {
-      selectRows(activeTableRow, activeTableRow);
+    if (activeTableColumn > 0 && !readonly) {
+      edit(activeTableRow, activeTableColumn);
       return;
     }
 
-    if (activeTableColumn > 0) {
-      edit(activeTableRow, activeTableColumn);
-    } else {
-      selectRows(activeTableRow, activeTableRow);
-    }
+    // A click in a read-only grid, or on the row number, selects the row. Table.select() sends no
+    // SWT.Selection and the native click usually sends none either once the row is selected, so
+    // refresh the toolbar here, as edit(), selectAll() and unselectAll() do.
+    selectRows(activeTableRow, activeTableRow);
+    enableToolbarButtons();
   }
 
   /**
@@ -2966,19 +2972,46 @@ public class TableView extends Composite {
   }
 
   public void clipCell() {
-    if (!hasCellToCopy()) {
-      return;
+    String value = getActiveCellValueToCopy();
+    if (value != null) {
+      GuiResource.getInstance().toClipboard(value);
     }
-    GuiResource.getInstance().toClipboard(getCellValue(activeTableItem, activeTableColumn));
   }
 
-  /** A value cell is active, and the context menu was not opened beside or below the cells. */
-  private boolean hasCellToCopy() {
-    return !contextMenuOffCell
-        && activeTableItem != null
+  /**
+   * The stored value of the active cell as Copy cell value puts it on the clipboard: the full value
+   * rather than the shortened display text, and nothing for a NULL. Null when no value cell is
+   * active.
+   */
+  String getActiveCellValueToCopy() {
+    if (!hasActiveValueCell()) {
+      return null;
+    }
+    String value = getCellValue(activeTableItem, activeTableColumn);
+    return isNullPlaceholder(activeTableItem, activeTableColumn, value) ? "" : value;
+  }
+
+  /** A value cell (not the row number) is active. */
+  private boolean hasActiveValueCell() {
+    return activeTableItem != null
         && !activeTableItem.isDisposed()
         && activeTableColumn > 0
         && activeTableColumn < table.getColumnCount();
+  }
+
+  /**
+   * The row context menu was opened from the keyboard, or with the mouse on the active cell. A
+   * right-click beside or below the rows, or a shift/ctrl right-click on another cell, leaves the
+   * active cell where it was, so the menu has no cell to act on.
+   */
+  private boolean isContextMenuOnActiveCell() {
+    return contextMenuPoint == null
+        || activeTableItem.getBounds(activeTableColumn).contains(contextMenuPoint);
+  }
+
+  /** The cell shows the blue {@code <null>} placeholder a grid draws for a NULL value. */
+  private boolean isNullPlaceholder(TableItem item, int colNr, String value) {
+    return "<null>".equals(value) && nullTextColor.equals(item.getForeground(colNr));
   }
 
   private String getSelectedText() {
@@ -3010,11 +3043,8 @@ public class TableView extends Composite {
           selection.append(CLIPBOARD_DELIMITER);
         }
         String value = getCellValue(ti, c);
-        if (StringUtils.isNotEmpty(value)) {
-          Color textColor = ti.getForeground(c);
-          if (!nullTextColor.equals(textColor) || !"<null>".equals(value)) {
-            selection.append(value);
-          }
+        if (StringUtils.isNotEmpty(value) && !isNullPlaceholder(ti, c, value)) {
+          selection.append(value);
         }
       }
       selection.append(Const.CR);
@@ -3350,11 +3380,12 @@ public class TableView extends Composite {
 
     // A read-only cell can't be edited, but its value still has to be readable and selectable: it
     // is drawn shortened and single-lined, so without an editor there is no way to see the rest of
-    // it. Give it the same inline editor (and expand icon), only view-only. Columns that hand their
-    // click to a selection adapter keep doing nothing, as before. A read-only grid makes every one
-    // of its cells read-only.
+    // it. Give it the same inline editor (and expand icon), only view-only. A read-only column that
+    // hands its click to a selection adapter keeps doing nothing, as before. A read-only grid makes
+    // every one of its cells read-only, and there the adapter (a picker or editor that writes the
+    // cell) is skipped for the viewer, so a long formula or expression can still be read.
     final boolean viewOnly = isViewOnly(colNr);
-    if (viewOnly && colinfo.getSelectionAdapter() != null) {
+    if (colinfo.isReadOnly() && colinfo.getSelectionAdapter() != null) {
       return;
     }
 
@@ -3369,7 +3400,7 @@ public class TableView extends Composite {
       disposeInlineEditor();
     }
 
-    if (colinfo.getSelectionAdapter() != null) {
+    if (!viewOnly && colinfo.getSelectionAdapter() != null) {
       Event e = new Event();
       e.widget = this;
       e.x = colNr;
@@ -5058,12 +5089,20 @@ public class TableView extends Composite {
         SWT.MenuDetect,
         event -> {
           Point pt = table.toControl(event.x, event.y);
-          boolean onHeader = pt.y >= 0 && pt.y < table.getHeaderHeight();
+          // Measure from the client area: GTK puts the header above y 0 (its client area starts
+          // at minus the header height), the other platforms below it. A menu opened from the
+          // keyboard is always the row menu.
+          Rectangle clientArea = table.getClientArea();
+          boolean onHeader =
+              event.detail != SWT.MENU_KEYBOARD
+                  && pt.y >= clientArea.y
+                  && pt.y < clientArea.y + table.getHeaderHeight();
           if (onHeader) {
             headerDataColumn[0] = findDataColumnAtX(pt.x);
             miHide.setEnabled(headerDataColumn[0] >= 0);
             table.setMenu(headerMenu);
           } else {
+            contextMenuPoint = event.detail == SWT.MENU_KEYBOARD ? null : pt;
             table.setMenu(rowMenu);
           }
         });
