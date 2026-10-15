@@ -18,6 +18,7 @@ under the License.
 :page-marketplace: hop-tech-neo4j
 :page-aliases: hop-gui/perspective-neo4j.adoc
 
+:description: The Graph logging perspective shows and queries the Hop execution history logged to a graph database: Neo4j, Memgraph, Amazon Neptune, FalkorDB or Apache AGE.
 = Graph Logging Perspective
 
 Icon: image:icons/graph_logging.svg[width="24px"]

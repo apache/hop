@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-interbase]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to InterBase: the JDBC driver to use.
 
 = interbase
 

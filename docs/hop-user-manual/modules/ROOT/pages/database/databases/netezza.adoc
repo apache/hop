@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-netezza]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to IBM Netezza: the JDBC driver to use.
 
 = Netezza
 

@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../assets/images
 
+:description: The Configuration perspective is the central place for all Apache Hop configuration options: general settings, look and feel, projects and plugin options.
 = Configuration Perspective
 // One level deeper than the default, so the contents list each plugin under
 // Plugin options reference rather than stopping at the heading above them.

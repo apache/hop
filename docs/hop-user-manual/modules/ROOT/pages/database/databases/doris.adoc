@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-mariadb]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Apache Doris: the JDBC driver to use and how to install it. Apache Doris works with the MySQL or MariaDB JDBC driver.
 
 = Apache Doris
 
