@@ -1065,7 +1065,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
               host.getVariables(), node.getSchemaName(), node.getObjectName());
       sql = "SELECT * FROM " + qualified;
     }
-    openSqlTab(freshMeta, sql, null, sql, false);
+    openGeneratedSql(freshMeta, sql);
   }
 
   @GuiToolbarElement(
@@ -1107,7 +1107,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
             ddl = db.getCreateTableStatement(node.getObjectName(), fields, null, false, null, true);
           }
           String sql = ddl;
-          host.asyncExec(() -> openSqlTab(meta, sql, null, sql, true));
+          host.asyncExec(() -> openGeneratedSql(meta, sql));
         });
   }
 
@@ -1290,7 +1290,8 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
 
   /**
    * Select {@code meta} in the tree, start a background connect/refresh if needed, and open a SQL
-   * tab with {@code sql} immediately so the user can edit and run while schemas load.
+   * tab with {@code sql} immediately so the user can edit and run while schemas load. Generated SQL
+   * is not a user edit, so the tab stays clean.
    */
   public void openSuggestedSql(DatabaseMeta meta, String sql) {
     if (meta == null || isDisposed()) {
@@ -1302,10 +1303,50 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     }
     DatabaseMeta effectiveMeta = state.getDatabaseMeta();
     selectConnection(effectiveMeta.getName());
-    openSqlTab(effectiveMeta, Const.NVL(sql, ""), null, Const.NVL(sql, ""), true);
+    openGeneratedSql(effectiveMeta, sql);
     if (!state.isConnected()) {
       connect(state);
     }
+  }
+
+  /**
+   * Open generated SQL (DDL, a suggested query, truncate) without marking the tab changed, and put
+   * the caret on the last line of the script.
+   */
+  private DatabaseSqlEditorTab openGeneratedSql(DatabaseMeta meta, String sql) {
+    String text = Const.NVL(sql, "");
+    DatabaseSqlEditorTab tab = openSqlTab(meta, text, null, text, false);
+    if (!text.isEmpty()) {
+      focusGeneratedSqlEditor(tab);
+    }
+    return tab;
+  }
+
+  /**
+   * Move focus off the tree filter after the shell's initial focus and any activation that follows
+   * it. One async run loses to that first-child focus on GTK.
+   */
+  private void focusGeneratedSqlEditor(DatabaseSqlEditorTab tab) {
+    if (tab == null || host == null) {
+      return;
+    }
+    host.asyncExec(
+        () -> {
+          if (!generatedSqlEditorAlive(tab)) {
+            return;
+          }
+          tab.focusEndOfScript();
+          host.asyncExec(
+              () -> {
+                if (generatedSqlEditorAlive(tab)) {
+                  tab.focusEndOfScript();
+                }
+              });
+        });
+  }
+
+  private boolean generatedSqlEditorAlive(DatabaseSqlEditorTab tab) {
+    return !isDisposed() && tab.getControl() != null && !tab.getControl().isDisposed();
   }
 
   DatabaseConnectionState ensureConnection(DatabaseMeta meta) {
