@@ -17,6 +17,7 @@ under the License.
 
 :documentationPath: /metadata-types/graphs/
 :language: en_US
+:description: The graph database location type stores Hop execution information in a graph database that speaks Cypher: Neo4j, Memgraph, Amazon Neptune, FalkorDB or Apache AGE.
 :page-marketplace: hop-tech-neo4j
 :page-aliases: metadata-types/neo4j/neo4j-location-type.adoc
 

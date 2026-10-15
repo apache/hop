@@ -17,6 +17,7 @@ under the License.
 
 :page-pagination:
 
+:description: The asynchronous web service starts a long-running workflow on Hop Server and returns its ID, which you then use to query the workflow's status.
 = Asynchronous Web Service
 
 == Description

@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-postgresql]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to PostgreSQL: the JDBC driver to use and how to install it.
 
 = PostgreSQL
 

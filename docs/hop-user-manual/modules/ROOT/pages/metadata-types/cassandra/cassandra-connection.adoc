@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /metadata-types/cassandra/
 :language: en_US
+:description: A Cassandra connection describes how Apache Hop connects to an Apache Cassandra or DataStax cluster, for the Cassandra transforms and actions.
 :page-marketplace: hop-tech-cassandra
 
 = Cassandra Connection

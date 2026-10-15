@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../assets/images
 
+:description: The Metadata perspective is where you create, edit, duplicate and delete the metadata elements of your Hop project, such as connections and run configurations.
 = Metadata Perspective
 
 Icon: image:icons/metadata.svg[width="24px"]

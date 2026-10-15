@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-derby]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Apache Derby: the JDBC driver to use and how to install it.
 
 = Apache Derby
 

@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-sqlbase]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Gupta SQLBase: the JDBC driver to use.
 
 = Gupta SQLBase
 

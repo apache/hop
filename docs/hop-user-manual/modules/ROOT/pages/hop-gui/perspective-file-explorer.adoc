@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../assets/images
 :page-aliases: hop-gui/perspective-data-orchestration.adoc
 
+:description: The File Explorer perspective is where you build, test and run pipelines and workflows, and manage the files of your project, including its git integration.
 = File Explorer Perspective
 
 Icon: image:icons/folder.svg[width="24px"]

@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-greenplum]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Greenplum: the JDBC driver to use and how to install it.
 
 = Greenplum
 

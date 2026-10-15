@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-snowflake]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Snowflake: the JDBC driver to use, how to install it, and how to set up a Snowflake service user for Hop with key pair authentication.
 :imagesdir: ../../../assets/images
 
 = Snowflake

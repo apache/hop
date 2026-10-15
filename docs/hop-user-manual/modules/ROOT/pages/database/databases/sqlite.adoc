@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-sqlite]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to SQLite: the JDBC driver to use and how to install it.
 
 = SqLite
 

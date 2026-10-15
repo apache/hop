@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-sapdb]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to SAP MaxDB: the JDBC driver to use.
 
 = MaxDB (SAP DB)
 

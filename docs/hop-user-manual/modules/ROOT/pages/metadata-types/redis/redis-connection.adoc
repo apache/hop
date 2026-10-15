@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /metadata-types/redis/
 :language: en_US
+:description: A Redis connection describes how Apache Hop connects to Redis in standalone, Sentinel or Cluster mode.
 :page-marketplace: hop-tech-redis
 
 = Redis Connection
