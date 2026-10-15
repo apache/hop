@@ -36,15 +36,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
 
 /**
- * This defines a 'deleteresultfilenames' action. Its main use would be to create empty folder that
- * can be used to control the flow in ETL cycles.
+ * This defines a 'delete result filenames' action. Its main use would be to create empty folder
+ * that can be used to control the flow in ETL cycles.
  */
+@Getter
+@Setter
 @Action(
     id = "DELETE_RESULT_FILENAMES",
     name = "i18n::ActionDeleteResultFilenames.Name",
@@ -53,8 +51,6 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionDeleteResultFilenames.keyword",
     documentationUrl = "/workflow/actions/deleteresultfilenames.html")
-@Getter
-@Setter
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteResultFilenames.class;
 
@@ -156,12 +152,6 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-    AndValidator.putValidators(
-        ctx,
-        ActionValidatorUtils.notNullValidator(),
-        ActionValidatorUtils.fileDoesNotExistValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    // Names come from the previous result. This action has no path of its own to validate.
   }
 }

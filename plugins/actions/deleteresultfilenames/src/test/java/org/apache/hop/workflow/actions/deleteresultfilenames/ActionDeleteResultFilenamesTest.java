@@ -20,10 +20,15 @@ package org.apache.hop.workflow.actions.deleteresultfilenames;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link ActionDeleteResultFilenames} */
 class ActionDeleteResultFilenamesTest {
+
   @Test
   void testSerializationRoundTrip() throws Exception {
     ActionDeleteResultFilenames action =
@@ -33,5 +38,15 @@ class ActionDeleteResultFilenamesTest {
     assertTrue(action.isSpecifyWildcard());
     assertEquals("wildcard", action.getWildcard());
     assertEquals("exclude", action.getWildcardExclude());
+  }
+
+  @Test
+  void checkDoesNotReportAMissingFilename() {
+    ActionDeleteResultFilenames action = new ActionDeleteResultFilenames();
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    action.check(remarks, null, action, null);
+
+    assertTrue(remarks.isEmpty());
   }
 }
