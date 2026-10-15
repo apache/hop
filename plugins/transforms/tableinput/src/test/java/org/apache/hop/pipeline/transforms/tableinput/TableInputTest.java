@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -26,8 +28,10 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -38,10 +42,16 @@ import static org.mockito.Mockito.verify;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -177,7 +187,7 @@ class TableInputTest {
    * stopped.
    */
   private static void assertSucceeded(TableInput tableInput) {
-    org.junit.jupiter.api.Assertions.assertEquals(0, tableInput.getErrors());
+    assertEquals(0, tableInput.getErrors());
     verify(tableInput, never()).stopAll();
   }
 
@@ -311,5 +321,149 @@ class TableInputTest {
     verify(db, never()).cancelQuery();
     assertFalse(data.isCanceled);
     assertTrue(tableInput.isStopped());
+  }
+
+  /**
+   * doQuery does not hold a lock stopRunning waits on. A stop during openQuery must cancel and
+   * return, then the canceled query ends the transform with no errors.
+   */
+  @Test
+  void stopDuringRunningQueryDoesNotBlockAndEndsWithNoErrors() throws Exception {
+    stubHeaderRow();
+    doReturn(mock(Connection.class)).when(db).getConnection();
+    CountDownLatch queryStarted = new CountDownLatch(1);
+    CountDownLatch cancelCalled = new CountDownLatch(1);
+    doAnswer(
+            invocation -> {
+              queryStarted.countDown();
+              assertTrue(cancelCalled.await(5, TimeUnit.SECONDS), "query was not cancelled");
+              throw new HopDatabaseException(
+                  "The query was canceled", new SQLException("The query was canceled"));
+            })
+        .when(db)
+        .openQuery(
+            anyString(),
+            nullable(IRowMeta.class),
+            nullable(Object[].class),
+            anyInt(),
+            anyBoolean());
+    doAnswer(
+            invocation -> {
+              cancelCalled.countDown();
+              return null;
+            })
+        .when(db)
+        .cancelQuery();
+
+    AtomicReference<Throwable> queryFailure = new AtomicReference<>();
+    AtomicBoolean keepGoing = new AtomicBoolean(true);
+    Thread queryThread =
+        new Thread(
+            () -> {
+              try {
+                keepGoing.set(tableInput.processRow());
+              } catch (Throwable t) {
+                queryFailure.set(t);
+              }
+            },
+            "table-input-query");
+    queryThread.setDaemon(true);
+    queryThread.start();
+    assertTrue(queryStarted.await(5, TimeUnit.SECONDS), "query did not start");
+
+    AtomicReference<Throwable> stopFailure = new AtomicReference<>();
+    Thread stopThread =
+        new Thread(
+            () -> {
+              try {
+                tableInput.setStopped(true);
+                tableInput.stopRunning();
+              } catch (Throwable t) {
+                stopFailure.set(t);
+              }
+            },
+            "table-input-stop");
+    stopThread.setDaemon(true);
+    stopThread.start();
+    stopThread.join(3_000);
+
+    assertFalse(stopThread.isAlive(), "stopRunning blocked while the query was running");
+    assertNull(stopFailure.get());
+    queryThread.join(3_000);
+    assertFalse(queryThread.isAlive(), "query did not finish after it was cancelled");
+    assertNull(queryFailure.get());
+    assertFalse(keepGoing.get());
+    assertCleanStop();
+    verify(db).cancelQuery();
+  }
+
+  /**
+   * Stop before the first row: openQuery fails with "query was canceled", and that is not an error.
+   */
+  @Test
+  void cancelDuringQueryEndsWithNoErrors() throws Exception {
+    stubHeaderRow();
+    tableInput.setStopped(true);
+    doThrow(
+            new HopDatabaseException(
+                "The query was canceled", new SQLException("The query was canceled")))
+        .when(db)
+        .openQuery(
+            anyString(),
+            nullable(IRowMeta.class),
+            nullable(Object[].class),
+            anyInt(),
+            anyBoolean());
+
+    assertFalse(tableInput.processRow());
+
+    assertCleanStop();
+    verify(tableInput).logDebug(any());
+  }
+
+  /**
+   * Some drivers return from execute and block on the first fetch. Cancel there is a clean stop.
+   */
+  @Test
+  void cancelWhileReadingFirstRowEndsWithNoErrors() throws Exception {
+    stubHeaderRow();
+    tableInput.setStopped(true);
+    doThrow(
+            new HopDatabaseException(
+                "The query was canceled", new SQLException("The query was canceled")))
+        .when(db)
+        .getRow(any(ResultSet.class));
+
+    assertFalse(tableInput.processRow());
+
+    assertCleanStop();
+    verify(tableInput, never())
+        .logError(org.mockito.ArgumentMatchers.contains("Error reading rows"));
+  }
+
+  /** A real SQL failure while the pipeline is still running is still reported. */
+  @Test
+  void queryFailureWhileRunningSetsAnError() throws Exception {
+    stubHeaderRow();
+    doThrow(new HopDatabaseException("syntax error", new SQLException("bad sql")))
+        .when(db)
+        .openQuery(
+            anyString(),
+            nullable(IRowMeta.class),
+            nullable(Object[].class),
+            anyInt(),
+            anyBoolean());
+
+    assertFalse(tableInput.processRow());
+
+    assertEquals(1, tableInput.getErrors());
+    verify(tableInput).stopAll();
+    verify(tableInput).logError(org.mockito.ArgumentMatchers.contains("SQL query failed"));
+  }
+
+  private void assertCleanStop() {
+    assertEquals(0, tableInput.getErrors());
+    verify(tableInput, never()).stopAll();
+    verify(tableInput, never()).logError(any());
   }
 }
