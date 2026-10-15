@@ -59,6 +59,26 @@ class NeoExecutionInfoLocationDeleteTest {
   }
 
   @Test
+  void ownerEdgeIsSkippedWhenTheLauncherNodeIsLinked() {
+    assertFalse(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", "action", true));
+    assertTrue(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", "action", false));
+    assertTrue(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", null, false));
+    assertTrue(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", "workflow", true));
+    assertFalse(NeoExecutionInfoLocation.linkOwnerExecutes(null, "action", false));
+  }
+
+  @Test
+  void relinkMovesExecutesFromTheOwnerToTheLauncher() {
+    String cypher = NeoExecutionInfoLocation.relinkLaunchedChildrenCypher();
+
+    assertTrue(cypher.contains("launchedById = $id"));
+    assertTrue(cypher.contains("MERGE (launcher)-[:EXECUTES]->(child)"));
+    assertTrue(cypher.contains("WHERE owner.id = child.parentId"));
+    assertTrue(cypher.contains("DELETE shortcut"));
+    assertTrue(cypher.contains("child.parentId <> $id"));
+  }
+
+  @Test
   void batchDeleteLimitsEachTransaction() {
     String cypher =
         NeoExecutionInfoLocation.batchDelete("ExecutionDataSetRow", "parentId", "abc", 500)

@@ -19,6 +19,7 @@
 package org.apache.hop.execution.opensearch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -183,13 +184,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       cacheEntry.calculateSummary();
 
       URI uri = URI.create(actualUrl);
-      URI postUri;
-
-      if (StringUtils.isEmpty(cacheEntry.getInternalId())) {
-        postUri = uri.resolve(actualIndexName + "/_doc");
-      } else {
-        postUri = uri.resolve(actualIndexName + "/_doc/" + cacheEntry.getInternalId());
-      }
+      URI postUri = uri.resolve(documentPath(actualIndexName, cacheEntry.getInternalId()));
 
       ObjectMapper mapper = new ObjectMapper();
       String body = mapper.writeValueAsString(cacheEntry);
@@ -404,11 +399,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
         return null;
       }
 
-      // Convert this source object to CacheEntry
-      //
-      String json = jSource.toJSONString();
-      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
-      return objectMapper.readValue(json, CacheEntry.class);
+      return cacheEntryFromSearchHit(jHit);
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information location from OpenSearch using executionId '"
@@ -562,6 +553,39 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
   /** Index path of a refresh call. The next SQL page must not see documents just deleted. */
   static String refreshPath(String indexName) {
     return indexName + "/_refresh";
+  }
+
+  /**
+   * Document path for a create or update. {@code refresh=wait_for} makes the write visible to the
+   * next search, so a child location re-reading the parent sees the state just saved.
+   */
+  static String documentPath(String indexName, String internalId) {
+    String path = indexName + "/_doc";
+    if (StringUtils.isNotEmpty(internalId)) {
+      path = path + "/" + internalId;
+    }
+    return path + "?refresh=wait_for";
+  }
+
+  /**
+   * {@code internalId} is not part of {@code _source}. The search hit {@code _id} is what a later
+   * update must post to, or the next save creates a second document.
+   */
+  static CacheEntry cacheEntryFromSearchHit(JSONObject hit) throws IOException {
+    if (hit == null) {
+      return null;
+    }
+    JSONObject source = (JSONObject) hit.get("_source");
+    if (source == null) {
+      return null;
+    }
+    ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
+    CacheEntry entry = objectMapper.readValue(source.toJSONString(), CacheEntry.class);
+    Object docId = hit.get("_id");
+    if (docId != null) {
+      entry.setInternalId(String.valueOf(docId));
+    }
+    return entry;
   }
 
   @Override

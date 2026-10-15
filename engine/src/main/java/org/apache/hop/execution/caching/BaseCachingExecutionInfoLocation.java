@@ -392,6 +392,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         return;
       }
       parent.setDirty(true);
+      // This location loaded the parent only to attach the link. The parent may have finished and
+      // written a newer state after that load. Writing the stale copy would drop logging text and
+      // the end date. Re-read and keep the newer state, then put the link back on it.
+      if (loadedForLink) {
+        parent = keepNewerParentState(parent, child);
+      }
       persistCacheEntry(parent);
       parent.setDirty(false);
     } catch (Exception e) {
@@ -407,6 +413,59 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
         cache.remove(child.getParentId());
       }
     }
+  }
+
+  /**
+   * Re-read a parent that was loaded only to record a child. When the stored copy is newer, move
+   * the launcher and the child id onto that copy so the write does not replace a finished state.
+   */
+  CacheEntry keepNewerParentState(CacheEntry loaded, Execution child) throws HopException {
+    CacheEntry fresh = loadCacheEntry(child.getParentId());
+    if (fresh == null || fresh.getExecution() == null || !isNewerParentState(fresh, loaded)) {
+      if (fresh != null
+          && StringUtils.isEmpty(loaded.getInternalId())
+          && StringUtils.isNotEmpty(fresh.getInternalId())) {
+        loaded.setInternalId(fresh.getInternalId());
+      }
+      return loaded;
+    }
+    Execution launcher = fresh.peekChildExecution(child.getLaunchedById());
+    if (launcher == null) {
+      launcher = minimalLauncher(child, fresh.getExecution());
+      fresh.addChildExecution(launcher);
+    }
+    launcher.addChildExecutionId(child.getId());
+    fresh.setDirty(true);
+    return fresh;
+  }
+
+  /**
+   * A stored parent is newer when it has finished and the loaded copy has not, or when its update
+   * time is later. A finished copy is never replaced by an unfinished one. A child location uses
+   * this so it does not write an older execution state back.
+   */
+  static boolean isNewerParentState(CacheEntry fresh, CacheEntry loaded) {
+    ExecutionState freshState = fresh == null ? null : fresh.peekExecutionState();
+    ExecutionState loadedState = loaded == null ? null : loaded.peekExecutionState();
+    if (freshState == null) {
+      return false;
+    }
+    if (loadedState == null) {
+      return true;
+    }
+    if (freshState.getExecutionEndDate() != null && loadedState.getExecutionEndDate() == null) {
+      return true;
+    }
+    // An unfinished snapshot must not replace a finished one, even when its update time is later.
+    if (loadedState.getExecutionEndDate() != null && freshState.getExecutionEndDate() == null) {
+      return false;
+    }
+    Date freshUpdate = freshState.getUpdateTime();
+    Date loadedUpdate = loadedState.getUpdateTime();
+    if (freshUpdate == null) {
+      return false;
+    }
+    return loadedUpdate == null || freshUpdate.after(loadedUpdate);
   }
 
   /**
