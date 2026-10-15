@@ -282,6 +282,9 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         data.rs = data.db.openQuery(sql, boundMeta, boundData, ResultSet.FETCH_FORWARD, false);
       }
     } catch (HopDatabaseException ex) {
+      if (stoppedDuringQuery(ex)) {
+        return false;
+      }
       Throwable root = ex.getCause();
       if (root instanceof SQLException) {
         logError(
@@ -346,6 +349,9 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
           }
         }
       } catch (HopDatabaseException ex) {
+        if (stoppedDuringQuery(ex)) {
+          return false;
+        }
         logError("Error reading rows from query result: " + ex.getMessage());
         if (isDebug()) {
           logDebug(Const.getStackTracker(ex));
@@ -389,10 +395,35 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     super.dispose();
   }
 
-  /** Stop the running query */
+  /**
+   * A cancel while the statement is executing surfaces as a database exception. The pipeline has
+   * already been stopped, so this is not a failed query.
+   *
+   * @return {@code true} when the exception should end the transform without an error
+   */
+  private boolean stoppedDuringQuery(HopDatabaseException ex) {
+    if (!isStopped()) {
+      return false;
+    }
+    // Same handling as a cancel caught while reading later rows in processRow().
+    logDebug(ex.getMessage());
+    return true;
+  }
+
+  /**
+   * Cancel the open query.
+   *
+   * <p>{@code Pipeline.stopTransform} marks this transform stopped before it calls this method, so
+   * the stopped flag must not skip the cancel. {@code data.isCanceled} prevents a second cancel. A
+   * disposed transform has already closed the connection.
+   *
+   * <p>{@code doQuery} does not hold this transform's monitor, so the cancel below is not waiting
+   * on a lock the query thread holds. Do not add one: {@code stopAll} keeps the pipeline transform
+   * list locked while it calls this method, and a stopped {@code putRow} calls {@code stopAll}.
+   */
   @Override
   public synchronized void stopRunning() throws HopException {
-    if (this.isStopped() || data.isDisposed()) {
+    if (data.isDisposed()) {
       return;
     }
 
