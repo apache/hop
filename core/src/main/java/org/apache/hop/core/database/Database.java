@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import lombok.Getter;
@@ -4435,6 +4436,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       log.logDetailed(CONST_READ + schemaList.size() + " schemas from db meta-data.");
     }
 
+    schemaList.removeIf(Objects::isNull);
     schemaList.sort(String.CASE_INSENSITIVE_ORDER);
     return schemaList.toArray(new String[0]);
   }
@@ -4454,6 +4456,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       log.logDetailed(CONST_READ + catalogList.size() + " catalogs from db meta-data.");
     }
 
+    catalogList.removeIf(Objects::isNull);
     catalogList.sort(String.CASE_INSENSITIVE_ORDER);
     return catalogList.toArray(new String[0]);
   }

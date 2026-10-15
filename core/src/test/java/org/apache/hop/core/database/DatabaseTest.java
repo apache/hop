@@ -1188,4 +1188,46 @@ class DatabaseTest {
     verify(statement).execute();
     verify(statement).close();
   }
+
+  @Test
+  void testGetSchemasFiltersNulls() throws Exception {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
+    DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
+    Connection conn = mockConnection(dbMetaData);
+    ResultSet rs = mock(ResultSet.class);
+
+    when(dbMetaData.getSchemas()).thenReturn(rs);
+    when(rs.next()).thenReturn(true, true, true, false);
+    when(rs.getString(1)).thenReturn("schemaB", null, "schemaA");
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    String[] schemas = db.getSchemas();
+
+    assertNotNull(schemas);
+    assertEquals(2, schemas.length);
+    assertEquals("schemaA", schemas[0]);
+    assertEquals("schemaB", schemas[1]);
+  }
+
+  @Test
+  void testGetCatalogsFiltersNulls() throws Exception {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
+    DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
+    Connection conn = mockConnection(dbMetaData);
+    ResultSet rs = mock(ResultSet.class);
+
+    when(dbMetaData.getCatalogs()).thenReturn(rs);
+    when(rs.next()).thenReturn(true, true, true, false);
+    when(rs.getString(1)).thenReturn("catalogB", null, "catalogA");
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    String[] catalogs = db.getCatalogs();
+
+    assertNotNull(catalogs);
+    assertEquals(2, catalogs.length);
+    assertEquals("catalogA", catalogs[0]);
+    assertEquals("catalogB", catalogs[1]);
+  }
 }

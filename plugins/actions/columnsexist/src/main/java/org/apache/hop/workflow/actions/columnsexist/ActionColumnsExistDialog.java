@@ -18,7 +18,9 @@
 package org.apache.hop.workflow.actions.columnsexist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -229,24 +231,31 @@ public class ActionColumnsExistDialog extends ActionDialog {
 
   private void getTableName() {
     String databaseName = wConnection.getText();
-    if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
-      if (databaseMeta != null) {
-        DatabaseExplorerDialog std =
-            new DatabaseExplorerDialog(
-                shell, SWT.NONE, variables, databaseMeta, this.getWorkflowMeta().getDatabases());
-        std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
-        if (std.open()) {
-          wSchemaname.setText(Const.NVL(std.getSchemaName(), ""));
-          wTablename.setText(Const.NVL(std.getTableName(), ""));
-        }
-      } else {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
-        mb.open();
+    if (StringUtils.isEmpty(databaseName)) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
+      return;
+    }
+
+    DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
+    if (databaseMeta != null) {
+      DatabaseExplorerDialog std =
+          new DatabaseExplorerDialog(
+              shell, SWT.NONE, variables, databaseMeta, this.getWorkflowMeta().getDatabases());
+      std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
+      if (std.open()) {
+        wSchemaname.setText(Const.NVL(std.getSchemaName(), ""));
+        wTablename.setText(Const.NVL(std.getTableName(), ""));
       }
+    } else {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
     }
   }
 
@@ -319,45 +328,72 @@ public class ActionColumnsExistDialog extends ActionDialog {
 
   /** Get a list of columns */
   private void getListColumns() {
-    if (!Utils.isEmpty(wTablename.getText())) {
-      DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
-      if (databaseMeta != null) {
-        try (Database database = new Database(loggingObject, variables, databaseMeta)) {
-          database.connect();
-          IRowMeta row =
-              database.getTableFieldsMeta(
-                  variables.resolve(wSchemaname.getText()),
-                  variables.resolve(wTablename.getText()));
-          if (row != null) {
-            String[] available = row.getFieldNames();
+    if (Utils.isEmpty(wConnection.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
+      return;
+    }
+    if (Utils.isEmpty(wTablename.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(BaseMessages.getString(PKG, "ActionColumnsExist.Error.TablenameEmpty"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
+      return;
+    }
 
-            wFields.removeAll();
-            for (String s : available) {
-              wFields.add(s);
-            }
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          } else {
-            MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-            mb.setMessage(
-                BaseMessages.getString(PKG, "ActionColumnsExist.GetListColumsNoRow.DialogMessage"));
-            mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
-            mb.open();
+    DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        IRowMeta row =
+            database.getTableFieldsMeta(
+                variables.resolve(wSchemaname.getText()), variables.resolve(wTablename.getText()));
+        if (row != null) {
+          String[] available = row.getFieldNames();
+
+          wFields.removeAll();
+          for (String s : available) {
+            wFields.add(s);
           }
-        } catch (Exception e) {
-          new ErrorDialog(
-              shell,
-              BaseMessages.getString(PKG, CONST_ERROR_TITLE),
-              BaseMessages.getString(
-                  PKG, "ActionColumnsExist.ConnectionError2.DialogMessage", wTablename.getText()),
-              e);
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "ActionColumnsExist.GetListColumsNoRow.DialogMessage"));
+          mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+          mb.open();
         }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, CONST_ERROR_TITLE),
+            BaseMessages.getString(
+                PKG, "ActionColumnsExist.ConnectionError2.DialogMessage", wTablename.getText()),
+            e);
       }
+    } else {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
     }
   }
 
   private void getSchemaNames() {
     if (wSchemaname.isDisposed()) {
+      return;
+    }
+    if (Utils.isEmpty(wConnection.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
       return;
     }
     DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
@@ -366,8 +402,12 @@ public class ActionColumnsExistDialog extends ActionDialog {
         database.connect();
         String[] schemas = database.getSchemas();
 
+        if (schemas != null) {
+          schemas = Arrays.stream(schemas).filter(Objects::nonNull).toArray(String[]::new);
+        }
+
         if (null != schemas && schemas.length > 0) {
-          schemas = Const.sortStrings(schemas);
+          Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   shell,
@@ -394,6 +434,12 @@ public class ActionColumnsExistDialog extends ActionDialog {
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
       }
+    } else {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
+      mb.open();
     }
   }
 }
