@@ -48,6 +48,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.HopVfsUriResolver;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -371,6 +372,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             // Set the TransformerFactory to the SAXON implementation.
             factory = new net.sf.saxon.TransformerFactoryImpl();
           }
+          // Resolve includes, imports and document() through Hop VFS
+          factory.setURIResolver(new HopVfsUriResolver(this));
 
           if (isDetailed()) {
             logDetailed(
@@ -390,6 +393,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
 
             // Use the template to create a transformer
             Transformer xformer = template.newTransformer();
+            xformer.setURIResolver(factory.getURIResolver());
 
             if (isDetailed()) {
               logDetailed(

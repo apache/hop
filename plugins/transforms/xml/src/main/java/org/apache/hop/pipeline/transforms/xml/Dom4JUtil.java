@@ -17,36 +17,58 @@
 package org.apache.hop.pipeline.transforms.xml;
 
 import javax.xml.XMLConstants;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.SAXException;
 
 public class Dom4JUtil {
 
-  private static final ILogChannel log = HopLogStore.getLogChannelFactory().create("Xml");
+  private static final String DISALLOW_DOCTYPE_DECL =
+      "http://apache.org/xml/features/disallow-doctype-decl";
+
+  /** Features that keep external DTDs and entities out, and the values they need. */
+  private static final Object[][] PROTECTIVE_FEATURES = {
+    {XMLConstants.FEATURE_SECURE_PROCESSING, true},
+    {"http://xml.org/sax/features/external-general-entities", false},
+    {"http://xml.org/sax/features/external-parameter-entities", false},
+    {"http://apache.org/xml/features/nonvalidating/load-external-dtd", false},
+  };
 
   private Dom4JUtil() {}
 
   public static SAXReader getSAXReader() {
     SAXReader reader = new SAXReader();
-    try {
-      // A DOCTYPE is refused unless XML_ALLOW_DOCTYPE_DECL is Y. External DTDs and entities stay
-      // disabled either way.
-      reader.setFeature(
-          "http://apache.org/xml/features/disallow-doctype-decl",
-          !"Y".equalsIgnoreCase(EnvUtil.getSystemProperty(Const.XML_ALLOW_DOCTYPE_DECL)));
-      reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    } catch (SAXException e) {
-      log.logError("Some parser properties are not supported.");
+    boolean protectedParser = true;
+    for (Object[] feature : PROTECTIVE_FEATURES) {
+      try {
+        reader.setFeature((String) feature[0], (Boolean) feature[1]);
+      } catch (SAXException e) {
+        protectedParser = false;
+        logUnsupportedFeature((String) feature[0]);
+      }
     }
+
+    // A DOCTYPE is only read when XML_ALLOW_DOCTYPE_DECL allows it, and only by a parser that
+    // keeps external DTDs and entities out.
+    boolean allowDoctype = protectedParser && XmlParserFactoryProducer.isDoctypeAllowed();
+    try {
+      reader.setFeature(DISALLOW_DOCTYPE_DECL, !allowDoctype);
+    } catch (SAXException e) {
+      logUnsupportedFeature(DISALLOW_DOCTYPE_DECL);
+    }
+    if (allowDoctype) {
+      reader.setXMLFilter(new EntityExpansionLimitFilter());
+    }
+
     reader.setIncludeExternalDTDDeclarations(false);
     reader.setIncludeInternalDTDDeclarations(false);
     return reader;
+  }
+
+  private static void logUnsupportedFeature(String feature) {
+    ILogChannel log = HopLogStore.getLogChannelFactory().create("Xml");
+    log.logError("XML parser feature not supported: " + feature);
   }
 }

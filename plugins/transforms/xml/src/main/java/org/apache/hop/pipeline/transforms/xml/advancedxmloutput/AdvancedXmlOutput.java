@@ -491,28 +491,25 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       return;
     }
     boolean rowsWritten = data.rowsWrittenToCurrentFile;
+    boolean hasDocument = data.rootStartedInCurrentFile || hasDocumentWithoutRows();
     try {
-      if (!data.rootStartedInCurrentFile) {
-        // A document needs a root element, even without rows.
-        writeEmptyRootElement();
-      }
-      data.writer.writeEndDocument();
-      data.writer.close();
-
-      if (meta.getFileSupport().isZipped()) {
-        data.zip.closeEntry();
-        data.zip.finish();
-      }
-      if (data.countingStream != null) {
-        dataVolumeOut =
-            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
-        data.countingStream.close();
+      if (hasDocument) {
+        if (!data.rootStartedInCurrentFile) {
+          // A document needs a root element, even without rows.
+          writeEmptyRootElement();
+        }
+        data.writer.writeEndDocument();
+        data.writer.close();
       }
     } catch (Exception e) {
       logError("Error closing XML output: " + e);
-      setErrors(1);
+      setErrors(getErrors() + 1);
     } finally {
+      closeOutputStreams();
       data.fileOpen = false;
+    }
+    if (!hasDocument) {
+      emptyCurrentFile();
     }
     try {
       emitOutputXmlRowIfNeeded();
@@ -524,16 +521,88 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     }
   }
 
-  private void writeEmptyRootElement() throws Exception {
-    XmlNode root = meta.getRootNode();
-    if (root == null) {
+  /** Finishes the zip entry and closes the file, also when the document could not be completed. */
+  private void closeOutputStreams() {
+    try {
+      if (meta.getFileSupport().isZipped() && data.zip != null) {
+        data.zip.closeEntry();
+        data.zip.finish();
+      }
+    } catch (Exception e) {
+      logError("Error closing zipped XML output: " + e);
+      setErrors(getErrors() + 1);
+    }
+    try {
+      if (data.countingStream != null) {
+        dataVolumeOut =
+            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+        data.countingStream.close();
+      }
+    } catch (Exception e) {
+      logError("Error closing XML output file: " + e);
+      setErrors(getErrors() + 1);
+    }
+  }
+
+  /**
+   * Leaves a file without a document empty. Whether the XML declaration already reached it depends
+   * on the buffering of the XML writer.
+   */
+  private void emptyCurrentFile() {
+    if (!data.writeToFile || meta.getFileSupport().isZipped() || data.currentFile == null) {
       return;
     }
+    try (OutputStream ignored = HopVfs.getOutputStream(data.currentFile, false)) {
+      // Opening the file without appending truncates it.
+    } catch (Exception e) {
+      logError("Error emptying XML output file: " + e);
+      setErrors(getErrors() + 1);
+    }
+  }
+
+  /**
+   * Whether a document without rows exists: it needs a valid tree whose root is not the loop
+   * element, since that root would read as one empty row.
+   */
+  private boolean hasDocumentWithoutRows() {
+    XmlNode root = meta.getRootNode();
+    return AdvancedXmlOutputValidator.validate(root, null).isEmpty() && !root.isLoop();
+  }
+
+  /**
+   * Writes the root element of a document without rows: its attributes, its own value and the child
+   * elements that do not lead to the loop, with every mapped field taken as null.
+   */
+  private void writeEmptyRootElement() throws Exception {
+    XmlNode root = meta.getRootNode();
     writeStartElementWithNamespace(root);
+    writeAttributesOf(root, null);
+    writeOwnTextValue(root, null);
+    if (root.getChildren() != null) {
+      for (XmlNode child : root.getChildren()) {
+        if (child.getKind() != XmlNode.NodeKind.Attribute && !leadsToLoop(child)) {
+          writeSubtree(child, null);
+        }
+      }
+    }
     data.writer.writeEndElement();
     if (!meta.isCompactFile()) {
       data.writer.writeCharacters(EOL);
     }
+  }
+
+  private static boolean leadsToLoop(XmlNode node) {
+    if (node.isLoop()) {
+      return true;
+    }
+    if (node.getChildren() != null) {
+      for (XmlNode child : node.getChildren()) {
+        if (leadsToLoop(child)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private void emitOutputXmlRowIfNeeded() throws HopException {
@@ -777,15 +846,30 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     }
   }
 
-  private void writeElement(XmlNode node, Object[] r) throws Exception {
-    Integer idx = data.fieldIndex.get(node);
-    boolean hasMapping = idx != null;
-    String value = null;
-    if (hasMapping) {
-      IValueMeta vm = data.inputRowMeta.getValueMeta(idx);
-      Object data1 = r[idx];
-      value = vm.isNull(data1) ? null : vm.getString(data1);
+  /**
+   * Whether an input field is mapped to the node. Without a row (a document without rows) the field
+   * indices are not resolved, so the tree says.
+   */
+  private boolean isMapped(XmlNode node, Object[] r) {
+    return r == null ? !Utils.isEmpty(node.getMappedField()) : data.fieldIndex.containsKey(node);
+  }
+
+  /** The value of the node's field in the row; without a row every value is null. */
+  private String valueOf(XmlNode node, Object[] r) throws HopValueException {
+    if (r == null) {
+      return null;
     }
+    Integer idx = data.fieldIndex.get(node);
+    if (idx == null) {
+      return null;
+    }
+    IValueMeta vm = data.inputRowMeta.getValueMeta(idx);
+    Object data1 = r[idx];
+    return vm.isNull(data1) ? null : vm.getString(data1);
+  }
+
+  private void writeElement(XmlNode node, Object[] r) throws Exception {
+    String value = valueOf(node, r);
     if (value == null && !Utils.isEmpty(node.getDefaultValue())) {
       value = node.getDefaultValue();
     }
@@ -860,17 +944,14 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       }
       String defaultVal = Utils.isEmpty(c.getDefaultValue()) ? "" : c.getDefaultValue();
 
-      if (!data.fieldIndex.containsKey(c)) {
+      if (!isMapped(c, r)) {
         if (c.isForceCreate() || meta.isCreateAttributeIfUnmapped()) {
           data.writer.writeAttribute(c.getName(), defaultVal);
         }
         continue;
       }
 
-      int idx = data.fieldIndex.get(c);
-      IValueMeta vm = data.inputRowMeta.getValueMeta(idx);
-      Object data1 = r[idx];
-      String value = vm.isNull(data1) ? null : vm.getString(data1);
+      String value = valueOf(c, r);
 
       if (value != null) {
         data.writer.writeAttribute(c.getName(), applyTrim(value));
@@ -893,13 +974,7 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       }
       return;
     }
-    Integer idx = data.fieldIndex.get(node);
-    String value = null;
-    if (idx != null) {
-      IValueMeta vm = data.inputRowMeta.getValueMeta(idx);
-      Object data1 = r[idx];
-      value = vm.isNull(data1) ? null : vm.getString(data1);
-    }
+    String value = valueOf(node, r);
     if (value == null && !Utils.isEmpty(node.getDefaultValue())) {
       value = node.getDefaultValue();
     }
@@ -914,16 +989,7 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
    * elements). On parse failure we log a warning and emit nothing.
    */
   private void writeDocumentFragment(XmlNode node, Object[] r) throws Exception {
-    Integer idx = data.fieldIndex.get(node);
-    if (idx == null) {
-      return;
-    }
-    IValueMeta vm = data.inputRowMeta.getValueMeta(idx);
-    Object data1 = r[idx];
-    if (vm.isNull(data1)) {
-      return;
-    }
-    String fragment = vm.getString(data1);
+    String fragment = valueOf(node, r);
     if (Utils.isEmpty(fragment)) {
       return;
     }

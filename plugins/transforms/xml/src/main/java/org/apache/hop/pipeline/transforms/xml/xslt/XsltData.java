@@ -93,6 +93,7 @@ public class XsltData extends BaseTransformData implements ITransformData {
       // file resolves relative xsl:include and xsl:import references against its folder.
       String systemId = file == null ? null : file.getName().getURI();
       transformer = factory.newTransformer(new StreamSource(xslInputStream, systemId));
+      transformer.setURIResolver(factory.getURIResolver());
       // Add transformer to cache
       transformers.put(xslSource, transformer);
 

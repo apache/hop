@@ -27,7 +27,7 @@ The Get Data From XML transform provides the ability to read data from any type 
 
 Get Data From XML can read data from 3 kind of sources (files, stream and url) in 2 modes (static or dynamic).
 
-NOTE: A document with a DOCTYPE declaration is only read when the xref:variables.adoc[variable] `XML_ALLOW_DOCTYPE_DECL` is `Y` and *Validate XML?* is off. External DTDs and external entities are never loaded.
+NOTE: A document with a DOCTYPE declaration is only read when the xref:variables.adoc[variable] `XML_ALLOW_DOCTYPE_DECL` is `Y` and *Validate XML?* is off. External DTDs and external entities are never loaded, and the entities of a document may expand to at most 50,000,000 characters.
 
 See also:
 

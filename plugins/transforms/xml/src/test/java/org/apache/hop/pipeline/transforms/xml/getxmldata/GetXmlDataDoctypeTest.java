@@ -26,10 +26,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -47,6 +51,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  * Issue #8936: Get data from XML refused every document with a DOCTYPE, whatever {@link
@@ -83,11 +94,119 @@ class GetXmlDataDoctypeTest {
     }
   }
 
-  @Test
-  void doctypeIsRefusedByDefault() {
-    System.clearProperty(Const.XML_ALLOW_DOCTYPE_DECL);
+  /** Get data from XML reads XML_ALLOW_DOCTYPE_DECL as Hop's other XML parsers do. */
+  @ParameterizedTest
+  @ValueSource(strings = {"N", "Y", "y", "true", "", "<unset>"})
+  void doctypeFollowsTheCoreSetting(String value) throws Exception {
+    if ("<unset>".equals(value)) {
+      System.clearProperty(Const.XML_ALLOW_DOCTYPE_DECL);
+    } else {
+      System.setProperty(Const.XML_ALLOW_DOCTYPE_DECL, value);
+    }
     SAXReader reader = Dom4JUtil.getSAXReader();
-    assertThrows(DocumentException.class, () -> reader.read(new StringReader(XML_WITH_DOCTYPE)));
+    if (XmlParserFactoryProducer.isDoctypeAllowed()) {
+      assertEquals(
+          2, reader.read(new StringReader(XML_WITH_DOCTYPE)).getRootElement().elements().size());
+    } else {
+      assertThrows(DocumentException.class, () -> reader.read(new StringReader(XML_WITH_DOCTYPE)));
+    }
+  }
+
+  /** A parser that cannot keep external entities out must not read a DOCTYPE at all. */
+  @Test
+  void doctypeIsRefusedWhenAParserFeatureIsMissing(@TempDir Path dir) throws Exception {
+    System.setProperty(Const.XML_ALLOW_DOCTYPE_DECL, "Y");
+    Path secret = Files.writeString(dir.resolve("secret.txt"), SECRET);
+    String xml =
+        "<!DOCTYPE orders [<!ENTITY leak SYSTEM \""
+            + secret.toUri()
+            + "\">]><orders><order>&leak;</order></orders>";
+    String previousFactory = System.getProperty(SAX_PARSER_FACTORY);
+    System.setProperty(SAX_PARSER_FACTORY, MissingFeatureSaxParserFactory.class.getName());
+    try {
+      SAXReader reader = Dom4JUtil.getSAXReader();
+      assertThrows(DocumentException.class, () -> reader.read(new StringReader(xml)));
+    } finally {
+      if (previousFactory == null) {
+        System.clearProperty(SAX_PARSER_FACTORY);
+      } else {
+        System.setProperty(SAX_PARSER_FACTORY, previousFactory);
+      }
+    }
+  }
+
+  private static final String SAX_PARSER_FACTORY = "javax.xml.parsers.SAXParserFactory";
+
+  /** Xerces, except that it cannot switch off external general entities. */
+  public static class MissingFeatureSaxParserFactory extends SAXParserFactory {
+    private static final String MISSING = "http://xml.org/sax/features/external-general-entities";
+
+    private final SAXParserFactory xerces =
+        SAXParserFactory.newInstance("org.apache.xerces.jaxp.SAXParserFactoryImpl", null);
+
+    @Override
+    public SAXParser newSAXParser() throws ParserConfigurationException, SAXException {
+      xerces.setNamespaceAware(isNamespaceAware());
+      xerces.setValidating(isValidating());
+      SAXParser parser = xerces.newSAXParser();
+      XMLReader reader =
+          new XMLFilterImpl(parser.getXMLReader()) {
+            @Override
+            public void setFeature(String name, boolean value)
+                throws SAXNotRecognizedException, SAXNotSupportedException {
+              if (MISSING.equals(name)) {
+                throw new SAXNotRecognizedException(name);
+              }
+              super.setFeature(name, value);
+            }
+          };
+      return new SAXParser() {
+        @Override
+        @SuppressWarnings("deprecation")
+        public org.xml.sax.Parser getParser() throws SAXException {
+          throw new SAXException("Not supported");
+        }
+
+        @Override
+        public XMLReader getXMLReader() {
+          return reader;
+        }
+
+        @Override
+        public boolean isNamespaceAware() {
+          return parser.isNamespaceAware();
+        }
+
+        @Override
+        public boolean isValidating() {
+          return parser.isValidating();
+        }
+
+        @Override
+        public void setProperty(String name, Object value)
+            throws SAXNotRecognizedException, SAXNotSupportedException {
+          reader.setProperty(name, value);
+        }
+
+        @Override
+        public Object getProperty(String name)
+            throws SAXNotRecognizedException, SAXNotSupportedException {
+          return reader.getProperty(name);
+        }
+      };
+    }
+
+    @Override
+    public void setFeature(String name, boolean value)
+        throws ParserConfigurationException, SAXNotRecognizedException, SAXNotSupportedException {
+      xerces.setFeature(name, value);
+    }
+
+    @Override
+    public boolean getFeature(String name)
+        throws ParserConfigurationException, SAXNotRecognizedException, SAXNotSupportedException {
+      return xerces.getFeature(name);
+    }
   }
 
   @Test
@@ -143,6 +262,35 @@ class GetXmlDataDoctypeTest {
 
     SAXReader reader = Dom4JUtil.getSAXReader();
     assertThrows(DocumentException.class, () -> reader.read(new StringReader(xml.toString())));
+  }
+
+  /** One large entity referenced many times: few expansions, but a lot of text. */
+  @Test
+  void quadraticBlowupIsRefusedWhenDoctypeAllowed() {
+    System.setProperty(Const.XML_ALLOW_DOCTYPE_DECL, "Y");
+    String xml =
+        "<!DOCTYPE r [<!ENTITY a \""
+            + "x".repeat(5000)
+            + "\">]><r>"
+            + "&a;".repeat(12_000)
+            + "</r>";
+
+    SAXReader reader = Dom4JUtil.getSAXReader();
+    assertThrows(DocumentException.class, () -> reader.read(new StringReader(xml)));
+  }
+
+  @Test
+  void quadraticBlowupInAnAttributeIsRefusedWhenDoctypeAllowed() {
+    System.setProperty(Const.XML_ALLOW_DOCTYPE_DECL, "Y");
+    String xml =
+        "<!DOCTYPE r [<!ENTITY a \""
+            + "x".repeat(5000)
+            + "\">]><r a=\""
+            + "&a;".repeat(12_000)
+            + "\"/>";
+
+    SAXReader reader = Dom4JUtil.getSAXReader();
+    assertThrows(DocumentException.class, () -> reader.read(new StringReader(xml)));
   }
 
   @Test

@@ -18,12 +18,17 @@
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -31,6 +36,7 @@ import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -87,6 +93,9 @@ class XsltRelativeIncludeTest {
     return Files.writeString(folder.resolve("titles.xsl"), TITLES_XSL);
   }
 
+  // "JAXP" is the factory the JAXP lookup finds: Saxon in a Hop installation, which registers it in
+  // lib/core. The JDK's own XSLTC is covered by the tests that force it below.
+
   @ParameterizedTest
   @ValueSource(strings = {"JAXP", "SAXON"})
   void stylesheetFileIncludesRelativeToItsFolder(String factory, @TempDir Path dir)
@@ -111,6 +120,75 @@ class XsltRelativeIncludeTest {
     meta.setXslFileField("xsl");
 
     assertEquals(EXPECTED, transform(meta, titles.toString()));
+  }
+
+  /** A stylesheet on a file system java.net.URL does not know resolves its includes there. */
+  @ParameterizedTest
+  @ValueSource(strings = {"JAXP", "SAXON"})
+  void includeInsideAZipFile(String factory, @TempDir Path dir) throws Exception {
+    Path zip = dir.resolve("stylesheets.zip");
+    try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zip))) {
+      for (String[] entry :
+          new String[][] {
+            {"titles.xsl", TITLES_XSL}, {"line.xsl", LINE_XSL}, {"separator.xsl", SEPARATOR_XSL}
+          }) {
+        out.putNextEntry(new ZipEntry(entry[0]));
+        out.write(entry[1].getBytes(StandardCharsets.UTF_8));
+        out.closeEntry();
+      }
+    }
+    String titles = "zip:" + zip.toUri() + "!/titles.xsl";
+
+    XsltMeta meta = xsltMeta(factory);
+    meta.setXslFilename(titles);
+
+    assertEquals(EXPECTED, transform(meta, titles));
+  }
+
+  /** The JDK's XSLTC refuses external stylesheets under Hop's secure factory, as it always did. */
+  @Test
+  void xsltcStillRefusesIncludes(@TempDir Path dir) throws Exception {
+    Path titles = writeStylesheets(dir);
+    XsltMeta meta = xsltMeta("JAXP");
+    meta.setXslFilename(titles.toString());
+
+    withXsltc(() -> assertThrows(HopException.class, () -> transform(meta, titles.toString())));
+  }
+
+  @Test
+  void xsltcReadsAStylesheetWithoutIncludes(@TempDir Path dir) throws Exception {
+    Path plain =
+        Files.writeString(
+            dir.resolve("plain.xsl"),
+            "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
+                + "<xsl:output method=\"text\"/>"
+                + "<xsl:template match=\"/\"><xsl:value-of select=\"count(catalog/cd)\"/>"
+                + "</xsl:template></xsl:stylesheet>");
+    XsltMeta meta = xsltMeta("JAXP");
+    meta.setXslFilename(plain.toString());
+
+    withXsltc(() -> assertEquals("2", transform(meta, plain.toString())));
+  }
+
+  private static final String TRANSFORMER_FACTORY = "javax.xml.transform.TransformerFactory";
+
+  private interface Check {
+    void run() throws Exception;
+  }
+
+  private static void withXsltc(Check check) throws Exception {
+    String previous = System.getProperty(TRANSFORMER_FACTORY);
+    System.setProperty(
+        TRANSFORMER_FACTORY, "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+    try {
+      check.run();
+    } finally {
+      if (previous == null) {
+        System.clearProperty(TRANSFORMER_FACTORY);
+      } else {
+        System.setProperty(TRANSFORMER_FACTORY, previous);
+      }
+    }
   }
 
   private XsltMeta xsltMeta(String factory) {

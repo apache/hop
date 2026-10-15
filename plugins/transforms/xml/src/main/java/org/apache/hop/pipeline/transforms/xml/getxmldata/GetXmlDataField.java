@@ -86,6 +86,12 @@ public class GetXmlDataField implements Cloneable {
     "GetXMLDataField.ElementType.Node", "GetXMLDataField.ElementType.Attribute"
   };
 
+  /**
+   * What a pipeline stores for each element type: the English description, whatever the language of
+   * the user interface. Earlier Hop versions read it in an English user interface.
+   */
+  private static final String[] ELEMENT_TYPE_STORED_VALUES = {"Node", "Attribute"};
+
   public static final String[] ElementTypeDesc = {
     BaseMessages.getString(PKG, ELEMENT_TYPE_DESC_KEYS[ELEMENT_TYPE_NODE]),
     BaseMessages.getString(PKG, ELEMENT_TYPE_DESC_KEYS[ELEMENT_TYPE_ATTRIBUTE])
@@ -151,7 +157,7 @@ public class GetXmlDataField implements Cloneable {
     this.type = ValueMetaBase.getTypeDesc(IValueMeta.TYPE_STRING);
     this.format = "";
     this.trimType = getTrimTypeCode(TYPE_TRIM_NONE);
-    this.elementType = getElementTypeDesc(ELEMENT_TYPE_NODE);
+    this.elementType = getElementTypeStoredValue(ELEMENT_TYPE_NODE);
     this.resultType = getResultTypeCode(RESULT_TYPE_VALUE_OF);
     this.groupSymbol = "";
     this.decimalSymbol = "";
@@ -285,6 +291,14 @@ public class GetXmlDataField implements Cloneable {
       return trimTypeDesc[0];
     }
     return trimTypeDesc[i];
+  }
+
+  /** The value to store for an element type, the same in every user interface language. */
+  public static String getElementTypeStoredValue(int i) {
+    if (i < 0 || i >= ELEMENT_TYPE_STORED_VALUES.length) {
+      return ELEMENT_TYPE_STORED_VALUES[ELEMENT_TYPE_NODE];
+    }
+    return ELEMENT_TYPE_STORED_VALUES[i];
   }
 
   @SuppressWarnings("javabugs:S6466") // the desc array is a non-empty constant

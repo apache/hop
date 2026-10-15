@@ -54,7 +54,7 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Split every N rows|Maximum rows per file before rolling over to a new split, or per completed XML field segment when *Output* includes an XML field. `0` = no splitting.
 |Zip output file|Wrap each output file in a zip archive (one entry per file). Generated XSDs are written next to the archive, not inside it.
 |Do not open new file at start|Defer file creation until the first input row is received.
-|Do not create file if no rows|Delete the output file at the end of the run if no rows were ever written. Without this option, a run without rows writes a document with an empty root element.
+|Do not create file if no rows|Delete the output file at the end of the run if no rows were ever written. Without this option, a run without rows writes a document with only the root element: its attributes, its own value and the elements outside the loop, with every mapped field empty. When the loop is the root element, there is no such document and the file (or its zip entry) stays empty. With *Do not open new file at start*, a run without rows creates no file at all.
 |Add filename to result|Add the produced file(s) to the pipeline's result file list (only after at least one row is written).
 |Show file name(s) ...|Pops up a list with sample filenames built from the current settings.
 |===

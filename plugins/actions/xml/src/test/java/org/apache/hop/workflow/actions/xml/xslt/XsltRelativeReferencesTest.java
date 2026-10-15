@@ -21,8 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -110,7 +113,99 @@ class XsltRelativeReferencesTest {
     assertEquals("Empire Burlesque;Eros;", transform(factory, xml, xsl));
   }
 
+  /** A stylesheet on a file system java.net.URL does not know resolves its includes there. */
+  @ParameterizedTest
+  @ValueSource(strings = {Xslt.FACTORY_JAXP, Xslt.FACTORY_SAXON})
+  void includeInsideAZipFile(String factory) throws Exception {
+    Path zip =
+        zip(
+            "stylesheets.zip",
+            "titles.xsl",
+            XSL_HEADER + "<xsl:include href=\"line.xsl\"/>" + TITLES_TEMPLATE,
+            "line.xsl",
+            LINE_TEMPLATE);
+
+    assertEquals(
+        "Empire Burlesque;", transform(factory, catalog().toString(), zipEntry(zip, "titles.xsl")));
+  }
+
+  /**
+   * An absolute path in a stylesheet on another file system keeps reading the local file, as before
+   * the stylesheet's location was known.
+   */
+  @ParameterizedTest
+  @ValueSource(strings = {Xslt.FACTORY_JAXP, Xslt.FACTORY_SAXON})
+  void absolutePathInAZippedStylesheetReadsTheLocalFile(String factory) throws Exception {
+    Path line = Files.writeString(dir.resolve("line.xsl"), LINE_TEMPLATE);
+    Path zip =
+        zip(
+            "stylesheets.zip",
+            "titles.xsl",
+            XSL_HEADER + "<xsl:include href=\"" + line.toAbsolutePath() + "\"/>" + TITLES_TEMPLATE);
+
+    assertEquals(
+        "Empire Burlesque;", transform(factory, catalog().toString(), zipEntry(zip, "titles.xsl")));
+  }
+
+  /** An include found only in the working directory still resolves there, as it always did. */
+  @ParameterizedTest
+  @ValueSource(strings = {Xslt.FACTORY_JAXP, Xslt.FACTORY_SAXON})
+  void includeInTheWorkingDirectoryStillResolves(String factory) throws Exception {
+    Path line =
+        Path.of(System.getProperty("user.dir"))
+            .resolve("hop-xslt-test-" + System.nanoTime() + ".xsl");
+    Files.writeString(line, LINE_TEMPLATE);
+    try {
+      Path xsl =
+          Files.writeString(
+              Files.createDirectories(dir.resolve("stylesheets")).resolve("titles.xsl"),
+              XSL_HEADER + "<xsl:include href=\"" + line.getFileName() + "\"/>" + TITLES_TEMPLATE);
+
+      assertEquals("Empire Burlesque;", transform(factory, catalog().toString(), xsl.toString()));
+    } finally {
+      Files.deleteIfExists(line);
+    }
+  }
+
+  private static final String LINE_TEMPLATE =
+      XSL_HEADER
+          + "<xsl:template name=\"line\"><xsl:param name=\"text\"/>"
+          + "<xsl:value-of select=\"$text\"/>;</xsl:template></xsl:stylesheet>";
+
+  private static final String TITLES_TEMPLATE =
+      "<xsl:output method=\"text\"/>"
+          + "<xsl:template match=\"/\"><xsl:for-each select=\"catalog/cd\">"
+          + "<xsl:call-template name=\"line\">"
+          + "<xsl:with-param name=\"text\" select=\"title\"/></xsl:call-template>"
+          + "</xsl:for-each></xsl:template></xsl:stylesheet>";
+
+  private Path catalog() throws Exception {
+    return Files.writeString(
+        dir.resolve("catalog.xml"), "<catalog><cd><title>Empire Burlesque</title></cd></catalog>");
+  }
+
+  /** Writes a zip file with the given name/content pairs. */
+  private Path zip(String name, String... entries) throws Exception {
+    Path zip = dir.resolve(name);
+    try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zip))) {
+      for (int i = 0; i < entries.length; i += 2) {
+        out.putNextEntry(new ZipEntry(entries[i]));
+        out.write(entries[i + 1].getBytes(StandardCharsets.UTF_8));
+        out.closeEntry();
+      }
+    }
+    return zip;
+  }
+
+  private static String zipEntry(Path zip, String entry) {
+    return "zip:" + zip.toUri() + "!/" + entry;
+  }
+
   private String transform(String factory, Path xml, Path xsl) throws Exception {
+    return transform(factory, xml.toString(), xsl.toString());
+  }
+
+  private String transform(String factory, String xml, String xsl) throws Exception {
     Path output = dir.resolve("output-" + factory + ".txt");
 
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
@@ -119,8 +214,8 @@ class XsltRelativeReferencesTest {
     action.setParentWorkflow(workflow);
     action.setParentWorkflowMeta(mock(WorkflowMeta.class));
     action.setXSLTFactory(factory);
-    action.setXmlfilename(xml.toString());
-    action.setXslfilename(xsl.toString());
+    action.setXmlfilename(xml);
+    action.setXslfilename(xsl);
     action.setOutputfilename(output.toString());
 
     Result result = action.execute(new Result(), 0);
