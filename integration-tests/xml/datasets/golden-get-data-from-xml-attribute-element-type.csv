@@ -1,0 +1,3 @@
+id,status,currency,customer
+1,open,EUR,Alice
+2,closed,USD,Bob

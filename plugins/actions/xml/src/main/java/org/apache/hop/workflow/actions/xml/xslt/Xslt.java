@@ -383,8 +383,10 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
           InputStream xmlInputStream = HopVfs.getInputStream(xmlfile);
           OutputStream os = null;
           try {
-            // Use the factory to create a template containing the xsl file
-            Templates template = factory.newTemplates(new StreamSource(xslInputStream));
+            // Use the factory to create a template containing the xsl file. Its URI resolves
+            // relative xsl:include and xsl:import references against the stylesheet's folder.
+            Templates template =
+                factory.newTemplates(new StreamSource(xslInputStream, xslfile.getName().getURI()));
 
             // Use the template to create a transformer
             Transformer xformer = template.newTransformer();
@@ -409,7 +411,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             }
 
             // Prepare the input and output files
-            Source source = new StreamSource(xmlInputStream);
+            Source source = new StreamSource(xmlInputStream, xmlfile.getName().getURI());
             os = HopVfs.getOutputStream(outputfile, false);
             StreamResult resultat = new StreamResult(os);
 

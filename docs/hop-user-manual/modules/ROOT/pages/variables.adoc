@@ -321,6 +321,7 @@ Set to 0 to keep all snapshots indefinitely (default)
 |HOP_ZIP_MIN_INFLATE_RATIO|-|A variable to configure the minimum allowed ratio between de- and inflated bytes to detect a zipbomb
 |HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING|-|
 |NEO4J_LOGGING_CONNECTION||Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database. HOP_GRAPH_LOGGING_CONNECTION takes precedence.
+|XML_ALLOW_DOCTYPE_DECL|N|Set this variable to Y to accept XML documents with a DOCTYPE declaration, for example in the xref:pipeline/transforms/getdatafromxml.adoc[Get Data From XML] transform and the xref:workflow/actions/dtdvalidator.adoc[DTD Validator] action. Restart Hop after changing it.
 |===
 
 == Environment variables

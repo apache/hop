@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-get-data-from-xml-attribute-element-type.csv",
+  "name": "golden-get-data-from-xml-attribute-element-type",
+  "description": "Expected Get data from XML rows for attribute fields with a non-English or code element type (issue #8936)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "status"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "currency"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "customer"
+    }
+  ],
+  "folder_name": ""
+}

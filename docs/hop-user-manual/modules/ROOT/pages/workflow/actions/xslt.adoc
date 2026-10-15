@@ -26,6 +26,8 @@ The `XSL pipeline` action transforms XML documents into other documents (XML or 
 
 The original document is not changed; rather, a new document is created based on the content of the XML file.
 
+Relative references resolve against the folder of the file that holds them: `xsl:include` and `xsl:import` against the XSL file, `document()` with a node of the XML file against the XML file.
+
 == Options
 
 === General tab

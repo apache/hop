@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-get-data-from-xml-doctype.csv",
+  "name": "golden-get-data-from-xml-doctype",
+  "description": "Expected Get data from XML rows for a file with a DOCTYPE (issue #8936)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "name"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "url"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "type"
+    }
+  ],
+  "folder_name": ""
+}

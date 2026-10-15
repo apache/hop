@@ -418,6 +418,7 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
 
       data.fileOpen = true;
       data.rowsWrittenToCurrentFile = false;
+      data.rootStartedInCurrentFile = false;
       data.currentGroupKey = null;
       openStack.clear();
       data.splitnr++;
@@ -491,6 +492,10 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     }
     boolean rowsWritten = data.rowsWrittenToCurrentFile;
     try {
+      if (!data.rootStartedInCurrentFile) {
+        // A document needs a root element, even without rows.
+        writeEmptyRootElement();
+      }
       data.writer.writeEndDocument();
       data.writer.close();
 
@@ -505,6 +510,7 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       }
     } catch (Exception e) {
       logError("Error closing XML output: " + e);
+      setErrors(1);
     } finally {
       data.fileOpen = false;
     }
@@ -515,6 +521,18 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     }
     if (rowsWritten && meta.isGenerateXsd() && data.writeToFile) {
       writeSiblingXsd();
+    }
+  }
+
+  private void writeEmptyRootElement() throws Exception {
+    XmlNode root = meta.getRootNode();
+    if (root == null) {
+      return;
+    }
+    writeStartElementWithNamespace(root);
+    data.writer.writeEndElement();
+    if (!meta.isCompactFile()) {
+      data.writer.writeCharacters(EOL);
     }
   }
 
@@ -614,7 +632,12 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
   }
 
   private void writeRowToTree(Object[] r) throws Exception {
+    if (data.pathToLoopParent.isEmpty() && data.rootStartedInCurrentFile) {
+      // The loop is the root element, and a document can only have one.
+      throw new HopException(AdvancedXmlOutputValidator.rootLoopMessage(data.loopNode.getName()));
+    }
     String[] newKey = computeGroupKey(r);
+    data.rootStartedInCurrentFile = true;
 
     if (data.currentGroupKey == null) {
       // First row: open the entire path from root to loop's parent.

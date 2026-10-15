@@ -318,6 +318,11 @@ public class AdvancedXmlOutputMeta
     return op == XmlOutputOperation.WRITE_TO_FILE || op == XmlOutputOperation.BOTH;
   }
 
+  /** Splitting every row gives each row a document of its own. */
+  boolean isOneRowPerDocument() {
+    return fileSupport != null && fileSupport.getSplitEvery() == 1;
+  }
+
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -344,6 +349,13 @@ public class AdvancedXmlOutputMeta
       for (String err : validationErrors) {
         remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, err, transformMeta));
       }
+    }
+
+    String rootLoopWarning =
+        AdvancedXmlOutputValidator.rootLoopWarning(rootNode, isOneRowPerDocument());
+    if (rootLoopWarning != null) {
+      remarks.add(
+          new CheckResult(ICheckResult.TYPE_RESULT_WARNING, rootLoopWarning, transformMeta));
     }
 
     if (input.length > 0) {

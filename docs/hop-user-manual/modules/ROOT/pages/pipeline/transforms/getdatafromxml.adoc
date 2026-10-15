@@ -27,6 +27,8 @@ The Get Data From XML transform provides the ability to read data from any type 
 
 Get Data From XML can read data from 3 kind of sources (files, stream and url) in 2 modes (static or dynamic).
 
+NOTE: A document with a DOCTYPE declaration is only read when the xref:variables.adoc[variable] `XML_ALLOW_DOCTYPE_DECL` is `Y` and *Validate XML?* is off. External DTDs and external entities are never loaded.
+
 See also:
 
 * xref:pipeline/transforms/xmlinputstream.adoc[XML Input Stream (StAX)] transform.

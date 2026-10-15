@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeDesc;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeByCode;
 import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeCode;
 
 import java.io.InputStream;
@@ -109,6 +109,8 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       if (meta.isValidating()) {
         reader.setValidation(true);
         reader.setFeature("http://apache.org/xml/features/validation/schema", true);
+        // A validating parser always loads the external DTD, so a DOCTYPE stays refused here.
+        reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
       } else {
         // Ignore DTD declarations
         reader.setEntityResolver(new IgnoreDtdEntityResolver());
@@ -1167,9 +1169,8 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         GetXmlDataField xmlDataField = meta.getInputFields().get(i);
         // Resolve variable substitution
         String xPathValue = resolve(xmlDataField.getXPath());
-        if (xmlDataField
-            .getElementType()
-            .equals(getElementTypeDesc(GetXmlDataField.ELEMENT_TYPE_ATTRIBUTE))) {
+        if (getElementTypeByCode(xmlDataField.getElementType())
+            == GetXmlDataField.ELEMENT_TYPE_ATTRIBUTE) {
           // We have an attribute
           // do we need to add leading @?
           // Only put @ to the last element in path, not in front at all

@@ -17,8 +17,10 @@
 package org.apache.hop.pipeline.transforms.xml;
 
 import javax.xml.XMLConstants;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.EnvUtil;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.SAXException;
 
@@ -31,7 +33,11 @@ public class Dom4JUtil {
   public static SAXReader getSAXReader() {
     SAXReader reader = new SAXReader();
     try {
-      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      // A DOCTYPE is refused unless XML_ALLOW_DOCTYPE_DECL is Y. External DTDs and entities stay
+      // disabled either way.
+      reader.setFeature(
+          "http://apache.org/xml/features/disallow-doctype-decl",
+          !"Y".equalsIgnoreCase(EnvUtil.getSystemProperty(Const.XML_ALLOW_DOCTYPE_DECL)));
       reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
       reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
