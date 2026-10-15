@@ -91,6 +91,17 @@ class NoteImageSupportTest {
     assertEquals(50, shrink.y);
   }
 
+  @Test
+  void fitBoundsExtremeDimensions() {
+    Point min = NoteImageSupport.fit(2000, 100, 20, 200);
+    assertTrue(min.x >= NoteImageSupport.MIN_RENDERED_SIZE);
+    assertTrue(min.y >= NoteImageSupport.MIN_RENDERED_SIZE);
+
+    Point max = NoteImageSupport.fit(100000, 100000, 100000, 100000);
+    assertTrue(max.x <= NoteImageSupport.MAX_RENDERED_SIZE);
+    assertTrue(max.y <= NoteImageSupport.MAX_RENDERED_SIZE);
+  }
+
   private static void writePng(Path path, int w, int h) throws Exception {
     BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
     Graphics2D g = image.createGraphics();

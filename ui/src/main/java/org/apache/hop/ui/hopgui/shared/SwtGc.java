@@ -617,19 +617,27 @@ public class SwtGc implements IGc {
       }
       try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
         org.eclipse.swt.graphics.ImageData data = new org.eclipse.swt.graphics.ImageData(in);
+        // Scale the decoded raster to the requested logical size once. The DPI-aware provider then
+        // only re-scales this small bitmap by the monitor zoom; scaling the full native resolution
+        // by zoom (the previous behaviour) could allocate an enormous buffer for a large source and
+        // fail, silently falling back to the alt text.
+        int w = Math.max(1, width);
+        int h = Math.max(1, height);
+        org.eclipse.swt.graphics.ImageData scaled =
+            (data.width == w && data.height == h) ? data : data.scaledTo(w, h);
         Image img =
             SwtUniversalImage.createDpiAwareImage(
                 gc.getDevice(),
                 zoom -> {
                   if (zoom == 100) {
-                    return data;
+                    return scaled;
                   }
-                  int w = Math.max(1, data.width * zoom / 100);
-                  int h = Math.max(1, data.height * zoom / 100);
-                  return data.scaledTo(w, h);
+                  int zw = Math.max(1, scaled.width * zoom / 100);
+                  int zh = Math.max(1, scaled.height * zoom / 100);
+                  return scaled.scaledTo(zw, zh);
                 });
         try {
-          gc.drawImage(img, 0, 0, data.width, data.height, x, y, width, height);
+          gc.drawImage(img, 0, 0, scaled.width, scaled.height, x, y, w, h);
         } finally {
           img.dispose();
         }
