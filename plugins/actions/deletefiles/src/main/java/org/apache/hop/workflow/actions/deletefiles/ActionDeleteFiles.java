@@ -342,13 +342,20 @@ public class ActionDeleteFiles extends ActionBase {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
 
+    if (Utils.isEmpty(fileItems)) {
+      return;
+    }
+
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    // Use the workflow variable space so ${Internal.Entry.Current.Folder} resolves during Check.
+    AbstractFileValidator.putVariableSpace(ctx, variables != null ? variables : getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for (FileItem item : fileItems) {
-      ActionValidatorUtils.andValidator().validate(this, item.getFileName(), remarks, ctx);
+    // The second argument is a bean property path. A filename value is not a property name.
+    for (int i = 0; i < fileItems.size(); i++) {
+      ActionValidatorUtils.andValidator()
+          .validate(this, "fileItems[" + i + "].fileName", remarks, ctx);
     }
   }
 
