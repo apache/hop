@@ -111,8 +111,8 @@ public enum HopExtensionPoint {
 
   /**
    * The Problems tab force-refresh button has cleared the database cache. The payload is the active
-   * editor ({@code HopGuiAbstractGraph}). Listeners re-lint every other open editor. The button
-   * re-checks the active editor itself.
+   * editor ({@code HopGuiAbstractGraph}). Listeners re-lint every open editor, including that one.
+   * The button also re-checks the active editor itself.
    */
   ProblemsForceRefresh(
       "Problems tab force refresh, after the database cache was cleared (active HopGuiAbstractGraph)"),

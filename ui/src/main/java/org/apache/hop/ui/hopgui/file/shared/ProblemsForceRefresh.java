@@ -35,9 +35,9 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
  *
  * <p>The Problems tab of a pipeline and of a workflow both call this. The database cache is
  * process-wide, so the click also drops the field lists of every open pipeline. The editor whose
- * button was pressed is re-checked by the caller. Every other open editor is handed to {@link
- * HopExtensionPoint#ProblemsForceRefresh} so the linter can refresh it without a second modal
- * dialog.
+ * button was pressed is re-checked by the caller. Every open editor, including that one, is handed
+ * to {@link HopExtensionPoint#ProblemsForceRefresh} so the linter replaces markers the check itself
+ * does not republish.
  */
 public final class ProblemsForceRefresh {
 
@@ -84,7 +84,7 @@ public final class ProblemsForceRefresh {
           active);
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
-          "Could not refresh the other open editors after clearing the database cache", e);
+          "Could not refresh the open editors after clearing the database cache", e);
     }
   }
 

@@ -174,8 +174,8 @@ public class HopGuiPipelineCheckDelegate {
       image = "ui/images/force-refresh.svg")
   public void forceRefresh() {
     // Same shape as the execution perspective: drop the caches, then load again. The check of
-    // this editor is the modal one the Problems tab already uses. Other open editors are refreshed
-    // in the background.
+    // this editor fills the Problems tab. Every open editor, including this one, is re-linted in
+    // the background so its markers are replaced.
     ProblemsForceRefresh.refresh(pipelineGraph, this::checkPipeline);
   }
 

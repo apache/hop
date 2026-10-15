@@ -25,15 +25,17 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 
 /**
- * Re-lints the open editors that the Problems tab force refresh is not already checking.
+ * Re-lints every open editor after a Problems-tab force refresh.
  *
- * <p>The button clears the database cache and then checks the editor it belongs to. The other open
- * editors would keep the remarks from before that clear, so they are linted again here.
+ * <p>The button clears the database cache and then checks the editor it belongs to. That check
+ * fills the Problems tab, but it republishes lint markers only when lint is included in pipeline
+ * verify, and a workflow check does not republish them. Linting every open editor here, including
+ * the active one, replaces the markers from before the clear.
  */
 @ExtensionPoint(
     id = "ProblemsForceRefreshLintExtension",
     extensionPointId = "ProblemsForceRefresh",
-    description = "Re-lints open editors other than the one being force-refreshed")
+    description = "Re-lints every open editor after a Problems-tab force refresh")
 public class ProblemsForceRefreshLintExtension implements IExtensionPoint<HopGuiAbstractGraph> {
 
   @Override

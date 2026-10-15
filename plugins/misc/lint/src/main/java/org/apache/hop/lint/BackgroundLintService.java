@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -74,6 +73,14 @@ public class BackgroundLintService {
    * once it has changed, nor mark its file as checked.
    */
   private final AtomicInteger generation = new AtomicInteger(0);
+
+  /**
+   * Bumped only by a Problems-tab force refresh. A pass remembers the value it started with and
+   * does not publish once it has changed. Clearing the database cache from anywhere else, the
+   * broom, the SQL editor, a table create or alter, or any DDL statement on any connection, does
+   * not bump this, so a pass running at that moment still publishes.
+   */
+  private final AtomicInteger refreshGeneration = new AtomicInteger(0);
 
   private String currentProjectPath;
 
@@ -181,14 +188,16 @@ public class BackgroundLintService {
   }
 
   /**
-   * Drop lint tracking for every open editor and re-lint all of them except the one the Problems
-   * tab is about to check itself.
+   * Drop lint tracking for every open editor and re-lint all of them, including the active one.
    *
-   * <p>Called after the database cache has been cleared. The active editor's check fills its own
-   * Problems tab. Scheduling it here as well would check it twice.
+   * <p>Called after the database cache has been cleared. Bumps this service's own refresh
+   * generation, under the same lock a pass publishes with, so a pass that started earlier cannot
+   * put the remarks from before the clear back. The active editor is included: its Problems-tab
+   * check fills the tree, but it republishes lint markers only when lint is part of pipeline
+   * verify, and a workflow check does not republish them at all.
    *
-   * @param active the editor whose force-refresh button was pressed, or null to re-lint every open
-   *     editor
+   * @param active the editor whose force-refresh button was pressed, or null when every open editor
+   *     is re-linted the same way
    */
   public void refreshOpenEditorsExcept(HopGuiAbstractGraph active) {
     List<OpenEditor> open = new ArrayList<>();
@@ -200,10 +209,17 @@ public class BackgroundLintService {
   }
 
   /**
-   * Invalidate tracking for each open editor and schedule a forced lint of every one that is not
-   * the active editor.
+   * Bump the force-refresh generation, invalidate tracking for each open editor, and schedule a
+   * lint of every one of them, including the active editor.
    */
   void refreshOpenEditorsExcept(Object active, List<OpenEditor> open, Consumer<Object> schedule) {
+    synchronized (LintResultsManager.getInstance()) {
+      refreshGeneration.incrementAndGet();
+    }
+    log.logDetailed(
+        active == null
+            ? "Problems-tab force refresh re-lints every open editor"
+            : "Problems-tab force refresh re-lints the open editors, including the active one");
     if (open == null) {
       return;
     }
@@ -212,7 +228,7 @@ public class BackgroundLintService {
         continue;
       }
       tracker.invalidate(editor.filename());
-      if (editor.graph() != active && schedule != null) {
+      if (schedule != null) {
         schedule.accept(editor.graph());
       }
     }
@@ -245,6 +261,11 @@ public class BackgroundLintService {
     return generation.get();
   }
 
+  /** The force-refresh generation a pass takes when it starts. */
+  int currentRefreshGeneration() {
+    return refreshGeneration.get();
+  }
+
   /**
    * Publish the findings of a pass, unless the project was switched or the linter switched off
    * since it started.
@@ -255,24 +276,24 @@ public class BackgroundLintService {
    * @return false when the findings were dropped
    */
   boolean publish(String filePath, List<LintResult> results, int passGeneration) {
-    return publish(filePath, results, passGeneration, false, DbCache.getInstance().getGeneration());
+    return publish(filePath, results, passGeneration, false, currentRefreshGeneration());
   }
 
   /**
-   * {@link #publish}, and record the file as checked, unless the database cache was cleared after
-   * {@code dbCacheGeneration} was read.
+   * {@link #publish}, and record the file as checked, unless a Problems-tab force refresh started
+   * after {@code refreshGenerationAtStart} was read.
    *
    * @return false when the findings were dropped
    */
   boolean publishIfCurrent(
-      String filePath, List<LintResult> results, int passGeneration, int dbCacheGeneration) {
-    return publish(filePath, results, passGeneration, true, dbCacheGeneration);
+      String filePath, List<LintResult> results, int passGeneration, int refreshGenerationAtStart) {
+    return publish(filePath, results, passGeneration, true, refreshGenerationAtStart);
   }
 
   /** {@link #publish}, and record the file as checked so an unchanged file is not linted again. */
   private boolean publishChecked(
-      String filePath, List<LintResult> results, int passGeneration, int dbCacheGeneration) {
-    return publish(filePath, results, passGeneration, true, dbCacheGeneration);
+      String filePath, List<LintResult> results, int passGeneration, int refreshGenerationAtStart) {
+    return publish(filePath, results, passGeneration, true, refreshGenerationAtStart);
   }
 
   private boolean publish(
@@ -280,10 +301,10 @@ public class BackgroundLintService {
       List<LintResult> results,
       int passGeneration,
       boolean markChecked,
-      int dbCacheGeneration) {
+      int refreshGenerationAtStart) {
     LintResultsManager manager = LintResultsManager.getInstance();
     synchronized (manager) {
-      if (!isCurrent(passGeneration) || !sameDbCacheGeneration(dbCacheGeneration)) {
+      if (!isCurrent(passGeneration) || !sameRefreshGeneration(refreshGenerationAtStart)) {
         return false;
       }
       if (markChecked) {
@@ -310,13 +331,13 @@ public class BackgroundLintService {
     return passGeneration == generation.get() && isEnabled();
   }
 
-  /** False when a Problems-tab force refresh cleared the database cache during this pass. */
-  private boolean sameDbCacheGeneration(int dbCacheGeneration) {
-    if (DbCache.getInstance().getGeneration() == dbCacheGeneration) {
+  /** False when a Problems-tab force refresh started during this pass. */
+  private boolean sameRefreshGeneration(int refreshGenerationAtStart) {
+    if (refreshGeneration.get() == refreshGenerationAtStart) {
       return true;
     }
     log.logDetailed(
-        "Not publishing lint results because the database cache was cleared during the check");
+        "Not publishing lint results because a Problems-tab force refresh started during the check");
     return false;
   }
 
@@ -328,7 +349,7 @@ public class BackgroundLintService {
     int passGeneration = currentGeneration();
     submit(
         () -> {
-          int dbCacheGenerationAtStart = DbCache.getInstance().getGeneration();
+          int refreshGenerationAtStart = currentRefreshGeneration();
           try {
             HopLinter linter = new HopLinter();
             List<String> allFiles =
@@ -348,12 +369,13 @@ public class BackgroundLintService {
                 return;
               }
               try {
-                // Taken before the check. A force refresh clears the database cache while this
-                // pass is running, and the remarks from before that clear must not be published.
-                int dbCacheGeneration = DbCache.getInstance().getGeneration();
+                // Taken before the check. A Problems-tab force refresh during this pass bumps the
+                // refresh generation, and the remarks from before that refresh must not be
+                // published.
+                int refreshGenerationAtCheck = currentRefreshGeneration();
                 List<LintResult> results =
                     lintFileForGui(filePath, linter, metadataProvider, variables);
-                if (publishChecked(filePath, results, passGeneration, dbCacheGeneration)) {
+                if (publishChecked(filePath, results, passGeneration, refreshGenerationAtCheck)) {
                   accumulated.addAll(results);
                 }
               } catch (Exception e) {
@@ -366,9 +388,9 @@ public class BackgroundLintService {
                     + " issues in "
                     + filesToCheck.size()
                     + " files");
-            // A force refresh cleared the cache while this pass ran and is already rechecking the
-            // open editors. Repainting them from this pass would put the old remarks back.
-            if (DbCache.getInstance().getGeneration() != dbCacheGenerationAtStart) {
+            // A force refresh started while this pass ran and is already rechecking the open
+            // editors. Repainting them from this pass would put the old remarks back.
+            if (currentRefreshGeneration() != refreshGenerationAtStart) {
               return;
             }
             LintProblemsBarManager.getInstance().refreshAllOpenEditors();
@@ -410,9 +432,9 @@ public class BackgroundLintService {
 
     submit(
         () -> {
-          // Taken before the check. A force refresh clears the database cache while this pass is
-          // running, and the remarks from before that clear must not be published.
-          int dbCacheGeneration = DbCache.getInstance().getGeneration();
+          // Taken before the check. A Problems-tab force refresh during this pass bumps the refresh
+          // generation, and the remarks from before that refresh must not be published.
+          int refreshGenerationAtCheck = currentRefreshGeneration();
           try {
             // Switched off while this pass was waiting or running: do not publish what it found.
             if (!isEnabled()) {
@@ -426,7 +448,7 @@ public class BackgroundLintService {
 
             List<LintResult> results =
                 lintSnapshot(snapshot, normalizedPath, metadataProvider, variables);
-            if (!publishChecked(filename, results, passGeneration, dbCacheGeneration)) {
+            if (!publishChecked(filename, results, passGeneration, refreshGenerationAtCheck)) {
               return;
             }
             Display display = graph.getDisplay();
@@ -543,16 +565,16 @@ public class BackgroundLintService {
    * @return false when the findings were dropped
    */
   boolean lintAndPublishFile(String filePath, int passGeneration) throws HopException {
-    // Taken before the check. A force refresh clears the database cache while this pass is
-    // running, and the remarks from before that clear must not be published.
-    int dbCacheGeneration = DbCache.getInstance().getGeneration();
+    // Taken before the check. A Problems-tab force refresh during this pass bumps the refresh
+    // generation, and the remarks from before that refresh must not be published.
+    int refreshGenerationAtCheck = currentRefreshGeneration();
     HopGui hopGui = HopGui.peekInstance();
     IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
     IVariables variables = hopGui != null ? hopGui.getVariables() : null;
 
     HopLinter linter = new HopLinter();
     List<LintResult> results = lintFileForGui(filePath, linter, metadataProvider, variables);
-    if (!publishChecked(filePath, results, passGeneration, dbCacheGeneration)) {
+    if (!publishChecked(filePath, results, passGeneration, refreshGenerationAtCheck)) {
       return false;
     }
     log.logDetailed("Linted " + filePath + ": " + results.size() + " issues");

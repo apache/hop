@@ -19,6 +19,7 @@ package org.apache.hop.lint;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -30,8 +31,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * A force refresh re-lints the editors it is not already checking, and a pass that started before
- * the cache was cleared does not put the old remarks back.
+ * A force refresh re-lints every open editor, including the active one, and a pass that started
+ * before that refresh does not put the old remarks back. Clearing the database cache on its own
+ * does not drop the pass.
  */
 class ProblemsForceRefreshLintTest {
 
@@ -45,7 +47,7 @@ class ProblemsForceRefreshLintTest {
   }
 
   @Test
-  void otherOpenEditorsAreScheduledAndTheActiveOneIsNot() throws Exception {
+  void everyOpenEditorIsScheduledIncludingTheActiveOne() throws Exception {
     BackgroundLintService service = BackgroundLintService.getInstance();
     Object active = new Object();
     Object other = new Object();
@@ -55,6 +57,7 @@ class ProblemsForceRefreshLintTest {
     otherFile.deleteOnExit();
     service.getTracker().markChecked(activeFile.getAbsolutePath());
     service.getTracker().markChecked(otherFile.getAbsolutePath());
+    int generation = service.currentRefreshGeneration();
 
     List<Object> scheduled = new ArrayList<>();
     service.refreshOpenEditorsExcept(
@@ -64,19 +67,20 @@ class ProblemsForceRefreshLintTest {
             new OpenEditor(other, otherFile.getAbsolutePath())),
         scheduled::add);
 
-    assertEquals(List.of(other), scheduled);
+    assertEquals(generation + 1, service.currentRefreshGeneration());
+    assertEquals(List.of(active, other), scheduled);
     assertTrue(service.getTracker().needsLinting(activeFile.getAbsolutePath()));
     assertTrue(service.getTracker().needsLinting(otherFile.getAbsolutePath()));
   }
 
   @Test
-  void aPassStartedBeforeTheClearDoesNotPublish() {
+  void aPassStartedBeforeTheRefreshDoesNotPublish() {
     enableLinter();
     BackgroundLintService service = BackgroundLintService.getInstance();
     LintResultsManager manager = LintResultsManager.getInstance();
     manager.clearResults();
-    int generation = DbCache.getInstance().getGeneration();
-    DbCache.getInstance().clear(null);
+    int generation = service.currentRefreshGeneration();
+    service.refreshOpenEditorsExcept(null, List.of(), null);
 
     assertFalse(
         service.publishIfCurrent(
@@ -88,13 +92,13 @@ class ProblemsForceRefreshLintTest {
   }
 
   @Test
-  void aPassStartedAfterTheClearPublishes() {
+  void aPassStartedAfterTheRefreshPublishes() {
     enableLinter();
     BackgroundLintService service = BackgroundLintService.getInstance();
     LintResultsManager manager = LintResultsManager.getInstance();
     manager.clearResults();
-    DbCache.getInstance().clear(null);
-    int generation = DbCache.getInstance().getGeneration();
+    service.refreshOpenEditorsExcept(null, List.of(), null);
+    int generation = service.currentRefreshGeneration();
 
     assertTrue(
         service.publishIfCurrent(
@@ -104,6 +108,28 @@ class ProblemsForceRefreshLintTest {
             generation));
     assertEquals(
         "current", manager.getResultsForFile("/tmp/force-refresh.hpl").get(0).getMessage());
+  }
+
+  @Test
+  void aCacheClearOnAnotherConnectionStillPublishes() {
+    enableLinter();
+    BackgroundLintService service = BackgroundLintService.getInstance();
+    LintResultsManager manager = LintResultsManager.getInstance();
+    manager.clearResults();
+    int generation = service.currentRefreshGeneration();
+    int cacheGeneration = DbCache.getInstance().getGeneration();
+    DbCache.getInstance().clear("some-other-connection");
+
+    assertNotEquals(cacheGeneration, DbCache.getInstance().getGeneration());
+    assertEquals(generation, service.currentRefreshGeneration());
+    assertTrue(
+        service.publishIfCurrent(
+            "/tmp/force-refresh.hpl",
+            List.of(remark("still current")),
+            service.currentGeneration(),
+            generation));
+    assertEquals(
+        "still current", manager.getResultsForFile("/tmp/force-refresh.hpl").get(0).getMessage());
   }
 
   private static void enableLinter() {
