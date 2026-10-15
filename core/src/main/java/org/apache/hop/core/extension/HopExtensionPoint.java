@@ -109,6 +109,14 @@ public enum HopExtensionPoint {
   AfterCheckTransform("After a transform has been checked for warnings/errors."),
   AfterCheckActions("After a set of workflow actions has been checked for warnings/errors."),
 
+  /**
+   * The Problems tab force-refresh button has cleared the database cache. The payload is the active
+   * editor ({@code HopGuiAbstractGraph}). Listeners re-lint every other open editor. The button
+   * re-checks the active editor itself.
+   */
+  ProblemsForceRefresh(
+      "Problems tab force refresh, after the database cache was cleared (active HopGuiAbstractGraph)"),
+
   HopServerInit("Right before the Hop server starts"),
   HopServerStartup("Right after the Hop server has started and is fully functional"),
   HopServerShutdown("Right before the Hop server will shutdown"),

@@ -2305,6 +2305,11 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       return null; // Cache test without connect.
     }
 
+    // Remember the generation before asking the database. A clear that lands while the query is in
+    // flight has to discard this row: it describes the layout from before the clear, and storing
+    // it would put those columns straight back. See DbCache.putIfCurrent.
+    int generationAtQuery = dbcache == null ? 0 : dbcache.getGeneration();
+
     // No cache entry found
 
     // The new method of retrieving the query fields fails on Oracle because
@@ -2340,9 +2345,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
 
-    // Store in cache!!
+    // Store in cache when this read still belongs to the generation it started in.
     if (dbcache != null && fields != null) {
-      dbcache.put(entry, fields);
+      dbcache.putIfCurrent(entry, fields, generationAtQuery);
     }
 
     return fields;

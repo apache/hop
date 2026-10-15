@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.shared.ProblemsForceRefresh;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -61,6 +62,8 @@ public class HopGuiWorkflowCheckDelegate {
   private static final Class<?> PKG = HopGui.class;
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowCheckDelegate-ToolBar";
+  private static final String TOOLBAR_ITEM_FORCE_REFRESH =
+      "HopGuiWorkflowCheckDelegate-Toolbar-10000-ForceRefresh";
   private static final String TOOLBAR_ITEM_COLLAPSE_ALL =
       "HopGuiWorkflowCheckDelegate-Toolbar-10010-CollapseAll";
   private static final String TOOLBAR_ITEM_EXPAND_ALL =
@@ -163,6 +166,18 @@ public class HopGuiWorkflowCheckDelegate {
     if (!shownRemarks.isEmpty()) {
       refresh(shownRemarks);
     }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_FORCE_REFRESH,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineGraph.Check.ForceRefresh.Tooltip",
+      image = "ui/images/force-refresh.svg")
+  public void forceRefresh() {
+    // Same shape as the execution perspective: drop the caches, then load again. The check of
+    // this editor is the modal one the Problems tab already uses. Other open editors are refreshed
+    // in the background.
+    ProblemsForceRefresh.refresh(workflowGraph, this::checkWorkflow);
   }
 
   @GuiToolbarElement(
