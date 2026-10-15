@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "status",
+          "data_set_field": "status"
+        },
+        {
+          "transform_field": "currency",
+          "data_set_field": "currency"
+        },
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        }
+      ],
+      "field_order": [
+        "id",
+        "status",
+        "currency",
+        "customer"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-get-data-from-xml-attribute-element-type"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0023-get-data-from-xml-attribute-element-type UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0023-get-data-from-xml-attribute-element-type.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -49,6 +49,15 @@ public class XmlParserFactoryProducer {
   }
 
   /**
+   * Whether XML documents may contain a DOCTYPE declaration, following {@link
+   * Const#XML_ALLOW_DOCTYPE_DECL}. Only the value {@code N} refuses one; Hop sets that value at
+   * startup unless the variable is configured.
+   */
+  public static boolean isDoctypeAllowed() {
+    return !"N".equals(EnvUtil.getSystemProperty(Const.XML_ALLOW_DOCTYPE_DECL));
+  }
+
+  /**
    * Creates an instance of {@link DocumentBuilderFactory} class with enabled {@link
    * XMLConstants#FEATURE_SECURE_PROCESSING} property. Enabling this feature protects us from some
    * XXE attacks (e.g. XML bomb).
@@ -61,8 +70,7 @@ public class XmlParserFactoryProducer {
     DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     docBuilderFactory.setFeature(
-        "http://apache.org/xml/features/disallow-doctype-decl",
-        "N".equals(EnvUtil.getSystemProperty(Const.XML_ALLOW_DOCTYPE_DECL)));
+        "http://apache.org/xml/features/disallow-doctype-decl", !isDoctypeAllowed());
 
     String[] featuresToDisable = {
       // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-general-entities

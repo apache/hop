@@ -37,7 +37,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -581,8 +584,129 @@ class AdvancedXmlOutputTest {
   }
 
   // ---------------------------------------------------------------------------
+  // Issue #8936: no input rows, and a root element that is the loop
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testNoRowsWritesAnEmptyRootElement(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("norows");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.getFileSupport().setDoNotOpenNewFileInit(false);
+    meta.getRootNode().setNamespace("http://example.com/customers");
+
+    runPipeline(meta, new ArrayList<>());
+
+    String xml = readWrittenFile(output);
+    Document document = XmlHandler.loadXmlString(xml);
+    assertEquals("Rows", document.getDocumentElement().getNodeName(), xml);
+    assertEquals(0, document.getDocumentElement().getElementsByTagName("*").getLength(), xml);
+    assertTrue(xml.contains("xmlns=\"http://example.com/customers\""), xml);
+  }
+
+  /** A loop on the root element has no document without rows: the file stays empty. */
+  @Test
+  void testNoRowsWithRootLoopLeavesTheFileEmpty(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("rootloopnorows");
+    AdvancedXmlOutputMeta meta = buildRootLoopMeta(output.toString());
+    meta.getFileSupport().setDoNotOpenNewFileInit(false);
+
+    runPipeline(meta, new ArrayList<>());
+
+    assertEquals(0, Files.size(Path.of(output + ".xml")));
+  }
+
+  /**
+   * Without rows the root element keeps what does not depend on a row: attributes with a default,
+   * its static elements outside the loop. Mapped values are empty.
+   */
+  @Test
+  void testNoRowsWritesRootAttributesAndStaticElements(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("norowsstatic");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.getFileSupport().setDoNotOpenNewFileInit(false);
+    XmlNode root = meta.getRootNode();
+    XmlNode version = new XmlNode("version", XmlNode.NodeKind.Attribute);
+    version.setDefaultValue("1.0");
+    version.setForceCreate(true);
+    XmlNode source = new XmlNode("source", XmlNode.NodeKind.Attribute);
+    source.setMappedField("name");
+    XmlNode header = new XmlNode("header", XmlNode.NodeKind.Element);
+    header.setDefaultValue("customers");
+    root.getChildren().add(0, version);
+    root.getChildren().add(1, source);
+    root.getChildren().add(2, header);
+
+    runPipeline(meta, new ArrayList<>());
+
+    String xml = readWrittenFile(output);
+    Document document = XmlHandler.loadXmlString(xml);
+    assertEquals("1.0", document.getDocumentElement().getAttribute("version"), xml);
+    assertFalse(document.getDocumentElement().hasAttribute("source"), xml);
+    assertEquals("customers", XmlHandler.getTagValue(document.getDocumentElement(), "header"));
+    assertEquals(0, document.getDocumentElement().getElementsByTagName("Row").getLength(), xml);
+  }
+
+  @Test
+  void testRootLoopWithOneRowWritesADocument(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("rootloopone");
+    AdvancedXmlOutputMeta meta = buildRootLoopMeta(output.toString());
+
+    runPipeline(meta, buildFlatRows("a", 1));
+
+    Document document = XmlHandler.loadXmlString(readWrittenFile(output));
+    assertEquals("Row", document.getDocumentElement().getNodeName());
+    assertEquals("a", XmlHandler.getTagValue(document.getDocumentElement(), "name"));
+  }
+
+  /**
+   * The second row of a root-loop document fails before anything of it is written, so the file
+   * keeps the first row as a complete document. (Its message is checked by integration test 0027:
+   * the log buffer seen from a unit test depends on what earlier tests did to the log store.)
+   */
+  @Test
+  void testRootLoopFailsAtTheSecondRow(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("rootloop");
+    AdvancedXmlOutputMeta meta = buildRootLoopMeta(output.toString());
+
+    PipelineMeta pipelineMeta = PipelineTestFactory.generateTestTransformation(null, meta, "axo");
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.prepareExecution();
+    RowProducer producer = pipeline.addRowProducer(PipelineTestFactory.INJECTOR_TRANSFORMNAME, 0);
+    pipeline.startThreads();
+    for (RowMetaAndData row : buildFlatRows("a", 1, "b", 2)) {
+      producer.putRow(row.getRowMeta(), row.getData());
+    }
+    producer.finished();
+    pipeline.waitUntilFinished();
+
+    assertEquals(1, pipeline.getResult().getNrErrors());
+    Document document = XmlHandler.loadXmlString(readWrittenFile(output));
+    assertEquals("a", XmlHandler.getTagValue(document.getDocumentElement(), "name"));
+  }
+
+  @Test
+  void testRootLoopIsAllowedWithOneRowPerFile(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("rootloopsplit");
+    AdvancedXmlOutputMeta meta = buildRootLoopMeta(output.toString());
+    meta.getFileSupport().setSplitEvery(1);
+
+    runPipeline(meta, buildFlatRows("a", 1, "b", 2));
+
+    assertTrue(Files.readString(Path.of(output + "_00001.xml")).contains("<name>a</name>"));
+    assertTrue(Files.readString(Path.of(output + "_00002.xml")).contains("<name>b</name>"));
+  }
+
+  // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
+
+  /** {@code <Row loop><name/><age/></Row>}: the loop element is the root element. */
+  private AdvancedXmlOutputMeta buildRootLoopMeta(String filenameWithoutExt) {
+    AdvancedXmlOutputMeta meta = buildFlatMeta(filenameWithoutExt);
+    XmlNode row = meta.getRootNode().getChildren().get(0);
+    meta.setRootNode(row);
+    return meta;
+  }
 
   private AdvancedXmlOutputMeta buildFlatMeta(String filenameWithoutExt) {
     AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();

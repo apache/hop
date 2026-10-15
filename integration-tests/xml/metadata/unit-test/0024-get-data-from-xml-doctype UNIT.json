@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "url",
+          "data_set_field": "url"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        }
+      ],
+      "field_order": [
+        "name",
+        "url",
+        "type"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-get-data-from-xml-doctype"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0024-get-data-from-xml-doctype UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0024-get-data-from-xml-doctype.hpl",
+  "test_type": "UNIT_TEST"
+}

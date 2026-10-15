@@ -44,3 +44,5 @@ You can specify the XSLT filename here.
 * XSLT Factory : +
 Specify the factory to use for the transformations: JAXP or SAXON
 |===
+
+A relative `xsl:include` or `xsl:import` in an XSL file resolves against the folder of that file. An XSL read from a field has no location, so its relative references resolve against the working directory of Hop.

@@ -17,11 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.GlobalMessageUtil;
+import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes an XML field and the position in an XML field. */
@@ -72,9 +82,19 @@ public class GetXmlDataField implements Cloneable {
 
   public static final String[] ElementOldTypeCode = {"node", "attribut"};
 
+  private static final String[] ELEMENT_TYPE_DESC_KEYS = {
+    "GetXMLDataField.ElementType.Node", "GetXMLDataField.ElementType.Attribute"
+  };
+
+  /**
+   * What a pipeline stores for each element type: the English description, whatever the language of
+   * the user interface. Earlier Hop versions read it in an English user interface.
+   */
+  private static final String[] ELEMENT_TYPE_STORED_VALUES = {"Node", "Attribute"};
+
   public static final String[] ElementTypeDesc = {
-    BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Node"),
-    BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Attribute")
+    BaseMessages.getString(PKG, ELEMENT_TYPE_DESC_KEYS[ELEMENT_TYPE_NODE]),
+    BaseMessages.getString(PKG, ELEMENT_TYPE_DESC_KEYS[ELEMENT_TYPE_ATTRIBUTE])
   };
 
   @HopMetadataProperty(injectionKeyDescription = "GetXmlDataMeta.Injection.FieldName")
@@ -137,7 +157,7 @@ public class GetXmlDataField implements Cloneable {
     this.type = ValueMetaBase.getTypeDesc(IValueMeta.TYPE_STRING);
     this.format = "";
     this.trimType = getTrimTypeCode(TYPE_TRIM_NONE);
-    this.elementType = getElementTypeDesc(ELEMENT_TYPE_NODE);
+    this.elementType = getElementTypeStoredValue(ELEMENT_TYPE_NODE);
     this.resultType = getResultTypeCode(RESULT_TYPE_VALUE_OF);
     this.groupSymbol = "";
     this.decimalSymbol = "";
@@ -184,7 +204,43 @@ public class GetXmlDataField implements Cloneable {
       }
     }
 
+    // The dialog stores the description in the language of the UI the pipeline was saved in.
+    for (int i = 0; i < ElementTypeCode.length; i++) {
+      if (ElementTypeTranslations.DESCRIPTIONS.get(i).contains(tt.toLowerCase(Locale.ROOT))) {
+        return i;
+      }
+    }
+
     return 0;
+  }
+
+  /** The element type descriptions in every language Hop ships, in lower case. */
+  private static final class ElementTypeTranslations {
+    private static final List<Set<String>> DESCRIPTIONS = load();
+
+    private ElementTypeTranslations() {}
+
+    private static List<Set<String>> load() {
+      List<Set<String>> descriptions = new ArrayList<>();
+      for (String key : ELEMENT_TYPE_DESC_KEYS) {
+        Set<String> translations = new HashSet<>();
+        for (String localeCode : GlobalMessages.localeCodes) {
+          try {
+            ResourceBundle bundle =
+                GlobalMessageUtil.getBundle(
+                    EnvUtil.createLocale(localeCode),
+                    PKG.getPackageName() + ".messages.messages",
+                    PKG,
+                    false);
+            translations.add(bundle.getString(key).toLowerCase(Locale.ROOT));
+          } catch (MissingResourceException e) {
+            // This language has no translation for the element type
+          }
+        }
+        descriptions.add(translations);
+      }
+      return descriptions;
+    }
   }
 
   public static int getTrimTypeByDesc(String tt) {
@@ -235,6 +291,14 @@ public class GetXmlDataField implements Cloneable {
       return trimTypeDesc[0];
     }
     return trimTypeDesc[i];
+  }
+
+  /** The value to store for an element type, the same in every user interface language. */
+  public static String getElementTypeStoredValue(int i) {
+    if (i < 0 || i >= ELEMENT_TYPE_STORED_VALUES.length) {
+      return ELEMENT_TYPE_STORED_VALUES[ELEMENT_TYPE_NODE];
+    }
+    return ELEMENT_TYPE_STORED_VALUES[i];
   }
 
   @SuppressWarnings("javabugs:S6466") // the desc array is a non-empty constant
