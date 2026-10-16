@@ -40,6 +40,12 @@ public class ConcatFieldsData extends BaseTransformData implements ITransformDat
 
   public String[] trimType;
 
+  /** Per concatenated field: the value written for null, worked out on the first row */
+  public String[] fieldNullStrings;
+
+  /** Per concatenated field: the trim type id to apply, worked out on the first row */
+  public int[] fieldTrimTypes;
+
   public int targetFieldLength; // for fast data dump (StringBuilder size)
 
   public ConcatFieldsData() {

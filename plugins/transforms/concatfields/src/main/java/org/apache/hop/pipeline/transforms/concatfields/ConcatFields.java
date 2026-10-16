@@ -44,7 +44,7 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
   }
 
   @Override
-  public synchronized boolean processRow() throws HopException {
+  public boolean processRow() throws HopException {
     // This also waits for a row to be finished.
     Object[] row = getRow();
     if (row == null) {

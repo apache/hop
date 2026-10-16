@@ -45,14 +45,15 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private String processString(String string, StringOperationsMeta.StringOperation operation) {
+  private String processString(
+      String string, StringOperationsMeta.StringOperation operation, int operationNr) {
     String processed = processStringTrim(operation.getTrimType(), string);
     processed = processStringLowerUpper(operation.getLowerUpper(), processed);
     processed =
         processStringPadding(
             operation.getPaddingType(),
-            operation.getPadChar(),
-            Const.toInt(operation.getPadLen(), -1),
+            data.padChars[operationNr],
+            data.padLens[operationNr],
             processed);
     processed = processStringInitCap(operation.getInitCap(), processed);
     processed = processStringMaskXml(operation.getMaskXml(), processed);
@@ -164,7 +165,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
         // Get source value
         String value = getInputRowMeta().getString(row, data.inStreamNrs[i]);
         // Apply String operations and return result value
-        value = processString(value, operation);
+        value = processString(value, operation, i);
         if (Utils.isEmpty(operation.getFieldOutStream())) {
           // Update field
           rowData[data.inStreamNrs[i]] = value;
@@ -227,8 +228,13 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     data.outputRowMeta = getInputRowMeta().clone();
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     data.inStreamNrs = new int[meta.getOperations().size()];
+    data.padChars = new String[meta.getOperations().size()];
+    data.padLens = new int[meta.getOperations().size()];
     for (int i = 0; i < meta.getOperations().size(); i++) {
       StringOperationsMeta.StringOperation operation = meta.getOperations().get(i);
+      // Resolve and parse the padding once, not for every row
+      data.padChars[i] = resolve(operation.getPadChar());
+      data.padLens[i] = Const.toInt(resolve(operation.getPadLen()), -1);
       data.inStreamNrs[i] = getInputRowMeta().indexOfValue(operation.getFieldInStream());
       if (data.inStreamNrs[i] < 0) { // couldn't find field!
         throw new HopTransformException(

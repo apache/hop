@@ -3653,6 +3653,10 @@ class ConstTest {
   void testToInt() {
     assertEquals(123, Const.toInt("123", -12));
     assertEquals(-12, Const.toInt("123f", -12));
+    assertEquals(-12, Const.toInt(null, -12));
+    assertEquals(-12, Const.toInt("", -12));
+    assertEquals(-12, Const.toInt("  ", -12));
+    assertEquals(-12, Const.toInt(" 5", -12));
   }
 
   @Test
