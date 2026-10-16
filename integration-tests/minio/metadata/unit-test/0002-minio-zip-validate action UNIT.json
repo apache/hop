@@ -1,0 +1,37 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "The zip updated by the Zip file action",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [
+    {
+      "key": "ZIP_FILE",
+      "value": "minio:///zip/action-append/out/archive.zip"
+    }
+  ],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "entry",
+          "data_set_field": "entry"
+        },
+        {
+          "transform_field": "content",
+          "data_set_field": "content"
+        }
+      ],
+      "field_order": [
+        "entry"
+      ],
+      "data_set_name": "golden-minio-zip-entries",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-minio-zip-validate action UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0002-minio-zip-validate.hpl"
+}
