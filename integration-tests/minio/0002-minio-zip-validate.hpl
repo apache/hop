@@ -58,6 +58,27 @@ limitations under the License.
 The unit tests set ZIP_FILE and compare with golden-minio-zip-entries.</note>
       <width>460</width>
     </notepad>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Cantarell</fontname>
+      <fontsize>11</fontsize>
+      <height>42</height>
+      <xloc>80</xloc>
+      <yloc>320</yloc>
+      <note>Lists the folder of the zip, '${ZIP_FOLDER}'. Only the zip may be there:
+no temporary file may be left behind (golden-minio-zip-folder).</note>
+      <width>460</width>
+    </notepad>
   </notepads>
   <order>
     <hop>
@@ -73,6 +94,21 @@ The unit tests set ZIP_FILE and compare with golden-minio-zip-entries.</note>
     <hop>
       <from>entry, content</from>
       <to>Validate</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>files in the zip folder</from>
+      <to>sort by name</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>sort by name</from>
+      <to>file</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>file</from>
+      <to>Validate folder</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -212,6 +248,114 @@ The unit tests set ZIP_FILE and compare with golden-minio-zip-entries.</note>
     <GUI>
       <xloc>608</xloc>
       <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>files in the zip folder</name>
+    <type>GetFileNames</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <file>
+      <file_required>Y</file_required>
+      <filemask>.*</filemask>
+      <include_subfolders>N</include_subfolders>
+      <name>${ZIP_FOLDER}/</name>
+    </file>
+    <filefield>N</filefield>
+    <filter>
+      <filterfiletype>all_files</filterfiletype>
+    </filter>
+    <isaddresult>N</isaddresult>
+    <limit>0</limit>
+    <raiseAnExceptionIfNoFile>Y</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sort by name</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>short_filename</name>
+        <ascending>Y</ascending>
+        <case_sensitive>Y</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>file</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>short_filename</name>
+        <rename>file</rename>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>448</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Validate folder</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>256</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

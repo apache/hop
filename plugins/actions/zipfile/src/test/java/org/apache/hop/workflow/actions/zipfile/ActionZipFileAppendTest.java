@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayOutputStream;
@@ -39,6 +40,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
@@ -51,6 +53,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 /** Appending to an existing zip file, locally and on a VFS file system. */
 class ActionZipFileAppendTest {
@@ -140,6 +144,62 @@ class ActionZipFileAppendTest {
     assertEquals(List.of("archive.zip"), children(ramFolder + "/archive"));
   }
 
+  @Test
+  void appendCopiesAnEntryThatIsTwiceInTheZipOnce() throws Exception {
+    writeFile(ramFolder + "/source/new.txt", "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZipWithDuplicateEntry(zip, "old.txt");
+
+    Result result = append(ramFolder + "/source", zip);
+
+    assertTrue(result.isResult(), "zipping should succeed");
+    assertEquals(Map.of("new.txt", "new", "old.txt", "first"), entries(zip));
+  }
+
+  @Test
+  void failedMoveAfterTheZipWasRemovedKeepsTheUpdatedZip() throws Exception {
+    writeFile(ramFolder + "/source/new.txt", "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZip(zip, "old.txt", "old");
+
+    Result result;
+    try (MockedStatic<HopVfs> vfs = Mockito.mockStatic(HopVfs.class, Mockito.CALLS_REAL_METHODS)) {
+      vfs.when(() -> HopVfs.moveFile(any(), any()))
+          .thenAnswer(
+              invocation -> {
+                // The move removes the zip file, then fails: as on S3 when the copy fails
+                invocation.getArgument(1, FileObject.class).delete();
+                throw new FileSystemException("move failed");
+              });
+      result = append(ramFolder + "/source", zip);
+    }
+
+    assertFalse(result.isResult(), "zipping should fail");
+    List<String> left = children(ramFolder + "/archive");
+    assertEquals(1, left.size(), "the updated zip must be kept");
+    assertTrue(left.get(0).startsWith("archive.zip_") && left.get(0).endsWith(".tmp"));
+    assertEquals(
+        Map.of("new.txt", "new", "old.txt", "old"), entries(ramFolder + "/archive/" + left.get(0)));
+  }
+
+  @Test
+  void failedMoveWithTheZipStillThereRemovesTheTemporaryFile() throws Exception {
+    writeFile(ramFolder + "/source/new.txt", "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZip(zip, "old.txt", "old");
+
+    Result result;
+    try (MockedStatic<HopVfs> vfs = Mockito.mockStatic(HopVfs.class, Mockito.CALLS_REAL_METHODS)) {
+      vfs.when(() -> HopVfs.moveFile(any(), any()))
+          .thenThrow(new FileSystemException("move failed"));
+      result = append(ramFolder + "/source", zip);
+    }
+
+    assertFalse(result.isResult(), "zipping should fail");
+    assertEquals(Map.of("old.txt", "old"), entries(zip));
+    assertEquals(List.of("archive.zip"), children(ramFolder + "/archive"));
+  }
+
   private static Result append(String sourceDirectory, String zipFilename) throws Exception {
     ActionZipFile action = new ActionZipFile();
     action.setParentWorkflow(new LocalWorkflowEngine(new WorkflowMeta()));
@@ -180,6 +240,26 @@ class ActionZipFileAppendTest {
     file.getParent().createFolder();
     try (OutputStream out = HopVfs.getOutputStream(file, false)) {
       out.write(bytes.toByteArray());
+    }
+  }
+
+  /** A zip with the entry twice, "first" and "second": Java can't write one, so patch a name. */
+  private static void writeZipWithDuplicateEntry(String filename, String entry) throws Exception {
+    String other = entry.substring(0, entry.length() - 1) + "#";
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (ZipOutputStream out = new ZipOutputStream(bytes)) {
+      out.putNextEntry(new ZipEntry(entry));
+      out.write("first".getBytes(StandardCharsets.UTF_8));
+      out.putNextEntry(new ZipEntry(other));
+      out.write("second".getBytes(StandardCharsets.UTF_8));
+      out.closeEntry();
+    }
+    // The name is in the local header and in the central directory, and in no checksum
+    String zip = new String(bytes.toByteArray(), StandardCharsets.ISO_8859_1);
+    FileObject file = HopVfs.getFileObject(filename);
+    file.getParent().createFolder();
+    try (OutputStream out = HopVfs.getOutputStream(file, false)) {
+      out.write(zip.replace(other, entry).getBytes(StandardCharsets.ISO_8859_1));
     }
   }
 

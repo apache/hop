@@ -21,6 +21,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -340,6 +342,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     // Update an existing zip by writing the new version next to it and moving it over the
     // original once complete. If anything fails, the original zip is left untouched.
     boolean updateZip = false;
+    boolean moving = false;
     FileObject output = data.zipFile;
     CountingInputStream countingIn = null;
     CountingOutputStream countingOut = null;
@@ -380,11 +383,12 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       }
 
       if (updateZip) {
+        moving = true;
         HopVfs.moveFile(output, data.zipFile);
       }
     } catch (Exception e) {
       if (updateZip && output != data.zipFile) {
-        deleteQuietly(output);
+        discardTemporaryZipFile(output, data.zipFile, moving);
       }
       throw new HopException(BaseMessages.getString(PKG, "ZipFile.ErrorCreatingZip"), e);
     } finally {
@@ -403,16 +407,21 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     if (!meta.isKeepSourceFolder()) {
       return sourceName.getBaseName();
     }
+    if ("file".equals(sourceName.getScheme())) {
+      // Local files keep the names they always had: the full path, without the base folder.
+      String relativeName = HopVfs.getFilename(data.sourceFile);
+      if (data.baseFolder != null) {
+        relativeName = relativeName.replace(data.baseFolder + Const.FILE_SEPARATOR, "");
+      }
+      return relativeName;
+    }
+    // A VFS file. Don't put the scheme in the zip.
     if (!Utils.isEmpty(data.baseFolder)) {
       FileName baseName = HopVfs.getFileObject(data.baseFolder, variables).getName();
       if (baseName.isDescendent(sourceName)) {
         // Relative to the base folder
         return baseName.getRelativeName(sourceName);
       }
-    }
-    // The full path. Don't put the scheme of a VFS file system in the zip.
-    if ("file".equals(sourceName.getScheme())) {
-      return HopVfs.getFilename(data.sourceFile);
     }
     return sourceName.getPath();
   }
@@ -432,11 +441,13 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
   private static void copyZipEntries(
       FileObject zipFile, ZipOutputStream out, String skipEntryName, byte[] buffer)
       throws IOException {
+    // A zip can hold the same name twice. Keep the first one, a zip output stream refuses both.
+    Set<String> copied = new HashSet<>();
     try (ZipInputStream zin = new ZipInputStream(HopVfs.getInputStream(zipFile))) {
       ZipEntry entry;
       while ((entry = zin.getNextEntry()) != null) {
         String name = entry.getName();
-        if (!name.equals(skipEntryName)) {
+        if (!name.equals(skipEntryName) && copied.add(name)) {
           out.putNextEntry(new ZipEntry(name));
           int len;
           while ((len = zin.read(buffer)) > 0) {
@@ -445,6 +456,33 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
           out.closeEntry();
         }
       }
+    }
+  }
+
+  /**
+   * Remove the temporary zip file after a failure. When moving it over the zip file failed after
+   * the zip file was already removed, the temporary file is the only copy left: keep it.
+   */
+  private void discardTemporaryZipFile(
+      FileObject temporaryFile, FileObject zipFile, boolean moving) {
+    if (moving && !existsQuietly(zipFile)) {
+      logError(
+          "Unable to move the updated zip file to "
+              + HopVfs.getFriendlyURI(zipFile)
+              + ", it is kept as "
+              + HopVfs.getFriendlyURI(temporaryFile));
+      return;
+    }
+    deleteQuietly(temporaryFile);
+  }
+
+  /** Whether the file exists. When that can't be determined, assume it does not. */
+  private static boolean existsQuietly(FileObject file) {
+    try {
+      file.refresh();
+      return file.exists();
+    } catch (Exception e) {
+      return false;
     }
   }
 

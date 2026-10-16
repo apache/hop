@@ -8,6 +8,10 @@
     {
       "key": "ZIP_FILE",
       "value": "minio:///zip/action-append/out/archive.zip"
+    },
+    {
+      "key": "ZIP_FOLDER",
+      "value": "minio:///zip/action-append/out"
     }
   ],
   "basePath": "",
@@ -28,6 +32,19 @@
       ],
       "data_set_name": "golden-minio-zip-entries",
       "transform_name": "Validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "file",
+          "data_set_field": "file"
+        }
+      ],
+      "field_order": [
+        "file"
+      ],
+      "data_set_name": "golden-minio-zip-folder",
+      "transform_name": "Validate folder"
     }
   ],
   "input_data_sets": [],

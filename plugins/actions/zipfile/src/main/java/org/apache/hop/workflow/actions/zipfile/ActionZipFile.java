@@ -431,6 +431,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     ? tempFile
                     : HopVfs.getFileObject(localrealZipfilename, getVariables());
             long zipOutBytes;
+            boolean moving = false;
             try {
               try (OutputStream dest = HopVfs.getOutputStream(output, false);
                   CountingOutputStream counting = new CountingOutputStream(dest);
@@ -492,11 +493,12 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                           + localrealZipfilename
                           + " was not updated");
                 }
+                moving = true;
                 HopVfs.moveFile(tempFile, fileObject);
               }
             } catch (Exception e) {
               if (tempFile != null) {
-                deleteQuietly(tempFile);
+                discardTemporaryZipFile(tempFile, fileObject, moving);
               }
               throw e;
             }
@@ -593,12 +595,14 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
   private static void copyZipEntries(
       FileObject zipFile, Set<String> skipEntryNames, ZipOutputStream out) throws IOException {
+    // A zip can hold the same name twice. Keep the first one, a zip output stream refuses both.
+    Set<String> copied = new HashSet<>();
     try (ZipInputStream zin = new ZipInputStream(HopVfs.getInputStream(zipFile))) {
       byte[] buffer = new byte[18024];
       ZipEntry entry;
       while ((entry = zin.getNextEntry()) != null) {
         String name = entry.getName();
-        if (!skipEntryNames.contains(name)) {
+        if (!skipEntryNames.contains(name) && copied.add(name)) {
           // Add ZIP entry to output stream.
           out.putNextEntry(new ZipEntry(name));
           // Transfer bytes from the ZIP file to the output file
@@ -609,6 +613,33 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
           out.closeEntry();
         }
       }
+    }
+  }
+
+  /**
+   * Remove the temporary zip file after a failure. When moving it over the zip file failed after
+   * the zip file was already removed, the temporary file is the only copy left: keep it.
+   */
+  private void discardTemporaryZipFile(
+      FileObject temporaryFile, FileObject zipFile, boolean moving) {
+    if (moving && !existsQuietly(zipFile)) {
+      logError(
+          "Unable to move the updated zip file to "
+              + HopVfs.getFriendlyURI(zipFile)
+              + ", it is kept as "
+              + HopVfs.getFriendlyURI(temporaryFile));
+      return;
+    }
+    deleteQuietly(temporaryFile);
+  }
+
+  /** Whether the file exists. When that can't be determined, assume it does not. */
+  private static boolean existsQuietly(FileObject file) {
+    try {
+      file.refresh();
+      return file.exists();
+    } catch (Exception e) {
+      return false;
     }
   }
 

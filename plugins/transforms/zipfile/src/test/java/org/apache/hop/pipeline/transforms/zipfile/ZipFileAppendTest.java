@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.zipfile;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +39,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowMeta;
@@ -52,6 +55,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 /** Updating an existing zip file, locally and on a VFS file system. */
 class ZipFileAppendTest {
@@ -202,6 +207,98 @@ class ZipFileAppendTest {
     assertEquals(Map.of(expected, "src"), entries(zip));
   }
 
+  @Test
+  void updateCopiesAnEntryThatIsTwiceInTheZipOnce() throws Exception {
+    String source = ramFolder + "/source/new.txt";
+    writeFile(source, "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZipWithDuplicateEntry(zip, "old.txt");
+
+    ZipFile transform = run(updateMeta(), source, zip);
+
+    assertEquals(0, transform.getErrors());
+    assertEquals(Map.of("new.txt", "new", "old.txt", "first"), entries(zip));
+  }
+
+  @Test
+  void failedMoveAfterTheZipWasRemovedKeepsTheUpdatedZip() throws Exception {
+    String source = ramFolder + "/source/new.txt";
+    writeFile(source, "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZip(zip, "old.txt", "old");
+
+    ZipFile transform;
+    try (MockedStatic<HopVfs> vfs = Mockito.mockStatic(HopVfs.class, Mockito.CALLS_REAL_METHODS)) {
+      vfs.when(() -> HopVfs.moveFile(any(), any()))
+          .thenAnswer(
+              invocation -> {
+                // The move removes the zip file, then fails: as on S3 when the copy fails
+                invocation.getArgument(1, FileObject.class).delete();
+                throw new FileSystemException("move failed");
+              });
+      transform = run(updateMeta(), source, zip);
+    }
+
+    assertEquals(1, transform.getErrors());
+    List<String> left = children(ramFolder + "/archive");
+    assertEquals(1, left.size(), "the updated zip must be kept");
+    assertTrue(left.get(0).startsWith("archive.zip_") && left.get(0).endsWith(".tmp"));
+    assertEquals(
+        Map.of("new.txt", "new", "old.txt", "old"), entries(ramFolder + "/archive/" + left.get(0)));
+  }
+
+  @Test
+  void failedMoveWithTheZipStillThereRemovesTheTemporaryFile() throws Exception {
+    String source = ramFolder + "/source/new.txt";
+    writeFile(source, "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZip(zip, "old.txt", "old");
+
+    ZipFile transform;
+    try (MockedStatic<HopVfs> vfs = Mockito.mockStatic(HopVfs.class, Mockito.CALLS_REAL_METHODS)) {
+      vfs.when(() -> HopVfs.moveFile(any(), any()))
+          .thenThrow(new FileSystemException("move failed"));
+      transform = run(updateMeta(), source, zip);
+    }
+
+    assertEquals(1, transform.getErrors());
+    assertEquals(Map.of("old.txt", "old"), entries(zip));
+    assertEquals(List.of("archive.zip"), children(ramFolder + "/archive"));
+  }
+
+  @Test
+  void keepSourceFolderOnLocalFilesKeepsTheNamesItAlwaysHad() throws Exception {
+    Path base = Files.createDirectories(tempDir.resolve("base"));
+    Path source = Files.createDirectories(base.resolve("in")).resolve("src.txt");
+    Files.writeString(source, "src", StandardCharsets.UTF_8);
+    String withBase = ramFolder + "/with-base.zip";
+    String withoutBase = ramFolder + "/without-base.zip";
+    String trailingSeparator = ramFolder + "/trailing-separator.zip";
+
+    ZipFileMeta meta = updateMeta();
+    meta.setCreateParentFolder(true);
+    meta.setKeepSourceFolder(true);
+    meta.setBaseFolderField("base");
+    RowMeta rowMeta = rowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("base"));
+    ZipFile transform =
+        run(
+            meta,
+            rowMeta,
+            new Object[] {source.toString(), withBase, base.toString()},
+            new Object[] {source.toString(), withoutBase, null},
+            new Object[] {source.toString(), trailingSeparator, base + Const.FILE_SEPARATOR});
+
+    assertEquals(0, transform.getErrors());
+    // The full local path, minus the base folder and a separator, as before #8955
+    String fullPath = HopVfs.getFilename(HopVfs.getFileObject(source.toString()));
+    String relative = fullPath.replace(base + Const.FILE_SEPARATOR, "");
+    assertEquals(Map.of(relative, "src"), entries(withBase));
+    assertEquals(Map.of(fullPath, "src"), entries(withoutBase));
+    // A base folder that ends with a separator never matched
+    assertEquals(Map.of(fullPath, "src"), entries(trailingSeparator));
+  }
+
   private static ZipFileMeta updateMeta() {
     ZipFileMeta meta = new ZipFileMeta();
     meta.setDefault();
@@ -270,6 +367,26 @@ class ZipFileAppendTest {
     file.getParent().createFolder();
     try (OutputStream out = HopVfs.getOutputStream(file, false)) {
       out.write(bytes.toByteArray());
+    }
+  }
+
+  /** A zip with the entry twice, "first" and "second": Java can't write one, so patch a name. */
+  private static void writeZipWithDuplicateEntry(String filename, String entry) throws Exception {
+    String other = entry.substring(0, entry.length() - 1) + "#";
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (ZipOutputStream out = new ZipOutputStream(bytes)) {
+      out.putNextEntry(new ZipEntry(entry));
+      out.write("first".getBytes(StandardCharsets.UTF_8));
+      out.putNextEntry(new ZipEntry(other));
+      out.write("second".getBytes(StandardCharsets.UTF_8));
+      out.closeEntry();
+    }
+    // The name is in the local header and in the central directory, and in no checksum
+    String zip = new String(bytes.toByteArray(), StandardCharsets.ISO_8859_1);
+    FileObject file = HopVfs.getFileObject(filename);
+    file.getParent().createFolder();
+    try (OutputStream out = HopVfs.getOutputStream(file, false)) {
+      out.write(zip.replace(other, entry).getBytes(StandardCharsets.ISO_8859_1));
     }
   }
 
