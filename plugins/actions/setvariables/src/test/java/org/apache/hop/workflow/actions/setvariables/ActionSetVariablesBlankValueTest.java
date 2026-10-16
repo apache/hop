@@ -18,9 +18,9 @@
 package org.apache.hop.workflow.actions.setvariables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -30,6 +30,8 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableDefinition;
+import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableType;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.AfterEach;
@@ -38,9 +40,10 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
 /**
- * A variable saved with a blank value must be unset, not defined as an empty string. Up to 2.17 a
- * saved empty tag {@code <variable_value/>} loaded as null, which clears the JVM property and
- * removes the workflow variable; since 2.18 it loads as an empty string.
+ * A blank value sets the variable to an empty string, the same way whether the action was just
+ * edited in the dialog (which stores an empty string) or loaded from a saved workflow (an empty
+ * {@code <variable_value/>} tag). Up to 2.17 a saved blank value loaded as null and unset the
+ * variable instead, so the same workflow behaved differently after it was reopened.
  */
 class ActionSetVariablesBlankValueTest {
   private static final String WORKFLOW_VAR = "SET_VARIABLES_BLANK_TEST_WORKFLOW";
@@ -58,41 +61,65 @@ class ActionSetVariablesBlankValueTest {
   }
 
   @Test
-  void blankValueUnsetsTheVariable() throws Exception {
-    IWorkflowEngine<WorkflowMeta> workflow = runWithValues("<variable_value/>");
+  void blankValueFromDialogSetsAnEmptyVariable() throws Exception {
+    ActionSetVariables action = new ActionSetVariables();
+    action.setVariableDefinitions(definitions(""));
 
-    assertNull(workflow.getVariable(WORKFLOW_VAR), "workflow variable should be unset");
-    assertNull(System.getProperty(JVM_VAR), "JVM property should be cleared");
+    assertVariablesAre("", run(action));
+  }
+
+  @Test
+  void blankValueLoadedFromWorkflowSetsAnEmptyVariable() throws Exception {
+    assertVariablesAre("", run(loadAction(actionXml("<variable_value/>"))));
+  }
+
+  @Test
+  void blankValueSurvivesSaveAndReload() throws Exception {
+    ActionSetVariables edited = new ActionSetVariables();
+    edited.setName("set");
+    edited.setVariableDefinitions(definitions(""));
+
+    ActionSetVariables reloaded = loadAction("<action>" + edited.getXml() + "</action>");
+
+    assertVariablesAre("", run(reloaded));
   }
 
   @Test
   void specifiedValueSetsTheVariable() throws Exception {
-    IWorkflowEngine<WorkflowMeta> workflow = runWithValues("<variable_value>new</variable_value>");
-
-    assertEquals("new", workflow.getVariable(WORKFLOW_VAR));
-    assertEquals("new", System.getProperty(JVM_VAR));
+    assertVariablesAre("new", run(loadAction(actionXml("<variable_value>new</variable_value>"))));
   }
 
-  private IWorkflowEngine<WorkflowMeta> runWithValues(String valueXml) throws Exception {
-    String xml =
-        "<action><name>set</name><type>SET_VARIABLES</type>"
-            + "<replacevars>Y</replacevars><file_variable_type>CURRENT_WORKFLOW</file_variable_type>"
-            + "<fields>"
-            + "<field><variable_name>"
-            + WORKFLOW_VAR
-            + "</variable_name>"
-            + valueXml
-            + "<variable_type>CURRENT_WORKFLOW</variable_type></field>"
-            + "<field><variable_name>"
-            + JVM_VAR
-            + "</variable_name>"
-            + valueXml
-            + "<variable_type>JVM</variable_type></field>"
-            + "</fields></action>";
+  private static List<VariableDefinition> definitions(String value) {
+    return List.of(
+        new VariableDefinition(WORKFLOW_VAR, value, VariableType.CURRENT_WORKFLOW),
+        new VariableDefinition(JVM_VAR, value, VariableType.JVM));
+  }
+
+  private static String actionXml(String valueXml) {
+    return "<action><name>set</name><type>SET_VARIABLES</type>"
+        + "<replacevars>Y</replacevars><file_variable_type>CURRENT_WORKFLOW</file_variable_type>"
+        + "<fields>"
+        + "<field><variable_name>"
+        + WORKFLOW_VAR
+        + "</variable_name>"
+        + valueXml
+        + "<variable_type>CURRENT_WORKFLOW</variable_type></field>"
+        + "<field><variable_name>"
+        + JVM_VAR
+        + "</variable_name>"
+        + valueXml
+        + "<variable_type>JVM</variable_type></field>"
+        + "</fields></action>";
+  }
+
+  private static ActionSetVariables loadAction(String xml) throws Exception {
     Node actionNode = XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), "action");
     ActionSetVariables action = new ActionSetVariables();
     action.loadXml(actionNode, new MemoryMetadataProvider(), new Variables());
+    return action;
+  }
 
+  private static IWorkflowEngine<WorkflowMeta> run(ActionSetVariables action) throws Exception {
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));
     action.setParentWorkflow(workflow);
@@ -105,5 +132,10 @@ class ActionSetVariablesBlankValueTest {
 
     assertTrue(result.getResult());
     return workflow;
+  }
+
+  private static void assertVariablesAre(String expected, IWorkflowEngine<WorkflowMeta> workflow) {
+    assertEquals(expected, workflow.getVariable(WORKFLOW_VAR), "workflow variable");
+    assertEquals(expected, System.getProperty(JVM_VAR), "JVM property");
   }
 }
