@@ -17,7 +17,7 @@ limitations under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Beam MQTT input using Apache Beam MqttIO.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-mqtt-input.svg[Beam MQTT input icon, role="image-doc-icon"] Beam MQTT input
