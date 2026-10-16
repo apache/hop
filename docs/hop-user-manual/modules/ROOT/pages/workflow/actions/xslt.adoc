@@ -38,7 +38,7 @@ Relative references resolve against the folder of the file that holds them: `xsl
 |Action name|The name of the workflow action.
 2+|Files
 |Get filenames from previous result|When this option is checked, the XML File name, XSL File name and Output File name are read from the previous result set.
-When multilpe rows exists, it will loop.
+When multiple rows exists, it will loop.
 At this time XML File name is the first field in the result set, XSL File name the second fields and Output File name the third field.
 |XML File name|The full name of the source XML file
 |XSL File name|The full name of the XSL file

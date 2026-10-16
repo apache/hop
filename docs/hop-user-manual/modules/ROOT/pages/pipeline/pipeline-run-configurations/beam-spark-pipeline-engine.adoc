@@ -73,7 +73,7 @@ For durability, a reliable filesystem such as HDFS/S3/GS is necessary.|local dir
 |Streaming: checkpoint duration (ms)||
 |Enable Metrics sink|A servlet within the existing Spark UI to serve metrics data as JSON data.|
 |Streaming: maximum records per batch|The maximum records per batch interval.|
-|Streaming: minimum read time (ms)|Mimimum elapsed read time.|
+|Streaming: minimum read time (ms)|Minimum elapsed read time.|
 |Bundle size|The maximum number of elements in a bundle.|
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.|
 |Temp location|Path for temporary files.|
@@ -93,7 +93,7 @@ You can start Apache Spark pipelines when Hop is running directly on the master 
 
 Since execution of a pipeline on Spark is only possible from the Spark Master it is possible to start a Hop server on the master.
 Then you can remotely execute from anywhere on your Spark master of choice.
-Make sure that any referencable artifacts like the fat-jar you want to use is available to the Hop server and that you have configured your installation as described in the previous section.
+Make sure that any referenceable artifacts like the fat-jar you want to use is available to the Hop server and that you have configured your installation as described in the previous section.
 
 == Running with Spark Submit
 
@@ -184,7 +184,7 @@ export SPARK_LOCAL_IP="127.0.0.1"
 
 == Possible errors
 
-When you receive a stack trace looking lik this, it usually means it can not find the spark master.
+When you receive a stack trace looking like this, it usually means it can not find the spark master.
 
 ```
 Caused by: java.lang.NullPointerException

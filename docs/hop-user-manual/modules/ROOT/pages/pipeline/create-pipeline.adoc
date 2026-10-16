@@ -153,7 +153,7 @@ Some transforms result in different types of hops.
 |===
 |Hop|Description
 |Result is TRUE|Specifies that the transform will be executed only when the result from the previous transform is true
-|Result is FALSE|pecifies that the transform will be executed only when the result from the previous transform is false
+|Result is FALSE|Specifies that the transform will be executed only when the result from the previous transform is false
 |Main output of transform|The default hop between two transforms
 |===
 

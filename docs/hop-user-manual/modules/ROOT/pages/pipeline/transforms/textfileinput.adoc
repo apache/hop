@@ -183,7 +183,7 @@ The table below describes the available options for defining filters:
 [options="header"]
 |===
 |Option|Description
-|Filter string|The string to search for in the data values. Each data value is treated as aline of text regardless of how long it is.
+|Filter string|The string to search for in the data values. Each data value is treated as a line of text regardless of how long it is.
 |Filter position|The position in the line to search for the filter string.
 Zero (0) is the first position in the line.
 Specifying a negative value here searches the entire line for the filter string.

@@ -55,10 +55,10 @@ Existing workflows keep working and log a warning; new ones should use Delete fi
 * FTP
 * Implicit SSL
 * Authentication SSL
-* Implicit SSL with crypted FTP connection
+* Implicit SSL with encrypted FTP connection
 * Authentication TLS
 * Implicit TLS
-* Implicit TLS with crypted FTP connection
+* Implicit TLS with encrypted FTP connection
 
 |Use proxy|Whether or not to use a proxy.
 |Proxy host|Proxy server host name.

@@ -267,7 +267,7 @@ Name 2
 Name 4
 ----
 
-You will notice that you only have 3 rowsets returned in this case ( the null line is omited from the result)
+You will notice that you only have 3 rowsets returned in this case ( the null line is omitted from the result)
 
 
 To change Hop's behavior regarding null values in JSON files, so that null values will not be considered in JSON output, you change the `HOP_JSON_INCLUDE_NULLS` configuration variable and set it's value to N

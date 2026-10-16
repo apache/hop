@@ -77,7 +77,7 @@ image:beam/run-samples/hop-dataflow-run-config.png[Dataflow Run Configuration, w
 
 For the sake of simplicity, check the "Use public IPs?" option. Check the Google Cloud docs to learn more about configuring your project to run with private IP addresses.
 
-In the Dataflow pipeline run configuration's variables tab, change the values DATA_INPUT, STATE_INPUT and DATA_OUTPUT variables to the bucket name you just created. Als change the filename customers-noheader-1M.txt to customers-noheader-1k.txt.
+In the Dataflow pipeline run configuration's variables tab, change the values DATA_INPUT, STATE_INPUT and DATA_OUTPUT variables to the bucket name you just created. Also change the filename customers-noheader-1M.txt to customers-noheader-1k.txt.
 
 image:beam/run-samples/hop-dataflow-run-config-variables.png[Dataflow Run Configuration - variables, width="45%"]
 

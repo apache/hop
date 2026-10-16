@@ -117,7 +117,7 @@ Every file in this list is marked with a file type and you can select what type 
 * Error
 * Warning
 
-|Zip files to single archive?|Enable to have attachments achived in a zip file
+|Zip files to single archive?|Enable to have attachments archived in a zip file
 |Name of the zip archive|Define the filename of your zip archive
 |Filename|Name of a single image file to add.
 Note: This works only when Use HTML format is defined in the EMail Message tab.

@@ -115,7 +115,7 @@ NOTE: A line is shown when that kind of file was imported or skipped.
 Items that were not available in the specified folders or files for this import will not be shown.
 Skipped files are left unchanged.
 
-When multiple database connections with the same name but different configurations were found (see 'Known limitations'), a `connnections.csv` file will be created in the project folder.
+When multiple database connections with the same name but different configurations were found (see 'Known limitations'), a `connections.csv` file will be created in the project folder.
 This file contains a list of all jobs and transformations, with the connections they use.
 
 
