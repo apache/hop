@@ -68,6 +68,10 @@ Must be a valid Cloud Storage URL, beginning with gs://.
 |GCP temp location|Cloud Storage path used by the transforms which must stage their data in Cloud Storage, for example the BigQuery transforms.
 Must be a valid Cloud Storage URL, beginning with gs://.
 This is a different option from the general `Temp location` below.
+|GCS upload buffer size (MB)|The size, in megabytes, of the chunks in which the fat jar and other staged files are uploaded to Cloud Storage.
+Each chunk is a separate request, so a larger size makes staging faster, especially on high-latency connections.
+When left empty, 128 MB is used. Apache Beam's own default is 1 MB, which limits staging to about 1 MB per request round trip.
+Each parallel upload holds one buffer of this size in memory.
 |Initial number of workers|The initial number of Google Compute Engine instances to use when executing your pipeline.
 This option determines how many workers the Dataflow service starts up when your job begins.
 |Maximum number of workers|The maximum number of Compute Engine instances to be made available to your pipeline during execution.

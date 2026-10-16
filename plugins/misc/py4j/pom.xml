@@ -28,9 +28,7 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Miscellaneous Py4j</name>
 
-    <properties>
-        <py4j.version>0.10.9.9</py4j.version>
-    </properties>
+    <properties></properties>
 
     <dependencyManagement>
         <dependencies>
@@ -48,7 +46,7 @@
         <dependency>
             <groupId>net.sf.py4j</groupId>
             <artifactId>py4j</artifactId>
-            <version>${py4j.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!-- JUnit 4 API needed by org.eclipse.jgit.junit.RepositoryTestCase (TemporaryFolder, etc.) -->
         <dependency>

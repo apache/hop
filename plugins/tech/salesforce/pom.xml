@@ -30,7 +30,7 @@
     <name>Hop Plugins Technology Salesforce</name>
 
     <properties>
-        <com.force.api.version>58.0.0</com.force.api.version>
+        <com.force.api.version>68.0.0</com.force.api.version>
     </properties>
 
     <dependencyManagement>

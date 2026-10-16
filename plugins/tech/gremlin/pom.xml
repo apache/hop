@@ -31,7 +31,7 @@
     <properties>
         <janusgraph.version>1.1.0</janusgraph.version>
         <testcontainers.version>1.21.4</testcontainers.version>
-        <tinkerpop.version>3.7.6</tinkerpop.version>
+        <tinkerpop.version>3.7.7</tinkerpop.version>
     </properties>
 
     <dependencyManagement>
@@ -115,7 +115,6 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.17.0</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
@@ -126,6 +125,12 @@
             <groupId>org.noggit</groupId>
             <artifactId>noggit</artifactId>
             <version>0.8</version>
+        </dependency>
+        <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -138,6 +143,11 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <scope>provided</scope>
         </dependency>
         <!-- To compile and test against the versions Hop ships in lib/core -->
         <dependency>

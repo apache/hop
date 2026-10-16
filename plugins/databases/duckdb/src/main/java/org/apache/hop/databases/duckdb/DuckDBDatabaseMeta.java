@@ -182,7 +182,7 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("org.duckdb:duckdb_jdbc")
-        .defaultVersion("1.5.4.0")
+        .defaultVersion("1.5.6.0")
         .licenseCategory("A")
         .licenseName("MIT")
         .licenseUrl("https://github.com/duckdb/duckdb-java/blob/main/LICENSE")

@@ -31,7 +31,7 @@
 
     <properties>
         <assembly_package-phase>none</assembly_package-phase>
-        <jface.text.version>3.29.0</jface.text.version>
+        <jface.text.version>3.31.100</jface.text.version>
     </properties>
 
     <dependencies>
@@ -40,6 +40,13 @@
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.tm4e.core</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <!-- Compile-time annotations only; core ships the managed version. -->
+                <exclusion>
+                    <groupId>com.google.errorprone</groupId>
+                    <artifactId>error_prone_annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.platform</groupId>

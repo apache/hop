@@ -166,7 +166,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("org.xerial:sqlite-jdbc")
-        .defaultVersion("3.53.2.0")
+        .defaultVersion("3.53.4.0")
         .licenseCategory("A")
         .licenseName("Apache-2.0")
         .licenseUrl("https://github.com/xerial/sqlite-jdbc/blob/master/LICENSE")

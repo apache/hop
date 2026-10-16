@@ -37,7 +37,7 @@
         <hop.pluginlib.exclude1>jackson-core</hop.pluginlib.exclude1>
         <hop.pluginlib.exclude2>jackson-databind</hop.pluginlib.exclude2>
         <hop.pluginlib.exclude3>jackson-annotations</hop.pluginlib.exclude3>
-        <langchain4j.version>1.20.0</langchain4j.version>
+        <langchain4j.version>1.22.0</langchain4j.version>
     </properties>
 
     <dependencyManagement>
@@ -94,6 +94,37 @@
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
             <version>${langchain4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio-jvm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk7</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

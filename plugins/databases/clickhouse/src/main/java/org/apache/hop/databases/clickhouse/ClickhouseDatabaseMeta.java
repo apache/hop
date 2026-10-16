@@ -88,7 +88,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("com.clickhouse:clickhouse-jdbc:jar:all")
-        .defaultVersion("0.9.8")
+        .defaultVersion("0.10.0")
         .licenseCategory("A")
         .licenseName("Apache-2.0")
         .licenseUrl("https://github.com/ClickHouse/clickhouse-java/blob/main/LICENSE")

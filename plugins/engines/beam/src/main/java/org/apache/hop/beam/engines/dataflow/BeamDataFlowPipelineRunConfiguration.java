@@ -45,6 +45,9 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
 
   public static final String EXPERIMENT_APACHE_HOP_PIPELINE = "apache_hop_pipeline";
 
+  /** Used when the GCS upload buffer size is left empty. */
+  public static final int DEFAULT_GCS_UPLOAD_BUFFER_SIZE_MB = 128;
+
   @GuiWidgetElement(
       order = "20000-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -89,6 +92,15 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       label = "i18n::BeamEnginesDataflow.OptionsGcpTempLocation.Label")
   @HopMetadataProperty
   private String gcpTempLocation;
+
+  @GuiWidgetElement(
+      order = "20027-dataflow-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "i18n::BeamEnginesDataflow.OptionsGcsUploadBufferSizeMb.ToolTip",
+      label = "i18n::BeamEnginesDataflow.OptionsGcsUploadBufferSizeMb.Label")
+  @HopMetadataProperty
+  private String gcsUploadBufferSizeMb;
 
   @GuiWidgetElement(
       order = "20030-dataflow-options",
@@ -212,6 +224,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     this.gcpAppName = config.gcpAppName;
     this.gcpStagingLocation = config.gcpStagingLocation;
     this.gcpTempLocation = config.gcpTempLocation;
+    this.gcsUploadBufferSizeMb = config.gcsUploadBufferSizeMb;
     this.gcpInitialNumberOfWorkers = config.gcpInitialNumberOfWorkers;
     this.gcpMaximumNumberOfWorkers = config.gcpMaximumNumberOfWorkers;
     this.gcpAutoScalingAlgorithm = config.gcpAutoScalingAlgorithm;
@@ -249,6 +262,17 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       // is a separate option from the general tempLocation.
       options.as(GcpOptions.class).setGcpTempLocation(resolve(getGcpTempLocation()));
     }
+
+    // Beam stages the fat jar with a resumable GCS upload in chunks of this size, one HTTP round
+    // trip per chunk. Its own default is 1 MB, which caps staging at about 1 MB per round trip.
+    int uploadBufferSizeMb = DEFAULT_GCS_UPLOAD_BUFFER_SIZE_MB;
+    if (StringUtils.isNotEmpty(getGcsUploadBufferSizeMb())) {
+      int size = Const.toInt(resolve(getGcsUploadBufferSizeMb()), -1);
+      if (size > 0) {
+        uploadBufferSizeMb = size;
+      }
+    }
+    options.setGcsUploadBufferSizeBytes(uploadBufferSizeMb * 1024 * 1024);
 
     if (StringUtils.isNotEmpty(getGcpServiceAccount())) {
       options.setServiceAccount(resolve(getGcpServiceAccount()));
@@ -424,6 +448,22 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
    */
   public void setGcpTempLocation(String gcpTempLocation) {
     this.gcpTempLocation = gcpTempLocation;
+  }
+
+  /**
+   * Gets the size, in MB, of the chunks the files to stage are uploaded to Cloud Storage in
+   *
+   * @return value of gcsUploadBufferSizeMb
+   */
+  public String getGcsUploadBufferSizeMb() {
+    return gcsUploadBufferSizeMb;
+  }
+
+  /**
+   * @param gcsUploadBufferSizeMb The gcsUploadBufferSizeMb to set
+   */
+  public void setGcsUploadBufferSizeMb(String gcsUploadBufferSizeMb) {
+    this.gcsUploadBufferSizeMb = gcsUploadBufferSizeMb;
   }
 
   /**

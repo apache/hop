@@ -20,10 +20,18 @@ package org.apache.hop.vfs.s3.s3common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.apache.hop.core.logging.HopLogStore;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** The "Maximum connections" setting of an S3 connection. */
 class S3CommonFileSystemMaxConnectionsTest {
+
+  @BeforeAll
+  static void initLogging() {
+    // An invalid value is reported on the log channel.
+    HopLogStore.init();
+  }
 
   @Test
   void blankKeepsTheSdkDefault() {

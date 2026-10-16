@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms JSON</name>
 
     <properties>
-        <encoder.version>1.4.0</encoder.version>
+        <encoder.version>1.5.1</encoder.version>
     </properties>
 
     <dependencyManagement>
@@ -50,7 +50,7 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${json-path.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>

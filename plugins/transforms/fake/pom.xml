@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms Fake</name>
 
     <properties>
-        <datafaker.version>2.5.4</datafaker.version>
+        <datafaker.version>2.7.0</datafaker.version>
     </properties>
 
     <dependencyManagement>

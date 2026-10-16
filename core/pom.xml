@@ -163,6 +163,16 @@
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf-lite</artifactId>
             <version>${grpc.version}</version>
+            <exclusions>
+                <!-- protobuf-java (full) is shipped too and contains the same classes. With both in
+                     lib/core, whichever is listed first wins; the lite DurationProto has no
+                     getDescriptor(), which breaks proto-google-common-protos (Beam BigQuery IO).
+                     grpc-protobuf excludes it from grpc-protobuf-lite for the same reason. -->
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-javalite</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -457,6 +467,18 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis-ext</artifactId>
+        </dependency>
+        <!-- Shipped in lib/core for Spark and Hadoop: the Log4j 1.x API routed to Log4j 2, and
+             the JSON template layout Spark's structured logging uses. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-layout-template-json</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

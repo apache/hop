@@ -29,7 +29,6 @@
     <name>Hop Plugins Miscellaneous Git</name>
 
     <properties>
-        <dependency.jgit.revision>7.5.0.202512021534-r</dependency.jgit.revision>
         <dependency.wiremock.revision>3.13.2</dependency.wiremock.revision>
     </properties>
 
@@ -49,17 +48,14 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.http.apache</artifactId>
-            <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
-            <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
@@ -132,7 +128,6 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.junit</artifactId>
-            <version>${dependency.jgit.revision}</version>
             <scope>test</scope>
         </dependency>
         <!-- Required to run UIGitTest: org.eclipse.jgit.junit.RepositoryTestCase expects JUnit 4 TestName rule -->

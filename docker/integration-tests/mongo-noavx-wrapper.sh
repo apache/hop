@@ -26,6 +26,12 @@
 name=$(basename "$0")
 real="/usr/lib/hop-it/${name}"
 
+# AVX is an x86 feature. On other architectures (arm64 on Apple Silicon, Graviton) the image
+# ships a native binary and /proc/cpuinfo has no "flags" line, so always run it directly.
+if [ "$(uname -m)" != "x86_64" ]; then
+  exec "$real" "$@"
+fi
+
 if [ "${HOP_MONGO_FORCE_QEMU:-}" != "1" ] && grep -qE '^flags.* avx( .*|$)' /proc/cpuinfo; then
   exec "$real" "$@"
 fi

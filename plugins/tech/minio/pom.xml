@@ -116,6 +116,12 @@
             <artifactId>kotlin-stdlib-jdk8</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
