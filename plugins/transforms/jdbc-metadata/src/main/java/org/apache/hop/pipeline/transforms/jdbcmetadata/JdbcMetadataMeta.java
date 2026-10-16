@@ -32,6 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -620,7 +621,8 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
         if (!fieldName.equals(outputField.getName())) {
           continue;
         }
-        String newFieldName = outputField.getRename() == null ? fieldName : outputField.getRename();
+        String newFieldName =
+            Utils.isEmpty(outputField.getRename()) ? fieldName : outputField.getRename();
         try {
           field = ValueMetaFactory.createValueMeta(newFieldName, field.getType());
           field.setOrigin(origin);

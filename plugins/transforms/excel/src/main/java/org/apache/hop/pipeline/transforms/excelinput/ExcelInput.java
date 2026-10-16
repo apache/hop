@@ -830,7 +830,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
   private void initErrorHandling() {
     List<IFileErrorHandler> errorHandlers = new ArrayList<>(2);
 
-    if (meta.getLineNumberFilesDestinationDirectory() != null) {
+    if (!Utils.isEmpty(meta.getLineNumberFilesDestinationDirectory())) {
       errorHandlers.add(
           new FileErrorHandlerContentLineNumber(
               getPipeline().getExecutionStartDate(),
@@ -839,7 +839,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
               "Latin1",
               this));
     }
-    if (meta.getErrorFilesDestinationDirectory() != null) {
+    if (!Utils.isEmpty(meta.getErrorFilesDestinationDirectory())) {
       errorHandlers.add(
           new FileErrorHandlerMissingFiles(
               getPipeline().getExecutionStartDate(),

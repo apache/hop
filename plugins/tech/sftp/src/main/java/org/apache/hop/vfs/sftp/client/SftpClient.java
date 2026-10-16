@@ -403,7 +403,7 @@ public class SftpClient {
   }
 
   public String getCompression() {
-    if (this.compression == null) {
+    if (Utils.isEmpty(this.compression)) {
       return null;
     }
     if (this.compression.equals("zlib")) {

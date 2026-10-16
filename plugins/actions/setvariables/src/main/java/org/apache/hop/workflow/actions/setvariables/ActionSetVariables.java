@@ -192,7 +192,14 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         }
       }
 
-      definitions.addAll(variableDefinitions);
+      // A blank value means "unset the variable", also when it was saved as an empty string
+      for (VariableDefinition definition : variableDefinitions) {
+        definitions.add(
+            new VariableDefinition(
+                definition.getName(),
+                Utils.isEmpty(definition.getValue()) ? null : definition.getValue(),
+                definition.getType()));
+      }
 
       // if parentWorkflow exists - clear/reset all entrySetVariables before applying the actual
       // ones

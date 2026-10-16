@@ -274,13 +274,13 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     xml.append("    <" + NS_PREFIX + ":")
         .append(requestOperation)
         .append(">\n"); // OPEN request operation
-    if (meta.getInFieldContainerName() != null) {
+    if (!Utils.isEmpty(meta.getInFieldContainerName())) {
       xml.append("      <" + NS_PREFIX + ":" + meta.getInFieldContainerName() + ">\n");
     }
 
     addParametersToXML(xml, bodyNames, qualifyWSField);
 
-    if (meta.getInFieldContainerName() != null) {
+    if (!Utils.isEmpty(meta.getInFieldContainerName())) {
       xml.append("      </" + NS_PREFIX + ":" + meta.getInFieldContainerName() + ">\n");
     }
     xml.append("    </" + NS_PREFIX + ":")
@@ -306,7 +306,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     //
     for (Object[] vCurrentRow : data.argumentRows) {
 
-      if (meta.getInFieldArgumentName() != null) {
+      if (!Utils.isEmpty(meta.getInFieldArgumentName())) {
         xml.append("        <")
             .append(NS_PREFIX)
             .append(":")
@@ -364,7 +364,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
           }
         }
       }
-      if (meta.getInFieldArgumentName() != null) {
+      if (!Utils.isEmpty(meta.getInFieldArgumentName())) {
         xml.append("        </")
             .append(NS_PREFIX)
             .append(":")
@@ -1016,10 +1016,10 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             }
             // If we end the xml element named as the return type, we
             // finish a row
-            if ((meta.getOutFieldArgumentName() == null
+            if ((Utils.isEmpty(meta.getOutFieldArgumentName())
                 && meta.getOperationName().equals(vReader.getLocalName()))) {
               oneValueRowProcessing = false;
-            } else if (meta.getOutFieldArgumentName() != null
+            } else if (!Utils.isEmpty(meta.getOutFieldArgumentName())
                 && meta.getOutFieldArgumentName().equals(vReader.getLocalName())) {
               putRow(data.outputRowMeta, outputRowData);
               processing = false;

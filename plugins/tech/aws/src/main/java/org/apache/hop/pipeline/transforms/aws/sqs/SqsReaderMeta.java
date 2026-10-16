@@ -23,6 +23,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -102,7 +103,7 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
   public void setDefault() {}
 
   public String getAwsCredChain() {
-    return awsCredChain = awsCredChain == null ? "N" : awsCredChain;
+    return awsCredChain = Utils.isEmpty(awsCredChain) ? "N" : awsCredChain;
   }
 
   public void setAwsCredChain(String awsCredChain) {
@@ -190,7 +191,7 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
   }
 
   public String getTFldMaxMessages() {
-    return tFldMaxMessages == null ? "0" : tFldMaxMessages;
+    return Utils.isEmpty(tFldMaxMessages) ? "0" : tFldMaxMessages;
   }
 
   public void setTFldMaxMessages(String tFldMaxMessages) {
