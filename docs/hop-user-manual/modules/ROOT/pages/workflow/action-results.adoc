@@ -1,0 +1,101 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ActionResults]]
+:imagesdir: ../assets/images
+:description: Every action in a workflow produces a result: success or failure, metrics, result rows and result files. This page explains what the result holds, how it is passed from one action to the next, and how to read and write it.
+
+= Action results
+
+Every action in a workflow ends with a *result*.
+The result decides which hop the workflow follows next, and it carries information from one action to the next one: metrics, rows and file names.
+
+== What a result holds
+
+Success or failure::
+Whether the action succeeded (true) or failed (false).
+The workflow follows a green hop when the result is true, a red hop when it is false, and an unconditional hop in both cases.
+A few actions don't evaluate a result, and only their unconditional hops are followed: xref:workflow/actions/start.adoc[Start], xref:workflow/actions/dummy.adoc[Dummy], xref:workflow/actions/deleteexecutioninfo.adoc[Delete execution information] and xref:workflow/actions/snowflake-whm.adoc[Snowflake warehouse manager].
+
+Metrics::
+The number of errors, and the number of lines read, written, input, output, updated, deleted and rejected, the number of files retrieved, the exit status of a shell script, whether the action was stopped, the log text and the elapsed time.
+
+Result rows::
+A list of rows, for example the rows a pipeline copied to the result with xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result].
+An action can use them as input, for example to run a pipeline or a workflow once for every row.
+
+Result files::
+A list of file names, for example the files a pipeline wrote with a transform that has its "Add filenames to result" option enabled.
+Later actions can process these files, for example to attach them to an email.
+
+== From one action to the next
+
+Each action receives a copy of the result of the previous action, and passes its own result on to the next one.
+So result rows and files travel through the workflow until an action replaces or clears them.
+
+Before an action runs, the number of errors is set back to 0, so every action starts with a clean count.
+A few actions keep the number of errors of the previous action, because they look at it or pass it on: xref:workflow/actions/abort.adoc[Abort], xref:workflow/actions/eval.adoc[JavaScript], xref:workflow/actions/join.adoc[Join], xref:workflow/actions/writetolog.adoc[Write to log] and xref:workflow/actions/waitfor.adoc[Wait for].
+
+When an action launches its next actions in parallel, every branch receives the metrics and the result files of that action, but no result rows: each branch starts with an empty list of rows.
+
+=== Pipeline and Workflow actions
+
+The xref:workflow/actions/pipeline.adoc[Pipeline] and xref:workflow/actions/workflow.adoc[Workflow] actions pass the result they receive to the pipeline or workflow they run, and build their own result from it:
+
+* The metrics are those of the pipeline or workflow that ran. In a pipeline, the number of errors is the sum of the errors of all its transforms, and every line count is the highest count of any of its transforms, not their sum.
+* The result files are added to the files the action received, so they accumulate along the workflow.
+* The result rows of a pipeline replace the rows the action received when the pipeline contains a Copy rows to result transform, even when that transform copied no rows. A pipeline without one passes the rows it received on unchanged.
+A child workflow replaces the rows only when it returns rows.
+This is without *Execute for every result row*: with that option, the action gives each run only the current row, and afterwards passes on what the last run left behind, usually just the last row, not the list it received.
+
+Both actions have options that use the result they receive:
+
+* *Execute for every result row* runs the pipeline or workflow once for every result row of the previous action.
+The loop stops at the first run that fails: the remaining rows are not processed.
+* *Copy results to parameters* sets the parameters of the pipeline or workflow from the fields of the result rows.
+* The Pipeline action can clear the result rows and the result files before it runs (*Clear results rows before execution*, *Clear results files before execution*).
+
+See xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] for a complete example.
+
+== Reading and writing the result
+
+[options="header", cols="1,2,3"]
+|===
+|Part of the result|Write it with|Read it with
+
+|Result rows
+|xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result] in a pipeline
+|xref:pipeline/transforms/getrowsfromresult.adoc[Get Rows from Result] in the next pipeline, or *Execute for every result row* and *Copy results to parameters* in the Pipeline and Workflow actions
+
+|Result files
+|xref:pipeline/transforms/filestoresult.adoc[Files to result] in a pipeline, the "Add filenames to result" option of many transforms and actions, or the xref:workflow/actions/addresultfilenames.adoc[Add filenames to result] action
+|xref:pipeline/transforms/filesfromresult.adoc[Files from result] in a pipeline, or actions such as xref:workflow/actions/processresultfilenames.adoc[Process result filenames], xref:workflow/actions/evalfilesmetrics.adoc[Evaluate files metrics] and xref:workflow/actions/mail.adoc[Mail]. xref:workflow/actions/deleteresultfilenames.adoc[Delete filenames from result] removes names from the list.
+
+|Success, failure and metrics
+|Every action sets them
+|The fields that start with "Previous action" in xref:pipeline/transforms/getsystemdata.adoc[Get System Info], or `previous_result` and variables like `errors` and `lines_input` in the xref:workflow/actions/eval.adoc[JavaScript] action
+|===
+
+A pipeline can run another pipeline or a workflow as well, with the xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] and xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor] transforms. These pass the input rows to the child as result rows, and can send the result rows and files of the child to their own output streams.
+
+== Example
+
+A workflow has to process every file listed in a table:
+
+. A first Pipeline action runs a pipeline that reads the file names from the table and sends them to Copy rows to result.
+. A second Pipeline action has *Execute for every result row* and *Copy results to parameters* enabled, and maps the file name field to a parameter.
+It runs its pipeline once for every file name, with the file name as a parameter.
+. If one of those runs fails, the loop stops, the remaining file names are not processed, and the result of the second action is false. The workflow follows its red hop, for example to a Mail action that reports the error.

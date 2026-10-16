@@ -369,6 +369,7 @@ under the License.
 * xref:workflow/workflows.adoc[Workflows]
 ** xref:workflow/create-workflow.adoc[Create a Workflow]
 ** xref:workflow/run-debug-workflow.adoc[Run and Debug a Workflow]
+** xref:workflow/action-results.adoc[Action results]
 ** xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
 *** xref:workflow/workflow-run-configurations/native-local-workflow-engine.adoc[Native Local]
 *** xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Native Remote]
