@@ -23,6 +23,8 @@ import static org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHar
 import static org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHarness.runWithFilenames;
 import static org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHarness.write;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -434,15 +436,64 @@ class TextFileInputCharacterizationTest {
   class Copies {
 
     /**
-     * Several copies reading the same files would output every row once per copy: without "Running
-     * in parallel?" the transform refuses to start instead.
+     * Without "Running in parallel?" every copy reads the files of its own list: a filename with
+     * the copy number gives each copy its own file.
      */
     @Test
-    void refusesSeveralCopiesWithoutParallelReading() throws Exception {
+    void eachCopyReadsItsOwnFileWithoutParallelReading() throws Exception {
+      write(dir, "part_0.csv", "1\n2\n");
+      write(dir, "part_1.csv", "3\n4\n");
+      TextFileInputMeta meta = csvMeta("a");
+      addFile(meta, dir + "/part_${Internal.Transform.CopyNr}.csv");
+
+      Result result = run(meta, 2);
+
+      assertEquals(0, result.errors(), result.log());
+      assertEquals(List.of("1", "2"), result.linesOfCopy(0));
+      assertEquals(List.of("3", "4"), result.linesOfCopy(1));
+    }
+
+    /**
+     * Several copies reading the same file would output its rows once per copy: without "Running in
+     * parallel?" the copies stop before reading, and the error names the file.
+     */
+    @Test
+    void refusesAFileThatSeveralCopiesWouldRead() throws Exception {
       Result result = run(oneFile("1\n2\n", "a"), 2);
 
-      assertTrue(result.startFailure() != null, "the pipeline must not start");
-      assertTrue(result.log().contains("Running in parallel?"), result.log());
+      assertTrue(result.errors() > 0, "the pipeline must fail");
+      assertEquals(List.of(), result.lines(), "no copy reads the file");
+      assertTrue(result.log().contains("Copies 0 and 1"), result.log());
+      assertTrue(result.log().contains("input.csv"), result.log());
+    }
+
+    /** Also when only some of the files of two copies are the same. */
+    @Test
+    void refusesFileListsThatOverlap() throws Exception {
+      write(dir, "shared.csv", "1\n");
+      write(dir, "own_0.csv", "2\n");
+      write(dir, "own_1.csv", "3\n");
+      TextFileInputMeta meta = csvMeta("a");
+      addFile(meta, dir + "/own_${Internal.Transform.CopyNr}.csv");
+      addFile(meta, dir + "/shared.csv");
+
+      Result result = run(meta, 2);
+
+      assertTrue(result.errors() > 0, "the pipeline must fail");
+      assertTrue(result.log().contains("shared.csv"), result.log());
+    }
+
+    @Test
+    void warnsAboutSeveralCopiesWithoutParallelReadingInTheCheck() {
+      TextFileInputMeta meta = csvMeta("a");
+
+      assertNotNull(meta.getCopiesWithoutParallelWarning(2));
+      assertNull(meta.getCopiesWithoutParallelWarning(1));
+      meta.getContent().setRunningInParallel(true);
+      assertNull(meta.getCopiesWithoutParallelWarning(2));
+      meta.getContent().setRunningInParallel(false);
+      meta.getFileInput().setAcceptingFilenames(true);
+      assertNull(meta.getCopiesWithoutParallelWarning(2));
     }
 
     @Test

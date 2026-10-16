@@ -796,7 +796,9 @@ public class TextFileInputMeta
       remarks.add(
           new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage().trim(), transformMeta));
     }
-    String parallelProblem = getParallelReadProblem(transformMeta.getCopies(variables), variables);
+    int copies = transformMeta.getCopies(variables);
+    String parallelProblem = getParallelReadProblem(copies, variables);
+    String copiesWarning = getCopiesWithoutParallelWarning(copies);
     if (parallelProblem != null) {
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, parallelProblem, transformMeta));
     } else if (content.runningInParallel) {
@@ -805,7 +807,26 @@ public class TextFileInputMeta
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "TextFileInputMeta.CheckResult.ParallelOk"),
               transformMeta));
+    } else if (copiesWarning != null) {
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, copiesWarning, transformMeta));
     }
+  }
+
+  /**
+   * A warning for several copies without parallel reading: every copy reads all the files of its
+   * own list, so the copies need different files. Whether they have them only shows when they
+   * resolve their filenames, so this can't be checked up front. Filenames from a previous transform
+   * are spread over the copies already.
+   *
+   * @param copies the number of copies the transform runs in
+   * @return the warning, or null
+   */
+  public String getCopiesWithoutParallelWarning(int copies) {
+    if (content.runningInParallel || copies <= 1 || fileInput.isAcceptingFilenames()) {
+      return null;
+    }
+    return BaseMessages.getString(
+        PKG, "TextFileInputMeta.CheckResult.CopiesWithoutParallel", String.valueOf(copies));
   }
 
   @Override
@@ -957,9 +978,12 @@ public class TextFileInputMeta
   }
 
   /**
-   * What stops this transform from running in the given number of copies, or null when nothing
-   * does. Without parallel reading every copy would read every file, and output every row once per
-   * copy; with it, the settings must allow reading files in chunks.
+   * What stops this transform from reading in parallel, or null when nothing does: the settings
+   * must allow reading files in chunks, and the chunk size must be valid.
+   *
+   * <p>Several copies without parallel reading are not refused here: each copy reads the files of
+   * its own list, which can differ per copy. A file in the lists of several copies stops the
+   * transform when it starts, see {@link TextFileInput}.
    *
    * @param copies the number of copies the transform runs in
    * @param variables to resolve the chunk size
@@ -967,11 +991,6 @@ public class TextFileInputMeta
    */
   public String getParallelReadProblem(int copies, IVariables variables) {
     if (!content.runningInParallel) {
-      if (copies > 1 && !fileInput.isAcceptingFilenames()) {
-        // Filenames from a previous transform are spread over the copies already
-        return BaseMessages.getString(
-            PKG, "TextFileInputMeta.Error.CopiesWithoutParallel", String.valueOf(copies));
-      }
       return null;
     }
     List<String> settings = getSettingsPreventingParallelRead();

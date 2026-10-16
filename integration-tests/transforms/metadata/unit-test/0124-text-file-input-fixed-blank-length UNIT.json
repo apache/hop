@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "code",
+          "data_set_field": "code"
+        },
+        {
+          "transform_field": "amount",
+          "data_set_field": "amount"
+        }
+      ],
+      "field_order": [
+        "code"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-fixed-blank-length"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0124-text-file-input-fixed-blank-length UNIT",
+  "description": "Fixed-width Text File Input with blank Length and Encoding must split by characters",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0124-text-file-input-fixed-blank-length.hpl",
+  "test_type": "UNIT_TEST"
+}

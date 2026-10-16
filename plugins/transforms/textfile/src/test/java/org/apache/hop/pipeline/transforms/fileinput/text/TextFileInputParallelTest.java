@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apache.hop.core.file.TextFileInputField;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.pipeline.transforms.fileinput.text.TextFileChunkPlan.Source;
 import org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHarness.Result;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -203,6 +205,66 @@ class TextFileInputParallelTest {
     for (Object[] row : result.rows()) {
       assertTrue(row[file].toString().endsWith("named.csv"));
     }
+  }
+
+  // ------------------------------------------------------------ files that differ per copy
+
+  /**
+   * A filename with the copy number gives each copy a file of its own: the plan holds the files of
+   * all copies, so every file is read, also when another copy reads its chunks.
+   */
+  @ParameterizedTest
+  @ValueSource(ints = {2, 3})
+  void readsTheFilesOfEveryCopy(int copies) throws Exception {
+    TextFileInputMeta everyFile = parallelMeta("1KB");
+    for (int copy = 0; copy < copies; copy++) {
+      Path part =
+          write(dir, "part_" + copy + ".csv", lines(copy * 1000 + 1, copy * 1000 + 1000, "\n"));
+      addFile(everyFile, part);
+    }
+    TextFileInputMeta meta = parallelMeta("1KB");
+    addFile(meta, dir + "/part_${Internal.Transform.CopyNr}.csv");
+
+    Result sequential = run(sequentialCopy(everyFile), 1);
+    Result result = run(meta, copies);
+
+    assertEquals(0, result.errors(), result.log());
+    assertEquals(copies * 1000, result.lines().size(), "every file read once");
+    assertEquals(sorted(sequential.lines()), sorted(result.lines()));
+  }
+
+  private Source source(String name) throws Exception {
+    return new Source(HopVfs.getFileObject(dir.resolve(name).toString()), null);
+  }
+
+  private static List<String> names(List<Source> sources) {
+    List<String> names = new ArrayList<>();
+    sources.forEach(source -> names.add(source.file().getName().getBaseName()));
+    return names;
+  }
+
+  @Test
+  void plansTheFilesOfAllCopiesOnce() throws Exception {
+    Source a = source("a.csv");
+    Source b = source("b.csv");
+    Source c = source("c.csv");
+
+    // The same list in every copy: once
+    assertEquals(
+        List.of("a.csv", "b.csv"),
+        names(TextFileInput.filesOfAllCopies(List.of(List.of(a, b), List.of(a, b)))));
+    // A file per copy: all of them
+    assertEquals(
+        List.of("a.csv", "b.csv"),
+        names(TextFileInput.filesOfAllCopies(List.of(List.of(a), List.of(b)))));
+    // Overlapping lists: each file once, in the order the copies list them
+    assertEquals(
+        List.of("a.csv", "b.csv", "c.csv"),
+        names(TextFileInput.filesOfAllCopies(List.of(List.of(a), List.of(b, a, c)))));
+    // A file one copy lists twice is read twice, as without parallel reading
+    assertEquals(
+        List.of("a.csv", "a.csv"),
+        names(TextFileInput.filesOfAllCopies(List.of(List.of(a, a), List.of(a)))));
   }
 
   // ------------------------------------------------------------ breaks in enclosed fields
