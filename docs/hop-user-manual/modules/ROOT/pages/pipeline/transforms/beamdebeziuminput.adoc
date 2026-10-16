@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Read database change events using Apache Beam DebeziumIO.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=no, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=no, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-debezium-input.svg[Beam Debezium input Icon, role="image-doc-icon"] Beam Debezium input
