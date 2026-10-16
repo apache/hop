@@ -1308,7 +1308,8 @@ public class Const {
    * @return The converted value or the default.
    */
   public static int toInt(String str, int def) {
-    if (str == null) {
+    // Integer.parseInt throws for these anyway: skip the exception, callers do this per row
+    if (str == null || str.isBlank()) {
       return def;
     }
     int retval;
@@ -1328,7 +1329,8 @@ public class Const {
    * @return The converted value or the default.
    */
   public static long toLong(String str, long def) {
-    if (str == null) {
+    // Long.parseLong throws for these anyway: skip the exception, callers do this per row
+    if (str == null || str.isBlank()) {
       return def;
     }
     long retval;
@@ -1579,7 +1581,8 @@ public class Const {
    * @return The converted value or the default.
    */
   public static double toDouble(String str, double def) {
-    if (str == null) {
+    // Double.parseDouble throws for these anyway: skip the exception, callers do this per row
+    if (str == null || str.isBlank()) {
       return def;
     }
     double retval;

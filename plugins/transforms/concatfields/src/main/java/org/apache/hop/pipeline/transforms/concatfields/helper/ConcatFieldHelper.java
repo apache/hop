@@ -17,9 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.concatfields.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -66,79 +63,105 @@ public class ConcatFieldHelper {
       Object[] inputRowData, ConcatFieldsData data, ConcatFieldsMeta meta, IRowMeta rowMeta)
       throws HopException {
     Object[] outputRowData = createOutputRow(inputRowData, data, meta);
-    List<String> fields = new ArrayList<>(Math.max(data.targetFieldLength, 8));
+    if (data.fieldTrimTypes == null) {
+      prepareFields(data, meta);
+    }
+
+    // This runs for every row: build the target in one pass, no intermediate list or stream
+    String separator = Const.NVL(data.stringSeparator, "");
+    boolean skipEmpty = meta.isSkipValueEmpty();
+    boolean forceEnclosure = meta.isForceEnclosure();
+    String enclosure = meta.getEnclosure();
+    StringBuilder target = new StringBuilder(Math.max(data.targetFieldLength, 16));
+    boolean firstValue = true;
 
     for (int i = 0; i < data.inputFieldIndexes.size(); i++) {
       int inputRowIndex = data.inputFieldIndexes.get(i);
       IValueMeta valueMeta = rowMeta.getValueMeta(inputRowIndex);
       Object valueData = inputRowData[inputRowIndex];
 
-      String nullString;
-      String trimType;
-      if (meta.getOutputFields().isEmpty()) {
-        // No specific null value defined
-        nullString = "";
-        trimType = ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE);
+      String value;
+      if (valueMeta.isNull(valueData)) {
+        value = data.fieldNullStrings[i];
       } else {
-        ConcatField field = meta.getOutputFields().get(i);
-        nullString = Const.NVL(field.getNullString(), "");
-        trimType = data.trimType[i];
-        // Manage missing trim type. Leave the incoming value as it is
-        if (trimType == null) {
-          trimType = ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE);
-        }
+        value = fieldString(valueMeta, valueData, data.fieldTrimTypes[i]);
       }
 
-      handlerField(fields, valueMeta, valueData, nullString, trimType);
+      if (skipEmpty && Utils.isEmpty(value)) {
+        continue;
+      }
+      if (!firstValue) {
+        target.append(separator);
+      }
+      firstValue = false;
+      if (forceEnclosure) {
+        target.append(enclosure).append(value).append(enclosure);
+      } else {
+        target.append(value);
+      }
     }
 
-    // list -> string(support separator)
-    String separator = Const.NVL(data.stringSeparator, "");
-    String collect =
-        fields.stream()
-            .filter(c -> !(meta.isSkipValueEmpty() && Utils.isEmpty(c)))
-            .map(c -> meta.isForceEnclosure() ? meta.getEnclosure() + c + meta.getEnclosure() : c)
-            .collect(Collectors.joining(separator));
-
-    outputRowData[data.outputRowMeta.size() - 1] = collect;
+    outputRowData[data.outputRowMeta.size() - 1] = target.toString();
     return outputRowData;
   }
 
   /**
-   * Converts a single field value to its string representation and adds it to the provided list of
-   * field values.
+   * Work out the null string and trim type of every concatenated field once, rather than for every
+   * row. Without output fields every input field is used, with no null string and no trimming.
+   */
+  private static void prepareFields(ConcatFieldsData data, ConcatFieldsMeta meta) {
+    int nrFields = data.inputFieldIndexes.size();
+    String[] nullStrings = new String[nrFields];
+    int[] trimTypes = new int[nrFields];
+    for (int i = 0; i < nrFields; i++) {
+      if (meta.getOutputFields().isEmpty()) {
+        nullStrings[i] = "";
+        trimTypes[i] = IValueMeta.TRIM_TYPE_NONE;
+      } else {
+        ConcatField field = meta.getOutputFields().get(i);
+        nullStrings[i] = Const.NVL(field.getNullString(), "");
+        String trimType = data.trimType == null ? null : data.trimType[i];
+        // Manage missing trim type. Leave the incoming value as it is
+        trimTypes[i] =
+            trimType == null
+                ? IValueMeta.TRIM_TYPE_NONE
+                : ValueMetaBase.getTrimTypeByCode(trimType);
+      }
+    }
+    data.fieldNullStrings = nullStrings;
+    data.fieldTrimTypes = trimTypes;
+  }
+
+  /**
+   * Converts a non-null field value to its string representation with the trim type of this
+   * transform rather than the one of the incoming field.
    *
-   * @param fields the list collecting converted field values
    * @param valueMeta the value metadata describing the field type
    * @param valueData the actual field value
-   * @param nullString the replacement value used when the field value is null
-   * @param trimType the trim type code to apply
+   * @param trimType the trim type to apply
+   * @return the string value
    * @throws HopValueException if the value cannot be converted to a string
    */
-  private static void handlerField(
-      List<String> fields,
-      IValueMeta valueMeta,
-      Object valueData,
-      String nullString,
-      String trimType)
+  private static String fieldString(IValueMeta valueMeta, Object valueData, int trimType)
       throws HopValueException {
-    if (valueMeta.isNull(valueData)) {
-      fields.add(nullString);
-      return;
-    }
-
-    if (trimType != null) {
-      // Get the raw string value without applying the incoming field's trim type
-      // by temporarily setting trim type to NONE
-      int originalTrimType = valueMeta.getTrimType();
+    // Get the raw string value without applying the incoming field's trim type
+    // by temporarily setting trim type to NONE
+    int originalTrimType = valueMeta.getTrimType();
+    String stringValue;
+    if (originalTrimType == IValueMeta.TRIM_TYPE_NONE) {
+      stringValue = valueMeta.getString(valueData);
+    } else {
       valueMeta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
-      String stringValue = valueMeta.getString(valueData);
-      // Restore the original trim type
-      valueMeta.setTrimType(originalTrimType);
-
-      // Apply only the configured trim type from the transform
-      fields.add(Const.trimToType(stringValue, ValueMetaBase.getTrimTypeByCode(trimType)));
+      try {
+        stringValue = valueMeta.getString(valueData);
+      } finally {
+        // Restore the original trim type
+        valueMeta.setTrimType(originalTrimType);
+      }
     }
+
+    // Apply only the configured trim type from the transform
+    return Const.trimToType(stringValue, trimType);
   }
 
   /**

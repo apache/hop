@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -81,10 +82,20 @@ class StringOperationsTest {
 
   private Object[] processRows(StringOperationsMeta meta, RowMeta inputRowMeta, Object[] inputRow)
       throws HopException {
+    return processRows(meta, inputRowMeta, inputRow, Map.of());
+  }
+
+  private Object[] processRows(
+      StringOperationsMeta meta,
+      RowMeta inputRowMeta,
+      Object[] inputRow,
+      Map<String, String> variables)
+      throws HopException {
     StringOperationsData data = new StringOperationsData();
     StringOperations transform =
         new StringOperations(
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+    variables.forEach(transform::setVariable);
     transform.setInputRowMeta(inputRowMeta);
     transform.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     QueueRowSet outputRowSet = new QueueRowSet();
@@ -157,6 +168,26 @@ class StringOperationsTest {
 
     assertEquals("abc", output[0]);
     assertEquals("#####abc", output[1]);
+  }
+
+  @Test
+  void resolvesVariablesInPadCharAndLength() throws HopException {
+    StringOperationsMeta meta = new StringOperationsMeta();
+    StringOperationsMeta.StringOperation op = operationWithDefaults("text");
+    op.setPaddingType(StringOperationsMeta.Padding.RIGHT);
+    op.setPadChar("${PAD_CHAR}");
+    op.setPadLen("${PAD_LEN}");
+    op.setFieldOutStream("padded");
+    meta.getOperations().add(op);
+
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("text"));
+
+    Object[] output =
+        processRows(
+            meta, inputRowMeta, new Object[] {"abc"}, Map.of("PAD_CHAR", "*", "PAD_LEN", "6"));
+
+    assertEquals("abc***", output[1]);
   }
 
   @Test
@@ -404,12 +435,14 @@ class StringOperationsTest {
     StringOperations transform =
         new StringOperations(
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+    data.padChars = new String[] {operation.getPadChar()};
+    data.padLens = new int[] {Const.toInt(operation.getPadLen(), -1)};
     Method method =
         StringOperations.class.getDeclaredMethod(
-            "processString", String.class, StringOperationsMeta.StringOperation.class);
+            "processString", String.class, StringOperationsMeta.StringOperation.class, int.class);
     method.setAccessible(true);
     try {
-      return (String) method.invoke(transform, input, operation);
+      return (String) method.invoke(transform, input, operation, 0);
     } catch (InvocationTargetException e) {
       throw new Exception(e.getCause());
     }

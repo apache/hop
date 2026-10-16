@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.apache.hop.core.exception.HopFileNotFoundException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -404,6 +405,30 @@ class ValueDataUtilTest {
     assertEquals("Hello World", ValueDataUtil.initCap("hello world"));
     assertEquals("Apache Hop", ValueDataUtil.initCap("apache hop"));
     assertNull(ValueDataUtil.initCap(null));
+  }
+
+  /** initCap gives the result WordUtils.capitalizeFully gave it before it got its own loop. */
+  @Test
+  void testInitCapMatchesCapitalizeFully() {
+    char[] delimiters = {' ', '_', ',', ':', ';', '-'};
+    String[] inputs = {
+      "",
+      " ",
+      "HELLO WORLD",
+      "hELLO   wORLD ",
+      "first_name,last-name:x;y",
+      "--a__b,,c",
+      "tab\tseparated words",
+      "o'neil mcdonald",
+      "élan ÉCOLE ßtraße",
+      "ǆemal",
+      "𐐨𐐩 deseret",
+      "123abc 4DEF"
+    };
+    for (String input : inputs) {
+      assertEquals(
+          WordUtils.capitalizeFully(input, delimiters), ValueDataUtil.initCap(input), input);
+    }
   }
 
   @Test
