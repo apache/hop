@@ -214,7 +214,7 @@ public class ActionMysqlBulkLoad extends ActionBase {
                 }
 
                 // Add schemaname (Most the time Schemaname.Tablename)
-                if (schemaName != null) {
+                if (!Utils.isEmpty(realSchemaname)) {
                   realTablename = realSchemaname + "." + realTablename;
                 }
 
@@ -231,7 +231,7 @@ public class ActionMysqlBulkLoad extends ActionBase {
                 }
 
                 // Set list of Column
-                if (getRealListattribut() != null) {
+                if (!Utils.isEmpty(getRealListattribut())) {
                   listOfColumn = "(" + mysqlString(getRealListattribut()) + ")";
                 }
 
@@ -250,26 +250,26 @@ public class ActionMysqlBulkLoad extends ActionBase {
                 }
 
                 // Fields ....
-                if (getRealSeparator() != null
-                    || getRealEnclosed() != null
-                    || getRealEscaped() != null) {
+                if (!Utils.isEmpty(getRealSeparator())
+                    || !Utils.isEmpty(getRealEnclosed())
+                    || !Utils.isEmpty(getRealEscaped())) {
                   fieldTerminatedby = "FIELDS ";
 
-                  if (getRealSeparator() != null) {
+                  if (!Utils.isEmpty(getRealSeparator())) {
                     fieldTerminatedby =
                         fieldTerminatedby
                             + "TERMINATED BY '"
                             + Const.replace(getRealSeparator(), "'", "''")
                             + "'";
                   }
-                  if (getRealEnclosed() != null) {
+                  if (!Utils.isEmpty(getRealEnclosed())) {
                     fieldTerminatedby =
                         fieldTerminatedby
                             + " ENCLOSED BY '"
                             + Const.replace(getRealEnclosed(), "'", "''")
                             + "'";
                   }
-                  if (getRealEscaped() != null) {
+                  if (!Utils.isEmpty(getRealEscaped())) {
 
                     fieldTerminatedby =
                         fieldTerminatedby
@@ -280,11 +280,12 @@ public class ActionMysqlBulkLoad extends ActionBase {
                 }
 
                 // LINES ...
-                if (getRealLinestarted() != null || getRealLineterminated() != null) {
+                if (!Utils.isEmpty(getRealLinestarted())
+                    || !Utils.isEmpty(getRealLineterminated())) {
                   lineTerminatedby = "LINES ";
 
                   // Line starting By
-                  if (getRealLinestarted() != null) {
+                  if (!Utils.isEmpty(getRealLinestarted())) {
                     lineTerminatedby =
                         lineTerminatedby
                             + "STARTING BY '"
@@ -293,7 +294,7 @@ public class ActionMysqlBulkLoad extends ActionBase {
                   }
 
                   // Line terminating By
-                  if (getRealLineterminated() != null) {
+                  if (!Utils.isEmpty(getRealLineterminated())) {
                     lineTerminatedby =
                         lineTerminatedby
                             + " TERMINATED BY '"

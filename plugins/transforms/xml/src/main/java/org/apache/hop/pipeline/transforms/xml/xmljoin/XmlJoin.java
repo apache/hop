@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
@@ -269,7 +270,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
     try {
       Transformer transformer = XmlHandler.createSecureTransformerFactory().newTransformer();
 
-      if (meta.getEncoding() != null) {
+      if (!Utils.isEmpty(meta.getEncoding())) {
         transformer.setOutputProperty(OutputKeys.ENCODING, meta.getEncoding());
       }
 

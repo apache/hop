@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
@@ -105,13 +106,13 @@ public class AvroOutputField implements Cloneable, Comparable<AvroOutputField> {
   }
 
   /**
-   * Get the name of the field in the Avro Schema If the Avro field name is null returns the stream
-   * field name
+   * Get the name of the field in the Avro Schema If the Avro field name is null or empty returns
+   * the stream field name
    *
    * @return avroName
    */
   public String getAvroName() {
-    return avroName != null ? avroName : name;
+    return Utils.isEmpty(avroName) ? name : avroName;
   }
 
   /**
