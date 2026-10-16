@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.openformula;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IValueMeta;
@@ -32,7 +34,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-/** The output field type is applied on every row, not only the first. */
+/** The output field type is applied on every row, and each copy keeps its own conversion flag. */
 class OpenFormulaResultTypeTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
@@ -44,15 +46,63 @@ class OpenFormulaResultTypeTest {
 
   @Test
   void integerFieldStaysALongWhenLaterRowsReturnABigDecimal() throws Exception {
+    Prepared copy = prepare(integerIfMeta(), 0);
+    Object[] positive = copy.transform.calcFields(copy.input, new Object[] {5L});
+    Object[] negative = copy.transform.calcFields(copy.input, new Object[] {-3L});
+    Object[] positiveAgain = copy.transform.calcFields(copy.input, new Object[] {2L});
+
+    assertInstanceOf(Long.class, positive[1]);
+    assertEquals(5L, positive[1]);
+    assertInstanceOf(Long.class, negative[1]);
+    assertEquals(0L, negative[1]);
+    assertInstanceOf(Long.class, positiveAgain[1]);
+    assertEquals(2L, positiveAgain[1]);
+  }
+
+  @Test
+  void eachCopyKeepsItsOwnConversionFlag() throws Exception {
+    OpenFormulaMeta meta = integerIfMeta();
+    Prepared positiveCopy = prepare(meta, 0);
+    Prepared negativeCopy = prepare(meta, 1);
+
+    Object[] positive = positiveCopy.transform.calcFields(positiveCopy.input, new Object[] {5L});
+    Object[] negative = negativeCopy.transform.calcFields(negativeCopy.input, new Object[] {-3L});
+
+    assertInstanceOf(Long.class, positive[1]);
+    assertEquals(5L, positive[1]);
+    assertInstanceOf(Long.class, negative[1]);
+    assertEquals(0L, negative[1]);
+    // A Long already matches the Integer field. The literal 0 is a BigDecimal and does not.
+    // Those flags used to live on the shared metadata, so the second copy overwrote the first.
+    assertFalse(positiveCopy.data.needDataConversion[0]);
+    assertTrue(negativeCopy.data.needDataConversion[0]);
+
+    Object[] positiveAgain =
+        positiveCopy.transform.calcFields(positiveCopy.input, new Object[] {2L});
+    Object[] negativeAgain =
+        negativeCopy.transform.calcFields(negativeCopy.input, new Object[] {-1L});
+    assertInstanceOf(Long.class, positiveAgain[1]);
+    assertEquals(2L, positiveAgain[1]);
+    assertInstanceOf(Long.class, negativeAgain[1]);
+    assertEquals(0L, negativeAgain[1]);
+    assertFalse(positiveCopy.data.needDataConversion[0]);
+    assertTrue(negativeCopy.data.needDataConversion[0]);
+  }
+
+  private static OpenFormulaMeta integerIfMeta() {
     OpenFormulaMeta meta = new OpenFormulaMeta();
     meta.getFormulas()
         .add(
             new OpenFormulaMetaFunction(
                 "out", "IF([a]>0;[a];0)", IValueMeta.TYPE_INTEGER, -1, -1, ""));
+    return meta;
+  }
+
+  private static Prepared prepare(OpenFormulaMeta meta, int copyNr) throws Exception {
     OpenFormulaData data = new OpenFormulaData();
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName("OpenFormula");
-    OpenFormula transform = new OpenFormula(transformMeta, meta, data, 0, null, null);
+    OpenFormula transform = new OpenFormula(transformMeta, meta, data, copyNr, null, null);
 
     RowMeta input = new RowMeta();
     input.addValueMeta(new ValueMetaInteger("a"));
@@ -66,17 +116,10 @@ class OpenFormulaResultTypeTest {
         new MemoryMetadataProvider());
     data.context = new RowFormulaContext(data.outputRowMeta);
     data.returnType = new int[] {-1};
+    data.needDataConversion = new boolean[] {false};
     data.replaceIndex = new int[] {-1};
-
-    Object[] positive = transform.calcFields(input, new Object[] {5L});
-    Object[] negative = transform.calcFields(input, new Object[] {-3L});
-    Object[] positiveAgain = transform.calcFields(input, new Object[] {2L});
-
-    assertInstanceOf(Long.class, positive[1]);
-    assertEquals(5L, positive[1]);
-    assertInstanceOf(Long.class, negative[1]);
-    assertEquals(0L, negative[1]);
-    assertInstanceOf(Long.class, positiveAgain[1]);
-    assertEquals(2L, positiveAgain[1]);
+    return new Prepared(transform, data, input);
   }
+
+  private record Prepared(OpenFormula transform, OpenFormulaData data, RowMeta input) {}
 }

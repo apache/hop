@@ -64,10 +64,6 @@ public class OpenFormulaMetaFunction {
       injectionKeyDescription = "OpenFormulaMeta.Injection.ReplaceField")
   private String replaceField;
 
-  /** Discovered at runtime; not persisted. */
-  @SuppressWarnings("java:S2065")
-  private transient boolean needDataConversion;
-
   public OpenFormulaMetaFunction() {
     valueLength = -1;
     valuePrecision = -1;

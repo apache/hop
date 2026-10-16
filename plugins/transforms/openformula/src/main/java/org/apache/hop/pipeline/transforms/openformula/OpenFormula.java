@@ -60,6 +60,7 @@ public class OpenFormula extends BaseTransform<OpenFormulaMeta, OpenFormulaData>
       return false;
     }
     data.returnType = new int[meta.getFormulas().size()];
+    data.needDataConversion = new boolean[meta.getFormulas().size()];
     for (int i = 0; i < meta.getFormulas().size(); i++) {
       data.returnType[i] = -1;
     }
@@ -163,13 +164,16 @@ public class OpenFormula extends BaseTransform<OpenFormulaMeta, OpenFormulaData>
         }
 
         // IF can return a field on one row and a literal on the next, so the Java class is not
-        // stable. Discover it on every row and convert to the output field type.
+        // stable. Discover it on every row and convert to the output field type. The flag stays
+        // on this copy: every copy shares the metadata.
         if (formulaResult != null) {
           discoverReturnType(fn, formulaResult, i);
         }
 
         int realIndex = (data.replaceIndex[i] < 0) ? tempIndex++ : data.replaceIndex[i];
-        outputRowData[realIndex] = getReturnValue(formulaResult, data.returnType[i], realIndex, fn);
+        outputRowData[realIndex] =
+            getReturnValue(
+                formulaResult, data.returnType[i], realIndex, data.needDataConversion[i]);
       }
 
       return outputRowData;
@@ -184,22 +188,22 @@ public class OpenFormula extends BaseTransform<OpenFormulaMeta, OpenFormulaData>
       throws HopValueException {
     if (formulaResult instanceof String) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_STRING;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_STRING);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_STRING;
     } else if (formulaResult instanceof Integer) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_INTEGER;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_INTEGER);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_INTEGER;
     } else if (formulaResult instanceof Long) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_LONG;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_INTEGER);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_INTEGER;
     } else if (formulaResult instanceof Date) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_DATE;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_DATE);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_DATE;
     } else if (formulaResult instanceof BigDecimal) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_BIGDECIMAL;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_BIGNUMBER);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_BIGNUMBER;
     } else if (formulaResult instanceof Number) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_NUMBER;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_NUMBER);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_NUMBER;
     } else if (formulaResult instanceof byte[]) {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_BYTE_ARRAY;
       if (fn.getValueType() != IValueMeta.TYPE_BINARY) {
@@ -216,34 +220,34 @@ public class OpenFormula extends BaseTransform<OpenFormulaMeta, OpenFormulaData>
       }
     } else {
       data.returnType[i] = OpenFormulaData.RETURN_TYPE_STRING;
-      fn.setNeedDataConversion(fn.getValueType() != IValueMeta.TYPE_STRING);
+      data.needDataConversion[i] = fn.getValueType() != IValueMeta.TYPE_STRING;
     }
   }
 
   protected Object getReturnValue(
-      Object formulaResult, int returnType, int realIndex, OpenFormulaMetaFunction fn)
+      Object formulaResult, int returnType, int realIndex, boolean needDataConversion)
       throws HopException {
     if (formulaResult == null) {
       return null;
     }
     return switch (returnType) {
       case OpenFormulaData.RETURN_TYPE_STRING ->
-          fn.isNeedDataConversion()
+          needDataConversion
               ? convertDataToTargetValueMeta(realIndex, formulaResult)
               : formulaResult.toString();
       case OpenFormulaData.RETURN_TYPE_NUMBER ->
-          fn.isNeedDataConversion()
+          needDataConversion
               ? convertDataToTargetValueMeta(realIndex, formulaResult)
               : ((Number) formulaResult).doubleValue();
       case OpenFormulaData.RETURN_TYPE_INTEGER ->
-          fn.isNeedDataConversion()
+          needDataConversion
               ? convertDataToTargetValueMeta(realIndex, formulaResult)
               : Long.valueOf(((Integer) formulaResult).intValue());
       case OpenFormulaData.RETURN_TYPE_LONG,
               OpenFormulaData.RETURN_TYPE_DATE,
               OpenFormulaData.RETURN_TYPE_BIGDECIMAL,
               OpenFormulaData.RETURN_TYPE_TIMESTAMP ->
-          fn.isNeedDataConversion()
+          needDataConversion
               ? convertDataToTargetValueMeta(realIndex, formulaResult)
               : formulaResult;
       case OpenFormulaData.RETURN_TYPE_BYTE_ARRAY, OpenFormulaData.RETURN_TYPE_BOOLEAN ->
