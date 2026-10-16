@@ -17,7 +17,6 @@ under the License.
 [[database-plugins-duckdb]]
 :documentationPath: /database/databases/
 :language: en_US
-:description: Connect Apache Hop to DuckDB: the JDBC driver to use, how to install it, and how DuckDB handles concurrent readers and writers.
 
 = DuckDB
 
