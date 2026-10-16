@@ -89,6 +89,26 @@ jobs:
             exit 1
           fi
 
+      # Antora turns a page's :description: into its meta description, the
+      # summary search engines and the site search show. Every published page
+      # needs one. Files under pages/snippets are only included by other pages,
+      # so they don't.
+      #
+      # A page without one doesn't stop the job: it is written to checks.log in
+      # the format of Antora's JSON log, so "Report problems" lists it in the PR
+      # comment along with the Antora errors, and "Fail on documentation checks"
+      # fails the job at the end.
+      - name: Check page descriptions
+        working-directory: hop
+        run: |
+          touch "$RUNNER_TEMP/checks.log"
+          find docs -path '*/modules/ROOT/pages/*' -name '*.adoc' -not -path '*/pages/snippets/*' \
+              -exec grep -L '^:description:' {} + | sort | while read -r file; do
+            printf '{"level":"error","title":"Page description","file":{"path":"%s","line":1},"msg":"%s"}\n' \
+              "$PWD/$file" \
+              "Page without a description. Add a :description: line to its header with a one-sentence summary of the page."
+          done >> "$RUNNER_TEMP/checks.log"
+
       - name: Check out the website build
         uses: actions/checkout@v7
         with:
@@ -154,7 +174,9 @@ jobs:
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: node "$GITHUB_WORKSPACE/hop/.github/scripts/antora-report.mjs" antora.log "$GITHUB_WORKSPACE/report"
+        run: >-
+          node "$GITHUB_WORKSPACE/hop/.github/scripts/antora-report.mjs"
+          antora.log "$GITHUB_WORKSPACE/report" "$RUNNER_TEMP/checks.log"
 
       - name: Hand the report to the comment workflow
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
@@ -172,3 +194,13 @@ jobs:
           path: site
           retention-days: 7
           if-no-files-found: ignore
+
+      # Last, so the problems found by the checks above are in the PR comment
+      # before the job fails on them.
+      - name: Fail on documentation checks
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -s "$RUNNER_TEMP/checks.log" ]; then
+            echo "::error::$(wc -l < "$RUNNER_TEMP/checks.log" | tr -d ' ') problem(s) found by the documentation checks, listed in the PR comment and the job summary."
+            exit 1
+          fi

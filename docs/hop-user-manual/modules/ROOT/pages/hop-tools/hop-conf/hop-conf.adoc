@@ -302,7 +302,7 @@ Result:
 
 == Project Usage and Configuration
 
-include::hop-conf-projects.adoc[]
+include::../../snippets/hop-tools/hop-conf/hop-conf-projects.adoc[]
 
 == Graph database connections
 
@@ -368,7 +368,7 @@ The capabilities are listed in xref:metadata-types/graphs/graph-database-connect
 
 == Running Workflows and Pipelines
 
-include::hop-conf-run-hpl-hwf.adoc[]
+include::../../snippets/hop-tools/hop-conf/hop-conf-run-hpl-hwf.adoc[]
 
 == Cloud Storage Configuration
 
@@ -382,7 +382,7 @@ N/A
 
 Set the account, block increment size for new files and your Azure key
 
-include::hop-conf-cloud-azure-blob-storage.adoc[]
+include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-azure-blob-storage.adoc[]
 
 === Google
 
@@ -390,11 +390,11 @@ include::hop-conf-cloud-azure-blob-storage.adoc[]
 
 Set the path to your Google Cloud service account JSON key file
 
-include::hop-conf-cloud-google-cloud-storage.adoc[]
+include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-google-cloud-storage.adoc[]
 
 ==== Google Drive
 
 Set the path to your Google Drive credentials JSON file or Google Drive tokens folder.
 
-include::hop-conf-cloud-google-drive.adoc[]
+include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-google-drive.adoc[]
 
