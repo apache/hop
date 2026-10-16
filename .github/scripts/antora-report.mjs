@@ -21,19 +21,28 @@
  * offending .adoc lines, a job summary and, for a pull request, the sticky
  * comment that pr_docs_comment.yml posts on the PR.
  *
- *   node antora-report.mjs <antora.log> <report dir>
+ *   node antora-report.mjs <antora.log> <report dir> [<extra log>...]
+ *
+ * Extra logs use the same JSON lines format, for problems found by checks that
+ * run outside Antora (see "Check page descriptions" in pr_build_docs.yml). An
+ * entry may carry a "title" for its annotation, the default is "Antora". A log
+ * that does not exist is skipped: Antora's own log is missing when a step
+ * before the build failed.
  *
  * Reads GITHUB_WORKSPACE and GITHUB_STEP_SUMMARY, plus PR_NUMBER, HEAD_REPO,
  * HEAD_SHA and RUN_URL for the comment. Without PR_NUMBER no comment is written.
  */
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const [logFile, reportDir] = process.argv.slice(2)
+const [logFile, reportDir, ...extraLogs] = process.argv.slice(2)
 const root = join(process.env.GITHUB_WORKSPACE ?? '', 'hop') + '/'
 
 const rows = []
-for (const line of readFileSync(logFile, 'utf8').split('\n')) {
+const lines = [logFile, ...extraLogs]
+  .filter((file) => existsSync(file))
+  .flatMap((file) => readFileSync(file, 'utf8').split('\n'))
+for (const line of lines) {
   if (!line.startsWith('{')) continue
   let e
   try {
@@ -43,6 +52,7 @@ for (const line of readFileSync(logFile, 'utf8').split('\n')) {
   }
   rows.push({
     level: e.level,
+    title: e.title ?? 'Antora',
     file: e.file?.path?.replace(root, '') ?? '',
     line: e.file?.line ?? '',
     msg: e.msg,
@@ -55,7 +65,7 @@ const warnings = rows.filter((r) => r.level === 'warn')
 // docs still carry ~150 pre-existing warnings.
 for (const r of errors) {
   const where = r.file ? `file=${r.file},${r.line ? `line=${r.line},` : ''}` : ''
-  console.log(`::error ${where}title=Antora::${r.msg}`)
+  console.log(`::error ${where}title=${r.title}::${r.msg}`)
 }
 
 const cell = (s) => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ')
@@ -71,7 +81,7 @@ const table = (list, name) =>
     : '_none_'
 
 const summary = [
-  '## Antora build',
+  '## Documentation build',
   `${errors.length} error(s), ${warnings.length} warning(s)`,
   '',
   '### Errors',
@@ -103,7 +113,7 @@ const body = [
     ? `### :x: Documentation build failed with ${errors.length} error(s)`
     : '### :white_check_mark: Documentation build passed',
   '',
-  `Antora build of the manuals at ${HEAD_SHA.slice(0, 7)}: ` +
+  `Documentation build of the manuals at ${HEAD_SHA.slice(0, 7)}: ` +
     `${errors.length} error(s), ${warnings.length} warning(s) — [run log](${RUN_URL})`,
   ...(errors.length ? ['', table(errors, linked)] : []),
   ...(warnings.length
