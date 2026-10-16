@@ -162,7 +162,9 @@ public class OpenFormula extends BaseTransform<OpenFormulaMeta, OpenFormulaData>
                   errorValue.toString()));
         }
 
-        if (data.returnType[i] < 0) {
+        // IF can return a field on one row and a literal on the next, so the Java class is not
+        // stable. Discover it on every row and convert to the output field type.
+        if (formulaResult != null) {
           discoverReturnType(fn, formulaResult, i);
         }
 

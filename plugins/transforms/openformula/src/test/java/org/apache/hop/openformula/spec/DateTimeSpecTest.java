@@ -36,8 +36,9 @@ class DateTimeSpecTest {
     Spec.number("DAY(DATE(2020;1;15))", "15");
     Spec.number("MONTH(DATE(2020;1;15))", "1");
     Spec.number("YEAR(DATE(2020;1;15))", "2020");
-    // 6.10.6 DAYS is the second date minus the first.
-    Spec.number("DAYS(DATE(2020;1;15);DATE(2020;1;10))", "5");
+    // Kettle/PDI DAYS subtracts the first date from the second. Part 2 section 6.10.6 is the
+    // reverse.
+    Spec.number("DAYS(DATE(2020;1;15);DATE(2020;1;10))", "-5");
     // 6.10.3 DATEDIF format "d" counts days, "y" counts years.
     Spec.number("DATEDIF(DATE(2020;1;10);DATE(2020;1;15);\"d\")", "5");
     Spec.number("DATEDIF(DATE(2019;1;15);DATE(2021;1;15);\"y\")", "2");

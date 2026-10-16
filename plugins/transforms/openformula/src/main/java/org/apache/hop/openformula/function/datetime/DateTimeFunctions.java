@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 import org.apache.hop.openformula.EvaluationException;
 import org.apache.hop.openformula.FormulaContext;
 import org.apache.hop.openformula.error.FormulaErrorValue;
@@ -341,12 +342,9 @@ public final class DateTimeFunctions {
           }
           yield TypedValue.ofNumber(BigDecimal.valueOf(diff));
         }
-        case "d" -> {
-          long diffDays =
-              Math.round(
-                  (double) (e.getTimeInMillis() - s.getTimeInMillis()) / DateUtil.MILLIS_PER_DAY);
-          yield TypedValue.ofNumber(BigDecimal.valueOf(diffDays));
-        }
+        case "d" ->
+            TypedValue.ofNumber(
+                BigDecimal.valueOf(wholeDays(e.getTime(), s.getTime(), context.getTimeZone())));
         case "ym" -> {
           int diff = e.get(Calendar.MONTH) - s.get(Calendar.MONTH);
           if (e.get(Calendar.DAY_OF_MONTH) < s.get(Calendar.DAY_OF_MONTH)) diff--;
@@ -357,11 +355,9 @@ public final class DateTimeFunctions {
           Calendar eSameYear = (Calendar) e.clone();
           eSameYear.set(Calendar.YEAR, s.get(Calendar.YEAR));
           if (eSameYear.before(s)) eSameYear.add(Calendar.YEAR, 1);
-          long diffDays =
-              Math.round(
-                  (double) (eSameYear.getTimeInMillis() - s.getTimeInMillis())
-                      / DateUtil.MILLIS_PER_DAY);
-          yield TypedValue.ofNumber(BigDecimal.valueOf(diffDays));
+          yield TypedValue.ofNumber(
+              BigDecimal.valueOf(
+                  wholeDays(eSameYear.getTime(), s.getTime(), context.getTimeZone())));
         }
         case "md" -> {
           int sDay = s.get(Calendar.DAY_OF_MONTH);
@@ -468,13 +464,16 @@ public final class DateTimeFunctions {
         throws EvaluationException {
       if (params.getParameterCount() != 2)
         throw new EvaluationException(FormulaErrorValue.ERROR_ARGUMENTS_VALUE);
-      // Part 2, 6.10.6: DAYS(EndDate; StartDate) is EndDate minus StartDate.
-      Date end = context.getTypeRegistry().convertToDate(params.getType(0), params.getValue(0));
-      Date start = context.getTypeRegistry().convertToDate(params.getType(1), params.getValue(1));
-      long diffMillis = end.getTime() - start.getTime();
-      long diffDays = Math.round((double) diffMillis / DateUtil.MILLIS_PER_DAY);
+      // Kettle/PDI subtracts the first date from the second. Part 2 section 6.10.6 is the reverse.
+      Date first = context.getTypeRegistry().convertToDate(params.getType(0), params.getValue(0));
+      Date second = context.getTypeRegistry().convertToDate(params.getType(1), params.getValue(1));
+      long diffDays = wholeDays(second, first, context.getTimeZone());
       return TypedValue.ofNumber(BigDecimal.valueOf(diffDays));
     }
+  }
+
+  private static long wholeDays(Date end, Date start, TimeZone timeZone) {
+    return Math.round(DateUtil.daysBetween(end, start, timeZone).doubleValue());
   }
 
   public static class HourFunction implements Function {
