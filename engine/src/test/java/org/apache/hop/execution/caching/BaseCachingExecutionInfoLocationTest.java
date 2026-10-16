@@ -275,6 +275,80 @@ class BaseCachingExecutionInfoLocationTest {
   }
 
   @Test
+  void attachOnlyLocationKeepsAFinishedStateWhenItLoadedARunningCopy() throws Exception {
+    FakeLocation attach = new FakeLocation();
+    CacheEntry running = parentEntry("wf", "running", new Date(9_000L), null);
+    running.setInternalId("doc-1");
+    CacheEntry finished = parentEntry("wf", "Finished", new Date(1_000L), new Date(5_000L));
+    finished.setInternalId("doc-1");
+    finished.getExecutionState().setLoggingText("done");
+    finished.addChildExecution(action("kept-action"));
+    attach.scriptedLoads.add(running);
+    attach.scriptedLoads.add(finished);
+
+    attach.registerExecution(action("action"));
+    assertTrue(attach.getCache().get("wf").isLoadedCopy());
+    assertEquals(1, attach.loadCount);
+
+    attach.close();
+
+    assertEquals(2, attach.loadCount);
+    assertEquals("Finished", attach.lastPersisted.getExecutionState().getStatusDescription());
+    assertNotNull(attach.lastPersisted.getExecutionState().getExecutionEndDate());
+    assertEquals("done", attach.lastPersisted.getExecutionState().getLoggingText());
+    assertEquals("doc-1", attach.lastPersisted.getInternalId());
+    assertNotNull(attach.lastPersisted.peekChildExecution("action"));
+    assertNotNull(attach.lastPersisted.peekChildExecution("kept-action"));
+  }
+
+  @Test
+  void attachOnlyLocationKeepsAFinishedStateWhenItLoadedBeforeAnyState() throws Exception {
+    FakeLocation attach = new FakeLocation();
+    CacheEntry loaded = new CacheEntry();
+    loaded.setId("wf");
+    loaded.setName("wf");
+    Execution workflow = new Execution();
+    workflow.setId("wf");
+    workflow.setName("wf");
+    workflow.setExecutionType(ExecutionType.Workflow);
+    workflow.setRegistrationDate(new Date(1_000L));
+    loaded.setExecution(workflow);
+    loaded.setInternalId("doc-2");
+    CacheEntry finished = parentEntry("wf", "Finished", new Date(5_000L), new Date(5_000L));
+    finished.setInternalId("doc-2");
+    attach.scriptedLoads.add(loaded);
+    attach.scriptedLoads.add(finished);
+
+    attach.registerExecution(action("action"));
+    attach.close();
+
+    assertEquals("Finished", attach.lastPersisted.getExecutionState().getStatusDescription());
+    assertNotNull(attach.lastPersisted.getExecutionState().getExecutionEndDate());
+    assertNotNull(attach.lastPersisted.peekChildExecution("action"));
+  }
+
+  @Test
+  void registeringLocationWritesItsOwnFinishedStateWithoutReloading() throws Exception {
+    FakeLocation location = new FakeLocation();
+    Execution workflow = pipeline("wf", "Workflow");
+    workflow.setExecutionType(ExecutionType.Workflow);
+    location.registerExecution(workflow);
+    ExecutionState finished = new ExecutionState();
+    finished.setId("wf");
+    finished.setExecutionType(ExecutionType.Workflow);
+    finished.setStatusDescription("Finished");
+    finished.setUpdateTime(new Date(5_000L));
+    finished.setExecutionEndDate(new Date(5_000L));
+    location.updateExecutionState(finished);
+
+    location.close();
+
+    assertEquals(0, location.loadCount);
+    assertEquals("Finished", location.lastPersisted.getExecutionState().getStatusDescription());
+    assertNotNull(location.lastPersisted.getExecutionState().getExecutionEndDate());
+  }
+
+  @Test
   void aFinishedParentStateIsNewerThanARunningOne() {
     CacheEntry running = parentEntry("wf", "running", new Date(9_000L), null);
     CacheEntry finished = parentEntry("wf", "Finished", new Date(1_000L), new Date(1_000L));
@@ -326,6 +400,16 @@ class BaseCachingExecutionInfoLocationTest {
 
     // Verify samples were preserved
     assertEquals(1, entry.getExecutionData("all-transforms").getDataSets().get("set1").size());
+  }
+
+  private static Execution action(String id) {
+    Execution execution = new Execution();
+    execution.setId(id);
+    execution.setName(id);
+    execution.setParentId("wf");
+    execution.setExecutionType(ExecutionType.Action);
+    execution.setRegistrationDate(new Date(1_000L));
+    return execution;
   }
 
   private static Execution launchedPipeline(String id, String parentId, String launchedById) {

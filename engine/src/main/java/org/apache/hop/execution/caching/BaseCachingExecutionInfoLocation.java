@@ -239,7 +239,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       for (CacheEntry cacheEntry : cache.values()) {
         if (cacheEntry.needsWriting(delay)) {
           try {
-            persistCacheEntry(cacheEntry);
+            saveCacheEntry(cacheEntry);
           } catch (Exception e) {
             LogChannel.GENERAL.logError(
                 "Error persisting cache entry for " + cacheEntry.getId(), e);
@@ -287,7 +287,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       CacheEntry cacheEntry = entry.getValue();
       if (cacheEntry != null && cacheEntry.isDirty()) {
         try {
-          persistCacheEntry(cacheEntry);
+          saveCacheEntry(cacheEntry);
         } catch (Exception e) {
           // A failed write must stay in memory. Dropping it here loses the only copy.
           LogChannel.GENERAL.logError(
@@ -312,7 +312,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       CacheEntry cacheEntry = mapEntry.getValue();
       if (cacheEntry != null && cacheEntry.isDirty()) {
         try {
-          persistCacheEntry(cacheEntry);
+          saveCacheEntry(cacheEntry);
         } catch (Exception e) {
           // Leave this entry. A later close() can retry it. Clearing it drops unsaved state.
           if (failure == null) {
@@ -348,7 +348,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // CacheEntry from disk before calling registerData / register child executions.
       CacheEntry entry = cache.get(execution.getId());
       if (entry != null) {
-        persistCacheEntry(entry);
+        saveCacheEntry(entry);
       }
       rememberLaunchedChild(execution);
     } else {
@@ -397,8 +397,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // the end date. Re-read and keep the newer state, then put the link back on it.
       if (loadedForLink) {
         parent = keepNewerParentState(parent, child);
+        // The link re-read just ran. This write is the merged document, then the entry is dropped.
+        parent.setLoadedCopy(false);
       }
-      persistCacheEntry(parent);
+      saveCacheEntry(parent);
       parent.setDirty(false);
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
@@ -416,11 +418,91 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   }
 
   /**
+   * Write one cache entry. A document this location only loaded is merged with a fresh read first,
+   * so attaching a child cannot replace a finished execution state on close.
+   */
+  private void saveCacheEntry(CacheEntry cacheEntry) throws HopException {
+    if (cacheEntry == null) {
+      return;
+    }
+    mergeLoadedCopyBeforePersist(cacheEntry);
+    persistCacheEntry(cacheEntry);
+  }
+
+  /**
+   * A location that loaded a document to attach children keeps that snapshot until it closes. The
+   * execution that owns the document may have finished after the load. Re-read and keep that state,
+   * and keep the children recorded by either copy.
+   */
+  private void mergeLoadedCopyBeforePersist(CacheEntry loaded) throws HopException {
+    if (loaded == null || !loaded.isLoadedCopy()) {
+      return;
+    }
+    CacheEntry fresh = loadFreshCacheEntry(loaded);
+    if (fresh == null) {
+      return;
+    }
+    if (StringUtils.isEmpty(loaded.getInternalId())
+        && StringUtils.isNotEmpty(fresh.getInternalId())) {
+      loaded.setInternalId(fresh.getInternalId());
+    }
+    loaded.keepStoredProjectId(fresh);
+    copyMissingChildren(fresh, loaded);
+    if (isNewerParentState(fresh, loaded)) {
+      loaded.setExecutionState(fresh.peekExecutionState());
+    }
+  }
+
+  /**
+   * Read the stored document again before a loaded copy is written. A location can override this
+   * when a direct read sees a newer write than {@link #loadCacheEntry(String)}.
+   */
+  protected CacheEntry loadFreshCacheEntry(CacheEntry loaded) throws HopException {
+    if (loaded == null || StringUtils.isEmpty(loaded.getId())) {
+      return null;
+    }
+    return loadCacheEntry(loaded.getId());
+  }
+
+  /** Children stored by the other writer stay on the document this location is about to save. */
+  private static void copyMissingChildren(CacheEntry from, CacheEntry into) {
+    if (from == null || into == null || from == into) {
+      return;
+    }
+    copyMissingExecutions(from.getChildExecutions(), into.getChildExecutions());
+    copyMissing(from.getChildExecutionStates(), into.getChildExecutionStates());
+    copyMissing(from.getChildExecutionData(), into.getChildExecutionData());
+  }
+
+  private static void copyMissingExecutions(
+      Map<String, Execution> from, Map<String, Execution> into) {
+    if (from == null || from.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<String, Execution> child : from.entrySet()) {
+      Execution stored = child.getValue();
+      Execution kept = into.putIfAbsent(child.getKey(), stored);
+      if (kept != null && stored != null) {
+        kept.unionChildExecutionIds(stored);
+      }
+    }
+  }
+
+  private static <K, V> void copyMissing(Map<K, V> from, Map<K, V> into) {
+    if (from == null || from.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<K, V> child : from.entrySet()) {
+      into.putIfAbsent(child.getKey(), child.getValue());
+    }
+  }
+
+  /**
    * Re-read a parent that was loaded only to record a child. When the stored copy is newer, move
    * the launcher and the child id onto that copy so the write does not replace a finished state.
    */
   CacheEntry keepNewerParentState(CacheEntry loaded, Execution child) throws HopException {
-    CacheEntry fresh = loadCacheEntry(child.getParentId());
+    CacheEntry fresh = loadFreshCacheEntry(loaded);
     if (fresh == null || fresh.getExecution() == null || !isNewerParentState(fresh, loaded)) {
       if (fresh != null
           && StringUtils.isEmpty(loaded.getInternalId())
@@ -568,6 +650,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       entry.setId(execution.getId());
     }
     entry.setExecution(execution);
+    entry.setLoadedCopy(false);
     entry.setName(execution.getName());
     if (StringUtils.isNotEmpty(execution.getProjectId())) {
       entry.setProjectId(execution.getProjectId());
@@ -777,6 +860,9 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       entry.setLastRead(new Date());
       entry.setLastWritten(new Date());
       entry.setDirty(false);
+      // Registered executions are created in this cache. A loaded document belongs to another
+      // location until this one registers it, so a later save has to re-read the state.
+      entry.setLoadedCopy(true);
 
       cache.put(entry.getId(), entry);
       enforceMaxCacheSize();
@@ -828,7 +914,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       // A local single-writer flushes from the cache timer. Another process (Spark/Beam) still
       // needs the samples on disk before it merges its own write.
       if (!entry.isSingleWriter()) {
-        persistCacheEntry(entry);
+        saveCacheEntry(entry);
       }
     } else {
       LogChannel.GENERAL.logError(

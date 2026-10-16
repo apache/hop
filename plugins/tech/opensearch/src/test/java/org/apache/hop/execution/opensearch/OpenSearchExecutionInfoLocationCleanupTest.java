@@ -51,14 +51,15 @@ class OpenSearchExecutionInfoLocationCleanupTest {
   }
 
   @Test
-  void documentPathWaitsUntilSearchCanSeeTheWrite() {
-    assertEquals(
-        "hop/_doc?refresh=wait_for", OpenSearchExecutionInfoLocation.documentPath("hop", null));
-    assertEquals(
-        "hop/_doc?refresh=wait_for", OpenSearchExecutionInfoLocation.documentPath("hop", ""));
-    assertEquals(
-        "hop/_doc/abc?refresh=wait_for",
-        OpenSearchExecutionInfoLocation.documentPath("hop", "abc"));
+  void documentPathNamesTheDocumentWithoutWaitingForRefresh() {
+    assertEquals("hop/_doc", OpenSearchExecutionInfoLocation.documentPath("hop", null));
+    assertEquals("hop/_doc", OpenSearchExecutionInfoLocation.documentPath("hop", ""));
+    assertEquals("hop/_doc/abc", OpenSearchExecutionInfoLocation.documentPath("hop", "abc"));
+  }
+
+  @Test
+  void documentGetPathReadsOneDocumentById() {
+    assertEquals("hop/_doc/abc", OpenSearchExecutionInfoLocation.documentGetPath("hop", "abc"));
   }
 
   @Test

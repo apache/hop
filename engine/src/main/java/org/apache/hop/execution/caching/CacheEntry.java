@@ -98,6 +98,12 @@ public class CacheEntry {
    */
   @JsonIgnore private boolean singleWriter;
 
+  /**
+   * Set when a location loads this document from storage. A save re-reads so the loaded execution
+   * state does not replace a newer stored state.
+   */
+  @JsonIgnore private boolean loadedCopy;
+
   /** The document with metadata and pipeline XML has been inserted. */
   @JsonIgnore private boolean heavyDocumentStored;
 

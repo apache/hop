@@ -409,6 +409,55 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
     }
   }
 
+  /**
+   * Re-read by document id. {@code GET index/_doc/id} returns the latest write. A search can still
+   * return the document from before that write.
+   */
+  @Override
+  protected CacheEntry loadFreshCacheEntry(CacheEntry loaded) throws HopException {
+    if (loaded != null && StringUtils.isNotEmpty(loaded.getInternalId())) {
+      CacheEntry byDocumentId = loadCacheEntryByDocumentId(loaded.getInternalId());
+      if (byDocumentId != null) {
+        return byDocumentId;
+      }
+    }
+    return super.loadFreshCacheEntry(loaded);
+  }
+
+  private CacheEntry loadCacheEntryByDocumentId(String internalId) throws HopException {
+    try {
+      URI uri = URI.create(actualUrl);
+      URI getUri = uri.resolve(documentGetPath(actualIndexName, internalId));
+      RestCaller restCaller =
+          new RestCaller(
+              metadataProvider,
+              getUri.toString(),
+              actualUsername,
+              actualPassword,
+              "GET",
+              "",
+              ignoreSsl,
+              getHeaders());
+      String responseBody = restCaller.execute();
+      Long statusCode = restCaller.getStatusCode();
+      if (statusCode != null && statusCode.longValue() == 404L) {
+        return null;
+      }
+      checkStatusCode(responseBody, statusCode, 200L);
+      JSONParser parser = new JSONParser();
+      JSONObject body = (JSONObject) parser.parse(responseBody);
+      if (body == null || Boolean.FALSE.equals(body.get("found"))) {
+        return null;
+      }
+      return cacheEntryFromSearchHit(body);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          "Error loading execution information from OpenSearch document '" + internalId + "'", e);
+    }
+  }
+
   @Override
   protected void retrieveIds(
       boolean includeChildren, Set<DatedId> ids, int limit, IExecutionSelector selector)
@@ -556,15 +605,23 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
   }
 
   /**
-   * Document path for a create or update. {@code refresh=wait_for} makes the write visible to the
-   * next search, so a child location re-reading the parent sees the state just saved.
+   * Document path for a create or update. A later re-read uses {@link #documentGetPath} so the
+   * latest write is visible without waiting for a refresh on this request.
    */
   static String documentPath(String indexName, String internalId) {
     String path = indexName + "/_doc";
     if (StringUtils.isNotEmpty(internalId)) {
       path = path + "/" + internalId;
     }
-    return path + "?refresh=wait_for";
+    return path;
+  }
+
+  /**
+   * Realtime read of one document. The get-by-id API returns the latest stored source, including a
+   * write that search has not refreshed yet.
+   */
+  static String documentGetPath(String indexName, String internalId) {
+    return indexName + "/_doc/" + internalId;
   }
 
   /**
