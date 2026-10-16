@@ -224,5 +224,5 @@ See xref:hop-tools/hop.adoc[hop], xref:hop-run/index.adoc[hop run] and xref:hop-
 
 In addition to the Hop Gui and configuration files, all aspects of and operations on projects and environments can be managed through the Hop Conf command line tool.
 
-include::../hop-tools/hop-conf/hop-conf-projects.adoc[]
+include::../snippets/hop-tools/hop-conf/hop-conf-projects.adoc[]
 

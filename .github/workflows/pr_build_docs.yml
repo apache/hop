@@ -89,6 +89,22 @@ jobs:
             exit 1
           fi
 
+      # Antora turns a page's :description: into its meta description, the
+      # summary search engines and the site search show. Every published page
+      # needs one. Files under pages/snippets are only included by other pages,
+      # so they don't.
+      - name: Check page descriptions
+        working-directory: hop
+        run: |
+          find docs -path '*/modules/ROOT/pages/*' -name '*.adoc' -not -path '*/pages/snippets/*' \
+              -exec grep -L '^:description:' {} + > "$RUNNER_TEMP/no-description.txt" || true
+          if [ -s "$RUNNER_TEMP/no-description.txt" ]; then
+            while read -r file; do
+              echo "::error file=$file,line=1::Page without a description. Add a :description: line to its header with a one-sentence summary of the page."
+            done < "$RUNNER_TEMP/no-description.txt"
+            exit 1
+          fi
+
       - name: Check out the website build
         uses: actions/checkout@v7
         with:
