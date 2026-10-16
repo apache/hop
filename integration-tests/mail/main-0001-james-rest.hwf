@@ -63,7 +63,21 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <script>#!/bin/bash 
 
-echo "james server: " ${MAIL_SMTP_SERVER} 
+echo "james server: ${MAIL_SMTP_SERVER}"
+ready=0
+attempt=0
+while [ "$attempt" -lt 60 ]; do
+  attempt=$((attempt + 1))
+  if curl -sf -o /dev/null --max-time 2 "http://${MAIL_SMTP_SERVER}:8000/domains" 2>/dev/null; then
+    ready=1
+    break
+  fi
+  sleep 2
+done
+if [ "$ready" != 1 ]; then
+  echo "James WebAdmin did not accept connections on port 8000"
+  exit 1
+fi
 
 curl -XPUT http://${MAIL_SMTP_SERVER}:8000/domains/example.com
 curl -XPUT http://${MAIL_SMTP_SERVER}:8000/domains/acme.be
@@ -111,18 +125,6 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
       <zip_files>N</zip_files>
       <parallel>N</parallel>
       <xloc>576</xloc>
-      <yloc>64</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>wait for 30s</name>
-      <description/>
-      <type>DELAY</type>
-      <attributes/>
-      <maximumTimeout>30</maximumTimeout>
-      <scaletime>0</scaletime>
-      <parallel>N</parallel>
-      <xloc>224</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -232,17 +234,10 @@ curl -XPUT http://${MAIL_SMTP_SERVER}:8000/users/roadrunner@acme.be   -d '{"pass
     </hop>
     <hop>
       <from>Start</from>
-      <to>wait for 30s</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>wait for 30s</from>
       <to>add domains, users</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
+      <unconditional>Y</unconditional>
     </hop>
     <hop>
       <from>get mails</from>

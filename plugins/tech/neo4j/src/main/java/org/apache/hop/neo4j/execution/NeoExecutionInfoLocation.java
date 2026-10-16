@@ -500,15 +500,23 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_EXECUTION_START_DATE, execution.getExecutionStartDate());
       execute(transaction, builder);
 
-      if (StringUtils.isNotEmpty(execution.getParentId())) {
+      // The action or transform that started this execution. Link that node when it is already
+      // stored, and do not also link the owner: shortestPath would skip the launcher. A missing
+      // launcher keeps the owner edge so the child is not orphaned.
+      boolean launcherStored =
+          StringUtils.isNotEmpty(execution.getLaunchedById())
+              && !execution.getLaunchedById().equals(execution.getParentId())
+              && executionNodeExists(transaction, execution.getLaunchedById());
+      if (linkOwnerExecutes(execution.getParentId(), execution.getLaunchedById(), launcherStored)) {
         linkExecutes(transaction, execution.getParentId(), execution.getId());
       }
-      // The action or transform that started this execution. Link it when that node is already
-      // stored. A missing launcher must not roll back the execution itself.
-      if (StringUtils.isNotEmpty(execution.getLaunchedById())
-          && !execution.getLaunchedById().equals(execution.getParentId())
-          && executionNodeExists(transaction, execution.getLaunchedById())) {
+      if (launcherStored) {
         linkExecutes(transaction, execution.getLaunchedById(), execution.getId());
+      }
+      // A launcher stored after its child still has only the owner shortcut. Move EXECUTES onto
+      // the launcher now that its node exists.
+      if (StringUtils.isNotEmpty(execution.getId())) {
+        run(transaction, relinkLaunchedChildrenCypher(), Map.of("id", execution.getId()));
       }
 
       // See if we need to cache this
@@ -521,6 +529,61 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       // Transaction is automatically rolled back by executeWrite on exception
       throw new HopRuntimeException("Error registering new Execution in Neo4j", e);
     }
+  }
+
+  /**
+   * Link {@code (parent)-[:EXECUTES]->(child)} only when the launcher was not linked. The owner
+   * shortcut and the launcher edge together make {@code shortestPath} skip the action or transform.
+   */
+  static boolean linkOwnerExecutes(
+      String parentId, String launchedById, boolean launcherNodeExists) {
+    if (StringUtils.isEmpty(parentId)) {
+      return false;
+    }
+    if (StringUtils.isEmpty(launchedById) || launchedById.equals(parentId)) {
+      return true;
+    }
+    return !launcherNodeExists;
+  }
+
+  /**
+   * Children already stored with {@code launchedById} equal to this execution get an EXECUTES edge
+   * from this node, and the owner shortcut is removed. Actions have no {@code launchedById}, so
+   * {@code (workflow)-[:EXECUTES]->(action)} stays.
+   */
+  static String relinkLaunchedChildrenCypher() {
+    return "MATCH (launcher:"
+        + EL_EXECUTION
+        + " {"
+        + EP_ID
+        + ": $id}) "
+        + "MATCH (child:"
+        + EL_EXECUTION
+        + ") "
+        + "WHERE child."
+        + EP_LAUNCHED_BY_ID
+        + " = $id "
+        + "AND child."
+        + EP_PARENT_ID
+        + " IS NOT NULL "
+        + "AND child."
+        + EP_PARENT_ID
+        + " <> $id "
+        + "MERGE (launcher)-[:"
+        + R_EXECUTES
+        + "]->(child) "
+        + "WITH child "
+        + "MATCH (owner:"
+        + EL_EXECUTION
+        + ")-[shortcut:"
+        + R_EXECUTES
+        + "]->(child) "
+        + "WHERE owner."
+        + EP_ID
+        + " = child."
+        + EP_PARENT_ID
+        + " "
+        + "DELETE shortcut";
   }
 
   /** {@code (from)-[:EXECUTES]->(to)} when both nodes are already stored. */

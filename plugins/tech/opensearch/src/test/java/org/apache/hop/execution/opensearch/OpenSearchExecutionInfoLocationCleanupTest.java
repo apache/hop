@@ -19,10 +19,13 @@ package org.apache.hop.execution.opensearch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 import java.util.TimeZone;
+import org.apache.hop.execution.caching.CacheEntry;
+import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 
 class OpenSearchExecutionInfoLocationCleanupTest {
@@ -45,6 +48,48 @@ class OpenSearchExecutionInfoLocationCleanupTest {
   void refreshPathTargetsTheLocationIndex() {
     assertEquals(
         "hop-executions/_refresh", OpenSearchExecutionInfoLocation.refreshPath("hop-executions"));
+  }
+
+  @Test
+  void documentPathNamesTheDocumentWithoutWaitingForRefresh() {
+    assertEquals("hop/_doc", OpenSearchExecutionInfoLocation.documentPath("hop", null));
+    assertEquals("hop/_doc", OpenSearchExecutionInfoLocation.documentPath("hop", ""));
+    assertEquals("hop/_doc/abc", OpenSearchExecutionInfoLocation.documentPath("hop", "abc"));
+  }
+
+  @Test
+  void documentGetPathReadsOneDocumentById() {
+    assertEquals("hop/_doc/abc", OpenSearchExecutionInfoLocation.documentGetPath("hop", "abc"));
+  }
+
+  @Test
+  void searchHitKeepsTheOpenSearchDocumentId() throws Exception {
+    JSONObject source = new JSONObject();
+    source.put("id", "exec-1");
+    source.put("name", "run");
+    JSONObject hit = new JSONObject();
+    hit.put("_id", "os-doc-7");
+    hit.put("_source", source);
+
+    CacheEntry entry = OpenSearchExecutionInfoLocation.cacheEntryFromSearchHit(hit);
+
+    assertEquals("exec-1", entry.getId());
+    assertEquals("run", entry.getName());
+    assertEquals("os-doc-7", entry.getInternalId());
+  }
+
+  @Test
+  void searchHitWithoutADocumentIdLeavesTheInternalIdEmpty() throws Exception {
+    JSONObject source = new JSONObject();
+    source.put("id", "exec-1");
+    JSONObject hit = new JSONObject();
+    hit.put("_source", source);
+
+    CacheEntry entry = OpenSearchExecutionInfoLocation.cacheEntryFromSearchHit(hit);
+
+    assertEquals("exec-1", entry.getId());
+    assertNull(entry.getInternalId());
+    assertNull(OpenSearchExecutionInfoLocation.cacheEntryFromSearchHit(null));
   }
 
   @Test
