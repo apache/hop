@@ -78,7 +78,7 @@ import org.w3c.dom.NodeList;
     id = "kettle",
     name = "Kettle Import",
     description = "Imports Kettle/PDI files, metadata and variables",
-    documentationUrl = "/plugins/import/kettle-import.html")
+    documentationUrl = "/hop-vs-kettle/import-kettle-projects.html")
 public class KettleImport extends HopImportBase implements IHopImport {
   private static final Class<?> PKG = KettleImport.class;
   public static final String CONST_SERVERNAME = "servername";

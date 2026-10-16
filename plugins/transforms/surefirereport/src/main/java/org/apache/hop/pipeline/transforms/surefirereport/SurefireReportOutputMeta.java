@@ -39,8 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::SurefireReportOutput.Name",
     description = "i18n::SurefireReportOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    keywords = "i18n::SurefireReportOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/surefirereport.html")
+    keywords = "i18n::SurefireReportOutputMeta.keyword")
 @Getter
 @Setter
 public class SurefireReportOutputMeta
