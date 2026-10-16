@@ -80,7 +80,7 @@ While workflows do not stream individual rows over hops, they provide powerful t
 
 * **Setting Dynamic Variables**: Use the xref:workflow/actions/setvariables.adoc[Set Variables] action to read configuration files, extract runtime parameters, and make variables available to all downstream child pipelines and workflows.
 * **Passing Parameters**: Pass parameters down to child pipelines and child workflows explicitly, keeping your jobs modular and reusable (`xref:variables/parameter-passing.adoc[Passing parameters to a child]`).
-* **Result Rows & Files**: When a pipeline produces a small summary list of rows (via `Copy rows to result`), a workflow can capture those rows and loop over them using child workflows (`xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]`).
+* **Result Rows & Files**: When a pipeline produces a small summary list of rows (via `Copy rows to result`), a workflow can capture those rows and loop over them using child workflows (`xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]`). See xref:workflow/action-results.adoc[Action results] for what an action passes on to the next one.
 * **Parallel Action Branches**: When an action must trigger multiple independent tasks simultaneously, you can enable parallel execution on that action (`xref:how-to-guides/workflows-parallel-execution.adoc[Parallel execution in workflows]`), and optionally re-synchronize them using the xref:workflow/actions/join.adoc[Join action].
 
 == Workflow Execution Engines
