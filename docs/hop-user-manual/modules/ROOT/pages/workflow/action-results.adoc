@@ -59,10 +59,12 @@ The xref:workflow/actions/pipeline.adoc[Pipeline] and xref:workflow/actions/work
 * The result files are added to the files the action received, so they accumulate along the workflow.
 * The result rows of a pipeline replace the rows the action received when the pipeline contains a Copy rows to result transform, even when that transform copied no rows. A pipeline without one passes the rows it received on unchanged.
 A child workflow replaces the rows only when it returns rows.
+This is without *Execute for every result row*: with that option, the action gives each run only the current row, and afterwards passes on what the last run left behind, usually just the last row, not the list it received.
 
 Both actions have options that use the result they receive:
 
 * *Execute for every result row* runs the pipeline or workflow once for every result row of the previous action.
+The loop stops at the first run that fails: the remaining rows are not processed.
 * *Copy results to parameters* sets the parameters of the pipeline or workflow from the fields of the result rows.
 * The Pipeline action can clear the result rows and the result files before it runs (*Clear results rows before execution*, *Clear results files before execution*).
 
@@ -96,4 +98,4 @@ A workflow has to process every file listed in a table:
 . A first Pipeline action runs a pipeline that reads the file names from the table and sends them to Copy rows to result.
 . A second Pipeline action has *Execute for every result row* and *Copy results to parameters* enabled, and maps the file name field to a parameter.
 It runs its pipeline once for every file name, with the file name as a parameter.
-. If one of those runs fails, the result of the second action is false and the workflow follows its red hop, for example to a Mail action that reports the error.
+. If one of those runs fails, the loop stops, the remaining file names are not processed, and the result of the second action is false. The workflow follows its red hop, for example to a Mail action that reports the error.
