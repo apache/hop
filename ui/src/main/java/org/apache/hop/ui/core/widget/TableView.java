@@ -19,8 +19,10 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -84,6 +86,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -178,6 +181,10 @@ public class TableView extends Composite {
   // define CANCEL_KEYS here so that RWT needs not to be imported.
   //
   private static final String CANCEL_KEYS = "org.eclipse.rap.rwt.cancelKeys";
+
+  /** Ask before listing this many distinct values for one column. */
+  private static final int FILTER_VALUE_LIST_WARN_LIMIT = 500;
+
   public static final String CONST_SHIFT_TAB = "SHIFT+TAB";
   private final Composite composite;
   private final ColumnInfo[] columns;
@@ -273,6 +280,69 @@ public class TableView extends Composite {
   private final List<String> removeToolItems;
   private final Set<Integer> hiddenDataColumns = new HashSet<>();
   private int[] rememberedWidths;
+
+  /**
+   * Off by default. A configuration dialog saves the rows that are still visible, so a filter would
+   * drop the hidden ones. Turn it on for grids that only display data.
+   */
+  @Getter private boolean filtersSupported;
+
+  /** Header-menu entries for {@link #filtersSupported}. Null while the option is off. */
+  private Menu headerContextMenu;
+
+  private MenuItem miHeaderAddFilter;
+
+  private MenuItem miHeaderRemoveFilter;
+
+  /** Data column under the header context menu, or -1 for the row-number column. */
+  private final int[] headerDataColumn = {-1};
+
+  /**
+   * The filters of the column view that is applied right now. Empty when no filters are active,
+   * even when a column view is.
+   */
+  private List<TableViewColumnFilter> columnViewFilters = new ArrayList<>();
+
+  /**
+   * The rows the column-view filters took out of the table, kept aside so {@link
+   * #resetColumnView()} can put them back. Null while no rows are hidden. Each index is the row's
+   * place in the unfiltered table.
+   */
+  private List<HiddenRow> hiddenRows;
+
+  /**
+   * True while a sort, delete or paste is changing the unfiltered rows and the filter will be put
+   * back at the end. Nested table removes must not start another round.
+   */
+  private boolean filterMutationBatch;
+
+  /** A row a column-view filter took out of the table, with everything needed to put it back. */
+  private static final class HiddenRow {
+    final int index;
+    final String rowNumber;
+    final String[] displayed;
+    final String[][] cellValues;
+    final Object data;
+    final Color background;
+    final boolean[] blueForeground;
+
+    HiddenRow(
+        int index,
+        String rowNumber,
+        String[] displayed,
+        String[][] cellValues,
+        Object data,
+        Color background,
+        boolean[] blueForeground) {
+      this.index = index;
+      this.rowNumber = rowNumber;
+      this.displayed = displayed;
+      this.cellValues = cellValues;
+      this.data = data;
+      this.background = background;
+      this.blueForeground = blueForeground;
+    }
+  }
 
   /**
    * Last width we asked each native column to take during {@link #optWidth}. Win32/DPI often
@@ -562,7 +632,68 @@ public class TableView extends Composite {
     addToolbar();
 
     // Create table, add columns & rows...
-    table = new Table(this, style | SWT.MULTI);
+    // Removes go through this subclass so a filter's hidden rows are not restored by a stale index
+    // after the table is rebuilt or a row is deleted.
+    table =
+        new Table(this, style | SWT.MULTI) {
+          @Override
+          protected void checkSubclass() {
+            // Remove is intercepted below so a column filter is not restored by a stale index.
+          }
+
+          @Override
+          public void removeAll() {
+            if (!filterMutationBatch) {
+              // The content is being replaced: the rows kept aside belong to the old content.
+              clearColumnViewFilters();
+            }
+            super.removeAll();
+          }
+
+          @Override
+          public void remove(int index) {
+            if (filterMutationBatch || hiddenRows == null || hiddenRows.isEmpty()) {
+              super.remove(index);
+              return;
+            }
+            int fullIndex = fullIndexOfVisible(index);
+            List<TableViewColumnFilter> filters = beginFilterMutation();
+            super.remove(filters == null ? index : fullIndex);
+            endFilterMutation(filters);
+          }
+
+          @Override
+          public void remove(int[] indices) {
+            if (filterMutationBatch
+                || indices == null
+                || hiddenRows == null
+                || hiddenRows.isEmpty()) {
+              super.remove(indices);
+              return;
+            }
+            int[] fullIndexes = new int[indices.length];
+            for (int i = 0; i < indices.length; i++) {
+              fullIndexes[i] = fullIndexOfVisible(indices[i]);
+            }
+            List<TableViewColumnFilter> filters = beginFilterMutation();
+            super.remove(filters == null ? indices : fullIndexes);
+            endFilterMutation(filters);
+          }
+
+          @Override
+          public void remove(int start, int end) {
+            if (filterMutationBatch || hiddenRows == null || hiddenRows.isEmpty()) {
+              super.remove(start, end);
+              return;
+            }
+            int count = end - start + 1;
+            int[] indices = new int[Math.max(count, 0)];
+            for (int i = 0; i < indices.length; i++) {
+              indices[i] = start + i;
+            }
+            remove(indices);
+          }
+        };
     PropsUi.setLook(table);
     table.setLinesVisible(true);
 
@@ -1859,12 +1990,24 @@ public class TableView extends Composite {
       shouldRefresh = true;
     }
 
-    if (!shouldRefresh && table.getItemCount() == lastRowCount) {
+    // A filter keeps rows out of the table. Sort the whole set, then put the filter back, so Show
+    // all columns returns every row in this sort order.
+    if (!shouldRefresh && table.getItemCount() == lastRowCount && columnViewFilters.isEmpty()) {
       return;
     }
 
-    removeEmptyRows();
+    List<TableViewColumnFilter> filtersToReapply = beginFilterMutation();
+    try {
+      removeEmptyRows();
 
+      sortTableItems(sortField, sortingDescending);
+    } finally {
+      endFilterMutation(filtersToReapply);
+    }
+  }
+
+  /** Rebuild the table items in sort order. The column-view filter is not applied here. */
+  private void sortTableItems(int sortField, boolean sortingDescending) {
     try {
       // First, get all info and put it in a Vector of Rows...
       TableItem[] items = table.getItems();
@@ -2708,16 +2851,26 @@ public class TableView extends Composite {
   }
 
   private void insertRow(int rowNr) {
-    TableItem tableItem = new TableItem(table, SWT.NONE, rowNr);
-    tableItem.setText(1, "");
+    int index = rowNr;
+    List<TableViewColumnFilter> filters = null;
+    if (hasHiddenRows()) {
+      index = fullIndexOfVisible(rowNr);
+      filters = beginFilterMutation();
+    }
+    try {
+      TableItem tableItem = new TableItem(table, SWT.NONE, index);
+      tableItem.setText(1, "");
 
-    // Add undo information
-    ChangeAction ta = new ChangeAction();
-    String[] str = getItemText(tableItem);
-    ta.setNew(new String[][] {str}, new int[] {rowNr});
-    addUndo(ta);
+      // Add undo information
+      ChangeAction ta = new ChangeAction();
+      String[] str = getItemText(tableItem);
+      ta.setNew(new String[][] {str}, new int[] {index});
+      addUndo(ta);
 
-    setRowNums();
+      setRowNums();
+    } finally {
+      endFilterMutation(filters);
+    }
 
     edit(rowNr, 1);
     tableViewModifyListener.insertRow(rowNr);
@@ -2748,6 +2901,9 @@ public class TableView extends Composite {
     }
 
     if (id == SWT.YES) {
+      // The table content is replaced wholesale: forget the filtered-out rows instead of
+      // bringing them back as ghosts with Show all columns.
+      clearColumnViewFilters();
       table.removeAll();
       new TableItem(table, SWT.NONE);
       // Only start editing when the user cleared an already-visible grid. Programmatic refill
@@ -3098,30 +3254,59 @@ public class TableView extends Composite {
 
     if (text != null) {
       String[] lines = text.split(Const.CR);
+      String[][] grid = null;
+      int[] idx = null;
       if (lines.length > 1) {
         // ALlocate complete paste grid!
-        String[][] grid = new String[lines.length - 1][];
-        int[] idx = new int[lines.length - 1];
-
+        grid = new String[lines.length - 1][];
+        idx = new int[lines.length - 1];
         for (int i = 1; i < lines.length; i++) {
           grid[i - 1] = lines[i].split("\t");
           idx[i - 1] = rowNr + i - 1;
-          addItem(idx[i - 1], grid[i - 1]);
         }
-
-        ChangeAction ta = new ChangeAction();
-        ta.setNew(grid, idx);
-        addUndo(ta);
       }
-      if (rowNr == 0 && table.getItemCount() > rowNr + 1 && isEmpty(rowNr, -1)) {
-        // Empty row at rowNr?
-        // Remove it!
-        table.remove(rowNr);
-      }
-      setRowNums();
-      unEdit();
 
-      setModified();
+      // Paste into the unfiltered table, then put the filter back. Otherwise a row inserted
+      // between two visible rows lands in the wrong place once the hidden rows return.
+      List<TableViewColumnFilter> filters = null;
+      if (idx != null && hasHiddenRows()) {
+        for (int i = 0; i < idx.length; i++) {
+          idx[i] = fullIndexOfVisible(idx[i]);
+        }
+        filters = beginFilterMutation();
+      }
+      try {
+        if (idx != null) {
+          for (int i = 0; i < idx.length; i++) {
+            addItem(idx[i], grid[i]);
+            if (filters != null) {
+              for (int j = i + 1; j < idx.length; j++) {
+                if (idx[j] >= idx[i]) {
+                  idx[j]++;
+                }
+              }
+            }
+          }
+
+          ChangeAction ta = new ChangeAction();
+          ta.setNew(grid, idx);
+          addUndo(ta);
+        }
+        if (filters == null
+            && rowNr == 0
+            && table.getItemCount() > rowNr + 1
+            && isEmpty(rowNr, -1)) {
+          // Empty row at rowNr?
+          // Remove it!
+          table.remove(rowNr);
+        }
+        setRowNums();
+        unEdit();
+
+        setModified();
+      } finally {
+        endFilterMutation(filters);
+      }
     }
   }
 
@@ -4154,16 +4339,22 @@ public class TableView extends Composite {
   }
 
   public void removeEmptyRows(int column) {
-    // Remove "empty" table items, where item.getText(1) is empty, length==0
-
-    for (int i = table.getItemCount() - 1; i >= 0; i--) {
-      if (isEmpty(i, column)) {
-        table.remove(i);
+    // Remove "empty" table items, where item.getText(1) is empty, length==0.
+    // Put filtered rows back first so an empty row that was hidden is removed too, and the indexes
+    // in this loop are positions in the complete table.
+    List<TableViewColumnFilter> filters = beginFilterMutation();
+    try {
+      for (int i = table.getItemCount() - 1; i >= 0; i--) {
+        if (isEmpty(i, column)) {
+          table.remove(i);
+        }
       }
-    }
-    if (table.getItemCount() == 0) { // At least one empty row!
+      if (table.getItemCount() == 0) { // At least one empty row!
 
-      new TableItem(table, SWT.NONE);
+        new TableItem(table, SWT.NONE);
+      }
+    } finally {
+      endFilterMutation(filters);
     }
   }
 
@@ -4859,14 +5050,30 @@ public class TableView extends Composite {
 
   /**
    * Hide and reorder data columns so that only {@code columnNames} stay visible, in that order.
-   * Matching is by column name. Cell data is left in place.
+   * Matching is by column name. Cell data is left in place. Any row filters of a previously applied
+   * view are removed first.
    *
    * @return {@code true} if at least one column matched
    */
   public boolean applyColumnView(List<String> columnNames) {
+    return applyColumnView(columnNames, null);
+  }
+
+  /**
+   * Hide and reorder data columns so that only {@code columnNames} stay visible, in that order, and
+   * hide every row that does not pass all {@code filters}. Matching is by column name, rows are
+   * matched on their full cell values. Rows taken out of the table are kept aside and come back
+   * with {@link #resetColumnView()} or when another view without filters is applied.
+   *
+   * @param columnNames the columns to show, in display order
+   * @param filters the filters to apply, or null or empty for no row filtering
+   * @return {@code true} if at least one column matched
+   */
+  public boolean applyColumnView(List<String> columnNames, List<TableViewColumnFilter> filters) {
     if (table == null || table.isDisposed() || columns.length == 0) {
       return false;
     }
+    // Resolve first. A view that matches no column must leave the current filter and layout alone.
     String[] available = new String[columns.length];
     for (int i = 0; i < columns.length; i++) {
       available[i] = Const.NVL(columns[i].getName(), "");
@@ -4875,6 +5082,10 @@ public class TableView extends Composite {
     if (visible.isEmpty()) {
       return false;
     }
+
+    restoreFilteredRows();
+    columnViewFilters = new ArrayList<>();
+    updateFilterIndications();
     ensureRememberedWidths();
     hiddenDataColumns.clear();
     Set<Integer> visibleSet = new HashSet<>(visible);
@@ -4884,14 +5095,20 @@ public class TableView extends Composite {
       }
     }
     applyHiddenAndOrder(visible);
+
+    if (filtersSupported && filters != null && !filters.isEmpty()) {
+      applyRowFilters(filters);
+    }
     return true;
   }
 
-  /** Restore every data column to its original order and remembered width. */
+  /** Restore every data column to its original order and remembered width, and show all rows. */
   public void resetColumnView() {
     if (table == null || table.isDisposed()) {
       return;
     }
+    restoreFilteredRows();
+    columnViewFilters = new ArrayList<>();
     hiddenDataColumns.clear();
     for (int i = 1; i < tableColumn.length; i++) {
       TableColumn tc = tableColumn[i];
@@ -4907,6 +5124,404 @@ public class TableView extends Composite {
       }
     }
     setColumnOrderSafe(naturalColumnOrder());
+    updateFilterIndications();
+  }
+
+  /** The filters of the column view that is applied right now; empty when none are active. */
+  public List<TableViewColumnFilter> getAppliedColumnFilters() {
+    return new ArrayList<>(columnViewFilters);
+  }
+
+  /**
+   * The number of rows that would stay visible with these filters. Rows the current filter has
+   * taken out of the table are included, so the count stays right after a filter is already
+   * applied.
+   *
+   * @param filters the filters to count against, null or empty counts every row
+   * @return the number of matching rows
+   */
+  public int getMatchingRowCount(List<TableViewColumnFilter> filters) {
+    if (table == null || table.isDisposed()) {
+      return 0;
+    }
+    if (filters == null || filters.isEmpty()) {
+      return getUnfilteredRowCount();
+    }
+    String[] names = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      names[i] = Const.NVL(columns[i].getName(), "");
+    }
+    int count = 0;
+    for (TableItem item : table.getItems()) {
+      if (TableViewColumnViews.matchesFilters(filters, names, getRowFilterValues(item))) {
+        count++;
+      }
+    }
+    if (hiddenRows != null) {
+      for (HiddenRow row : hiddenRows) {
+        if (TableViewColumnViews.matchesFilters(filters, names, getHiddenRowFilterValues(row))) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  /** Visible rows plus the rows the current filter has taken out. */
+  public int getUnfilteredRowCount() {
+    if (table == null || table.isDisposed()) {
+      return 0;
+    }
+    return table.getItemCount() + (hiddenRows == null ? 0 : hiddenRows.size());
+  }
+
+  /**
+   * The unique values of one data column, sorted the way that column's data type sorts: numbers
+   * numerically, dates by their conversion mask, booleans by truth, text as text. Empty and null
+   * cells come back as {@link TableViewColumnViews#NULL_VALUE_LABEL}, which sorts first.
+   *
+   * <p>Rows hidden by the column-view filter that is applied right now are included. The list is
+   * the original distinct values, including after a filter is removed in the dialog and before
+   * Apply puts those rows back on screen.
+   *
+   * @param dataIndex the index of the data column
+   * @return the unique values, sorted
+   */
+  public List<String> getUniqueColumnValues(int dataIndex) {
+    List<String> values = new ArrayList<>();
+    if (table == null || table.isDisposed() || dataIndex < 0 || dataIndex >= columns.length) {
+      return values;
+    }
+    Set<String> unique = new LinkedHashSet<>();
+    for (TableItem item : table.getItems()) {
+      unique.add(getFilterValue(item, dataIndex));
+    }
+    if (hiddenRows != null) {
+      for (HiddenRow row : hiddenRows) {
+        unique.add(getHiddenFilterValue(row, dataIndex));
+      }
+    }
+    values.addAll(unique);
+    values.sort(TableViewColumnViews.valueComparator(columns[dataIndex].getValueMeta()));
+    return values;
+  }
+
+  private void applyRowFilters(List<TableViewColumnFilter> filters) {
+    String[] names = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      names[i] = Const.NVL(columns[i].getName(), "");
+    }
+    List<TableViewColumnFilter> effective = new ArrayList<>();
+    for (TableViewColumnFilter filter : filters) {
+      if (filter == null
+          || StringUtils.isEmpty(filter.getColumnName())
+          || filter.getValues() == null
+          || filter.getValues().isEmpty()
+          || !columnExists(filter.getColumnName(), names)) {
+        continue;
+      }
+      effective.add(filter);
+    }
+    columnViewFilters = new ArrayList<>(effective);
+    updateFilterIndications();
+    if (effective.isEmpty()) {
+      return;
+    }
+
+    closeActiveEditors();
+    List<HiddenRow> hidden = new ArrayList<>();
+    // These removes are the filter itself. They must not be treated as the user deleting a row.
+    filterMutationBatch = true;
+    try {
+      for (int i = table.getItemCount() - 1; i >= 0; i--) {
+        TableItem item = table.getItem(i);
+        if (!TableViewColumnViews.matchesFilters(effective, names, getRowFilterValues(item))) {
+          hidden.add(captureRow(i, item));
+          table.remove(i);
+        }
+      }
+    } finally {
+      filterMutationBatch = false;
+    }
+    if (hidden.isEmpty()) {
+      return;
+    }
+    Collections.reverse(hidden);
+    hiddenRows = hidden;
+    // The row indices in the undo history no longer point at the same rows.
+    clearUndo();
+    if (table.getItemCount() > 0) {
+      table.setSelection(0);
+      activeTableItem = table.getItem(0);
+    } else {
+      activeTableItem = null;
+    }
+    activeTableRow = 0;
+  }
+
+  /** Put the rows taken out by the filters back where they came from. */
+  private void restoreFilteredRows() {
+    if (hiddenRows == null) {
+      return;
+    }
+    List<HiddenRow> hidden = hiddenRows;
+    hiddenRows = null;
+    if (hidden.isEmpty()) {
+      return;
+    }
+    closeActiveEditors();
+    // Ascending insert at the original index: at that moment the table holds exactly the rows that
+    // originally sat above it - the survivors plus the hidden rows already put back.
+    filterMutationBatch = true;
+    try {
+      for (HiddenRow row : hidden) {
+        insertHiddenRow(row, row.index);
+      }
+    } finally {
+      filterMutationBatch = false;
+    }
+    // The row indices in the undo history no longer point at the same rows.
+    clearUndo();
+    if (table.getItemCount() > 0) {
+      table.setSelection(0);
+      activeTableItem = table.getItem(0);
+    } else {
+      activeTableItem = null;
+    }
+    activeTableRow = 0;
+  }
+
+  private void insertHiddenRow(HiddenRow row, int position) {
+    TableItem item =
+        position >= 0 && position <= table.getItemCount()
+            ? new TableItem(table, SWT.NONE, position)
+            : new TableItem(table, SWT.NONE);
+    if (row.rowNumber != null) {
+      item.setText(0, row.rowNumber);
+    }
+    for (int i = 0; i < row.displayed.length; i++) {
+      if (row.displayed[i] != null) {
+        item.setText(i + 1, row.displayed[i]);
+      }
+    }
+    if (row.cellValues != null) {
+      item.setData(CELL_VALUES_KEY, row.cellValues);
+    }
+    if (row.data != null) {
+      item.setData(row.data);
+    }
+    if (row.background != null && !row.background.equals(defaultBackgroundColor)) {
+      item.setBackground(row.background);
+    }
+    for (int i = 0; i < row.blueForeground.length; i++) {
+      if (row.blueForeground[i]) {
+        item.setForeground(i + 1, nullTextColor);
+      }
+    }
+  }
+
+  private HiddenRow captureRow(int index, TableItem item) {
+    String[] displayed = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      displayed[i] = item.getText(i + 1);
+    }
+    boolean[] blue = new boolean[columns.length];
+    Color blueColor = GuiResource.getInstance().getColorBlue();
+    for (int i = 0; i < columns.length; i++) {
+      blue[i] = blueColor.equals(item.getForeground(i + 1));
+    }
+    return new HiddenRow(
+        index,
+        item.getText(0),
+        displayed,
+        (String[][]) item.getData(CELL_VALUES_KEY),
+        item.getData(),
+        item.getBackground(),
+        blue);
+  }
+
+  /**
+   * The value of a cell the way the filters see it: null, empty and blue (null-indicating) cells
+   * all come back as {@link TableViewColumnViews#NULL_VALUE_LABEL}, everything else as the full
+   * cell value.
+   */
+  private String getFilterValue(TableItem item, int dataColumn) {
+    if (item == null || item.isDisposed()) {
+      return TableViewColumnViews.NULL_VALUE_LABEL;
+    }
+    String value = getCellValue(item, dataColumn + 1);
+    if (value == null || value.isEmpty()) {
+      return TableViewColumnViews.NULL_VALUE_LABEL;
+    }
+    if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(dataColumn + 1))) {
+      return TableViewColumnViews.NULL_VALUE_LABEL;
+    }
+    return value;
+  }
+
+  /** The same reading as {@link #getFilterValue(TableItem, int)} for a row kept aside. */
+  private String getHiddenFilterValue(HiddenRow row, int dataColumn) {
+    if (row.blueForeground != null
+        && dataColumn < row.blueForeground.length
+        && row.blueForeground[dataColumn]) {
+      return TableViewColumnViews.NULL_VALUE_LABEL;
+    }
+    String displayed =
+        row.displayed != null && dataColumn < row.displayed.length
+            ? row.displayed[dataColumn]
+            : null;
+    String value = displayed;
+    int colNr = dataColumn + 1;
+    if (row.cellValues != null
+        && row.cellValues.length > DISPLAYED
+        && colNr < row.cellValues[FULL].length
+        && row.cellValues[FULL][colNr] != null
+        && row.cellValues[DISPLAYED][colNr] != null
+        && row.cellValues[DISPLAYED][colNr].equals(displayed)) {
+      value = row.cellValues[FULL][colNr];
+    }
+    if (value == null || value.isEmpty()) {
+      return TableViewColumnViews.NULL_VALUE_LABEL;
+    }
+    return value;
+  }
+
+  private String[] getRowFilterValues(TableItem item) {
+    String[] values = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      values[i] = getFilterValue(item, i);
+    }
+    return values;
+  }
+
+  /** True when the column name exists, matched the same way the row values are matched. */
+  private static boolean columnExists(String columnName, String[] names) {
+    for (String name : names) {
+      if (columnName.equals(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Show a filter icon on the header of every filtered column and put the header image and tooltip
+   * of the columns without a filter back.
+   */
+  private void updateFilterIndications() {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    Set<Integer> filtered = new HashSet<>();
+    for (TableViewColumnFilter filter : columnViewFilters) {
+      if (filter == null || StringUtils.isEmpty(filter.getColumnName())) {
+        continue;
+      }
+      for (int i = 0; i < columns.length; i++) {
+        if (filter.getColumnName().equals(Const.NVL(columns[i].getName(), ""))) {
+          filtered.add(i);
+        }
+      }
+    }
+    Image filterImage =
+        filtered.isEmpty() ? null : GuiResource.getInstance().getImage("ui/images/filter.svg");
+    for (int i = 0; i < columns.length; i++) {
+      TableColumn tc = tableColumn[i + 1];
+      if (tc == null || tc.isDisposed()) {
+        continue;
+      }
+      if (filtered.contains(i)) {
+        tc.setImage(filterImage);
+        List<String> values = new ArrayList<>();
+        for (TableViewColumnFilter filter : columnViewFilters) {
+          if (filter != null
+              && filter.getColumnName().equals(Const.NVL(columns[i].getName(), ""))) {
+            values.addAll(filter.getValues());
+          }
+        }
+        tc.setToolTipText(
+            BaseMessages.getString(PKG, "TableView.Filter.Tooltip", String.join(",", values)));
+      } else {
+        tc.setImage(columns[i].getImage());
+        tc.setToolTipText(columns[i].getToolTip());
+      }
+    }
+  }
+
+  /**
+   * Forget the active row filters without putting the hidden rows back: for when the table content
+   * is replaced wholesale and the kept-aside rows would only come back as ghosts.
+   */
+  private void clearColumnViewFilters() {
+    hiddenRows = null;
+    columnViewFilters = new ArrayList<>();
+    updateFilterIndications();
+  }
+
+  private boolean hasHiddenRows() {
+    return hiddenRows != null && !hiddenRows.isEmpty();
+  }
+
+  /**
+   * Where visible row {@code visibleIndex} sits once the filtered-out rows are back. {@code
+   * visibleIndex == item count} is the position after the last row.
+   */
+  private int fullIndexOfVisible(int visibleIndex) {
+    if (!hasHiddenRows() || visibleIndex < 0) {
+      return Math.max(visibleIndex, 0);
+    }
+    int visibleSeen = 0;
+    int hiddenPtr = 0;
+    int full = 0;
+    int limit = table.getItemCount() + hiddenRows.size();
+    while (full <= limit) {
+      boolean hiddenSlot = hiddenPtr < hiddenRows.size() && hiddenRows.get(hiddenPtr).index == full;
+      if (hiddenSlot) {
+        hiddenPtr++;
+      } else if (visibleSeen == visibleIndex) {
+        return full;
+      } else {
+        visibleSeen++;
+      }
+      full++;
+    }
+    return limit;
+  }
+
+  /**
+   * Put the filtered-out rows back and remember the filter so {@link #endFilterMutation} can apply
+   * it again. Returns null when no filter is active or a mutation is already in progress: the
+   * caller then edits the table as it stands.
+   */
+  private List<TableViewColumnFilter> beginFilterMutation() {
+    if (filterMutationBatch || columnViewFilters.isEmpty()) {
+      return null;
+    }
+    List<TableViewColumnFilter> filters = new ArrayList<>(columnViewFilters);
+    restoreFilteredRows();
+    columnViewFilters = new ArrayList<>();
+    updateFilterIndications();
+    filterMutationBatch = true;
+    return filters;
+  }
+
+  /** Apply {@code filters} again. A null list means this caller does not own the mutation. */
+  private void endFilterMutation(List<TableViewColumnFilter> filters) {
+    if (filters == null) {
+      return;
+    }
+    filterMutationBatch = false;
+    if (!filters.isEmpty()) {
+      applyRowFilters(filters);
+    }
+  }
+
+  private String[] getHiddenRowFilterValues(HiddenRow row) {
+    String[] values = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      values[i] = getHiddenFilterValue(row, i);
+    }
+    return values;
   }
 
   /**
@@ -5055,13 +5670,163 @@ public class TableView extends Composite {
     }
   }
 
-  private void addHeaderContextMenu(Menu rowMenu) {
-    Menu headerMenu = new Menu(table);
+  /**
+   * Ask which values of this column to show. The list is the unique values, sorted the way the
+   * column's data type sorts. More than {@link #FILTER_VALUE_LIST_WARN_LIMIT} values need a
+   * confirmation first.
+   *
+   * @param parent the shell that owns the dialogs
+   * @param dataIndex the data column, not counting the row-number column
+   * @param currentValues the values already selected for this column, shown pre-selected
+   * @return the chosen values, an empty list when the filter should be dropped, or null when the
+   *     user cancelled or the column has no values
+   */
+  public List<String> promptColumnFilterValues(
+      Shell parent, int dataIndex, List<String> currentValues) {
+    if (parent == null || parent.isDisposed() || dataIndex < 0 || dataIndex >= columns.length) {
+      return null;
+    }
+    String columnName = Const.NVL(columns[dataIndex].getName(), "");
+    List<String> values = getUniqueColumnValues(dataIndex);
+    if (values.isEmpty()) {
+      MessageBox box = new MessageBox(parent, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "TableView.Filter.Values.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "TableView.Filter.NoValues.Message", columnName));
+      box.open();
+      return null;
+    }
+    if (values.size() > FILTER_VALUE_LIST_WARN_LIMIT) {
+      MessageBox box = new MessageBox(parent, SWT.YES | SWT.NO | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "TableView.Filter.ManyValues.Title"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "TableView.Filter.ManyValues.Message",
+              columnName,
+              Integer.toString(values.size())));
+      if ((box.open() & SWT.YES) == 0) {
+        return null;
+      }
+    }
 
-    MenuItem miHide = new MenuItem(headerMenu, SWT.NONE);
+    int[] preselect = new int[currentValues == null ? 0 : currentValues.size()];
+    int count = 0;
+    if (currentValues != null) {
+      for (String value : currentValues) {
+        int index = values.indexOf(value);
+        if (index >= 0) {
+          preselect[count++] = index;
+        }
+      }
+    }
+    preselect = Arrays.copyOf(preselect, count);
+
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            parent,
+            values.toArray(new String[0]),
+            BaseMessages.getString(PKG, "TableView.Filter.Values.Title"),
+            BaseMessages.getString(PKG, "TableView.Filter.Values.Message", columnName));
+    dialog.setMulti(true);
+    dialog.setSelectedNrs(preselect);
+    dialog.open();
+
+    // getSelectionIndeces() is null only when the dialog was cancelled. OK without a selection
+    // leaves an empty array, which drops the filter on this column.
+    int[] selected = dialog.getSelectionIndeces();
+    if (selected == null) {
+      return null;
+    }
+    List<String> selectedValues = new ArrayList<>();
+    for (int index : selected) {
+      if (index >= 0 && index < values.size()) {
+        selectedValues.add(values.get(index));
+      }
+    }
+    return selectedValues;
+  }
+
+  private void addFilterForColumn(int dataIndex) {
+    if (!filtersSupported || dataIndex < 0 || dataIndex >= columns.length) {
+      return;
+    }
+    String columnName = Const.NVL(columns[dataIndex].getName(), "");
+    List<String> selected =
+        promptColumnFilterValues(getShell(), dataIndex, filterValues(columnName));
+    if (selected == null) {
+      return;
+    }
+    replaceColumnFilter(dataIndex, selected);
+  }
+
+  private void removeFilterForColumn(int dataIndex) {
+    if (!columnHasFilter(dataIndex)) {
+      return;
+    }
+    replaceColumnFilter(dataIndex, List.of());
+  }
+
+  /**
+   * Replace the applied filter of one column and keep the columns that are visible now. An empty
+   * value list drops the filter. Filters on other columns stay.
+   *
+   * @param dataIndex the data column, not counting the row-number column
+   * @param values the values to keep, or an empty list to drop the filter
+   */
+  void replaceColumnFilter(int dataIndex, List<String> values) {
+    if (!filtersSupported || dataIndex < 0 || dataIndex >= columns.length) {
+      return;
+    }
+    String columnName = Const.NVL(columns[dataIndex].getName(), "");
+    List<TableViewColumnFilter> filters = getAppliedColumnFilters();
+    filters.removeIf(filter -> filter != null && columnName.equals(filter.getColumnName()));
+    if (values != null && !values.isEmpty()) {
+      filters.add(new TableViewColumnFilter(columnName, values));
+    }
+    applyFiltersKeepingColumns(filters);
+  }
+
+  private void applyFiltersKeepingColumns(List<TableViewColumnFilter> filters) {
+    List<String> visible = getVisibleColumnNamesInOrder();
+    if (visible.isEmpty()) {
+      visible = new ArrayList<>();
+      for (ColumnInfo column : columns) {
+        visible.add(Const.NVL(column.getName(), ""));
+      }
+    }
+    applyColumnView(visible, filters);
+  }
+
+  private boolean columnHasFilter(int dataIndex) {
+    if (dataIndex < 0 || dataIndex >= columns.length) {
+      return false;
+    }
+    String columnName = Const.NVL(columns[dataIndex].getName(), "");
+    for (TableViewColumnFilter filter : columnViewFilters) {
+      if (filter != null && columnName.equals(filter.getColumnName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<String> filterValues(String columnName) {
+    for (TableViewColumnFilter filter : columnViewFilters) {
+      if (filter != null
+          && columnName.equals(filter.getColumnName())
+          && filter.getValues() != null) {
+        return filter.getValues();
+      }
+    }
+    return List.of();
+  }
+
+  private void addHeaderContextMenu(Menu rowMenu) {
+    headerContextMenu = new Menu(table);
+
+    MenuItem miHide = new MenuItem(headerContextMenu, SWT.NONE);
     miHide.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.HideColumn")));
-    final int[] headerDataColumn = {-1};
     miHide.addListener(
         SWT.Selection,
         e -> {
@@ -5070,15 +5835,19 @@ public class TableView extends Composite {
           }
         });
 
-    MenuItem miShowAll = new MenuItem(headerMenu, SWT.NONE);
+    MenuItem miShowAll = new MenuItem(headerContextMenu, SWT.NONE);
     miShowAll.setText(
         OsHelper.customizeMenuitemText(
             BaseMessages.getString(PKG, "TableView.menu.ShowAllColumns")));
     miShowAll.addListener(SWT.Selection, e -> resetColumnView());
 
+    if (filtersSupported) {
+      addFilterHeaderMenuItems();
+    }
+
     if (!removeToolItems.contains(ID_TOOLBAR_TABLE_VIEWS)) {
-      new MenuItem(headerMenu, SWT.SEPARATOR);
-      MenuItem miTableViews = new MenuItem(headerMenu, SWT.NONE);
+      new MenuItem(headerContextMenu, SWT.SEPARATOR);
+      MenuItem miTableViews = new MenuItem(headerContextMenu, SWT.NONE);
       miTableViews.setText(
           OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.TableViews")));
       miTableViews.setImage(GuiResource.getInstance().getImageView());
@@ -5100,10 +5869,70 @@ public class TableView extends Composite {
           if (onHeader) {
             headerDataColumn[0] = findDataColumnAtX(pt.x);
             miHide.setEnabled(headerDataColumn[0] >= 0);
-            table.setMenu(headerMenu);
+            if (miHeaderAddFilter != null && !miHeaderAddFilter.isDisposed()) {
+              miHeaderAddFilter.setEnabled(headerDataColumn[0] >= 0);
+              miHeaderRemoveFilter.setEnabled(columnHasFilter(headerDataColumn[0]));
+            }
+            table.setMenu(headerContextMenu);
           } else {
             contextMenuPoint = event.detail == SWT.MENU_KEYBOARD ? null : pt;
             table.setMenu(rowMenu);
+          }
+        });
+  }
+
+  /**
+   * @param filtersSupported true to offer row filters on this grid
+   */
+  public void setFiltersSupported(boolean filtersSupported) {
+    this.filtersSupported = filtersSupported;
+    if (filtersSupported) {
+      addFilterHeaderMenuItems();
+      return;
+    }
+    if (miHeaderAddFilter != null && !miHeaderAddFilter.isDisposed()) {
+      miHeaderAddFilter.dispose();
+      miHeaderRemoveFilter.dispose();
+    }
+    miHeaderAddFilter = null;
+    miHeaderRemoveFilter = null;
+  }
+
+  /** Add the filter entries once, in front of the Table views separator when that entry exists. */
+  private void addFilterHeaderMenuItems() {
+    if (headerContextMenu == null
+        || headerContextMenu.isDisposed()
+        || (miHeaderAddFilter != null && !miHeaderAddFilter.isDisposed())) {
+      return;
+    }
+    int index = headerContextMenu.getItemCount();
+    MenuItem[] items = headerContextMenu.getItems();
+    for (int i = 0; i < items.length; i++) {
+      if ((items[i].getStyle() & SWT.SEPARATOR) != 0) {
+        index = i;
+        break;
+      }
+    }
+    miHeaderAddFilter = new MenuItem(headerContextMenu, SWT.NONE, index);
+    miHeaderAddFilter.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.AddFilter")));
+    miHeaderAddFilter.setImage(GuiResource.getInstance().getImage("ui/images/filter.svg"));
+    miHeaderAddFilter.addListener(
+        SWT.Selection,
+        e -> {
+          if (headerDataColumn[0] >= 0) {
+            addFilterForColumn(headerDataColumn[0]);
+          }
+        });
+
+    miHeaderRemoveFilter = new MenuItem(headerContextMenu, SWT.NONE, index + 1);
+    miHeaderRemoveFilter.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.RemoveFilter")));
+    miHeaderRemoveFilter.addListener(
+        SWT.Selection,
+        e -> {
+          if (headerDataColumn[0] >= 0) {
+            removeFilterForColumn(headerDataColumn[0]);
           }
         });
   }

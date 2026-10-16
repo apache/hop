@@ -112,23 +112,44 @@ image::hop-gui/pipeline/preview-pipeline.png[Preview pipeline,75%,align="left"]
 
 Preview windows (and other table grids in Hop Gui) can contain a large number of columns.
 A **table view** is a named subset of those columns, in the order you want to see them.
-The underlying rows are not changed: hidden columns stay in the data and are still exported, copied or saved.
+Hidden columns stay in the data and are still exported, copied or saved.
+A view can also carry filters on its columns: rows that do not match are hidden while the view is applied, and come back with **Show all columns**.
+Row filters are offered when browsing data, such as **Show rows**.
+A grid that edits configuration leaves **Add filter** and **Remove filter** disabled and does not hide rows for a saved filter, so confirming the dialog still keeps every row.
 
 Open the **Table views** dialog from the table toolbar image:getting-started/icons/view.svg[Table views,25px,align="bottom"] icon, from the row context menu, or from the column header context menu.
 
-image::hop-gui/pipeline/table-views-dialog.png[Table views dialog on a wide preview,75%,align="left"]
+image::hop-gui/pipeline/table-views-dialog.png[Table views dialog with an applied column filter,75%,align="left"]
 
 In the dialog:
 
-* Create, rename or delete a view. **Use current layout** fills the view from the columns that are visible now.
-* Move fields between **Available columns** and **Columns in view**, and use **Move up** / **Move down** to set the display order.
-* **Apply** shows only the selected columns, in that order. **Show all columns** restores the full table.
-* **Save** stores the view so you can reuse it later.
+* The dialog opens with every column in **Columns in view** (columns on screen first, then the rest) and with any filters already applied from the column header. **Use current layout** copies the columns that are visible now.
+* Move fields between **Available columns** and **Columns in view**, and use the **arrow up** and **arrow down** buttons in the middle to set the display order.
+* **Add filter** picks a column and then shows the unique sorted values of that column, where you select the values to keep. An `<null>` entry covers empty values. The filter shows up as `Column-Name : value1,value2,value3` in the **Applied filters** list, and **Remove filter** takes the selected filters out again.
+* A column with more than 500 unique values asks for confirmation before the values are listed.
+* **Apply** shows only the selected columns, in that order, and hides the rows that do not match the applied filters. Filtered columns get a filter icon in their header.
+* **Show all columns** restores the full table: every column and every row comes back.
+* **Save** stores the view, including its filters, so you can reuse it later.
 
 Views are stored per project in the Hop audit folder and are matched by column name.
 A view such as `customer-bk-fields` can be applied to any table that has those field names, not only the preview where you created it.
 
-You can also hide a single column from the column header context menu, or drag headers to reorder them (desktop Hop Gui).
+The column header context menu can hide that column, add a filter on it, or remove the filter it already has.
+**Remove filter** stays disabled until that column has a filter.
+
+image::hop-gui/pipeline/column-header-filter-menu.png[Column header menu with Add filter,40%,align="left"]
+
+**Add filter** lists the unique sorted values of that column, the same way the dialog does.
+Select the values to keep and press **OK**.
+
+image::hop-gui/pipeline/column-filter-values.png[Filter values for the table-name column,75%,align="left"]
+
+The filter is applied straight away.
+The column header shows a filter icon, and only the matching rows stay visible.
+
+image::hop-gui/pipeline/column-filter-applied.png[Rows filtered to one table name,75%,align="left"]
+
+You can also drag headers to reorder them (desktop Hop Gui).
 Those one-off changes can be captured with **Use current layout** and then saved as a named view.
 
 The table toolbar itself can be turned on or off with **Show a toolbar above tables** in the xref:hop-gui/perspective-configuration.adoc[Configuration] perspective.

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +32,10 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TableViewColumnFilter;
 import org.apache.hop.ui.core.widget.TableViewColumnView;
 import org.apache.hop.ui.core.widget.TableViewColumnViewManager;
+import org.apache.hop.ui.core.widget.TableViewColumnViews;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -48,7 +51,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-/** Create, edit, apply and persist named {@link TableView} column views. */
+/** Create, edit, apply and persist named {@link TableView} column views and column filters. */
 public class TableViewColumnViewDialog extends Dialog {
   private static final Class<?> PKG = TableViewColumnViewDialog.class;
 
@@ -60,10 +63,17 @@ public class TableViewColumnViewDialog extends Dialog {
 
   private final Map<String, TableViewColumnView> views = new LinkedHashMap<>();
 
+  /** The filters the user is working on: those of the selected view, or ad-hoc ones. */
+  private List<TableViewColumnFilter> currentFilters = new ArrayList<>();
+
   private Shell shell;
   private org.eclipse.swt.widgets.List wViews;
   private org.eclipse.swt.widgets.List wAvailable;
   private org.eclipse.swt.widgets.List wShown;
+  private org.eclipse.swt.widgets.List wFilters;
+  private Button wMoveUp;
+  private Button wMoveDown;
+  private Button wRemoveFilter;
   private Label wlStatus;
 
   public TableViewColumnViewDialog(Shell parent, TableView tableView) {
@@ -188,6 +198,9 @@ public class TableViewColumnViewDialog extends Dialog {
 
     Composite gButtons = new Composite(middle, SWT.NONE);
     GridLayout grid = new GridLayout(1, true);
+    // The attachment below is the gap to the available-columns list. Do not add another inset.
+    grid.marginWidth = 0;
+    grid.marginHeight = 0;
     gButtons.setLayout(grid);
     PropsUi.setLook(gButtons);
 
@@ -202,47 +215,98 @@ public class TableViewColumnViewDialog extends Dialog {
     wRemoveAll.setToolTipText(
         BaseMessages.getString(PKG, "TableViewColumnViewDialog.RemoveAll.ToolTip"));
 
+    wMoveUp = new Button(gButtons, SWT.ARROW | SWT.UP);
+    wMoveUp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    wMoveUp.setToolTipText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.MoveUp.ToolTip"));
+    wMoveUp.addListener(SWT.Selection, e -> moveShown(-1));
+
+    wMoveDown = new Button(gButtons, SWT.ARROW | SWT.DOWN);
+    wMoveDown.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    wMoveDown.setToolTipText(
+        BaseMessages.getString(PKG, "TableViewColumnViewDialog.MoveDown.ToolTip"));
+    wMoveDown.addListener(SWT.Selection, e -> moveShown(1));
+
+    Button wAddFilter = new Button(gButtons, SWT.PUSH);
+    wAddFilter.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.AddFilter.Label"));
+    wAddFilter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    wAddFilter.setToolTipText(
+        BaseMessages.getString(PKG, "TableViewColumnViewDialog.AddFilter.ToolTip"));
+    wAddFilter.addListener(SWT.Selection, e -> addFilter());
+    wAddFilter.setEnabled(tableView.isFiltersSupported());
+
+    wRemoveFilter = new Button(gButtons, SWT.PUSH);
+    wRemoveFilter.setText(
+        BaseMessages.getString(PKG, "TableViewColumnViewDialog.RemoveFilter.Label"));
+    wRemoveFilter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    wRemoveFilter.setToolTipText(
+        BaseMessages.getString(PKG, "TableViewColumnViewDialog.RemoveFilter.ToolTip"));
+    wRemoveFilter.addListener(SWT.Selection, e -> removeFilter());
+
     FormData fdButtons = new FormData();
-    wAddAll.pack();
-    fdButtons.left = new FormAttachment(50, -(wAddAll.getSize().x / 2) - 5);
-    fdButtons.top = new FormAttachment(20, 0);
+    // The middle sash pane starts at the right side of the available-columns list.
+    fdButtons.left = new FormAttachment(0, 2 * margin);
+    fdButtons.top = new FormAttachment(10, 0);
     gButtons.setLayoutData(fdButtons);
 
-    Composite right =
-        createListPane(sash, BaseMessages.getString(PKG, "TableViewColumnViewDialog.Shown.Label"));
-    wShown = (org.eclipse.swt.widgets.List) right.getData("list");
+    Composite right = new Composite(sash, SWT.NONE);
+    PropsUi.setLook(right);
+    right.setLayout(new FormLayout());
+
+    Label wlShown = new Label(right, SWT.LEFT);
+    wlShown.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Shown.Label"));
+    PropsUi.setLook(wlShown);
+    FormData fdlShown = new FormData();
+    fdlShown.left = new FormAttachment(0, 0);
+    fdlShown.top = new FormAttachment(0, 0);
+    wlShown.setLayoutData(fdlShown);
+
+    wShown =
+        new org.eclipse.swt.widgets.List(
+            right, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wShown);
+    FormData fdShown = new FormData();
+    fdShown.left = new FormAttachment(0, 0);
+    fdShown.top = new FormAttachment(wlShown, 0);
+    fdShown.right = new FormAttachment(100, 0);
+    // Only reach until half the height of the available columns list, the filters live below.
+    fdShown.bottom = new FormAttachment(50, 0);
+    wShown.setLayoutData(fdShown);
     wShown.addListener(SWT.DefaultSelection, e -> removeSelected());
+    wShown.addListener(SWT.Selection, e -> updateFilterButtons());
 
-    Composite orderButtons = new Composite(right, SWT.NONE);
-    PropsUi.setLook(orderButtons);
-    GridLayout orderLayout = new GridLayout(2, true);
-    orderLayout.marginWidth = 0;
-    orderLayout.marginHeight = 0;
-    orderButtons.setLayout(orderLayout);
-    FormData fdOrder = new FormData();
-    fdOrder.left = new FormAttachment(0, 0);
-    fdOrder.right = new FormAttachment(100, 0);
-    fdOrder.bottom = new FormAttachment(100, 0);
-    orderButtons.setLayoutData(fdOrder);
+    Label wlFilters = new Label(right, SWT.LEFT);
+    wlFilters.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Filters.Label"));
+    PropsUi.setLook(wlFilters);
+    FormData fdlFilters = new FormData();
+    fdlFilters.left = new FormAttachment(0, 0);
+    fdlFilters.top = new FormAttachment(wShown, margin);
+    wlFilters.setLayoutData(fdlFilters);
 
-    Button wUp = new Button(orderButtons, SWT.PUSH);
-    wUp.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.MoveUp.Label"));
-    wUp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-    wUp.addListener(SWT.Selection, e -> moveShown(-1));
-
-    Button wDown = new Button(orderButtons, SWT.PUSH);
-    wDown.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.MoveDown.Label"));
-    wDown.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-    wDown.addListener(SWT.Selection, e -> moveShown(1));
-
-    ((FormData) wShown.getLayoutData()).bottom = new FormAttachment(orderButtons, -margin);
+    wFilters =
+        new org.eclipse.swt.widgets.List(
+            right, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wFilters);
+    FormData fdFilters = new FormData();
+    fdFilters.left = new FormAttachment(0, 0);
+    fdFilters.top = new FormAttachment(wlFilters, 0);
+    fdFilters.right = new FormAttachment(100, 0);
+    fdFilters.bottom = new FormAttachment(100, 0);
+    wFilters.setLayoutData(fdFilters);
+    wFilters.addListener(SWT.Selection, e -> updateFilterButtons());
 
     sash.setWeights(new int[] {42, 16, 42});
 
     shell.addListener(SWT.Close, e -> close());
 
     loadViews();
-    refreshColumnLists(java.util.List.of());
+    // A filter added from the column header is already applied. Start from it, and from every
+    // column, so Save and Apply keep the grid instead of clearing the columns.
+    currentFilters = copyFilters(tableView.getAppliedColumnFilters());
+    refreshColumnLists(
+        TableViewColumnViews.columnsInViewOnOpen(
+            tableView.getVisibleColumnNamesInOrder(), tableColumnNames));
+    refreshFiltersList();
+    updateFilterButtons();
     updateStatus();
 
     BaseTransformDialog.setSize(shell);
@@ -317,11 +381,17 @@ public class TableViewColumnViewDialog extends Dialog {
       return;
     }
     TableViewColumnView view = views.get(name);
-    java.util.List<String> shown =
+    List<String> shown =
         view != null && view.getColumnNames() != null
             ? new ArrayList<>(view.getColumnNames())
             : new ArrayList<>();
+    currentFilters =
+        view != null && view.getFilters() != null
+            ? new ArrayList<>(view.getFilters())
+            : new ArrayList<>();
     refreshColumnLists(shown);
+    refreshFiltersList();
+    updateFilterButtons();
     updateStatus();
   }
 
@@ -335,8 +405,11 @@ public class TableViewColumnViewDialog extends Dialog {
     }
     TableViewColumnView view = new TableViewColumnView(name, new ArrayList<>());
     views.put(name, view);
+    currentFilters = new ArrayList<>();
     refreshViewList(name);
-    refreshColumnLists(java.util.List.of());
+    refreshColumnLists(List.of());
+    refreshFiltersList();
+    updateFilterButtons();
     updateStatus();
   }
 
@@ -358,6 +431,7 @@ public class TableViewColumnViewDialog extends Dialog {
     }
     view.setName(newName);
     view.setColumnNames(currentShownColumns());
+    view.setFilters(new ArrayList<>(currentFilters));
     views.remove(newName);
     views.put(newName, view);
     TableViewColumnViewManager.delete(group, oldName);
@@ -379,12 +453,18 @@ public class TableViewColumnViewDialog extends Dialog {
     views.remove(name);
     TableViewColumnViewManager.delete(group, name);
     refreshViewList(null);
-    refreshColumnLists(java.util.List.of());
+    currentFilters = new ArrayList<>();
+    refreshColumnLists(List.of());
+    refreshFiltersList();
+    updateFilterButtons();
     updateStatus();
   }
 
   private void useCurrentLayout() {
     refreshColumnLists(tableView.getVisibleColumnNamesInOrder());
+    currentFilters = copyFilters(tableView.getAppliedColumnFilters());
+    refreshFiltersList();
+    updateFilterButtons();
     updateStatus();
   }
 
@@ -416,29 +496,63 @@ public class TableViewColumnViewDialog extends Dialog {
         to.add(item);
       }
     }
+    updateFilterButtons();
     updateStatus();
   }
 
+  /**
+   * Move the selected columns of the "Columns in view" list one position up or down as a block,
+   * keeping their relative order.
+   *
+   * @param delta -1 to move up, 1 to move down
+   */
   private void moveShown(int delta) {
     int[] selection = wShown.getSelectionIndices();
-    if (selection.length != 1) {
-      return;
-    }
-    int from = selection[0];
-    int to = from + delta;
-    if (to < 0 || to >= wShown.getItemCount()) {
+    if (selection.length == 0) {
       return;
     }
     String[] items = wShown.getItems();
-    String moving = items[from];
-    items[from] = items[to];
-    items[to] = moving;
+    boolean[] selected = new boolean[items.length];
+    for (int index : selection) {
+      selected[index] = true;
+    }
+    if (delta < 0) {
+      for (int i = 0; i < items.length; i++) {
+        if (selected[i] && i > 0 && !selected[i - 1]) {
+          swap(items, i, i - 1);
+          selected[i] = false;
+          selected[i - 1] = true;
+        }
+      }
+    } else {
+      for (int i = items.length - 1; i >= 0; i--) {
+        if (selected[i] && i < items.length - 1 && !selected[i + 1]) {
+          swap(items, i, i + 1);
+          selected[i] = false;
+          selected[i + 1] = true;
+        }
+      }
+    }
     wShown.setItems(items);
-    wShown.setSelection(to);
+    int[] newSelection = new int[selection.length];
+    int n = 0;
+    for (int i = 0; i < selected.length; i++) {
+      if (selected[i]) {
+        newSelection[n++] = i;
+      }
+    }
+    wShown.setSelection(newSelection);
+    updateFilterButtons();
+  }
+
+  private void swap(String[] items, int i, int j) {
+    String tmp = items[i];
+    items[i] = items[j];
+    items[j] = tmp;
   }
 
   private void apply() {
-    java.util.List<String> shown = currentShownColumns();
+    List<String> shown = currentShownColumns();
     if (shown.isEmpty()) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Title"));
@@ -446,7 +560,7 @@ public class TableViewColumnViewDialog extends Dialog {
       box.open();
       return;
     }
-    if (!tableView.applyColumnView(shown)) {
+    if (!tableView.applyColumnView(shown, currentFilters)) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Title"));
       box.setMessage(BaseMessages.getString(PKG, "TableViewColumnViewDialog.NoMatch.Message"));
@@ -472,6 +586,7 @@ public class TableViewColumnViewDialog extends Dialog {
     TableViewColumnView view = views.computeIfAbsent(name, key -> new TableViewColumnView());
     view.setName(name);
     view.setColumnNames(currentShownColumns());
+    view.setFilters(new ArrayList<>(currentFilters));
     TableViewColumnViewManager.save(group, view);
     views.put(name, view);
     refreshViewList(name);
@@ -482,8 +597,8 @@ public class TableViewColumnViewDialog extends Dialog {
     shell.dispose();
   }
 
-  private void refreshColumnLists(java.util.List<String> shownNames) {
-    java.util.List<String> shown = new ArrayList<>();
+  private void refreshColumnLists(List<String> shownNames) {
+    List<String> shown = new ArrayList<>();
     Set<String> shownSet = new HashSet<>();
     for (String name : shownNames) {
       if (StringUtils.isEmpty(name) || shownSet.contains(name)) {
@@ -494,7 +609,7 @@ public class TableViewColumnViewDialog extends Dialog {
     }
     wShown.setItems(shown.toArray(new String[0]));
 
-    java.util.List<String> available = new ArrayList<>();
+    List<String> available = new ArrayList<>();
     for (String name : tableColumnNames) {
       if (!shownSet.contains(name)) {
         available.add(name);
@@ -503,8 +618,110 @@ public class TableViewColumnViewDialog extends Dialog {
     wAvailable.setItems(available.toArray(new String[0]));
   }
 
+  /** Show the filters the user is working on as "Column : value1,value2". */
+  private void refreshFiltersList() {
+    String[] items = new String[currentFilters.size()];
+    for (int i = 0; i < currentFilters.size(); i++) {
+      items[i] = TableViewColumnViews.formatFilter(currentFilters.get(i));
+    }
+    wFilters.setItems(items);
+  }
+
+  private void updateFilterButtons() {
+    boolean shownSelected = wShown.getSelectionCount() > 0;
+    wMoveUp.setEnabled(shownSelected);
+    wMoveDown.setEnabled(shownSelected);
+    wRemoveFilter.setEnabled(tableView.isFiltersSupported() && wFilters.getSelectionCount() > 0);
+  }
+
+  /**
+   * Add a filter on a column: pick the column (from the selection when a single column is selected,
+   * with a dialog otherwise), then pick the values to show from the unique sorted values of that
+   * column.
+   */
+  private void addFilter() {
+    if (!tableView.isFiltersSupported()) {
+      return;
+    }
+    String columnName = pickFilterColumn();
+    if (columnName == null) {
+      return;
+    }
+    int dataIndex = Const.indexOfString(columnName, tableColumnNames);
+    if (dataIndex < 0) {
+      return;
+    }
+    TableViewColumnFilter existing = filterFor(columnName);
+    // Null means cancelled, or the column has nothing to filter on. An empty list means the user
+    // wants no filter on this column at all.
+    List<String> selected =
+        tableView.promptColumnFilterValues(
+            shell, dataIndex, existing == null ? List.of() : existing.getValues());
+    if (selected == null) {
+      return;
+    }
+    currentFilters.removeIf(filter -> filter != null && columnName.equals(filter.getColumnName()));
+    if (!selected.isEmpty()) {
+      currentFilters.add(new TableViewColumnFilter(columnName, selected));
+    }
+    refreshFiltersList();
+    updateFilterButtons();
+    updateStatus();
+  }
+
+  /** Remove the filters that are selected in the applied-filters list. */
+  private void removeFilter() {
+    int[] selection = wFilters.getSelectionIndices();
+    if (selection.length == 0) {
+      return;
+    }
+    boolean[] removed = new boolean[currentFilters.size()];
+    for (int index : selection) {
+      if (index >= 0 && index < removed.length) {
+        removed[index] = true;
+      }
+    }
+    List<TableViewColumnFilter> kept = new ArrayList<>();
+    for (int i = 0; i < currentFilters.size(); i++) {
+      if (!removed[i]) {
+        kept.add(currentFilters.get(i));
+      }
+    }
+    currentFilters = kept;
+    refreshFiltersList();
+    updateFilterButtons();
+    updateStatus();
+  }
+
+  private TableViewColumnFilter filterFor(String columnName) {
+    for (TableViewColumnFilter filter : currentFilters) {
+      if (filter != null && columnName.equals(filter.getColumnName())) {
+        return filter;
+      }
+    }
+    return null;
+  }
+
+  private String pickFilterColumn() {
+    String[] shownSelection = wShown.getSelection();
+    if (shownSelection.length == 1 && tableColumnNameSet.contains(shownSelection[0])) {
+      return shownSelection[0];
+    }
+    String[] availableSelection = wAvailable.getSelection();
+    if (availableSelection.length == 1) {
+      return availableSelection[0];
+    }
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            shell,
+            tableColumnNames,
+            BaseMessages.getString(PKG, "TableViewColumnViewDialog.Filter.Column.Title"),
+            BaseMessages.getString(PKG, "TableViewColumnViewDialog.Filter.Column.Message"));
+    return dialog.open();
+  }
+
   private void updateStatus() {
-    java.util.List<String> shown = currentShownColumns();
+    List<String> shown = currentShownColumns();
     int matching = 0;
     int missing = 0;
     for (String name : shown) {
@@ -526,10 +743,39 @@ public class TableViewColumnViewDialog extends Dialog {
               + BaseMessages.getString(
                   PKG, "TableViewColumnViewDialog.Status.Missing", Integer.toString(missing));
     }
+    if (!currentFilters.isEmpty()) {
+      status +=
+          "  "
+              + BaseMessages.getString(
+                  PKG,
+                  "TableViewColumnViewDialog.Status.Filters",
+                  Integer.toString(currentFilters.size()));
+      status +=
+          "  "
+              + BaseMessages.getString(
+                  PKG,
+                  "TableViewColumnViewDialog.Status.Rows",
+                  Integer.toString(tableView.getMatchingRowCount(currentFilters)),
+                  Integer.toString(tableView.getUnfilteredRowCount()));
+    }
     wlStatus.setText(status);
   }
 
-  private java.util.List<String> currentShownColumns() {
+  /** A private copy, so editing the dialog does not change the filter the table is showing. */
+  private static List<TableViewColumnFilter> copyFilters(List<TableViewColumnFilter> filters) {
+    List<TableViewColumnFilter> copy = new ArrayList<>();
+    if (filters == null) {
+      return copy;
+    }
+    for (TableViewColumnFilter filter : filters) {
+      if (filter != null) {
+        copy.add(new TableViewColumnFilter(filter.getColumnName(), filter.getValues()));
+      }
+    }
+    return copy;
+  }
+
+  private List<String> currentShownColumns() {
     return new ArrayList<>(Arrays.asList(wShown.getItems()));
   }
 
