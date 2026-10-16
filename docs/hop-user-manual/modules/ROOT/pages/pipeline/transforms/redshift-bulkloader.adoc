@@ -63,7 +63,7 @@ IMPORTANT: The Redshift Bulk Loader is linked to the database type. It will fetc
 |===
 |Option|Description
 |Stream to S3 CSV|write the current pipeline stream to a CSV file in an S3 bucket before performing the `COPY` load.
-|Load from existing file|do not stream the contents of the current pipeline, but perform the `COPY` load from a pre-existing file in S3. Suppoorted formats are `CSV` (comma delimited) and `Parquet`.
+|Load from existing file|do not stream the contents of the current pipeline, but perform the `COPY` load from a pre-existing file in S3. Supported formats are `CSV` (comma delimited) and `Parquet`.
 |Copy into Redshift from existing file|path to the file in S3 to `COPY` load the data from.
 |===
 

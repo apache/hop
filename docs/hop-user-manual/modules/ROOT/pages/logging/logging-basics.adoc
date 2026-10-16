@@ -85,7 +85,7 @@ If you want to send logging of tools like hop-run or hop-conf to a logging file 
 
 ==== Write to log 
 
-The Write to log acction writes a specific string to the Hop logging system.
+The Write to log action writes a specific string to the Hop logging system.
 
 Check the xref:../workflow/actions/writetolog.adoc[Write To Log] page for more details.
 

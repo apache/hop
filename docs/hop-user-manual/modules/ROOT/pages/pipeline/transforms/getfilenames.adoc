@@ -104,7 +104,7 @@ The limit parameter will act on the total number of rows returned and not only o
 |Rownum fieldname|The name of the field the row number is reported in.
 |Do not report error|Indicates whether the pipeline fails quietly if no files or folders match the filtering. If not selected, an error is reported if no file sor folders are available.
 |Raise an exception and stop processing|Indicates whether an exception is thrown if no files of folders match the filtering, which also stops the pipeline from continuing. If not selected, the pipeline continues without the files.
-|Limit|The number of files and folders inluded in the output.
+|Limit|The number of files and folders included in the output.
 |Add filename to result?|Indicates whether the file name is added as a field in the output.
 |===
 

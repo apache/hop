@@ -29,7 +29,7 @@ The AWS SQS reader transform enables you to receive messages from Amazon Web Ser
 
 Before the first execution you need to create an IAM-Role (e.g. for usage on EC2/ECS) or an IAM-User with an AWS Key and Secret and attach the required policies for pushing notifications via SNS.
 
-You also need to create one ore more subscription topics you want to push the messages to.
+You also need to create one or more subscription topics you want to push the messages to.
 
 == Options
 
@@ -42,12 +42,12 @@ You also need to create one ore more subscription topics you want to push the me
 |AWS Access Key|your AWS Access Key (`AWS_ACCESS_KEY_ID`)
 |AWS Secret Access Key|the secret for your AWS Access Key (`AWS_SECRET_ACCESS_KEY`)
 |AWS Region|the AWS-Region the service is running in.
-|SQS Queueu URL|the URL of the SQS Queue (starting with https:// - not the ARN!)
+|SQS Queue URL|the URL of the SQS Queue (starting with https:// - not the ARN!)
 |===
 
 === Output definition
 
-On the Output Definition Tab you can define the output fields for the informations read from the SQS message as well as some initial settings for receiving the messages.
+On the Output Definition Tab you can define the output fields for the information read from the SQS message as well as some initial settings for receiving the messages.
 
 ==== Output Settings
 

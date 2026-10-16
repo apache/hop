@@ -59,7 +59,7 @@ The values are exposed to the expressions as the Java objects they are :
 [options="header"]
 |===
 |Option|Description
-|Transform name|Specify a name for this transform. This must be unique wihin the pipeline.
+|Transform name|Specify a name for this transform. This must be unique within the pipeline.
 |New field|The new field in the data stream that contains the result of the expression.
 If you want to overwrite an existing field, you need to define the same field here and in the "Replace value" option.
 |Java expression|The Java expression to evaluate. See examples below.

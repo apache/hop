@@ -33,4 +33,4 @@ under the License.
 |JDBC Url Embedded | jdbc:derby:<database>
 |===
 
-NOTE: Derby JDBC driver has two different modes, if you want to use Derby Embbeded, replace the _derbyclient.jar_ file with _derby.jar_
+NOTE: Derby JDBC driver has two different modes, if you want to use Derby Embedded, replace the _derbyclient.jar_ file with _derby.jar_

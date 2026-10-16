@@ -65,7 +65,7 @@ Select encoding that is valid for your server.
 |Remove files after transferal?|Enable to remove files from the local directory after they've been uploaded.
 |Don't overwrite files|Enable to skip files that already exist in the remote directory.
 |Remote directory|The directory on the FTP server to upload files to.
-|Test folder|Test if the remote directory exists. This connects to the FTP server and attmepts to access the specfied directory. If this directory doesn't exist, the upload fails.
+|Test folder|Test if the remote directory exists. This connects to the FTP server and attempts to access the specified directory. If this directory doesn't exist, the upload fails.
 |===
 
 === Socks Proxy

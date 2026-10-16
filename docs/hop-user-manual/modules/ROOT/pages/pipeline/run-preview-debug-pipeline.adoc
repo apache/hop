@@ -81,7 +81,7 @@ Following metrics are displayed:
 
 include::../snippets/pipeline-metrics-table.adoc[]
 
-The logging tab displays the log of the pipeline according to the log level choosen on execution.
+The logging tab displays the log of the pipeline according to the log level chosen on execution.
 
 image::hop-gui/pipeline/logging-pipeline.png[Logging pipeline,75%,align="left"]
 

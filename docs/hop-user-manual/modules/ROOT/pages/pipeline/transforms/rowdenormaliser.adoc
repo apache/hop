@@ -53,7 +53,7 @@ All fields can be injected, the values used for the aggregation field are the fo
 |TYPE_AGGR_MIN| Take the minimal value of the group
 |TYPE_AGGR_MAX| Take the maximum value of the group
 |TYPE_AGGR_COUNT_ALL| Count rows
-|TYPE_AGGR_CONCAT_COMMA| Aggragate values separated by comma
+|TYPE_AGGR_CONCAT_COMMA| Aggregate values separated by comma
 |===
 
 == Example
