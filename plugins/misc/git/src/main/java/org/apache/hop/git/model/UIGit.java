@@ -79,6 +79,7 @@ import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
+import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
@@ -774,8 +775,7 @@ public class UIGit extends VCS {
     try {
       // Pull = Fetch + Merge
       git.fetch().setCredentialsProvider(credentialsProvider).call();
-      return mergeBranch(
-          Constants.DEFAULT_REMOTE_NAME + "/" + getBranch(), MergeStrategy.RECURSIVE);
+      return mergeBranch(getPullBranch(), MergeStrategy.RECURSIVE);
     } catch (TransportException e) {
       if (e.getMessage()
               .contains(
@@ -795,10 +795,35 @@ public class UIGit extends VCS {
       } else {
         throw new HopException("There was an error doing a git pull", e);
       }
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("There was an error doing a git pull", e);
     }
     return false;
+  }
+
+  private String getPullBranch() throws HopException, IOException {
+    Repository repository = git.getRepository();
+    String branch = getBranch();
+    String trackingBranch = new BranchConfig(repository.getConfig(), branch).getTrackingBranch();
+    String pullBranch =
+        trackingBranch == null
+            ? Constants.DEFAULT_REMOTE_NAME + "/" + branch
+            : Repository.shortenRefName(trackingBranch);
+
+    if (repository.resolve(pullBranch) == null) {
+      if (trackingBranch == null) {
+        throw new HopException(
+            "There is no upstream branch configured for '"
+                + branch
+                + "' and '"
+                + pullBranch
+                + "' does not exist.");
+      }
+      throw new HopException("The configured upstream branch '" + pullBranch + "' does not exist.");
+    }
+    return pullBranch;
   }
 
   public boolean push() throws HopException {
