@@ -1,5 +1,6 @@
 {
   "base_filename": "0108-data-set-output.csv",
+  "folder_name": "${PROJECT_HOME}/output/0108-data-set-output",
   "name": "0108-data-set-output",
   "description": "",
   "dataset_fields": [
