@@ -37,9 +37,9 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 
+/** This defines a 'dtdvalidator' job entry. */
 @Getter
 @Setter
-/** This defines a 'dtdvalidator' job entry. */
 @Action(
     id = "DTD_VALIDATOR",
     name = "i18n::DTD_VALIDATOR.Name",
@@ -142,10 +142,15 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    // Workflow variables, so ${Internal.Entry.Current.Folder} resolves during Check.
+    AbstractFileValidator.putVariableSpace(ctx, variables != null ? variables : getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, dtdFilename, remarks, ctx);
-    ActionValidatorUtils.andValidator().validate(this, xmlFilename, remarks, ctx);
+    // The second argument is a bean property name. A filename value is not a property name.
+    // An internal DTD does not use an external DTD file.
+    if (!"Y".equals(dtdIntern)) {
+      ActionValidatorUtils.andValidator().validate(this, "dtdFilename", remarks, ctx);
+    }
+    ActionValidatorUtils.andValidator().validate(this, "xmlFilename", remarks, ctx);
   }
 }
