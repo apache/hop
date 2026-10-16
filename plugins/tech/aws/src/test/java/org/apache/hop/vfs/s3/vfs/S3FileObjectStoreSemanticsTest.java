@@ -17,6 +17,7 @@
 
 package org.apache.hop.vfs.s3.vfs;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,10 +40,13 @@ import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.cache.SoftRefFilesCache;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileSystem;
 import org.junit.jupiter.api.AfterEach;
@@ -74,6 +78,11 @@ class S3FileObjectStoreSemanticsTest {
 
   /** The bucket's objects: key to content. */
   private final TreeMap<String, byte[]> objects = new TreeMap<>();
+
+  /** Every GetObject request, and the keys whose response stream was aborted. */
+  private final List<GetObjectRequest> getRequests = new ArrayList<>();
+
+  private final List<String> aborts = new ArrayList<>();
 
   private DefaultFileSystemManager manager;
 
@@ -148,13 +157,22 @@ class S3FileObjectStoreSemanticsTest {
     when(client.getObject(any(GetObjectRequest.class)))
         .thenAnswer(
             call -> {
-              byte[] content = objects.get(call.<GetObjectRequest>getArgument(0).key());
+              GetObjectRequest request = call.getArgument(0);
+              getRequests.add(request);
+              byte[] content = objects.get(request.key());
               if (content == null) {
                 throw notFound();
               }
+              // Range "bytes=N-" as the provider sends it; S3 answers 416 past the end
+              int from = 0;
+              if (request.range() != null) {
+                from = Integer.parseInt(request.range().replaceAll("bytes=(\\d+)-", "$1"));
+              }
+              byte[] body = Arrays.copyOfRange(content, from, content.length);
               return new ResponseInputStream<>(
-                  GetObjectResponse.builder().contentLength((long) content.length).build(),
-                  AbortableInputStream.create(new ByteArrayInputStream(content)));
+                  GetObjectResponse.builder().contentLength((long) body.length).build(),
+                  AbortableInputStream.create(
+                      new ByteArrayInputStream(body), () -> aborts.add(request.key())));
             });
     when(client.listObjectsV2(any(ListObjectsV2Request.class)))
         .thenAnswer(call -> list(call.getArgument(0)));
@@ -273,6 +291,70 @@ class S3FileObjectStoreSemanticsTest {
     FileSystemException e = assertThrows(FileSystemException.class, file::getChildren);
 
     assertEquals("vfs.provider/list-children-not-folder.error", e.getCode());
+  }
+
+  private static byte[] bytes(int length) {
+    byte[] bytes = new byte[length];
+    for (int i = 0; i < length; i++) {
+      bytes[i] = (byte) (i * 13);
+    }
+    return bytes;
+  }
+
+  @Test
+  void randomAccessReadsFromAnOffsetWithARangedGet() throws Exception {
+    byte[] content = bytes(10_000);
+    objects.put("data/big.bin", content);
+    FileObject file = resolve("data/big.bin");
+
+    try (RandomAccessContent random =
+        file.getContent().getRandomAccessContent(RandomAccessMode.READ)) {
+      assertEquals(content.length, random.length());
+      random.seek(7_000);
+      byte[] buffer = new byte[100];
+      random.readFully(buffer);
+      assertArrayEquals(Arrays.copyOfRange(content, 7_000, 7_100), buffer);
+      assertEquals(7_100, random.getFilePointer());
+    }
+
+    assertEquals("bytes=7000-", getRequests.get(getRequests.size() - 1).range());
+  }
+
+  @Test
+  void hopVfsOpensAnS3ObjectAtAnOffset() throws Exception {
+    byte[] content = bytes(10_000);
+    objects.put("data/big.bin", content);
+    FileObject file = resolve("data/big.bin");
+
+    assertTrue(HopVfs.supportsRangeRead(file));
+    try (InputStream in = HopVfs.getInputStream(file, 9_990)) {
+      assertArrayEquals(Arrays.copyOfRange(content, 9_990, 10_000), in.readAllBytes());
+    }
+    assertEquals("bytes=9990-", getRequests.get(getRequests.size() - 1).range());
+  }
+
+  @Test
+  void closingARangeBeforeItsEndAbortsTheRequest() throws Exception {
+    objects.put("data/big.bin", bytes(10_000));
+    FileObject file = resolve("data/big.bin");
+
+    try (InputStream in = HopVfs.getInputStream(file, 100)) {
+      in.readNBytes(10);
+    }
+
+    assertEquals(List.of("data/big.bin"), aborts);
+  }
+
+  @Test
+  void aRangeReadToTheEndIsNotAborted() throws Exception {
+    objects.put("data/big.bin", bytes(10_000));
+    FileObject file = resolve("data/big.bin");
+
+    try (InputStream in = HopVfs.getInputStream(file, 9_000)) {
+      in.readAllBytes();
+    }
+
+    assertEquals(List.of(), aborts);
   }
 
   @Test

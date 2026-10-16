@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -132,6 +133,11 @@ public abstract class AbstractProviderTestSuite {
                 testCase.addEmptyDir(addEmptyDir);
                 testCase.setConfig(manager, providerConfig, baseFolder, readFolder, writeFolder);
 
+                // Skip a test this provider is known to fail, saying why
+                final String knownFailure =
+                    knownFailures().get(testClass.getSimpleName() + "." + method.getName());
+                assumeTrue(knownFailure == null, () -> "Known provider failure: " + knownFailure);
+
                 // Check capabilities before running the test
                 final Capability[] caps = testCase.getRequiredCapabilities();
                 if (caps != null) {
@@ -167,6 +173,23 @@ public abstract class AbstractProviderTestSuite {
     }
 
     return tests.stream();
+  }
+
+  /**
+   * Tests this provider is known to fail, as {@code TestClass.testMethod} mapped to the reason.
+   * They are reported as skipped with that reason instead of failing the build; fixing the provider
+   * means removing the entry. None by default.
+   */
+  protected Map<String, String> knownFailures() {
+    return Map.of();
+  }
+
+  /**
+   * Whether setup checks that the {@code read-tests} folder exists. A suite that only reads files
+   * by path, for a backend that can't attach folders, turns it off.
+   */
+  protected boolean needsReadFolder() {
+    return true;
   }
 
   protected DefaultFileSystemManager getManager() {
@@ -251,8 +274,10 @@ public abstract class AbstractProviderTestSuite {
       writeFolder = baseFolder.resolveFile(WRITE_TESTS_FOLDER);
 
       // Make some assumptions about the read folder
-      assertTrue(readFolder.exists(), "Folder does not exist: " + readFolder);
-      assertNotEquals(FileName.ROOT_PATH, readFolder.getName().getPath());
+      if (needsReadFolder()) {
+        assertTrue(readFolder.exists(), "Folder does not exist: " + readFolder);
+        assertNotEquals(FileName.ROOT_PATH, readFolder.getName().getPath());
+      }
     }
   }
 

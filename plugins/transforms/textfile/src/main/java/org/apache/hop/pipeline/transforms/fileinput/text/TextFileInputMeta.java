@@ -305,6 +305,34 @@ public class TextFileInputMeta
         injectionKeyDescription = "TextFileInput.Injection.LENGTH")
     private String length;
 
+    /**
+     * Read the files in chunks spread over the copies of the transform, instead of every copy
+     * reading every file.
+     */
+    @HopMetadataProperty(
+        key = "parallel",
+        injectionKey = "RUNNING_IN_PARALLEL",
+        injectionKeyDescription = "TextFileInput.Injection.RUNNING_IN_PARALLEL")
+    private boolean runningInParallel;
+
+    /** The largest chunk read in parallel, like 128MB; blank for the default. */
+    @HopMetadataProperty(
+        key = "chunk_size",
+        injectionKey = "CHUNK_SIZE",
+        injectionKeyDescription = "TextFileInput.Injection.CHUNK_SIZE")
+    private String chunkSize;
+
+    /**
+     * How many blocks of a file on remote storage are fetched ahead while the rows are read, each
+     * by its own request on a download thread; 0 (the default) or blank reads on the copy's own
+     * thread only, as Text File Input always did.
+     */
+    @HopMetadataProperty(
+        key = "read_ahead_blocks",
+        injectionKey = "READ_AHEAD_BLOCKS",
+        injectionKeyDescription = "TextFileInput.Injection.READ_AHEAD_BLOCKS")
+    private String readAheadBlocks;
+
     public Content() {}
 
     public Content(Content c) {
@@ -338,6 +366,9 @@ public class TextFileInputMeta
       this.rowNumberByFile = c.rowNumberByFile;
       this.rowNumberField = c.rowNumberField;
       this.separator = c.separator;
+      this.runningInParallel = c.runningInParallel;
+      this.chunkSize = c.chunkSize;
+      this.readAheadBlocks = c.readAheadBlocks;
     }
   }
 
@@ -470,6 +501,9 @@ public class TextFileInputMeta
     content.rowNumberByFile = false;
     content.fileCompression = "None";
     content.fileType = "CSV";
+    content.runningInParallel = false;
+    content.chunkSize = TextFileChunkPlan.DEFAULT_CHUNK_SIZE_TEXT;
+    content.readAheadBlocks = String.valueOf(TextFileReadAhead.DEFAULT_BLOCKS);
 
     errorHandling.setErrorIgnored(false);
     errorHandling.setSkipBadFiles(false);
@@ -755,6 +789,44 @@ public class TextFileInputMeta
               transformMeta);
       remarks.add(cr);
     }
+
+    try {
+      getReadAhead(variables);
+    } catch (HopException e) {
+      remarks.add(
+          new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage().trim(), transformMeta));
+    }
+    int copies = transformMeta.getCopies(variables);
+    String parallelProblem = getParallelReadProblem(copies, variables);
+    String copiesWarning = getCopiesWithoutParallelWarning(copies);
+    if (parallelProblem != null) {
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, parallelProblem, transformMeta));
+    } else if (content.runningInParallel) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "TextFileInputMeta.CheckResult.ParallelOk"),
+              transformMeta));
+    } else if (copiesWarning != null) {
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, copiesWarning, transformMeta));
+    }
+  }
+
+  /**
+   * A warning for several copies without parallel reading: every copy reads all the files of its
+   * own list, so the copies need different files. Whether they have them only shows when they
+   * resolve their filenames, so this can't be checked up front. Filenames from a previous transform
+   * are spread over the copies already.
+   *
+   * @param copies the number of copies the transform runs in
+   * @return the warning, or null
+   */
+  public String getCopiesWithoutParallelWarning(int copies) {
+    if (content.runningInParallel || copies <= 1 || fileInput.isAcceptingFilenames()) {
+      return null;
+    }
+    return BaseMessages.getString(
+        PKG, "TextFileInputMeta.CheckResult.CopiesWithoutParallel", String.valueOf(copies));
   }
 
   @Override
@@ -903,6 +975,79 @@ public class TextFileInputMeta
   @Override
   public String getEnclosure() {
     return content == null ? null : content.enclosure;
+  }
+
+  /**
+   * What stops this transform from reading in parallel, or null when nothing does: the settings
+   * must allow reading files in chunks, and the chunk size must be valid.
+   *
+   * <p>Several copies without parallel reading are not refused here: each copy reads the files of
+   * its own list, which can differ per copy. A file in the lists of several copies stops the
+   * transform when it starts, see {@link TextFileInput}.
+   *
+   * @param copies the number of copies the transform runs in
+   * @param variables to resolve the chunk size
+   * @return the problem, for the log or a check result, or null
+   */
+  public String getParallelReadProblem(int copies, IVariables variables) {
+    if (!content.runningInParallel) {
+      return null;
+    }
+    List<String> settings = getSettingsPreventingParallelRead();
+    if (!settings.isEmpty()) {
+      return BaseMessages.getString(
+          PKG, "TextFileInputMeta.Error.ParallelNotPossible", String.join(", ", settings));
+    }
+    try {
+      TextFileChunkPlan.parseChunkSize(variables.resolve(content.chunkSize));
+    } catch (HopException e) {
+      return e.getMessage().trim();
+    }
+    return null;
+  }
+
+  /**
+   * How files on remote storage are fetched ahead, from the read-ahead settings.
+   *
+   * @param variables to resolve the settings
+   * @return the read-ahead to use
+   * @throws HopException if a setting isn't valid
+   */
+  public TextFileReadAhead getReadAhead(IVariables variables) throws HopException {
+    return TextFileReadAhead.parse(variables.resolve(content.readAheadBlocks));
+  }
+
+  /**
+   * The settings that need every file read from its first line, which reading files in chunks
+   * spread over the copies can't do. Empty when the files can be read in parallel.
+   *
+   * @return the labels of those settings, as the dialog shows them
+   */
+  public List<String> getSettingsPreventingParallelRead() {
+    List<String> settings = new ArrayList<>();
+    if (content.lineWrapped) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.Wraps.Label"));
+    }
+    if (content.layoutPaged) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.LayoutPaged.Label"));
+    }
+    if (content.footer) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.Footer.Label"));
+    }
+    if (content.includeRowNumber && content.rowNumberByFile) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.RownumByFile.Label"));
+    }
+    if (!Utils.isEmpty(content.fileCompression)
+        && !"None".equalsIgnoreCase(content.fileCompression)) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.Compression.Label"));
+    }
+    if (filters.stream().anyMatch(TextFileFilter::isFilterLastLine)) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.StopOnFilterColumn.Column"));
+    }
+    if (inputFields.stream().anyMatch(TextFileInputField::isRepeated)) {
+      settings.add(BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Column"));
+    }
+    return settings;
   }
 
   @Override

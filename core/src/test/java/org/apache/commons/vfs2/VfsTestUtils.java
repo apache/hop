@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
@@ -127,6 +128,12 @@ public abstract class VfsTestUtils {
         }
       } else {
         baseDir = getCanonicalFile(new File(baseDirProp));
+      }
+      // The fixtures live in the hop-core test-jar; put them where the provider tests expect them.
+      try {
+        ProviderTestFixtures.extractTo(baseDir);
+      } catch (final IOException e) {
+        throw new UncheckedIOException(e);
       }
     }
     return baseDir;

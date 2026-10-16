@@ -70,6 +70,15 @@ public class S3Meta extends HopMetadataBase
   /** Cache TTL in seconds for list-result caching (avoids redundant headObject calls). */
   @HopMetadataProperty private String cacheTtlSeconds;
 
+  /** The bytes per request when reading a file, like 8MB; blank for the default. */
+  @HopMetadataProperty private String readBlockSize;
+
+  /**
+   * The most HTTP connections open to S3 at the same time; blank for the SDK default of 50. Reading
+   * files in parallel blocks needs one per block in flight.
+   */
+  @HopMetadataProperty private String maxConnections;
+
   /**
    * Authentication type: {@link S3AuthType#name()} (Default, ACCESS_KEYS, CREDENTIALS_FILE,
    * ANONYMOUS).

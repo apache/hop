@@ -50,6 +50,8 @@ public class GoogleCloudConfig {
   /** Cache TTL in seconds for list-result caching (same as S3/MinIO/Azure). */
   private String cacheTtlSeconds;
 
+  private String readBlockSize;
+
   public GoogleCloudConfig() {
     scanFoldersForLastModifDate = false;
     maxAttempts = "6";
@@ -82,5 +84,6 @@ public class GoogleCloudConfig {
     readTimeout = config.readTimeout;
     retryNonIdempotentOperations = config.retryNonIdempotentOperations;
     cacheTtlSeconds = config.cacheTtlSeconds;
+    readBlockSize = config.readBlockSize;
   }
 }

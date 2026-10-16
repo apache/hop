@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -200,5 +201,21 @@ class TextFileInputMetaTest {
     assertEquals("filterString", filter.getFilterString());
     assertTrue(filter.isFilterPositive());
     assertTrue(filter.isFilterLastLine());
+  }
+
+  /**
+   * A new transform, and one in a pipeline saved before these settings existed, shows the defaults:
+   * not running in parallel, 128MB chunks and no read-ahead, so each copy reads on its own thread.
+   */
+  @Test
+  void newTransformHasParallelReadingDefaults() throws Exception {
+    TextFileInputMeta meta = new TextFileInputMeta();
+    meta.setDefault();
+
+    assertFalse(meta.getContent().isRunningInParallel());
+    assertEquals("128MB", meta.getContent().getChunkSize());
+    assertEquals("0", meta.getContent().getReadAheadBlocks());
+    assertEquals(
+        TextFileReadAhead.NONE, meta.getReadAhead(new org.apache.hop.core.variables.Variables()));
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.vfs.s3.s3common;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,10 +30,14 @@ import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.IRangeReadableFile;
+import org.apache.hop.core.vfs.RangeReadRandomAccessContent;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.Bucket;
@@ -49,7 +54,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-public abstract class S3CommonFileObject extends AbstractFileObject {
+public abstract class S3CommonFileObject extends AbstractFileObject implements IRangeReadableFile {
 
   public static final String DELIMITER = "/";
 
@@ -91,6 +96,128 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
       throw e;
     }
     return new S3CommonFileInputStream(stream, stream);
+  }
+
+  /** The read block size of the connection. */
+  @Override
+  public int getReadBlockSize() {
+    return fileSystem.getReadBlockSize();
+  }
+
+  /**
+   * Reads a byte range with one GET request with {@code Range: bytes=start-end}. The response ends
+   * with the range, so reading it to the end lets the HTTP client reuse the connection, unlike an
+   * open-ended range closed early.
+   */
+  @Override
+  public InputStream getInputStream(long offset, long length) throws IOException {
+    if (!getType().hasContent()) {
+      throw new org.apache.commons.vfs2.FileNotFoundException(getName());
+    }
+    long count = Math.min(length, doGetContentSize() - offset);
+    if (count <= 0) {
+      return InputStream.nullInputStream();
+    }
+    return new AbortOnEarlyCloseInputStream(
+        fileSystem
+            .getS3Client()
+            .getObject(
+                GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .range("bytes=" + offset + "-" + (offset + count - 1))
+                    .build()),
+        count);
+  }
+
+  /**
+   * Random access by ranged GET requests: a seek costs nothing, the next read opens the object at
+   * the new position with {@code Range: bytes=N-}.
+   */
+  @Override
+  protected RandomAccessContent doGetRandomAccessContent(RandomAccessMode mode) throws Exception {
+    if (!getType().hasContent()) {
+      throw new org.apache.commons.vfs2.FileNotFoundException(getName());
+    }
+    final String bucket = bucketName;
+    final String objectKey = key;
+    return new RangeReadRandomAccessContent(doGetContentSize()) {
+      @Override
+      protected InputStream openStream(long offset) {
+        return new AbortOnEarlyCloseInputStream(
+            fileSystem
+                .getS3Client()
+                .getObject(
+                    GetObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(objectKey)
+                        .range("bytes=" + offset + "-")
+                        .build()));
+      }
+    };
+  }
+
+  /**
+   * A ranged object stream that aborts the request when it is closed before the end. A plain close
+   * would let the HTTP client read the rest of the object to reuse the connection, which for a
+   * chunk of a large file means downloading everything after it.
+   */
+  static final class AbortOnEarlyCloseInputStream extends FilterInputStream {
+    private final ResponseInputStream<GetObjectResponse> response;
+    private boolean ended;
+
+    /** The bytes of the response not read yet, when its length is known. */
+    private long remaining;
+
+    AbortOnEarlyCloseInputStream(ResponseInputStream<GetObjectResponse> response) {
+      this(response, Long.MAX_VALUE);
+    }
+
+    /**
+     * @param length the length of the response: once that much is read it has ended, also when the
+     *     reader doesn't read on to the end of the stream
+     */
+    AbortOnEarlyCloseInputStream(ResponseInputStream<GetObjectResponse> response, long length) {
+      super(response);
+      this.response = response;
+      this.remaining = length;
+    }
+
+    @Override
+    public int read() throws IOException {
+      int b = super.read();
+      ended |= b < 0;
+      if (b >= 0) {
+        ended |= --remaining <= 0;
+      }
+      return b;
+    }
+
+    @Override
+    public int read(byte[] buffer, int offset, int count) throws IOException {
+      int n = super.read(buffer, offset, count);
+      ended |= n < 0;
+      if (n > 0) {
+        remaining -= n;
+        ended |= remaining <= 0;
+      }
+      return n;
+    }
+
+    @Override
+    public void close() throws IOException {
+      if (ended) {
+        super.close();
+        return;
+      }
+      response.abort();
+      try {
+        super.close();
+      } catch (IOException e) {
+        // Aborted on purpose: the HTTP client reports the body cut short ("Premature end of
+        // Content-Length delimited message body"), and there is nothing left to release
+      }
+    }
   }
 
   @Override

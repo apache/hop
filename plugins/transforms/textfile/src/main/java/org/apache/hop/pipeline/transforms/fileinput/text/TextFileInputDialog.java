@@ -82,7 +82,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDialog;
-import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineScanner;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -226,6 +226,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private Text wLimit;
 
+  private Button wRunningInParallel;
+
+  private Label wlChunkSize;
+
+  private TextVar wChunkSize;
+
+  private TextVar wReadAheadBlocks;
+
   private Button wDateLenient;
 
   private CCombo wDateLocale;
@@ -333,6 +341,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     addFiltersTabs();
     addFieldsTabs();
     addAdditionalFieldsTab();
+    addPerformanceTab();
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -426,6 +435,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     wWraps.addSelectionListener(lsFlags);
     wLayoutPaged.addSelectionListener(lsFlags);
     wAccFilenames.addSelectionListener(lsFlags);
+    wEnclBreaks.addSelectionListener(lsFlags);
+    wRunningInParallel.addSelectionListener(lsFlags);
+    wCompression.addModifyListener(e -> setFlags());
 
     // When ignoring manual fields, refresh fields from schema one last time
     wIgnoreFields.addSelectionListener(
@@ -2356,6 +2368,36 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFields.setEnabled(!wIgnoreFields.getSelection());
     wGet.setEnabled(!wIgnoreFields.getSelection());
     wMinWidth.setEnabled(!wIgnoreFields.getSelection());
+
+    setParallelFlags();
+  }
+
+  /**
+   * Reading in parallel and the settings that need each file read from its first line exclude each
+   * other: while one is on, the other can't be switched on. A setting already on stays changeable,
+   * so a combination loaded from a file can be undone here.
+   */
+  private void setParallelFlags() {
+    boolean parallel = wRunningInParallel.getSelection();
+    // Empty means no compression, as the transform reads it
+    String compression = wCompression.getText();
+    boolean compressed = !Utils.isEmpty(compression) && !"None".equalsIgnoreCase(compression);
+    boolean blocking =
+        wFooter.getSelection()
+            || wWraps.getSelection()
+            || wLayoutPaged.getSelection()
+            || (wInclRownum.getSelection() && wRownumByFile.getSelection())
+            || compressed;
+    wRunningInParallel.setEnabled(parallel || !blocking);
+    wlChunkSize.setEnabled(parallel);
+    wChunkSize.setEnabled(parallel);
+
+    for (Button setting : new Button[] {wFooter, wWraps, wLayoutPaged}) {
+      setting.setEnabled(!parallel || setting.getSelection());
+    }
+    wRownumByFile.setEnabled(
+        wInclRownum.getSelection() && (!parallel || wRownumByFile.getSelection()));
+    wCompression.setEnabled(!parallel || compressed);
   }
 
   /**
@@ -2407,6 +2449,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     wEnclosure.setText(Const.NVL(meta.getContent().getEnclosure(), ""));
     wEscape.setText(Const.NVL(meta.getContent().getEscapeCharacter(), ""));
     wEnclBreaks.setSelection(meta.getContent().isBreakInEnclosureAllowed());
+    wRunningInParallel.setSelection(meta.getContent().isRunningInParallel());
+    wChunkSize.setText(Const.NVL(meta.getContent().getChunkSize(), ""));
+    wReadAheadBlocks.setText(Const.NVL(meta.getContent().getReadAheadBlocks(), ""));
     wNullIfNotEnclosed.setSelection(meta.getContent().isNullIfNotEnclosed());
     wPrependFileName.setSelection(meta.getContent().isPrependFileName());
     wHeader.setSelection(meta.getContent().isHeader());
@@ -2616,6 +2661,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setEnclosure(wEnclosure.getText());
     meta.getContent().setEscapeCharacter(wEscape.getText());
     meta.getContent().setBreakInEnclosureAllowed(wEnclBreaks.getSelection());
+    meta.getContent().setRunningInParallel(wRunningInParallel.getSelection());
+    meta.getContent().setChunkSize(wChunkSize.getText());
+    meta.getContent().setReadAheadBlocks(wReadAheadBlocks.getText());
     meta.getContent().setNullIfNotEnclosed(wNullIfNotEnclosed.getSelection());
     meta.getContent().setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     meta.getContent().setFilenameField(wInclFilenameField.getText());
@@ -2963,13 +3011,14 @@ public class TextFileInputDialog extends BaseTransformDialog
                 .createCompressionProviderInstance(meta.getContent().getFileCompression());
         f = provider.createInputStream(fi);
 
-        InputStreamReader reader;
+        InputStreamReader isr;
         if (!Utils.isEmpty(meta.getEncoding())) {
-          reader = new InputStreamReader(f, meta.getEncoding());
+          isr = new InputStreamReader(f, meta.getEncoding());
         } else {
-          reader = new InputStreamReader(f);
+          isr = new InputStreamReader(f);
         }
-        EncodingType encodingType = EncodingType.guessEncodingType(reader.getEncoding());
+        EncodingType encodingType = EncodingType.guessEncodingType(isr.getEncoding());
+        TextFileLineScanner lineScanner = new TextFileLineScanner(isr);
 
         int lineNr = 0;
 
@@ -2984,9 +3033,7 @@ public class TextFileInputDialog extends BaseTransformDialog
           if (meta.getContent().isLayoutPaged() && meta.getContent().getNrLinesDocHeader() > 0) {
             int skipped = 0;
             String line =
-                TextFileLineUtil.getLine(
-                    log,
-                    reader,
+                lineScanner.getLine(
                     encodingType,
                     fileFormatType,
                     lineStringBuilder,
@@ -2996,9 +3043,7 @@ public class TextFileInputDialog extends BaseTransformDialog
             while (line != null && skipped < meta.getContent().getNrLinesDocHeader() - 1) {
               skipped++;
               line =
-                  TextFileLineUtil.getLine(
-                      log,
-                      reader,
+                  lineScanner.getLine(
                       encodingType,
                       fileFormatType,
                       lineStringBuilder,
@@ -3012,9 +3057,7 @@ public class TextFileInputDialog extends BaseTransformDialog
           if (meta.getContent().isHeader() && meta.getContent().getNrHeaderLines() > 0) {
             int skipped = 0;
             String line =
-                TextFileLineUtil.getLine(
-                    log,
-                    reader,
+                lineScanner.getLine(
                     encodingType,
                     fileFormatType,
                     lineStringBuilder,
@@ -3024,9 +3067,7 @@ public class TextFileInputDialog extends BaseTransformDialog
             while (line != null && skipped < meta.getContent().getNrHeaderLines() - 1) {
               skipped++;
               line =
-                  TextFileLineUtil.getLine(
-                      log,
-                      reader,
+                  lineScanner.getLine(
                       encodingType,
                       fileFormatType,
                       lineStringBuilder,
@@ -3038,9 +3079,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         }
 
         String line =
-            TextFileLineUtil.getLine(
-                log,
-                reader,
+            lineScanner.getLine(
                 encodingType,
                 fileFormatType,
                 lineStringBuilder,
@@ -3053,9 +3092,7 @@ public class TextFileInputDialog extends BaseTransformDialog
           }
           lineNr++;
           line =
-              TextFileLineUtil.getLine(
-                  log,
-                  reader,
+              lineScanner.getLine(
                   encodingType,
                   fileFormatType,
                   lineStringBuilder,
@@ -3388,6 +3425,107 @@ public class TextFileInputDialog extends BaseTransformDialog
     // / END OF ADDITIONAL FIELDS TAB
     // ///////////////////////////////////////////////////////////
 
+  }
+
+  private void addPerformanceTab() {
+    // ////////////////////////
+    // START OF PERFORMANCE TAB ///
+    // ////////////////////////
+    CTabItem wPerformanceTab = new CTabItem(wTabFolder, SWT.NONE);
+    wPerformanceTab.setFont(GuiResource.getInstance().getFontDefault());
+    wPerformanceTab.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.PerformanceTab.TabTitle"));
+
+    Composite wPerformanceComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wPerformanceComp);
+
+    FormLayout performanceLayout = new FormLayout();
+    performanceLayout.marginWidth = 3;
+    performanceLayout.marginHeight = 3;
+    wPerformanceComp.setLayout(performanceLayout);
+
+    // Running in parallel: the copies share the files in chunks
+    Label wlRunningInParallel = new Label(wPerformanceComp, SWT.RIGHT);
+    wlRunningInParallel.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.RunningInParallel.Label"));
+    PropsUi.setLook(wlRunningInParallel);
+    FormData fdlRunningInParallel = new FormData();
+    fdlRunningInParallel.left = new FormAttachment(0, 0);
+    fdlRunningInParallel.top = new FormAttachment(0, 0);
+    fdlRunningInParallel.right = new FormAttachment(middle, -margin);
+    wlRunningInParallel.setLayoutData(fdlRunningInParallel);
+    wRunningInParallel = new Button(wPerformanceComp, SWT.CHECK);
+    wRunningInParallel.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.RunningInParallel.Tooltip"));
+    PropsUi.setLook(wRunningInParallel);
+    FormData fdRunningInParallel = new FormData();
+    fdRunningInParallel.left = new FormAttachment(middle, 0);
+    fdRunningInParallel.top = new FormAttachment(wlRunningInParallel, 0, SWT.CENTER);
+    wRunningInParallel.setLayoutData(fdRunningInParallel);
+
+    wlChunkSize = new Label(wPerformanceComp, SWT.RIGHT);
+    wlChunkSize.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ChunkSize.Label"));
+    PropsUi.setLook(wlChunkSize);
+    FormData fdlChunkSize = new FormData();
+    fdlChunkSize.left = new FormAttachment(0, 0);
+    fdlChunkSize.top = new FormAttachment(wRunningInParallel, margin);
+    fdlChunkSize.right = new FormAttachment(middle, -margin);
+    wlChunkSize.setLayoutData(fdlChunkSize);
+    wChunkSize = new TextVar(variables, wPerformanceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wChunkSize.setToolTipText(BaseMessages.getString(PKG, "TextFileInputDialog.ChunkSize.Tooltip"));
+    PropsUi.setLook(wChunkSize);
+    wChunkSize.addModifyListener(lsMod);
+    FormData fdChunkSize = new FormData();
+    fdChunkSize.left = new FormAttachment(middle, 0);
+    fdChunkSize.top = new FormAttachment(wRunningInParallel, margin);
+    fdChunkSize.right = new FormAttachment(100, 0);
+    wChunkSize.setLayoutData(fdChunkSize);
+
+    // Read-ahead: blocks of a file on remote storage fetched ahead over several connections
+    Label wlReadAheadBlocks = new Label(wPerformanceComp, SWT.RIGHT);
+    wlReadAheadBlocks.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.ReadAheadBlocks.Label"));
+    PropsUi.setLook(wlReadAheadBlocks);
+    FormData fdlReadAheadBlocks = new FormData();
+    fdlReadAheadBlocks.left = new FormAttachment(0, 0);
+    fdlReadAheadBlocks.top = new FormAttachment(wChunkSize, margin);
+    fdlReadAheadBlocks.right = new FormAttachment(middle, -margin);
+    wlReadAheadBlocks.setLayoutData(fdlReadAheadBlocks);
+    wReadAheadBlocks = new TextVar(variables, wPerformanceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wReadAheadBlocks.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.ReadAheadBlocks.Tooltip"));
+    PropsUi.setLook(wReadAheadBlocks);
+    wReadAheadBlocks.addModifyListener(lsMod);
+    FormData fdReadAheadBlocks = new FormData();
+    fdReadAheadBlocks.left = new FormAttachment(middle, 0);
+    fdReadAheadBlocks.top = new FormAttachment(wChunkSize, margin);
+    fdReadAheadBlocks.right = new FormAttachment(100, 0);
+    wReadAheadBlocks.setLayoutData(fdReadAheadBlocks);
+
+    // These options can start threads besides the one thread of each copy
+    Label wlThreadsNote = new Label(wPerformanceComp, SWT.LEFT | SWT.WRAP);
+    wlThreadsNote.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.PerformanceTab.ThreadsNote"));
+    PropsUi.setLook(wlThreadsNote);
+    FormData fdlThreadsNote = new FormData();
+    fdlThreadsNote.left = new FormAttachment(middle, 0);
+    fdlThreadsNote.top = new FormAttachment(wReadAheadBlocks, 2 * margin);
+    fdlThreadsNote.right = new FormAttachment(100, 0);
+    wlThreadsNote.setLayoutData(fdlThreadsNote);
+
+    FormData fdPerformanceComp = new FormData();
+    fdPerformanceComp.left = new FormAttachment(0, 0);
+    fdPerformanceComp.top = new FormAttachment(0, 0);
+    fdPerformanceComp.right = new FormAttachment(100, 0);
+    fdPerformanceComp.bottom = new FormAttachment(100, 0);
+    wPerformanceComp.setLayoutData(fdPerformanceComp);
+
+    wPerformanceComp.layout();
+    wPerformanceTab.setControl(wPerformanceComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF PERFORMANCE TAB
+    // ///////////////////////////////////////////////////////////
   }
 
   @Override

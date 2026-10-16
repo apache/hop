@@ -313,6 +313,10 @@ These options are stored under `pass:c[googleCloud]` in `hop-config.json`.
 |pass:c[How long to cache folder listing results (in seconds, default 5). If not set, falls back to 10 seconds. Accepts variables.]
 |`pass:c[5]`
 
+|pass:c[Read block size]
+|pass:c[How many bytes one download request fetches when a file is read, like 8MB. Leave empty for 8MB. Transforms that fetch ahead, such as Text File Input, download blocks of this size, several at a time, each with one request. Accepts variables.]
+|
+
 |===
 
 == Google Drive VFS

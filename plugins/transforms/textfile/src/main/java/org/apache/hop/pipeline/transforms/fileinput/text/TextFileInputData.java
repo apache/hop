@@ -61,6 +61,15 @@ public class TextFileInputData extends BaseFileInputTransformData {
 
   public EncodingType encodingType;
 
+  /** The files are read in chunks spread over the copies of the transform. */
+  public boolean parallel;
+
+  /** The chunk being read when running in parallel; null otherwise. */
+  public TextFileChunk chunk;
+
+  /** How files on remote storage are fetched ahead of the rows read from them. */
+  public TextFileReadAhead readAhead = TextFileReadAhead.NONE;
+
   public TextFileInputData() {
     // linked list is better, as usually .remove(0) is applied to this list
     lineBuffer = new LinkedList<>();

@@ -89,6 +89,21 @@ If this variable is not set, `5MB` will be taken as value and a message will be 
 
 `Part size null less than minimum of 5MB, set to minimum`.
 
+== Read block size
+
+Transforms that read a file in blocks, such as Text File Input fetching ahead, download it in blocks of the *Read block size* of the S3 connection, 8MB when it's left empty.
+Every block is downloaded with one request for exactly its bytes, several at a time, so one file uses several connections.
+A request read to its end hands its connection back to the client, so the connections are reused.
+
+Larger blocks make fewer requests per file and take more memory; smaller blocks start the first rows sooner.
+
+== Maximum connections
+
+The *Maximum connections* of an S3 connection is how many HTTP connections to S3 can be open at the same time, 50 when it's left empty.
+One connection to S3 is often limited to a few MB/s, so reading many blocks at the same time is how a large file is read fast, and every block in flight needs a connection of its own.
+Text File Input running in parallel keeps up to copies × read-ahead blocks requests in flight: 20 copies with 4 blocks each need 80 connections.
+With fewer connections allowed than that, the other requests wait for a free one.
+
 == Usage and testing
 
 To test if the configuration works you can simply upload a small CSV file in an S3 bucket and then use File/Open in Hop GUI.

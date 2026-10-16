@@ -43,6 +43,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 import org.apache.hop.vfs.azure.metadatatype.AzureMetadataType;
@@ -65,7 +66,8 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
               Capability.READ_CONTENT,
               Capability.URI,
               Capability.WRITE_CONTENT,
-              Capability.APPEND_CONTENT));
+              Capability.APPEND_CONTENT,
+              Capability.RANDOM_ACCESS_READ));
 
   public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
       new UserAuthenticationData.Type[] {
@@ -75,6 +77,18 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
   public static final String AZURE_ENDPOINT_SUFFIX = "core.windows.net";
 
   private static final FileSystemOptions defaultOptions = new FileSystemOptions();
+
+  /**
+   * The bytes per download request from a read block size setting such as {@code 8MB} or a number
+   * of bytes; blank for the default.
+   */
+  static int readBlockSize(String value) throws FileSystemException {
+    try {
+      return HopVfs.parseReadBlockSize(value);
+    } catch (IllegalArgumentException e) {
+      throw new FileSystemException(e.getMessage(), e);
+    }
+  }
 
   public static FileSystemOptions getDefaultFileSystemOptions() {
     return defaultOptions;
@@ -227,6 +241,8 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         String cacheTtlSeconds = variables.resolve(azureMetadataType.getCacheTtlSeconds());
         long ttlMs = org.apache.hop.core.Const.toLong(cacheTtlSeconds, 10L) * 1000L;
         azureFileSystem.setListCacheTtlMs(ttlMs);
+        azureFileSystem.setReadBlockSize(
+            readBlockSize(variables.resolve(azureMetadataType.getReadBlockSize())));
       }
 
     } finally {

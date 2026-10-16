@@ -17,6 +17,7 @@
 
 package org.apache.hop.vfs.gs;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,6 +34,7 @@ import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +44,12 @@ import org.apache.commons.vfs2.CacheStrategy;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.cache.SoftRefFilesCache;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.commons.vfs2.util.RandomAccessMode;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +66,9 @@ class GoogleStorageFileObjectStoreSemanticsTest {
 
   /** The bucket's objects: name to content. */
   private final TreeMap<String, byte[]> objects = new TreeMap<>();
+
+  /** The Range header of every media download, "null" when there was none. */
+  private final List<String> ranges = new ArrayList<>();
 
   /** Requests the fake couldn't answer, to show what a failing test needed. */
   private final List<String> unhandled = new ArrayList<>();
@@ -194,10 +202,11 @@ class GoogleStorageFileObjectStoreSemanticsTest {
         + "]}";
   }
 
-  private static void media(HttpExchange exchange, byte[] content) throws IOException {
+  private void media(HttpExchange exchange, byte[] content) throws IOException {
     int from = 0;
     int to = content.length;
     String range = exchange.getRequestHeaders().getFirst("Range");
+    ranges.add(String.valueOf(range));
     if (range != null && range.startsWith("bytes=")) {
       String[] parts = range.substring(6).split("-", -1);
       from = Math.min(Integer.parseInt(parts[0]), content.length);
@@ -320,6 +329,47 @@ class GoogleStorageFileObjectStoreSemanticsTest {
     assertSame(bucket.getFileSystem(), first.getFileSystem());
     assertSame(bucket.getFileSystem(), second.getFileSystem());
     assertSame(bucket.getFileSystem(), third.getFileSystem());
+  }
+
+  private void putBytes(String name, int length) {
+    byte[] bytes = new byte[length];
+    for (int i = 0; i < length; i++) {
+      bytes[i] = (byte) (i * 13);
+    }
+    objects.put(name, bytes);
+  }
+
+  @Test
+  void randomAccessReadsFromAnOffset() throws Exception {
+    putBytes("data/big.bin", 10_000);
+    byte[] content = objects.get("data/big.bin");
+    FileObject file = resolve("data/big.bin");
+
+    try (RandomAccessContent random =
+        file.getContent().getRandomAccessContent(RandomAccessMode.READ)) {
+      assertEquals(content.length, random.length());
+      random.seek(7_000);
+      byte[] buffer = new byte[100];
+      random.readFully(buffer);
+      assertArrayEquals(Arrays.copyOfRange(content, 7_000, 7_100), buffer, unhandled.toString());
+    }
+    assertTrue(
+        ranges.stream().anyMatch(r -> r.startsWith("bytes=7000-")),
+        "the download starts at the offset: " + ranges);
+  }
+
+  @Test
+  void hopVfsOpensAGcsObjectAtAnOffset() throws Exception {
+    putBytes("data/big.bin", 10_000);
+    byte[] content = objects.get("data/big.bin");
+    FileObject file = resolve("data/big.bin");
+
+    assertTrue(HopVfs.supportsRangeRead(file));
+    try (InputStream in = HopVfs.getInputStream(file, 9_990)) {
+      assertArrayEquals(Arrays.copyOfRange(content, 9_990, 10_000), in.readAllBytes());
+    }
+    assertTrue(
+        ranges.stream().noneMatch(r -> r.startsWith("bytes=0-")), "nothing read from 0: " + ranges);
   }
 
   @Test

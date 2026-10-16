@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -30,9 +32,11 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -44,6 +48,8 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransform;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformUtils;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
+import org.apache.hop.pipeline.transforms.fileinput.text.TextFileChunkPlan.Source;
+import org.apache.hop.pipeline.transforms.fileinput.text.TextFileRecordSplitter.RecordFormat;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
@@ -79,6 +85,20 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     }
     data.files = meta.getFileInputList(this);
     data.currentFileIndex = 0;
+
+    int copies = getTransformMeta().getCopies(this);
+    String parallelProblem = meta.getParallelReadProblem(copies, this);
+    if (parallelProblem != null) {
+      logError(parallelProblem);
+      return false;
+    }
+    data.parallel = meta.getContent().isRunningInParallel() && copies > 1;
+    try {
+      data.readAhead = meta.getReadAhead(this);
+    } catch (HopException e) {
+      logError(e.getMessage().trim());
+      return false;
+    }
 
     // If there are missing files,
     // fail if we don't ignore errors
@@ -158,6 +178,301 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     return true;
   }
 
+  /**
+   * Opens the next piece to read. Without parallel reading that is the next file. With it, it is
+   * the next chunk of the plan the copies share: a part of a large file, or a whole small one.
+   */
+  @Override
+  protected boolean openNextFile(boolean errorIgnored, boolean skipBadFiles) {
+    if (!data.parallel) {
+      return super.openNextFile(errorIgnored, skipBadFiles);
+    }
+    TextFileChunk chunk;
+    try {
+      chunk = chunkPlan().next();
+    } catch (HopException e) {
+      logError(e.getMessage(), e);
+      setErrors(getErrors() + 1);
+      stopAll();
+      return false;
+    }
+    if (chunk == null) {
+      return false;
+    }
+    data.chunk = chunk;
+    data.file = chunk.file();
+    data.currentPassThruFieldsRow = chunk.passThruRow();
+    try {
+      data.filename = HopVfs.getFilename(data.file);
+      fillFileAdditionalFields(data, data.file);
+      if (chunk.startsFile()) {
+        // Once per file, not once per chunk
+        if (meta.getFileInput().isAddingResult()) {
+          ResultFile resultFile =
+              new ResultFile(
+                  ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), toString());
+          resultFile.setComment("File was read by an Text File input transform");
+          addResultFile(resultFile);
+        }
+        emitLineageFileRead(data.file);
+      }
+      if (isDetailed()) {
+        logDetailed(
+            "Reading "
+                + data.file.getName().getFriendlyURI()
+                + (chunk.wholeFile() ? "" : " from byte " + chunk.start() + " to " + chunk.end()));
+      }
+      data.dataErrorLineHandler.handleFile(data.file);
+      data.reader = createReader(meta, data, data.file);
+    } catch (Exception e) {
+      if (!handleOpenFileException(e, errorIgnored, skipBadFiles)) {
+        return false;
+      }
+      data.reader = null;
+    }
+    data.currentFileIndex++;
+    return true;
+  }
+
+  /** What the copies of one transform share: their file lists, and the plan when in parallel. */
+  private static final class Shared {
+    /**
+     * The files of each copy, by copy number: its own file list, or the filenames it received from
+     * the previous transform.
+     */
+    private final List<List<Source>> sourcesByCopy = new ArrayList<>();
+
+    /** The copies that still have to hand in their files. */
+    private int copiesToHandIn;
+
+    /** A copy reported a file that several copies would read; the others stop quietly. */
+    private boolean problemReported;
+
+    /**
+     * The output row layout of a copy that received filename rows, with their passed-through
+     * fields. A copy that received none knows nothing of those fields.
+     */
+    private IRowMeta passThruOutputRowMeta;
+
+    private int nrPassThruFields;
+
+    private TextFileChunkPlan plan;
+
+    private Shared(int copies, int copiesHere) {
+      copiesToHandIn = copiesHere;
+      for (int copy = 0; copy < copies; copy++) {
+        sourcesByCopy.add(List.of());
+      }
+    }
+  }
+
+  /** The state shared by the copies of this transform, created by the first copy to ask. */
+  private Shared shared() {
+    Map<String, Object> extensionData = getPipeline().getExtensionDataMap();
+    String key = TextFileChunkPlan.class.getName() + "/" + getTransformName();
+    synchronized (extensionData) {
+      return (Shared)
+          extensionData.computeIfAbsent(
+              key, k -> new Shared(getTransformMeta().getCopies(this), copiesHere()));
+    }
+  }
+
+  /**
+   * The copies of this transform that run in this pipeline, and so hand in their files. That is
+   * every copy on the local engine; an engine that runs each copy in a pipeline of its own must not
+   * have one copy wait for the others.
+   */
+  private int copiesHere() {
+    return Math.max(1, getPipeline().getComponentCopies(getTransformName()).size());
+  }
+
+  /**
+   * Whether the copies hand their files to each other before reading: to split the files of all
+   * copies when running in parallel, and otherwise to find a file that several copies would each
+   * read whole. Without parallel reading, filenames from a previous transform are spread over the
+   * copies already.
+   */
+  private boolean sharesFiles() {
+    return data.parallel
+        || (getTransformMeta().getCopies(this) > 1 && !meta.getFileInput().isAcceptingFilenames());
+  }
+
+  /**
+   * Hands the files of this copy to the other copies, and waits until every copy has done so: its
+   * own file list, which can differ per copy (with {@code ${Internal.Transform.CopyNr}} in a
+   * filename, for example), or the filenames it received from the previous transform. The plan
+   * splits the files of all copies, whichever copy listed them. Each copy already reads all its
+   * filename rows before reading a file, so the wait costs no streaming.
+   *
+   * @return false when the transform was stopped while waiting
+   */
+  private boolean shareFiles() throws HopException {
+    List<Source> sources = new ArrayList<>();
+    boolean accepting = meta.getFileInput().isAcceptingFilenames();
+    if (!accepting || receivesOwnShareOfFilenames()) {
+      List<FileObject> files = data.files.getFiles();
+      for (int i = 0; i < files.size(); i++) {
+        Object[] passThruRow =
+            data.passThruFields == null ? null : data.passThruFields.get(i + "_" + files.get(i));
+        sources.add(new Source(files.get(i), passThruRow));
+      }
+    }
+    boolean passingThru = accepting && meta.getFileInput().isPassingThruFields();
+
+    Shared shared = shared();
+    synchronized (shared) {
+      shared.sourcesByCopy.set(getCopy(), sources);
+      if (passingThru && data.passThruFields != null && shared.passThruOutputRowMeta == null) {
+        shared.passThruOutputRowMeta = data.outputRowMeta;
+        shared.nrPassThruFields = data.nrPassThruFields;
+      }
+      shared.copiesToHandIn--;
+      shared.notifyAll();
+      try {
+        while (shared.copiesToHandIn > 0) {
+          if (isStopped()) {
+            return false;
+          }
+          shared.wait(100);
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+      }
+      // A copy that received no filename rows still reads chunks of the other copies' files, with
+      // their passed-through fields: it takes the row layout of a copy that received some.
+      if (passingThru && data.passThruFields == null && shared.passThruOutputRowMeta != null) {
+        data.outputRowMeta = shared.passThruOutputRowMeta.clone();
+        data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+        data.nrPassThruFields = shared.nrPassThruFields;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Whether the filename rows this copy received are its own share. A previous transform that
+   * copies its rows instead of distributing them sends every filename to every copy: then only the
+   * first copy hands them in, or every file would be read once per copy.
+   */
+  private boolean receivesOwnShareOfFilenames() {
+    TransformMeta source =
+        getPipelineMeta().findTransform(meta.getFileInput().getAcceptingTransformName());
+    boolean copied = source != null && !source.isDistributes() && !source.isPartitioned();
+    return !copied || getCopy() == 0;
+  }
+
+  /**
+   * The chunks of this transform, shared by its copies: the first copy to ask splits the files, the
+   * others take from the same queue. The files of all copies are split together, also when a
+   * filename resolves differently per copy.
+   */
+  private TextFileChunkPlan chunkPlan() throws HopException {
+    Shared shared = shared();
+    synchronized (shared) {
+      if (shared.plan == null) {
+        List<Source> sources;
+        if (meta.getFileInput().isAcceptingFilenames()) {
+          sources = new ArrayList<>();
+          shared.sourcesByCopy.forEach(sources::addAll);
+        } else {
+          sources = filesOfAllCopies(shared.sourcesByCopy);
+        }
+        try {
+          shared.plan =
+              TextFileChunkPlan.buildFromSources(
+                  sources,
+                  TextFileChunkPlan.parseChunkSize(resolve(meta.getContent().getChunkSize())),
+                  getTransformMeta().getCopies(this),
+                  meta.getContent().isHeader(),
+                  meta.getContent().getNrHeaderLines(),
+                  resolve(meta.getEncoding()),
+                  meta.isBreakInEnclosureAllowed()
+                      ? new RecordFormat(
+                          data.enclosure,
+                          data.escapeCharacter,
+                          data.fileFormatType,
+                          meta.getContent().isNoEmptyLines())
+                      : null,
+                  data.readAhead,
+                  getLogChannel());
+        } catch (IOException e) {
+          throw new HopException("Unable to split the files to read them in parallel", e);
+        }
+      }
+      return shared.plan;
+    }
+  }
+
+  /**
+   * The files of all copies, each read once: the copies usually list the same files, but a filename
+   * can also differ per copy. A file a copy lists twice is read twice, as without parallel reading.
+   *
+   * @param sourcesByCopy the files of each copy, by copy number
+   * @return the files of the first copy, then those of the others that weren't listed yet
+   */
+  static List<Source> filesOfAllCopies(List<List<Source>> sourcesByCopy) {
+    List<Source> union = new ArrayList<>();
+    Map<String, Integer> timesInUnion = new HashMap<>();
+    for (List<Source> sources : sourcesByCopy) {
+      Map<String, Integer> timesInCopy = new HashMap<>();
+      for (Source source : sources) {
+        String uri = source.file().getName().getURI();
+        int inCopy = timesInCopy.merge(uri, 1, Integer::sum);
+        if (timesInUnion.getOrDefault(uri, 0) < inCopy) {
+          timesInUnion.merge(uri, 1, Integer::sum);
+          union.add(source);
+        }
+      }
+    }
+    return union;
+  }
+
+  /**
+   * Without parallel reading every copy reads all the files of its own list, whole. A file in the
+   * lists of two copies would be read twice, and its rows output twice: the copies don't start
+   * reading then. One copy reports it and stops the pipeline.
+   *
+   * @return true when no file is in the lists of two copies
+   */
+  private boolean everyFileReadByOneCopy() {
+    Shared shared = shared();
+    String problem;
+    synchronized (shared) {
+      if (shared.problemReported) {
+        return false;
+      }
+      problem = fileInSeveralCopies(shared.sourcesByCopy);
+      if (problem == null) {
+        return true;
+      }
+      shared.problemReported = true;
+    }
+    logError(problem);
+    setErrors(1);
+    stopAll();
+    return false;
+  }
+
+  /** Why a file would be read by several copies, or null when every file is in one copy's list. */
+  private static String fileInSeveralCopies(List<List<Source>> sourcesByCopy) {
+    Map<String, Integer> copyByFile = new HashMap<>();
+    for (int copy = 0; copy < sourcesByCopy.size(); copy++) {
+      for (Source source : sourcesByCopy.get(copy)) {
+        Integer other = copyByFile.putIfAbsent(source.file().getName().getURI(), copy);
+        if (other != null && other != copy) {
+          return BaseMessages.getString(
+              PKG,
+              "TextFileInputMeta.Error.FileReadBySeveralCopies",
+              String.valueOf(other),
+              String.valueOf(copy),
+              source.file().getName().getFriendlyURI());
+        }
+      }
+    }
+    return null;
+  }
+
   /** Initialize error handling. */
   private void initErrorHandling() {
     List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<>(2);
@@ -188,6 +503,11 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     if (first) {
       first = false;
       prepareToRowProcessing(meta.getErrorHandling().isErrorIgnored());
+
+      if (sharesFiles() && (!shareFiles() || (!data.parallel && !everyFileReadByOneCopy()))) {
+        setOutputDone();
+        return false;
+      }
 
       // Count the number of repeat fields...
       for (int i = 0; i < meta.getInputFields().size(); i++) {

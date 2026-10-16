@@ -20,6 +20,7 @@ package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.paging.Page;
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
@@ -47,14 +48,19 @@ import org.apache.commons.vfs2.FileNotFolderException;
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.vfs.IRangeReadableFile;
+import org.apache.hop.core.vfs.RangeReadRandomAccessContent;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 
-public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem> {
+public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem>
+    implements IRangeReadableFile {
 
   Blob blob = null;
   Bucket bucket = null;
@@ -160,10 +166,70 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new FileNotFoundException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
-    if (blob != null) {
-      return new ReadChannelInputStream(storage.reader(blob.getBlobId()), reading());
+    ReadChannel channel =
+        storage.reader(blob != null ? blob.getBlobId() : BlobId.of(bucketName, bucketPath));
+    channel.setChunkSize(getReadBlockSize());
+    return new ReadChannelInputStream(channel, reading());
+  }
+
+  /** The read block size of the Google Cloud configuration. */
+  @Override
+  public int getReadBlockSize() {
+    return getAbstractFileSystem().getReadBlockSize();
+  }
+
+  /**
+   * Reads a byte range with one request: the read channel stops at the end of the range, and its
+   * chunk covers all of it. Like every ranged read it reads the generation found when the file was
+   * attached.
+   */
+  @Override
+  public InputStream getInputStream(long offset, long length) throws IOException {
+    if (!isFile()) {
+      throw new FileNotFoundException(getName());
     }
-    return new ReadChannelInputStream(storage.reader(BlobId.of(bucketName, bucketPath)), reading());
+    long count;
+    try {
+      count = Math.min(length, doGetContentSize() - offset);
+    } catch (IOException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IOException(e);
+    }
+    if (count <= 0) {
+      return InputStream.nullInputStream();
+    }
+    Storage storage = getAbstractFileSystem().setupStorage();
+    ReadChannel channel =
+        storage.reader(blob != null ? blob.getBlobId() : BlobId.of(bucketName, bucketPath));
+    channel.seek(offset);
+    channel.limit(offset + count);
+    channel.setChunkSize((int) Math.min(count, Integer.MAX_VALUE));
+    return new ReadChannelInputStream(channel, reading());
+  }
+
+  /**
+   * Random access by seeking a read channel: a seek costs nothing, the next read opens the object
+   * at the new position. Every range reads the generation found when the file was attached, so a
+   * file replaced meanwhile can't be read half old, half new.
+   */
+  @Override
+  protected RandomAccessContent doGetRandomAccessContent(RandomAccessMode mode) throws Exception {
+    if (!isFile()) {
+      throw new FileNotFoundException(getName());
+    }
+    final Storage storage = getAbstractFileSystem().setupStorage();
+    final BlobId blobId = blob != null ? blob.getBlobId() : BlobId.of(bucketName, bucketPath);
+    return new RangeReadRandomAccessContent(doGetContentSize()) {
+      @Override
+      protected InputStream openStream(long offset) throws IOException {
+        ReadChannel channel = storage.reader(blobId);
+        channel.setChunkSize(getReadBlockSize());
+        channel.seek(offset);
+        // Still watched for stalls, like a whole-file read
+        return new ReadChannelInputStream(channel, reading());
+      }
+    };
   }
 
   /** How this object is named in the retry and stall log. */

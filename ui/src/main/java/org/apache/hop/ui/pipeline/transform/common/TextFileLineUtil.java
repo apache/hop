@@ -18,6 +18,7 @@
 package org.apache.hop.ui.pipeline.transform.common;
 
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -54,6 +55,45 @@ public class TextFileLineUtil {
   public static final String getLine(
       ILogChannel log,
       InputStreamReader reader,
+      EncodingType encodingType,
+      int formatNr,
+      StringBuilder line,
+      String enclosure,
+      String escapeCharacter,
+      boolean allowBreaks)
+      throws HopFileException {
+    return getLine(
+        log,
+        (Reader) reader,
+        encodingType,
+        formatNr,
+        line,
+        enclosure,
+        escapeCharacter,
+        allowBreaks);
+  }
+
+  /**
+   * Reads one line, one character at a time. Pass a buffered reader: every character is a call to
+   * {@link Reader#read()}, which on a bare {@link InputStreamReader} goes through the charset
+   * decoder and its lock for each character. To read all the lines of a file, a {@link
+   * TextFileLineScanner} is faster still.
+   *
+   * @param log the log channel
+   * @param reader the reader, positioned at the start of the line
+   * @param encodingType the encoding type, for the line feed and carriage return characters
+   * @param formatNr {@link #FILE_FORMAT_DOS}, {@link #FILE_FORMAT_UNIX} or {@link
+   *     #FILE_FORMAT_MIXED}
+   * @param line the buffer the line is built in
+   * @param enclosure the enclosure, for line breaks in enclosed fields
+   * @param escapeCharacter the escape character, for line breaks in enclosed fields
+   * @param allowBreaks keep line breaks inside enclosures in the line
+   * @return the line, or null at the end of the input
+   * @throws HopFileException when the line can't be read
+   */
+  public static final String getLine(
+      ILogChannel log,
+      Reader reader,
       EncodingType encodingType,
       int formatNr,
       StringBuilder line,
@@ -125,13 +165,11 @@ public class TextFileLineUtil {
     } catch (HopFileException e) {
       throw e;
     } catch (Exception e) {
-      if (line.isEmpty()) {
-        throw new HopFileException(
-            BaseMessages.getString(
-                PKG, "TextFileLineUtil.Log.Error.ExceptionReadingLine", e.toString()),
-            e);
-      }
-      return line.toString();
+      // Never hand out the part of a line read before the error: it would become a truncated row
+      throw new HopFileException(
+          BaseMessages.getString(
+              PKG, "TextFileLineUtil.Log.Error.ExceptionReadingLine", e.toString()),
+          e);
     }
     if (!line.isEmpty()) {
       return line.toString();
@@ -368,7 +406,7 @@ public class TextFileLineUtil {
     return pattern != null && !pattern.isEmpty() && index == pattern.length();
   }
 
-  private static void handleBreaksInEnclosure(EnclosureData ed, int c) {
+  static void handleBreaksInEnclosure(EnclosureData ed, int c) {
     ed.enclosureIndex = ed.isPrevEscape ? 0 : matchChar(ed.enclosure, c, ed.enclosureIndex);
     if (isFullMatch(ed.enclosure, ed.enclosureIndex)) {
       ed.enclosureIndex = 0;
@@ -382,7 +420,8 @@ public class TextFileLineUtil {
     }
   }
 
-  private static class EnclosureData {
+  /** Where reading a line is in the enclosures, for line breaks in enclosed fields. */
+  static final class EnclosureData {
     int enclosureIndex;
     int escapeIndex;
     String enclosure;

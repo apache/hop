@@ -37,4 +37,10 @@ class AzureFileProviderCapabilitiesTest {
         AzureFileProvider.capabilities.contains(Capability.APPEND_CONTENT),
         "Azure VFS must advertise APPEND_CONTENT so commons-vfs2 allows append mode");
   }
+
+  /** Random access is how Text File Input reads a chunk of a file without the bytes before it. */
+  @Test
+  void randomAccessReadIsAdvertised() {
+    assertTrue(AzureFileProvider.capabilities.contains(Capability.RANDOM_ACCESS_READ));
+  }
 }
