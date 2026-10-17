@@ -18,8 +18,6 @@
 package org.apache.hop.workflow.actions.zipfile;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -48,7 +48,6 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -227,10 +226,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       boolean createParentFolder)
       throws HopException {
     boolean fileExists = false;
-    File tempFile = null;
-    File fileZip;
+    FileObject tempFile = null;
     boolean successResult = true;
-    boolean renameOk = false;
     boolean orginExist;
 
     // Check if target file/folder exists!
@@ -360,31 +357,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                         + BaseMessages.getString(PKG, "ActionZipFile.Zip_FileNameChange1.Label"));
               }
             } else if (ifZipFileExists == 1 && fileExists) {
-              // the zip file exists and user want to append
-              // get a temp file
-              fileZip = getFile(localrealZipfilename);
-              // Create the temporary file next to the zip file, not in the shared system temp
-              // folder: the rename below then stays on the same file system and no other user
-              // can claim the name.
-              tempFile =
-                  File.createTempFile(
-                      fileZip.getName(), null, fileZip.getAbsoluteFile().getParentFile());
-
-              // delete it, otherwise we cannot rename existing zip to it.
-              if (!tempFile.delete()) {
-                throw new HopException("Unable to delete temporary file " + tempFile);
-              }
-
-              renameOk = fileZip.renameTo(tempFile);
-
-              if (!renameOk) {
-                logError(
-                    BaseMessages.getString(PKG, "ActionZipFile.Cant_Rename_Temp1.Label")
-                        + fileZip.getAbsolutePath()
-                        + BaseMessages.getString(PKG, "ActionZipFile.Cant_Rename_Temp2.Label")
-                        + tempFile.getAbsolutePath()
-                        + BaseMessages.getString(PKG, "ActionZipFile.Cant_Rename_Temp3.Label"));
-              }
+              // the zip file exists and user want to append.
+              // Write the new zip next to it, on the same file system, and move it over the
+              // existing zip once complete. If anything fails, the existing zip is left untouched.
+              tempFile = createTemporaryZipFile(fileObject);
               if (isDebug()) {
                 logDebug(
                     BaseMessages.getString(PKG, "ActionZipFile.Zip_FileAppend1.Label")
@@ -402,144 +378,150 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                       + BaseMessages.getString(PKG, "ActionZipFile.Files_Found3.Label"));
             }
 
+            // Select the files to add to the zip archive, with their name in the archive.
+            //
+            List<FileObject> filesToZip = new ArrayList<>();
+            List<String> entryNames = new ArrayList<>();
+            for (FileObject candidate : fileList) {
+              boolean getIt = true;
+              boolean getItexclude = false;
+
+              // First see if the file matches the regular expression.
+              // Do this only if the target is a folder.
+              //
+              if (isSourceDirectory) {
+                // If we include sub-folders, we match on the whole name, not just the
+                // basename
+                //
+                String filename;
+                if (includingSubFolders) {
+                  filename = candidate.getName().getPath();
+                } else {
+                  filename = candidate.getName().getBaseName();
+                }
+                if (pattern != null) {
+                  // Matches the base name of the file (backward compatible!)
+                  //
+                  Matcher matcher = pattern.matcher(filename);
+                  getIt = matcher.matches();
+                }
+
+                if (excludePattern != null) {
+                  Matcher excludeMatcher = excludePattern.matcher(filename);
+                  getItexclude = excludeMatcher.matches();
+                }
+              }
+
+              boolean isTargetDirectory =
+                  candidate.exists() && candidate.getType().equals(FileType.FOLDER);
+
+              if (getIt && !getItexclude && !isTargetDirectory) {
+                filesToZip.add(candidate);
+                entryNames.add(getEntryName(candidate, sourceFileOrFolder, isSourceDirectory));
+              }
+            }
+
             // Keep track of the files added to the zip archive.
             //
             List<FileObject> zippedFiles = new ArrayList<>();
 
             // Prepare Zip File
-            try (OutputStream dest =
-                    HopVfs.getOutputStream(localrealZipfilename, false, getVariables());
-                CountingOutputStream counting = new CountingOutputStream(dest);
-                BufferedOutputStream buff = new BufferedOutputStream(counting);
-                ZipOutputStream out = new ZipOutputStream(buff)) {
+            FileObject output =
+                tempFile != null
+                    ? tempFile
+                    : HopVfs.getFileObject(localrealZipfilename, getVariables());
+            long zipOutBytes;
+            boolean moving = false;
+            long zipSize = -1;
+            try {
+              try (OutputStream dest = HopVfs.getOutputStream(output, false);
+                  CountingOutputStream counting = new CountingOutputStream(dest);
+                  BufferedOutputStream buff = new BufferedOutputStream(counting);
+                  ZipOutputStream out = new ZipOutputStream(buff)) {
 
-              HashSet<String> fileSet = new HashSet<>();
-
-              if (renameOk) {
-                // User want to append files to existing Zip file
-                // The idea is to rename the existing zip file to a temporary file
-                // and then adds all entries in the existing zip along with the new files,
-                // excluding the zip entries that have the same name as one of the new files.
-                //
-                moveRenameZipArchive(tempFile, fileSet, out);
-              }
-
-              // Set the method
-              out.setMethod(ZipOutputStream.DEFLATED);
-              // Set the compression level
-              if (compressionRate == 0) {
-                out.setLevel(Deflater.NO_COMPRESSION);
-              } else if (compressionRate == 1) {
-                out.setLevel(Deflater.DEFAULT_COMPRESSION);
-              }
-              if (compressionRate == 2) {
-                out.setLevel(Deflater.BEST_COMPRESSION);
-              }
-              if (compressionRate == 3) {
-                out.setLevel(Deflater.BEST_SPEED);
-              }
-              // Specify Zipped files (After that we will move,delete them...)
-              int fileNum = 0;
-
-              // Get the files in the list...
-              for (int i = 0; i < fileList.length && !parentWorkflow.isStopped(); i++) {
-                boolean getIt = true;
-                boolean getItexclude = false;
-
-                // First see if the file matches the regular expression.
-                // Do this only if the target is a folder.
-                //
-                if (isSourceDirectory) {
-                  // If we include sub-folders, we match on the whole name, not just the
-                  // basename
+                if (tempFile != null) {
+                  // User want to append files to existing Zip file.
+                  // Copy the entries of the existing zip, except the ones the new files replace.
                   //
-                  String filename;
-                  if (includingSubFolders) {
-                    filename = fileList[i].getName().getPath();
-                  } else {
-                    filename = fileList[i].getName().getBaseName();
-                  }
-                  if (pattern != null) {
-                    // Matches the base name of the file (backward compatible!)
-                    //
-                    Matcher matcher = pattern.matcher(filename);
-                    getIt = matcher.matches();
-                  }
-
-                  if (excludePattern != null) {
-                    Matcher excludeMatcher = excludePattern.matcher(filename);
-                    getItexclude = excludeMatcher.matches();
-                  }
+                  copyZipEntries(fileObject, new HashSet<>(entryNames), out);
                 }
 
-                // Get processing File
-                //
-                String targetFilename = HopVfs.getFilename(fileList[i]);
-                if (sourceFileOrFolder.getType().equals(FileType.FILE)) {
-                  targetFilename = localSourceFilename;
+                // Set the method
+                out.setMethod(ZipOutputStream.DEFLATED);
+                // Set the compression level
+                if (compressionRate == 0) {
+                  out.setLevel(Deflater.NO_COMPRESSION);
+                } else if (compressionRate == 1) {
+                  out.setLevel(Deflater.DEFAULT_COMPRESSION);
+                }
+                if (compressionRate == 2) {
+                  out.setLevel(Deflater.BEST_COMPRESSION);
+                }
+                if (compressionRate == 3) {
+                  out.setLevel(Deflater.BEST_SPEED);
                 }
 
-                try (FileObject file = HopVfs.getFileObject(targetFilename, getVariables())) {
-                  boolean isTargetDirectory =
-                      file.exists() && file.getType().equals(FileType.FOLDER);
-
-                  if (getIt
-                      && !getItexclude
-                      && !isTargetDirectory
-                      && !fileSet.contains(targetFilename)) {
-                    // We can add the file to the Zip Archive
-                    if (isDebug()) {
-                      logDebug(
-                          BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip1.Label")
-                              + fileList[i]
-                              + BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip2.Label")
-                              + localSourceFilename
-                              + BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip3.Label"));
-                    }
-
-                    // Associate a file input stream for the current file.
-                    //
-                    addFileToZip(
-                        file,
-                        fileList,
-                        i,
-                        sourceFileOrFolder,
-                        isSourceDirectory,
-                        out,
-                        result,
-                        parentWorkflow);
-
-                    // Get Zipped File
-                    zippedFiles.add(fileList[i]);
-                    fileNum = fileNum + 1;
+                // Add the files (After that we will move,delete them...)
+                for (int i = 0; i < filesToZip.size() && !parentWorkflow.isStopped(); i++) {
+                  FileObject file = filesToZip.get(i);
+                  // We can add the file to the Zip Archive
+                  if (isDebug()) {
+                    logDebug(
+                        BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip1.Label")
+                            + file
+                            + BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip2.Label")
+                            + localSourceFilename
+                            + BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip3.Label"));
                   }
+
+                  addFileToZip(file, entryNames.get(i), out, result, parentWorkflow);
+
+                  // Get Zipped File
+                  zippedFiles.add(file);
                 }
+
+                // Zip stream is closed after this block (central directory written)
+                out.finish();
+                buff.flush();
+                zipOutBytes = counting.getCount();
               }
 
-              // Zip stream is now closed (central directory written); count is final
-              long zipOutBytes = counting.getCount();
-              result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + zipOutBytes);
-              if (getParentWorkflow() != null && zipOutBytes > 0) {
-                LineageFileIoEmitter.emitWorkflowActionFileIo(
-                    getParentWorkflow(),
-                    this,
-                    FileIoOperation.WRITE,
-                    null,
-                    fileObject,
-                    zipOutBytes,
-                    true,
-                    null);
+              if (tempFile != null) {
+                if (zippedFiles.size() < filesToZip.size()) {
+                  // Stopped before all files were added: keep the existing zip as it is
+                  throw new HopException(
+                      "The workflow was stopped, the zip file "
+                          + localrealZipfilename
+                          + " was not updated");
+                }
+                zipSize = sizeQuietly(fileObject);
+                moving = true;
+                HopVfs.moveFile(tempFile, fileObject);
               }
+            } catch (Exception e) {
+              if (tempFile != null) {
+                discardTemporaryZipFile(tempFile, fileObject, moving, zipSize);
+              }
+              throw e;
+            }
+
+            result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + zipOutBytes);
+            if (getParentWorkflow() != null && zipOutBytes > 0) {
+              LineageFileIoEmitter.emitWorkflowActionFileIo(
+                  getParentWorkflow(),
+                  this,
+                  FileIoOperation.WRITE,
+                  null,
+                  fileObject,
+                  zipOutBytes,
+                  true,
+                  null);
             }
 
             if (isBasic()) {
               logBasic(
                   BaseMessages.getString(
                       PKG, "ActionZipFile.Log.TotalZippedFiles", "" + zippedFiles.size()));
-            }
-            // Delete Temp File
-            if (tempFile != null && !tempFile.delete()) {
-              throw new HopException("Unable to delete temporary file " + tempFile);
             }
 
             // -----Get the list of Zipped Files and Move or Delete Them
@@ -601,60 +583,104 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     return successResult;
   }
 
-  private static void moveRenameZipArchive(
-      File tempFile, HashSet<String> fileSet, ZipOutputStream out) throws IOException {
-    ZipEntry entry;
-    try (ZipInputStream zin = new ZipInputStream(new FileInputStream(tempFile))) {
-      entry = zin.getNextEntry();
+  /** A new file in the folder of the zip file, on the same file system. */
+  private static FileObject createTemporaryZipFile(FileObject zipFile) throws IOException {
+    FileObject temporaryFile;
+    do {
+      temporaryFile =
+          zipFile
+              .getParent()
+              .resolveFile(zipFile.getName().getBaseName() + "_" + UUID.randomUUID() + ".tmp");
+    } while (temporaryFile.exists());
+    return temporaryFile;
+  }
 
-      while (entry != null) {
+  private static void copyZipEntries(
+      FileObject zipFile, Set<String> skipEntryNames, ZipOutputStream out) throws IOException {
+    // A zip can hold the same name twice. Keep the first one, a zip output stream refuses both.
+    Set<String> copied = new HashSet<>();
+    try (ZipInputStream zin = new ZipInputStream(HopVfs.getInputStream(zipFile))) {
+      byte[] buffer = new byte[18024];
+      ZipEntry entry;
+      while ((entry = zin.getNextEntry()) != null) {
         String name = entry.getName();
-
-        if (!fileSet.contains(name)) {
-
+        if (!skipEntryNames.contains(name) && copied.add(name)) {
           // Add ZIP entry to output stream.
           out.putNextEntry(new ZipEntry(name));
           // Transfer bytes from the ZIP file to the output file
           int len;
-          byte[] buffer = new byte[18024];
           while ((len = zin.read(buffer)) > 0) {
             out.write(buffer, 0, len);
           }
-
-          fileSet.add(name);
+          out.closeEntry();
         }
-        entry = zin.getNextEntry();
       }
     }
   }
 
+  /**
+   * Remove the temporary zip file after a failure. A failed move can remove the zip file or leave
+   * it partly overwritten, and the temporary file is then the only complete copy. Remove it only
+   * when the zip file still has the size it had before the move.
+   */
+  private void discardTemporaryZipFile(
+      FileObject temporaryFile, FileObject zipFile, boolean moving, long zipSize) {
+    if (moving && (zipSize < 0 || sizeQuietly(zipFile) != zipSize)) {
+      logError(
+          "Unable to move the updated zip file to "
+              + HopVfs.getFriendlyURI(zipFile)
+              + ", it is kept as "
+              + HopVfs.getFriendlyURI(temporaryFile));
+      return;
+    }
+    deleteQuietly(temporaryFile);
+  }
+
+  /** The size of the file, or -1 when it does not exist or its size can't be determined. */
+  private static long sizeQuietly(FileObject file) {
+    try {
+      file.refresh();
+      return file.exists() ? file.getContent().getSize() : -1;
+    } catch (Exception e) {
+      return -1;
+    }
+  }
+
+  private void deleteQuietly(FileObject file) {
+    try {
+      file.delete();
+    } catch (Exception e) {
+      logError("Unable to delete temporary file " + HopVfs.getFriendlyURI(file), e);
+    }
+  }
+
+  /** The name of a file in the zip archive. */
+  private String getEntryName(
+      FileObject file, FileObject sourceFileOrFolder, boolean isSourceDirectory)
+      throws HopException {
+    String fullName = file.getName().getPath();
+    String basePath = sourceFileOrFolder.getName().getPath();
+    if (isSourceDirectory) {
+      if (fullName.startsWith(basePath)) {
+        return fullName.substring(basePath.length() + 1);
+      }
+      return fullName;
+    } else if (fromPrevious) {
+      int depth = determineDepth(resolve(storedSourcePathDepth));
+      return determineZipfilenameForDepth(fullName, depth);
+    }
+    return file.getName().getBaseName();
+  }
+
   private void addFileToZip(
       FileObject file,
-      FileObject[] fileList,
-      int i,
-      FileObject sourceFileOrFolder,
-      boolean isSourceDirectory,
+      String entryName,
       ZipOutputStream out,
       Result result,
       IWorkflowEngine<WorkflowMeta> parentWorkflow)
-      throws IOException, HopException {
+      throws IOException {
     try (InputStream in = HopVfs.getInputStream(file)) {
-      String relativeName;
-      String fullName = fileList[i].getName().getPath();
-      String basePath = sourceFileOrFolder.getName().getPath();
-      if (isSourceDirectory) {
-        if (fullName.startsWith(basePath)) {
-          relativeName = fullName.substring(basePath.length() + 1);
-        } else {
-          relativeName = fullName;
-        }
-      } else if (fromPrevious) {
-        int depth = determineDepth(resolve(storedSourcePathDepth));
-        relativeName = determineZipfilenameForDepth(fullName, depth);
-      } else {
-        relativeName = fileList[i].getName().getBaseName();
-      }
-      out.putNextEntry(new ZipEntry(relativeName));
+      out.putNextEntry(new ZipEntry(entryName));
 
       int len;
       byte[] buffer = new byte[18024];
@@ -757,7 +783,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
    * @param depth the depth to get. 0 means: the complete filename, 1: the name only (file.txt), 2:
    *     one folder (a/file.txt) 3: two folders (to/a/file.txt) and so on.
    * @return the requested part of the file name up to a certain depth
-   * @throws HopFileException
+   * @throws HopException
    */
   private String determineZipfilenameForDepth(String filename, int depth) throws HopException {
     try {
@@ -785,16 +811,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     } catch (Exception e) {
       throw new HopException("Unable to get zip filename '" + filename + "' to depth " + depth, e);
     }
-  }
-
-  private File getFile(final String filename) {
-    try {
-      String uri = HopVfs.getFileObject(resolve(filename), getVariables()).getName().getPath();
-      return new File(uri);
-    } catch (HopFileException ex) {
-      logError("Error in Fetching URI for File: " + filename, ex);
-    }
-    return new File(filename);
   }
 
   private boolean checkContainsFile(
