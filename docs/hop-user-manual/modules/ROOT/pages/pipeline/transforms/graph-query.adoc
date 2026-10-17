@@ -81,3 +81,23 @@ Give a return value the type `Vector` to read a stored embedding into a Vector f
 On Gremlin servers a traversal returns a row per result: maps, from `project()` or `elementMap()` for example, are rows of their own, anything else is a value called `result`.
 
 |===
+
+== Transactions
+
+The statements of a batch of input rows, or the UNWIND statement of a batch, run in one transaction.
+
+On Neo4j, a statement with `CALL { ... } IN TRANSACTIONS` (or `USING PERIODIC COMMIT` on Neo4j 4) runs on its own in an auto-commit transaction: Neo4j commits its batches of rows itself.
+This is the alternative to `apoc.periodic.iterate`.
+With UNWIND, the transform passes a batch of input rows and Neo4j commits them in smaller batches:
+
+[source,cypher]
+----
+UNWIND $rows AS row
+CALL (row) {
+  MERGE (c:Customer { id : row.id })
+  SET c.name = row.name
+} IN TRANSACTIONS OF 1000 ROWS
+----
+
+When such a statement fails, the batches Neo4j committed before the error stay committed.
+With retries configured, a retry runs the whole statement again and applies those batches a second time: use MERGE rather than CREATE to make the statement safe to repeat, or don't configure retries.

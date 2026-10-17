@@ -24,8 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -210,6 +214,102 @@ class CypherRetryTest {
     assertEquals(2, cypher.rows.size());
     assertArrayEquals(new Object[] {"a"}, cypher.rows.get(0));
     assertArrayEquals(new Object[] {"b"}, cypher.rows.get(1));
+  }
+
+  @Test
+  void boltInTransactionsStatementRunsInAutoCommit() throws Exception {
+    data.attempts = 1;
+    setUpBolt(tx -> {}, 1);
+    when(data.session.run(any(String.class), anyMap())).thenAnswer(invocation -> emptyResult());
+    String inTransactions = "CALL () { CREATE (:C) } IN TRANSACTIONS";
+    data.cypherStatements.add(1, new CypherStatement(new Object[] {"c"}, inTransactions, Map.of()));
+
+    cypher.batchComplete();
+
+    // CREATE (:A) and CREATE (:B) in a transaction each, around the auto-commit statement
+    verify(data.session).run(eq(inTransactions), anyMap());
+    verify(data.session, times(2)).executeWrite(any());
+    assertEquals(3, cypher.rows.size());
+    assertArrayEquals(new Object[] {"c"}, cypher.rows.get(1));
+  }
+
+  @Test
+  void boltUnwindInTransactionsRunsInAutoCommit() throws Exception {
+    data.attempts = 1;
+    setUpBolt(tx -> {}, 1);
+    when(data.session.run(any(String.class), anyMap())).thenAnswer(invocation -> emptyResult());
+    meta.setUsingUnwind(true);
+    data.cypher =
+        "UNWIND $rows AS row CALL (row) { CREATE (:A {id: row.id}) } IN TRANSACTIONS OF 2 ROWS";
+    data.unwindMapName = "rows";
+    data.unwindList = new ArrayList<>(List.of(Map.of("id", 1), Map.of("id", 2), Map.of("id", 3)));
+    data.outputCount = 3;
+
+    cypher.batchComplete();
+
+    verify(data.session).run(eq(data.cypher), anyMap());
+    verify(data.session, never()).executeWrite(any());
+    assertEquals(3, cypher.getLinesOutput());
+    assertTrue(data.unwindList.isEmpty());
+  }
+
+  @Test
+  void boltUnwindInTransactionsErrorAtTheEndFailsTheBatch() {
+    data.attempts = 1;
+    setUpBolt(tx -> {}, 1);
+    // The statement starts, a later batch of it fails
+    Result failing = emptyResult();
+    when(failing.consume())
+        .thenThrow(new org.neo4j.driver.exceptions.ClientException("Batch 4 failed"));
+    when(data.session.run(any(String.class), anyMap())).thenReturn(failing);
+    unwindInTransactions();
+
+    assertThrows(HopException.class, () -> cypher.batchComplete());
+    assertEquals(0, cypher.getLinesOutput());
+    assertTrue(cypher.rows.isEmpty());
+  }
+
+  @Test
+  void boltAutoCommitRetryOfChangesIsLogged() throws Exception {
+    data.attempts = 2;
+    setUpBolt(tx -> {}, 1);
+    Result failing = emptyResult();
+    when(failing.consume())
+        .thenThrow(new org.neo4j.driver.exceptions.ClientException("Batch 4 failed"));
+    Result succeeding = emptyResult();
+    when(data.session.run(any(String.class), anyMap())).thenReturn(failing, succeeding);
+    unwindInTransactions();
+
+    cypher.batchComplete();
+
+    verify(data.session, times(2)).run(eq(data.cypher), anyMap());
+    verify(helper.iLogChannel).logBasic(contains("the retry applies them again"));
+    assertEquals(3, cypher.getLinesOutput());
+  }
+
+  private void unwindInTransactions() {
+    meta.setUsingUnwind(true);
+    data.cypher =
+        "UNWIND $rows AS row CALL (row) { CREATE (:A {id: row.id}) } IN TRANSACTIONS OF 2 ROWS";
+    data.unwindMapName = "rows";
+    data.unwindList = new ArrayList<>(List.of(Map.of("id", 1), Map.of("id", 2), Map.of("id", 3)));
+    data.outputCount = 3;
+  }
+
+  @Test
+  void boltUnwindKeepsTheManagedTransaction() throws Exception {
+    data.attempts = 1;
+    setUpBolt(tx -> {}, 1);
+    meta.setUsingUnwind(true);
+    data.cypher = "UNWIND $rows AS row CREATE (:A {id: row.id})";
+    data.unwindMapName = "rows";
+    data.unwindList = new ArrayList<>(List.of(Map.of("id", 1)));
+    data.outputCount = 1;
+
+    cypher.batchComplete();
+
+    verify(data.session).executeWrite(any());
+    verify(data.session, never()).run(any(String.class), anyMap());
   }
 
   /**
