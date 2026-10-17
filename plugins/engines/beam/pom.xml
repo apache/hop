@@ -98,16 +98,14 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-scala_2.12</artifactId>
         </dependency>
-        <!-- Force a recent version of these libraries -->
+        <!-- Version comes from the root POM so lib/core does not also keep an older copy. -->
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-credentials</artifactId>
-            <version>1.30.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.30.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.grpc</groupId>
