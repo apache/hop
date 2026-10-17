@@ -304,6 +304,19 @@ public class HopVfsNamespaces {
   }
 
   /**
+   * Stop binding a namespace to this thread, if it is the one bound. Used once a closed namespace
+   * is found on a thread that may fall back to the process wide manager: every later file would
+   * only take the same detour again.
+   *
+   * @param namespace the namespace to unbind
+   */
+  static void unbindThreadIfCurrent(HopVfsNamespace namespace) {
+    if (namespace != null && scope.get() == namespace) {
+      scope.remove();
+    }
+  }
+
+  /**
    * Is this the metadata the process wide file system manager already holds the connections of?
    *
    * <p>Compared against the provider that manager was built from, not against whatever is current
