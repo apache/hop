@@ -88,4 +88,46 @@ class BaseGuiWidgetsStaticListenerTest {
             ListenerHost.class, "ignored", ConcreteEditor.class);
     assertNull(method);
   }
+
+  /** Toolbar methods live on the base widget. A subclass still has to find them. */
+  public static class SelectionLine {
+    public void edit() {}
+
+    public void edit(String event) {}
+  }
+
+  public static class ConnectionSelectionLine extends SelectionLine {}
+
+  public static class OverridingSelectionLine extends SelectionLine {
+    @Override
+    public void edit() {}
+  }
+
+  @Test
+  void findsListenerMethodDeclaredOnASuperclass() throws Exception {
+    Method method = BaseGuiWidgets.findDeclaredMethod(ConnectionSelectionLine.class, "edit");
+    assertNotNull(method);
+    assertEquals(SelectionLine.class, method.getDeclaringClass());
+    assertEquals(0, method.getParameterCount());
+  }
+
+  @Test
+  void prefersTheListenerMethodDeclaredOnTheInstanceClass() {
+    Method method = BaseGuiWidgets.findDeclaredMethod(OverridingSelectionLine.class, "edit");
+    assertNotNull(method);
+    assertEquals(OverridingSelectionLine.class, method.getDeclaringClass());
+  }
+
+  @Test
+  void findsTheEventListenerBeforeSearchingFurther() {
+    Method method =
+        BaseGuiWidgets.findDeclaredMethod(ConnectionSelectionLine.class, "edit", String.class);
+    assertNotNull(method);
+    assertEquals(String.class, method.getParameterTypes()[0]);
+  }
+
+  @Test
+  void returnsNullWhenNoListenerMethodExists() {
+    assertNull(BaseGuiWidgets.findDeclaredMethod(ConnectionSelectionLine.class, "missing"));
+  }
 }
