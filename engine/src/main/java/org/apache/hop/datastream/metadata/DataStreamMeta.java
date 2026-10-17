@@ -34,7 +34,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::DataStream.description",
     image = "ui/images/arrow-stream.svg",
     category = HopMetadataCategory.DATA_DEFINITION,
-    documentationUrl = "/metadata-types/data-stream.html",
+    documentationUrl = "/metadata-types/data-stream/data-stream.html",
     hopMetadataPropertyType = HopMetadataPropertyType.DATA_STREAM,
     supportsGlobalReplace = true)
 @Getter

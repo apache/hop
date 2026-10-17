@@ -38,7 +38,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::S3Meta.description",
     image = "s3.svg",
     category = HopMetadataCategory.FILE_STORAGE,
-    documentationUrl = "/metadata-types/s3-connection.html",
+    documentationUrl = "/vfs/aws-s3-vfs.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_S3_CONNECTION,
     classLoaderGroup = "vfs-s3")
 public class S3Meta extends HopMetadataBase
