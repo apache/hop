@@ -49,7 +49,7 @@ Use **Load configuration template** to fill the fields below from a common deplo
 
 * *Local execution* — `local[*]`, Spark UI off (embedded Spark in Hop)
 * *Local (capped cores)* — `local[4]`
-* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory
+* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory. Also set *Fat jar file location* to a `native-provided` fat jar; the template leaves it empty. See xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
 * *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar
 * *Databricks* — submit-oriented placeholders (master empty); set workspace-specific values yourself
 * *YARN client* — master `yarn`, client deploy mode
