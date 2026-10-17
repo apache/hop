@@ -57,6 +57,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 
 /** Updating an existing zip file, locally and on a VFS file system. */
 class ZipFileAppendTest {
@@ -208,6 +209,24 @@ class ZipFileAppendTest {
   }
 
   @Test
+  void keepSourceFolderOnVfsReplacesTheEntryStoredUnderItsUri() throws Exception {
+    String source = ramFolder + "/base/in/src.txt";
+    writeFile(source, "new");
+    String zip = ramFolder + "/archive.zip";
+    // Before #8955 a VFS source file was stored under its URI
+    writeZip(zip, HopVfs.getFilename(HopVfs.getFileObject(source)), "old");
+
+    ZipFileMeta meta = updateMeta();
+    meta.setKeepSourceFolder(true);
+
+    ZipFile transform = run(meta, source, zip);
+
+    assertEquals(0, transform.getErrors());
+    String expected = HopVfs.getFileObject(source).getName().getPath();
+    assertEquals(Map.of(expected, "new"), entries(zip));
+  }
+
+  @Test
   void updateCopiesAnEntryThatIsTwiceInTheZipOnce() throws Exception {
     String source = ramFolder + "/source/new.txt";
     writeFile(source, "new");
@@ -241,6 +260,29 @@ class ZipFileAppendTest {
 
     assertEquals(1, transform.getErrors());
     List<String> left = children(ramFolder + "/archive");
+    assertEquals(1, left.size(), "the updated zip must be kept");
+    assertTrue(left.get(0).startsWith("archive.zip_") && left.get(0).endsWith(".tmp"));
+    assertEquals(
+        Map.of("new.txt", "new", "old.txt", "old"), entries(ramFolder + "/archive/" + left.get(0)));
+  }
+
+  @Test
+  void failedMoveThatLeavesAPartialZipKeepsTheUpdatedZip() throws Exception {
+    String source = ramFolder + "/source/new.txt";
+    writeFile(source, "new");
+    String zip = ramFolder + "/archive/archive.zip";
+    writeZip(zip, "old.txt", "old");
+
+    ZipFile transform;
+    try (MockedStatic<HopVfs> vfs = Mockito.mockStatic(HopVfs.class, Mockito.CALLS_REAL_METHODS)) {
+      vfs.when(() -> HopVfs.moveFile(any(), any()))
+          .thenAnswer(ZipFileAppendTest::failPartWayThroughTheCopy);
+      transform = run(updateMeta(), source, zip);
+    }
+
+    assertEquals(1, transform.getErrors());
+    List<String> left = children(ramFolder + "/archive");
+    left.remove("archive.zip");
     assertEquals(1, left.size(), "the updated zip must be kept");
     assertTrue(left.get(0).startsWith("archive.zip_") && left.get(0).endsWith(".tmp"));
     assertEquals(
@@ -407,5 +449,19 @@ class ZipFileAppendTest {
       names.add(child.getName().getBaseName());
     }
     return names;
+  }
+
+  /** A move that fails part way through copying over the zip file, as the copy fallback can. */
+  private static Object failPartWayThroughTheCopy(InvocationOnMock invocation) throws Exception {
+    FileObject source = invocation.getArgument(0, FileObject.class);
+    FileObject destination = invocation.getArgument(1, FileObject.class);
+    byte[] start;
+    try (InputStream in = source.getContent().getInputStream()) {
+      start = in.readNBytes(10);
+    }
+    try (OutputStream out = destination.getContent().getOutputStream()) {
+      out.write(start);
+    }
+    throw new FileSystemException("copy failed");
   }
 }

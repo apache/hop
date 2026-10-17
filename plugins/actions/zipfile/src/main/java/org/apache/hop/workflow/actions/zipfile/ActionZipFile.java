@@ -432,6 +432,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     : HopVfs.getFileObject(localrealZipfilename, getVariables());
             long zipOutBytes;
             boolean moving = false;
+            long zipSize = -1;
             try {
               try (OutputStream dest = HopVfs.getOutputStream(output, false);
                   CountingOutputStream counting = new CountingOutputStream(dest);
@@ -493,12 +494,13 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                           + localrealZipfilename
                           + " was not updated");
                 }
+                zipSize = sizeQuietly(fileObject);
                 moving = true;
                 HopVfs.moveFile(tempFile, fileObject);
               }
             } catch (Exception e) {
               if (tempFile != null) {
-                discardTemporaryZipFile(tempFile, fileObject, moving);
+                discardTemporaryZipFile(tempFile, fileObject, moving, zipSize);
               }
               throw e;
             }
@@ -617,12 +619,13 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   }
 
   /**
-   * Remove the temporary zip file after a failure. When moving it over the zip file failed after
-   * the zip file was already removed, the temporary file is the only copy left: keep it.
+   * Remove the temporary zip file after a failure. A failed move can remove the zip file or leave
+   * it partly overwritten, and the temporary file is then the only complete copy. Remove it only
+   * when the zip file still has the size it had before the move.
    */
   private void discardTemporaryZipFile(
-      FileObject temporaryFile, FileObject zipFile, boolean moving) {
-    if (moving && !existsQuietly(zipFile)) {
+      FileObject temporaryFile, FileObject zipFile, boolean moving, long zipSize) {
+    if (moving && (zipSize < 0 || sizeQuietly(zipFile) != zipSize)) {
       logError(
           "Unable to move the updated zip file to "
               + HopVfs.getFriendlyURI(zipFile)
@@ -633,13 +636,13 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     deleteQuietly(temporaryFile);
   }
 
-  /** Whether the file exists. When that can't be determined, assume it does not. */
-  private static boolean existsQuietly(FileObject file) {
+  /** The size of the file, or -1 when it does not exist or its size can't be determined. */
+  private static long sizeQuietly(FileObject file) {
     try {
       file.refresh();
-      return file.exists();
+      return file.exists() ? file.getContent().getSize() : -1;
     } catch (Exception e) {
-      return false;
+      return -1;
     }
   }
 

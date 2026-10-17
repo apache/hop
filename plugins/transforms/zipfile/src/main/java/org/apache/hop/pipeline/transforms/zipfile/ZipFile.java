@@ -343,6 +343,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     // original once complete. If anything fails, the original zip is left untouched.
     boolean updateZip = false;
     boolean moving = false;
+    long zipSize = -1;
     FileObject output = data.zipFile;
     CountingInputStream countingIn = null;
     CountingOutputStream countingOut = null;
@@ -361,7 +362,14 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
         try (ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(countingOut))) {
           if (updateZip) {
             // Copy the existing entries, except the one the source file replaces
-            copyZipEntries(data.zipFile, out, entryName, buffer);
+            Set<String> replacedNames = new HashSet<>();
+            replacedNames.add(entryName);
+            if (meta.isKeepSourceFolder()
+                && !"file".equals(data.sourceFile.getName().getScheme())) {
+              // Before #8955 a VFS source file was stored under its URI: replace that entry too
+              replacedNames.add(getLegacyEntryName());
+            }
+            copyZipEntries(data.zipFile, out, replacedNames, buffer);
           }
 
           // Set the method
@@ -383,12 +391,13 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       }
 
       if (updateZip) {
+        zipSize = sizeQuietly(data.zipFile);
         moving = true;
         HopVfs.moveFile(output, data.zipFile);
       }
     } catch (Exception e) {
       if (updateZip && output != data.zipFile) {
-        discardTemporaryZipFile(output, data.zipFile, moving);
+        discardTemporaryZipFile(output, data.zipFile, moving, zipSize);
       }
       throw new HopException(BaseMessages.getString(PKG, "ZipFile.ErrorCreatingZip"), e);
     } finally {
@@ -426,6 +435,15 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     return sourceName.getPath();
   }
 
+  /** The name a kept source folder gave a VFS source file before #8955: the URI, minus the base. */
+  private String getLegacyEntryName() {
+    String name = HopVfs.getFilename(data.sourceFile);
+    if (data.baseFolder != null) {
+      name = name.replace(data.baseFolder + Const.FILE_SEPARATOR, "");
+    }
+    return name;
+  }
+
   /** A new file in the folder of the zip file, on the same file system. */
   private static FileObject createTemporaryZipFile(FileObject zipFile) throws IOException {
     FileObject temporaryFile;
@@ -439,7 +457,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
   }
 
   private static void copyZipEntries(
-      FileObject zipFile, ZipOutputStream out, String skipEntryName, byte[] buffer)
+      FileObject zipFile, ZipOutputStream out, Set<String> skipEntryNames, byte[] buffer)
       throws IOException {
     // A zip can hold the same name twice. Keep the first one, a zip output stream refuses both.
     Set<String> copied = new HashSet<>();
@@ -447,7 +465,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       ZipEntry entry;
       while ((entry = zin.getNextEntry()) != null) {
         String name = entry.getName();
-        if (!name.equals(skipEntryName) && copied.add(name)) {
+        if (!skipEntryNames.contains(name) && copied.add(name)) {
           out.putNextEntry(new ZipEntry(name));
           int len;
           while ((len = zin.read(buffer)) > 0) {
@@ -460,12 +478,13 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
   }
 
   /**
-   * Remove the temporary zip file after a failure. When moving it over the zip file failed after
-   * the zip file was already removed, the temporary file is the only copy left: keep it.
+   * Remove the temporary zip file after a failure. A failed move can remove the zip file or leave
+   * it partly overwritten, and the temporary file is then the only complete copy. Remove it only
+   * when the zip file still has the size it had before the move.
    */
   private void discardTemporaryZipFile(
-      FileObject temporaryFile, FileObject zipFile, boolean moving) {
-    if (moving && !existsQuietly(zipFile)) {
+      FileObject temporaryFile, FileObject zipFile, boolean moving, long zipSize) {
+    if (moving && (zipSize < 0 || sizeQuietly(zipFile) != zipSize)) {
       logError(
           "Unable to move the updated zip file to "
               + HopVfs.getFriendlyURI(zipFile)
@@ -476,13 +495,13 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     deleteQuietly(temporaryFile);
   }
 
-  /** Whether the file exists. When that can't be determined, assume it does not. */
-  private static boolean existsQuietly(FileObject file) {
+  /** The size of the file, or -1 when it does not exist or its size can't be determined. */
+  private static long sizeQuietly(FileObject file) {
     try {
       file.refresh();
-      return file.exists();
+      return file.exists() ? file.getContent().getSize() : -1;
     } catch (Exception e) {
-      return false;
+      return -1;
     }
   }
 
