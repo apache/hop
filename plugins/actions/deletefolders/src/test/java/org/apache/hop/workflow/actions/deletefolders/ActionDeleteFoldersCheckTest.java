@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.variables.Variables;
@@ -51,8 +52,9 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, new Variables());
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_WARNING, remarks.get(0).getType());
-    assertEquals(message("ActionDeleteFolders.CheckResult.NoFolders"), remarks.get(0).getText());
+    assertEquals(ICheckResult.TYPE_RESULT_WARNING, remarks.getFirst().getType());
+    assertEquals(
+        message("ActionDeleteFolders.CheckResult.NoFolders"), remarks.getFirst().getText());
   }
 
   @Test
@@ -72,10 +74,10 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, new Variables());
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
     assertEquals(
         message("ActionDeleteFolders.CheckResult.FolderDoesNotExist", missing),
-        remarks.get(0).getText());
+        remarks.getFirst().getText());
   }
 
   @Test
@@ -88,10 +90,10 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, new Variables());
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
     assertEquals(
         message("ActionDeleteFolders.CheckResult.FolderOk", folder.toString()),
-        remarks.get(0).getText());
+        remarks.getFirst().getText());
   }
 
   @Test
@@ -104,9 +106,10 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, new Variables());
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
     assertEquals(
-        message("ActionDeleteFolders.Error.NotFolder", file.toString()), remarks.get(0).getText());
+        message("ActionDeleteFolders.Error.NotFolder", file.toString()),
+        remarks.getFirst().getText());
   }
 
   @Test
@@ -117,10 +120,10 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, new Variables());
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
     assertEquals(
         message("ActionDeleteFolders.CheckResult.FolderNameMissing", "1"),
-        remarks.get(0).getText());
+        remarks.getFirst().getText());
   }
 
   @Test
@@ -135,10 +138,10 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, variables);
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
     assertEquals(
         message("ActionDeleteFolders.CheckResult.FolderOk", folder.toString()),
-        remarks.get(0).getText());
+        remarks.getFirst().getText());
   }
 
   @Test
@@ -154,10 +157,10 @@ class ActionDeleteFoldersCheckTest {
     List<ICheckResult> remarks = check(action, variables);
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
     assertEquals(
         message("ActionDeleteFolders.CheckResult.FolderOk", currentFolder + "/files"),
-        remarks.get(0).getText());
+        remarks.getFirst().getText());
   }
 
   private static String message(String key, String... arguments) {
