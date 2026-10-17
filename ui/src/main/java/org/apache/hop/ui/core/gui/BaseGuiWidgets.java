@@ -271,15 +271,19 @@ public class BaseGuiWidgets {
         Object guiPluginInstance =
             findGuiPluginInstance(getHopGuiId(), classLoader, listenerClassName, instanceId);
         // Prefer a method that accepts the SWT Event (e.g. to read modifier keys such as Shift).
-        try {
-          Method withEvent =
-              guiPluginInstance.getClass().getDeclaredMethod(listenerMethodName, Event.class);
+        // The method may be declared on a superclass: a Neo4j connection line is a
+        // MetaSelectionLine, and getDeclaredMethod does not walk that hierarchy.
+        Method withEvent =
+            findDeclaredMethod(guiPluginInstance.getClass(), listenerMethodName, Event.class);
+        if (withEvent != null) {
           withEvent.invoke(guiPluginInstance, e);
           return;
-        } catch (NoSuchMethodException noEventMethod) {
-          // Fall back to the standard no-argument method.
         }
-        Method listenerMethod = guiPluginInstance.getClass().getDeclaredMethod(listenerMethodName);
+        Method listenerMethod =
+            findDeclaredMethod(guiPluginInstance.getClass(), listenerMethodName);
+        if (listenerMethod == null) {
+          throw new NoSuchMethodException(listenerMethodName);
+        }
         listenerMethod.invoke(guiPluginInstance);
 
       } catch (Exception exception) {
@@ -293,6 +297,23 @@ public class BaseGuiWidgets {
             exception);
       }
     };
+  }
+
+  /**
+   * The first method with this name and parameter types, starting at {@code type} and walking
+   * superclasses. {@code Class.getDeclaredMethod} only looks at one class, so a toolbar listener
+   * declared on a base widget is invisible when the registered object is a subclass. Returns null
+   * when neither this class nor a superclass declares it.
+   */
+  static Method findDeclaredMethod(Class<?> type, String name, Class<?>... parameterTypes) {
+    for (Class<?> current = type; current != null; current = current.getSuperclass()) {
+      try {
+        return current.getDeclaredMethod(name, parameterTypes);
+      } catch (NoSuchMethodException e) {
+        // Declared further up, or not at all.
+      }
+    }
+    return null;
   }
 
   /**
