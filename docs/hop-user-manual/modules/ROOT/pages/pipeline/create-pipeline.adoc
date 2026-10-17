@@ -79,7 +79,7 @@ An alternative to clicking is arrow key navigation + enter.
 Repeat this step now or whenever you want to add more transforms to your pipeline.
 Once you've added a transform to your pipeline, you can drag to reposition it.
 
-Check the xref:pipeline/transforms.adoc[list] of transforms to add to your pipeline for more details.
+Every xref:pipeline/transforms.adoc[transform] has a page of its own under Pipelines › Transforms in the navigation, with the details of what it does and its options.
 
 
 image::getting-started/getting-started-add-transform.png[Hop - Add Transform,75%,align="left"]

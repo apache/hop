@@ -18,4 +18,4 @@ A Transform is a single unit of data processing inside a Pipeline.
 Typical transform operations include reading from databases or files, filtering rows, calculating values, performing lookups, joining datasets, and loading to destinations.
 All transforms in a pipeline run simultaneously in parallel.
 xref:pipeline/pipeline-sources.adoc[Pipeline sources] generate rows without needing an incoming hop, while intermediate transforms continuously process streaming rows and pass them along hops to downstream transforms through in-memory row buffers.
-See the xref:pipeline/transforms.adoc[Transforms catalog] for all available transforms.
+See xref:pipeline/transforms.adoc[Transforms] for where to find the page of each transform.

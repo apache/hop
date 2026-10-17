@@ -29,7 +29,7 @@ Where you go next depends on what you're trying to do.
 
 == Build more pipelines
 
-* xref:pipeline/pipelines.adoc[Pipelines] - the full picture, including the complete xref:pipeline/transforms.adoc[list of transforms]
+* xref:pipeline/pipelines.adoc[Pipelines] - the full picture, including the xref:pipeline/transforms.adoc[transforms], each with a page under Pipelines › Transforms in the navigation
 * xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline] - preview a subset, pause on a condition, step through rows
 * xref:pipeline/errorhandling.adoc[Error Handling] - send failing rows down a separate hop instead of stopping
 * xref:fields-parameters-variables.adoc[Fields, parameters and variables] - three things that look alike in the UI and behave differently
