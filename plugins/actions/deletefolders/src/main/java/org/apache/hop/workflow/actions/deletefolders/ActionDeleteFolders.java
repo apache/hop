@@ -155,7 +155,7 @@ public class ActionDeleteFolders extends ActionBase {
           return result;
         }
         RowMetaAndData resultRow = rows.get(iteration);
-        String argsPrevious = resultRow.getString(0, null);
+        String argsPrevious = resolveFolderName(resultRow.getString(0, null), getVariables());
         if (!Utils.isEmpty(argsPrevious)) {
           if (deleteFolder(argsPrevious)) {
             updateSuccess();
@@ -178,7 +178,7 @@ public class ActionDeleteFolders extends ActionBase {
           result.setNrLinesDeleted(nrSuccess);
           return result;
         }
-        String realFileName = resolve(item.getFileName());
+        String realFileName = resolveFolderName(item.getFileName(), getVariables());
         if (!Utils.isEmpty(realFileName)) {
           if (deleteFolder(realFileName)) {
             updateSuccess();
@@ -292,32 +292,70 @@ public class ActionDeleteFolders extends ActionBase {
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    //    boolean res =
-    //        ActionValidatorUtils.andValidator()
-    //            .validate(
-    //                this,
-    //                "fileItems",
-    //                remarks,
-    //                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-    //
-    //    if (!res) {
-    //      return;
-    //    }
-
-    if (Utils.isEmpty(fileItems)) {
-      String message = BaseMessages.getString(PKG, "CloneRowMeta.CheckResult.NrClonesdMissing");
-      remarks.add(
-          new CheckResult(ICheckResult.TYPE_RESULT_WARNING, "Any folders to deletes", this));
+    // Folder names come from the previous action result at runtime.
+    if (argFromPrevious) {
+      return;
     }
 
-    /* TODO: If we enable action check
-    ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-    AndValidator.putValidators(
-        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
-    for (FileItem item : fileItems) {
-      ActionValidatorUtils.andValidator().validate(this, "fileName", remarks, ctx);
-    }*/
+    if (Utils.isEmpty(fileItems)) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "ActionDeleteFolders.CheckResult.NoFolders"),
+              this));
+      return;
+    }
+
+    IVariables space = variables != null ? variables : getVariables();
+    for (int i = 0; i < fileItems.size(); i++) {
+      FileItem item = fileItems.get(i);
+      String folderName = resolveFolderName(item.getFileName(), space);
+      if (folderName.isBlank()) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "ActionDeleteFolders.CheckResult.FolderNameMissing",
+                    String.valueOf(i + 1)),
+                this));
+        continue;
+      }
+
+      try (FileObject folder = HopVfs.getFileObject(folderName, space)) {
+        if (!folder.exists()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "ActionDeleteFolders.CheckResult.FolderDoesNotExist", folderName),
+                  this));
+        } else if (folder.getType() != FileType.FOLDER) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "ActionDeleteFolders.Error.NotFolder", folderName),
+                  this));
+        } else {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_OK,
+                  BaseMessages.getString(
+                      PKG, "ActionDeleteFolders.CheckResult.FolderOk", folderName),
+                  this));
+        }
+      } catch (Exception e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "ActionDeleteFolders.CheckResult.CouldNotValidate",
+                    folderName,
+                    e.getMessage()),
+                this));
+      }
+    }
   }
 
   @Override
@@ -327,7 +365,7 @@ public class ActionDeleteFolders extends ActionBase {
 
     ResourceReference reference = null;
     for (FileItem item : fileItems) {
-      String filename = resolve(item.getFileName());
+      String filename = resolveFolderName(item.getFileName(), variables);
       if (reference == null) {
         reference = new ResourceReference(this);
         references.add(reference);
@@ -335,6 +373,32 @@ public class ActionDeleteFolders extends ActionBase {
       reference.getEntries().add(new ResourceEntry(filename, ResourceType.FILE));
     }
     return references;
+  }
+
+  /**
+   * Hop stores the workflow directory in {@code Internal.Entry.Current.Folder}. Workflows carried
+   * over from Kettle still reference {@code Internal.Entry.Current.Directory}.
+   */
+  private String resolveFolderName(String rawName, IVariables space) {
+    if (rawName == null) {
+      return "";
+    }
+    IVariables source = space != null ? space : getVariables();
+    if (source == null) {
+      return rawName;
+    }
+    String resolved = source.resolve(rawName);
+    final String legacy = "${Internal.Entry.Current.Directory}";
+    if (resolved.contains(legacy)) {
+      String currentFolder = source.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER);
+      if (Utils.isEmpty(currentFolder)) {
+        currentFolder = source.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER);
+      }
+      if (!Utils.isEmpty(currentFolder)) {
+        resolved = resolved.replace(legacy, currentFolder);
+      }
+    }
+    return resolved;
   }
 
   private static class TextFileSelector implements FileSelector {
