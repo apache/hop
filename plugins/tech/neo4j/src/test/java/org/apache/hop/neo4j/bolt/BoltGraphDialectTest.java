@@ -135,6 +135,59 @@ class BoltGraphDialectTest {
     assertFalse(Neo4jGraphDialect.INSTANCE.isRequiringAutoCommit("SHOW INDEXES"));
   }
 
+  /** Neo4j only runs statements which commit their own batches in an implicit transaction. */
+  @Test
+  void testNeo4jAutoCommitStatements() {
+    Neo4jGraphDialect neo4j = Neo4jGraphDialect.INSTANCE;
+    assertTrue(
+        neo4j.isRequiringAutoCommit(
+            "MATCH (n:Person) CALL (n) { SET n.processed = true } IN TRANSACTIONS OF 10 ROWS"));
+    assertTrue(
+        neo4j.isRequiringAutoCommit(
+            "MATCH (n:Person) CALL { WITH n SET n.processed = true } IN TRANSACTIONS"));
+    assertTrue(neo4j.isRequiringAutoCommit("call () {\n  create (:A)\n}\nin transactions"));
+    assertTrue(
+        neo4j.isRequiringAutoCommit(
+            "UNWIND $rows AS row CALL (*) { MERGE (p:Person {id: row.id}) SET p += {name: row.name}"
+                + " } IN 4 CONCURRENT TRANSACTIONS OF 1000 ROWS ON ERROR CONTINUE"));
+    assertTrue(
+        neo4j.isRequiringAutoCommit(
+            "CALL (row) { CREATE (:A {text: '}'}) } IN CONCURRENT TRANSACTIONS"));
+    assertTrue(
+        neo4j.isRequiringAutoCommit(
+            "// batches\nCALL () { CREATE (:A) } /* of rows */ IN TRANSACTIONS OF 5 ROWS"));
+    assertTrue(
+        neo4j.isRequiringAutoCommit(
+            "USING PERIODIC COMMIT 500 LOAD CSV FROM 'file:///a.csv' AS line CREATE (:A)"));
+
+    // Statements which run in a transaction as before
+    assertFalse(neo4j.isRequiringAutoCommit(null));
+    assertFalse(neo4j.isRequiringAutoCommit("SHOW INDEXES"));
+    assertFalse(neo4j.isRequiringAutoCommit("MATCH (n) CALL (n) { SET n.x = 1 } RETURN n"));
+    assertFalse(neo4j.isRequiringAutoCommit("CALL db.labels() YIELD label RETURN label"));
+    assertFalse(
+        neo4j.isRequiringAutoCommit(
+            "CALL apoc.periodic.iterate('MATCH (n) RETURN n', 'SET n.x = 1', {batchSize: 100})"));
+    assertFalse(
+        neo4j.isRequiringAutoCommit(
+            "MATCH (n) WHERE n.note = 'CALL { } IN TRANSACTIONS' RETURN n"));
+    assertFalse(neo4j.isRequiringAutoCommit("// CALL () { } IN TRANSACTIONS\nMATCH (n) RETURN n"));
+    assertFalse(neo4j.isRequiringAutoCommit("MATCH (n) WHERE {id: n.id} IN transactions RETURN n"));
+    assertFalse(
+        neo4j.isRequiringAutoCommit(
+            "MATCH (n) WHERE EXISTS { MATCH (n)--() } AND n.id IN transactions RETURN n"));
+    assertFalse(neo4j.isRequiringAutoCommit("MATCH (n {call: 1}) RETURN n.call"));
+    assertFalse(neo4j.isRequiringAutoCommit("MATCH (n:`CALL {} IN TRANSACTIONS`) RETURN n"));
+
+    // The other dialects are unchanged
+    assertFalse(
+        NeptuneGraphDialect.INSTANCE.isRequiringAutoCommit(
+            "CALL () { CREATE (:A) } IN TRANSACTIONS"));
+    assertFalse(
+        MemgraphGraphDialect.INSTANCE.isRequiringAutoCommit(
+            "CALL () { CREATE (:A) } IN TRANSACTIONS"));
+  }
+
   /** Memgraph has no IF [NOT] EXISTS: its errors about existing or missing schema are tolerated. */
   @Test
   void testMemgraphExistingOrMissing() {

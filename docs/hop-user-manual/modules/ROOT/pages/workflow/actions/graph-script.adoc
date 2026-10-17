@@ -34,6 +34,15 @@ The result of this action is a `true` or `false` exit code that determines if a 
 
 **To allow you to enter semi-colons (;) in commands, strings and so on we require you to separate commands with a semi-colon on a new line**
 
+== Transactions
+
+On a database with transactions the script runs in one transaction: when a statement fails, none of the statements are kept.
+
+On Neo4j, a statement with `CALL { ... } IN TRANSACTIONS` (or `USING PERIODIC COMMIT` on Neo4j 4) runs on its own in an auto-commit transaction, and the statements before and after it run in a transaction each.
+The script then no longer runs in a single transaction: when a statement fails, the statements before it stay committed.
+
+On Memgraph every statement runs on its own in an auto-commit transaction.
+
 == Configuration options
 
 |===
