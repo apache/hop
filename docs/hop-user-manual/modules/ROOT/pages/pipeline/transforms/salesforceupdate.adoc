@@ -42,9 +42,6 @@ You can customize the name or leave it as the default.
 
 include::../../snippets/salesforce/salesforce-connection.adoc[]
 
-
-=== Settings
-
 include::../../snippets/salesforce/salesforce-settings.adoc[]
 
 include::../../snippets/salesforce/salesforce-fields.adoc[]
