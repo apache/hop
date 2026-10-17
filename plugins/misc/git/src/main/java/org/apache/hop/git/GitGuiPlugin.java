@@ -18,6 +18,7 @@
 
 package org.apache.hop.git;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.function.Predicate;
 import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
@@ -81,6 +82,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -130,6 +132,24 @@ public class GitGuiPlugin
   @Getter private Map<String, UIFile> changedFiles;
 
   @Getter private Map<String, String> ignoredFiles;
+
+  /**
+   * File systems store modification times in whole seconds, FAT even in two: a file saved just
+   * after a status can carry a time from before it.
+   */
+  private static final long MODIFICATION_TIME_MARGIN_MS = 2000L;
+
+  /** When the last status of the whole repository started. */
+  private long lastStatusTime;
+
+  /** {@link UIGit#getStateStamp()} when the last status of the whole repository started. */
+  private String lastStatusStamp;
+
+  /** When the status of a single file was last read, by absolute filename. */
+  private final Map<String, Long> fileStatusTimes = new HashMap<>();
+
+  /** Set while the UI event that opened the repository is still running, see below. */
+  private boolean statusCurrentForThisEvent;
 
   private static GitGuiPlugin fallback;
 
@@ -969,7 +989,16 @@ public class GitGuiPlugin
         if (folder != null) {
           git = new UIGit();
           git.openRepo(HopVfs.getFilename(folder));
-          setBranchLabel(git.getBranch());
+          if (isIgnoredByRepository(rootFolder)) {
+            // A project in the build output of another repository, for example: every file in it
+            // is ignored, and each status of that repository costs seconds.
+            LogChannel.UI.logBasic(
+                "Git repository " + git.getDirectory() + " ignores " + rootFolder + ", not used");
+            git.closeRepo();
+            git = null;
+          } else {
+            setBranchLabel(git.getBranch());
+          }
         }
       } catch (Exception e) {
         // This is not a git project...
@@ -977,7 +1006,8 @@ public class GitGuiPlugin
         LogChannel.UI.logBasic("No git project found in " + rootFolder);
       }
     }
-    refreshChangedFiles();
+    readChangedFiles();
+    keepStatusForThisEvent();
     registerAsGuiPluginObjects();
     enableButtons();
 
@@ -1057,27 +1087,76 @@ public class GitGuiPlugin
   }
 
   /* package*/ void refreshChangedFiles() {
-    changedFiles = new HashMap<>();
-    ignoredFiles = new HashMap<>();
+    if (statusCurrentForThisEvent) {
+      return;
+    }
+    readChangedFiles();
+  }
+
+  /** Read the staged, unstaged and ignored files of the whole repository with one git status. */
+  private void readChangedFiles() {
+    long startTime = System.currentTimeMillis();
+    String stamp = git != null ? git.getStateStamp() : null;
+    Map<String, UIFile> newChangedFiles = new HashMap<>();
+    Map<String, String> newIgnoredFiles = new HashMap<>();
 
     if (git != null) {
-      // List the staged and unstaged files...
-      //
-      List<UIFile> files = new ArrayList<>(git.getStagedFiles());
-      files.addAll(git.getUnstagedFiles());
-
-      for (UIFile file : files) {
-        String path = getAbsoluteFilename(git.getDirectory(), file.getName());
-        changedFiles.put(path, file);
-      }
-
-      Set<String> ignored = git.getIgnored(null);
-      for (String file : ignored) {
-        String path = getAbsoluteFilename(git.getDirectory(), file);
-        ignoredFiles.put(path, file);
-      }
+      UIGit.FileStatus status = git.getFileStatus(null);
+      addFileStatus(status, newChangedFiles, newIgnoredFiles);
       setBranchLabel(git.getBranch());
     }
+    changedFiles = newChangedFiles;
+    ignoredFiles = newIgnoredFiles;
+    lastStatusTime = startTime;
+    lastStatusStamp = stamp;
+    fileStatusTimes.clear();
+  }
+
+  private void addFileStatus(
+      UIGit.FileStatus status, Map<String, UIFile> changed, Map<String, String> ignored) {
+    // Staged first: a file with unstaged changes on top of staged ones shows as unstaged
+    List<UIFile> files = new ArrayList<>(status.staged());
+    files.addAll(status.unstaged());
+    for (UIFile file : files) {
+      changed.put(getAbsoluteFilename(git.getDirectory(), file.getName()), file);
+    }
+    for (String file : status.ignored()) {
+      ignored.put(getAbsoluteFilename(git.getDirectory(), file), file);
+    }
+  }
+
+  /**
+   * Let the rest of the UI event that opened a repository reuse the status just read. A project
+   * switch asks for it three times in a row: in {@link #rootChanged}, in the commit perspective and
+   * when the explorer tree is rebuilt. On a large repository each status costs about a second.
+   */
+  private void keepStatusForThisEvent() {
+    Display display = Display.getCurrent();
+    if (display == null) {
+      return;
+    }
+    statusCurrentForThisEvent = true;
+    display.asyncExec(() -> statusCurrentForThisEvent = false);
+  }
+
+  /** Whether the repository that was found in a parent folder ignores the root folder. */
+  private boolean isIgnoredByRepository(String rootFolder) throws HopFileException {
+    String relativePath =
+        relativeToRepository(HopVfs.getFilename(HopVfs.getFileObject(rootFolder)));
+    return relativePath != null && !relativePath.isEmpty() && git.isIgnored(relativePath);
+  }
+
+  /** The path of a file relative to the work tree, null when it is outside the repository. */
+  private String relativeToRepository(String filename) {
+    String base = getAbsoluteFilename(git.getDirectory());
+    String path = getAbsoluteFilename(filename);
+    if (base == null || path == null) {
+      return null;
+    }
+    if (path.equals(base)) {
+      return "";
+    }
+    return path.startsWith(base + "/") ? path.substring(base.length() + 1) : null;
   }
 
   @Override
@@ -1085,6 +1164,67 @@ public class GitGuiPlugin
     refreshChangedFiles();
     // The git state of the files determines which operations are available
     enableButtons();
+  }
+
+  /**
+   * Update the git state of the one file whose tree item is repainted. An editor asks for this on
+   * every click, so the file is only looked at again when it changed after the last status, and
+   * then with a status of that file alone.
+   */
+  @Override
+  public void beforeFileRefresh(String filename) {
+    if (refreshFileStatus(filename)) {
+      enableButtons();
+    }
+  }
+
+  /**
+   * Read the git state of one file again when it changed after it was last read, or of the whole
+   * repository when git changed its index or HEAD since the last status.
+   *
+   * @return true when the status of the file was read
+   */
+  /* package */ boolean refreshFileStatus(String filename) {
+    if (git == null || changedFiles == null) {
+      return false;
+    }
+    String path = getAbsoluteFilename(filename);
+    String relativePath = relativeToRepository(path);
+    if (relativePath == null || relativePath.isEmpty()) {
+      return false;
+    }
+    if (!Objects.equals(lastStatusStamp, git.getStateStamp())) {
+      // A git add, commit or checkout outside Hop GUI, in its terminal for example: the index or
+      // HEAD changed, which can change the state of any file
+      readChangedFiles();
+      return true;
+    }
+    long checked = fileStatusTimes.getOrDefault(path, lastStatusTime);
+    long lastModified = lastModified(filename);
+    if (lastModified > 0 && lastModified + MODIFICATION_TIME_MARGIN_MS < checked) {
+      return false;
+    }
+    long startTime = System.currentTimeMillis();
+    UIGit.FileStatus status = git.getFileStatus(relativePath);
+    changedFiles.remove(path);
+    ignoredFiles.remove(path);
+    addFileStatus(status, changedFiles, ignoredFiles);
+    fileStatusTimes.put(path, startTime);
+    return true;
+  }
+
+  @VisibleForTesting
+  void setGit(UIGit git) {
+    this.git = git;
+  }
+
+  /** The modification time of a file, 0 when it can't be read, for example a deleted file. */
+  private static long lastModified(String filename) {
+    try (FileObject fileObject = HopVfs.getFileObject(filename)) {
+      return fileObject.exists() ? fileObject.getContent().getLastModifiedTime() : 0L;
+    } catch (Exception e) {
+      return 0L;
+    }
   }
 
   @Override

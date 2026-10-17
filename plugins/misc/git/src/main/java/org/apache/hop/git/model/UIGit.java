@@ -113,6 +113,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.WorkingTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FileUtils;
@@ -570,23 +571,95 @@ public class UIGit extends VCS {
   // Safe: the stack trace goes to the local stderr only, never to a remote client
   @SuppressWarnings("java:S4507")
   public List<UIFile> getUnstagedFiles(String path) {
-    List<UIFile> files = new ArrayList<>();
     Status status = null;
     try {
-      String normalizedPath = normalizePathForJGit(path);
-      StatusCommand statusCommand = git.status();
-      if (normalizedPath != null && !".".equals(normalizedPath)) {
-        statusCommand = statusCommand.addPath(normalizedPath);
-      }
-
-      status = statusCommand.call();
+      status = statusOf(path);
     } catch (Exception e) {
       e.printStackTrace();
-      return files;
+      return new ArrayList<>();
     }
-    Set<String> ignored = getCaseInsensitiveIgnored(status.getUntracked());
+    return unstagedFiles(status, getCaseInsensitiveIgnored(status.getUntracked()));
+  }
+
+  // Safe: the stack trace goes to the local stderr only, never to a remote client
+  @SuppressWarnings("java:S4507")
+  public List<UIFile> getStagedFiles() {
+    Status status = null;
+    try {
+      status = git.status().call();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new ArrayList<>();
+    }
+    return stagedFiles(status);
+  }
+
+  /** The staged, unstaged and ignored files that one "git status" reports. */
+  public record FileStatus(List<UIFile> staged, List<UIFile> unstaged, Set<String> ignored) {}
+
+  /**
+   * The staged, unstaged and ignored files from a single status. {@link #getStagedFiles()}, {@link
+   * #getUnstagedFiles()} and {@link #getIgnored(String)} each walk the working tree again, which
+   * takes close to a second on a repository the size of Apache Hop.
+   *
+   * @param path a file or folder relative to the work tree to limit the status to, null for all
+   * @return the files, empty when the status could not be read
+   */
+  public FileStatus getFileStatus(String path) {
+    try {
+      Status status = statusOf(path);
+      Set<String> caseIgnored = getCaseInsensitiveIgnored(status.getUntracked());
+      return new FileStatus(
+          stagedFiles(status),
+          unstagedFiles(status, caseIgnored),
+          ignoredFiles(status, caseIgnored));
+    } catch (Exception e) {
+      // Not only GitAPIException: a repository that can no longer be read fails with an unchecked
+      // JGitInternalException, and this runs on every click in an editor
+      LogChannel.UI.logError("Error getting the git status", e);
+      return new FileStatus(new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+    }
+  }
+
+  /**
+   * Changes whenever the index changes or HEAD moves, for example after a "git add" or "git commit"
+   * in a terminal. Those leave the files in the working tree as they are.
+   *
+   * @return the stamp, empty when the repository can't be read
+   */
+  public String getStateStamp() {
+    try {
+      Repository repository = git.getRepository();
+      File index = repository.getIndexFile();
+      ObjectId head = repository.resolve(Constants.HEAD);
+      return index.lastModified() + "/" + index.length() + "/" + (head == null ? "" : head.name());
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  private Status statusOf(String path) throws GitAPIException {
+    String normalizedPath = normalizePathForJGit(path);
+    StatusCommand statusCommand = git.status();
+    if (normalizedPath != null && !".".equals(normalizedPath)) {
+      statusCommand = statusCommand.addPath(normalizedPath);
+    }
+    return statusCommand.call();
+  }
+
+  /** Only what is in the index: working tree changes are reported by the unstaged files. */
+  private static List<UIFile> stagedFiles(Status status) {
+    List<UIFile> files = new ArrayList<>();
+    status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
+    status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
+    status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
+    return files;
+  }
+
+  private static List<UIFile> unstagedFiles(Status status, Set<String> caseIgnored) {
+    List<UIFile> files = new ArrayList<>();
     status.getUntracked().stream()
-        .filter(name -> !ignored.contains(name))
+        .filter(name -> !caseIgnored.contains(name))
         .forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
     status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     // Changed in the working tree but not staged: "git add" is what stages these
@@ -595,22 +668,10 @@ public class UIGit extends VCS {
     return files;
   }
 
-  // Safe: the stack trace goes to the local stderr only, never to a remote client
-  @SuppressWarnings("java:S4507")
-  public List<UIFile> getStagedFiles() {
-    List<UIFile> files = new ArrayList<>();
-    Status status = null;
-    try {
-      status = git.status().call();
-    } catch (Exception e) {
-      e.printStackTrace();
-      return files;
-    }
-    // Only what is in the index: working tree changes are reported by getUnstagedFiles()
-    status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
-    status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
-    status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
-    return files;
+  private static Set<String> ignoredFiles(Status status, Set<String> caseIgnored) {
+    Set<String> ignored = new HashSet<>(status.getIgnoredNotInIndex());
+    ignored.addAll(caseIgnored);
+    return ignored;
   }
 
   // Safe: the stack trace goes to the local stderr only, never to a remote client
@@ -1807,19 +1868,46 @@ public class UIGit extends VCS {
 
   public Set<String> getIgnored(String path) {
     try {
-      String normalizedPath = normalizePathForJGit(path);
-      StatusCommand statusCommand = git.status();
-      if (normalizedPath != null && !".".equals(normalizedPath)) {
-        statusCommand = statusCommand.addPath(normalizedPath);
-      }
-      Status status = statusCommand.call();
-      Set<String> ignored = new HashSet<>(status.getIgnoredNotInIndex());
-      ignored.addAll(getCaseInsensitiveIgnored(status.getUntracked()));
-      return ignored;
+      Status status = statusOf(path);
+      return ignoredFiles(status, getCaseInsensitiveIgnored(status.getUntracked()));
     } catch (GitAPIException e) {
       LogChannel.UI.logError("Error getting list of files ignored by git", e);
       return new HashSet<>();
     }
+  }
+
+  /**
+   * Whether git ignores a file or folder, or one of the folders above it. Only the folders on the
+   * way to the path are read, so this is fast in a repository of any size.
+   *
+   * @param path the path relative to the work tree, with forward slashes
+   */
+  public boolean isIgnored(String path) {
+    String normalizedPath = normalizePathForJGit(path);
+    if (normalizedPath == null || normalizedPath.isEmpty() || ".".equals(normalizedPath)) {
+      return false;
+    }
+    Repository repository = git.getRepository();
+    if (CaseInsensitiveIgnores.appliesTo(repository)
+        && new CaseInsensitiveIgnores(repository).isIgnored(normalizedPath)) {
+      return true;
+    }
+    try (TreeWalk walk = new TreeWalk(repository)) {
+      walk.addTree(new FileTreeIterator(repository));
+      walk.setFilter(PathFilter.create(normalizedPath));
+      while (walk.next()) {
+        if (walk.getTree(0, WorkingTreeIterator.class).isEntryIgnored()) {
+          return true;
+        }
+        // What lies below the path itself doesn't matter
+        if (walk.isSubtree() && !normalizedPath.equals(walk.getPathString())) {
+          walk.enterSubtree();
+        }
+      }
+    } catch (IOException e) {
+      LogChannel.UI.logError("Error checking whether git ignores '" + normalizedPath + "'", e);
+    }
+    return false;
   }
 
   /**
