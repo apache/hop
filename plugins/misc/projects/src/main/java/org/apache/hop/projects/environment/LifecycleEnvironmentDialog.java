@@ -36,6 +36,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.PathVariableReplacer;
@@ -95,6 +96,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private TextVar wName;
   private Combo wPurpose;
   private Combo wProject;
+  private Combo wEmbeddedEnvironment;
   private Text wCanvasText;
   private TableView wConfigFiles;
 
@@ -305,7 +307,29 @@ public class LifecycleEnvironmentDialog extends Dialog {
         e -> {
           needingEnvironmentRefresh = true;
           updateSuggestedName();
+          refreshEmbeddedEnvironmentItems();
         });
+
+    Label wlEmbedded = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlEmbedded);
+    wlEmbedded.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EmbeddedEnvironment"));
+    wlEmbedded.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ToolTip.EmbeddedEnvironment"));
+    FormData fdlEmbedded = new FormData();
+    fdlEmbedded.left = new FormAttachment(0, 0);
+    fdlEmbedded.right = new FormAttachment(middle, 0);
+    fdlEmbedded.top = new FormAttachment(wProject, margin);
+    wlEmbedded.setLayoutData(fdlEmbedded);
+    wEmbeddedEnvironment = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY);
+    PropsUi.setLook(wEmbeddedEnvironment);
+    wEmbeddedEnvironment.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ToolTip.EmbeddedEnvironment"));
+    FormData fdEmbedded = new FormData();
+    fdEmbedded.left = new FormAttachment(middle, margin);
+    fdEmbedded.right = new FormAttachment(100, 0);
+    fdEmbedded.top = new FormAttachment(wlEmbedded, 0, SWT.CENTER);
+    wEmbeddedEnvironment.setLayoutData(fdEmbedded);
 
     Label wlCanvasText = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlCanvasText);
@@ -314,7 +338,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     FormData fdlCanvasText = new FormData();
     fdlCanvasText.left = new FormAttachment(0, 0);
     fdlCanvasText.right = new FormAttachment(middle, 0);
-    fdlCanvasText.top = new FormAttachment(wProject, margin);
+    fdlCanvasText.top = new FormAttachment(wEmbeddedEnvironment, margin);
     wlCanvasText.setLayoutData(fdlCanvasText);
     wCanvasText = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wCanvasText);
@@ -1042,6 +1066,71 @@ public class LifecycleEnvironmentDialog extends Dialog {
     }
   }
 
+  private String noneEmbeddedEnvironment() {
+    return BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.EmbeddedEnvironment.None");
+  }
+
+  /**
+   * Fill the embedded-environment combo from the selected project. A name that is no longer defined
+   * stays in the list so the broken link remains visible.
+   */
+  private void refreshEmbeddedEnvironmentItems() {
+    if (wEmbeddedEnvironment == null || wEmbeddedEnvironment.isDisposed()) {
+      return;
+    }
+    String none = noneEmbeddedEnvironment();
+    String current = wEmbeddedEnvironment.getText();
+    List<String> items = new ArrayList<>();
+    items.add(none);
+    items.addAll(embeddedEnvironmentNames(wProject == null ? null : wProject.getText()));
+    if (StringUtils.isNotEmpty(current) && !none.equals(current) && !items.contains(current)) {
+      items.add(current);
+    }
+    wEmbeddedEnvironment.setItems(items.toArray(new String[0]));
+    wEmbeddedEnvironment.setText(StringUtils.isEmpty(current) ? none : current);
+  }
+
+  private void selectEmbeddedEnvironment(String name) {
+    refreshEmbeddedEnvironmentItems();
+    if (StringUtils.isEmpty(name)) {
+      wEmbeddedEnvironment.setText(noneEmbeddedEnvironment());
+      return;
+    }
+    List<String> items = new ArrayList<>(List.of(wEmbeddedEnvironment.getItems()));
+    if (!items.contains(name)) {
+      items.add(name);
+      wEmbeddedEnvironment.setItems(items.toArray(new String[0]));
+    }
+    wEmbeddedEnvironment.setText(name);
+  }
+
+  private List<String> embeddedEnvironmentNames(String projectName) {
+    List<String> names = new ArrayList<>();
+    if (StringUtils.isEmpty(projectName)) {
+      return names;
+    }
+    try {
+      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+      ProjectConfig projectConfig = config == null ? null : config.findProjectConfig(projectName);
+      if (projectConfig == null) {
+        return names;
+      }
+      Project project = projectConfig.loadProject(variables);
+      if (project.getEmbeddedEnvironments() == null) {
+        return names;
+      }
+      for (EmbeddedEnvironment embedded : project.getEmbeddedEnvironments()) {
+        if (embedded != null && StringUtils.isNotEmpty(embedded.getName())) {
+          names.add(embedded.getName());
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Could not load embedded environments for project '" + projectName + "'", e);
+    }
+    return names;
+  }
+
   private void getData() {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
@@ -1080,6 +1169,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wPurpose.setText(Const.NVL(environment.getPurpose(), ""));
     wProject.setText(Const.NVL(environment.getProjectName(), ""));
     wCanvasText.setText(Const.NVL(environment.getCanvasText(), ""));
+    selectEmbeddedEnvironment(environment.getEmbeddedEnvironmentName());
 
     if (StringUtils.isNotEmpty(environment.getName())) {
       // Provided name (edit or rare pre-fill): do not auto-overwrite.
@@ -1167,6 +1257,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
     env.setPurpose(wPurpose.getText());
     env.setProjectName(wProject.getText());
     env.setCanvasText(wCanvasText.getText());
+    String embeddedName = wEmbeddedEnvironment.getText();
+    if (StringUtils.isEmpty(embeddedName) || noneEmbeddedEnvironment().equals(embeddedName)) {
+      env.setEmbeddedEnvironmentName(null);
+    } else {
+      env.setEmbeddedEnvironmentName(embeddedName);
+    }
 
     env.getConfigurationFiles().clear();
     for (TableItem item : wConfigFiles.getNonEmptyItems()) {
