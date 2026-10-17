@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The PGP Encrypt Stream transform encrypts text using PGP.
+:description: The Pipeline Data Probe transform receives the data that a Pipeline Probe sends from the transforms it watches.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:icons/probe.svg[Pipeline Probe icon, role="image-doc-icon"] Pipeline Data Probe
