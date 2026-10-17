@@ -42,6 +42,12 @@ public final class NoteImageSupport {
   /** Soft cap on rendered image height in canvas units. */
   public static final int DEFAULT_MAX_HEIGHT = 200;
 
+  /** Minimum rendered image dimension in canvas units; avoids degenerate 1px rasters. */
+  public static final int MIN_RENDERED_SIZE = 8;
+
+  /** Hard cap on any rendered image dimension in canvas units; guards against huge rasters. */
+  public static final int MAX_RENDERED_SIZE = 2048;
+
   private static final Map<String, ImageInfo> SIZE_CACHE = new ConcurrentHashMap<>();
 
   private NoteImageSupport() {}
@@ -177,20 +183,41 @@ public final class NoteImageSupport {
     return lower.endsWith(".svg");
   }
 
-  /** Fit image into max box preserving aspect ratio. */
+  /**
+   * Fit image into max box preserving aspect ratio, bounded to a drawable raster range. A 1px
+   * sliver or a native-resolution raster at high zoom makes {@code drawFileImage} fail and fall
+   * back to the alt text, so keep the result within [{@link #MIN_RENDERED_SIZE}, {@link
+   * #MAX_RENDERED_SIZE}].
+   */
   public static Point fit(int srcW, int srcH, int maxWidth, int maxHeight) {
     if (srcW <= 0 || srcH <= 0) {
-      return new Point(Math.max(1, maxWidth), Math.max(1, maxHeight));
+      return new Point(bound(maxWidth), bound(maxHeight));
     }
-    int mw = Math.max(1, maxWidth);
-    int mh = Math.max(1, maxHeight);
+    int mw = bound(maxWidth);
+    int mh = bound(maxHeight);
     double scale = Math.min((double) mw / srcW, (double) mh / srcH);
     if (scale > 1.0) {
       scale = 1.0; // do not upscale small icons excessively on canvas
     }
     int w = Math.max(1, (int) Math.round(srcW * scale));
     int h = Math.max(1, (int) Math.round(srcH * scale));
+
+    if (w < MIN_RENDERED_SIZE || h < MIN_RENDERED_SIZE) {
+      double up = Math.max((double) MIN_RENDERED_SIZE / w, (double) MIN_RENDERED_SIZE / h);
+      w = Math.max(1, (int) Math.round(w * up));
+      h = Math.max(1, (int) Math.round(h * up));
+    }
+    // Never rasterise an enormous bitmap on the canvas
+    if (w > MAX_RENDERED_SIZE || h > MAX_RENDERED_SIZE) {
+      double down = Math.min((double) MAX_RENDERED_SIZE / w, (double) MAX_RENDERED_SIZE / h);
+      w = Math.max(1, (int) Math.round(w * down));
+      h = Math.max(1, (int) Math.round(h * down));
+    }
     return new Point(w, h);
+  }
+
+  private static int bound(int value) {
+    return Math.max(1, Math.min(value, MAX_RENDERED_SIZE));
   }
 
   /** Test helper / memory bound. */
