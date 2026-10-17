@@ -1501,7 +1501,7 @@ This product bundles j2objc-annotations 3.0.0, which is available under a
 This product bundles jackcess 4.0.11, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackcess 5.1.2, which is available under a
+This product bundles jackcess 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackcess-encrypt 4.0.3, which is available under a
@@ -3278,7 +3278,7 @@ This product bundles truffle-runtime 25.0.3, which is available under a
 This product bundles txw2 4.0.8, which is available under a
 "Eclipse Public 1.0" license. For details, see licenses/LICENSE-EPL10.
 
-This product bundles ucanaccess 5.1.5, which is available under a
+This product bundles ucanaccess 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles unitycatalog-client 0.5.0, which is available under a
