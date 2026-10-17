@@ -40,15 +40,46 @@ public class DbCache {
    */
   private final AtomicInteger generation = new AtomicInteger();
 
+  /** Held for a clear and for a put that has to agree with that clear. */
+  private final Object lock = new Object();
+
   @Getter @Setter private boolean active;
 
   public void put(DbCacheEntry entry, IRowMeta fields) {
-    if (!active) {
+    if (!active || entry == null || fields == null) {
       return;
     }
 
-    IRowMeta copy = fields.clone();
-    cache.put(entry, copy);
+    synchronized (lock) {
+      cache.put(entry, fields.clone());
+    }
+  }
+
+  /**
+   * Store a row that was just read from the database, unless the cache was cleared after that read
+   * started.
+   *
+   * <p>A check remembers {@link #getGeneration()} before it queries. Clearing the cache while the
+   * query is in flight bumps the generation, and the row from that query is the layout from before
+   * the clear. Storing it would put the old columns straight back.
+   *
+   * @param entry the query that produced the row
+   * @param fields the row read from the database
+   * @param generationAtQuery the generation observed before the query
+   * @return true when the row was stored
+   */
+  public boolean putIfCurrent(DbCacheEntry entry, IRowMeta fields, int generationAtQuery) {
+    if (!active || entry == null || fields == null) {
+      return false;
+    }
+
+    synchronized (lock) {
+      if (generation.get() != generationAtQuery) {
+        return false;
+      }
+      cache.put(entry, fields.clone());
+      return true;
+    }
   }
 
   /**
@@ -81,21 +112,25 @@ public class DbCache {
    *     to clear it all.
    */
   public void clear(String dbname) {
-    if (dbname == null) {
-      cache = new Hashtable<>();
-    } else {
-      Enumeration<DbCacheEntry> keys = cache.keys();
-      while (keys.hasMoreElements()) {
-        DbCacheEntry entry = keys.nextElement();
-        if (entry.sameDB(dbname)) {
-          // Same name: remove it!
-          cache.remove(entry);
+    synchronized (lock) {
+      if (dbname == null) {
+        cache = new Hashtable<>();
+      } else {
+        Enumeration<DbCacheEntry> keys = cache.keys();
+        while (keys.hasMoreElements()) {
+          DbCacheEntry entry = keys.nextElement();
+          if (entry.sameDB(dbname)) {
+            // Same name: remove it!
+            cache.remove(entry);
+          }
         }
       }
+      // Only bump the generation once the entries are gone. A reader which sees the new generation
+      // and re-derives its row metadata must not be able to pick up the entries we are removing.
+      // putIfCurrent holds the same lock, so a query that started before this clear cannot store
+      // its row after the generation moves.
+      generation.incrementAndGet();
     }
-    // Only bump the generation once the entries are gone. A reader which sees the new generation
-    // and re-derives its row metadata must not be able to pick up the entries we are removing.
-    generation.incrementAndGet();
   }
 
   /**
