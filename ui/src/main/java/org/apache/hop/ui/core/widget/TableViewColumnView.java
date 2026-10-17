@@ -21,17 +21,26 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-/** A named, reusable subset and order of {@link TableView} columns. */
+/**
+ * A named, reusable subset and order of {@link TableView} columns, with optional column filters.
+ */
 @Getter
 @Setter
 public class TableViewColumnView {
   private String name;
   private List<String> columnNames = new ArrayList<>();
+  private List<TableViewColumnFilter> filters = new ArrayList<>();
 
   public TableViewColumnView() {}
 
   public TableViewColumnView(String name, List<String> columnNames) {
     this.name = name;
     this.columnNames = columnNames != null ? new ArrayList<>(columnNames) : new ArrayList<>();
+  }
+
+  public TableViewColumnView(
+      String name, List<String> columnNames, List<TableViewColumnFilter> filters) {
+    this(name, columnNames);
+    this.filters = filters != null ? new ArrayList<>(filters) : new ArrayList<>();
   }
 }
