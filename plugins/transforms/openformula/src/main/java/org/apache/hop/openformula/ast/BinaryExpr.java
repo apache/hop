@@ -18,8 +18,8 @@
 package org.apache.hop.openformula.ast;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
+import java.util.TimeZone;
 import org.apache.hop.openformula.EvaluationException;
 import org.apache.hop.openformula.FormulaContext;
 import org.apache.hop.openformula.typing.ArrayCallback;
@@ -87,21 +87,14 @@ public record BinaryExpr(Operator op, Expression left, Expression right) impleme
   private TypedValue evaluateAdd(TypedValue l, TypedValue r, FormulaContext context)
       throws EvaluationException {
     TypeRegistry registry = context.getTypeRegistry();
+    TimeZone timeZone = context.getTimeZone();
     if (l.value() instanceof Date ld && !(r.value() instanceof Date)) {
       BigDecimal days = registry.convertToNumber(r.type(), r.value());
-      long millis =
-          days.multiply(BigDecimal.valueOf(DateUtil.MILLIS_PER_DAY))
-              .setScale(0, RoundingMode.HALF_UP)
-              .longValue();
-      return TypedValue.ofDate(new Date(ld.getTime() + millis));
+      return TypedValue.ofDate(DateUtil.addDays(ld, days, timeZone));
     }
     if (r.value() instanceof Date rd && !(l.value() instanceof Date)) {
       BigDecimal days = registry.convertToNumber(l.type(), l.value());
-      long millis =
-          days.multiply(BigDecimal.valueOf(DateUtil.MILLIS_PER_DAY))
-              .setScale(0, RoundingMode.HALF_UP)
-              .longValue();
-      return TypedValue.ofDate(new Date(rd.getTime() + millis));
+      return TypedValue.ofDate(DateUtil.addDays(rd, days, timeZone));
     }
     BigDecimal n1 = registry.convertToNumber(l.type(), l.value());
     BigDecimal n2 = registry.convertToNumber(r.type(), r.value());
@@ -111,23 +104,13 @@ public record BinaryExpr(Operator op, Expression left, Expression right) impleme
   private TypedValue evaluateSubtract(TypedValue l, TypedValue r, FormulaContext context)
       throws EvaluationException {
     TypeRegistry registry = context.getTypeRegistry();
+    TimeZone timeZone = context.getTimeZone();
     if (l.value() instanceof Date ld && r.value() instanceof Date rd) {
-      long diffMillis = ld.getTime() - rd.getTime();
-      BigDecimal diffDays =
-          BigDecimal.valueOf(diffMillis)
-              .divide(
-                  BigDecimal.valueOf(DateUtil.MILLIS_PER_DAY),
-                  NumberUtil.GLOBAL_SCALE,
-                  RoundingMode.HALF_UP);
-      return TypedValue.ofNumber(NumberUtil.normalize(diffDays));
+      return TypedValue.ofNumber(NumberUtil.normalize(DateUtil.daysBetween(ld, rd, timeZone)));
     }
     if (l.value() instanceof Date ld && !(r.value() instanceof Date)) {
       BigDecimal days = registry.convertToNumber(r.type(), r.value());
-      long millis =
-          days.multiply(BigDecimal.valueOf(DateUtil.MILLIS_PER_DAY))
-              .setScale(0, RoundingMode.HALF_UP)
-              .longValue();
-      return TypedValue.ofDate(new Date(ld.getTime() - millis));
+      return TypedValue.ofDate(DateUtil.addDays(ld, days.negate(), timeZone));
     }
     BigDecimal n1 = registry.convertToNumber(l.type(), l.value());
     BigDecimal n2 = registry.convertToNumber(r.type(), r.value());

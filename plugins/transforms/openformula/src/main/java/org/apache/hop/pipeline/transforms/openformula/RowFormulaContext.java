@@ -138,10 +138,10 @@ public class RowFormulaContext implements FormulaContext {
       case IValueMeta.TYPE_BIGNUMBER -> valueMeta.getBigNumber(valueData);
       case IValueMeta.TYPE_BINARY -> valueMeta.getBinary(valueData);
       case IValueMeta.TYPE_BOOLEAN -> valueMeta.getBoolean(valueData);
-      case IValueMeta.TYPE_DATE -> valueMeta.getDate(valueData);
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> valueMeta.getDate(valueData);
       case IValueMeta.TYPE_INTEGER -> valueMeta.getInteger(valueData);
       case IValueMeta.TYPE_NUMBER -> valueMeta.getNumber(valueData);
-      case IValueMeta.TYPE_STRING, IValueMeta.TYPE_TIMESTAMP -> valueMeta.getString(valueData);
+      case IValueMeta.TYPE_STRING -> valueMeta.getString(valueData);
       default -> null;
     };
   }
@@ -151,7 +151,7 @@ public class RowFormulaContext implements FormulaContext {
       case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.class;
       case IValueMeta.TYPE_BINARY -> byte[].class;
       case IValueMeta.TYPE_BOOLEAN -> Boolean.class;
-      case IValueMeta.TYPE_DATE -> Date.class;
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> Date.class;
       case IValueMeta.TYPE_INTEGER -> Long.class;
       case IValueMeta.TYPE_NUMBER -> Double.class;
       case IValueMeta.TYPE_STRING -> String.class;

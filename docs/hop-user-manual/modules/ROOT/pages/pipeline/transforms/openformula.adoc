@@ -82,6 +82,8 @@ The dialog lists the functions the engine knows. Double-click a formula cell to 
 
 `DATE` with a year below 1900 adds 1900, which is the Kettle/PDI rule. `DATE(50;1;1)` is 1950-01-01.
 
+`DAYS` follows the Kettle/PDI argument order. `DAYS(DATE(2020;1;15);DATE(2020;1;10))` is -5, the second date minus the first.
+
 `HASCHANGED` does not observe previous-row changes in this version. It returns false.
 
 Import of a Kettle/PDI Formula step produces an OpenFormula transform and keeps the `;` separators. An existing Hop pipeline that uses the Formula transform is left as it is. Recreate an expression on OpenFormula when you want the Kettle/PDI dialect. The two dialects are not rewritten into each other.

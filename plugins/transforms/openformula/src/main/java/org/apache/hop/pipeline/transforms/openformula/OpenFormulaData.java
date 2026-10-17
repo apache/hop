@@ -40,6 +40,10 @@ public class OpenFormulaData extends BaseTransformData implements ITransformData
   public Formula[] formulas;
   public IRowMeta outputRowMeta;
   public int[] returnType;
+
+  /** Per copy. Metadata is shared, and two copies can see different result classes. */
+  public boolean[] needDataConversion;
+
   public int[] replaceIndex;
 
   public Formula createFormula(String formulaText) throws EvaluationException, ParseException {
