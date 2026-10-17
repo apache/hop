@@ -91,8 +91,8 @@ jobs:
 
       # Antora turns a page's :description: into its meta description, the
       # summary search engines and the site search show. Every published page
-      # needs one. Files under pages/snippets are only included by other pages,
-      # so they don't.
+      # needs one, and an empty :description: line counts as none. Files under
+      # pages/snippets are only included by other pages, so they don't.
       #
       # A page without one doesn't stop the job: it is written to checks.log in
       # the format of Antora's JSON log, so "Report problems" lists it in the PR
@@ -103,10 +103,10 @@ jobs:
         run: |
           touch "$RUNNER_TEMP/checks.log"
           find docs -path '*/modules/ROOT/pages/*' -name '*.adoc' -not -path '*/pages/snippets/*' \
-              -exec grep -L '^:description:' {} + | sort | while read -r file; do
+              -exec grep -L '^:description:[[:space:]]*[^[:space:]]' {} + | sort | while read -r file; do
             printf '{"level":"error","title":"Page description","file":{"path":"%s","line":1},"msg":"%s"}\n' \
               "$PWD/$file" \
-              "Page without a description. Add a :description: line to its header with a one-sentence summary of the page."
+              "Page without a description, or with an empty one. Add a :description: line to its header with a one-sentence summary of the page."
           done >> "$RUNNER_TEMP/checks.log"
 
       - name: Check out the website build
