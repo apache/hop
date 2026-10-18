@@ -19,9 +19,10 @@ under the License.
 ----
       -aza, --azure-account=<account>
                             The account to use for the Azure VFS
-      -azi, --azure-block-increment=<blockIncrement>
-                            The block increment size for new files on Azure,
-                              multiples of 512 only.
+      -aze, --azure-emulator=<emulatorUrl>
+                            The URL of an Azure emulator (Azurite) to be used
+                              for test and development goals instead of
+                              official Azure services
       -azk, --azure-key=<key>
                             The key to use for the Azure VFS
 ----

@@ -19,4 +19,7 @@ under the License.
 ----
       -gck, --google-cloud-service-account-key-file=<serviceAccountKeyFile>
                             Configure the path to a Google Cloud service account JSON key file
+      -gcrbs, --google-cloud-read-block-size=<readBlockSize>
+                            Configure the bytes per request when reading a file
+                              in blocks, like 8MB
 ----
