@@ -52,6 +52,8 @@ Choose the logging level as described below.
 |Row Level|Logging at row level.
 |===
 
+If the pipeline has parameters, give them a value on the *Parameters* tab of this dialog, or leave the value empty to use the default value. See xref:variables/parameters.adoc#_from_hop_gui[Working with parameters].
+
 Make sure your configuration is selected and hit 'Launch'.
 
 When a pipeline has run successfully, a check mark is displayed in the upper right corner of each transform. With more than one copy, that check is shown only when every copy of the transform has finished. Until then the corner shows how many copies are done. See xref:pipeline/specify-copies.adoc#finished-copies[Specify copies].

@@ -465,6 +465,7 @@ under the License.
 //::=END AUTO GENERATED LINKS ACTIONS
 * xref:fields-parameters-variables.adoc[Fields, parameters, and variables]
 * xref:variables.adoc[Variables]
+** xref:variables/parameters.adoc[Working with parameters]
 ** xref:variables/parameter-passing.adoc[Passing parameters to a child]
 * xref:vfs.adoc[Virtual File System]
 ** xref:vfs/aws-s3-vfs.adoc[Amazon Web Services S3]

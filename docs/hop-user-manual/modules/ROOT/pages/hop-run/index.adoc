@@ -139,7 +139,7 @@ Not needed when `-e` is set.
 
 |```-p```
 |```--parameters```
-|A comma separated list of PARAMETER=VALUE pairs
+|A comma separated list of PARAMETER=VALUE pairs. See xref:variables/parameters.adoc#_from_hop_run[Working with parameters] for which value a parameter gets.
 
 |```-ps```
 |```--parameters-separator```

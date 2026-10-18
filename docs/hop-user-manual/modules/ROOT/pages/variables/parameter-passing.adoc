@@ -231,5 +231,6 @@ Naming a column that is not present in the incoming row does not yield an empty 
 
 == See also
 
+* xref:variables/parameters.adoc[Working with parameters] - declare a parameter and give it a value
 * xref:variables.adoc[Variables] - syntax, hierarchy, resolvers, built-in names
 * xref:fields-parameters-variables.adoc[Fields, parameters, and variables] - how the three concepts differ
