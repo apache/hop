@@ -194,6 +194,10 @@ Run `hop-conf.sh -h` for the complete list of your installation.
 |`-sj`|`--standard-projects-folder=<standardProjectsFolder>`|The folder proposed when creating a project.
 |`-dc`|`--default-projects-folder=<defaultProjectConfigFile>`|The configuration filename for new projects.
 
+3+|*Beam and Spark*, when the Beam plugin is installed
+|`-fj`|`--generate-fat-jar=<fatJarFilename>`|Generate a fat jar with the given filename from your current Hop installation, for the Beam and Spark engines.
+|`-scv`|`--spark-client-version=<sparkClientVersion>`|The Spark client pack to embed in the fat jar: a version (folder `lib/spark-clients/<version>`), `native` or `native-provided`. When omitted, `HOP_SPARK_CLIENT_VERSION` or the default pack in `lib/spark-client` is used.
+
 3+|*Graph database connections*
 ||`--graph-connection-test=<name>`|Test the graph database connection or Neo4j connection with the given name. See <<_graph_database_connections>>.
 ||`--graph-connection-info=<name>`|Print the graph database type and capabilities of a connection as JSON.

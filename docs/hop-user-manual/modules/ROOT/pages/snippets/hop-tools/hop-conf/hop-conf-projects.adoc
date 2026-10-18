@@ -25,8 +25,11 @@ Its settings and variables are stored in `project-config.json`, in the home fold
 
 === Create a project
 
+The home folder has to exist: when it doesn't, hop-conf stops with an error that the home folder does not exist.
+
 [source,bash]
 ----
+mkdir -p /data/projects/sales
 ./hop-conf.sh --project-create --project=sales --project-home=/data/projects/sales
 ----
 
