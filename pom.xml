@@ -97,7 +97,10 @@
     </distributionManagement>
 
     <properties>
+        <!-- One version of each library in the client assembly. hop-libs uses the same properties. -->
+        <animal-sniffer-annotations.version>1.27</animal-sniffer-annotations.version>
         <apache-beam.version>2.74.0</apache-beam.version>
+        <api-common.version>2.62.0</api-common.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
@@ -106,6 +109,7 @@
         <byte-buddy.version>1.18.11</byte-buddy.version>
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
+        <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <!-- Build the upstreams of every impacted module, not only of the directly changed
              ones. With the default (changed), a REST change selects hop-tech-opensearch as
@@ -132,9 +136,11 @@
         <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
+        <google-auth.version>1.46.0</google-auth.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
+        <icu4j.version>78.3</icu4j.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jandex.version>3.6.0</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
@@ -142,6 +148,7 @@
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
         <json-path.version>2.10.0</json-path.version>
         <junit.version>6.1.3</junit.version>
+        <libphonenumber.version>9.0.40</libphonenumber.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
         <license.inceptionYear>2020</license.inceptionYear>
@@ -191,24 +198,17 @@
         <project.build.outputTimestamp>1786535563</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <proto-google-common-protos.version>2.70.0</proto-google-common-protos.version>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
         <sonar.exclusions>integration-tests/ssh/keys/**</sonar.exclusions>
         <spotless.skip>false</spotless.skip>
+        <stax2-api.version>4.3.0</stax2-api.version>
         <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
         <tm4e.core.version>0.17.2</tm4e.core.version>
         <ui.test.argLine></ui.test.argLine>
-        <!-- One version of each library in the client assembly. hop-libs uses the same properties. -->
-        <animal-sniffer-annotations.version>1.27</animal-sniffer-annotations.version>
-        <api-common.version>2.62.0</api-common.version>
-        <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
-        <google-auth.version>1.46.0</google-auth.version>
-        <icu4j.version>78.3</icu4j.version>
-        <libphonenumber.version>9.0.40</libphonenumber.version>
-        <proto-google-common-protos.version>2.70.0</proto-google-common-protos.version>
-        <stax2-api.version>4.3.0</stax2-api.version>
     </properties>
 
     <!--
