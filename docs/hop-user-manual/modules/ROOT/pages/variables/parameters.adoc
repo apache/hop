@@ -80,9 +80,11 @@ Wrap a value that contains a comma in double quotes, and the whole option in sin
 
 `hop-run` gives every parameter the first value it finds:
 
-. The value passed with `-p`. An empty value, like `-p INPUT_FILE=`, counts as no value.
+. The value passed with `-p`.
 . The value of a variable with the same name, for example a project or environment variable, or a system property passed with `-s`.
 . The default value.
+
+An empty value, like `-p INPUT_FILE=`, gives the parameter its default value, even when a variable with the same name exists.
 
 A name passed with `-p` that the pipeline or workflow doesn't declare is set as a variable.
 
