@@ -94,7 +94,6 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.lib.UserConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -1497,7 +1496,7 @@ public class UIGit extends VCS {
         Map<String, int[][]> conflicts = result.getConflicts();
         for (String path : conflicts.keySet()) {
           checkout(path, Constants.HEAD, CONST_OURS);
-          checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), CONST_THEIRS);
+          checkout(path, obj.getName(), CONST_THEIRS);
         }
       }
 
@@ -1792,8 +1791,7 @@ public class UIGit extends VCS {
       e1.printStackTrace();
     }
     try (RevWalk rw = new RevWalk(git.getRepository())) {
-      RevObject obj = rw.parseAny(id);
-      return (RevCommit) obj;
+      return rw.parseCommit(id);
     } catch (IOException e) {
       e.printStackTrace();
     }
