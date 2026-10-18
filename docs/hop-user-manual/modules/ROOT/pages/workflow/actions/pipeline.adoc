@@ -62,9 +62,8 @@ Select the desired run configuration to control where and how the pipeline is ex
 |Execute for every result row|Runs the pipeline once for every result row from a previous pipeline (or workflow) in the current workflow.
 |Clear results rows before execution|Makes sure the results rows are cleared before the pipeline starts.
 |Clear results files before execution|Makes sure the results files are cleared before the pipeline starts.
-|Wait for remote pipeline to finish|If you selected Server as your environment type, choose this option to block the workflow until the pipeline runs on the server.
+|Wait for the pipeline to complete|Blocks the workflow until the pipeline has finished, so this action returns the result of the pipeline. Enabled by default.
 |Stop after (milliseconds)|Maximum time to wait for the pipeline to complete. Empty or 0 means wait indefinitely. When the time is reached the pipeline is stopped and this action fails. Only used when wait-to-finish is enabled. The value may contain a variable.
-|Follow local abort to remote pipeline|If you selected Server as your environment type, choose this option to send the local abort signal remotely.
 |===
 
 === Logging tab
@@ -105,7 +104,7 @@ A value you fill in here overrides the sub-pipeline's own default for this execu
 Use Set variables if you want to pass a single value upstream from a pipeline to the workflow and act upon that variable. In this case, you can choose a scope of “valid in the parent workflow”.
 
 
-[options="header", width="90%", cols-"1,3]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 |Copy results to parameters|Copies the results from a previous pipeline as parameters of the pipeline using the Copy rows to result transform.
@@ -119,3 +118,19 @@ Use Set variables if you want to pass a single value upstream from a pipeline to
 
 |Get Parameters|Get the existing parameters already associated by the pipeline.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The pipeline ran without errors. With *Execute for every result row*, every run did.
+|False|The pipeline could not be loaded or started, the log file of *Specify logfile* could not be created, one of its transforms had an error, or *Stop after (milliseconds)* was reached. The number of errors comes from the pipeline. With *Execute for every result row*, the first run that fails ends the loop: the remaining rows are not processed.
+|Result files|The files the pipeline added to the result are added to the files the action received, plus the log file with *Specify logfile*. *Clear results files before execution* empties the list before every run, so with *Execute for every result row* only the files of the last run are kept.
+|Result rows|When the pipeline contains a xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result] transform, its rows replace the rows the action received, even when it copies none. Otherwise the rows are passed on unchanged. *Clear results rows before execution* empties the list first. With *Execute for every result row*, every run receives only its own row, and the action passes on what the last run left: the rows it copied, or else the last row the action received.
+|Metrics|The line counts and the number of errors of the pipeline. With *Execute for every result row*, those of the last run.
+|===
+
+Without *Wait for the pipeline to complete*, the result is true as soon as the pipeline starts, and the files, rows and metrics of the pipeline are not passed on.

@@ -107,7 +107,7 @@ Note: The support of this flag is depending on the mail server.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Attach files to message?|Enable to attach a file to your email message
+|Attach file(s) to message|Enable to attach a file to your email message
 |Select file type a|The files to send are defined within the internal files result set.
 Every file in this list is marked with a file type and you can select what type of file you want to send (see also the tips at the end of this document):
 
@@ -125,6 +125,21 @@ Note: This works only when Use HTML format is defined in the EMail Message tab.
 |Image|The full path to image (used when embedding multiple images) Click Edit to edit the path; click Delete to delete the path to the image
 |Content ID|The image content ID (used when embedding multiple images) Click Edit to edit the content ID; click Delete to delete the Content ID
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The message was sent and no error was counted.
+|False|The message could not be sent, for example because no server is set, the connection or the login failed, or an address is invalid. It is also false when an error was counted while preparing the attachments, even though the message is sent: with *Zip files to single archive*, a zip that can't be created is left out and the message goes out without it. The number of errors is 1.
+|Result files|Passed on unchanged. With *Attach file(s) to message*, the result files of the selected types are attached to the message. A result file that no longer exists is skipped without an error, unless *Zip files to single archive* is enabled.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: When the selected xref:metadata-types/mail-server-connection.adoc[Mail server connection] doesn't exist, the action doesn't return false: the workflow stops with an error, and no hop is followed.
 
 == Tips
 

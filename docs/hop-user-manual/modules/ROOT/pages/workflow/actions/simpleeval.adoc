@@ -68,6 +68,21 @@ Evaluation type:
 |Value|The value to compare.
 |===
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The condition under *Success On* is met. With *Success when source variable set*, the variable is set.
+|False|The condition is not met, and the number of errors is 0. When the value can't be evaluated, the number of errors is 1: there are no result rows, the field doesn't exist, the *Variable name* field is empty, or the value or the value to compare is not a valid number or date.
+|Result files|Passed on unchanged. With *Number of result files*, the action evaluates how many files it received.
+|Result rows|Passed on unchanged. With *Field from previous result*, the action evaluates the field in the first result row.
+|===
+
+NOTE: An invalid regular expression with *If value valid regex* doesn't return false: the workflow stops with an error, and no hop is followed.
+
 == Tips
 
 **Evaluating a variable**
