@@ -151,6 +151,13 @@ public class GitGuiPlugin
   /** Set while the UI event that opened the repository is still running, see below. */
   private boolean statusCurrentForThisEvent;
 
+  /**
+   * The project folder relative to the work tree when the repository was found in a parent folder,
+   * null when the project is the whole repository. The explorer only shows the project folder, so
+   * its status is limited to it.
+   */
+  private String statusPath;
+
   private static GitGuiPlugin fallback;
 
   public static GitGuiPlugin getInstance() {
@@ -982,6 +989,7 @@ public class GitGuiPlugin
       }
       git = null;
     }
+    statusPath = null;
     setBranchLabel(null);
 
     if (config.isEnabled()) {
@@ -989,7 +997,9 @@ public class GitGuiPlugin
         if (folder != null) {
           git = new UIGit();
           git.openRepo(HopVfs.getFilename(folder));
-          if (isIgnoredByRepository(rootFolder)) {
+          String projectPath =
+              relativeToRepository(HopVfs.getFilename(HopVfs.getFileObject(rootFolder)));
+          if (!Utils.isEmpty(projectPath) && git.isIgnored(projectPath)) {
             // A project in the build output of another repository, for example: every file in it
             // is ignored, and each status of that repository costs seconds.
             LogChannel.UI.logBasic(
@@ -997,6 +1007,9 @@ public class GitGuiPlugin
             git.closeRepo();
             git = null;
           } else {
+            // A project in a sub folder of the repository, like the integration test projects of
+            // Apache Hop: a status of that folder takes milliseconds, of the repository seconds.
+            statusPath = Utils.isEmpty(projectPath) ? null : projectPath;
             setBranchLabel(git.getBranch());
           }
         }
@@ -1011,15 +1024,18 @@ public class GitGuiPlugin
     registerAsGuiPluginObjects();
     enableButtons();
 
-    // Refresh Git perspectives when a project is activated
+    // Refresh the Git perspectives that are showing. The others refresh when they are activated:
+    // they need a status of the whole repository, which a project in a sub folder doesn't.
     GitPerspective gitPerspective = GitPerspective.getInstance();
-    if (gitPerspective != null && gitPerspective.isInitialized()) {
+    if (gitPerspective != null && gitPerspective.isActive()) {
       gitPerspective.refresh(false);
     }
     GitCommitPerspective gitCommitPerspective = GitCommitPerspective.getInstance();
     if (gitCommitPerspective != null && gitCommitPerspective.isInitialized()) {
       gitCommitPerspective.retrieveState();
-      gitCommitPerspective.refresh();
+      if (gitCommitPerspective.isActive()) {
+        gitCommitPerspective.refresh();
+      }
     }
   }
 
@@ -1093,7 +1109,10 @@ public class GitGuiPlugin
     readChangedFiles();
   }
 
-  /** Read the staged, unstaged and ignored files of the whole repository with one git status. */
+  /**
+   * Read the staged, unstaged and ignored files of the project folder with one git status. That is
+   * the whole repository unless the repository was found in a parent folder.
+   */
   private void readChangedFiles() {
     long startTime = System.currentTimeMillis();
     String stamp = git != null ? git.getStateStamp() : null;
@@ -1101,7 +1120,7 @@ public class GitGuiPlugin
     Map<String, String> newIgnoredFiles = new HashMap<>();
 
     if (git != null) {
-      UIGit.FileStatus status = git.getFileStatus(null);
+      UIGit.FileStatus status = git.getFileStatus(statusPath);
       addFileStatus(status, newChangedFiles, newIgnoredFiles);
       setBranchLabel(git.getBranch());
     }
@@ -1110,6 +1129,21 @@ public class GitGuiPlugin
     lastStatusTime = startTime;
     lastStatusStamp = stamp;
     fileStatusTimes.clear();
+  }
+
+  /**
+   * The staged and unstaged files of the whole repository, which is what a commit works with. When
+   * the repository was found in a parent folder {@code getChangedFiles()} only holds the files of
+   * the project folder, and this costs a status of the whole repository.
+   */
+  public Map<String, UIFile> getRepositoryChangedFiles() {
+    refreshChangedFiles();
+    if (git == null || statusPath == null) {
+      return changedFiles;
+    }
+    Map<String, UIFile> files = new HashMap<>();
+    addFileStatus(git.getFileStatus(null), files, new HashMap<>());
+    return files;
   }
 
   private void addFileStatus(
@@ -1137,13 +1171,6 @@ public class GitGuiPlugin
     }
     statusCurrentForThisEvent = true;
     display.asyncExec(() -> statusCurrentForThisEvent = false);
-  }
-
-  /** Whether the repository that was found in a parent folder ignores the root folder. */
-  private boolean isIgnoredByRepository(String rootFolder) throws HopFileException {
-    String relativePath =
-        relativeToRepository(HopVfs.getFilename(HopVfs.getFileObject(rootFolder)));
-    return relativePath != null && !relativePath.isEmpty() && git.isIgnored(relativePath);
   }
 
   /** The path of a file relative to the work tree, null when it is outside the repository. */
@@ -1216,6 +1243,14 @@ public class GitGuiPlugin
   @VisibleForTesting
   void setGit(UIGit git) {
     this.git = git;
+  }
+
+  /** The repository of a project in the root folder, which can be a sub folder of it. */
+  @VisibleForTesting
+  void setGit(UIGit git, String rootFolder) {
+    this.git = git;
+    String projectPath = relativeToRepository(rootFolder);
+    statusPath = Utils.isEmpty(projectPath) ? null : projectPath;
   }
 
   /** The modification time of a file, 0 when it can't be read, for example a deleted file. */

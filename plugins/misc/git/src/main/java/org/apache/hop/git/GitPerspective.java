@@ -22,7 +22,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.apache.hop.core.Const;
@@ -223,6 +222,9 @@ public class GitPerspective implements IHopPerspective {
   private boolean enableAntialias = true;
   private boolean showAllRef = true;
   private Timer fetchAutomaticTimer;
+
+  /** The uncommitted changes in the repository, counted on refresh and not on every search. */
+  private int uncommittedChanges;
 
   public GitPerspective() {
     if (HopGui.peekInstance() == null) {
@@ -2126,6 +2128,7 @@ public class GitPerspective implements IHopPerspective {
         }
       }
 
+      uncommittedChanges = GitGuiPlugin.getInstance().getRepositoryChangedFiles().size();
       refreshRef(uiGit.getGit());
       refreshHistory(Constants.HEAD);
       updateGui();
@@ -2302,13 +2305,12 @@ public class GitPerspective implements IHopPerspective {
           wHistoryTable.removeAll();
 
           // Check if there are changes in the working directory
-          Map<String, UIFile> filesToCommit = GitGuiPlugin.getInstance().getChangedFiles();
-          if (filesToCommit != null && !filesToCommit.isEmpty()) {
+          if (uncommittedChanges > 0) {
             TableItem item = new TableItem(wHistoryTable, SWT.NONE);
             item.setText(
                 1,
                 BaseMessages.getString(
-                    PKG, "GitPerspective.History.UncommittedChanges.Label", filesToCommit.size()));
+                    PKG, "GitPerspective.History.UncommittedChanges.Label", uncommittedChanges));
             item.setForeground(GuiResource.getInstance().getColorGray());
           }
 

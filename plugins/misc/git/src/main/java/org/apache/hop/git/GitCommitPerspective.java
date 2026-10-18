@@ -1184,9 +1184,8 @@ public class GitCommitPerspective implements IHopPerspective {
         unstagedRootItem = createRootItem(UNSTAGED_LABEL);
         untrackedRootItem = createRootItem(UNTRACKED_LABEL);
 
-        // Reload changes files
-        GitGuiPlugin.getInstance().refreshChangedFiles();
-        Map<String, UIFile> filesToCommit = GitGuiPlugin.getInstance().getChangedFiles();
+        // Reload changes files, of the whole repository: not only of the project folder
+        Map<String, UIFile> filesToCommit = GitGuiPlugin.getInstance().getRepositoryChangedFiles();
 
         GitResource resource = GitResource.getInstance();
         for (String fileName : filesToCommit.keySet()) {

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -30,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
@@ -153,5 +155,41 @@ class GitGuiPluginFileStatusTest {
     Files.writeString(other, "<pipeline/>", StandardCharsets.UTF_8);
 
     assertFalse(plugin.refreshFileStatus(other.toString()));
+  }
+
+  /**
+   * A project in a sub folder of the repository, like the integration test projects of Apache Hop:
+   * the explorer only needs the status of the project folder, a commit that of the repository.
+   */
+  @Test
+  void aProjectInASubFolderOnlyReadsTheStatusOfThatFolder() throws Exception {
+    Path project = Files.createDirectories(repositoryFolder.resolve("project"));
+    String inProject = project.resolve("in-project.hpl").toString();
+    Files.writeString(Path.of(inProject), "<pipeline/>", StandardCharsets.UTF_8);
+    Files.writeString(pipeline, "<pipeline><info/></pipeline>", StandardCharsets.UTF_8);
+
+    plugin.setGit(uiGit, project.toString());
+    plugin.refreshChangedFiles();
+
+    assertNotNull(plugin.getChangedFiles().get(inProject));
+    assertNull(plugin.getChangedFiles().get(filename));
+
+    Map<String, UIFile> repositoryFiles = plugin.getRepositoryChangedFiles();
+    assertNotNull(repositoryFiles.get(inProject));
+    assertNotNull(repositoryFiles.get(filename));
+    assertNull(plugin.getChangedFiles().get(filename));
+  }
+
+  @Test
+  void aProjectInTheRootOfTheRepositoryReadsTheWholeRepository() throws Exception {
+    Files.writeString(pipeline, "<pipeline><info/></pipeline>", StandardCharsets.UTF_8);
+
+    plugin.setGit(uiGit, repositoryFolder.toString());
+    plugin.refreshChangedFiles();
+
+    assertNotNull(plugin.getChangedFiles().get(filename));
+    // No second status: what the explorer has covers the whole repository already
+    Map<String, UIFile> repositoryFiles = plugin.getRepositoryChangedFiles();
+    assertSame(plugin.getChangedFiles(), repositoryFiles);
   }
 }
