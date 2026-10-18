@@ -65,6 +65,19 @@ If you choose an option other than <Static> in the Destination Environment field
 |Add files to result files name|Any files that are copied will appear as a result from this action; shows a list of files that were copied in this action|unchecked
 |===
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every source and destination pair was processed. A file that can't be copied inside a folder is only logged: the action is still true, with 0 errors.
+|False|At least one pair failed, for example because the source doesn't exist or the destination folder can't be found. The number of errors is the number of pairs that failed.
+|Result files|With *Add files to result files name*, the files copied to a file (*Destination is a file*) and the files copied from a folder are added. A single file copied into a folder is not added, and neither are folders. The files the action received are passed on.
+|Result rows|Passed on unchanged. With *Copy previous results to arguments*, the action takes its pairs from the result rows instead of the Files tab: the source in the first field, the destination in the second and the wildcard in the third.
+|===
+
 // == Open File
 //
 // |===
