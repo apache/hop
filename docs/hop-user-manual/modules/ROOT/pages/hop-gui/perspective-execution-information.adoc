@@ -16,7 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
-:description: An Apache Hop Execution Data Profile builds data profiles as data flows through pipelines.
+:description: The Execution Information perspective shows the executions of workflows and pipelines that ran before, and lets you drill down into their details.
 
 = Execution Information Perspective
 

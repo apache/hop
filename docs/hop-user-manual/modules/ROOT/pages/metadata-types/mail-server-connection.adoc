@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :page-pagination:
-:description:
+:description: A Mail server connection describes how Apache Hop connects to a mail server, so actions like Mail can reuse it.
 
 = Mail server connection
 
