@@ -60,6 +60,10 @@ The plugin classloader would find the parent's copy anyway, so the second copy i
 At worst the two versions differ and behaviour depends on which classloader asked.
 `tools/find_duplicate_jars.sh` finds these.
 
+`tools/check-assembly-jar-versions.py` reads the client assembly zip and reports a library that landed in more than one version.
+Two versions in `lib/core` share a classloader, so which one loads depends on classpath order.
+A plugin that ships a different version loads that copy for itself, because the plugin classloader looks at its own jars first, while the rest of Hop still sees `lib/core`.
+
 Plugins that must see each other's classes share a `classLoaderGroup`::
 A database dialect and its bulk loader, a VFS provider and its metadata type, an SFTP connection and the actions using it.
 Without it, an object created by one classloader will not cast to the class the other one knows — the failure looks like an impossible `ClassCastException` between two identically named classes.
