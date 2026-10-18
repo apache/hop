@@ -15,93 +15,112 @@ specific language governing permissions and limitations
 under the License.
 ////
 
+The examples use `hop-conf.sh` on Linux and macOS.
+On Windows, run `hop-conf.bat` with the same options, and put a command on a single line or end its lines with `^` instead of `\`.
 
-=== Configuration on the command line
+== Projects
 
-The ```hop-conf``` script offers many options to edit environment definitions.
+A project is registered in `hop-config.json` with its name and its home folder.
+Its settings and variables are stored in `project-config.json`, in the home folder.
 
+=== Create a project
 
-==== Creating an environment
+The home folder has to exist: when it doesn't, hop-conf stops with an error that the home folder does not exist.
 
-[tabs]
-====
-Windows::
-+
---
 [source,bash]
 ----
-hop-conf.bat --environment-create \
-             --environment hop2 \
-             --environment-project hop2
-             --environment-purpose=Development \
-             --environment-config-files="C:\<YOUR_ENV_FILE_PATH>\env-variables.json"
+mkdir -p /data/projects/sales
+./hop-conf.sh --project-create --project=sales --project-home=/data/projects/sales
 ----
 
-Expected output:
+Output:
 
 [source,shell]
 ----
-C:\<YOUR_PATH>\hop>echo off
-===[Environment Settings - hop-conf.bat]===================================
-Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
-HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf
--DHOP_AUTO_CREATE_CONFIG=Y
-Command to start Hop will be:
-"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
--Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
--DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig  --environment-create
---environment hop2 --environment-project hop2 --environment-purpose Development
---environment-config-files "C:\<YOUR_ENV_FILE_PATH\env-variables.json"
-===[Starting HopConfig]=========================================================
-Creating environment 'hop2'
-Environment 'hop2' was created in Hop configuration file C:\<YOUR_PATH>\hop\config\hop-config.json
-Warning: referenced project 'hop2' doesn\'t exist
-Found existing environment configuration file: C:\<YOUR_ENV_FILE_PATH>\variables.json
-Purpose: Development
-Project name: hop2
-Config file: C:\<YOUR_ENV_FILE_PATH>\env-variables.json
+Creating project 'sales'
+Project 'sales' was created for home folder : /data/projects/sales
+Configuration file for project 'sales' was saved to : file:/data/projects/sales/project-config.json
 ----
---
 
-Linux, macOS::
-+
---
+You can set more at the same time, for example a parent project to inherit metadata and variables from (`--project-parent`), a description (`--project-description`) or variables (`--project-variables`, see <<hop-conf-project-variables,Project variables>>).
+
+When the home folder already has a `project-config.json`, `--project-create` updates it with the options you pass and keeps its variables.
+Add `--project-keep-config-file` to leave the file as it is.
+
+=== Modify, list and delete projects
+
+* `--project-modify` changes the options you pass, for example `./hop-conf.sh --project-modify --project=sales --project-description="Sales data warehouse"`.
+* `--projects-list` lists the projects with their home folder and configuration file.
+* `--project-delete` removes a project from `hop-config.json`, for example `./hop-conf.sh --project-delete --project=sales`. The home folder and its files are not deleted.
+
+[[hop-conf-project-variables]]
+=== Project variables
+
+`--project-variables` adds variables to the project, or changes the value of a variable that already exists.
+Variables with other names are kept.
+
 [source,bash]
 ----
-$ sh hop-conf.sh \
-     --environment-create \
-     --environment hop2 \
-     --environment-project hop2 \
+./hop-conf.sh --project-modify --project=sales --project-variables=INPUT_FOLDER=/data/in,OUTPUT_FOLDER=/data/out
+----
+
+Separate variables with commas.
+To use spaces or commas in a value, wrap the value in double quotes and keep them from the shell:
+
+[options="header", cols="3,2"]
+|===
+|Option, as typed in a shell|Variables
+|`--project-variables=key1=value1,key2=value2`|`key1` = `value1`, `key2` = `value2`
+|`--project-variables=key1="This value contains spaces",key2=value2`|`key1` = `This value contains spaces`, `key2` = `value2`
+|`--project-variables='key1="value1,value2"'`|`key1` = `value1,value2`
+|`--project-variables=key1=\"value1,value2\"`|`key1` = `value1,value2`
+|`--project-variables=key1="\"\"String with spaces\"\""`|`key1` = `"String with spaces"`
+|===
+
+== Environments
+
+An environment belongs to one project.
+It adds configuration files with variables to that project, usually one environment for every stage of its lifecycle: development, testing, production.
+The project holds the code, and the environment the configuration, such as server names and folders.
+See xref:projects/projects-environments.adoc[Projects and Environments] for how they work together.
+
+=== Create an environment
+
+[source,bash]
+----
+./hop-conf.sh --environment-create \
+     --environment=sales-dev \
+     --environment-project=sales \
      --environment-purpose=Development \
-     --environment-config-files=<YOUR_ENV_FILE_PATH>/env-variables.json
+     --environment-config-files=/data/environments/sales-dev/variables.json
 ----
 
-Expected output:
+Output, shortened:
 
 [source,shell]
 ----
-Creating environment 'hop2'
-Environment 'hop2' was created in Hop configuration file <YOUR_PATH>/hop/config/hop-config.json
-Warning: referenced project 'hop2' doesn't exist
-Found existing environment configuration file: <YOUR_ENV_FILE_PATH>/env-variables.json
-  hop2
+Creating environment 'sales-dev'
+Environment 'sales-dev' was created in Hop configuration file /opt/hop/config/hop-config.json
+Created empty environment configuration file : /data/environments/sales-dev/variables.json
+  sales-dev
     Purpose: Development
-    Project name: hop2
-      Config file: <YOUR_ENV_FILE_PATH>/env-variables.json
+    Project name: sales
+      Config file: /data/environments/sales-dev/variables.json
 ----
---
-====
 
-As you can see from the log, an empty file was created to set variables in:
+A configuration file that doesn't exist yet is created, empty.
+Before creating it, hop-conf logs an error that the file doesn't exist to read variables from.
 
 [source,json]
 ----
 { }
 ----
 
-==== Adding configuration files from a directory
+Add variables to it as described in <<hop-conf-configuration-files,Configuration files>>.
 
-`--environment-config-files` still lists files one by one.
+=== Add configuration files from a directory
+
+`--environment-config-files` lists files one by one.
 To add every matching file in a folder, pass the folder and a regular expression.
 The expression is matched against the file name, the same way as in the JSON Input and Get File Names transforms.
 `*.json` is not a valid expression; use `.*\.json`.
@@ -113,142 +132,67 @@ When either option is set, that selection replaces the environment's configurati
 
 [source,bash]
 ----
-$ sh hop-conf.sh \
-     --environment-create \
-     --environment test-file \
-     --environment-project test-file \
+./hop-conf.sh --environment-create \
+     --environment=sales-test \
+     --environment-project=sales \
      --environment-purpose=Testing \
-     --environment-config-file-directory="<YOUR_ENV_CONFIG_PATH>/config" \
+     --environment-config-file-directory="/data/environments/sales-test" \
      --environment-config-file-wildcard=".*\.json" \
      --environment-config-file-exclude-wildcard=".*secret.*" \
      --environment-config-include-subfolders
 ----
 
-==== Setting variables in an environment
+=== Modify, list and delete environments
 
-This command adds a variable to the environment configuration file:
+* `--environment-modify` changes the options you pass, for example `./hop-conf.sh --environment-modify --environment=sales-dev --environment-purpose=Testing`.
+* `--environments-list` lists the environments with their purpose, project and configuration files.
+* `--environment-delete` removes an environment from `hop-config.json`, for example `./hop-conf.sh --environment-delete --environment=sales-dev`. Its configuration files are not deleted.
 
-&nbsp; +
+[[hop-conf-configuration-files]]
+== Configuration files
 
-[tabs]
-====
-Windows::
-+
---
-[source, shell]
-----
-hop-conf.bat --config-file "C:\<YOUR_ENV_FILE_PATH>\env-variables.json" --config-file-set-variables "DB_HOSTNAME=localhost,DB_PASSWORD=abcd"
-----
+The configuration files of an environment hold its variables.
+`--config-file` selects the file, `--config-file-set-variables` sets the value of variables, and `--config-file-describe-variables` their description:
 
-Expected output:
-
-[source,shell]
-----
-C:\<YOUR_PATH\hop>echo off
-===[Environment Settings - hop-conf.bat]===================================
-Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
-HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y
-Command to start Hop will be:
-"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
--Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
--DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig
---config-file "C:\<YOUR_ENV_FILE_PATH>\env-variables.json"
---config-file-set-variables "DB_HOSTNAME=localhost,DB_PASSWORD=abcd"
-===[Starting HopConfig]=========================================================
-Configuration file 'C:\<YOUR_ENV_FILE_PATH>/env-variables.json' was modified.
-----
---
-
-Linux, macOS::
-+
---
 [source,bash]
 ----
-./hop-conf.sh --config-file <YOUR_ENV_FILE_PATH>/env-variables.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+./hop-conf.sh --config-file=/data/environments/sales-dev/variables.json \
+     --config-file-set-variables=DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+./hop-conf.sh --config-file=/data/environments/sales-dev/variables.json \
+     --config-file-describe-variables="DB_HOSTNAME=The database server"
 ----
 
-Expected output:
-
-[source,shell]
-----
-Configuration file '<YOUR_ENV_FILE_PATH>/env-variables.json' was modified.
-----
---
-====
-
-
-If you look at the file `env-variables.json`, you'll see that the variables were added:
+The file then contains:
 
 [source,json]
 ----
 {
-  "variables" : [ {
-    "name" : "DB_HOSTNAME",
-    "value" : "localhost",
-    "description" : ""
-  }, {
-    "name" : "DB_PASSWORD",
-    "value" : "abcd",
-    "description" : ""
-  } ]
+  "variables" : [
+    {
+      "name" : "DB_HOSTNAME",
+      "value" : "localhost",
+      "description" : "The database server"
+    },
+    {
+      "name" : "DB_PASSWORD",
+      "value" : "abcd",
+      "description" : ""
+    }
+  ]
 }
 ----
 
-Please note that you can add descriptions for the variables as well with the `--describe-variable` option.
-Please run hop-conf without options to see all the possibilities.
+The variables of `hop-config.json` itself, listed as *System variables* in the configuration perspective of Hop Gui, are set with `--set-variable` and described with `--describe-variable`:
 
-==== Deleting an environment
-
-The following example deletes an environment from the Hop configuration file:
-
-&nbsp; +
-
-[tabs]
-====
-Windows::
-+
---
-[source,shell]
+[source,bash]
 ----
-hop-conf.bat -ed --environment hop2
+./hop-conf.sh --set-variable=COMPANY_NAME=Acme
+./hop-conf.sh --describe-variable="COMPANY_NAME=The company name used in reports"
 ----
 
-Expected output:
+`--set-variable=MY_VARIABLE=` sets a variable to an empty value. The variable stays in the list.
 
-[source,shell]
-----
-C:\<YOUR_PATH>\hop>echo off
-===[Environment Settings - hop-conf.bat]===================================
-Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
-HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y
-Command to start Hop will be:
-"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\* -Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig  -ed --environment hop2
-===[Starting HopConfig]=========================================================
-Lifecycle environment 'hop2' was deleted from Hop configuration file C:\<YOUR_PATH>\hop\config\hop-config.json
-----
-
---
-
-Linux, macOS::
-+
---
-[source,shell]
-----
-./hop-conf.sh -ed --environment hop2
-----
-
-Expected output:
-
-[source,shell]
-----
-Lifecycle environment 'hop2' was deleted from Hop configuration file <YOUR_PATH>/hop/config/hop-config.json
-----
-
---
-====
-
-
-=== Projects Plugin configuration
+== Projects plugin configuration
 
 There are various options to configure the behavior of the ```Projects``` plugin itself.
 In Hop configuration file ```hop-config.json``` we can find the following options:
@@ -293,4 +237,3 @@ In Hop configuration file ```hop-config.json``` we can find the following option
 |```--standard-projects-folder```
 
 |===
-

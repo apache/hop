@@ -14,295 +14,22 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Hop Conf is a command line tool to manage your Hop client installation
+:description: Hop Conf is a command line tool to manage your Hop configuration: projects, environments, configuration files and the settings in hop-config.json.
 
 = Hop Conf - The Hop command line configuration tool
 
-== Usage
+Hop Conf changes the Hop configuration from the command line, so you can script what you otherwise do in Hop Gui: create projects and environments, set variables and change settings.
 
-Hop Conf is a command line tool to manage environments.
-The *hop-conf.sh* script can be run with the *-h* flag (`./hop-conf.sh -h`) to display available options.
+It writes to `hop-config.json`, in the folder of the `HOP_CONFIG_FOLDER` variable or by default in the `config` folder of your Hop installation, and to the configuration files of projects and environments.
+Run it as `hop-conf.sh`, as `hop-conf.bat` on Windows, or as `hop conf` with the xref:hop-tools/hop.adoc[hop] command.
 
-&nbsp; +
+`hop-conf.sh -h` lists all the options of your installation.
+Plugins add their own, for example for search, the File Explorer, linting, the AI Assistant or cloud storage.
+The options described on this page are listed in <<_options,Options>>.
 
-.Usage
-[%collapsible]
-=====
-[source,bash]
-----
-Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
-                    [-pn] [-py] [-aza=<account>] [-azi=<blockIncrement>]
-                    [-azk=<key>] [-cfg=<configFile>]
-                    [-dc=<defaultProjectConfigFile>] [-de=<defaultEnvironment>]
-                    [-dp=<defaultProject>] [-dv=<describeVariable>]
-                    [-e=<environmentName>] [-ep=<environmentProject>]
-                    [-eu=<environmentPurpose>] [-fj=<fatJarFilename>]
-                    [-gck=<serviceAccountKeyFile>] [-gdc=<credentialsFile>]
-                    [-gdt=<tokensFolder>] [-p=<projectName>]
-                    [-pa=<projectMetadataBaseFolder>]
-                    [-pb=<projectDataSetsCsvFolder>] [-pf=<projectConfigFile>]
-                    [-ph=<projectHome>] [-pp=<projectCompany>]
-                    [-pr=<projectParent>] [-ps=<projectDescription>]
-                    [-pt=<projectDepartment>] [-pu=<projectUnitTestsBasePath>]
-                    [-px=<projectEnforceExecutionInHome>]
-                    [-sj=<standardProjectsFolder>]
-                    [-sp=<standardParentProject>] [-sv=<setVariable>]
-                    [-xm=<metadataJsonFilename>] [-cfd=<configDescribeVariables>
-                    [,<configDescribeVariables>...]]...
-                    [-cfv=<configSetVariables>[,<configSetVariables>...]]...
-                    [-eg=<environmentConfigFiles>[,
-                    <environmentConfigFiles>...]]... [-pv=<projectVariables>[,
-                    <projectVariables>...]]...
-      -aza, --azure-account=<account>
-                            The account to use for the Azure VFS
-      -azi, --azure-block-increment=<blockIncrement>
-                            The block increment size for new files on Azure,
-                              multiples of 512 only.
-      -azk, --azure-key=<key>
-                            The key to use for the Azure VFS
-      -cfd, --config-file-describe-variables=<configDescribeVariables>[,
-        <configDescribeVariables>...]
-                            A list of variable=description combinations separated by
-                              a comma
-      -cfg, --config-file=<configFile>
-                            Specify the configuration JSON file to manage
-      -cfv, --config-file-set-variables=<configSetVariables>[,
-        <configSetVariables>...]
-                            A list of variable=value combinations separated by a
-                              comma
-      -dc, --default-projects-folder=<defaultProjectConfigFile>
-                            The standard project configuration filename proposed
-                              when creating projects
-      -de, --default-environment=<defaultEnvironment>
-                            The name of the default environment to use when none is
-                              specified
-      -dp, --default-project=<defaultProject>
-                            The name of the default project to use when none is
-                              specified
-      -dv, --describe-variable=<describeVariable>
-                            Describe a variable, use format VARIABLE=Description
-  -e, --environment=<environmentName>
-                            The name of the lifecycle environment to manage
-      -ec, --environment-create
-                            Create a new project lifecycle environment. Also specify
-                              its name, purpose, the project name and the
-                              configuration files.
-      -ed, --environment-delete
-                            Delete a lifecycle environment
-      -eg, --environment-config-files=<environmentConfigFiles>[,
-        <environmentConfigFiles>...]
-                            A list of configuration files for this lifecycle
-                              environment, comma separated
-          --environment-config-file-directory=<environmentConfigFileDirectory>
-                            Folder of configuration files for this lifecycle
-                              environment. Matching files replace the configuration
-                              file list, together with --environment-config-files
-                              when that option is also set.
-          --environment-config-file-exclude-wildcard=<environmentConfigFileExcludeWildcard>
-                            Regular expression for file names to ignore in
-                              --environment-config-file-directory. Example:
-                              .*secret.*
-          --environment-config-file-wildcard=<environmentConfigFileWildcard>
-                            Regular expression matched against file names in
-                              --environment-config-file-directory. Example:
-                              .*\.json
-          --environment-config-include-subfolders
-                            Also include matching files from subfolders of
-                              --environment-config-file-directory
-      -el, --environments-list
-                            List the defined lifecycle environments
-      -em, --environment-modify
-                            Modify a lifecycle environment
-      -ep, --environment-project=<environmentProject>
-                            The project for the environment
-      -eu, --environment-purpose=<environmentPurpose>
-                            The purpose of the environment: Development, Testing,
-                              Production, CI, ...
-      -ey, --environment-mandatory
-                            Make it mandatory to reference an environment
-      -fj, --generate-fat-jar=<fatJarFilename>
-                            Specify the filename of the fat jar to generate from
-                              your current software installation
-      -gck, --google-cloud-service-account-key-file=<serviceAccountKeyFile>
-                            Configure the path to a Google Cloud service account
-                              JSON key file
-      -gdc, --google-drive-credentials-file=<credentialsFile>
-                            Configure the path to a Google Drive credentials JSON
-                              file
-      -gdt, --google-drive-tokens-folder=<tokensFolder>
-                            Configure the path to a Google Drive tokens folder
-  -h, --help                Displays this help message and quits.
-  -p, --project=<projectName>
-                            The name of the project to manage
-      -pa, --project-metadata-base=<projectMetadataBaseFolder>
-                            The metadata base folder (relative to home)
-      -pb, --project-datasets-base=<projectDataSetsCsvFolder>
-                            The data sets CSV folder (relative to home)
-      -pc, --project-create Create a new project. Also specify the name and its home
-      -pd, --project-delete Delete a project
-      -pf, --project-config-file=<projectConfigFile>
-                            The configuration file relative to the home folder. The
-                              default value is project-config.json
-      -ph, --project-home=<projectHome>
-                            The home directory of the project
-      -pl, --projects-list   List the defined projects
-      -pla, --list-action-types-in-project
-                             List action types used in this project
-      -plm, --list-metadata-types-in-project
-                             List metadata types used in this project
-      -plt, --list-transform-types-in-project
-                             List transform types used in this project
-      -pm, --project-modify Modify a project
-      -pn, --projects-enabled
-                            Enable or disable the projects plugin
-      -pp, --project-company=<projectCompany>
-                            The company
-      -pr, --project-parent=<projectParent>
-                            The name of the parent project to inherit metadata and
-                              variables from
-      -ps, --project-description=<projectDescription>
-                            The description of the project
-      -pt, --project-department=<projectDepartment>
-                            The department
-      -pu, --project-unit-tests-base=<projectUnitTestsBasePath>
-                            The unit tests base folder (relative to home)
-      -pv, --project-variables=<projectVariables>[,<projectVariables>...]
-                            A list of variable=value combinations separated by a
-                              comma
-      -px, --project-enforce-execution=<projectEnforceExecutionInHome>
-                            Validate before execution that a workflow or pipeline is
-                              located in the project home folder or a sub-folder
-                              (true/false).
-      -py, --project-mandatory
-                            Make it mandatory to reference a project
-      -sj, --standard-projects-folder=<standardProjectsFolder>
-                            GUI: The standard projects folder proposed when creating
-                              projects
-      -sp, --standard-parent-project=<standardParentProject>
-                            The name of the standard project to use as a parent when
-                              creating new projects
-      -sv, --set-variable=<setVariable>
-                            Set a variable, use format VAR=Value
-      -xm, --export-metadata=<metadataJsonFilename>
-                            Export project metadata to a single JSON file which you
-                              can specify with this option. Also specify the -p
-                              option.
-      -v,  --version        Print version information and exit                               
-----
+== Projects and environments
 
-The available options are listed below:
-
-.Hop-conf Options
-[id="hop-conf",cols="10%, 40%,50%",options="header"]
-|===
-|Short Option|Extended Option|Description
-|-h|--help|Displays this help message and quits
-|-v|--version|Print version information and exit 
-|-ec|--environment-create|Create an environment
-Also specify the name and its home
-|-ed|--environment-delete|Delete an environment
-|-el|--environment-list|List the defined environments
-|-em|--environment-modify|Modify an environment
-|-pc|--project-create|Create a new project.
-Also specify the name and its home
-|-pd|--prject-delete|Delete a project
-|-pl|--projects-list|List the defined projects
-|-pla|--list-action-types-in-project|List action types used in this project
-|-plm|--list-metadata-types-in-project|List metadata types used in this project
-|-plt|--list-transform-types-in-project|List transform types used in this project
-|-pm|--project-modify|Modify a project
-|-dv|--describe-variable=<describeVariable>|Describe a variable
-|-e|-environment=<environmentName>|The name of the environment to manage
-|-ep|--environment-project=<environmentProject>|The project for the environment
-|-eu|--environment-purpose=<environmentPurpose>|The purpose of the environment: Development, Testing, Production, CI, ...
-|-fj|--generate-fat-jar=<fatJarFilename>|Specify the filename of the fat jar to generate from your current software installation
-|-xm|--export-metadata=<metadataJsonFilename>|Export project metadata to a single JSON file which you can specify with this option.
-Also specify the -p option to know which metadata to export.
-|-p|--project=<projectName>|The project name
-|-pa|--project-metadata-base=<projectMetadataBaseFolder>|The metadata base folder (relative to home)
-|-pb|--project-datasets-base-base=<projectDataSetsCsvFolder>|The data sets CSV folder (relative to home)
-|-pf|--project-config-file=<projectConfigFile>|The configuration file relative to the home folder.
-The default value is project-config.json
-|-ph|--project-home=<projectHome>|The home directory of the project
-|-pp|--project-company=<projectCompany>|The company
-|-ps|--project-description=<projectDescription>|The description of the project
-|-pt|--project-department=<projectDepartment>|The department
-|-pu|--project-unit-tests-base=<projectUnitTestsBasePath>|The unit tests base folder (relative to home)
-|-px|--project-enforce-execution=<projectEnforceExecutionInHome>|Validate before execution that a workflow or pipeline islocated in the project home folder or a sub-folder (true/false)
-|-sv
-| --set-variable=<setVariable>
-a| Set a variable, use format VAR=Value
-
-TIP: `-sv` can be used to unset a variable by specifying a variable without a value, e.g. `-sv=myvar=`
-
-|-cfg|--config-file=<configFile>|Specify the configuration JSON file to manage
-|-cfd|--config-file-describe-variables=<configDescribeVariables>[,<configDescribeVariables>...]|A list of variable=description combinations separated by a comma
-|-cfv|--config-file-set-variables=<configSetVariables> ,<configSetVariables>...]|A list of variable=value combinations separated by a comma
-|-eg|--environment-config-files=<environmentConfigFiles>[, <environmentConfigFiles>...]|A list of configuration files for this lifecycle environment, comma separated
-||--environment-config-file-directory=<environmentConfigFileDirectory>|Folder of configuration files. Matching files replace the configuration file list, together with --environment-config-files when that option is also set. The wildcard is a regular expression, for example `.*\.json`, not a shell glob
-||--environment-config-file-wildcard=<environmentConfigFileWildcard>|Regular expression matched against file names in --environment-config-file-directory
-||--environment-config-file-exclude-wildcard=<environmentConfigFileExcludeWildcard>|Regular expression for file names to ignore in that folder
-||--environment-config-include-subfolders|Also include matching files from subfolders of --environment-config-file-directory
-|-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
-||--graph-connection-test=<name>|Test the graph database connection or Neo4j connection with the given name. See <<_graph_database_connections>>
-||--graph-connection-info=<name>|Print the graph database type and capabilities of a graph database connection or Neo4j connection as JSON
-||--graph-database-types|Print the installed graph database types and their capabilities as JSON
-|===
-
-=====
-
-&nbsp; +
-
-=== project variables Examples
-This is a list of examples on how the parameters on this command are parsed
-
-==== Normal Usage
-----
---project-variables=key1=value1,key2=value2
-----
-Result:
-[options="header"]
-|===
-|Key|value
-|key1|value1
-|key2|value2
-|===
-==== Spaces in value Usage
-----
---project-variables=key1="This value contains spaces",key2=value2
-----
-Result:
-[options="header"]
-|===
-|Key|value
-|key1|This value contains spaces
-|key2|value2
-|===
-
-==== Commas in value Usage
-----
---project-variables=key1=\"value1,value2\"
-----
-Result:
-[options="header"]
-|===
-|Key|value
-|key1|value1,value2
-|===
-==== Forcing quotes in value
-----
---project-variables=key1="\"\"String with spaces\"\""
-----
-Result:
-[options="header"]
-|===
-|Key|value
-|key1|"String with spaces"
-|===
-
-== Project Usage and Configuration
-
-include::../../snippets/hop-tools/hop-conf/hop-conf-projects.adoc[]
+include::../../snippets/hop-tools/hop-conf/hop-conf-projects.adoc[leveloffset=+1]
 
 == Graph database connections
 
@@ -380,7 +107,7 @@ N/A
 
 === Azure
 
-Set the account, block increment size for new files and your Azure key
+Set the account and key of your Azure storage account, or the URL of an Azure emulator (Azurite)
 
 include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-azure-blob-storage.adoc[]
 
@@ -388,7 +115,7 @@ include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-azure-blob-storage.ado
 
 ==== Google Cloud Storage
 
-Set the path to your Google Cloud service account JSON key file
+Set the path to your Google Cloud service account JSON key file, and the block size to read files with
 
 include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-google-cloud-storage.adoc[]
 
@@ -398,3 +125,81 @@ Set the path to your Google Drive credentials JSON file or Google Drive tokens f
 
 include::../../snippets/hop-tools/hop-conf/hop-conf-cloud-google-drive.adoc[]
 
+== Options
+
+The options described on this page.
+Run `hop-conf.sh -h` for the complete list of your installation.
+
+[%header, cols="1,3,4"]
+|===
+|Short option|Long option|Description
+
+3+|*General*
+|`-h`|`--help`|Displays the help message and quits.
+|`-v`|`--version`|Prints version information and exits.
+|`-l`|`--level=<level>`|The log level: NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG or ROWLEVEL.
+
+3+|*Projects*
+|`-p`|`--project=<projectName>`|The name of the project to manage.
+|`-pc`|`--project-create`|Create a project. Also specify its name and home folder.
+|`-pm`|`--project-modify`|Modify a project.
+|`-pd`|`--project-delete`|Remove a project from `hop-config.json`. Its files are not deleted.
+|`-pl`|`--projects-list`|List the projects.
+|`-ph`|`--project-home=<projectHome>`|The home folder of the project.
+|`-pf`|`--project-config-file=<projectConfigFile>`|The configuration file, relative to the home folder. The default is `project-config.json`.
+|`-pkf`|`--project-keep-config-file`|Keep the configuration file of the project if it already exists.
+|`-pr`|`--project-parent=<projectParent>`|The parent project to inherit metadata and variables from.
+|`-ps`|`--project-description=<projectDescription>`|The description of the project.
+|`-pp`|`--project-company=<projectCompany>`|The company.
+|`-pt`|`--project-department=<projectDepartment>`|The department.
+|`-pv`|`--project-variables=<projectVariables>[,...]`|Variables of the project, as `variable=value` separated by commas.
+|`-pa`|`--project-metadata-base=<projectMetadataBaseFolder>`|The metadata folder, relative to the home folder.
+|`-pb`|`--project-datasets-base=<projectDataSetsCsvFolder>`|The data sets CSV folder, relative to the home folder.
+|`-pu`|`--project-unit-tests-base=<projectUnitTestsBasePath>`|The unit tests folder, relative to the home folder.
+|`-px`|`--project-enforce-execution=<projectEnforceExecutionInHome>`|`true` or `false`: check before execution that a workflow or pipeline is in the home folder of the project or a subfolder.
+|`-pla`|`--project-list-action-types`|List the action types used in the project.
+|`-plm`|`--project-list-metadata-types`|List the metadata types used in the project.
+|`-plt`|`--project-list-transform-types`|List the transform types used in the project.
+|`-plmi`|`--project-list-metadata-item-usages=<item>`|List the files of the project that use a given metadata item.
+|`-xm`|`--export-metadata=<metadataJsonFilename>`|Export the metadata of the project given with `-p` to a single JSON file.
+
+3+|*Environments*
+|`-e`|`--environment=<environmentName>`|The name of the environment to manage.
+|`-ec`|`--environment-create`|Create an environment. Also specify its name, purpose, project and configuration files.
+|`-em`|`--environment-modify`|Modify an environment.
+|`-ed`|`--environment-delete`|Remove an environment from `hop-config.json`. Its configuration files are not deleted.
+|`-el`|`--environments-list`|List the environments.
+|`-ep`|`--environment-project=<environmentProject>`|The project of the environment.
+|`-eu`|`--environment-purpose=<environmentPurpose>`|The purpose of the environment: Development, Testing, Production, CI, ...
+|`-eg`|`--environment-config-files=<file>[,...]`|The configuration files of the environment, separated by commas.
+||`--environment-config-file-directory=<folder>`|A folder of configuration files. Matching files replace the configuration file list, together with `--environment-config-files` when that option is also set.
+||`--environment-config-file-wildcard=<regex>`|Regular expression matched against the file names in that folder, for example `.*\.json`.
+||`--environment-config-file-exclude-wildcard=<regex>`|Regular expression for file names to ignore in that folder, for example `.*secret.*`.
+||`--environment-config-include-subfolders`|Also include matching files from subfolders of that folder.
+
+3+|*Configuration files and variables*
+|`-cfg`|`--config-file=<configFile>`|The configuration file to manage.
+|`-cfv`|`--config-file-set-variables=<variable=value>[,...]`|Set variables in that file, separated by commas.
+|`-cfd`|`--config-file-describe-variables=<variable=description>[,...]`|Describe variables in that file, separated by commas.
+|`-sv`|`--set-variable=<variable=value>`|Set a variable in `hop-config.json`. Without a value, the variable gets an empty value.
+|`-dv`|`--describe-variable=<variable=description>`|Describe a variable in `hop-config.json`.
+
+3+|*Projects plugin*
+|`-pn`|`--projects-enabled`|Enable or disable the projects plugin.
+|`-py`|`--project-mandatory`|Make it mandatory to reference a project.
+|`-ey`|`--environment-mandatory`|Make it mandatory to reference an environment.
+|`-dp`|`--default-project=<defaultProject>`|The default project to use when none is specified.
+|`-de`|`--default-environment=<defaultEnvironment>`|The default environment to use when none is specified.
+|`-sp`|`--standard-parent-project=<standardParentProject>`|The parent project proposed when creating a project.
+|`-sj`|`--standard-projects-folder=<standardProjectsFolder>`|The folder proposed when creating a project.
+|`-dc`|`--default-projects-folder=<defaultProjectConfigFile>`|The configuration filename for new projects.
+
+3+|*Beam and Spark*, when the Beam plugin is installed
+|`-fj`|`--generate-fat-jar=<fatJarFilename>`|Generate a fat jar with the given filename from your current Hop installation, for the Beam and Spark engines.
+|`-scv`|`--spark-client-version=<sparkClientVersion>`|The Spark client pack to embed in the fat jar: a version (folder `lib/spark-clients/<version>`), `native` or `native-provided`. When omitted, `HOP_SPARK_CLIENT_VERSION` or the default pack in `lib/spark-client` is used.
+
+3+|*Graph database connections*
+||`--graph-connection-test=<name>`|Test the graph database connection or Neo4j connection with the given name. See <<_graph_database_connections>>.
+||`--graph-connection-info=<name>`|Print the graph database type and capabilities of a connection as JSON.
+||`--graph-database-types`|Print the installed graph database types and their capabilities as JSON.
+|===
