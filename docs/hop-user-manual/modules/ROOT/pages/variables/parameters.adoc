@@ -1,0 +1,95 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[WorkingWithParameters]]
+:imagesdir: ../../assets/images
+:description: How to declare a parameter on a pipeline or workflow, use it, and give it a value from Hop Gui, from hop-run or from another pipeline or workflow.
+
+= Working with parameters
+
+A parameter is an input of a pipeline or workflow.
+You declare it once, use it like any other variable, and give it a different value every time the pipeline or workflow runs.
+
+How parameters compare with fields and other variables is explained in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+
+== Declare a parameter
+
+. Double-click an empty spot of the pipeline or workflow canvas to open its properties.
+. On the *Parameters* tab, add a row for every parameter:
++
+[options="header", width="90%", cols="1,3"]
+|===
+|Column|Description
+|Parameter|The name of the parameter. You use it as `+${NAME}+`.
+|Default value|The value the parameter has when it is not given one. It can be empty, and it can contain other variables, for example `+${PROJECT_HOME}/data/sample.csv+`.
+|Description|A short explanation. It is shown next to the parameter when you run the pipeline or workflow from Hop Gui.
+|===
+
+== Use a parameter
+
+When the pipeline or workflow starts, every parameter becomes a variable with the same name.
+Use it as `+${NAME}+` in any option that accepts variables, for example `+${INPUT_FILE}+` as the file name of a xref:pipeline/transforms/textfileinput.adoc[Text file input] transform.
+
+A parameter always sets its variable, even when its value is empty.
+It hides a project, environment or other variable of the same name, unless that variable is used to give the parameter its value, as described below.
+
+== Give a parameter a value
+
+=== From Hop Gui
+
+When you run a pipeline or workflow, the *Run Options* dialog has two tabs:
+
+Parameters::
+One row for every parameter, with its *Default value* and *Description*.
+Enter a value in the *Value* column, or leave it empty to use the default value.
+The *Value* column is empty every time the dialog opens: Hop Gui doesn't remember the values of the previous run.
+
+Variables::
+The variables the pipeline or workflow uses, other than its parameters, with their current value.
+Change a value to use another one for this run.
+
+A parameter with an empty *Value* gets its default value, even when the project or the environment has a variable with the same name, or you add one on the *Variables* tab.
+
+Preview and Debug open *Run Options* only when you click *Configure*.
+With *Quick Launch*, every parameter that has a default value gets it.
+
+=== From hop-run
+
+Pass parameters to xref:hop-run/index.adoc[hop-run] with `-p NAME=value`.
+Separate several parameters with commas.
+Wrap a value that contains a comma in double quotes, and the whole option in single quotes so the shell keeps them:
+
+[source,bash]
+----
+./hop-run.sh -j my-project -r local -f '${PROJECT_HOME}/load-orders.hpl' \
+  -p 'INPUT_FILE=/data/orders.csv,COUNTRIES="BE,NL"'
+----
+
+`hop-run` gives every parameter the first value it finds:
+
+. The value passed with `-p`. An empty value, like `-p INPUT_FILE=`, counts as no value.
+. The value of a variable with the same name, for example a project or environment variable, or a system property passed with `-s`.
+. The default value.
+
+A name passed with `-p` that the pipeline or workflow doesn't declare is set as a variable.
+
+NOTE: Unlike Hop Gui, `hop-run` uses a project or environment variable with the same name before the default value.
+
+=== From another pipeline or workflow
+
+The xref:workflow/actions/pipeline.adoc[Pipeline] and xref:workflow/actions/workflow.adoc[Workflow] actions, the xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] and xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor] transforms, and the other actions and transforms that start a pipeline or workflow have a *Parameters* tab.
+List a parameter of the child there with a value or a field, and it gets that value; otherwise it gets its default value, unless *Pass parent values to matching parameters* is enabled.
+The exact rules are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].

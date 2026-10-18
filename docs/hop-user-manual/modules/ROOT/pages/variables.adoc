@@ -152,6 +152,8 @@ This also means that's important to know where variables can be set and used and
 |Metadata objects|Inherited by the place where it is loaded
 |===
 
+When a project and its environment define a variable with the same name, the project value is used.
+
 == Parameters
 
 Pipelines and workflows can (optionally) accept parameters.
@@ -162,6 +164,7 @@ When the pipeline or workflow starts, each parameter is activated as a variable 
 Pass parameters from a parent through the *Parameters* tab of a xref:workflow/actions/pipeline.adoc[Pipeline] action, xref:workflow/actions/workflow.adoc[Workflow] action, xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], or xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor].
 Declare the same names on the receiving pipeline or workflow.
 
+How to declare a parameter and give it a value from Hop Gui, from hop-run or from another pipeline or workflow is explained in xref:variables/parameters.adoc[Working with parameters].
 How parameters differ from fields and from other variables is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
 The exact rules that decide which value a parameter ends up with when one pipeline or workflow starts another are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
 

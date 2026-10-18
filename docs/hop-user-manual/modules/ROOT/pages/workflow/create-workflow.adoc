@@ -155,6 +155,7 @@ The Workflow tab allows you to specify general properties about the workflow inc
 
 The parameters tab allows you to specify parameters specific for the workflow.
 Parameters are defined by a name, a default value and a description.
+See xref:variables/parameters.adoc[Working with parameters] for how to use them and give them a value.
 
 image::hop-gui/workflow/parameters-properties.png[Parameters properties,75%,align="left"]
 
