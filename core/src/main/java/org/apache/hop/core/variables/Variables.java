@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
@@ -112,6 +113,15 @@ public class Variables implements IVariables {
   public void initializeFrom(IVariables parent) {
     this.parent = parent;
 
+    // The operating system environment, only when explicitly enabled. It is seeded before
+    // everything else so that it has the lowest precedence: a name that is also set with -D, in
+    // hop-config.json, by a parent or by injection keeps the value it resolves to today, and the
+    // environment only supplies names nothing else defines.
+    //
+    if (isEnvironmentImported()) {
+      getProperties().putAll(System.getenv());
+    }
+
     // Clone the system properties to avoid ConcurrentModificationException while iterating
     // and then add all of them to properties variable.
     //
@@ -133,6 +143,43 @@ public class Variables implements IVariables {
       injection = null;
     }
     initialized = true;
+  }
+
+  /**
+   * Whether the operating system environment should be made available as Hop variables, read from
+   * the three places the flag can be set.
+   */
+  private static boolean isEnvironmentImported() {
+    String name = Const.HOP_IMPORT_ENVIRONMENT_VARIABLES;
+    return isEnvironmentImported(
+        HopConfig.readStringVariable(name, null), System.getenv(name), System.getProperty(name));
+  }
+
+  /**
+   * Decides whether the environment is imported, following the hop-config, environment, {@code -D}
+   * precedence of {@link HopResolvedSettings} so that the flag itself can be exported, which is
+   * what a container deployment has to hand.
+   *
+   * <p>{@link HopResolvedSettings#resolveString} cannot be used directly: once {@code
+   * HopEnvironment} has started it copies the hop-config value (the annotation default {@code N}
+   * unless configured) onto the system properties, so the JVM layer would always win and an
+   * exported flag would never be seen. A system property therefore only counts as a {@code -D}
+   * override when it differs from the hop-config value. An explicit {@code -D} that repeats the
+   * hop-config value cannot be told apart from that copy, so an exported value wins over it.
+   *
+   * @param configValue the value in hop-config.json, or null when it is not configured
+   * @param environmentValue the exported environment variable, or null when it is not set
+   * @param systemPropertyValue the system property, or null when it is not set
+   */
+  static boolean isEnvironmentImported(
+      String configValue, String environmentValue, String systemPropertyValue) {
+    String value = configValue;
+    if (systemPropertyValue != null && !systemPropertyValue.equals(Const.NVL(configValue, ""))) {
+      value = systemPropertyValue;
+    } else if (environmentValue != null) {
+      value = environmentValue;
+    }
+    return "Y".equalsIgnoreCase(value);
   }
 
   @Override
