@@ -28,11 +28,13 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.vfs.ftp.FtpHelper;
 import org.apache.hop.vfs.ftp.FtpSecurityMode;
 import org.apache.hop.vfs.ftp.FtpTestServer;
 import org.apache.hop.vfs.ftp.metadata.FtpConnection;
@@ -429,6 +431,51 @@ class ActionFtpExecutionTest {
     assertTrue(result.isResult());
     assertEquals(1, result.getNrFilesRetrieved());
     assertEquals("from the outbox", Files.readString(targetDir.resolve("wanted.txt")));
+  }
+
+  /**
+   * The "Check folder" buttons of the dialog have to find a folder where the action does: a
+   * relative move-to folder inside the remote directory.
+   */
+  @Test
+  @DisplayName("The folder check finds a relative move-to folder where the action does")
+  void theFolderCheckFollowsTheAction(@TempDir Path targetDir) throws Exception {
+    Files.createDirectories(serverRoot.resolve("outbox/done"));
+    server.writeFile("outbox/moved.txt", "move me");
+
+    ActionFtp action = configure(targetDir);
+    action.setRemoteDirectory("outbox");
+    action.setMoveFiles(true);
+    action.setMoveToDirectory("done");
+
+    FTPClient client = FtpHelper.connect(action, null);
+    try {
+      assertNull(ActionFtp.findMissingFolder(client, "outbox", "done"));
+    } finally {
+      FtpHelper.disconnect(action.getLogChannel(), client);
+    }
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult());
+    assertEquals("move me", server.readFile("outbox/done/moved.txt"));
+  }
+
+  @Test
+  @DisplayName("The folder check names the first folder which isn't there")
+  void theFolderCheckNamesTheMissingFolder(@TempDir Path targetDir) throws Exception {
+    Files.createDirectories(serverRoot.resolve("outbox/done"));
+
+    ActionFtp action = configure(targetDir);
+    FTPClient client = FtpHelper.connect(action, null);
+    try {
+      String home = client.printWorkingDirectory();
+      assertEquals("not-there", ActionFtp.findMissingFolder(client, "not-there", "done"));
+      client.changeWorkingDirectory(home);
+      assertEquals("not-there", ActionFtp.findMissingFolder(client, "outbox", "not-there"));
+    } finally {
+      FtpHelper.disconnect(action.getLogChannel(), client);
+    }
   }
 
   @Test
