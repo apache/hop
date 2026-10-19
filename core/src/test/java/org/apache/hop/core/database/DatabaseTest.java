@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -54,6 +55,8 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.hop.core.DbCache;
+import org.apache.hop.core.DbCacheEntry;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
@@ -785,6 +788,50 @@ class DatabaseTest {
       sb.append(word).append(emptySpace);
     }
     return sb.toString();
+  }
+
+  @Test
+  void getQueryFieldsDropsARowQueriedAcrossAClear() throws Exception {
+    DbCache cache = DbCache.getInstance();
+    cache.clear(null);
+    when(meta.getName()).thenReturn("conn");
+    when(meta.supportsPreparedStatementMetadataRetrieval()).thenReturn(true);
+
+    Database db = spy(new Database(log, variables, meta));
+    db.setConnection(conn);
+    RowMeta fresh = new RowMeta();
+    fresh.addValueMeta(new ValueMetaString(columnName));
+    doAnswer(
+            invocation -> {
+              cache.clear(null);
+              return fresh;
+            })
+        .when(db)
+        .getQueryFieldsFromPreparedStatement(sql);
+
+    IRowMeta result = db.getQueryFields(sql, false);
+
+    assertEquals(columnName, result.getValueMeta(0).getName());
+    assertNull(cache.get(new DbCacheEntry("conn", sql)));
+  }
+
+  @Test
+  void getQueryFieldsStoresARowQueriedAfterAClear() throws Exception {
+    DbCache cache = DbCache.getInstance();
+    cache.clear(null);
+    when(meta.getName()).thenReturn("conn");
+    when(meta.supportsPreparedStatementMetadataRetrieval()).thenReturn(true);
+
+    Database db = spy(new Database(log, variables, meta));
+    db.setConnection(conn);
+    RowMeta fresh = new RowMeta();
+    fresh.addValueMeta(new ValueMetaString(columnName));
+    doReturn(fresh).when(db).getQueryFieldsFromPreparedStatement(sql);
+
+    IRowMeta result = db.getQueryFields(sql, false);
+
+    assertEquals(columnName, result.getValueMeta(0).getName());
+    assertEquals(columnName, cache.get(new DbCacheEntry("conn", sql)).getValueMeta(0).getName());
   }
 
   @Test

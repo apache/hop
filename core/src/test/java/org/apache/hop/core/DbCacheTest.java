@@ -17,6 +17,7 @@
 package org.apache.hop.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -48,6 +49,30 @@ class DbCacheTest {
 
     assertNull(cache.get(new DbCacheEntry("one", "select * from t")));
     assertNotNull(cache.get(new DbCacheEntry("two", "select * from t")));
+  }
+
+  @Test
+  void aRowQueriedAcrossAClearIsNotStored() {
+    DbCache cache = DbCache.getInstance();
+    cache.clear(null);
+    int generation = cache.getGeneration();
+    cache.clear(null);
+
+    assertFalse(
+        cache.putIfCurrent(new DbCacheEntry("one", "select * from t"), rowMeta(), generation));
+    assertNull(cache.get(new DbCacheEntry("one", "select * from t")));
+  }
+
+  @Test
+  void aRowQueriedAfterAClearIsStored() {
+    DbCache cache = DbCache.getInstance();
+    cache.clear(null);
+    int generation = cache.getGeneration();
+
+    assertTrue(
+        cache.putIfCurrent(new DbCacheEntry("one", "select * from t"), rowMeta(), generation));
+    assertEquals(
+        "a", cache.get(new DbCacheEntry("one", "select * from t")).getValueMeta(0).getName());
   }
 
   @Test

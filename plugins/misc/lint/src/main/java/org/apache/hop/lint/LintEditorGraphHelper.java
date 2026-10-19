@@ -17,6 +17,8 @@
 package org.apache.hop.lint;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -104,6 +106,29 @@ public final class LintEditorGraphHelper {
           "Could not search open editors for " + filename + ": " + e.getMessage());
     }
     return null;
+  }
+
+  /** Every open pipeline or workflow editor. Empty when there is no GUI. */
+  public static List<HopGuiAbstractGraph> openGraphs() {
+    List<HopGuiAbstractGraph> graphs = new ArrayList<>();
+    // peekInstance: listing editors must not build a HopGui. On a headless run that throws.
+    if (HopGui.peekInstance() == null) {
+      return graphs;
+    }
+    try {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      if (perspective == null) {
+        return graphs;
+      }
+      for (TabItemHandler item : perspective.getItems()) {
+        if (item.getTypeHandler() instanceof HopGuiAbstractGraph graph && !graph.isDisposed()) {
+          graphs.add(graph);
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logDetailed("Could not list open editors: " + e.getMessage());
+    }
+    return graphs;
   }
 
   public static void scheduleAttachForFilename(String filename) {
