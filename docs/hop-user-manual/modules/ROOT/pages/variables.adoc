@@ -170,32 +170,38 @@ The exact rules that decide which value a parameter ends up with when one pipeli
 
 === System properties
 
-All system properties are variables that are available in all of your currently running Apache Hop instance. System properties are available as variables as well as all Java system properties.
+All Java system properties are available as variables in your running Apache Hop instance, for example `+${java.io.tmpdir}+` or `+${user.home}+`.
+You can set your own with `-D` options in `HOP_OPTIONS`, or with the `-s` option of xref:hop-run/index.adoc[hop-run].
 
 System properties get set in the Java Virtual Machine that runs your Apache Hop instance. This means that you should limit yourself to only those variables which are really system specific.
 
-You can add your own system variables to the ones that come with Apache Hop by default in the `System Variables` tab in the configuration perspective.
+You can also add your own system variables in the `System variables` tab of the configuration perspective.
+They are available as variables in every pipeline and workflow, and Hop also sets them as Java system properties when it starts, unless a property with the same name was already set with `-D`.
 
 image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
-These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
+These variables are written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
 
 CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
 [source,json]
+----
 {
-  "systemProperties" : {
-    "MY_SYSTEM_PROPERTY" : "SomeValue"
-  }
+  "variables" : [ {
+    "name" : "MY_SYSTEM_VARIABLE",
+    "value" : "SomeValue",
+    "description" : "What this variable is for"
+  } ]
 }
+----
 
-
-You can also use the hop-config command line tool to define system properties:
+You can also set and describe them with the xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf] command line tool:
 
 [source,bash]
-sh hop-conf.sh -s MY_SYSTEM_PROPERTY=SomeValue
-
-
+----
+sh hop-conf.sh --set-variable=MY_SYSTEM_VARIABLE=SomeValue
+sh hop-conf.sh --describe-variable="MY_SYSTEM_VARIABLE=What this variable is for"
+----
 
 === Environment Variables
 

@@ -39,17 +39,18 @@ To get access to your Azure storage files you need to configure a few things:
 
 You can find both in the Storage Accounts section of your Azure portal.
 
-* A file block size : This needs to be a multiple of 512 bytes.
+For tests and development you can use an Azure emulator such as Azurite instead, by setting its URL.
 
-All 3 options can be set in either the Hop GUI options dialog (Menu: Tools / Options) or using the following Hop Conf (`hop-conf.sh` or `hop-conf.bat`) command line options:
+These options can be set in the *Plugins* section of the xref:hop-gui/perspective-configuration.adoc[configuration perspective] or with the following Hop Conf (`hop-conf.sh` or `hop-conf.bat`) command line options:
 
 [source,shell script]
 ----
       -aza, --azure-account=<account>
                             The account to use for the Azure VFS
-      -azi, --azure-block-increment=<blockIncrement>
-                            The block increment size for new files on Azure,
-                              multiples of 512 only.
+      -aze, --azure-emulator=<emulatorUrl>
+                            The URL of an Azure emulator (Azurite) to be used
+                              for test and development goals instead of
+                              official Azure services
       -azk, --azure-key=<key>
                             The key to use for the Azure VFS
 
@@ -62,8 +63,7 @@ Once done you will see an `azure` entry in the central `hop-config.json` file:
 {
   "azure" : {
     "account" : "storage-account-name",
-    "key" : "a/key-comprised-of-a-long-set-of-characters-and-numbers==",
-    "blockIncrement" : "1024"
+    "key" : "a/key-comprised-of-a-long-set-of-characters-and-numbers=="
   }
 }
 ----
