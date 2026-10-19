@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
+import java.util.Arrays;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -1209,7 +1210,7 @@ public class ActionFtpDialog extends ActionDialog {
     // Add listeners
     wTest.addListener(SWT.Selection, e -> test());
     wbTestFolderExists.addListener(
-        SWT.Selection, e -> checkRemoteFolder(wMoveToDirectory.getText()));
+        SWT.Selection, e -> checkRemoteFolder(wFtpDirectory.getText(), wMoveToDirectory.getText()));
     wbTestChangeFolderExists.addListener(
         SWT.Selection, e -> checkRemoteFolder(wFtpDirectory.getText()));
 
@@ -1244,29 +1245,48 @@ public class ActionFtpDialog extends ActionDialog {
     closeFtpConnection();
   }
 
-  private void checkRemoteFolder(String folderName) {
-    if (!Utils.isEmpty(folderName) && connectToFtp()) {
-      try {
-        boolean exists = ftpclient.changeWorkingDirectory(folderName);
-        if (exists) {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", folderName) + Const.CR);
-          mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
-          mb.open();
-        } else {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "ActionFtp.FolderExists.NOK", folderName) + Const.CR);
-          mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Bad"));
-          mb.open();
-        }
-      } catch (Exception e) {
+  /**
+   * Check a remote folder the way the action finds it when it runs, on a fresh login. A client kept
+   * open between checks is still in the folder the previous check changed into, which made a
+   * relative folder look missing the second time it was checked.
+   *
+   * @param folders the folders to change into in turn, the one to check last
+   */
+  private void checkRemoteFolder(String... folders) {
+    if (Utils.isEmpty(folders[folders.length - 1])) {
+      return;
+    }
+    String[] path =
+        Arrays.stream(folders)
+            .filter(folder -> !Utils.isEmpty(folder))
+            .map(folder -> action.normalizePath(variables.resolve(folder)))
+            .toArray(String[]::new);
+    try {
+      if (!connectToFtp()) {
+        return;
+      }
+      String missing = ActionFtp.findMissingFolder(ftpclient, path);
+      if (missing == null) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+        mb.setMessage(
+            BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", path[path.length - 1])
+                + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
+        mb.open();
+      } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage("Error checking remote folder: " + e.getMessage());
-        mb.setText("Folder Check Failed");
+        mb.setMessage(
+            BaseMessages.getString(PKG, "ActionFtp.FolderExists.NOK", missing) + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Bad"));
         mb.open();
       }
+    } catch (Exception e) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage("Error checking remote folder: " + e.getMessage());
+      mb.setText("Folder Check Failed");
+      mb.open();
+    } finally {
+      closeFtpConnection();
     }
   }
 

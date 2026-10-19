@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.ftp;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -483,6 +484,25 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
       normalizedPath = normalizedPath.substring(0, normalizedPath.length() - 1);
     }
     return normalizedPath;
+  }
+
+  /**
+   * Change into each folder in turn, the way the action does when it runs: the remote directory
+   * from the folder the login lands in, the move-to folder from inside the remote directory. The
+   * dialog checks its folders with this.
+   *
+   * @param ftpClient a logged in client, left in the last folder it could change into
+   * @param folders the resolved and normalized folders, the remote directory first
+   * @return the first folder which isn't there, or null when they all are
+   */
+  public static String findMissingFolder(FTPClient ftpClient, String... folders)
+      throws IOException {
+    for (String folder : folders) {
+      if (!ftpClient.changeWorkingDirectory(folder)) {
+        return folder;
+      }
+    }
+    return null;
   }
 
   private void addFilenameToResultFilenames(
