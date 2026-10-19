@@ -19,6 +19,8 @@ package org.apache.hop.workflow.actions.waitforsql;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -47,6 +49,8 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 
 /** This defines a Wait for SQL data action */
+@Getter
+@Setter
 @Action(
     id = "WAIT_FOR_SQL",
     name = "i18n::ActionWaitForSQL.Name",
@@ -114,6 +118,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   public static final int SUCCESS_CONDITION_ROWS_COUNT_GREATER = 4;
   public static final int SUCCESS_CONDITION_ROWS_COUNT_GREATER_EQUAL = 5;
 
+  @Getter
   public enum SuccessCondition implements IEnumHasCodeAndDescription {
     ROWS_COUNT_EQUAL(
         "rows_count_equal",
@@ -155,26 +160,6 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     public static SuccessCondition lookupCode(String code) {
       return IEnumHasCode.lookupCode(SuccessCondition.class, code, ROWS_COUNT_EQUAL);
     }
-
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    @Override
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    @Override
-    public String getDescription() {
-      return description;
-    }
   }
 
   private static final String DEFAULT_MAXIMUM_TIMEOUT = "0"; // infinite timeout
@@ -199,10 +184,6 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
   public ActionWaitForSql() {
     this("");
-  }
-
-  public SuccessCondition getSuccessCondition() {
-    return successCondition;
   }
 
   @Override
@@ -524,216 +505,28 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "WaitForSQL",
+            "connection",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+
+    if (customSqlEnabled) {
+      ActionValidatorUtils.andValidator()
+          .validate(
+              this,
+              "customSql",
+              remarks,
+              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    } else {
+      ActionValidatorUtils.andValidator()
+          .validate(
+              this,
+              "tableName",
+              remarks,
+              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    }
   }
 
-  /**
-   * Gets isClearResultList
-   *
-   * @return value of isClearResultList
-   */
-  public boolean isClearResultList() {
-    return clearResultList;
-  }
-
-  /**
-   * @param isClearResultList The isClearResultList to set
-   */
-  public void setClearResultList(boolean isClearResultList) {
-    this.clearResultList = isClearResultList;
-  }
-
-  /**
-   * Gets isAddRowsResult
-   *
-   * @return value of isAddRowsResult
-   */
-  public boolean isAddRowsResult() {
-    return addRowsResult;
-  }
-
-  /**
-   * @param isAddRowsResult The isAddRowsResult to set
-   */
-  public void setAddRowsResult(boolean isAddRowsResult) {
-    this.addRowsResult = isAddRowsResult;
-  }
-
-  /**
-   * Gets isUseVars
-   *
-   * @return value of isUseVars
-   */
-  public boolean isUseVars() {
-    return useVars;
-  }
-
-  /**
-   * @param isUseVars The isUseVars to set
-   */
-  public void setUseVars(boolean isUseVars) {
-    this.useVars = isUseVars;
-  }
-
-  /**
-   * Gets isCustomSql
-   *
-   * @return value of isCustomSql
-   */
-  public boolean isCustomSqlEnabled() {
-    return customSqlEnabled;
-  }
-
-  /**
-   * @param isCustomSql The isCustomSql to set
-   */
-  public void setCustomSqlEnabled(boolean isCustomSql) {
-    this.customSqlEnabled = isCustomSql;
-  }
-
-  /**
-   * Gets customSql
-   *
-   * @return value of customSql
-   */
-  public String getCustomSql() {
-    return customSql;
-  }
-
-  /**
-   * @param customSql The customSql to set
-   */
-  public void setCustomSql(String customSql) {
-    this.customSql = customSql;
-  }
-
-  /**
-   * Gets tableName
-   *
-   * @return value of tableName
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * @param tableName The tableName to set
-   */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /**
-   * Gets schemaName
-   *
-   * @return value of schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * @param schemaName The schemaName to set
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  /**
-   * Gets maximumTimeout
-   *
-   * @return value of maximumTimeout
-   */
-  public String getMaximumTimeout() {
-    return maximumTimeout;
-  }
-
-  /**
-   * @param maximumTimeout The maximumTimeout to set
-   */
-  public void setMaximumTimeout(String maximumTimeout) {
-    this.maximumTimeout = maximumTimeout;
-  }
-
-  /**
-   * Gets checkCycleTime
-   *
-   * @return value of checkCycleTime
-   */
-  public String getCheckCycleTime() {
-    return checkCycleTime;
-  }
-
-  /**
-   * @param checkCycleTime The checkCycleTime to set
-   */
-  public void setCheckCycleTime(String checkCycleTime) {
-    this.checkCycleTime = checkCycleTime;
-  }
-
-  /**
-   * Gets successOnTimeout
-   *
-   * @return value of successOnTimeout
-   */
-  public boolean isSuccessOnTimeout() {
-    return successOnTimeout;
-  }
-
-  /**
-   * @param successOnTimeout The successOnTimeout to set
-   */
-  public void setSuccessOnTimeout(boolean successOnTimeout) {
-    this.successOnTimeout = successOnTimeout;
-  }
-
-  /**
-   * Gets selectCount
-   *
-   * @return value of selectCount
-   */
   public static String getSelectCount() {
     return SELECT_COUNT;
-  }
-
-  /**
-   * Gets rowsCountValue
-   *
-   * @return value of rowsCountValue
-   */
-  public String getRowsCountValue() {
-    return rowsCountValue;
-  }
-
-  /**
-   * @param rowsCountValue The rowsCountValue to set
-   */
-  public void setRowsCountValue(String rowsCountValue) {
-    this.rowsCountValue = rowsCountValue;
-  }
-
-  /**
-   * @param successCondition The successCondition to set
-   */
-  public void setSuccessCondition(SuccessCondition successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  /**
-   * Gets connection
-   *
-   * @return value of connection
-   */
-  public String getConnection() {
-    return connection;
-  }
-
-  /**
-   * @param connection The connection to set
-   */
-  public void setConnection(String connection) {
-    this.connection = connection;
   }
 }
