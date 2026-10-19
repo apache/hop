@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.variables.Variables;
@@ -141,25 +140,6 @@ class ActionDeleteFoldersCheckTest {
     assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
     assertEquals(
         message("ActionDeleteFolders.CheckResult.FolderOk", folder.toString()),
-        remarks.getFirst().getText());
-  }
-
-  @Test
-  void legacyCurrentDirectoryUsesTheWorkflowFolder() throws Exception {
-    Path folder = tempDir.resolve("files");
-    Files.createDirectories(folder);
-    String currentFolder = tempDir.toAbsolutePath().toString();
-    Variables variables = new Variables();
-    variables.setVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, currentFolder);
-    ActionDeleteFolders action = new ActionDeleteFolders("delete folders");
-    action.setFileItems(List.of(new FileItem("${Internal.Entry.Current.Directory}/files")));
-
-    List<ICheckResult> remarks = check(action, variables);
-
-    assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
-    assertEquals(
-        message("ActionDeleteFolders.CheckResult.FolderOk", currentFolder + "/files"),
         remarks.getFirst().getText());
   }
 

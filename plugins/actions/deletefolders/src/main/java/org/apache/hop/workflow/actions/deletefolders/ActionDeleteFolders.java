@@ -375,10 +375,6 @@ public class ActionDeleteFolders extends ActionBase {
     return references;
   }
 
-  /**
-   * Hop stores the workflow directory in {@code Internal.Entry.Current.Folder}. Workflows carried
-   * over from Kettle still reference {@code Internal.Entry.Current.Directory}.
-   */
   private String resolveFolderName(String rawName, IVariables space) {
     if (rawName == null) {
       return "";
@@ -387,18 +383,7 @@ public class ActionDeleteFolders extends ActionBase {
     if (source == null) {
       return rawName;
     }
-    String resolved = source.resolve(rawName);
-    final String legacy = "${Internal.Entry.Current.Directory}";
-    if (resolved.contains(legacy)) {
-      String currentFolder = source.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER);
-      if (Utils.isEmpty(currentFolder)) {
-        currentFolder = source.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER);
-      }
-      if (!Utils.isEmpty(currentFolder)) {
-        resolved = resolved.replace(legacy, currentFolder);
-      }
-    }
-    return resolved;
+    return source.resolve(rawName);
   }
 
   private static class TextFileSelector implements FileSelector {
