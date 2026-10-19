@@ -71,6 +71,7 @@ under the License.
 *** xref:pipeline/beam/developing-beam-transforms.adoc[Developing a Beam transform]
 ** xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
 *** xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster]
+*** xref:pipeline/spark/yarn.adoc[YARN]
 *** xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
 *** xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster mapping walk-through]
 *** xref:pipeline/spark/lakehouse.adoc[Lakehouse tables (Delta / Iceberg)]

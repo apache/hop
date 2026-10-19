@@ -49,6 +49,14 @@ public final class HopSparkUtil {
     return transformName + " - TARGET - " + targetTransformName;
   }
 
+  /**
+   * Dataset-map key for the Dataset that all target streams of a transform are filtered from. The
+   * converter persists it so the transform runs once, not once per branch.
+   */
+  public static String createSharedOutputId(String transformName) {
+    return transformName + " - SHARED OUTPUT";
+  }
+
   public static void loadTransformMetadataFromXml(
       String transformName,
       ITransformMeta iTransformMeta,

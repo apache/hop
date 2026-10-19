@@ -40,6 +40,9 @@ xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark proje
 To run pipelines from Hop GUI or `hop-run` on a Spark standalone cluster on your own machine:
 xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
 
+To run pipelines on a Hadoop YARN cluster from Hop GUI, `hop-run` or Hop Server:
+xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
+
 Hands-on multi-node demo (Docker Compose + sample project `spark-demo` — Simple Mapping and Workflow Executor):
 xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through].
 
@@ -108,7 +111,8 @@ If you need streaming, windowing, or Beam-only connectors, stay on the Beam engi
 . For each transform it either:
 ** applies a *native handler* that rewrites the hop as Spark Dataset operations, or
 ** wraps the transform in `mapPartitions` so each Spark partition runs that transform in a tiny local Hop pipeline.
-. File outputs and other Spark *actions* materialise the graph (read → transform → write).
+. Spark File and Lake table outputs write while the graph is built. At the end the engine runs an action on every transform without a successor, so every branch runs, including branches that end in a wrapped output such as Text File Output or Table Output.
+. The output of a transform that several transforms read, such as the true and false targets of Filter Rows or the cases of Switch / Case, is cached: that transform runs once, not once per branch.
 
 Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
 . Transform metrics are collected via Spark accumulators and shown in Hop like any other engine.
@@ -284,7 +288,7 @@ Keep this export out of git if it is a point-in-time dump of secrets or large me
 . Build the *native-provided* fat jar and export metadata (previous sections).
 . Ensure the pipeline run configuration used on the cluster:
 ** Engine = *Native Spark pipeline engine* (not Beam Spark)
-** *Master* blank (so `spark-submit --master` wins) *or* set to `spark://host:7077`
+** *Master* blank (so `spark-submit --master` wins) *or* set to `spark://host:7077`. For YARN, submit with `--master yarn` from a machine where `HADOOP_CONF_DIR` points at the cluster's configuration; `spark-submit` reads it from there.
 ** *Fat jar* field empty (the submit jar already carries Hop)
 . Submit:
 
@@ -302,8 +306,6 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
   YourNativeSparkRunConfig \
   /path/to/cluster-env-config.json
 ----
-
-NOTE: Start `spark-submit` from a folder that does not contain a Hop `plugins` folder, not from the Hop installation folder. Otherwise Hop loads the Spark engine twice, from the fat jar and from that folder, and the run fails with `Run configuration '...' is not a native Spark pipeline engine configuration`. See xref:pipeline/spark/local-standalone-cluster.adoc#troubleshooting[Troubleshooting].
 
 *Main class:* `org.apache.hop.spark.run.MainSpark`
 

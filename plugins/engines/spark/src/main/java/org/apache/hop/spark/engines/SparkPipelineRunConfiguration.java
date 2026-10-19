@@ -119,6 +119,15 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   private String fatJar;
 
   @GuiWidgetElement(
+      order = "20025-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.FOLDER,
+      label = "i18n::SparkEngine.OptionsHadoopConfDir.Label",
+      toolTip = "i18n::SparkEngine.OptionsHadoopConfDir.ToolTip")
+  @HopMetadataProperty
+  private String hadoopConfDir;
+
+  @GuiWidgetElement(
       order = "20030-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.MULTI_LINE_TEXT,
@@ -213,6 +222,7 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.sparkMaster = config.sparkMaster;
     this.sparkAppName = config.sparkAppName;
     this.fatJar = config.fatJar;
+    this.hadoopConfDir = config.hadoopConfDir;
     this.sparkConfigs = config.sparkConfigs;
     this.driverMemory = config.driverMemory;
     this.executorMemory = config.executorMemory;

@@ -280,6 +280,8 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
                       .equalTo(HopSparkUtil.MAIN_TARGET_TAG))
               .drop(HopSparkUtil.TARGET_TAG_COLUMN);
       transformDatasetMap.put(transformMeta.getName(), mainBranch);
+      transformDatasetMap.put(
+          HopSparkUtil.createSharedOutputId(transformMeta.getName()), taggedOrPlain);
       for (String targetName : targetNames) {
         Dataset<Row> branch =
             taggedOrPlain
