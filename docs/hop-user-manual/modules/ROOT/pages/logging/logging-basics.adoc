@@ -77,7 +77,21 @@ The logging file of the Hop GUI is saved in the `audit/` folder (or in the folde
 
 == Tools logging
 
-If you want to send logging of tools like hop-run or hop-conf to a logging file you need to do this simply by piping the text stream to a file.
+Command line tools like hop-run, hop-conf and hop-server write their log to the console.
+To keep it in a file, for example when Hop runs on a server, redirect the output and the errors to a file.
+On Linux and macOS, this example writes every run to a new file named after the current date and time:
+
+[source,bash]
+----
+./hop-run.sh -j my-project -r local -f my-workflow.hwf &> "hop-run-$(date +%Y-%m-%d_%H-%M-%S).log"
+----
+
+On Windows, use `> hop-run.log 2>&1` after the command.
+
+xref:hop-run/index.adoc[hop-run] can also write its log to a file itself, with `--logfile`.
+
+Behind the scenes Hop also sends its log to SLF4J, with Log4j2.
+To change the format or send the log to another system, bring your own Log4j2 configuration, as described in xref:{page-component-version}@dev-manual::architecture/logging-and-debugging.adoc#_slf4j_and_the_log4j2_binding[SLF4J and the Log4j2 binding] in the developer manual.
 
 == Logging plugins 
 
