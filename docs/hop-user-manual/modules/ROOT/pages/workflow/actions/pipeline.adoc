@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description:
+:description: The Pipeline action runs a pipeline from a workflow.
 
 
 = Pipeline

@@ -40,9 +40,9 @@ Enter the following information in the transform name field:
 * Transform name: Specifies the unique name of the Salesforce Upsert transform on the canvas.
 You can customize the name or leave it as the default.
 
-include::salesforce-connection.adoc[]
+include::../../snippets/salesforce/salesforce-connection.adoc[]
 
-include::salesforce-settings.adoc[]
+include::../../snippets/salesforce/salesforce-settings.adoc[]
 
 [options="noheader"]
 |===
@@ -55,4 +55,4 @@ Enter the output information in the following transform option:
 
 Salesforce ID fieldname: Specifies the field to contain the Salesforce ID of the first record in the set of records (batch) you updated and inserted.
 
-include::salesforce-fields.adoc[]
+include::../../snippets/salesforce/salesforce-fields.adoc[]

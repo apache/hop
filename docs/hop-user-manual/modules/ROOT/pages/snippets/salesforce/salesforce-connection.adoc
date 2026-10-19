@@ -14,10 +14,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:documentationPath: /pipeline/transforms/
-:language: en_US
-:description: (not used directly )
-
 === Connection
 
 The Salesforce transform can use a pre-defined xref:metadata-types/salesforce-connection.adoc[Salesforce Connection] or use inline connection settings directly. +

@@ -44,7 +44,7 @@ NOTE: If your organization has enabled My Domain, you may see 'Restricted Domain
 
 == Options
 
-include::salesforce-connection.adoc[]
+include::../../snippets/salesforce/salesforce-connection.adoc[]
 
 == Settings
 

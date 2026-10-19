@@ -14,10 +14,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:documentationPath: /pipeline/transforms/
-:language: en_US
-:description: (not used directly )
-
 === Fields
 
 You can specify what fields to insert into your Salesforce database through the Fields table.
