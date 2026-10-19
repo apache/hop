@@ -255,9 +255,8 @@ public class HopVfs {
               + " is closed. Resolving with the process wide file system manager instead.");
     }
     // A thread that inherited the namespace keeps it for as long as it lives - the linter of Hop
-    // GUI
-    // does. Let go of it here, or every file it resolves from now on comes through this detour.
-    // X HopVfsNamespaces.unbindThreadIfCurrent(namespace);
+    // GUI does. Let go of it here, or every file it resolves from now on comes through this detour.
+    HopVfsNamespaces.unbindThreadIfCurrent(namespace);
     return null;
   }
 
