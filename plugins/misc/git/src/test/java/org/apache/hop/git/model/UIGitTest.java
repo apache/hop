@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -45,6 +46,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.git.model.revision.ObjectRevision;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RemoteAddCommand;
@@ -765,6 +767,27 @@ public class UIGitTest extends RepositoryTestCase {
     tags = uiGit.getTags();
     assertEquals(0, tags.size());
     assertFalse(tags.contains("test"));
+  }
+
+  @Test
+  public void testMergeAnnotatedTagWithConflict() throws Exception {
+    initialCommit();
+    git.checkout().setCreateBranch(true).setName("feature").call();
+    writeTrashFile("Test.txt", "Change on feature");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("Change on feature").call();
+    git.tag().setName("v1").setAnnotated(true).setMessage("Version 1").call();
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Change on master");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("Change on master").call();
+
+    // The merge conflicts: the .theirs copy comes from the tag and no error dialog is shown
+    assertTrue(uiGit.mergeBranch("v1", MergeStrategy.RECURSIVE));
+    assertEquals("Change on feature", read(new File(db.getWorkTree(), "Test.txt.theirs")));
+    verify(uiGit, never())
+        .showMessageBox(
+            eq(BaseMessages.getString(UIGit.PKG, UIGit.CONST_DIALOG_ERROR)), anyString());
   }
 
   @Test
