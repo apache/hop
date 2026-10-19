@@ -37,6 +37,9 @@ For **Simple Mapping** / **Pipeline Executor** child pipelines on `spark-submit`
 xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark project package]
 (`hop-conf -j … --export-spark-project=…`) and pass `--HopProjectPackage=…` to `MainSpark`.
 
+To run pipelines from Hop GUI or `hop-run` on a Spark standalone cluster on your own machine:
+xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
+
 Hands-on multi-node demo (Docker Compose + sample project `spark-demo` — Simple Mapping and Workflow Executor):
 xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through].
 
@@ -140,7 +143,8 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 
 == Prerequisites
 
-* Apache Hop *2.19+* with the *engines-spark* plugin (standard Hop client / assembly includes it).
+* Apache Hop *2.19+* with the `hop-engines-spark` plugin. It is not part of the default client download: install it with `./hop marketplace install hop-engines-spark` (see xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]) and restart Hop.
+* For cluster runs, also the `hop-engines-beam` plugin: the fat jar builder ships with it.
 * *Java 21*.
 * Familiarity with Hop pipelines, metadata, and run configurations.
 * For cluster submit:
@@ -227,9 +231,11 @@ On a real cluster you must *not* embed a second copy of Spark inside the applica
 
 Use the special fat-jar token *`native-provided`*: Hop and plugins go into the jar; *Spark stays out*.
 
+The fat jar builder ships with the Apache Beam engine plugin. Without `hop-engines-beam` installed, `hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`.
+
 ==== From Hop GUI
 
-. *Tools* → *Generate a Hop fat jar* (when prompted for Spark client version for native submit, use the *native-provided* style packaging for cluster submit — or use the CLI below for an explicit flag).
+. Start Hop GUI with the environment variable `HOP_SPARK_CLIENT_VERSION=native-provided`. *Tools* → *Generate a Hop fat jar* does not ask for the packaging; without that variable it builds a jar for the Beam Spark runner, not for the native engine.
 . Save the jar *outside* the project (or gitignore it). Fat jars are large.
 
 ==== From the command line (recommended, explicit)
@@ -296,6 +302,8 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
   YourNativeSparkRunConfig \
   /path/to/cluster-env-config.json
 ----
+
+NOTE: Start `spark-submit` from a folder that does not contain a Hop `plugins` folder, not from the Hop installation folder. Otherwise Hop loads the Spark engine twice, from the fat jar and from that folder, and the run fails with `Run configuration '...' is not a native Spark pipeline engine configuration`. See xref:pipeline/spark/local-standalone-cluster.adoc#troubleshooting[Troubleshooting].
 
 *Main class:* `org.apache.hop.spark.run.MainSpark`
 
@@ -449,7 +457,7 @@ Classic *Spark File* transforms cover `csv` / `parquet` / `json` / `orc` / `text
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
 * xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] metadata for Iceberg TABLE mode
 
-Connector JARs **ship in the default Hop assembly** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+Connector JARs **ship with the `hop-engines-spark` plugin** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 === Classic Hop I/O and `${Internal.Transform.ID}`
 
