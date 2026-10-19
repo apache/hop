@@ -30,10 +30,25 @@ The `Delete files` action deletes a set of specified files, optionally with subf
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Include Subfolders|Also delete the subfolders in the folder selection
-|Copy previous results to args?|Enable this if the set of files comes from a previous workflow action (as part of the result files)
+|Include Subfolders|Also delete the matching files in the subfolders of a folder. Folders are never deleted.
+|Copy previous results to args|Enable this if the set of files comes from a previous workflow action (as part of the result files)
 |File/Folder|The file or folder to delete
 |Wildcard|The regular expression matching files to delete if the previous option is a folder.
 For example to delete all files ending in .dat, the regular expression would be ".*\.dat$".
 |Files/Folders|The complete list of files/folders to delete
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every file and folder in the list was processed. A path that doesn't exist counts as already deleted. For a single file the wildcard is not used.
+|False|A file could not be deleted. The number of errors is the number of entries in the list that failed.
+|Result files|Passed on unchanged. The deleted files are not added.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the action takes the path from the first field and the wildcard from the second field of each result row, and ignores the list in the dialog, also when there are no result rows. A row with fewer than two fields stops the action: the remaining rows are not processed, and the action is still true.
+|===
+
+NOTE: An invalid regular expression in *Wildcard* deletes nothing, and the action is still true.

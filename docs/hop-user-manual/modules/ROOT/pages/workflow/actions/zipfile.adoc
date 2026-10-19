@@ -81,3 +81,16 @@ This is what will be taken from the rows.
 2+|Result file name
 |Add Zip file to result|Enable this option to add the target zip file(s) to the result
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The zip file was created or updated. It is also true when the zip exists and *If zip file exists* is *Do Nothing*, which leaves it unchanged, and when no file matches the wildcard, which creates an empty zip. With an empty *Source directory/file*, or with *Get arguments from previous* and no result rows, nothing is zipped and the action is still true.
+|False|The source doesn't exist, the zip exists and *If zip file exists* is *Fail*, the zip can't be written, or a source file can't be deleted or moved with *After zipping*; the zip is already created then. With *After zipping* set to *Move files*, it is also false when the folder to move to doesn't exist and *Create folder* is off. The number of errors is 1.
+|Result files|With *Add Zip file to result*, the zip file is added, also an existing zip left unchanged by *Do Nothing*. It is not added when the action fails.
+|Result rows|Passed on unchanged. With *Get arguments from previous*, every result row gives the source (first field), the include wildcard (second), the exclude wildcard (third) and the zip file name (fourth). A row with an empty source or zip file name is skipped. The first row that fails ends the action; the zips of the earlier rows stay, and are in the result files.
+|===

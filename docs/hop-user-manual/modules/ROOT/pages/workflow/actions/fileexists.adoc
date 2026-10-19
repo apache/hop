@@ -46,7 +46,7 @@ As soon as the task is complete, the file is placed in a well-known location so 
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Filename field|Specify the filename and path of the file to verify.
+|File name|Specify the filename and path of the file to verify.
 Click Browse to navigate to the source file or folder through the VFS browser.
 // |Result fieldname|The field containing the result.
 // |Add filename to result|Adds the filename to the result.
@@ -54,3 +54,15 @@ Click Browse to navigate to the source file or folder through the VFS browser.
 // |File type field|The field containing the type of file.
 |===
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The file or folder exists and can be read.
+|False|The file doesn't exist or can't be read, and the number of errors is 0. The number of errors is 1 when *File name* is not set or the file can't be checked.
+|Result files|Passed on unchanged. The file is not added.
+|Result rows|Passed on unchanged.
+|===
