@@ -111,7 +111,6 @@ class NoteImageSupportTest {
     assertEquals(0.3, (double) tall.x / tall.y, 0.05);
   }
 
-
   private static void writePng(Path path, int w, int h) throws Exception {
     BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
     Graphics2D g = image.createGraphics();

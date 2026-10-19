@@ -629,7 +629,7 @@ public class SwtGc implements IGc {
                   if (zoom == 100) {
                     return scaled;
                   }
-                  int zw = Math.max(1, Math.round(scaled.width  * (zoom / 100f)));
+                  int zw = Math.max(1, Math.round(scaled.width * (zoom / 100f)));
                   int zh = Math.max(1, Math.round(scaled.height * (zoom / 100f)));
 
                   return scaled.scaledTo(zw, zh);
