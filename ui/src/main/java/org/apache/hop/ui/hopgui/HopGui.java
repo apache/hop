@@ -529,7 +529,15 @@ public class HopGui
 
     // Bind it for this session, so the call sites that resolve a file with no variables in hand
     // land in it too. Deliberately not restored afterwards: it stays for as long as the session.
-    HopVfsNamespaces.bindThread(namespace);
+    // With no namespace of its own the binding is cleared rather than left alone: what is bound now
+    // is the previous project's namespace, which is about to be released and closed. Leaving it
+    // would send every file this thread - and every thread it starts - resolves through a closed
+    // manager.
+    if (namespace == null) {
+      HopVfsNamespaces.restoreThread(null);
+    } else {
+      HopVfsNamespaces.bindThread(namespace);
+    }
 
     if (previousProvider != null) {
       HopVfsNamespaces.release(previousProvider);
