@@ -272,6 +272,12 @@
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-storage</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>msal4j</artifactId>

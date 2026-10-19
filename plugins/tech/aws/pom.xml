@@ -29,7 +29,6 @@
     <name>Hop Plugins Technology AWS</name>
 
     <properties>
-        <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
         <hop.jdbc.driver1>com.amazon.redshift:redshift-jdbc42</hop.jdbc.driver1>
     </properties>
 
@@ -79,7 +78,6 @@
             <!-- The HTTP client the S3 client is built with, to size its connection pool -->
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>apache-client</artifactId>
-            <version>${aws-java-sdk.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -96,7 +94,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
-            <version>${aws-java-sdk.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -108,7 +105,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>secretsmanager</artifactId>
-            <version>${aws-java-sdk.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -120,7 +116,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sns</artifactId>
-            <version>${aws-java-sdk.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -132,7 +127,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sqs</artifactId>
-            <version>${aws-java-sdk.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

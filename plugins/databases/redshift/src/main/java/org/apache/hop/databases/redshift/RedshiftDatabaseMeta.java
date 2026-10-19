@@ -282,7 +282,7 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("com.amazon.redshift:redshift-jdbc42")
-        .defaultVersion("2.2.8")
+        .defaultVersion("2.3.0")
         .licenseCategory("A")
         .licenseName("Apache-2.0")
         .licenseUrl("https://github.com/aws/amazon-redshift-jdbc-driver/blob/master/LICENSE")

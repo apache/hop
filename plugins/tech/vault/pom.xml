@@ -30,7 +30,7 @@
 
     <properties>
         <testcontainers.version>1.21.4</testcontainers.version>
-        <vault.driver.version>6.2.2</vault.driver.version>
+        <vault.driver.version>6.2.3</vault.driver.version>
     </properties>
 
     <dependencies>

@@ -182,7 +182,7 @@ public final class OpenLineageEventMapper {
         && !Utils.isEmpty(ctx.getTransformName())) {
       jobBuilder.facets(
           ol.newJobFacetsBuilder()
-              .jobType(ol.newJobTypeJobFacet("BATCH", "HOP", "TRANSFORM"))
+              .jobType(ol.newJobTypeJobFacet("BATCH", "HOP", "TRANSFORM", null))
               .build());
     }
 
@@ -226,8 +226,8 @@ public final class OpenLineageEventMapper {
       return null;
     }
     return ol.newParentRunFacet(
-        ol.newParentRunFacetRun(toRunUuid(parentRunId)),
-        ol.newParentRunFacetJob(namespace, parentJobName),
+        ol.newParentRunFacetRun(toRunUuid(parentRunId), null),
+        ol.newParentRunFacetJob(namespace, parentJobName, null),
         null);
   }
 

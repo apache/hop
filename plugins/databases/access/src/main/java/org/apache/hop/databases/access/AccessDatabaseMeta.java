@@ -58,7 +58,7 @@ public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("io.github.spannm:ucanaccess")
-        .defaultVersion("5.1.5")
+        .defaultVersion("5.2.0")
         .licenseCategory("A")
         .licenseName("Apache-2.0")
         .licenseUrl("https://github.com/spannm/ucanaccess/blob/main/LICENSE")

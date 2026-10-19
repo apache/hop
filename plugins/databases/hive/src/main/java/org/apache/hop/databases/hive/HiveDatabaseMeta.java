@@ -149,7 +149,7 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("org.apache.hive:hive-jdbc:jar:standalone")
-        .defaultVersion("4.2.0")
+        .defaultVersion("4.2.1")
         .licenseCategory("A")
         .licenseName("Apache-2.0")
         .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")

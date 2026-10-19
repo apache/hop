@@ -33,37 +33,46 @@
         <angus-activation.version>2.0.3</angus-activation.version>
         <angus-mail.version>2.0.5</angus-mail.version>
         <annotations.version>26.1.0</annotations.version>
-        <artemis-jakarta-client.version>2.55.0</artemis-jakarta-client.version>
-        <artemis-server.version>2.55.0</artemis-server.version>
-        <asm.version>9.10.1</asm.version>
-        <avro.version>1.12.1</avro.version>
-        <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
+        <antlr-runtime.version>3.5.3</antlr-runtime.version>
+        <artemis-jakarta-client.version>2.57.0</artemis-jakarta-client.version>
+        <artemis-server.version>2.57.0</artemis-server.version>
+        <asm.version>9.11</asm.version>
+        <avro.version>1.12.2</avro.version>
+        <aws-java-sdk.version>2.56.0</aws-java-sdk.version>
+        <azure-storage.version>8.6.5</azure-storage.version>
         <bcprov-jdk18on.version>1.86</bcprov-jdk18on.version>
-        <caffeine.version>3.2.4</caffeine.version>
+        <caffeine.version>3.3.1</caffeine.version>
         <checker-qual.version>3.55.1</checker-qual.version>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
         <common-utils.version>7.6.1</common-utils.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-cli.version>1.11.0</commons-cli.version>
-        <commons-codec.version>1.22.1</commons-codec.version>
+        <commons-codec.version>1.23.0</commons-codec.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
         <commons-collections4.version>4.6.0</commons-collections4.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-csv.version>1.14.1</commons-csv.version>
         <commons-io.version>2.22.0</commons-io.version>
-        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <commons-lang3.version>3.21.0</commons-lang3.version>
         <commons-logging.version>1.4.0</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.13.0</commons-net.version>
+        <commons-pool2.version>2.13.0</commons-pool2.version>
         <commons-text.version>1.15.0</commons-text.version>
         <commons-vfs2.version>2.10.0</commons-vfs2.version>
-        <encoder.version>1.4.0</encoder.version>
+        <encoder.version>1.5.1</encoder.version>
         <epam-parso-version>2.0.14</epam-parso-version>
+        <failureaccess.version>1.0.3</failureaccess.version>
         <gson.version>2.14.0</gson.version>
         <guava.version>33.3.1-jre</guava.version>
+        <hdrhistogram.version>2.2.2</hdrhistogram.version>
         <hive.version>2.3.9</hive.version>
         <httpclient.version>4.5.14</httpclient.version>
-        <httpclient5.version>5.6.4</httpclient5.version>
+        <httpclient5.version>5.6.5</httpclient5.version>
         <httpcore.version>4.4.16</httpcore.version>
-        <jackcess.version>4.0.11</jackcess.version>
+        <httpcore5.version>5.4.4</httpcore5.version>
+        <j2objc-annotations.version>3.0.0</j2objc-annotations.version>
+        <jackcess.version>5.0.4</jackcess.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jackson.version>2.21.7</jackson.version>
         <jakarta-activation-api.version>2.1.4</jakarta-activation-api.version>
@@ -74,47 +83,64 @@
         <jakarta-xml-bind-api.version>4.0.5</jakarta-xml-bind-api.version>
         <jakarta-xml-soap-api.version>3.0.2</jakarta-xml-soap-api.version>
         <jakarta-xml-ws-api.version>4.0.3</jakarta-xml-ws-api.version>
-        <javassist.version>3.32.0-GA</javassist.version>
-        <jersey.version>4.0.2</jersey.version>
+        <javassist.version>3.33.0-GA</javassist.version>
+        <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
+        <javax-jaxb-api.version>2.2.12</javax-jaxb-api.version>
+        <javax.inject.version>1</javax.inject.version>
+        <jcip-annotations.version>1.0-1</jcip-annotations.version>
+        <jersey.version>4.0.3</jersey.version>
         <jetty.version>12.1.12</jetty.version>
+        <jgit.version>7.8.0.202609011348-r</jgit.version>
         <jna.version>5.19.1</jna.version>
-        <joda-time.version>2.14.3</joda-time.version>
-        <jsch.version>2.28.6</jsch.version>
+        <joda-time.version>2.15.0</joda-time.version>
+        <jsch.version>2.28.8</jsch.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsoup.version>1.23.2</jsoup.version>
         <jspecify.version>1.0.1</jspecify.version>
-        <juniversalchardet.version>2.5.0</juniversalchardet.version>
+        <jsr305.version>3.0.2</jsr305.version>
+        <jts-core.version>1.20.0</jts-core.version>
+        <juniversalchardet.version>2.5.1</juniversalchardet.version>
         <kafka-avro-serializer.version>7.6.1</kafka-avro-serializer.version>
         <kafka-clients.version>3.9.2</kafka-clients.version>
         <kafka-schema-registry-client.version>7.6.1</kafka-schema-registry-client.version>
         <kaml.version>0.104.0</kaml.version>
         <kotlin.version>1.9.25</kotlin.version>
         <log4j.version>2.26.1</log4j.version>
-        <lz4-java.version>1.11.4</lz4-java.version>
+        <logredactor.version>1.0.12</logredactor.version>
+        <lz4-java.version>1.12.0</lz4-java.version>
         <maven-resolver-provider.version>3.9.16</maven-resolver-provider.version>
         <maven-resolver.version>1.9.27</maven-resolver.version>
+        <minimal-json.version>0.9.5</minimal-json.version>
         <msal4j-persistence.version>1.3.0</msal4j-persistence.version>
         <msal4j.version>1.16.1</msal4j.version>
-        <nimbus-jose.version>10.6</nimbus-jose.version>
+        <nimbus-jose.version>10.10</nimbus-jose.version>
         <okhttp.version>4.12.0</okhttp.version>
-        <okio.version>3.18.1</okio.version>
+        <okio.version>3.18.2</okio.version>
+        <parquet.version>1.18.1</parquet.version>
         <picocli-version>4.7.7</picocli-version>
         <poi.version>5.5.1</poi.version>
         <protobuf-java.version>4.34.1</protobuf-java.version>
+        <py4j.version>0.10.9.9</py4j.version>
         <re2j.version>1.8</re2j.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
-        <reactor-core.version>3.8.6</reactor-core.version>
-        <reactor-netty.version>1.3.3</reactor-netty.version>
+        <reactor-core.version>3.8.7</reactor-core.version>
+        <reactor-netty.version>1.3.7</reactor-netty.version>
         <rhino.version>1.9.1</rhino.version>
         <saxon.version>8.7</saxon.version>
-        <slf4j.version>2.0.18</slf4j.version>
-        <snakeyaml.version>2.6</snakeyaml.version>
-        <woodstox.version>7.2.2</woodstox.version>
+        <slf4j.version>2.0.20</slf4j.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
+        <snappy-java.version>1.1.10.12</snappy-java.version>
+        <swagger-annotations.version>2.1.10</swagger-annotations.version>
+        <threeten-extra.version>1.8.0</threeten-extra.version>
+        <woodstox.version>7.3.0</woodstox.version>
+        <xbean-asm9-shaded.version>4.30</xbean-asm9-shaded.version>
         <xerces.version>2.12.2</xerces.version>
         <xml-apis-ext.version>1.3.04</xml-apis-ext.version>
-        <xmlunit.version>2.13.0</xmlunit.version>
-        <zstd-jni.version>1.5.7-13</zstd-jni.version>
+        <xmlunit.version>2.14.0</xmlunit.version>
+        <xz.version>1.12</xz.version>
+        <zookeeper.version>3.9.6</zookeeper.version>
+        <zstd-jni.version>1.5.7-23</zstd-jni.version>
     </properties>
 
     <dependencyManagement>
@@ -123,6 +149,22 @@
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
                 <version>${jersey.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <!-- Every Log4j module at one version, including the ones Spark and Hadoop bring. -->
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <!-- The whole AWS SDK at one version: the AWS plugin, Redshift and Beam all ship it to lib/core. -->
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws-java-sdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -451,6 +493,13 @@
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>${json-simple.version}</version>
+                <exclusions>
+                    <!-- json-simple 1.1.1 wrongly declares junit 4.10 as a compile dependency. -->
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.healthmarketscience.jackcess</groupId>
@@ -698,11 +747,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi</artifactId>
                 <version>${poi.version}</version>
@@ -863,11 +907,6 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j2-impl</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
@@ -959,6 +998,237 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-resolver-provider</artifactId>
                 <version>${maven-resolver-provider.version}</version>
+            </dependency>
+            <!--
+                Libraries that several modules ship to lib/core in different versions. lib/core is
+                one classloader, so only one version may be there: whichever jar is listed first wins.
+            -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>failureaccess</artifactId>
+                <version>${failureaccess.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${javax-jaxb-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial.snappy</groupId>
+                <artifactId>snappy-java</artifactId>
+                <version>${snappy-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-storage</artifactId>
+                <version>${azure-storage.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.py4j</groupId>
+                <artifactId>py4j</artifactId>
+                <version>${py4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.threeten</groupId>
+                <artifactId>threeten-extra</artifactId>
+                <version>${threeten-extra.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-asm9-shaded</artifactId>
+                <version>${xbean-asm9-shaded.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.tukaani</groupId>
+                <artifactId>xz</artifactId>
+                <version>${xz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.j2objc</groupId>
+                <artifactId>j2objc-annotations</artifactId>
+                <version>${j2objc-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax-annotation-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.stephenc.jcip</groupId>
+                <artifactId>jcip-annotations</artifactId>
+                <version>${jcip-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${jsr305.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>${javax.inject.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-serializer</artifactId>
+                <version>${kafka-avro-serializer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>logredactor</artifactId>
+                <version>${logredactor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>logredactor-metrics</artifactId>
+                <version>${logredactor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.eclipsesource.minimal-json</groupId>
+                <artifactId>minimal-json</artifactId>
+                <version>${minimal-json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk7</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <!-- One version across plugins that bundle the same library. -->
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr-runtime</artifactId>
+                <version>${antlr-runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${commons-pool2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hdrhistogram</groupId>
+                <artifactId>HdrHistogram</artifactId>
+                <version>${hdrhistogram.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit.http.apache</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit.junit</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.locationtech.jts</groupId>
+                <artifactId>jts-core</artifactId>
+                <version>${jts-core.version}</version>
+            </dependency>
+            <!--
+                One Parquet version for the parquet and lakehouse plugins. Iceberg would otherwise
+                bring its own older parquet-hadoop/avro/jackson next to the managed modules.
+                parquet-jackson embeds a shaded jackson-core: only a newer Parquet updates it.
+            -->
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-avro</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-column</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-common</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-encoding</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-format-structures</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-hadoop</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-jackson</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-variant</artifactId>
+                <version>${parquet.version}</version>
+            </dependency>
+            <!--
+                Only the Beam and Spark plugins ship ZooKeeper, as a transitive dependency of Spark.
+                Spark 3.5 (Beam's Spark runner) would otherwise bring the end-of-life 3.6 line.
+            -->
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+                <exclusions>
+                    <!-- Only for ZooKeeper's optional TLS transport; seven platform jars. -->
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty-tcnative-boringssl-static</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper-jute</artifactId>
+                <version>${zookeeper.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

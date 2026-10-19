@@ -29,8 +29,7 @@
     <name>Hop Plugins Technology Redis</name>
 
     <properties>
-        <commons-pool2.version>2.12.1</commons-pool2.version>
-        <lettuce.version>6.5.5.RELEASE</lettuce.version>
+        <lettuce.version>6.8.2.RELEASE</lettuce.version>
     </properties>
 
     <dependencyManagement>
@@ -60,7 +59,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-            <version>${commons-pool2.version}</version>
+        </dependency>
+        <!-- Lettuce 6.8 needs the Netty DNS resolver; lib/core ships it, so it is not bundled here. -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
