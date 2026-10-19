@@ -45,8 +45,8 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
 
   public static final String EXPERIMENT_APACHE_HOP_PIPELINE = "apache_hop_pipeline";
 
-  /** Used when the GCS upload buffer size is left empty. */
-  public static final int DEFAULT_GCS_UPLOAD_BUFFER_SIZE_MB = 128;
+  /** Largest GCS upload buffer size accepted, well below where the size in bytes overflows. */
+  public static final int MAX_GCS_UPLOAD_BUFFER_SIZE_MB = 1024;
 
   @GuiWidgetElement(
       order = "20000-dataflow-options",
@@ -264,15 +264,22 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     }
 
     // Beam stages the fat jar with a resumable GCS upload in chunks of this size, one HTTP round
-    // trip per chunk. Its own default is 1 MB, which caps staging at about 1 MB per round trip.
-    int uploadBufferSizeMb = DEFAULT_GCS_UPLOAD_BUFFER_SIZE_MB;
-    if (StringUtils.isNotEmpty(getGcsUploadBufferSizeMb())) {
-      int size = Const.toInt(resolve(getGcsUploadBufferSizeMb()), -1);
-      if (size > 0) {
-        uploadBufferSizeMb = size;
+    // trip per chunk, and stages in 1 MB chunks when it is unset. The option is passed to the
+    // workers too, where every open GCS writer holds a buffer of this size, so only set it when
+    // asked to and leave Beam's defaults alone otherwise.
+    String uploadBufferSizeMb = resolve(getGcsUploadBufferSizeMb());
+    if (StringUtils.isNotBlank(uploadBufferSizeMb)) {
+      int size = Const.toInt(uploadBufferSizeMb.trim(), -1);
+      if (size < 1 || size > MAX_GCS_UPLOAD_BUFFER_SIZE_MB) {
+        throw new HopException(
+            "Invalid GCS upload buffer size for GCP DataFlow: '"
+                + uploadBufferSizeMb
+                + "'. Specify a whole number of megabytes from 1 to "
+                + MAX_GCS_UPLOAD_BUFFER_SIZE_MB
+                + ", or leave it empty to use the Apache Beam default.");
       }
+      options.setGcsUploadBufferSizeBytes(size * 1024 * 1024);
     }
-    options.setGcsUploadBufferSizeBytes(uploadBufferSizeMb * 1024 * 1024);
 
     if (StringUtils.isNotEmpty(getGcpServiceAccount())) {
       options.setServiceAccount(resolve(getGcpServiceAccount()));
@@ -451,7 +458,8 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   }
 
   /**
-   * Gets the size, in MB, of the chunks the files to stage are uploaded to Cloud Storage in
+   * Gets the size, in MB, of the chunks files are uploaded to Cloud Storage in, both when staging
+   * and on the workers. Empty means the Apache Beam default.
    *
    * @return value of gcsUploadBufferSizeMb
    */
