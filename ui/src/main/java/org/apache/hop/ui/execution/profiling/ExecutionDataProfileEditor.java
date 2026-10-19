@@ -44,7 +44,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
@@ -146,9 +145,11 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
         parent,
         ExecutionDataProfile.GUI_PLUGIN_LIMITS_PARENT_ID,
         wDescription);
-    Control limitsGroup = findGroup(parent);
-    if (limitsGroup != null) {
-      lastControl = limitsGroup;
+    // The limits box stretches to the bottom of the editor and covers the sampler list.
+    // Keep it at the height of its fields so the samplers sit under it.
+    Control limitsHost = limitsWidgets.fitContainerToContent();
+    if (limitsHost != null) {
+      lastControl = limitsHost;
     }
 
     Label wlSamplers = new Label(parent, SWT.LEFT);
@@ -226,17 +227,6 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
             setChanged();
           }
         });
-  }
-
-  /** The limits group is created on the editor composite, so the sampler list can sit under it. */
-  private static Control findGroup(Composite parent) {
-    Control group = null;
-    for (Control child : parent.getChildren()) {
-      if (child instanceof Group) {
-        group = child;
-      }
-    }
-    return group;
   }
 
   private IExecutionDataSampler previousSampler;
