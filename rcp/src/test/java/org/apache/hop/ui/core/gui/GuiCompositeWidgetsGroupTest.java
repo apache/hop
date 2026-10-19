@@ -475,6 +475,54 @@ class GuiCompositeWidgetsGroupTest extends SwtBotTestBase {
   }
 
   @Test
+  void fittedBoxesLeaveRoomForControlsUnderThem() {
+    Shell shell = new Shell(display);
+    shell.setLayout(new FormLayout());
+    shell.setSize(700, 600);
+    try {
+      Label header = new Label(shell, SWT.LEFT);
+      header.setText("Header");
+      FormData fdHeader = new FormData();
+      fdHeader.left = new FormAttachment(0, 0);
+      fdHeader.top = new FormAttachment(0, 0);
+      fdHeader.right = new FormAttachment(100, 0);
+      header.setLayoutData(fdHeader);
+
+      GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
+      widgets.createCompositeWidgets(new SingleBoxSample(), null, shell, SINGLE_BOX_PARENT, header);
+      Control host = widgets.fitContainerToContent();
+      assertNotNull(host);
+      assertInstanceOf(FormData.class, host.getLayoutData());
+      FormData hostData = (FormData) host.getLayoutData();
+      assertNull(hostData.bottom, "the box column must stop stretching to the parent bottom");
+      assertTrue(hostData.height > 0, "height " + hostData.height);
+
+      Label below = new Label(shell, SWT.LEFT);
+      below.setText("Samplers");
+      FormData fdBelow = new FormData();
+      fdBelow.left = new FormAttachment(0, 0);
+      fdBelow.top = new FormAttachment(host, 8);
+      below.setLayoutData(fdBelow);
+
+      shell.layout(true, true);
+
+      Rectangle hostBounds = host.getBounds();
+      Rectangle belowBounds = below.getBounds();
+      Rectangle box = findGroups(shell).get(0).getBounds();
+      assertTrue(hostBounds.height < 400, "host " + hostBounds.height);
+      assertTrue(
+          belowBounds.y >= hostBounds.y + hostBounds.height,
+          "below " + belowBounds.y + " host " + hostBounds);
+      assertTrue(box.y + box.height <= belowBounds.y + 2, "box " + box + " below " + belowBounds.y);
+      assertTrue(
+          hostBounds.y + hostBounds.height < shell.getClientArea().height - 50,
+          "host " + hostBounds + " client " + shell.getClientArea().height);
+    } finally {
+      shell.dispose();
+    }
+  }
+
+  @Test
   void singleBoxFillsTheSpaceBetweenHeaderAndButtons() {
     Shell shell = new Shell(display);
     shell.setLayout(new FormLayout());
