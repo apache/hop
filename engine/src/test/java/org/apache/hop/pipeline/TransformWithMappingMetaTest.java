@@ -18,16 +18,24 @@ package org.apache.hop.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -184,6 +192,35 @@ class TransformWithMappingMetaTest {
             TransformWithMappingMeta.replaceVariableValues(
                 childVariables, replaceByParentVariables));
     assertEquals("parentValue", childVariables.getVariable(variableOverwrite));
+  }
+
+  /**
+   * Issue #9019: a failed load used to log the raw {@code {0}} placeholder and always claimed the
+   * directory was missing, even when the file itself did not exist.
+   */
+  @Test
+  void loadMappingMetaNamesPipelineWhenLoadFails() {
+    String missing = "${PROJECT_HOME}/does-not-exist.hpl";
+    String resolved = "/tmp/issue-9019/does-not-exist.hpl";
+
+    TransformWithMappingMeta<ITransform, ITransformData> meta = new TransformWithMappingMeta<>() {};
+    meta.setFilename(missing);
+
+    IVariables variables = new Variables();
+    variables.setVariable("PROJECT_HOME", "/tmp/issue-9019");
+
+    HopException exception =
+        assertThrows(
+            HopException.class,
+            () ->
+                TransformWithMappingMeta.loadMappingMeta(
+                    meta, null, new MemoryMetadataProvider(), variables));
+
+    assertTrue(exception.getMessage().contains(resolved), exception.getMessage());
+    assertFalse(exception.getMessage().contains("{0}"), exception.getMessage());
+    assertNotNull(exception.getCause());
+    assertTrue(
+        exception.getCause().getMessage().contains(resolved), exception.getCause().getMessage());
   }
 
   @Test

@@ -143,7 +143,8 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       }
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "TransformWithMappingMeta.Exception.UnableToLoadPipeline"),
+          BaseMessages.getString(
+              PKG, "TransformWithMappingMeta.Exception.UnableToLoadPipeline", realFilename),
           e);
     }
 
