@@ -46,7 +46,7 @@ In this tab you can specify the files and/or folders to move.
 |Include Subfolders|Also move the content of sub-folders
 |Move empty folders|Also move empty folders
 |Simulate|Don't actually move anything, just see if it's possible at all.
-|Copy previous results to args|Use the result files from the previous workflow action (actions) as files and/or folders to move.
+|Copy previous results to args|Take the files and folders to move from the result rows of a previous action: the source in the first field, the destination in the second and the wildcard in the third. See <<_result,Result>>.
 |Files / Folders |You can specify the list of files or folders with destinations and wildcards in this grid.
 |===
 

@@ -101,8 +101,10 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The command ended with exit code 0. With *Execute for every result row*, every run did.
-|False|The command ended with another exit code, or could not be started, for example because the script file doesn't exist. The number of errors is 1. With *Execute for every result row*, the first run that fails ends the loop: the remaining rows are not processed.
+|False|The command ended with another exit code, or could not be started, for example because the script file doesn't exist on Linux or macOS. On Windows, `cmd.exe` starts anyway and returns a non-zero exit code. The number of errors is 1. With *Execute for every result row*, the first run that fails ends the loop: the remaining rows are not processed.
 |Result files|Passed on unchanged, plus the log file with *Specify logfile*.
 |Result rows|Passed on unchanged. With *Copy previous results to args*, the fields of the result rows are passed as arguments: the fields of every row in a single run, or with *Execute for every result row* the fields of the current row in each run.
 |Metrics|Exit status: the exit code of the command; with *Execute for every result row*, of the last run. It is not set when the command could not be started.
 |===
+
+With *Execute for every result row* and no result rows, the command doesn't run, and the result of the previous action is passed on, without an exit status.

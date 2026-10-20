@@ -31,7 +31,7 @@ The `Delete files` action deletes a set of specified files, optionally with subf
 |Option|Description
 |Action name|The name of the workflow action.
 |Include Subfolders|Also delete the matching files in the subfolders of a folder. Folders are never deleted.
-|Copy previous results to args|Enable this if the set of files comes from a previous workflow action (as part of the result files)
+|Copy previous results to args|Take the files and folders to delete from the result rows of a previous action: the path in the first field and the wildcard in the second. See <<_result,Result>>.
 |File/Folder|The file or folder to delete
 |Wildcard|The regular expression matching files to delete if the previous option is a folder.
 For example to delete all files ending in .dat, the regular expression would be ".*\.dat$".
