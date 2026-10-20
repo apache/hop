@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.deletefolders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -27,10 +28,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.validator.ValidatorMessages;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -42,6 +53,7 @@ class ActionDeleteFoldersCheckTest {
   @BeforeAll
   static void setUpClass() throws Exception {
     HopClientEnvironment.init();
+    HopLogStore.init();
   }
 
   @Test
@@ -65,17 +77,16 @@ class ActionDeleteFoldersCheckTest {
   }
 
   @Test
-  void missingFolderIsReported() {
+  void missingFolderIsAWarning() {
     ActionDeleteFolders action = new ActionDeleteFolders("delete folders");
-    String missing = tempDir.resolve("missing").toString();
-    action.setFileItems(List.of(new FileItem(missing)));
+    action.setFileItems(List.of(new FileItem(tempDir.resolve("missing").toString())));
 
     List<ICheckResult> remarks = check(action, new Variables());
 
     assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
+    assertEquals(ICheckResult.TYPE_RESULT_WARNING, remarks.getFirst().getType());
     assertEquals(
-        message("ActionDeleteFolders.CheckResult.FolderDoesNotExist", missing),
+        ValidatorMessages.getString("messages.failed.fileExists", "fileItems[0].fileName"),
         remarks.getFirst().getText());
   }
 
@@ -91,8 +102,7 @@ class ActionDeleteFoldersCheckTest {
     assertEquals(1, remarks.size());
     assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
     assertEquals(
-        message("ActionDeleteFolders.CheckResult.FolderOk", folder.toString()),
-        remarks.getFirst().getText());
+        passedMessage("fileItems[0].fileName", folder.toString()), remarks.getFirst().getText());
   }
 
   @Test
@@ -107,7 +117,7 @@ class ActionDeleteFoldersCheckTest {
     assertEquals(1, remarks.size());
     assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
     assertEquals(
-        message("ActionDeleteFolders.Error.NotFolder", file.toString()),
+        message("ActionDeleteFolders.CheckResult.NotAFolder", file.toString()),
         remarks.getFirst().getText());
   }
 
@@ -121,7 +131,7 @@ class ActionDeleteFoldersCheckTest {
     assertEquals(1, remarks.size());
     assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
     assertEquals(
-        message("ActionDeleteFolders.CheckResult.FolderNameMissing", "1"),
+        ValidatorMessages.getString("messages.failed.notBlank", "fileItems[0].fileName"),
         remarks.getFirst().getText());
   }
 
@@ -138,9 +148,104 @@ class ActionDeleteFoldersCheckTest {
 
     assertEquals(1, remarks.size());
     assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
-    assertEquals(
-        message("ActionDeleteFolders.CheckResult.FolderOk", folder.toString()),
-        remarks.getFirst().getText());
+    assertEquals(passedMessage("fileItems[0].fileName", "${FOLDER}"), remarks.getFirst().getText());
+  }
+
+  @Test
+  void remoteFolderIsNotProbed() {
+    ActionDeleteFolders action = new ActionDeleteFolders("delete folders");
+    action.setFileItems(List.of(new FileItem("sftp://example.com/data")));
+
+    assertTrue(check(action, new Variables()).isEmpty());
+  }
+
+  @Test
+  void unknownSchemeIsNotProbed() {
+    ActionDeleteFolders action = new ActionDeleteFolders("delete folders");
+    action.setFileItems(List.of(new FileItem("nosuchscheme://x")));
+
+    assertTrue(check(action, new Variables()).isEmpty());
+  }
+
+  @Test
+  void previousResultNameIsNotResolved() throws Exception {
+    Path kept = tempDir.resolve("kept");
+    Files.createDirectories(kept);
+    Files.writeString(kept.resolve("marker.txt"), "x", StandardCharsets.UTF_8);
+    ActionDeleteFolders action = attachedAction();
+    action.setArgFromPrevious(true);
+    action.setVariable("FOLDER", kept.toString());
+
+    Result result = action.execute(resultWithFolder("${FOLDER}"), 0);
+
+    assertEquals(0, result.getNrErrors());
+    assertTrue(Files.exists(kept.resolve("marker.txt")));
+  }
+
+  @Test
+  void previousResultDeletesTheLiteralFolder() throws Exception {
+    Path folder = tempDir.resolve("from-row");
+    Files.createDirectories(folder);
+    ActionDeleteFolders action = attachedAction();
+    action.setArgFromPrevious(true);
+
+    Result result = action.execute(resultWithFolder(folder.toString()), 0);
+
+    assertEquals(0, result.getNrErrors());
+    assertEquals(1, result.getNrLinesDeleted());
+    assertFalse(Files.exists(folder));
+  }
+
+  @Test
+  void blankNamesAreIgnoredAtRuntime() throws Exception {
+    ActionDeleteFolders action = attachedAction();
+    action.setFileItems(List.of(new FileItem("   ")));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertEquals(0, result.getNrErrors());
+    assertEquals(0, result.getNrLinesDeleted());
+    assertTrue(result.getResult());
+  }
+
+  @Test
+  void resourceDependenciesUseTheGivenVariables() {
+    ActionDeleteFolders action = new ActionDeleteFolders("delete folders");
+    action.setVariable("FOLDER", "from-action");
+    action.setFileItems(List.of(new FileItem("${FOLDER}/data")));
+    Variables caller = new Variables();
+    caller.setVariable("FOLDER", "from-caller");
+
+    List<ResourceReference> references = action.getResourceDependencies(caller, new WorkflowMeta());
+
+    assertEquals(1, references.size());
+    ResourceEntry entry = references.getFirst().getEntries().getFirst();
+    assertEquals(ResourceEntry.ResourceType.FILE, entry.getResourcetype());
+    assertEquals("from-caller/data", entry.getResource());
+  }
+
+  private static String passedMessage(String propertyName, String value) {
+    String shown = value;
+    if (value.length() > 20) {
+      shown = value.substring(0, 20) + "...";
+    }
+    return ValidatorMessages.getString("messages.passed", propertyName, shown);
+  }
+
+  private static ActionDeleteFolders attachedAction() {
+    ActionDeleteFolders action = new ActionDeleteFolders("delete folders");
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+    action.setParentWorkflow(workflow);
+    return action;
+  }
+
+  private static Result resultWithFolder(String folderName) {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("folder"));
+    Result result = new Result();
+    result.setRows(List.of(new RowMetaAndData(rowMeta, folderName)));
+    return result;
   }
 
   private static String message(String key, String... arguments) {
