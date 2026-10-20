@@ -44,6 +44,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
@@ -281,6 +282,27 @@ class SftpDoubleSlashPathTest {
       assertTrue(
           paths.contains("//read-tests/file1.txt"),
           "the server should have been asked for a //-path, but got: " + paths);
+    }
+
+    /**
+     * A data set name of a single level, the remote folder of the SFTP Put transform for instance.
+     * jsch would turn {@code //read-tests} into {@code /read-tests}; the trailing slash keeps both.
+     */
+    @Test
+    void aSingleLevelDataSetKeepsTheSecondSlash() throws Exception {
+      final String uri = SftpConnections.buildUri(namedConnection(), "//read-tests/", null);
+      REQUESTED_PATHS.clear();
+      try (FileObject folder = manager.resolveFile(uri, authOptions())) {
+        assertEquals(FileType.FOLDER, folder.getType());
+      }
+      final List<String> paths = new ArrayList<>(REQUESTED_PATHS);
+
+      assertTrue(
+          paths.contains("//read-tests/"),
+          "the server should have been asked for the data set, but got: " + paths);
+      assertFalse(
+          paths.contains("/read-tests"),
+          "the server was asked for the single-slash path: " + paths);
     }
 
     /** A random-access read opens the same file a plain read does: the data set. */

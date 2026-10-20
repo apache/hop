@@ -117,13 +117,19 @@ public class SftpFileObject extends AbstractFileObject<SftpFileSystem> {
    * USS path. Absolute is deliberate: jsch passes a path starting with a slash to the server
    * untouched, while a relative one is resolved against a working directory the server would have
    * normalised for us.
+   *
+   * <p>A data set name of a single level, such as {@code //EDIJP.NAB.BPAY.PCTP}, gets a trailing
+   * slash. jsch runs almost every path through its glob handling, which splits the path at the last
+   * slash and so turns {@code //A.B.C} into {@code /A.B.C} - the USS path. With the trailing slash
+   * the last slash comes after the data set name, and {@code //A.B.C/} reaches the server as is.
    */
   private static String remotePath(final AbstractFileName fileName, final SftpFileSystem fileSystem)
       throws FileSystemException {
     final String rootPrefix =
         fileName instanceof IRootPrefixFileName prefixed ? prefixed.getRootPrefix() : "";
     if (!rootPrefix.isEmpty()) {
-      return rootPrefix + UriParser.decode(fileName.getPath());
+      final String path = rootPrefix + UriParser.decode(fileName.getPath());
+      return path.length() > 2 && path.indexOf('/', 2) < 0 ? path + "/" : path;
     }
     return UriParser.decode(fileSystem.getRootName().getRelativeName(fileName));
   }
