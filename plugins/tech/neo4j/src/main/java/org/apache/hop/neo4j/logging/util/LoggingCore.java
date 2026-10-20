@@ -24,7 +24,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,6 +56,27 @@ public class LoggingCore {
 
   /** The format Neo4j logging stores the registration date of an execution in. */
   public static final String REGISTRATION_DATE_FORMAT = "yyyy/MM/dd'T'HH:mm:ss";
+
+  /** Logging dates, with an optional fraction of a second. */
+  private static final DateTimeFormatter REGISTRATION_DATE_TIME =
+      new DateTimeFormatterBuilder()
+          .appendPattern(REGISTRATION_DATE_FORMAT)
+          .optionalStart()
+          .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+          .optionalEnd()
+          .toFormatter();
+
+  /** Timestamp strings written for a graph property, with an optional fraction of a second. */
+  private static final DateTimeFormatter LOCAL_DATE_TIME_SPACE =
+      new DateTimeFormatterBuilder()
+          .appendPattern("yyyy-MM-dd HH:mm:ss")
+          .optionalStart()
+          .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+          .optionalEnd()
+          .toFormatter();
+
+  private static final List<DateTimeFormatter> LOCAL_DATE_TIMES =
+      List.of(REGISTRATION_DATE_TIME, DateTimeFormatter.ISO_LOCAL_DATE_TIME, LOCAL_DATE_TIME_SPACE);
 
   /**
    * The name of the connection to log to: {@link Defaults#HOP_GRAPH_LOGGING_CONNECTION} or else
@@ -284,21 +307,45 @@ public class LoggingCore {
     return null;
   }
 
-  private static Date parseDate(String string) {
-    for (DateTimeFormatter formatter :
-        List.of(
-            DateTimeFormatter.ofPattern(REGISTRATION_DATE_FORMAT),
-            DateTimeFormatter.ISO_LOCAL_DATE_TIME)) {
+  /**
+   * A date stored as text on an execution. Neo4j logging writes {@link #REGISTRATION_DATE_FORMAT}.
+   * FalkorDB and Apache AGE write an ISO-8601 local date time, and a timestamp property can be a
+   * local date time separated with a space. An offset or a zoned value is read as that instant.
+   * Anything else is null, so one bad value does not fail the read (issue #9039).
+   */
+  public static Date parseDate(String string) {
+    if (string == null) {
+      return null;
+    }
+    String trimmed = string.trim();
+    if (trimmed.isEmpty()) {
+      return null;
+    }
+    for (DateTimeFormatter formatter : LOCAL_DATE_TIMES) {
       try {
-        return toDate(LocalDateTime.parse(string, formatter));
+        return toDate(LocalDateTime.parse(trimmed, formatter));
       } catch (DateTimeParseException e) {
         // Try the next format
       }
     }
-    return null;
+    try {
+      return Date.from(OffsetDateTime.parse(trimmed).toInstant());
+    } catch (DateTimeParseException e) {
+      // Try the next format
+    }
+    try {
+      return Date.from(ZonedDateTime.parse(trimmed).toInstant());
+    } catch (DateTimeParseException e) {
+      // Try the next format
+    }
+    try {
+      return toDate(LocalDate.parse(trimmed).atStartOfDay());
+    } catch (DateTimeParseException e) {
+      return null;
+    }
   }
 
-  private static Date toDate(LocalDateTime localDateTime) {
+  public static Date toDate(LocalDateTime localDateTime) {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }
 
