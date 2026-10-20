@@ -25,6 +25,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -42,6 +46,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * What the transform makes of its configuration before it touches the server: every one of these
@@ -180,6 +185,50 @@ class SftpPutTest {
 
     assertEquals(1, transform.getErrors());
     assertFalse(transform.processRow(), "the transform should have stopped");
+  }
+
+  /** A folder where the file should go can't be overwritten, and the message says so. */
+  @Test
+  void testATargetWhichIsAFolderIsReported(@TempDir Path tempDir) throws Exception {
+    String uri = tempDir.toUri().toString();
+    try (FileObject folder = HopVfs.getFileObject(uri)) {
+      HopException e =
+          assertThrows(HopException.class, () -> SftpPut.checkTargetIsAFile(folder, uri));
+      assertTrue(e.getMessage().contains("isn't a file"), e.getMessage());
+    }
+  }
+
+  /** A file, or nothing at all, is fine. */
+  @Test
+  void testATargetWhichIsAFileOrMissingIsAccepted(@TempDir Path tempDir) throws Exception {
+    Path file = Files.writeString(tempDir.resolve("existing.txt"), "x");
+    try (FileObject existing = HopVfs.getFileObject(file.toUri().toString());
+        FileObject missing = HopVfs.getFileObject(tempDir.resolve("new.txt").toUri().toString())) {
+      SftpPut.checkTargetIsAFile(existing, "existing");
+      SftpPut.checkTargetIsAFile(missing, "missing");
+    }
+  }
+
+  /** The error stream gets the deepest cause too: that's where the server's answer is. */
+  @Test
+  void testTheErrorDescriptionHasTheRootCause() {
+    Exception e =
+        new HopException(
+            "Unable to upload",
+            new IOException("Could not create file", new IOException("4: Failure")));
+
+    String description = SftpPut.errorDescription(e);
+
+    assertTrue(description.contains("Unable to upload"), description);
+    assertTrue(description.contains("Root cause: IOException: 4: Failure"), description);
+  }
+
+  /** Without a cause there's nothing to add. */
+  @Test
+  void testTheErrorDescriptionWithoutACause() {
+    Exception e = new HopException("Unable to find remote folder");
+
+    assertEquals(e.toString(), SftpPut.errorDescription(e));
   }
 
   private SftpPutMeta meta() {
