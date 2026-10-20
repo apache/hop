@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -80,7 +81,28 @@ class LoggingCoreTest {
   }
 
   @Test
-  void unparsableStringIsNull() {
+  void loggingDateReportedByTheExecutionInformationLocation() {
+    // Issue #9039: Neo4j logging stores this text, and the execution list has to read it.
+    assertEquals(
+        toDate(LocalDateTime.of(2026, 10, 7, 16, 8, 52)),
+        LoggingCore.parseDate("2026/10/07T16:08:52"));
+  }
+
+  @Test
+  void timestampTextAndOffset() {
+    assertEquals(
+        toDate(LocalDateTime.of(2026, 9, 30, 14, 15, 16)),
+        LoggingCore.parseDate("2026-09-30 14:15:16.000000000"));
+    assertEquals(
+        Date.from(OffsetDateTime.parse("2026-09-30T12:15:16Z").toInstant()),
+        LoggingCore.parseDate("2026-09-30T12:15:16Z"));
+  }
+
+  @Test
+  void blankOrUnparsableStringIsNull() {
+    assertNull(LoggingCore.parseDate(null));
+    assertNull(LoggingCore.parseDate(""));
+    assertNull(LoggingCore.parseDate("   "));
     assertNull(LoggingCore.getDateValue(execution("not a date"), "registrationDate"));
   }
 

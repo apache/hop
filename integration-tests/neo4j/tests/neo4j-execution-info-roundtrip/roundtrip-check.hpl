@@ -1,0 +1,1190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>roundtrip-check</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Reads the subject workflow and pipeline back from the Neo4j execution information location, including a logging-format registration date. See issue #9039.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/10/20 14:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/10/20 14:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>names</from>
+      <to>count logging dates</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>count logging dates</from>
+      <to>logging dates present</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>logging dates present</from>
+      <to>set pipeline date</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>logging dates present</from>
+      <to>Abort no logging date</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>set pipeline date</from>
+      <to>pipeline updated</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>pipeline updated</from>
+      <to>set workflow date</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>pipeline updated</from>
+      <to>Abort pipeline not stored</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>set workflow date</from>
+      <to>workflow updated</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>workflow updated</from>
+      <to>stringify other dates</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>workflow updated</from>
+      <to>Abort workflow not stored</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>stringify other dates</from>
+      <to>remove typeless</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>remove typeless</from>
+      <to>find pipeline</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>remove typeless</from>
+      <to>find workflow</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find pipeline</from>
+      <to>missing pipeline</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find pipeline</from>
+      <to>check pipeline</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>missing pipeline</from>
+      <to>Abort missing pipeline</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check pipeline</from>
+      <to>find parent</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check pipeline</from>
+      <to>execution data</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find parent</from>
+      <to>missing parent</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find parent</from>
+      <to>check parent</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>missing parent</from>
+      <to>Abort missing parent</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check parent</from>
+      <to>keep child lookup fields</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep child lookup fields</from>
+      <to>find children</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find children</from>
+      <to>child is pipeline</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>child is pipeline</from>
+      <to>child ok</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>child ok</from>
+      <to>no child</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no child</from>
+      <to>Abort no child</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>execution data</from>
+      <to>rows with marker</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>rows with marker</from>
+      <to>samples ok</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>samples ok</from>
+      <to>no samples</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no samples</from>
+      <to>Abort no samples</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find workflow</from>
+      <to>missing workflow</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>find workflow</from>
+      <to>check workflow</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>missing workflow</from>
+      <to>Abort missing workflow</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>names</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>subject-pipeline</item>
+        <item>Pipeline</item>
+        <item>subject-workflow</item>
+        <item>Workflow</item>
+        <item>all-transforms</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <name>pipelineName</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>pipelineType</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>workflowName</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>workflowType</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>owner</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>count logging dates</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher>MATCH (e:Execution) WHERE e.executionStart IS NOT NULL AND valueType(e.executionStart) STARTS WITH 'STRING' RETURN count(e) AS loggingDates</cypher>
+    <cypher_from_field>N</cypher_from_field>
+    <read_only>N</read_only>
+    <retry>Y</retry>
+    <returning_graph>N</returning_graph>
+    <unwind>N</unwind>
+    <returns>
+      <return>
+        <name>loggingDates</name>
+        <source_type>Integer</source_type>
+        <type>Integer</type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>256</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>logging dates present</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>set pipeline date</send_true_to>
+    <send_false_to>Abort no logging date</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>loggingDates</leftvalue>
+        <function>&gt;</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>0</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort no logging date</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>Graph logging did not store an executionStart string</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>set pipeline date</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher>MATCH (src:Execution {type: 'PIPELINE', name: 'subject-pipeline'}) WHERE src.executionStart IS NOT NULL AND valueType(src.executionStart) STARTS WITH 'STRING' MATCH (e:Execution {executionType: 'Pipeline', name: 'subject-pipeline'}) SET e.registrationDate = src.executionStart RETURN src.executionStart AS loggedPipelineDate, count(e) AS pipelineNodes</cypher>
+    <cypher_from_field>N</cypher_from_field>
+    <read_only>N</read_only>
+    <retry>Y</retry>
+    <returning_graph>N</returning_graph>
+    <unwind>N</unwind>
+    <returns>
+      <return>
+        <name>loggedPipelineDate</name>
+        <source_type>String</source_type>
+        <type>String</type>
+      </return>
+      <return>
+        <name>pipelineNodes</name>
+        <source_type>Integer</source_type>
+        <type>Integer</type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>pipeline updated</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>set workflow date</send_true_to>
+    <send_false_to>Abort pipeline not stored</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>pipelineNodes</leftvalue>
+        <function>&gt;</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>0</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>784</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort pipeline not stored</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>The subject pipeline execution was not stored</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>784</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>set workflow date</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher>MATCH (src:Execution {type: 'WORKFLOW', name: 'subject-workflow'}) WHERE src.executionStart IS NOT NULL AND valueType(src.executionStart) STARTS WITH 'STRING' MATCH (e:Execution {executionType: 'Workflow', name: 'subject-workflow'}) SET e.registrationDate = replace(src.executionStart, '/', '-') RETURN replace(src.executionStart, '/', '-') AS loggedWorkflowDate, count(e) AS workflowNodes</cypher>
+    <cypher_from_field>N</cypher_from_field>
+    <read_only>N</read_only>
+    <retry>Y</retry>
+    <returning_graph>N</returning_graph>
+    <unwind>N</unwind>
+    <returns>
+      <return>
+        <name>loggedWorkflowDate</name>
+        <source_type>String</source_type>
+        <type>String</type>
+      </return>
+      <return>
+        <name>workflowNodes</name>
+        <source_type>Integer</source_type>
+        <type>Integer</type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>960</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>workflow updated</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>stringify other dates</send_true_to>
+    <send_false_to>Abort workflow not stored</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>workflowNodes</leftvalue>
+        <function>&gt;</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>0</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>1136</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort workflow not stored</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>The subject workflow execution was not stored</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>1136</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>stringify other dates</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher>MATCH (e:Execution) WHERE e.executionType IS NOT NULL AND e.registrationDate IS NOT NULL AND NOT valueType(e.registrationDate) STARTS WITH 'STRING' SET e.registrationDate = '2026/10/07T16:08:52' RETURN count(e) AS converted</cypher>
+    <cypher_from_field>N</cypher_from_field>
+    <read_only>N</read_only>
+    <retry>Y</retry>
+    <returning_graph>N</returning_graph>
+    <unwind>N</unwind>
+    <returns>
+      <return>
+        <name>converted</name>
+        <source_type>Integer</source_type>
+        <type>Integer</type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>1312</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>remove typeless</name>
+    <type>Neo4jCypherOutput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>Test</connection>
+    <cypher>MATCH (e:Execution) WHERE e.executionType IS NULL WITH collect(e) AS doomed FOREACH (n IN doomed | DETACH DELETE n) RETURN size(doomed) AS removed</cypher>
+    <cypher_from_field>N</cypher_from_field>
+    <read_only>N</read_only>
+    <retry>Y</retry>
+    <returning_graph>N</returning_graph>
+    <unwind>N</unwind>
+    <returns>
+      <return>
+        <name>removed</name>
+        <source_type>Integer</source_type>
+        <type>Integer</type>
+      </return>
+    </returns>
+    <attributes/>
+    <GUI>
+      <xloc>1488</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>find pipeline</name>
+    <type>ExecInfo</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <location>neo4j</location>
+    <operationType>FindLastExecution</operationType>
+    <idFieldName/>
+    <parentIdFieldName/>
+    <typeFieldName>pipelineType</typeFieldName>
+    <nameFieldName>pipelineName</nameFieldName>
+    <includeChildrenFieldName/>
+    <limitFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>1680</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>missing pipeline</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1856</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort missing pipeline</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>The location did not return the subject pipeline</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>2032</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>check pipeline</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script><![CDATA[if (registrationDate == null || executionStartDate == null || executionEndDate == null || updateTime == null) {
+  throw "Pipeline execution is missing a date";
+}
+if (parentId == null || parentId == "") {
+  throw "Pipeline execution has no parent";
+}
+if (failed == true) {
+  throw "Pipeline execution failed";
+}
+if (statusDescription == null || statusDescription.indexOf("Finished") < 0) {
+  throw "Pipeline status is not finished: " + statusDescription;
+}
+var DateFormat = Packages.java.text.SimpleDateFormat;
+var text = "" + new DateFormat("yyyy/MM/dd'T'HH:mm:ss").format(registrationDate);
+var expected = "" + loggedPipelineDate;
+if (text != expected) {
+  throw "Pipeline registrationDate was [" + text + "] expected [" + expected + "]";
+}
+]]></jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields/>
+    <attributes/>
+    <GUI>
+      <xloc>1856</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>find parent</name>
+    <type>ExecInfo</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <location>neo4j</location>
+    <operationType>FindParentId</operationType>
+    <idFieldName>executionId</idFieldName>
+    <parentIdFieldName/>
+    <typeFieldName/>
+    <nameFieldName/>
+    <includeChildrenFieldName/>
+    <limitFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>2032</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>missing parent</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>2208</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort missing parent</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>findParentId returned nothing for the subject pipeline</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>2384</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>check parent</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script><![CDATA[if (id == null || !id.equals(parentId)) {
+  throw "findParentId [" + id + "] did not match parentId [" + parentId + "]";
+}
+]]></jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields/>
+    <attributes/>
+    <GUI>
+      <xloc>2208</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep child lookup fields</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>parentId</name>
+      </field>
+      <field>
+        <name>executionId</name>
+        <rename>pipelineExecutionId</rename>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>2384</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>find children</name>
+    <type>ExecInfo</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <location>neo4j</location>
+    <operationType>FindExecutions</operationType>
+    <idFieldName/>
+    <parentIdFieldName>parentId</parentIdFieldName>
+    <typeFieldName/>
+    <nameFieldName/>
+    <includeChildrenFieldName/>
+    <limitFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>2560</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>child is pipeline</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>child ok</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>name</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>subject-pipeline</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>2736</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>child ok</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>2912</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no child</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>2912</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort no child</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>findExecutions did not return the subject pipeline</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>3088</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>execution data</name>
+    <type>ExecInfo</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <location>neo4j</location>
+    <operationType>GetExecutionData</operationType>
+    <idFieldName>owner</idFieldName>
+    <parentIdFieldName>executionId</parentIdFieldName>
+    <typeFieldName/>
+    <nameFieldName/>
+    <includeChildrenFieldName/>
+    <limitFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>2032</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>rows with marker</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>samples ok</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>setRowDataJson</leftvalue>
+            <function>CONTAINS</function>
+            <operator>AND</operator>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>hop-graph-execution-info</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+              <mask/>
+            </value>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>collectionDate</leftvalue>
+            <function>IS NOT NULL</function>
+            <operator>-</operator>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text/>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+              <mask/>
+            </value>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>2208</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>samples ok</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>2384</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no samples</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>2384</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort no samples</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>Execution samples did not contain the marker</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>2560</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>find workflow</name>
+    <type>ExecInfo</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <location>neo4j</location>
+    <operationType>FindLastExecution</operationType>
+    <idFieldName/>
+    <parentIdFieldName/>
+    <typeFieldName>workflowType</typeFieldName>
+    <nameFieldName>workflowName</nameFieldName>
+    <includeChildrenFieldName/>
+    <limitFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>1680</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>missing workflow</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1856</xloc>
+      <yloc>768</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort missing workflow</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>The location did not return the subject workflow</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>2032</xloc>
+      <yloc>768</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>check workflow</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script><![CDATA[if (registrationDate == null) {
+  throw "Workflow execution is missing its registration date";
+}
+var DateFormat = Packages.java.text.SimpleDateFormat;
+var text = "" + new DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(registrationDate);
+var expected = "" + loggedWorkflowDate;
+if (text != expected) {
+  throw "Workflow registrationDate was [" + text + "] expected [" + expected + "]";
+}
+]]></jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields/>
+    <attributes/>
+    <GUI>
+      <xloc>1856</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
