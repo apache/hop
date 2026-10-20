@@ -67,13 +67,13 @@ public class CalculatorMetaFunction implements Cloneable {
       key = "value_length",
       injectionKey = "value_length",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueLength")
-  private int valueLength;
+  private int valueLength = -1;
 
   @HopMetadataProperty(
       key = "value_precision",
       injectionKey = "value_precision",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValuePrecision")
-  private int valuePrecision;
+  private int valuePrecision = -1;
 
   @HopMetadataProperty(
       key = "conversion_mask",
