@@ -31,6 +31,21 @@ The `Delete filenames from result` action deletes all the filenames that are in 
 |Option|Description
 |Action name|The name of the workflow action.
 |Limit action to| Enable this feature if you want to limit the deletion to certain filenames in the result file list.
-|Wildcard|The regular expression to limit the files to delete
-|Exclude wildcard|The regular expression to exclude certain files from being deleted.
+|Wildcard (RegExp)|The regular expression to limit the files to delete
+|Exclude wildcard (RegExp)|The regular expression to exclude certain files from being deleted.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The result files were removed: all of them, or with *Limit action to*, those whose whole file name, without the folder, matches *Wildcard (RegExp)* and not *Exclude wildcard (RegExp)*. With *Limit action to* and an empty *Wildcard (RegExp)*, all of them are removed.
+|False|A wildcard is not a valid regular expression. No result file is removed, and the number of errors is 0.
+|Result files|The result files of the previous action, without the removed ones. The files themselves are not deleted.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: With *Limit action to*, a result file that no longer exists on disk is not removed from the result files, even when its name matches.
