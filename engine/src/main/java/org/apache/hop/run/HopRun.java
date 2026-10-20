@@ -27,6 +27,7 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.hop.Hop;
+import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -92,6 +93,14 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
         System.exit(1);
       } else {
         hopRun.run();
+
+        // Deliver whatever lineage is still queued before the JVM goes away: the hub hands its
+        // queue to the sinks and the sinks drain theirs (bounded by their drain timeout). Without
+        // it a short run loses its terminal events, which the sinks send last. Safe to call when
+        // lineage is disabled.
+        //
+        LineageHub.getInstance().shutdown();
+
         System.out.println("HopRun exit.");
         if (hopRun.isFinishedWithoutError()) {
           System.exit(0);
