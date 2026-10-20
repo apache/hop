@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.deletefolders;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -43,6 +44,11 @@ import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.validator.AbstractFileValidator;
+import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.action.validator.FileExistsValidator;
+import org.apache.hop.workflow.action.validator.ValidatorContext;
 
 /** This defines a 'delete folders' action. */
 @Action(
@@ -155,8 +161,9 @@ public class ActionDeleteFolders extends ActionBase {
           return result;
         }
         RowMetaAndData resultRow = rows.get(iteration);
+        // Result rows are data. Leave ${...} unresolved, as the other file actions do.
         String argsPrevious = resultRow.getString(0, null);
-        if (!Utils.isEmpty(argsPrevious)) {
+        if (!StringUtils.isBlank(argsPrevious)) {
           if (deleteFolder(argsPrevious)) {
             updateSuccess();
           } else {
@@ -179,7 +186,7 @@ public class ActionDeleteFolders extends ActionBase {
           return result;
         }
         String realFileName = resolve(item.getFileName());
-        if (!Utils.isEmpty(realFileName)) {
+        if (!StringUtils.isBlank(realFileName)) {
           if (deleteFolder(realFileName)) {
             updateSuccess();
           } else {
@@ -292,32 +299,99 @@ public class ActionDeleteFolders extends ActionBase {
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    //    boolean res =
-    //        ActionValidatorUtils.andValidator()
-    //            .validate(
-    //                this,
-    //                "fileItems",
-    //                remarks,
-    //                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-    //
-    //    if (!res) {
-    //      return;
-    //    }
-
-    if (Utils.isEmpty(fileItems)) {
-      String message = BaseMessages.getString(PKG, "CloneRowMeta.CheckResult.NrClonesdMissing");
-      remarks.add(
-          new CheckResult(ICheckResult.TYPE_RESULT_WARNING, "Any folders to deletes", this));
+    // Folder names come from the previous action result at runtime.
+    if (argFromPrevious) {
+      return;
     }
 
-    /* TODO: If we enable action check
+    if (Utils.isEmpty(fileItems)) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(PKG, "ActionDeleteFolders.CheckResult.NoFolders"),
+              this));
+      return;
+    }
+
+    IVariables space = variables != null ? variables : getVariables();
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    AbstractFileValidator.putVariableSpace(ctx, space);
+    // A missing folder is a warning. Runtime treats it as already deleted, and hop lint fails
+    // on ERROR by default.
+    FileExistsValidator.putFailIfDoesNotExist(ctx, true);
+    ActionValidatorUtils.putLevelOnFail(
+        ctx.getMap(), FileExistsValidator.INSTANCE.getName(), ICheckResult.TYPE_RESULT_WARNING);
     AndValidator.putValidators(
-        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
-    for (FileItem item : fileItems) {
-      ActionValidatorUtils.andValidator().validate(this, "fileName", remarks, ctx);
-    }*/
+        ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
+
+    for (int i = 0; i < fileItems.size(); i++) {
+      String propertyName = "fileItems[" + i + "].fileName";
+      String folderName = Const.NVL(space.resolve(fileItems.get(i).getFileName()), "");
+      if (skipsExistenceProbe(folderName)) {
+        ActionValidatorUtils.notBlankValidator().validate(this, propertyName, remarks, ctx);
+        continue;
+      }
+      int sizeBefore = remarks.size();
+      if (!ActionValidatorUtils.andValidator().validate(this, propertyName, remarks, ctx)) {
+        continue;
+      }
+      ICheckResult passed = remarks.size() > sizeBefore ? remarks.removeLast() : null;
+      ICheckResult folderType = folderTypeRemark(space, folderName);
+      if (folderType != null) {
+        remarks.add(folderType);
+      } else if (passed != null) {
+        remarks.add(passed);
+      }
+    }
+  }
+
+  /**
+   * Background lint calls this method while the workflow is edited. Opening sftp, s3, and similar
+   * URLs would block that pass on the network, so only local paths are probed.
+   */
+  private static boolean skipsExistenceProbe(String folderName) {
+    int separator = folderName.indexOf("://");
+    if (separator <= 0) {
+      return false;
+    }
+    return !"file".equalsIgnoreCase(folderName.substring(0, separator));
+  }
+
+  /** One remark for this row. {@code null} means the path is a folder and the OK remark stands. */
+  private ICheckResult folderTypeRemark(IVariables space, String folderName) {
+    FileObject folder = null;
+    try {
+      folder = HopVfs.getFileObject(folderName, space);
+      if (!folder.exists()) {
+        return new CheckResult(
+            ICheckResult.TYPE_RESULT_WARNING,
+            BaseMessages.getString(
+                PKG, "ActionDeleteFolders.CheckResult.FolderDoesNotExist", folderName),
+            this);
+      }
+      if (folder.getType() != FileType.FOLDER) {
+        return new CheckResult(
+            ICheckResult.TYPE_RESULT_ERROR,
+            BaseMessages.getString(PKG, "ActionDeleteFolders.CheckResult.NotAFolder", folderName),
+            this);
+      }
+      return null;
+    } catch (Exception e) {
+      String detail = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+      return new CheckResult(
+          ICheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString(
+              PKG, "ActionDeleteFolders.CheckResult.CouldNotValidate", folderName, detail),
+          this);
+    } finally {
+      if (folder != null) {
+        try {
+          folder.close();
+        } catch (Exception ignored) {
+          // close() must not add a second remark for the same row.
+        }
+      }
+    }
   }
 
   @Override
@@ -326,8 +400,9 @@ public class ActionDeleteFolders extends ActionBase {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
 
     ResourceReference reference = null;
+    IVariables space = variables != null ? variables : getVariables();
     for (FileItem item : fileItems) {
-      String filename = resolve(item.getFileName());
+      String filename = Const.NVL(space.resolve(item.getFileName()), "");
       if (reference == null) {
         reference = new ResourceReference(this);
         references.add(reference);
