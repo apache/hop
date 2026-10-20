@@ -177,6 +177,7 @@ System properties get set in the Java Virtual Machine that runs your Apache Hop 
 
 You can also add your own system variables in the `System variables` tab of the configuration perspective.
 They are available as variables in every pipeline and workflow, and Hop also sets them as Java system properties when it starts, unless a property with the same name was already set with `-D`.
+Inside pipelines and workflows, `+${MY_SYSTEM_VARIABLE}+` still resolves to the value from this tab.
 
 image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
