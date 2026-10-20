@@ -1,0 +1,65 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Single-node HDFS + YARN for running native Spark pipelines on YARN from Hop GUI, hop-run or Hop
+# Server on the Docker host (Linux).
+#
+#   docker compose -f docker/integration-tests/integration-tests-spark-native-yarn.yaml up -d --build
+#
+# Hop side (native Spark run configuration):
+#   Spark master                 yarn
+#   Hadoop configuration folder  <hop source>/docker/integration-tests/spark-yarn/conf
+#   Fat jar file location        a native-provided fat jar
+#   Spark config                 spark.driver.host=172.31.250.1
+#                                spark.executorEnv.JAVA_HOME=/opt/java21
+#                                spark.yarn.appMasterEnv.JAVA_HOME=/opt/java21
+#
+# 172.31.250.1 is the Docker host on the network below: YARN containers connect back to the Spark
+# driver (Hop) there. HDFS: http://localhost:9870, YARN: http://localhost:8088
+
+services:
+  hadoop-yarn:
+    build:
+      context: ./spark-yarn
+    user: root
+    volumes:
+      - ./spark-yarn/conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./spark-yarn/conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./spark-yarn/conf/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml:ro
+    ports:
+      - "8020:8020"
+      - "8032:8032"
+      - "8088:8088"
+      - "9870:9870"
+      # The datanode registers as localhost: HDFS clients on the host write blocks here
+      - "9864:9864"
+      - "9866:9866"
+    networks:
+      - spark-yarn
+    healthcheck:
+      test: ["CMD-SHELL", "hdfs dfsadmin -safemode get | grep -q OFF && yarn node -list 2>/dev/null | grep -q RUNNING"]
+      interval: 10s
+      timeout: 20s
+      retries: 30
+      start_period: 30s
+
+networks:
+  spark-yarn:
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24
+          gateway: 172.31.250.1

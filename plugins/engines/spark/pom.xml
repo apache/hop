@@ -144,6 +144,31 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- YARN client for runs that Hop starts itself (Hop GUI, hop-run, Hop Server) with
+             master "yarn". spark-submit on a cluster brings its own. -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-yarn_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <!-- Maintained fork of org.lz4:lz4-java (same net.jpountz packages), shipped in lib/core. -->
             <groupId>at.yawk.lz4</groupId>

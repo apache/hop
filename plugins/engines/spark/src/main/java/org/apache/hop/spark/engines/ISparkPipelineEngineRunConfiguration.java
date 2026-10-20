@@ -27,6 +27,13 @@ public interface ISparkPipelineEngineRunConfiguration extends IPipelineEngineRun
 
   String getFatJar();
 
+  /**
+   * Optional folder with Hadoop client configuration ({@code core-site.xml}, {@code yarn-site.xml},
+   * ...) for sessions Hop starts itself. Empty: {@code HADOOP_CONF_DIR} / {@code YARN_CONF_DIR} for
+   * YARN masters.
+   */
+  String getHadoopConfDir();
+
   String getSparkConfigs();
 
   String getDriverMemory();

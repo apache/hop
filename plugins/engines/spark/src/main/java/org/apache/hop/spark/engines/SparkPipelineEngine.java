@@ -94,6 +94,7 @@ import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.table.LakeSessionPlan;
 import org.apache.hop.spark.util.SparkConst;
+import org.apache.hop.spark.util.SparkHadoopConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.spark.SparkConf;
@@ -340,8 +341,17 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                 try {
                   Thread.currentThread().setContextClassLoader(pluginCl);
                   resultDataset = converter.createDataset(sparkSession);
-                  // Materialize: count is a safe action when no dedicated sink handler wrote data
-                  long rows = resultDataset.count();
+                  // Generic transforms (outputs included) are lazy: run an action on every leaf,
+                  // or only the branch of the last one runs. Spark file and lake table outputs
+                  // already wrote while the graph was built; their leaves are empty markers.
+                  long rows = 0;
+                  for (Map.Entry<String, Dataset<Row>> leaf :
+                      converter.getLeafDatasets().entrySet()) {
+                    long leafRows = leaf.getValue().count();
+                    logChannel.logDetailed(
+                        "Transform '" + leaf.getKey() + "' finished, row count=" + leafRows);
+                    rows += leafRows;
+                  }
                   logChannel.logBasic("Spark pipeline finished, result row count=" + rows);
                   setErrors(0);
                 } catch (Throwable e) {
@@ -350,6 +360,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   setStopped(true);
                 } finally {
                   Thread.currentThread().setContextClassLoader(prev);
+                  converter.unpersistAll();
                   setRunning(false);
                   setFinished(true);
                   executionEndDate = new Date();
@@ -1039,6 +1050,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           "Reusing active SparkSession (version="
               + session.version()
               + ", spark-submit or existing driver context)");
+      warnIfReusedMasterDiffers(session);
       if (!lakePlan.isEmpty()) {
         lakePlan.verifyActiveSession(session, logChannel, this);
       }
@@ -1049,6 +1061,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       sessionOwnedByThisEngine = false;
       SparkSession session = def.get();
       logChannel.logBasic("Reusing default SparkSession (version=" + session.version() + ")");
+      warnIfReusedMasterDiffers(session);
       if (!lakePlan.isEmpty()) {
         lakePlan.verifyActiveSession(session, logChannel, this);
       }
@@ -1070,7 +1083,19 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           // ignore — fall back to local
         }
       }
-      master = StringUtils.isNotEmpty(confMaster) ? confMaster : "local[*]";
+      if (StringUtils.isNotEmpty(confMaster)) {
+        master = confMaster;
+      } else {
+        master = "local[*]";
+        if (!underSubmit) {
+          logChannel.logBasic(
+              "WARNING: run configuration '"
+                  + pipelineRunConfiguration.getName()
+                  + "' has no Spark master and this pipeline does not run under spark-submit: it"
+                  + " runs on local[*] inside this process, not on a cluster. Set the Spark master"
+                  + " (for example spark://host:7077 or yarn) to run on a cluster.");
+        }
+      }
     }
     String appName = resolve(sparkEngineRunConfiguration.getSparkAppName());
     if (StringUtils.isEmpty(appName)) {
@@ -1103,6 +1128,14 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       }
     }
 
+    // Hadoop client configuration and YARN defaults. Applied before the run configuration's Spark
+    // config so explicit spark.hadoop.* / spark.yarn.* lines there still win. spark-submit already
+    // puts HADOOP_CONF_DIR on the classpath and provides Spark on YARN.
+    if (!underSubmit) {
+      applyHadoopConfiguration(builder, master);
+    }
+
+    Set<String> configuredKeys = new HashSet<>();
     String extra = sparkEngineRunConfiguration.getSparkConfigs();
     if (StringUtils.isNotEmpty(extra)) {
       for (String line : extra.split("\\r?\\n")) {
@@ -1112,8 +1145,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         }
         int eq = trimmed.indexOf('=');
         if (eq > 0) {
-          builder.config(
-              resolve(trimmed.substring(0, eq).trim()), resolve(trimmed.substring(eq + 1).trim()));
+          String key = resolve(trimmed.substring(0, eq).trim());
+          builder.config(key, resolve(trimmed.substring(eq + 1).trim()));
+          configuredKeys.add(key);
         }
       }
     }
@@ -1126,10 +1160,14 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
 
     // Defaults for local/dev only when not already set by submit or run config extras
-    if (!underSubmit && System.getProperty("spark.ui.enabled") == null) {
+    if (!underSubmit
+        && System.getProperty("spark.ui.enabled") == null
+        && !configuredKeys.contains("spark.ui.enabled")) {
       builder.config("spark.ui.enabled", "false");
     }
-    if (!underSubmit && System.getProperty("spark.sql.shuffle.partitions") == null) {
+    if (!underSubmit
+        && System.getProperty("spark.sql.shuffle.partitions") == null
+        && !configuredKeys.contains("spark.sql.shuffle.partitions")) {
       builder.config("spark.sql.shuffle.partitions", "4");
     }
 
@@ -1159,6 +1197,60 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     // spark-submit always sets spark.master before invoking main
     String master = System.getProperty("spark.master");
     return StringUtils.isNotEmpty(master) && !master.startsWith("local");
+  }
+
+  /**
+   * A session that an earlier run left in this process keeps the master, fat jar and Spark config
+   * of that run. Say so when this run configuration asks for another master.
+   */
+  private void warnIfReusedMasterDiffers(SparkSession session) {
+    String requested = resolve(sparkEngineRunConfiguration.getSparkMaster());
+    String actual = session.sparkContext().master();
+    if (StringUtils.isNotEmpty(requested) && !requested.trim().equals(actual)) {
+      logChannel.logBasic(
+          "WARNING: run configuration '"
+              + pipelineRunConfiguration.getName()
+              + "' asks for Spark master '"
+              + requested.trim()
+              + "', but this process already has a Spark session on '"
+              + actual
+              + "' from an earlier run. This pipeline runs on '"
+              + actual
+              + "' with that run's settings. Restart Hop GUI or Hop Server to switch.");
+    }
+  }
+
+  /**
+   * Passes the Hadoop client configuration to Spark as {@code spark.hadoop.*} and, on YARN, ships
+   * the engine's own Spark jars to the containers so they run the Spark version Hop runs.
+   */
+  private void applyHadoopConfiguration(SparkSession.Builder builder, String master)
+      throws HopException {
+    boolean yarn = SparkHadoopConfiguration.isYarnMaster(master);
+    List<String> folders =
+        SparkHadoopConfiguration.resolveFolders(
+            resolve(sparkEngineRunConfiguration.getHadoopConfDir()), yarn, System::getenv);
+    if (!folders.isEmpty()) {
+      Map<String, String> properties = SparkHadoopConfiguration.load(folders, logChannel);
+      for (Map.Entry<String, String> property : properties.entrySet()) {
+        builder.config(property.getKey(), property.getValue());
+      }
+    } else if (yarn) {
+      logChannel.logBasic(
+          "WARNING: Spark master is yarn, but no Hadoop configuration folder is set and"
+              + " HADOOP_CONF_DIR / YARN_CONF_DIR are not set. The YARN client uses its defaults"
+              + " (ResourceManager at 0.0.0.0:8032).");
+    }
+    if (yarn) {
+      String yarnJars = SparkHadoopConfiguration.defaultYarnJars(SparkPipelineEngine.class);
+      if (yarnJars != null) {
+        builder.config("spark.yarn.jars", yarnJars);
+        logChannel.logBasic(
+            "YARN containers get the engine's Spark runtime: "
+                + yarnJars.split(",").length
+                + " jars in spark.yarn.jars");
+      }
+    }
   }
 
   private void applySparkConfig(SparkSession.Builder builder, String key, String value) {

@@ -27,7 +27,7 @@ under the License.
 
 This page sets up such a cluster on one machine and runs a pipeline on it from Hop GUI or `hop-run`. Hop is the Spark *driver*: you design and start the pipeline in Hop as usual, and the work runs on the workers.
 
-Do this after your first `local[*]` run (see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]). To submit with `spark-submit` inside Docker containers instead, see the xref:pipeline/spark/cluster-mapping-walkthrough.adoc[cluster demo walk-through].
+Do this after your first `local[*]` run (see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]). To submit with `spark-submit` inside Docker containers instead, see the xref:pipeline/spark/cluster-mapping-walkthrough.adoc[cluster demo walk-through]. To run on a Hadoop YARN cluster, see xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 
 == What you need
 
@@ -212,7 +212,7 @@ With `hop-run`, every run is a new Spark application. Even this small pipeline t
 
 From Hop GUI, the first run starts the application and Hop GUI keeps it running, with all its cores, until you close Hop GUI. Later runs from Hop GUI reuse it. Close Hop GUI before you run on the cluster with `hop-run` or through Hop Server (step 7), or those runs wait for cores.
 
-The Spark application UI (jobs, stages and tasks, normally on port 4040) is not available: Hop turns it off for the Spark sessions it starts.
+The Spark application UI (jobs, stages and tasks) is off by default. Add `spark.ui.enabled=true` to *Spark config* to see it at http://localhost:4040 while the application runs.
 
 The log shows the session connecting to the cluster:
 
@@ -254,7 +254,7 @@ Port 8181 because the Spark master UI already uses 8080 and the workers use 8081
 ** *Workflow engine type*: *Hop remote workflow engine*
 ** *Hop server*: `spark-hop-server`
 ** *Run Configuration*: `local`
-** *Export linked resources to server*: on. The workflow and pipeline are then sent as files. With it off, the samples project's Workflow Log fails every workflow you send to Hop Server (see <<troubleshooting>>).
+** *Export linked resources to server*: on. The workflow and pipeline are then sent as files. With it off, the samples project's Workflow Log fails every workflow you send to Hop Server (see <<troubleshooting>>). Export works here because Hop Server and the Spark workers share one machine: Hop Server runs the pipeline from a zip file in its temporary folder. With workers on other machines, turn export off and enable the project on Hop Server, as described for xref:pipeline/spark/yarn.adoc[YARN].
 . Create a workflow and save it as `spark/run-customers-per-state.hwf`: a *Start* action, then a *Pipeline* action with *Pipeline* `+${PROJECT_HOME}/spark/customers-per-state.hpl+` and *Run configuration* `spark-standalone`.
 . Run the workflow with the `remote-server` run configuration, from Hop GUI or from the Hop installation folder:
 +
@@ -312,7 +312,7 @@ Every executor copies the fat jar twice:
 |`[PATH_NOT_FOUND] Path does not exist` from Spark file input
 |The path must exist on the machine where each executor runs. Check the variables the path uses.
 
-|The log shows `Prepared native Spark pipeline engine` with the master you expect, then `Reusing active SparkSession` or `Reusing default SparkSession`, and the run uses a different master or an older application
+|The log shows `WARNING: run configuration '...' asks for Spark master '...', but this process already has a Spark session on '...'`
 |An earlier native Spark run in the same Hop GUI, Hop Server or workflow left its Spark session running, and this run reuses it with that run's master, fat jar and Spark config. Restart Hop GUI or Hop Server after switching between native Spark run configurations.
 
 |After a run from Hop GUI or through Hop Server, the application stays under *Running Applications* in the Spark master UI and keeps its cores
@@ -324,8 +324,8 @@ Every executor copies the fat jar twice:
 |A workflow on Hop Server fails at the start with `NullPointerException: Cannot invoke "String.replaceAll(String, String)" because "vfsFilename" is null`
 |The project has a *Workflow Log* that lists specific workflows (the samples project does), and the workflow was sent without its file. Turn on *Export linked resources to server* in the remote workflow run configuration, or disable the Workflow Log.
 
-|`spark-submit` fails with `Run configuration '...' is not a native Spark pipeline engine configuration (found org.apache.hop.spark.engines.SparkPipelineRunConfiguration)`
-|`spark-submit` was started from a folder that contains a Hop `plugins` folder, such as the Hop installation folder. Hop then loads the Spark engine twice: from the fat jar and from that folder. Start `spark-submit` from another folder.
+|The log shows `WARNING: run configuration '...' has no Spark master and this pipeline does not run under spark-submit`
+|An empty *Spark master* means `local[*]` inside the Hop process (Hop GUI, `hop-run` or Hop Server). Set the master, for example `spark://localhost:7077`. The *spark-submit (cluster)* template leaves it empty on purpose, for `spark-submit`.
 |===
 
 == Related pages
@@ -334,5 +334,6 @@ Every executor copies the fat jar twice:
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine] (option reference)
 * xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark]
 * xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through] (Docker, `spark-submit`)
+* xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN]
 * xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]
 * https://spark.apache.org/docs/4.1.3/spark-standalone.html[Spark standalone mode] (Apache Spark documentation)

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -489,7 +490,8 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               && !acceptFilenamesFromMain
               && !multiTarget
               && infoTransforms.isEmpty()
-              && mainTransform instanceof BaseTransform;
+              && mainTransform instanceof BaseTransform
+              && !needsBatchComplete(transformPluginId);
       if (direct) {
         // output captured by SparkDirectRowHandler.putRow
       } else if (!multiTarget) {
@@ -1217,5 +1219,16 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       }
       return false;
     }
+  }
+
+  /**
+   * Transforms that drive a child pipeline from {@code batchComplete()}. The direct row path calls
+   * {@code processRow()} per row and never {@code batchComplete()}, so these hang there and need
+   * the single-threaded executor path.
+   */
+  private static final Set<String> BATCH_COMPLETE_PLUGIN_IDS = Set.of("SimpleMapping");
+
+  static boolean needsBatchComplete(String transformPluginId) {
+    return BATCH_COMPLETE_PLUGIN_IDS.contains(transformPluginId);
   }
 }
