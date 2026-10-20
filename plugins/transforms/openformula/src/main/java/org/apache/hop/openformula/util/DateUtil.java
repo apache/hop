@@ -48,11 +48,7 @@ public final class DateUtil {
     if (date == null) {
       return BigDecimal.ZERO;
     }
-    Date zero = getZeroDate(timeZone);
-    long diffMillis = date.getTime() - zero.getTime();
-    return BigDecimal.valueOf(diffMillis)
-        .divide(BigDecimal.valueOf(MILLIS_PER_DAY), 40, RoundingMode.HALF_UP)
-        .stripTrailingZeros();
+    return daysBetween(date, getZeroDate(timeZone), timeZone);
   }
 
   /** Converts an OpenFormula serial day number into a Date. */
@@ -60,10 +56,65 @@ public final class DateUtil {
     if (serial == null) {
       return getZeroDate(timeZone);
     }
-    BigDecimal millis = serial.multiply(BigDecimal.valueOf(MILLIS_PER_DAY));
-    long offsetMillis = millis.setScale(0, RoundingMode.HALF_UP).longValue();
-    Date zero = getZeroDate(timeZone);
-    return new Date(zero.getTime() + offsetMillis);
+    return addDays(getZeroDate(timeZone), serial, timeZone);
+  }
+
+  /**
+   * Adds {@code days} to {@code date} on the civil clock. A day is always {@link #MILLIS_PER_DAY},
+   * so a daylight-saving transition does not shorten or lengthen it.
+   */
+  public static Date addDays(Date date, BigDecimal days, TimeZone timeZone) {
+    long offsetMillis =
+        days.multiply(BigDecimal.valueOf(MILLIS_PER_DAY))
+            .setScale(0, RoundingMode.HALF_UP)
+            .longValue();
+    return fromCivilMillis(civilMillis(date, timeZone) + offsetMillis, timeZone);
+  }
+
+  /** Civil days from {@code start} to {@code end}. A daylight-saving day still counts as one. */
+  public static BigDecimal daysBetween(Date end, Date start, TimeZone timeZone) {
+    long diffMillis = civilMillis(end, timeZone) - civilMillis(start, timeZone);
+    return BigDecimal.valueOf(diffMillis)
+        .divide(BigDecimal.valueOf(MILLIS_PER_DAY), 40, RoundingMode.HALF_UP)
+        .stripTrailingZeros();
+  }
+
+  /**
+   * Milliseconds of the civil clock in {@code timeZone}. Fields are read as a fixed-length day, not
+   * as elapsed UTC milliseconds, so a daylight-saving transition does not change a calendar day.
+   */
+  public static long civilMillis(Date date, TimeZone timeZone) {
+    Calendar local =
+        new GregorianCalendar(timeZone != null ? timeZone : TimeZone.getDefault(), Locale.US);
+    local.setTime(date);
+    Calendar utc = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US);
+    utc.clear();
+    utc.set(
+        local.get(Calendar.YEAR),
+        local.get(Calendar.MONTH),
+        local.get(Calendar.DAY_OF_MONTH),
+        local.get(Calendar.HOUR_OF_DAY),
+        local.get(Calendar.MINUTE),
+        local.get(Calendar.SECOND));
+    utc.set(Calendar.MILLISECOND, local.get(Calendar.MILLISECOND));
+    return utc.getTimeInMillis();
+  }
+
+  public static Date fromCivilMillis(long civilMillis, TimeZone timeZone) {
+    Calendar utc = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US);
+    utc.setTimeInMillis(civilMillis);
+    Calendar local =
+        new GregorianCalendar(timeZone != null ? timeZone : TimeZone.getDefault(), Locale.US);
+    local.clear();
+    local.set(
+        utc.get(Calendar.YEAR),
+        utc.get(Calendar.MONTH),
+        utc.get(Calendar.DAY_OF_MONTH),
+        utc.get(Calendar.HOUR_OF_DAY),
+        utc.get(Calendar.MINUTE),
+        utc.get(Calendar.SECOND));
+    local.set(Calendar.MILLISECOND, utc.get(Calendar.MILLISECOND));
+    return local.getTime();
   }
 
   public static Date createDate(int year, int month, int day, TimeZone tz) {
