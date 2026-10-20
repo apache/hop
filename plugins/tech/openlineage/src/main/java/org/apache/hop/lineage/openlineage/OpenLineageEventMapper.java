@@ -134,6 +134,7 @@ public final class OpenLineageEventMapper {
       case RELATIONAL_IO -> mapRelationalIo(event);
       case TRANSFORM_SCHEMA -> Optional.empty();
       case HTTP_IO -> Optional.empty();
+      case PIPELINE_GRAPH -> Optional.empty();
     };
   }
 

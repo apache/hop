@@ -87,6 +87,7 @@ properties if needed.
 |`RELATIONAL_IO` |`RunEvent` (`OTHER`) with relational table datasets — see <<Database lineage>>. Carries a `schema` facet, a `columnLineage` facet when column mappings are derivable, and a `lifecycleStateChange` facet for truncate/overwrite writes.
 |`TRANSFORM_SCHEMA` |Skipped (internal row shapes between transforms, not physical datasets).
 |`HTTP_IO` |Skipped.
+|`PIPELINE_GRAPH` |Skipped. Datasets stay on the pipeline job.
 |===
 
 The run id is the executing pipeline/workflow log-channel id; file I/O is correlated to the parent

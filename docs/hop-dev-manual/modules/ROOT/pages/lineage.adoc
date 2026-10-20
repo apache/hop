@@ -105,7 +105,7 @@ Each observation is a **`LineageEvent`**:
 
 * **Event id** — Unique id (UUID by default).
 * **Timestamp** — Milliseconds since epoch.
-* **`LineageEventKind`** — One of `RUN_LIFECYCLE`, `TRANSFORM_SCHEMA`, `FILE_IO`, `RELATIONAL_IO`, `HTTP_IO`.
+* **`LineageEventKind`** — One of `RUN_LIFECYCLE`, `TRANSFORM_SCHEMA`, `FILE_IO`, `RELATIONAL_IO`, `HTTP_IO`, `PIPELINE_GRAPH`. New kinds are only ever appended: a sink must skip a kind it does not handle rather than fail the batch.
 * **`LineageContext`** — Who/what produced the observation (see above).
 * **`LineagePayload`** — Optional typed payload; may be null if the kind and context are enough.
 
@@ -115,6 +115,7 @@ Payload types are plain Java types (strings, longs, enums) so sinks can serializ
 * **`RelationalIoLineagePayload`** — Relational/JDBC table access: operation (`READ`, `WRITE`, `DELETE`, `EXEC`), the resolved **dataset namespace**, the input/output **`RelationalTable`** list (catalog/schema/table), the raw SQL when the engine cannot resolve the tables itself, an optional column schema, the connection's default catalog and schema, optional per-column provenance (**`RelationalWriteColumn`**: target column, stream field, origin transform), and an optional **`RelationalLifecycle`** (`OVERWRITE`, `TRUNCATE`, `DROP`, `CREATE`).
 * **`HttpLineagePayload`** — `CLIENT` vs `SERVER`, method, URL, status, request/response bytes, duration, success, message.
 * **`RunLifecycleLineagePayload`** — `STARTED` / `FINISHED` plus optional detail text.
+* **`PipelineGraphLineagePayload`** — The pipeline's hop graph as a list of `from` → `to` transform-name transitions: enabled hops with both ends named, in pipeline order. Informational hops are included. A sink uses it to attribute datasets to the transform that touched them and to propagate them along the graph, instead of pairing all of a pipeline's inputs with all of its outputs.
 * **`TransformSchemaLineagePayload`** — `INPUT` or `OUTPUT` plus a list of field names, Hop type names, length, and precision (boundary schema; emitted when a transform finishes). Fields usually come from runtime row metadata on the transform or row sets. If input was never observed (e.g. _Abort_ when `getRow()` immediately returns null), input is derived via `PipelineMeta#getPrevTransformFields`. If output was never written (e.g. _Detect empty stream_ with a non-empty stream), output is derived via `PipelineMeta#getTransformFields`. Graph-derived events set context attribute `transformSchemaSource` to `DESIGN_GRAPH`.
 
 Convenience factory: `LineageEvent.of(kind, context, payload)` assigns id and current time.
@@ -143,7 +144,7 @@ The queue is allocated lazily on the first `emit` from the resolved configuratio
 
 The `org.apache.hop.lineage.xp` package registers extension points that **emit** `RUN_LIFECYCLE` events (via `LineageRunLifecycleEmitter`) and **flush** the hub where needed:
 
-* **`PipelineStart`** — `LineageHubPipelineStartXp` — phase `STARTED`
+* **`PipelineStart`** — `LineageHubPipelineStartXp` — phase `STARTED`, followed by one `PIPELINE_GRAPH` event with the same context when the pipeline has enabled hops. `PipelineStart` fires after the transform threads have started, so the run's transform `STARTED` events, and early I/O such as a Table Input read, can arrive before the graph, possibly in an earlier batch. A sink that uses the graph collects a run's events by the pipeline's log channel id (transform events carry it in the `pipelineLogChannelId` attribute) and resolves them at `FINISHED` or `FAILED`.
 * **`PipelineFinish`** — `LineageHubPipelineFinishXp` — phase `FINISHING` (transforms stopped, cleanup)
 * **`PipelineCompleted`** — `LineageHubPipelineCompletedXp` — phase `FINISHED` or `FAILED` (from pipeline error count), then `flushQuietly()`
 * **`WorkflowStart`** — `LineageHubWorkflowStartXp` — phase `STARTED`

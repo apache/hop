@@ -17,6 +17,8 @@
 
 package org.apache.hop.lineage;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.ILogChannel;
@@ -28,8 +30,11 @@ import org.apache.hop.lineage.context.LineageSubjectType;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
+import org.apache.hop.lineage.model.PipelineGraphLineagePayload;
+import org.apache.hop.lineage.model.PipelineGraphLineagePayload.Transition;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -167,12 +172,58 @@ public final class LineageRunLifecycleEmitter {
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
     }
+    LineageContext context = ctx.build();
     LineageHub.getInstance()
         .emit(
             LineageEvent.of(
                 LineageEventKind.RUN_LIFECYCLE,
-                ctx.build(),
+                context,
                 new RunLifecycleLineagePayload(phase, detail)));
+
+    // The hop graph is a fact about the pipeline, not about a phase: emit it once, next to the
+    // STARTED event. Sinks that attribute I/O to individual transforms need it to know which
+    // transform fed which; see PipelineGraphLineagePayload.
+    //
+    if (phase == RunLifecyclePhase.STARTED && meta != null) {
+      List<Transition> transitions = pipelineTransitions(meta);
+      if (!transitions.isEmpty()) {
+        LineageHub.getInstance()
+            .emit(
+                LineageEvent.of(
+                    LineageEventKind.PIPELINE_GRAPH,
+                    context,
+                    new PipelineGraphLineagePayload(transitions)));
+      }
+    }
+  }
+
+  /**
+   * The enabled hops of a pipeline, in pipeline order, as {@code from -> to} transitions.
+   *
+   * <p>Hops with an unknown end are skipped (a half-edited hop can exist in memory), as are hops
+   * without names. Informational hops stay in: data flows through them, even though they do no I/O
+   * of their own, so dropping them would break a chain for anything that propagates datasets along
+   * it.
+   */
+  public static List<Transition> pipelineTransitions(PipelineMeta meta) {
+    if (meta == null) {
+      return List.of();
+    }
+    List<Transition> transitions = new ArrayList<>();
+    for (PipelineHopMeta hop : meta.getHops()) {
+      if (hop == null
+          || !hop.isEnabled()
+          || hop.getFromTransform() == null
+          || hop.getToTransform() == null) {
+        continue;
+      }
+      String from = hop.getFromTransform().getName();
+      String to = hop.getToTransform().getName();
+      if (!Utils.isEmpty(from) && !Utils.isEmpty(to)) {
+        transitions.add(new Transition(from, to));
+      }
+    }
+    return transitions;
   }
 
   public static void emitWorkflow(

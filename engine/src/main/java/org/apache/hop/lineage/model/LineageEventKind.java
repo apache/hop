@@ -17,7 +17,12 @@
 
 package org.apache.hop.lineage.model;
 
-/** High-level category of a lineage observation. */
+/**
+ * High-level category of a lineage observation.
+ *
+ * <p>Kinds are added over time and only ever appended. A sink must ignore a kind it does not
+ * handle, for example with a {@code default} branch, so a newer engine does not break it.
+ */
 public enum LineageEventKind {
   RUN_LIFECYCLE,
   /** Transform input/output field names and Hop types (boundary schema). */
@@ -26,5 +31,11 @@ public enum LineageEventKind {
   /** HTTP client traffic from transforms/actions (payload: {@link HttpLineagePayload}). */
   HTTP_IO,
   /** Relational/JDBC table read or write (payload: {@link RelationalIoLineagePayload}). */
-  RELATIONAL_IO
+  RELATIONAL_IO,
+  /**
+   * The pipeline's hop graph, emitted once per run next to its start (payload: {@link
+   * PipelineGraphLineagePayload}). Sinks need it to attribute a dataset to the transform that
+   * touched it rather than to the whole pipeline.
+   */
+  PIPELINE_GRAPH
 }
