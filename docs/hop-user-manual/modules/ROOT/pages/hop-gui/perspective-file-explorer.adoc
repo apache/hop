@@ -138,11 +138,13 @@ See xref:hop-gui/hop-gui-git.adoc[Working with git] for all the git options in H
 
 The "Git Info" icon in the toolbar will be enabled if there is information regarding the file or folder that is selected.  If you click on it, you'll be able to see all sorts of information regarding the git history in a new tab:
 
-image::hop-gui/perspective-explorer-git-info-panel.png[Git information shown in a tab]
+image::hop-gui/perspective-explorer-git-info-panel.png[Git information shown in a tab,width=1176]
 
-Below the revision history you can see the revisions of a file.  If you select a revision you'll be able to not only see the text differences between two revisions but also use the "Visual diff" button on the right-hand side of the tab.  If you select the "visual diff" option 2 new tabs will be opened with the pipeline or workflow state before and after the change.
+Select a revision to list the files it changed under *Changed files*.
+Select a file to see its changes as text on the right.
+For a pipeline or workflow, the *Visual diff* button opens 2 new tabs with the pipeline or workflow before and after the selected revision.
 
-image::hop-gui/perspective-explorer-git-visual-diff-example.png[Git visual diff example]
+image::hop-gui/perspective-explorer-git-visual-diff-example.png[Git visual diff example,width=760]
 
 Small information icons will be added to the various transforms, actions and hops to indicate if they were changed, deleted or added.
 
