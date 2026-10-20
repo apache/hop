@@ -119,15 +119,17 @@ To allow you to work with the input field values or the surrounding Java ecosyst
 |All the input fields under their own name.  Please note that certain scripting languages have restrictions on the allowed names of variables.  Make sure to rename inappropriate field names with a "Select Values" transform.
 
 |`transform`
-|This is a reference to the parent transform class https://github.com/apache/hop/blob/master/plugins/transforms/abort/src/main/java/org/apache/hop/pipeline/transforms/script/Script.java[Script].  You can use this to log certain important events or write extra output rows
+|This is a reference to the parent transform class https://github.com/apache/hop/blob/main/plugins/transforms/script/src/main/java/org/apache/hop/pipeline/transforms/script/Script.java[Script].  You can use this to resolve variables, log certain important events or write extra output rows. See <<common-methods>>.
 
 |`pipeline_status`
 |This special variable can be set to any of the following values:
 
 `CONTINUE_PIPELINE`: Process the current row and generate output (the default value)
 `SKIP_PIPELINE` : Do not write an output row
-`STOP_PIPELINE` : Cause the pipeline to stop processing rows
-`ERROR_PIPELINE`: Cause the pipeline to abort with an error
+`ABORT_PIPELINE` : Stop the pipeline, without an error
+`ERROR_PIPELINE`: Stop the pipeline with an error
+
+Hop only checks `pipeline_status` when the script sets it for the first row. To skip or stop on a later row, set it on every row, for example to `CONTINUE_PIPELINE` at the start of the script.
 
 |`rowNumber`
 |This is the current row number, starting from 1.
@@ -149,7 +151,63 @@ For example, use `rowMeta.getString(row, 0)` to get the first String value from 
 |`pipelineName`
 |The name of the pipeline
 
+|`outputRowMeta`
+|The output row metadata, to use with `transform.putRow()`.
+
+|`RowDataUtil`
+|The `org.apache.hop.core.row.RowDataUtil` class, for example to allocate an output row with `RowDataUtil.allocateRowData()`. It works in Groovy and Python. In ECMAScript, declare it first with `var RowDataUtil = Packages.org.apache.hop.core.row.RowDataUtil;`, as in the example below.
+
 |===
+
+[[common-methods]]
+== Commonly used methods
+
+The `transform` variable gives access to the methods of the transform. The ones used most often:
+
+[options="header"]
+|===
+|Method|Description
+
+|`transform.resolve(text)`
+|Replaces the variables in a text with their values, for example `+transform.resolve('${INPUT_FOLDER}/data.csv')+`.
+
+|`transform.getVariable(name)`
+|The value of a variable, for example `transform.getVariable('INPUT_FOLDER')`.
+
+|`transform.logBasic(message)`, `transform.logDetailed(message)`, `transform.logError(message)`
+|Write a message to the log at that level. `logError` only writes the message: the transform doesn't fail.
+
+|`transform.getCopy()`
+|The number of this copy of the transform, starting from 0, when it runs in several copies.
+
+|`transform.putRow(outputRowMeta, row)`
+|Write an extra output row. See <<_generating_rows>>.
+|===
+
+The same calls in the three languages:
+
+[source,javascript]
+----
+// ECMAScript
+out = transform.resolve("${INPUT_FOLDER}") + " copy " + transform.getCopy();
+transform.logBasic("Row " + rowNumber + " of " + transformName);
+----
+
+[source,groovy]
+----
+// Groovy: single quotes, see the tip below
+out = transform.resolve('${INPUT_FOLDER}') + " copy " + transform.getCopy()
+transform.logBasic("Row " + rowNumber + " of " + transformName)
+----
+
+[source,python]
+----
+# Python
+out = transform.resolve("${INPUT_FOLDER}") + " copy " + str(transform.getCopy())
+transform.logBasic("Row " + str(rowNumber) + " of " + transformName)
+----
+
+TIP: In Groovy, a text between double quotes is a GString: Groovy replaces `+${...}+` itself before Hop sees it, and fails with "No such property". Write Hop variables between single quotes, as in `+transform.resolve('${INPUT_FOLDER}')+`.
 
 == Generating rows
 
