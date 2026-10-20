@@ -38,7 +38,7 @@ See xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
 
 A variable can be set in one pipeline and be available in the next pipeline (named pipeline) that is in the loop of a pipeline executor.  If you are using a pipeline executor child, the parent pipeline does not restart and does not get any set variables. The new variable name to set in a child pipeline is shown below in the second column.
 
-TIP: This transform accepts one (and only one) row of data to set the value of a variable. If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
+TIP: This transform accepts one (and only one) row of data to set the value of a variable. With more than one row the transform fails with the error "Only 1 input row was expected to set the variables and at least 2 were received". If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
 
 WARNING: You can't set and use a variable in the same pipeline. Since all transforms in a pipeline run in parallel, there is no way a transform in a pipeline can use a variable that is set in another transform in that same pipeline.
 
@@ -59,7 +59,7 @@ Otherwise no formatting is done.
 * Valid in the grand-parent: the variable is valid in the grand-parent workflow or pipeline and all child workflows and pipelines.
 * Valid in the root: the variable is valid in the root workflow or pipeline and all child workflows and pipelines.
 
-|Default value|Value that will be set for empty rows
+|Default value|Value that is set when the transform receives no row. A field that is empty sets an empty value, not the default value.
 |===
 
 [NOTE]
