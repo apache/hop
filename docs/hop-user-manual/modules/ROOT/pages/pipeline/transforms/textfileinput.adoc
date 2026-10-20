@@ -49,7 +49,7 @@ The table below provides a detailed descriptions of the features available on th
 |Browse|Click to select the file from the file browser.
 |Regular expression|Specify the regular expression you want to use to select the files in the directory specified in the previous option.
 For example, you want to process all files that have a .txt extension.
-(See below "Selecting file using Regular Expressions")
+See <<selecting-files-regex>>.
 |Exclude Regular Expression|Specify the regular expression you want to use to exclude files from the specified directory.
 |Selected Files|This table contains a list of selected files (or wildcard selections) along with a property specifying if file is required or not.
 If a file is required and it isn't found, an error is generated.
@@ -61,21 +61,31 @@ Otherwise, the filename is skipped.
 |Show content from first data line|Displays the content from the first data line only for the selected file.
 |===
 
-**Selecting files using Regular Expressions**
+[[selecting-files-regex]]
+==== Selecting files using regular expressions
 
 The Text File Input transform can search for files by wildcard in the form of a regular expression.
 Regular expressions are more sophisticated than using '*' and '?' wildcards.
+
+The expressions use the Java syntax, described in https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html[java.util.regex.Pattern]:
+
+* The expression has to match the whole file name, as if it started with `^` and ended with `$`. `userdata` only selects a file named `userdata`, not `userdata.txt`.
+* The expression is matched against the file name only, not against its folder, also when sub folders are included.
+* The match is case-sensitive: `+.*\.txt+` doesn't select `REPORT.TXT`. Start the expression with `+(?i)+` to ignore case.
+* The exclude regular expression follows the same rules. A file is selected when it matches the regular expression and doesn't match the exclude regular expression.
+
 Below are a few examples of regular expressions:
 
 [options="header"]
 |===
 |Filename|Regular Expression|Files selected
-|/dirA/|.userdata.\.txt|Find all files in /dirA/ with names containing userdata and ending with .txt
-|/dirB/|AAA.*|Find all files in /dirB/ with names that start with AAA
-|/dirC/|[ENG:A-Z][ENG:0-9].*|Find all files in /dirC/ with names that start with a capital and followed by a digit (A0-Z9)
+|/dirA/|`+.*userdata.*\.txt+`|Find all files in /dirA/ with names containing userdata and ending with .txt
+|/dirB/|`+AAA.*+`|Find all files in /dirB/ with names that start with AAA
+|/dirC/|`+[A-Z][0-9].*+`|Find all files in /dirC/ with names that start with a capital followed by a digit (A0-Z9)
 |===
 
-**Accepting filenames from a previous transform**
+[[accepting-filenames]]
+==== Accepting filenames from a previous transform
 
 This option allows you to construct your filename in another transform, such as "Get Filenames", and then pass it to this transform, either as a field in the input stream or reading directly from the other transform's output.
 This lets you use file names from any source, including text files and database tables.
