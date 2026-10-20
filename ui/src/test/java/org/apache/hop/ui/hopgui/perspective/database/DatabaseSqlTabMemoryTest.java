@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
@@ -94,6 +95,17 @@ class DatabaseSqlTabMemoryTest {
         new DatabaseSqlTabMemory.Snapshot("warehouse", "/tmp/load.sql", null, false, "load.sql");
     assertTrue(DatabaseSqlTabMemory.restoredTabIsDirty(dirtyFile));
     assertFalse(DatabaseSqlTabMemory.restoredTabIsDirty(cleanFile));
+  }
+
+  @Test
+  void filenamesOfKeepsSavedFilesAndSkipsUntitledBuffers() {
+    List<DatabaseSqlTabMemory.Snapshot> snapshots =
+        List.of(
+            new DatabaseSqlTabMemory.Snapshot(
+                "warehouse", "/tmp/load.sql", null, false, "load.sql"),
+            new DatabaseSqlTabMemory.Snapshot("warehouse", "", "SELECT 1", false, "SQL"));
+    assertEquals(Set.of("/tmp/load.sql"), DatabaseSqlTabMemory.filenamesOf(snapshots));
+    assertTrue(DatabaseSqlTabMemory.filenamesOf(null).isEmpty());
   }
 
   private static java.util.Map<String, Object> originalEmptyConnection() {

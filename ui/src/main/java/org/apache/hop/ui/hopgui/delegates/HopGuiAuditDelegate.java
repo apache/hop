@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -43,6 +44,9 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.SwtErrorHandler;
@@ -105,6 +109,12 @@ public class HopGuiAuditDelegate {
   private void openLastFilesInternal() {
     // Collect files that fail to open
     List<String> failedFiles = new ArrayList<>();
+
+    // Saved database SQL editors are reopened by DatabaseSqlTabMemory. Their filenames are also
+    // copied into this list, and "Database SQL" is not a registered file type, so the .sql
+    // extension used to open them again in the file explorer (issue #9050).
+    //
+    Set<String> databaseSqlFilenames = DatabasePerspective.persistedSqlFilenames();
 
     // Open the last files for each perspective...
     //
@@ -172,6 +182,9 @@ public class HopGuiAuditDelegate {
                     hopFileToUse =
                         HopFileTypeRegistry.getInstance().getFileTypeByName(fileTypeName);
                   }
+                }
+                if (!openInLastFiles(filename, databaseSqlFilenames)) {
+                  continue;
                 }
                 if (hopFileToUse == null) {
                   hopFileToUse =
@@ -353,6 +366,9 @@ public class HopGuiAuditDelegate {
         List<String> files = new ArrayList<>();
         for (TabItemHandler tabItem : tabItemsToSave) {
           IHopFileTypeHandler typeHandler = tabItem.getTypeHandler();
+          if (!rememberInLastOpenFiles(typeHandler)) {
+            continue;
+          }
           String filename = typeHandler.getFilename();
           String name = typeHandler.getName();
           if (StringUtils.isNotEmpty(filename)) {
@@ -411,6 +427,37 @@ public class HopGuiAuditDelegate {
         }
       }
     }
+  }
+
+  /**
+   * Database SQL editors are restored by {@code DatabaseSqlTabMemory}. Keeping them in this list
+   * makes the next startup open the same file in the file explorer.
+   */
+  static boolean rememberInLastOpenFiles(IHopFileTypeHandler typeHandler) {
+    return !(typeHandler instanceof DatabaseSqlEditorTab);
+  }
+
+  /**
+   * Whether a last-open-files entry should be opened by the generic restore. Entries for a database
+   * SQL editor, including a copy already stored under the file explorer, are skipped.
+   */
+  static boolean openInLastFiles(String auditName, Set<String> databaseSqlFilenames) {
+    if (StringUtils.isEmpty(auditName)) {
+      return false;
+    }
+    String fileTypeName = null;
+    String filename = auditName;
+    if (auditName.contains(TAB_KEY_DELIMITER)) {
+      String[] parts = auditName.split(Pattern.quote(TAB_KEY_DELIMITER), 2);
+      if (parts.length >= 2) {
+        fileTypeName = parts[0];
+        filename = parts[1];
+      }
+    }
+    if (DatabaseSqlFileType.NAME.equals(fileTypeName)) {
+      return false;
+    }
+    return databaseSqlFilenames == null || !databaseSqlFilenames.contains(filename);
   }
 
   /**

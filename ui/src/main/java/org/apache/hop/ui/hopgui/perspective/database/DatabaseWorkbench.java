@@ -47,7 +47,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.database.DatabaseTreeNode;
 import org.apache.hop.ui.core.database.DatabaseTreeUtil;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -1284,8 +1286,94 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     tab.loadDetails();
   }
 
-  public void openSqlFile(String filename, DatabaseMeta meta, String buffer, boolean dirty) {
-    openSqlTab(meta, null, filename, buffer, dirty);
+  public DatabaseSqlEditorTab openSqlFile(
+      String filename, DatabaseMeta meta, String buffer, boolean dirty) {
+    if (meta != null) {
+      selectConnection(meta.getName());
+    }
+    return openSqlTab(meta, null, filename, buffer, dirty);
+  }
+
+  /**
+   * Connection for a SQL file opened while this workbench is showing. The selected tree connection
+   * wins, then the active editor, then the only connection in the project. Returns null when the
+   * user must pick, or when there is no connection.
+   */
+  DatabaseMeta chooseConnectionForSqlFile() {
+    String chosenName =
+        connectionNameForOpenedSqlFile(
+            nameOf(selectedDatabaseMeta()), nameOf(activeEditorDatabaseMeta()), connectionNames());
+    if (!Utils.isEmpty(chosenName)) {
+      DatabaseMeta chosen = findConnection(chosenName);
+      if (chosen != null) {
+        return chosen;
+      }
+    }
+    List<String> names = connectionNames();
+    if (names.isEmpty()) {
+      MessageBox box = new MessageBox(host.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(
+          BaseMessages.getString(PKG, "DatabasePerspective.OpenSqlFile.NoConnection.Title"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "DatabasePerspective.OpenSqlFile.NoConnection.Message"));
+      box.open();
+      return null;
+    }
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            host.getShell(),
+            names.toArray(new String[0]),
+            BaseMessages.getString(PKG, "DatabasePerspective.OpenSqlFile.SelectConnection.Title"),
+            BaseMessages.getString(
+                PKG, "DatabasePerspective.OpenSqlFile.SelectConnection.Message"));
+    String selected = dialog.open();
+    if (selected == null) {
+      return null;
+    }
+    return findConnection(selected);
+  }
+
+  static String connectionNameForOpenedSqlFile(
+      String selectedName, String activeEditorName, List<String> connectionNames) {
+    if (!Utils.isEmpty(selectedName)) {
+      return selectedName;
+    }
+    if (!Utils.isEmpty(activeEditorName)) {
+      return activeEditorName;
+    }
+    String only = null;
+    if (connectionNames != null) {
+      for (String name : connectionNames) {
+        if (Utils.isEmpty(name)) {
+          continue;
+        }
+        if (only != null) {
+          return null;
+        }
+        only = name;
+      }
+    }
+    return only;
+  }
+
+  private static String nameOf(DatabaseMeta meta) {
+    return meta == null ? null : meta.getName();
+  }
+
+  private DatabaseMeta selectedDatabaseMeta() {
+    DatabaseConnectionState state = selectedState();
+    return state == null ? null : state.getDatabaseMeta();
+  }
+
+  private DatabaseMeta activeEditorDatabaseMeta() {
+    IHopFileTypeHandler handler = getActiveFileTypeHandler();
+    if (handler instanceof DatabaseSqlEditorTab tab) {
+      return tab.getDatabaseMeta();
+    }
+    if (handler instanceof DatabaseTableInfoTab tab) {
+      return tab.getDatabaseMeta();
+    }
+    return null;
   }
 
   /**

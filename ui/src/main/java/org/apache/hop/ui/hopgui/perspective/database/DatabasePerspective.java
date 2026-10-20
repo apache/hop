@@ -18,12 +18,14 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -90,6 +92,14 @@ public class DatabasePerspective implements IHopPerspective, TabClosable, IDatab
   @Override
   public String getId() {
     return "database-perspective";
+  }
+
+  /**
+   * Filenames of SQL editors restored here from their own audit. The generic last-open-files list
+   * must not open the same files in the file explorer.
+   */
+  public static Set<String> persistedSqlFilenames() {
+    return DatabaseSqlTabMemory.persistedFilenames();
   }
 
   @GuiKeyboardShortcut(control = true, shift = true, key = 'd', global = true)
@@ -201,6 +211,28 @@ public class DatabasePerspective implements IHopPerspective, TabClosable, IDatab
     }
     activate();
     workbench.openSqlFile(filename, connection, buffer, dirty);
+  }
+
+  /** True when this perspective can open a SQL file into an editor tab. */
+  public boolean canOpenSqlFiles() {
+    return isInitialized();
+  }
+
+  /**
+   * Open {@code filename} in this perspective. Uses the selected connection, the connection of the
+   * active editor, or the only connection. Otherwise asks. Returns null when there is no connection
+   * or the user cancels.
+   */
+  public IHopFileTypeHandler openLocalSqlFile(String filename) {
+    if (!isInitialized() || Utils.isEmpty(filename)) {
+      return null;
+    }
+    DatabaseMeta meta = workbench.chooseConnectionForSqlFile();
+    if (meta == null) {
+      return null;
+    }
+    activate();
+    return workbench.openSqlFile(filename, meta, null, false);
   }
 
   /**

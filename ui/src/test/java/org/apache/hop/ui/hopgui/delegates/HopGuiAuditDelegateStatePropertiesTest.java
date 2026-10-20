@@ -19,12 +19,17 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlFileType;
 import org.junit.jupiter.api.Test;
 
 class HopGuiAuditDelegateStatePropertiesTest {
@@ -50,5 +55,26 @@ class HopGuiAuditDelegateStatePropertiesTest {
     assertEquals(1.5, copy.get("zoom"));
     copy.put("active", true);
     assertTrue((Boolean) copy.get("active"));
+  }
+
+  @Test
+  void databaseSqlEditorsAreNotReopenedInTheFileExplorer() {
+    String delimiter = "\u0001";
+    String savedSql = "/tmp/load.sql";
+    Set<String> databaseSqlFiles = Set.of(savedSql);
+
+    assertFalse(
+        HopGuiAuditDelegate.openInLastFiles(
+            DatabaseSqlFileType.NAME + delimiter + savedSql, Set.of()));
+    assertFalse(
+        HopGuiAuditDelegate.openInLastFiles("SQL File" + delimiter + savedSql, databaseSqlFiles));
+    assertTrue(
+        HopGuiAuditDelegate.openInLastFiles(
+            "SQL File" + delimiter + "/tmp/notes.sql", databaseSqlFiles));
+    assertTrue(HopGuiAuditDelegate.openInLastFiles("/tmp/pipeline.hpl", databaseSqlFiles));
+    assertFalse(HopGuiAuditDelegate.openInLastFiles("", databaseSqlFiles));
+
+    assertFalse(HopGuiAuditDelegate.rememberInLastOpenFiles(mock(DatabaseSqlEditorTab.class)));
+    assertTrue(HopGuiAuditDelegate.rememberInLastOpenFiles(new EmptyHopFileTypeHandler()));
   }
 }
