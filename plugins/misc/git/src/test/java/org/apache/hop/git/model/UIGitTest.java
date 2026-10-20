@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -45,12 +46,15 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.StatusCommand;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.junit.RepositoryTestCase;
@@ -66,6 +70,7 @@ import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -73,6 +78,12 @@ public class UIGitTest extends RepositoryTestCase {
   private Git git;
   private UIGit uiGit;
   Repository db2;
+
+  /** UIGit logs what it can't read to the Hop log, which needs the log store. */
+  @BeforeClass
+  public static void setUpLogStore() {
+    HopLogStore.init();
+  }
 
   @Override
   @Before
@@ -906,6 +917,115 @@ public class UIGitTest extends RepositoryTestCase {
 
   private List<String> getUnstagedFileNames() {
     return uiGit.getUnstagedFiles().stream().map(UIFile::getName).toList();
+  }
+
+  private static List<String> sortedNames(List<UIFile> files) {
+    return files.stream().map(UIFile::getName).sorted().toList();
+  }
+
+  @Test
+  public void testFileStatusReportsWhatTheSeparateCallsReport() throws Exception {
+    initialCommit();
+
+    writeTrashFile(".gitignore", "*.log\n");
+    writeTrashFile("Staged.txt", "staged");
+    uiGit.add("Staged.txt");
+    writeTrashFile("Test.txt", "Changed");
+    writeTrashFile("New.txt", "New file");
+    writeTrashFile("run.log", "log");
+
+    UIGit.FileStatus status = uiGit.getFileStatus(null);
+
+    assertEquals(sortedNames(uiGit.getStagedFiles()), sortedNames(status.staged()));
+    assertEquals(sortedNames(uiGit.getUnstagedFiles()), sortedNames(status.unstaged()));
+    assertEquals(uiGit.getIgnored(null), status.ignored());
+
+    assertEquals(List.of("Staged.txt"), sortedNames(status.staged()));
+    assertTrue(sortedNames(status.unstaged()).containsAll(List.of("New.txt", "Test.txt")));
+    assertTrue(status.ignored().contains("run.log"));
+  }
+
+  @Test
+  public void testFileStatusOfOneFile() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Test.txt", "Changed");
+    writeTrashFile("New.txt", "New file");
+
+    UIGit.FileStatus status = uiGit.getFileStatus("Test.txt");
+
+    assertEquals(List.of("Test.txt"), sortedNames(status.unstaged()));
+    assertTrue(status.staged().isEmpty());
+  }
+
+  @Test
+  public void testFileStatusOfARepositoryThatCanNoLongerBeReadIsEmpty() throws Exception {
+    // JGit reports an unreadable repository with an unchecked exception. The status is read on
+    // every click in an editor, so it must not reach the UI.
+    Git unreadable = mock(Git.class);
+    StatusCommand statusCommand = mock(StatusCommand.class);
+    doReturn(statusCommand).when(unreadable).status();
+    doThrow(new JGitInternalException("Unable to read the index")).when(statusCommand).call();
+    uiGit.setGit(unreadable);
+
+    UIGit.FileStatus status = uiGit.getFileStatus(null);
+
+    assertTrue(status.staged().isEmpty());
+    assertTrue(status.unstaged().isEmpty());
+    assertTrue(status.ignored().isEmpty());
+  }
+
+  @Test
+  public void testStateStampChangesWithTheIndexAndHead() throws Exception {
+    initialCommit();
+    String committed = uiGit.getStateStamp();
+
+    writeTrashFile("New.txt", "New file");
+    assertEquals(committed, uiGit.getStateStamp());
+
+    git.add().addFilepattern("New.txt").call();
+    String added = uiGit.getStateStamp();
+    assertNotEquals(committed, added);
+
+    git.commit().setMessage("second commit").call();
+    assertNotEquals(added, uiGit.getStateStamp());
+  }
+
+  @Test
+  public void testIsIgnoredLooksAtTheFoldersAbove() throws Exception {
+    initialCommit();
+
+    // A project in the build output of the repository, the way the samples project of a Hop
+    // client built from source sits in the Hop repository
+    writeTrashFile(".gitignore", "target/\n");
+    writeTrashFile("assemblies/client/target/hop/config/projects/samples/a.hpl", "<pipeline/>");
+    writeTrashFile("src/b.hpl", "<pipeline/>");
+
+    assertTrue(uiGit.isIgnored("assemblies/client/target/hop/config/projects/samples"));
+    assertTrue(uiGit.isIgnored("assemblies/client/target"));
+    assertFalse(uiGit.isIgnored("assemblies/client"));
+    assertFalse(uiGit.isIgnored("src"));
+    assertFalse(uiGit.isIgnored(""));
+  }
+
+  @Test
+  public void testIsIgnoredWithoutRegardToCase() throws Exception {
+    initialCommit();
+
+    writeTrashFile(".gitignore", "target/\n");
+    writeTrashFile("Target/projects/samples/a.hpl", "<pipeline/>");
+
+    assertFalse(uiGit.isIgnored("Target/projects/samples"));
+
+    db.getConfig()
+        .setBoolean(
+            ConfigConstants.CONFIG_CORE_SECTION,
+            null,
+            CaseInsensitiveIgnores.CONFIG_KEY_IGNORECASE,
+            true);
+    db.getConfig().save();
+
+    assertTrue(uiGit.isIgnored("Target/projects/samples"));
   }
 
   @Test
