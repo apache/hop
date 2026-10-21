@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,11 +111,13 @@ public class HopGuiAuditDelegate {
     // Collect files that fail to open
     List<String> failedFiles = new ArrayList<>();
 
-    // Saved database SQL editors are reopened by DatabaseSqlTabMemory. Their filenames are also
-    // copied into this list, and "Database SQL" is not a registered file type, so the .sql
-    // extension used to open them again in the file explorer (issue #9050).
+    // Saved database SQL editors are reopened by DatabaseSqlTabMemory. A legacy "Database SQL"
+    // entry in the database-perspective list is not a registered file type, so the .sql extension
+    // used to open it again in the file explorer (issue #9050). Skip that entry, and an explorer
+    // copy of the same path, only while the legacy entry is still in the list. writeLastOpenFiles
+    // no longer writes it, so the filter stops after the first save.
     //
-    Set<String> databaseSqlFilenames = DatabasePerspective.persistedSqlFilenames();
+    Set<String> databasePerspectiveLastOpen = databasePerspectiveLastOpenFiles();
 
     // Open the last files for each perspective...
     //
@@ -183,7 +186,7 @@ public class HopGuiAuditDelegate {
                         HopFileTypeRegistry.getInstance().getFileTypeByName(fileTypeName);
                   }
                 }
-                if (!openInLastFiles(filename, databaseSqlFilenames)) {
+                if (!openInLastFiles(filename, databasePerspectiveLastOpen)) {
                   continue;
                 }
                 if (hopFileToUse == null) {
@@ -438,10 +441,14 @@ public class HopGuiAuditDelegate {
   }
 
   /**
-   * Whether a last-open-files entry should be opened by the generic restore. Entries for a database
-   * SQL editor, including a copy already stored under the file explorer, are skipped.
+   * Whether a last-open-files entry should be opened by the generic restore.
+   *
+   * <p>A legacy {@code Database SQL} entry is never opened here. An explorer copy of the same path
+   * is skipped only while {@code databasePerspectiveLastOpen} still contains that legacy entry.
+   * {@link #writeLastOpenFiles()} no longer writes those entries, so the filter stops after the
+   * first save.
    */
-  static boolean openInLastFiles(String auditName, Set<String> databaseSqlFilenames) {
+  static boolean openInLastFiles(String auditName, Set<String> databasePerspectiveLastOpen) {
     if (StringUtils.isEmpty(auditName)) {
       return false;
     }
@@ -457,7 +464,39 @@ public class HopGuiAuditDelegate {
     if (DatabaseSqlFileType.NAME.equals(fileTypeName)) {
       return false;
     }
-    return databaseSqlFilenames == null || !databaseSqlFilenames.contains(filename);
+    if (databasePerspectiveLastOpen == null || StringUtils.isEmpty(filename)) {
+      return true;
+    }
+    return !databasePerspectiveLastOpen.contains(
+        DatabaseSqlFileType.NAME + TAB_KEY_DELIMITER + filename);
+  }
+
+  /**
+   * Names currently stored in the database-perspective last-open list. Used to find legacy {@code
+   * Database SQL} entries left from before those editors were kept out of this list.
+   */
+  private Set<String> databasePerspectiveLastOpenFiles() {
+    try {
+      AuditList auditList =
+          AuditManager.getActive()
+              .retrieveList(HopNamespace.getNamespace(), DatabasePerspective.PERSPECTIVE_ID);
+      if (auditList == null || auditList.getNames() == null) {
+        return Set.of();
+      }
+      Set<String> names = new HashSet<>();
+      for (String name : auditList.getNames()) {
+        if (StringUtils.isNotEmpty(name)) {
+          names.add(name);
+        }
+      }
+      return names;
+    } catch (Exception e) {
+      hopGui
+          .getLog()
+          .logError(
+              "Error reading audit list of perspective " + DatabasePerspective.PERSPECTIVE_ID, e);
+      return Set.of();
+    }
   }
 
   /**

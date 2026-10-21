@@ -61,20 +61,52 @@ class HopGuiAuditDelegateStatePropertiesTest {
   void databaseSqlEditorsAreNotReopenedInTheFileExplorer() {
     String delimiter = "\u0001";
     String savedSql = "/tmp/load.sql";
-    Set<String> databaseSqlFiles = Set.of(savedSql);
+    // A bare filename is not a legacy "Database SQL" entry, so it does not hide an explorer tab.
+    Set<String> databasePerspectiveLastOpen = Set.of(savedSql);
 
     assertFalse(
         HopGuiAuditDelegate.openInLastFiles(
             DatabaseSqlFileType.NAME + delimiter + savedSql, Set.of()));
-    assertFalse(
-        HopGuiAuditDelegate.openInLastFiles("SQL File" + delimiter + savedSql, databaseSqlFiles));
     assertTrue(
         HopGuiAuditDelegate.openInLastFiles(
-            "SQL File" + delimiter + "/tmp/notes.sql", databaseSqlFiles));
-    assertTrue(HopGuiAuditDelegate.openInLastFiles("/tmp/pipeline.hpl", databaseSqlFiles));
-    assertFalse(HopGuiAuditDelegate.openInLastFiles("", databaseSqlFiles));
+            "SQL File" + delimiter + savedSql, databasePerspectiveLastOpen));
+    assertTrue(
+        HopGuiAuditDelegate.openInLastFiles(
+            "SQL File" + delimiter + "/tmp/notes.sql", databasePerspectiveLastOpen));
+    assertTrue(
+        HopGuiAuditDelegate.openInLastFiles("/tmp/pipeline.hpl", databasePerspectiveLastOpen));
+    assertFalse(HopGuiAuditDelegate.openInLastFiles("", databasePerspectiveLastOpen));
 
     assertFalse(HopGuiAuditDelegate.rememberInLastOpenFiles(mock(DatabaseSqlEditorTab.class)));
     assertTrue(HopGuiAuditDelegate.rememberInLastOpenFiles(new EmptyHopFileTypeHandler()));
+  }
+
+  @Test
+  void fileOpenInBothPerspectivesKeepsItsExplorerTab() {
+    String delimiter = "\u0001";
+    String savedSql = "/tmp/load.sql";
+
+    assertTrue(HopGuiAuditDelegate.openInLastFiles("SQL File" + delimiter + savedSql, Set.of()));
+    assertTrue(HopGuiAuditDelegate.openInLastFiles("SQL File" + delimiter + savedSql, null));
+  }
+
+  @Test
+  void legacyDatabaseSqlEntrySkipsExplorerCopyOnce() {
+    String delimiter = "\u0001";
+    String savedSql = "/tmp/load.sql";
+    Set<String> databasePerspectiveLastOpen =
+        Set.of(DatabaseSqlFileType.NAME + delimiter + savedSql);
+
+    assertFalse(
+        HopGuiAuditDelegate.openInLastFiles(
+            "SQL File" + delimiter + savedSql, databasePerspectiveLastOpen));
+    assertFalse(
+        HopGuiAuditDelegate.openInLastFiles(
+            DatabaseSqlFileType.NAME + delimiter + savedSql, databasePerspectiveLastOpen));
+    assertTrue(
+        HopGuiAuditDelegate.openInLastFiles(
+            "SQL File" + delimiter + "/tmp/notes.sql", databasePerspectiveLastOpen));
+    assertTrue(
+        HopGuiAuditDelegate.openInLastFiles("/tmp/pipeline.hpl", databasePerspectiveLastOpen));
   }
 }

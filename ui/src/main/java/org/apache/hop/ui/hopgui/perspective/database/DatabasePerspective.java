@@ -18,7 +18,6 @@
 package org.apache.hop.ui.hopgui.perspective.database;
 
 import java.util.List;
-import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -64,6 +63,9 @@ public class DatabasePerspective implements IHopPerspective, TabClosable, IDatab
 
   public static final Class<?> PKG = DatabasePerspective.class;
 
+  /** Id of this perspective. Also the audit group of its last-open files. */
+  public static final String PERSPECTIVE_ID = "database-perspective";
+
   private static DatabasePerspective instance;
 
   private HopGui hopGui;
@@ -91,15 +93,7 @@ public class DatabasePerspective implements IHopPerspective, TabClosable, IDatab
 
   @Override
   public String getId() {
-    return "database-perspective";
-  }
-
-  /**
-   * Filenames of SQL editors restored here from their own audit. The generic last-open-files list
-   * must not open the same files in the file explorer.
-   */
-  public static Set<String> persistedSqlFilenames() {
-    return DatabaseSqlTabMemory.persistedFilenames();
+    return PERSPECTIVE_ID;
   }
 
   @GuiKeyboardShortcut(control = true, shift = true, key = 'd', global = true)

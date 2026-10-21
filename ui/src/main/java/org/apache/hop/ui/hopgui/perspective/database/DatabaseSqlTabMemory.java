@@ -19,10 +19,8 @@ package org.apache.hop.ui.hopgui.perspective.database;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
@@ -273,32 +271,6 @@ final class DatabaseSqlTabMemory {
   static final class Session {
     final List<DatabaseWorkbench> live = new ArrayList<>();
     DatabaseWorkbench owner;
-  }
-
-  /** Filenames of saved SQL editors this namespace will reopen. Untitled buffers are omitted. */
-  static Set<String> persistedFilenames() {
-    try {
-      String group = HopNamespace.getNamespace();
-      AuditList list = AuditManager.getActive().retrieveList(group, AUDIT_TYPE);
-      AuditStateMap stateMap = AuditManager.getActive().loadAuditStateMap(group, AUDIT_TYPE);
-      return filenamesOf(snapshotsFromAudit(list, stateMap));
-    } catch (Exception e) {
-      LogChannel.UI.logError("Unable to read saved Database SQL editor filenames", e);
-      return Set.of();
-    }
-  }
-
-  static Set<String> filenamesOf(List<Snapshot> snapshots) {
-    Set<String> filenames = new LinkedHashSet<>();
-    if (snapshots == null) {
-      return filenames;
-    }
-    for (Snapshot snapshot : snapshots) {
-      if (snapshot != null && !Utils.isEmpty(snapshot.filename)) {
-        filenames.add(snapshot.filename);
-      }
-    }
-    return filenames;
   }
 
   static List<Snapshot> snapshotsFromAudit(AuditList list, AuditStateMap stateMap) {
