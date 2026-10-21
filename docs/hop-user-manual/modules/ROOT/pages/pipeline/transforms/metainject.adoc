@@ -114,6 +114,11 @@ The resulting pipeline will be your template pipeline with the metadata already 
 |Streaming target transform|Select the target transform in your template pipeline to receive data directly from the Streaming source transform.
 |Run resulting pipeline|Select to inject metadata and run the template pipeline.
 If this option is not selected, metadata injection occurs, but the template pipeline does not run.
+|When to run the resulting pipeline|Controls whether the injected template pipeline runs when one or more of the input streams are empty.
+* *Run only when every input stream is not empty* - execution is skipped if any input stream has no rows.
+* *Run when at least one input stream is not empty* - execution runs as soon as one input stream has rows, even if other streams are empty.
+* *Run even when every input stream is empty* - execution runs even when all input streams are empty (useful for templates that can run from constant mappings alone).
+This replaces the legacy *Allow empty stream to run the resulting pipeline* checkbox.
 |===
 
 

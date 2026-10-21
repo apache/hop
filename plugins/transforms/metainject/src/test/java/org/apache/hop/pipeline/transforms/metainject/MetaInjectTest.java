@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.metainject;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -362,6 +363,35 @@ class MetaInjectTest {
     assertEquals("renamed1", groupBuffer.getBuffer().get(0)[1]);
     assertEquals("field2", groupBuffer.getBuffer().get(1)[0]);
     assertEquals("renamed2", groupBuffer.getBuffer().get(1)[1]);
+  }
+
+  @Test
+  void shouldSkipExecution_allNonEmpty() {
+    // ALL_NON_EMPTY: run only when every stream has data.
+    assertFalse(MetaInject.shouldSkipExecution(true, false, ConditionStreamBehavior.ALL_NON_EMPTY));
+    assertTrue(MetaInject.shouldSkipExecution(false, true, ConditionStreamBehavior.ALL_NON_EMPTY));
+    assertTrue(MetaInject.shouldSkipExecution(true, true, ConditionStreamBehavior.ALL_NON_EMPTY));
+  }
+
+  @Test
+  void shouldSkipExecution_atLeastOneNonEmpty() {
+    // AT_LEAST_ONE_NON_EMPTY: run when at least one stream has data.
+    assertFalse(
+        MetaInject.shouldSkipExecution(
+            true, false, ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY));
+    assertFalse(
+        MetaInject.shouldSkipExecution(true, true, ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY));
+    assertTrue(
+        MetaInject.shouldSkipExecution(
+            false, true, ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY));
+  }
+
+  @Test
+  void shouldSkipExecution_always() {
+    // ALWAYS: run even when every stream is empty.
+    assertFalse(MetaInject.shouldSkipExecution(false, true, ConditionStreamBehavior.ALWAYS));
+    assertFalse(MetaInject.shouldSkipExecution(true, true, ConditionStreamBehavior.ALWAYS));
+    assertFalse(MetaInject.shouldSkipExecution(true, false, ConditionStreamBehavior.ALWAYS));
   }
 
   @InjectionSupported(localizationPrefix = "", groups = "groups")

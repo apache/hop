@@ -38,6 +38,8 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.OnUnknownDeserializationProperty;
+import org.apache.hop.metadata.api.UnknownProperty;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -105,10 +107,11 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   private boolean noExecution;
 
   @HopMetadataProperty(
-      key = "allow_empty_stream_on_execution",
-      injectionKey = "ALLOW_EMPTY_STREAM_ON_EXECUTION",
-      injectionKeyDescription = "MetaInject.Injection.ALLOW_EMPTY_STREAM_ON_EXECUTION")
-  private boolean allowEmptyStreamOnExecution;
+      key = "condition_stream_behavior",
+      injectionKey = "CONDITION_STREAM_BEHAVIOR",
+      injectionKeyDescription = "MetaInject.Injection.CONDITION_STREAM_BEHAVIOR",
+      storeWithCode = true)
+  private ConditionStreamBehavior conditionStreamBehavior = ConditionStreamBehavior.ALL_NON_EMPTY;
 
   @HopMetadataProperty(
       key = "stream_source_transform",
@@ -166,6 +169,26 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   public void convertLegacyXml(Node node) throws HopException {
     if (node != null && XmlHandler.getSubNode(node, "parameters") == null) {
       inheritingAllVariables = true;
+    }
+  }
+
+  /**
+   * Reads the legacy {@code allow_empty_stream_on_execution} boolean property.
+   *
+   * <p>Before the {@link ConditionStreamBehavior} enum existed, this transform stored a plain
+   * boolean under the tag {@code allow_empty_stream_on_execution} (as {@code Y}/{@code N} in XML
+   * and {@code true}/{@code false} in JSON metadata). That tag no longer maps to an annotated
+   * field, so this callback is fired by the serializer whenever it is still found, translating the
+   * old value into the equivalent {@link ConditionStreamBehavior}.
+   */
+  @OnUnknownDeserializationProperty
+  public void onUnknownDeserializationProperty(UnknownProperty property) {
+    if ("allow_empty_stream_on_execution".equals(property.getName())) {
+      // "Y" / "true" => the old checkbox was enabled => at least one non-empty stream was required.
+      conditionStreamBehavior =
+          Const.toBoolean(property.getValue())
+              ? ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY
+              : ConditionStreamBehavior.ALL_NON_EMPTY;
     }
   }
 

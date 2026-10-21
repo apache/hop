@@ -83,6 +83,21 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, trans);
   }
 
+  /**
+   * Decides whether execution should be skipped based on the stream state and the configured {@link
+   * ConditionStreamBehavior}.
+   *
+   * @param receivedRows {@code true} when at least one input stream produced a row.
+   * @param hasEmptyList {@code true} when at least one input stream produced no rows.
+   * @param behavior The configured {@link ConditionStreamBehavior}.
+   * @return {@code true} when the template execution must be skipped.
+   */
+  static boolean shouldSkipExecution(
+      boolean receivedRows, boolean hasEmptyList, ConditionStreamBehavior behavior) {
+    return (!receivedRows && !behavior.allowsAllEmpty())
+        || (hasEmptyList && behavior.requiresAllNonEmpty());
+  }
+
   @Override
   public boolean processRow() throws HopException {
     // Read the data from all input transforms and keep it in memory...
@@ -102,9 +117,13 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
     injectMetadataIntoTemplateTransforms();
 
-    // Check if all previous transforms are returning data, unless isAllowEmptyStreamOnExecution is
-    // true then execute if at least one branch has data
-    if (!data.receivedRows || (data.hasEmptyList && !meta.isAllowEmptyStreamOnExecution())) {
+    // Check if all previous transforms are returning data. The ConditionStreamBehavior controls
+    // whether empty streams are tolerated: ALL_NON_EMPTY requires every stream to have data,
+    // AT_LEAST_ONE_NON_EMPTY runs as soon as one stream has data, and ALWAYS runs even when every
+    // stream is empty (e.g. templates relying on constant mappings alone).
+    //
+    if (shouldSkipExecution(
+        data.receivedRows, data.hasEmptyList, meta.getConditionStreamBehavior())) {
       setOutputDone();
       return false;
     }
