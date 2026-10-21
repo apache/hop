@@ -126,6 +126,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     assignWriter(null, null);
     try {
       TextFileOutputData.FileStream fileStreams = null;
+      boolean writeByteOrderMark = false;
 
       try {
         if (data.splitEvery > 0) {
@@ -137,8 +138,19 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         }
 
         boolean writingToFileForFirstTime = fileStreams == null;
+        // Opening file for first time
+        if (writingToFileForFirstTime) {
+          boolean appendToExistingFile = meta.getFileSettings().isFileAppended();
+          ICompressionProvider compressionProvider = getCompressionProvider();
+          boolean isZipFile = compressionProvider instanceof ZipCompressionProvider;
+          if (appendToExistingFile && isZipFile && isFileExists(filename)) {
+            throw new HopException("Can not append to an existing zip file : " + filename);
+          }
+          // A BOM charset adds its mark on every getBytes call. Write it once, and skip it when
+          // appending to a file that already has content.
+          writeByteOrderMark =
+              !appendToExistingFile || !isFileExists(filename) || isFileEmpty(filename);
 
-        if (writingToFileForFirstTime) { // Opening file for first time
           if (meta.getFileSettings().isAddToResultFiles()) {
             // Add this to the result file names...
             ResultFile resultFile =
@@ -151,14 +163,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
             addResultFile(resultFile);
           }
 
-          ICompressionProvider compressionProvider = getCompressionProvider();
-          boolean isZipFile = compressionProvider instanceof ZipCompressionProvider;
           boolean createParentDirIfNotExists = meta.isCreateParentFolder();
-          boolean appendToExistingFile = meta.getFileSettings().isFileAppended();
-
-          if (appendToExistingFile && isZipFile && isFileExists(filename)) {
-            throw new HopException("Can not append to an existing zip file : " + filename);
-          }
 
           int maxOpenFiles = getMaxOpenFiles();
           if ((maxOpenFiles > 0)
@@ -248,6 +253,12 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       data.fos = fileStreams.getFileOutputStream();
       data.out = fileStreams.getCompressedOutputStream();
       assignWriter(fileStreams.getBufferedOutputStream(), fileStreams);
+      if (writeByteOrderMark) {
+        byte[] byteOrderMark = TextFileCharset.byteOrderMark(meta.getEncoding());
+        if (byteOrderMark.length > 0) {
+          data.writer.write(byteOrderMark);
+        }
+      }
     } catch (HopException ke) {
       throw ke;
     } catch (Exception e) {
@@ -556,7 +567,8 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         return convertStringToBinaryString(v, Const.trimToType(svalue, v.getTrimType()));
       }
     } else {
-      return v.getBinaryString(valueData);
+      return TextFileCharset.stripLeadingByteOrderMark(
+          v.getBinaryString(valueData), meta.getEncoding());
     }
   }
 
@@ -574,7 +586,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         return tmp.getBytes();
       } else {
         try {
-          return tmp.getBytes(v.getStringEncoding());
+          return TextFileCharset.encode(tmp, v.getStringEncoding());
         } catch (UnsupportedEncodingException e) {
           throw new HopValueException(
               "Unable to convert String to Binary with specified string encoding ["
@@ -589,7 +601,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         text = string.getBytes();
       } else {
         try {
-          text = string.getBytes(meta.getEncoding());
+          text = TextFileCharset.encode(string, meta.getEncoding());
         } catch (UnsupportedEncodingException e) {
           throw new HopValueException(
               "Unable to convert String to Binary with specified string encoding ["
@@ -609,7 +621,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         byte[] filler = null;
         try {
           if (!Utils.isEmpty(meta.getEncoding())) {
-            filler = " ".getBytes(meta.getEncoding());
+            filler = TextFileCharset.encode(" ", meta.getEncoding());
           } else {
             filler = " ".getBytes();
           }
@@ -640,7 +652,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   private byte[] getBinaryString(String string) throws HopTransformException {
     try {
       if (data.hasEncoding) {
-        return string.getBytes(meta.getEncoding());
+        return TextFileCharset.encode(string, meta.getEncoding());
       } else {
         return string.getBytes();
       }
@@ -1097,13 +1109,15 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
 
       if (data.hasEncoding) {
         if (!Utils.isEmpty(meta.getSeparator())) {
-          data.binarySeparator = resolve(meta.getSeparator()).getBytes(meta.getEncoding());
+          data.binarySeparator =
+              TextFileCharset.encode(resolve(meta.getSeparator()), meta.getEncoding());
         }
         if (!Utils.isEmpty(meta.getEnclosure())) {
-          data.binaryEnclosure = resolve(meta.getEnclosure()).getBytes(meta.getEncoding());
+          data.binaryEnclosure =
+              TextFileCharset.encode(resolve(meta.getEnclosure()), meta.getEncoding());
         }
         if (!Utils.isEmpty(meta.getNewLine())) {
-          data.binaryNewline = meta.getNewLine().getBytes(meta.getEncoding());
+          data.binaryNewline = TextFileCharset.encode(meta.getNewLine(), meta.getEncoding());
         }
       } else {
         if (!Utils.isEmpty(meta.getSeparator())) {
@@ -1123,7 +1137,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         String nullString = meta.getOutputFields().get(i).getNullString();
         if (!Utils.isEmpty(nullString)) {
           if (data.hasEncoding) {
-            data.binaryNullValue[i] = nullString.getBytes(meta.getEncoding());
+            data.binaryNullValue[i] = TextFileCharset.encode(nullString, meta.getEncoding());
           } else {
             data.binaryNullValue[i] = nullString.getBytes();
           }
