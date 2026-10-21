@@ -46,9 +46,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -65,6 +68,7 @@ public class SshDialog extends BaseTransformDialog {
   private CCombo wCommandField;
 
   private LabelTextVar wTimeOut;
+  private LabelTextVar wCommandTimeOut;
   private final SshMeta input;
 
   private Button wDynamicCommand;
@@ -120,17 +124,7 @@ public class SshDialog extends BaseTransformDialog {
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
-    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
-    wGeneralTab.setText(BaseMessages.getString(PKG, "SSHDialog.General.Tab"));
-
-    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wGeneralComp);
-
-    FormLayout fileLayout = new FormLayout();
-    fileLayout.marginWidth = 3;
-    fileLayout.marginHeight = 3;
-    wGeneralComp.setLayout(fileLayout);
+    Composite wGeneralComp = addTab(wTabFolder, "SSHDialog.General.Tab");
 
     // ///////////////////////////////
     // START OF Settings GROUP //
@@ -156,7 +150,7 @@ public class SshDialog extends BaseTransformDialog {
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(0, 0);
-    fdServerName.top = new FormAttachment(wSpacer, margin);
+    fdServerName.top = new FormAttachment(0, margin);
     fdServerName.right = new FormAttachment(100, 0);
     wServerName.setLayoutData(fdServerName);
 
@@ -190,6 +184,21 @@ public class SshDialog extends BaseTransformDialog {
     fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
+    // Command TimeOut line
+    wCommandTimeOut =
+        new LabelTextVar(
+            variables,
+            wSettingsGroup,
+            BaseMessages.getString(PKG, "SSHDialog.CommandTimeOut.Label"),
+            BaseMessages.getString(PKG, "SSHDialog.CommandTimeOut.Tooltip"));
+    PropsUi.setLook(wCommandTimeOut);
+    wCommandTimeOut.addModifyListener(lsMod);
+    FormData fdCommandTimeOut = new FormData();
+    fdCommandTimeOut.left = new FormAttachment(0, 0);
+    fdCommandTimeOut.top = new FormAttachment(wTimeOut, margin);
+    fdCommandTimeOut.right = new FormAttachment(100, 0);
+    wCommandTimeOut.setLayoutData(fdCommandTimeOut);
+
     // Usernameline
     wUserName =
         new LabelTextVar(
@@ -201,7 +210,7 @@ public class SshDialog extends BaseTransformDialog {
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(0, 0);
-    fdUserName.top = new FormAttachment(wTimeOut, margin);
+    fdUserName.top = new FormAttachment(wCommandTimeOut, margin);
     fdUserName.right = new FormAttachment(100, 0);
     wUserName.setLayoutData(fdUserName);
 
@@ -378,22 +387,14 @@ public class SshDialog extends BaseTransformDialog {
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment(0, margin);
-    fdSettingsGroup.top = new FormAttachment(wSpacer, margin);
+    fdSettingsGroup.top = new FormAttachment(0, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////
     // END OF Settings Fields GROUP //
 
-    FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, 0);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(100, 0);
-    wGeneralComp.setLayoutData(fdGeneralComp);
-
-    wGeneralComp.layout();
-    wGeneralTab.setControl(wGeneralComp);
+    finishTab(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -402,17 +403,7 @@ public class SshDialog extends BaseTransformDialog {
     // ////////////////////////
     // START OF Settings TAB///
     // /
-    CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
-    wSettingsTab.setFont(GuiResource.getInstance().getFontDefault());
-    wSettingsTab.setText(BaseMessages.getString(PKG, "SSHDialog.Settings.Tab"));
-
-    FormLayout settingsLayout = new FormLayout();
-    settingsLayout.marginWidth = 3;
-    settingsLayout.marginHeight = 3;
-
-    Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wSettingsComp);
-    wSettingsComp.setLayout(settingsLayout);
+    Composite wSettingsComp = addTab(wTabFolder, "SSHDialog.Settings.Tab");
 
     // ///////////////////////////////
     // START OF Output GROUP //
@@ -438,7 +429,7 @@ public class SshDialog extends BaseTransformDialog {
     wResultOutFieldName.addModifyListener(lsMod);
     FormData fdResultOutFieldName = new FormData();
     fdResultOutFieldName.left = new FormAttachment(0, 0);
-    fdResultOutFieldName.top = new FormAttachment(wSpacer, margin);
+    fdResultOutFieldName.top = new FormAttachment(0, margin);
     fdResultOutFieldName.right = new FormAttachment(100, 0);
     wResultOutFieldName.setLayoutData(fdResultOutFieldName);
 
@@ -459,7 +450,7 @@ public class SshDialog extends BaseTransformDialog {
 
     FormData fdOutput = new FormData();
     fdOutput.left = new FormAttachment(0, margin);
-    fdOutput.top = new FormAttachment(wSpacer, margin);
+    fdOutput.top = new FormAttachment(0, margin);
     fdOutput.right = new FormAttachment(100, -margin);
     wOutput.setLayoutData(fdOutput);
 
@@ -485,7 +476,7 @@ public class SshDialog extends BaseTransformDialog {
     PropsUi.setLook(wlDynamicCommand);
     FormData fdlDynamicBase = new FormData();
     fdlDynamicBase.left = new FormAttachment(0, margin);
-    fdlDynamicBase.top = new FormAttachment(wOutput, margin);
+    fdlDynamicBase.top = new FormAttachment(0, margin);
     fdlDynamicBase.right = new FormAttachment(middle, -margin);
     wlDynamicCommand.setLayoutData(fdlDynamicBase);
     wDynamicCommand = new Button(wCommands, SWT.CHECK);
@@ -559,15 +550,7 @@ public class SshDialog extends BaseTransformDialog {
     // / END OF Log SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
 
-    FormData fdSettingsComp = new FormData();
-    fdSettingsComp.left = new FormAttachment(0, 0);
-    fdSettingsComp.top = new FormAttachment(0, 0);
-    fdSettingsComp.right = new FormAttachment(100, 0);
-    fdSettingsComp.bottom = new FormAttachment(100, 0);
-    wSettingsComp.setLayoutData(fdSettingsComp);
-
-    wSettingsComp.layout();
-    wSettingsTab.setControl(wSettingsComp);
+    finishTab(wSettingsComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings TAB
@@ -626,6 +609,7 @@ public class SshDialog extends BaseTransformDialog {
       wResultErrFieldName.setText(input.getStdErrFieldName());
     }
     wTimeOut.setText(Const.NVL(input.getTimeOut(), "0"));
+    wCommandTimeOut.setText(Const.NVL(input.getCommandTimeOut(), "0"));
     if (input.getProxyHost() != null) {
       wProxyHost.setText(input.getProxyHost());
     }
@@ -638,6 +622,51 @@ public class SshDialog extends BaseTransformDialog {
     if (input.getProxyPassword() != null) {
       wProxyPassword.setText(input.getProxyPassword());
     }
+  }
+
+  /**
+   * A tab whose content scrolls: the options of one tab can outgrow a small dialog, and without a
+   * scrolled composite the widgets below the fold are simply unreachable.
+   */
+  private Composite addTab(CTabFolder wTabFolder, String titleKey) {
+    CTabItem tab = new CTabItem(wTabFolder, SWT.NONE);
+    tab.setFont(GuiResource.getInstance().getFontDefault());
+    tab.setText(BaseMessages.getString(PKG, titleKey));
+
+    ScrolledComposite scrolled = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    scrolled.setLayout(new FillLayout());
+    PropsUi.setLook(scrolled);
+
+    Composite composite = new Composite(scrolled, SWT.NONE);
+    PropsUi.setLook(composite);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    composite.setLayout(layout);
+
+    tab.setControl(scrolled);
+    return composite;
+  }
+
+  /** Sizes the scrolled content of a tab built by {@link #addTab}. */
+  private void finishTab(Composite composite) {
+    FormData fdComp = new FormData();
+    fdComp.left = new FormAttachment(0, 0);
+    fdComp.top = new FormAttachment(0, 0);
+    fdComp.right = new FormAttachment(100, 0);
+    fdComp.bottom = new FormAttachment(100, 0);
+    composite.setLayoutData(fdComp);
+
+    composite.layout();
+    composite.pack();
+    Rectangle bounds = composite.getBounds();
+
+    ScrolledComposite scrolled = (ScrolledComposite) composite.getParent();
+    scrolled.setContent(composite);
+    scrolled.setExpandHorizontal(true);
+    scrolled.setExpandVertical(true);
+    scrolled.setMinWidth(bounds.width);
+    scrolled.setMinHeight(bounds.height);
   }
 
   private void cancel() {
@@ -660,6 +689,7 @@ public class SshDialog extends BaseTransformDialog {
     in.setStdOutFieldName(wResultOutFieldName.getText());
     in.setStdErrFieldName(wResultErrFieldName.getText());
     in.setTimeOut(wTimeOut.getText());
+    in.setCommandTimeOut(wCommandTimeOut.getText());
     in.setProxyHost(wProxyHost.getText());
     in.setProxyPort(wProxyPort.getText());
     in.setProxyUsername(wProxyUsername.getText());

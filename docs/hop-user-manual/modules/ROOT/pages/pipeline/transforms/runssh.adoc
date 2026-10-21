@@ -38,8 +38,12 @@ You can pass text to stdout or stderr in the commands. This information can then
 |Server name / IP address|You can specify the server or IP address of the machine on which you want to execute a command.
 |Server port|The TCP/IP port on which the ssh protocol lives on the server.
 The default is 22.
-|Timeout|The timeout in seconds.
+|Connection timeout|The connection timeout in seconds.
 If set to a number larger than zero you can specify a non-default connection timeout.
+|Command timeout|The maximum time in seconds to wait for a command to complete.
+The default of 0 waits until the command ends, however long it runs.
+If the command does not complete in time, the transform fails, or sends the row to the error hop when error handling is enabled.
+Stopping the pipeline also stops waiting for a running command.
 |Username|The username to log in with.
 |Password|The password to use.
 |Use key|Enable this option if you want to log in using a private key

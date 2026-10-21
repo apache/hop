@@ -74,6 +74,10 @@ public class SshMeta extends BaseTransformMeta<Ssh, SshData> {
   @HopMetadataProperty private String stdOutFieldName;
   @HopMetadataProperty private String stdErrFieldName;
   @HopMetadataProperty private String timeOut;
+
+  /** Maximum time in seconds to wait for a command to complete, 0 waits until it ends. */
+  @HopMetadataProperty private String commandTimeOut;
+
   @HopMetadataProperty private String proxyHost;
   @HopMetadataProperty private String proxyPort;
   @HopMetadataProperty private String proxyUsername;
@@ -94,6 +98,7 @@ public class SshMeta extends BaseTransformMeta<Ssh, SshData> {
     stdOutFieldName = "stdOut";
     stdErrFieldName = "stdErr";
     timeOut = "0";
+    commandTimeOut = "0";
     proxyHost = null;
     proxyPort = null;
     proxyUsername = null;
