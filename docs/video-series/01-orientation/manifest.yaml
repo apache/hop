@@ -1,0 +1,623 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 01. English is the source.
+# zh, es-MX, pt-BR, and fr gloss a product word once, then keep the English word.
+video:
+  id: 01-orientation
+  title: "What Apache Hop is"
+  issue: 9057
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Getting started
+      url: https://hop.apache.org/manual/latest/getting-started/index.html
+    - label: What is Apache Hop?
+      url: https://hop.apache.org/manual/latest/getting-started/hop-what-is-hop.html
+    - label: Apache Hop
+      url: https://hop.apache.org/
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Getting started
+    card_subtitle: A short series to get you started
+    shot: >
+      Title card. Kicker "Apache Hop", title "Getting started", subtitle
+      "A short series to get you started". No GUI.
+    narration:
+      en: |
+        Apache Hop is a data integration and orchestration platform, and this
+        is the first video in a short series that gets you started. You design
+        the work visually, you save it as ordinary files, and you run the same
+        work on your laptop or on a server. In the next few minutes you will
+        see what Hop is for, who it is for, and where to read the rest. The
+        manual for this series lives at hop.apache.org.
+      zh: |
+        Apache Hop 是一个数据集成与编排平台，这是帮助你入门的短系列的第一集。
+        你用可视化的方式设计工作，把它存成普通文件，然后在笔记本或服务器上
+        运行同一套工作。接下来几分钟，你会看到 Hop 用来做什么、适合谁，
+        以及去哪里阅读其余内容。这个系列的手册在 hop.apache.org。
+      es-MX: |
+        Apache Hop es una plataforma de integración y orquestación de datos,
+        y este es el primer video de una serie corta para empezar. Diseñas el
+        trabajo de forma visual, lo guardas como archivos normales y ejecutas
+        el mismo trabajo en tu laptop o en un servidor. En los próximos minutos
+        verás para qué sirve Hop, para quién es y dónde leer el resto. El
+        manual de esta serie está en hop.apache.org.
+      pt-BR: |
+        O Apache Hop é uma plataforma de integração e orquestração de dados,
+        e este é o primeiro vídeo de uma série curta para você começar. Você
+        desenha o trabalho de forma visual, salva tudo como arquivos comuns e
+        executa o mesmo trabalho no seu notebook ou em um servidor. Nos
+        próximos minutos você vê para que o Hop serve, para quem ele é e onde
+        ler o restante. O manual desta série está em hop.apache.org.
+      fr: |
+        Apache Hop est une plateforme d'intégration et d'orchestration de
+        données, et cette vidéo est la première d'une courte série pour bien
+        démarrer. Vous concevez le travail visuellement, vous l'enregistrez
+        dans des fichiers ordinaires, et vous exécutez le même travail sur
+        votre portable ou sur un serveur. Dans les minutes qui viennent, vous
+        verrez à quoi sert Hop, à qui il s'adresse, et où lire la suite. Le
+        manuel de cette série se trouve sur hop.apache.org.
+      de-DE: |
+        Apache Hop ist eine Plattform für Datenintegration und Orchestrierung,
+        und dies ist das erste Video einer kurzen Reihe für den Einstieg. Du
+        entwirfst die Arbeit visuell, speicherst sie als gewöhnliche Dateien
+        und führst dieselbe Arbeit auf deinem Laptop oder auf einem Server aus.
+        In den nächsten Minuten siehst du, wofür Hop da ist, für wen es gedacht
+        ist und wo du den Rest nachliest. Das Handbuch dieser Reihe steht auf
+        hop.apache.org.
+      it-IT: |
+        Apache Hop è una piattaforma di integrazione e orchestrazione dei dati,
+        e questo è il primo video di una breve serie per iniziare. Progetti il
+        lavoro in modo visuale, lo salvi come file ordinari ed esegui lo stesso
+        lavoro sul tuo portatile o su un server. Nei prossimi minuti vedi a
+        cosa serve Hop, a chi è rivolto e dove leggere il resto. Il manuale di
+        questa serie si trova su hop.apache.org.
+      nl-NL: |
+        Apache Hop is een platform voor data-integratie en orkestratie, en dit
+        is de eerste video van een korte reeks om te beginnen. Je ontwerpt het
+        werk visueel, bewaart het als gewone bestanden en voert hetzelfde werk
+        uit op je laptop of op een server. In de volgende minuten zie je waar
+        Hop voor is, voor wie het bedoeld is en waar je de rest leest. De
+        handleiding van deze reeks staat op hop.apache.org.
+
+  - id: what-hop-is
+    title: What Hop is
+    visual: images/what-hop-is.png
+    visual_type: still
+    shot: >
+      The getting started page "What is Apache Hop?" in a browser, scrolled
+      so the title and the metadata section are readable. Hide bookmarks.
+    narration:
+      en: |
+        Everything you build in Hop is metadata. A pipeline that reads and
+        writes data is metadata. A workflow that runs that pipeline, and
+        decides what to do when it fails, is metadata. So is the connection
+        to a database, and so is the choice of where the work runs. The
+        pipeline says what should happen to the data. The metadata around it
+        says where that happens, and which systems it talks to. That split is
+        why you can point the same pipeline at a local database today and a
+        production warehouse tomorrow, without redrawing it.
+      zh: |
+        你在 Hop 里构建的一切都是元数据。读取并写出数据的 Pipeline，也就是
+        数据流，是元数据。运行这条 Pipeline、并在失败时决定下一步的 Workflow，
+        也就是任务编排，也是元数据。数据库连接是元数据，工作在哪里运行也是
+        元数据。Pipeline 说明数据应该发生什么。它周围的元数据说明这件事发生
+        在哪里、要连接哪些系统。正因为这样分开，你今天可以把同一条 Pipeline
+        指向本地数据库，明天指向生产仓库，而不必重画。
+      es-MX: |
+        Todo lo que construyes en Hop es metadatos. Un Pipeline, el flujo que
+        lee y escribe datos, es metadatos. Un Workflow, la secuencia que
+        ejecuta ese Pipeline y decide qué hacer si falla, también es metadatos.
+        La conexión a una base de datos es metadatos, y también lo es el lugar
+        donde corre el trabajo. El Pipeline dice qué debe pasar con los datos.
+        Los metadatos que lo rodean dicen dónde pasa y con qué sistemas habla.
+        Esa separación te permite apuntar el mismo Pipeline a una base local
+        hoy y a un almacén de producción mañana, sin volver a dibujarlo.
+      pt-BR: |
+        Tudo o que você constrói no Hop é metadado. Um Pipeline, o fluxo que
+        lê e grava dados, é metadado. Um Workflow, a sequência que executa
+        esse Pipeline e decide o que fazer quando ele falha, também é
+        metadado. A conexão com um banco de dados é metadado, e a escolha de
+        onde o trabalho roda também é. O Pipeline diz o que deve acontecer
+        com os dados. O metadado ao redor diz onde isso acontece e com quais
+        sistemas ele fala. Essa separação permite apontar o mesmo Pipeline
+        para um banco local hoje e para um armazém de produção amanhã, sem
+        redesenhar.
+      fr: |
+        Tout ce que vous construisez dans Hop, ce sont des métadonnées. Un
+        Pipeline, le flux qui lit et écrit les données, est une métadonnée.
+        Un Workflow, la séquence qui lance ce Pipeline et décide quoi faire
+        en cas d'échec, est une métadonnée aussi. La connexion à une base de
+        données en est une, tout comme le choix de l'endroit où le travail
+        s'exécute. Le Pipeline dit ce qui doit arriver aux données. Les
+        métadonnées autour de lui disent où cela se passe et à quels systèmes
+        il parle. Cette séparation vous permet de pointer le même Pipeline
+        vers une base locale aujourd'hui et vers un entrepôt de production
+        demain, sans le redessiner.
+      de-DE: |
+        Alles, was du in Hop baust, sind Metadaten. Ein Pipeline, der Datenfluss,
+        der Daten liest und schreibt, ist Metadaten. Ein Workflow, die Folge,
+        die diesen Pipeline startet und bei einem Fehler entscheidet, was als
+        Nächstes geschieht, ist ebenfalls Metadaten. Die Verbindung zu einer
+        Datenbank ist Metadaten, und auch die Wahl, wo die Arbeit läuft. Der
+        Pipeline sagt, was mit den Daten geschehen soll. Die Metadaten darum
+        herum sagen, wo das geschieht und mit welchen Systemen er spricht.
+        Durch diese Trennung kannst du denselben Pipeline heute auf eine lokale
+        Datenbank und morgen auf ein Produktivlager richten, ohne ihn neu zu
+        zeichnen.
+      it-IT: |
+        Tutto ciò che costruisci in Hop sono metadati. Un Pipeline, il flusso
+        che legge e scrive i dati, è metadato. Un Workflow, la sequenza che
+        avvia quel Pipeline e decide cosa fare se fallisce, è metadato anche
+        lui. La connessione a un database è metadato, così come la scelta di
+        dove viene eseguito il lavoro. Il Pipeline dice che cosa deve succedere
+        ai dati. I metadati intorno a lui dicono dove succede e con quali
+        sistemi parla. Questa separazione ti permette di puntare lo stesso
+        Pipeline oggi su un database locale e domani su un magazzino di
+        produzione, senza ridisegnarlo.
+      nl-NL: |
+        Alles wat je in Hop bouwt, is metadata. Een Pipeline, de stroom die
+        gegevens leest en schrijft, is metadata. Een Workflow, de reeks die die
+        Pipeline start en bepaalt wat er gebeurt als hij faalt, is ook metadata.
+        De verbinding met een database is metadata, en ook de keuze waar het
+        werk draait. De Pipeline zegt wat er met de gegevens moet gebeuren. De
+        metadata eromheen zegt waar dat gebeurt en met welke systemen hij
+        praat. Door die scheiding kun je dezelfde Pipeline vandaag op een
+        lokale database richten en morgen op een productiewarehouse, zonder
+        hem opnieuw te tekenen.
+
+  - id: moving-data
+    title: Moving data
+    visual: images/moving-data.png
+    visual_type: still
+    shot: >
+      The samples project. A pipeline open on the canvas that reads data and
+      writes it out. Transform names readable, full canvas, no dialog open.
+    narration:
+      en: |
+        The job most people start with is moving and shaping data. You read
+        files, databases, object stores, queues, or a web service, and you
+        write the result where it needs to go. Hop is meant to sit in the
+        architecture you already run. Relational databases, cloud storage,
+        and REST services are all normal sources and targets. You do not
+        begin by sizing a cluster. You begin by drawing the flow. The
+        pipelines video in this series is where you build one.
+      zh: |
+        大多数人的第一项工作是搬运和整理数据。你读取文件、数据库、对象存储、
+        队列或一个 Web 服务，再把结果写到它该去的地方。Hop 放在你已经在用的
+        架构里。关系数据库、云存储和 REST 服务都是平常的来源和目标。你从画出
+        这条流开始，而不是从估算集群规模开始。本系列的 Pipeline 视频会带你
+        做一条。
+      es-MX: |
+        El trabajo con el que empieza la mayoría es mover y dar forma a los
+        datos. Lees archivos, bases de datos, almacenes de objetos, colas o
+        un servicio web, y escribes el resultado donde tiene que ir. Hop está
+        hecho para vivir en la arquitectura que ya usas. Las bases relacionales,
+        el almacenamiento en la nube y los servicios REST son orígenes y
+        destinos normales. Empiezas por dibujar el flujo, no por calcular el
+        tamaño de un clúster. En el video Pipeline de esta serie construyes uno.
+      pt-BR: |
+        O trabalho com que a maioria começa é mover e modelar dados. Você lê
+        arquivos, bancos de dados, armazenamentos de objetos, filas ou um
+        serviço web, e grava o resultado onde ele precisa chegar. O Hop fica
+        na arquitetura que você já usa. Bancos relacionais, armazenamento na
+        nuvem e serviços REST são origens e destinos normais. Você começa
+        desenhando o fluxo, em vez de calcular o tamanho de um cluster. No
+        vídeo Pipeline desta série, você constrói um.
+      fr: |
+        Le travail par lequel la plupart des gens commencent, c'est déplacer
+        et mettre en forme les données. Vous lisez des fichiers, des bases de
+        données, des stockages d'objets, des files ou un service web, et vous
+        écrivez le résultat là où il doit aller. Hop prend place dans
+        l'architecture que vous utilisez déjà. Les bases relationnelles, le
+        stockage cloud et les services REST sont des sources et des cibles
+        habituelles. Vous commencez par dessiner le flux, plutôt que par
+        dimensionner un cluster. C'est dans la vidéo Pipeline de cette série
+        que vous en construisez un.
+      de-DE: |
+        Die Arbeit, mit der die meisten anfangen, ist Daten zu bewegen und zu
+        formen. Du liest Dateien, Datenbanken, Objektspeicher, Warteschlangen
+        oder einen Webdienst und schreibst das Ergebnis dorthin, wo es hin muss.
+        Hop setzt sich in die Architektur, die du schon betreibst. Relationale
+        Datenbanken, Cloud-Speicher und REST-Dienste sind normale Quellen und
+        Ziele. Du fängst an, indem du den Fluss zeichnest, nicht indem du einen
+        Cluster dimensionierst. Im Pipeline-Video dieser Reihe baust du einen.
+      it-IT: |
+        Il lavoro da cui parte la maggior parte delle persone è spostare e
+        dare forma ai dati. Leggi file, database, object store, code o un
+        servizio web, e scrivi il risultato dove deve andare. Hop sta
+        nell'architettura che già usi. Database relazionali, archiviazione
+        cloud e servizi REST sono sorgenti e destinazioni normali. Inizi
+        disegnando il flusso, non dimensionando un cluster. Nel video Pipeline
+        di questa serie ne costruisci uno.
+      nl-NL: |
+        Het werk waarmee de meeste mensen beginnen, is gegevens verplaatsen en
+        vormgeven. Je leest bestanden, databases, objectopslag, wachtrijen of
+        een webservice, en je schrijft het resultaat waar het naartoe moet. Hop
+        hoort in de architectuur die je al gebruikt. Relationele databases,
+        cloudopslag en REST-services zijn gewone bronnen en doelen. Je begint
+        met het tekenen van de stroom, niet met het inschatten van een cluster.
+        In de Pipeline-video van deze reeks bouw je er een.
+
+  - id: orchestration
+    title: Orchestration
+    visual: images/orchestration.png
+    visual_type: still
+    shot: >
+      The samples project. A workflow open on the canvas that runs a pipeline
+      and has a success path and a failure path. Action names readable.
+    narration:
+      en: |
+        The second job is orchestration. A workflow runs tasks in order. It
+        checks whether a task succeeded, and it chooses what runs next. A
+        pipeline moves rows. A workflow does not. It calls a pipeline, it can
+        notify someone, and it can stop the run when a step fails. You will
+        build one in the workflows video. For now, keep the two ideas apart.
+        A pipeline is the data. A workflow is the sequence.
+      zh: |
+        第二项工作是编排。Workflow 按顺序运行任务。它检查一个任务是否成功，
+        并选择下一步运行什么。Pipeline 搬运的是一行行数据。Workflow 不搬运
+        数据。它调用一条 Pipeline，可以通知某个人，也可以在某一步失败时停掉
+        这次运行。你会在 Workflow 视频里做一条。现在先把两个概念分开。
+        Pipeline 是数据。Workflow 是顺序。
+      es-MX: |
+        El segundo trabajo es la orquestación. Un Workflow ejecuta tareas en
+        orden. Comprueba si una tarea tuvo éxito y elige qué corre después.
+        Un Pipeline mueve filas. Un Workflow no mueve filas. Llama a un
+        Pipeline, puede avisar a alguien y puede detener la ejecución cuando
+        un paso falla. Vas a construir uno en el video de Workflow. Por ahora,
+        separa las dos ideas. Pipeline es el dato. Workflow es la secuencia.
+      pt-BR: |
+        O segundo trabalho é a orquestração. Um Workflow executa tarefas em
+        ordem. Ele verifica se uma tarefa deu certo e escolhe o que roda em
+        seguida. Um Pipeline move linhas. Um Workflow não move linhas. Ele
+        chama um Pipeline, pode avisar alguém e pode parar a execução quando
+        um passo falha. Você constrói um no vídeo de Workflow. Por enquanto,
+        mantenha as duas ideias separadas. Pipeline é o dado. Workflow é a
+        sequência.
+      fr: |
+        Le deuxième travail, c'est l'orchestration. Un Workflow exécute les
+        tâches dans l'ordre. Il vérifie si une tâche a réussi et choisit ce
+        qui s'exécute ensuite. Un Pipeline déplace des lignes. Un Workflow ne
+        déplace pas de lignes. Il appelle un Pipeline, il peut prévenir
+        quelqu'un, et il peut arrêter l'exécution quand une étape échoue.
+        Vous en construirez un dans la vidéo Workflow. Pour l'instant, gardez
+        les deux idées séparées. Pipeline, ce sont les données. Workflow,
+        c'est la séquence.
+      de-DE: |
+        Die zweite Arbeit ist Orchestrierung. Ein Workflow führt Aufgaben der
+        Reihe nach aus. Er prüft, ob eine Aufgabe gelungen ist, und wählt, was
+        als Nächstes läuft. Ein Pipeline bewegt Zeilen. Ein Workflow bewegt
+        keine Zeilen. Er ruft einen Pipeline auf, er kann jemanden
+        benachrichtigen, und er kann den Lauf stoppen, wenn ein Schritt
+        fehlschlägt. Einen baust du im Workflow-Video. Halte die beiden Ideen
+        vorerst auseinander. Pipeline sind die Daten. Workflow ist die
+        Reihenfolge.
+      it-IT: |
+        Il secondo lavoro è l'orchestrazione. Un Workflow esegue i compiti in
+        ordine. Controlla se un compito è riuscito e sceglie che cosa viene
+        eseguito dopo. Un Pipeline sposta righe. Un Workflow non sposta righe.
+        Chiama un Pipeline, può avvisare qualcuno e può fermare l'esecuzione
+        quando un passaggio fallisce. Ne costruirai uno nel video Workflow.
+        Per ora tieni separate le due idee. Pipeline sono i dati. Workflow è
+        la sequenza.
+      nl-NL: |
+        Het tweede werk is orkestratie. Een Workflow voert taken op volgorde
+        uit. Hij controleert of een taak is gelukt en kiest wat daarna draait.
+        Een Pipeline verplaatst rijen. Een Workflow verplaatst geen rijen. Hij
+        roept een Pipeline aan, hij kan iemand waarschuwen, en hij kan de
+        uitvoering stoppen als een stap mislukt. Je bouwt er een in de
+        Workflow-video. Houd de twee ideeën voorlopig uit elkaar. Pipeline is
+        de data. Workflow is de volgorde.
+
+  - id: same-work-everywhere
+    title: The same work, anywhere
+    visual: images/same-work-everywhere.png
+    visual_type: still
+    card_title: Design once
+    card_subtitle: "Local engine, Hop Server, Spark, Flink, or Dataflow"
+    shot: >
+      Title card. Title "Design once". Subtitle listing the local engine,
+      Hop Server, Spark, Flink, and Dataflow. Do not open the run
+      configuration dialog in this video.
+    narration:
+      en: |
+        The third job is running that same work in more than one place. You
+        draw the pipeline once. A run configuration then decides where it
+        executes. On your laptop, the local engine is enough. The same
+        pipeline can later run on Hop Server, or on Spark, Flink, or Dataflow
+        when the volume calls for it. Changing the engine leaves the drawing
+        as it is. This video only names the idea. The execution video shows
+        a local run, in Hop GUI and with hop run.
+      zh: |
+        第三项工作是在不止一个地方运行同一套工作。你把 Pipeline 画一次。
+        然后由 run configuration，也就是运行配置，决定它在哪里执行。在笔记本
+        上，本地引擎就够了。同一条 Pipeline 以后可以跑在 Hop Server 上，
+        也可以在数据量需要时跑在 Spark、Flink 或 Dataflow 上。更换引擎不会
+        改动这张图。本集只点出这个想法。执行视频会演示一次本地运行，在
+        Hop GUI 里，以及用 hop run。
+      es-MX: |
+        El tercer trabajo es ejecutar ese mismo trabajo en más de un lugar.
+        Dibujas el Pipeline una vez. Una run configuration, la configuración
+        de ejecución, decide después dónde corre. En tu laptop, el motor local
+        alcanza. El mismo Pipeline puede correr más tarde en Hop Server, o en
+        Spark, Flink o Dataflow cuando el volumen lo pide. Cambiar de motor
+        deja el dibujo como está. Este video solo nombra la idea. El video de
+        ejecución muestra una corrida local, en Hop GUI y con hop run.
+      pt-BR: |
+        O terceiro trabalho é executar esse mesmo trabalho em mais de um
+        lugar. Você desenha o Pipeline uma vez. Uma run configuration, a
+        configuração de execução, decide em seguida onde ele roda. No seu
+        notebook, o motor local é suficiente. O mesmo Pipeline pode rodar
+        depois no Hop Server, ou no Spark, no Flink ou no Dataflow quando o
+        volume pedir. Trocar o motor deixa o desenho como está. Este vídeo
+        só apresenta a ideia. O vídeo de execução mostra uma execução local,
+        no Hop GUI e com hop run.
+      fr: |
+        Le troisième travail consiste à exécuter ce même travail à plusieurs
+        endroits. Vous dessinez le Pipeline une seule fois. Une run
+        configuration, le choix du moteur d'exécution, décide ensuite où il
+        s'exécute. Sur votre portable, le moteur local suffit. Le même
+        Pipeline peut plus tard s'exécuter sur Hop Server, ou sur Spark, Flink
+        ou Dataflow quand le volume l'exige. Changer de moteur laisse le
+        dessin tel quel. Cette vidéo ne fait que nommer l'idée. La vidéo sur
+        l'exécution montre un lancement local, dans Hop GUI et avec hop run.
+      de-DE: |
+        Die dritte Arbeit ist, dieselbe Arbeit an mehr als einem Ort
+        auszuführen. Du zeichnest den Pipeline einmal. Eine run configuration,
+        die Ausführungskonfiguration, entscheidet danach, wo er läuft. Auf
+        deinem Laptop reicht die lokale Engine. Derselbe Pipeline kann später
+        auf Hop Server laufen, oder auf Spark, Flink oder Dataflow, wenn das
+        Volumen es verlangt. Ein Wechsel der Engine lässt die Zeichnung, wie
+        sie ist. Dieses Video nennt nur die Idee. Das Video zur Ausführung
+        zeigt einen lokalen Lauf, in Hop GUI und mit hop run.
+      it-IT: |
+        Il terzo lavoro è eseguire lo stesso lavoro in più di un posto.
+        Disegni il Pipeline una sola volta. Una run configuration, la
+        configurazione di esecuzione, decide poi dove viene eseguito. Sul tuo
+        portatile il motore locale basta. Lo stesso Pipeline può in seguito
+        girare su Hop Server, oppure su Spark, Flink o Dataflow quando il
+        volume lo richiede. Cambiare motore lascia il disegno com'è. Questo
+        video si limita a nominare l'idea. Il video sull'esecuzione mostra
+        un'esecuzione locale, in Hop GUI e con hop run.
+      nl-NL: |
+        Het derde werk is hetzelfde werk op meer dan één plek uitvoeren. Je
+        tekent de Pipeline één keer. Een run configuration, de
+        uitvoeringsconfiguratie, bepaalt daarna waar hij draait. Op je laptop
+        is de lokale engine genoeg. Dezelfde Pipeline kan later op Hop Server
+        draaien, of op Spark, Flink of Dataflow als het volume daarom vraagt.
+        Een andere engine laat de tekening zoals ze is. Deze video noemt
+        alleen het idee. De video over uitvoering toont een lokale run, in
+        Hop GUI en met hop run.
+
+  - id: who-it-is-for
+    title: Who Hop is for
+    visual: images/who-it-is-for.png
+    visual_type: still
+    shot: >
+      Hop GUI open on the samples project, wide enough to see the main window
+      and the project name. No dialogs, no personal paths.
+    narration:
+      en: |
+        Hop is for the people who build and operate those flows. Data
+        engineers, analytics engineers, and the developers who keep an
+        integration running. You can draw a pipeline without being a
+        programmer, and you can drop into code when a step needs it. If you
+        can explain the flow to a colleague, you can build it in Hop GUI.
+        Hop GUI runs on Windows, macOS, and Linux, and in the browser as
+        Hop Web.
+      zh: |
+        Hop 是给构建并运行这些流的人用的。数据工程师、分析工程师，以及维持
+        集成持续运行的开发者。你可以不会编程就画出一条 Pipeline，某一步需要
+        代码时也可以写代码。如果你能把这条流向同事讲清楚，就能在 Hop GUI 里
+        把它做出来。Hop GUI 运行在 Windows、macOS 和 Linux 上，在浏览器里则是
+        Hop Web。
+      es-MX: |
+        Hop es para quienes construyen y operan esos flujos. Ingenieros de
+        datos, ingenieros de analítica y los desarrolladores que mantienen
+        una integración en marcha. Puedes dibujar un Pipeline sin ser
+        programador, y puedes pasar al código cuando un paso lo necesita. Si
+        puedes explicar el flujo a un colega, puedes construirlo en Hop GUI.
+        Hop GUI corre en Windows, macOS y Linux, y en el navegador como Hop Web.
+      pt-BR: |
+        O Hop é para quem constrói e opera esses fluxos. Engenheiros de dados,
+        engenheiros de analytics e os desenvolvedores que mantêm uma
+        integração em funcionamento. Você pode desenhar um Pipeline sem ser
+        programador, e pode entrar no código quando um passo precisar. Se você
+        consegue explicar o fluxo para um colega, consegue construí-lo no
+        Hop GUI. O Hop GUI roda no Windows, no macOS e no Linux, e no
+        navegador como Hop Web.
+      fr: |
+        Hop s'adresse aux personnes qui construisent et font tourner ces flux.
+        Ingénieurs data, ingénieurs analytics, et les développeurs qui
+        maintiennent une intégration. Vous pouvez dessiner un Pipeline sans
+        être programmeur, et passer au code quand une étape l'exige. Si vous
+        pouvez expliquer le flux à un collègue, vous pouvez le construire dans
+        Hop GUI. Hop GUI fonctionne sur Windows, macOS et Linux, et dans le
+        navigateur sous le nom Hop Web.
+      de-DE: |
+        Hop ist für die Menschen, die diese Flüsse bauen und betreiben. Data
+        Engineers, Analytics Engineers und die Entwickler, die eine Integration
+        am Laufen halten. Du kannst einen Pipeline zeichnen, ohne Programmierer
+        zu sein, und du kannst in Code wechseln, wenn ein Schritt ihn braucht.
+        Wenn du den Fluss einer Kollegin erklären kannst, kannst du ihn in
+        Hop GUI bauen. Hop GUI läuft auf Windows, macOS und Linux, und im
+        Browser als Hop Web.
+      it-IT: |
+        Hop è per chi costruisce e fa funzionare questi flussi. Data engineer,
+        analytics engineer e gli sviluppatori che tengono in piedi
+        un'integrazione. Puoi disegnare un Pipeline senza essere un
+        programmatore, e passare al codice quando un passaggio lo richiede. Se
+        sai spiegare il flusso a un collega, puoi costruirlo in Hop GUI.
+        Hop GUI gira su Windows, macOS e Linux, e nel browser come Hop Web.
+      nl-NL: |
+        Hop is voor de mensen die deze stromen bouwen en draaiende houden.
+        Data engineers, analytics engineers en de ontwikkelaars die een
+        integratie laten doorlopen. Je kunt een Pipeline tekenen zonder
+        programmeur te zijn, en naar code gaan wanneer een stap dat nodig
+        heeft. Als je de stroom aan een collega kunt uitleggen, kun je hem
+        bouwen in Hop GUI. Hop GUI draait op Windows, macOS en Linux, en in
+        de browser als Hop Web.
+
+  - id: files-not-a-black-box
+    title: Files, not a black box
+    visual: images/files-not-a-black-box.png
+    visual_type: still
+    shot: >
+      The file explorer in Hop GUI, samples project, with pipelines and
+      workflows visible in the tree. Names readable.
+    narration:
+      en: |
+        Hop GUI is a visual editor, and the work stays in files you can open.
+        A pipeline is a plain file on disk. A project is a folder of those
+        files, together with the metadata, the tests, and the configuration.
+        After that, you treat the project like any other piece of software.
+        You review it, you version it, and you run it from a command line
+        that a build can call. The version control video shows the Git side.
+        The projects video shows how that folder is organized.
+      zh: |
+        Hop GUI 是一个可视化编辑器，工作留在你可以打开的文件里。一条 Pipeline
+        是磁盘上的一个普通文件。一个 project，也就是项目，是这些文件所在的
+        文件夹，加上元数据、测试和配置。在那之后，你把它当成任何一份软件来
+        对待。你评审它，给它做版本管理，并用构建可以调用的命令行来运行它。
+        版本控制视频讲 Git 这一侧。project 视频讲这个文件夹是怎么组织的。
+      es-MX: |
+        Hop GUI es un editor visual, y el trabajo queda en archivos que puedes
+        abrir. Un Pipeline es un archivo común en disco. Un project, la carpeta
+        del trabajo, reúne esos archivos junto con los metadatos, las pruebas
+        y la configuración. A partir de ahí lo tratas como cualquier otro
+        software. Lo revisas, lo versiones y lo ejecutas desde una línea de
+        comandos que una construcción puede llamar. El video de control de
+        versiones muestra el lado de Git. El video de project muestra cómo
+        está organizada esa carpeta.
+      pt-BR: |
+        O Hop GUI é um editor visual, e o trabalho fica em arquivos que você
+        pode abrir. Um Pipeline é um arquivo comum no disco. Um project, a
+        pasta do trabalho, junta esses arquivos com o metadado, os testes e a
+        configuração. Daí em diante você trata isso como qualquer outro
+        software. Você revisa, versiona e executa por uma linha de comando que
+        um build pode chamar. O vídeo de controle de versão mostra o lado do
+        Git. O vídeo de project mostra como essa pasta é organizada.
+      fr: |
+        Hop GUI est un éditeur visuel, et le travail reste dans des fichiers
+        que vous pouvez ouvrir. Un Pipeline est un fichier ordinaire sur le
+        disque. Un project, le dossier du travail, réunit ces fichiers avec
+        les métadonnées, les tests et la configuration. Ensuite, vous le
+        traitez comme n'importe quel autre logiciel. Vous le relisez, vous le
+        versionnez, et vous le lancez depuis une ligne de commande qu'une
+        construction peut appeler. La vidéo sur le contrôle de version montre
+        le côté Git. La vidéo project montre comment ce dossier est organisé.
+      de-DE: |
+        Hop GUI ist ein visueller Editor, und die Arbeit bleibt in Dateien,
+        die du öffnen kannst. Ein Pipeline ist eine gewöhnliche Datei auf der
+        Festplatte. Ein project, der Arbeitsordner, versammelt diese Dateien
+        zusammen mit den Metadaten, den Tests und der Konfiguration. Danach
+        behandelst du ihn wie jede andere Software. Du prüfst ihn, versionierst
+        ihn und startest ihn über eine Kommandozeile, die ein Build aufrufen
+        kann. Das Video zur Versionsverwaltung zeigt die Git-Seite. Das
+        project-Video zeigt, wie dieser Ordner aufgebaut ist.
+      it-IT: |
+        Hop GUI è un editor visuale, e il lavoro resta in file che puoi aprire.
+        Un Pipeline è un file ordinario sul disco. Un project, la cartella di
+        lavoro, riunisce questi file insieme ai metadati, ai test e alla
+        configurazione. Da lì lo tratti come qualsiasi altro software. Lo
+        revisioni, lo versioni e lo esegui da una riga di comando che una build
+        può chiamare. Il video sul controllo di versione mostra il lato Git.
+        Il video project mostra come è organizzata quella cartella.
+      nl-NL: |
+        Hop GUI is een visuele editor, en het werk blijft in bestanden die je
+        kunt openen. Een Pipeline is een gewoon bestand op schijf. Een project,
+        de werkmap, brengt die bestanden samen met de metadata, de tests en de
+        configuratie. Daarna behandel je het als elke andere software. Je
+        beoordeelt het, versiebeheert het en start het vanaf een opdrachtregel
+        die een build kan aanroepen. De video over versiebeheer toont de
+        Git-kant. De project-video toont hoe die map is opgebouwd.
+
+  - id: where-next
+    title: Where to go next
+    visual: images/where-next.png
+    visual_type: still
+    shot: >
+      A browser on https://hop.apache.org/ with the download or the
+      documentation entry visible. Hide bookmarks.
+    narration:
+      en: |
+        When you want the longer version, start at hop.apache.org. The
+        getting started guide walks the same path as this series: install,
+        a first pipeline, a first workflow, then projects and environments.
+        The samples project ships with the client, and it is full of
+        pipelines you can open and run. The next video installs that client.
+        Have Java 21 ready. That is the one requirement.
+      zh: |
+        如果你想看更完整的说明，从 hop.apache.org 开始。入门指南走的是和本
+        系列一样的路径：安装、第一条 Pipeline、第一个 Workflow，然后是项目和
+        环境。samples project 随客户端一起提供，里面有许多可以打开并运行的
+        Pipeline。下一集安装这个客户端。请先准备好 Java 21。这是唯一的前提。
+      es-MX: |
+        Cuando quieras la versión larga, empieza en hop.apache.org. La guía
+        de inicio recorre el mismo camino que esta serie: instalar, un primer
+        Pipeline, un primer Workflow, y después los proyectos y los entornos.
+        El samples project viene con el cliente, y trae varios Pipeline que
+        puedes abrir y ejecutar. El siguiente video instala ese cliente. Ten
+        listo Java 21. Es el único requisito.
+      pt-BR: |
+        Quando quiser a versão mais longa, comece em hop.apache.org. O guia
+        de introdução segue o mesmo caminho desta série: instalar, um primeiro
+        Pipeline, um primeiro Workflow e depois os projetos e os ambientes. O
+        samples project vem com o cliente e traz vários Pipeline que você pode
+        abrir e executar. O próximo vídeo instala esse cliente. Deixe o Java 21
+        pronto. Esse é o único requisito.
+      fr: |
+        Quand vous voulez la version longue, commencez sur hop.apache.org. Le
+        guide de démarrage suit le même chemin que cette série : installer, un
+        premier Pipeline, un premier Workflow, puis les projets et les
+        environnements. Le samples project est livré avec le client, et il
+        contient plusieurs Pipeline que vous pouvez ouvrir et exécuter. La
+        vidéo suivante installe ce client. Préparez Java 21. C'est la seule
+        condition.
+      de-DE: |
+        Wenn du die längere Fassung willst, fang auf hop.apache.org an. Die
+        Einführung geht denselben Weg wie diese Reihe: installieren, ein erster
+        Pipeline, ein erster Workflow, dann Projekte und Umgebungen. Das
+        samples project wird mit dem Client geliefert und enthält mehrere
+        Pipeline, die du öffnen und ausführen kannst. Das nächste Video
+        installiert diesen Client. Halte Java 21 bereit. Das ist die einzige
+        Voraussetzung.
+      it-IT: |
+        Quando vuoi la versione lunga, parti da hop.apache.org. La guida
+        introduttiva segue lo stesso percorso di questa serie: installare, un
+        primo Pipeline, un primo Workflow, poi i progetti e gli ambienti. Il
+        samples project arriva con il client e contiene diversi Pipeline che
+        puoi aprire ed eseguire. Il video successivo installa quel client.
+        Tieni pronto Java 21. È l'unico requisito.
+      nl-NL: |
+        Als je de lange versie wilt, begin dan op hop.apache.org. De
+        introductie volgt hetzelfde pad als deze reeks: installeren, een eerste
+        Pipeline, een eerste Workflow, daarna projecten en omgevingen. Het
+        samples project wordt meegeleverd met de client en bevat verschillende
+        Pipeline die je kunt openen en uitvoeren. De volgende video installeert
+        die client. Zorg dat Java 21 klaarstaat. Dat is de enige vereiste.

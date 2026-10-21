@@ -123,3 +123,9 @@ ui/audit
 # local env loading
 .sdkmanrc
 
+# Generated voice-overs, timings, and rendered videos for the YouTube series
+docs/video-series/**/output/
+docs/video-series/**/Thumbs.db
+docs/video-series/**/Thumbs.db:encryptable
+tools/video-series/__pycache__/
+
