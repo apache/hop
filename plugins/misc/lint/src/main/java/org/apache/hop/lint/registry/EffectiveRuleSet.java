@@ -88,7 +88,7 @@ public final class EffectiveRuleSet {
   public List<CustomLintRule> getEnabledPolicyRules() {
     List<CustomLintRule> enabled = new ArrayList<>();
     for (CustomLintRule rule : rules) {
-      if (rule.isEnabled() && !rule.isNativeVerify()) {
+      if (rule.isEnabled() && !rule.isReportOnly()) {
         enabled.add(rule);
       }
     }
@@ -101,6 +101,16 @@ public final class EffectiveRuleSet {
    * <p>A disabled native rule is not a rule that does nothing: it is the project saying that the
    * check it names should not be reported, so the classifier has to see it.
    */
+  /** The rule with this id, or null. */
+  public CustomLintRule findRule(String ruleId) {
+    for (CustomLintRule rule : rules) {
+      if (ruleId != null && ruleId.equals(rule.getId())) {
+        return rule;
+      }
+    }
+    return null;
+  }
+
   public List<CustomLintRule> getNativeVerifyRules() {
     List<CustomLintRule> nativeRules = new ArrayList<>();
     for (CustomLintRule rule : rules) {

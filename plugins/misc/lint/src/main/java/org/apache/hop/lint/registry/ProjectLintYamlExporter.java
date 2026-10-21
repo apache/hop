@@ -248,7 +248,7 @@ public final class ProjectLintYamlExporter {
   }
 
   private static Map<String, Object> toFullCustomRuleMap(CustomLintRule rule) {
-    if (rule.isNativeVerify()) {
+    if (rule.isReportOnly()) {
       return toFullNativeRuleMap(rule);
     }
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
@@ -316,7 +316,7 @@ public final class ProjectLintYamlExporter {
    */
   private static Map<String, Object> toFullNativeRuleMap(CustomLintRule rule) {
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
-    ruleConfig.put("type", CustomLintRule.TYPE_NATIVE);
+    ruleConfig.put("type", rule.getType());
     ruleConfig.put("enabled", rule.isEnabled());
     ruleConfig.put("severity", rule.getSeverity());
     if (!rule.getAppliesTo().isEmpty()) {

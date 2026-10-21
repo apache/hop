@@ -16,7 +16,9 @@
  */
 package org.apache.hop.lint;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -51,6 +53,31 @@ public class LintSeverityThresholdTest {
 
     assertFalse(LintSeverity.meetsFailOnThreshold("ERROR", threshold));
     assertFalse(LintSeverity.meetsFailOnThreshold("WARNING", threshold));
+  }
+
+  /**
+   * --fail-on INFO read as ERROR.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
+   */
+  @Test
+  public void failOnInfoFailsOnEverything() {
+    LintSeverity.FailOn threshold = LintSeverity.parseFailOn("info");
+
+    assertEquals(LintSeverity.FailOn.INFO, threshold);
+    assertTrue(LintSeverity.meetsFailOnThreshold("ERROR", threshold));
+    assertTrue(LintSeverity.meetsFailOnThreshold("WARNING", threshold));
+    assertTrue(LintSeverity.meetsFailOnThreshold("INFO", threshold));
+  }
+
+  /** A typo read as ERROR, so a project with warnings passed --fail-on WARNNG. */
+  @Test
+  public void anUnknownThresholdIsRefused() {
+    IllegalArgumentException e =
+        assertThrows(IllegalArgumentException.class, () -> LintSeverity.parseFailOn("WARNNG"));
+
+    assertTrue(e.getMessage().contains("ERROR, WARNING, INFO, NONE"), e.getMessage());
+    assertEquals(LintSeverity.FailOn.ERROR, LintSeverity.parseFailOn(""));
   }
 
   /** An unrecognised severity must not be treated as harmless. */

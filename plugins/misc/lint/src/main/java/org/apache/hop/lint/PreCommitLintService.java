@@ -53,6 +53,21 @@ public final class PreCommitLintService {
     }
   }
 
+  /**
+   * A file in the commit, and the copy of its staged version that the git hook made.
+   *
+   * @param file the file in the working tree, which decides the configuration, the project and the
+   *     path findings are reported against
+   * @param content the staged version to read, or null to read {@code file}
+   */
+  public record StagedFile(File file, File content) {
+
+    /** What is linted: the staged copy when there is one, the file on disk otherwise. */
+    public File source() {
+      return content != null ? content : file;
+    }
+  }
+
   private PreCommitLintService() {}
 
   public static Result lintFiles(
@@ -75,20 +90,40 @@ public final class PreCommitLintService {
       IVariables variables,
       IHopMetadataProvider metadataProvider,
       boolean strict) {
+    List<StagedFile> staged = new ArrayList<>();
+    for (File file : files) {
+      staged.add(new StagedFile(file, null));
+    }
+    return lintStagedFiles(staged, failOn, variables, metadataProvider, strict);
+  }
+
+  /**
+   * Lint the staged version of each file where the git hook copied one.
+   *
+   * @see #lintFiles(List, LintSeverity.FailOn, IVariables, IHopMetadataProvider, boolean)
+   */
+  public static Result lintStagedFiles(
+      List<StagedFile> stagedFiles,
+      LintSeverity.FailOn failOn,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      boolean strict) {
     List<LintResult> allResults = new ArrayList<>();
     HopLinter linter = new HopLinter();
 
-    for (File file : files) {
-      if (file == null || !file.exists()) {
+    for (StagedFile staged : stagedFiles) {
+      if (staged == null || staged.file() == null || !staged.source().isFile()) {
         continue;
       }
+      File file = staged.file();
       try {
         if (strict) {
           // lintFile() would load the configuration again, leniently.
           linter.loadConfigurationStrictly(file);
-          allResults.addAll(linter.processFile(file, metadataProvider, variables));
+          allResults.addAll(
+              linter.processFile(file, staged.content(), metadataProvider, variables));
         } else {
-          if (files.size() == 1 || allResults.isEmpty()) {
+          if (stagedFiles.size() == 1 || allResults.isEmpty()) {
             linter.loadConfigurationForContext(file);
           }
           allResults.addAll(linter.lintFile(file.getAbsolutePath(), metadataProvider, variables));
@@ -97,13 +132,13 @@ public final class PreCommitLintService {
         throw e;
       } catch (Exception e) {
         log.logError("Error linting file " + file.getAbsolutePath() + ": " + e.getMessage(), e);
-        allResults.add(
-            new LintResult(
-                "SYSTEM-001",
-                "File Processing Error",
-                "ERROR",
+        linter
+            .systemFinding(
+                HopLinter.SYSTEM_FILE_PROCESSING,
                 "Failed to process file: " + e.getMessage(),
-                LintPathUtils.normalizePath(file.getAbsolutePath())));
+                LintPathUtils.normalizePath(file.getAbsolutePath()),
+                null)
+            .ifPresent(allResults::add);
       }
     }
 
@@ -116,21 +151,25 @@ public final class PreCommitLintService {
     return new Result(allResults, blocking);
   }
 
-  public static List<File> readStagedFiles(String stagedFileListPath) throws HopException {
+  public static List<StagedFile> readStagedFiles(String stagedFileListPath) throws HopException {
     return readStagedFiles(stagedFileListPath, null);
   }
 
   /**
    * The staged files to lint.
    *
+   * <p>Each line is a file, optionally followed by a tab and the copy of its staged version that
+   * the git hook wrote. With a copy the file itself need not exist: it can be staged and then
+   * deleted or changed on disk, and the commit still holds the staged version.
+   *
    * @param baseDirectory what a relative path in the list is relative to. git lists staged files
    *     relative to the repository root, and the hop launcher changes to the Hop installation
    *     before it starts Java, so resolving them against the working directory found none of them
    *     and the hook let every commit through.
    */
-  public static List<File> readStagedFiles(String stagedFileListPath, File baseDirectory)
+  public static List<StagedFile> readStagedFiles(String stagedFileListPath, File baseDirectory)
       throws HopException {
-    List<File> files = new ArrayList<>();
+    List<StagedFile> files = new ArrayList<>();
     File listFile = new File(stagedFileListPath);
     if (!listFile.isFile()) {
       throw new HopException("Staged file list not found: " + stagedFileListPath);
@@ -138,28 +177,39 @@ public final class PreCommitLintService {
 
     try {
       for (String line : java.nio.file.Files.readAllLines(listFile.toPath())) {
-        String trimmed = line.trim();
+        String[] parts = line.split("\t", 2);
+        String trimmed = parts[0].trim();
         if (trimmed.isEmpty()) {
           continue;
         }
-        File candidate = new File(trimmed);
-        if (!candidate.isAbsolute() && baseDirectory != null) {
-          candidate = new File(baseDirectory, trimmed);
-        }
+        File candidate = resolve(trimmed, baseDirectory);
         if (!isLintablePath(candidate.getAbsolutePath())) {
           continue;
         }
-        if (candidate.isFile()) {
-          files.add(candidate);
+        File content =
+            parts.length > 1 && !parts[1].isBlank()
+                ? resolve(parts[1].trim(), baseDirectory)
+                : null;
+        StagedFile staged = new StagedFile(candidate, content);
+        if (staged.source().isFile()) {
+          files.add(staged);
         } else {
           // A staged file the hook cannot find is a hook that checks nothing, so say so.
-          System.err.println("Staged file not found, not linted: " + candidate.getPath());
+          System.err.println("Staged file not found, not linted: " + staged.source().getPath());
         }
       }
     } catch (Exception e) {
       throw new HopException("Failed to read staged file list: " + e.getMessage(), e);
     }
     return files;
+  }
+
+  private static File resolve(String path, File baseDirectory) {
+    File file = new File(path);
+    if (!file.isAbsolute() && baseDirectory != null) {
+      file = new File(baseDirectory, path);
+    }
+    return file;
   }
 
   public static boolean isLintablePath(String path) {

@@ -18,13 +18,17 @@ package org.apache.hop.lint.registry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.logging.LogLevel;
@@ -442,7 +446,7 @@ public class RuleRegistryTest {
    */
   @Test
   public void aPackCannotSilentlyReplaceAnotherPacksRule() {
-    Map<String, CustomLintRule> merged = new java.util.LinkedHashMap<>();
+    Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("hop-core", List.of(), ruleFrom("hop-core", "DB-001", "ERROR")));
 
@@ -456,7 +460,7 @@ public class RuleRegistryTest {
   /** Declaring the intent is what makes it allowed. */
   @Test
   public void aDeclaredOverrideIsApplied() {
-    Map<String, CustomLintRule> merged = new java.util.LinkedHashMap<>();
+    Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("hop-core", List.of(), ruleFrom("hop-core", "DB-001", "ERROR")));
 
@@ -471,7 +475,7 @@ public class RuleRegistryTest {
   /** A pack redefining its own rule is not a collision. */
   @Test
   public void aPackMayRedefineItsOwnRule() {
-    Map<String, CustomLintRule> merged = new java.util.LinkedHashMap<>();
+    Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("acme", List.of(), ruleFrom("acme", "ACME-001", "WARNING")));
     RuleRegistry.mergePack(
@@ -483,7 +487,7 @@ public class RuleRegistryTest {
   /** Rule ids are matched without regard to case, as they are hand-written in YAML. */
   @Test
   public void overrideDeclarationIgnoresCase() {
-    Map<String, CustomLintRule> merged = new java.util.LinkedHashMap<>();
+    Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("hop-core", List.of(), ruleFrom("hop-core", "DB-001", "ERROR")));
 
@@ -689,6 +693,121 @@ public class RuleRegistryTest {
         };
 
     assertTrue(new RuleRegistry(discovery).getPackErrors().isEmpty());
+  }
+
+  /**
+   * A value the condition cannot use, from hop-lint.yml or a pack, made the rule report nothing and
+   * log an exception on every run.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
+   */
+  @Test
+  public void aRuleThatCannotReportIsNamedInAWarning() throws Exception {
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(
+        projectYaml.toPath(),
+        """
+        rules:
+          STRUCT-001:
+            enabled: true
+            conditionValue: abc
+          LOCAL-001:
+            type: custom
+            enabled: true
+            target: PIPELINE
+            targetField: name
+            condition: MATCHES_PATTERN
+            conditionValue: "[a-"
+          LOCAL-002:
+            type: custom
+            enabled: true
+            target: PIPELINE
+            targetField: transformCount
+            condition: NOT_NULL
+          LOCAL-003:
+            type: custom
+            enabled: false
+            target: PIPELINE
+            targetField: transformCount
+            condition: MAX_VALUE
+            conditionValue: "${MAXT}"
+        """);
+    try {
+      List<String> warnings = RuleRegistry.getInstance().resolve(projectYaml).getWarnings();
+
+      assertEquals(3, warnings.size(), warnings.toString());
+      assertTrue(
+          warnings.stream().anyMatch(w -> w.contains("'STRUCT-001'") && w.contains("'abc'")),
+          warnings.toString());
+      assertTrue(
+          warnings.stream().anyMatch(w -> w.contains("'LOCAL-001'") && w.contains("[a-")),
+          warnings.toString());
+      assertTrue(
+          warnings.stream().anyMatch(w -> w.contains("'LOCAL-002'") && w.contains("NOT_NULL")),
+          warnings.toString());
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  @Test
+  public void theCorePackHasNoRuleThatCannotReport() {
+    assertTrue(
+        RuleRegistry.getInstance().resolve(null).getWarnings().isEmpty(),
+        RuleRegistry.getInstance().resolve(null).getWarnings().toString());
+  }
+
+  /** rules: written with dashes failed with "ArrayList cannot be cast to class java.util.Map". */
+  @Test
+  public void rulesWrittenAsAListAreExplained() throws Exception {
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), "rules:\n  - DB-001:\n      enabled: false\n");
+    try {
+      LintConfigurationException e =
+          assertThrows(
+              LintConfigurationException.class,
+              () -> RuleRegistry.getInstance().resolve(projectYaml));
+      assertTrue(e.getMessage().contains("maps each rule id to its settings"), e.getMessage());
+      assertFalse(e.getMessage().contains("ArrayList"), e.getMessage());
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  /**
+   * A broken hop-lint-pack.yml in a plugin folder stopped hop lint with only snakeyaml's "while
+   * parsing a flow sequence in 'reader'", naming neither the pack nor the file.
+   */
+  @Test
+  public void aBrokenDiscoveredPackNamesItsFile() throws Exception {
+    Path root = Files.createTempDirectory("hop-lint-discovery");
+    Path engineDir = root.resolve("plugins/misc/hop-lint");
+    Path vendorDir = root.resolve("plugins/misc/acme-lint-rules");
+    Files.createDirectories(engineDir);
+    Files.createDirectories(vendorDir);
+    Path packFile = vendorDir.resolve("hop-lint-pack.yml");
+    Files.writeString(packFile, "pack:\n  id: acme\nrules:\n  ACME-001: [unterminated\n");
+    try {
+      Map<String, IHopLintRulePack> packsById = new LinkedHashMap<>();
+      new RulePackDiscovery()
+          .registerInstalledPluginYamlPacksFromEngineDir(engineDir.toFile(), packsById);
+      List<IHopLintRulePack> packs = new ArrayList<>(packsById.values());
+      RulePackDiscovery discovery =
+          new RulePackDiscovery() {
+            @Override
+            public List<IHopLintRulePack> discoverAll() {
+              return packs;
+            }
+          };
+
+      List<String> errors = new RuleRegistry(discovery).getPackErrors();
+
+      assertEquals(1, errors.size(), errors.toString());
+      assertTrue(errors.get(0).contains(packFile.toString()), errors.get(0));
+      assertTrue(errors.get(0).contains("line"), errors.get(0));
+    } finally {
+      FileUtils.deleteDirectory(root.toFile());
+    }
   }
 
   /** A cause chain that loops back on itself must not hang the registry while it holds its lock. */

@@ -17,7 +17,12 @@
 
 package org.apache.hop.lint;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * One thing a rule checks: a field, a condition, and the value the condition compares against.
@@ -28,6 +33,8 @@ import java.util.Objects;
  * own.
  */
 public class RuleClause {
+
+  private static final Class<?> PKG = RuleClause.class; // for i18n purposes
 
   private String targetField;
   private RuleCondition condition;
@@ -63,6 +70,77 @@ public class RuleClause {
 
   public void setConditionValue(String conditionValue) {
     this.conditionValue = conditionValue;
+  }
+
+  /**
+   * Why this clause can never report anything, or null when it can be evaluated.
+   *
+   * <p>A value the condition cannot use, such as {@code abc} for a maximum or {@code [a-} for a
+   * pattern, made the rule report nothing at all and log an exception on every run, which reads as
+   * a clean result. A missing field, condition or value is not judged here.
+   *
+   * @param target what the rule checks, for the fields the linter itself provides
+   * @param scoped whether the rule is narrowed with {@code appliesTo}; such a rule can read the
+   *     plugin's own settings, whose types are not known here, so only the value is judged
+   */
+  public String valueProblem(RuleTarget target, boolean scoped) {
+    if (condition == null || Utils.isEmpty(targetField)) {
+      return null;
+    }
+    if (!scoped
+        && RuleTargetFields.getFieldsForTarget(target).contains(targetField)
+        && !RuleTargetFields.getCompatibleConditions(targetField).contains(condition)) {
+      return BaseMessages.getString(
+          PKG, "RuleClause.Problem.ConditionDoesNotFit", condition.name(), targetField);
+    }
+    if (!condition.requiresValue() || Utils.isEmpty(conditionValue)) {
+      return null;
+    }
+    String value = conditionValue.trim();
+    switch (condition) {
+      case MAX_VALUE, MIN_VALUE, EXACT_VALUE:
+        try {
+          Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+          return BaseMessages.getString(
+              PKG, "RuleClause.Problem.NotANumber", condition.name(), conditionValue);
+        }
+        break;
+      case MAX_COLLECTION_SIZE, MIN_COLLECTION_SIZE:
+        try {
+          Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+          return BaseMessages.getString(
+              PKG, "RuleClause.Problem.NotAWholeNumber", condition.name(), conditionValue);
+        }
+        break;
+      case MATCHES_PATTERN, NOT_MATCHES_PATTERN:
+        try {
+          Pattern.compile(conditionValue);
+        } catch (PatternSyntaxException e) {
+          return BaseMessages.getString(
+              PKG,
+              "RuleClause.Problem.InvalidPattern",
+              condition.name(),
+              conditionValue,
+              e.getDescription());
+        }
+        break;
+      default:
+        break;
+    }
+    return null;
+  }
+
+  /** The first problem {@link #valueProblem} finds in any of these clauses, or null. */
+  public static String valueProblem(List<RuleClause> clauses, RuleTarget target, boolean scoped) {
+    for (RuleClause clause : clauses) {
+      String problem = clause.valueProblem(target, scoped);
+      if (problem != null) {
+        return problem;
+      }
+    }
+    return null;
   }
 
   public RuleClause copy() {

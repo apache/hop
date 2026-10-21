@@ -385,6 +385,15 @@ public class RuleManagerDialog extends Dialog {
     editButton.setEnabled(hasSelection);
     deleteButton.setEnabled(projectEditable);
     toggleButton.setEnabled(hasSelection);
+    // "Toggle Enabled" read the same either way, and only the far-right column said what it did.
+    toggleButton.setText(
+        BaseMessages.getString(
+            PKG,
+            !hasSelection
+                ? "RuleManagerDialog.Button.ToggleEnabled"
+                : selected.isEnabled()
+                    ? "RuleManagerDialog.Button.DisableRule"
+                    : "RuleManagerDialog.Button.EnableRule"));
     // A project rule with a pack rule's id replaces it, so removing it brings the pack rule back.
     deleteButton.setText(
         BaseMessages.getString(

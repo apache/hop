@@ -126,7 +126,9 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
   @Option(
       names = "--fail-on",
       paramLabel = "<severity>",
-      description = "Exit 1 when a finding reaches this severity. Default: ${DEFAULT-VALUE}.")
+      description =
+          "Exit 1 when a finding reaches this severity: ERROR, WARNING, INFO or NONE. Default:"
+              + " ${DEFAULT-VALUE}.")
   private String failOn = "ERROR";
 
   @Option(
@@ -246,6 +248,11 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
   }
 
   private int run() throws Exception {
+    resolvePathOptions();
+    // Refused before anything runs: a typo here used to read as ERROR and pass a build with
+    // warnings.
+    LintSeverity.parseFailOn(failOn);
+
     if (installHook) {
       installGitHook();
       return 0;
@@ -272,7 +279,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     }
 
     if (Utils.isEmpty(target)) {
-      target = System.getProperty("target");
+      target = resolveAgainstOrigin(System.getProperty("target"));
     }
     if (Utils.isEmpty(target)) {
       target = userDirectory();
@@ -603,6 +610,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     String envFailOn = System.getenv("HOP_LINT_FAIL_ON");
     if (!Utils.isEmpty(envFailOn)) {
       failOn = envFailOn.trim().toUpperCase();
+      LintSeverity.parseFailOn(failOn);
     }
 
     if (Utils.isEmpty(stagedFileList)) {
@@ -610,7 +618,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     }
 
     prepare();
-    List<File> stagedFiles =
+    List<PreCommitLintService.StagedFile> stagedFiles =
         PreCommitLintService.readStagedFiles(stagedFileList, new File(userDirectory()));
     if (stagedFiles.isEmpty()) {
       if (!quiet) {
@@ -618,28 +626,29 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       }
       return 0;
     }
+    File firstFile = stagedFiles.get(0).file();
 
     // As strict as a plain run: a commit is not checked against default rules because the
     // project's hop-lint.yml or an installed pack could not be read.
     LintRun.checkRulePacks();
     HopLinter linter = new HopLinter();
-    linter.loadConfigurationStrictly(stagedFiles.get(0));
+    linter.loadConfigurationStrictly(firstFile);
 
     // The lint target for path-relative purposes is the project the staged files live in.
-    target = projectRootOf(stagedFiles.get(0));
-    applyProjectTo(stagedFiles.get(0).getPath());
+    target = projectRootOf(firstFile);
+    applyProjectTo(firstFile.getPath());
 
     IVariables variables = variables();
     // Without a metadata provider a pipeline will not load at all, and connection rules cannot
     // resolve — the hook would pass commits it should have blocked.
-    IHopMetadataProvider metadataProvider = resolveMetadataProvider(stagedFiles.get(0), variables);
+    IHopMetadataProvider metadataProvider = resolveMetadataProvider(firstFile, variables);
 
     // A file the project excludes should not block a commit either.
-    List<File> toLint = new ArrayList<>();
-    for (File staged : stagedFiles) {
-      if (linter.getPolicy().isExcluded(staged.getAbsolutePath(), reportBaseDirectory())) {
+    List<PreCommitLintService.StagedFile> toLint = new ArrayList<>();
+    for (PreCommitLintService.StagedFile staged : stagedFiles) {
+      if (linter.getPolicy().isExcluded(staged.file().getAbsolutePath(), reportBaseDirectory())) {
         if (verbose) {
-          System.out.println("Skipping excluded file: " + staged);
+          System.out.println("Skipping excluded file: " + staged.file());
         }
         continue;
       }
@@ -653,7 +662,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     }
 
     PreCommitLintService.Result result =
-        PreCommitLintService.lintFiles(
+        PreCommitLintService.lintStagedFiles(
             toLint, LintSeverity.parseFailOn(failOn), variables, metadataProvider, true);
 
     // The baseline matters most here: touching a legacy file would otherwise block the commit
@@ -889,6 +898,29 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     return Utils.isEmpty(origin) ? System.getProperty("user.dir") : origin;
   }
 
+  /**
+   * Make the target and every file option relative to where the command was typed.
+   *
+   * <p>Java resolves a relative path against {@code user.dir}, which under the launcher is the Hop
+   * installation: {@code hop lint .} linted the installation, {@code hop lint naming.hpl} was not
+   * found, and {@code -o lint.sarif} wrote the report inside the installation.
+   */
+  void resolvePathOptions() {
+    target = resolveAgainstOrigin(target);
+    configFile = resolveAgainstOrigin(configFile);
+    outputFile = resolveAgainstOrigin(outputFile);
+    baselineFile = resolveAgainstOrigin(baselineFile);
+    writeBaselineFile = resolveAgainstOrigin(writeBaselineFile);
+    stagedFileList = resolveAgainstOrigin(stagedFileList);
+  }
+
+  private static String resolveAgainstOrigin(String path) {
+    if (Utils.isEmpty(path) || new File(path).isAbsolute()) {
+      return path;
+    }
+    return Paths.get(userDirectory()).resolve(path).normalize().toString();
+  }
+
   private void installGitHook() throws IOException {
     // Resolve from what is being linted, never from the working directory: under the launcher that
     // is the Hop installation, and the hook would land in whatever repository Hop itself sits in.
@@ -931,18 +963,27 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
    */
   String hookScript() {
     // git lists staged files relative to the repository root, and the hop launcher changes to the
-    // Hop installation before it starts Java, so the paths are made absolute here. The trap
-    // removes the list however the script ends; the last command's status is the hook's.
+    // Hop installation before it starts Java, so the paths are made absolute here. Each line pairs
+    // a file with a copy of its staged version: the commit holds what is staged, not what is on
+    // disk. Renamed files (R) are linted like added ones. The trap removes the copies however the
+    // script ends; the last command's status is the hook's.
     return """
         #!/bin/sh
         ROOT="$(git rev-parse --show-toplevel)" || exit 1
-        STAGED_LIST="$(mktemp)" || exit 1
-        trap 'rm -f "$STAGED_LIST"' EXIT
-        git diff --cached --name-only --diff-filter=ACM | while IFS= read -r FILE; do
-          case "$FILE" in
-            *.hpl|*.hwf|metadata/*.json|*/metadata/*.json) printf '%s/%s\\n' "$ROOT" "$FILE" ;;
-          esac
-        done > "$STAGED_LIST"
+        STAGED_DIR="$(mktemp -d)" || exit 1
+        trap 'rm -rf "$STAGED_DIR"' EXIT
+        STAGED_LIST="$STAGED_DIR/staged-files"
+        git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR | {
+          N=0
+          while IFS= read -r FILE; do
+            case "$FILE" in
+              *.hpl|*.hwf|metadata/*.json|*/metadata/*.json)
+                N=$((N + 1))
+                git show ":$FILE" > "$STAGED_DIR/$N" || exit 1
+                printf '%s/%s\\t%s/%s\\n' "$ROOT" "$FILE" "$STAGED_DIR" "$N" ;;
+            esac
+          done
+        } > "$STAGED_LIST" || exit 1
         if [ ! -s "$STAGED_LIST" ]; then
           exit 0
         fi

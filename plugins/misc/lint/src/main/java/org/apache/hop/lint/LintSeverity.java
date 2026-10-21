@@ -16,6 +16,8 @@
  */
 package org.apache.hop.lint;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -27,6 +29,7 @@ public final class LintSeverity {
   public enum FailOn implements IEnumHasCodeAndDescription {
     ERROR,
     WARNING,
+    INFO,
     NONE;
 
     @Override
@@ -59,6 +62,15 @@ public final class LintSeverity {
 
   private LintSeverity() {}
 
+  /**
+   * The fail-on threshold for a value given on the command line or in {@code HOP_LINT_FAIL_ON}.
+   *
+   * <p>An unknown value is refused. Reading a typo such as {@code WARNNG} as ERROR passed a build
+   * that should have failed on its warnings, without a word.
+   *
+   * @return ERROR when the value is empty
+   * @throws IllegalArgumentException when the value is not a threshold
+   */
   public static FailOn parseFailOn(String value) {
     if (Utils.isEmpty(value)) {
       return FailOn.ERROR;
@@ -66,7 +78,12 @@ public final class LintSeverity {
     try {
       return FailOn.valueOf(value.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
-      return FailOn.ERROR;
+      throw new IllegalArgumentException(
+          "Unknown fail-on severity '"
+              + value.trim()
+              + "'. Use one of: "
+              + Arrays.stream(FailOn.values()).map(FailOn::name).collect(Collectors.joining(", "))
+              + ".");
     }
   }
 
@@ -80,7 +97,10 @@ public final class LintSeverity {
     if ("ERROR".equalsIgnoreCase(severity)) {
       return true;
     }
-    return failOn == FailOn.WARNING && "WARNING".equalsIgnoreCase(severity);
+    if ("WARNING".equalsIgnoreCase(severity)) {
+      return failOn == FailOn.WARNING || failOn == FailOn.INFO;
+    }
+    return failOn == FailOn.INFO && "INFO".equalsIgnoreCase(severity);
   }
 
   public static int toCheckResultType(String severity) {

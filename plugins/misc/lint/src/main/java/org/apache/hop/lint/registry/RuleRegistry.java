@@ -28,6 +28,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.lint.CustomLintRule;
 import org.apache.hop.lint.LinterConfig;
 import org.apache.hop.lint.LinterConfigPlugin;
+import org.apache.hop.lint.RuleClause;
 import org.apache.hop.lint.RuleConfig;
 
 /**
@@ -219,10 +220,41 @@ public class RuleRegistry {
       }
     }
 
+    warnAboutRulesThatCannotReport(merged.values(), warnings);
+
     LinterConfig config = buildLinterConfig(merged);
     config.setEnabled(true);
     return new EffectiveRuleSet(
         new ArrayList<>(merged.values()), config, overlay.getPolicy(), warnings);
+  }
+
+  /**
+   * Warn about each enabled rule whose value its condition cannot use, such as a maximum of {@code
+   * abc} or a pattern of {@code [a-}. Such a rule never reports anything, which reads as a clean
+   * result, so it is named the way an unknown rule id is.
+   */
+  private static void warnAboutRulesThatCannotReport(
+      Collection<CustomLintRule> rules, List<String> warnings) {
+    for (CustomLintRule rule : rules) {
+      if (!rule.isEnabled() || rule.isReportOnly() || rule.getTarget() == null) {
+        continue;
+      }
+      String problem =
+          RuleClause.valueProblem(
+              rule.getClauses(), rule.getTarget(), !rule.getAppliesTo().isEmpty());
+      if (problem == null) {
+        continue;
+      }
+      String warning =
+          "Warning: rule '"
+              + rule.generateRuleId()
+              + "' "
+              + YamlRulePackParser.inPack(rule.getPackId())
+              + " cannot report anything: "
+              + problem;
+      warnings.add(warning);
+      LintWarnings.logOnce(warning, warning);
+    }
   }
 
   /** The rule of this id, ignoring case: {@code sql-002} in hop-lint.yml means SQL-002. */

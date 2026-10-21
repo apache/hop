@@ -16,13 +16,18 @@
  */
 package org.apache.hop.lint;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Iterator;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -30,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 
 /**
  * Loads Hop metadata objects from project metadata JSON files.
@@ -137,7 +143,17 @@ public final class HopMetadataFileLoader {
    * which is the one outcome a linter must never produce.
    */
   public static MetadataLoad read(File file, IHopMetadataProvider metadataProvider) {
-    if (file == null || !file.isFile()) {
+    return read(file, null, metadataProvider);
+  }
+
+  /**
+   * Read a metadata file from another file, as the pre-commit hook does with the staged version.
+   *
+   * @param file the file in the project, which gives the type and the name
+   * @param content the file to read, or null to read {@code file}
+   */
+  public static MetadataLoad read(File file, File content, IHopMetadataProvider metadataProvider) {
+    if (file == null || !(content != null ? content : file).isFile()) {
       return MetadataLoad.skipped();
     }
 
@@ -163,9 +179,14 @@ public final class HopMetadataFileLoader {
         return MetadataLoad.skipped();
       }
       try {
-        IHopMetadataSerializer<IHopMetadata> serializer =
-            metadataProvider.getSerializer(managedClass);
-        IHopMetadata loaded = serializer.load(name);
+        IHopMetadata loaded;
+        if (content != null) {
+          loaded = parse(content, managedClass, metadataProvider);
+        } else {
+          IHopMetadataSerializer<IHopMetadata> serializer =
+              metadataProvider.getSerializer(managedClass);
+          loaded = serializer.load(name);
+        }
         if (loaded != null) {
           return MetadataLoad.of(named(loaded, name));
         }
@@ -178,7 +199,7 @@ public final class HopMetadataFileLoader {
     // Best effort without a provider. Only relational connections can be reconstructed by hand;
     // for anything else the plugin class is what gives the document meaning.
     if ("rdbms".equalsIgnoreCase(key)) {
-      DatabaseMeta databaseMeta = readDatabaseMetaDirectly(file);
+      DatabaseMeta databaseMeta = readDatabaseMetaDirectly(content != null ? content : file);
       return databaseMeta != null
           ? MetadataLoad.of(named(databaseMeta, name))
           : MetadataLoad.failed("could not be parsed as a database connection");
@@ -187,6 +208,19 @@ public final class HopMetadataFileLoader {
     log.logDetailed(
         "Metadata type '" + key + "' needs a metadata provider to be linted; skipping " + path);
     return MetadataLoad.skipped();
+  }
+
+  /** Parse a metadata document the way the JSON serializer does, from any file. */
+  private static IHopMetadata parse(
+      File content, Class<IHopMetadata> managedClass, IHopMetadataProvider metadataProvider)
+      throws IOException, HopException {
+    try (InputStream inputStream = Files.newInputStream(content.toPath());
+        JsonParser jsonParser = new JsonFactory().createParser(inputStream)) {
+      // skip opening '{'
+      jsonParser.nextToken();
+      return new JsonMetadataParser<>(managedClass, metadataProvider)
+          .loadJsonObject(managedClass, jsonParser);
+    }
   }
 
   /** The managed class for a metadata key, or null when no plugin registers that key. */
