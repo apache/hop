@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -195,6 +196,12 @@ class PipelineTest {
       Thread waiter =
           new Thread(
               () -> {
+                // waitUntilFinished() returns at once while startThreads() has not created its
+                // queue yet. The queue exists once the pipeline is flagged as running, and a late
+                // waiter still finds the signal already on it.
+                while (!line.isRunning() && !line.isFinished()) {
+                  Thread.onSpinWait();
+                }
                 line.waitUntilFinished();
                 order.add("waiter");
                 waiterReleased.countDown();
@@ -276,6 +283,47 @@ class PipelineTest {
       assertTrue(run.isFinished());
     } finally {
       ExtensionPointMap.getInstance().removeExtensionPoint(transformFinished);
+    }
+  }
+
+  /**
+   * A failing PipelineCompleted extension point has to show up in the result by the time the
+   * waiters are released: hop-run reads the error count, and with it its exit code, straight away.
+   * The failure is counted once.
+   */
+  @Test
+  void failingPipelineCompletedExtensionPointIsCountedBeforeWaitersAreReleased() throws Exception {
+    TestExtensionPointPlugin pipelineCompleted =
+        registerExtensionPoint(
+            HopExtensionPoint.PipelineCompleted.id,
+            () -> {
+              throw new IllegalStateException("broken plugin");
+            });
+
+    try {
+      PipelineMeta meta = new PipelineMeta();
+      meta.setName("failing completion test");
+      meta.addTransform(new TransformMeta("A", new DummyMeta()));
+
+      // Look at the result the moment the waiters are released: a waiter itself only polls every
+      // 50ms, so it would nearly always see a count that is added just after.
+      AtomicLong errorsAtRelease = new AtomicLong(-1);
+      LocalPipelineEngine run =
+          new LocalPipelineEngine(meta, new Variables(), new LoggingObject("test")) {
+            @Override
+            public void pipelineCompleted() throws HopException {
+              errorsAtRelease.set(getResult().getNrErrors());
+              super.pipelineCompleted();
+            }
+          };
+      run.prepareExecution();
+      run.startThreads();
+      run.waitUntilFinished();
+
+      assertEquals(1, errorsAtRelease.get());
+      assertEquals(1, run.getResult().getNrErrors());
+    } finally {
+      ExtensionPointMap.getInstance().removeExtensionPoint(pipelineCompleted);
     }
   }
 

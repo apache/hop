@@ -94,12 +94,7 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
       } else {
         hopRun.run();
 
-        // Deliver whatever lineage is still queued before the JVM goes away: the hub hands its
-        // queue to the sinks and the sinks drain theirs (bounded by their drain timeout). Without
-        // it a short run loses its terminal events, which the sinks send last. Safe to call when
-        // lineage is disabled.
-        //
-        LineageHub.getInstance().shutdown();
+        shutdownLineage();
 
         System.out.println("HopRun exit.");
         if (hopRun.isFinishedWithoutError()) {
@@ -111,17 +106,35 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
     } catch (ParameterException e) {
       System.err.println(e.getMessage());
       hopRun.cmd.usage(System.err);
+      shutdownLineage();
       System.exit(9);
     } catch (ExecutionException e) {
       System.err.println("Error found during execution!");
       System.err.println(Const.getStackTracker(e));
 
+      shutdownLineage();
       System.exit(1);
     } catch (Exception e) {
       System.err.println("General error found, something went horribly wrong!");
       System.err.println(Const.getStackTracker(e));
 
+      shutdownLineage();
       System.exit(2);
+    }
+  }
+
+  /**
+   * Deliver whatever lineage is still queued before the JVM goes away: the hub hands its queue to
+   * the sinks and the sinks drain theirs (bounded by their drain timeout). Without it a short run
+   * loses its terminal events, which the sinks send last, and a failed run loses the events emitted
+   * before it failed. Call it before every System.exit() once a run may have started. Safe to call
+   * when lineage is disabled, and a failure here never changes the exit code.
+   */
+  private static void shutdownLineage() {
+    try {
+      LineageHub.getInstance().shutdown();
+    } catch (Exception e) {
+      System.err.println("Error delivering the remaining lineage events: " + e.getMessage());
     }
   }
 

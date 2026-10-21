@@ -1376,7 +1376,7 @@ public abstract class Pipeline
                 try {
                   fireExecutionFinishedListeners();
                 } catch (Exception e) {
-                  transform.setErrors(transform.getErrors() + 1L);
+                  // fireExecutionFinishedListeners() already counted this on the pipeline
                   log.logError(
                       getName()
                           + " : "
@@ -1589,27 +1589,27 @@ public abstract class Pipeline
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
-    HopException listenerException = null;
-    synchronized (executionFinishedListeners) {
-      if (!executionFinishedListeners.isEmpty()) {
-        // prevent Exception from one listener to block others execution
-        List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
-        for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
-            executionFinishedListeners) {
-          try {
-            listener.finished(this);
-          } catch (HopException e) {
-            badGuys.add(e);
+    try {
+      HopException listenerException = null;
+      synchronized (executionFinishedListeners) {
+        if (!executionFinishedListeners.isEmpty()) {
+          // prevent Exception from one listener to block others execution
+          List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
+          for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+              executionFinishedListeners) {
+            try {
+              listener.finished(this);
+            } catch (HopException e) {
+              badGuys.add(e);
+            }
+          }
+          if (!badGuys.isEmpty()) {
+            // FIFO
+            listenerException = badGuys.get(0);
           }
         }
-        if (!badGuys.isEmpty()) {
-          // FIFO
-          listenerException = badGuys.get(0);
-        }
       }
-    }
 
-    try {
       // Call the completion extension point before releasing anything blocked in
       // waitUntilFinished(): plugins here may still have work to do - flushing lineage, for
       // example - while a waiting caller (hop-run, for one) can leave the JVM the moment it is
@@ -1617,21 +1617,27 @@ public abstract class Pipeline
       //
       ExtensionPointHandler.callExtensionPoint(
           log, this, HopExtensionPoint.PipelineCompleted.id, this);
+
+      if (listenerException != null) {
+        throw listenerException;
+      }
+    } catch (Exception e) {
+      // Count the failure before the waiters are released: a released caller reads the result
+      // straight away, hop-run its exit code for one.
+      //
+      errors.incrementAndGet();
+      throw e;
     } finally {
       // Now the status and everything else is set correctly. We've completed the pipeline.
       //
-      // Always release the waiters, even when an extension point failed: that must never be able to
-      // deadlock a caller. The extension point failure itself still propagates.
+      // Always release the waiters, even when a listener or extension point failed: that must never
+      // be able to deadlock a caller. The failure itself still propagates.
       //
       pipelineCompleted();
 
       // Only now: everything above can still touch files of this namespace, and closing it
       // invalidates every file object resolved through it - the result files carry those.
       releaseVfsNamespace();
-    }
-
-    if (listenerException != null) {
-      throw listenerException;
     }
   }
 
