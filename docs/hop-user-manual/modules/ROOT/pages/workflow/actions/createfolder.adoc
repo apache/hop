@@ -33,3 +33,18 @@ The `Create a folder` action creates a folder at the specified location.
 |Folder name|The name of the folder to create (can be a full path)
 |Fail if folder exists|If you enable this option, this workflow action will fail if the specified folder already exists.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The folder was created, including any missing parent folders, or it already exists and *Fail if folder exists* is not selected.
+|False|The folder already exists and *Fail if folder exists* is selected, or no folder name is set: the number of errors is 0. The folder could not be created, for example because of missing permissions: the number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: When a file exists with the folder name, no folder is created. The action is true, or false when *Fail if folder exists* is selected.

@@ -30,12 +30,28 @@ The `Delete Folders` action deletes a set of folders and their content.
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Settings|Copy previous results to args: Enable this option if the folders you want to delete come from the result files of the previous action in the workflow.
+|Copy previous results to args|Take the folders to delete from the first field of the result rows of the previous action instead of from the list. See <<Result>>.
 |Success on a|Success condition : select one of :
 
 * When no error reported : everything deleted just fine
 * When at least x folders processed : specify x in the Limit field below
-* When the number of errors less than : specify the max nr of errors in the limit field below
+* When number of errors less than : specify the max nr of errors in the limit field below
 |Limit|the number of folders to delete or number of errors, depending on the option chosen in the `Success condition` above.
 |Folders a|This is the list of all the folders to delete.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The *Success condition* is met: no errors with *When no error reported*, at least *Limit* folders processed with *When at least x folders processed*, or fewer errors than *Limit* with *When number of errors less than* (see the note below). A folder that doesn't exist counts as processed. An empty line in the list is skipped.
+|False|The success condition is not met, for example because a path is a file or a folder could not be deleted. With *When no error reported* or *When number of errors less than*, the action stops once the condition is broken: the remaining folders are not deleted. The number of errors is the number of folders that failed.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the folder comes from the first field of each result row, and the list in the dialog is not used, also when there are no result rows.
+|Lines deleted|The number of folders processed: deleted, or already missing.
+|===
+
+NOTE: With *When number of errors less than*, the action stops and is false as soon as the number of errors reaches *Limit*, but when the last folder brings it to that number, the action is still true.

@@ -33,31 +33,25 @@ The `Unzip file` action unzips one or more files to a specified target location.
 |Option|Description
 |Action name|The name of the workflow action.
 2+|Source files
-|Get args from previous|check this option if you want to use the list of result files (from a previous workflow action) as the list of files to unzip.
-|Zip file name|the name of the zip file or a folder if you want to use a wildcard.
-|Source wildcard a|If the previous option is a folder, you can enter a regular expression. wildcard here.
-
-For example: to match `/folder/test.zip` a regex of `te.\.zip` will come up empty.
-
-Use `.*te.\.zip` instead to account for the folders ahead of it.
-
-For Windows file paths, the direction of the slashes will be reversed in the match, so use `\/` instead of `\\`.
+|Get args from previous|Take the zip files or folders, and their source wildcards, from the result rows of the previous action instead of from *Zip File name*. See <<Result>>.
+|Zip File name|the name of the zip file or a folder if you want to use a wildcard.
+|Source Wildcard (RegExp)|When *Zip File name* is a folder, a regular expression for the zip files to unzip from it, for example `+.*\.zip+`. It is matched against the file name, and also against the full path.
 2+|Unzipped files
 |Use zipfile name as root directory|check this if you want to create a separate directory for each zip filename (same name as file)
-|Target directory|The target directory to unzip in
+|Target Directory|The target directory to unzip in
 |Create folder|Check this if you want to create the target folder
-|Include wildcard|Use this regular expression to select the files in the zip archives to extract
-|Exclude wildcard|Use this regular expression to select the files in the zip archives to extract
+|Include Wildcard (RegExp)|Use this regular expression to select the files in the zip archives to extract
+|Exclude Wildcard (RegExp)|Use this regular expression to leave files in the zip archives out of the extraction
 |Include date in filename|Include the current date in the unzipped filenames (format yyyyMMdd)
 |Include time in filename|Include the time (format HHmmss)
-|Specify the date time format yourself|Allows you to specify the date time format yourself (default is: yyyyMMdd'_'HHmmss)
-|If files exists|Select the action to take if the target (unzipped) file exists: skip, overwrite, etc.
+|Specify Date time format|Allows you to specify the date time format yourself (default is: yyyyMMdd'_'HHmmss)
+|If file exists|Select the action to take if the target (unzipped) file exists: skip, overwrite, etc.
 |After extraction a|select the action to take after zip file extraction:
 
 * Do nothing,
 * Delete files
 * Move files
-|Move files to|If the previous option is "Move files", you can select the target directory here.
+|Move Files To|If the previous option is "Move files", you can select the target directory here.
 |===
 
 === Advanced tab
@@ -75,3 +69,19 @@ For Windows file paths, the direction of the slashes will be reversed in the mat
 * Nr errors less than
 |Limit files|The number of files unzipped or number of errors, depending on the option chosen for `Success on` above.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The *Success condition* is met: no errors with *All works fine*, at least *Limit files* zip files unzipped with *At least we successfully unzipped x files*, or no more errors than *Limit files* with *Nr errors less than* (see the note below).
+|False|The success condition is not met, or the action could not start. It can't start when the zip file or *Target Directory* is not set or doesn't exist (and *Create folder* is not selected), when the folder for *Move files* doesn't exist and its *Create folder* is not selected, or when *Get args from previous* is selected and there are no result rows: the number of errors is then 1. A zip file that can't be read, or a file that already exists with *If file exists* set to *Fail*, counts as an error. With *All works fine*, the action stops at the first error, and with *Nr errors less than* once the number of errors reaches *Limit files*: the remaining files are not unzipped.
+|Result files|With *Add extracted file to result*, every extracted file is added, with its path in the target folder. A file skipped by *If file exists* is not added. The result files of the previous action are kept.
+|Result rows|Passed on unchanged. With *Get args from previous*, the zip file or folder comes from the first field and the *Source Wildcard (RegExp)* from the second field of each result row. A row with only one field counts as one error and stops the action: the zip files of that row and the rows after it are not unzipped.
+|Lines written|The number of zip files unzipped. When the action can't start, or stops on the success condition before the last result row, the value of the previous action is passed on.
+|===
+
+NOTE: With *Nr errors less than*, the action stops and is false as soon as the number of errors reaches *Limit files* while result rows are left to process, but when the last row brings it to that number, the action is still true. For the files of a single zip file or folder, it is still true when the number of errors equals *Limit files*, and false only when it is higher. A zip file that can't be read, or that can't be deleted after extraction with *Delete files*, counts as two errors and is not counted as unzipped; files already extracted from it stay in the target folder and in the result files. With *If file exists* set to *Fail*, a file that already exists in the target folder also counts as an error when *Include Wildcard (RegExp)* or *Exclude Wildcard (RegExp)* leaves it out.

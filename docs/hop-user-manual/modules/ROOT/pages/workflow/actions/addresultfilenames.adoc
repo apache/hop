@@ -32,12 +32,27 @@ This list of filenames can then be used in the various workflow actions all arou
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Include subfolders|Include subfolders of the selected folders
-|Copy previous results to args?|Passes the results of the previous action to the arguments of this action.
-|Clear result filenames?|This option clears the list of result files (from previous workflow actions) before creating a new list.
+|Include Subfolders|Include subfolders of the selected folders
+|Copy previous results to args?|Take the files or folders and wildcards from the result rows of the previous action instead of from the list. See <<Result>>.
+|Clear result filenames|This option clears the list of result files (from previous workflow actions) before creating a new list.
 |File/Folder|Specify the list of files or folders with wildcards (regular expressions) in this grid. +
-You can add a different source/destination on each line.
+You can add a different file or folder and wildcard on each line.
 |Wildcard (RegExp)|A regular expression wildcard to include file patterns in the list of file names.
 |===
 
 After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every file and folder in the list exists. A folder without matching files adds nothing and is still true.
+|False|A file or folder in the list doesn't exist. The number of errors is the number of entries that don't exist. The files of the other entries are still added.
+|Result files|Each file in the list is added. For a folder, the files in it whose whole file name, without the folder, matches *Wildcard (RegExp)* are added, or all its files when the wildcard is empty, and with *Include Subfolders* also the matching files in its subfolders. With *Clear result filenames*, the result files of the previous action are removed first; otherwise they are kept.
+|Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows. A result row with only one field stops the workflow with an error, and no hop is followed.
+|===
+
+NOTE: An invalid regular expression in *Wildcard (RegExp)* adds nothing, and the action is still true.
