@@ -118,28 +118,34 @@ public class SftpFileObject extends AbstractFileObject<SftpFileSystem> {
    * untouched, while a relative one is resolved against a working directory the server would have
    * normalised for us.
    *
-   * <p>A data set name of a single level, such as {@code //EDIJP.NAB.BPAY.PCTP}, gets a trailing
-   * slash. jsch runs almost every path through its glob handling, which splits the path at the last
-   * slash and so turns {@code //A.B.C} into {@code /A.B.C} - the USS path. With the trailing slash
-   * the last slash comes after the data set name, and {@code //A.B.C/} reaches the server as is.
+   * <p>A data set name of a single level gets a trailing slash, or jsch would take the second slash
+   * off again - see {@link SftpFileNameParser#keepDataSetPrefix}.
    */
   private static String remotePath(final AbstractFileName fileName, final SftpFileSystem fileSystem)
       throws FileSystemException {
     final String rootPrefix =
         fileName instanceof IRootPrefixFileName prefixed ? prefixed.getRootPrefix() : "";
     if (!rootPrefix.isEmpty()) {
-      final String path = rootPrefix + UriParser.decode(fileName.getPath());
-      return path.length() > 2 && path.indexOf('/', 2) < 0 ? path + "/" : path;
+      return SftpFileNameParser.keepDataSetPrefix(
+          rootPrefix + UriParser.decode(fileName.getPath()));
     }
     return UriParser.decode(fileSystem.getRootName().getRelativeName(fileName));
   }
 
-  /** Creates this file as a folder. */
+  /**
+   * Creates this file as a folder. jsch sends a mkdir as is, unlike the requests it globs, so a
+   * data set name goes without the trailing slash of {@link #relPath} - see {@link
+   * SftpFileNameParser#keepDataSetPrefix}.
+   */
   @Override
   protected void doCreateFolder() throws Exception {
+    final String folderPath =
+        relPath.length() > 3 && relPath.startsWith("//") && relPath.endsWith("/")
+            ? relPath.substring(0, relPath.length() - 1)
+            : relPath;
     final ChannelSftp channel = getAbstractFileSystem().getChannel();
     try {
-      channel.mkdir(relPath);
+      channel.mkdir(folderPath);
     } finally {
       putChannel(channel);
     }

@@ -30,6 +30,7 @@ import com.jcraft.jsch.TestIdentityRepositoryFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -61,6 +62,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.sftp.SftpConnectionFileNameParser;
 import org.apache.hop.vfs.sftp.SftpConnectionFileProvider;
 import org.apache.hop.vfs.sftp.SftpConnections;
+import org.apache.hop.vfs.sftp.client.SftpClient;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
@@ -75,6 +77,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
@@ -380,6 +383,121 @@ class SftpDoubleSlashPathTest {
           baseUri() + "//EDIJP.NAB.CRERESP/AAMIPI/SUB",
           manager.resolveName(name, "SUB", NameScope.CHILD).getURI());
     }
+  }
+
+  /**
+   * The workflow actions talk to jsch through {@link SftpClient} rather than through VFS, with the
+   * folder as the user typed it, so the second slash of a single-level data set name needs the same
+   * protection there.
+   */
+  @Nested
+  @DisplayName("A data set through the SftpClient of the workflow actions")
+  class SftpClientDataSets {
+
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({
+      "//A.B.C, //A.B.C/",
+      "//A.B.C/, //A.B.C/",
+      "//A.B.C/MEMBER, //A.B.C/MEMBER",
+      "/A.B.C, /A.B.C",
+      "///A.B.C, ///A.B.C",
+      "//, //",
+      "A.B.C, A.B.C"
+    })
+    void onlyASingleLevelDataSetGetsATrailingSlash(String path, String expected) {
+      assertEquals(expected, SftpFileNameParser.keepDataSetPrefix(path));
+    }
+
+    @Test
+    void folderExistsAsksForTheDataSet() throws Exception {
+      final List<String> paths =
+          withClient(client -> assertTrue(client.folderExists("//read-tests")));
+
+      assertAskedForTheDataSet(paths, "read-tests");
+    }
+
+    @Test
+    void getFileTypeAsksForTheDataSet() throws Exception {
+      final List<String> paths =
+          withClient(client -> assertEquals(FileType.FOLDER, client.getFileType("//read-tests")));
+
+      assertAskedForTheDataSet(paths, "read-tests");
+    }
+
+    /**
+     * A cd asks for the real path first and then looks at whatever the server answered, here the
+     * single-slash path of the test server: only the first request is ours.
+     */
+    @Test
+    void chdirAsksForTheDataSet() throws Exception {
+      final List<String> paths = withClient(client -> client.chdir("//read-tests"));
+
+      assertFalse(paths.isEmpty(), "the server wasn't asked anything");
+      assertEquals("//read-tests/", paths.get(0), "paths asked for: " + paths);
+    }
+
+    /**
+     * The existence check needs the trailing slash, the mkdir - which jsch sends as is - doesn't.
+     */
+    @Test
+    void createFolderAsksForTheDataSet() throws Exception {
+      final File created = new File(getTestDirectoryFile(), "new-data-set");
+      try {
+        final List<String> paths = withClient(client -> client.createFolder("//new-data-set"));
+
+        assertTrue(created.isDirectory(), "the folder should have been created");
+        assertAskedForTheDataSet(paths, "new-data-set");
+        assertTrue(paths.contains("//new-data-set"), "no mkdir of the data set in: " + paths);
+      } finally {
+        Files.deleteIfExists(created.toPath());
+      }
+    }
+
+    /** The same goes for creating a folder through VFS. */
+    @Test
+    void aVfsFolderIsCreatedWithoutTheTrailingSlash() throws Exception {
+      final File created = new File(getTestDirectoryFile(), "new-vfs-data-set");
+      try (FileObject folder =
+          manager.resolveFile(
+              SftpConnections.buildUri(namedConnection(), "//new-vfs-data-set", null),
+              authOptions())) {
+        REQUESTED_PATHS.clear();
+        folder.createFolder();
+        final List<String> paths = new ArrayList<>(REQUESTED_PATHS);
+
+        assertTrue(created.isDirectory(), "the folder should have been created");
+        assertTrue(paths.contains("//new-vfs-data-set"), "no mkdir of the data set in: " + paths);
+      } finally {
+        Files.deleteIfExists(created.toPath());
+      }
+    }
+
+    private void assertAskedForTheDataSet(List<String> paths, String name) {
+      assertTrue(
+          paths.contains("//" + name + "/"),
+          "the server should have been asked for the data set, but got: " + paths);
+      assertFalse(
+          paths.contains("/" + name), "the server was asked for the single-slash path: " + paths);
+    }
+
+    /** Log in to the test server, run the action, and return the raw paths the server saw. */
+    private List<String> withClient(ClientAction action) throws Exception {
+      final SftpClient client =
+          new SftpClient(InetAddress.getByName("localhost"), serverPort, USER);
+      try {
+        client.login(PASSWORD);
+        REQUESTED_PATHS.clear();
+        action.run(client);
+        return new ArrayList<>(REQUESTED_PATHS);
+      } finally {
+        client.disconnect();
+      }
+    }
+  }
+
+  @FunctionalInterface
+  private interface ClientAction {
+    void run(SftpClient client) throws Exception;
   }
 
   /**

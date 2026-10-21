@@ -17,6 +17,8 @@
 
 package org.apache.hop.vfs.sftp.client;
 
+import static org.apache.hop.vfs.sftp.provider.SftpFileNameParser.keepDataSetPrefix;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -178,7 +180,7 @@ public class SftpClient {
 
   public void chdir(String dirToChangeTo) throws HopWorkflowException {
     try {
-      c.cd(dirToChangeTo.replace("\\\\", "/").replace("\\", "/"));
+      c.cd(keepDataSetPrefix(dirToChangeTo.replace("\\\\", "/").replace("\\", "/")));
     } catch (SftpException e) {
       throw new HopWorkflowException(e);
     }
@@ -262,7 +264,7 @@ public class SftpClient {
 
   public void delete(String file) throws HopWorkflowException {
     try {
-      c.rm(file);
+      c.rm(keepDataSetPrefix(file));
     } catch (SftpException e) {
       throw new HopWorkflowException(e);
     }
@@ -283,6 +285,7 @@ public class SftpClient {
 
       for (String f : folders) {
         if (!f.isEmpty() && !folderExists(f)) {
+          // jsch sends a mkdir as is, so unlike the other requests it needs no trailing slash
           c.mkdir(f);
         }
       }
@@ -295,7 +298,7 @@ public class SftpClient {
   public void renameFile(String sourcefilename, String destinationfilename)
       throws HopWorkflowException {
     try {
-      c.rename(sourcefilename, destinationfilename);
+      c.rename(keepDataSetPrefix(sourcefilename), keepDataSetPrefix(destinationfilename));
     } catch (SftpException e) {
       throw new HopWorkflowException(e);
     }
@@ -303,7 +306,7 @@ public class SftpClient {
 
   public FileType getFileType(String filename) throws HopWorkflowException {
     try {
-      SftpATTRS attrs = c.stat(filename);
+      SftpATTRS attrs = c.stat(keepDataSetPrefix(filename));
       if (attrs == null) {
         return FileType.IMAGINARY;
       }
@@ -325,7 +328,7 @@ public class SftpClient {
   public boolean folderExists(String folderName) {
     boolean retval = false;
     try {
-      SftpATTRS attrs = c.stat(folderName);
+      SftpATTRS attrs = c.stat(keepDataSetPrefix(folderName));
       if (attrs == null) {
         return false;
       }

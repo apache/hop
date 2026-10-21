@@ -127,4 +127,29 @@ public class SftpFileNameParser extends URLFileNameParser {
     }
     return "";
   }
+
+  /**
+   * Gets a data set name of a single level, such as {@code //HLQ.NAME}, to the server intact.
+   *
+   * <p>jsch runs almost every path through its glob handling, which splits the path at the last
+   * slash and so turns {@code //HLQ.NAME} into {@code /HLQ.NAME} - the USS path. With a trailing
+   * slash the last slash comes after the data set name, and {@code //HLQ.NAME/} reaches the server
+   * as is. Paths of more than one level, and every path not starting with exactly two slashes, are
+   * left alone.
+   *
+   * <p>Verified on z/OS for a data set name prefix used as a folder. A single-level sequential data
+   * set read or written as a file gets the trailing slash too, which hasn't been verified yet.
+   *
+   * @param path a path as it goes to jsch
+   * @return the path, with a trailing slash if it's a data set name of a single level
+   */
+  public static String keepDataSetPrefix(String path) {
+    return path != null
+            && path.length() > 2
+            && path.startsWith("//")
+            && path.charAt(2) != '/'
+            && path.indexOf('/', 2) < 0
+        ? path + "/"
+        : path;
+  }
 }
