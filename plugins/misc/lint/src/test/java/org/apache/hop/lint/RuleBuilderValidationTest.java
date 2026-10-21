@@ -92,6 +92,63 @@ class RuleBuilderValidationTest {
   }
 
   /**
+   * The text conditions read any value as text, so they work on a connection's port, which is text,
+   * and on a list of target transforms. These were refused although the rules report.
+   */
+  @Test
+  void aConditionTheExecutorCanFireIsKept() {
+    assertNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("port", RuleCondition.NO_HARDCODED, ""),
+            RuleTarget.DATABASE_CONNECTION,
+            false));
+    assertNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("port", RuleCondition.MATCHES_PATTERN, "^\\d+$"),
+            RuleTarget.DATABASE_CONNECTION,
+            false));
+    assertNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("targetTransforms", RuleCondition.CONTAINS, "Abort"),
+            RuleTarget.TRANSFORM,
+            false));
+    assertNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("transformCount", RuleCondition.MATCHES_PATTERN, "^\\d$"),
+            RuleTarget.PIPELINE,
+            false));
+  }
+
+  /** What the executor can never report: each of these reads as a clean result. */
+  @Test
+  void aConditionTheExecutorCannotFireIsRefused() {
+    assertNotNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("transformCount", RuleCondition.NOT_EMPTY, ""),
+            RuleTarget.PIPELINE,
+            false));
+    assertNotNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("hasNotes", RuleCondition.MAX_VALUE, "1"), RuleTarget.PIPELINE, false));
+    assertNotNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("attributes", RuleCondition.MIN_VALUE, "1"),
+            RuleTarget.DATABASE_CONNECTION,
+            false));
+    assertNotNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("name", RuleCondition.MAX_COLLECTION_SIZE, "3"),
+            RuleTarget.PIPELINE,
+            false));
+    // The secret fields of a transform match every setting by name, whatever its type.
+    assertNull(
+        RuleBuilderDialog.clauseProblem(
+            new RuleClause("password", RuleCondition.NOT_EMPTY_COLLECTION, ""),
+            RuleTarget.TRANSFORM,
+            false));
+  }
+
+  /**
    * A rule narrowed with appliesTo can read a plugin's own setting of the same name, whose type is
    * not known, so only its value is judged.
    */

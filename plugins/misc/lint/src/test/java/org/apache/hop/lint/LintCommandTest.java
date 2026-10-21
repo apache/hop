@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -252,6 +253,52 @@ public class LintCommandTest {
 
     assertEquals(1, status, "the renamed file has to be linted");
     assertEquals(List.of(repo.toRealPath() + "/load/clients.hpl"), stagedPaths());
+  }
+
+  /** The lines the stand-in launcher was given, file and staged copy, keyed by the file name. */
+  private Map<String, String[]> stagedLines() throws Exception {
+    Map<String, String[]> lines = new TreeMap<>();
+    for (String line : Files.readAllLines(dir.resolve("capture"))) {
+      String[] parts = line.split("\t");
+      lines.put(Path.of(parts[0]).getFileName().toString(), parts);
+    }
+    return lines;
+  }
+
+  /**
+   * The staged blob of a symlink is the path it points to, which is not a pipeline. Such a file is
+   * linted on disk, as it was before the hook read staged versions.
+   */
+  @Test
+  public void aSymlinkIsLintedOnDisk() throws Exception {
+    assumeTrue(canRunShell());
+    Path repo = repositoryWithStagedFiles("p/customers.hpl");
+    Files.createSymbolicLink(repo.resolve("link.hpl"), Path.of("p/customers.hpl"));
+    assertEquals(0, run(repo, Map.of(), "git", "add", "link.hpl"));
+
+    run(repo, hookEnvironment(), "/bin/sh", dir.resolve("pre-commit").toString());
+
+    Map<String, String[]> lines = stagedLines();
+    assertEquals(1, lines.get("link.hpl").length, "no staged copy of a symlink");
+    assertEquals(2, lines.get("customers.hpl").length, "a plain file still gets one");
+  }
+
+  /**
+   * A file stored with Git LFS has a pointer as its staged blob, and so does any file behind a
+   * clean filter. The filter here is not configured, so the test does not depend on git-lfs.
+   */
+  @Test
+  public void aFilteredFileIsLintedOnDisk() throws Exception {
+    assumeTrue(canRunShell());
+    Path repo = repositoryWithStagedFiles("lfs/customers.hpl", "plain/orders.hpl");
+    Files.writeString(repo.resolve(".gitattributes"), "lfs/*.hpl filter=example\n");
+    assertEquals(0, run(repo, Map.of(), "git", "add", ".gitattributes"));
+
+    run(repo, hookEnvironment(), "/bin/sh", dir.resolve("pre-commit").toString());
+
+    Map<String, String[]> lines = stagedLines();
+    assertEquals(1, lines.get("customers.hpl").length, "no staged copy of an LFS file");
+    assertEquals(2, lines.get("orders.hpl").length);
   }
 
   @Test

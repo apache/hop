@@ -965,22 +965,31 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     // git lists staged files relative to the repository root, and the hop launcher changes to the
     // Hop installation before it starts Java, so the paths are made absolute here. Each line pairs
     // a file with a copy of its staged version: the commit holds what is staged, not what is on
-    // disk. Renamed files (R) are linted like added ones. The trap removes the copies however the
-    // script ends; the last command's status is the hook's.
+    // disk. Renamed files (R) are linted like added ones. A symlink's staged blob is the link's
+    // target, and a filtered file's (Git LFS) is a pointer, so those are linted on disk. The traps
+    // remove the copies however the script ends, Ctrl-C included; the last command's status is the
+    // hook's.
     return """
         #!/bin/sh
         ROOT="$(git rev-parse --show-toplevel)" || exit 1
         STAGED_DIR="$(mktemp -d)" || exit 1
         trap 'rm -rf "$STAGED_DIR"' EXIT
+        trap 'exit 1' HUP INT TERM
         STAGED_LIST="$STAGED_DIR/staged-files"
         git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR | {
           N=0
           while IFS= read -r FILE; do
             case "$FILE" in
               *.hpl|*.hwf|metadata/*.json|*/metadata/*.json)
-                N=$((N + 1))
-                git show ":$FILE" > "$STAGED_DIR/$N" || exit 1
-                printf '%s/%s\\t%s/%s\\n' "$ROOT" "$FILE" "$STAGED_DIR" "$N" ;;
+                MODE="$(git ls-files -s -- "$FILE" | head -n 1 | cut -d ' ' -f 1)"
+                case "$MODE:$(git check-attr filter -- "$FILE")" in
+                  120000:*) printf '%s/%s\\n' "$ROOT" "$FILE" ;;
+                  *": filter: unspecified"|*": filter: unset")
+                    N=$((N + 1))
+                    git show ":$FILE" > "$STAGED_DIR/$N" || exit 1
+                    printf '%s/%s\\t%s/%s\\n' "$ROOT" "$FILE" "$STAGED_DIR" "$N" ;;
+                  *) printf '%s/%s\\n' "$ROOT" "$FILE" ;;
+                esac ;;
             esac
           done
         } > "$STAGED_LIST" || exit 1

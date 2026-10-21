@@ -197,6 +197,85 @@ public class RuleTargetFields {
     }
   }
 
+  /** What kind of value a field the linter provides holds, as the rule executor reads it. */
+  public enum ValueKind {
+    /** A number that is always there, such as {@code transformCount}. */
+    COUNT,
+    /** True or false. */
+    FLAG,
+    /** A list or a map, such as {@code targetTransforms} or a connection's {@code attributes}. */
+    LIST,
+    /** Text, or null when not set. A connection's {@code port} is text. */
+    TEXT
+  }
+
+  private static final Map<String, ValueKind> VALUE_KINDS = new HashMap<>();
+
+  static {
+    for (String field :
+        List.of("transformCount", "actionCount", "hopCount", "noteCount", "copies")) {
+      VALUE_KINDS.put(field, ValueKind.COUNT);
+    }
+    for (String field :
+        List.of(
+            "hasDisabledHops",
+            "hasOrphanedTransforms",
+            "hasOrphanedActions",
+            "hasNotes",
+            "isReferenced",
+            "distributes",
+            "errorHandling",
+            "isDummy",
+            "isOrphaned",
+            "isBlockingTransform",
+            "hasDefaultName",
+            "isStart",
+            "enabled",
+            "unconditional",
+            "evaluation")) {
+      VALUE_KINDS.put(field, ValueKind.FLAG);
+    }
+    for (String field : List.of("targetTransforms", "targetActions", "attributes")) {
+      VALUE_KINDS.put(field, ValueKind.LIST);
+    }
+    for (String field :
+        List.of(
+            "name",
+            "description",
+            "filename",
+            "pluginId",
+            "databaseType",
+            "hostname",
+            "port",
+            "databaseName",
+            "username",
+            "password",
+            "servername",
+            "dataTablespace",
+            "indexTablespace",
+            "fromTransform",
+            "toTransform",
+            "fromAction",
+            "toAction")) {
+      VALUE_KINDS.put(field, ValueKind.TEXT);
+    }
+  }
+
+  /**
+   * The kind of value one of the target's own fields holds, or null when it is not known: a field
+   * the target does not provide, or one whose value the linter does not read itself, such as the
+   * secret fields of a transform.
+   */
+  public static ValueKind getValueKind(RuleTarget target, String field) {
+    if (target == RuleTarget.TRANSFORM || target == RuleTarget.ACTION) {
+      // Matched against every setting of the plugin by name, whatever its type.
+      if (List.of("password", "secret", "credential", "apiKey", "token").contains(field)) {
+        return null;
+      }
+    }
+    return getFieldsForTarget(target).contains(field) ? VALUE_KINDS.get(field) : null;
+  }
+
   /** Get compatible conditions for a field type */
   public static List<RuleCondition> getCompatibleConditions(String field) {
     // Determine field type and return compatible conditions

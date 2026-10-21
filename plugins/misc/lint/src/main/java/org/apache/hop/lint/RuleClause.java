@@ -87,9 +87,7 @@ public class RuleClause {
     if (condition == null || Utils.isEmpty(targetField)) {
       return null;
     }
-    if (!scoped
-        && RuleTargetFields.getFieldsForTarget(target).contains(targetField)
-        && !RuleTargetFields.getCompatibleConditions(targetField).contains(condition)) {
+    if (!scoped && neverFires(RuleTargetFields.getValueKind(target, targetField), condition)) {
       return BaseMessages.getString(
           PKG, "RuleClause.Problem.ConditionDoesNotFit", condition.name(), targetField);
     }
@@ -130,6 +128,34 @@ public class RuleClause {
         break;
     }
     return null;
+  }
+
+  /**
+   * Whether the rule executor can never report this condition on a value of this kind.
+   *
+   * <p>Only what it cannot fire on, not what the editor would suggest: the text conditions read any
+   * value as text, so {@code port NO_HARDCODED} and {@code targetTransforms CONTAINS} work.
+   */
+  private static boolean neverFires(RuleTargetFields.ValueKind kind, RuleCondition condition) {
+    if (kind == null) {
+      return false;
+    }
+    boolean numeric =
+        condition == RuleCondition.MAX_VALUE
+            || condition == RuleCondition.MIN_VALUE
+            || condition == RuleCondition.EXACT_VALUE;
+    boolean collection =
+        condition == RuleCondition.NOT_EMPTY_COLLECTION
+            || condition == RuleCondition.MAX_COLLECTION_SIZE
+            || condition == RuleCondition.MIN_COLLECTION_SIZE;
+    return switch (kind) {
+        // A count is always there, and never reads as empty.
+      case COUNT ->
+          collection || condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      case FLAG -> numeric || collection;
+      case LIST -> numeric;
+      case TEXT -> collection;
+    };
   }
 
   /** The first problem {@link #valueProblem} finds in any of these clauses, or null. */
