@@ -30,6 +30,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -61,6 +62,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.InOrder;
 
 /** Unit tests for {@link PipelineExecutor} runtime behaviour (parameter passing, helpers). */
 class PipelineExecutorTest {
@@ -309,6 +311,67 @@ class PipelineExecutorTest {
   }
 
   @Test
+  void refreshRetriedParameterVariablesFromExternalScopesUsesLatestJvmValueForUnmappedParameter() {
+    final String variableName = "ACCESS_TOKEN";
+    final String originalProperty = System.getProperty(variableName);
+    try {
+      PipelineExecutorMeta meta = new PipelineExecutorMeta();
+      meta.setDefault();
+      meta.setInheritingAllVariables(true);
+      PipelineExecutorParameters param = new PipelineExecutorParameters();
+      param.setVariable(variableName);
+      param.setField("");
+      param.setInput("");
+      meta.setParameters(new ArrayList<>(Collections.singletonList(param)));
+
+      PipelineExecutor executor = newExecutor(meta, new PipelineExecutorData());
+      executor.setVariable(variableName, "stale-token");
+      System.setProperty(variableName, "mynewtoken");
+
+      executor.refreshRetriedParameterVariablesFromExternalScopes();
+
+      assertEquals("mynewtoken", executor.getVariable(variableName));
+    } finally {
+      if (originalProperty == null) {
+        System.clearProperty(variableName);
+      } else {
+        System.setProperty(variableName, originalProperty);
+      }
+    }
+  }
+
+  @Test
+  void refreshRetriedParameterVariablesFromExternalScopesPrefersParentPipelineValueOverJvm() {
+    final String variableName = "ACCESS_TOKEN";
+    final String originalProperty = System.getProperty(variableName);
+    try {
+      PipelineExecutorMeta meta = new PipelineExecutorMeta();
+      meta.setDefault();
+      meta.setInheritingAllVariables(true);
+      PipelineExecutorParameters param = new PipelineExecutorParameters();
+      param.setVariable(variableName);
+      param.setField("");
+      param.setInput("");
+      meta.setParameters(new ArrayList<>(Collections.singletonList(param)));
+
+      PipelineExecutor executor = newExecutor(meta, new PipelineExecutorData());
+      executor.setVariable(variableName, "stale-token");
+      executor.getPipeline().setVariable(variableName, "parent-token");
+      System.setProperty(variableName, "jvm-token");
+
+      executor.refreshRetriedParameterVariablesFromExternalScopes();
+
+      assertEquals("parent-token", executor.getVariable(variableName));
+    } finally {
+      if (originalProperty == null) {
+        System.clearProperty(variableName);
+      } else {
+        System.setProperty(variableName, originalProperty);
+      }
+    }
+  }
+
+  @Test
   void collectPipelineResultsDoesNotForwardRowsWhenNoResultRowsTarget() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
@@ -476,6 +539,39 @@ class PipelineExecutorTest {
 
     assertTrue(result.isResult());
     verify(executor, times(2)).executePipelineAttempt(any(), anyLong());
+  }
+
+  @Test
+  void executeWithRetriesUsesLatestBufferedValuesOnRetryAttempt() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRetryAttempts("1");
+    meta.setRetryDelay("0");
+
+    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+
+    Result failed = new Result();
+    failed.setResult(false);
+    failed.setNrErrors(1);
+    Result success = new Result();
+    success.setResult(true);
+    success.setNrErrors(0);
+
+    doReturn(failed, success).when(executor).executePipelineAttempt(any(), anyLong());
+    doReturn(Collections.singletonList("latest-value"))
+        .when(executor)
+        .resolveParameterValuesForRetryAttempt(any());
+
+    Result result = executor.executeWithRetries(Collections.singletonList("old-value"));
+
+    assertTrue(result.isResult());
+    InOrder attemptOrder = inOrder(executor);
+    attemptOrder
+        .verify(executor)
+        .executePipelineAttempt(eq(Collections.singletonList("old-value")), anyLong());
+    attemptOrder
+        .verify(executor)
+        .executePipelineAttempt(eq(Collections.singletonList("latest-value")), anyLong());
   }
 
   @Test
