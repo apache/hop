@@ -39,6 +39,18 @@ When Markdown is enabled:
 * Use a fixed-width font in the editor for easier source editing.
 * **Preview** opens an HTML rendering of the source (relative image paths are expanded so images load in the browser).
 * **Help** opens an in-app guide with examples of supported Markdown.
+* The editor toolbar inserts Markdown. The same buttons are on the toolbar when you edit a `.md` file in the file explorer. Bold and italic stay disabled until text is selected. With **Render as Markdown** off, the buttons are disabled.
+
+The toolbar inserts:
+
+* **Link** — a menu asks for a URL or a file, then inserts `[label](target)`. Selected text becomes the label.
+* **Image** — pick a PNG, JPEG, GIF, or SVG. The button inserts `![alt](path)`.
+* **Bold** — `__text__`. **Italic** — `_text_`. Asterisks (`**bold**`, `*italic*`) still render.
+* **Table** — choose columns, rows (including the header), and alignment (`---`, `:---`, `:---:`, `---:`). The canvas emphasizes the header. HTML preview uses the alignment.
+* **Code block** — a fenced block of three backticks, around the selection or on a new line.
+* **Header** — Header 1–4, or regular text, on the current line.
+
+A file or image picked while the pipeline, workflow, or Markdown file has a name is stored as a path relative to that file.
 
 If Markdown is off, notes behave as classic plain-text notes with customizable fonts and colors.
 

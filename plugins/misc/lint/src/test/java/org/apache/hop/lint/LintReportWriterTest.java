@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /** The machine-readable reports are a contract with CI, so their shape is pinned here. */
@@ -139,6 +141,129 @@ public class LintReportWriterTest {
         mapper.readTree(
             LintReportWriter.render(LintReportFormat.JSON, List.of(), "1.0.0", PROJECT));
     assertEquals(0, json.get("summary").get("total").asInt());
+  }
+
+  private static List<LintResult> taggedResults() {
+    Map<String, List<String>> tags = new LinkedHashMap<>();
+    tags.put("category", List.of("secrets"));
+    tags.put("policy", List.of("SEC-POL-4", "SEC-POL-7"));
+    LintRuleDetails details =
+        new LintRuleDetails(
+            "Passwords come from a variable", "https://example.com/rules/SEC-002", tags);
+    return List.of(
+        new LintResult(
+                "SEC-002",
+                "Hardcoded Secret",
+                "ERROR",
+                "Use a variable",
+                PROJECT.resolve("pipelines/load.hpl").toString(),
+                LintSourceRef.transform("REST"),
+                LintResult.Origin.LINT)
+            .withRuleDetails(details),
+        sampleResults().get(1));
+  }
+
+  /** GitHub code scanning and Azure DevOps read a flat list of key:value strings. */
+  @Test
+  public void sarifWritesTagsDescriptionAndHelpUriOnTheRule() throws Exception {
+    String sarif =
+        LintReportWriter.render(LintReportFormat.SARIF, taggedResults(), "1.0.0", PROJECT);
+    JsonNode rules =
+        new ObjectMapper()
+            .readTree(sarif)
+            .get("runs")
+            .get(0)
+            .get("tool")
+            .get("driver")
+            .get("rules");
+
+    JsonNode tagged = rules.get(0);
+    assertEquals(
+        "Passwords come from a variable", tagged.get("fullDescription").get("text").asText());
+    assertEquals("https://example.com/rules/SEC-002", tagged.get("helpUri").asText());
+
+    JsonNode flat = tagged.get("properties").get("tags");
+    assertEquals(3, flat.size());
+    assertEquals("category:secrets", flat.get(0).asText());
+    assertEquals("policy:SEC-POL-4", flat.get(1).asText());
+    assertEquals("policy:SEC-POL-7", flat.get(2).asText());
+
+    JsonNode hopTags = tagged.get("properties").get("hopTags");
+    assertEquals("secrets", hopTags.get("category").get(0).asText());
+    assertEquals(2, hopTags.get("policy").size());
+
+    // A rule without tags, description or help link gets none of those keys.
+    JsonNode plain = rules.get(1);
+    assertFalse(plain.has("properties"));
+    assertFalse(plain.has("fullDescription"));
+    assertFalse(plain.has("helpUri"));
+  }
+
+  private static JsonNode sarifRules(List<LintResult> results) throws Exception {
+    return new ObjectMapper()
+        .readTree(LintReportWriter.render(LintReportFormat.SARIF, results, "1.0.0", PROJECT))
+        .get("runs")
+        .get(0)
+        .get("tool")
+        .get("driver")
+        .get("rules");
+  }
+
+  /**
+   * The rule is described by a finding that carries its details, even when one without them came
+   * first, so the order of the results cannot hide the tags.
+   */
+  @Test
+  public void sarifDescribesTheRuleFromAFindingThatCarriesItsDetails() throws Exception {
+    LintResult tagged = taggedResults().get(0);
+    LintResult bare =
+        new LintResult(
+            "SEC-002",
+            "Hardcoded Secret",
+            "ERROR",
+            "Use a variable",
+            PROJECT.resolve("pipelines/other.hpl").toString());
+
+    JsonNode rules = sarifRules(List.of(bare, tagged));
+
+    assertEquals(1, rules.size());
+    assertEquals("category:secrets", rules.get(0).get("properties").get("tags").get(0).asText());
+    JsonNode results =
+        new ObjectMapper()
+            .readTree(
+                LintReportWriter.render(
+                    LintReportFormat.SARIF, List.of(bare, tagged), "1.0.0", PROJECT))
+            .get("runs")
+            .get(0)
+            .get("results");
+    assertEquals(0, results.get(0).get("ruleIndex").asInt());
+    assertEquals(0, results.get(1).get("ruleIndex").asInt());
+  }
+
+  /** The SARIF schema requires a rule's tags to be unique. */
+  @Test
+  public void sarifTagsAreUnique() throws Exception {
+    LintResult finding =
+        sampleResults()
+            .get(0)
+            .withRuleDetails(
+                new LintRuleDetails("", null, Map.of("policy", List.of("SEC-POL-4", "SEC-POL-4"))));
+
+    JsonNode flat = sarifRules(List.of(finding)).get(0).get("properties").get("tags");
+
+    assertEquals(1, flat.size());
+    assertEquals("policy:SEC-POL-4", flat.get(0).asText());
+  }
+
+  @Test
+  public void jsonWritesTheRuleTagsOnEachFinding() throws Exception {
+    String json = LintReportWriter.render(LintReportFormat.JSON, taggedResults(), "1.0.0", PROJECT);
+    JsonNode findings = new ObjectMapper().readTree(json).get("findings");
+
+    JsonNode tags = findings.get(0).get("tags");
+    assertEquals("secrets", tags.get("category").get(0).asText());
+    assertEquals("SEC-POL-7", tags.get("policy").get(1).asText());
+    assertEquals(0, findings.get(1).get("tags").size(), "an untagged rule writes an empty object");
   }
 
   @Test

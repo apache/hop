@@ -23,7 +23,7 @@ under the License.
 
 https://openlineage.io/[OpenLineage] is an open standard for lineage metadata collection.
 The OpenLineage technology plugin is a Hop **lineage sink**: it subscribes to the in-engine
-xref:dev-manual::lineage.adoc[lineage observation hub] and maps Hop's neutral lineage events
+xref:{page-component-version}@dev-manual::lineage.adoc[lineage observation hub] and maps Hop's neutral lineage events
 to spec-correct OpenLineage `RunEvent` JSON, which it posts to any OpenLineage-compatible collector.
 The primary target is https://marquezproject.github.io/marquez/[Marquez].
 
@@ -34,7 +34,7 @@ back-pressure.
 == Enabling the sink
 
 The lineage hub is disabled by default. Enable it and select the OpenLineage sink with these
-**engine-scoped** variables (see xref:dev-manual::lineage.adoc[the lineage hub] for the hub-wide
+**engine-scoped** variables (see xref:{page-component-version}@dev-manual::lineage.adoc[the lineage hub] for the hub-wide
 variables):
 
 [cols="2,1,3",options="header"]

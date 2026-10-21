@@ -29,15 +29,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Standardize Phone Number</name>
 
-    <properties>
-        <libphonenumber.version>9.0.40</libphonenumber.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>${libphonenumber.version}</version>
         </dependency>
     </dependencies>
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ai.engine;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,5 +73,32 @@ class AiM2PromptSupportTest {
     assertTrue(supplement.contains("partition, rdbms, schema-definition, unit-test"), supplement);
     assertTrue(supplement.contains("Metadata perspective"), supplement);
     assertFalse(supplement.contains("{types}"), supplement);
+  }
+
+  @Test
+  void aSessionGetsTheTypesOfItsKindOfFile() throws Exception {
+    String pipeline = AiM2PromptSupport.buildSupplement(AiM2PromptSupport.KIND_PIPELINE);
+    assertTrue(pipeline.contains("ADD_TRANSFORM"));
+    assertTrue(pipeline.contains("SAVE_METADATA"));
+    assertFalse(pipeline.contains("Workflow parameter reference"));
+    assertFalse(pipeline.contains("ADD_WORKFLOW_HOP"));
+
+    String workflow = AiM2PromptSupport.buildSupplement(AiM2PromptSupport.KIND_WORKFLOW);
+    assertTrue(workflow.contains("ADD_WORKFLOW_HOP"));
+    assertTrue(workflow.contains("\"actionPluginId\": \"DUMMY\""));
+    assertFalse(workflow.contains("Pipeline parameter reference"));
+    assertFalse(workflow.contains("ADD_PIPELINE_HOP"));
+  }
+
+  @Test
+  void theFormatForBothKindsSaysEachRuleOnce() throws Exception {
+    String both = AiM2PromptSupport.buildSupplement();
+    assertEquals(1, both.split("riskLevel is one of", -1).length - 1, both);
+    assertEquals(1, both.split("exactly ONE type", -1).length - 1, both);
+    assertTrue(
+        both.contains("Use pipeline types for a pipeline and workflow types for a workflow."));
+    String pipeline = AiM2PromptSupport.buildSupplement(AiM2PromptSupport.KIND_PIPELINE);
+    assertTrue(pipeline.contains("exactly ONE type"));
+    assertFalse(pipeline.contains("Use pipeline types for a pipeline"));
   }
 }

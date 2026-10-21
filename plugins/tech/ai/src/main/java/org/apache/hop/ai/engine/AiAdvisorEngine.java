@@ -136,14 +136,59 @@ public final class AiAdvisorEngine {
     // The answer is checked in the background against a copy, not the file the user may edit.
     request.setArtifact(snapshot(request.getArtifact(), metadataProvider, variables));
     List<ChatMessage> history = historyFrom(session);
-    checkPromptFits(
-        provider.getName(),
-        AiProviderSettings.contextBudget(provider, variables),
-        AiProviderSettings.maxOutputTokens(provider, variables),
-        prompt.getSystemPrompt(),
-        prompt.getUserPrompt(),
-        history);
+    int contextSize = AiProviderSettings.contextBudget(provider, variables);
+    Integer maxOutputTokens = AiProviderSettings.maxOutputTokens(provider, variables);
+    try {
+      checkPromptFits(
+          provider.getName(),
+          contextSize,
+          maxOutputTokens,
+          prompt.getSystemPrompt(),
+          prompt.getUserPrompt(),
+          history);
+    } catch (AiUserException tooLarge) {
+      // Unchecking items under Sharing only helps when the question fits without them.
+      int minimum = minimumTokens(session, advisor, variables, metadataProvider);
+      int reserve = answerReserve(contextSize, maxOutputTokens);
+      if (minimum + reserve > contextSize) {
+        throw new AiUserException(
+            BaseMessages.getString(
+                PKG,
+                "AiAdvisorEngine.PromptTooLarge.Minimum",
+                Integer.toString(minimum),
+                provider.getName(),
+                Integer.toString(contextSize),
+                Integer.toString(reserve)));
+      }
+      throw tooLarge;
+    }
     return new Prepared(provider, prompt, history, request);
+  }
+
+  /**
+   * The size of the question with nothing optional: every Sharing option off, no selected metadata,
+   * no focus, no log and no conversation history. What always goes along, the instructions and the
+   * basics, is left.
+   */
+  static int minimumTokens(
+      AiAdvisorSession session,
+      IAiAdvisor advisor,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    try {
+      AiAdvisorRequest request = toRequest(session, variables, metadataProvider, "");
+      request.setInclusions(new LinkedHashMap<>());
+      request.setMetadataSelections(new ArrayList<>());
+      request.setInclusionSelections(new LinkedHashMap<>());
+      request.setFocusNodeName("");
+      request.setAppliedChangeSummaries(new ArrayList<>());
+      request.setFollowUp(false);
+      AiAdvisorPrompt minimal = advisor.buildPrompt(request);
+      AiAdvisorExtraContext.apply(minimal, advisor, variables);
+      return estimateTokens(minimal.getSystemPrompt()) + estimateTokens(minimal.getUserPrompt());
+    } catch (HopException | RuntimeException e) {
+      return 0;
+    }
   }
 
   /** Send a prepared question and read the answer. Runs in the background. */
@@ -168,6 +213,10 @@ public final class AiAdvisorEngine {
     parsed.setDurationMs(chat.getDurationMs());
     // Parameters written as "key: value" text instead of in the block.
     AiProposalTextRecovery.fill(parsed, chat.getText());
+    if (!AiProposalIntent.wasOffered(prepared.request())) {
+      // Asked for an explanation, without the proposal format: no proposals to check or repair.
+      return parsed;
+    }
     if (parsed.getProposalParseError() == null
         && (parsed.getProposals() == null || parsed.getProposals().isEmpty())
         && mentionsProposals(chat.getText())) {
@@ -219,7 +268,9 @@ public final class AiAdvisorEngine {
       throws HopException {
     AiProvider provider = prepared.provider();
     AiAdvisorPrompt prompt = prepared.prompt();
-    if (provider.isStructuredAnswers() && usesHopProposalSchema(advisor)) {
+    if (provider.isStructuredAnswers()
+        && usesHopProposalSchema(advisor)
+        && AiProposalIntent.wasOffered(prepared.request())) {
       try {
         AiChatResult structured =
             AiChatFactory.generateStructured(
@@ -597,10 +648,7 @@ public final class AiAdvisorEngine {
         tokens += estimateTokens(ai.text());
       }
     }
-    int reserve =
-        maxOutputTokens != null
-            ? maxOutputTokens
-            : Math.min(DEFAULT_ANSWER_RESERVE, contextSize / 4);
+    int reserve = answerReserve(contextSize, maxOutputTokens);
     if (tokens + reserve > contextSize) {
       throw new AiUserException(
           BaseMessages.getString(
@@ -611,6 +659,13 @@ public final class AiAdvisorEngine {
               Integer.toString(contextSize),
               Integer.toString(reserve)));
     }
+  }
+
+  /** The tokens kept free for the answer: the provider's output limit, or a share of the window. */
+  static int answerReserve(int contextSize, Integer maxOutputTokens) {
+    return maxOutputTokens != null
+        ? maxOutputTokens
+        : Math.min(DEFAULT_ANSWER_RESERVE, contextSize / 4);
   }
 
   /**
@@ -635,7 +690,9 @@ public final class AiAdvisorEngine {
     request.setFollowUp(hasAnswer(session.getTurns(), session.getTurns().size()));
     AiAdvisorPrompt prompt = advisor.buildPrompt(request);
     AiAdvisorExtraContext.apply(prompt, advisor, variables);
-    if (usesHopProposalSchema(advisor) && usesStructuredAnswers(session, metadataProvider)) {
+    if (usesHopProposalSchema(advisor)
+        && AiProposalIntent.wasOffered(request)
+        && usesStructuredAnswers(session, metadataProvider)) {
       prompt.setSystemPrompt(structuredSystemPrompt(prompt.getSystemPrompt()));
     }
     List<ChatMessage> history = historyFrom(session.getTurns(), session.getTurns().size());

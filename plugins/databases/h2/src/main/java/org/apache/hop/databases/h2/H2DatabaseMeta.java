@@ -84,7 +84,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("com.h2database:h2")
-        .defaultVersion("2.4.240")
+        .defaultVersion("2.5.252")
         .licenseCategory("B")
         .licenseName("EPL-1.0 / MPL-2.0")
         .licenseUrl("https://www.h2database.com/html/license.html")

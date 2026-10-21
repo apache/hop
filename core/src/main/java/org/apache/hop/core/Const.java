@@ -828,6 +828,20 @@ public class Const {
           "Set this variable to 'Y' to disable standard Hop logging to the console. (stdout)")
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
 
+  /**
+   * Set this variable to Y to make the operating system environment available as Hop variables, so
+   * that ${NAME} resolves an exported environment variable. Off by default, because the whole
+   * environment becomes visible as variables when it is on. Environment variables have the lowest
+   * precedence: anything set with -D, in hop-config.json, or by a parent keeps its current value.
+   */
+  @Variable(
+      value = "N",
+      description =
+          "Set this variable to 'Y' to make operating system environment variables available as Hop"
+              + " variables, so that ${NAME} resolves an exported environment variable. They have"
+              + " the lowest precedence: anything set with -D or in hop-config.json wins.")
+  public static final String HOP_IMPORT_ENVIRONMENT_VARIABLES = "HOP_IMPORT_ENVIRONMENT_VARIABLES";
+
   /** The name of the variable containing an alternative default number format */
   @Variable(
       description = "The name of the variable containing an alternative default number format")
@@ -1308,7 +1322,8 @@ public class Const {
    * @return The converted value or the default.
    */
   public static int toInt(String str, int def) {
-    if (str == null) {
+    // Integer.parseInt throws for these anyway: skip the exception, callers do this per row
+    if (str == null || str.isBlank()) {
       return def;
     }
     int retval;
@@ -1328,7 +1343,8 @@ public class Const {
    * @return The converted value or the default.
    */
   public static long toLong(String str, long def) {
-    if (str == null) {
+    // Long.parseLong throws for these anyway: skip the exception, callers do this per row
+    if (str == null || str.isBlank()) {
       return def;
     }
     long retval;
@@ -1579,7 +1595,8 @@ public class Const {
    * @return The converted value or the default.
    */
   public static double toDouble(String str, double def) {
-    if (str == null) {
+    // Double.parseDouble throws for these anyway: skip the exception, callers do this per row
+    if (str == null || str.isBlank()) {
       return def;
     }
     double retval;

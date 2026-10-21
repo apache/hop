@@ -529,7 +529,15 @@ public class HopGui
 
     // Bind it for this session, so the call sites that resolve a file with no variables in hand
     // land in it too. Deliberately not restored afterwards: it stays for as long as the session.
-    HopVfsNamespaces.bindThread(namespace);
+    // With no namespace of its own the binding is cleared rather than left alone: what is bound now
+    // is the previous project's namespace, which is about to be released and closed. Leaving it
+    // would send every file this thread - and every thread it starts - resolves through a closed
+    // manager.
+    if (namespace == null) {
+      HopVfsNamespaces.restoreThread(null);
+    } else {
+      HopVfsNamespaces.bindThread(namespace);
+    }
 
     if (previousProvider != null) {
       HopVfsNamespaces.release(previousProvider);
@@ -982,6 +990,11 @@ public class HopGui
         KeyboardShortcut shortcut =
             GuiRegistry.getInstance()
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
+        if (shortcut == null) {
+          // A perspective can open itself from a method of its own, which does more than
+          // activate it.
+          shortcut = findGlobalShortcut(perspectiveClass.getName());
+        }
 
         if (shortcut != null) {
           tooltip += " (" + shortcut + ")";
@@ -1005,6 +1018,19 @@ public class HopGui
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
+  }
+
+  /** The first global keyboard shortcut of a class for this platform, or null. */
+  private static KeyboardShortcut findGlobalShortcut(String className) {
+    List<KeyboardShortcut> shortcuts = GuiRegistry.getInstance().getKeyboardShortcuts(className);
+    if (shortcuts != null) {
+      for (KeyboardShortcut shortcut : shortcuts) {
+        if (shortcut.isGlobal() && shortcut.isOsx() == Const.isOSX()) {
+          return shortcut;
+        }
+      }
+    }
+    return null;
   }
 
   private ToolItem addWebToolbarButton(

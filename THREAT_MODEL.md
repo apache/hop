@@ -173,9 +173,10 @@ where strict outbound TLS verification is required (see §9).
     — this is the single-user / trusted-network install and the session is
     treated as *unrestricted*. The co-deployed Hop Server API on `/hop/*` is
     **default-denied** (`403`) by
-    [`HopServerAuthorizationFilter`](rap/src/main/java/org/apache/hop/ui/hopgui/security/HopServerAuthorizationFilter.java),
-    because mode `NONE` has no identity to authorize against and those endpoints
-    deploy and execute pipelines/workflows. Opt-in flag
+    [`HopServerAuthorizationFilter`](rap/src/main/java/org/apache/hop/ui/hopgui/security/HopServerAuthorizationFilter.java).
+    The filter authorizes the container-mapped path (`getServletPath()` + `getPathInfo()`), which
+    is the path the container has already normalized. Mode `NONE` has no identity to authorize
+    against, and those endpoints deploy and execute pipelines/workflows. Opt-in flag
     `allowUnauthenticatedServerApi` /
     `HOP_WEB_ALLOW_UNAUTHENTICATED_SERVER_API` reopens it for operators running
     Hop Web purely as an execution server behind their own network controls —

@@ -1332,7 +1332,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
         if (!rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped()) {
           try {
-            Thread.sleep(0, 1);
+            // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
+            Thread.sleep(1);
           } catch (InterruptedException e) {
             // Ignore sleep interruption exception
           }
@@ -1368,7 +1369,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
         if (!rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped()) {
           try {
-            Thread.sleep(0, 1);
+            // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
+            Thread.sleep(1);
           } catch (InterruptedException e) {
             // Ignore sleep interruption exception
           }
@@ -1741,7 +1743,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
       if (!inputRowSet.isDone() && inputRowSet.size() <= lowerBufferBoundary && !isStopped()) {
         try {
-          Thread.sleep(0, 1);
+          // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
+          Thread.sleep(1);
         } catch (InterruptedException e) {
           // Ignore sleep interruption exception
         }
@@ -2096,7 +2099,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     if (!rowSet.isDone() && rowSet.size() <= lowerBufferBoundary && !isStopped()) {
       try {
-        Thread.sleep(0, 1);
+        // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
+        Thread.sleep(1);
       } catch (InterruptedException e) {
         // Ignore sleep interruption exception
       }

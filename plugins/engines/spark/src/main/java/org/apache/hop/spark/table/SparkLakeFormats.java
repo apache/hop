@@ -48,8 +48,10 @@ public final class SparkLakeFormats {
   public static final String ICEBERG_CATALOG = LakeFormats.ICEBERG_CATALOG;
 
   /**
-   * Built-in Hadoop catalog name used for Iceberg PATH mode ({@code hop_iceberg.`file:///…`}).
-   * Distinct from {@code spark_catalog} so Delta can keep DeltaCatalog when both formats co-exist.
+   * Name prefix of the Hadoop catalogs used for Iceberg PATH mode: one catalog per table folder,
+   * for example {@code hop_iceberg_1a2b3c4d5e6f.`orders`} (see {@link
+   * SparkLakeTableSupport#icebergPathTable(String)}). Distinct from {@code spark_catalog} so Delta
+   * can keep DeltaCatalog when both formats co-exist.
    */
   public static final String ICEBERG_PATH_CATALOG_NAME = "hop_iceberg";
 

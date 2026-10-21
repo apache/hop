@@ -18,14 +18,26 @@ package org.apache.hop.lint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.lint.registry.RulePackIds;
 import org.apache.hop.lint.registry.RulePackOwner;
 
 /** Represents a user-defined linting rule */
 public class CustomLintRule {
+
+  /** The field name patterns a hardcoded-secret rule looks for, replacing the default list. */
+  public static final String PARAMETER_FIELD_PATTERNS = "fieldPatterns";
+
+  /** The transform plugin ids {@code isBlockingTransform} counts, replacing the default list. */
+  public static final String PARAMETER_BLOCKING_TRANSFORMS = "blockingTransforms";
+
+  /** Every parameter the linter reads. A rule pack or hop-lint.yml naming another is warned. */
+  public static final Set<String> PARAMETERS =
+      Set.of(PARAMETER_FIELD_PATTERNS, PARAMETER_BLOCKING_TRANSFORMS);
 
   private String id;
   private String name;
@@ -73,6 +85,18 @@ public class CustomLintRule {
    * <i18n package>:<key>}. Empty means every native remark.
    */
   private String messageKey;
+
+  /**
+   * Free-form labels a pack attaches to the rule: a category, an owning team, a policy reference.
+   *
+   * <p>The linter never evaluates them. They are copied onto every finding the rule produces and
+   * written to the SARIF and JSON reports, so a pack can change its tags without any risk of
+   * changing its findings. Each key holds one or more values, in the order the pack wrote them.
+   */
+  private Map<String, List<String>> tags = new LinkedHashMap<>();
+
+  /** Where a reader can learn more about the rule, written to SARIF as {@code helpUri}. */
+  private String helpUri;
 
   /** A rule the linter evaluates against a pipeline, workflow or metadata object. */
   public static final String TYPE_CUSTOM = "custom";
@@ -284,6 +308,22 @@ public class CustomLintRule {
     this.messageKey = messageKey;
   }
 
+  public Map<String, List<String>> getTags() {
+    return tags;
+  }
+
+  public void setTags(Map<String, List<String>> tags) {
+    this.tags = tags != null ? tags : new LinkedHashMap<>();
+  }
+
+  public String getHelpUri() {
+    return helpUri;
+  }
+
+  public void setHelpUri(String helpUri) {
+    this.helpUri = helpUri;
+  }
+
   /**
    * Whether this rule classifies Hop's own verify remarks instead of being evaluated by the linter.
    *
@@ -320,6 +360,9 @@ public class CustomLintRule {
     copy.combinator = this.combinator;
     copy.type = this.type;
     copy.messageKey = this.messageKey;
+    copy.helpUri = this.helpUri;
+    copy.tags = new LinkedHashMap<>();
+    this.tags.forEach((key, values) -> copy.tags.put(key, new ArrayList<>(values)));
     copy.additionalClauses = new ArrayList<>();
     for (RuleClause clause : this.additionalClauses) {
       copy.additionalClauses.add(clause.copy());

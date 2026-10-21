@@ -79,7 +79,7 @@ If not checked, Apache Hop will overwrite the file if it exists.
 ** Include partition nr in filename?
 - Should the partition number be included in the output filename?
 ** Include date in filename?
-- Should the curren date be included in the output filename?
+- Should the current date be included in the output filename?
 ** Include time in filename?
 - Should the current time be included in the output filename?
 ** Specify date format?

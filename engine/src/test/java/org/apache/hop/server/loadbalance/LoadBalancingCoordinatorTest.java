@@ -66,6 +66,27 @@ class LoadBalancingCoordinatorTest {
     assertTrue(error.getMessage().contains("No eligible Hop server"));
   }
 
+  @Test
+  void probeTimeoutsAreRetried() {
+    HopException error =
+        LoadBalancingCoordinator.noEligibleServerException(
+            List.of(
+                ServerHealthSnapshot.unavailable("a", true, 2, "timeout after 3000ms"),
+                ServerHealthSnapshot.unavailable("b", true, 2, "timeout after 3000ms")));
+    assertFalse(error instanceof HopServerAtCapacityException);
+    assertTrue(LoadBalancingCoordinator.isTransientProbeFailure(error));
+  }
+
+  @Test
+  void unknownServerIsNotAProbeTimeout() {
+    HopException error =
+        LoadBalancingCoordinator.noEligibleServerException(
+            List.of(
+                ServerHealthSnapshot.unavailable("a", true, 2, "timeout after 3000ms"),
+                ServerHealthSnapshot.unavailable("b", true, 2, "Hop server 'b' not found")));
+    assertFalse(LoadBalancingCoordinator.isTransientProbeFailure(error));
+  }
+
   private static ServerHealthSnapshot eligible(String name, int occupying, int max) {
     ServerHealthSnapshot snapshot = new ServerHealthSnapshot();
     snapshot.setHopServerName(name);

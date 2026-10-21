@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-cache]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to InterSystems IRIS: the JDBC driver to use.
 
 = InterSystems Iris
 

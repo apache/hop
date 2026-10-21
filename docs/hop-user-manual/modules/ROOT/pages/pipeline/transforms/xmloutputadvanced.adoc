@@ -19,7 +19,7 @@ under the License.
 :description: The XML output (Advanced) transform builds hierarchical XML from input rows, with optional write-to-file, XML-as-field output, splits, and XSD generation.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
-= image:transforms/icons/AXO.svg[XML output (Advanced) transform Icon, role="image-doc-icon"] XML output (Advanced)
+= image:transforms/icons/xmloutputadvanced.svg[XML output (Advanced) transform Icon, role="image-doc-icon"] XML output (Advanced)
 
 == Description
 
@@ -54,7 +54,7 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Split every N rows|Maximum rows per file before rolling over to a new split, or per completed XML field segment when *Output* includes an XML field. `0` = no splitting.
 |Zip output file|Wrap each output file in a zip archive (one entry per file). Generated XSDs are written next to the archive, not inside it.
 |Do not open new file at start|Defer file creation until the first input row is received.
-|Do not create file if no rows|Delete the output file at the end of the run if no rows were ever written.
+|Do not create file if no rows|Delete the output file at the end of the run if no rows were ever written. Without this option, a run without rows writes a document with only the root element: its attributes, its own value and the elements outside the loop, with every mapped field empty. When the loop is the root element, there is no such document and the file (or its zip entry) stays empty. With *Do not open new file at start*, a run without rows creates no file at all.
 |Add filename to result|Add the produced file(s) to the pipeline's result file list (only after at least one row is written).
 |Show file name(s) ...|Pops up a list with sample filenames built from the current settings.
 |===
@@ -104,7 +104,7 @@ The XML Tree tab is the visual designer for the output structure. The left pane 
 |Mapped field|Input field whose value provides this node's content. For attributes and elements it sets the value; for nodes flagged `Group-by`, it identifies the group key only.
 |Default value|Static text used when `Mapped field` is empty (or its value is `null`).
 |Format / Length / Precision / Currency / Decimal / Grouping|Per-node value-meta overrides used when converting the field value to a string. Per-node settings take precedence over the global *Default decimal/grouping separator*.
-|Loop|Marks this element as the row-loop element. Exactly one element must carry the flag.
+|Loop|Marks this element as the row-loop element. Exactly one element must carry the flag. A loop on the root element holds a single row per document, because an XML document has one root element: set *Split every N rows* to `1`, or put the loop on a child element. Otherwise *Verify* shows a warning and the second row fails.
 |Group-by|Marks this element as a group-by ancestor of the loop. Consecutive rows with equal `Mapped field` values share a single occurrence.
 |Force create|Output this node even when the value is `null` (uses the default value when set).
 |Remove outer wrapper (duplicate parent tag)|For `DocumentFragment` nodes only: when the fragment's root element repeats the parent element name, strip that outer wrapper so the inner XML is inserted without a duplicated wrapper (for example when feeding XML from an upstream XML output (Advanced) into a child fragment node).

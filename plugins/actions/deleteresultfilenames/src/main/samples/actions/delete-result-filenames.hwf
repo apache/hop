@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>delete-result-filenames</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/10/07 10:00:00.000</created_date>
+  <modified_date>2026/10/07 10:00:00.000</modified_date>
+  <created_hop_version/>
+  <modified_hop_version/>
+  <workflow_version/>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>80</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-samples/delete-result-filenames</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <name>Remove work folder</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <xloc>272</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/delete-result-filenames/data.csv</filename>
+      <createParentFolder>Y</createParentFolder>
+      <appendFile>N</appendFile>
+      <content>id
+1</content>
+      <encoding>UTF-8</encoding>
+      <name>Write data.csv</name>
+      <description/>
+      <type>WRITE_TO_FILE</type>
+      <attributes/>
+      <xloc>464</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/delete-result-filenames/process.log</filename>
+      <createParentFolder>Y</createParentFolder>
+      <appendFile>N</appendFile>
+      <content>done</content>
+      <encoding>UTF-8</encoding>
+      <name>Write process.log</name>
+      <description/>
+      <type>WRITE_TO_FILE</type>
+      <attributes/>
+      <xloc>656</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <delete_all_before>N</delete_all_before>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-samples/delete-result-filenames</name>
+          <filemask>.*</filemask>
+        </field>
+      </fields>
+      <name>Add to result filenames</name>
+      <description/>
+      <type>ADD_RESULT_FILENAMES</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <script>var files = previous_result.getResultFilesList();
+action.logBasic("Number of result filenames: " + files.size());
+files.size() == 2;</script>
+      <name>2 result filenames?</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <xloc>1040</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <specify_wildcard>Y</specify_wildcard>
+      <wildcard>.*\.log</wildcard>
+      <wildcardexclude/>
+      <name>Remove log files from result</name>
+      <description/>
+      <type>DELETE_RESULT_FILENAMES</type>
+      <attributes/>
+      <xloc>1232</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <script>var files = previous_result.getResultFilesList();
+action.logBasic("Number of result filenames: " + files.size());
+files.size() == 1;</script>
+      <name>1 result filename?</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <xloc>1424</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <loglevel>Basic</loglevel>
+      <logsubject/>
+      <logmessage>Only data.csv is left in the result filenames.</logmessage>
+      <name>Done</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <xloc>1616</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Remove work folder</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Remove work folder</from>
+      <to>Write data.csv</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Write data.csv</from>
+      <to>Write process.log</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Write process.log</from>
+      <to>Add to result filenames</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Add to result filenames</from>
+      <to>2 result filenames?</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>2 result filenames?</from>
+      <to>Remove log files from result</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Remove log files from result</from>
+      <to>1 result filename?</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>1 result filename?</from>
+      <to>Done</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>The Delete filenames from result action removes filenames from the result filenames of a workflow. The files themselves are not deleted.
+Use a wildcard to only remove some of the filenames, for example to keep the files an action further down the workflow (Mail, Zip file, ...) should process.
+
+This sample adds a .csv and a .log file from ${java.io.tmpdir}/hop-samples/delete-result-filenames to the result filenames and then removes the .log file from the result.</note>
+      <markdown>N</markdown>
+      <notetype>GENERAL</notetype>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>32</yloc>
+      <width>1696</width>
+      <height>156</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

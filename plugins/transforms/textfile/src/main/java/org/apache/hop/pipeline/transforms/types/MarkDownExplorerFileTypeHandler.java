@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.markdown.MarkdownEditContext;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -95,6 +96,8 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
     // The toolbar hands the preview action nothing but the editor widget, so leave a way back
     // to this handler on the control itself.
     editorWidget.getControl().setData(EDITOR_DATA_HANDLER, this);
+    MarkdownEditContext.attach(
+        editorWidget.getControl(), hopGui.getVariables(), this::getFilename, () -> true);
 
     // If it's a new file, there's no need to reload it
     if (this.getFilename() != null) {

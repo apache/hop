@@ -62,31 +62,15 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
     List<GuiActionFilter> actionFilters =
         GuiRegistry.getInstance().getGuiContextActionFilters(getContextId());
 
-    // Evaluate all the actions and see if any of the filters remove it from the list...
+    // A filter that cannot be created (for example getInstance() returned null) used to throw
+    // once per action and print a full stack trace every time. Resolve each filter once. A
+    // failure leaves every action visible, which is what the per-action catch did before.
     //
+    List<ResolvedActionFilter> resolvedFilters = resolveActionFilters(actionFilters);
+
     List<GuiAction> filteredActions = new ArrayList<>();
     for (GuiAction action : actions) {
-      boolean retain = true;
-      if (actionFilters != null) {
-        for (GuiActionFilter actionFilter : actionFilters) {
-          boolean retainAction = false;
-          try {
-            retainAction = evaluateActionFilter(action, actionFilter);
-            if (!retainAction) {
-              retain = false;
-              break;
-            }
-          } catch (HopException e) {
-            LogChannel.UI.logError(
-                "Error filtering out action "
-                    + action.getId()
-                    + " with filter "
-                    + actionFilter.getId(),
-                e);
-          }
-        }
-      }
-      if (retain) {
+      if (isActionRetained(action, resolvedFilters)) {
         filteredActions.add(action);
       }
     }
@@ -97,6 +81,47 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
     }
 
     return actions;
+  }
+
+  private List<ResolvedActionFilter> resolveActionFilters(List<GuiActionFilter> actionFilters) {
+    if (actionFilters == null) {
+      return Collections.emptyList();
+    }
+    List<ResolvedActionFilter> resolvedFilters = new ArrayList<>();
+    for (GuiActionFilter actionFilter : actionFilters) {
+      try {
+        Object guiPlugin = getFilterObject(actionFilter);
+        Method method = getFilterMethod(guiPlugin.getClass(), actionFilter);
+        resolvedFilters.add(new ResolvedActionFilter(actionFilter, guiPlugin, method));
+      } catch (HopException e) {
+        LogChannel.UI.logError(
+            "Error preparing action filter "
+                + actionFilter.getId()
+                + ". Actions stay visible because this filter could not be created.",
+            e);
+      }
+    }
+    return resolvedFilters;
+  }
+
+  private boolean isActionRetained(GuiAction action, List<ResolvedActionFilter> resolvedFilters) {
+    for (ResolvedActionFilter resolvedFilter : resolvedFilters) {
+      try {
+        boolean retainAction =
+            (boolean) resolvedFilter.method.invoke(resolvedFilter.guiPlugin, action.getId(), this);
+        if (!retainAction) {
+          return false;
+        }
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Error filtering out action "
+                + action.getId()
+                + " with filter "
+                + resolvedFilter.actionFilter.getId(),
+            e);
+      }
+    }
+    return true;
   }
 
   public ClassLoader findClassLoader(GuiActionFilter actionFilter) {
@@ -236,6 +261,19 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
               + " against filter "
               + actionFilter.getId(),
           e);
+    }
+  }
+
+  /** A filter whose plugin instance and method were loaded once for this context. */
+  private static final class ResolvedActionFilter {
+    private final GuiActionFilter actionFilter;
+    private final Object guiPlugin;
+    private final Method method;
+
+    private ResolvedActionFilter(GuiActionFilter actionFilter, Object guiPlugin, Method method) {
+      this.actionFilter = actionFilter;
+      this.guiPlugin = guiPlugin;
+      this.method = method;
     }
   }
 }

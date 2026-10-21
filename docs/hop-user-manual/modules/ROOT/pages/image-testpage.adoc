@@ -21,6 +21,7 @@ under the License.
 :page-hello: http://www.google.com
 
 
+:description: Internal test page that checks images render in the documentation.
 = Image testpage
 
 This page is used to test if images work in both the documentation and the book

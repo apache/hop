@@ -95,23 +95,22 @@ public class CypherScript extends ActionBase implements IAction {
     try (IGraphConnection connection = graphConnection.connect(getLogChannel(), this)) {
       IGraphDialect dialect = connection.getGraphDialect();
       if (dialect.isSupportingSchemaChangesInTransactions()
+          && connection.isSupportingTransactions()
+          && statements.stream().anyMatch(dialect::isRequiringAutoCommit)) {
+        // Statements like CALL { ... } IN TRANSACTIONS can't run in an explicit transaction
+        //
+        if (isBasic()) {
+          logBasic(
+              "Some statements run on their own in auto-commit transactions: the script doesn't"
+                  + " run in a single transaction");
+        }
+        nrExecuted = executeAroundAutoCommit(connection, dialect, statements, result);
+      } else if (dialect.isSupportingSchemaChangesInTransactions()
           && connection.isSupportingTransactions()) {
         try {
-          nrExecuted =
-              connection.executeWrite(
-                  transaction -> {
-                    int executed = 0;
-                    for (String cypher : statements) {
-                      transaction.execute(cypher, Map.of());
-                      executed++;
-                      if (isDetailed()) {
-                        logDetailed("Executed cypher statement: " + cypher);
-                      }
-                    }
-                    // The transaction is committed when this work returns, and rolled back when it
-                    // throws: a failed script keeps none of its statements.
-                    return executed;
-                  });
+          // The transaction is committed when the work returns, and rolled back when it throws: a
+          // failed script keeps none of its statements.
+          nrExecuted = executeInTransaction(connection, statements);
         } catch (Exception e) {
           logError("Error executing cypher statements, the transaction is rolled back", e);
           result.setNrErrors(1);
@@ -209,6 +208,59 @@ public class CypherScript extends ActionBase implements IAction {
    */
   public void setReplacingVariables(boolean replacingVariables) {
     this.replacingVariables = replacingVariables;
+  }
+
+  /** Run the statements in one transaction, none if there are no statements. */
+  private int executeInTransaction(IGraphConnection connection, List<String> statements)
+      throws HopException {
+    if (statements.isEmpty()) {
+      return 0;
+    }
+    return connection.executeWrite(
+        transaction -> {
+          int executed = 0;
+          for (String cypher : statements) {
+            transaction.execute(cypher, Map.of());
+            executed++;
+            if (isDetailed()) {
+              logDetailed("Executed cypher statement: " + cypher);
+            }
+          }
+          return executed;
+        });
+  }
+
+  /**
+   * Run the statements which need an auto-commit transaction on their own, and the statements
+   * between them in one transaction each, in the order of the script. An error stops the script:
+   * what ran before the failed statement or transaction stays committed.
+   */
+  private int executeAroundAutoCommit(
+      IGraphConnection connection, IGraphDialect dialect, List<String> statements, Result result) {
+    int executed = 0;
+    List<String> inTransaction = new ArrayList<>();
+    try {
+      for (String cypher : statements) {
+        if (dialect.isRequiringAutoCommit(cypher)) {
+          executed += executeInTransaction(connection, inTransaction);
+          inTransaction.clear();
+          connection.execute(cypher, Map.of());
+          executed++;
+          if (isDetailed()) {
+            logDetailed("Executed cypher statement in an auto-commit transaction: " + cypher);
+          }
+        } else {
+          inTransaction.add(cypher);
+        }
+      }
+      executed += executeInTransaction(connection, inTransaction);
+    } catch (Exception e) {
+      logError(
+          "Error executing cypher statements, the statements before the error stay committed", e);
+      result.setNrErrors(1);
+      result.setResult(false);
+    }
+    return executed;
   }
 
   private int executeAutoCommit(

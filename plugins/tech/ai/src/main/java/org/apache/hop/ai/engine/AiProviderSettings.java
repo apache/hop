@@ -18,6 +18,7 @@ package org.apache.hop.ai.engine;
 
 import java.time.Duration;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.metadata.AiThinking;
 import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
@@ -36,6 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @param temperature the sampling temperature, or null when not set
  * @param contextSize the context window in tokens, or null when unknown
  * @param maxOutputTokens the answer length limit in tokens, or null for the provider's default
+ * @param think whether a thinking model reasons before it answers, or null to leave it to the model
  * @param backend the provider type, which says how to talk to the endpoint
  */
 public record AiProviderSettings(
@@ -45,6 +47,7 @@ public record AiProviderSettings(
     Double temperature,
     Integer contextSize,
     Integer maxOutputTokens,
+    Boolean think,
     IAiProvider backend) {
 
   /**
@@ -82,6 +85,7 @@ public record AiProviderSettings(
         parseDouble(variables.resolve(provider.getTemperature())),
         contextSize(provider, variables),
         maxOutputTokens(provider, variables),
+        think(provider, variables),
         backend);
   }
 
@@ -127,6 +131,15 @@ public record AiProviderSettings(
     return "ANTHROPIC".equals(provider.getHopModelType())
         ? DEFAULT_ANTHROPIC_MAX_OUTPUT_TOKENS
         : null;
+  }
+
+  /**
+   * The Thinking setting as the model's {@code think} option: false for Off, true for On, and null
+   * for Default or a value that is not a setting, so the model decides as it did before.
+   */
+  public static Boolean think(AiProvider provider, IVariables variables) {
+    AiThinking thinking = AiThinking.lookup(resolve(variables, provider.getThinking()));
+    return thinking == null ? null : thinking.think();
   }
 
   static Integer parsePositiveInt(String text) {

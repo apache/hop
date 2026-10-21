@@ -46,7 +46,7 @@ In this tab you can specify the files and/or folders to move.
 |Include Subfolders|Also move the content of sub-folders
 |Move empty folders|Also move empty folders
 |Simulate|Don't actually move anything, just see if it's possible at all.
-|Copy previous results to args|Use the result files from the previous workflow action (actions) as files and/or folders to move.
+|Copy previous results to args|Take the files and folders to move from the result rows of a previous action: the source in the first field, the destination in the second and the wildcard in the third. See <<_result,Result>>.
 |Files / Folders |You can specify the list of files or folders with destinations and wildcards in this grid.
 |===
 
@@ -102,5 +102,20 @@ The default is yyyyMMdd'_'HHmmss
 * Success when at least x files moved (specify x in the limit field below)
 * Success when number of errors lesser than (specify the max number of errors in the limit field below)
 |Nr errors lesser than|The number of files moved or the number of errors, depending on the success option above
-|Result files name|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
+|Add files to result files name|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The *Success condition* is met: no errors with *Success when all works fine*, at least *Nr errors lesser than* files moved with *Success when at least x files moved*, or fewer errors than *Nr errors lesser than* with *Success when number of errors lesser than* (see the note below).
+|False|The success condition is not met, for example because a source doesn't exist, a file can't be moved, or the destination file exists and *If destination file exists* is *Fail*. With *Success when all works fine* or *Success when number of errors lesser than*, the action stops once the condition is broken: the remaining files are not moved. The number of errors counts the files and entries that failed.
+|Result files|With *Add files to result files name*, every moved file is added, with its destination path. A file left in place by *Do nothing* is not added. With *Simulate*, nothing is moved but the destination paths are still added.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the source, destination and wildcard come from the first three fields of each result row.
+|===
+
+NOTE: With *Success when number of errors lesser than*, the action stops and is false as soon as the number of errors reaches *Nr errors lesser than*, but when the last file brings it to that number, the action is still true. With *If destination file exists* set to *Fail*, a file that already exists counts as two errors.

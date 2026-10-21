@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget.editor;
 
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.IFindReplaceTarget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -236,5 +237,14 @@ public interface IContentEditorWidget extends IFindReplaceTarget {
   default boolean setFocus() {
     Control control = getControl();
     return control != null && !control.isDisposed() && control.setFocus();
+  }
+
+  /**
+   * Toolbar created for this editor, when it has one.
+   *
+   * @return the toolbar widgets, or {@code null}
+   */
+  default GuiToolbarWidgets getToolbarWidgets() {
+    return null;
   }
 }

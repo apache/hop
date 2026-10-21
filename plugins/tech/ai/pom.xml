@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology AI</name>
 
     <properties>
-        <langchain4j.version>1.20.0</langchain4j.version>
+        <langchain4j.version>1.20.2</langchain4j.version>
     </properties>
 
     <dependencies>

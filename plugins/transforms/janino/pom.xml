@@ -33,6 +33,18 @@
         <janino-version>3.1.12</janino-version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -48,6 +60,12 @@
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
             <version>${janino-version}</version>
+        </dependency>
+        <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-asm9-shaded</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

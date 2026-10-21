@@ -18,8 +18,11 @@
 package org.apache.hop.spark.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -80,11 +83,26 @@ class SparkLakeTableIcebergPathTest {
 
   @Test
   void icebergPathOutputThenInputRoundTrip() throws Exception {
+    roundTrip(tempDir.resolve("orders_iceberg"));
+  }
+
+  /**
+   * A folder with spaces: the path reaches Spark escaped ({@code my%20lake}), and Hadoop doesn't
+   * treat {@code %} as an escape, so without decoding the table would land in a folder literally
+   * named {@code my%20lake}.
+   */
+  @Test
+  void icebergPathWithSpacesIsWrittenThere() throws Exception {
+    Path tablePath = tempDir.resolve("my lake").resolve("my orders");
+    roundTrip(tablePath);
+    assertFalse(Files.exists(tempDir.resolve("my%20lake")), "no folder with an escaped name");
+  }
+
+  private void roundTrip(Path tablePath) throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
         "Iceberg connector not on classpath; connectors missing from test classpath");
 
-    Path tablePath = tempDir.resolve("orders_iceberg");
     Path warehouse = tempDir.resolve("iceberg_wh");
     spark =
         SparkSession.builder()
@@ -135,6 +153,11 @@ class SparkLakeTableIcebergPathTest {
             source);
 
     assertEquals(0, map.get("ice_out").count());
+    // The table is written at its path, not under a catalog warehouse elsewhere.
+    assertTrue(
+        Files.exists(tablePath.resolve("metadata/version-hint.text")),
+        "Iceberg metadata is written under the table path");
+    assertFalse(Files.exists(warehouse), "nothing is written to the hop_iceberg warehouse");
 
     LakeTableInputMeta inMeta = new LakeTableInputMeta();
     inMeta.setFormat(SparkLakeFormats.FORMAT_ICEBERG);

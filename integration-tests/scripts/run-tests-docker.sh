@@ -491,6 +491,11 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
         docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
         || COMPOSE_EXIT=$?
+    elif [ "${PROJECT_NAME}" = "mongo" ]; then
+      echo "Rebuilding mongo images so a CPU without AVX can start mongod"
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
     else
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
         docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit \

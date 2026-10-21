@@ -31,8 +31,8 @@
     <properties>
         <hop.jdbc.driver1>io.github.spannm:ucanaccess</hop.jdbc.driver1>
         <hop.jdbc.driver2>org.hsqldb:hsqldb</hop.jdbc.driver2>
-        <jackcess.version>5.1.2</jackcess.version>
-        <ucanaccess.version>5.1.5</ucanaccess.version>
+        <hop.jdbc.driver3>io.github.spannm:jackcess</hop.jdbc.driver3>
+        <ucanaccess.version>5.2.0</ucanaccess.version>
     </properties>
 
     <dependencyManagement>
@@ -50,25 +50,8 @@
     <dependencies>
         <dependency>
             <groupId>io.github.spannm</groupId>
-            <artifactId>jackcess</artifactId>
-            <version>${jackcess.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.github.spannm</groupId>
             <artifactId>ucanaccess</artifactId>
             <version>${ucanaccess.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

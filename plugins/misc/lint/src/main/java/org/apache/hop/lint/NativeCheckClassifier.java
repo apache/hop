@@ -49,9 +49,14 @@ public final class NativeCheckClassifier {
    * What a matching rule says should happen to a remark.
    *
    * @param narrowed whether the rule names a plugin or a check, rather than every remark
+   * @param ruleDetails the description, help link and tags of the matching rule
    */
   public record Classification(
-      String severity, String ruleId, boolean narrowed, String blanketRuleId) {}
+      String severity,
+      String ruleId,
+      boolean narrowed,
+      String blanketRuleId,
+      LintRuleDetails ruleDetails) {}
 
   /** Where MessageFormat left a value out: {@code {0}}, {@code {1}}, and so on. */
   private static final Pattern PLACEHOLDER = Pattern.compile("\\{\\d+\\}");
@@ -89,7 +94,11 @@ public final class NativeCheckClassifier {
     CustomLintRule match = bestMatch(remark);
     if (match == null) {
       return new Classification(
-          LintSeverity.fromCheckResultType(remark.getType()), null, false, null);
+          LintSeverity.fromCheckResultType(remark.getType()),
+          null,
+          false,
+          null,
+          LintRuleDetails.NONE);
     }
     if (!match.isEnabled()) {
       return null;
@@ -103,7 +112,11 @@ public final class NativeCheckClassifier {
     // naming this finding, and a project's existing suppression of it would quietly lapse the
     // moment that project named the check. It is carried along as another name.
     return new Classification(
-        severity, match.generateRuleId(), narrowed, narrowed ? blanketRuleId() : null);
+        severity,
+        match.generateRuleId(),
+        narrowed,
+        narrowed ? blanketRuleId() : null,
+        LintRuleDetails.of(match));
   }
 
   /**

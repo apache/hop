@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology Neo4j</name>
 
     <properties>
-        <neo4j.driver.version>6.2.0</neo4j.driver.version>
+        <neo4j.driver.version>6.3.0</neo4j.driver.version>
         <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 

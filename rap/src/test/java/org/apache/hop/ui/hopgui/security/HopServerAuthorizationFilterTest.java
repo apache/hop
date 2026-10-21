@@ -100,8 +100,31 @@ class HopServerAuthorizationFilterTest {
         .thenAnswer(inv -> roleNames.contains(inv.getArgument(0, String.class)));
   }
 
-  private void requestPath(String uri) {
-    when(request.getRequestURI()).thenReturn(uri);
+  /**
+   * Canonical mapping for a {@code /hop/*} or {@code /hop/api/v1/*} path. The raw URI matches the
+   * mapped path. Bypass tests set the three values separately.
+   */
+  private void requestPath(String path) {
+    String servletPath = "/hop";
+    String pathInfo = null;
+    if (path != null && path.startsWith("/hop/api/v1")) {
+      servletPath = "/hop/api/v1";
+      pathInfo = path.substring("/hop/api/v1".length());
+    } else if (path != null && path.startsWith("/hop")) {
+      pathInfo = path.substring("/hop".length());
+    } else {
+      servletPath = path;
+    }
+    if (pathInfo != null && pathInfo.isEmpty()) {
+      pathInfo = null;
+    }
+    mappedRequest(path, servletPath, pathInfo);
+  }
+
+  private void mappedRequest(String rawUri, String servletPath, String pathInfo) {
+    when(request.getRequestURI()).thenReturn(rawUri);
+    when(request.getServletPath()).thenReturn(servletPath);
+    when(request.getPathInfo()).thenReturn(pathInfo);
   }
 
   @Test
@@ -228,11 +251,95 @@ class HopServerAuthorizationFilterTest {
   }
 
   @Test
-  void contextPathIsStrippedBeforeMatching() throws Exception {
+  void rawRequestUriDoesNotSelectTheEndpoint() throws Exception {
     setMode(HopSecurityConfig.AuthMode.BASIC);
     when(request.getContextPath()).thenReturn("/hop-web");
     authenticateAs("viewer", Set.of("readonly"));
-    when(request.getRequestURI()).thenReturn("/hop-web/hop/addPipeline");
+    // Context path and a non-canonical request line. The container still mapped /hop/addPipeline.
+    mappedRequest("/hop-web//hop/addPipeline", "/hop", "/addPipeline");
+    filter.doFilter(request, response, chain);
+    verify(chain, never()).doFilter(any(), any());
+    verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+  }
+
+  @Test
+  void modeNoneDeniesNonCanonicalPathsThatMapOntoAnEndpoint() throws Exception {
+    setMode(HopSecurityConfig.AuthMode.NONE);
+    for (String rawUri :
+        new String[] {
+          "//hop/execPipeline",
+          "/./hop/execPipeline",
+          "/foo/../hop/execPipeline",
+          "/%2e/hop/execPipeline",
+          "/;/hop/execPipeline"
+        }) {
+      chain = mock(FilterChain.class);
+      response = mock(HttpServletResponse.class);
+      when(response.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+      mappedRequest(rawUri, "/hop", "/execPipeline");
+      filter.doFilter(request, response, chain);
+      verify(chain, never()).doFilter(any(), any());
+      verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+    }
+  }
+
+  @Test
+  void modeNoneOptInFollowsTheMappedPath() throws Exception {
+    setMode(HopSecurityConfig.AuthMode.NONE, true);
+    mappedRequest("//hop/execPipeline", "/hop", "/execPipeline");
+    filter.doFilter(request, response, chain);
+    verify(chain, times(1)).doFilter(request, response);
+    verify(response, never()).setStatus(anyInt());
+  }
+
+  @Test
+  void readOnlyDeniedWhenRawPathNamesAReadEndpoint() throws Exception {
+    setMode(HopSecurityConfig.AuthMode.BASIC);
+    for (String rawUri :
+        new String[] {"/hop/status/../execPipeline", "/hop/status;x=1/../execPipeline"}) {
+      chain = mock(FilterChain.class);
+      response = mock(HttpServletResponse.class);
+      when(response.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+      authenticateAs("viewer", Set.of("readonly"));
+      mappedRequest(rawUri, "/hop", "/execPipeline");
+      filter.doFilter(request, response, chain);
+      verify(chain, never()).doFilter(any(), any());
+      verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+    }
+  }
+
+  @Test
+  void operatorAllowedWhenRawUriIsNonCanonical() throws Exception {
+    setMode(HopSecurityConfig.AuthMode.BASIC);
+    authenticateAs("operator", Set.of("operator"));
+    mappedRequest("//hop/execPipeline", "/hop", "/execPipeline");
+    filter.doFilter(request, response, chain);
+    verify(chain, times(1)).doFilter(request, response);
+  }
+
+  @Test
+  void readOnlyDeniedOnApiWriteUsingTheApiServletMapping() throws Exception {
+    setMode(HopSecurityConfig.AuthMode.BASIC);
+    authenticateAs("viewer", Set.of("readonly"));
+    when(request.getMethod()).thenReturn("POST");
+    mappedRequest("/hop/api/v1/execute/sync", "/hop/api/v1", "/execute/sync");
+    filter.doFilter(request, response, chain);
+    verify(chain, never()).doFilter(any(), any());
+    verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+  }
+
+  @Test
+  void missingOrForeignMappingIsDenied() throws Exception {
+    setMode(HopSecurityConfig.AuthMode.NONE, true);
+    mappedRequest("//hop/execPipeline", null, null);
+    filter.doFilter(request, response, chain);
+    verify(chain, never()).doFilter(any(), any());
+    verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+    chain = mock(FilterChain.class);
+    response = mock(HttpServletResponse.class);
+    when(response.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    mappedRequest("//hop/execPipeline", "/ui", null);
     filter.doFilter(request, response, chain);
     verify(chain, never()).doFilter(any(), any());
     verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);

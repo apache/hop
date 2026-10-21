@@ -20,11 +20,14 @@ package org.apache.hop.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.logging.LogLevel;
 
 /**
@@ -70,8 +73,26 @@ public class Execution {
   /** The unique ID of a pipeline or workflow that is about to get executed */
   private String id;
 
-  /** The unique ID of the parent executor (pipeline or workflow) */
+  /**
+   * The pipeline or workflow execution that owns this one. When an action or transform starts it,
+   * this is that workflow or pipeline, not the action or transform log channel id.
+   */
   private String parentId;
+
+  /**
+   * Log channel id of the action or transform that started this pipeline or workflow. Empty when
+   * this execution was not started by one. Omitted when empty so a reader that rejects unknown
+   * properties can still open a document that has no launcher.
+   */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private String launchedById;
+
+  /**
+   * Pipeline and workflow execution ids started by this action or transform. Written when the child
+   * is registered so a refresh does not have to search for them.
+   */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private List<String> childExecutionIds;
 
   /** The type of execution to register: Pipeline or Workflow only */
   private ExecutionType executionType;
@@ -113,5 +134,35 @@ public class Execution {
     this.variableValues = new HashMap<>();
     this.parameterValues = new HashMap<>();
     this.environmentDetails = new HashMap<>();
+  }
+
+  /**
+   * @return true when {@code childId} was not already recorded
+   */
+  public boolean addChildExecutionId(String childId) {
+    if (StringUtils.isEmpty(childId)) {
+      return false;
+    }
+    if (childExecutionIds == null) {
+      childExecutionIds = new ArrayList<>();
+    }
+    if (childExecutionIds.contains(childId)) {
+      return false;
+    }
+    childExecutionIds.add(childId);
+    return true;
+  }
+
+  /**
+   * Keep every child id from {@code other}. Two location instances can persist the same action, and
+   * the later write must not drop ids the other one recorded.
+   */
+  public void unionChildExecutionIds(Execution other) {
+    if (other == null || other.childExecutionIds == null) {
+      return;
+    }
+    for (String childId : other.childExecutionIds) {
+      addChildExecutionId(childId);
+    }
   }
 }

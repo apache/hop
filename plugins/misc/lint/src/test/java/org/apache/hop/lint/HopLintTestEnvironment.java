@@ -17,6 +17,7 @@
 package org.apache.hop.lint;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.logging.HopLogStore;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
@@ -30,17 +31,22 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  */
 public class HopLintTestEnvironment implements BeforeAllCallback {
 
-  private static volatile boolean initialised = false;
-
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
     init();
   }
 
+  /**
+   * Checks the environment itself rather than remembering an earlier init: a test class using
+   * {@code RestoreHopEnvironmentExtension} (the load/save test support, for example) resets it
+   * after it has run, and the classes after it in the same JVM need it again.
+   */
   public static synchronized void init() throws Exception {
-    if (!initialised) {
+    if (!HopClientEnvironment.isInitialized()) {
       HopClientEnvironment.init();
-      initialised = true;
+    }
+    if (!HopLogStore.isInitialized()) {
+      HopLogStore.init();
     }
   }
 }

@@ -22,7 +22,7 @@ under the License.
 The Hop File Dialog is a versatile tool you'll use often while working in Hop Gui.
 
 This dialog offers a lot more than basically selecting and saving files.
-Among other things, it enables you to work with VFS file sytems directly, provides file/folder information, lets you bookmark files and folders.
+Among other things, it enables you to work with VFS file systems directly, provides file/folder information, lets you bookmark files and folders.
 
 The list below walks you through the options that are at your disposal in the Hop File Dialog.
 
@@ -57,7 +57,7 @@ By default, this list includes:
 .. TXT files
 .. XML files
 . **Bookmarks**: Bookmark your favorite files and folders for easy and fast access.
-Tools -> Options contains an option to specify whether you want or don't want global bookmarks in the file dialog (global by defaul).
+Tools -> Options contains an option to specify whether you want or don't want global bookmarks in the file dialog (global by default).
 .. image:icons/bookmark-add.svg[width="25px"]Add the selected file or folder as a bookmark
 .. image:icons/delete.svg[width="25px"]Remove the selected bookmark
 . **File/folder browser**: Browse your current file system, create folders and toggle hidden files and folders.

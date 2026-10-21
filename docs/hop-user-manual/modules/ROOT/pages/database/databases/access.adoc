@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-msacces]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Microsoft Access: the JDBC driver to use, how to install it, and how to point the connection at an .mdb or .accdb file.
 
 = Microsoft Access
 

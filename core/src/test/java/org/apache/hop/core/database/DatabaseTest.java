@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -53,6 +54,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
+import java.util.regex.Pattern;
+import org.apache.hop.core.DbCache;
+import org.apache.hop.core.DbCacheEntry;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
@@ -72,6 +76,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class DatabaseTest {
@@ -296,6 +301,81 @@ class DatabaseTest {
     Database db = new Database(log, variables, meta);
     db.getLookup(ps);
     verify(rsMetaData, times(1)).getColumnCount();
+  }
+
+  /**
+   * IS NULL and IS NOT NULL compare against nothing, so the WHERE clause must not get a "?" for
+   * them. A wrong CONST_IS_NOT_NULL value turned "IS NOT NULL" into "IS NOT NULL ?" (#8897).
+   */
+  @Test
+  void testSetLookupNullConditionsHaveNoPlaceholder() throws Exception {
+    Database db = databaseForGeneratedSql();
+    db.setLookup(
+        "lookup_table",
+        new String[] {"id", "code", "deleted_at"},
+        new String[] {"=", "IS NOT NULL", "IS NULL"},
+        new String[] {"value"},
+        new String[] {null},
+        null);
+
+    assertNullConditionsHaveNoPlaceholder(capturedSql());
+  }
+
+  @Test
+  void testPrepareUpdateNullConditionsHaveNoPlaceholder() throws Exception {
+    Database db = databaseForGeneratedSql();
+    assertTrue(
+        db.prepareUpdate(
+            "lookup_table",
+            new String[] {"id", "code", "deleted_at"},
+            new String[] {"=", "IS NOT NULL", "IS NULL"},
+            new String[] {"value"}));
+
+    assertNullConditionsHaveNoPlaceholder(capturedSql());
+  }
+
+  @Test
+  void testPrepareDeleteNullConditionsHaveNoPlaceholder() throws Exception {
+    Database db = databaseForGeneratedSql();
+    assertTrue(
+        db.prepareDelete(
+            "lookup_table",
+            new String[] {"id", "code", "deleted_at"},
+            new String[] {"=", "IS NOT NULL", "IS NULL"}));
+
+    assertNullConditionsHaveNoPlaceholder(capturedSql());
+  }
+
+  private Database databaseForGeneratedSql() throws SQLException {
+    when(meta.getQuotedSchemaTableCombination(
+            nullable(IVariables.class), nullable(String.class), anyString()))
+        .thenAnswer(invocation -> invocation.getArgument(2));
+    when(meta.quoteField(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(meta.getSqlUpdateStmt(anyString()))
+        .thenAnswer(invocation -> "UPDATE " + invocation.getArgument(0) + " SET ");
+    when(meta.getSqlDeleteStmt(anyString()))
+        .thenAnswer(invocation -> "DELETE FROM " + invocation.getArgument(0));
+    when(meta.stripCR(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(meta.stripCR(any(StringBuilder.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0).toString());
+    when(conn.prepareStatement(anyString())).thenReturn(ps);
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  private String capturedSql() throws SQLException {
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    verify(conn).prepareStatement(sql.capture());
+    return sql.getValue();
+  }
+
+  private static void assertNullConditionsHaveNoPlaceholder(String sql) {
+    assertTrue(Pattern.compile("id\\s+=\\s+\\?").matcher(sql).find(), sql);
+    assertTrue(sql.contains("code IS NOT NULL"), sql);
+    assertTrue(sql.contains("deleted_at IS NULL"), sql);
+    assertFalse(Pattern.compile("NULL\\s*\\?").matcher(sql).find(), sql);
   }
 
   @Test
@@ -711,6 +791,50 @@ class DatabaseTest {
   }
 
   @Test
+  void getQueryFieldsDropsARowQueriedAcrossAClear() throws Exception {
+    DbCache cache = DbCache.getInstance();
+    cache.clear(null);
+    when(meta.getName()).thenReturn("conn");
+    when(meta.supportsPreparedStatementMetadataRetrieval()).thenReturn(true);
+
+    Database db = spy(new Database(log, variables, meta));
+    db.setConnection(conn);
+    RowMeta fresh = new RowMeta();
+    fresh.addValueMeta(new ValueMetaString(columnName));
+    doAnswer(
+            invocation -> {
+              cache.clear(null);
+              return fresh;
+            })
+        .when(db)
+        .getQueryFieldsFromPreparedStatement(sql);
+
+    IRowMeta result = db.getQueryFields(sql, false);
+
+    assertEquals(columnName, result.getValueMeta(0).getName());
+    assertNull(cache.get(new DbCacheEntry("conn", sql)));
+  }
+
+  @Test
+  void getQueryFieldsStoresARowQueriedAfterAClear() throws Exception {
+    DbCache cache = DbCache.getInstance();
+    cache.clear(null);
+    when(meta.getName()).thenReturn("conn");
+    when(meta.supportsPreparedStatementMetadataRetrieval()).thenReturn(true);
+
+    Database db = spy(new Database(log, variables, meta));
+    db.setConnection(conn);
+    RowMeta fresh = new RowMeta();
+    fresh.addValueMeta(new ValueMetaString(columnName));
+    doReturn(fresh).when(db).getQueryFieldsFromPreparedStatement(sql);
+
+    IRowMeta result = db.getQueryFields(sql, false);
+
+    assertEquals(columnName, result.getValueMeta(0).getName());
+    assertEquals(columnName, cache.get(new DbCacheEntry("conn", sql)).getValueMeta(0).getName());
+  }
+
+  @Test
   void testGetQueryFieldsFromPreparedStatement() throws Exception {
     when(rsMetaData.getColumnCount()).thenReturn(1);
     when(rsMetaData.getColumnName(1)).thenReturn(columnName);
@@ -1110,5 +1234,47 @@ class DatabaseTest {
     assertEquals(0, fields.size());
     verify(statement).execute();
     verify(statement).close();
+  }
+
+  @Test
+  void testGetSchemasFiltersNulls() throws Exception {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
+    DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
+    Connection conn = mockConnection(dbMetaData);
+    ResultSet rs = mock(ResultSet.class);
+
+    when(dbMetaData.getSchemas()).thenReturn(rs);
+    when(rs.next()).thenReturn(true, true, true, false);
+    when(rs.getString(1)).thenReturn("schemaB", null, "schemaA");
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    String[] schemas = db.getSchemas();
+
+    assertNotNull(schemas);
+    assertEquals(2, schemas.length);
+    assertEquals("schemaA", schemas[0]);
+    assertEquals("schemaB", schemas[1]);
+  }
+
+  @Test
+  void testGetCatalogsFiltersNulls() throws Exception {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
+    DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
+    Connection conn = mockConnection(dbMetaData);
+    ResultSet rs = mock(ResultSet.class);
+
+    when(dbMetaData.getCatalogs()).thenReturn(rs);
+    when(rs.next()).thenReturn(true, true, true, false);
+    when(rs.getString(1)).thenReturn("catalogB", null, "catalogA");
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    String[] catalogs = db.getCatalogs();
+
+    assertNotNull(catalogs);
+    assertEquals(2, catalogs.length);
+    assertEquals("catalogA", catalogs[0]);
+    assertEquals("catalogB", catalogs[1]);
   }
 }

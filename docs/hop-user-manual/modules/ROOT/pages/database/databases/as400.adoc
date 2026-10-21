@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-as400]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to IBM AS/400 (DB2 for i): the JDBC driver to use and how to install it.
 
 = AS400
 

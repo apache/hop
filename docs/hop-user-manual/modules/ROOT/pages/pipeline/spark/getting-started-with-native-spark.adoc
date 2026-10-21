@@ -37,6 +37,12 @@ For **Simple Mapping** / **Pipeline Executor** child pipelines on `spark-submit`
 xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark project package]
 (`hop-conf -j … --export-spark-project=…`) and pass `--HopProjectPackage=…` to `MainSpark`.
 
+To run pipelines from Hop GUI or `hop-run` on a Spark standalone cluster on your own machine:
+xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
+
+To run pipelines on a Hadoop YARN cluster from Hop GUI, `hop-run` or Hop Server:
+xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
+
 Hands-on multi-node demo (Docker Compose + sample project `spark-demo` — Simple Mapping and Workflow Executor):
 xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through].
 
@@ -105,7 +111,8 @@ If you need streaming, windowing, or Beam-only connectors, stay on the Beam engi
 . For each transform it either:
 ** applies a *native handler* that rewrites the hop as Spark Dataset operations, or
 ** wraps the transform in `mapPartitions` so each Spark partition runs that transform in a tiny local Hop pipeline.
-. File outputs and other Spark *actions* materialise the graph (read → transform → write).
+. Spark File and Lake table outputs write while the graph is built. At the end the engine runs an action on every transform without a successor, so every branch runs, including branches that end in a wrapped output such as Text File Output or Table Output.
+. The output of a transform that several transforms read, such as the true and false targets of Filter Rows or the cases of Switch / Case, is cached: that transform runs once, not once per branch.
 
 Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
 . Transform metrics are collected via Spark accumulators and shown in Hop like any other engine.
@@ -140,7 +147,8 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 
 == Prerequisites
 
-* Apache Hop *2.19+* with the *engines-spark* plugin (standard Hop client / assembly includes it).
+* Apache Hop *2.19+* with the `hop-engines-spark` plugin. It is not part of the default client download: install it with `./hop marketplace install hop-engines-spark` (see xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]) and restart Hop.
+* For cluster runs, also the `hop-engines-beam` plugin: the fat jar builder ships with it.
 * *Java 21*.
 * Familiarity with Hop pipelines, metadata, and run configurations.
 * For cluster submit:
@@ -157,7 +165,7 @@ This is the fastest way to learn: Spark runs *inside* the Hop process using all 
 
 TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit*, *Databricks*, *YARN*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
-TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc[Spark Catalog] entry and use **Load catalog template** (Hadoop local/object store, REST, Hive, Glue, Nessie, …). Each preset starts **Extra conf** with a commented `# docs:` link to vendor documentation.
+TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] entry and use **Load catalog template** (Hadoop local/object store, REST, Hive, Glue, Nessie, …). Each preset starts **Extra conf** with a commented `# docs:` link to vendor documentation.
 
 . Open *Metadata* → *Pipeline run configuration* → *New*.
 . Give it a clear name, for example `spark-local`.
@@ -227,9 +235,11 @@ On a real cluster you must *not* embed a second copy of Spark inside the applica
 
 Use the special fat-jar token *`native-provided`*: Hop and plugins go into the jar; *Spark stays out*.
 
+The fat jar builder ships with the Apache Beam engine plugin. Without `hop-engines-beam` installed, `hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`.
+
 ==== From Hop GUI
 
-. *Tools* → *Generate a Hop fat jar* (when prompted for Spark client version for native submit, use the *native-provided* style packaging for cluster submit — or use the CLI below for an explicit flag).
+. Start Hop GUI with the environment variable `HOP_SPARK_CLIENT_VERSION=native-provided`. *Tools* → *Generate a Hop fat jar* does not ask for the packaging; without that variable it builds a jar for the Beam Spark runner, not for the native engine.
 . Save the jar *outside* the project (or gitignore it). Fat jars are large.
 
 ==== From the command line (recommended, explicit)
@@ -278,7 +288,7 @@ Keep this export out of git if it is a point-in-time dump of secrets or large me
 . Build the *native-provided* fat jar and export metadata (previous sections).
 . Ensure the pipeline run configuration used on the cluster:
 ** Engine = *Native Spark pipeline engine* (not Beam Spark)
-** *Master* blank (so `spark-submit --master` wins) *or* set to `spark://host:7077`
+** *Master* blank (so `spark-submit --master` wins) *or* set to `spark://host:7077`. For YARN, submit with `--master yarn` from a machine where `HADOOP_CONF_DIR` points at the cluster's configuration; `spark-submit` reads it from there.
 ** *Fat jar* field empty (the submit jar already carries Hop)
 . Submit:
 
@@ -445,11 +455,11 @@ Writes run as Spark *actions* when the engine materialises the graph. Prefer *Sp
 
 Classic *Spark File* transforms cover `csv` / `parquet` / `json` / `orc` / `text` only. For ACID lake tables use the dedicated **Lake Table** transforms (Big Data category):
 
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Lake table output]
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata for Iceberg TABLE mode
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] metadata for Iceberg TABLE mode
 
-Connector JARs **ship in the default Hop assembly** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+Connector JARs **ship with the `hop-engines-spark` plugin** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 === Classic Hop I/O and `${Internal.Transform.ID}`
 
@@ -711,6 +721,6 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 * xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations]
 * xref:metadata-types/execution-information-location.adoc[Execution information location]
 * xref:metadata-types/execution-data-profile.adoc[Execution data profile]
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog]
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog]
 * xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective]
 * xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf] (fat jar, metadata export)

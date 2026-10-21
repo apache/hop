@@ -79,7 +79,7 @@ An alternative to clicking is arrow key navigation + enter.
 Repeat this step now or whenever you want to add more transforms to your pipeline.
 Once you've added a transform to your pipeline, you can drag to reposition it.
 
-Check the xref:pipeline/transforms.adoc[list] of transforms to add to your pipeline for more details.
+Every xref:pipeline/transforms.adoc[transform] has a page of its own under Pipelines › Transforms in the navigation, with the details of what it does and its options.
 
 
 image::getting-started/getting-started-add-transform.png[Hop - Add Transform,75%,align="left"]
@@ -153,7 +153,7 @@ Some transforms result in different types of hops.
 |===
 |Hop|Description
 |Result is TRUE|Specifies that the transform will be executed only when the result from the previous transform is true
-|Result is FALSE|pecifies that the transform will be executed only when the result from the previous transform is false
+|Result is FALSE|Specifies that the transform will be executed only when the result from the previous transform is false
 |Main output of transform|The default hop between two transforms
 |===
 
@@ -193,6 +193,7 @@ The Pipeline tab allows you to specify general properties about the pipeline inc
 
 The parameters tab allows you to specify parameters specific for the pipeline.
 Parameters are defined by a name, a default value and a description.
+See xref:variables/parameters.adoc[Working with parameters] for how to use them and give them a value.
 
 image::hop-gui/pipeline/parameters-pipeline.png[Parameters properties,75%,align="left"]
 

@@ -242,4 +242,24 @@ class GetXmlDataFieldTest {
     assertEquals(
         getElementTypeDesc(GetXmlDataField.ELEMENT_TYPE_ATTRIBUTE), field.getElementType());
   }
+
+  /**
+   * The element type is stored as its English description in every user interface language, so
+   * older Hop versions keep reading it, and it maps back to the same type.
+   */
+  @Test
+  void testElementTypeIsStoredInEnglish() {
+    assertEquals(
+        "Node", GetXmlDataField.getElementTypeStoredValue(GetXmlDataField.ELEMENT_TYPE_NODE));
+    assertEquals(
+        "Attribute",
+        GetXmlDataField.getElementTypeStoredValue(GetXmlDataField.ELEMENT_TYPE_ATTRIBUTE));
+    assertEquals("Node", new GetXmlDataField("f").getElementType());
+    for (int type :
+        new int[] {GetXmlDataField.ELEMENT_TYPE_NODE, GetXmlDataField.ELEMENT_TYPE_ATTRIBUTE}) {
+      assertEquals(
+          type,
+          GetXmlDataField.getElementTypeByCode(GetXmlDataField.getElementTypeStoredValue(type)));
+    }
+  }
 }

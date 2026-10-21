@@ -50,6 +50,8 @@ Choose the logging level as described below.
 |Row Level|Logging at row level.
 |===
 
+If the workflow has parameters, give them a value on the *Parameters* tab of this dialog, or leave the value empty to use the default value. See xref:variables/parameters.adoc#_from_hop_gui[Working with parameters].
+
 Make sure your configuration is selected and hit 'Launch'.
 
 image::getting-started/getting-started-run-workflow-with-config.png[Hop - New Workflow With Config Dialog,75%,align="left"]

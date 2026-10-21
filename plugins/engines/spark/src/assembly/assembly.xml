@@ -42,6 +42,19 @@
             </includes>
             <outputDirectory>plugins/engines/spark</outputDirectory>
         </dependencySet>
+        <!-- LakeCatalog and the lake table metadata classes. The lakehouse plugin registers the
+             transforms; this copy is what the engine links against, so a marketplace install of
+             Spark onto the plain client can start without that plugin. It lives under lib/ so the
+             plugin scanner does not register the transforms twice. Transitives stay out: the
+             unshaded Iceberg modules would clash with iceberg-spark-runtime. -->
+        <dependencySet>
+            <scope>provided</scope>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.apache.hop:hop-tech-lakehouse:jar</include>
+            </includes>
+            <outputDirectory>plugins/engines/spark/lib</outputDirectory>
+        </dependencySet>
         <!-- Spark and transitive runtime jars for local[*] execution from Hop.
              Jackson core/databind/annotations MUST NOT be packaged here: HopURLClassLoader
              is child-first, and dual ObjectMapper classes (plugin lib vs Hop lib/core)
@@ -62,6 +75,54 @@
                 <exclude>io.delta:*</exclude>
                 <exclude>org.apache.iceberg:*</exclude>
                 <exclude>io.unitycatalog:*</exclude>
+                <!-- Same version already in lib/core (shipped by core, engine or ui, so always
+                     present). Use that copy: a second one here is loaded first by the child-first
+                     plugin classloader. A <scope>provided</scope> in the pom does not help: the
+                     assembly re-resolves runtime scope and spark-sql brings these back. -->
+                <exclude>org.checkerframework:checker-qual</exclude>
+                <exclude>com.google.code.findbugs:jsr305</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
+                <exclude>com.google.errorprone:error_prone_annotations</exclude>
+                <exclude>com.google.guava:failureaccess</exclude>
+                <exclude>com.google.guava:guava</exclude>
+                <exclude>com.google.guava:listenablefuture</exclude>
+                <exclude>com.google.j2objc:j2objc-annotations</exclude>
+                <exclude>com.google.protobuf:protobuf-java</exclude>
+                <exclude>commons-codec:commons-codec</exclude>
+                <exclude>commons-io:commons-io</exclude>
+                <exclude>commons-logging:commons-logging</exclude>
+                <exclude>io.netty:netty-buffer</exclude>
+                <exclude>io.netty:netty-codec-base</exclude>
+                <exclude>io.netty:netty-codec-compression</exclude>
+                <exclude>io.netty:netty-codec-http</exclude>
+                <exclude>io.netty:netty-codec-http2</exclude>
+                <exclude>io.netty:netty-codec-socks</exclude>
+                <exclude>io.netty:netty-common</exclude>
+                <exclude>io.netty:netty-handler</exclude>
+                <exclude>io.netty:netty-handler-proxy</exclude>
+                <exclude>io.netty:netty-resolver</exclude>
+                <exclude>io.netty:netty-transport</exclude>
+                <exclude>io.netty:netty-transport-native-unix-common</exclude>
+                <exclude>jakarta.activation:jakarta.activation-api</exclude>
+                <exclude>jakarta.annotation:jakarta.annotation-api</exclude>
+                <exclude>jakarta.inject:jakarta.inject-api</exclude>
+                <exclude>jakarta.ws.rs:jakarta.ws.rs-api</exclude>
+                <exclude>jakarta.xml.bind:jakarta.xml.bind-api</exclude>
+                <exclude>javax.annotation:javax.annotation-api</exclude>
+                <exclude>org.apache.avro:avro</exclude>
+                <exclude>org.apache.commons:commons-collections4</exclude>
+                <exclude>org.apache.commons:commons-compress</exclude>
+                <exclude>org.apache.commons:commons-lang3</exclude>
+                <exclude>org.apache.commons:commons-text</exclude>
+                <exclude>org.apache.logging.log4j:*</exclude>
+                <exclude>org.glassfish.jersey.containers:jersey-container-servlet</exclude>
+                <exclude>org.glassfish.jersey.core:jersey-client</exclude>
+                <exclude>org.glassfish.jersey.core:jersey-common</exclude>
+                <exclude>org.glassfish.jersey.core:jersey-server</exclude>
+                <exclude>org.glassfish.jersey.inject:jersey-hk2</exclude>
+                <exclude>org.javassist:javassist</exclude>
+                <exclude>org.threeten:threeten-extra</exclude>
+                <exclude>org.xerial.snappy:snappy-java</exclude>
             </excludes>
             <outputDirectory>plugins/engines/spark/lib</outputDirectory>
         </dependencySet>

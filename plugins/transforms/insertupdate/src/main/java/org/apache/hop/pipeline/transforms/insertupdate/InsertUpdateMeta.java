@@ -115,7 +115,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
    */
   public int getCommitSizeVar(IVariables vs) {
     // this happens when the transform is created via API and no setDefaults was called
-    commitSize = (commitSize == null) ? "0" : commitSize;
+    commitSize = Const.NVL(commitSize, "0");
     String resolved = vs.resolve(commitSize);
     String expanded = Const.expandIntegerString(resolved);
     return Integer.parseInt(expanded != null ? expanded : resolved);

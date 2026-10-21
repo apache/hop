@@ -173,7 +173,7 @@ To dive deeper into building and managing pipelines, explore:
 * xref:pipeline/hop-pipeline-editor.adoc[Pipeline Editor] — Learn your way around the pipeline visual designer.
 * xref:pipeline/create-pipeline.adoc[Create a Pipeline] — Step-by-step instructions for creating and saving pipelines.
 * xref:pipeline/pipeline-sources.adoc[Pipeline Sources] — The transforms that can start a pipeline.
-* xref:pipeline/transforms.adoc[Transforms Catalog] — Browse the complete library of over 100 transforms.
+* xref:pipeline/transforms.adoc[Transforms] — Hundreds of transforms, each with a page of its own under Pipelines › Transforms in the navigation.
 * xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline] — Techniques for inspecting live rows in-flight.
 * xref:pipeline/pipeline-metrics.adoc[Pipeline Metrics] — Understand row counters, speeds, and buffer metrics.
 * xref:pipeline/metadata-injection.adoc[Metadata Injection] — Generate dynamic, metadata-driven pipelines at runtime.

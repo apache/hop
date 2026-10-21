@@ -350,7 +350,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
               .newDocumentBuilder()
               .getDOMImplementation());
 
-      if (meta.getEncoding() != null) {
+      if (!Utils.isEmpty(meta.getEncoding())) {
         getSerializer().setOutputProperty(OutputKeys.ENCODING, meta.getEncoding());
       }
 

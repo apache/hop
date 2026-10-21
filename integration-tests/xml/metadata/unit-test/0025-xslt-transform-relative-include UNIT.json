@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "result"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-xslt-transform-relative-include"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0025-xslt-transform-relative-include UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0025-xslt-transform-relative-include.hpl",
+  "test_type": "UNIT_TEST"
+}

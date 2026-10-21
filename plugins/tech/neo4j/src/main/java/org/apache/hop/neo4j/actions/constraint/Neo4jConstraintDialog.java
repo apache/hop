@@ -140,6 +140,9 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
                   PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectProperties"),
               ColumnInfo.COLUMN_TYPE_TEXT),
         };
+    columns[3].setUsingVariables(true);
+    columns[4].setUsingVariables(true);
+    columns[5].setUsingVariables(true);
 
     // Only offer what the database of the selected connection supports
     //
@@ -231,8 +234,10 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
         String objectProperties = item.getText(6);
 
         ConstraintUpdate constraintUpdate =
-            new ConstraintUpdate(
-                type, objectType, constraintType, constraintName, objectName, objectProperties);
+            Neo4jConstraint.resolved(
+                new ConstraintUpdate(
+                    type, objectType, constraintType, constraintName, objectName, objectProperties),
+                variables);
 
         String cypher;
         if (type == UpdateType.CREATE) {
@@ -344,7 +349,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
           NeoConnectionUtils.findGraphConnection(
               getMetadataProvider(), variables.resolve(wConnection.getText()));
       if (connection != null) {
-        return connection.getDialect();
+        return connection.getDialect(variables);
       }
     } catch (Exception e) {
       // Fall back to Neo4j

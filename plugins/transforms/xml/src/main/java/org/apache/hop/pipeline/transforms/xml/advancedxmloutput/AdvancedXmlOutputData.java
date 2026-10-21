@@ -39,6 +39,9 @@ public class AdvancedXmlOutputData extends BaseTransformData implements ITransfo
   /** Whether the currently open file has had at least one row written to it. */
   public boolean rowsWrittenToCurrentFile;
 
+  /** Whether writing the first row of the currently open file started its root element. */
+  public boolean rootStartedInCurrentFile;
+
   /** The last opened {@link FileObject} (kept around so we can delete on empty-file). */
   public FileObject currentFile;
 

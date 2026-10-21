@@ -34,6 +34,8 @@ under the License.
 
 The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
 
+Kettle/PDI formula syntax (semicolon arguments, no leading `=`) is a different transform: xref:pipeline/transforms/openformula.adoc[OpenFormula].
+
 With a formula you are not limited to comparing to three fields like in the Calculator. This is where you can set and compare Date and Times as well.
 
 == Usage
@@ -102,6 +104,22 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 | Set Null to #N/A | By default, Null values will create a blank cell during the calculation. Use this option to insert `#N/A` in the cell
 |===
 
+== Fast evaluation
+
+The Formula transform evaluates simple formulas with its own evaluator instead of Apache POI, which is many times faster. A formula is evaluated this way when everything in it is on this list:
+
+* the functions `IF`, `AND`, `OR`, `NOT`, `ABS`, `ISBLANK`, `ISNA`, `LEN` and `TRIM`
+* the operators `+`, `-`, `*` and `/`, `&` to join text, and the comparisons `=`, `<>`, `<`, `<=`, `>` and `>=`
+* fields like `[field]`, of type String, Number, Integer, BigNumber or Boolean
+* numbers, text in double quotes and `TRUE` or `FALSE`
+
+Every other formula is evaluated with Apache POI, as before. That includes a formula using a function like `TEXT()`, `DATE()`, `NOW()`, `SUM()`, `CONCAT()` or `CONCATENATE()`, and a formula using a field of another type, a Date for example.
+
+The fast evaluation is meant to give the same result as Apache POI. If a formula returns something different from what it returned in an earlier version of Hop, switch the fast evaluation off and report the formula:
+
+* For every pipeline, clear *Fast formula evaluation* under *Plugins* -> *Formula* in the xref:hop-gui/perspective-configuration.adoc[Configuration perspective], or run `hop-conf.sh --no-formula-fast-path`. This is stored as `FormulaFastPathEnabled` in `hop-config.json`.
+* For one pipeline, set the variable `HOP_FORMULA_FAST_PATH_ENABLED` to `N`.
+
 == Formula Editor
 
 The Formula Editor is opened when you click on the Formula field in the options table (or go there through tab navigation).
@@ -124,7 +142,7 @@ toc::[]
 
 == Notes
 
-The kettle import process is able to migrate the existing Formula steps contained in kettle processes in the new Hop Formula transform. Even if the migration will go without any problem, the migration process is unable to enter in the inner details of the Formula's transform macros and perform all the necessary checks to guarantee the correct behavior and the expected correct results. Therefore, even if the majority of the macros are the same as the existing macros you can find in Kettle Formula step, we strongly suggest to perfom a review of all of your fomulas transforms to verify that they behave as expected after the migration to the new Hop format.
+The kettle import process is able to migrate the existing Formula steps contained in kettle processes in the new Hop Formula transform. Even if the migration will go without any problem, the migration process is unable to enter in the inner details of the Formula's transform macros and perform all the necessary checks to guarantee the correct behavior and the expected correct results. Therefore, even if the majority of the macros are the same as the existing macros you can find in Kettle Formula step, we strongly suggest to perform a review of all of your formulas transforms to verify that they behave as expected after the migration to the new Hop format.
 
 == Functions
 
@@ -2963,7 +2981,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |*returns*|Text
 |*semantics*|Converts the value X to a text according to the rules of a number format code passed as FormatCode and returns it.
 |*constraints*|The FormatCode is a sequence of characters with an application-defined meaning.
-Portable Contraints: The result of this function may change across locales. If separators such as decimal or group separator are involved, conversion may give unexpected results if the separators don't match that of the current locale. Across applications the result may change to the extend to which number format codes and their subtleties are supported. Portable documents should not use this function.
+Portable Constraints: The result of this function may change across locales. If separators such as decimal or group separator are involved, conversion may give unexpected results if the separators don't match that of the current locale. Across applications the result may change to the extend to which number format codes and their subtleties are supported. Portable documents should not use this function.
 |===
 
 *Examples*

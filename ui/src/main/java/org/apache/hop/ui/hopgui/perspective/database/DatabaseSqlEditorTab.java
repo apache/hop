@@ -156,6 +156,35 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     markClean();
   }
 
+  /**
+   * Caret offset on the last line of generated SQL. Trailing line breaks are skipped so the caret
+   * sits on the last statement, not on a blank line under it.
+   */
+  static int generatedSqlCaretOffset(String sql) {
+    String text = Const.NVL(sql, "");
+    int end = text.length();
+    while (end > 0) {
+      char c = text.charAt(end - 1);
+      if (c != '\n' && c != '\r') {
+        break;
+      }
+      end--;
+    }
+    return end;
+  }
+
+  /**
+   * Focus the editor and put the caret on the last line. Generated SQL must not leave the caret in
+   * the tree filter, which is the first text control in the workbench.
+   */
+  public void focusEndOfScript() {
+    if (editor == null || editor.isDisposed()) {
+      return;
+    }
+    editor.setCaretPosition(generatedSqlCaretOffset(editor.getText()));
+    editor.setFocus();
+  }
+
   public String getSqlText() {
     return editor.getText();
   }

@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-redshift]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Amazon Redshift: the JDBC driver to use, how to install it, and the difference between provisioned clusters and Redshift Serverless.
 
 = Redshift
 

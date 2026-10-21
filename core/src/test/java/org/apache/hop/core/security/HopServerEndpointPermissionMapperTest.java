@@ -173,6 +173,28 @@ class HopServerEndpointPermissionMapperTest {
   }
 
   @Test
+  void dotSegmentsResolveToTheDispatchedEndpoint() {
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status/../execPipeline"));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/status;x=1/../execPipeline"));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/./execPipeline"));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("/hop//execPipeline"));
+    assertEquals(
+        Optional.of(Permission.RUN_EXECUTE),
+        HopServerEndpointPermissionMapper.requiredPermission("//hop/execPipeline"));
+    assertTrue(
+        HopServerEndpointPermissionMapper.requiredPermission("/hop/../execPipeline").isEmpty());
+    assertTrue(HopServerEndpointPermissionMapper.requiredPermission("/../execPipeline").isEmpty());
+  }
+
+  @Test
   void unknownEndpointsAreNotKnownAndHaveNoPermission() {
     assertFalse(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop/somethingNew"));
     assertFalse(HopServerEndpointPermissionMapper.isKnownEndpoint("/hop"));

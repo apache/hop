@@ -56,6 +56,8 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
   private Combo wRegion;
   private TextVar wPartSize;
   private TextVar wCacheTtl;
+  private TextVar wReadBlockSize;
+  private TextVar wMaxConnections;
 
   private Label spacer;
   private Combo wAuthType;
@@ -203,6 +205,48 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
     fdCacheTtl.right = new FormAttachment(100, 0);
     wCacheTtl.setLayoutData(fdCacheTtl);
     lastControl = wCacheTtl;
+
+    // --- General: Read block size ---
+    Label wlReadBlockSize = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlReadBlockSize);
+    wlReadBlockSize.setText(BaseMessages.getString(PKG, "S3Meta.ReadBlockSize.Label"));
+    wlReadBlockSize.setToolTipText(BaseMessages.getString(PKG, "S3Meta.ReadBlockSize.ToolTip"));
+    FormData fdlReadBlockSize = new FormData();
+    fdlReadBlockSize.top = new FormAttachment(lastControl, margin);
+    fdlReadBlockSize.left = new FormAttachment(0, 0);
+    fdlReadBlockSize.right = new FormAttachment(middle, -margin);
+    wlReadBlockSize.setLayoutData(fdlReadBlockSize);
+    wReadBlockSize =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wReadBlockSize);
+    wReadBlockSize.setToolTipText(BaseMessages.getString(PKG, "S3Meta.ReadBlockSize.ToolTip"));
+    FormData fdReadBlockSize = new FormData();
+    fdReadBlockSize.top = new FormAttachment(wlReadBlockSize, 0, SWT.CENTER);
+    fdReadBlockSize.left = new FormAttachment(middle, 0);
+    fdReadBlockSize.right = new FormAttachment(100, 0);
+    wReadBlockSize.setLayoutData(fdReadBlockSize);
+    lastControl = wReadBlockSize;
+
+    // --- General: Maximum connections ---
+    Label wlMaxConnections = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlMaxConnections);
+    wlMaxConnections.setText(BaseMessages.getString(PKG, "S3Meta.MaxConnections.Label"));
+    wlMaxConnections.setToolTipText(BaseMessages.getString(PKG, "S3Meta.MaxConnections.ToolTip"));
+    FormData fdlMaxConnections = new FormData();
+    fdlMaxConnections.top = new FormAttachment(lastControl, margin);
+    fdlMaxConnections.left = new FormAttachment(0, 0);
+    fdlMaxConnections.right = new FormAttachment(middle, -margin);
+    wlMaxConnections.setLayoutData(fdlMaxConnections);
+    wMaxConnections =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wMaxConnections);
+    wMaxConnections.setToolTipText(BaseMessages.getString(PKG, "S3Meta.MaxConnections.ToolTip"));
+    FormData fdMaxConnections = new FormData();
+    fdMaxConnections.top = new FormAttachment(wlMaxConnections, 0, SWT.CENTER);
+    fdMaxConnections.left = new FormAttachment(middle, 0);
+    fdMaxConnections.right = new FormAttachment(100, 0);
+    wMaxConnections.setLayoutData(fdMaxConnections);
+    lastControl = wMaxConnections;
 
     // --- Authentication type ---
     Label wlAuthType = new Label(parent, SWT.RIGHT);
@@ -463,6 +507,8 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
     wRegion.addListener(SWT.Modify, e -> setChanged());
     wPartSize.getTextWidget().addListener(SWT.Modify, e -> setChanged());
     wCacheTtl.getTextWidget().addListener(SWT.Modify, e -> setChanged());
+    wReadBlockSize.getTextWidget().addListener(SWT.Modify, e -> setChanged());
+    wMaxConnections.getTextWidget().addListener(SWT.Modify, e -> setChanged());
     wAccessKey.getTextWidget().addListener(SWT.Modify, e -> setChanged());
     wSecretKey.getTextWidget().addListener(SWT.Modify, e -> setChanged());
     wSessionToken.getTextWidget().addListener(SWT.Modify, e -> setChanged());
@@ -487,6 +533,8 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
     }
     wPartSize.setText(Const.NVL(meta.getPartSize(), "5MB"));
     wCacheTtl.setText(Const.NVL(meta.getCacheTtlSeconds(), "5"));
+    wReadBlockSize.setText(Const.NVL(meta.getReadBlockSize(), ""));
+    wMaxConnections.setText(Const.NVL(meta.getMaxConnections(), ""));
 
     String authType = meta.getAuthenticationType();
     if (StringUtils.isEmpty(authType)) {
@@ -520,6 +568,8 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
     meta.setRegion(StringUtils.isNotEmpty(wRegion.getText()) ? wRegion.getText().trim() : null);
     meta.setPartSize(wPartSize.getText());
     meta.setCacheTtlSeconds(wCacheTtl.getText());
+    meta.setReadBlockSize(wReadBlockSize.getText());
+    meta.setMaxConnections(wMaxConnections.getText());
 
     int authIdx = wAuthType.getSelectionIndex();
     switch (authIdx) {

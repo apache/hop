@@ -17,12 +17,10 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Read the entities in a text and the relationships between them with an AI provider, for a knowledge graph.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/extractgraph.svg[Extract graph transform Icon, role="image-doc-icon"] Extract graph
 
-[%noheader,cols="3a,1a", role="table-no-borders" ]
-|===
-|
 == Description
 
 The Extract graph transform reads the entities a text mentions and the relationships between them, using the chat model of an xref:metadata-types/ai-provider.adoc[AI provider].
@@ -33,19 +31,6 @@ A row without text, or a text without any entity or relationship, produces nothi
 
 This is the extraction step of GraphRAG: split documents with the xref:pipeline/transforms/textchunker.adoc[Text chunker], extract the graph from every chunk, and write the entities and relationships with xref:pipeline/transforms/graph-output.adoc[Graph output], next to the chunks and their xref:pipeline/transforms/embedtext.adoc[embeddings].
 See xref:technology/graph-databases/index.adoc#vectors[Vectors and embeddings] for storing and searching the embeddings in a graph database.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Single Threaded! image:check_mark.svg[Supported, 24]
-!Native Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
-!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
-!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Output fields
 

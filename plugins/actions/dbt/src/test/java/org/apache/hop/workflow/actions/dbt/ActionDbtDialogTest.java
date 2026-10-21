@@ -33,6 +33,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiImpl;
@@ -139,8 +140,11 @@ class ActionDbtDialogTest extends SwtBotTestBase {
                 shell.layout(true, true);
 
                 // The action image is loaded before the metadata widget is built, which is the
-                // order #8020 worked around; the dbt project line below still fills.
-                assertNotNull(shell.getImage(), "The dbt action image was not loaded");
+                // order #8020 worked around; the dbt project line below still fills. macOS dialogs
+                // get no image: it would replace the dock icon.
+                if (!OsHelper.isMac()) {
+                  assertNotNull(shell.getImage(), "The dbt action image was not loaded");
+                }
 
                 CTabFolder folder = findTabFolder(shell);
                 assertNotNull(folder, "The options are not laid out on tabs");

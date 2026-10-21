@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-minio-zip-entries.csv",
+  "name": "golden-minio-zip-entries",
+  "description": "The entries of a zip after the #8955 updates",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "entry",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "content",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

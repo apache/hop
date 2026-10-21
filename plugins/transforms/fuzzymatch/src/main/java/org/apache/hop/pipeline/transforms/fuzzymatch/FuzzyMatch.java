@@ -240,16 +240,18 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     boolean lowerIsBetter = true;
     PriorityQueue<ScoredMatch> topK = newTopKHeap(lowerIsBetter);
     String lookupValueString = getInputRowMeta().getString(row, data.indexOfMainField);
+    if (data.lookKeys == null) {
+      prepareDistanceKeys();
+    }
 
-    for (Object[] cachedData : data.look) {
-      String cacheValue = (String) cachedData[0];
+    String useLookupvalue = lookupValueString;
+    if (!meta.isCaseSensitive()) {
+      useLookupvalue = lookupValueString.toLowerCase();
+    }
 
-      String useCacheValue = cacheValue;
-      String useLookupvalue = lookupValueString;
-      if (!meta.isCaseSensitive()) {
-        useCacheValue = cacheValue.toLowerCase();
-        useLookupvalue = lookupValueString.toLowerCase();
-      }
+    for (int k = 0; k < data.lookRows.length; k++) {
+      Object[] cachedData = data.lookRows[k];
+      String useCacheValue = data.lookKeys[k];
 
       int cDistance =
           switch (meta.getAlgorithm()) {
@@ -257,7 +259,9 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
                 Utils.getDamerauLevenshteinDistance(useCacheValue, useLookupvalue);
             case NEEDLEMAN_WUNSH ->
                 Math.abs((int) new NeedlemanWunsch().score(useCacheValue, useLookupvalue));
-            default -> StringUtils.getLevenshteinDistance(useCacheValue, useLookupvalue);
+              // Distances above the maximum are dropped below: stop counting there
+            default ->
+                data.levenshtein.distance(useCacheValue, useLookupvalue, data.maximalDistance);
           };
 
       if (data.minimalDistance <= cDistance && cDistance <= data.maximalDistance) {
@@ -266,6 +270,19 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     }
 
     return buildMatchResults(topK, lowerIsBetter);
+  }
+
+  /**
+   * The lookup rows are all read before the first main row: take them in the order of the cache
+   * once, and lower-case their keys once instead of for every comparison.
+   */
+  private void prepareDistanceKeys() {
+    data.lookRows = data.look.toArray(new Object[0][]);
+    data.lookKeys = new String[data.lookRows.length];
+    for (int k = 0; k < data.lookRows.length; k++) {
+      String cacheValue = (String) data.lookRows[k][0];
+      data.lookKeys[k] = meta.isCaseSensitive() ? cacheValue : cacheValue.toLowerCase();
+    }
   }
 
   private List<Object[]> doPhonetic(Object[] row) {
@@ -614,6 +631,8 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
   @Override
   public void dispose() {
     data.look.clear();
+    data.lookRows = null;
+    data.lookKeys = null;
     super.dispose();
   }
 

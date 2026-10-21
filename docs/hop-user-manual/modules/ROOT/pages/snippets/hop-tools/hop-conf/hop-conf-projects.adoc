@@ -1,0 +1,239 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+The examples use `hop-conf.sh` on Linux and macOS.
+On Windows, run `hop-conf.bat` with the same options, and put a command on a single line or end its lines with `^` instead of `\`.
+
+== Projects
+
+A project is registered in `hop-config.json` with its name and its home folder.
+Its settings and variables are stored in `project-config.json`, in the home folder.
+
+=== Create a project
+
+The home folder has to exist: when it doesn't, hop-conf stops with an error that the home folder does not exist.
+
+[source,bash]
+----
+mkdir -p /data/projects/sales
+./hop-conf.sh --project-create --project=sales --project-home=/data/projects/sales
+----
+
+Output:
+
+[source,shell]
+----
+Creating project 'sales'
+Project 'sales' was created for home folder : /data/projects/sales
+Configuration file for project 'sales' was saved to : file:/data/projects/sales/project-config.json
+----
+
+You can set more at the same time, for example a parent project to inherit metadata and variables from (`--project-parent`), a description (`--project-description`) or variables (`--project-variables`, see <<hop-conf-project-variables,Project variables>>).
+
+When the home folder already has a `project-config.json`, `--project-create` updates it with the options you pass and keeps its variables.
+Add `--project-keep-config-file` to leave the file as it is.
+
+=== Modify, list and delete projects
+
+* `--project-modify` changes the options you pass, for example `./hop-conf.sh --project-modify --project=sales --project-description="Sales data warehouse"`.
+* `--projects-list` lists the projects with their home folder and configuration file.
+* `--project-delete` removes a project from `hop-config.json`, for example `./hop-conf.sh --project-delete --project=sales`. The home folder and its files are not deleted.
+
+[[hop-conf-project-variables]]
+=== Project variables
+
+`--project-variables` adds variables to the project, or changes the value of a variable that already exists.
+Variables with other names are kept.
+
+[source,bash]
+----
+./hop-conf.sh --project-modify --project=sales --project-variables=INPUT_FOLDER=/data/in,OUTPUT_FOLDER=/data/out
+----
+
+Separate variables with commas.
+To use spaces or commas in a value, wrap the value in double quotes and keep them from the shell:
+
+[options="header", cols="3,2"]
+|===
+|Option, as typed in a shell|Variables
+|`--project-variables=key1=value1,key2=value2`|`key1` = `value1`, `key2` = `value2`
+|`--project-variables=key1="This value contains spaces",key2=value2`|`key1` = `This value contains spaces`, `key2` = `value2`
+|`--project-variables='key1="value1,value2"'`|`key1` = `value1,value2`
+|`--project-variables=key1=\"value1,value2\"`|`key1` = `value1,value2`
+|`--project-variables=key1="\"\"String with spaces\"\""`|`key1` = `"String with spaces"`
+|===
+
+== Environments
+
+An environment belongs to one project.
+It adds configuration files with variables to that project, usually one environment for every stage of its lifecycle: development, testing, production.
+The project holds the code, and the environment the configuration, such as server names and folders.
+See xref:projects/projects-environments.adoc[Projects and Environments] for how they work together.
+
+=== Create an environment
+
+[source,bash]
+----
+./hop-conf.sh --environment-create \
+     --environment=sales-dev \
+     --environment-project=sales \
+     --environment-purpose=Development \
+     --environment-config-files=/data/environments/sales-dev/variables.json
+----
+
+Output, shortened:
+
+[source,shell]
+----
+Creating environment 'sales-dev'
+Environment 'sales-dev' was created in Hop configuration file /opt/hop/config/hop-config.json
+Created empty environment configuration file : /data/environments/sales-dev/variables.json
+  sales-dev
+    Purpose: Development
+    Project name: sales
+      Config file: /data/environments/sales-dev/variables.json
+----
+
+A configuration file that doesn't exist yet is created, empty.
+Before creating it, hop-conf logs an error that the file doesn't exist to read variables from.
+
+[source,json]
+----
+{ }
+----
+
+Add variables to it as described in <<hop-conf-configuration-files,Configuration files>>.
+
+=== Add configuration files from a directory
+
+`--environment-config-files` lists files one by one.
+To add every matching file in a folder, pass the folder and a regular expression.
+The expression is matched against the file name, the same way as in the JSON Input and Get File Names transforms.
+`*.json` is not a valid expression; use `.*\.json`.
+
+An exclusion expression and `--environment-config-include-subfolders` are optional.
+Files found in the folder are stored as individual paths.
+They can be combined with `--environment-config-files`.
+When either option is set, that selection replaces the environment's configuration file list.
+
+[source,bash]
+----
+./hop-conf.sh --environment-create \
+     --environment=sales-test \
+     --environment-project=sales \
+     --environment-purpose=Testing \
+     --environment-config-file-directory="/data/environments/sales-test" \
+     --environment-config-file-wildcard=".*\.json" \
+     --environment-config-file-exclude-wildcard=".*secret.*" \
+     --environment-config-include-subfolders
+----
+
+=== Modify, list and delete environments
+
+* `--environment-modify` changes the options you pass, for example `./hop-conf.sh --environment-modify --environment=sales-dev --environment-purpose=Testing`.
+* `--environments-list` lists the environments with their purpose, project and configuration files.
+* `--environment-delete` removes an environment from `hop-config.json`, for example `./hop-conf.sh --environment-delete --environment=sales-dev`. Its configuration files are not deleted.
+
+[[hop-conf-configuration-files]]
+== Configuration files
+
+The configuration files of an environment hold its variables.
+`--config-file` selects the file, `--config-file-set-variables` sets the value of variables, and `--config-file-describe-variables` their description:
+
+[source,bash]
+----
+./hop-conf.sh --config-file=/data/environments/sales-dev/variables.json \
+     --config-file-set-variables=DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+./hop-conf.sh --config-file=/data/environments/sales-dev/variables.json \
+     --config-file-describe-variables="DB_HOSTNAME=The database server"
+----
+
+The file then contains:
+
+[source,json]
+----
+{
+  "variables" : [
+    {
+      "name" : "DB_HOSTNAME",
+      "value" : "localhost",
+      "description" : "The database server"
+    },
+    {
+      "name" : "DB_PASSWORD",
+      "value" : "abcd",
+      "description" : ""
+    }
+  ]
+}
+----
+
+The variables of `hop-config.json` itself, listed as *System variables* in the configuration perspective of Hop Gui, are set with `--set-variable` and described with `--describe-variable`:
+
+[source,bash]
+----
+./hop-conf.sh --set-variable=COMPANY_NAME=Acme
+./hop-conf.sh --describe-variable="COMPANY_NAME=The company name used in reports"
+----
+
+`--set-variable=MY_VARIABLE=` sets a variable to an empty value. The variable stays in the list.
+
+== Projects plugin configuration
+
+There are various options to configure the behavior of the ```Projects``` plugin itself.
+In Hop configuration file ```hop-config.json``` we can find the following options:
+
+[source,json]
+----
+{
+    "projectMandatory" : true,
+    "environmentMandatory" : false,
+    "defaultProject" : "default",
+    "defaultEnvironment" : null,
+    "standardParentProject" : "default",
+    "standardProjectsFolder" : "/home/matt/test-stuff/"
+}
+----
+
+|===
+|Option |Description |hop-conf option
+
+|projectMandatory
+|This will prevent anyone from using hop-run without specifying a project
+|```--project-mandatory```
+
+|environmentMandatory
+|This will prevent anyone from using hop-run without specifying an environment
+|```--environment-mandatory```
+
+|defaultProject
+|The default project to use when none is specified
+|```--default-project```
+
+|defaultEnvironment
+|The default environment to use when none is specified
+|```--default-environment```
+
+|standardParentProject
+|The standard parent project to propose when creating new project
+|```--standard-parent-project```
+
+|standardProjectsFolder
+|The folder to which you'll browse by default in the GUI when creating new projects
+|```--standard-projects-folder```
+
+|===

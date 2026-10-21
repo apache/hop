@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.logging.HopLogStore;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -62,6 +64,12 @@ import org.mockito.Mockito;
  * Data Lake {@code append} operation rejects them with {@code 409 InvalidAppendOperation}.
  */
 class BlockBlobAppendOutputStreamTest {
+
+  @BeforeAll
+  static void initLogging() {
+    // The stream logs on the general channel when it carries existing content forward.
+    HopLogStore.init();
+  }
 
   private static final String BLOB = "folder/data.txt";
   private static final String ETAG = "\"0x8DB000000000000\"";

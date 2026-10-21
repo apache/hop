@@ -97,15 +97,19 @@
     </distributionManagement>
 
     <properties>
+        <!-- One version of each library in the client assembly. hop-libs uses the same properties. -->
+        <animal-sniffer-annotations.version>1.27</animal-sniffer-annotations.version>
         <apache-beam.version>2.74.0</apache-beam.version>
+        <api-common.version>2.62.0</api-common.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
         <azure-sdk-bom.version>1.2.26</azure-sdk-bom.version>
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
-        <byte-buddy.version>1.18.11</byte-buddy.version>
-        <commonmark.version>0.30.0</commonmark.version>
+        <byte-buddy.version>1.18.15</byte-buddy.version>
+        <commonmark.version>0.30.1</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
+        <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <!-- Build the upstreams of every impacted module, not only of the directly changed
              ones. With the default (changed), a REST change selects hop-tech-opensearch as
@@ -132,9 +136,11 @@
         <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
+        <google-auth.version>1.46.0</google-auth.version>
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
+        <icu4j.version>78.3</icu4j.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jandex.version>3.6.0</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
@@ -142,6 +148,7 @@
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
         <json-path.version>2.10.0</json-path.version>
         <junit.version>6.1.3</junit.version>
+        <libphonenumber.version>9.0.41</libphonenumber.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
         <license.inceptionYear>2020</license.inceptionYear>
@@ -149,7 +156,7 @@
         <license.licenseName>apache_v2</license.licenseName>
         <license.organizationName>Apache</license.organizationName>
         <lombok.ecj.agent.skip>false</lombok.ecj.agent.skip>
-        <lombok.version>1.18.46</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -182,27 +189,82 @@
         <maven.compiler.source>${target.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
         <minimalMavenBuildVersion>3.6.3</minimalMavenBuildVersion>
-        <mockito-core.version>5.23.0</mockito-core.version>
-        <netty.version>4.2.17.Final</netty.version>
+        <mockito-core.version>5.24.0</mockito-core.version>
+        <netty.version>4.2.19.Final</netty.version>
         <objenesis.version>3.6</objenesis.version>
-        <opentelemetry.version>1.65.0</opentelemetry.version>
-        <org.eclipse.platform.version>3.134.0</org.eclipse.platform.version>
+        <opentelemetry.version>1.67.0</opentelemetry.version>
+        <org.eclipse.platform.version>3.135.0</org.eclipse.platform.version>
         <plexus-compiler.version>2.17.0</plexus-compiler.version>
         <project.build.outputTimestamp>1786535563</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <proto-google-common-protos.version>2.70.0</proto-google-common-protos.version>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
         <sonar.exclusions>integration-tests/ssh/keys/**</sonar.exclusions>
         <spotless.skip>false</spotless.skip>
+        <stax2-api.version>4.3.2</stax2-api.version>
         <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
         <tm4e.core.version>0.17.2</tm4e.core.version>
         <ui.test.argLine></ui.test.argLine>
-        <ui.test.excludedGroups></ui.test.excludedGroups>
-        <ui.test.includedGroups></ui.test.includedGroups>
     </properties>
+
+    <!--
+      hop-core, the Google technology plugin, and the Beam engine (-Pbeam) each copy
+      runtime jars into lib/core. Declaring the version here covers modules that do not
+      import the hop-libs BOM, so an older transitive copy is not written beside the newer one.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.api</groupId>
+                <artifactId>api-common</artifactId>
+                <version>${api-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.api.grpc</groupId>
+                <artifactId>proto-google-common-protos</artifactId>
+                <version>${proto-google-common-protos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auth</groupId>
+                <artifactId>google-auth-library-credentials</artifactId>
+                <version>${google-auth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auth</groupId>
+                <artifactId>google-auth-library-oauth2-http</artifactId>
+                <version>${google-auth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${error-prone-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.googlecode.libphonenumber</groupId>
+                <artifactId>libphonenumber</artifactId>
+                <version>${libphonenumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ibm.icu</groupId>
+                <artifactId>icu4j</artifactId>
+                <version>${icu4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-annotations</artifactId>
+                <version>${animal-sniffer-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>stax2-api</artifactId>
+                <version>${stax2-api.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -447,25 +509,39 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
+                        -DHOP_AUDIT_FOLDER=${project.build.directory}/audit
+                        ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
+                    <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
+                    <forkedProcessTimeoutInSeconds>${maven-surefire-plugin.forkedProcessTimeoutInSeconds}</forkedProcessTimeoutInSeconds>
+                    <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
+                    <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
+                </configuration>
                 <executions>
+                    <!-- The @Tag("uitest") classes run in an execution, and so a JVM, of their own.
+                         They leave a Display, shells and GUI singletons behind, and surefire's run
+                         order follows the file system, so sharing a JVM made the tests that ran
+                         after them depend on the build agent. -->
                     <execution>
                         <id>default-test</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
-                                -DHOP_AUDIT_FOLDER=${project.build.directory}/audit
-                                ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
-                            <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
-                            <forkedProcessTimeoutInSeconds>${maven-surefire-plugin.forkedProcessTimeoutInSeconds}</forkedProcessTimeoutInSeconds>
-                            <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
-                            <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
-                            <groups>${ui.test.includedGroups}</groups>
-                            <excludedGroups>${ui.test.excludedGroups}</excludedGroups>
+                            <excludedGroups>uitest</excludedGroups>
                             <properties>
                                 <includeTags>junit5</includeTags>
                             </properties>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ui-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <groups>uitest</groups>
                         </configuration>
                     </execution>
                 </executions>
@@ -867,22 +943,46 @@
         </profile>
         <!-- uitest: run ONLY @Tag("uitest") classes (needs a display).
              skip-uitest: exclude them from the reactor run.
-             Default (neither): include them whenever a display is available.
+             Default (neither): run them whenever a display is available, in the
+             ui-test execution after the other tests.
              On a desktop wrap Maven with tools/with-isolated-display.sh so the
              shells do not steal the interactive session. -->
         <profile>
             <id>uitest</id>
             <properties>
                 <maven-surefire-plugin.forkedProcessTimeoutInSeconds>1200</maven-surefire-plugin.forkedProcessTimeoutInSeconds>
-                <ui.test.excludedGroups></ui.test.excludedGroups>
-                <ui.test.includedGroups>uitest</ui.test.includedGroups>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>skip-uitest</id>
-            <properties>
-                <ui.test.excludedGroups>uitest</ui.test.excludedGroups>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>ui-test</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>apache-release</id>

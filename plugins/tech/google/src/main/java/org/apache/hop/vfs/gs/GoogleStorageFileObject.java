@@ -20,6 +20,7 @@ package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.paging.Page;
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
@@ -31,7 +32,6 @@ import com.google.cloud.storage.Storage.BlobListOption;
 import com.google.storage.control.v2.DeleteFolderRequest;
 import com.google.storage.control.v2.FolderName;
 import com.google.storage.control.v2.StorageControlClient;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,15 +44,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import org.apache.commons.vfs2.FileNotFolderException;
+import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.commons.vfs2.provider.UriParser;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.vfs.IRangeReadableFile;
+import org.apache.hop.core.vfs.RangeReadRandomAccessContent;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 
-public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem> {
+public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem>
+    implements IRangeReadableFile {
 
   Blob blob = null;
   Bucket bucket = null;
@@ -93,6 +101,12 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
 
   @Override
   protected void doAttach() throws Exception {
+    try (GoogleStorageObjectContext.Scope ignored = GoogleStorageObjectContext.enter(uri())) {
+      attach();
+    }
+  }
+
+  private void attach() throws Exception {
     Storage storage = getAbstractFileSystem().setupStorage();
     if (!bucketName.isEmpty()) {
       if (this.bucket == null) {
@@ -148,13 +162,89 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected InputStream doGetInputStream() throws Exception {
     if (!isFile()) {
-      throw new FileNotFoundException();
+      // VFS reports this as "not a file"; a java.io exception would become a generic read error
+      throw new FileNotFoundException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
-    if (blob != null) {
-      return new ReadChannelInputStream(storage.reader(blob.getBlobId()));
+    ReadChannel channel =
+        storage.reader(blob != null ? blob.getBlobId() : BlobId.of(bucketName, bucketPath));
+    channel.setChunkSize(getReadBlockSize());
+    return new ReadChannelInputStream(channel, reading());
+  }
+
+  /** The read block size of the Google Cloud configuration. */
+  @Override
+  public int getReadBlockSize() {
+    return getAbstractFileSystem().getReadBlockSize();
+  }
+
+  /**
+   * Reads a byte range with one request: the read channel stops at the end of the range, and its
+   * chunk covers all of it. Like every ranged read it reads the generation found when the file was
+   * attached.
+   */
+  @Override
+  public InputStream getInputStream(long offset, long length) throws IOException {
+    if (!isFile()) {
+      throw new FileNotFoundException(getName());
     }
-    return new ReadChannelInputStream(storage.reader(BlobId.of(bucketName, bucketPath)));
+    long count;
+    try {
+      count = Math.min(length, doGetContentSize() - offset);
+    } catch (IOException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IOException(e);
+    }
+    if (count <= 0) {
+      return InputStream.nullInputStream();
+    }
+    Storage storage = getAbstractFileSystem().setupStorage();
+    ReadChannel channel =
+        storage.reader(blob != null ? blob.getBlobId() : BlobId.of(bucketName, bucketPath));
+    channel.seek(offset);
+    channel.limit(offset + count);
+    channel.setChunkSize((int) Math.min(count, Integer.MAX_VALUE));
+    return new ReadChannelInputStream(channel, reading());
+  }
+
+  /**
+   * Random access by seeking a read channel: a seek costs nothing, the next read opens the object
+   * at the new position. Every range reads the generation found when the file was attached, so a
+   * file replaced meanwhile can't be read half old, half new.
+   */
+  @Override
+  protected RandomAccessContent doGetRandomAccessContent(RandomAccessMode mode) throws Exception {
+    if (!isFile()) {
+      throw new FileNotFoundException(getName());
+    }
+    final Storage storage = getAbstractFileSystem().setupStorage();
+    final BlobId blobId = blob != null ? blob.getBlobId() : BlobId.of(bucketName, bucketPath);
+    return new RangeReadRandomAccessContent(doGetContentSize()) {
+      @Override
+      protected InputStream openStream(long offset) throws IOException {
+        ReadChannel channel = storage.reader(blobId);
+        channel.setChunkSize(getReadBlockSize());
+        channel.seek(offset);
+        // Still watched for stalls, like a whole-file read
+        return new ReadChannelInputStream(channel, reading());
+      }
+    };
+  }
+
+  /** How this object is named in the retry and stall log. */
+  private String uri() {
+    return getName().getFriendlyURI();
+  }
+
+  private GoogleStorageStallWatchdog.Transfer reading() throws IOException {
+    return GoogleStorageStallWatchdog.getInstance()
+        .reading(uri(), getAbstractFileSystem().stallLimits());
+  }
+
+  private GoogleStorageStallWatchdog.Transfer writing() throws IOException {
+    return GoogleStorageStallWatchdog.getInstance()
+        .writing(uri(), getAbstractFileSystem().stallLimits());
   }
 
   @Override
@@ -180,14 +270,14 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected String[] doListChildren() throws Exception {
     if (!isFolder()) {
-      throw new IOException("Object is not a directory");
+      throw new FileNotFolderException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
     List<String> results = new ArrayList<>();
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {
-        results.add(b.getName());
+        results.add(UriParser.encode(b.getName()));
       }
     } else {
       String prefix;
@@ -209,7 +299,8 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
         if (stripTrailingSlash(b.getName()).equals(stripTrailingSlash(bucketPath))) {
           continue;
         }
-        results.add(lastPathElement(stripTrailingSlash(b.getName())));
+        // Child names are parsed as URI paths: escape '%' so it is read literally
+        results.add(UriParser.encode(lastPathElement(stripTrailingSlash(b.getName()))));
         FileType childType = b.isDirectory() ? FileType.FOLDER : FileType.FILE;
         long childSize = b.getSize() != null ? b.getSize() : 0L;
         Instant childLastMod =
@@ -357,7 +448,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       this.blob = storage.create(BlobInfo.newBuilder(bucket, objectName).build());
     }
     getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
-    return new WriteChannelOutputStream(storage.writer(blob));
+    return new WriteChannelOutputStream(storage.writer(blob), writing());
   }
 
   /**
@@ -366,25 +457,27 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
    * target. See <a href="https://cloud.google.com/storage/docs/composite-objects#appends">GCS
    * appends</a>.
    */
-  private OutputStream openComposeAppendStream(Storage storage, Blob current, String objectName) {
+  private OutputStream openComposeAppendStream(Storage storage, Blob current, String objectName)
+      throws IOException {
     String tempName = objectName + ".hop-append-" + UUID.randomUUID() + ".tmp";
+    GoogleStorageStallWatchdog.Transfer transfer = writing();
     WriteChannel tempChannel = storage.writer(BlobInfo.newBuilder(bucketName, tempName).build());
     getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
     return new ComposeAppendOutputStream(
-        storage, bucketName, objectName, tempName, current.getGeneration(), tempChannel);
+        storage, bucketName, objectName, tempName, current.getGeneration(), tempChannel, transfer);
   }
 
   @Override
   protected FileObject[] doListChildrenResolved() throws Exception {
     if (!isFolder()) {
-      throw new IOException("Object is not a directory");
+      throw new FileNotFolderException(getName());
     }
     Storage storage = getAbstractFileSystem().setupStorage();
     List<FileObject> results = new ArrayList<>();
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {
-        results.add(getAbstractFileSystem().resolveFile("/" + b.getName()));
+        results.add(getAbstractFileSystem().resolveFile("/" + UriParser.encode(b.getName())));
       }
     } else {
       String prefix;
@@ -416,7 +509,8 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
             b.getName(), new GoogleStorageListCache.ChildInfo(childType, childSize, childLastMod));
         results.add(
             getAbstractFileSystem()
-                .resolveFile("/" + bucketName + "/" + stripTrailingSlash(b.getName())));
+                .resolveFile(
+                    "/" + bucketName + "/" + UriParser.encode(stripTrailingSlash(b.getName()))));
       }
       if (!cacheEntries.isEmpty()) {
         getAbstractFileSystem().putListCache(bucketName, prefix, cacheEntries);
@@ -482,7 +576,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     return Objects.hash(getName().getPath());
   }
 
-  private OffsetDateTime getLatestModifiedFileTime() {
+  private OffsetDateTime getLatestModifiedFileTime() throws IOException {
     Storage storage = getAbstractFileSystem().setupStorage();
     OffsetDateTime latest = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
     Page<Blob> page =

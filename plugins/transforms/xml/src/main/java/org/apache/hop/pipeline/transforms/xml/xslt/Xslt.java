@@ -20,8 +20,10 @@ package org.apache.hop.pipeline.transforms.xml.xslt;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.vfs2.FileObject;
@@ -32,6 +34,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.HopVfsUriResolver;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -283,6 +286,21 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
     if (meta.getXslFactory().equals("SAXON")) {
       // Set the TransformerFactory to the SAXON implementation.
       data.factory = new net.sf.saxon.TransformerFactoryImpl();
+    }
+
+    // Resolve includes, imports and document() through Hop VFS, unless the factory refuses
+    // external stylesheets altogether, as the JDK's XSLTC does here.
+    if (!refusesExternalStylesheets(data.factory)) {
+      data.factory.setURIResolver(new HopVfsUriResolver(variables));
+    }
+  }
+
+  private static boolean refusesExternalStylesheets(TransformerFactory factory) {
+    try {
+      return "".equals(factory.getAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET));
+    } catch (IllegalArgumentException e) {
+      // The factory does not know the setting, so it does not restrict anything.
+      return false;
     }
   }
 

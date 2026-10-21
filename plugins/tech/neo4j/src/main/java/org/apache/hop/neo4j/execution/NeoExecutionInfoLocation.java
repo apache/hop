@@ -27,7 +27,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -75,6 +74,7 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionMatcher;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
+import org.apache.hop.execution.ListedExecution;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -90,6 +90,7 @@ import org.apache.hop.neo4j.execution.builder.CypherQueryBuilder;
 import org.apache.hop.neo4j.execution.builder.CypherRelationshipBuilder;
 import org.apache.hop.neo4j.execution.builder.ICypherBuilder;
 import org.apache.hop.neo4j.execution.cache.NeoLocationCache;
+import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.apache.hop.neo4j.shared.CypherConnectionSelectionLine;
 import org.apache.hop.neo4j.shared.NamedGraphConnection;
 import org.apache.hop.neo4j.shared.NeoConnectionUtils;
@@ -114,6 +115,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_COPY_NR = "copyNr";
   public static final String EP_FILENAME = "filename";
   public static final String EP_PARENT_ID = "parentId";
+  public static final String EP_LAUNCHED_BY_ID = "launchedById";
   public static final String EP_EXECUTION_TYPE = "executionType";
   public static final String EP_EXECUTOR_XML = "executorXml";
   public static final String EP_METADATA_JSON = "metadataJson";
@@ -252,6 +254,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       throw new HopException("Error closing graph database execution information location", e);
     } finally {
       connection = null;
+      // The cache is static and shared by every location in this JVM. A finished engine must
+      // not keep serving its copy to the next reader.
+      NeoLocationCache.clear();
     }
   }
 
@@ -293,6 +298,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     addIndex(cypher, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
     addIndex(cypher, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
     addIndex(cypher, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
+    addIndex(cypher, "idx_execution_launched_by_id", EL_EXECUTION, EP_LAUNCHED_BY_ID);
     addIndex(
         cypher,
         "idx_execution_metric_id",
@@ -382,6 +388,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       addIndex(neo4jIndex, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
       addIndex(neo4jIndex, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
       addIndex(neo4jIndex, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
+      addIndex(neo4jIndex, "idx_execution_launched_by_id", EL_EXECUTION, EP_LAUNCHED_BY_ID);
       addIndex(
           neo4jIndex,
           "idx_execution_metric_id",
@@ -485,6 +492,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_COPY_NR, execution.getCopyNr())
               .withValue(EP_FILENAME, execution.getFilename())
               .withValue(EP_PARENT_ID, execution.getParentId())
+              .withValue(EP_LAUNCHED_BY_ID, execution.getLaunchedById())
               .withValue(EP_EXECUTION_TYPE, execution.getExecutionType().name())
               .withValue(EP_EXECUTOR_XML, execution.getExecutorXml())
               .withValue(EP_METADATA_JSON, execution.getMetadataJson())
@@ -496,13 +504,23 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_EXECUTION_START_DATE, execution.getExecutionStartDate());
       execute(transaction, builder);
 
-      if (StringUtils.isNotEmpty(execution.getParentId())) {
-        CypherRelationshipBuilder selfRelationshipBuilder =
-            CypherRelationshipBuilder.of()
-                .withMatch(EL_EXECUTION, "e1", EP_ID, execution.getId())
-                .withMatch(EL_EXECUTION, "e2", EP_ID, execution.getParentId())
-                .withMerge("e2", "e1", R_EXECUTES);
-        execute(transaction, selfRelationshipBuilder);
+      // The action or transform that started this execution. Link that node when it is already
+      // stored, and do not also link the owner: shortestPath would skip the launcher. A missing
+      // launcher keeps the owner edge so the child is not orphaned.
+      boolean launcherStored =
+          StringUtils.isNotEmpty(execution.getLaunchedById())
+              && !execution.getLaunchedById().equals(execution.getParentId())
+              && executionNodeExists(transaction, execution.getLaunchedById());
+      if (linkOwnerExecutes(execution.getParentId(), execution.getLaunchedById(), launcherStored)) {
+        linkExecutes(transaction, execution.getParentId(), execution.getId());
+      }
+      if (launcherStored) {
+        linkExecutes(transaction, execution.getLaunchedById(), execution.getId());
+      }
+      // A launcher stored after its child still has only the owner shortcut. Move EXECUTES onto
+      // the launcher now that its node exists.
+      if (StringUtils.isNotEmpty(execution.getId())) {
+        run(transaction, relinkLaunchedChildrenCypher(), Map.of("id", execution.getId()));
       }
 
       // See if we need to cache this
@@ -515,6 +533,97 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       // Transaction is automatically rolled back by executeWrite on exception
       throw new HopRuntimeException("Error registering new Execution in Neo4j", e);
     }
+  }
+
+  /**
+   * Link {@code (parent)-[:EXECUTES]->(child)} only when the launcher was not linked. The owner
+   * shortcut and the launcher edge together make {@code shortestPath} skip the action or transform.
+   */
+  static boolean linkOwnerExecutes(
+      String parentId, String launchedById, boolean launcherNodeExists) {
+    if (StringUtils.isEmpty(parentId)) {
+      return false;
+    }
+    if (StringUtils.isEmpty(launchedById) || launchedById.equals(parentId)) {
+      return true;
+    }
+    return !launcherNodeExists;
+  }
+
+  /**
+   * Children already stored with {@code launchedById} equal to this execution get an EXECUTES edge
+   * from this node, and the owner shortcut is removed. Actions have no {@code launchedById}, so
+   * {@code (workflow)-[:EXECUTES]->(action)} stays.
+   */
+  static String relinkLaunchedChildrenCypher() {
+    return "MATCH (launcher:"
+        + EL_EXECUTION
+        + " {"
+        + EP_ID
+        + ": $id}) "
+        + "MATCH (child:"
+        + EL_EXECUTION
+        + ") "
+        + "WHERE child."
+        + EP_LAUNCHED_BY_ID
+        + " = $id "
+        + "AND child."
+        + EP_PARENT_ID
+        + " IS NOT NULL "
+        + "AND child."
+        + EP_PARENT_ID
+        + " <> $id "
+        + "MERGE (launcher)-[:"
+        + R_EXECUTES
+        + "]->(child) "
+        + "WITH child "
+        + "MATCH (owner:"
+        + EL_EXECUTION
+        + ")-[shortcut:"
+        + R_EXECUTES
+        + "]->(child) "
+        + "WHERE owner."
+        + EP_ID
+        + " = child."
+        + EP_PARENT_ID
+        + " "
+        + "DELETE shortcut";
+  }
+
+  /** {@code (from)-[:EXECUTES]->(to)} when both nodes are already stored. */
+  private void linkExecutes(IGraphTransaction transaction, String fromId, String toId) {
+    execute(
+        transaction,
+        CypherRelationshipBuilder.of()
+            .withMatch(EL_EXECUTION, "e2", EP_ID, fromId)
+            .withMatch(EL_EXECUTION, "e1", EP_ID, toId)
+            .withMerge("e2", "e1", R_EXECUTES));
+  }
+
+  private boolean executionNodeExists(IGraphTransaction transaction, String executionId) {
+    List<Map<String, Object>> found =
+        execute(
+            transaction,
+            CypherQueryBuilder.of()
+                .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
+                .withReturnValues("n", EP_ID));
+    return !found.isEmpty();
+  }
+
+  /**
+   * Executions whose owner or launcher is {@code executionId}. {@code parentId} is the workflow or
+   * pipeline. {@code launchedById} is the action or transform that started the execution.
+   */
+  static CypherQueryBuilder executionsWithParentOrLauncher(String executionId) {
+    CypherQueryBuilder builder = CypherQueryBuilder.of().withLabelWithoutKey("n", EL_EXECUTION);
+    builder.withExtraClause(
+        "WHERE (n."
+            + EP_PARENT_ID
+            + " = $executionId OR n."
+            + EP_LAUNCHED_BY_ID
+            + " = $executionId) ");
+    builder.parameters().put("executionId", executionId);
+    return builder;
   }
 
   /**
@@ -652,9 +761,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             List<Map<String, Object>> result =
                 execute(
                     transaction,
-                    CypherQueryBuilder.of()
-                        .withLabelAndKey("n", EL_EXECUTION, EP_PARENT_ID, parentExecutionId)
-                        .withReturnValues("n", EP_ID));
+                    executionsWithParentOrLauncher(parentExecutionId).withReturnValues("n", EP_ID));
             for (Map<String, Object> record : result) {
               ids.add(getString(record, EP_ID));
             }
@@ -719,6 +826,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_COPY_NR,
                 EP_FILENAME,
                 EP_PARENT_ID,
+                EP_LAUNCHED_BY_ID,
                 EP_EXECUTION_TYPE,
                 EP_EXECUTOR_XML,
                 EP_METADATA_JSON,
@@ -747,6 +855,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return ExecutionBuilder.of()
         .withId(executionId)
         .withParentId(getString(record, EP_PARENT_ID))
+        .withLaunchedById(getString(record, EP_LAUNCHED_BY_ID))
         .withName(getString(record, EP_NAME))
         .withCopyNr(getString(record, EP_COPY_NR))
         .withFilename(getString(record, EP_FILENAME))
@@ -807,8 +916,6 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   public List<String> findNeo4jExecutionIDs(
       IGraphTransaction transaction, IExecutionSelector selector) {
-    List<String> ids = new ArrayList<>();
-
     CypherQueryBuilder builder =
         CypherQueryBuilder.of().withLabelAndKeys("n", EL_EXECUTION, Map.of());
 
@@ -866,6 +973,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         EP_COPY_NR,
         EP_FILENAME,
         EP_PARENT_ID,
+        EP_LAUNCHED_BY_ID,
         EP_EXECUTION_TYPE,
         EP_EXECUTOR_XML,
         EP_METADATA_JSON,
@@ -886,16 +994,76 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     builder.withLimit(50);
 
     List<Map<String, Object>> result = run(transaction, builder.cypher(), builder.parameters());
-    for (Map<String, Object> record : result) {
+    return idsOfReadableExecutions(result, selector);
+  }
+
+  /**
+   * Ids of the executions in one list result that can be read. A node that cannot be read is
+   * skipped, so the other executions still show (issue #9039).
+   */
+  List<String> idsOfReadableExecutions(
+      List<Map<String, Object>> records, IExecutionSelector selector) {
+    List<String> ids = new ArrayList<>();
+    for (Map<String, Object> record : records) {
       String executionId = getString(record, EP_ID);
-      Execution execution = buildExecution(executionId, record);
-      ExecutionState state = buildExecutionState(executionId, record, "");
-      if (selector.isSelected(execution) && selector.isSelected(state)) {
-        ids.add(executionId);
+      try {
+        Execution execution = buildExecution(executionId, record);
+        ExecutionState state = buildExecutionState(executionId, record, "");
+        if (selector.isSelected(execution) && selector.isSelected(state)) {
+          ids.add(executionId);
+        }
+      } catch (Exception e) {
+        logReadError(executionId, e);
       }
     }
-
     return ids;
+  }
+
+  /**
+   * One execution that cannot be read is skipped. A failure reading the location itself still fails
+   * the list (issue #9039).
+   */
+  @Override
+  public List<ListedExecution> listExecutions(IExecutionSelector selector) throws HopException {
+    IExecutionSelector active = selector == null ? IExecutionSelector.ALL : selector;
+    List<String> ids = findExecutionIDs(active);
+    List<ListedExecution> listed = new ArrayList<>();
+    Exception firstFailure = null;
+    int failures = 0;
+    for (String id : ids) {
+      try {
+        Execution execution = getExecution(id);
+        if (execution == null || !active.isSelected(execution)) {
+          continue;
+        }
+        ExecutionState state = getExecutionState(id);
+        if (!active.isSelected(state)) {
+          continue;
+        }
+        listed.add(new ListedExecution(execution, state));
+      } catch (Exception e) {
+        failures++;
+        if (firstFailure == null) {
+          firstFailure = e;
+        }
+        logReadError(id, e);
+      }
+    }
+    // Every id failed, for example because the connection dropped. Keep the location error.
+    //
+    if (listed.isEmpty() && failures > 0) {
+      if (firstFailure instanceof HopException hopException) {
+        throw hopException;
+      }
+      throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, firstFailure);
+    }
+    return listed;
+  }
+
+  private void logReadError(String executionId, Exception e) {
+    if (log != null) {
+      log.logError("Error reading execution " + executionId + " from Neo4j (non-fatal)", e);
+    }
   }
 
   @Override
@@ -1181,10 +1349,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   /**
-   * Find those Executions that have a matching parentId
+   * Executions owned by this id, or started by the action or transform with this id.
    *
    * @param transaction The read transaction to use
-   * @param parentExecutionId The parent execution ID
+   * @param parentExecutionId The owner or launcher execution ID
    * @return The list of executions or an empty list if nothing was found
    */
   private List<Execution> findNeo4jExecutions(
@@ -1194,9 +1362,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     List<Map<String, Object>> result =
         execute(
             transaction,
-            CypherQueryBuilder.of()
-                .withLabelAndKey("n", EL_EXECUTION, EP_PARENT_ID, parentExecutionId)
-                .withReturnValues("n", EP_ID));
+            executionsWithParentOrLauncher(parentExecutionId).withReturnValues("n", EP_ID));
     for (Map<String, Object> record : result) {
       String executionId = getString(record, EP_ID);
 
@@ -1206,8 +1372,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
           executions.add(execution);
         }
       } catch (Exception e) {
-        log.logError(
-            "Error loading execution with id : " + executionId + " from Neo4j (non-fatal)", e);
+        logReadError(executionId, e);
       }
     }
     return executions;
@@ -1231,9 +1396,13 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     // Get all
     List<String> ids = getNeo4jExecutionIds(transaction, true, 0);
     for (String id : ids) {
-      Execution execution = getNeo4jExecution(transaction, id);
-      if (execution != null && matcher.matches(execution)) {
-        executions.add(execution);
+      try {
+        Execution execution = getNeo4jExecution(transaction, id);
+        if (execution != null && matcher.matches(execution)) {
+          executions.add(execution);
+        }
+      } catch (Exception e) {
+        logReadError(id, e);
       }
     }
     return executions;
@@ -1727,7 +1896,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       case IValueMeta.TYPE_STRING -> value.toString();
       case IValueMeta.TYPE_INTEGER ->
           value instanceof Number number ? number.longValue() : Long.valueOf(value.toString());
-      case IValueMeta.TYPE_DATE -> toDate(value);
+      case IValueMeta.TYPE_DATE -> dateValue(value);
       case IValueMeta.TYPE_BOOLEAN ->
           value instanceof Boolean bool ? bool : Boolean.valueOf(value.toString());
       case IValueMeta.TYPE_NUMBER ->
@@ -1939,12 +2108,19 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private Date getDate(Map<String, Object> record, String key) {
-    return toDate(record.get("n." + key));
+    Object value = record.get("n." + key);
+    Date date = toDate(value);
+    if (date == null && value != null && !value.toString().isBlank() && log != null) {
+      log.logError("Unable to parse execution " + key + " '" + value + "' (left empty)");
+    }
+    return date;
   }
 
   /**
-   * A date and time as the graph databases return them: a LocalDateTime from Neo4j and Memgraph, an
-   * ISO string from FalkorDB and Apache AGE.
+   * A date and time as the graph databases return them: a {@link LocalDateTime} from Neo4j and
+   * Memgraph, an ISO-8601 string from FalkorDB and Apache AGE, or the {@code yyyy/MM/dd'T'HH:mm:ss}
+   * string Neo4j logging stores. A value that is not a date is null, so one bad property does not
+   * fail the read of every execution (issue #9039).
    */
   public static Date toDate(Object value) {
     if (value == null) {
@@ -1954,7 +2130,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return date;
     }
     if (value instanceof LocalDateTime localDateTime) {
-      return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      return LoggingCore.toDate(localDateTime);
     }
     if (value instanceof ZonedDateTime zonedDateTime) {
       return Date.from(zonedDateTime.toInstant());
@@ -1963,13 +2139,21 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return Date.from(offsetDateTime.toInstant());
     }
     if (value instanceof LocalDate localDate) {
-      return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+      return LoggingCore.toDate(localDate.atStartOfDay());
     }
-    String string = value.toString();
-    if (string.isEmpty()) {
-      return null;
+    return LoggingCore.parseDate(value.toString());
+  }
+
+  /**
+   * A sampled date. An unparsable value is reported on that cell, unlike {@link #toDate}, which
+   * leaves an execution date empty so the execution can still be listed.
+   */
+  private static Date dateValue(Object value) {
+    Date date = toDate(value);
+    if (date == null && value != null && !value.toString().isBlank()) {
+      throw new HopRuntimeException("Unable to parse date value '" + value + "'");
     }
-    return Date.from(LocalDateTime.parse(string).atZone(ZoneId.systemDefault()).toInstant());
+    return date;
   }
 
   private String getString(Map<String, Object> record, String key) {

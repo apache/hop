@@ -1,0 +1,40 @@
+{
+  "base_filename": "run-pipeline-tests-golden.csv",
+  "name": "run-pipeline-tests-golden",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "product"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "quantity"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "price"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "total"
+    }
+  ],
+  "folder_name": ""
+}

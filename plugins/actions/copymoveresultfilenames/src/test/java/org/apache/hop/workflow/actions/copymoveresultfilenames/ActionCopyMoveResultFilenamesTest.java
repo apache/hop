@@ -19,12 +19,18 @@
 package org.apache.hop.workflow.actions.copymoveresultfilenames;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link ActionCopyMoveResultFilenames} */
 class ActionCopyMoveResultFilenamesTest {
+
   @Test
   void testSerializationRoundTrip() throws Exception {
     ActionCopyMoveResultFilenames action =
@@ -48,5 +54,68 @@ class ActionCopyMoveResultFilenamesTest {
     assertTrue(action.isCreateDestinationFolder());
     assertTrue(action.isRemovedSourceFilename());
     assertTrue(action.isAddDestinationFilename());
+  }
+
+  @Test
+  void checkRequiresDestinationFolderWhenCopying() {
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.COPY);
+
+    List<String> errors = errors(check(action));
+
+    assertEquals(1, errors.size());
+    assertTrue(errors.getFirst().contains("destinationFolder cannot be null or blank"));
+    assertFalse(errors.getFirst().contains("filename"));
+  }
+
+  @Test
+  void checkRequiresDestinationFolderWhenMoving() {
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.MOVE);
+
+    List<String> errors = errors(check(action));
+
+    assertEquals(1, errors.size());
+    assertTrue(errors.getFirst().contains("destinationFolder cannot be null or blank"));
+  }
+
+  @Test
+  void checkAcceptsADestinationFolder() {
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.COPY);
+    action.setDestinationFolder("/tmp/hop-result");
+
+    List<ICheckResult> remarks = check(action);
+
+    assertTrue(errors(remarks).isEmpty());
+    assertTrue(
+        remarks.stream().anyMatch(remark -> remark.getText().contains("destinationFolder is OK")));
+    assertTrue(remarks.stream().noneMatch(remark -> remark.getText().contains("filename")));
+  }
+
+  @Test
+  void checkSkipsDestinationFolderWhenDeleting() {
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.DELETE);
+
+    List<ICheckResult> remarks = check(action);
+
+    assertTrue(remarks.isEmpty());
+  }
+
+  private static List<ICheckResult> check(ActionCopyMoveResultFilenames action) {
+    List<ICheckResult> remarks = new ArrayList<>();
+    action.check(remarks, null, action, null);
+    return remarks;
+  }
+
+  private static List<String> errors(List<ICheckResult> remarks) {
+    List<String> errors = new ArrayList<>();
+    for (ICheckResult remark : remarks) {
+      if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR) {
+        errors.add(remark.getText());
+      }
+    }
+    return errors;
   }
 }

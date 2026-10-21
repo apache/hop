@@ -54,6 +54,23 @@ class LocalFileWatcherTest {
     fail("No native event for " + expected);
   }
 
+  /**
+   * Polls until a batch asks for reconciliation, none of them holding more than {@code maxPaths}.
+   * macOS has no native watch service: the JDK scans every two seconds, so a single short poll can
+   * come back before the change is seen.
+   */
+  private void awaitReconciliation(LocalFileWatcher watcher, int maxPaths) throws Exception {
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+    while (System.nanoTime() < deadline) {
+      FileWatcher.WatchBatch batch = watcher.poll(100);
+      assertTrue(batch.getPaths().size() <= maxPaths);
+      if (batch.isReconciliationRequired()) {
+        return;
+      }
+    }
+    fail("No reconciliation was requested");
+  }
+
   @Test
   void detectCreateModifyDelete() throws Exception {
     Path file = root.resolve("a.csv");
@@ -75,7 +92,7 @@ class LocalFileWatcherTest {
       awaitPath(watcher, first);
       Path created = Files.createDirectories(root.resolve("new/deep"));
       // A populated new subtree needs reconciliation as well as registration.
-      assertTrue(watcher.poll(1000).isReconciliationRequired());
+      awaitReconciliation(watcher, 100);
       watcher.reconcileDirectories();
       Path second = Files.writeString(created.resolve("b.csv"), "b");
       awaitPath(watcher, second);
@@ -140,9 +157,7 @@ class LocalFileWatcherTest {
       for (int i = 0; i < 20; i++) {
         Files.writeString(root.resolve(i + ".csv"), "a");
       }
-      FileWatcher.WatchBatch batch = watcher.poll(1000);
-      assertTrue(batch.getPaths().size() <= 2);
-      assertTrue(batch.isReconciliationRequired());
+      awaitReconciliation(watcher, 2);
     }
   }
 

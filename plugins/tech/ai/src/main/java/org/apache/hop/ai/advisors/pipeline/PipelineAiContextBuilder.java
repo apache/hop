@@ -30,7 +30,9 @@ import org.apache.hop.ai.engine.AiM2PromptSupport;
 import org.apache.hop.ai.engine.AiNodeSettings;
 import org.apache.hop.ai.engine.AiPluginCatalog;
 import org.apache.hop.ai.engine.AiPromptLoader;
+import org.apache.hop.ai.engine.AiProposalIntent;
 import org.apache.hop.ai.engine.AiTextUtil;
+import org.apache.hop.ai.engine.AiUserException;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -54,7 +56,7 @@ public final class PipelineAiContextBuilder {
 
   public static AiAdvisorPrompt buildPrompt(AiAdvisorRequest request) throws HopException {
     if (!(request.getArtifact() instanceof PipelineMeta pipelineMeta)) {
-      throw new HopException(
+      throw new AiUserException(
           BaseMessages.getString(AiAdvisorEngine.class, "AiContextBuilder.NotLinked.Pipeline"));
     }
     if (Utils.isEmpty(request.getUserPrompt())) {
@@ -63,12 +65,17 @@ public final class PipelineAiContextBuilder {
     }
     String scenarioId =
         Utils.isEmpty(request.getScenarioId()) ? "pipeline-general" : request.getScenarioId();
+    // An explanation goes without the proposal format; see AiProposalIntent.
+    boolean offered = AiProposalIntent.offersProposals(request);
+    AiProposalIntent.markOffered(request, offered);
     String system =
         AiPromptLoader.load(PROMPT_ROOT, "preamble-hop.txt")
             + "\n\n"
             + AiPromptLoader.load(PROMPT_ROOT, scenarioId + ".txt")
             + "\n\n"
-            + AiM2PromptSupport.buildSupplement();
+            + (offered
+                ? AiM2PromptSupport.buildSupplement(AiM2PromptSupport.KIND_PIPELINE)
+                : AiM2PromptSupport.buildProseOnly());
     return new AiAdvisorPrompt(system, buildUserPrompt(pipelineMeta, request));
   }
 
@@ -87,8 +94,14 @@ public final class PipelineAiContextBuilder {
             pipelineMeta,
             request.getFocusNodeName(),
             request.inclusionEnabled(AiAdvisorInclusions.SETTINGS)));
-    AiAdvisorMetadataContext.appendTypeKeys(prompt, metadataProvider);
-    AiAdvisorMetadataContext.appendDatabaseCatalog(prompt);
+    // Both lists serve proposals: the type keys for metadata saves, the database plugin ids for a
+    // new connection.
+    if (AiProposalIntent.offersProposals(request)) {
+      AiAdvisorMetadataContext.appendTypeKeys(prompt, metadataProvider);
+      if (AiProposalIntent.needsDatabasePlugins(request)) {
+        AiAdvisorMetadataContext.appendDatabaseCatalog(prompt);
+      }
+    }
     if (request.inclusionEnabled(AiAdvisorInclusions.CATALOG)) {
       AiTextUtil.appendSection(prompt, "plugin_catalog", serializeTransformCatalog());
     }
@@ -121,7 +134,7 @@ public final class PipelineAiContextBuilder {
     prompt.append(
         "Write your answer in the language that the text in the <question> block is written"
             + " in.\n");
-    return prompt.toString();
+    return AiTextUtil.shortenPaths(prompt.toString(), variables);
   }
 
   static void appendFocusTransform(

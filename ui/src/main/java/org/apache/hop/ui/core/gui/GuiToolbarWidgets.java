@@ -160,7 +160,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     boolean show = true;
     try {
       Object guiPluginInstance =
-          findGuiPluginInstance(toolbarItem.getClassLoader(), guiPluginClassName, instanceId);
+          findGuiPluginInstance(
+              getHopGuiId(), toolbarItem.getClassLoader(), guiPluginClassName, instanceId);
       List<GuiToolbarItemFilter> itemFilters =
           GuiRegistry.getInstance().getToolbarItemFiltersMap().get(root);
       if (!Utils.isEmpty(itemFilters)) {
@@ -632,7 +633,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         // Find the registered GUI plugin object
         Object guiPluginInstance =
             findGuiPluginInstance(
-                toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
+                getHopGuiId(),
+                toolbarItem.getClassLoader(),
+                toolbarItem.getListenerClass(),
+                instanceId);
         imageLocation = (String) imageMethod.invoke(null, guiPluginInstance);
       } catch (Exception e) {
         imageLocation = null;

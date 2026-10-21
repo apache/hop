@@ -17,10 +17,12 @@
 
 package org.apache.hop.neo4j.execution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
+import org.apache.hop.neo4j.execution.builder.CypherQueryBuilder;
 import org.junit.jupiter.api.Test;
 
 class NeoExecutionInfoLocationDeleteTest {
@@ -44,6 +46,36 @@ class NeoExecutionInfoLocationDeleteTest {
     assertTrue(cypher.contains("parentId IS NULL"));
     assertFalse(cypher.contains("$olderThan"));
     assertTrue(cypher.contains("LIMIT 200"));
+  }
+
+  @Test
+  void childLookupMatchesTheOwnerAndTheLauncher() {
+    CypherQueryBuilder query = NeoExecutionInfoLocation.executionsWithParentOrLauncher("action-1");
+
+    assertTrue(query.cypher().contains("parentId = $executionId"));
+    assertTrue(query.cypher().contains("launchedById = $executionId"));
+    assertTrue(query.cypher().contains(" OR "));
+    assertEquals("action-1", query.parameters().get("executionId"));
+  }
+
+  @Test
+  void ownerEdgeIsSkippedWhenTheLauncherNodeIsLinked() {
+    assertFalse(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", "action", true));
+    assertTrue(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", "action", false));
+    assertTrue(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", null, false));
+    assertTrue(NeoExecutionInfoLocation.linkOwnerExecutes("workflow", "workflow", true));
+    assertFalse(NeoExecutionInfoLocation.linkOwnerExecutes(null, "action", false));
+  }
+
+  @Test
+  void relinkMovesExecutesFromTheOwnerToTheLauncher() {
+    String cypher = NeoExecutionInfoLocation.relinkLaunchedChildrenCypher();
+
+    assertTrue(cypher.contains("launchedById = $id"));
+    assertTrue(cypher.contains("MERGE (launcher)-[:EXECUTES]->(child)"));
+    assertTrue(cypher.contains("WHERE owner.id = child.parentId"));
+    assertTrue(cypher.contains("DELETE shortcut"));
+    assertTrue(cypher.contains("child.parentId <> $id"));
   }
 
   @Test

@@ -115,7 +115,7 @@ This script is also used inside the automated test suite but can be used in a st
 
 This script can be found at following location `hop/integration-tests/scripts/run-tests.sh`.
 Be sure to export the needed system variables for the script to find the correct paths to run the tests.
-You can aslo run a single project by adding the project name to the command `./run-tests.sh projectname`
+You can also run a single project by adding the project name to the command `./run-tests.sh projectname`
 
 == Special checks
 

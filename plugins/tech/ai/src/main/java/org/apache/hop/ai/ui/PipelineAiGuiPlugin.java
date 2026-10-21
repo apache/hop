@@ -17,6 +17,7 @@
 
 package org.apache.hop.ai.ui;
 
+import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
 import org.apache.hop.ai.advisors.pipeline.PipelineAiAdvisor;
@@ -26,6 +27,7 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
@@ -46,7 +48,17 @@ public class PipelineAiGuiPlugin {
     if (pipelineGraph == null) {
       return;
     }
-    openAiAdvisor(pipelineGraph, null);
+    // With one transform selected the question is about that transform, as from its context menu.
+    openAiAdvisor(pipelineGraph, singleSelectedTransform(pipelineGraph));
+  }
+
+  /** The name of the only selected transform, or null when none or several are selected. */
+  static String singleSelectedTransform(HopGuiPipelineGraph pipelineGraph) {
+    if (pipelineGraph.getPipelineMeta() == null) {
+      return null;
+    }
+    List<TransformMeta> selected = pipelineGraph.getPipelineMeta().getSelectedTransforms();
+    return selected != null && selected.size() == 1 ? selected.get(0).getName() : null;
   }
 
   @GuiContextAction(
@@ -70,7 +82,7 @@ public class PipelineAiGuiPlugin {
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::PipelineAiGuiPlugin.AiHelp.Name",
-      tooltip = "i18n::PipelineAiGuiPlugin.AiHelp.Tooltip",
+      tooltip = "i18n::PipelineAiGuiPlugin.AiHelp.Node.Tooltip",
       image = "ai-provider.svg",
       category =
           "i18n:org.apache.hop.ui.hopgui.file.pipeline:HopGuiPipelineGraph.ContextualAction.Category.Basic.Text",

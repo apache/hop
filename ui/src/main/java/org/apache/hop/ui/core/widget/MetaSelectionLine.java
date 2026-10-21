@@ -238,7 +238,11 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     // Add more toolbar items from plugins.
     //
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
-    toolbarWidgets.registerGuiPluginObject(this);
+    // Register under MetaSelectionLine so the edit icon and the toolbar listeners resolve this
+    // instance for every subclass (NeoConnectionSelectionLine, CypherConnectionSelectionLine, …).
+    // The toolbar elements are declared on this class, and a lookup by the runtime class name
+    // misses them and then tries to construct a MetaSelectionLine with no arguments.
+    toolbarWidgets.registerGuiPluginObject(MetaSelectionLine.class.getName(), this);
     toolbarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     if (!isCreatingNewElements()) {
       toolbarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, false);

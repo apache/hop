@@ -70,6 +70,6 @@ In this tab, you can specify the java method of the DatabaseMetaData object whic
 == Output Fields tab
 This tab allows you to control how the output metadata is added to the outputstream.
 
-*Output Fields:* This grid is automatically filled with the appropriate fields as you select a particular metadata method on the Method and Aruments tab. Use this gridview to remove or rename output fields.
+*Output Fields:* This grid is automatically filled with the appropriate fields as you select a particular metadata method on the Method and Arguments tab. Use this gridview to remove or rename output fields.
 
 *Get fields:* use this button to refill the grid. This will re-add any removed fields, but preserve any renamed fields.

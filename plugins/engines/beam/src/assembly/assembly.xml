@@ -91,13 +91,20 @@
                      Snowflake IO jar that loads it, off the shared lib/core classpath. -->
                 <exclude>org.apache.beam:beam-sdks-java-io-snowflake</exclude>
                 <exclude>net.snowflake:snowflake-jdbc</exclude>
-                <!-- debezium-connector-postgres pulls org.postgresql:postgresql. A copy of that
-                     driver on lib/core is loaded by the application classloader, so DriverManager
-                     returns a PgConnection the database plugin cannot cast to its own
-                     PGConnection (PostgreSQL Bulk Loader). Keep the connector and its driver in
-                     the Beam plugin classloader. -->
+                <!-- The hop launcher adds plugins/engines/beam/lib/* to the application
+                     classpath. A PostgreSQL driver in either lib/core or that plugin lib is
+                     loaded by the app classloader, and PostgreSQL Bulk Loader cannot cast
+                     that PgConnection to the database plugin's PGConnection. The connector
+                     is packaged under plugins/engines/beam/lib without the driver. The
+                     driver stays in lib/jdbc. This exclude is a backstop if a dependency
+                     pulls org.postgresql:postgresql back into the runtime tree. -->
                 <exclude>io.debezium:debezium-connector-postgres</exclude>
                 <exclude>org.postgresql:postgresql</exclude>
+                <!-- hadoop-common depends on com.jcraft:jsch 0.1.55. A second jsch jar
+                     in lib/core is loaded in filesystem order. 0.1.55 fails the SSH
+                     private-key test with "Auth fail" against OpenSSH 9.x. mwiede
+                     jsch, packaged by hop-core, stays. -->
+                <exclude>com.jcraft:jsch</exclude>
             </excludes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
@@ -109,7 +116,6 @@
                 <include>org.apache.beam:beam-sdks-java-io-snowflake:jar</include>
                 <include>net.snowflake:snowflake-jdbc:jar</include>
                 <include>io.debezium:debezium-connector-postgres:jar</include>
-                <include>org.postgresql:postgresql:jar</include>
             </includes>
             <outputDirectory>plugins/engines/beam/lib</outputDirectory>
         </dependencySet>

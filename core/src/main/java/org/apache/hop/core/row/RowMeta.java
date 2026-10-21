@@ -595,9 +595,19 @@ public class RowMeta implements IRowMeta {
    */
   @Override
   public Object[] cloneRow(Object[] objects, Object[] newObjects) throws HopValueException {
-    List<Integer> list = getOrCreateValuesThatNeedRealClone(valueMetaList);
     lock.readLock().lock();
     try {
+      // The list is built once; only take the write lock when it still has to be built,
+      // not on every row that gets cloned.
+      List<Integer> list = needRealClone;
+      if (list == null) {
+        lock.readLock().unlock();
+        try {
+          list = getOrCreateValuesThatNeedRealClone(valueMetaList);
+        } finally {
+          lock.readLock().lock();
+        }
+      }
       for (Integer i : list) {
         IValueMeta valueMeta = valueMetaList.get(i);
         newObjects[i] = valueMeta.cloneValueData(objects[i]);

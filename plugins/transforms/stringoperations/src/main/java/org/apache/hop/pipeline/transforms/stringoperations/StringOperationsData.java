@@ -27,6 +27,12 @@ public class StringOperationsData extends BaseTransformData implements ITransfor
 
   public int[] inStreamNrs; // string infields
 
+  /** Pad character per operation, variables resolved */
+  public String[] padChars;
+
+  /** Pad length per operation, variables resolved; -1 when not set */
+  public int[] padLens;
+
   public IRowMeta outputRowMeta;
 
   /** Default constructor. */

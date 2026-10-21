@@ -1,0 +1,1 @@
+This question asks for an explanation, so answer in prose. Do not write a hop_proposals block. When a change would help, describe it and offer to propose it; the user can then ask for it.

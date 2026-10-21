@@ -40,7 +40,8 @@ The same pattern applies to every other secret in the project: never hard-code i
 See xref:hop-gui/perspective-ai-advisor.adoc#secrets-and-personal-information[Secrets and personal information].
 
 The xref:pipeline/transforms/languagemodelchat.adoc[Language model chat] transform can optionally select a named AI Provider.
-The provider's type, base URL, API key, chat model, timeout and temperature then take precedence over the transform's inline values; an inline value is only used when the provider leaves that field empty.
+The provider's type, base URL, API key, chat model, timeout, temperature, max output tokens and thinking then take precedence over the transform's inline values; an inline value is only used when the provider leaves that field empty.
+With an Ollama provider, the context size always comes from the provider (16384 when it is empty), and an Anthropic provider without *Max output tokens* sends 4096 rather than the transform's value.
 In particular, a temperature set on the provider overrides the temperature on every transform that uses it, so leave *Temperature* empty here if transforms need their own.
 Input/output mapping, mock mode, proxy and retries stay on the transform.
 See xref:pipeline/transforms/languagemodelchat.adoc#ai-provider-precedence[AI Provider and inline settings] for the details.
@@ -96,7 +97,7 @@ A GitHub Copilot-style OAuth provider is an extension point; it is not bundled.
 
 == Options
 
-The editor shows *Name* and *Provider* at the top, and the other options on three tabs: *Connection* (base URL, API key, timeout), *Model* (model name, temperature, context size, max output tokens, structured answers) and *Models per role*.
+The editor shows *Name* and *Provider* at the top, and the other options on three tabs: *Connection* (base URL, API key, timeout), *Model* (model name, temperature, context size, max output tokens, thinking, structured answers) and *Models per role*.
 Saving checks that a provider type is selected and that the numbers are valid; values that use a variable are checked when the provider is used.
 
 |===
@@ -135,6 +136,19 @@ A larger window uses more memory on the Ollama server.
 |The longest answer the model may write, in tokens.
 Leave it empty for the provider's default, which is 4096 for Anthropic (Anthropic requires a value).
 A value that is too low cuts answers and proposals short.
+
+|Thinking
+|Whether a thinking model (qwen3, deepseek-r1, gpt-oss, …) reasons before it answers.
+
+* *Default*: leave it to the model. Most thinking models then reason. Depending on the model and the Ollama version, the answer can then include the reasoning between `<think>` tags. This is the value for providers created before the option existed, and it keeps their output as it was.
+* *Off*: answer right away (`think: false`).
+* *On*: always reason first (`think: true`).
+
+For transforms that call the model once per row, the reasoning usually takes most of the run time: a short Extract graph call that writes thousands of reasoning tokens with the default writes about a hundred with *Off*.
+Adding `/no_think` to a prompt is not a reliable alternative: not every model honours it.
+With *Off* or *On* the reasoning is kept out of the answer.
+The value can be a variable, such as `+'${AI_THINKING}'+`, that resolves to `Default`, `Off` or `On`.
+Applies to Ollama only for now; other provider types ignore it.
 
 |Structured answers
 |Off by default.

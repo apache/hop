@@ -36,12 +36,14 @@ class SparkPipelineRunConfigurationTest {
     config.setDriverMemory("1g");
     config.setPathSchemeMap("s3=s3a\nminio=s3a");
     config.setGenericTransformRunMode("DRIVER_ONLY");
+    config.setHadoopConfDir("/etc/hadoop/conf");
 
     SparkPipelineRunConfiguration copy = config.clone();
     assertNotSame(config, copy);
     assertEquals("spark://host:7077", copy.getSparkMaster());
     assertEquals("test-app", copy.getSparkAppName());
     assertEquals("1g", copy.getDriverMemory());
+    assertEquals("/etc/hadoop/conf", copy.getHadoopConfDir());
     assertEquals("s3=s3a\nminio=s3a", copy.getPathSchemeMap());
     assertEquals("DRIVER_ONLY", copy.getGenericTransformRunMode());
     assertEquals("DISTRIBUTED", new SparkPipelineRunConfiguration().getGenericTransformRunMode());

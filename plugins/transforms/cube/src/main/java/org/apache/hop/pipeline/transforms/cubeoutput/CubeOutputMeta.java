@@ -19,14 +19,19 @@ package org.apache.hop.pipeline.transforms.cubeoutput;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.vfs2.FileObject;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataWrapper;
@@ -34,6 +39,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.cube.CubeFilename;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
@@ -46,31 +52,90 @@ import org.apache.hop.resource.ResourceDefinition;
     keywords = "i18n::CubeOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/serialize-to-file.html")
 @HopMetadataWrapper(tag = "file")
+@GuiPlugin
+@Getter
+@Setter
 public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData> {
   private static final Class<?> PKG = CubeOutputMeta.class;
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "CubeOutputDialog.File";
+  public static final String WIDGET_INCLUDE_TRANSFORM_NR = "includeTransformNr";
+
+  public static final String GROUP_FILE = "File";
+
+  @GuiWidgetElement(
+      id = "filename",
+      order = "0100",
+      type = GuiElementType.FILENAME,
+      typeFilename = CubeFileType.class,
+      label = "i18n::CubeOutputDialog.Filename.Label",
+      toolTip = "i18n::CubeOutputDialog.Filename.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FILE)
   @HopMetadataProperty(key = "name")
   private String filename;
 
+  @GuiWidgetElement(
+      id = WIDGET_INCLUDE_TRANSFORM_NR,
+      order = "0200",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::CubeOutputDialog.IncludeTransformNr.Label",
+      toolTip = "i18n::CubeOutputDialog.IncludeTransformNr.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FILE)
+  @HopMetadataProperty(key = "include_transform_nr")
+  private boolean includeTransformNr;
+
+  @GuiWidgetElement(
+      id = "filenameCreatingParentFolders",
+      order = "0300",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::CubeOutputDialog.CreatingParentFolders.Label",
+      toolTip = "i18n::CubeOutputDialog.CreatingParentFolders.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FILE)
   @HopMetadataProperty(key = "filename_create_parent_folders")
   private boolean filenameCreatingParentFolders;
 
-  /** Flag: add the filenames to result filenames */
-  @HopMetadataProperty(key = "add_to_result_filenames")
-  private boolean addToResultFilenames;
-
   /** Flag : Do not open new file when pipeline start */
+  @GuiWidgetElement(
+      id = "doNotOpenNewFileInit",
+      order = "0400",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::CubeOutputDialog.DoNotOpenNewFileInit.Label",
+      toolTip = "i18n::CubeOutputDialog.DoNotOpenNewFileInit.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FILE)
   @HopMetadataProperty(key = "do_not_open_newfile_init")
   private boolean doNotOpenNewFileInit;
 
+  /** Flag: add the filenames to result filenames */
+  @GuiWidgetElement(
+      id = "addToResultFilenames",
+      order = "0500",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::CubeOutputDialog.AddFileToResult.Label",
+      toolTip = "i18n::CubeOutputDialog.AddFileToResult.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FILE)
+  @HopMetadataProperty(key = "add_to_result_filenames")
+  private boolean addToResultFilenames;
+
   public CubeOutputMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
   }
 
   @Override
   public void setDefault() {
     addToResultFilenames = false;
     doNotOpenNewFileInit = false;
+    filenameCreatingParentFolders = false;
+    includeTransformNr = false;
   }
 
   @Override
@@ -119,93 +184,36 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
       IResourceNaming iResourceNaming,
       IHopMetadataProvider metadataProvider)
       throws HopException {
-    try {
-      // The object that we're modifying here is a copy of the original!
-      // So let's change the filename from relative to absolute by grabbing the file object...
-      //
-      // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
-      // To : /home/matt/test/files/foo/bar.data
-      //
-      FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
-
-      // If the file doesn't exist, forget about this effort too!
-      //
-      if (fileObject.exists()) {
-        // Convert to an absolute path...
-        //
-        filename = iResourceNaming.nameResource(fileObject, variables, true);
-
-        return filename;
-      }
+    // The object that we're modifying here is a copy of the original.
+    // Map the folder of copy 0 and keep the stored file name, so each copy still opens its own
+    // file after export.
+    String exported =
+        CubeFilename.exportResourceName(variables, filename, includeTransformNr, iResourceNaming);
+    if (exported == null) {
       return null;
-    } catch (Exception e) {
-      throw new HopException(e);
     }
-  }
-
-  /**
-   * Gets filename
-   *
-   * @return value of filename
-   */
-  public String getFilename() {
+    filename = exported;
     return filename;
   }
 
-  /**
-   * Sets filename
-   *
-   * @param filename value of filename
-   */
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
+  /** Browse filter for {@code *.cube} files. */
+  public static class CubeFileType implements ITypeFilename {
+    @Override
+    public String getDefaultFileExtension() {
+      return ".cube";
+    }
 
-  /** Gets filename creating parent folders */
-  public boolean isFilenameCreatingParentFolders() {
-    return filenameCreatingParentFolders;
-  }
+    @Override
+    public String[] getFilterExtensions() {
+      return new String[] {"*.cube", "*"};
+    }
 
-  /**
-   * @param filenameCreatingParentFolders The filenameCreatingParentFolders to set
-   */
-  public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
-    this.filenameCreatingParentFolders = filenameCreatingParentFolders;
-  }
-
-  /**
-   * Gets addToResultFilenames
-   *
-   * @return value of addToResultFilenames
-   */
-  public boolean isAddToResultFilenames() {
-    return addToResultFilenames;
-  }
-
-  /**
-   * Sets addToResultFilenames
-   *
-   * @param addToResultFilenames value of addToResultFilenames
-   */
-  public void setAddToResultFilenames(boolean addToResultFilenames) {
-    this.addToResultFilenames = addToResultFilenames;
-  }
-
-  /**
-   * Gets doNotOpenNewFileInit
-   *
-   * @return value of doNotOpenNewFileInit
-   */
-  public boolean isDoNotOpenNewFileInit() {
-    return doNotOpenNewFileInit;
-  }
-
-  /**
-   * Sets doNotOpenNewFileInit
-   *
-   * @param doNotOpenNewFileInit value of doNotOpenNewFileInit
-   */
-  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
-    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
+    @Override
+    public String[] getFilterNames() {
+      return new String[] {
+        BaseMessages.getString(PKG, "CubeOutputDialog.FilterNames.Options.CubeFiles"),
+        BaseMessages.getString(PKG, "CubeOutputDialog.FilterNames.Options.AllFiles")
+      };
+    }
   }
 }

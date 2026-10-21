@@ -85,7 +85,8 @@ spark.sql.shuffle.partitions=12
       ""),
   YARN_CLIENT(
       "YARN client",
-      "Submit to YARN in client deploy mode (cluster provides Spark).",
+      "Run on YARN in client deploy mode. Set the Hadoop configuration folder (or HADOOP_CONF_DIR)"
+          + " and a native-provided fat jar.",
       "yarn",
       "Apache Hop",
       "",

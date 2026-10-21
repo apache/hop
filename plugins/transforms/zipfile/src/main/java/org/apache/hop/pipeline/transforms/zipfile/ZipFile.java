@@ -18,18 +18,19 @@
 package org.apache.hop.pipeline.transforms.zipfile;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -336,158 +337,179 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     }
   }
 
-  private File getFile(final String filename) {
-    try {
-      URI uri = new URI(filename);
-      return new File(uri);
-    } catch (URISyntaxException | IllegalArgumentException ex) {
-      // Not a file:// URI but a plain path such as /tmp/archive.zip or C:\archive.zip
-    }
-    return new File(filename);
-  }
-
   private void zipFile() throws HopException {
 
-    String localrealZipfilename = HopVfs.getFilename(data.zipFile);
+    // Update an existing zip by writing the new version next to it and moving it over the
+    // original once complete. If anything fails, the original zip is left untouched.
     boolean updateZip = false;
-
-    byte[] buffer = null;
-    OutputStream dest = null;
-    BufferedOutputStream buff = null;
-    ZipOutputStream out = null;
-    InputStream in = null;
+    boolean moving = false;
+    long zipSize = -1;
+    FileObject output = data.zipFile;
     CountingInputStream countingIn = null;
     CountingOutputStream countingOut = null;
-    ZipInputStream zin = null;
-    ZipEntry entry = null;
-    File tempFile = null;
-    HashSet<String> fileSet = new HashSet<>();
 
     try {
-
-      updateZip = (data.zipFile.exists() && meta.isOverwriteZipEntry());
-
+      updateZip = data.zipFile.exists() && meta.isOverwriteZipEntry();
       if (updateZip) {
-        // the Zipfile exists
-        // and we weed to update entries
-        // Let's create a temp file
-        File fileZip = getFile(localrealZipfilename);
-        // Create the temporary file next to the zip file, not in the shared system temp folder: the
-        // rename below then stays on the same file system and no other user can claim the name.
-        tempFile =
-            File.createTempFile(fileZip.getName(), null, fileZip.getAbsoluteFile().getParentFile());
-        // delete it, otherwise we cannot rename existing zip to it.
-        tempFile.delete();
-
-        updateZip = fileZip.renameTo(tempFile);
+        output = createTemporaryZipFile(data.zipFile);
       }
 
-      // Prepare Zip File
-      buffer = new byte[18024];
-      countingOut =
-          new CountingOutputStream(HopVfs.getOutputStream(localrealZipfilename, false, variables));
-      dest = countingOut;
-      buff = new BufferedOutputStream(dest);
-      out = new ZipOutputStream(buff);
+      String entryName = getEntryName();
+      byte[] buffer = new byte[18024];
 
-      if (updateZip) {
-        // User want to append files to existing Zip file
-        // The idea is to rename the existing zip file to a temporary file
-        // and then adds all entries in the existing zip along with the new files,
-        // excluding the zip entries that have the same name as one of the new files.
+      try (OutputStream dest = HopVfs.getOutputStream(output, false)) {
+        countingOut = new CountingOutputStream(dest);
+        try (ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(countingOut))) {
+          if (updateZip) {
+            // Copy the existing entries, except the one the source file replaces
+            Set<String> replacedNames = new HashSet<>();
+            replacedNames.add(entryName);
+            if (meta.isKeepSourceFolder()
+                && !"file".equals(data.sourceFile.getName().getScheme())) {
+              // Before #8955 a VFS source file was stored under its URI: replace that entry too
+              replacedNames.add(getLegacyEntryName());
+            }
+            copyZipEntries(data.zipFile, out, replacedNames, buffer);
+          }
 
-        zin = new ZipInputStream(new FileInputStream(tempFile));
-        entry = zin.getNextEntry();
+          // Set the method
+          out.setMethod(ZipOutputStream.DEFLATED);
+          out.setLevel(Deflater.BEST_COMPRESSION);
 
-        while (entry != null) {
-          String name = entry.getName();
-
-          if (!fileSet.contains(name)) {
-
-            // Add ZIP entry to output stream.
-            out.putNextEntry(new ZipEntry(name));
-            // Transfer bytes from the ZIP file to the output file
+          // Add ZIP entry to output stream.
+          //
+          out.putNextEntry(new ZipEntry(entryName));
+          try (InputStream in = HopVfs.getInputStream(data.sourceFile)) {
+            countingIn = new CountingInputStream(in);
             int len;
-            while ((len = zin.read(buffer)) > 0) {
+            while ((len = countingIn.read(buffer)) > 0) {
               out.write(buffer, 0, len);
             }
-
-            fileSet.add(name);
           }
-          entry = zin.getNextEntry();
-        }
-        // Close the streams
-        zin.close();
-      }
-
-      // Set the method
-      out.setMethod(ZipOutputStream.DEFLATED);
-      out.setLevel(Deflater.BEST_COMPRESSION);
-
-      // Associate a file input stream for the current file
-      countingIn = new CountingInputStream(HopVfs.getInputStream(data.sourceFile));
-      in = countingIn;
-
-      // Add ZIP entry to output stream.
-      //
-      String relativeName = data.sourceFile.getName().getBaseName();
-
-      if (meta.isKeepSourceFolder()) {
-        // Get full filename
-        relativeName = HopVfs.getFilename(data.sourceFile);
-
-        if (data.baseFolder != null) {
-          // Remove base folder
-          data.baseFolder += Const.FILE_SEPARATOR;
-          relativeName = relativeName.replace(data.baseFolder, "");
+          out.closeEntry();
         }
       }
-      if (!fileSet.contains(relativeName)) {
-        out.putNextEntry(new ZipEntry(relativeName));
 
-        int len;
-        while ((len = in.read(buffer)) > 0) {
-          out.write(buffer, 0, len);
-        }
+      if (updateZip) {
+        zipSize = sizeQuietly(data.zipFile);
+        moving = true;
+        HopVfs.moveFile(output, data.zipFile);
       }
     } catch (Exception e) {
+      if (updateZip && output != data.zipFile) {
+        discardTemporaryZipFile(output, data.zipFile, moving, zipSize);
+      }
       throw new HopException(BaseMessages.getString(PKG, "ZipFile.ErrorCreatingZip"), e);
     } finally {
-      try {
-        if (in != null) {
-          // Close the current file input stream
-          in.close();
-        }
-        if (countingIn != null) {
-          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIn.getCount();
-        }
-        if (out != null) {
-          // Close the ZipOutPutStream
-          out.flush();
-          out.closeEntry();
-          out.close();
-        }
-        if (countingOut != null) {
-          dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + countingOut.getCount();
-        }
-        if (buff != null) {
-          buff.close();
-        }
-        if (dest != null) {
-          dest.close();
-        }
-        // Delete Temp File
-        if (tempFile != null) {
-          tempFile.delete();
-        }
-        if (zin != null) {
-          zin.close();
-        }
-        fileSet = null;
-
-      } catch (Exception e) {
-        /* Ignore */
+      if (countingIn != null) {
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIn.getCount();
       }
+      if (countingOut != null) {
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + countingOut.getCount();
+      }
+    }
+  }
+
+  /** The name of the source file in the zip. */
+  private String getEntryName() throws HopException, FileSystemException {
+    FileName sourceName = data.sourceFile.getName();
+    if (!meta.isKeepSourceFolder()) {
+      return sourceName.getBaseName();
+    }
+    if ("file".equals(sourceName.getScheme())) {
+      // Local files keep the names they always had: the full path, without the base folder.
+      String relativeName = HopVfs.getFilename(data.sourceFile);
+      if (data.baseFolder != null) {
+        relativeName = relativeName.replace(data.baseFolder + Const.FILE_SEPARATOR, "");
+      }
+      return relativeName;
+    }
+    // A VFS file. Don't put the scheme in the zip.
+    if (!Utils.isEmpty(data.baseFolder)) {
+      FileName baseName = HopVfs.getFileObject(data.baseFolder, variables).getName();
+      if (baseName.isDescendent(sourceName)) {
+        // Relative to the base folder
+        return baseName.getRelativeName(sourceName);
+      }
+    }
+    return sourceName.getPath();
+  }
+
+  /** The name a kept source folder gave a VFS source file before #8955: the URI, minus the base. */
+  private String getLegacyEntryName() {
+    String name = HopVfs.getFilename(data.sourceFile);
+    if (data.baseFolder != null) {
+      name = name.replace(data.baseFolder + Const.FILE_SEPARATOR, "");
+    }
+    return name;
+  }
+
+  /** A new file in the folder of the zip file, on the same file system. */
+  private static FileObject createTemporaryZipFile(FileObject zipFile) throws IOException {
+    FileObject temporaryFile;
+    do {
+      temporaryFile =
+          zipFile
+              .getParent()
+              .resolveFile(zipFile.getName().getBaseName() + "_" + UUID.randomUUID() + ".tmp");
+    } while (temporaryFile.exists());
+    return temporaryFile;
+  }
+
+  private static void copyZipEntries(
+      FileObject zipFile, ZipOutputStream out, Set<String> skipEntryNames, byte[] buffer)
+      throws IOException {
+    // A zip can hold the same name twice. Keep the first one, a zip output stream refuses both.
+    Set<String> copied = new HashSet<>();
+    try (ZipInputStream zin = new ZipInputStream(HopVfs.getInputStream(zipFile))) {
+      ZipEntry entry;
+      while ((entry = zin.getNextEntry()) != null) {
+        String name = entry.getName();
+        if (!skipEntryNames.contains(name) && copied.add(name)) {
+          out.putNextEntry(new ZipEntry(name));
+          int len;
+          while ((len = zin.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
+          }
+          out.closeEntry();
+        }
+      }
+    }
+  }
+
+  /**
+   * Remove the temporary zip file after a failure. A failed move can remove the zip file or leave
+   * it partly overwritten, and the temporary file is then the only complete copy. Remove it only
+   * when the zip file still has the size it had before the move.
+   */
+  private void discardTemporaryZipFile(
+      FileObject temporaryFile, FileObject zipFile, boolean moving, long zipSize) {
+    if (moving && (zipSize < 0 || sizeQuietly(zipFile) != zipSize)) {
+      logError(
+          "Unable to move the updated zip file to "
+              + HopVfs.getFriendlyURI(zipFile)
+              + ", it is kept as "
+              + HopVfs.getFriendlyURI(temporaryFile));
+      return;
+    }
+    deleteQuietly(temporaryFile);
+  }
+
+  /** The size of the file, or -1 when it does not exist or its size can't be determined. */
+  private static long sizeQuietly(FileObject file) {
+    try {
+      file.refresh();
+      return file.exists() ? file.getContent().getSize() : -1;
+    } catch (Exception e) {
+      return -1;
+    }
+  }
+
+  private void deleteQuietly(FileObject file) {
+    try {
+      file.delete();
+    } catch (Exception e) {
+      logError("Unable to delete temporary file " + HopVfs.getFriendlyURI(file), e);
     }
   }
 

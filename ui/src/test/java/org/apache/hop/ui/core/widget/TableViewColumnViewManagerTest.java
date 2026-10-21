@@ -75,4 +75,46 @@ class TableViewColumnViewManagerTest {
     assertNull(TableViewColumnViewManager.load("group", null));
     assertNull(TableViewColumnViewManager.load(null, "name"));
   }
+
+  @Test
+  void filtersRoundTripThroughTheAuditStore() {
+    String group = "test-project";
+
+    TableViewColumnView view =
+        new TableViewColumnView(
+            "Filtered customers",
+            List.of("id", "name", "country"),
+            List.of(
+                new TableViewColumnFilter("country", List.of("BE", "FR", "<null>")),
+                new TableViewColumnFilter("name", List.of("Smith"))));
+    TableViewColumnViewManager.save(group, view);
+
+    TableViewColumnView loaded = TableViewColumnViewManager.load(group, "Filtered customers");
+    assertEquals(2, loaded.getFilters().size());
+    assertEquals("country", loaded.getFilters().get(0).getColumnName());
+    assertEquals(List.of("BE", "FR", "<null>"), loaded.getFilters().get(0).getValues());
+    assertEquals("name", loaded.getFilters().get(1).getColumnName());
+    assertEquals(List.of("Smith"), loaded.getFilters().get(1).getValues());
+
+    // Saving the view again without filters clears them.
+    TableViewColumnViewManager.save(
+        group, new TableViewColumnView("Filtered customers", List.of("id")));
+    loaded = TableViewColumnViewManager.load(group, "Filtered customers");
+    assertTrue(loaded.getFilters().isEmpty());
+  }
+
+  @Test
+  void filtersWithoutColumnOrValuesAreNotStored() {
+    String group = "test-project";
+
+    TableViewColumnView view =
+        new TableViewColumnView(
+            "Broken filters",
+            List.of("id"),
+            List.of(new TableViewColumnFilter(), new TableViewColumnFilter("country", List.of())));
+    TableViewColumnViewManager.save(group, view);
+
+    TableViewColumnView loaded = TableViewColumnViewManager.load(group, "Broken filters");
+    assertTrue(loaded.getFilters().isEmpty());
+  }
 }

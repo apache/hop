@@ -220,7 +220,9 @@ public class LoadBalancingCoordinator<C> {
 
   /**
    * When every reachable server is full, throw {@link HopServerAtCapacityException} so the engine
-   * waits and retries. Unreachable or misconfigured groups stay a regular {@link HopException}.
+   * waits and retries. A group that only timed out is also retried: a cold Hop server often answers
+   * the status call a few seconds later. Misconfigured groups stay a regular {@link HopException}
+   * and are not retried.
    */
   static HopException noEligibleServerException(List<ServerHealthSnapshot> snapshots) {
     if (isGroupAtCapacity(snapshots)) {
@@ -270,6 +272,46 @@ public class LoadBalancingCoordinator<C> {
       }
     }
     return null;
+  }
+
+  /**
+   * True when every reported server failed its status probe with a timeout or a connection error. A
+   * missing server name or unknown Hop server metadata is a configuration error and is not retried.
+   */
+  public static boolean isTransientProbeFailure(Throwable error) {
+    String message = probeFailureMessage(error);
+    if (message == null) {
+      return false;
+    }
+    boolean sawServer = false;
+    for (String line : message.split("\\R")) {
+      String trimmed = line.trim();
+      if (!trimmed.startsWith("- ")) {
+        continue;
+      }
+      sawServer = true;
+      if (!isTransientProbeReason(trimmed)) {
+        return false;
+      }
+    }
+    return sawServer;
+  }
+
+  private static String probeFailureMessage(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      String message = current.getMessage();
+      if (message != null && message.contains("No eligible Hop server")) {
+        return message;
+      }
+      if (current.getCause() == current) {
+        break;
+      }
+    }
+    return null;
+  }
+
+  private static boolean isTransientProbeReason(String line) {
+    return line.contains("timeout after ") || line.contains("Error querying Hop server");
   }
 
   static String describeNoEligibleServer(List<ServerHealthSnapshot> snapshots) {

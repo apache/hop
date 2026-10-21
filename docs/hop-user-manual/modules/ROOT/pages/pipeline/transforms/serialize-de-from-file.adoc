@@ -30,9 +30,34 @@ The De-serialize From File transform reads rows of data from a binary Hop file c
 [options="header"]
 |===
 |Option|Description
-|Transform Name|Name of the transform; this name has to be unique in a single pipeline.
-|Filename|The name of the Hop cube file to be generated.
-|Limit|Allows you to limit the number of rows written to
-|Size|the cube file.
-A value of zero (0) indicates no size limit (optional).
+
+|Transform name
+|Name of the transform. This name has to be unique in a single pipeline.
+
+|Filename
+|Cube file to read. The path can contain variables. The layout of the output fields is read from this file. When filenames come from a field, this file is only the sample used to determine that layout, and the files you read must use the same fields.
+
+|Include transform nr in filename
+|Reads a different file in each transform copy. The copy number is inserted before the extension, starting at 0. With this option, `data.cube` is read as `data_0.cube` in copy 0, `data_1.cube` in copy 1, and so on. You can instead put `'${Internal.Transform.CopyNr}'` in the filename. Use one of the two. Using both inserts the number twice. This option is not used when the filename comes from a field.
+
+|Filename is defined in a field
+|Read one cube file for each incoming row. The field below holds the full filename. Rows from the previous transform are not copied to the output. The output is the rows stored in each cube file.
+
+|Filename field
+|Field that contains the cube filename.
+
+|Limit size
+|Maximum number of rows to read, across every file. `0` reads every row.
+
+|Add filename to result
+|Add each file that is opened to the list of result filenames.
 |===
+
+== Several files at once
+
+Two setups read more than one cube file.
+
+* The same files Serialize to file wrote with *Include transform nr in filename*. Set the same number of copies here and enable the same option. Copy 0 reads `data_0.cube`, which is also the file used to determine the layout.
+* A previous transform that produces one filename per row, for example Get file names. Enable *Filename is defined in a field*, choose that field, and set the filename above to any one of the cube files so the layout can be read. More than one copy of this transform splits those filenames across the copies.
+
+Every file in one run has to have the same field names and types. A file that does not fails the transform. The error names that file and the first file that was read.

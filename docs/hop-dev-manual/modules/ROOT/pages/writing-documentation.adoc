@@ -20,6 +20,7 @@ under the License.
 
 Documentation lives in the Hop repository next to the code it describes, in `docs/`.
 Changing it is an ordinary pull request, which makes it one of the easiest ways to make a first contribution.
+The https://hop.apache.org/community/contribution-guides/documentation-contribution-guide/[Documentation Contribution Guide] on the website walks through forking the repository and opening that pull request.
 
 == The three manuals
 
@@ -43,7 +44,10 @@ Without it, Apache RAT fails the build.
 . Add a `:description:` line. It is used as the page summary and for search.
 . Add the page to `modules/ROOT/nav.adoc`, or it will not be published.
 . Link between pages with an `xref` macro, with the path relative to `pages/` rather than to the current file: `+xref:database/index.adoc[Database plugins]+`.
-Across manuals, prefix the component name — `manual` or `dev-manual`: `+xref:manual::pipeline/transforms/tableinput.adoc[Table input]+`.
+Across manuals, prefix the component name — `manual` or `dev-manual` — and pin the version with `+{page-component-version}@+`: `+xref:{page-component-version}@manual::pipeline/transforms/tableinput.adoc[Table input]+`.
+Without the version, Antora links to the latest stable release of the other manual, not to the version of the current page.
+A link to a page that is not in that release yet then breaks the website build, even though the pull request build passed.
+The pull request build rejects cross-manual xrefs without a version.
 
 == Documenting a plugin
 
@@ -61,11 +65,39 @@ The path is relative to the user manual on the website, and it is what the help 
 
 Anything a plugin developer needs — rather than a user — belongs in this manual instead.
 
+== Previewing the documentation locally
+
+The manuals are published by the Antora playbooks in the https://github.com/apache/hop-website[apache/hop-website] repository, not this one.
+Its `run-website-local.sh` script builds the website with the documentation from your Hop checkout and serves it.
+
+. Install Node.js 22, the version the pull request build uses.
+. Check out apache/hop-website next to your Hop checkout.
+The build reads `../hop`, so the Hop checkout has to be in a folder named `hop`:
++
+----
+work/
+├── hop/            your Hop checkout, on the branch you want to preview
+└── hop-website/    a checkout of apache/hop-website, on main
+----
+. In `hop-website`, run the script:
++
+[source,bash]
+----
+./run-website-local.sh
+----
++
+It reads the working tree of `../hop`, so uncommitted edits are included.
+When the server is up, the manuals are at `+http://localhost:4000/manual/latest/+` and `+http://localhost:4000/dev-manual/latest/+`.
+
+After the first build, `./run-website-local.sh --fast` re-renders only the manuals, which takes seconds.
+Run a full build again when you delete or rename a page: `--fast` does not remove the pages it built before.
+
+The pages are under `latest`, not `next` as on the website: the build only contains the version on your branch, so Antora publishes it as the latest one.
+
 [NOTE]
 ====
 This page is a scaffold. Still to write:
 
-* Building the documentation locally to preview it. The Antora playbook lives in the Hop website repository, not this one; the exact steps need writing down.
 * The AsciiDoc conventions this project actually follows: one sentence per line, admonition usage, image sizing, how snippets under `pages/snippets` are included.
 * How a page reaches hop.apache.org, and how versioned manuals are cut at release time.
 ====

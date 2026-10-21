@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-h2]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to H2: the JDBC driver to use and how to install it.
 
 = H2
 

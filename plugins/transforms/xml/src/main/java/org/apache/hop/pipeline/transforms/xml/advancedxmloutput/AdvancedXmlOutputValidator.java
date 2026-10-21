@@ -59,6 +59,27 @@ final class AdvancedXmlOutputValidator {
     return errors;
   }
 
+  /**
+   * A loop on the root element is valid while every document gets a single row, so it is a warning
+   * rather than an error.
+   *
+   * @param oneRowPerDocument true when every row goes to a document of its own
+   * @return the warning, or null when there is nothing to warn about
+   */
+  static String rootLoopWarning(XmlNode root, boolean oneRowPerDocument) {
+    if (root == null || !root.isLoop() || oneRowPerDocument) {
+      return null;
+    }
+    return rootLoopMessage(root.getName());
+  }
+
+  static String rootLoopMessage(String rootName) {
+    return "Loop is set on the root element '"
+        + rootName
+        + "': an XML document has a single root element, so it can only hold one row. Set the"
+        + " loop on a child element, or split the output every row.";
+  }
+
   private static void walk(
       XmlNode node, XmlNode parent, int[] loopCount, IRowMeta inputRowMeta, List<String> errors) {
 

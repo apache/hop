@@ -158,7 +158,7 @@ For example:
 
 Check the documentation for your JRE for more information about additional JVM configuration, tuning and garbage collection parameters. https://www.baeldung.com/jvm-parameters[This guide] may help you to get started.
 
-TIP: **Developers**: a couple of lines below the `-Xmx` parameter, you'll find another `HOP_OPTIONS` line that contains `-Xdebug`. Uncomment this line to allow debuggers to attach to your running Hop instance. Check the xref:dev-manual::setup-dev-environment.adoc[developer documentation] for more information.
+TIP: **Developers**: a couple of lines below the `-Xmx` parameter, you'll find another `HOP_OPTIONS` line that contains `-Xdebug`. Uncomment this line to allow debuggers to attach to your running Hop instance. Check the xref:{page-component-version}@dev-manual::setup-dev-environment.adoc[developer documentation] for more information.
 
 
 === Hop environment variables [[envvars]]

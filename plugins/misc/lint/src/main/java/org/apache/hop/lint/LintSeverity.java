@@ -18,21 +18,43 @@ package org.apache.hop.lint;
 
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /** Severity helpers shared by lint results, verify integration, and pre-commit checks. */
 public final class LintSeverity {
 
-  public enum FailOn {
+  public enum FailOn implements IEnumHasCodeAndDescription {
     ERROR,
     WARNING,
-    NONE
+    NONE;
+
+    @Override
+    public String getCode() {
+      return name();
+    }
+
+    @Override
+    public String getDescription() {
+      return BaseMessages.getString(LintSeverity.class, "LintSeverity.FailOn." + name());
+    }
   }
 
   /** The severities a finding can carry, as opposed to the thresholds a build can fail on. */
-  public enum Level {
+  public enum Level implements IEnumHasCodeAndDescription {
     ERROR,
     WARNING,
-    INFO
+    INFO;
+
+    @Override
+    public String getCode() {
+      return name();
+    }
+
+    @Override
+    public String getDescription() {
+      return BaseMessages.getString(LintSeverity.class, "LintSeverity.Level." + name());
+    }
   }
 
   private LintSeverity() {}

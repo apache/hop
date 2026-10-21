@@ -152,6 +152,8 @@ This also means that's important to know where variables can be set and used and
 |Metadata objects|Inherited by the place where it is loaded
 |===
 
+When a project and its environment define a variable with the same name, the project value is used.
+
 == Parameters
 
 Pipelines and workflows can (optionally) accept parameters.
@@ -162,37 +164,45 @@ When the pipeline or workflow starts, each parameter is activated as a variable 
 Pass parameters from a parent through the *Parameters* tab of a xref:workflow/actions/pipeline.adoc[Pipeline] action, xref:workflow/actions/workflow.adoc[Workflow] action, xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], or xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor].
 Declare the same names on the receiving pipeline or workflow.
 
+How to declare a parameter and give it a value from Hop Gui, from hop-run or from another pipeline or workflow is explained in xref:variables/parameters.adoc[Working with parameters].
 How parameters differ from fields and from other variables is covered in xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
 The exact rules that decide which value a parameter ends up with when one pipeline or workflow starts another are in xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
 
 === System properties
 
-All system properties are variables that are available in all of your currently running Apache Hop instance. System properties are available as variables as well as all Java system properties.
+All Java system properties are available as variables in your running Apache Hop instance, for example `+${java.io.tmpdir}+` or `+${user.home}+`.
+You can set your own with `-D` options in `HOP_OPTIONS`, or with the `-s` option of xref:hop-run/index.adoc[hop-run].
 
 System properties get set in the Java Virtual Machine that runs your Apache Hop instance. This means that you should limit yourself to only those variables which are really system specific.
 
-You can add your own system variables to the ones that come with Apache Hop by default in the `System Variables` tab in the configuration perspective.
+You can also add your own system variables in the `System variables` tab of the configuration perspective.
+They are available as variables in every pipeline and workflow, and Hop also sets them as Java system properties when it starts, unless a property with the same name was already set with `-D`.
+Inside pipelines and workflows, `+${MY_SYSTEM_VARIABLE}+` still resolves to the value from this tab.
 
 image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
-These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
+These variables are written to the `hop-config.json` file in your hop installation's `config` folder or in your `+${HOP_CONFIG_FOLDER}+` location.
 
 CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
 [source,json]
+----
 {
-  "systemProperties" : {
-    "MY_SYSTEM_PROPERTY" : "SomeValue"
-  }
+  "variables" : [ {
+    "name" : "MY_SYSTEM_VARIABLE",
+    "value" : "SomeValue",
+    "description" : "What this variable is for"
+  } ]
 }
+----
 
-
-You can also use the hop-config command line tool to define system properties:
+You can also set and describe them with the xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf] command line tool:
 
 [source,bash]
-sh hop-conf.sh -s MY_SYSTEM_PROPERTY=SomeValue
-
-
+----
+sh hop-conf.sh --set-variable=MY_SYSTEM_VARIABLE=SomeValue
+sh hop-conf.sh --describe-variable="MY_SYSTEM_VARIABLE=What this variable is for"
+----
 
 === Environment Variables
 
@@ -321,6 +331,7 @@ Set to 0 to keep all snapshots indefinitely (default)
 |HOP_ZIP_MIN_INFLATE_RATIO|-|A variable to configure the minimum allowed ratio between de- and inflated bytes to detect a zipbomb
 |HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING|-|
 |NEO4J_LOGGING_CONNECTION||Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database. HOP_GRAPH_LOGGING_CONNECTION takes precedence.
+|XML_ALLOW_DOCTYPE_DECL|N|Set this variable to Y to accept XML documents with a DOCTYPE declaration, for example in the xref:pipeline/transforms/getdatafromxml.adoc[Get Data From XML] transform and the xref:workflow/actions/dtdvalidator.adoc[DTD Validator] action. Restart Hop after changing it.
 |===
 
 == Environment variables

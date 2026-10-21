@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../assets/images
 :page-aliases: hop-gui/perspective-data-orchestration.adoc
 
+:description: The File Explorer perspective is where you build, test and run pipelines and workflows, and manage the files of your project, including its git integration.
 = File Explorer Perspective
 
 Icon: image:icons/folder.svg[width="24px"]
@@ -55,18 +56,47 @@ For more information on how to get started with workflows, see the xref:getting-
 
 The file operations are available through a number of toolbar options:
 
-image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar items]
+image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar items,width=438]
 
 * Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. The file is opened in a new tab in the editor area; pipelines and workflows open in their graph editor. Select multiple files with `Ctrl` (`Cmd` on macOS) or `Shift` to open them all at once.
 * Create folder: Add a new folder. This works on a single selected folder.
-* Expand all folders: Display all nested folders in the directory tree.
-* Collapse all folders: Hide all nested folders in the directory tree.
-* Delete: Remove a selected file or folder. Only one file or folder at a time.
+* Expand All: Display all nested folders in the directory tree.
+* Collapse All: Hide all nested folders in the directory tree.
+* Delete: Remove the selected files and folders.
 * Rename: Rename a file or folder. Only one file or folder at a time.
 * Refresh: Refresh the file list.
 * Show or hide files: Show or hide files or directories.
+* Select opened file (`ALT+F1`): Select the file of the active editor tab in the tree.
 
-New pipelines, workflows and files are created from the file explorer's right-click menu rather than the toolbar; see the "Right-click menu options" section below.
+New pipelines, workflows and files are created from the right-click menu rather than the toolbar.
+
+[[right-click-menu]]
+=== Right-click menu
+
+Right-click a file or folder in the tree to open this menu.
+Options that don't apply to the selection are greyed out.
+
+* Create pipeline..., Create workflow..., Create file...: Create a new, empty pipeline, workflow or file inside the selected folder and open it. For a file you choose its name and file type. Only available when one folder is selected.
+* Create folder: Create a new folder inside the selected folder. Only available when one folder is selected.
+* Expand All, Collapse All: Show or hide all nested folders in the tree.
+* Refresh folder: Read the selected folder, or the folder of the selected file, again from disk.
+* Open: Open the selected files. A file opens in a new tab in the editor area; pipelines and workflows open in their graph editor.
+* Open as text: Open the selected file as plain text, whatever its type. Only available for a single file.
+* Open in explorer: Show the selected file or folder in the file manager of your operating system. Only available for local files.
+* Open in VFS File Explorer: Open the location of the selection in the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer].
+* Rename: Change the name of the selected file or folder. Only one at a time.
+* Copy name, Copy path: Copy the name or the full path of the selection to the clipboard, one line per selected item.
+* Find references: Search the project for the files that use the selected pipeline or workflow. The results are listed in a tab at the bottom, where a double-click opens them. Only available for a single pipeline or workflow.
+* Git Info, Git Add, Git Revert, Git Clean, Git Commit: The Git operations described in <<git-right-click-menu>>.
+* Delete: Remove the selected files and folders. Make sure to use this carefully, as it permanently deletes them from your directory.
+
+Plugins add their own options to this menu:
+
+* Edit as Hop install spec, with the xref:hop-tools/hop-marketplace.adoc[Marketplace] plugin: Open a YAML or JSON file in the Hop install spec editor. It does nothing for other files.
+* Lint This File, Lint This Folder, with the xref:hop-tools/hop-lint.adoc[Lint] plugin: Check the selected file or folder against the lint rules.
+* Exclude From Linting..., with the Lint plugin: Ask for a reason and exclude the selection from linting in the project's lint policy. When the selection is already excluded, it is included again.
+
+image::hop-gui/hop-gui-file-explorer-right-menu.png[Right-click menu in the File Explorer perspective,width=245]
 
 == Toggling the File Explorer Panel
 
@@ -92,17 +122,21 @@ image::hop-gui/configuration-perspective-open-help-pages-in.png[Open help pages 
 
 === Description
 
-If the git plugin (folder `plugins/misc/git`) is installed, the file explorer will look for a `.git/config` file in the project home folder.  It this exists the explorer perspective will start to color code the files listed:
+If the git plugin (folder `plugins/misc/git`) is installed, the file explorer will look for a `.git/config` file in the project home folder.  If this exists the explorer perspective will start to color code the files listed:
 
-* red: the file has not been added to git (un-staged).
-* blue: the file has been changed (staged).
+* red: an unstaged add, copy, rename, or content change.
+* green: a staged add, copy, or rename.
+* blue: a staged content change.
+* black: a deleted path, staged or not.
 * gray: the file is ignored by git.
+
+See xref:hop-gui/hop-gui-git.adoc[Working with git] for all the git options in Hop Gui.
 
 === Git
 
 ==== Git info
 
-The "Git Info" icon in the toolbar will be enabled if there is information regarding the file or folder that is selected.  If you click on it, you'll be able to all sorts of information regarding the git history in a new tab:
+The "Git Info" icon in the toolbar will be enabled if there is information regarding the file or folder that is selected.  If you click on it, you'll be able to see all sorts of information regarding the git history in a new tab:
 
 image::hop-gui/perspective-explorer-git-info-panel.png[Git information shown in a tab]
 
@@ -110,40 +144,32 @@ Below the revision history you can see the revisions of a file.  If you select a
 
 image::hop-gui/perspective-explorer-git-visual-diff-example.png[Git visual diff example]
 
-Small information icons will be added to the various transforms, actions and hops to indicate if they were changes, deleted or added.
+Small information icons will be added to the various transforms, actions and hops to indicate if they were changed, deleted or added.
 
-=== Right-click menu options
-The right-click menu in Apache Hop Git integration offers several useful options to help manage your files and Git operations directly from the interface. Here’s a breakdown of each option:
+[[git-right-click-menu]]
+=== Git options in the right-click menu
 
-* Create pipeline: Create a new, empty pipeline inside the selected folder and open it. Only available when a folder is selected.
-* Create workflow: Create a new, empty workflow inside the selected folder and open it. Only available when a folder is selected.
-* Create file: Create a new, empty file inside the selected folder, choosing its name and file type, and open it. Only available when a folder is selected.
-* Create folder: Create a new folder within the selected directory. This is useful for organizing workflows, pipelines, and other project resources. Only available when a folder is selected.
-* Expand all folders: Reveals all nested folders in the project directory tree. Useful for getting a full overview of your project structure without opening folders one by one.
-* Collapse all folders: Closes all expanded folders, showing only the top-level directory. Helps reset the view or reduce visual clutter.
-* Open: Opens the selected file or folder. The file opens in a new tab in the editor area; workflows and pipelines open in their graph editor.
-* Rename: Allows you to change the name of the selected file or folder, helping you keep your project files organized and clearly labeled.
-* Copy name: Copies the name of the selected file or folder to your clipboard, making it easy to paste and reference elsewhere.
-* Copy path: Copies the full path of the selected file or folder to your clipboard, useful for quick navigation or sharing the location with others.
+When the project is in a Git repository, the <<right-click-menu,right-click menu>> also has these options:
+
 * Git Info: Displays detailed information about the Git status of the selected file, including any recent changes.
 * Git Add: Stages the selected file(s) for commit, meaning the changes are prepared for inclusion in your next Git commit.
-* Git Revert: Reverts any changes made to the selected file, restoring it to the last committed state. This is helpful when you need to undo accidental modifications.
-* Git Commit: Opens a dialog for committing staged changes to your local Git repository. You can add a descriptive commit message summarizing your updates.
-* Delete: Removes the selected file or folder from your project. Make sure to use this carefully, as it permanently deletes the item from your directory.
+* Git Revert: Restores modified files in the selection from the last committed version (HEAD). A new staged file is only unstaged and stays on disk; deleting it is Git Clean. A dialog lets you pick the files.
+* Git Clean: Deletes files that git does not track from disk, after you pick them in a dialog.
+* Git Commit: Opens the xref:hop-gui/perspective-git-commit.adoc[Git commit perspective], where you review your changes and commit them with a message. In Hop Web it opens a commit dialog instead.
 
-image::hop-gui/hop-gui-file-explorer-right-menu.png[git right-click menu options in the explorer perspective]
-
-==== Git operations
+=== Git operations
 
 Here are the basic git operations that are supported:
 
+* Git Info: show the git status and history of the file or folder.
 * Git Add: stage the file to include it in a commit.
-* Git Commit: commit changes to origin.
-* Git Revert: checkout file or folder to revert changes.
-* Git Push: push changes.
-* Git Pull: pull changes.
+* Git Revert: restore modified files from HEAD. A new staged file is only unstaged and stays on disk.
+* Git Clean: delete files git does not track.
+* Git Commit: open the Git commit perspective to commit your changes. In Hop Web it opens a commit dialog instead.
+
+Push, pull and the branch operations are in the branch menu of the status bar and in the xref:hop-gui/perspective-git.adoc[Git perspective].
 
 You can access these operations from the toolbar above the file explorer tree:
 
-image::hop-gui/perspective-explorer-git-toolbar-operations.png[git toolbar items in the explorer perspective]
+image::hop-gui/perspective-explorer-git-toolbar-operations.png[git toolbar items in the explorer perspective,width=437]
 

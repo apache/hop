@@ -32,6 +32,12 @@ public class ScriptValuesData extends BaseTransformData implements ITransformDat
 
   public int[] fieldsUsed;
 
+  /**
+   * The object bound into the scope for each input field of the current row, or NOT_FOUND when the
+   * field is not bound. A replaced field still holding it after the script ran was not assigned.
+   */
+  public Object[] boundValues;
+
   public IRowMeta outputRowMeta;
   public int[] replaceIndex;
 

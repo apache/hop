@@ -285,6 +285,130 @@ public class RuleRegistryTest {
   }
 
   /**
+   * A new name or description is not a new rule. Written out in full, the pack rule was replaced
+   * for good and stopped following the pack, with no warning in the editor.
+   */
+  @Test
+  public void renamingAPackRuleIsAnOverride() throws Exception {
+    CustomLintRule renamed = packRule("DOC-001");
+    String packName = renamed.getName();
+    renamed.setName("Pipelines need a description");
+    renamed.setDescription("Our own wording");
+
+    assertFalse(ProjectLintYamlExporter.redefinesPackRule(renamed));
+    String yaml = ProjectLintYamlExporter.export(List.of(renamed));
+    assertFalse(yaml.contains("type: custom"), "a renamed pack rule stays an override");
+    assertFalse(yaml.contains("targetField"), yaml);
+
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), yaml);
+    try {
+      CustomLintRule loaded =
+          RuleRegistry.getInstance().resolve(projectYaml).getRules().stream()
+              .filter(rule -> "DOC-001".equals(rule.generateRuleId()))
+              .findFirst()
+              .orElseThrow();
+      assertEquals("Pipelines need a description", loaded.getName());
+      assertEquals("Our own wording", loaded.getDescription());
+      assertFalse(loaded.isProjectEditable(), "still the pack's rule, not " + packName + " copied");
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  /**
+   * A pack reads a missing conditionValue as empty, and the editor saves none as null. OK on an
+   * unchanged rule must not count as a change.
+   */
+  @Test
+  public void anUnchangedPackRuleSavedFromTheEditorNeedsNoEntry() {
+    CustomLintRule unchanged = packRule("DOC-001");
+    unchanged.setConditionValue(null);
+
+    assertEquals(null, ProjectLintYamlExporter.entryFor(unchanged));
+    assertFalse(ProjectLintYamlExporter.export(List.of(unchanged)).contains("DOC-001"));
+  }
+
+  /** Project rules replace a pack rule only under the very same id, as the registry stores them. */
+  @Test
+  public void aPackRuleIsFoundByItsExactId() {
+    assertTrue(ProjectLintYamlExporter.packRule("TRANS-002") != null);
+    assertEquals(null, ProjectLintYamlExporter.packRule("trans-002"));
+  }
+
+  @Test
+  public void changingWhatAPackRuleChecksRedefinesIt() {
+    CustomLintRule redefined = packRule("TRANS-002");
+    redefined.setTargetField("hasDisabledHops");
+
+    assertTrue(ProjectLintYamlExporter.redefinesPackRule(redefined));
+    assertTrue(ProjectLintYamlExporter.packRuleIds().contains("TRANS-002"));
+    assertEquals("TRANS-002", ProjectLintYamlExporter.packRule("TRANS-002").generateRuleId());
+  }
+
+  /**
+   * An override carries the first clause's value only, so a changed value in a later clause makes
+   * the rule a redefinition, written whole with every clause.
+   */
+  @Test
+  public void aChangedValueInALaterClauseRedefinesTheRule() throws Exception {
+    CustomLintRule edited = packRule("SQL-002");
+    edited.getAdditionalClauses().get(0).setConditionValue("^\\s*0\\s*$");
+
+    assertTrue(ProjectLintYamlExporter.redefinesPackRule(edited));
+    String yaml = ProjectLintYamlExporter.export(List.of(edited));
+    assertTrue(yaml.contains("type: custom"), yaml);
+
+    File projectYaml = File.createTempFile("hop-lint", ".yml");
+    Files.writeString(projectYaml.toPath(), yaml);
+    try {
+      CustomLintRule loaded =
+          RuleRegistry.getInstance().resolve(projectYaml).getRules().stream()
+              .filter(rule -> "SQL-002".equals(rule.generateRuleId()))
+              .findFirst()
+              .orElseThrow();
+      assertEquals(edited.getClauses(), loaded.getClauses(), "both patterns are written");
+    } finally {
+      Files.deleteIfExists(projectYaml.toPath());
+    }
+  }
+
+  @Test
+  public void aChangedValueInTheFirstClauseStaysAnOverride() {
+    CustomLintRule edited = packRule("SQL-002");
+    edited.setConditionValue("(?is).*\\bselect\\s+\\*\\s+from.*");
+
+    assertFalse(ProjectLintYamlExporter.redefinesPackRule(edited));
+    Map<String, Object> entry = ProjectLintYamlExporter.entryFor(edited);
+    assertEquals(Map.of("conditionValue", edited.getConditionValue()), entry);
+  }
+
+  /** {@code conditionValue: ''} was written for every rule whose condition takes no value. */
+  @Test
+  public void aRuleWithoutAValueIsWrittenWithoutConditionValue() {
+    CustomLintRule rule =
+        new CustomLintRule(
+            "Named",
+            org.apache.hop.lint.RuleTarget.PIPELINE,
+            "name",
+            org.apache.hop.lint.RuleCondition.NOT_NULL);
+    rule.setId("PROJECT-001");
+
+    Map<String, Object> entry = ProjectLintYamlExporter.entryFor(rule);
+
+    assertEquals("NOT_NULL", entry.get("condition"));
+    assertFalse(entry.containsKey("conditionValue"), entry.toString());
+  }
+
+  private static CustomLintRule packRule(String ruleId) {
+    return RuleRegistry.getInstance().resolve(null).getRules().stream()
+        .filter(rule -> ruleId.equals(rule.generateRuleId()))
+        .findFirst()
+        .orElseThrow()
+        .copy();
+  }
+
+  /**
    * Pack rules are cached, so each caller has to get its own copies. Handing out the cached objects
    * would let one caller's edit — the rule manager toggling a rule, a project overlay disabling one
    * — silently change what every later lint run sees.
@@ -521,5 +645,59 @@ public class RuleRegistryTest {
             "COMPLETELY-DIFFERENT", List.of("SQL-002", "DB-001"), new File("hop-lint.yml"));
 
     assertFalse(warning.contains("Did you mean"), warning);
+  }
+
+  /**
+   * A pack that cannot be read is skipped by Hop Gui, but its error is kept, so hop lint and the
+   * Run Linter action can fail with the pack's own message instead of passing without its rules.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/8826">#8826</a>
+   */
+  @Test
+  public void aBrokenPackIsRecordedWithItsOwnError() throws Exception {
+    File yaml = File.createTempFile("broken-pack", ".yml");
+    yaml.deleteOnExit();
+    Files.writeString(yaml.toPath(), "rules:\n  - id: [unterminated\n");
+    IHopLintRulePack broken =
+        EagerRulePack.of(new FileYamlRulePack(yaml, "acme", "Acme", RulePackOwner.VENDOR, 100));
+    RulePackDiscovery discovery =
+        new RulePackDiscovery() {
+          @Override
+          public List<IHopLintRulePack> discoverAll() {
+            return List.of(new HopCoreRulePack(), broken);
+          }
+        };
+
+    RuleRegistry registry = new RuleRegistry(discovery);
+
+    List<String> errors = registry.getPackErrors();
+    assertEquals(1, errors.size(), errors.toString());
+    assertTrue(errors.get(0).startsWith("Rule pack 'acme' could not be loaded"), errors.get(0));
+    // The parser's own words, with the line, and not only "Failed to load rule pack from ...".
+    assertTrue(errors.get(0).contains("line 2"), errors.get(0));
+    assertFalse(registry.resolve(null).getRules().isEmpty(), "the other packs still load");
+  }
+
+  @Test
+  public void packsThatLoadLeaveNoErrors() {
+    RulePackDiscovery discovery =
+        new RulePackDiscovery() {
+          @Override
+          public List<IHopLintRulePack> discoverAll() {
+            return List.of(new HopCoreRulePack());
+          }
+        };
+
+    assertTrue(new RuleRegistry(discovery).getPackErrors().isEmpty());
+  }
+
+  /** A cause chain that loops back on itself must not hang the registry while it holds its lock. */
+  @Test
+  public void aLoopingCauseChainEnds() {
+    Exception outer = new Exception("outer");
+    Exception inner = new Exception("inner", outer);
+    outer.initCause(inner);
+
+    assertEquals("outer: inner", RuleRegistry.messagesOf(outer));
   }
 }

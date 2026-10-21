@@ -58,4 +58,16 @@ class DatabaseSqlEditorTabTest {
     assertTrue(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 2", "SELECT 1"));
     assertTrue(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 1", ""));
   }
+
+  @Test
+  void generatedSqlCaretSitsOnTheLastStatement() {
+    String statement = "CREATE TABLE t (id INT);";
+    assertEquals(
+        statement.length(), DatabaseSqlEditorTab.generatedSqlCaretOffset(statement + "\n"));
+    assertEquals(
+        statement.length(), DatabaseSqlEditorTab.generatedSqlCaretOffset(statement + "\r\n\n"));
+    assertEquals(0, DatabaseSqlEditorTab.generatedSqlCaretOffset(null));
+    assertEquals(0, DatabaseSqlEditorTab.generatedSqlCaretOffset("\r\n"));
+    assertEquals(statement.length(), DatabaseSqlEditorTab.generatedSqlCaretOffset(statement));
+  }
 }

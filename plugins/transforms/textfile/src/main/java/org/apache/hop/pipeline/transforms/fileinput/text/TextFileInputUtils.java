@@ -887,9 +887,9 @@ public class TextFileInputUtils {
         // content.length = "Bytes" and
         // the encoding is specified.
         boolean charBased =
-            (inf.getLength() == null
+            (Utils.isEmpty(inf.getLength())
                 || inf.getLength().equalsIgnoreCase("Characters")
-                || inf.getEncoding() == null); // Default to classic behavior
+                || Utils.isEmpty(inf.getEncoding())); // Default to classic behavior
         for (int i = 0; i < inf.getInputFields().size(); i++) {
           ITextFileInputField field = inf.getInputFields().get(i);
 

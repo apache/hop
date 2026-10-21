@@ -23,6 +23,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lint.registry.LintConfigurationException;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /** Shared lint execution for GUI pre-commit checks and the CLI pre-commit hook. */
@@ -59,6 +60,21 @@ public final class PreCommitLintService {
       LintSeverity.FailOn failOn,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
+    return lintFiles(files, failOn, variables, metadataProvider, false);
+  }
+
+  /**
+   * @param strict fail on a hop-lint.yml that cannot be read, as the git hook does, instead of
+   *     linting with the default rules, as Hop Gui's commit check does
+   * @throws LintConfigurationException in strict mode, when a staged file's hop-lint.yml cannot be
+   *     read
+   */
+  public static Result lintFiles(
+      List<File> files,
+      LintSeverity.FailOn failOn,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      boolean strict) {
     List<LintResult> allResults = new ArrayList<>();
     HopLinter linter = new HopLinter();
 
@@ -67,10 +83,18 @@ public final class PreCommitLintService {
         continue;
       }
       try {
-        if (files.size() == 1 || allResults.isEmpty()) {
-          linter.loadConfigurationForContext(file);
+        if (strict) {
+          // lintFile() would load the configuration again, leniently.
+          linter.loadConfigurationStrictly(file);
+          allResults.addAll(linter.processFile(file, metadataProvider, variables));
+        } else {
+          if (files.size() == 1 || allResults.isEmpty()) {
+            linter.loadConfigurationForContext(file);
+          }
+          allResults.addAll(linter.lintFile(file.getAbsolutePath(), metadataProvider, variables));
         }
-        allResults.addAll(linter.lintFile(file.getAbsolutePath(), metadataProvider, variables));
+      } catch (LintConfigurationException e) {
+        throw e;
       } catch (Exception e) {
         log.logError("Error linting file " + file.getAbsolutePath() + ": " + e.getMessage(), e);
         allResults.add(

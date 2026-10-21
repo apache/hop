@@ -19,9 +19,11 @@ package org.apache.hop.lint;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /** Output formats the CLI can render lint results in. */
-public enum LintReportFormat {
+public enum LintReportFormat implements IEnumHasCodeAndDescription {
 
   /** Human-readable summary, the default for interactive runs. */
   TEXT("text"),
@@ -43,6 +45,16 @@ public enum LintReportFormat {
 
   public String getId() {
     return id;
+  }
+
+  @Override
+  public String getCode() {
+    return name();
+  }
+
+  @Override
+  public String getDescription() {
+    return BaseMessages.getString(LintReportFormat.class, "LintReportFormat." + name());
   }
 
   public static LintReportFormat parse(String value) {

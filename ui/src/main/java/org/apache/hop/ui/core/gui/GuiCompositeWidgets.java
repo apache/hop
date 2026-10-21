@@ -130,6 +130,13 @@ public class GuiCompositeWidgets {
   private Control widgetsFirstLastControl;
 
   /**
+   * Boxes or tabs created by the last {@link #createCompositeWidgets} call. That container is
+   * attached to the bottom of its parent. {@link #fitContainerToContent()} drops the attachment
+   * when the caller still has controls to place under it.
+   */
+  private Control widgetsGroupContainer;
+
+  /**
    * The {@link FormData#height} a row had before {@link #setWidgetsHidden} collapsed it, so that
    * showing it again restores the size it was created with rather than a default one.
    */
@@ -167,6 +174,7 @@ public class GuiCompositeWidgets {
       Composite parent,
       String parentGuiElementId,
       Control lastControl) {
+    this.widgetsGroupContainer = null;
     if (sourceData == null) {
       // Nothing to do here. We can't detect widgets without an object.
       return;
@@ -317,6 +325,7 @@ public class GuiCompositeWidgets {
             : new FormAttachment(widgetsFirstLastControl, PropsUi.getMargin());
     fdFiller.bottom = new FormAttachment(100, 0);
     filler.setLayoutData(fdFiller);
+    this.widgetsGroupContainer = filler;
 
     for (WidgetGroup group : groups) {
       Group box = new Group(filler, SWT.SHADOW_ETCHED_IN);
@@ -353,6 +362,7 @@ public class GuiCompositeWidgets {
     fdFolder.right = new FormAttachment(100, 0);
     fdFolder.bottom = new FormAttachment(100, 0);
     folder.setLayoutData(fdFolder);
+    this.widgetsGroupContainer = folder;
 
     for (WidgetGroup group : groups) {
       CTabItem item = new CTabItem(folder, SWT.NONE);
@@ -385,6 +395,34 @@ public class GuiCompositeWidgets {
     if (folder.getItemCount() > 0) {
       folder.setSelection(0);
     }
+  }
+
+  /**
+   * Boxes and tabs stretch to the bottom of their parent so a dialog can fill the space under a
+   * header. When the caller still has controls to place under that container, this keeps the
+   * container at the height of its fields and returns the control to attach the next row to.
+   *
+   * @return the container, or the control the widgets were hung below when there is no container
+   */
+  public Control fitContainerToContent() {
+    Control container = widgetsGroupContainer;
+    if (container == null || container.isDisposed()) {
+      return widgetsFirstLastControl;
+    }
+    if (container.getLayoutData() instanceof FormData formData && formData.bottom != null) {
+      int widthHint = SWT.DEFAULT;
+      Composite parent = container.getParent();
+      if (parent != null && !parent.isDisposed()) {
+        int clientWidth = parent.getClientArea().width;
+        if (clientWidth > 50) {
+          widthHint = clientWidth;
+        }
+      }
+      Point preferred = container.computeSize(widthHint, SWT.DEFAULT, true);
+      formData.height = Math.max(preferred.y, 1);
+      formData.bottom = null;
+    }
+    return container;
   }
 
   /**

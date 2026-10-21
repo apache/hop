@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-oracle]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Oracle: the JDBC driver to use and how to install it.
 
 = Oracle
 

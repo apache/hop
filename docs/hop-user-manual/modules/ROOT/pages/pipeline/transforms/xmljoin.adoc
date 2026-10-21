@@ -41,13 +41,13 @@ Only one row is produced after the join. This single row contains the fields of 
 |Source XML Field|Field that contains the XML structures that get added to the target.
 |XPath Statement|An XPath statement used to find the node in the target document where the new tags start to be inserted.
 When the complex join is enabled, a single ? character is used as a placeholder.
-|Complex Join|Flag to enable the complex join syntax, using the placeholder in the XPath Statment
+|Complex Join|Flag to enable the complex join syntax, using the placeholder in the XPath Statement
 |Join Comparison Field|Field that contains the values that get replaced in the XPath Statement
 |Result XML field|The field that will contain the result.
 |Encoding|Character encoding to be used in the XML Header and to transform the XML
 |Omit XML header|Whether the XML header is omitted from the output.
 The character encoding of the target XML is preserved regardless of whether the header is included.
-|Omit null values from XML|Whether null values are removed fro the output. If this option is not selected, null values are included in the XML output as an empty element, such as <abc/>.
+|Omit null values from XML|Whether null values are removed from the output. If this option is not selected, null values are included in the XML output as an empty element, such as <abc/>.
 When this option is selected, the null values are completely omitted from the output and no empty elements exist.
 This is useful to save space in the output file (for high volume transactions) or to use the empty tags for special conditions in the output.
 |===

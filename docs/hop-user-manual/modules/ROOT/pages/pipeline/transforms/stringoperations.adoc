@@ -75,7 +75,7 @@ Values for Metadata Injection
 1 = left +
 2= right
 |Pad Char| Character used for padding
-|Pad Length| Lenght to pad
+|Pad Length| Length to pad
 |InitCap|0 = no +
 1 = yes
 |Escape|0 = none +

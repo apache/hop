@@ -43,16 +43,17 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
- * This defines a 'copymoveresultfilenames' action. Its main use would be to copy or move files in
- * the result filenames to a destination folder. that can be used to control the flow in ETL cycles.
+ * This defines a 'copy move result filenames' action. Its main use would be to copy or move files
+ * in the result filenames to a destination folder. that can be used to control the flow in ETL
+ * cycles.
  */
+@Getter
+@Setter
 @Action(
     id = "COPY_MOVE_RESULT_FILENAMES",
     name = "i18n::ActionCopyMoveResultFilenames.Name",
@@ -61,8 +62,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionCopyMoveResultFilenames.keyword",
     documentationUrl = "/workflow/actions/processresultfilenames.html")
-@Getter
-@Setter
 public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class;
   public static final String SUCCESS_IF_AT_LEAST_X_FILES = "success_when_at_least";
@@ -488,12 +487,15 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
       WorkflowMeta workflowMeta,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-    AndValidator.putValidators(
-        ctx,
-        ActionValidatorUtils.notNullValidator(),
-        ActionValidatorUtils.fileDoesNotExistValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    // Delete only drops names from the result. Copy and move need a destination folder.
+    if (getAction() == ActionType.DELETE) {
+      return;
+    }
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "destinationFolder",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 }

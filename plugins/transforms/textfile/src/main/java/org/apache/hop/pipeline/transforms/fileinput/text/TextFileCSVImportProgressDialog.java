@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalFields;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
-import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineScanner;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -74,7 +74,8 @@ public class TextFileCSVImportProgressDialog<T extends ITextFileInputField>
 
   private long rowNumber;
 
-  private final InputStreamReader reader;
+  /** Reads the sample lines from a buffer of decoded characters. */
+  private final TextFileLineScanner lineScanner;
 
   private final ILogChannel log;
 
@@ -95,7 +96,7 @@ public class TextFileCSVImportProgressDialog<T extends ITextFileInputField>
     this.shell = shell;
     this.variables = variables;
     this.meta = meta;
-    this.reader = reader;
+    this.lineScanner = new TextFileLineScanner(reader);
     this.samples = samples;
     this.replaceMeta = replaceMeta;
     this.message = null;
@@ -534,9 +535,7 @@ public class TextFileCSVImportProgressDialog<T extends ITextFileInputField>
   }
 
   private String readSampleLine(StringBuilder lineBuffer, int fileFormatType) throws HopException {
-    return TextFileLineUtil.getLine(
-        log,
-        reader,
+    return lineScanner.getLine(
         encodingType,
         fileFormatType,
         lineBuffer,

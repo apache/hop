@@ -63,10 +63,10 @@ For example, if your `+${PROJECT_HOME}+` is `/home/admin/hop/project/` and you s
 [%header, cols="1,3,1", width="90%"]
 |===
 |Option|Description|Default
-|Execute for every input row?|Implements looping; if the previous workflow action returns a set of result rows, the workflow executes once for every row found.
+|Execute for every result row|Implements looping; if the previous workflow action returns a set of result rows, the workflow executes once for every row found.
 One row is passed to the workflow at every execution.
 For example, you can execute a workflow for each file found in a directory.|false
-|Wait for the remote workflow to finish?|Enable to block until the workflow on the Hop Server has finished|true
+|Wait for remote workflow to complete|Blocks the workflow until the child workflow has finished, so this action returns the result of the child workflow.|true
 |Stop after (milliseconds)|Maximum time to wait for the workflow to complete. Empty or 0 means wait indefinitely. When the time is reached the workflow is stopped and this action fails. Only used when wait-to-finish is enabled. The value may contain a variable.|empty (no limit)
 |===
 
@@ -87,7 +87,7 @@ If, however, you want all your log information kept in one place, you must set u
 [options="header",cols="1,3", width="90%"]
 |===
 |Option|Description
-|Specify logfile?|Enable to specify a separate logging file for the execution of this workflow
+|Specify logfile|Enable to specify a separate logging file for the execution of this workflow
 |Name of logfile|The directory and base name of the log file; for example `C:\logs`
 |Extension of logfile|The file name extension; for example, log or txt
 |Loglevel|Specifies the logging level for the execution of the workflow. See xref:logging/logging-basics.adoc[Logging] for more details.
@@ -109,7 +109,7 @@ For the exact rules that decide which value a parameter ends up with, see xref:v
 [options="header",cols="1,3", width="90%"]
 |===
 |Option|Description
-|Copy results to parameter|results from previous workflows or pipelines are passed down to this workflows action's parameters
+|Copy results to parameters|results from previous workflows or pipelines are passed down to this workflows action's parameters
 |Pass parent values to matching parameters|Seed a parameter the sub-workflow declares, but that is not listed above, from this workflow's value of the same name. With the option off the sub-workflow keeps its own default. Variables are inherited by the sub-workflow either way.
 |Parameters|Specify the parameter names that will be passed to the workflow.
 |Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
@@ -123,3 +123,18 @@ You can do this by:
 
 |===
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The child workflow ended with a true result.
+|False|The workflow could not be loaded or started, the log file of *Specify logfile* could not be created, the child workflow ended with a false result, or *Stop after (milliseconds)* was reached. With *Execute for every result row*, the first run that fails ends the loop: the remaining rows are not processed.
+|Result files|The result files of the child workflow are added to the files the action received, plus the log file with *Specify logfile*.
+|Result rows|The child workflow starts with the rows the action received. When it returns at least one row, those rows replace the rows the action received; when it returns none, the received rows are passed on. A child that doesn't change the rows returns them as it received them. With *Execute for every result row*, every run receives only its own row, and the action passes on what the last run left: the rows the last child returned, or else the last row the action received.
+|Metrics|The line counts and the number of errors of the child workflow. With *Execute for every result row*, those of the last run.
+|===
+
+Without *Wait for remote workflow to complete*, the result is true as soon as the child workflow starts, and its files, rows and metrics are not passed on.

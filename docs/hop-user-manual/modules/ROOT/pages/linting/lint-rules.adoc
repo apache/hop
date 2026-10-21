@@ -101,7 +101,7 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |is a collection with at least one entry
 
 |`NO_HARDCODED`
-|is empty, or is a variable reference rather than a literal value
+|is empty, or takes its value from a variable (`${NAME}`, `%%NAME%%`) or a variable resolver (`#{vault:path:key}`) rather than holding a literal value. An `Encrypted` value is a literal value: Hop obfuscates it, and anyone with Hop and the same encoder key can read it back
 
 |`MAX_VALUE`, `MIN_VALUE`, `EXACT_VALUE`
 |compares as required against `conditionValue`
@@ -150,7 +150,21 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 
 |`isBlockingTransform`
 |The transform blocks until all rows have arrived
+
+|`errorHandling`
+|A transform sends its error rows to another transform; an action has a hop that is followed on failure
+
+|`targetTransforms`, `targetActions`
+|The names of the transforms or actions that the enabled hops lead to
+
+|`databaseType`
+|The type of a database connection, as its plugin id, for example `POSTGRESQL`
+
+|`attributes`
+|The attributes of a database connection, including its extra options. A finding lists the attribute names, not their values
 |===
+
+A database connection rule that names a field the connection does not have is reported as an error against the rule.
 
 Nested properties are reached with a dotted path:
 
@@ -231,6 +245,32 @@ A rule aimed at `TRANSFORM` runs against every transform in the pipeline.
 
 A scoped rule naming a field the transform does not have is reported as a configuration error rather than passing quietly, so that a typo in a field name is visible instead of looking like a clean result.
 
+== Parameters
+
+A few rules read extra settings from a `parameters:` block:
+
+[cols="1,3", options="header"]
+|===
+|Parameter |Read by
+
+|`fieldPatterns`
+|A `NO_HARDCODED` rule on `TRANSFORM` or `ACTION` whose `targetField` is `password`, `secret` or `credential`. The list of field name endings that hold a secret, replacing the default list
+
+|`blockingTransforms`
+|`isBlockingTransform`. The transform plugin ids that count as blocking, replacing the default list
+|===
+
+[source,yaml]
+----
+  SEC-002:
+    parameters:
+      fieldPatterns:
+        - "password"
+        - "apiKey"
+----
+
+Any other parameter is ignored, and a warning in the log names it, in a rule pack and in `hop-lint.yml` alike.
+
 == Hop's own verify remarks
 
 Every transform and action has a `check()` method of its own, the one behind the *Verify* button, and the linter reports what those find alongside its own rules.
@@ -278,6 +318,52 @@ suppress:
     reason: "Fields in these templates arrive through metadata injection"
 ----
 
+[[tags]]
+== Tags and help links
+
+A rule can carry `tags`: labels a team or vendor attaches to it, such as a category, the team that owns it or the policy it enforces.
+Each value is a string or a list of strings.
+
+[source,yaml]
+----
+rules:
+  ACME-002:
+    type: custom
+    # ...the rule as before...
+    helpUri: https://wiki.example.com/lint/ACME-002
+    tags:
+      category: secrets
+      owner: platform-team
+      policy: ["SEC-POL-4", "SEC-POL-7"]
+----
+
+The linter never evaluates tags, so changing them cannot change what a rule finds.
+They are written to the reports, on every finding the rule produces:
+
+* `sarif`: on the rule, `properties.tags` holds one `key:value` string per value (`category:secrets`, `policy:SEC-POL-4`, `policy:SEC-POL-7`), the form GitHub code scanning and Azure DevOps read, and `properties.hopTags` holds the same tags as a map. The rule's `description` is written as `fullDescription`, and `helpUri` as `helpUri`.
+* `json`: each finding has a `tags` object. Every value is written as a list, also a single one.
+
+Tags work the same on a native rule.
+
+A project sets tags on any rule, a pack's included, in its own `hop-lint.yml`.
+Each key replaces the pack's values for that key and leaves the pack's other tags as they are; a key with no values removes the pack's tag:
+
+[source,yaml]
+----
+rules:
+  DB-001:
+    tags:
+      owner: data-team    # replaces the pack's owner, if it has one
+      policy: []          # removes the pack's policy tag
+    helpUri: https://wiki.example.com/lint/DB-001
+----
+
+In Hop Gui, the rule editor has a *Help URL* field and a *Tags* table with one row per key and value; repeat a key to give it several values.
+Saving a pack rule there writes only the changed keys to `hop-lint.yml`, as above.
+The rule manager lists each rule's tags in its *Tags* column.
+
+A key the linter does not know, such as `tag:` for `tags:`, is logged as a warning and ignored.
+
 == The rules Hop ships
 
 Hop's core rule pack is deliberately small. A rule is enabled by default only when a violation is defensible as a defect in any project, whatever the house style.
@@ -317,6 +403,15 @@ Hop's core rule pack is deliberately small. A rule is enabled by default only wh
 
 `TRANS-002` and `WORKFLOW-002` report on the transform or action itself, so the finding names it and the canvas can point at it.
 The only element in a file is not an orphan — there is nothing for it to be disconnected from — and neither is one whose hops are all disabled: it has hops, and whether a disabled hop is a problem is what `STRUCT-003` asks.
+
+An orphaned action never runs, because nothing leads to it from Start.
+An orphaned transform does run: Hop starts every transform in a pipeline, connected or not.
+`TRANS-002` warns that it runs as a stream of its own, which is rarely what was meant.
+A pipeline that deliberately runs two independent streams can accept the finding on that transform, see <<accept-on-transform>>.
+
+`SEC-002` and `SEC-003` look at every text field of the transform or action whose name ends in one of the rule's `fieldPatterns`, such as `password`, `token` or `passphrase`.
+They also look inside the settings the transform or action stores in the file, such as the list of files PGP Decrypt Files decrypts, each with its own passphrase.
+`DB-001`, `SEC-002` and `SEC-003` count an `Encrypted` value as hardcoded.
 
 Hop ships no narrowed `native` rule of its own.
 A check that is simply wrong is fixed in the transform rather than silenced from a rule pack, which would leave it firing for everyone who presses *Verify*.
@@ -402,6 +497,11 @@ rules:
     enabled: true
     conditionValue: "30"
 
+  # Use your own wording for a pack rule
+  DOC-002:
+    name: "Workflows need a description"
+    description: "Say what the workflow does and who to ask about it"
+
   # A rule that exists only in this project
   LOCAL-001:
     type: custom
@@ -415,6 +515,12 @@ rules:
 
 *Tools -> Lint -> Manage Custom Rules* writes this file for you.
 It changes only the entry of the rule you added, edited, switched or deleted: the other rules, the `exclude` and `suppress` sections and your comments stay as you wrote them.
+
+A rule you add there gets its id in the *Rule ID* field, suggested as `PROJECT-001`, `PROJECT-002` and so on.
+Findings, SARIF reports, `hop lint --list-rules` and `hop-lint.yml` all name the rule by this id, so pick one that says what the rule is about.
+An id holds letters, digits, hyphens, underscores and dots, and no two rules can share one, whatever the case.
+A project rule's id can be changed later; a `suppress` entry naming the old id does not follow it.
+A pack rule keeps the pack's id.
 
 A parse error in `hop-lint.yml` is reported rather than ignored, so that a typo cannot leave you linting with the defaults while believing otherwise.
 
@@ -450,6 +556,7 @@ Both are in *Tools -> Lint* as well.
 
 A file covered by a broader pattern, `templates/**` rather than its own name, is left alone: which entry to change is a decision for you rather than a guess by the menu.
 
+[[accept-on-transform]]
 == Accepting findings on a single transform or action
 
 An exclusion covers a whole file, which is right for a template that is dynamic from end to end and too much for one that is only partly dynamic.

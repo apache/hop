@@ -163,7 +163,7 @@ public abstract class BaseFileInputTransform<
   }
 
   /** Best-effort {@link FileIoOperation#READ} lineage for the file being opened. */
-  private void emitLineageFileRead(FileObject file) {
+  protected void emitLineageFileRead(FileObject file) {
     if (file == null) {
       return;
     }

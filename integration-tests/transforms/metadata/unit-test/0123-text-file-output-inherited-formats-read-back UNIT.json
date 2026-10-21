@@ -1,0 +1,52 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "d_input",
+          "data_set_field": "d_input"
+        },
+        {
+          "transform_field": "d_select",
+          "data_set_field": "d_select"
+        },
+        {
+          "transform_field": "d_override",
+          "data_set_field": "d_override"
+        },
+        {
+          "transform_field": "d_default",
+          "data_set_field": "d_default"
+        },
+        {
+          "transform_field": "n_input",
+          "data_set_field": "n_input"
+        },
+        {
+          "transform_field": "s_value",
+          "data_set_field": "s_value"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-inherited-formats"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0123-text-file-output-inherited-formats-read-back UNIT",
+  "description": "Reads back the file written by 0123-text-file-output-inherited-formats as text and compares it to the expected inherited formats",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0123-text-file-output-inherited-formats-read-back.hpl",
+  "test_type": "UNIT_TEST"
+}

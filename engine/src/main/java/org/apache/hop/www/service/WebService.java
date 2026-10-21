@@ -33,7 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::WebService.description",
     image = "ui/images/webservice.svg",
     category = HopMetadataCategory.SERVERS,
-    documentationUrl = "/metadata-types/web-service.html",
+    documentationUrl = "/hop-server/web-service.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE)
 @Getter
 @Setter

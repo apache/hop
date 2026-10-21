@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -244,6 +245,12 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         logBasic(BaseMessages.getString(PKG, "DatabaseJoin.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
+      if (isStopped()) {
+        // The lookup was canceled because the pipeline stopped. The driver reports that as a
+        // failed query, but this is a clean stop: no error, and no further rows.
+        logDebug(e.getMessage());
+        return false;
+      }
 
       if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
@@ -269,28 +276,35 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   }
 
   /**
-   * Stop the running query In the Database Join transform data.isCancelled is checked before
-   * synchronization and set after synchronization is completed.
+   * Cancel the running prepared statement.
    *
-   * <p>To cancel a prepared statement we need a valid database connection which we do not have if
-   * disposed has already been called
+   * <p>{@code Pipeline.stopTransform} marks this transform stopped before it calls this method, so
+   * the stopped flag must not skip the cancel. {@code data.isCanceled} prevents a second cancel.
+   * Cancel is skipped once the transform is disposed, because dispose has already closed the
+   * statement and dropped the connection.
+   *
+   * <p>Do not hold {@code dbLock} across {@link Database#cancelStatement(java.sql.Statement)}.
+   * {@code lookupValues} keeps that lock for the whole lookup, including {@code putRow}. A stopped
+   * {@code putRow} calls {@code stopAll}, and {@code stopAll} holds the pipeline transform list
+   * while it calls this method. Waiting for {@code dbLock} here deadlocks those two threads. JDBC
+   * {@code Statement.cancel()} is safe to call from this stopping thread while the lookup thread is
+   * blocked in the driver.
    */
   @Override
   public void stopRunning() throws HopException {
-    if (this.isStopped() || data.isDisposed()) {
+    if (data.isDisposed()) {
       return;
     }
 
-    dbLock.lock();
-
-    try {
-      if (data.db != null && data.db.getConnection() != null && !data.isCanceled) {
-        data.db.cancelStatement(data.pstmt);
-        setStopped(true);
-        data.isCanceled = true;
-      }
-    } finally {
-      dbLock.unlock();
+    // Read the connection and statement without dbLock, then cancel outside any lock the lookup
+    // thread holds. dispose() may clear these fields; a cancel of a statement that is already
+    // closing is harmless compared with deadlocking the pipeline.
+    Database database = data.db;
+    PreparedStatement statement = data.pstmt;
+    if (database != null && database.getConnection() != null && !data.isCanceled) {
+      database.cancelStatement(statement);
+      setStopped(true);
+      data.isCanceled = true;
     }
   }
 

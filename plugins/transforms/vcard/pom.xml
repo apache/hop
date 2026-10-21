@@ -30,6 +30,7 @@
 
     <properties>
         <ez-vcard.version>0.12.2</ez-vcard.version>
+        <freemarker.version>2.3.35</freemarker.version>
     </properties>
 
     <dependencyManagement>
@@ -41,6 +42,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <!-- ez-vcard's reader loads FreeMarker classes, so it has to ship. -->
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -50,6 +57,12 @@
             <artifactId>ez-vcard</artifactId>
             <version>${ez-vcard.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <!-- Shipped in lib/core. -->
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

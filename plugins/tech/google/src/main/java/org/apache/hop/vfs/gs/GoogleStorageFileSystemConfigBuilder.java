@@ -26,6 +26,7 @@ import org.apache.commons.vfs2.FileSystemOptions;
 public class GoogleStorageFileSystemConfigBuilder extends FileSystemConfigBuilder {
 
   private static final String GOOGLE_CREDENTIALS = "googleCredentials";
+  private static final String CREDENTIALS_PROBLEM = "credentialsProblem";
   private static final GoogleStorageFileSystemConfigBuilder builder =
       new GoogleStorageFileSystemConfigBuilder();
 
@@ -41,6 +42,20 @@ public class GoogleStorageFileSystemConfigBuilder extends FileSystemConfigBuilde
 
   public GoogleCredentials getGoogleCredentials(FileSystemOptions opts) {
     return (GoogleCredentials) getParam(opts, GOOGLE_CREDENTIALS);
+  }
+
+  /**
+   * Why no credentials could be loaded, reported on first use of the file system.
+   *
+   * @param opts the file system options
+   * @param problem what went wrong, and what to do about it
+   */
+  public void setCredentialsProblem(FileSystemOptions opts, String problem) {
+    setParam(opts, CREDENTIALS_PROBLEM, problem);
+  }
+
+  public String getCredentialsProblem(FileSystemOptions opts) {
+    return (String) getParam(opts, CREDENTIALS_PROBLEM);
   }
 
   public void setSchema(FileSystemOptions opts, String schema) {

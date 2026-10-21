@@ -24,17 +24,21 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.util.ReflectionUtil;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
 /**
  * The settings of a transform or action, as compact JSON for a prompt.
  *
  * <p>Reads the {@code @HopMetadataProperty} fields: SQL, file names, connection names, field lists
  * and so on, which is what a model needs to explain what a pipeline or workflow does. Password
- * fields are skipped. Empty values, long texts and long lists are left out or shortened so one
- * transform cannot take over the prompt.
+ * fields are skipped. Values the plugin has by default are left out: they say nothing about this
+ * pipeline or workflow, and a transform such as the Pipeline executor has a dozen of them. Empty
+ * values, long texts and long lists are left out or shortened so one transform cannot take over the
+ * prompt.
  */
 public final class AiNodeSettings {
 
@@ -57,7 +61,13 @@ public final class AiNodeSettings {
       return null;
     }
     Object settings = read(node, 0);
-    if (!(settings instanceof Map<?, ?> map) || map.isEmpty()) {
+    if (!(settings instanceof Map<?, ?> map)) {
+      return null;
+    }
+    Map<?, ?> defaults = defaultsOf(node);
+    map.entrySet()
+        .removeIf(entry -> Objects.equals(entry.getValue(), defaults.get(entry.getKey())));
+    if (map.isEmpty()) {
       return null;
     }
     try {
@@ -68,6 +78,22 @@ public final class AiNodeSettings {
       return AiTextUtil.redactSecrets(json);
     } catch (JsonProcessingException e) {
       return null;
+    }
+  }
+
+  /**
+   * The settings of a new transform or action of the same plugin, as {@link #read} gives them.
+   * Empty when the plugin cannot be created that way, so nothing is left out.
+   */
+  static Map<?, ?> defaultsOf(Object node) {
+    try {
+      Object fresh = node.getClass().getDeclaredConstructor().newInstance();
+      if (fresh instanceof ITransformMeta transformMeta) {
+        transformMeta.setDefault();
+      }
+      return read(fresh, 0) instanceof Map<?, ?> map ? map : Map.of();
+    } catch (Exception | LinkageError e) {
+      return Map.of();
     }
   }
 

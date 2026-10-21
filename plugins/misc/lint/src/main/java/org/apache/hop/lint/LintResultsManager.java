@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -64,8 +65,9 @@ public class LintResultsManager {
   // Track when results were last updated
   private long lastUpdateTime = 0;
 
-  // Listeners for result changes
-  private final List<LintResultsListener> listeners = new ArrayList<>();
+  // Listeners for result changes. Notified from lint threads while a window closing on the UI
+  // thread removes its own, so iteration has to tolerate a concurrent removal.
+  private final List<LintResultsListener> listeners = new CopyOnWriteArrayList<>();
 
   private LintResultsManager() {
     // Singleton
@@ -80,7 +82,13 @@ public class LintResultsManager {
    * HopGui, so there it is still one set.
    */
   public static LintResultsManager getInstance() {
-    HopGui hopGui = HopGui.peekInstance();
+    HopGui hopGui = null;
+    try {
+      hopGui = HopGui.peekInstance();
+    } catch (LinkageError e) {
+      // Hop Server, hop lint and the Run Linter action have no Hop Gui to ask, and may not have
+      // its classes either. They keep the shared set below.
+    }
     if (hopGui != null) {
       return hopGui.getSessionSingleton(LintResultsManager.class, LintResultsManager::new);
     }

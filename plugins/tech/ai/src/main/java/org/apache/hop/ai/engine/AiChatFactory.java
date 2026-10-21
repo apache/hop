@@ -42,6 +42,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.LanguageModelFacade;
+import org.apache.hop.pipeline.transforms.languagemodelchat.internals.OllamaThink;
 
 /** Maps {@link AiProvider} metadata onto Language Model Chat and runs a completion. */
 public final class AiChatFactory {
@@ -135,6 +136,7 @@ public final class AiChatFactory {
     Integer timeout = parseTimeout(resolve(variables, provider.getTimeoutSeconds()));
     Integer contextSize = AiProviderSettings.contextSize(provider, variables);
     Integer maxOutputTokens = AiProviderSettings.maxOutputTokens(provider, variables);
+    Boolean think = AiProviderSettings.think(provider, variables);
     boolean applyTemperature = useProviderDefaults || hasTemperature;
 
     String hopType = backend.getHopModelType();
@@ -175,6 +177,9 @@ public final class AiChatFactory {
       }
       if (maxOutputTokens != null) {
         meta.setOllamaNumPredict(maxOutputTokens);
+      }
+      if (think != null) {
+        meta.setOllamaThink(OllamaThink.of(think));
       }
     } else if ("MISTRAL".equals(hopType)) {
       if (!Utils.isEmpty(baseUrl)) {

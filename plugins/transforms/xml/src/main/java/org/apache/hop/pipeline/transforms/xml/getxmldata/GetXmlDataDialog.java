@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
 import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeByDesc;
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeDesc;
 import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeByDesc;
 import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeCode;
 import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getTrimTypeByDesc;
@@ -1841,7 +1840,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
 
       field.setName(item.getText(1));
       field.setXPath(item.getText(2));
-      field.setElementType(getElementTypeDesc(getElementTypeByDesc(item.getText(3))));
+      field.setElementType(
+          GetXmlDataField.getElementTypeStoredValue(getElementTypeByDesc(item.getText(3))));
       field.setResultType(getResultTypeCode(getResultTypeByDesc(item.getText(4))));
       field.setType(ValueMetaBase.getTypeDesc(ValueMetaBase.getType(item.getText(5))));
       field.setFormat(item.getText(6));

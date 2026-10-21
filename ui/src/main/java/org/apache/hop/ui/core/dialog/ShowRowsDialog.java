@@ -151,6 +151,8 @@ public final class ShowRowsDialog {
     view.setShowingBlueNullValues(true);
     // Data rows, not configuration: draw long / multi-line values shortened.
     view.setShortenDisplayedValues(true);
+    // Browsing data, not editing it: a filter must not be the set of rows a dialog saves.
+    view.setFiltersSupported(true);
     // Column sorting is enabled: items carry their full values, so a sort reorders complete rows.
     view.setSortable(true);
 

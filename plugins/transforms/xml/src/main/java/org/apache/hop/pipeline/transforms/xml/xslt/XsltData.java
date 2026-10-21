@@ -89,8 +89,11 @@ public class XsltData extends BaseTransformData implements ITransformData {
         xslInputStream = new ByteArrayInputStream(xslSource.getBytes(StandardCharsets.UTF_8));
       }
 
-      // Use the factory to create a template containing the xsl source
-      transformer = factory.newTransformer(new StreamSource(xslInputStream));
+      // Use the factory to create a template containing the xsl source. The URI of a stylesheet
+      // file resolves relative xsl:include and xsl:import references against its folder.
+      String systemId = file == null ? null : file.getName().getURI();
+      transformer = factory.newTransformer(new StreamSource(xslInputStream, systemId));
+      transformer.setURIResolver(factory.getURIResolver());
       // Add transformer to cache
       transformers.put(xslSource, transformer);
 

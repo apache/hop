@@ -729,7 +729,13 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
       for (String id : getExecutionIds(true, 10000)) {
         Execution execution = getExecution(id);
-        if (parentExecutionId.equals(execution.getParentId())) {
+        if (execution == null) {
+          continue;
+        }
+        // parentId is the owning workflow or pipeline. launchedById is the action or transform
+        // that started this execution. Callers pass either one.
+        if (parentExecutionId.equals(execution.getParentId())
+            || parentExecutionId.equals(execution.getLaunchedById())) {
           executions.add(execution);
         }
       }
@@ -784,9 +790,15 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public synchronized String findParentId(String childId) throws HopException {
     try {
+      Execution execution = getExecution(childId);
+      if (execution != null && StringUtils.isNotEmpty(execution.getParentId())) {
+        return execution.getParentId();
+      }
       for (String id : getExecutionIds(true, 100)) {
         ExecutionState executionState = getExecutionState(id);
-        if (executionState.getChildIds().contains(childId)) {
+        if (executionState != null
+            && executionState.getChildIds() != null
+            && executionState.getChildIds().contains(childId)) {
           return id;
         }
       }

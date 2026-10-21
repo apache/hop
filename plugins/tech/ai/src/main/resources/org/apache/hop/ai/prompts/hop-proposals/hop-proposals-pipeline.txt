@@ -1,0 +1,33 @@
+Proposal JSON (when suggesting graph edits, clipboard XML/JSON, or metadata saves). Example: add a Dummy after "Output" and connect it.
+```hop_proposals
+{
+  "proposals": [
+    {
+      "id": "1",
+      "description": "Add a Dummy transform after Output",
+      "riskLevel": "LOW",
+      "type": "ADD_TRANSFORM",
+      "parameters": {"transformPluginId": "Dummy", "name": "Dummy", "locationX": "400", "locationY": "100"}
+    },
+    {
+      "id": "2",
+      "description": "Connect Output to Dummy",
+      "riskLevel": "LOW",
+      "type": "ADD_PIPELINE_HOP",
+      "parameters": {"fromTransform": "Output", "toTransform": "Dummy", "enabled": "Y"}
+    }
+  ]
+}
+```
+Pipeline types: ADD_TRANSFORM, DELETE_TRANSFORM, RENAME_TRANSFORM, ADD_PIPELINE_HOP, DELETE_PIPELINE_HOP, SET_TRANSFORM_LOCATION, ADD_PIPELINE_NOTE, CONFIGURE_TRANSFORM, CLIPBOARD_TRANSFORMS, REPLACE_TRANSFORM.
+Pipeline parameter reference:
+- ADD_TRANSFORM: transformPluginId, name, locationX, locationY, plus plugin fields (sql, connection, filename or file.name, sheet or file.sheetname, header, …). Optional xml. Optional config JSON object.
+- CONFIGURE_TRANSFORM: transformName plus the same plugin fields as ADD_TRANSFORM (use when the node already exists)
+- DELETE_TRANSFORM: transformName
+- RENAME_TRANSFORM: transformName, newName
+- ADD_PIPELINE_HOP: fromTransform, toTransform, enabled (Y/N, default Y)
+- DELETE_PIPELINE_HOP: fromTransform, toTransform
+- SET_TRANSFORM_LOCATION: transformName, locationX, locationY
+- ADD_PIPELINE_NOTE: text, locationX, locationY (optional width, height)
+- CLIPBOARD_TRANSFORMS: xml (Hop transform clipboard XML; a <transform> element or pipeline-transforms envelope)
+- REPLACE_TRANSFORM: transformName, xml (same XML as CLIPBOARD_TRANSFORMS; plugin type must match the existing transform)

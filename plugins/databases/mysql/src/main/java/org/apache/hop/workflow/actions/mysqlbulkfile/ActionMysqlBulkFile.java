@@ -33,6 +33,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -241,7 +242,7 @@ public class ActionMysqlBulkFile extends ActionBase {
               }
 
               // Add schemaname (Most the time Schemaname.Tablename)
-              if (schemaName != null) {
+              if (!Utils.isEmpty(realSchemaname)) {
                 realTablename = realSchemaname + "." + realTablename;
               }
 
@@ -251,18 +252,18 @@ public class ActionMysqlBulkFile extends ActionBase {
               }
 
               // Set list of Column, if null get all columns (*)
-              if (getRealListColumn() != null) {
+              if (!Utils.isEmpty(getRealListColumn())) {
                 listOfColumn = mysqlString(getRealListColumn());
               }
 
               // Fields separator
-              if (getRealSeparator() != null && outDumpValue == 0) {
+              if (!Utils.isEmpty(getRealSeparator()) && outDumpValue == 0) {
                 fieldSeparator =
                     "FIELDS TERMINATED BY '" + Const.replace(getRealSeparator(), "'", "''") + "'";
               }
 
               // Lines Terminated by
-              if (getRealLineterminated() != null && outDumpValue == 0) {
+              if (!Utils.isEmpty(getRealLineterminated()) && outDumpValue == 0) {
                 linesTerminated =
                     "LINES TERMINATED BY '"
                         + Const.replace(getRealLineterminated(), "'", "''")
@@ -274,7 +275,7 @@ public class ActionMysqlBulkFile extends ActionBase {
                 strHighPriority = "HIGH_PRIORITY";
               }
 
-              if (getRealEnclosed() != null && outDumpValue == 0) {
+              if (!Utils.isEmpty(getRealEnclosed()) && outDumpValue == 0) {
                 if (isOptionEnclosed()) {
                   optionEnclosed = "OPTIONALLY ";
                 }

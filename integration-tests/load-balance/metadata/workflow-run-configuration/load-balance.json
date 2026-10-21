@@ -6,7 +6,7 @@
       "max_retries": "10",
       "retry_window_ms": "30000",
       "retry_on_execution_failure": false,
-      "probe_timeout_ms": "3000",
+      "probe_timeout_ms": "15000",
       "config_refresh_ms": "2000",
       "state_folder": "${PROJECT_HOME}/state",
       "server_poll_delay": "200",

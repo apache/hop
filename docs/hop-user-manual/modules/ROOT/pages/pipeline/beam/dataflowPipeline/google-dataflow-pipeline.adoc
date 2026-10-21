@@ -84,5 +84,5 @@ Now we can go back to the https://console.cloud.google.com/dataflow/pipelines[co
 
 image::beam/beam-dataflow-template.png[]
 
-When selecting the Beam Flex template metadata file you will notice required parameters showing up. You can then add the path yo yhe Hop metadata and Hop pipeline stored in cloud storage.
+When selecting the Beam Flex template metadata file you will notice required parameters showing up. You can then add the path to the Hop metadata and Hop pipeline stored in cloud storage.
 

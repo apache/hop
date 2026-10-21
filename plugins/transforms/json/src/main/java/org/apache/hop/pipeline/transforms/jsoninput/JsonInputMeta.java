@@ -31,6 +31,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.fileinput.InputFile;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -58,10 +62,13 @@ import org.w3c.dom.Node;
     description = "i18n::JsonInput.description",
     keywords = "i18n::JsonInputMeta.keyword",
     categoryDescription = "i18n::JsonInput.category")
+@GuiPlugin
 @Getter
 @Setter
 public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, BaseFileInput> {
   private static final Class<?> PKG = JsonInputMeta.class;
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "JsonInput.JsonPathOptions";
 
   protected static final String[] RequiredFilesDesc =
       new String[] {
@@ -175,6 +182,23 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
       injectionKey = "DEFAULT_PATH_LEAF_TO_NULL",
       injectionKeyDescription = "JsonInput.Injection.DEFAULT_PATH_LEAF_TO_NULL")
   private boolean defaultPathLeafToNull;
+
+  @HopMetadataProperty(
+      key = "resolveJsonPaths",
+      defaultBoolean = true,
+      injectionKey = "RESOLVE_JSON_PATHS",
+      injectionKeyDescription = "JsonInput.Injection.RESOLVE_JSON_PATHS")
+  @GuiWidgetElement(
+      id = "resolveJsonPaths",
+      order = "0100",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::JsonInputMeta.ResolveJsonPaths.Label",
+      toolTip = "i18n::JsonInputMeta.ResolveJsonPaths.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "JSONPath",
+      groupOrder = "0100")
+  private boolean resolveJsonPaths = true;
 
   @HopMetadataProperty(inline = true)
   protected BaseFileInputAdditionalFields additionalOutputFields;

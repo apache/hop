@@ -102,6 +102,7 @@ public final class LintCheckResultAdapter {
     String severity = LintSeverity.fromCheckResultType(remark.getType());
     String ruleId = remark.getErrorCode();
     List<String> aliasRuleIds = new ArrayList<>();
+    LintRuleDetails ruleDetails = LintRuleDetails.NONE;
 
     if (classifier != null && !classifier.isEmpty()) {
       NativeCheckClassifier.Classification classification = classifier.classify(remark);
@@ -111,6 +112,7 @@ public final class LintCheckResultAdapter {
         return null;
       }
       severity = classification.severity();
+      ruleDetails = classification.ruleDetails();
       String classifyingRule = classification.ruleId();
       if (!Utils.isEmpty(classifyingRule)) {
         if (Utils.isEmpty(ruleId)) {
@@ -125,6 +127,9 @@ public final class LintCheckResultAdapter {
           // The blanket rule names every remark, and taking its id would collapse them all into
           // one. It is kept alongside, so what a project wrote against it still applies.
           aliasRuleIds.add(classifyingRule);
+          // The rule's tags apply to the remark; its description and help link describe the
+          // rule, not this code.
+          ruleDetails = ruleDetails.tagsOnly();
         }
       }
       // A narrowed rule took the id above, so the rule covering every remark would stop naming
@@ -144,14 +149,15 @@ public final class LintCheckResultAdapter {
         remark.getSourceInfo() != null ? remark.getSourceInfo().getName() : "Hop verify";
 
     return new LintResult(
-        ruleId,
-        ruleName,
-        severity,
-        remark.getText(),
-        fileName,
-        sourceRef,
-        LintResult.Origin.HOP_NATIVE,
-        aliasRuleIds);
+            ruleId,
+            ruleName,
+            severity,
+            remark.getText(),
+            fileName,
+            sourceRef,
+            LintResult.Origin.HOP_NATIVE,
+            aliasRuleIds)
+        .withRuleDetails(ruleDetails);
   }
 
   private static String formatCheckText(LintResult lintResult) {

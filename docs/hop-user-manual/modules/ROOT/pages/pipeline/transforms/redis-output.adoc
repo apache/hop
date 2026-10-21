@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Write STRING, HASH, SET or LIST values to Redis.
+:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 :page-marketplace: hop-tech-redis
 
 = Redis Output

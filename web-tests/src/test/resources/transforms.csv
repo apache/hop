@@ -47,6 +47,9 @@ Azure Event Hubs listener
 Azure Event Hubs writer
 Beam Bigtable input
 Beam Bigtable output
+Beam Debezium input
+Beam Elasticsearch input
+Beam Elasticsearch output
 Beam file input
 Beam file output
 Beam GCP Pub/Sub: publish
@@ -55,6 +58,12 @@ Beam Kafka consume
 Beam Kafka produce
 Beam Kinesis consume
 Beam Kinesis produce
+Beam MQTT input
+Beam MQTT output
+Beam partition
+Beam Snowflake input
+Beam Snowflake output
+Beam Splunk output
 Beam timestamp
 Beam window
 BigQuery input
@@ -79,6 +88,8 @@ Copy rows to result
 CrateDB bulk loader
 Credit card validator
 CSV file input
+Cypher builder
+Cypher output
 Data grid
 Data set input
 Data set output
@@ -88,6 +99,7 @@ Data validator
 Database impact input
 Database join
 Database lookup
+Database value validation
 DDL
 De-serialize from file
 Delay row
@@ -100,6 +112,7 @@ Dummy (do nothing)
 Dynamic SQL row
 EDI to XML
 Email messages input
+Embed text
 Enhanced JSON output
 ETL metadata injection
 Execute a process
@@ -107,12 +120,14 @@ Execute row SQL script
 Execute SQL script
 Execute unit tests
 Execution information
+Extract graph
 Fake data
 File exists
 File metadata
 Filter rows
 Formula
 Fuzzy match
+Generate graph CSVs
 Generate random value
 Generate rows
 Generate Snowflake ID
@@ -120,8 +135,9 @@ Get data from XML
 Get file names
 Get files from result
 Get files rows count
+Get graph logging info
+Get graph schema
 Get JDBC metadata
-Get Neo4j logging info
 Get records from stream (deprecated)
 Get rows from result
 Get server status
@@ -129,9 +145,13 @@ Get subfolder names
 Get system info
 Get table names
 Get variables
+Git Input
 Google Analytics 4
 Google Sheets input
 Google Sheets output
+Graph output
+Graph query
+Graph vector search
 Group by
 HTML to text
 HTTP client
@@ -150,6 +170,8 @@ JSON normalize input
 JSON output
 Kafka consumer
 Kafka producer
+Lake table input
+Lake table output
 Language model chat
 LDAP input
 LDAP output
@@ -157,6 +179,7 @@ Load file content in memory
 Mail
 Mapping input
 Mapping output
+Mask fields
 Memory group by
 Merge join
 Merge rows (diff)
@@ -173,24 +196,22 @@ MS SQL Server bulk loader
 Multi Mapping
 Multiway merge join
 MySQL bulk loader
-Neo4j Cypher
-Neo4j Cypher builder
-Neo4j generate CSVs
-Neo4j graph output
 Neo4j import
-Neo4j output
-Neo4j split graph
 Null if
 Number range
 OData input
 Oracle bulk loader
+Output transform metrics
 Parquet file input
 Parquet file output
 PGP decrypt stream
 PGP encrypt stream
+pgvector search
+pgvector upsert
 Pipeline executor
 Pipeline logging
 Pipeline probe
+Plugin Catalog
 PostgreSQL bulk loader
 Process files
 Properties input
@@ -232,13 +253,12 @@ Sorted merge
 Sorted schema merge
 Spark file input
 Spark file output
-Spark lake table input
 Spark lake table maintenance
 Spark lake table merge
-Spark lake table output
 Spark SQL
 Split field to rows
 Split fields
+Split graph
 Splunk input
 SQL file output
 SSTable output
@@ -248,6 +268,7 @@ Stream lookup
 Stream schema merge
 String operations
 Strings cut
+Structured extract
 Surefire report output
 Switch / case
 Synchronize after merge
@@ -256,6 +277,7 @@ Table exists
 Table input
 Table output
 Teradata FastLoad bulk loader
+Text chunker
 Text file input
 Text file output
 Token replacement
@@ -268,6 +290,7 @@ Value mapper
 vCard input
 vCard output
 Vertica bulk loader
+Watch Files
 Web services lookup
 Workflow executor
 Workflow logging

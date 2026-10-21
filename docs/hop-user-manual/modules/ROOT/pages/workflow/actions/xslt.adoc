@@ -26,6 +26,8 @@ The `XSL pipeline` action transforms XML documents into other documents (XML or 
 
 The original document is not changed; rather, a new document is created based on the content of the XML file.
 
+Relative references resolve against the folder of the file that holds them: `xsl:include` and `xsl:import` against the XSL file, `document()` with a node of the XML file against the XML file.
+
 == Options
 
 === General tab
@@ -36,7 +38,7 @@ The original document is not changed; rather, a new document is created based on
 |Action name|The name of the workflow action.
 2+|Files
 |Get filenames from previous result|When this option is checked, the XML File name, XSL File name and Output File name are read from the previous result set.
-When multilpe rows exists, it will loop.
+When multiple rows exists, it will loop.
 At this time XML File name is the first field in the result set, XSL File name the second fields and Output File name the third field.
 |XML File name|The full name of the source XML file
 |XSL File name|The full name of the XSL file

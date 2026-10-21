@@ -26,13 +26,16 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
+import org.apache.hop.core.vfs.HopVfs;
 
 public class AzureFileSystem extends AbstractFileSystem {
 
   private final DataLakeServiceClient serviceClient;
   private final String fsName;
   private final String account;
+
   private long listCacheTtlMs = AzureListCache.DEFAULT_TTL_MS;
+  private int readBlockSize = HopVfs.DEFAULT_READ_BLOCK_SIZE;
   private AzureListCache listCache;
 
   public AzureFileSystem(
@@ -50,6 +53,15 @@ public class AzureFileSystem extends AbstractFileSystem {
 
   public void setListCacheTtlMs(long listCacheTtlMs) {
     this.listCacheTtlMs = listCacheTtlMs;
+  }
+
+  /** The bytes per download request when reading a file. */
+  public int getReadBlockSize() {
+    return readBlockSize;
+  }
+
+  public void setReadBlockSize(int readBlockSize) {
+    this.readBlockSize = readBlockSize;
   }
 
   private AzureListCache getListCache() {

@@ -17,13 +17,18 @@
 package org.apache.hop.lint.registry;
 
 /**
- * Thrown when the project's {@code hop-lint.yml} cannot be parsed.
+ * Thrown when the project's {@code hop-lint.yml}, or an installed rule pack, cannot be read.
  *
- * <p>A broken rule pack shipped by a third party is skipped with a logged error, because one bad
- * vendor jar should not stop the linter. The project's own configuration is different: the user
- * wrote it and needs to be told it is broken, rather than silently getting default rules.
+ * <p>The project's own configuration always fails: the user wrote it and needs to be told it is
+ * broken, rather than silently getting default rules. A broken installed pack is skipped with a
+ * logged error in Hop Gui, so one bad vendor jar does not stop the editor, but fails {@code hop
+ * lint} and the Run Linter action, where a pass has to mean every rule ran.
  */
 public class LintConfigurationException extends RuntimeException {
+
+  public LintConfigurationException(String message) {
+    super(message);
+  }
 
   public LintConfigurationException(String message, Throwable cause) {
     super(message, cause);

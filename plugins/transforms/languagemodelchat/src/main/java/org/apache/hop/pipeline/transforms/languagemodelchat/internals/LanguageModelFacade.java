@@ -185,6 +185,7 @@ public class LanguageModelFacade {
     Integer numPredict = meta.getOllamaNumPredict();
     Integer numCtx = meta.getOllamaNumCtx();
     String format = meta.getOllamaFormat();
+    Boolean think = OllamaThink.think(meta.getOllamaThink());
     Integer timeout = meta.getOllamaTimeout();
     Integer maxRetries = meta.getOllamaMaxRetries();
 
@@ -199,6 +200,10 @@ public class LanguageModelFacade {
         .numPredict(numPredict)
         .numCtx(numCtx)
         .responseFormat(toResponseFormat(format))
+        // Null leaves think unset, so the model and the Ollama version decide, and the answer may
+        // carry <think> tags as before. returnThinking(false) only drops the separate field.
+        .think(think)
+        .returnThinking(false)
         .timeout(timeout == null ? null : ofSeconds(timeout))
         .maxRetries(maxRetries)
         .httpClientBuilder(jdkHttpClientBuilder())

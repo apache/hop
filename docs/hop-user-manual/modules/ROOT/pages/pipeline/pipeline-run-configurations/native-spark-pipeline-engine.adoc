@@ -49,22 +49,22 @@ Use **Load configuration template** to fill the fields below from a common deplo
 
 * *Local execution* — `local[*]`, Spark UI off (embedded Spark in Hop)
 * *Local (capped cores)* — `local[4]`
-* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory
-* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar
+* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory. Also set *Fat jar file location* to a `native-provided` fat jar; the template leaves it empty. See xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
+* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar. Outside `spark-submit` (Hop GUI, `hop-run`, Hop Server) an empty master runs on `local[*]` in that process, and the log warns about it.
 * *Databricks* — submit-oriented placeholders (master empty); set workspace-specific values yourself
-* *YARN client* — master `yarn`, client deploy mode
+* *YARN client* — master `yarn`, client deploy mode. Also set *Hadoop configuration folder* (or `HADOOP_CONF_DIR`) and a `native-provided` fat jar. See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 * *Lakehouse local* — same as local; Delta/Iceberg connectors live on the plugin classpath
 
 Templates replace the current engine options after confirmation when the form already has custom values. The form fields update immediately after you apply a template. Edit values afterward as needed.
 
-For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode, see xref:metadata-types/spark-catalog.adoc[Spark Catalog] (**Load catalog template**).
+For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode, see xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] (**Load catalog template**).
 
 [options="header",cols="1,3,1"]
 |===
 |Option |Description |Default
 
 |Spark master
-|Spark master URL: `local[*]`, `local[4]`, or `spark://host:7077`. Leave empty under `spark-submit` so the CLI master is used.
+|Spark master URL: `local[*]`, `local[4]`, `spark://host:7077` or `yarn`. Leave empty under `spark-submit` so the CLI master is used; outside `spark-submit` an empty master runs on `local[*]`.
 |`local[*]`
 
 |Application name
@@ -73,6 +73,10 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 
 |Fat jar file location
 |Optional Hop fat jar staged for executors when Hop starts the Spark session. Leave empty for pure `spark-submit` with a native-provided fat jar.
+|
+
+|Hadoop configuration folder
+|Folder with the Hadoop client configuration (`core-site.xml`, `hdfs-site.xml`, `yarn-site.xml`) for sessions Hop starts itself. Its properties are passed to Spark as `spark.hadoop.*`; `spark.hadoop.*` lines in *Spark config* win. When empty and the master is `yarn`, Hop reads the folder in `HADOOP_CONF_DIR` or `YARN_CONF_DIR`. Not used under `spark-submit`. See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 |
 
 |Spark config (key=value lines)

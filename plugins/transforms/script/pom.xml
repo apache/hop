@@ -30,8 +30,8 @@
     <name>Hop Plugins Transforms Script</name>
 
     <properties>
-        <graaljs.version>25.0.3</graaljs.version>
-        <groovy.version>4.0.30</groovy.version>
+        <graaljs.version>25.0.4</graaljs.version>
+        <groovy.version>4.0.33</groovy.version>
         <hop.libcore.exclude1>org.apache.hop:hop-transform-rowgenerator</hop.libcore.exclude1>
         <jython.version>2.7.4</jython.version>
     </properties>

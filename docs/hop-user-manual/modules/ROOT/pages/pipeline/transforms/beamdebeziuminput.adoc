@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Read database change events using Apache Beam DebeziumIO.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=no, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=no, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-debezium-input.svg[Beam Debezium input Icon, role="image-doc-icon"] Beam Debezium input
@@ -116,10 +116,11 @@ Do not use the limits to assume that a batch-only sink or runner is supported.
 
 == Dependencies and operational limitations
 
-The Beam plugin distributes `beam-sdks-java-io-debezium` 2.74.0, Debezium PostgreSQL connector/core/API 3.1.3.Final, Kafka Connect API/transforms 3.9.0 and the Hop-managed PostgreSQL JDBC driver.
+The Beam plugin distributes `beam-sdks-java-io-debezium` 2.74.0, Debezium PostgreSQL connector/core/API 3.1.3.Final and Kafka Connect API/transforms 3.9.0.
 Beam DebeziumIO itself does *not* include database connectors.
-The bundled dependencies are Apache-2.0, and PostgreSQL JDBC is BSD-2-Clause.
-They are staged by the Beam plugin assembly into `lib/core`, which is included in Hop's worker fat jar.
+The connector is packaged under `plugins/engines/beam/lib`. The PostgreSQL JDBC driver is not packaged with the Beam plugin.
+The `hop` launcher puts that folder on the application classpath, and a driver there breaks the PostgreSQL database plugin.
+Use the driver installed with the PostgreSQL database plugin (`lib/jdbc`). A Beam worker that runs this connector outside that plugin needs the same driver on the worker classpath.
 
 For Custom, supply a compatible Debezium 3.1.3.Final connector and its complete driver/runtime dependency set to the Hop classpath and all Beam workers; when using Hop's fat-jar builder, additional jars can be placed in `plugins/engines/beam/lib` before building the fat jar.
 MySQL, SQL Server, Oracle, DB2 and their drivers are not bundled or integration-tested by this transform.

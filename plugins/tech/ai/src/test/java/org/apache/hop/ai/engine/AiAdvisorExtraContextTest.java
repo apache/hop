@@ -37,12 +37,20 @@ import org.junit.jupiter.api.Test;
 class AiAdvisorExtraContextTest {
 
   @Test
-  void defaultExtraContextIncludesCaseSensitivity() {
+  void thePluginNotesSayWhatTheDefaultNotesUsedTo() {
     HopAiConfig config = new HopAiConfig();
     config.setExtraContextFiles("");
-    String extra = AiAdvisorExtraContext.buildSystemAppendix(config, new Variables());
-    assertTrue(extra.contains("Hop metadata names are case-sensitive."));
-    assertTrue(extra.contains("Pipeline run configurations and workflow run configurations"));
+    // Nothing is sent twice: the default configuration adds no notes of its own.
+    assertEquals("", AiAdvisorExtraContext.buildUserAppendix(config, new Variables()));
+    String notes =
+        AiAdvisorExtraContext.loadPluginContext(
+                AiAdvisorExtraContext.class.getClassLoader(), "pipeline-advisor", null)
+            .get(0)
+            .text;
+    assertTrue(notes.contains("metadata names are case-sensitive"), notes);
+    assertTrue(notes.contains("Pipeline run configurations and workflow run configurations"));
+    assertTrue(notes.contains("Not Kettle transformations, jobs, steps or job entries"), notes);
+    assertFalse(notes.contains("\n    "), "indented lines read as a code block in markdown");
   }
 
   @Test

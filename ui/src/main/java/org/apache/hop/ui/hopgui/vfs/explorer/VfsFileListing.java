@@ -20,32 +20,76 @@ package org.apache.hop.ui.hopgui.vfs.explorer;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
 
-/** Lists one folder and presents those rows. One {@code getChildren()} call, no content reads. */
+/**
+ * Lists one folder and presents those rows. One {@code getChildren()} call, no content reads. The
+ * details of a large folder are read one page at a time.
+ */
 public final class VfsFileListing {
+
+  /** Rows read per page. A folder with more children shows "load more". */
+  public static final int PAGE_SIZE = 5000;
 
   private VfsFileListing() {}
 
-  public static List<VfsFileRow> childrenOf(FileObject folder) throws FileSystemException {
+  /** All rows of {@code folder}. */
+  public static List<VfsFileRow> childrenOf(FileObject folder) throws Exception {
+    FileObject[] children = listChildren(folder);
+    return rowsOf(children, 0, children.length);
+  }
+
+  /** The children of {@code folder}, without reading their details. */
+  public static FileObject[] listChildren(FileObject folder) throws Exception {
     FileObject[] children = folder.getChildren();
-    if (children == null || children.length == 0) {
+    return children == null ? new FileObject[0] : children;
+  }
+
+  /**
+   * Rows for {@code children[from..to)}. One unreadable child is left out. A missing library or a
+   * broken provider fails the whole page, and so does a page where no child could be read.
+   */
+  public static List<VfsFileRow> rowsOf(FileObject[] children, int from, int to) throws Exception {
+    if (children == null || from >= to) {
       return List.of();
     }
-    List<VfsFileRow> rows = new ArrayList<>(children.length);
-    for (FileObject child : children) {
+    int end = Math.min(to, children.length);
+    List<VfsFileRow> rows = new ArrayList<>(Math.max(0, end - from));
+    Exception firstFailure = null;
+    for (int i = from; i < end; i++) {
+      FileObject child = children[i];
       if (child == null) {
         continue;
       }
       try {
         rows.add(VfsFileDetails.read(child));
-      } catch (Exception ignored) {
-        // One unreadable child does not hide the rest of the folder.
+      } catch (Exception e) {
+        if (isDriverFailure(e)) {
+          throw e;
+        }
+        if (firstFailure == null) {
+          firstFailure = e;
+        }
       }
     }
+    if (rows.isEmpty() && firstFailure != null) {
+      throw firstFailure;
+    }
     return rows;
+  }
+
+  /** A linkage or class-loading failure means the provider itself is unusable. */
+  static boolean isDriverFailure(Throwable thrown) {
+    Throwable current = thrown;
+    while (current != null) {
+      if (current instanceof Error || current instanceof ClassNotFoundException) {
+        return true;
+      }
+      Throwable cause = current.getCause();
+      current = cause == current ? null : cause;
+    }
+    return false;
   }
 
   /**

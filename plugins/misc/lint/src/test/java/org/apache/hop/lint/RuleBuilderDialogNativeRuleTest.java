@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.ui.testing.SwtBotTestBase;
@@ -65,5 +68,36 @@ class RuleBuilderDialogNativeRuleTest extends SwtBotTestBase {
     assertEquals("ERROR", saved.get().getSeverity());
     assertTrue(saved.get().isNativeVerify(), "still a native rule");
     assertNull(saved.get().getTarget(), "and still without a target");
+  }
+
+  /**
+   * The tags table is filled from the rule and read back on OK, so a rule saved without touching
+   * its tags keeps every one of them, a key with several values included.
+   */
+  @Test
+  void tagsAndHelpUrlSurviveTheEditor() {
+    CustomLintRule hopCheck =
+        RuleRegistry.getInstance().resolve(null).getRules().stream()
+            .filter(rule -> "HOP-CHECK".equals(rule.generateRuleId()))
+            .findFirst()
+            .orElseThrow()
+            .copy();
+    Map<String, List<String>> tags = new LinkedHashMap<>();
+    tags.put("category", List.of("verify"));
+    tags.put("policy", List.of("SEC-POL-4", "SEC-POL-7"));
+    hopCheck.setTags(new LinkedHashMap<>(tags));
+    AtomicReference<CustomLintRule> saved = new AtomicReference<>();
+
+    withDialog(
+        parent -> saved.set(new RuleBuilderDialog(parent, hopCheck).open()),
+        bot -> {
+          SWTBot dialog = bot.shell("Edit Lint Rule").bot();
+          dialog.textWithLabel("Help URL:").setText("https://wiki.example.com/HOP-CHECK");
+          dialog.button("OK").click();
+        });
+
+    assertNotNull(saved.get(), "the dialog refused to save");
+    assertEquals(tags, saved.get().getTags());
+    assertEquals("https://wiki.example.com/HOP-CHECK", saved.get().getHelpUri());
   }
 }

@@ -25,7 +25,7 @@ on:
       - 'docs/**'
       - '.github/workflows/pr_build_docs.yml'
   pull_request:
-    branches: [ 'main' ]
+    branches: [ 'main', 'release/**' ]
     paths:
       - 'docs/**'
       - '.github/workflows/pr_build_docs.yml'
@@ -70,6 +70,45 @@ jobs:
         with:
           path: hop
 
+      # A reference to the other manual without a version goes to that manual's
+      # latest stable release on the website, but to this checkout in the build
+      # below, which only reads HEAD. A link to a page that is not released yet
+      # passes here and breaks the website build. Pin the version instead:
+      # xref:{page-component-version}@manual::page.adoc[]. This catches every
+      # resource ID with a component and no version: xref:, <<...>>, include::,
+      # image:: and attribute values alike.
+      - name: Check cross-manual references
+        working-directory: hop
+        run: |
+          components=$(sed -n 's/^name: *//p' docs/*/antora.yml | paste -sd'|')
+          if grep -rnE "(^|[^@A-Za-z0-9_.-])($components):[A-Za-z0-9_-]*:" docs \
+              --include='*.adoc' > "$RUNNER_TEMP/unversioned.txt"; then
+            while IFS=: read -r file line _; do
+              echo "::error file=$file,line=$line::Reference to another manual without a version. Prefix it with {page-component-version}@, for example xref:{page-component-version}@manual::page.adoc[]"
+            done < "$RUNNER_TEMP/unversioned.txt"
+            exit 1
+          fi
+
+      # Antora turns a page's :description: into its meta description, the
+      # summary search engines and the site search show. Every published page
+      # needs one, and an empty :description: line counts as none. Files under
+      # pages/snippets are only included by other pages, so they don't.
+      #
+      # A page without one doesn't stop the job: it is written to checks.log in
+      # the format of Antora's JSON log, so "Report problems" lists it in the PR
+      # comment along with the Antora errors, and "Fail on documentation checks"
+      # fails the job at the end.
+      - name: Check page descriptions
+        working-directory: hop
+        run: |
+          touch "$RUNNER_TEMP/checks.log"
+          find docs -path '*/modules/ROOT/pages/*' -name '*.adoc' -not -path '*/pages/snippets/*' \
+              -exec grep -L '^:description:[[:space:]]*[^[:space:]]' {} + | sort | while read -r file; do
+            printf '{"level":"error","title":"Page description","file":{"path":"%s","line":1},"msg":"%s"}\n' \
+              "$PWD/$file" \
+              "Page without a description, or with an empty one. Add a :description: line to its header with a one-sentence summary of the page."
+          done >> "$RUNNER_TEMP/checks.log"
+
       - name: Check out the website build
         uses: actions/checkout@v7
         with:
@@ -108,6 +147,21 @@ jobs:
           npx antora --log-level=warn --log-failure-level=error --log-format=json \
             --to-dir "$GITHUB_WORKSPACE/site" antora-playbook-hop.yml 2>&1 | tee antora.log
 
+      # Antora does not check #fragments, and the website build runs a link
+      # checker over its output that does. Run the same checks here, over the
+      # manuals plus the Astro site pages they link to. npm run check:links is
+      # not used as is: it only checks the next/ manuals, and with HEAD alone
+      # the manuals are published as latest/. check:absolute is left out: the
+      # manuals link with relative URLs, and the site pages' links to /manual/next/
+      # cannot resolve in this build.
+      - name: Check links
+        working-directory: hop-website
+        run: |
+          npx astro build
+          cp -r "$GITHUB_WORKSPACE/site/." public/
+          npx link-checker public --disable-external --mkdocs --allow-hash-href \
+            --url-ignore '^/' --url-ignore '^file:'
+
       # Error annotations on the offending .adoc lines, a job summary and, for a
       # pull request, the body of the PR comment. The comment itself is posted
       # by pr_docs_comment.yml: this job runs with the read-only token of a
@@ -120,7 +174,9 @@ jobs:
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: node "$GITHUB_WORKSPACE/hop/.github/scripts/antora-report.mjs" antora.log "$GITHUB_WORKSPACE/report"
+        run: >-
+          node "$GITHUB_WORKSPACE/hop/.github/scripts/antora-report.mjs"
+          antora.log "$GITHUB_WORKSPACE/report" "$RUNNER_TEMP/checks.log"
 
       - name: Hand the report to the comment workflow
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
@@ -138,3 +194,13 @@ jobs:
           path: site
           retention-days: 7
           if-no-files-found: ignore
+
+      # Last, so the problems found by the checks above are in the PR comment
+      # before the job fails on them.
+      - name: Fail on documentation checks
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -s "$RUNNER_TEMP/checks.log" ]; then
+            echo "::error::$(wc -l < "$RUNNER_TEMP/checks.log" | tr -d ' ') problem(s) found by the documentation checks, listed in the PR comment and the job summary."
+            exit 1
+          fi

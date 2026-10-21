@@ -29,6 +29,10 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class CombinationLookupData extends BaseTransformData implements ITransformData {
   public Database db;
   public int[] keynrs; // nrs in row of the keys
+
+  /** Per key: bind a null/not-null flag for "? IS NULL", the database casts it to VARCHAR */
+  public boolean[] nullCheckFlags;
+
   public int hashFieldNr = -1;
 
   public Map<RowMetaAndData, Long> cache;

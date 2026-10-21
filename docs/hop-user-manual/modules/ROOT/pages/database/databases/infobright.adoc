@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-infobright]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Infobright: the JDBC driver to use and how to install it.
 
 = Infobright DB
 

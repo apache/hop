@@ -137,6 +137,40 @@ class AiAdvisorSessionStoreTest {
     return request;
   }
 
+  @Test
+  void aSavedPipelineGivesItsSessionsItsName() {
+    AiAdvisorSessionStore store = new AiAdvisorSessionStore();
+    Artifact pipeline = new Artifact(null);
+    AiAdvisorOpenRequest request = new AiAdvisorOpenRequest();
+    request.setArtifact(pipeline);
+    request.setArtifactName("New pipeline");
+    request.setTitle("New pipeline");
+    AiAdvisorSession session = store.open(request);
+    request.setReuseExisting(false);
+    AiAdvisorSession renamed = store.open(request);
+    renamed.setTitle("My questions");
+
+    pipeline.filename = "/p/load-orders.hpl";
+    store.artifactSaved(pipeline, "load-orders");
+
+    assertEquals("load-orders", session.displayTitle());
+    assertEquals("/p/load-orders.hpl", session.getArtifactFilename());
+    assertEquals("My questions", renamed.getTitle(), "a title the user gave stays");
+  }
+
+  @Test
+  void aQuestionThatCouldNotBeSentIsTakenBack() {
+    AiAdvisorSession session = new AiAdvisorSession();
+    AiAdvisorTurn first = new AiAdvisorTurn();
+    first.setUserPrompt("Why?");
+    AiAdvisorTurn second = new AiAdvisorTurn();
+    second.setUserPrompt("Why?");
+    session.addTurn(first);
+    session.addTurn(second);
+    session.removeTurn(second);
+    assertEquals(List.of(first), session.getTurns());
+  }
+
   private static final class Artifact implements IHasFilename {
     private String filename;
 

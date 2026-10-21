@@ -50,7 +50,7 @@ public class GoogleCloudConfigSingleton {
             mapper.readValue(new Gson().toJson(configObject), GoogleCloudConfig.class);
       } catch (Exception e) {
         LogChannel.GENERAL.logError(
-            "Error reading Google Drive configuration, check property '"
+            "Google Cloud Storage: Error reading the Google Cloud configuration, check property '"
                 + GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY
                 + "' in the Hop config json file",
             e);

@@ -478,6 +478,17 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   /**
+   * Allow several values to be selected at once: the selection list is then multi-select. The
+   * indexes of all selected choices come back with {@link #getSelectionIndeces()} after {@link
+   * #open()}, which still returns the first selected value.
+   *
+   * @param multi true to allow multiple selections
+   */
+  public void setMulti(boolean multi) {
+    this.multi = multi;
+  }
+
+  /**
    * @param selectedNrs the selectedNrs to set
    */
   public void setSelectedNrs(java.util.List<Integer> selectedNrs) {

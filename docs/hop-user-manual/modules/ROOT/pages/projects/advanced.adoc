@@ -146,7 +146,7 @@ See xref:projects/projects-environments.adoc[Projects and Environments] for the 
 
 === Environment configuration
 
-Hop enviroments and their home folders are stored in the hop configuration file 'hop-config.json'.
+Hop environments and their home folders are stored in the hop configuration file 'hop-config.json'.
 That file lives by default in the *config* folder of the Hop installation.
 System property `HOP_CONFIG_FOLDER` can also be used to point to a different folder
 
@@ -224,5 +224,5 @@ See xref:hop-tools/hop.adoc[hop], xref:hop-run/index.adoc[hop run] and xref:hop-
 
 In addition to the Hop Gui and configuration files, all aspects of and operations on projects and environments can be managed through the Hop Conf command line tool.
 
-include::../hop-tools/hop-conf/hop-conf-projects.adoc[]
+include::../snippets/hop-tools/hop-conf/hop-conf-projects.adoc[leveloffset=+1]
 

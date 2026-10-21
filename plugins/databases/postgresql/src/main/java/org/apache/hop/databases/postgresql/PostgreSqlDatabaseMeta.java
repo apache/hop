@@ -265,7 +265,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     }
     return DriverDownload.builder()
         .mavenCoordinate("org.postgresql:postgresql")
-        .defaultVersion("42.7.11")
+        .defaultVersion("42.7.14")
         .licenseCategory("A")
         .licenseName("BSD-2-Clause")
         .licenseUrl("https://jdbc.postgresql.org/about/license/")

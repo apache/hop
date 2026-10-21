@@ -43,7 +43,7 @@ when configured appropriately.
 |Option|Default|Header
 |Transform name||the name to use for this transform in the pipeline
 |Filename field||the field to get the file name to import from
-|Fiel type field||the field to get the file type to import from
+|File type field||the field to get the file type to import from
 |Database filename|neo4j|the Neo4j database to import to
 |neo4j-admin command path|neo4j-admin|the (full) path to the `neo4j-admin` command
 |Neo4j version|4.x|Select the Neo4j version (4.x or 5.x) to determine the correct command syntax.

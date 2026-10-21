@@ -75,7 +75,7 @@ The logs for this workflow will look similar to the output below:
 2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 -
 2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 - ------------> Linenr 1------------------------------
 2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 - #################################
-2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 - the vaule for PRM_COUNTER is now 10
+2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 - the value for PRM_COUNTER is now 10
 2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 - #################################
 2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 -
 2023/04/24 11:25:08 - log ${PRM_COUNTER}.0 -

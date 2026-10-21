@@ -120,6 +120,6 @@ CI builds with `-fae` and `-Dsurefire.rerunFailingTestsCount=2`, so a flaky test
 This page is a scaffold. Still to write:
 
 * Troubleshooting a failing build: the usual suspects and their fixes.
-* `tools/find_duplicate_jars.sh` and what a duplicate jar means — see xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading].
+* `tools/find_duplicate_jars.sh` finds duplicate copies, and `tools/check-assembly-jar-versions.py` reports different versions of one library in the client zip. See xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading].
 * Building only the distribution you need, and how to run from `assemblies/client/target`.
 ====

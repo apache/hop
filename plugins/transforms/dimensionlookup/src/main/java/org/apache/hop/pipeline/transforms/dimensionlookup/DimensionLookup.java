@@ -24,6 +24,7 @@ import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookup
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NULL;
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.SYSTEM_DATE;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -73,6 +74,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   public static final String CONST_WHERE = " WHERE ";
 
   int[] columnLookupArray = null;
+
+  /** Describes the lookup date for the conversion to the cache's date-from type */
+  private final IValueMeta lookupDateMeta = new ValueMetaDate("lookupDate");
 
   public DimensionLookup(
       TransformMeta transformMeta,
@@ -499,7 +503,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
    * used to throw, and it should not take a database to find that out again.
    */
   static Object asType(IValueMeta targetMeta, Object value) throws HopValueException {
-    if (value == null || targetMeta == null) {
+    if (value == null || targetMeta == null || isNativeValueOf(targetMeta.getType(), value)) {
       return value;
     }
     IValueMeta actualMeta = ValueMetaFactory.guessValueMetaInterface(value);
@@ -509,7 +513,22 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     return targetMeta.convertData(actualMeta, value);
   }
 
-  private synchronized Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
+  /**
+   * Whether the value already is what the type stores, decided by what the value is. It runs for
+   * every row, so it creates no value metadata: that is expensive to construct.
+   */
+  private static boolean isNativeValueOf(int type, Object value) {
+    return switch (type) {
+      case IValueMeta.TYPE_INTEGER -> value instanceof Long;
+      case IValueMeta.TYPE_BIGNUMBER -> value instanceof BigDecimal;
+      case IValueMeta.TYPE_STRING -> value instanceof String;
+      case IValueMeta.TYPE_NUMBER -> value instanceof Double;
+      case IValueMeta.TYPE_BINARY -> value instanceof byte[];
+      default -> false;
+    };
+  }
+
+  private Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     DLFields f = meta.getFields();
 
     // Determine the lookup date ("now") if we have a field that carries said
@@ -565,9 +584,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       IValueMeta preloadFromDateMeta =
           data.preloadCache.getRowMeta().getValueMeta(data.preloadFromDateIndex);
-      IValueMeta valueDateMeta = new ValueMetaDate("lookupDate");
       lookupRow[data.preloadFromDateIndex] =
-          preloadFromDateMeta.convertData(valueDateMeta, valueDate);
+          preloadFromDateMeta.convertData(lookupDateMeta, valueDate);
 
       // Look up the row in the pre-load cache...
       //
@@ -747,8 +765,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         valueVersion = data.returnRowMeta.getInteger(returnRow, 1);
 
         // Date range: ]-oo,+oo[
-        valueDateFrom = meta.getMinDate();
-        valueDateTo = meta.getMaxDate();
+        valueDateFrom = data.minDate;
+        valueDateTo = data.maxDate;
 
         // The other values, we compare with
         int cmp;

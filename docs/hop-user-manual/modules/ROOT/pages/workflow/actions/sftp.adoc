@@ -96,6 +96,20 @@ A.*[ENG:0-9].txt  : files tarting with A, ending with a number and .txt
 |Add filenames to result|If checked the information about downloaded files is added to the result files stream.
 |===
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The files were retrieved without errors. This includes when no file matched, and when *Copy previous results to args* is enabled and there are no result rows.
+|False|The connection, the login or the change of remote directory failed, the target directory doesn't exist and *Create target folder* is not enabled, a file could not be retrieved, or *Remove files after retrieval* failed. In that last case the file was already downloaded and added to the result files. The number of errors is 1.
+|Result files|With *Add filenames to result*, every file the action downloaded is added, in the target directory, also when the action fails afterwards.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the action retrieves the files whose name is exactly the first field of a result row, and the wildcard is not used.
+|Metrics|Files retrieved: the number of files the action downloaded. It is only set when the action succeeds: files downloaded before a failure are not counted.
+|===
+
 == Algorithm Negotiation Fail Error [[negotiation_error]]
 
 If your `Get a file with SFTP` action returns an error message like the one below, you (or the server you are connecting to) are probably using key types that are considered unsafe in the dependencies used by this action in recent Apache Hop versions.

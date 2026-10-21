@@ -46,6 +46,7 @@ import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionSelector;
 import org.junit.jupiter.api.AfterEach;
@@ -520,6 +521,166 @@ class CachingFileExecutionInfoLocationTest {
     } finally {
       location.close();
     }
+  }
+
+  @Test
+  void testUncachedParentChildLinkResolution() throws Exception {
+    Path root = tempDir.resolve("uncached-parent-child");
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      String workflowId = "wf-1";
+      String actionId = "act-1";
+      String pipelineId = "pipe-1";
+
+      Execution wf = new Execution();
+      wf.setId(workflowId);
+      wf.setName("Workflow");
+      wf.setExecutionType(ExecutionType.Workflow);
+      wf.setRegistrationDate(new Date());
+
+      Execution action = new Execution();
+      action.setId(actionId);
+      action.setName("ActionPipeline");
+      action.setParentId(workflowId);
+      action.setExecutionType(ExecutionType.Action);
+      action.setRegistrationDate(new Date());
+
+      Execution pipe = new Execution();
+      pipe.setId(pipelineId);
+      pipe.setName("Pipeline");
+      pipe.setParentId(workflowId);
+      pipe.setLaunchedById(actionId);
+      pipe.setExecutionType(ExecutionType.Pipeline);
+      pipe.setRegistrationDate(new Date());
+
+      location.registerExecution(wf);
+      location.registerExecution(action);
+      location.registerExecution(pipe);
+
+      // A later write of the workflow must keep the child id recorded on the action.
+      Execution cachedAction = location.getExecution(actionId);
+      assertEquals(List.of(pipelineId), cachedAction.getChildExecutionIds());
+      cachedAction.getChildExecutionIds().clear();
+      location.persistCacheEntry(location.getCache().get(workflowId));
+
+      // Persist to disk and clear cache so nothing is in memory
+      for (CacheEntry entry : location.getCache().values()) {
+        location.persistCacheEntry(entry);
+      }
+      location.clearCaches();
+
+      assertEquals(workflowId, location.findParentId(pipelineId));
+      // The action lives in the workflow file. It is not a file of its own, and loading the
+      // pipeline does not load it.
+      assertNull(location.findParentId(actionId));
+      assertNull(location.getExecution(actionId));
+
+      assertNull(location.findParentId(workflowId));
+      Execution reloadedWorkflow = location.getExecution(workflowId);
+      assertNotNull(reloadedWorkflow);
+      Execution retrievedAction = location.getExecution(actionId);
+      assertNotNull(retrievedAction);
+      assertEquals(actionId, retrievedAction.getId());
+      assertEquals(ExecutionType.Action, retrievedAction.getExecutionType());
+      assertEquals(List.of(pipelineId), retrievedAction.getChildExecutionIds());
+
+      assertNull(location.getExecution("non-existent-id"));
+
+      List<Execution> actionChildren = location.findExecutions(actionId);
+      assertEquals(1, actionChildren.size());
+      assertEquals(pipelineId, actionChildren.get(0).getId());
+
+      List<Execution> wfChildren = location.findExecutions(workflowId);
+      assertTrue(wfChildren.stream().anyMatch(e -> e.getId().equals(actionId)));
+    } finally {
+      location.close();
+    }
+  }
+
+  @Test
+  void aSecondLocationRecordsTheChildWhenTheLauncherIsNotOnDiskYet() throws Exception {
+    Path root = tempDir.resolve("two-locations");
+    String rootFolder = root.toAbsolutePath().toString();
+    CachingFileExecutionInfoLocation parentLocation = open(rootFolder);
+    CachingFileExecutionInfoLocation childLocation = open(rootFolder);
+    try {
+      Execution pipeline = new Execution();
+      pipeline.setId("pipe");
+      pipeline.setName("Pipe");
+      pipeline.setExecutionType(ExecutionType.Pipeline);
+      pipeline.setRegistrationDate(new Date());
+      parentLocation.registerExecution(pipeline);
+
+      ExecutionState parentState = new ExecutionState();
+      parentState.setId("pipe");
+      parentState.setName("Pipe");
+      parentState.setExecutionType(ExecutionType.Pipeline);
+      parentState.setStatusDescription("parent-status");
+      parentState.setUpdateTime(new Date());
+      parentLocation.updateExecutionState(parentState);
+      parentLocation.persistCacheEntry(parentLocation.getCache().get("pipe"));
+
+      // The transform is in this process only. The 5s timer has not written it yet.
+      Execution transform = new Execution();
+      transform.setId("transform");
+      transform.setName("Executor");
+      transform.setParentId("pipe");
+      transform.setExecutionType(ExecutionType.Transform);
+      transform.setRegistrationDate(new Date());
+      parentLocation.registerExecution(transform);
+
+      Execution child = new Execution();
+      child.setId("child");
+      child.setName("Child");
+      child.setExecutionType(ExecutionType.Pipeline);
+      child.setParentId("pipe");
+      child.setLaunchedById("transform");
+      child.setRegistrationDate(new Date());
+      childLocation.registerExecution(child);
+
+      assertNull(childLocation.getCache().get("pipe"));
+
+      // The child's own file is gone, so a state update can only fall back to a cached parent.
+      childLocation.getCache().remove("child");
+      Files.deleteIfExists(root.resolve("child.json"));
+      ExecutionState childState = new ExecutionState();
+      childState.setId("child");
+      childState.setName("Child");
+      childState.setExecutionType(ExecutionType.Pipeline);
+      childState.setParentId("pipe");
+      childState.setStatusDescription("child-status");
+      childState.setUpdateTime(new Date());
+      childLocation.updateExecutionState(childState);
+      childLocation.close();
+
+      CachingFileExecutionInfoLocation reader = open(rootFolder);
+      try {
+        assertEquals("parent-status", reader.getExecutionState("pipe").getStatusDescription());
+      } finally {
+        reader.close();
+      }
+
+      parentLocation.persistCacheEntry(parentLocation.getCache().get("pipe"));
+      parentLocation.clearCaches();
+
+      assertNotNull(parentLocation.getExecution("pipe"));
+      Execution launcher = parentLocation.getExecution("transform");
+      assertNotNull(launcher);
+      assertEquals("Executor", launcher.getName());
+      assertEquals(List.of("child"), launcher.getChildExecutionIds());
+    } finally {
+      childLocation.close();
+      parentLocation.close();
+    }
+  }
+
+  private static CachingFileExecutionInfoLocation open(String rootFolder) throws Exception {
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(rootFolder);
+    location.initialize(new Variables(), null);
+    return location;
   }
 
   private static Execution executionAt(String id, Date start) {

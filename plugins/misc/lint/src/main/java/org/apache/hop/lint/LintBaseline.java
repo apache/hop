@@ -68,14 +68,22 @@ public final class LintBaseline {
   }
 
   public static LintBaseline read(Path file) throws IOException {
-    JsonNode root = new ObjectMapper().readTree(Files.readString(file, StandardCharsets.UTF_8));
+    return parse(Files.readString(file, StandardCharsets.UTF_8), file.toString());
+  }
+
+  /**
+   * @param json the baseline file's content
+   * @param source where it was read from, for the error message
+   */
+  public static LintBaseline parse(String json, String source) throws IOException {
+    JsonNode root = new ObjectMapper().readTree(json);
     JsonNode version = root.get("version");
     if (version != null && version.asInt() != FORMAT_VERSION) {
       throw new IOException(
           "Unsupported baseline format version "
               + version.asInt()
               + " in "
-              + file
+              + source
               + "; regenerate it with --write-baseline.");
     }
 

@@ -397,8 +397,12 @@ class FalkorDbIT {
     }
   }
 
-  /** The vectors are stored as 32 bit floats. */
-  private static final double SCORE_TOLERANCE = 1e-4;
+  /**
+   * FalkorDB stores the vectors as 32-bit floats. Its vector index has returned the cosine
+   * similarity 1.2e-4 away from the exact value, which nightly integration build 2336 rejected at
+   * 1e-4. 1e-3 still leaves the cosine and euclidean scores for these vectors more than 0.01 apart.
+   */
+  private static final double SCORE_TOLERANCE = 1e-3;
 
   /**
    * The score for the query vector [0.9, 0.1, 0] and the stored vectors [1, 0, 0] and [0.7, 0.7,

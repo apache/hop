@@ -152,11 +152,11 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
   private int maxLengthOfMappedStringValues() {
     int maxlen = -1;
     for (Values v : this.values) {
-      if (v.getTarget() != null && v.getTarget().length() > maxlen) {
+      if (!Utils.isEmpty(v.getTarget()) && v.getTarget().length() > maxlen) {
         maxlen = v.getTarget().length();
       }
     }
-    if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
+    if (!Utils.isEmpty(nonMatchDefault) && nonMatchDefault.length() > maxlen) {
       maxlen = nonMatchDefault.length();
     }
     return maxlen;

@@ -39,10 +39,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.testing.SwtBotTestBase;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
@@ -58,6 +62,7 @@ class AiAdvisorSessionPaneUiTest extends SwtBotTestBase {
   @BeforeAll
   static void init() throws Exception {
     HopGuiEnvironment.init();
+    HopAiConfigSingleton.getConfig().setAiEnabled(true);
     PluginRegistry.addPluginType(AiAdvisorPluginType.getInstance());
     if (PluginRegistry.getInstance()
             .findPluginWithId(AiAdvisorPluginType.class, PipelineAiAdvisor.ID)
@@ -80,6 +85,58 @@ class AiAdvisorSessionPaneUiTest extends SwtBotTestBase {
         bot -> {
           bot.label(message("AiAdvisor.Status.NoSession"));
           assertFalse(onUi(() -> find(pane.get(), Text.class).isEnabled()));
+        });
+  }
+
+  @Test
+  void whileTheAssistantIsDisabledTheConversationIsReadableButNothingCanBeAsked() {
+    AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+    HopAiConfigSingleton.getConfig().setAiEnabled(false);
+    try {
+      withScene(
+          shell -> {
+            pane.set(newPane(shell));
+            pane.get().showSession(pipelineSession(null));
+          },
+          bot -> {
+            bot.label(message("AiAdvisor.Status.Disabled"));
+            assertFalse(onUi(() -> find(pane.get(), Text.class).isEnabled()));
+          });
+    } finally {
+      HopAiConfigSingleton.getConfig().setAiEnabled(true);
+    }
+  }
+
+  @Test
+  void anUnlinkedSessionSaysSoOnceAndKeepsTheQuestion() {
+    AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+    AtomicReference<AiAdvisorSession> session = new AtomicReference<>();
+    withScene(
+        shell -> {
+          pane.set(newPane(shell));
+          session.set(pipelineSession(null));
+          session.get().setArtifact(null);
+          pane.get().showSession(session.get());
+        },
+        bot -> {
+          onUi(
+              () -> {
+                find(pane.get(), Text.class).setText("Why did it fail?");
+                pane.get().onSendOrCancel();
+                return null;
+              });
+          bot.label(message("AiAdvisor.Status.NotBound"));
+          assertTrue(session.get().getTurns().isEmpty(), "nothing was asked");
+          assertEquals("Why did it fail?", onUi(() -> find(pane.get(), Text.class).getText()));
+          // Any change in the session store redraws the pane; the message stays.
+          onUi(
+              () -> {
+                pane.get().showSession(session.get());
+                return null;
+              });
+          assertEquals(
+              message("AiAdvisor.Status.NotBound"),
+              onUi(() -> pane.get().getStatusLabel().getText()));
         });
   }
 
@@ -196,12 +253,177 @@ class AiAdvisorSessionPaneUiTest extends SwtBotTestBase {
     }
   }
 
+  @Test
+  void aQuestionThatCannotFitEvenWithoutSharingSaysToRaiseTheContextSize() throws Exception {
+    MemoryMetadataProvider metadata = providerWithContextSize("600");
+    AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+    AtomicReference<AiAdvisorSession> session = new AtomicReference<>();
+    withScene(
+        shell -> {
+          pane.set(newPane(shell, metadata));
+          session.set(pipelineSession(null));
+          session.get().setProviderName("small");
+          pane.get().showSession(session.get());
+        },
+        bot -> {
+          onUi(
+              () -> {
+                pane.get().getPromptWidget().setText("Why did it fail?");
+                pane.get().onSendOrCancel();
+                return null;
+              });
+          String status = onUi(() -> pane.get().getStatusLabel().getText());
+          assertTrue(status.startsWith("Even with nothing selected under Sharing"), status);
+          assertTrue(status.contains("Raise Context size"), status);
+          onUi(
+              () -> {
+                pane.get().showSession(session.get());
+                return null;
+              });
+          assertEquals(status, onUi(() -> pane.get().getStatusLabel().getText()), "after a redraw");
+          assertTrue(session.get().getTurns().isEmpty(), "the question is not in the conversation");
+          assertEquals("Why did it fail?", onUi(() -> pane.get().getPromptWidget().getText()));
+          assertFalse(session.get().isWorking());
+        });
+  }
+
+  @Test
+  void aQuestionThatFitsWithoutTheLogSaysToUncheckSharingItems() throws Exception {
+    MemoryMetadataProvider metadata = providerWithContextSize("4000");
+    AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+    AtomicReference<AiAdvisorSession> session = new AtomicReference<>();
+    withScene(
+        shell -> {
+          pane.set(newPane(shell, metadata));
+          session.set(pipelineSession(null));
+          session.get().setProviderName("small");
+          session.get().setLogSupplier(() -> "ERROR row rejected\n".repeat(2_000));
+          session.get().getInclusions().put("logs", true);
+          pane.get().showSession(session.get());
+        },
+        bot -> {
+          onUi(
+              () -> {
+                pane.get().getPromptWidget().setText("Why did it fail?");
+                pane.get().onSendOrCancel();
+                return null;
+              });
+          String status = onUi(() -> pane.get().getStatusLabel().getText());
+          assertTrue(status.contains("Uncheck large items under Sharing"), status);
+          assertTrue(session.get().getTurns().isEmpty());
+        });
+  }
+
+  @Test
+  void cmdZUndoesTheTypingAndIsKeptFromTheGraph() {
+    AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+    withScene(
+        shell -> {
+          pane.set(newPane(shell));
+          pane.get().showSession(pipelineSession(null));
+        },
+        bot -> {
+          Text prompt = onUi(() -> pane.get().getPromptWidget());
+          // Edit → Undo leaves the keys to a field that says it handles them.
+          assertEquals(
+              Boolean.TRUE, onUi(() -> prompt.getData(HopGuiKeyHandler.HOP_TEXT_EDITOR_HISTORY)));
+          onUi(
+              () -> {
+                prompt.setText("why did");
+                prompt.setText("why did it fail");
+                return null;
+              });
+          Event undo = key('z', SWT.MOD1);
+          onUi(
+              () -> {
+                prompt.notifyListeners(SWT.KeyDown, undo);
+                return null;
+              });
+          assertEquals("why did", onUi(prompt::getText));
+          assertFalse(undo.doit, "the platform must not undo as well");
+          onUi(
+              () -> {
+                prompt.notifyListeners(SWT.KeyDown, key('z', SWT.MOD1 | SWT.SHIFT));
+                return null;
+              });
+          assertEquals("why did it fail", onUi(prompt::getText));
+        });
+  }
+
+  @Test
+  void theSendButtonEndsWithTheQuestionFieldAlsoInALowPane() {
+    for (int height : new int[] {600, 220}) {
+      AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+      withScene(
+          shell -> {
+            shell.setLayout(new FillLayout());
+            shell.setSize(900, height);
+            pane.set(
+                new AiAdvisorSessionPane(shell, new TestHost(shell, new MemoryMetadataProvider())));
+            pane.get().showSession(pipelineSession(null));
+            shell.layout(true, true);
+          },
+          bot -> {
+            Rectangle send = onUi(() -> pane.get().getSendButton().getBounds());
+            Rectangle prompt = onUi(() -> pane.get().getPromptWidget().getBounds());
+            Rectangle area = onUi(() -> pane.get().getSendButton().getParent().getClientArea());
+            assertEquals(prompt.y + prompt.height, send.y + send.height, "height " + height);
+            assertTrue(send.y + send.height <= area.height, "height " + height);
+            assertTrue(send.y >= 0, "height " + height);
+          });
+    }
+  }
+
+  @Test
+  void theAssistantIsNoChoiceForASessionOfOneKindOfFile() {
+    AtomicReference<AiAdvisorSessionPane> pane = new AtomicReference<>();
+    withScene(
+        shell -> {
+          pane.set(newPane(shell));
+          pane.get().showSession(pipelineSession(null));
+        },
+        bot -> {
+          assertFalse(onUi(() -> pane.get().getAdvisorCombo().isEnabled()));
+          onUi(
+              () -> {
+                AiAdvisorSession unlinked = pipelineSession(null);
+                unlinked.setArtifact(null);
+                pane.get().showSession(unlinked);
+                return null;
+              });
+          assertFalse(onUi(() -> pane.get().getAdvisorCombo().isEnabled()));
+        });
+  }
+
   // Helpers
 
+  private static MemoryMetadataProvider providerWithContextSize(String contextSize)
+      throws Exception {
+    MemoryMetadataProvider metadata = new MemoryMetadataProvider();
+    AiProvider small = new AiProvider();
+    small.setName("small");
+    small.setContextSize(contextSize);
+    metadata.getSerializer(AiProvider.class).save(small);
+    return metadata;
+  }
+
+  private static Event key(char key, int stateMask) {
+    Event event = new Event();
+    event.keyCode = key;
+    event.character = key;
+    event.stateMask = stateMask;
+    event.doit = true;
+    return event;
+  }
+
   private static AiAdvisorSessionPane newPane(Shell shell) {
+    return newPane(shell, new MemoryMetadataProvider());
+  }
+
+  private static AiAdvisorSessionPane newPane(Shell shell, IHopMetadataProvider metadata) {
     shell.setLayout(new FillLayout());
     shell.setSize(900, 600);
-    return new AiAdvisorSessionPane(shell, new TestHost(shell, new MemoryMetadataProvider()));
+    return new AiAdvisorSessionPane(shell, new TestHost(shell, metadata));
   }
 
   private static AiAdvisorSession pipelineSession(String focus) {

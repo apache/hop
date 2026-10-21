@@ -29,8 +29,11 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -81,8 +84,6 @@ public class AiAdvisorPerspective implements IHopPerspective, IAiAdvisorWorkbenc
     return "ai-advisor-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'a', global = true)
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'a', global = true)
   @Override
   public void activate() {
     if (!isInitialized()) {
@@ -91,9 +92,39 @@ public class AiAdvisorPerspective implements IHopPerspective, IAiAdvisorWorkbenc
     hopGui.setActivePerspective(this);
   }
 
+  /**
+   * Ctrl/Cmd+Shift+A. Pressed on a pipeline or workflow it does what AI Assistant on its toolbar
+   * does: open a session for that file. Elsewhere it shows this perspective.
+   */
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'a', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'a', global = true)
+  public void openFromShortcut() {
+    if (!isInitialized() || !AiAdvisorViews.ensureEnabled(hopGui)) {
+      return;
+    }
+    ExplorerPerspective explorer = HopGui.getExplorerPerspective();
+    AiAdvisorOpenRequest request =
+        explorer != null && explorer.isActive()
+            ? AiAdvisorWorkbench.requestForOpenFile(hopGui)
+            : null;
+    if (request != null) {
+      // As on the toolbar: with one transform or action selected, the question is about it.
+      if (explorer.getActiveFileTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph) {
+        request.setFocusNodeName(PipelineAiGuiPlugin.singleSelectedTransform(pipelineGraph));
+      } else if (explorer.getActiveFileTypeHandler() instanceof HopGuiWorkflowGraph workflowGraph) {
+        request.setFocusNodeName(WorkflowAiGuiPlugin.singleSelectedAction(workflowGraph));
+      }
+      request.setPreferFloatingWindow(true);
+      AiAdvisorViews.openSession(hopGui, request);
+      return;
+    }
+    activate();
+  }
+
   @Override
   public void perspectiveActivated() {
-    // Sessions refresh through the store listener.
+    // Sessions refresh through the store listener. The assistant is shown in one place at a time.
+    AiAdvisorViews.closeOtherViews(hopGui);
   }
 
   @Override

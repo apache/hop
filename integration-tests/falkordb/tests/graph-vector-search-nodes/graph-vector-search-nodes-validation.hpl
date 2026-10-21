@@ -120,7 +120,7 @@ limitations under the License.
     </partitioning>
     <connection>Test</connection>
     <element_type>NODE</element_type>
-    <index_name>graph_vector_search_nodes</index_name>
+    <index_name>${VECTOR_INDEX}</index_name>
     <label>VectorSearchDoc</label>
     <vector_property>embedding</vector_property>
     <similarity>COSINE</similarity>

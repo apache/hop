@@ -20,10 +20,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILogChannel;
@@ -203,8 +207,9 @@ public class CustomRuleExecutor {
         // A rule that named specific plugin types asserted the field exists on them, so a
         // missing field is a mistake in the rule and is reported rather than passed over.
         // Unscoped rules stay opportunistic: they run across every transform, most of which
-        // legitimately do not have the field.
-        if (!rule.getAppliesTo().isEmpty()) {
+        // legitimately do not have the field. Every connection has the same fields, so there a
+        // missing one is always a mistake in the rule.
+        if (!rule.getAppliesTo().isEmpty() || hopObject instanceof DatabaseMeta) {
           results.add(
               createResult(
                   rule,
@@ -214,7 +219,10 @@ public class CustomRuleExecutor {
                       + rule.getTargetField()
                       + "', which does not exist on "
                       + describe(hopObject)
-                      + ". Check the field name against this transform or action.",
+                      + ". Check the field name against "
+                      + (hopObject instanceof DatabaseMeta
+                          ? "the fields offered for database connections."
+                          : "this transform or action."),
                   fileName,
                   hopObject,
                   "ERROR"));
@@ -257,13 +265,14 @@ public class CustomRuleExecutor {
   private static LintResult createResult(
       CustomLintRule rule, String message, String fileName, Object hopObject, String severity) {
     return new LintResult(
-        rule.generateRuleId(),
-        rule.getName(),
-        severity,
-        message,
-        fileName,
-        sourceFrom(hopObject),
-        LintResult.Origin.LINT);
+            rule.generateRuleId(),
+            rule.getName(),
+            severity,
+            message,
+            fileName,
+            sourceFrom(hopObject),
+            LintResult.Origin.LINT)
+        .withRuleDetails(LintRuleDetails.of(rule));
   }
 
   /**
@@ -423,6 +432,8 @@ public class CustomRuleExecutor {
             return dbMeta.getAttributes() != null
                 ? dbMeta.getAttributes().getOrDefault("description", "")
                 : "";
+          case "databaseType":
+            return dbMeta.getPluginId();
           case "hostname":
             return dbMeta.getHostname();
           case "port":
@@ -433,9 +444,17 @@ public class CustomRuleExecutor {
             return dbMeta.getUsername();
           case "password":
             return dbMeta.getPassword();
+          case "servername":
+            return dbMeta.getServername();
+          case "dataTablespace":
+            return dbMeta.getDataTablespace();
+          case "indexTablespace":
+            return dbMeta.getIndexTablespace();
+          case "attributes":
+            // The extra options are attributes too, stored as EXTRA_OPTION_<type>.<option>.
+            return dbMeta.getAttributes();
           default:
-            log.logDetailed("Unknown database field: " + fieldName);
-            return null;
+            return connectionField(dbMeta, fieldName);
         }
       } else if (hopObject instanceof PipelineHopMeta) {
         PipelineHopMeta hop = (PipelineHopMeta) hopObject;
@@ -499,6 +518,19 @@ public class CustomRuleExecutor {
   }
 
   /**
+   * Any other connection property, such as manualUrl or Oracle's walletPassword. The settings live
+   * on the database plugin's own meta, which is also what the connection's file stores, so that is
+   * looked at first; then the getters DatabaseMeta adds on top.
+   */
+  private static Object connectionField(DatabaseMeta dbMeta, String fieldName) {
+    Object value =
+        dbMeta.getIDatabase() != null
+            ? extractFieldFromObject(dbMeta.getIDatabase(), fieldName)
+            : FIELD_NOT_FOUND;
+    return value != FIELD_NOT_FOUND ? value : extractFieldFromObject(dbMeta, fieldName);
+  }
+
+  /**
    * The fields every transform has, whatever its plugin, with their types. The linter works them
    * out itself rather than reading them from the plugin, so {@code hop lint --list-fields} lists
    * them from here. Keep in step with {@link #extractFieldFromTransform}.
@@ -509,6 +541,9 @@ public class CustomRuleExecutor {
           "description", "String",
           "pluginId", "String",
           "copies", "int",
+          "distributes", "boolean",
+          "errorHandling", "boolean",
+          "targetTransforms", "List",
           "isDummy", "boolean",
           "hasDefaultName", "boolean",
           "isOrphaned", "boolean",
@@ -522,6 +557,9 @@ public class CustomRuleExecutor {
           "name", "String",
           "description", "String",
           "pluginId", "String",
+          "errorHandling", "boolean",
+          "targetActions", "List",
+          "isStart", "boolean",
           "hasDefaultName", "boolean",
           "isOrphaned", "boolean");
 
@@ -548,6 +586,25 @@ public class CustomRuleExecutor {
         case "copies":
           return transformMeta.getCopies(
               org.apache.hop.core.variables.Variables.getADefaultVariableSpace());
+        case "distributes":
+          return transformMeta.isDistributes();
+        case "errorHandling":
+          return transformMeta.getTransform() != null && transformMeta.isDoingErrorHandling();
+        case "targetTransforms":
+          // Not PipelineMeta.findNextTransforms: a hop whose transform name matches nothing loads
+          // with a null end, and that made it throw for every transform in the pipeline.
+          if (!(SUBJECT.get() instanceof PipelineMeta pipeline)) {
+            return null;
+          }
+          List<String> targets = new ArrayList<>();
+          for (PipelineHopMeta hop : pipeline.getPipelineHops()) {
+            if (hop.isEnabled()
+                && hop.getFromTransform() == transformMeta
+                && hop.getToTransform() != null) {
+              targets.add(hop.getToTransform().getName());
+            }
+          }
+          return targets;
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
         case "hasDefaultName":
@@ -586,6 +643,20 @@ public class CustomRuleExecutor {
           return actionMeta.getDescription();
         case "pluginId":
           return actionMeta.getAction().getPluginId();
+        case "errorHandling":
+          // An action handles its errors with a hop followed on failure.
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? outgoingHops(actionMeta, workflow).stream()
+                  .anyMatch(hop -> !hop.isUnconditional() && !hop.isEvaluation())
+              : null;
+        case "targetActions":
+          return SUBJECT.get() instanceof WorkflowMeta workflow
+              ? outgoingHops(actionMeta, workflow).stream()
+                  .map(hop -> hop.getToAction().getName())
+                  .toList()
+              : null;
+        case "isStart":
+          return actionMeta.isStart();
         case "hasDefaultName":
           // Every workflow starts at Start; there is no better name for it.
           return !actionMeta.isStart()
@@ -609,6 +680,22 @@ public class CustomRuleExecutor {
       log.logDetailed("Error extracting field " + fieldName + " from action: " + e.getMessage());
       return null;
     }
+  }
+
+  /**
+   * The enabled hops leaving this action that lead somewhere. A hop whose action name matches
+   * nothing loads with a null end, and is skipped rather than failing the field for the hops that
+   * are fine. The ends are compared by identity: ActionMeta.equals throws for an action without its
+   * inner action.
+   */
+  private static List<WorkflowHopMeta> outgoingHops(ActionMeta actionMeta, WorkflowMeta workflow) {
+    List<WorkflowHopMeta> hops = new ArrayList<>();
+    for (WorkflowHopMeta hop : workflow.getWorkflowHops()) {
+      if (hop.isEnabled() && hop.getFromAction() == actionMeta && hop.getToAction() != null) {
+        hops.add(hop);
+      }
+    }
+    return hops;
   }
 
   /**
@@ -680,7 +767,8 @@ public class CustomRuleExecutor {
    */
   private static List<String> getBlockingTransformPlugins(CustomLintRule rule) {
     if (rule != null && rule.getAdditionalParameters() != null) {
-      Object configured = rule.getAdditionalParameters().get("blockingTransforms");
+      Object configured =
+          rule.getAdditionalParameters().get(CustomLintRule.PARAMETER_BLOCKING_TRANSFORMS);
       if (configured instanceof List) {
         @SuppressWarnings("unchecked")
         List<String> ids = (List<String>) configured;
@@ -791,8 +879,8 @@ public class CustomRuleExecutor {
       }
 
       // Then a getter, which covers metas that expose a value they do not store directly.
-      String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-      for (String candidate : new String[] {getterName, fieldName}) {
+      String capitalised = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+      for (String candidate : new String[] {"get" + capitalised, "is" + capitalised, fieldName}) {
         try {
           java.lang.reflect.Method getter = clazz.getMethod(candidate);
           return getter.invoke(obj);
@@ -867,8 +955,19 @@ public class CustomRuleExecutor {
     if (secret) {
       return "hidden";
     }
-    String text = value.toString();
+    String text = shown(value).toString();
     return text.length() > 60 ? text.substring(0, 57) + "..." : text;
+  }
+
+  /**
+   * A value as a finding may show it. Of a map only the keys: a connection's attributes hold its
+   * extra options, and an option such as a token or a key would otherwise land in the report.
+   */
+  private static Object shown(Object value) {
+    if (value instanceof Map<?, ?> map) {
+      return new TreeSet<>(map.keySet().stream().map(String::valueOf).toList());
+    }
+    return value;
   }
 
   /** Human-readable label for a transform or action, used in configuration error messages. */
@@ -884,6 +983,9 @@ public class CustomRuleExecutor {
       String pluginId =
           actionMeta.getAction() != null ? actionMeta.getAction().getPluginId() : "unknown";
       return "action '" + actionMeta.getName() + "' (" + pluginId + ")";
+    }
+    if (hopObject instanceof DatabaseMeta databaseMeta) {
+      return "connection '" + databaseMeta.getName() + "'";
     }
     return hopObject != null ? hopObject.getClass().getSimpleName() : "null";
   }
@@ -973,36 +1075,26 @@ public class CustomRuleExecutor {
         return results;
       }
 
-      // Get field patterns from rule parameters or use defaults
       List<String> fieldPatterns = getPasswordFieldPatterns(rule);
+      Map<String, Field> hardcoded = new LinkedHashMap<>();
+      collectHardcodedSecrets(
+          transformOrAction,
+          "",
+          fieldPatterns,
+          Collections.newSetFromMap(new IdentityHashMap<>()),
+          0,
+          hardcoded);
 
-      // Check all password-related fields
-      Class<?> clazz = transformOrAction.getClass();
-      for (Field field : getAllFields(clazz)) {
-        for (String pattern : fieldPatterns) {
-          if (namesASecret(field, pattern)) {
-            try {
-              field.setAccessible(true);
-              Object value = field.get(transformOrAction);
-              if (value != null && !Utils.isEmpty(value.toString())) {
-                String strValue = value.toString();
-                // Check if it's hardcoded (not a variable)
-                if (!isVariable(strValue)) {
-                  String message =
-                      String.format(
-                          "%s '%s' has hardcoded value in field '%s'. Consider using a variable instead (e.g., ${%s})",
-                          rule.getTarget() == RuleTarget.TRANSFORM ? "Transform" : "Action",
-                          objectName,
-                          field.getName(),
-                          field.getName().toUpperCase().replaceAll("[^A-Z0-9]", "_"));
-                  results.add(createResult(rule, message, fileName, hopObject));
-                }
-              }
-            } catch (Exception e) {
-              log.logDetailed("Error checking field " + field.getName() + ": " + e.getMessage());
-            }
-          }
-        }
+      for (Map.Entry<String, Field> entry : hardcoded.entrySet()) {
+        String fieldName = entry.getValue().getName();
+        String message =
+            String.format(
+                "%s '%s' has hardcoded value in field '%s'. Consider using a variable instead (e.g., ${%s})",
+                rule.getTarget() == RuleTarget.TRANSFORM ? "Transform" : "Action",
+                objectName,
+                entry.getKey(),
+                fieldName.toUpperCase().replaceAll("[^A-Z0-9]", "_"));
+        results.add(createResult(rule, message, fileName, hopObject));
       }
 
     } catch (Exception e) {
@@ -1040,6 +1132,82 @@ public class CustomRuleExecutor {
       return false;
     }
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
+  }
+
+  /** How deep {@link #collectHardcodedSecrets} follows settings nested in settings. */
+  private static final int MAX_SECRET_DEPTH = 4;
+
+  /**
+   * Collect the fields holding a hardcoded secret, keyed by their path from the transform or
+   * action.
+   *
+   * <p>A secret is not always a field of the transform or action itself. PGP Decrypt Files keeps a
+   * passphrase on every file it decrypts, at {@code filesToDecrypt[0].passphrase}. Only the
+   * properties Hop stores in the file ({@link HopMetadataProperty}) are followed, which keeps the
+   * walk out of references such as the parent transform and the pipeline behind it.
+   */
+  private static void collectHardcodedSecrets(
+      Object holder,
+      String path,
+      List<String> fieldPatterns,
+      Set<Object> visited,
+      int depth,
+      Map<String, Field> hardcoded) {
+    if (holder == null || !visited.add(holder)) {
+      return;
+    }
+    for (Field field : getAllFields(holder.getClass())) {
+      if (Modifier.isStatic(field.getModifiers())) {
+        continue;
+      }
+      try {
+        if (fieldPatterns.stream().anyMatch(pattern -> namesASecret(field, pattern))) {
+          field.setAccessible(true);
+          Object value = field.get(holder);
+          if (value != null && !Utils.isEmpty(value.toString()) && !isVariable(value.toString())) {
+            hardcoded.put(path + field.getName(), field);
+          }
+        } else if (depth < MAX_SECRET_DEPTH
+            && field.isAnnotationPresent(HopMetadataProperty.class)) {
+          field.setAccessible(true);
+          Object value = field.get(holder);
+          String nestedPath = path + field.getName();
+          if (value instanceof Collection<?> collection) {
+            int i = 0;
+            for (Object element : collection) {
+              walkInto(
+                  element, nestedPath + "[" + i++ + "].", fieldPatterns, visited, depth, hardcoded);
+            }
+          } else if (value instanceof Object[] array) {
+            for (int i = 0; i < array.length; i++) {
+              walkInto(
+                  array[i], nestedPath + "[" + i + "].", fieldPatterns, visited, depth, hardcoded);
+            }
+          } else {
+            walkInto(value, nestedPath + ".", fieldPatterns, visited, depth, hardcoded);
+          }
+        }
+      } catch (Exception e) {
+        log.logDetailed("Error checking field " + path + field.getName() + ": " + e.getMessage());
+      }
+    }
+  }
+
+  /** Follow a nested value when it is a settings object rather than a plain value. */
+  private static void walkInto(
+      Object value,
+      String path,
+      List<String> fieldPatterns,
+      Set<Object> visited,
+      int depth,
+      Map<String, Field> hardcoded) {
+    if (value == null
+        || value instanceof Enum<?>
+        || value.getClass().isArray()
+        || value.getClass().getName().startsWith("java.")) {
+      return;
+    }
+    collectHardcodedSecrets(value, path, fieldPatterns, visited, depth + 1, hardcoded);
   }
 
   /**
@@ -1087,6 +1255,9 @@ public class CustomRuleExecutor {
       holder = transformMeta.getTransform();
     } else if (hopObject instanceof ActionMeta actionMeta) {
       holder = actionMeta.getAction();
+    } else if (hopObject instanceof DatabaseMeta databaseMeta) {
+      // A connection's settings, sshTunnelPassphrase among them, live on its database plugin.
+      holder = databaseMeta.getIDatabase();
     }
     String name = fieldName;
     int dot = fieldName.lastIndexOf('.');
@@ -1115,6 +1286,7 @@ public class CustomRuleExecutor {
           "apiKey",
           "apikey",
           "secretAccessKey",
+          "passphrase",
           "token",
           "accessToken",
           "authToken");
@@ -1124,7 +1296,8 @@ public class CustomRuleExecutor {
     List<String> defaultPatterns = DEFAULT_SECRET_FIELD_PATTERNS;
 
     if (rule.getAdditionalParameters() != null) {
-      Object patternsObj = rule.getAdditionalParameters().get("fieldPatterns");
+      Object patternsObj =
+          rule.getAdditionalParameters().get(CustomLintRule.PARAMETER_FIELD_PATTERNS);
       if (patternsObj instanceof List) {
         @SuppressWarnings("unchecked")
         List<String> patterns = (List<String>) patternsObj;
@@ -1137,19 +1310,17 @@ public class CustomRuleExecutor {
     return defaultPatterns;
   }
 
-  /** Check if a string is a Hop variable (enclosed in ${...}) */
-  private static boolean isVariable(String value) {
-    if (Utils.isEmpty(value)) {
-      return false;
-    }
+  /**
+   * A reference Hop resolves when it runs: a variable written as {@code ${NAME}} or {@code
+   * %%NAME%%}, or a variable resolver such as {@code #{vault:path:key}}. {@code $[..]} is not one:
+   * it spells literal characters in hex.
+   */
+  private static final Pattern VARIABLE_REFERENCE =
+      Pattern.compile("\\$\\{[^}]+}|%%[^%]+%%|#\\{[^}]+}");
 
-    // Check if it's a simple variable like ${VAR_NAME}
-    if (value.startsWith("${") && value.endsWith("}")) {
-      return true;
-    }
-
-    // Check if it contains variables (might be mixed with other text)
-    return value.contains("${") && value.contains("}");
+  /** Whether the value takes something from a variable or resolver rather than the file. */
+  static boolean isVariable(String value) {
+    return !Utils.isEmpty(value) && VARIABLE_REFERENCE.matcher(value).find();
   }
 
   /** Evaluate a condition against a field value */
@@ -1265,34 +1436,20 @@ public class CustomRuleExecutor {
         return !(fieldValue instanceof Boolean) || ((Boolean) fieldValue);
 
       case NOT_EMPTY_COLLECTION:
-        if (fieldValue instanceof List) {
-          return ((List<?>) fieldValue).isEmpty();
-        }
-        return false;
+        return sizeOf(fieldValue) == 0;
 
       case MAX_COLLECTION_SIZE:
-        if (fieldValue instanceof List) {
-          int size = ((List<?>) fieldValue).size();
-          try {
-            int maxSize = Integer.parseInt(conditionValue);
-            return size > maxSize;
-          } catch (NumberFormatException e) {
-            return false;
-          }
-        }
-        return false;
-
       case MIN_COLLECTION_SIZE:
-        if (fieldValue instanceof List) {
-          int size = ((List<?>) fieldValue).size();
-          try {
-            int minSize = Integer.parseInt(conditionValue);
-            return size < minSize;
-          } catch (NumberFormatException e) {
-            return false;
-          }
+        int size = sizeOf(fieldValue);
+        if (size < 0) {
+          return false;
         }
-        return false;
+        try {
+          int limit = Integer.parseInt(conditionValue);
+          return condition == RuleCondition.MAX_COLLECTION_SIZE ? size > limit : size < limit;
+        } catch (NumberFormatException e) {
+          return false;
+        }
 
       default:
         // Returning false here would report the rule as passing, which is the worst
@@ -1307,6 +1464,20 @@ public class CustomRuleExecutor {
                 + ", which this version of the linter cannot evaluate. Remove the rule or"
                 + " use a supported condition.");
     }
+  }
+
+  /**
+   * The number of entries in a list, set or map, or -1 for anything else. A connection's {@code
+   * attributes} are a map, which the collection conditions did not count.
+   */
+  private static int sizeOf(Object value) {
+    if (value instanceof Collection<?> collection) {
+      return collection.size();
+    }
+    if (value instanceof Map<?, ?> map) {
+      return map.size();
+    }
+    return -1;
   }
 
   /** Helper method for numeric condition evaluation */
@@ -1346,7 +1517,7 @@ public class CustomRuleExecutor {
     message.append(headline);
 
     if (fieldValue != null) {
-      message.append(" (current value: ").append(fieldValue).append(")");
+      message.append(" (current value: ").append(shown(fieldValue)).append(")");
     }
 
     if (!Utils.isEmpty(rule.getConditionValue())) {

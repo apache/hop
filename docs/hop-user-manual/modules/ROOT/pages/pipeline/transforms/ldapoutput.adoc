@@ -69,7 +69,7 @@ The following sections describe the available options for the LDAP Output transf
 |===
 |Option|Description
 |Operation|Insert, Update, Upsert, Add attribute, Delete, Rename DN (distinguished name), Remove attribute.
-|Multi valued field seperator|
+|Multi valued field separator|
 |Fail if not exist|
 |Dn fieldname|Field which contains the distinguished name.
 |Old DN fieldname|Field which contains the old distinguished name (rename).

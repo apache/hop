@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-snowflake]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Snowflake: the JDBC driver to use, how to install it, and how to set up a Snowflake service user for Hop with key pair authentication.
 :imagesdir: ../../../assets/images
 
 = Snowflake
@@ -81,7 +82,7 @@ programmatically.
 === Download the Snowflake JDBC driver an Crypto Libraries
 
 https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/[Download^] a current Snowflake JDBC Driver.
-The filename has the naming pattern *snowflake-jdbc-3.19.0.jar*
+The filename has the naming pattern *snowflake-jdbc-4.4.0.jar*
 
 To support certificate based authentication, we also need to https://www.bouncycastle.org/download/bouncy-castle-java-lts/[download^]
 two jar files from Bouncy Castle, who make a famous Java Crypto API

@@ -36,6 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.lint.registry.EffectiveRuleSet;
+import org.apache.hop.lint.registry.LintConfigurationException;
 import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -55,6 +56,9 @@ public class HopLinter {
 
   private LinterConfig config;
   private EffectiveRuleSet effectiveRuleSet;
+
+  /** Whether a folder run lints metadata files too; null follows the Linter configuration. */
+  private Boolean includeMetadata;
 
   /**
    * Rules are not registered in code: they are resolved on demand from the rule registry, which
@@ -106,9 +110,13 @@ public class HopLinter {
     try {
       applyEffectiveRuleSet(RuleRegistry.getInstance().resolve(configFile));
       log.logBasic("Loaded configuration from: " + filePath);
+    } catch (LintConfigurationException e) {
+      // Already names the file and says what is wrong with it.
+      throw new IOException(e.getMessage(), e);
     } catch (Exception e) {
       log.logError("Failed to load configuration from: " + filePath, e);
-      throw new IOException("Failed to load configuration from: " + filePath, e);
+      throw new IOException(
+          "Failed to load configuration from: " + filePath + ": " + e.getMessage(), e);
     }
   }
 
@@ -193,6 +201,27 @@ public class HopLinter {
       IHopMetadataProvider metadataProvider,
       IVariables variables,
       ProgressCallback progressCallback) {
+    // In order of preference:
+    // 1. Project-specific hop-lint.yml file
+    // 2. hop-lint.yml in parent directories of the project
+    // 3. Configuration plugin settings
+    // 4. Default configuration
+    loadConfigurationForContext(new File(projectPath));
+    return lintFolder(projectPath, metadataProvider, variables, progressCallback);
+  }
+
+  /**
+   * Lint a folder with the configuration this linter has loaded, where {@link #run} loads the
+   * folder's own. {@code hop lint --config} and the Run Linter action choose the configuration
+   * themselves.
+   *
+   * @param progressCallback Callback to report progress (can be null)
+   */
+  public List<LintResult> lintFolder(
+      String projectPath,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      ProgressCallback progressCallback) {
     List<LintResult> allResults = new ArrayList<>();
     long startTime = System.currentTimeMillis();
 
@@ -213,13 +242,6 @@ public class HopLinter {
 
     try {
       log.logBasic("Starting linter with project path: " + projectPath);
-
-      // Try to load configuration in order of preference:
-      // 1. Project-specific hop-lint.yml file
-      // 2. hop-lint.yml in parent directories of the project
-      // 3. Configuration plugin settings
-      // 4. Default configuration
-      loadConfigurationForContext(new File(projectPath));
 
       // Find all .hpl and .hwf files in the project
       if (progressCallback != null) {
@@ -442,20 +464,40 @@ public class HopLinter {
    */
   public void loadConfigurationForContext(File context) {
     try {
-      try {
-        LinterConfigPlugin configPlugin = LinterConfigPlugin.getInstance();
-        if (!configPlugin.isLinterEnabled()) {
-          this.config = new LinterConfig();
-          this.effectiveRuleSet = new EffectiveRuleSet(List.of(), this.config);
-          return;
-        }
-      } catch (Exception ignored) {
-        // Plugin may not be initialized in CLI mode.
+      if (isSwitchedOff()) {
+        this.config = new LinterConfig();
+        this.effectiveRuleSet = new EffectiveRuleSet(List.of(), this.config);
+        return;
       }
-      applyEffectiveRuleSet(RuleRegistry.getInstance().resolveForContext(context));
+      loadConfigurationStrictly(context);
     } catch (Exception e) {
       log.logError("Error loading linter configuration: " + e.getMessage(), e);
       loadDefaultConfig();
+    }
+  }
+
+  /**
+   * Load the configuration for a file or folder, and fail on a {@code hop-lint.yml} that cannot be
+   * read instead of falling back to the default rules.
+   *
+   * <p>For {@code hop lint} and the Run Linter action: a run that passes on the default rules
+   * because the project's own could not be read has passed for the wrong reason. For the same
+   * reason they lint when the linter is switched off in the configuration: that switch is for Hop
+   * Gui, and an explicit run that checks nothing would pass anything.
+   *
+   * @throws LintConfigurationException when the project's {@code hop-lint.yml} cannot be read
+   */
+  public void loadConfigurationStrictly(File context) {
+    applyEffectiveRuleSet(RuleRegistry.getInstance().resolveForContext(context));
+  }
+
+  /** Whether the linter is switched off in Hop Gui's configuration. */
+  private static boolean isSwitchedOff() {
+    try {
+      return !LinterConfigPlugin.getInstance().isLinterEnabled();
+    } catch (Exception e) {
+      // Plugin may not be initialized in CLI mode.
+      return false;
     }
   }
 
@@ -770,7 +812,18 @@ public class HopLinter {
     }
   }
 
+  /**
+   * @param includeMetadata whether a folder run lints metadata files too, or null to follow the
+   *     Linter configuration
+   */
+  public void setIncludeMetadata(Boolean includeMetadata) {
+    this.includeMetadata = includeMetadata;
+  }
+
   private boolean includeMetadataInProjectLint() {
+    if (includeMetadata != null) {
+      return includeMetadata;
+    }
     try {
       return LinterConfigPlugin.getInstance().isPreCommitIncludeMetadata();
     } catch (Exception e) {

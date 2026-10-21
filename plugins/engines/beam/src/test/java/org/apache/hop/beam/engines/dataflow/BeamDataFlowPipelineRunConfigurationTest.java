@@ -19,11 +19,13 @@ package org.apache.hop.beam.engines.dataflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -80,5 +82,63 @@ class BeamDataFlowPipelineRunConfigurationTest {
   @Test
   void defaultIsUnset() {
     assertNull(new BeamDataFlowPipelineRunConfiguration().getGcpTempLocation());
+  }
+
+  @Test
+  void emptyGcsUploadBufferSizeLeavesTheBeamDefault() throws Exception {
+    // The option is passed to the workers as the chunk size of every GCS write, so an empty field
+    // must not replace Beam's own default.
+    //
+    BeamDataFlowPipelineRunConfiguration runConfiguration =
+        new BeamDataFlowPipelineRunConfiguration();
+
+    DataflowPipelineOptions options =
+        (DataflowPipelineOptions) runConfiguration.getPipelineOptions();
+
+    assertNull(options.getGcsUploadBufferSizeBytes());
+  }
+
+  @Test
+  void gcsUploadBufferSizeIsSetInBytes() throws Exception {
+    BeamDataFlowPipelineRunConfiguration runConfiguration =
+        new BeamDataFlowPipelineRunConfiguration();
+    runConfiguration.setGcsUploadBufferSizeMb("128");
+
+    DataflowPipelineOptions options =
+        (DataflowPipelineOptions) runConfiguration.getPipelineOptions();
+
+    assertEquals(128 * 1024 * 1024, options.getGcsUploadBufferSizeBytes());
+  }
+
+  @Test
+  void largestGcsUploadBufferSizeDoesNotOverflow() throws Exception {
+    BeamDataFlowPipelineRunConfiguration runConfiguration =
+        new BeamDataFlowPipelineRunConfiguration();
+    runConfiguration.setGcsUploadBufferSizeMb(
+        String.valueOf(BeamDataFlowPipelineRunConfiguration.MAX_GCS_UPLOAD_BUFFER_SIZE_MB));
+
+    DataflowPipelineOptions options =
+        (DataflowPipelineOptions) runConfiguration.getPipelineOptions();
+
+    assertEquals(1024 * 1024 * 1024, options.getGcsUploadBufferSizeBytes());
+  }
+
+  @Test
+  void invalidGcsUploadBufferSizeIsRejected() {
+    for (String size : new String[] {"0", "-5", "abc", "1025", "2048"}) {
+      BeamDataFlowPipelineRunConfiguration runConfiguration =
+          new BeamDataFlowPipelineRunConfiguration();
+      runConfiguration.setGcsUploadBufferSizeMb(size);
+
+      assertThrows(HopException.class, runConfiguration::getPipelineOptions, size);
+    }
+  }
+
+  @Test
+  void cloneCopiesTheGcsUploadBufferSize() {
+    BeamDataFlowPipelineRunConfiguration original = new BeamDataFlowPipelineRunConfiguration();
+    original.setGcsUploadBufferSizeMb("64");
+
+    assertEquals("64", original.clone().getGcsUploadBufferSizeMb());
   }
 }

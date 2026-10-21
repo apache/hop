@@ -17,7 +17,9 @@
 
 package org.apache.hop.ai.ui;
 
+import java.util.function.Supplier;
 import org.apache.hop.ai.advisor.AiAdvisorOpenRequest;
+import org.apache.hop.ai.config.HopAiConfigSingleton;
 import org.apache.hop.ai.session.AiAdvisorSession;
 import org.apache.hop.ai.session.AiAdvisorSessionStore;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -26,10 +28,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -62,10 +67,33 @@ public class AiAdvisorViews {
     } catch (Throwable e) {
       return;
     }
-    if (hopGui == null) {
+    if (hopGui == null || !ensureEnabled(hopGui)) {
       return;
     }
+    // As Float does: the assistant moves to the window, and the dock tab closes.
+    boolean fromDock = isDockOpen(hopGui);
+    rememberView(IAiAdvisorWorkbenchHost.ViewKind.FLOATING);
     openDialog(hopGui);
+    if (fromDock) {
+      hopGui.getDisplay().asyncExec(() -> closeAfterMove(() -> closeDock(hopGui)));
+    }
+  }
+
+  /**
+   * Whether the AI Assistant is enabled. When it is not, say where to enable it, instead of opening
+   * an assistant that cannot send anything.
+   */
+  public static boolean ensureEnabled(HopGui hopGui) {
+    if (HopAiConfigSingleton.getConfig().isAiEnabled()) {
+      return true;
+    }
+    if (hopGui != null && hopGui.getShell() != null && !hopGui.getShell().isDisposed()) {
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "AiAdvisorPerspective.Disabled.Title"));
+      box.setMessage(BaseMessages.getString(PKG, "AiAdvisor.Status.Disabled"));
+      box.open();
+    }
+    return false;
   }
 
   public static void openPerspective(HopGui hopGui) {
@@ -77,6 +105,35 @@ public class AiAdvisorViews {
 
   public static void openDialog(HopGui hopGui) {
     AiAdvisorDialog.open(hopGui);
+    leavePerspective(hopGui);
+  }
+
+  /**
+   * The floating window or the dock took over from the AI Assistant perspective: go back to the
+   * files, so the assistant is not shown twice.
+   */
+  static void leavePerspective(HopGui hopGui) {
+    AiAdvisorPerspective perspective = AiAdvisorPerspective.getInstance();
+    if (hopGui == null || perspective == null || !perspective.isActive()) {
+      return;
+    }
+    ExplorerPerspective explorer = HopGui.getExplorerPerspective();
+    if (explorer != null) {
+      explorer.activate();
+    }
+  }
+
+  /**
+   * The perspective took over from the floating window and the dock. Their sessions go on in the
+   * perspective, so this is a move, not a close that cancels a running question.
+   */
+  static void closeOtherViews(HopGui hopGui) {
+    if (isDialogOpen(hopGui)) {
+      closeAfterMove(() -> AiAdvisorDialog.close(hopGui));
+    }
+    if (isDockOpen(hopGui)) {
+      closeAfterMove(() -> closeDock(hopGui));
+    }
   }
 
   public static boolean isDialogOpen(HopGui hopGui) {
@@ -95,6 +152,7 @@ public class AiAdvisorViews {
     if (dock == null || dock.isDisposed()) {
       return;
     }
+    leavePerspective(hopGui);
     String title = BaseMessages.getString(PKG, "AiAdvisorPerspective.Name");
     dock.focusOrOpenToolTab(
         DOCK_TOOL_ID,
@@ -125,8 +183,19 @@ public class AiAdvisorViews {
     }
     // The shell's Dispose event comes before its children are disposed.
     hopGui.getShell().addListener(SWT.Dispose, e -> exiting = true);
-    if ("Y".equals(PropsUi.getInstance().getCustomParameter(DOCK_OPEN, "N"))) {
-      hopGui.getShell().getDisplay().asyncExec(() -> openDock(hopGui));
+    if ("Y".equals(PropsUi.getInstance().getCustomParameter(DOCK_OPEN, "N"))
+        && HopAiConfigSingleton.getConfig().isAiEnabled()) {
+      hopGui
+          .getShell()
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                // Hop GUI opened on the AI Assistant perspective, which shows the sessions already.
+                AiAdvisorPerspective perspective = AiAdvisorPerspective.getInstance();
+                if (perspective == null || !perspective.isActive()) {
+                  openDock(hopGui);
+                }
+              });
     }
   }
 
@@ -189,6 +258,9 @@ public class AiAdvisorViews {
    * callers fall back to the perspective.
    */
   public static AiAdvisorSession openSession(HopGui hopGui, AiAdvisorOpenRequest request) {
+    if (!ensureEnabled(hopGui)) {
+      return null;
+    }
     AiAdvisorSessionStore store = AiAdvisorSessionStore.get(hopGui);
     AiAdvisorSession session = store.open(request);
     if (isDialogOpen(hopGui)) {
@@ -237,13 +309,59 @@ public class AiAdvisorViews {
    * closed file is not kept in memory or sent with the next question.
    */
   public static void releaseWhenClosed(Control graph, HopGui hopGui, Object artifact) {
-    if (graph == null || graph.isDisposed() || hopGui == null || artifact == null) {
+    if (hopGui == null) {
       return;
     }
-    if (graph.getData(RELEASE_KEY) == artifact) {
+    releaseWhenClosed(graph, () -> AiAdvisorSessionStore.get(hopGui), artifact);
+  }
+
+  /**
+   * Closing a tab does not dispose its graph: the tab folder only hides it. So the tab is watched
+   * as well. Moving a tab to another pane also disposes the tab, but takes the graph off it first;
+   * the graph then gets a new tab, which is watched in turn.
+   */
+  static void releaseWhenClosed(
+      Control graph, Supplier<AiAdvisorSessionStore> store, Object artifact) {
+    if (graph == null || graph.isDisposed() || artifact == null) {
       return;
     }
-    graph.setData(RELEASE_KEY, artifact);
-    graph.addDisposeListener(e -> AiAdvisorSessionStore.get(hopGui).release(artifact));
+    if (graph.getData(RELEASE_KEY) != artifact) {
+      graph.setData(RELEASE_KEY, artifact);
+      graph.addDisposeListener(e -> store.get().release(artifact));
+    }
+    watchTab(graph, store, artifact);
+  }
+
+  private static void watchTab(
+      Control graph, Supplier<AiAdvisorSessionStore> store, Object artifact) {
+    CTabItem tab = tabOf(graph);
+    if (tab == null || tab.getData(RELEASE_KEY) == artifact) {
+      return;
+    }
+    tab.setData(RELEASE_KEY, artifact);
+    tab.addListener(
+        SWT.Dispose,
+        e -> {
+          if (tab.getControl() == graph) {
+            // Closed: the graph was still on the tab.
+            store.get().release(artifact);
+          } else if (!graph.isDisposed()) {
+            // Moved to another pane: watch the tab it gets there.
+            graph.getDisplay().asyncExec(() -> watchTab(graph, store, artifact));
+          }
+        });
+  }
+
+  /** The tab that shows this control, or null. */
+  static CTabItem tabOf(Control control) {
+    if (control == null || control.isDisposed() || !(control.getParent() instanceof CTabFolder)) {
+      return null;
+    }
+    for (CTabItem item : ((CTabFolder) control.getParent()).getItems()) {
+      if (item.getControl() == control) {
+        return item;
+      }
+    }
+    return null;
   }
 }

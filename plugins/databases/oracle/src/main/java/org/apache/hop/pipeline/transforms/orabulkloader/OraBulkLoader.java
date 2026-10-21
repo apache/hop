@@ -359,7 +359,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
   public String createCommandLine(OraBulkLoaderMeta meta, boolean password) throws HopException {
     StringBuilder sb = new StringBuilder(300);
 
-    if (meta.getSqlldr() != null) {
+    if (!Utils.isEmpty(meta.getSqlldr())) {
       try {
         FileObject fileObject = getFileObject(meta.getSqlldr(), variables);
         String sqlldr = getFilename(fileObject);
@@ -371,7 +371,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       throw new HopException("No sqlldr application specified");
     }
 
-    if (meta.getControlFile() != null) {
+    if (!Utils.isEmpty(meta.getControlFile())) {
       try {
         FileObject fileObject = getFileObject(meta.getControlFile(), variables);
 
@@ -389,7 +389,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       sb.append(" data=\'-\'");
     }
 
-    if (meta.getLogFile() != null) {
+    if (!Utils.isEmpty(meta.getLogFile())) {
       try {
         FileObject fileObject = getFileObject(meta.getLogFile(), variables);
 
@@ -401,7 +401,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       }
     }
 
-    if (meta.getBadFile() != null) {
+    if (!Utils.isEmpty(meta.getBadFile())) {
       try {
         FileObject fileObject = getFileObject(meta.getBadFile(), variables);
 
@@ -413,7 +413,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       }
     }
 
-    if (meta.getDiscardFile() != null) {
+    if (!Utils.isEmpty(meta.getDiscardFile())) {
       try {
         FileObject fileObject = getFileObject(meta.getDiscardFile(), variables);
 
@@ -668,7 +668,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       FileObject fileObject = null;
 
       String method = meta.getLoadMethod();
-      if (OraBulkLoaderMeta.METHOD_AUTO_END.equals(method) && meta.getControlFile() != null) {
+      if (OraBulkLoaderMeta.METHOD_AUTO_END.equals(method)
+          && !Utils.isEmpty(meta.getControlFile())) {
 
         try {
           fileObject = getFileObject(meta.getControlFile(), variables);
@@ -681,7 +682,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         }
       }
 
-      if (OraBulkLoaderMeta.METHOD_AUTO_END.equals(method) && meta.getDataFile() != null) {
+      if (OraBulkLoaderMeta.METHOD_AUTO_END.equals(method) && !Utils.isEmpty(meta.getDataFile())) {
         // In concurrent mode the data is written to the control file.
 
         try {

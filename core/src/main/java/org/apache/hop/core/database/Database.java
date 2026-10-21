@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import lombok.Getter;
@@ -118,7 +119,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static final String CONST_INOUT = "INOUT";
   private static final String CONST_BETWEEN = "BETWEEN";
   private static final String CONST_IS_NULL = "IS NULL";
-  private static final String CONST_IS_NOT_NULL = "IS NULL";
+  private static final String CONST_IS_NOT_NULL = "IS NOT NULL";
   private static final String CONST_BETWEEN_AND = " BETWEEN ? AND ? ";
   private static final String CONST_TRUNCATE_NOT_SUPPORTED = "Truncate table not supported by ";
   private static final String CONST_TABLE_CAT = "TABLE_CAT";
@@ -2304,6 +2305,11 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       return null; // Cache test without connect.
     }
 
+    // Remember the generation before asking the database. A clear that lands while the query is in
+    // flight has to discard this row: it describes the layout from before the clear, and storing
+    // it would put those columns straight back. See DbCache.putIfCurrent.
+    int generationAtQuery = dbcache == null ? 0 : dbcache.getGeneration();
+
     // No cache entry found
 
     // The new method of retrieving the query fields fails on Oracle because
@@ -2339,9 +2345,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     }
 
-    // Store in cache!!
+    // Store in cache when this read still belongs to the generation it started in.
     if (dbcache != null && fields != null) {
-      dbcache.put(entry, fields);
+      dbcache.putIfCurrent(entry, fields, generationAtQuery);
     }
 
     return fields;
@@ -4435,6 +4441,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       log.logDetailed(CONST_READ + schemaList.size() + " schemas from db meta-data.");
     }
 
+    schemaList.removeIf(Objects::isNull);
     schemaList.sort(String.CASE_INSENSITIVE_ORDER);
     return schemaList.toArray(new String[0]);
   }
@@ -4454,6 +4461,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       log.logDetailed(CONST_READ + catalogList.size() + " catalogs from db meta-data.");
     }
 
+    catalogList.removeIf(Objects::isNull);
     catalogList.sort(String.CASE_INSENSITIVE_ORDER);
     return catalogList.toArray(new String[0]);
   }

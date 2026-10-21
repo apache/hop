@@ -17,7 +17,7 @@ limitations under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Beam Snowflake input using a bounded GCS COPY.
-:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Direct=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=no, Single Threaded=no, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-engines-beam
 
 = image:transforms/icons/beam-snowflake-input.svg[Beam Snowflake input icon, role="image-doc-icon"] Beam Snowflake input

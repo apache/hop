@@ -21,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.ai.advisor.AiAdvisorMetadataSelection;
+import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.engine.AiAdvisorMetadataContextTest.TestMetadataProvider;
+import org.apache.hop.ai.engine.AiProposalIntent;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.gui.Point;
@@ -189,5 +191,70 @@ class PipelineAiContextBuilderTest {
     assertTrue(included.contains("<selected_metadata>"));
     assertTrue(included.contains("sales-db"));
     assertFalse(included.contains("sk-hidden"));
+  }
+
+  private static AiAdvisorRequest question(PipelineMeta pipelineMeta, String question) {
+    AiAdvisorRequest request = new AiAdvisorRequest();
+    request.setUserPrompt(question);
+    request.setArtifact(pipelineMeta);
+    request.setVariables(new Variables());
+    request.setMetadataProvider(new TestMetadataProvider());
+    return request;
+  }
+
+  @Test
+  void anExplanationGoesWithoutTheProposalFormatAndItsLists() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("demo");
+    AiAdvisorRequest request = question(pipelineMeta, "What does this pipeline do?");
+
+    AiAdvisorPrompt prompt = PipelineAiContextBuilder.buildPrompt(request);
+    assertFalse(prompt.getSystemPrompt().contains("Pipeline parameter reference"));
+    assertTrue(prompt.getSystemPrompt().contains("answer in prose"));
+    assertFalse(prompt.getUserPrompt().contains("<metadata_types>"));
+    assertFalse(prompt.getUserPrompt().contains("<database_plugins>"));
+    assertFalse(AiProposalIntent.wasOffered(request));
+  }
+
+  @Test
+  void aChangeGetsThePipelineTypesOnly() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("demo");
+    AiAdvisorRequest request = question(pipelineMeta, "Add a Dummy after Output");
+
+    AiAdvisorPrompt prompt = PipelineAiContextBuilder.buildPrompt(request);
+    assertTrue(prompt.getSystemPrompt().contains("Pipeline types:"));
+    assertTrue(prompt.getSystemPrompt().contains("Pipeline parameter reference"));
+    assertFalse(prompt.getSystemPrompt().contains("Workflow types:"));
+    assertFalse(prompt.getSystemPrompt().contains("ADD_WORKFLOW_HOP"));
+    assertTrue(prompt.getUserPrompt().contains("<metadata_types>"));
+    // Nothing about databases: no database plugin list.
+    assertFalse(prompt.getUserPrompt().contains("<database_plugins>"));
+    assertTrue(AiProposalIntent.wasOffered(request));
+  }
+
+  @Test
+  void aChangeAboutADatabaseGetsTheDatabasePlugins() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("demo");
+    AiAdvisorRequest request = question(pipelineMeta, "Create a PostgreSQL connection for it");
+
+    String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
+    assertTrue(prompt.contains("<database_plugins>"));
+  }
+
+  @Test
+  void localFoldersAreSentAsVariables() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("demo");
+    pipelineMeta.setFilename("/work/projects/sales/pipelines/demo.hpl");
+    AiAdvisorRequest request = question(pipelineMeta, "Why did it fail?");
+    Variables variables = new Variables();
+    variables.setVariable("PROJECT_HOME", "/work/projects/sales");
+    request.setVariables(variables);
+
+    String prompt = PipelineAiContextBuilder.buildUserPrompt(pipelineMeta, request);
+    assertTrue(prompt.contains("${PROJECT_HOME}/pipelines/demo.hpl"), prompt);
+    assertFalse(prompt.contains("/work/projects/sales"), prompt);
   }
 }

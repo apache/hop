@@ -147,7 +147,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
 
               case IValueMeta.TYPE_DATE:
                 try {
-                  if (field.getFieldFormat() != null) {
+                  if (!Utils.isEmpty(field.getFieldFormat())) {
                     data.daf.applyPattern(field.getFieldFormat());
                     data.daf.setDateFormatSymbols(data.dafs);
                   }

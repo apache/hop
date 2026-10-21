@@ -96,6 +96,33 @@ public final class MarkdownNoteHelp {
             + "a note on the canvas to edit it.</li>\n");
     html.append("</ul>\n");
 
+    html.append("<h2>Editing toolbar</h2>\n");
+    html.append(
+        "<p>When <strong>Render as Markdown</strong> is on, the note toolbar inserts syntax. "
+            + "The same buttons are on the toolbar when you edit a <code>.md</code> file in the "
+            + "file explorer. Bold and italic stay disabled until text is selected.</p>\n");
+    html.append("<ul>\n");
+    html.append(
+        "<li><strong>Link</strong>: choose a URL or a file, then insert "
+            + "<code>[label](target)</code>. Selected text becomes the label.</li>\n");
+    html.append(
+        "<li><strong>Image</strong>: pick a PNG, JPEG, GIF, or SVG and insert "
+            + "<code>![alt](path)</code>.</li>\n");
+    html.append("<li><strong>Bold</strong>: <code>__text__</code></li>\n");
+    html.append("<li><strong>Italic</strong>: <code>_text_</code></li>\n");
+    html.append(
+        "<li><strong>Table</strong>: rows (including the header), columns, and alignment "
+            + "(<code>---</code>, <code>:---</code>, <code>:---:</code>, <code>---:</code>). "
+            + "The canvas emphasizes the header. HTML preview uses the alignment.</li>\n");
+    html.append("<li><strong>Code block</strong>: a fenced block of three backticks.</li>\n");
+    html.append(
+        "<li><strong>Header</strong>: Header 1–4 or regular text on the current line.</li>\n");
+    html.append("</ul>\n");
+    html.append(
+        "<p>Asterisks (<code>**bold**</code>, <code>*italic*</code>) still render. "
+            + "The toolbar uses underscores. A picked file is stored relative to the pipeline, "
+            + "workflow, or Markdown file when that file has a name.</p>\n");
+
     html.append("<h2>Simple examples</h2>\n");
     html.append("<pre>");
     html.append("# Title\n");

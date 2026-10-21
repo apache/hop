@@ -22,7 +22,7 @@ under the License.
 
 = Cassandra Exec CQL
 
-The `Cassandra Exec CQL` action executes one or more Cassandra Quqery Languague (SQL) statements on a Cassandra cluster.
+The `Cassandra Exec CQL` action executes one or more Cassandra Query Language (SQL) statements on a Cassandra cluster.
 
 You can use it to create or drop key spaces, tables, indexes and so on.
 

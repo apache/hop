@@ -1077,7 +1077,7 @@ The `type` parameter accepts the following values:
 |`DATA`|Get the execution data of an execution|parentId
 |`LAST_EXECUTION`|Get the last execution with a given name and type|name, execType
 |`CHILD_IDS`|Get the child ids of an execution|id, execType
-|`PARENT_ID`|Get the parent id of a child execution|id
+|`PARENT_ID`|Get the id of the workflow or pipeline that owns the execution. Before Hop 2.20 this was the action or transform that started it.|id
 |`DELETE`|Delete an execution|id
 |===
 

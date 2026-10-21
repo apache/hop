@@ -16,66 +16,190 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The YAML Input transform reads data from YAML structures, files or incoming fields.
+:description: The YAML Input transform reads data from YAML files or from a field of the incoming rows.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/yamlinput.svg[YAML Input transform Icon, role="image-doc-icon"] YAML Input
 
 == Description
 
-The YAML Input transform reads data from YAML structures, files or incoming fields.
+The YAML Input transform reads data from YAML files, or from a field of the incoming rows.
+Each output field gets its value from a path in the YAML, so values can be read from any level of nesting.
+
+== How rows are formed
+
+A file or field can hold several YAML documents, separated by `---`.
+Each document is read in turn and gives its own rows.
+
+=== A map at the top level
+
+When a document starts with keys, every field reads its path from the document:
+
+* A path that finds one value gives one value.
+* A path that finds a list of values, such as `$.items[*].id`, gives one value per element.
+
+The document gives as many rows as the longest list.
+A single value is repeated on every row, and a shorter list leaves its field empty (null) on the remaining rows.
+
+For example, this document:
+
+[source,yaml]
+----
+table: customers
+owner:
+  name: Sales
+  contact:
+    email: sales@example.com
+items:
+  - id: 10
+    city: Brussels
+  - id: 20
+    city: Ghent
+  - id: 30
+    city: Leuven
+tags:
+  - a
+  - b
+----
+
+with these fields:
+
+[options="header"]
+|===
+|Name|Path|Type
+|table|`$.table`|String
+|email|`$.owner.contact.email`|String
+|item_id|`$.items[*].id`|Integer
+|city|`$.items[*].city`|String
+|tag|`$.tags[*]`|String
+|===
+
+gives 3 rows, one for every element of `items`:
+
+[options="header"]
+|===
+|table|email|item_id|city|tag
+|customers|sales@example.com|10|Brussels|a
+|customers|sales@example.com|20|Ghent|b
+|customers|sales@example.com|30|Leuven|
+|===
+
+=== A list at the top level
+
+When a document is a list of plain values, such as:
+
+[source,yaml]
+----
+- Spark
+- Flink
+- Beam
+----
+
+every element gives one row, here 3 rows, with the value in the first field.
+
+NOTE: When a document is a list of maps (`- id: 1` followed by `name: Anna` and so on), only the first element is read.
+To read every element, put the list under a key (`users:`) and use paths such as `$.users[*].id`.
+
+=== Values that are maps or lists
+
+A path that points to a map gives the whole map as text in a String field, for example `$.owner` gives `{name:  Sales,contact:  {email:  sales@example.com}}`.
+A path that points to a list, such as `$.items`, gives one row per element, like `$.items[*]`.
+
+== Paths
+
+The *Path* column of the Fields tab holds a https://github.com/json-path/JsonPath[JsonPath] expression, for example:
+
+* `$.table` for a key at the top level.
+* `$.owner.contact.email` for a nested key.
+* `$.items[0].city` for the first element of a list.
+* `$.items[*].city` for every element of a list.
+
+A path without `$` is read from the top of the document: `table` is the same as `$.table`, and `owner.name` the same as `$.owner.name`.
+
+Paths and field names can contain variables.
+
+*Get fields* reads the first file in the *Selected files* list and adds a field for every value it finds, with its path and a type based on the value.
+
+=== When a path or type doesn't match the YAML
+
+* When a path finds nothing in a document, the transform fails with a `NullPointerException`.
+* When a value doesn't fit the type of the field, for example `abc` in an Integer field, the transform fails with a `NumberFormatException`. The same happens for `1,5` in a Number field: the Decimal, Group and Format columns are not used to read the value.
+* Values for Date and Boolean fields are not converted. A YAML date such as `2024-01-15` and a YAML boolean such as `true` or `yes` work. Text such as `15/01/2024` or `abc` is passed as text, and the next transform that uses the field fails with a data type error.
 
 == Options
 
-=== File Tab
+=== File tab
 
 [options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Source is defined in a field?|Whether or not the source is in a field from a previous transform.
-|Source is a filename|Whether or not the source is a filename, else a directory.
-|get source from a field|The field containing the filename or directory.
-|File or directory|The file or directory path.
-|Add|Adds the file or directory to the Selected files list.
-|Browse|Browses the local filesystem for a file or directory.
-|Regular Expression|
-|Selected files|The selected files or directories.
-|Delete|Deletes selected lines from the list.
-|Edit|Moved the selected line for editting.
-|Show filename(s)|Previews the filename.
+|Source is defined in a field|Read the YAML from a field of the incoming rows instead of from the files in the *Selected files* list.
+|{nbsp}{nbsp}{nbsp}{nbsp}Source is a filename|Only when *Source is defined in a field* is selected.
+When selected, the field holds the name of a YAML file to read.
+When not selected, the field holds the YAML text itself.
+|{nbsp}{nbsp}{nbsp}{nbsp}Get source from a field|Only when *Source is defined in a field* is selected.
+The incoming field that holds the YAML text or file name.
+Variables in its value are not resolved.
+|File or directory|A file, or a folder with a regular expression, to add to the *Selected files* list.
+|Regular Expression|A https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html[Java regular expression] for the names of the files to read from the folder in *File or directory*, for example `+.*\.yaml+`.
+|Add|Adds the file or folder to the *Selected files* list.
+|Browse|Browses for a file or folder.
+|Selected files|The files and folders to read, with these columns:
+
+* *File/Directory*: the file or folder.
+* *Wildcard (RegExp)*: the regular expression for the names of the files in the folder.
+* *Required*: when `Y`, the transform fails when the file doesn't exist, or, for a folder with a regular expression, when the folder doesn't exist or no file matches. When `N`, such a line is skipped.
+* *Include subfolders*: also read matching files in subfolders of the folder.
+|Delete|Deletes the selected lines from the list.
+|Edit|Moves the selected line back to *File or directory* and *Regular Expression* for editing.
+|Show filename(s)|Shows the files that match the list.
 |===
 
-=== Content Tab
+When *Source is defined in a field* is selected, every incoming row is read in turn, and its fields are kept in front of the YAML fields.
+
+=== Content tab
 
 [options="header"]
 |===
 |Option|Description
-|Ignore empty file|Whether or not to ignore empty files.
-|Do not raise an error if no files|Whether or not the raise an error if no files are available.
-|Limit|Sets a limit to be read.
-|Include filename in output?|Adds the filename to the output rows.
-|Filename fieldname|The field containing the filename.
-|Rownum in output?|Adds the row number to the output rows.
-|Rownum fieldname|The field containing the row number.
-|Add files to result filesname|
+|Ignore empty file|Skips files of 0 bytes and logs a line for each.
+Empty files give no rows with or without this option, but with this option the transform fails when every file is empty.
+Only used for the files in the *Selected files* list.
+|Do not raise an error if no files|When no file is found, the transform ends without rows instead of failing.
+A line of the *Selected files* list with *Required* set to `Y` still makes it fail.
+Only used for the files in the *Selected files* list.
+|Limit|The maximum number of rows to output, counted over all the files together. `0` means no limit.
+Not available when the source is defined in a field.
+|Include filename in output|Adds a String field with the full path of the file each row was read from.
+Not available when the source is defined in a field.
+|{nbsp}{nbsp}{nbsp}{nbsp}Filename fieldname|The name of that output field.
+|Rownum in output|Adds an Integer field with the row number, starting at 1 and counted over all the files together.
+|{nbsp}{nbsp}{nbsp}{nbsp}Rownum fieldname|The name of that output field.
+|Add files to result filesname|Adds the files that were read to the result files of the pipeline, for example for a later action in the workflow.
+Not available when the source is defined in a field.
 |===
 
-=== Fields Tab
+*Get source from a field* (File tab) and *Filename fieldname* (Content tab) are different:
+
+* *Get source from a field* is an incoming field the transform reads the YAML, or the file name, from.
+* *Filename fieldname* is a new output field the transform writes the file name to.
+
+=== Fields tab
 
 [options="header"]
 |===
 |Option|Description
 |Name|The name of the output field.
-|Key|The key to the element.
-|Type|The data type to convert to.
-|Format|The format or conversion mask to use in the data type conversion.
+|Path|The path of the value in the YAML. See <<Paths>>.
+|Type|The data type of the output field. See <<When a path or type doesn't match the YAML>>.
+|Format|The format of the output field, used when it is later converted, for example to text. Not used to read the value.
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
-|Length|The length of the output data type.
-|Precision|The precision of the output data type.
-|Currency|The currency symbol to use during data type conversion.
-|Decimal|The numeric decimal symbol to use during data type conversion.
-|Group|The numeric grouping symbol to use during data type conversion.
-|Trim type|The type of trimming to use during data type conversion.
-|Get fields|Approximates fields from the input.
+|Length|The length of the output field.
+|Precision|The precision of the output field.
+|Currency|The currency symbol of the output field.
+|Decimal|The decimal symbol of the output field.
+|Group|The grouping symbol of the output field.
+|Trim type|Only for String fields: `none`, `left`, `right` or `both`, to remove whitespace at the start, the end, or both.
+|Get fields|Replaces the list with the fields found in the first file. See <<Paths>>.
 |===

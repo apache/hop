@@ -16,6 +16,7 @@
  */
 package org.apache.hop.lint.registry;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -66,16 +67,43 @@ public final class ProjectYamlOverlay {
     private final String severity;
     private final String conditionValue;
     private final Map<String, Object> parameters;
+    private final String helpUri;
+
+    /** A name and description of the project's own, for a pack rule it only renames. */
+    private final String name;
+
+    private final String description;
+
+    /**
+     * Tags the project sets on the pack's rule, by key. A key replaces the pack's values for that
+     * key and leaves its other tags alone; a key with no values removes the pack's tag.
+     */
+    private final Map<String, List<String>> tags;
 
     private ProjectRuleOverlay(
-        Boolean enabled, String severity, String conditionValue, Map<String, Object> parameters) {
+        Boolean enabled,
+        String severity,
+        String conditionValue,
+        Map<String, Object> parameters,
+        String helpUri,
+        String name,
+        String description,
+        Map<String, List<String>> tags) {
       this.enabled = enabled;
       this.severity = severity;
       this.conditionValue = conditionValue;
       this.parameters = parameters;
+      this.helpUri = helpUri;
+      this.name = name;
+      this.description = description;
+      this.tags = tags != null ? tags : Collections.emptyMap();
     }
 
-    public static ProjectRuleOverlay fromMap(Map<String, Object> ruleData) {
+    /**
+     * @param location where the override is written, for the warnings
+     */
+    public static ProjectRuleOverlay fromMap(
+        String ruleId, Map<String, Object> ruleData, String location) {
       Boolean enabled = ruleData.containsKey("enabled") ? (Boolean) ruleData.get("enabled") : null;
       String severity =
           ruleData.containsKey("severity") ? String.valueOf(ruleData.get("severity")) : null;
@@ -87,7 +115,24 @@ public final class ProjectYamlOverlay {
               : null;
       @SuppressWarnings("unchecked")
       Map<String, Object> parameters = (Map<String, Object>) ruleData.get("parameters");
-      return new ProjectRuleOverlay(enabled, severity, conditionValue, parameters);
+      // A key with no value, like an empty one, removes the pack's link.
+      String helpUri = null;
+      if (ruleData.containsKey("helpUri")) {
+        Object value = ruleData.get("helpUri");
+        helpUri = value != null ? value.toString().trim() : "";
+      }
+      // A name or description renames the pack rule in place; it stays the pack's rule.
+      String name = ruleData.get("name") != null ? String.valueOf(ruleData.get("name")) : null;
+      String description =
+          ruleData.containsKey("description")
+              ? (ruleData.get("description") != null
+                  ? String.valueOf(ruleData.get("description"))
+                  : "")
+              : null;
+      Map<String, List<String>> tags =
+          YamlRulePackParser.tagsValue(ruleData.get("tags"), ruleId, location, true);
+      return new ProjectRuleOverlay(
+          enabled, severity, conditionValue, parameters, helpUri, name, description, tags);
     }
 
     public void applyTo(org.apache.hop.lint.CustomLintRule rule) {
@@ -103,6 +148,23 @@ public final class ProjectYamlOverlay {
       if (parameters != null && !parameters.isEmpty()) {
         rule.getAdditionalParameters().putAll(parameters);
       }
+      if (helpUri != null) {
+        rule.setHelpUri(helpUri.isEmpty() ? null : helpUri);
+      }
+      if (name != null && !name.trim().isEmpty()) {
+        rule.setName(name);
+      }
+      if (description != null) {
+        rule.setDescription(description);
+      }
+      tags.forEach(
+          (key, values) -> {
+            if (values.isEmpty()) {
+              rule.getTags().remove(key);
+            } else {
+              rule.getTags().put(key, new ArrayList<>(values));
+            }
+          });
     }
 
     public RuleConfig toRuleConfig() {

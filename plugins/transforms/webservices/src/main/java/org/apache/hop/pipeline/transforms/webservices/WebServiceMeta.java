@@ -213,7 +213,8 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
               "Transform is receiving info from other transforms.",
               transformMeta);
       remarks.add(cr);
-    } else if (getInFieldArgumentName() != null || getInFieldContainerName() != null) {
+    } else if (!Utils.isEmpty(getInFieldArgumentName())
+        || !Utils.isEmpty(getInFieldContainerName())) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,

@@ -233,12 +233,29 @@ public final class LintPolicyYamlWriter {
    */
   public static void putRule(Path yamlFile, String ruleId, Map<String, Object> entry)
       throws IOException {
+    putRule(yamlFile, ruleId, entry, null);
+  }
+
+  /**
+   * Write a rule under a new id and remove the entry under its old one, in a single write: a
+   * refused write leaves the file as it was.
+   *
+   * @param previousId the id the rule was saved under before; null or the same id changes nothing
+   *     else
+   */
+  public static void putRule(
+      Path yamlFile, String ruleId, Map<String, Object> entry, String previousId)
+      throws IOException {
     if (isBlank(ruleId)) {
       throw new IOException("A rule needs an id");
     }
     String original =
         Files.exists(yamlFile) ? Files.readString(yamlFile, StandardCharsets.UTF_8) : "";
-    String updated = replaceRule(original, ruleId, entry);
+    String updated = original;
+    if (!isBlank(previousId) && !previousId.equalsIgnoreCase(ruleId)) {
+      updated = replaceRule(updated, previousId, null);
+    }
+    updated = replaceRule(updated, ruleId, entry);
     if (updated.equals(original)) {
       return;
     }

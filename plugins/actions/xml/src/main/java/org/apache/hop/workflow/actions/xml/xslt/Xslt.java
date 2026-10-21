@@ -48,6 +48,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.HopVfsUriResolver;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -371,6 +372,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             // Set the TransformerFactory to the SAXON implementation.
             factory = new net.sf.saxon.TransformerFactoryImpl();
           }
+          // Resolve includes, imports and document() through Hop VFS
+          factory.setURIResolver(new HopVfsUriResolver(this));
 
           if (isDetailed()) {
             logDetailed(
@@ -383,11 +386,14 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
           InputStream xmlInputStream = HopVfs.getInputStream(xmlfile);
           OutputStream os = null;
           try {
-            // Use the factory to create a template containing the xsl file
-            Templates template = factory.newTemplates(new StreamSource(xslInputStream));
+            // Use the factory to create a template containing the xsl file. Its URI resolves
+            // relative xsl:include and xsl:import references against the stylesheet's folder.
+            Templates template =
+                factory.newTemplates(new StreamSource(xslInputStream, xslfile.getName().getURI()));
 
             // Use the template to create a transformer
             Transformer xformer = template.newTransformer();
+            xformer.setURIResolver(factory.getURIResolver());
 
             if (isDetailed()) {
               logDetailed(
@@ -409,7 +415,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             }
 
             // Prepare the input and output files
-            Source source = new StreamSource(xmlInputStream);
+            Source source = new StreamSource(xmlInputStream, xmlfile.getName().getURI());
             os = HopVfs.getOutputStream(outputfile, false);
             StreamResult resultat = new StreamResult(os);
 

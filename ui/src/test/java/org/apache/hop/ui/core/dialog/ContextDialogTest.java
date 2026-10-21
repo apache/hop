@@ -17,9 +17,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -64,5 +66,46 @@ class ContextDialogTest {
   @DisplayName("a missing name matches nothing")
   void nullNameMatchesNothing() {
     assertFalse(ContextDialog.isExactName(null, "Table input"));
+  }
+
+  @Test
+  @DisplayName("exact match: only names containing the text match, nothing fuzzy")
+  void exactMatchScoreIsLiteralOnTheName() {
+    assertTrue(ContextDialog.exactMatchScore("Select values", "select") > 0.0);
+    assertTrue(ContextDialog.exactMatchScore("Table input", "INPUT") > 0.0);
+    assertEquals(0.0, ContextDialog.exactMatchScore("Table input", "select"));
+    // A typo is not forgiven
+    assertEquals(0.0, ContextDialog.exactMatchScore("Select values", "selct"));
+    assertEquals(0.0, ContextDialog.exactMatchScore("Select values", ""));
+    assertEquals(0.0, ContextDialog.exactMatchScore("Select values", null));
+  }
+
+  @Test
+  @DisplayName("exact match ranks equal names over prefixes over substrings")
+  void exactMatchScoreRanking() {
+    double equal = ContextDialog.exactMatchScore("Table input", "table input");
+    double prefix = ContextDialog.exactMatchScore("Table input", "table");
+    double substring = ContextDialog.exactMatchScore("Spark lake table input", "table");
+    assertTrue(equal > prefix);
+    assertTrue(prefix > substring);
+    assertTrue(substring > 0.0);
+  }
+
+  @Test
+  @DisplayName("the information area says why an item matched, except for an obvious name match")
+  void describeMatch() {
+    assertEquals("", ContextDialog.describeMatch(null));
+    assertEquals(
+        "",
+        ContextDialog.describeMatch(
+            new GuiAction.Match(0.97, GuiAction.MatchSource.NAME, "Select values")));
+    assertEquals(
+        "Matched on: keyword select\n",
+        ContextDialog.describeMatch(
+            new GuiAction.Match(0.78, GuiAction.MatchSource.KEYWORD, "select")));
+    assertEquals(
+        "Matched on: description\n",
+        ContextDialog.describeMatch(
+            new GuiAction.Match(0.8, GuiAction.MatchSource.DESCRIPTION, "Some\nlong text")));
   }
 }

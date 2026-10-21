@@ -67,7 +67,6 @@ public class VfsExplorerOperationsPanel extends Composite {
 
   static final int MAX_FINISHED_OPERATIONS = 50;
 
-  private final VfsFileExplorer explorer;
   private final List<VfsExplorerOperation> operations = new ArrayList<>();
   private VfsListingCounts listingCounts = VfsListingCounts.NONE;
   private final Table table;
@@ -80,10 +79,8 @@ public class VfsExplorerOperationsPanel extends Composite {
   private boolean expanded;
   private Consumer<Boolean> expandedListener;
 
-  public VfsExplorerOperationsPanel(
-      Composite sashParent, Composite statusParent, VfsFileExplorer explorer) {
+  public VfsExplorerOperationsPanel(Composite sashParent, Composite statusParent) {
     super(sashParent, SWT.NONE);
-    this.explorer = explorer;
     PropsUi.setLook(this);
     setLayout(new FormLayout());
 
@@ -204,6 +201,16 @@ public class VfsExplorerOperationsPanel extends Composite {
     armTimer();
   }
 
+  public int runningCount() {
+    int running = 0;
+    for (VfsExplorerOperation operation : operations) {
+      if (!operation.isFinished()) {
+        running++;
+      }
+    }
+    return running;
+  }
+
   public void cancelRunning() {
     for (VfsExplorerOperation operation : operations) {
       if (!operation.isFinished()) {
@@ -219,10 +226,16 @@ public class VfsExplorerOperationsPanel extends Composite {
       toolTip = "i18n::VfsFileExplorer.Operations.Stop.Tooltip",
       image = "ui/images/stop.svg")
   public void stopSelected() {
-    VfsExplorerOperation selected = selectedOperation();
-    if (selected != null && !selected.isFinished()) {
-      explorer.cancelListings();
+    stop(selectedOperation());
+  }
+
+  /** Stop one operation. Others, including copies in other tabs, keep running. */
+  private void stop(VfsExplorerOperation operation) {
+    if (operation == null || operation.isFinished()) {
+      return;
     }
+    operation.cancel();
+    refresh();
   }
 
   @GuiToolbarElement(
@@ -252,9 +265,7 @@ public class VfsExplorerOperationsPanel extends Composite {
       toolTip = "i18n::VfsFileExplorer.Operations.Stop.Tooltip",
       image = "ui/images/stop.svg")
   public void stopCurrent() {
-    if (currentOperation() != null) {
-      explorer.cancelListings();
-    }
+    stop(currentOperation());
   }
 
   @GuiToolbarElement(
@@ -299,6 +310,7 @@ public class VfsExplorerOperationsPanel extends Composite {
     boolean anyRunning = false;
     for (int i = 0; i < operations.size() && i < table.getItemCount(); i++) {
       VfsExplorerOperation operation = operations.get(i);
+      table.getItem(i).setText(2, statusLabel(operation));
       table.getItem(i).setText(3, formatElapsed(operation.elapsedMillis()));
       if (!operation.isFinished()) {
         anyRunning = true;
@@ -350,7 +362,14 @@ public class VfsExplorerOperationsPanel extends Composite {
     return operations.isEmpty() ? null : operations.get(0);
   }
 
+  /** The status, with the files and bytes written so far for a copy or move. */
   static String statusLabel(VfsExplorerOperation operation) {
+    String progress = operation.progressText();
+    String status = statusName(operation);
+    return progress.isEmpty() ? status : status + " (" + progress + ")";
+  }
+
+  private static String statusName(VfsExplorerOperation operation) {
     return switch (operation.getStatus()) {
       case RUNNING -> BaseMessages.getString(PKG, "VfsFileExplorer.Operations.Status.Running");
       case DONE -> BaseMessages.getString(PKG, "VfsFileExplorer.Operations.Status.Done");
@@ -376,6 +395,10 @@ public class VfsExplorerOperationsPanel extends Composite {
     line.append(Const.NVL(operation.getDescription(), ""));
     line.append(" - ").append(statusLabel(operation));
     line.append(" - ").append(formatStatusElapsed(operation.elapsedMillis()));
+    String progress = operation.progressText();
+    if (!progress.isEmpty()) {
+      line.append(" - ").append(progress);
+    }
     if (counts != null) {
       line.append(counts.statusSuffix());
     }

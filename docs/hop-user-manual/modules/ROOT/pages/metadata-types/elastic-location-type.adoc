@@ -17,6 +17,7 @@ under the License.
 
 :documentationPath: /metadata-types/
 :language: en_US
+:description: The Elastic location type stores Hop execution information in an Elasticsearch index, one JSON document per pipeline or workflow.
 :page-marketplace: hop-tech-elastic
 
 = Elastic Location Type

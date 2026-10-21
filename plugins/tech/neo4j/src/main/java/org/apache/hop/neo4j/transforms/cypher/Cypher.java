@@ -481,10 +481,51 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
           throw new HopException(
               "Unable to execute cypher statement '" + cypherStatement.getCypher() + "'", e);
         }
-        logBasic("Retrying after attempt #" + (attempt + 1) + " with error : " + e.getMessage());
+        logAutoCommitRetry(attempt, e);
       }
     }
     flushOutputRows();
+  }
+
+  /**
+   * Run the unwind statement in an auto-commit transaction, with the configured retries. A
+   * statement like CALL { ... } IN TRANSACTIONS commits its own batches of rows.
+   */
+  private void writeAutoCommitUnwindList(Map<String, Object> unwindMap) throws HopException {
+    beginWork();
+    for (int attempt = 0; attempt < data.attempts; attempt++) {
+      try {
+        startAttempt();
+        Result result = data.session.run(data.cypher, unwindMap);
+        getResultRows(result, new Object[0], true);
+        // Wait for the end of the statement: an error in one of its batches is raised here
+        result.consume();
+        break;
+      } catch (Exception e) {
+        dropAttemptRows();
+        if (attempt + 1 >= data.attempts) {
+          throw new HopException("Unexpected error writing unwind list to Neo4j", e);
+        }
+        logAutoCommitRetry(attempt, e);
+      }
+    }
+    flushOutputRows();
+    setLinesOutput(getLinesOutput() + data.unwindList.size());
+    data.unwindList.clear();
+    data.outputCount = 0;
+  }
+
+  /**
+   * Log the retry of a statement in an auto-commit transaction. A statement which commits its own
+   * batches, like CALL { ... } IN TRANSACTIONS, keeps the batches committed before the error.
+   */
+  private void logAutoCommitRetry(int attempt, Exception e) {
+    logBasic("Retrying after attempt #" + (attempt + 1) + " with error : " + e.getMessage());
+    if (!meta.isReadOnly()) {
+      logBasic(
+          "Warning: the statement runs in an auto-commit transaction. Batches it committed before"
+              + " the error stay committed and the retry applies them again");
+    }
   }
 
   private List<Object[]> writeUnwindList() throws HopException {
@@ -494,6 +535,10 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     }
     HashMap<String, Object> unwindMap = new HashMap<>();
     unwindMap.put(data.unwindMapName, data.unwindList);
+    if (data.neoConnection.getDialect().isRequiringAutoCommit(data.cypher)) {
+      writeAutoCommitUnwindList(unwindMap);
+      return null;
+    }
     List<Object[]> resultRows = null;
     CypherTransactionWork cypherTransactionWork =
         new CypherTransactionWork(this, new Object[0], true, data.cypher, unwindMap);

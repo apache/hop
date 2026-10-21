@@ -80,7 +80,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         }
         ClassLoader classLoader = pluginRegistry.getClassLoader(plugin);
         if (canPreRegister(classLoader, className)) {
-          findGuiPluginInstance(classLoader, className, instanceId);
+          findGuiPluginInstance(getHopGuiId(), classLoader, className, instanceId);
         }
       } catch (Exception e) {
         LogChannel.UI.logDebug(

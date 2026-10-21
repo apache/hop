@@ -26,6 +26,7 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.s3.amazon.s3.S3Util;
 import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -34,6 +35,7 @@ import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.profiles.ProfileFile;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -48,11 +50,20 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
   /** Cache for list results to avoid headObject/list calls when resolving child type. */
   private final S3ListCache listCache;
 
+  /** The bytes per request when reading a file in blocks. */
+  private final int readBlockSize;
+
   protected S3CommonFileSystem(final FileName rootName, final FileSystemOptions fileSystemOptions) {
     super(rootName, null, fileSystemOptions);
     long ttlMs = S3ListCache.DEFAULT_TTL_MS;
+    int blockSize = HopVfs.DEFAULT_READ_BLOCK_SIZE;
     if (fileSystemOptions != null) {
       S3CommonFileSystemConfigBuilder cfg = new S3CommonFileSystemConfigBuilder(fileSystemOptions);
+      try {
+        blockSize = HopVfs.parseReadBlockSize(cfg.getReadBlockSize());
+      } catch (IllegalArgumentException e) {
+        LogChannel.GENERAL.logError(e.getMessage() + "; using the default of 8MB");
+      }
       String cacheTtl = cfg.getCacheTtlSeconds();
       if (!S3Util.isEmpty(cacheTtl)) {
         try {
@@ -63,6 +74,12 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       }
     }
     this.listCache = new S3ListCache(ttlMs);
+    this.readBlockSize = blockSize;
+  }
+
+  /** The bytes per request when reading a file in blocks. */
+  public int getReadBlockSize() {
+    return readBlockSize;
   }
 
   @Override
@@ -72,6 +89,35 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
 
   @Override
   protected abstract FileObject createFile(AbstractFileName name) throws Exception;
+
+  /**
+   * The maximum number of HTTP connections from a connection setting, or null for the SDK default
+   * (50) when it isn't set or isn't a number from 1 to 10000.
+   */
+  static Integer maxConnections(String value) {
+    if (S3Util.isEmpty(value)) {
+      return null;
+    }
+    try {
+      int connections = Integer.parseInt(value.trim());
+      if (connections >= 1 && connections <= 10_000) {
+        return connections;
+      }
+    } catch (NumberFormatException e) {
+      // reported below
+    }
+    LogChannel.GENERAL.logError(
+        "Invalid maximum number of S3 connections '" + value + "': using the default of 50");
+    return null;
+  }
+
+  /** A client builder with an HTTP connection pool of the given size; the SDK's when null. */
+  static S3ClientBuilder withConnections(S3ClientBuilder builder, Integer maxConnections) {
+    if (maxConnections != null) {
+      builder.httpClientBuilder(ApacheHttpClient.builder().maxConnections(maxConnections));
+    }
+    return builder;
+  }
 
   public S3Client getS3Client() {
     if (client == null && getFileSystemOptions() != null) {
@@ -86,6 +132,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       String endpoint = cfg.getEndpoint();
       String pathStyleAccess = cfg.getPathStyleAccess();
       boolean pathStyle = (pathStyleAccess == null) || Boolean.parseBoolean(pathStyleAccess);
+      Integer maxConnections = maxConnections(cfg.getMaxConnections());
 
       AwsCredentialsProvider credentialsProvider = null;
       Region awsRegion = Region.US_EAST_1;
@@ -121,7 +168,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       if (cfg.getUseAnonymousAccess()) {
         // Named connection with "Anonymous access": single client, no credentials
         S3ClientBuilder anonymousBuilder =
-            S3Client.builder()
+            withConnections(S3Client.builder(), maxConnections)
                 .crossRegionAccessEnabled(crossRegion)
                 .region(awsRegion)
                 .credentialsProvider(AnonymousCredentialsProvider.create());
@@ -132,7 +179,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       } else if (credentialsProvider != null) {
         // Explicit credentials: single client
         S3ClientBuilder builder =
-            S3Client.builder()
+            withConnections(S3Client.builder(), maxConnections)
                 .crossRegionAccessEnabled(crossRegion)
                 .region(awsRegion)
                 .credentialsProvider(credentialsProvider);
@@ -147,7 +194,9 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
         // This keeps the behavior that worked in the past (public buckets work without
         // credentials).
         S3ClientBuilder baseBuilder =
-            S3Client.builder().crossRegionAccessEnabled(crossRegion).region(awsRegion);
+            withConnections(S3Client.builder(), maxConnections)
+                .crossRegionAccessEnabled(crossRegion)
+                .region(awsRegion);
 
         if (!S3Util.isEmpty(endpoint)) {
           baseBuilder.endpointOverride(URI.create(endpoint)).forcePathStyle(pathStyle);
@@ -157,7 +206,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
             baseBuilder.credentialsProvider(DefaultCredentialsProvider.create()).build();
 
         S3ClientBuilder anonymousBuilder =
-            S3Client.builder()
+            withConnections(S3Client.builder(), maxConnections)
                 .crossRegionAccessEnabled(crossRegion)
                 .region(awsRegion)
                 .credentialsProvider(AnonymousCredentialsProvider.create());

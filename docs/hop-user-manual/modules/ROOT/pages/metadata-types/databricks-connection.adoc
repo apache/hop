@@ -76,4 +76,4 @@ See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS].
 * xref:workflow/actions/databricks-job-run.adoc[Databricks job run] — trigger and wait for Jobs API runs
 * xref:database/databases/databricks.adoc[Databricks database (JDBC)] — SQL warehouse access
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark pipeline engine] — fat jar / MainSpark on cluster
-* xref:metadata-types/spark-catalog.adoc[Spark Catalog] — Unity Catalog templates for lakehouse TABLE mode
+* xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] — Unity Catalog templates for lakehouse TABLE mode

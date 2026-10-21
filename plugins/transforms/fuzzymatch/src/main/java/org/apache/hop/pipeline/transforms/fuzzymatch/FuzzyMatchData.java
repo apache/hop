@@ -63,6 +63,14 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
   public int nrCachedFields;
   public IRowMeta infoCache;
 
+  /** The rows of {@link #look} in its iteration order, taken once the lookup stream is read */
+  public Object[][] lookRows;
+
+  /** The key of every row in {@link #lookRows}, lower-cased once when not case-sensitive */
+  public String[] lookKeys;
+
+  public final BoundedLevenshtein levenshtein = new BoundedLevenshtein();
+
   public FuzzyMatchData() {
     super();
     this.look = new HashSet<>();

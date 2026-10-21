@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -38,5 +39,19 @@ class HopGuiPeekInstanceTest {
         before,
         HopGui.peekInstance(),
         "Perspective getInstance() must not start a HopGui (that floods SWT tests and the display)");
+  }
+
+  /**
+   * Every TableView builds a toolbar and registers itself with it. Under xvfb that used to start a
+   * HopGui which then stayed in the test JVM for every test that ran after it.
+   */
+  @Test
+  void toolbarWidgetsDoNotConstructHopGui() {
+    HopGui before = HopGui.peekInstance();
+    GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
+    toolbarWidgets.registerGuiPluginObject(new Object());
+    toolbarWidgets.dispose();
+    assertSame(
+        before, HopGui.peekInstance(), "Building a toolbar or a table must not start a HopGui");
   }
 }

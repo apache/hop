@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: JMS consumer reads messages from a JMS queue or topic and turns each into a row.
+:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/jms-consumer.svg[JMS consumer transform Icon, role="image-doc-icon"] JMS consumer
 

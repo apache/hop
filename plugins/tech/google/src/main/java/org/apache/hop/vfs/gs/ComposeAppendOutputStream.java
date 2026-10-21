@@ -65,12 +65,34 @@ public class ComposeAppendOutputStream extends OutputStream {
       String tempName,
       long targetGeneration,
       WriteChannel tempChannel) {
+    this(
+        storage,
+        bucketName,
+        targetName,
+        tempName,
+        targetGeneration,
+        tempChannel,
+        GoogleStorageStallWatchdog.Transfer.untracked(null));
+  }
+
+  /**
+   * @param transfer the target object, named in the retry log and watched for stalls while the
+   *     appended bytes are uploaded
+   */
+  ComposeAppendOutputStream(
+      Storage storage,
+      String bucketName,
+      String targetName,
+      String tempName,
+      long targetGeneration,
+      WriteChannel tempChannel,
+      GoogleStorageStallWatchdog.Transfer transfer) {
     this.storage = storage;
     this.bucketName = bucketName;
     this.targetName = targetName;
     this.tempName = tempName;
     this.targetGeneration = targetGeneration;
-    this.tempStream = new WriteChannelOutputStream(tempChannel);
+    this.tempStream = new WriteChannelOutputStream(tempChannel, transfer);
   }
 
   @Override
@@ -115,7 +137,11 @@ public class ComposeAppendOutputStream extends OutputStream {
       storage.delete(BlobId.of(bucketName, tempName));
     } catch (RuntimeException e) {
       LogChannel.GENERAL.logError(
-          "Unable to delete temporary append object gs://" + bucketName + "/" + tempName, e);
+          "Google Cloud Storage: Unable to delete temporary append object gs://"
+              + bucketName
+              + "/"
+              + tempName,
+          e);
     }
   }
 }

@@ -19,13 +19,17 @@ package org.apache.hop.pipeline.transforms.xml.advancedxmloutput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -162,5 +166,58 @@ class AdvancedXmlOutputMetaTest {
     assertTrue(
         errors.stream().anyMatch(e -> e.toLowerCase().contains("multiple loop")),
         "Expected validation error about multiple loops, got: " + errors);
+  }
+
+  /**
+   * Issue #8936: a loop on the root element only holds one row per document. That is valid for one
+   * row, so check() warns instead of failing, and the tree still validates.
+   */
+  @Test
+  void testLoopOnRootElementIsAWarningNotAnError() {
+    XmlNode root = new XmlNode("row", XmlNode.NodeKind.Element);
+    root.setLoop(true);
+    root.addChild(new XmlNode("name", XmlNode.NodeKind.Element));
+
+    assertEquals(0, AdvancedXmlOutputValidator.validate(root, null).size());
+    assertTrue(
+        AdvancedXmlOutputValidator.rootLoopWarning(root, false).contains("root element 'row'"));
+    assertNull(AdvancedXmlOutputValidator.rootLoopWarning(root, true));
+  }
+
+  @Test
+  void testCheckWarnsAboutLoopOnRootElement() {
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    XmlNode root = new XmlNode("row", XmlNode.NodeKind.Element);
+    root.setLoop(true);
+    meta.setRootNode(root);
+
+    java.util.List<ICheckResult> remarks = check(meta);
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().contains("root element 'row'")),
+        "Expected a check warning about the loop on the root element");
+
+    meta.getFileSupport().setSplitEvery(1);
+    assertTrue(
+        check(meta).stream().noneMatch(r -> r.getText().contains("root element 'row'")),
+        "Splitting every row gives each row a document of its own: nothing to warn about");
+  }
+
+  private java.util.List<ICheckResult> check(AdvancedXmlOutputMeta meta) {
+    java.util.List<ICheckResult> remarks = new java.util.ArrayList<>();
+    meta.check(
+        remarks,
+        new PipelineMeta(),
+        new TransformMeta("axo", meta),
+        new RowMeta(),
+        new String[] {"input"},
+        new String[0],
+        null,
+        new Variables(),
+        null);
+    return remarks;
   }
 }

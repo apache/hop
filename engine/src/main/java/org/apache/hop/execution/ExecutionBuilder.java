@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.INamedParameters;
@@ -44,6 +45,7 @@ public final class ExecutionBuilder {
   public String filename;
   public String id;
   public String parentId;
+  public String launchedById;
   public ExecutionType executionType;
   public String executorXml;
   public String metadataJson;
@@ -68,6 +70,38 @@ public final class ExecutionBuilder {
     return new ExecutionBuilder();
   }
 
+  /**
+   * The pipeline or workflow that owns an execution. An action's logging parent is the action, and
+   * a transform's logging parent is the transform. The stored parent is the workflow or pipeline
+   * that launcher belongs to.
+   */
+  public static String executionParentId(ILoggingObject loggingParent) {
+    if (loggingParent == null) {
+      return null;
+    }
+    if (loggingParent instanceof IAction action && action.getParentWorkflow() != null) {
+      return action.getParentWorkflow().getLogChannelId();
+    }
+    if (loggingParent instanceof ITransform transform && transform.getPipeline() != null) {
+      return transform.getPipeline().getLogChannelId();
+    }
+    return loggingParent.getLogChannelId();
+  }
+
+  /**
+   * Log channel id of the action or transform that started an execution. Null when the logging
+   * parent is already the pipeline or workflow, or when there is no parent.
+   */
+  public static String launchedById(ILoggingObject loggingParent) {
+    if (loggingParent instanceof IAction action && action.getParentWorkflow() != null) {
+      return loggingParent.getLogChannelId();
+    }
+    if (loggingParent instanceof ITransform transform && transform.getPipeline() != null) {
+      return loggingParent.getLogChannelId();
+    }
+    return null;
+  }
+
   public static ExecutionBuilder fromExecutor(IPipelineEngine<PipelineMeta> pipeline)
       throws HopException {
     ExecutionBuilder builder = of();
@@ -75,7 +109,8 @@ public final class ExecutionBuilder {
         .withFilename(pipeline.getPipelineMeta().getFilename())
         .withName(pipeline.getPipelineMeta().getName())
         .withId(pipeline.getLogChannelId())
-        .withParentId(pipeline.getParent() == null ? null : pipeline.getParent().getLogChannelId())
+        .withParentId(executionParentId(pipeline.getParent()))
+        .withLaunchedById(launchedById(pipeline.getParent()))
         .withExecutorType(ExecutionType.Pipeline)
         .withExecutorXml(pipeline.getPipelineMeta().getXml(pipeline))
         .withMetadataJson(new SerializableMetadataProvider(pipeline.getMetadataProvider()).toJson())
@@ -99,8 +134,8 @@ public final class ExecutionBuilder {
         of().withFilename(workflow.getWorkflowMeta().getFilename())
             .withName(workflow.getWorkflowMeta().getName())
             .withId(workflow.getLogChannelId())
-            .withParentId(
-                workflow.getParent() == null ? null : workflow.getParent().getLogChannelId())
+            .withParentId(executionParentId(workflow.getParent()))
+            .withLaunchedById(launchedById(workflow.getParent()))
             .withExecutorType(ExecutionType.Workflow)
             .withExecutorXml(workflow.getWorkflowMeta().getXml(workflow))
             .withMetadataJson(
@@ -222,6 +257,11 @@ public final class ExecutionBuilder {
     return this;
   }
 
+  public ExecutionBuilder withLaunchedById(String launchedById) {
+    this.launchedById = launchedById;
+    return this;
+  }
+
   public ExecutionBuilder withExecutorType(ExecutionType executionType) {
     this.executionType = executionType;
     return this;
@@ -293,6 +333,7 @@ public final class ExecutionBuilder {
     executionRegistration.setFilename(filename);
     executionRegistration.setId(id);
     executionRegistration.setParentId(parentId);
+    executionRegistration.setLaunchedById(launchedById);
     executionRegistration.setExecutionType(executionType);
     executionRegistration.setExecutorXml(executorXml);
     executionRegistration.setMetadataJson(metadataJson);

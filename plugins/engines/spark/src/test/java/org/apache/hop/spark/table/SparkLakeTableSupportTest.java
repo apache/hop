@@ -18,6 +18,7 @@
 package org.apache.hop.spark.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -59,12 +60,129 @@ class SparkLakeTableSupportTest {
   }
 
   @Test
-  void icebergPathSqlIdentifierQuotesUri() {
-    String id = SparkLakeTableSupport.icebergPathSqlIdentifier("/tmp/orders");
-    assertTrue(id.startsWith(SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + ".`"));
-    assertTrue(id.endsWith("`"));
-    assertTrue(id.contains("file:"));
-    assertTrue(id.contains("orders"));
+  void icebergPathTableUsesTheParentFolderAsWarehouse() {
+    SparkLakeTableSupport.IcebergPathTable table =
+        SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake/orders/");
+
+    assertEquals("s3a://bucket/lake", table.warehouse());
+    assertEquals("orders", table.tableName());
+    assertTrue(table.catalogName().startsWith(SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + "_"));
+    assertEquals(table.catalogName() + ".`orders`", table.sqlIdentifier());
+    assertEquals("`orders`", table.procedureTableRef());
+  }
+
+  @Test
+  void icebergPathTablesShareACatalogPerFolder() {
+    String orders =
+        SparkLakeTableSupport.icebergPathTable("file:///data/lake/orders").catalogName();
+    String items = SparkLakeTableSupport.icebergPathTable("file:///data/lake/items").catalogName();
+    String other =
+        SparkLakeTableSupport.icebergPathTable("file:///data/other/orders").catalogName();
+
+    assertEquals(orders, items);
+    assertNotEquals(orders, other);
+  }
+
+  @Test
+  void icebergPathSqlIdentifierQuotesTheTableName() {
+    String id = SparkLakeTableSupport.icebergPathSqlIdentifier("/tmp/my-orders");
+    assertTrue(id.startsWith(SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME + "_"));
+    assertTrue(id.endsWith(".`my-orders`"));
+  }
+
+  @Test
+  void icebergPathTableNeedsAParentFolder() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SparkLakeTableSupport.icebergPathTable("s3a://bucket"));
+    assertThrows(
+        IllegalArgumentException.class, () -> SparkLakeTableSupport.icebergPathTable("file:///t"));
+  }
+
+  @Test
+  void icebergPathTableAcceptsAWindowsDriveRoot() {
+    SparkLakeTableSupport.IcebergPathTable table =
+        SparkLakeTableSupport.icebergPathTable("file:///C:/orders");
+
+    assertEquals("file:///C:", table.warehouse());
+    assertEquals("orders", table.tableName());
+  }
+
+  @Test
+  void icebergPathTableCollapsesEmptySegments() {
+    SparkLakeTableSupport.IcebergPathTable doubled =
+        SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake//orders");
+    SparkLakeTableSupport.IcebergPathTable single =
+        SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake/orders");
+
+    assertEquals("s3a://bucket/lake", doubled.warehouse());
+    assertEquals(single, doubled);
+    assertEquals(
+        single, SparkLakeTableSupport.icebergPathTable("s3a://bucket/lake/./tmp/../orders"));
+  }
+
+  @Test
+  void oneFolderIsOneCatalogWhateverTheSpelling() {
+    SparkLakeTableSupport.IcebergPathTable canonical =
+        SparkLakeTableSupport.icebergPathTable("file:///data/lake/orders");
+
+    // File.toURI() and Path.toUri() spell the same folder differently.
+    for (String spelling :
+        new String[] {
+          "file:/data/lake/orders",
+          "file://localhost/data/lake/orders",
+          "FILE:///data/lake/orders/",
+          "file:///data//lake/orders"
+        }) {
+      assertEquals(canonical, SparkLakeTableSupport.icebergPathTable(spelling), spelling);
+    }
+    assertEquals("file:///data/lake", canonical.warehouse());
+  }
+
+  @Test
+  void escapedAndUnescapedSpellingsAreOneCatalog() {
+    SparkLakeTableSupport.IcebergPathTable expected =
+        SparkLakeTableSupport.icebergPathTable("file:///data/my lake/my orders");
+
+    assertEquals("file:///data/my lake", expected.warehouse());
+    assertEquals("my orders", expected.tableName());
+    assertEquals(
+        expected, SparkLakeTableSupport.icebergPathTable("file:///data/my%20lake/my%20orders"));
+    // A scheme-less path goes through Path.toUri(), which escapes the spaces.
+    assertEquals(
+        expected.tableName(),
+        SparkLakeTableSupport.icebergPathTable("/data/my lake/my orders").tableName());
+    assertTrue(
+        SparkLakeTableSupport.icebergPathTable("/data/my lake/my orders")
+            .warehouse()
+            .endsWith("/data/my lake"));
+  }
+
+  @Test
+  void plusAndBrokenEscapesAreKept() {
+    assertEquals("a+b", SparkLakeTableSupport.percentDecode("a+b"));
+    assertEquals("100%", SparkLakeTableSupport.percentDecode("100%"));
+    assertEquals("x%zzy", SparkLakeTableSupport.percentDecode("x%zzy"));
+    assertEquals("caf\u00e9", SparkLakeTableSupport.percentDecode("caf%C3%A9"));
+  }
+
+  @Test
+  void driveLetterCaseIsOneCatalog() {
+    assertEquals(
+        SparkLakeTableSupport.icebergPathTable("file:///C:/data/orders"),
+        SparkLakeTableSupport.icebergPathTable("file:///c:/data/orders"));
+    assertEquals(
+        "file:///C:/data",
+        SparkLakeTableSupport.icebergPathTable("file:///c:/data/orders").warehouse());
+  }
+
+  @Test
+  void invalidPathNamesTheTransform() {
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () -> SparkLakeTableSupport.icebergPathTable("file:///t", "write orders"));
+    assertTrue(e.getMessage().contains("'write orders'"), e.getMessage());
   }
 
   @Test

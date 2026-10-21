@@ -48,11 +48,11 @@ class DriverDownloadTest {
     DriverDownload download =
         DriverDownload.builder()
             .mavenCoordinate("com.clickhouse:clickhouse-jdbc:jar:all")
-            .defaultVersion("0.9.8")
+            .defaultVersion("0.10.0")
             .licenseCategory("A")
             .build();
 
-    assertEquals("com.clickhouse:clickhouse-jdbc:jar:all:0.9.8", download.toCoordinate(null));
+    assertEquals("com.clickhouse:clickhouse-jdbc:jar:all:0.10.0", download.toCoordinate(null));
     assertEquals("clickhouse-jdbc", download.getArtifactId());
   }
 

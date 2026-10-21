@@ -17,8 +17,10 @@
 
 package org.apache.hop.spark.run;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,6 +95,21 @@ public class MainSpark {
     }
   }
 
+  /**
+   * The fat jar holds every plugin. Without this, Hop also scans {@code ./plugins}: started from a
+   * Hop installation folder, it then loads the Spark engine a second time with another class loader
+   * and the run configuration no longer matches its own class. A {@code -DHOP_PLUGIN_BASE_FOLDERS}
+   * system property is left alone.
+   */
+  private static void ignorePluginFoldersOutsideTheFatJar() throws IOException {
+    if (System.getProperty(Const.HOP_PLUGIN_BASE_FOLDERS) != null) {
+      return;
+    }
+    File noPlugins = Files.createTempDirectory("hop-spark-no-plugin-folders").toFile();
+    noPlugins.deleteOnExit();
+    System.setProperty(Const.HOP_PLUGIN_BASE_FOLDERS, noPlugins.getAbsolutePath());
+  }
+
   private static void runPipeline(String[] args) throws Exception {
     System.out.println(">>>>>> Initializing Hop");
     System.out.println(
@@ -107,6 +124,7 @@ public class MainSpark {
     } catch (Exception ignored) {
       // best-effort diagnostics only
     }
+    ignorePluginFoldersOutsideTheFatJar();
     HopEnvironment.init();
 
     MainSparkArgs parsed = MainSparkArgs.parse(args);

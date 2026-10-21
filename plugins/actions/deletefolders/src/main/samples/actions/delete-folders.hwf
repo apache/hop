@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>delete-folders</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/10/07 10:00:00.000</created_date>
+  <modified_date>2026/10/07 10:00:00.000</modified_date>
+  <created_hop_version/>
+  <modified_hop_version/>
+  <workflow_version/>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>80</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/delete-folders/2026-01/report.txt</filename>
+      <createParentFolder>Y</createParentFolder>
+      <appendFile>N</appendFile>
+      <content>January report</content>
+      <encoding>UTF-8</encoding>
+      <name>Write January report</name>
+      <description/>
+      <type>WRITE_TO_FILE</type>
+      <attributes/>
+      <xloc>272</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/delete-folders/2026-02/report.txt</filename>
+      <createParentFolder>Y</createParentFolder>
+      <appendFile>N</appendFile>
+      <content>February report</content>
+      <encoding>UTF-8</encoding>
+      <name>Write February report</name>
+      <description/>
+      <type>WRITE_TO_FILE</type>
+      <attributes/>
+      <xloc>464</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-samples/delete-folders/2026-01</name>
+        </field>
+        <field>
+          <name>${java.io.tmpdir}/hop-samples/delete-folders/2026-02</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <name>Delete monthly folders</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <xloc>656</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/delete-folders/2026-01</filename>
+      <name>January folder still there?</name>
+      <description/>
+      <type>FILE_EXISTS</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <loglevel>Basic</loglevel>
+      <logsubject/>
+      <logmessage>The monthly folders and their content were deleted.</logmessage>
+      <name>Folders deleted</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <xloc>1040</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <message>The January folder still exists</message>
+      <loglevel>Error</loglevel>
+      <name>Folder not deleted</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Write January report</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Write January report</from>
+      <to>Write February report</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Write February report</from>
+      <to>Delete monthly folders</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Delete monthly folders</from>
+      <to>January folder still there?</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>January folder still there?</from>
+      <to>Folders deleted</to>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>January folder still there?</from>
+      <to>Folder not deleted</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>The Delete folders action deletes one or more folders, including all files and subfolders they contain.
+
+This sample writes a file into two monthly folders below ${java.io.tmpdir}/hop-samples/delete-folders, deletes both folders and then checks that the first folder is gone.
+Deleting a folder that does not exist is not an error, so the workflow can be run again and again.</note>
+      <markdown>N</markdown>
+      <notetype>GENERAL</notetype>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>32</yloc>
+      <width>1120</width>
+      <height>120</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

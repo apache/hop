@@ -39,7 +39,7 @@ The `Process result filenames` action allows you to copy, move or delete a numbe
 |Create destination folder|use this option to create the destination folder when it does not exist
 |Replace existing file|use this option to overwrite existing files
 |Remove source filenames from result|use this option to remove the processed filenames from the list of result filenames
-|Add destination filenames to result|use this option to add the the processed target filenames to the list of result filenames
+|Add destination filenames to result|use this option to add the processed target filenames to the list of result filenames
 |Add date to filename|add the date to the target filename, e.g. yyyyMMdd
 |Add time to filename|add the time to the target filename, e.g. HHmmss
 |Specify date time format|allows you to specify your own date-time format, e.g. yyyyMMdd_HHmmss

@@ -668,8 +668,8 @@ public class WebServiceDialog extends BaseTransformDialog {
       wOperation.setText(meta.getOperationName() == null ? "" : meta.getOperationName());
     }
     wOperationRequest.setText(Const.NVL(meta.getOperationRequestName(), ""));
-    if (meta.getInFieldContainerName() != null
-        || meta.getInFieldArgumentName() != null
+    if (!Utils.isEmpty(meta.getInFieldContainerName())
+        || !Utils.isEmpty(meta.getInFieldArgumentName())
         || !meta.getFieldsIn().isEmpty()) {
       addTabFieldIn();
 

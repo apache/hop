@@ -17,6 +17,7 @@ under the License.
 [[database-plugins-cloudera-impala]]
 :documentationPath: /database/databases/
 :language: en_US
+:description: Connect Apache Hop to Cloudera Impala: the JDBC driver to use.
 
 = Cloudera Impala
 

@@ -40,9 +40,9 @@ As an alternative to calling scripts on the host machine, you can enter scripts 
 
 === Return status
 
-The return status is provided by the operating system call.
-
-For example, in batch scripting a return value of 1 indicates that the script was successful; a return value of 0 (zero) indicates that it was unsuccessful.
+The return status is the exit code of the script or executable.
+An exit code of 0 means success; any other exit code makes the action fail.
+See <<_result,Result>>.
 
 You can pass command line arguments and set up logging for the Shell workflow action.
 
@@ -64,7 +64,7 @@ NOTE: Variables are resolved within the script when given.
 The working directory only becomes active when the shell script starts so "Filename" should still include the full path to the script.
 When the field is left empty or the working directory is invalid +${user.dir}+ will be used as working directory.
 2+|Logging settings
-|Specify log file|Enable to specify a separate logging file for the execution of this workflow.
+|Specify logfile|Enable to specify a separate logging file for the execution of this workflow.
 |Append logfile|Enable to append to the logfile as opposed to creating a new one
 |Name of log file|The directory and base name of the log file (for example C:\logs)
 |Extension of the log file|The filename extension (for example: log or txt)
@@ -79,7 +79,7 @@ See also the logging window in .14 Logging
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Copy previous results to arguments?|The results from a previous pipeline can be sent to the shell script using the "Copy rows to result" transform. (as arguments)
+|Copy previous results to args|The results from a previous pipeline can be sent to the shell script using the "Copy rows to result" transform. (as arguments)
 |Execute for every result row|This implements looping.
 If the previous workflow action returns a set of result rows, you can have this shell script executed once for every row found.
 One row is passed to this script at every execution in combination with the copy previous result to arguments.
@@ -92,3 +92,19 @@ The **Hidden (Y/N)** column controls logging only: when set to `Y`, the argument
 === Script tab
 
 This tab contains your batch or shell script if the `Insert script` option is checked.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The command ended with exit code 0. With *Execute for every result row*, every run did.
+|False|The command ended with another exit code, or could not be started, for example because the script file doesn't exist on Linux or macOS. On Windows, `cmd.exe` starts anyway and returns a non-zero exit code. The number of errors is 1. With *Execute for every result row*, the first run that fails ends the loop: the remaining rows are not processed.
+|Result files|Passed on unchanged, plus the log file with *Specify logfile*.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the fields of the result rows are passed as arguments: the fields of every row in a single run, or with *Execute for every result row* the fields of the current row in each run.
+|Metrics|Exit status: the exit code of the command; with *Execute for every result row*, of the last run. It is not set when the command could not be started.
+|===
+
+With *Execute for every result row* and no result rows, the command doesn't run, and the result of the previous action is passed on, without an exit status.

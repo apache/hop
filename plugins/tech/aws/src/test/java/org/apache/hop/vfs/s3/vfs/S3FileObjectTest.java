@@ -182,7 +182,10 @@ class S3FileObjectTest {
 
   @Test
   void testGetInputStream() throws Exception {
-    assertNotNull(s3FileObjectBucketSpy.getInputStream());
+    // A bucket is a folder: it has no content to read
+    FileSystemException e =
+        assertThrows(FileSystemException.class, () -> s3FileObjectBucketSpy.getInputStream());
+    assertEquals("vfs.provider/read-not-file.error", e.getCode());
   }
 
   @Test
@@ -258,7 +261,8 @@ class S3FileObjectTest {
 
   @Test
   void testDoGetInputStream() throws Exception {
-    assertNotNull(s3FileObjectBucketSpy.getInputStream());
+    assertThrows(
+        FileSystemException.class, () -> s3FileObjectBucketSpy.getContent().getInputStream());
   }
 
   @Test

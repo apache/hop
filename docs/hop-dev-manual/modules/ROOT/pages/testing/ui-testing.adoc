@@ -41,6 +41,10 @@ A UI test needs a display, so how you run it matters.
 
 With neither profile the UI tests are included whenever a display is available.
 
+The UI tests always run in a surefire execution of their own, `ui-test`, after `default-test` has run the rest of the module.
+That gives them their own JVM: a display, shells or GUI singletons left behind by a UI test cannot change what an ordinary test sees.
+Keep it that way, and do not write a test that only passes because a UI test ran before it.
+
 On Linux, wrap the command so the test shells do not steal your session:
 
 [source,bash]

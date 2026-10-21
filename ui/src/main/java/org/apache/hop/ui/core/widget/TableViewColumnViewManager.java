@@ -37,6 +37,9 @@ import org.apache.hop.history.AuditStateMap;
 public final class TableViewColumnViewManager {
   public static final String AUDIT_TYPE = "table-view";
   public static final String STATE_COLUMNS = "columns";
+  public static final String STATE_FILTERS = "filters";
+  public static final String FILTER_COLUMN = "column";
+  public static final String FILTER_VALUES = "values";
 
   private TableViewColumnViewManager() {}
 
@@ -95,6 +98,22 @@ public final class TableViewColumnViewManager {
     List<String> columns =
         view.getColumnNames() != null ? new ArrayList<>(view.getColumnNames()) : new ArrayList<>();
     stateMap.put(STATE_COLUMNS, columns);
+    List<Map<String, Object>> filters = new ArrayList<>();
+    if (view.getFilters() != null) {
+      for (TableViewColumnFilter filter : view.getFilters()) {
+        if (filter == null
+            || StringUtils.isEmpty(filter.getColumnName())
+            || filter.getValues() == null
+            || filter.getValues().isEmpty()) {
+          continue;
+        }
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put(FILTER_COLUMN, filter.getColumnName());
+        filterMap.put(FILTER_VALUES, new ArrayList<>(filter.getValues()));
+        filters.add(filterMap);
+      }
+    }
+    stateMap.put(STATE_FILTERS, filters);
     AuditManager.storeState(LogChannel.UI, group, AUDIT_TYPE, view.getName(), stateMap);
   }
 
@@ -128,7 +147,40 @@ public final class TableViewColumnViewManager {
     TableViewColumnView view = new TableViewColumnView();
     view.setName(state.getName());
     view.setColumnNames(extractStringList(state, STATE_COLUMNS));
+    view.setFilters(extractFilters(state));
     return view;
+  }
+
+  static List<TableViewColumnFilter> extractFilters(AuditState state) {
+    List<TableViewColumnFilter> filters = new ArrayList<>();
+    if (state == null || state.getStateMap() == null) {
+      return filters;
+    }
+    Object raw = state.getStateMap().get(STATE_FILTERS);
+    if (raw instanceof Collection<?> collection) {
+      for (Object item : collection) {
+        if (!(item instanceof Map<?, ?> map)) {
+          continue;
+        }
+        Object column = map.get(FILTER_COLUMN);
+        if (column == null || StringUtils.isEmpty(String.valueOf(column))) {
+          continue;
+        }
+        List<String> values = new ArrayList<>();
+        Object rawValues = map.get(FILTER_VALUES);
+        if (rawValues instanceof Collection<?> valueCollection) {
+          for (Object value : valueCollection) {
+            if (value != null) {
+              values.add(String.valueOf(value));
+            }
+          }
+        }
+        if (!values.isEmpty()) {
+          filters.add(new TableViewColumnFilter(String.valueOf(column), values));
+        }
+      }
+    }
+    return filters;
   }
 
   static List<String> extractStringList(AuditState state, String key) {

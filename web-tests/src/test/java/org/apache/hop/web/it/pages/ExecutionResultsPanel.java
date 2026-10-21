@@ -43,27 +43,37 @@ public class ExecutionResultsPanel {
    * that has both those names and rows under it - the table is nested several containers deep and
    * every one of them "contains" the header text.
    *
-   * <p>A row is recognised by having exactly two children per column: a table row lays out as an
-   * alternating run of spacer and cell elements, which is also why only the odd children are read.
-   * The cells cannot simply be filtered on having text, because a metric that is genuinely empty
-   * would drop out and shift every column after it.
+   * <p>A row is a run of absolutely positioned leaf elements: one background per column, plus one
+   * text element for every cell that has ever held a value. The text elements cannot be read in
+   * document order. RAP creates a cell's text element the first time the cell gets a value and
+   * appends it to the row, so a metric that was still empty on the first paint ("Duration") ends up
+   * after "Status" and shifts every column read by position. Each text element is put in the column
+   * whose header starts at or left of it instead, and a cell that never held a value stays empty.
    */
   private static final String METRICS =
-      "const candidates=[...document.querySelectorAll('div')].filter("
+      "const left=e=>parseFloat(e.style.left)||0;"
+          + "const candidates=[...document.querySelectorAll('div')].filter("
           + "d=>d.textContent.includes('Transform Name')&&d.textContent.includes('Written (rows)'));"
           + "for(let i=candidates.length-1;i>=0;i--){"
           + "const table=candidates[i];"
           + "const head=[...table.children].find(c=>c.textContent.includes('Transform Name'));"
           + "if(!head)continue;"
-          + "const headers=[...head.children].map(c=>c.textContent.trim()).filter(t=>t.length>0);"
-          + "if(headers.length<"
+          + "const columns=[...head.children].filter(c=>c.textContent.trim().length>0)"
+          + ".map(c=>({name:c.textContent.trim(),left:left(c)})).sort((a,b)=>a.left-b.left);"
+          + "if(columns.length<"
           + MIN_COLUMNS
           + ")continue;"
-          + "const rows=[...table.querySelectorAll('div')].filter(d=>"
-          + "d.children.length===headers.length*2&&[...d.children].every(c=>c.children.length===0));"
+          // The grid also paints empty filler rows below the last transform: skip those.
+          + "const rows=[...table.querySelectorAll('div')].filter(d=>d!==head"
+          + "&&d.children.length>=columns.length&&d.textContent.trim().length>0"
+          + "&&[...d.children].every(c=>c.children.length===0));"
           + "if(rows.length===0)continue;"
-          + "return {headers:headers,"
-          + "rows:rows.map(r=>[...r.children].filter((c,n)=>n%2===1).map(c=>c.textContent.trim()))};}"
+          + "return {headers:columns.map(c=>c.name),rows:rows.map(r=>{"
+          + "const cells=columns.map(()=>'');"
+          + "for(const c of r.children){const text=c.textContent.trim();if(!text)continue;"
+          + "let n=-1;columns.forEach((col,k)=>{if(col.left<=left(c))n=k;});"
+          + "if(n>=0)cells[n]=text;}"
+          + "return cells;})};}"
           + "return {headers:[],rows:[]};";
 
   private final WebDriver driver;

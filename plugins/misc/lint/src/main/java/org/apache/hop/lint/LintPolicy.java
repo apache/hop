@@ -163,9 +163,12 @@ public final class LintPolicy {
       return normalised;
     }
     try {
-      Path path = Paths.get(file);
-      if (path.isAbsolute() && path.startsWith(projectRoot)) {
-        return projectRoot.relativize(path).toString().replace('\\', '/');
+      // Normalised on both sides: a root reached through "..", as PROJECT_HOME can be, never
+      // matched the normalised path a finding carries, and the absolute path went into baselines.
+      Path path = Paths.get(file).normalize();
+      Path root = projectRoot.normalize();
+      if (path.isAbsolute() && path.startsWith(root)) {
+        return root.relativize(path).toString().replace('\\', '/');
       }
     } catch (Exception ignored) {
       // Metadata findings carry labels rather than paths; match them as written.

@@ -49,7 +49,7 @@ The table below provides a detailed descriptions of the features available on th
 |Browse|Click to select the file from the file browser.
 |Regular expression|Specify the regular expression you want to use to select the files in the directory specified in the previous option.
 For example, you want to process all files that have a .txt extension.
-(See below "Selecting file using Regular Expressions")
+See <<selecting-files-regex>>.
 |Exclude Regular Expression|Specify the regular expression you want to use to exclude files from the specified directory.
 |Selected Files|This table contains a list of selected files (or wildcard selections) along with a property specifying if file is required or not.
 If a file is required and it isn't found, an error is generated.
@@ -61,21 +61,31 @@ Otherwise, the filename is skipped.
 |Show content from first data line|Displays the content from the first data line only for the selected file.
 |===
 
-**Selecting files using Regular Expressions**
+[[selecting-files-regex]]
+==== Selecting files using regular expressions
 
 The Text File Input transform can search for files by wildcard in the form of a regular expression.
 Regular expressions are more sophisticated than using '*' and '?' wildcards.
+
+The expressions use the Java syntax, described in https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html[java.util.regex.Pattern]:
+
+* The expression has to match the whole file name, as if it started with `^` and ended with `$`. `userdata` only selects a file named `userdata`, not `userdata.txt`.
+* The expression is matched against the file name only, not against its folder, also when sub folders are included.
+* The match is case-sensitive: `+.*\.txt+` doesn't select `REPORT.TXT`. Start the expression with `+(?i)+` to ignore case.
+* The exclude regular expression follows the same rules. A file is selected when it matches the regular expression and doesn't match the exclude regular expression.
+
 Below are a few examples of regular expressions:
 
 [options="header"]
 |===
 |Filename|Regular Expression|Files selected
-|/dirA/|.userdata.\.txt|Find all files in /dirA/ with names containing userdata and ending with .txt
-|/dirB/|AAA.*|Find all files in /dirB/ with names that start with AAA
-|/dirC/|[ENG:A-Z][ENG:0-9].*|Find all files in /dirC/ with names that start with a capital and followed by a digit (A0-Z9)
+|/dirA/|`+.*userdata.*\.txt+`|Find all files in /dirA/ with names containing userdata and ending with .txt
+|/dirB/|`+AAA.*+`|Find all files in /dirB/ with names that start with AAA
+|/dirC/|`+[A-Z][0-9].*+`|Find all files in /dirC/ with names that start with a capital followed by a digit (A0-Z9)
 |===
 
-**Accepting filenames from a previous transform**
+[[accepting-filenames]]
+==== Accepting filenames from a previous transform
 
 This option allows you to construct your filename in another transform, such as "Get Filenames", and then pass it to this transform, either as a field in the input stream or reading directly from the other transform's output.
 This lets you use file names from any source, including text files and database tables.
@@ -89,6 +99,8 @@ This behaves like a join option.
 |Transform to read filenames from|The name of the transform to read file names from.
 |Field in the input to use as filename|Specify the field in the input stream that contains the file names.
 |===
+
+Running this transform in several copies with filenames from a previous transform spreads the filenames over the copies, and each copy reads the files it receives. With *Running in parallel?* enabled on the Performance tab, the copies also share the large files in chunks. See <<running-in-parallel>>.
 
 === Content Tab
 
@@ -109,7 +121,7 @@ For example, if your enclosure character is ' and you have a field value 'six o'
 Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
 |Allow breaks in enclosed fields?|If enabled, line breaks in enclosed fields do not cause the field value to end. If disabled, or if the line break is in a non-enclosed field, the field value ends at the line break, which can affect the output of the transform. If you use the Get Fields button and one of the fields ends because of a line break, that field is the last one recognized by the Get fields function.
 |Escape|Specify a character or characters that are used to identify characters that should appear as-is in the field value when they might be interpreted as a control or formatting character.
-For example, if you have \ as an escape character, the text 'Not the nine o\'clock news' (where ' is the the enclosure character) gets parsed as Not the nine o'clock news instead of splitting the field value.
+For example, if you have \ as an escape character, the text 'Not the nine o\'clock news' (where ' is the enclosure character) gets parsed as Not the nine o'clock news instead of splitting the field value.
 Special characters (e.g. CHAR HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
 The Escape character may be left empty, or set to the same character as the Enclosure. In both cases a doubled enclosure inside an enclosed field (for example "" when " is the enclosure) is treated as a single, literal enclosure character and is de-duplicated in the resulting value, following the common CSV convention (so "she said ""hi""" is read as she said "hi"). This also works when "Allow breaks in enclosed fields?" is enabled.
 |Return null for empty values which are not enclosed?|Enable to make a difference between an empty value and a missing value. An empty value which is not enclosed (`a;;b`) is then returned as null, while an empty enclosed value (`a;"";b`) is returned as an empty string. A line ending on a separator (`a;b;`) also returns null for that last value. When this option is disabled (the default) both are handled the same way, as they always were. To keep the difference between an empty string and null in the transforms further down the pipeline, also set the `HOP_EMPTY_STRING_DIFFERS_FROM_NULL` variable to `Y`.
@@ -136,7 +148,7 @@ DOS files have lines separated by carriage returns and line feeds.
 If you specify mixed, no verification is done.
 |Encoding|Specify the text file encoding to use; leave blank to use the default encoding on your system.
 To use Unicode, specify UTF-8 or UTF-16. On first use, Hop searches your system for available encodings.
-|Limit|Sets the number of lines that are read from the file; 0 means read all lines.
+|Limit|Sets the number of lines that are read from the file; 0 means read all lines. When running in parallel, every copy counts its own lines.
 |Be lenient when parsing dates?|Disable if you want strict parsing of data fields; if case-lenient parsing is enabled, dates like Jan 32nd will become Feb 1st.
 |The date format Locale|This locale is used to parse dates that have been written in full such as "February 2nd, 2006;" parsing this date on a system running in the French (fr_FR) locale would not work because February is called Février in that locale.
 |Add filenames to result|Adds the filenames to the internal filename result set.
@@ -183,7 +195,7 @@ The table below describes the available options for defining filters:
 [options="header"]
 |===
 |Option|Description
-|Filter string|The string to search for in the data values. Each data value is treated as aline of text regardless of how long it is.
+|Filter string|The string to search for in the data values. Each data value is treated as a line of text regardless of how long it is.
 |Filter position|The position in the line to search for the filter string.
 Zero (0) is the first position in the line.
 Specifying a negative value here searches the entire line for the filter string.
@@ -233,7 +245,7 @@ include::../../snippets/field-metadata/date-format-symbols.adoc[]
 
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates] for Decimal, Group, Currency, Length, Precision and worked examples.
 
-== Additional Output Fields Tab
+=== Additional Output Fields Tab
 
 [options="header"]
 |===
@@ -246,6 +258,146 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates] for Decim
 |Uri field|The field name that contains the file's URL.
 |Root uri field|The field name that contains only the root part of the URI.
 |===
+
+=== Performance Tab
+
+The performance tab sets how the copies of this transform share the work, and how files on remote storage are downloaded.
+
+[NOTE]
+====
+Normally, each copy of this transform does all of its work on a single thread.
+These settings can start additional threads:
+
+* *Read-ahead blocks* above 0: blocks of the file are downloaded on background threads while the rows are being read. See <<read-ahead>>.
+* *Running in parallel?* combined with *Allow breaks in enclosed fields?*: before any rows are read, the large files are scanned using one extra thread per copy.
+====
+
+[options="header"]
+|===
+|Option|Description
+|Running in parallel?|Share the files between the copies of this transform instead of every copy reading every file. Large files are cut into chunks and each copy reads the next chunk not yet taken. See <<running-in-parallel>>.
+|Chunk size|The largest piece of a file one copy reads when running in parallel, for example 64MB or 1GB. Leave it empty for 128MB. With little data the pieces are smaller, so that every copy gets work.
+|Read-ahead blocks|For files on remote storage such as S3, Azure or Google Cloud Storage: how many blocks of a file are downloaded at the same time, each over its own connection, while its rows are read. The block size comes from the storage connection. 0, the default, reads on the copy's own thread without fetching ahead. See <<read-ahead>>.
+|===
+
+[[running-in-parallel]]
+==== Running in parallel
+
+Running this transform in several copies with *Running in parallel?* enabled spreads the work over the copies: every line is read by exactly one copy.
+Set the number of copies on the transform in the pipeline (right-click the transform, *Number of copies*).
+With one copy, *Running in parallel?* has no effect.
+
+===== How the work is shared
+
+Before the copies read anything, the files are divided into pieces called chunks: a small file is one chunk, a large file is cut into several.
+The copies share one list of chunks. Each copy takes the next chunk nobody has taken yet, reads it, and takes the next, until none are left.
+A fast copy therefore reads more chunks than a slow one, and a copy can read pieces of several files.
+
+A line belongs to the chunk that holds its first byte. The copy reading that chunk reads the whole line, even when it runs past the end of the chunk, and the copy reading the next chunk skips it.
+That way no line is lost or read twice where a file is cut.
+
+===== When a file is cut into chunks
+
+All files are compared to one *split size*, worked out from the total size of all files to read:
+
+----
+split size = smallest of ( chunk size , largest of ( 4 MB , total size / number of copies ) )
+----
+
+* A file no larger than the split size is read whole, by one copy.
+* A larger file is cut into chunks of the split size.
+* The chunk size is 128 MB when left empty.
+
+So a file is never cut just because there are several copies:
+
+* With the default chunk size, files of 4 MB or less are always read whole: cutting them would cost more than it saves.
+* When there is enough data to give every copy a full share without cutting, no file is cut either. Many medium-sized files are simply divided over the copies.
+* With little data the split size is smaller than the chunk size, so that every copy still gets work.
+* A chunk size below 4 MB, such as `1KB`, is used as it is, without the 4 MB minimum. That is mostly useful for testing.
+* On storage that reads in blocks of its own, a chunk is never smaller than that read block size, such as the *Read block size* of an Azure or S3 connection: a smaller chunk would still download whole blocks. A chunk size set below it is not an error: the transform logs a warning and uses the block size.
+
+Some examples, with the default chunk size of 128 MB:
+
+[options="header"]
+|===
+|Files|Copies|Split size|Result
+|1 file of 3 MB|4|4 MB|The file is read whole by one copy.
+|1 file of 10 MB|4|4 MB|3 chunks: 4 MB, 4 MB and 2 MB.
+|10 files of 10 MB|4|25 MB|No file is cut; the copies share the 10 files.
+|1 file of 1 GB|8|128 MB|8 chunks of 128 MB.
+|1 file of 1 GB and 100 files of 1 MB|4|128 MB|The large file is cut into 8 chunks; the small files are read whole.
+|===
+
+Even when it is larger than the split size, a file is read whole by one copy, with a line in the log saying why, when:
+
+* its storage can't start reading in the middle of a file. Local files, S3, Google Cloud Storage, Azure, SFTP, SMB and HTTP can be read in chunks.
+* its encoding has no line feed that can be found by its bytes, such as UTF-32 or EBCDIC.
+* its header lines take up more than the first 1 MB of the file.
+
+[[read-ahead]]
+===== Reading from remote storage
+
+On object storage such as S3, Azure and Google Cloud Storage one connection is often limited to a few MB/s, however fast the network is.
+A plain read also downloads the next part of a file only once the rows before it are processed, so the network waits for the processing and the other way around.
+
+With *Read-ahead blocks* set to 1 or more, this transform downloads a file from remote storage in blocks, several at a time, each over its own connection, while it processes the rows of the blocks already there.
+*Read-ahead blocks* sets how many blocks are downloaded at the same time for each file or chunk being read.
+It is 0 by default: every copy of this transform then does all its work, reading included, on its own thread, as it always did.
+With 1 or more blocks the downloads run on extra threads besides the copy's: up to that many per file or chunk being read, so copies × blocks in total. Try 4 for a large file on remote storage.
+The size of a block belongs to the storage, not to this transform: it is the *Read block size* of the xref:metadata-types/azure-authentication.adoc[Azure connection], the xref:vfs/aws-s3-vfs.adoc#_read_block_size[S3 connection] or the xref:vfs/google-cloud-storage-vfs.adoc#_read_block_size[Google Cloud Storage options], and 8 MB for other storage.
+Where the storage supports it, every block is downloaded with one request for exactly its bytes.
+
+* This works for every file system that can start reading in the middle of a file, also without *Running in parallel?*. Local files are always read directly: the operating system reads ahead itself.
+* Running in parallel, a copy fetches ahead up to the end of its chunk only. The rest of the last line, which runs past the end, is fetched when it is reached.
+* With 10 copies and 4 read-ahead blocks, up to 40 downloads run at the same time.
+* Every copy holds up to *Read-ahead blocks* × the block size in memory: 32 MB with the defaults, so 320 MB for 10 copies. Lower the number of blocks, or the read block size of the connection, when memory is short.
+* More blocks help as long as the network has room for more connections. When the processing can't keep up any more, more copies help instead.
+* A block whose download fails is downloaded again, up to 3 times in all, after waiting 1 and then 2 seconds; every retry is logged. A block that still fails stops the read with an error, and the transform fails: no rows are made from the part of a line read before the error, and the file is never read on past the failed block.
+
+===== Headers, rows and limits
+
+* The header lines are skipped once per file, by the copy that reads its start. Chunks further on in the file start after the header.
+* The rows come out in no particular order. If the order matters, sort the rows afterwards or run one copy.
+* The row number and the *Limit* count per copy.
+* A file is added to the result, and reported to lineage, once, not once per chunk.
+* With *Allow breaks in enclosed fields?* enabled, a line feed inside an enclosed field doesn't start a new row, so a chunk can't simply start after any line feed. The large files are then first read once more, on one extra thread per copy while the copies wait, to find where each chunk's first row starts, and the chunks are cut exactly there. This works in UTF-8, ISO-8859, windows-125x and UTF-16, with an enclosure and escape character in plain ASCII; other files are read whole by one copy.
+
+===== Filenames from a previous transform
+
+With *Accept filenames from previous transforms* enabled, the previous transform spreads its filename rows over the copies, so each copy receives only part of the filenames.
+With *Running in parallel?* enabled the copies first collect all filenames, from all copies, and then divide all these files into chunks together, following the rules above. The files are read the same way as files from the file list.
+
+* Every copy first reads all its filename rows, as it does without parallel reading, so collecting them doesn't delay reading.
+* The previous transform must have finished sending filenames before the copies start reading.
+* With *Pass through fields from previous transform* enabled, every row read from a file carries the fields of the row that named that file. This is also true for a chunk read by another copy, and for a copy that received no filename rows itself.
+* A file named in two rows is read twice, once for each row, as it is without parallel reading.
+* If the previous transform copies its rows to every copy instead of distributing them, every copy receives every filename. Each file is then still read once, not once per copy.
+* A file that doesn't exist is handled by the copy that tries to open it, following the error handling settings, as without parallel reading.
+
+===== Settings that can't be combined
+
+Reading in parallel can't be combined with settings that need each file read from its first line by one copy:
+
+* wrapped lines
+* paged layout
+* a footer
+* row numbers by file
+* compression
+* *Stop on filter*
+* repeated fields
+
+The dialog doesn't let you switch on both. A pipeline that combines them anyway, for example through metadata injection, doesn't start.
+
+===== Several copies without running in parallel
+
+Without *Running in parallel?* every copy reads all the files of its own file list, whole. Give each copy its own files, for example with `+${Internal.Transform.CopyNr}+` in the filename: copy 0 reads `part_0.csv`, copy 1 reads `part_1.csv`, and so on.
+
+A file in the list of more than one copy would be read by each of them, and its rows output more than once. The transform doesn't start reading then, and the error names the file and the copies.
+
+Filenames from a previous transform are already divided over the copies, so each copy reads the files it receives, whole.
+Turn on *Running in parallel?* to also cut large files into chunks.
+
+With *Running in parallel?* the files of all copies are planned together: a file that several copies list is read once, and a filename that differs per copy, such as `+${Internal.Transform.CopyNr}+`, still gets every file read.
 
 == Buttons
 

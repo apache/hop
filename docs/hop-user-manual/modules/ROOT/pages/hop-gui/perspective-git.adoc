@@ -1,0 +1,90 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images
+:description: The Git perspective shows the branches, tags and commit history of your project, and lets you check out, merge, tag, revert and cherry-pick from there.
+
+= Git Perspective
+
+Icon: image:icons/git-perspective.svg[width="24px"]
+
+Keyboard shortcut: `CTRL+SHIFT+G` (`CMD+SHIFT+G` on macOS)
+
+== Description
+
+The Git perspective shows the branches, tags and commit history of your project.
+It is available when the project folder is a git repository.
+To commit your changes, use the xref:hop-gui/perspective-git-commit.adoc[Git commit perspective].
+See xref:hop-gui/hop-gui-git.adoc[Working with git] for the other git options in Hop Gui.
+
+The perspective has four parts:
+
+. On the left, the branches and tags: Local, Remote and Tags.
+A search field above Local, Remote and Tags filters the commit list by message, author and abbreviated id.
+. In the middle, the commit history: a graph of the branches, with their names next to the commits they point to, and the message, author, date and id of each commit.
+When you have uncommitted changes, they are shown as the first line.
+. On the right, the files changed in the selected commit.
+. Below them, the differences in the selected file.
+
+== Branches and tags
+
+Right-click a branch or tag on the left:
+
+[options="header", cols="2,5,1"]
+|===
+|action|description|shortcut
+|Checkout|Check out the branch or tag.|
+|Create branch from|Create a new branch that starts at this branch or tag.|
+|Merge into|Merge this branch into the current branch.|
+|Fetch|Fetch from the remote. Available on any branch or tag.|
+|Pull|Pull the current branch from the remote. Offered only when a local branch is selected.|
+|Push|Push the selected local branch or tag. Not available on a remote-tracking branch.|
+|Rename|Rename a local branch, or a remote-tracking branch other than the remote's default branch. Not available on a tag.|F2
+|Delete|Delete the branch or tag.|DEL
+|===
+
+== The commit history
+
+The toolbar above the history refreshes it, creates a branch or tag at the selected commit, cherry-picks the selected commit, and fetches, pulls (`CTRL+T`) and pushes.
+Its eye button shows or hides commits that are only reachable from other local branches.
+
+Right-click a commit for more:
+
+[options="header", cols="2,5"]
+|===
+|action|description
+|Create branch, Create tag|Create a branch or a tag at this commit.
+|Checkout Revision|Check out this commit.
+|Copy Revision Id|Copy the id of the commit to the clipboard.
+|Reset current branch to here|Move the current branch to this commit. You choose what happens to the changes made after it: keep them staged (soft), keep them unstaged (mixed) or discard them (hard).
+|Revert commit|Create a new commit that undoes this one.
+|Cherry-pick commit|Apply this commit to the current branch.
+|===
+
+== The files of a commit
+
+Select a file in the changed files to see its differences below.
+The toolbar above the files and their right-click menu act on the selected file:
+
+[options="header", cols="2,5,1"]
+|===
+|action|description|shortcut
+|Show text diff|Show the changes in the file as text.|CTRL+D
+|Show visual diff|For a pipeline or workflow, open the versions before and after the commit side by side.|CTRL+SHIFT+D
+|Copy Path|Copy the path of the file to the clipboard.|
+|Revert file|Undo what this commit did to the file, and commit that.|
+|Cherry-pick file|Take the version of the file in this commit, and commit it.|
+|===

@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -551,6 +553,70 @@ class TextFileInputTest {
     tFIR.close();
     // After closing the file, the buffer must be empty!
     assertEquals(0, mockTFID.lineBuffer.size());
+  }
+
+  /**
+   * The connection is lost while the third line is read: the transform fails, and the part of that
+   * line read before the error never becomes a row.
+   */
+  @Test
+  void aReadErrorFailsTheTransformWithoutAPartialRow() throws Exception {
+    String virtualFile = createVirtualFile("read-error.txt", "a1;b1\n", "a2;b2\n", "a3;b3\n");
+    FileObject real = HopVfs.getFileObject(virtualFile);
+    byte[] cutOff = "a1;b1\na2;b2\na3;b".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    org.apache.commons.vfs2.FileContent content = org.mockito.Mockito.spy(real.getContent());
+    org.mockito.Mockito.doAnswer(
+            call ->
+                new java.io.SequenceInputStream(
+                    new ByteArrayInputStream(cutOff),
+                    new InputStream() {
+                      @Override
+                      public int read() throws java.io.IOException {
+                        throw new java.io.IOException("Connection reset");
+                      }
+                    }))
+        .when(content)
+        .getInputStream();
+    FileObject breaking =
+        new org.apache.commons.vfs2.impl.DecoratedFileObject(real) {
+          @Override
+          public org.apache.commons.vfs2.FileContent getContent() {
+            return content;
+          }
+        };
+
+    TextFileInputMeta meta = createMetaObject(field("col1"), field("col2"));
+    TextFileInputData data = createDataObject(virtualFile, ";", "col1", "col2");
+    data.files = new FileInputList();
+    data.files.addFile(breaking);
+    TextFileInput input =
+        TransformMockUtil.getTransform(
+            TextFileInput.class,
+            meta,
+            data,
+            TextFileInputMeta.class,
+            TextFileInputData.class,
+            "test");
+    org.apache.hop.core.IRowSet output = new org.apache.hop.core.BlockingRowSet(100);
+    input.setOutputRowSets(List.of(output));
+
+    assertThrows(
+        org.apache.hop.core.exception.HopException.class,
+        () -> {
+          while (input.processRow()) {
+            // Read on until the error
+          }
+        });
+
+    List<Object[]> rows = new java.util.ArrayList<>();
+    for (Object[] row = output.getRowImmediate(); row != null; row = output.getRowImmediate()) {
+      rows.add(row);
+    }
+    assertTrue(rows.size() <= 2, rows.size() + " rows");
+    for (int i = 0; i < rows.size(); i++) {
+      PipelineTestingUtil.assertResult(new Object[] {"a" + (i + 1), "b" + (i + 1)}, rows.get(i));
+    }
+    deleteVfsFile(virtualFile);
   }
 
   private TextFileInputMeta createMetaObject(TextFileInputField... fields) {

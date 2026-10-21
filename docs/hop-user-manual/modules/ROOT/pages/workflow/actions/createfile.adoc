@@ -35,3 +35,16 @@ The `Create File` action creates an empty file. This is useful for creating trig
 The default is on.
 |Add filename to result|Add the filename for the file that was created in this action to the results.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The file was created, with any missing parent folders, or it already existed and *Fail if file exists* is off.
+|False|The file already exists and *Fail if file exists* is on, with 0 errors, or no *File name* is set, also with 0 errors. When the file can't be created, for example in a folder that can't be written, the number of errors is 1.
+|Result files|With *Add filename to result*, the file is added, also when it already existed, even when the action is false because of *Fail if file exists*.
+|Result rows|Passed on unchanged.
+|===

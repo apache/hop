@@ -659,8 +659,17 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[1].setComboValues(fieldNames);
+    // Called from the background thread that reads the input fields: touch the widget on the UI
+    // thread only, or SWT throws "Invalid thread access".
     if (wHashFieldInStream != null && !wHashFieldInStream.isDisposed()) {
-      wHashFieldInStream.setItems(fieldNames);
+      wHashFieldInStream
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                if (!wHashFieldInStream.isDisposed()) {
+                  wHashFieldInStream.setItems(fieldNames);
+                }
+              });
     }
   }
 

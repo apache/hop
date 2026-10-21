@@ -119,74 +119,85 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     int nrexistcolums = 0;
     int nrnotexistcolums = 0;
 
-    if (Utils.isEmpty(tableName)) {
+    String realConnection = resolve(connectionName);
+    if (Utils.isEmpty(realConnection)) {
+      logError(BaseMessages.getString(PKG, "ActionColumnsExist.Error.NoDbConnection"));
+      return result;
+    }
+
+    DatabaseMeta databaseMeta = null;
+    if (parentWorkflowMeta != null) {
+      databaseMeta = parentWorkflowMeta.findDatabase(realConnection, getVariables());
+    }
+    if (databaseMeta == null) {
+      logError(BaseMessages.getString(PKG, "ActionColumnsExist.Error.NoDbConnection"));
+      return result;
+    }
+
+    String realTableName = resolve(tableName);
+    if (Utils.isEmpty(realTableName)) {
       logError(BaseMessages.getString(PKG, "ActionColumnsExist.Error.TablenameEmpty"));
       return result;
     }
-    if (columns == null) {
+    if (columns == null || columns.isEmpty()) {
       logError(BaseMessages.getString(PKG, "ActionColumnsExist.Error.ColumnameEmpty"));
       return result;
     }
 
-    DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connectionName, getVariables());
-    if (databaseMeta != null) {
-      try (Database db = new Database(this, this, databaseMeta)) {
-        String realSchemaName = resolve(schemaName);
-        String realTableName = resolve(tableName);
+    try (Database db = getDatabase(databaseMeta)) {
+      db.connect();
 
-        db.connect();
+      String realSchemaName = resolve(schemaName);
 
-        if (db.checkTableExists(realSchemaName, realTableName)) {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTableName));
-          }
-
-          for (ColumnExist column : columns) {
-            if (parentWorkflow.isStopped()) {
-              break;
-            }
-
-            String realColumnname = resolve(column.getName());
-
-            if (db.checkColumnExists(realSchemaName, realTableName, realColumnname)) {
-              if (isDetailed()) {
-                logDetailed(
-                    BaseMessages.getString(
-                        PKG, "ActionColumnsExist.Log.ColumnExists", realColumnname, realTableName));
-              }
-              nrexistcolums++;
-            } else {
-              logError(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionColumnsExist.Log.ColumnNotExists",
-                      realColumnname,
-                      realTableName));
-              nrnotexistcolums++;
-            }
-          }
-        } else {
-          logError(
-              BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableNotExists", realTableName));
+      if (db.checkTableExists(realSchemaName, realTableName)) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTableName));
         }
-      } catch (HopDatabaseException dbe) {
+
+        for (ColumnExist column : columns) {
+          if (parentWorkflow != null && parentWorkflow.isStopped()) {
+            break;
+          }
+
+          String realColumnname = resolve(column.getName());
+
+          if (db.checkColumnExists(realSchemaName, realTableName, realColumnname)) {
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG, "ActionColumnsExist.Log.ColumnExists", realColumnname, realTableName));
+            }
+            nrexistcolums++;
+          } else {
+            logError(
+                BaseMessages.getString(
+                    PKG, "ActionColumnsExist.Log.ColumnNotExists", realColumnname, realTableName));
+            nrnotexistcolums++;
+          }
+        }
+      } else {
         logError(
-            BaseMessages.getString(
-                PKG, "ActionColumnsExist.Error.UnexpectedError", dbe.getMessage()));
+            BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableNotExists", realTableName));
       }
-    } else {
-      logError(BaseMessages.getString(PKG, "ActionColumnsExist.Error.NoDbConnection"));
+    } catch (HopDatabaseException dbe) {
+      logError(
+          BaseMessages.getString(
+              PKG, "ActionColumnsExist.Error.UnexpectedError", dbe.getMessage()));
     }
 
     result.setEntryNr(nrnotexistcolums);
     result.setNrLinesWritten(nrexistcolums);
-    // result is true only if all columns found
-    if (nrexistcolums == columns.size()) {
+    // result is true only if all columns found and columns list is not empty
+    if (!columns.isEmpty() && nrexistcolums == columns.size()) {
       result.setNrErrors(0);
       result.setResult(true);
     }
     return result;
+  }
+
+  Database getDatabase(DatabaseMeta databaseMeta) {
+    return new Database(this, this, databaseMeta);
   }
 
   @Override
@@ -194,7 +205,10 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
 
-    DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connectionName, getVariables());
+    DatabaseMeta databaseMeta = null;
+    if (parentWorkflowMeta != null) {
+      databaseMeta = parentWorkflowMeta.findDatabase(connectionName, getVariables());
+    }
     if (databaseMeta != null) {
       ResourceReference reference = new ResourceReference(this);
       reference

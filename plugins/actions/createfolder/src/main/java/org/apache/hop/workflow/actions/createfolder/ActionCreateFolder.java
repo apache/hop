@@ -18,6 +18,8 @@
 package org.apache.hop.workflow.actions.createfolder;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -40,6 +42,8 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
  * This defines a 'create folder' action. Its main use would be to create empty folder that can be
  * used to control the flow in ETL cycles.
  */
+@Getter
+@Setter
 @Action(
     id = "CREATE_FOLDER",
     name = "i18n::ActionCreateFolder.Name",
@@ -136,48 +140,12 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx,
-        ActionValidatorUtils.notNullValidator(),
+        ActionValidatorUtils.notBlankValidator(),
         ActionValidatorUtils.fileDoesNotExistValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, "folderName", remarks, ctx);
   }
 
   public String getRealFolderName() {
     return resolve(getFolderName());
-  }
-
-  /**
-   * Gets folderName
-   *
-   * @return value of folderName
-   */
-  public String getFolderName() {
-    return folderName;
-  }
-
-  /**
-   * Sets folderName
-   *
-   * @param folderName value of folderName
-   */
-  public void setFolderName(String folderName) {
-    this.folderName = folderName;
-  }
-
-  /**
-   * Gets failIfFolderExists
-   *
-   * @return value of failIfFolderExists
-   */
-  public boolean isFailIfFolderExists() {
-    return failIfFolderExists;
-  }
-
-  /**
-   * Sets failIfFolderExists
-   *
-   * @param failIfFolderExists value of failIfFolderExists
-   */
-  public void setFailIfFolderExists(boolean failIfFolderExists) {
-    this.failIfFolderExists = failIfFolderExists;
   }
 }

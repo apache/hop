@@ -584,6 +584,22 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>requires an AI provider named ollama-local</item>
       </line>
       <line>
+        <item>extract-graph-basic.hpl</item>
+        <item>requires an AI provider named ollama-local</item>
+      </line>
+      <line>
+        <item>extract-graph-to-database.hpl</item>
+        <item>requires an AI provider named ollama-local and a graph database</item>
+      </line>
+      <line>
+        <item>extract-graph-to-database.hwf</item>
+        <item>runs extract-graph-to-database.hpl</item>
+      </line>
+      <line>
+        <item>watch-files.hpl</item>
+        <item>watches a folder until it is stopped</item>
+      </line>
+      <line>
         <item>call-db-procedure.hpl</item>
         <item>requires a stored procedure in the database</item>
       </line>
@@ -738,6 +754,26 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <line>
         <item>embed-text.hpl</item>
         <item>requires AI connection with an embedding model</item>
+      </line>
+      <line>
+        <item>graphrag-ask.hpl</item>
+        <item>requires Neo4j connection demo-neo4j and AI providers ollama-embeddings and ollama-local</item>
+      </line>
+      <line>
+        <item>graphrag-ask-hybrid.hpl</item>
+        <item>requires Apache AGE connection demo-age, pgvector, and AI providers ollama-embeddings and ollama-local</item>
+      </line>
+      <line>
+        <item>graphrag-index.hpl</item>
+        <item>requires Neo4j connection demo-neo4j and AI providers ollama-embeddings and ollama-local</item>
+      </line>
+      <line>
+        <item>graphrag-index-hybrid.hpl</item>
+        <item>requires Apache AGE connection demo-age, pgvector, and AI providers ollama-embeddings and ollama-local</item>
+      </line>
+      <line>
+        <item>graphrag-index.hwf</item>
+        <item>creates graph indexes and runs graphrag-index.hpl</item>
       </line>
       <line>
         <item>mssql-bulk-loader.hpl</item>
@@ -925,6 +961,36 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
             <value>
               <name>constant</name>
               <type>String</type>
+              <text>/graph-databases/</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+            <conditions/>
+          </condition>
+          <condition>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <leftvalue>filename</leftvalue>
+            <function>CONTAINS</function>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>/property-graph/</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+            <conditions/>
+          </condition>
+          <condition>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <leftvalue>filename</leftvalue>
+            <function>CONTAINS</function>
+            <value>
+              <name>constant</name>
+              <type>String</type>
               <text>/kafka-</text>
               <length>-1</length>
               <precision>-1</precision>
@@ -956,6 +1022,21 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
               <name>constant</name>
               <type>String</type>
               <text>/vertica-</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+            </value>
+            <conditions/>
+          </condition>
+          <condition>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <leftvalue>filename</leftvalue>
+            <function>CONTAINS</function>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>/requires-setup/</text>
               <length>-1</length>
               <precision>-1</precision>
               <isnull>N</isnull>

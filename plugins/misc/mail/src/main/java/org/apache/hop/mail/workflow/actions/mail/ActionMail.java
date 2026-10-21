@@ -208,6 +208,13 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       try {
         connection =
             getMetadataProvider().getSerializer(MailServerConnection.class).load(connectionName);
+        if (connection == null) {
+          logError(
+              BaseMessages.getString(PKG, "ActionMail.Error.ConnectionNotFound", connectionName));
+          result.setNrErrors(1L);
+          result.setResult(false);
+          return result;
+        }
         session = connection.getSession(getVariables() /*, getLogChannel()*/);
       } catch (HopException e) {
         throw new HopRuntimeException(

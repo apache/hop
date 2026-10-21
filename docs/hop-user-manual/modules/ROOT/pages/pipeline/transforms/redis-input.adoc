@@ -17,6 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Read STRING, HASH, SET or LIST values from Redis.
+:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 :page-marketplace: hop-tech-redis
 
 = Redis Input

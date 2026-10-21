@@ -54,6 +54,8 @@ public class PipelineVerifyLintExtension implements IExtensionPoint<CheckTransfo
       if (pipelineMeta == null) {
         return;
       }
+      BackgroundLintService service = BackgroundLintService.getInstance();
+      int passGeneration = service.currentGeneration();
 
       String fileName = LintPathUtils.normalizePath(pipelineMeta.getFilename());
       HopLinter linter = new HopLinter();
@@ -85,8 +87,9 @@ public class PipelineVerifyLintExtension implements IExtensionPoint<CheckTransfo
       // and a message prefixed with the rule id, which is not how the command line reports them.
       results.addAll(policyResults);
       List<LintResult> verifyViewResults = LintResultDeduplicator.deduplicate(results);
-      LintResultsManager.getInstance().updateResultsForFile(fileName, verifyViewResults);
-      LintProblemsBarManager.getInstance().updateProblemsBar(fileName);
+      if (service.publish(fileName, verifyViewResults, passGeneration)) {
+        LintProblemsBarManager.getInstance().updateProblemsBar(fileName);
+      }
 
       log.logDetailed(
           "Added "

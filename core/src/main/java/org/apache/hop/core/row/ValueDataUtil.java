@@ -40,7 +40,6 @@ import org.apache.commons.codec.net.URLCodec;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.text.WordUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
@@ -208,11 +207,40 @@ public class ValueDataUtil {
     return (new RefinedSoundex()).encode(dataA.toString());
   }
 
+  /**
+   * Lower-case the value, then title-case the first character of every word. Words are separated by
+   * space, underscore, comma, colon, semicolon and dash. Same result as commons-text {@code
+   * WordUtils.capitalizeFully(value, ' ', '_', ',', ':', ';', '-')}, in one pass: that one builds a
+   * set of boxed delimiters on every call, and this runs once per row.
+   */
   public static String initCap(Object dataA) {
     if (dataA == null) {
       return null;
     }
-    return WordUtils.capitalizeFully(dataA.toString(), new char[] {' ', '_', ',', ':', ';', '-'});
+    String lower = dataA.toString().toLowerCase();
+    StringBuilder result = new StringBuilder(lower.length());
+    boolean capitalizeNext = true;
+    for (int i = 0; i < lower.length(); ) {
+      int codePoint = lower.codePointAt(i);
+      i += Character.charCount(codePoint);
+      if (isInitCapDelimiter(codePoint)) {
+        capitalizeNext = true;
+        result.appendCodePoint(codePoint);
+      } else if (capitalizeNext) {
+        capitalizeNext = false;
+        result.appendCodePoint(Character.toTitleCase(codePoint));
+      } else {
+        result.appendCodePoint(codePoint);
+      }
+    }
+    return result.toString();
+  }
+
+  private static boolean isInitCapDelimiter(int codePoint) {
+    return switch (codePoint) {
+      case ' ', '_', ',', ':', ';', '-' -> true;
+      default -> false;
+    };
   }
 
   public static String upperCase(Object dataA) {

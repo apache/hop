@@ -44,7 +44,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.graph.GraphIndex;
+import org.apache.hop.core.graph.GraphIndexDefinition;
 import org.apache.hop.core.graph.GraphNodeValue;
+import org.apache.hop.core.graph.GraphObjectType;
 import org.apache.hop.core.graph.GraphPathValue;
 import org.apache.hop.core.graph.GraphRelationshipValue;
 import org.apache.hop.core.graph.GraphSchema;
@@ -223,6 +225,46 @@ class AgeIT {
       assertTrue(all.covers("INDEXED_REL", "w"));
       // Only property indexes: not the indexes on ids which AGE creates
       assertTrue(indexes.stream().noneMatch(i -> i.name().endsWith("_pkey")));
+    }
+  }
+
+  /**
+   * The index statements of the dialect run through executeSchemaStatement: the label is created
+   * when it doesn't exist yet, creating and dropping twice does nothing the second time.
+   */
+  @Test
+  void testCreateAndDropIndexStatements() throws Exception {
+    try (IGraphConnection connection = graphDatabase.connect(LogChannel.GENERAL, variables, "it")) {
+      IGraphDialect dialect = connection.getGraphDialect();
+      GraphIndexDefinition index =
+          new GraphIndexDefinition(
+              "it_chunk_id", GraphObjectType.NODE, "ItChunk", List.of("id", "the name"));
+      String create = dialect.getCreateIndexStatement(index);
+      connection.executeSchemaStatement(create, true);
+      connection.executeSchemaStatement(create, true);
+      GraphIndex created =
+          connection.getIndexes().stream()
+              .filter(i -> i.name().equals("it_chunk_id"))
+              .findFirst()
+              .orElseThrow();
+      assertEquals(List.of("ItChunk"), created.labelsOrTypes());
+      assertEquals(List.of("id", "the name"), created.properties());
+
+      // The label created with the index takes nodes
+      connection.execute("CREATE (:ItChunk {id: 1})", Map.of());
+      assertEquals(
+          1L,
+          ((Number)
+                  connection
+                      .execute("MATCH (c:ItChunk) RETURN count(c) AS n", Map.of())
+                      .get(0)
+                      .get("n"))
+              .longValue());
+
+      String drop = dialect.getDropIndexStatement(index);
+      connection.executeSchemaStatement(drop, true);
+      connection.executeSchemaStatement(drop, true);
+      assertTrue(connection.getIndexes().stream().noneMatch(i -> i.name().equals("it_chunk_id")));
     }
   }
 

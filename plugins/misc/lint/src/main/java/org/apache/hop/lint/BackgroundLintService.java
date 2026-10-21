@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -65,6 +66,23 @@ public class BackgroundLintService {
 
   private final LintCheckTracker tracker;
   private final Map<String, AtomicInteger> deferredGenerations = new ConcurrentHashMap<>();
+
+  /**
+   * Bumped whenever the findings already published stop counting: another project was enabled, or
+   * the linter was switched off. A pass remembers the value it started with and does not publish
+   * once it has changed, nor mark its file as checked.
+   */
+  private final AtomicInteger generation = new AtomicInteger(0);
+
+  /**
+   * Bumped only by a Problems-tab force refresh. A pass remembers the value it started with and
+   * does not publish once it has changed. Clearing the database cache from anywhere else, the
+   * broom, the SQL editor, a table create or alter, or any DDL statement on any connection, does
+   * not bump this, so a pass running at that moment still publishes.
+   */
+  private final AtomicInteger refreshGeneration = new AtomicInteger(0);
+
+  private String currentProjectPath;
 
   private BackgroundLintService() {
     this.tracker = new LintCheckTracker();
@@ -114,7 +132,8 @@ public class BackgroundLintService {
       LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
       return;
     }
-    submit(() -> lintFileInternal(filePath, graphId));
+    int passGeneration = currentGeneration();
+    submit(() -> lintFileInternal(filePath, graphId, passGeneration));
   }
 
   public void scheduleGraphLint(HopGuiAbstractGraph graph, boolean force) {
@@ -141,13 +160,196 @@ public class BackgroundLintService {
         });
   }
 
+  /**
+   * Called when a project is enabled. When it is another project than before, the findings and the
+   * record of what was checked belong to the project that was left: drop both, and stop the passes
+   * still running for it from publishing.
+   *
+   * <p>The tracker has to go as well. It skips files that have not changed since they were last
+   * checked, so switching back to a project would otherwise leave it without findings.
+   */
+  public void switchProject(String projectPath) {
+    String normalized = Utils.isEmpty(projectPath) ? "" : LintPathUtils.normalizePath(projectPath);
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      if (normalized.equals(currentProjectPath)) {
+        return;
+      }
+      // The first project of the session: nothing to drop, and the editors it just restored may
+      // already have published their findings.
+      boolean firstProject = currentProjectPath == null;
+      currentProjectPath = normalized;
+      generation.incrementAndGet();
+      if (!firstProject) {
+        tracker.clear();
+        manager.clearResults();
+      }
+    }
+  }
+
+  /**
+   * Drop lint tracking for every open editor and re-lint all of them, including the active one.
+   *
+   * <p>Called after the database cache has been cleared. Bumps this service's own refresh
+   * generation, under the same lock a pass publishes with, so a pass that started earlier cannot
+   * put the remarks from before the clear back. The active editor is included: its Problems-tab
+   * check fills the tree, but it republishes lint markers only when lint is part of pipeline
+   * verify, and a workflow check does not republish them at all.
+   *
+   * @param active the editor whose force-refresh button was pressed, or null when every open editor
+   *     is re-linted the same way
+   */
+  public void refreshOpenEditorsExcept(HopGuiAbstractGraph active) {
+    List<OpenEditor> open = new ArrayList<>();
+    for (HopGuiAbstractGraph graph : LintEditorGraphHelper.openGraphs()) {
+      open.add(new OpenEditor(graph, LintEditorGraphHelper.getFilename(graph)));
+    }
+    refreshOpenEditorsExcept(
+        active, open, graph -> scheduleGraphLint((HopGuiAbstractGraph) graph, true));
+  }
+
+  /**
+   * Bump the force-refresh generation, invalidate tracking for each open editor, and schedule a
+   * lint of every one of them, including the active editor.
+   */
+  void refreshOpenEditorsExcept(Object active, List<OpenEditor> open, Consumer<Object> schedule) {
+    synchronized (LintResultsManager.getInstance()) {
+      refreshGeneration.incrementAndGet();
+    }
+    log.logDetailed(
+        active == null
+            ? "Problems-tab force refresh re-lints every open editor"
+            : "Problems-tab force refresh re-lints the open editors, including the active one");
+    if (open == null) {
+      return;
+    }
+    for (OpenEditor editor : open) {
+      if (editor == null || editor.graph() == null) {
+        continue;
+      }
+      tracker.invalidate(editor.filename());
+      if (schedule != null) {
+        schedule.accept(editor.graph());
+      }
+    }
+  }
+
+  /** An open editor, reduced to what a force refresh needs so a test does not build a display. */
+  record OpenEditor(Object graph, String filename) {}
+
+  /**
+   * Called after the linter was switched off. Drops the findings and the record of what was
+   * checked, and stops the passes still running from publishing or marking a file as checked.
+   *
+   * <p>The tracker has to go: switching the linter back on would otherwise skip every file that has
+   * not changed since it was last checked, and the project would come back without findings.
+   */
+  public void discardResults() {
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      generation.incrementAndGet();
+      tracker.clear();
+      manager.clearResults();
+    }
+  }
+
+  /**
+   * The value a pass takes when it starts, to hand to {@link #publish} when it is done. Read it
+   * where the pass is started, on the UI thread: that is where a project switch happens.
+   */
+  int currentGeneration() {
+    return generation.get();
+  }
+
+  /** The force-refresh generation a pass takes when it starts. */
+  int currentRefreshGeneration() {
+    return refreshGeneration.get();
+  }
+
+  /**
+   * Publish the findings of a pass, unless the project was switched or the linter switched off
+   * since it started.
+   *
+   * <p>Checked and published under the lock {@link #switchProject} and {@link #discardResults}
+   * clear the results with, so a pass cannot slip its findings in right after either.
+   *
+   * @return false when the findings were dropped
+   */
+  boolean publish(String filePath, List<LintResult> results, int passGeneration) {
+    return publish(filePath, results, passGeneration, false, currentRefreshGeneration());
+  }
+
+  /**
+   * {@link #publish}, and record the file as checked, unless a Problems-tab force refresh started
+   * after {@code refreshGenerationAtStart} was read.
+   *
+   * @return false when the findings were dropped
+   */
+  boolean publishIfCurrent(
+      String filePath, List<LintResult> results, int passGeneration, int refreshGenerationAtStart) {
+    return publish(filePath, results, passGeneration, true, refreshGenerationAtStart);
+  }
+
+  /** {@link #publish}, and record the file as checked so an unchanged file is not linted again. */
+  private boolean publishChecked(
+      String filePath, List<LintResult> results, int passGeneration, int refreshGenerationAtStart) {
+    return publish(filePath, results, passGeneration, true, refreshGenerationAtStart);
+  }
+
+  private boolean publish(
+      String filePath,
+      List<LintResult> results,
+      int passGeneration,
+      boolean markChecked,
+      int refreshGenerationAtStart) {
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      if (!isCurrent(passGeneration) || !sameRefreshGeneration(refreshGenerationAtStart)) {
+        return false;
+      }
+      if (markChecked) {
+        tracker.markChecked(filePath);
+      }
+      manager.updateResultsForFile(filePath, results);
+      return true;
+    }
+  }
+
+  /** {@link #publish} for a pass over the whole project, which replaces every finding. */
+  boolean publishAll(List<LintResult> results, int passGeneration) {
+    LintResultsManager manager = LintResultsManager.getInstance();
+    synchronized (manager) {
+      if (!isCurrent(passGeneration)) {
+        return false;
+      }
+      manager.updateResults(results);
+      return true;
+    }
+  }
+
+  private boolean isCurrent(int passGeneration) {
+    return passGeneration == generation.get() && isEnabled();
+  }
+
+  /** False when a Problems-tab force refresh started during this pass. */
+  private boolean sameRefreshGeneration(int refreshGenerationAtStart) {
+    if (refreshGeneration.get() == refreshGenerationAtStart) {
+      return true;
+    }
+    log.logDetailed(
+        "Not publishing lint results because a Problems-tab force refresh started during the check");
+    return false;
+  }
+
   public void lintProjectAsync(
       String projectPath, IHopMetadataProvider metadataProvider, IVariables variables) {
     if (!isEnabled() || Utils.isEmpty(projectPath)) {
       return;
     }
+    int passGeneration = currentGeneration();
     submit(
         () -> {
+          int refreshGenerationAtStart = currentRefreshGeneration();
           try {
             HopLinter linter = new HopLinter();
             List<String> allFiles =
@@ -161,12 +363,21 @@ public class BackgroundLintService {
 
             List<LintResult> accumulated = new ArrayList<>();
             for (String filePath : filesToCheck) {
+              if (passGeneration != generation.get()) {
+                log.logBasic(
+                    "Background linting of " + projectPath + " stopped: results discarded");
+                return;
+              }
               try {
+                // Taken before the check. A Problems-tab force refresh during this pass bumps the
+                // refresh generation, and the remarks from before that refresh must not be
+                // published.
+                int refreshGenerationAtCheck = currentRefreshGeneration();
                 List<LintResult> results =
                     lintFileForGui(filePath, linter, metadataProvider, variables);
-                accumulated.addAll(results);
-                tracker.markChecked(filePath);
-                LintResultsManager.getInstance().updateResultsForFile(filePath, results);
+                if (publishChecked(filePath, results, passGeneration, refreshGenerationAtCheck)) {
+                  accumulated.addAll(results);
+                }
               } catch (Exception e) {
                 log.logError("Error linting " + filePath, e);
               }
@@ -177,6 +388,11 @@ public class BackgroundLintService {
                     + " issues in "
                     + filesToCheck.size()
                     + " files");
+            // A force refresh started while this pass ran and is already rechecking the open
+            // editors. Repainting them from this pass would put the old remarks back.
+            if (currentRefreshGeneration() != refreshGenerationAtStart) {
+              return;
+            }
             LintProblemsBarManager.getInstance().refreshAllOpenEditors();
           } catch (Exception e) {
             log.logError("Error in background project linting", e);
@@ -209,12 +425,16 @@ public class BackgroundLintService {
       return;
     }
 
+    int passGeneration = currentGeneration();
     HopGui hopGuiForSnapshot = HopGui.peekInstance();
     EditorSnapshot snapshot =
         snapshotOf(graph, hopGuiForSnapshot != null ? hopGuiForSnapshot.getVariables() : null);
 
     submit(
         () -> {
+          // Taken before the check. A Problems-tab force refresh during this pass bumps the refresh
+          // generation, and the remarks from before that refresh must not be published.
+          int refreshGenerationAtCheck = currentRefreshGeneration();
           try {
             // Switched off while this pass was waiting or running: do not publish what it found.
             if (!isEnabled()) {
@@ -228,9 +448,9 @@ public class BackgroundLintService {
 
             List<LintResult> results =
                 lintSnapshot(snapshot, normalizedPath, metadataProvider, variables);
-            tracker.markChecked(filename);
-
-            LintResultsManager.getInstance().updateResultsForFile(normalizedPath, results);
+            if (!publishChecked(filename, results, passGeneration, refreshGenerationAtCheck)) {
+              return;
+            }
             Display display = graph.getDisplay();
             if (display != null && !display.isDisposed()) {
               display.asyncExec(
@@ -323,19 +543,12 @@ public class BackgroundLintService {
     }
   }
 
-  private void lintFileInternal(String filePath, String graphId) {
+  /** Runs on a worker thread. */
+  private void lintFileInternal(String filePath, String graphId, int passGeneration) {
     try {
-      HopGui hopGui = HopGui.peekInstance();
-      IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
-      IVariables variables = hopGui != null ? hopGui.getVariables() : null;
-
-      HopLinter linter = new HopLinter();
-      List<LintResult> results = lintFileForGui(filePath, linter, metadataProvider, variables);
-      tracker.markChecked(filePath);
-
-      LintResultsManager.getInstance().updateResultsForFile(filePath, results);
-      LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
-      log.logDetailed("Linted " + filePath + ": " + results.size() + " issues");
+      if (lintAndPublishFile(filePath, passGeneration)) {
+        LintProblemsBarManager.getInstance().updateProblemsBar(filePath);
+      }
     } catch (Exception e) {
       log.logError("Error linting file " + filePath + ": " + e.getMessage(), e);
     } finally {
@@ -343,6 +556,29 @@ public class BackgroundLintService {
         deferredGenerations.remove(graphId);
       }
     }
+  }
+
+  /**
+   * Lint a saved file and publish what it finds, unless the results were discarded since the pass
+   * was scheduled. Touches no widget, so it can run without a display.
+   *
+   * @return false when the findings were dropped
+   */
+  boolean lintAndPublishFile(String filePath, int passGeneration) throws HopException {
+    // Taken before the check. A Problems-tab force refresh during this pass bumps the refresh
+    // generation, and the remarks from before that refresh must not be published.
+    int refreshGenerationAtCheck = currentRefreshGeneration();
+    HopGui hopGui = HopGui.peekInstance();
+    IHopMetadataProvider metadataProvider = hopGui != null ? hopGui.getMetadataProvider() : null;
+    IVariables variables = hopGui != null ? hopGui.getVariables() : null;
+
+    HopLinter linter = new HopLinter();
+    List<LintResult> results = lintFileForGui(filePath, linter, metadataProvider, variables);
+    if (!publishChecked(filePath, results, passGeneration, refreshGenerationAtCheck)) {
+      return false;
+    }
+    log.logDetailed("Linted " + filePath + ": " + results.size() + " issues");
+    return true;
   }
 
   private List<LintResult> lintFileForGui(

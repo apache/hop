@@ -28,3 +28,34 @@ The binary format has an advantage over a text (flat) file because the content d
 The metadata is stored in the file as well.
 
 The Serialize to file transform supports a write-once access pattern, and does not support appending to existing files.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+
+|Transform name
+|Name of the transform. This name has to be unique in a single pipeline.
+
+|Filename
+|Name of the cube file to write. The path can contain variables.
+
+|Include transform nr in filename
+|Gives each transform copy its own file. The copy number is inserted before the extension, starting at 0. With this option, `data.cube` is written as `data_0.cube`, `data_1.cube`, and so on. You can instead put `'${Internal.Transform.CopyNr}'` in the filename. Use one of the two. Using both inserts the number twice.
+
+|Create parent folders
+|Create the parent folders when they do not exist.
+
+|Do not create file at start
+|Wait for the first row before creating the file. Otherwise the file is created when the pipeline starts, including the layout of an empty stream.
+
+|Add filenames to result
+|Add the written filename to the list of result filenames.
+|===
+
+== Several files at once
+
+Set the number of copies on the transform and enable *Include transform nr in filename*. Each copy writes the rows it receives to its own file. De-serialize from file reads those files back with the same option and the same number of copies.
+
+A single copy writes one file. Several copies that share one filename overwrite that file.

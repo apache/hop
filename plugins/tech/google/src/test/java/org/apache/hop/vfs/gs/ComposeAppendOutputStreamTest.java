@@ -38,6 +38,10 @@ import com.google.cloud.storage.StorageException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -108,6 +112,49 @@ class ComposeAppendOutputStreamTest {
     InOrder inOrder = Mockito.inOrder(storage);
     inOrder.verify(storage).compose(any(ComposeRequest.class));
     inOrder.verify(storage).delete(BlobId.of(BUCKET, TEMP));
+  }
+
+  /** The upload of the appended bytes is watched, and reported under the name of the target. */
+  @Test
+  void aStalledAppendUploadIsReportedForTheTarget() throws Exception {
+    long[] now = {0};
+    List<String> reported = new ArrayList<>();
+    GoogleStorageStallWatchdog watchdog =
+        new GoogleStorageStallWatchdog(reported::add, () -> now[0], null, Runnable::run);
+    GoogleStorageStallWatchdog.Limits limits =
+        new GoogleStorageStallWatchdog.Limits(
+            Duration.ofSeconds(60), Duration.ofSeconds(150), Duration.ofSeconds(60));
+    WriteChannel tempChannel = mock(WriteChannel.class);
+    when(tempChannel.write(any(ByteBuffer.class)))
+        .thenAnswer(
+            inv -> {
+              now[0] += TimeUnit.SECONDS.toNanos(60);
+              watchdog.check();
+              ByteBuffer b = inv.getArgument(0);
+              int remaining = b.remaining();
+              b.position(b.limit());
+              return remaining;
+            });
+    String target = "gs://" + BUCKET + "/" + TARGET;
+
+    try (ComposeAppendOutputStream out =
+        new ComposeAppendOutputStream(
+            mock(Storage.class),
+            BUCKET,
+            TARGET,
+            TEMP,
+            GENERATION,
+            tempChannel,
+            watchdog.writing(target, limits))) {
+      out.write("appended".getBytes(StandardCharsets.UTF_8));
+    }
+
+    assertEquals(
+        "Writing "
+            + target
+            + " has not finished an upload chunk for 60 seconds (0 bytes written so far): the"
+            + " connection is slow or stalled.",
+        reported.get(0));
   }
 
   @Test

@@ -126,10 +126,10 @@ A number of optional fields (in the "Fields" tab) are automatically managed by t
 You can specify the table field name in the "Dimension Field" column.
 These are the optional fields:
 
-* Date of last insert or update (without stream field as source) : adds and manges a Date field
-* Date of last insert (without stream field as source) : adds and manges a Date field
-* Date of last update (without stream field as source) : adds and manges a Date field
-* Last version (without stream field as source) : adds and manges a Boolean field. (converted into Char(1) or boolean database data type depending on your database connection settings and availability of such data type)
+* Date of last insert or update (without stream field as source) : adds and manages a Date field
+* Date of last insert (without stream field as source) : adds and manages a Date field
+* Date of last update (without stream field as source) : adds and manages a Date field
+* Last version (without stream field as source) : adds and manages a Boolean field. (converted into Char(1) or boolean database data type depending on your database connection settings and availability of such data type)
 * This acts as a current valid dimension entry entry indicator for the last version: So when a type II attribute changes and a new version is created (to keep track of the history) the 'Last version' attribute in the previous version is set to 'False/N' and the new record with the latest version is set to 'True/Y'.
 
 == Functionality

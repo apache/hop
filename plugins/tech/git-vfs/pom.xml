@@ -30,7 +30,6 @@
     <description>Read a git repository as a VFS location, checked out at a branch or revision.</description>
 
     <properties>
-        <dependency.jgit.revision>7.5.0.202512021534-r</dependency.jgit.revision>
         <!-- JGit's HTTP transport is HttpClient 4. These jars already ship in hop's lib/core,
              the same ones hop-misc-git uses, so this plugin must not unpack a second copy. -->
         <hop.libcore.exclude1>org.apache.httpcomponents:httpclient</hop.libcore.exclude1>
@@ -56,17 +55,14 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.http.apache</artifactId>
-            <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
-            <version>${dependency.jgit.revision}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

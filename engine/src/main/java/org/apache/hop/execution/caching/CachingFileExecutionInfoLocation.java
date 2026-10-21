@@ -48,6 +48,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionDeleter;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
@@ -180,7 +181,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (onDisk == null) {
         return;
       }
-      mergeMap(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
+      mergeChildExecutions(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
       mergeMap(onDisk.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
       mergeMap(onDisk.getChildExecutionData(), cacheEntry.getChildExecutionData());
       cacheEntry.keepStoredProjectId(onDisk);
@@ -197,6 +198,24 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     }
     for (Map.Entry<K, V> e : fromDisk.entrySet()) {
       into.putIfAbsent(e.getKey(), e.getValue());
+    }
+  }
+
+  /**
+   * Same as {@link #mergeMap}, and when both sides already have an action or transform, keep the
+   * child execution ids recorded by either writer.
+   */
+  private static void mergeChildExecutions(
+      Map<String, Execution> fromDisk, Map<String, Execution> into) {
+    if (fromDisk == null || fromDisk.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<String, Execution> entry : fromDisk.entrySet()) {
+      Execution stored = entry.getValue();
+      Execution kept = into.putIfAbsent(entry.getKey(), stored);
+      if (kept != null && stored != null) {
+        kept.unionChildExecutionIds(stored);
+      }
     }
   }
 
@@ -410,7 +429,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
-      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
+      ObjectMapper objectMapper = HopJson.newMapper();
       return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(

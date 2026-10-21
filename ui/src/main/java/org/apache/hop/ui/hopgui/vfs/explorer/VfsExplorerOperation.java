@@ -17,7 +17,11 @@
 
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.Getter;
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
 
 /** One listing or file change. Stop interrupts the worker; it does not close the file system. */
 @Getter
@@ -41,6 +45,11 @@ public class VfsExplorerOperation {
   private volatile boolean cancelled;
   private volatile Thread worker;
 
+  /** Files and bytes a copy or move wrote so far. */
+  private final AtomicInteger filesDone = new AtomicInteger();
+
+  private final AtomicLong bytesDone = new AtomicLong();
+
   public VfsExplorerOperation(String description, String location) {
     this.description = description == null ? "" : description;
     this.location = location == null ? "" : location;
@@ -61,6 +70,12 @@ public class VfsExplorerOperation {
     }
   }
 
+  /** The worker itself stopped, for example on Cancel in a prompt. Does not interrupt. */
+  void cancelFromWorker() {
+    cancelled = true;
+    complete();
+  }
+
   public boolean isCancelled() {
     return cancelled;
   }
@@ -77,6 +92,118 @@ public class VfsExplorerOperation {
     this.detail = detail;
     endTime = System.currentTimeMillis();
     worker = null;
+  }
+
+  /**
+   * Record {@code thrown} and stop the clock. A missing library is an {@link Error}, and {@link
+   * ExceptionInInitializerError} often has no message of its own, so the text includes the cause.
+   */
+  public void fail(Throwable thrown) {
+    fail(describe(thrown), Const.getClassicStackTrace(thrown));
+  }
+
+  /**
+   * Stop wins over the failure: the user already interrupted this operation. Otherwise the failure
+   * is recorded, including an {@link Error} from a VFS driver.
+   */
+  void failUnlessCancelled(Throwable thrown) {
+    if (isCancelled()) {
+      complete();
+      return;
+    }
+    fail(thrown);
+  }
+
+  /**
+   * Status text for a driver failure. Walks to the first cause that has a message, and names an
+   * {@link Error} or {@link ClassNotFoundException} so a bare missing-class name is readable.
+   */
+  static String describe(Throwable thrown) {
+    if (thrown == null) {
+      return "";
+    }
+    String message = messageOf(thrown);
+    Throwable cause = thrown.getCause();
+    if (cause != null && cause != thrown && isDriverFailure(cause)) {
+      String causeText = describe(cause);
+      if (!causeText.isEmpty() && !message.contains(causeText)) {
+        message = message + ": " + causeText;
+      }
+    }
+    return message;
+  }
+
+  private static String messageOf(Throwable thrown) {
+    Throwable reported = thrown;
+    while (isBlank(reported.getMessage())
+        && reported.getCause() != null
+        && reported.getCause() != reported) {
+      reported = reported.getCause();
+    }
+    String message = reported.getMessage();
+    if (isBlank(message)) {
+      message = reported.toString();
+    }
+    if (reported instanceof Error || reported instanceof ClassNotFoundException) {
+      String type = reported.getClass().getSimpleName();
+      if (!message.startsWith(type)) {
+        message = type + ": " + message;
+      }
+    }
+    return message;
+  }
+
+  private static boolean isDriverFailure(Throwable thrown) {
+    Throwable current = thrown;
+    while (current != null) {
+      if (current instanceof Error || current instanceof ClassNotFoundException) {
+        return true;
+      }
+      Throwable cause = current.getCause();
+      current = cause == current ? null : cause;
+    }
+    return false;
+  }
+
+  private static boolean isBlank(String text) {
+    return text == null || text.isBlank();
+  }
+
+  /** Progress for {@link VfsFileTransfer}, counted on this operation. */
+  public VfsFileTransfer.Progress progress() {
+    return new VfsFileTransfer.Progress() {
+      @Override
+      public void bytes(long count) {
+        bytesDone.addAndGet(count);
+      }
+
+      @Override
+      public void fileDone() {
+        filesDone.incrementAndGet();
+      }
+    };
+  }
+
+  public int getFilesDone() {
+    return filesDone.get();
+  }
+
+  public long getBytesDone() {
+    return bytesDone.get();
+  }
+
+  /** {@code 3 files - 120MB}, or empty when nothing was written. */
+  public String progressText() {
+    int files = filesDone.get();
+    long bytes = bytesDone.get();
+    if (files == 0 && bytes == 0) {
+      return "";
+    }
+    return BaseMessages.getString(
+        VfsFileExplorer.PKG,
+        "VfsFileExplorer.Operations.Progress",
+        files,
+        VfsListingCounts.formatSize(bytes));
   }
 
   public boolean isFinished() {

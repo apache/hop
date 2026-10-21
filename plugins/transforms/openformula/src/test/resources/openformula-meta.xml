@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transform>
+  <name>Calc</name>
+  <type>OpenFormula</type>
+  <formulas>
+    <formula>
+      <field_name>total</field_name>
+      <formula>[qty]*[price]</formula>
+      <value_type>1</value_type>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <replace_field/>
+    </formula>
+    <formula>
+      <field_name>label</field_name>
+      <formula>IF([flag];"Y";"N")</formula>
+      <value_type>2</value_type>
+      <value_length>1</value_length>
+      <value_precision>-1</value_precision>
+      <replace_field/>
+    </formula>
+  </formulas>
+</transform>

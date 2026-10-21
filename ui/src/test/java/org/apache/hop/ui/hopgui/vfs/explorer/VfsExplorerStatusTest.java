@@ -18,9 +18,12 @@
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.apache.commons.vfs2.FileSystemException;
 import org.junit.jupiter.api.Test;
 
 class VfsExplorerStatusTest {
@@ -46,9 +49,61 @@ class VfsExplorerStatusTest {
   }
 
   @Test
+  void missingLibraryFailsTheOperationAndStopsTheStatus() {
+    VfsExplorerOperation operation =
+        new VfsExplorerOperation("Listing smb://share/data", "smb://share/data");
+    assertFalse(operation.isFinished());
+
+    operation.failUnlessCancelled(
+        new ExceptionInInitializerError(new NoClassDefFoundError("com.example.Missing")));
+
+    assertEquals(VfsExplorerOperation.Status.FAILED, operation.getStatus());
+    assertTrue(operation.isFinished());
+    assertTrue(operation.getErrorMessage().contains("NoClassDefFoundError"));
+    assertTrue(operation.getErrorMessage().contains("com.example.Missing"));
+    assertTrue(operation.getDetail().contains("com.example.Missing"));
+    String line = VfsExplorerOperationsPanel.formatStatusLine(operation);
+    assertTrue(line.contains("Failed"));
+    assertTrue(line.contains("com.example.Missing"));
+    assertFalse(line.contains("Running"));
+  }
+
+  @Test
+  void wrappedMissingClassIsNamedOnTheStatus() throws Exception {
+    FileSystemException failure =
+        new FileSystemException("Could not list folder", new NoClassDefFoundError("org.acme.Lib"));
+    VfsExplorerOperation operation = new VfsExplorerOperation("Listing", "smb://share");
+    operation.fail(failure);
+
+    assertTrue(operation.getErrorMessage().contains("NoClassDefFoundError"));
+    assertTrue(operation.getErrorMessage().contains("org.acme.Lib"));
+    assertTrue(VfsExplorerOperationsPanel.formatStatusLine(operation).contains("org.acme.Lib"));
+  }
+
+  @Test
+  void ordinaryFailureKeepsItsOwnMessage() {
+    VfsExplorerOperation operation = new VfsExplorerOperation("Listing", "file:///tmp");
+    operation.fail(new IllegalStateException("folder is gone"));
+    assertEquals("folder is gone", operation.getErrorMessage());
+  }
+
+  @Test
+  void stopWinsOverADriverFailure() {
+    VfsExplorerOperation operation = new VfsExplorerOperation("Listing", "smb://share");
+    operation.cancel();
+    operation.failUnlessCancelled(new NoClassDefFoundError("com.example.Missing"));
+    assertEquals(VfsExplorerOperation.Status.CANCELLED, operation.getStatus());
+    assertTrue(operation.isFinished());
+    assertNull(operation.getErrorMessage());
+  }
+
+  @Test
   void oneRowUsesTheSingular() {
     VfsListingCounts counts = new VfsListingCounts(1, 5, 1, 5);
     assertEquals(" - 1 file (5B) - 1 file selected (5B)", counts.statusSuffix());
+    assertEquals(
+        " - 1 file (5B) - 1 file selected (5B) - 3 more not loaded",
+        new VfsListingCounts(1, 5, 1, 5, 3).statusSuffix());
   }
 
   @Test

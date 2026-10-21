@@ -39,12 +39,44 @@
         <iceberg.version>1.11.0</iceberg.version>
         <lakehouse.connectors.dir>${project.basedir}/target/lakehouse-connectors</lakehouse.connectors.dir>
         <scala.binary.version>2.13</scala.binary.version>
+        <spark.parquet.version>1.16.0</spark.parquet.version>
         <spark.version>4.1.3</spark.version>
         <spark.version.prefix>4.1</spark.version.prefix>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spark ships with its own Parquet version; keep it instead of the one in hop-libs. -->
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-column</artifactId>
+                <version>${spark.parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-common</artifactId>
+                <version>${spark.parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-encoding</artifactId>
+                <version>${spark.parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-format-structures</artifactId>
+                <version>${spark.parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-hadoop</artifactId>
+                <version>${spark.parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-jackson</artifactId>
+                <version>${spark.parquet.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.hop</groupId>
                 <artifactId>hop-libs</artifactId>
@@ -101,11 +133,47 @@
                     <groupId>org.glassfish.jersey.containers</groupId>
                     <artifactId>jersey-container-servlet-core</artifactId>
                 </exclusion>
+                <!-- Old coordinates of lz4-java, replaced by at.yawk.lz4 below. -->
+                <exclusion>
+                    <groupId>org.lz4</groupId>
+                    <artifactId>lz4-java</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- YARN client for runs that Hop starts itself (Hop GUI, hop-run, Hop Server) with
+             master "yarn". spark-submit on a cluster brings its own. -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-yarn_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <!-- Maintained fork of org.lz4:lz4-java (same net.jpountz packages), shipped in lib/core. -->
+            <groupId>at.yawk.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -120,9 +188,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Lake table transform metadata and the catalog metadata type. Only the plugin jar is
-             used: at runtime dependencies.xml doesn't load the lakehouse lib/ folder either, and
-             its unshaded Iceberg modules would clash with iceberg-spark-runtime. -->
+        <!-- Lake table transform metadata and the catalog metadata type. Only this jar is
+             packaged (under plugins/engines/spark/lib): dependencies.xml does not load the
+             lakehouse plugin's lib/ either, and its unshaded Iceberg modules would clash with
+             iceberg-spark-runtime. The copy in lib/ is what lets the engine resolve these
+             classes when the lakehouse plugin itself is not installed. -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-lakehouse</artifactId>

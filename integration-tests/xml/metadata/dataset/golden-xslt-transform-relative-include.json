@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-xslt-transform-relative-include.csv",
+  "name": "golden-xslt-transform-relative-include",
+  "description": "Expected XSLT transform result for a stylesheet with relative includes (issue #8936)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "result"
+    }
+  ],
+  "folder_name": ""
+}

@@ -27,7 +27,7 @@ Hop Web is a web-based Hop Gui version. It uses code conversion to translate the
 Hop Web is included in the default Hop build.
 With each build, an update is pushed to https://hub.docker.com/r/apache/hop-web[Docker Hub].
 
-This continously updated docker image is by far the easiest way to try out Hop Web:
+This continuously updated docker image is by far the easiest way to try out Hop Web:
 
 Pull the latest build with: `docker pull apache/hop-web`.
 

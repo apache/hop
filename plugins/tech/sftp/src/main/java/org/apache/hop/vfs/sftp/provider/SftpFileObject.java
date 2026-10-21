@@ -104,7 +104,28 @@ public class SftpFileObject extends AbstractFileObject<SftpFileSystem> {
   protected SftpFileObject(final AbstractFileName fileName, final SftpFileSystem fileSystem)
       throws FileSystemException {
     super(fileName, fileSystem);
-    relPath = UriParser.decode(fileSystem.getRootName().getRelativeName(fileName));
+    relPath = remotePath(fileName, fileSystem);
+  }
+
+  /**
+   * The path to ask the server about. Normally relative to the working directory of the channel,
+   * which is what every other SFTP server expects.
+   *
+   * <p>A name rooted at a second slash - see {@link IRootPrefixFileName} - instead goes out
+   * absolute and with that slash put back, so {@code sftp://host//EDIJP.NAB.CRERESP/AAMIPI} asks
+   * for {@code //EDIJP.NAB.CRERESP/AAMIPI} and a z/OS server reads an MVS data set rather than a
+   * USS path. Absolute is deliberate: jsch passes a path starting with a slash to the server
+   * untouched, while a relative one is resolved against a working directory the server would have
+   * normalised for us.
+   */
+  private static String remotePath(final AbstractFileName fileName, final SftpFileSystem fileSystem)
+      throws FileSystemException {
+    final String rootPrefix =
+        fileName instanceof IRootPrefixFileName prefixed ? prefixed.getRootPrefix() : "";
+    if (!rootPrefix.isEmpty()) {
+      return rootPrefix + UriParser.decode(fileName.getPath());
+    }
+    return UriParser.decode(fileSystem.getRootName().getRelativeName(fileName));
   }
 
   /** Creates this file as a folder. */
@@ -493,9 +514,9 @@ public class SftpFileObject extends AbstractFileObject<SftpFileSystem> {
     final ChannelSftp channel = getAbstractFileSystem().getChannel();
     // Using InputStream directly from the channel
     // is much faster than the memory method.
+    // relPath, like every other request: the path of the name has lost a second slash.
     try {
-      return new SftpInputStream(
-          channel, channel.get(getName().getPathDecoded(), null, filePointer));
+      return new SftpInputStream(channel, channel.get(relPath, null, filePointer));
     } catch (final SftpException e) {
       putChannel(channel);
       throw new FileSystemException(e);

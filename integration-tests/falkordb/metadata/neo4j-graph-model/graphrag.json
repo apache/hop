@@ -1,0 +1,189 @@
+{
+  "name": "graphrag",
+  "description": "GraphRAG: documents split into chunks with embeddings, the entities the chunks mention, and the relationships between those entities.",
+  "nodes": [
+    {
+      "presentation": {
+        "x": 80,
+        "y": 200
+      },
+      "name": "Document",
+      "description": "A source document",
+      "labels": [
+        "Document"
+      ],
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "id",
+          "description": "Document ID",
+          "type": "String",
+          "mandatory": true,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "title",
+          "description": "Document title",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "presentation": {
+        "x": 300,
+        "y": 200
+      },
+      "name": "Chunk",
+      "description": "A part of a document, with its embedding",
+      "labels": [
+        "Chunk"
+      ],
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "id",
+          "description": "Chunk ID: document ID and chunk index",
+          "type": "String",
+          "mandatory": true,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "chunk_index",
+          "description": "Position in the document",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "text",
+          "description": "The text of the chunk",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "embedding",
+          "description": "The embedding of the text",
+          "type": "Vector",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "presentation": {
+        "x": 520,
+        "y": 200
+      },
+      "name": "Entity",
+      "description": "An entity the Extract graph transform read from a text. Its type is a property.",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "key",
+          "description": "The name in lowercase without spaces or punctuation: spellings of one entity share it",
+          "type": "String",
+          "mandatory": true,
+          "primary": true
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "description": "The name of the entity, as a text names it",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "description": "The entity type, for example Person",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "description",
+          "description": "One sentence about the entity",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Entity"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "nodeSource": "Document",
+      "name": "HAS_CHUNK",
+      "description": "A document consists of chunks",
+      "nodeTarget": "Chunk",
+      "label": "HAS_CHUNK",
+      "properties": []
+    },
+    {
+      "nodeSource": "Chunk",
+      "name": "MENTIONS",
+      "description": "A chunk mentions an entity",
+      "nodeTarget": "Entity",
+      "label": "MENTIONS",
+      "properties": []
+    },
+    {
+      "nodeSource": "Entity",
+      "name": "RELATED_TO",
+      "description": "A relationship the Extract graph transform read between two entities: one per type and source chunk. The GraphRAG samples write it with Graph query, so the type and chunk_id identify it.",
+      "nodeTarget": "Entity",
+      "label": "RELATED_TO",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "description": "The relationship type, for example WORKED_WITH",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "description",
+          "description": "One sentence about the relationship",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        },
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "chunk_id",
+          "description": "The chunk the relationship was read from",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    }
+  ]
+}

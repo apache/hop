@@ -103,7 +103,7 @@ Rules that matter in practice:
 * Every action and transform that runs a child resolves parameters this way: the Pipeline and Workflow actions, the Pipeline and Workflow Executor transforms, the Mapping transforms, and Metadata Injection.
 * *Get Parameters* fills the tab from the child you selected. It does not walk further up the call stack.
 
-See xref:pipeline/create-pipeline.adoc[Create a Pipeline] for the properties dialog.
+See xref:variables/parameters.adoc[Working with parameters] for a step-by-step guide, and xref:pipeline/create-pipeline.adoc[Create a Pipeline] for the properties dialog.
 
 == Variables
 
@@ -155,6 +155,7 @@ The places you can define variables, and which level inherits from which, are li
 
 == See also
 
+* xref:variables/parameters.adoc[Working with parameters] — declare a parameter and give it a value
 * xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow] — the exact precedence rules
 * xref:variables.adoc[Variables] — syntax, hierarchy, resolvers, and built-in names
 * xref:pipeline/transforms/setvariable.adoc[Set Variables] and xref:pipeline/transforms/getvariable.adoc[Get variables]

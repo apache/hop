@@ -31,7 +31,7 @@
     <description>ILineageSink plugin that maps Hop lineage events to OpenLineage JSON for Marquez</description>
 
     <properties>
-        <openlineage.version>1.46.0</openlineage.version>
+        <openlineage.version>1.54.0</openlineage.version>
     </properties>
 
     <dependencyManagement>
@@ -42,6 +42,15 @@
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <!-- openlineage-java 1.54 brings 2.18, which needs jackson-databind 2.16+. The Beam
+                     fat jar bundles this plugin's lib and registers the module through
+                     ServiceLoader, and Spark 3.5 executors run jackson-databind 2.15: the 2.18
+                     module breaks Beam's SerializablePipelineOptions and every task fails. -->
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-blackbird</artifactId>
+                <version>2.15.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -54,7 +63,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.1</version>
         </dependency>
         <dependency>
             <groupId>io.openlineage</groupId>
@@ -98,6 +107,42 @@
                     <artifactId>commons-lang3</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5-h2</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- WireMock-backed sink tests (same artifact already used by the salesforce plugin). -->

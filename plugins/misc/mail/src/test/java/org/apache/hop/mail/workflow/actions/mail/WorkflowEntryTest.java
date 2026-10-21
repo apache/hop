@@ -17,10 +17,13 @@
 package org.apache.hop.mail.workflow.actions.mail;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -58,5 +61,15 @@ class WorkflowEntryTest {
     ActionMail jem = new ActionMail();
     jem.setVariable("my_pass", "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc");
     assertEquals("asdf", jem.getPassword("${my_pass}"));
+  }
+
+  @Test
+  void testMissingMailServerConnectionFailsTheAction() {
+    ActionMail jem = new ActionMail();
+    jem.setMetadataProvider(new MemoryMetadataProvider());
+    jem.setConnectionName("does-not-exist");
+    Result result = jem.execute(new Result(), 0);
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
   }
 }

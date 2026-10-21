@@ -65,9 +65,17 @@ public class RandomRowsExecutionDataSamplerStore
 
   @Override
   public Map<String, RowBuffer> getSamples() {
+    List<Object[]> copy;
+    if (rows != null) {
+      synchronized (rows) {
+        copy = new java.util.ArrayList<>(rows);
+      }
+    } else {
+      copy = new java.util.ArrayList<>();
+    }
     return Map.of(
         getKeyForStore(EXECUTION_DATA_SAMPLE_RANDOM_OUTPUT, samplerMeta),
-        new RowBuffer(rowMeta, rows));
+        new RowBuffer(rowMeta, copy));
   }
 
   @Override

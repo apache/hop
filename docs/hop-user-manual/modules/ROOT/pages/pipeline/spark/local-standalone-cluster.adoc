@@ -1,0 +1,339 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[NativeSparkLocalStandaloneCluster]]
+:imagesdir: ../../../assets/images
+:description: Start a Spark 4.1 standalone cluster on your own machine and run Hop pipelines on it with the native Spark engine, from Hop GUI or hop-run.
+:page-marketplace: hop-engines-spark
+
+:toc:
+
+= Run pipelines on a local Spark standalone cluster
+
+`local[*]` runs Spark inside the Hop process. A *standalone cluster* runs a Spark master and one or more workers as separate processes, the way a real cluster does: your pipeline is split into tasks, shipped to executors, and the Hop code those tasks need travels in a fat jar.
+
+This page sets up such a cluster on one machine and runs a pipeline on it from Hop GUI or `hop-run`. Hop is the Spark *driver*: you design and start the pipeline in Hop as usual, and the work runs on the workers.
+
+Do this after your first `local[*]` run (see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]). To submit with `spark-submit` inside Docker containers instead, see the xref:pipeline/spark/cluster-mapping-walkthrough.adoc[cluster demo walk-through]. To run on a Hadoop YARN cluster, see xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
+
+== What you need
+
+* Linux or macOS. Spark's start scripts are shell scripts; on Windows use WSL.
+* Java 21, both for Hop and for the Spark processes. Spark 4.1 also runs on Java 17, but the Hop classes in the fat jar need 21.
+* About 10 GB of free disk: 600 MB for Spark, 900 MB for the fat jar, and room for executor copies of that jar, about 3.5 GB per run (see <<disk-space>>).
+* A Hop client with the native Spark engine and the Apache Beam engine plugins (next section).
+
+== 1. Install the engine plugins
+
+The native Spark engine is not part of the default Hop client download. Install it from the xref:hop-tools/hop-marketplace.adoc[marketplace], together with the Apache Beam engine: the fat jar builder you need in step 3 ships with the Beam plugin.
+
+From the Hop installation folder:
+
+[source,bash]
+----
+./hop marketplace install hop-engines-spark hop-engines-beam
+----
+
+Restart Hop GUI if it was open. The new engine shows up as *Native Spark pipeline engine* in the *Engine type* list of a pipeline run configuration.
+
+The Beam plugin also adds the `beam` folder to the `samples` project. The example pipeline below reads its sample data from there.
+
+== 2. Start a Spark standalone cluster
+
+The cluster runs the same Spark version the engine is built with: *4.1.3*, Scala 2.13.
+
+=== Download Spark
+
+[source,bash]
+----
+mkdir -p ~/spark && cd ~/spark
+curl -fLO https://dlcdn.apache.org/spark/spark-4.1.3/spark-4.1.3-bin-hadoop3.tgz
+curl -fLO https://downloads.apache.org/spark/spark-4.1.3/spark-4.1.3-bin-hadoop3.tgz.sha512
+sha512sum -c spark-4.1.3-bin-hadoop3.tgz.sha512   # macOS: shasum -a 512 -c ...
+tar xzf spark-4.1.3-bin-hadoop3.tgz
+----
+
+If the `dlcdn` link no longer works, the release is kept at `https://archive.apache.org/dist/spark/spark-4.1.3/`.
+
+=== Configure the cluster
+
+Create `~/spark/spark-4.1.3-bin-hadoop3/conf/spark-env.sh`. The start scripts read it, so the settings apply every time you start or stop the cluster.
+
+[source,bash]
+----
+# Master on this machine only
+SPARK_MASTER_HOST=localhost
+
+# Two workers with 2 cores and 2 GB each. Size this to your machine.
+SPARK_WORKER_INSTANCES=2
+SPARK_WORKER_CORES=2
+SPARK_WORKER_MEMORY=2g
+
+# Executor scratch space. Keep it on a disk with room to spare, not on a small /tmp.
+SPARK_LOCAL_DIRS=$HOME/spark/local
+
+# Remove the folders of finished applications after an hour, checked every 10 minutes
+SPARK_WORKER_OPTS="-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=600 -Dspark.worker.cleanup.appDataTtl=3600"
+
+# Uncomment if java on your PATH is not Java 21
+# JAVA_HOME=/path/to/java-21
+----
+
+Why `SPARK_LOCAL_DIRS` and `SPARK_WORKER_OPTS` matter: every executor copies the fat jar into `SPARK_LOCAL_DIRS` (default `/tmp`) and again into the worker's `work` folder. See <<disk-space>>.
+
+=== Start the master and the workers
+
+[source,bash]
+----
+mkdir -p ~/spark/local
+export SPARK_HOME=~/spark/spark-4.1.3-bin-hadoop3
+$SPARK_HOME/sbin/start-master.sh
+$SPARK_HOME/sbin/start-worker.sh spark://localhost:7077
+----
+
+Open the master web UI at http://localhost:8080. It should list two workers in state `ALIVE`, with 4 cores and 4 GB in total. The master URL at the top of the page, `spark://localhost:7077`, is what Hop connects to.
+
+NOTE: Use `start-master.sh` and `start-worker.sh` as above, not `start-all.sh`: `start-all.sh` starts the workers over SSH, which you do not need on a single machine.
+
+== 3. Build the fat jar
+
+Executors do not have Hop installed. Hop sends them a *fat jar* with Hop and all its plugins when the pipeline starts. Build it with the `native-provided` mode, which leaves Spark out because the cluster already has it.
+
+Run this from the Hop installation folder:
+
+[source,bash]
+----
+./hop-conf.sh \
+  --generate-fat-jar=$HOME/spark/hop-native-provided.jar \
+  --spark-client-version=native-provided
+----
+
+This takes two to three minutes and produces a jar of roughly 900 MB.
+
+* Build the jar again after you install, remove, or upgrade plugins. The executors run the plugins in the jar, not the ones in your Hop installation.
+* Use the command line. *Tools* -> *Generate a Hop fat jar* in Hop GUI does not ask for the mode; it uses the `HOP_SPARK_CLIENT_VERSION` environment variable and, without it, builds a jar for the Beam Spark runner instead.
+
+If `hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`, the Beam engine plugin is missing (step 1).
+
+== 4. Create the run configuration
+
+. In Hop GUI, open the `samples` project.
+. Create a new *Pipeline run configuration* in the metadata perspective and name it `spark-standalone`.
+. Set *Engine type* to *Native Spark pipeline engine*.
+. Click *Load configuration template* and choose *Spark standalone server*.
+. Change the engine options:
++
+[options="header",cols="1,2,3"]
+|===
+|Option |Value |Why
+
+|Spark master
+|`spark://localhost:7077`
+|The template uses `spark://host:7077` as a placeholder.
+
+|Fat jar file location
+|The absolute path of the jar from step 3, for example `/home/<you>/spark/hop-native-provided.jar` (`/Users/<you>/...` on macOS)
+|The template leaves this empty. Without it the executors cannot load Hop (see <<troubleshooting>>).
+
+|Executor memory
+|`1g`
+|Must fit in one worker (`SPARK_WORKER_MEMORY`).
+
+|Executor cores
+|`1`
+|With the cluster above this gives four executors of one core each.
+
+|Spark config (key=value lines)
+|`spark.ui.enabled=false` +
+`spark.driver.host=localhost`
+|The executors connect back to the driver, which is Hop. `localhost` keeps that connection on your machine, also when a VPN or several network interfaces are active.
+|===
+. Save the run configuration.
+
+The full option list is on the xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine] page.
+
+== 5. Build a pipeline
+
+The pipeline reads 1,000 sample customers, keeps those born before 1980, counts them per state, and writes one CSV file. Filter Rows runs as Hop code on the executors; Memory Group By and the two Spark File transforms run as Spark operations. A successful run therefore shows both that the cluster works and that the executors can load the fat jar.
+
+Create a new pipeline in the `samples` project and save it as `spark/customers-per-state.hpl`. Add four transforms and connect them in this order:
+
+. *Spark file input*, named `customers`:
+** *Spark path (Hadoop URI)*: `+${PROJECT_HOME}/beam/input/customers-noheader-1k.txt+`
+** *Format*: `csv`, *First line is header*: off, *Separator*: `;`, *Infer schema*: off
+** *Fields*, in this order:
++
+[options="header",cols="1,1"]
+|===
+|Name |Type
+|id |Integer
+|name |String
+|firstname |String
+|zip |String
+|city |String
+|birthdate |String
+|street |String
+|housenr |String
+|stateCode |String
+|state |String
+|===
+. *Filter rows*, named `born before 1980`: condition `birthdate` `<` the constant `1980/01/01` (type String). The dates are stored as `yyyy/MM/dd`, so comparing them as text gives the right answer. Leave the true and false targets empty: rows that do not match are dropped.
+. *Memory group by*, named `count per state`: group on `stateCode` and `state`; one aggregate named `customers`, type *Number of rows (without field argument)*.
+. *Spark file output*, named `customers-per-state`:
+** *Spark path / directory (Hadoop URI)*: `+${PROJECT_HOME}/output/customers-per-state+`
+** *Format*: `csv`, *Save mode*: `Overwrite`, *Write header*: on, *Coalesce partitions*: `1`
+
+Paths in Spark File transforms are Spark paths, not Hop VFS paths. On a single machine the driver and every executor see the same local files, so plain local paths work. Across machines, use storage every node can reach; see xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
+
+== 6. Run it
+
+In Hop GUI, run the pipeline and choose the `spark-standalone` run configuration. Or, from the Hop installation folder:
+
+[source,bash]
+----
+./hop-run.sh -j samples -r spark-standalone \
+  -f config/projects/samples/spark/customers-per-state.hpl
+----
+
+With `hop-run`, every run is a new Spark application. Even this small pipeline takes about 20 seconds: the application starts new executors, and each one copies the fat jar before it starts working. While it runs, the master UI at http://localhost:8080 lists the application under *Running Applications*, and when it is done under *Completed Applications* with state `FINISHED`. Click the application ID to see its executors and their logs. The executors show state `KILLED`: that is how a standalone cluster marks executors it stopped because the application ended, not an error.
+
+From Hop GUI, the first run starts the application and Hop GUI keeps it running, with all its cores, until you close Hop GUI. Later runs from Hop GUI reuse it. Close Hop GUI before you run on the cluster with `hop-run` or through Hop Server (step 7), or those runs wait for cores.
+
+The Spark application UI (jobs, stages and tasks) is off by default. Add `spark.ui.enabled=true` to *Spark config* to see it at http://localhost:4040 while the application runs.
+
+The log shows the session connecting to the cluster:
+
+[source]
+----
+Created SparkSession version=4.1.3 master=spark://localhost:7077 (owned)
+...
+Spark pipeline finished, result row count=0
+----
+
+The log also warns that a Spark File path references `PROJECT_HOME`. That warning is about xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark project packages] for `spark-submit`; on a single machine you can ignore it.
+
+The result is one CSV part file under `config/projects/samples/output/customers-per-state/`:
+
+[source,bash]
+----
+cat config/projects/samples/output/customers-per-state/part-*.csv
+----
+
+It has a header line and one line per state with the number of customers born before 1980.
+
+[[hop-server]]
+== 7. Optional: run it through Hop Server
+
+To run the pipeline on the cluster from a xref:hop-server/index.adoc[Hop Server] instead of from your own Hop process, let Hop Server run a workflow whose *Pipeline* action uses the `spark-standalone` run configuration. Hop Server then becomes the Spark driver.
+
+A workflow is needed for this pipeline: `hop-run` refuses to send pipelines with Spark File or Lake table transforms to a remote pipeline run configuration. Pipelines without those transforms can also use a pipeline run configuration with the *Hop remote pipeline engine*.
+
+. Start Hop Server from the Hop installation folder, with the `samples` project enabled:
++
+[source,bash]
+----
+./hop-server.sh -j samples localhost 8181
+----
++
+Port 8181 because the Spark master UI already uses 8080 and the workers use 8081 and 8082. The default user and password are `cluster` / `cluster`.
+. In Hop GUI, create a *Hop Server* metadata object named `spark-hop-server`: *Hostname or IP address* `localhost`, *Port* `8181`, *Username* `cluster`, *Password* `cluster`. The `local-hop-server` object in the samples project uses port 8080, which the Spark master has taken.
+. Create a *Workflow run configuration* named `remote-server`:
+** *Workflow engine type*: *Hop remote workflow engine*
+** *Hop server*: `spark-hop-server`
+** *Run Configuration*: `local`
+** *Export linked resources to server*: on. The workflow and pipeline are then sent as files. With it off, the samples project's Workflow Log fails every workflow you send to Hop Server (see <<troubleshooting>>). Export works here because Hop Server and the Spark workers share one machine: Hop Server runs the pipeline from a zip file in its temporary folder. With workers on other machines, turn export off and enable the project on Hop Server, as described for xref:pipeline/spark/yarn.adoc[YARN].
+. Create a workflow and save it as `spark/run-customers-per-state.hwf`: a *Start* action, then a *Pipeline* action with *Pipeline* `+${PROJECT_HOME}/spark/customers-per-state.hpl+` and *Run configuration* `spark-standalone`.
+. Run the workflow with the `remote-server` run configuration, from Hop GUI or from the Hop installation folder:
++
+[source,bash]
+----
+./hop-run.sh -j samples -r remote-server \
+  -f config/projects/samples/spark/run-customers-per-state.hwf
+----
+
+The Hop Server status page at http://localhost:8181/hop/status/ lists the workflow as `Finished`, and the same CSV file as in step 6 is written.
+
+Like Hop GUI, Hop Server keeps the Spark application it started running until Hop Server stops. Later native Spark runs on that Hop Server reuse it: they start faster, but they also run with the master, fat jar and Spark config of the first run, and on the cluster the application keeps its cores. The Spark master UI shows it under *Running Applications*. Restart Hop Server after you change a native Spark run configuration, and stop it when you need the cluster for other work.
+
+== Stop the cluster
+
+[source,bash]
+----
+export SPARK_HOME=~/spark/spark-4.1.3-bin-hadoop3
+$SPARK_HOME/sbin/stop-worker.sh
+$SPARK_HOME/sbin/stop-master.sh
+----
+
+`stop-worker.sh` reads `SPARK_WORKER_INSTANCES` from `spark-env.sh` and stops both workers.
+
+[[disk-space]]
+== Disk space
+
+Every executor copies the fat jar twice:
+
+* into `SPARK_LOCAL_DIRS` while it fetches it. With the default `/tmp`, a few parallel copies of a 900 MB jar can fill a small or quota-limited `/tmp` (for example a `tmpfs`). The executors then fail with `Disk quota exceeded` or `No space left on device`, and Spark keeps starting new executors that fail the same way, so the pipeline never ends. Stop it, set `SPARK_LOCAL_DIRS` to a folder on disk, and restart the workers.
+* into the worker's `work/<application id>/<executor id>/` folder, where it stays after the application ends. Four executors use about 3.5 GB per run. The `spark.worker.cleanup.*` settings in `spark-env.sh` remove those folders some time after an application has finished. You can also delete `~/spark/spark-4.1.3-bin-hadoop3/work/app-*` yourself while no application is running.
+
+[[troubleshooting]]
+== Troubleshooting
+
+[options="header",cols="2,3"]
+|===
+|Symptom |Cause and fix
+
+|`hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`
+|The fat jar builder ships with the Beam engine plugin. Install `hop-engines-beam` (step 1).
+
+|*Native Spark pipeline engine* is not in the *Engine type* list
+|Install `hop-engines-spark` and restart Hop.
+
+|The run fails with `ClassCastException: cannot assign instance of java.lang.invoke.SerializedLambda to field org.apache.spark.rdd.MapPartitionsRDD.f`
+|The executors cannot load Hop classes: *Fat jar file location* is empty or points to a file that does not exist.
+
+|Executors fail with `Disk quota exceeded` or `No space left on device`, and the run never ends
+|`SPARK_LOCAL_DIRS` is on a full or small file system. See <<disk-space>>.
+
+|The run never progresses and the master UI shows the application as `WAITING` with 0 cores
+|Another application holds the cores: check *Running Applications* in the master UI. Hop GUI and Hop Server keep their Spark application until they stop; close or stop them. Otherwise no worker can start an executor of the requested size: lower *Executor memory* and *Executor cores* to fit `SPARK_WORKER_MEMORY` and `SPARK_WORKER_CORES`, and check that the workers are `ALIVE`.
+
+|`[PATH_NOT_FOUND] Path does not exist` from Spark file input
+|The path must exist on the machine where each executor runs. Check the variables the path uses.
+
+|The log shows `WARNING: run configuration '...' asks for Spark master '...', but this process already has a Spark session on '...'`
+|An earlier native Spark run in the same Hop GUI, Hop Server or workflow left its Spark session running, and this run reuses it with that run's master, fat jar and Spark config. Restart Hop GUI or Hop Server after switching between native Spark run configurations.
+
+|After a run from Hop GUI or through Hop Server, the application stays under *Running Applications* in the Spark master UI and keeps its cores
+|Expected: Hop GUI and Hop Server keep their Spark application until they stop (see step 6 and <<hop-server>>). Close Hop GUI or restart Hop Server to release the cluster.
+
+|`hop-run` reports `Engine 'Remote' has <n> incompatible transform(s)` for a remote pipeline run configuration
+|Pipelines with Spark File or Lake table transforms cannot be sent with a remote pipeline run configuration. Run them through a workflow on Hop Server (see <<hop-server>>).
+
+|A workflow on Hop Server fails at the start with `NullPointerException: Cannot invoke "String.replaceAll(String, String)" because "vfsFilename" is null`
+|The project has a *Workflow Log* that lists specific workflows (the samples project does), and the workflow was sent without its file. Turn on *Export linked resources to server* in the remote workflow run configuration, or disable the Workflow Log.
+
+|The log shows `WARNING: run configuration '...' has no Spark master and this pipeline does not run under spark-submit`
+|An empty *Spark master* means `local[*]` inside the Hop process (Hop GUI, `hop-run` or Hop Server). Set the master, for example `spark://localhost:7077`. The *spark-submit (cluster)* template leaves it empty on purpose, for `spark-submit`.
+|===
+
+== Related pages
+
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
+* xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine] (option reference)
+* xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark]
+* xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through] (Docker, `spark-submit`)
+* xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN]
+* xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]
+* https://spark.apache.org/docs/4.1.3/spark-standalone.html[Spark standalone mode] (Apache Spark documentation)

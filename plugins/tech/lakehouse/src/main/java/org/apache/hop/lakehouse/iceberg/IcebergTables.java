@@ -46,7 +46,7 @@ public final class IcebergTables {
 
   /** Hadoop catalogs and Spark path tables name metadata files v1.metadata.json, v2... */
   private static final Pattern HADOOP_METADATA =
-      Pattern.compile("v(\\d+)(\\.gz)?\\.metadata\\.json");
+      Pattern.compile("v(\\d+)(?:(?:\\.gz)?\\.metadata\\.json|\\.metadata\\.json\\.gz)");
 
   /** Other catalogs name them 00001-<uuid>.metadata.json, 00002-... */
   private static final Pattern CATALOG_METADATA =
@@ -75,6 +75,19 @@ public final class IcebergTables {
    */
   public static Table loadFromCatalog(
       LakeCatalog catalog, String tableIdentifier, IVariables variables) throws HopException {
+    IcebergTableTarget target = targetInCatalog(catalog, tableIdentifier, variables);
+    if (!target.exists()) {
+      throw new HopException("Table " + target.name() + " doesn't exist");
+    }
+    return target.read();
+  }
+
+  /**
+   * The table {@code tableIdentifier} in the catalog described by a lakehouse catalog metadata
+   * object, which may or may not exist yet.
+   */
+  public static IcebergTableTarget targetInCatalog(
+      LakeCatalog catalog, String tableIdentifier, IVariables variables) throws HopException {
     if (catalog == null) {
       throw new HopException("No catalog specified to look up table '" + tableIdentifier + "'");
     }
@@ -90,13 +103,13 @@ public final class IcebergTables {
           throw new HopException(
               "Catalog '" + catalog.getName() + "' (hadoop) needs a warehouse location");
         }
-        return loadFromPath(hadoopTableLocation(warehouse, identifier));
+        return IcebergTableTarget.atPath(hadoopTableLocation(warehouse, identifier));
       }
       case LakeCatalog.TYPE_REST -> {
         Catalog rest =
             CatalogUtil.loadCatalog(
                 REST_CATALOG, catalogName, restProperties(catalog, variables), null);
-        return rest.loadTable(identifier);
+        return IcebergTableTarget.inCatalog(rest, identifier);
       }
       default ->
           throw new HopException(
@@ -189,27 +202,52 @@ public final class IcebergTables {
     return properties;
   }
 
-  /** The newest metadata file of the table at {@code root}. */
+  /** The current metadata file of the table at {@code location}. */
   static String currentMetadataFile(String location) throws HopException {
+    String metadataFile = findCurrentMetadataFile(location);
+    if (metadataFile == null) {
+      throw new HopException(
+          "No Iceberg table found at '" + location + "': there is no table metadata file");
+    }
+    return metadataFile;
+  }
+
+  /**
+   * The current metadata file of the table at {@code location}, or null if there is no table there.
+   *
+   * <p>The version hint is only a starting point: a writer moves {@code v<N>.metadata.json} into
+   * place before it updates the hint, so after a crash between the two, or a failed hint write, the
+   * hint names an older version. Like Iceberg's {@code HadoopTableOperations}, the lookup starts at
+   * the hinted version and walks forward through {@code v<N+1>}, {@code v<N+2>}, ... to the newest
+   * one that exists. Without a usable hint, the newest metadata file in the folder is used.
+   */
+  static String findCurrentMetadataFile(String location) throws HopException {
     String root = StringUtils.removeEnd(location, "/");
     String metadataFolder = root + "/metadata";
     try {
       FileObject hint = HopVfs.getFileObject(metadataFolder + "/version-hint.text");
       if (hint.exists()) {
+        long hinted = -1;
         try (InputStream in = HopVfs.getInputStream(hint)) {
-          String version = new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
-          FileObject file =
-              HopVfs.getFileObject(metadataFolder + "/v" + version + ".metadata.json");
-          if (file.exists()) {
-            return metadataFolder + "/v" + version + ".metadata.json";
+          hinted = Long.parseLong(new String(in.readAllBytes(), StandardCharsets.UTF_8).trim());
+        } catch (Exception e) {
+          // An unreadable hint is ignored, the folder listing below finds the newest version.
+        }
+        String file = hinted < 0 ? null : versionFile(metadataFolder, hinted);
+        if (file != null) {
+          for (long next = hinted + 1; ; next++) {
+            String newer = versionFile(metadataFolder, next);
+            if (newer == null) {
+              return file;
+            }
+            file = newer;
           }
         }
       }
 
       FileObject folder = HopVfs.getFileObject(metadataFolder);
       if (!folder.exists()) {
-        throw new HopException(
-            "No Iceberg table found at '" + root + "': there is no metadata folder");
+        return null;
       }
       String newest = null;
       long newestVersion = -1;
@@ -221,16 +259,27 @@ public final class IcebergTables {
           newest = name;
         }
       }
-      if (newest == null) {
-        throw new HopException(
-            "No Iceberg table found at '" + root + "': the metadata folder has no metadata files");
-      }
-      return metadataFolder + "/" + newest;
-    } catch (HopException e) {
-      throw e;
+      return newest == null ? null : metadataFolder + "/" + newest;
     } catch (Exception e) {
       throw new HopException("Unable to find the Iceberg metadata of table '" + root + "'", e);
     }
+  }
+
+  /** The metadata file of {@code version} in a path-table layout, or null if it doesn't exist. */
+  private static String versionFile(String metadataFolder, long version) throws Exception {
+    // Iceberg's three spellings: plain, gzip, and the legacy gzip name (.metadata.json.gz).
+    for (String name :
+        new String[] {
+          "v" + version + ".metadata.json",
+          "v" + version + ".gz.metadata.json",
+          "v" + version + ".metadata.json.gz"
+        }) {
+      String file = metadataFolder + "/" + name;
+      if (HopVfs.getFileObject(file).exists()) {
+        return file;
+      }
+    }
+    return null;
   }
 
   /** Version number in a metadata file name, or -1 if it isn't a table metadata file. */

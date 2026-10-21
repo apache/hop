@@ -58,6 +58,9 @@ public class AzureMetadataType extends HopMetadataBase
   /** Cache TTL in seconds for list-result caching (same as S3/MinIO). */
   @HopMetadataProperty private String cacheTtlSeconds;
 
+  /** The bytes per download request when reading a file, like 8MB; blank for the default. */
+  @HopMetadataProperty private String readBlockSize;
+
   public AzureMetadataType() {
     this.authenticationType = "Key"; // Default to Key authentication
     this.cacheTtlSeconds = "5";

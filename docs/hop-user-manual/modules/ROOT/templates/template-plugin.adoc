@@ -14,13 +14,55 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-[[PluginName]]
-= PluginName
+// Template for the page of a transform or an action.
+//
+// Copy it to pages/pipeline/transforms/<name>.adoc or pages/workflow/actions/<name>.adoc,
+// replace PluginName and everything between angle brackets, remove what doesn't apply,
+// remove these comments, and add the page to nav.adoc.
+//
+// The Help button of the plugin's dialog opens this page: the documentationUrl of the
+// @Transform or @Action annotation is the path of the page, with .html instead of .adoc.
 
-*This is a template document*
+// /pipeline/transforms/ for a transform, /workflow/actions/ for an action.
+:documentationPath: /pipeline/transforms/
+:language: en_US
+// One sentence on what the plugin does. It becomes the page's meta description, the summary that
+// search engines and the site search show. The docs PR build fails on a page without one.
+:description: The PluginName transform <does what>.
+// Transforms only: remove this line on an action page. One entry per engine, in this order.
+// yes: supported. no: not supported. maybe: not checked. native: the engine has its own
+// implementation of the transform rather than running it wrapped (used for Native Spark).
+:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+// Only for a plugin that is installed from the marketplace rather than shipped with the client:
+// the plugin's marketplace id, for example hop-tech-neo4j. Remove this line otherwise.
+:page-marketplace: <marketplace-id>
 
-Document every option that is visible in the dialog.
+// A transform shows its icon in the title. An action doesn't: its title is just "= PluginName".
+= image:transforms/icons/<icon>.svg[PluginName transform Icon, role="image-doc-icon"] PluginName
 
-* Every table column in the dialog needs a row in the Options table. One-liners are fine.
-* Shared field-metadata columns (Format, Length, Precision, Decimal, Group, Currency, Value) are explained once in xref:pipeline/formatting-values.adoc[Formatting numbers and dates]. Link there instead of re-explaining them.
-* If you add a new column to a dialog, add the Options row and a column-header tooltip in the same change.
+== Description
+
+<What the plugin does, and when to use it.>
+
+== Options
+
+// Document every option that is visible in the dialog.
+//
+// * Every table column in the dialog needs a row in the Options table. One-liners are fine.
+// * Shared field-metadata columns (Format, Length, Precision, Decimal, Group, Currency, Value) are
+//   explained once in xref:pipeline/formatting-values.adoc[Formatting numbers and dates]. Link
+//   there instead of re-explaining them.
+// * If you add a new column to a dialog, add the Options row and a column-header tooltip in the
+//   same change.
+//
+// On an action page, the first row is: |Action name|The name of the workflow action.
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|<Option>|<What it does.>
+|===
+
+// Optional sections, where they help: Usage, Examples, Notes, Limitations and See also, and on a
+// transform page Output fields and Metadata injection.

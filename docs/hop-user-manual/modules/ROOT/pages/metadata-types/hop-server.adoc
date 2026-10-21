@@ -42,7 +42,7 @@ None/All
 |Web app name (optional)|
 |Username|
 |Password|
-|Use https protocal|default: false
+|Use https protocol|default: false
 |===
 
 == Samples

@@ -116,6 +116,7 @@
         <module>nullif</module>
         <module>numberrange</module>
         <module>odata</module>
+        <module>openformula</module>
         <module>pgp</module>
         <module>pipelineexecutor</module>
         <module>plugincatalog</module>

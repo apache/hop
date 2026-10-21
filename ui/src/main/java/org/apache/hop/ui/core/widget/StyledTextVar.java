@@ -291,6 +291,12 @@ public class StyledTextVar extends TextComposite {
   }
 
   @Override
+  public int getSelectionStart() {
+    org.eclipse.swt.graphics.Point range = wText.getSelection();
+    return range == null ? 0 : range.x;
+  }
+
+  @Override
   public void setSelection(int start) {
     wText.setSelection(start);
   }

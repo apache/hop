@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms Drools</name>
 
     <properties>
-        <drools.version>10.1.0</drools.version>
+        <drools.version>10.2.0</drools.version>
     </properties>
 
     <dependencyManagement>

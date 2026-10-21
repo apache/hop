@@ -20,6 +20,7 @@ package org.apache.hop.spark.pipeline;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.storage.StorageLevel;
 
 /**
  * Converts a Hop {@link PipelineMeta} into a Spark {@link Dataset} lineage. Stateless transforms
@@ -112,6 +114,12 @@ public class HopPipelineMetaToSparkConverter {
   private SparkExecutionDataAccumulator sampleDataAccumulator;
   private String parentLogChannelId;
   private String dataSamplersJson;
+
+  /** Datasets of the transforms without successors, in topological order (see createDataset). */
+  private final Map<String, Dataset<Row>> leafDatasets = new LinkedHashMap<>();
+
+  /** Datasets read by more than one transform, persisted so they are computed once. */
+  private final List<Dataset<Row>> persistedDatasets = new ArrayList<>();
 
   public HopPipelineMetaToSparkConverter(
       IVariables variables,
@@ -201,7 +209,8 @@ public class HopPipelineMetaToSparkConverter {
 
   /**
    * Build the Dataset graph and return the sink Dataset (last transform with no successors, or the
-   * last in topological order). Calling an action on the result materializes the pipeline.
+   * last in topological order). Generic transforms are lazy: run an action on every Dataset in
+   * {@link #getLeafDatasets()}, not only on the result, or the other branches never run.
    */
   public Dataset<Row> createDataset(SparkSession spark) throws HopException {
     try {
@@ -269,6 +278,18 @@ public class HopPipelineMetaToSparkConverter {
             rowMeta,
             previousTransforms,
             input);
+
+        persistIfShared(log, transformMeta, transformDatasetMap);
+      }
+
+      leafDatasets.clear();
+      for (TransformMeta candidate : transforms) {
+        if (pipelineMeta.findNextTransforms(candidate).isEmpty()) {
+          Dataset<Row> leaf = transformDatasetMap.get(candidate.getName());
+          if (leaf != null) {
+            leafDatasets.put(candidate.getName(), leaf);
+          }
+        }
       }
 
       // Prefer a leaf transform as the result
@@ -294,6 +315,43 @@ public class HopPipelineMetaToSparkConverter {
     } catch (Exception e) {
       throw new HopException("Error converting Hop pipeline to Spark", e);
     }
+  }
+
+  /**
+   * Persists the output of a transform that more than one transform reads (target streams of Filter
+   * Rows / Switch / Case, a main and an info hop, ...). Without it every branch that runs an action
+   * recomputes the transform and everything before it.
+   */
+  private void persistIfShared(
+      ILogChannel log, TransformMeta transformMeta, Map<String, Dataset<Row>> transformDatasetMap) {
+    String name = transformMeta.getName();
+    Dataset<Row> shared = transformDatasetMap.get(HopSparkUtil.createSharedOutputId(name));
+    if (shared == null && pipelineMeta.findNextTransforms(transformMeta).size() > 1) {
+      shared = transformDatasetMap.get(name);
+    }
+    if (shared == null) {
+      return;
+    }
+    shared.persist(StorageLevel.MEMORY_AND_DISK());
+    persistedDatasets.add(shared);
+    log.logDetailed("Persisted the output of transform '" + name + "': several transforms read it");
+  }
+
+  /** Datasets of the transforms without successors, available after {@link #createDataset}. */
+  public Map<String, Dataset<Row>> getLeafDatasets() {
+    return leafDatasets;
+  }
+
+  /** Releases the Datasets persisted by {@link #createDataset}. */
+  public void unpersistAll() {
+    for (Dataset<Row> dataset : persistedDatasets) {
+      try {
+        dataset.unpersist();
+      } catch (Exception e) {
+        // The session may already be gone
+      }
+    }
+    persistedDatasets.clear();
   }
 
   /**

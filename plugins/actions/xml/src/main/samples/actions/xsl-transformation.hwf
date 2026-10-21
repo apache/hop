@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>xsl-transformation</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/10/07 10:00:00.000</created_date>
+  <modified_date>2026/10/07 10:00:00.000</modified_date>
+  <created_hop_version/>
+  <modified_hop_version/>
+  <workflow_version/>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>80</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-samples/xslt</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <name>Remove work folder</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <xloc>272</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <foldername>${java.io.tmpdir}/hop-samples/xslt</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <name>Create work folder</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <xloc>464</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <xmlfilename>${PROJECT_HOME}/files/xml-actions/orders.xml</xmlfilename>
+      <xslfilename>${PROJECT_HOME}/files/xml-actions/orders-to-csv.xsl</xslfilename>
+      <outputfilename>${java.io.tmpdir}/hop-samples/xslt/orders.csv</outputfilename>
+      <ifFileExists>1</ifFileExists>
+      <name>Orders to CSV</name>
+      <description/>
+      <type>XSLT</type>
+      <attributes/>
+      <xloc>656</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${java.io.tmpdir}/hop-samples/xslt/orders.csv</filename>
+      <name>orders.csv created?</name>
+      <description/>
+      <type>FILE_EXISTS</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <loglevel>Basic</loglevel>
+      <logsubject/>
+      <logmessage>The orders were written to ${java.io.tmpdir}/hop-samples/xslt/orders.csv</logmessage>
+      <name>Done</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <xloc>1040</xloc>
+      <yloc>256</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <message>orders.csv was not created</message>
+      <loglevel>Error</loglevel>
+      <name>No output</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <xloc>848</xloc>
+      <yloc>400</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Remove work folder</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Remove work folder</from>
+      <to>Create work folder</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Create work folder</from>
+      <to>Orders to CSV</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Orders to CSV</from>
+      <to>orders.csv created?</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>orders.csv created?</from>
+      <to>Done</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>orders.csv created?</from>
+      <to>No output</to>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>The XSL transformation action transforms an XML file with an XSL stylesheet and writes the result to a file.
+
+This sample transforms ${PROJECT_HOME}/files/xml-actions/orders.xml into the CSV file ${java.io.tmpdir}/hop-samples/xslt/orders.csv with the orders-to-csv.xsl stylesheet.</note>
+      <markdown>N</markdown>
+      <notetype>GENERAL</notetype>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>32</yloc>
+      <width>1120</width>
+      <height>102</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>
