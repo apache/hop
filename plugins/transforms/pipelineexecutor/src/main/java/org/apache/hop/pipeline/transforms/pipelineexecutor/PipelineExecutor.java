@@ -37,6 +37,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -46,6 +47,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /** Execute a pipeline for every input row, set parameters. */
 public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData> {
@@ -318,7 +320,14 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         break;
       }
 
-      result = executePipelineAttempt(parameterValues, configuredTimeoutMs);
+      if (attempt > 0) {
+        refreshRetriedParameterVariablesFromExternalScopes();
+      }
+
+      List<String> parameterValuesForAttempt =
+          attempt == 0 ? parameterValues : resolveParameterValuesForRetryAttempt(parameterValues);
+
+      result = executePipelineAttempt(parameterValuesForAttempt, configuredTimeoutMs);
       if (!isFailedResult(result) || attempt == retryAttempts) {
         break;
       }
@@ -328,6 +337,87 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       cleanupPreviousAttemptPipeline(getData());
     }
     return result;
+  }
+
+  @VisibleForTesting
+  void refreshRetriedParameterVariablesFromExternalScopes() {
+    if (!meta.isInheritingAllVariables()) {
+      return;
+    }
+
+    List<PipelineExecutorParameters> parameters = meta.getParameters();
+    if (parameters == null) {
+      return;
+    }
+
+    for (PipelineExecutorParameters parameter : parameters) {
+      if (parameter == null) {
+        continue;
+      }
+
+      // Explicit field/static mappings remain authoritative.
+      if (!Utils.isEmpty(Const.trim(parameter.getField()))
+          || !Utils.isEmpty(Const.trim(parameter.getInput()))) {
+        continue;
+      }
+
+      String variableName = Const.trim(parameter.getVariable());
+      if (Utils.isEmpty(variableName)) {
+        continue;
+      }
+
+      String latestValue = resolveRetriedVariableValueFromExternalScopes(variableName);
+      if (latestValue != null) {
+        setVariable(variableName, latestValue);
+      }
+    }                                                                                                                                                                                                                                                                                                                                                                       
+  }
+
+  private String resolveRetriedVariableValueFromExternalScopes(String variableName) {
+    IPipelineEngine<PipelineMeta> pipeline = getPipeline();
+    if (pipeline != null) {
+      String pipelineValue = pipeline.getVariable(variableName);
+      if (pipelineValue != null) {
+        return pipelineValue;
+      }
+    }
+
+    IVariables parent = pipeline != null ? getParentEngine(pipeline) : null;
+    while (parent != null) {
+      String value = parent.getVariable(variableName);
+      if (value != null) {
+        return value;
+      }
+      parent = getParentEngine(parent);
+    }
+
+    return System.getProperty(variableName);
+  }
+
+  private IVariables getParentEngine(IVariables engine) {
+    if (engine instanceof IPipelineEngine) {
+      IPipelineEngine<?> parentPipeline = (IPipelineEngine<?>) engine;
+      if (parentPipeline.getParentPipeline() != null) {
+        return parentPipeline.getParentPipeline();
+      }
+      return parentPipeline.getParentWorkflow();
+    }
+    if (engine instanceof IWorkflowEngine) {
+      IWorkflowEngine<?> parentWorkflow = (IWorkflowEngine<?>) engine;
+      if (parentWorkflow.getParentPipeline() != null) {
+        return parentWorkflow.getParentPipeline();
+      }
+      return parentWorkflow.getParentWorkflow();
+    }
+    return null;
+  }
+
+  @VisibleForTesting
+  List<String> resolveParameterValuesForRetryAttempt(List<String> previousAttemptParameterValues) {
+    List<String> latestIncomingFieldValues = getLastIncomingFieldValues();
+    return !Utils.isEmpty(latestIncomingFieldValues)
+        ? latestIncomingFieldValues
+        : previousAttemptParameterValues;
   }
 
   private boolean waitRetryDelay(long retryDelayMs) {
@@ -695,7 +785,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   protected List<String> getLastIncomingFieldValues() {
     PipelineExecutorData pipelineExecutorData = getData();
     List<String> lastIncomingFieldValues = new ArrayList<>();
-    if (pipelineExecutorData == null || pipelineExecutorData.groupBuffer.isEmpty()) {
+    if (pipelineExecutorData == null
+        || pipelineExecutorData.groupBuffer == null
+        || pipelineExecutorData.groupBuffer.isEmpty()) {
       return null;
     }
 
