@@ -58,7 +58,9 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
 import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlFileType;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -141,6 +143,22 @@ public class HopGuiFileDelegate {
 
   public IHopFileTypeHandler fileOpen(String filename, boolean activatePerspective)
       throws Exception {
+    // A .sql file opened while the database perspective is active belongs in a SQL editor there.
+    // The file registry only knows the explorer handler, which would switch perspectives.
+    //
+    if (openSqlInDatabasePerspective(isDatabasePerspectiveActive(), filename)) {
+      IHopPerspective active = hopGui.getActivePerspective();
+      if (active instanceof DatabasePerspective database && database.canOpenSqlFiles()) {
+        IHopFileTypeHandler handler = database.openLocalSqlFile(filename);
+        if (handler != null) {
+          hopGui.handleFileCapabilities(
+              handler.getFileType(), handler, handler.hasChanged(), false, false);
+          hopGui.auditDelegate.writeLastOpenFiles();
+        }
+        return handler;
+      }
+    }
+
     HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
     IHopFileType hopFile = fileRegistry.findHopFileType(filename);
     if (hopFile == null) {
@@ -152,6 +170,16 @@ public class HopGuiFileDelegate {
               + "'");
     }
     return fileOpenWithType(filename, hopFile, activatePerspective);
+  }
+
+  /** True when {@code filename} is a SQL file and the database perspective is the active one. */
+  static boolean openSqlInDatabasePerspective(boolean databasePerspectiveActive, String filename) {
+    return databasePerspectiveActive && DatabaseSqlFileType.isSqlFilename(filename);
+  }
+
+  private boolean isDatabasePerspectiveActive() {
+    IHopPerspective active = hopGui.getActivePerspective();
+    return active instanceof DatabasePerspective && hopGui.isActivePerspective(active);
   }
 
   /**

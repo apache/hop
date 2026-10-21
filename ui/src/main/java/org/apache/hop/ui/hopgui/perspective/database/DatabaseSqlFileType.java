@@ -36,6 +36,12 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeC
  */
 public class DatabaseSqlFileType extends HopFileTypeBase {
 
+  /**
+   * Stored in the open-files audit key. Not a {@code @HopFileTypePlugin} name, so startup must not
+   * resolve it by the {@code .sql} extension.
+   */
+  public static final String NAME = "Database SQL";
+
   private static final Properties CAPABILITIES =
       FileTypeCapabilities.getCapabilities(
           IHopFileType.CAPABILITY_SAVE,
@@ -50,7 +56,7 @@ public class DatabaseSqlFileType extends HopFileTypeBase {
 
   @Override
   public String getName() {
-    return "Database SQL";
+    return NAME;
   }
 
   @Override
@@ -90,8 +96,15 @@ public class DatabaseSqlFileType extends HopFileTypeBase {
     return new EmptyHopFileTypeHandler();
   }
 
+  /** {@code .sql} path, using the same extension rules as the other file types. */
+  public static boolean isSqlFilename(String filename) {
+    return "sql".equals(HopFileTypeBase.extractExtension(filename));
+  }
+
   @Override
   public boolean isHandledBy(String filename, boolean checkContent) {
+    // False so the file registry keeps the explorer handler for .sql. The database perspective
+    // claims these files only while it is the active perspective.
     return false;
   }
 

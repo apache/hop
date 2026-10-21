@@ -19,8 +19,10 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -43,6 +45,9 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.database.DatabasePerspective;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlEditorTab;
+import org.apache.hop.ui.hopgui.perspective.database.DatabaseSqlFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.SwtErrorHandler;
@@ -105,6 +110,14 @@ public class HopGuiAuditDelegate {
   private void openLastFilesInternal() {
     // Collect files that fail to open
     List<String> failedFiles = new ArrayList<>();
+
+    // Saved database SQL editors are reopened by DatabaseSqlTabMemory. A legacy "Database SQL"
+    // entry in the database-perspective list is not a registered file type, so the .sql extension
+    // used to open it again in the file explorer (issue #9050). Skip that entry, and an explorer
+    // copy of the same path, only while the legacy entry is still in the list. writeLastOpenFiles
+    // no longer writes it, so the filter stops after the first save.
+    //
+    Set<String> databasePerspectiveLastOpen = databasePerspectiveLastOpenFiles();
 
     // Open the last files for each perspective...
     //
@@ -172,6 +185,9 @@ public class HopGuiAuditDelegate {
                     hopFileToUse =
                         HopFileTypeRegistry.getInstance().getFileTypeByName(fileTypeName);
                   }
+                }
+                if (!openInLastFiles(filename, databasePerspectiveLastOpen)) {
+                  continue;
                 }
                 if (hopFileToUse == null) {
                   hopFileToUse =
@@ -353,6 +369,9 @@ public class HopGuiAuditDelegate {
         List<String> files = new ArrayList<>();
         for (TabItemHandler tabItem : tabItemsToSave) {
           IHopFileTypeHandler typeHandler = tabItem.getTypeHandler();
+          if (!rememberInLastOpenFiles(typeHandler)) {
+            continue;
+          }
           String filename = typeHandler.getFilename();
           String name = typeHandler.getName();
           if (StringUtils.isNotEmpty(filename)) {
@@ -410,6 +429,73 @@ public class HopGuiAuditDelegate {
               .logError("Error writing audit list of perspective " + perspective.getId(), e);
         }
       }
+    }
+  }
+
+  /**
+   * Database SQL editors are restored by {@code DatabaseSqlTabMemory}. Keeping them in this list
+   * makes the next startup open the same file in the file explorer.
+   */
+  static boolean rememberInLastOpenFiles(IHopFileTypeHandler typeHandler) {
+    return !(typeHandler instanceof DatabaseSqlEditorTab);
+  }
+
+  /**
+   * Whether a last-open-files entry should be opened by the generic restore.
+   *
+   * <p>A legacy {@code Database SQL} entry is never opened here. An explorer copy of the same path
+   * is skipped only while {@code databasePerspectiveLastOpen} still contains that legacy entry.
+   * {@link #writeLastOpenFiles()} no longer writes those entries, so the filter stops after the
+   * first save.
+   */
+  static boolean openInLastFiles(String auditName, Set<String> databasePerspectiveLastOpen) {
+    if (StringUtils.isEmpty(auditName)) {
+      return false;
+    }
+    String fileTypeName = null;
+    String filename = auditName;
+    if (auditName.contains(TAB_KEY_DELIMITER)) {
+      String[] parts = auditName.split(Pattern.quote(TAB_KEY_DELIMITER), 2);
+      if (parts.length >= 2) {
+        fileTypeName = parts[0];
+        filename = parts[1];
+      }
+    }
+    if (DatabaseSqlFileType.NAME.equals(fileTypeName)) {
+      return false;
+    }
+    if (databasePerspectiveLastOpen == null || StringUtils.isEmpty(filename)) {
+      return true;
+    }
+    return !databasePerspectiveLastOpen.contains(
+        DatabaseSqlFileType.NAME + TAB_KEY_DELIMITER + filename);
+  }
+
+  /**
+   * Names currently stored in the database-perspective last-open list. Used to find legacy {@code
+   * Database SQL} entries left from before those editors were kept out of this list.
+   */
+  private Set<String> databasePerspectiveLastOpenFiles() {
+    try {
+      AuditList auditList =
+          AuditManager.getActive()
+              .retrieveList(HopNamespace.getNamespace(), DatabasePerspective.PERSPECTIVE_ID);
+      if (auditList == null || auditList.getNames() == null) {
+        return Set.of();
+      }
+      Set<String> names = new HashSet<>();
+      for (String name : auditList.getNames()) {
+        if (StringUtils.isNotEmpty(name)) {
+          names.add(name);
+        }
+      }
+      return names;
+    } catch (Exception e) {
+      hopGui
+          .getLog()
+          .logError(
+              "Error reading audit list of perspective " + DatabasePerspective.PERSPECTIVE_ID, e);
+      return Set.of();
     }
   }
 
