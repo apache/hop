@@ -26,7 +26,7 @@ services:
       - falkordb
 
   falkordb:
-    image: falkordb/falkordb:6.0.1
+    image: falkordb/falkordb:6.0.2
     ports:
       - "6379"
     healthcheck:

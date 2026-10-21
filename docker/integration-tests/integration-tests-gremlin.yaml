@@ -26,7 +26,7 @@ services:
       - gremlin
 
   gremlin:
-    image: tinkerpop/gremlin-server:3.7.6
+    image: tinkerpop/gremlin-server:3.7.7
     ports:
       - "8182"
     healthcheck:

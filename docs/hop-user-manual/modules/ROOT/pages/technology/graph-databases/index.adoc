@@ -153,10 +153,10 @@ And for relationships:
 * Memgraph: `CALL vector_search.search_edges('index', 5, $q) YIELD edge, distance`
 * FalkorDB: `CALL db.idx.vector.queryRelationships('TYPE', 'property', 5, vecf32($q)) YIELD relationship, score`, again with a distance.
 
-== Upgrading from Hop 2.20 or earlier
+== Upgrading from Hop 2.19 or earlier
 
 The graph functionality of Hop used to be Neo4j specific.
-From Hop 2.21 on it works with every graph database above. Existing projects keep working without changes:
+From Hop 2.20 on it works with every graph database above. Existing projects keep working without changes:
 
 * Neo4j connections keep working. You can convert them to graph database connections, see xref:metadata-types/graphs/graph-database-connection.adoc#_converting_a_neo4j_connection[Converting a Neo4j connection].
 * The transforms and actions have vendor neutral names, icons and the category *Graph*. Their plugin IDs didn't change, so pipelines and workflows open as before:

@@ -71,7 +71,7 @@ class FalkorDbIT {
     assumeTrue(
         DockerClientFactory.instance().isDockerAvailable(), "Docker is required for FalkorDbIT");
     falkordb =
-        new GenericContainer<>(DockerImageName.parse("falkordb/falkordb:6.0.1"))
+        new GenericContainer<>(DockerImageName.parse("falkordb/falkordb:6.0.2"))
             .withExposedPorts(6379)
             .waitingFor(Wait.forListeningPort())
             .withStartupTimeout(Duration.ofMinutes(3));
