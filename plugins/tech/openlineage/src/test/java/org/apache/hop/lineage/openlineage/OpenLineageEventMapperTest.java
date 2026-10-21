@@ -38,6 +38,8 @@ import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.model.LineageFieldSchema;
+import org.apache.hop.lineage.model.PipelineGraphLineagePayload;
+import org.apache.hop.lineage.model.PipelineGraphLineagePayload.Transition;
 import org.apache.hop.lineage.model.RelationalIoLineagePayload;
 import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.lineage.model.RelationalLifecycle;
@@ -259,6 +261,23 @@ class OpenLineageEventMapperTest {
             new TransformSchemaLineagePayload(
                 TransformSchemaDirection.INPUT,
                 List.of(new LineageFieldSchema("id", "Integer", 9, 0))));
+    assertFalse(mapper.map(event).isPresent());
+  }
+
+  // The hop graph does not change the OpenLineage output yet: the pipeline job keeps its datasets.
+  @Test
+  void pipelineGraphIsSkipped() {
+    LineageEvent event =
+        new LineageEvent(
+            "evt-graph",
+            1L,
+            LineageEventKind.PIPELINE_GRAPH,
+            LineageContext.builder()
+                .subjectType(LineageSubjectType.PIPELINE)
+                .logChannelId(PIPELINE_RUN_UUID)
+                .pipelineName("graph-pipeline")
+                .build(),
+            new PipelineGraphLineagePayload(List.of(new Transition("Read", "Write"))));
     assertFalse(mapper.map(event).isPresent());
   }
 

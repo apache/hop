@@ -43,6 +43,10 @@ public interface ILineageSink {
   /**
    * Deliver a non-empty batch of events. Implementations should not retain references to the list
    * or events after returning.
+   *
+   * <p>Skip events of a {@link org.apache.hop.lineage.model.LineageEventKind} the sink does not
+   * handle rather than failing: new kinds are added over time, and an exception here loses the
+   * whole batch for this sink.
    */
   void accept(List<LineageEvent> events) throws HopException;
 
