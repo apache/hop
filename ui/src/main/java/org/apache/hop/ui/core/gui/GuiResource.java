@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -1127,6 +1128,9 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageAction(String pluginId) {
     SwtUniversalImage image = imagesActions.get(pluginId);
     if (image == null) {
+      image = imagesActions.get(registeredPluginId(ActionPluginType.class, pluginId));
+    }
+    if (image == null) {
       return getSwtImageMissing();
     }
     return image;
@@ -1141,9 +1145,23 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageTransform(String pluginId) {
     SwtUniversalImage image = imagesTransforms.get(pluginId);
     if (image == null) {
+      image = imagesTransforms.get(registeredPluginId(TransformPluginType.class, pluginId));
+    }
+    if (image == null) {
       return getSwtImageMissing();
     }
     return image;
+  }
+
+  /**
+   * Images are stored under the first id of a plugin. A file can name the plugin with another case
+   * or by another of its ids, which the plugin registry accepts, for example {@code CsvInput} for
+   * {@code CSVInput} in a pipeline imported from Kettle.
+   */
+  private static String registeredPluginId(
+      Class<? extends IPluginType> pluginType, String pluginId) {
+    IPlugin plugin = PluginRegistry.getInstance().getPlugin(pluginType, pluginId);
+    return plugin == null ? pluginId : plugin.getIds()[0];
   }
 
   /**

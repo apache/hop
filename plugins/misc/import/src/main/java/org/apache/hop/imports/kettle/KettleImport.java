@@ -55,6 +55,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -848,6 +849,28 @@ public class KettleImport extends HopImportBase implements IHopImport {
     return StringUtils.isNotEmpty(runConfiguration) ? runConfiguration : DEFAULT_RUN_CONFIGURATION;
   }
 
+  /**
+   * Kettle spells some transform ids with a different case than Hop, for example {@code CsvInput}
+   * and {@code CSVInput}. Hop finds the plugin either way, but Hop GUI draws the icon by the
+   * registered id, so the imported transform gets that spelling.
+   */
+  private static void alignTransformTypeCase(Node typeNode) {
+    String type = typeNode.getTextContent();
+    if (StringUtils.isEmpty(type)) {
+      return;
+    }
+    IPlugin plugin = PluginRegistry.getInstance().getPlugin(TransformPluginType.class, type);
+    if (plugin == null) {
+      return;
+    }
+    for (String id : plugin.getIds()) {
+      if (type.equalsIgnoreCase(id)) {
+        typeNode.setTextContent(id);
+        return;
+      }
+    }
+  }
+
   private void processNode(Document doc, Node node, EntryType entryType, int depth) {
     Node nodeToProcess = node;
     NodeList nodeList = nodeToProcess.getChildNodes();
@@ -954,6 +977,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
               if (childNode.getNodeName().equals("type")
                   && childNode.getChildNodes().item(0).getNodeValue().equals("MetaInject")) {
                 entryType = EntryType.METAINJECT;
+              }
+              if (childNode.getNodeName().equals("type")) {
+                alignTransformTypeCase(childNode);
               }
             }
           }
