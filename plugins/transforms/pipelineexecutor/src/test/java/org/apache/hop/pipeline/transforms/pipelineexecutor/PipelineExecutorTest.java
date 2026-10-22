@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -43,13 +44,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -59,6 +64,7 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -90,7 +96,7 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void getLastIncomingFieldValuesReturnsNullWhenBufferEmpty() {
+  void getLastIncomingFieldValuesReturnsNullWhenBufferEmpty() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     PipelineExecutorData data = new PipelineExecutorData();
@@ -101,7 +107,7 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void getLastIncomingFieldValuesReturnsStringValuesFromLastBufferedRow() {
+  void getLastIncomingFieldValuesPreservesNullsFromLastBufferedRow() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     PipelineExecutorData data = new PipelineExecutorData();
@@ -116,7 +122,29 @@ class PipelineExecutorTest {
     List<String> last = executor.getLastIncomingFieldValues();
 
     assertNotNull(last);
-    assertEquals(Collections.singletonList("x"), last);
+    assertEquals(Arrays.asList("x", null), last);
+  }
+
+  @Test
+  void getLastIncomingFieldValuesUsesRowMetaStringConversion() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupBuffer = new ArrayList<>();
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("s1"));
+    rowMeta.addValueMeta(new ValueMetaDate("d1"));
+    rowMeta.addValueMeta(new ValueMetaBoolean("b1"));
+    Date date = new Date(1761051000000L);
+    rowMeta.getValueMeta(1).setConversionMask("yyyy-MM-dd");
+    data.groupBuffer.add(new RowMetaAndData(rowMeta, new Object[] {"x", date, true}));
+
+    PipelineExecutor executor = newExecutor(meta, data);
+    List<String> last = executor.getLastIncomingFieldValues();
+
+    assertNotNull(last);
+    assertEquals(
+        Arrays.asList("x", rowMeta.getString(data.groupBuffer.get(0).getData(), 1), "Y"), last);
   }
 
   @Test
@@ -326,6 +354,11 @@ class PipelineExecutorTest {
 
       PipelineExecutor executor = newExecutor(meta, new PipelineExecutorData());
       executor.setVariable(variableName, "stale-token");
+      Variables parent = new Variables();
+      parent.initializeFrom(null);
+      parent.setVariable(variableName, "stale-parent-token");
+      executor.getPipeline().initializeFrom(parent);
+      parent.setVariable(variableName, null);
       System.setProperty(variableName, "mynewtoken");
 
       executor.refreshRetriedParameterVariablesFromExternalScopes();
@@ -356,7 +389,10 @@ class PipelineExecutorTest {
 
       PipelineExecutor executor = newExecutor(meta, new PipelineExecutorData());
       executor.setVariable(variableName, "stale-token");
-      executor.getPipeline().setVariable(variableName, "parent-token");
+      LocalWorkflowEngine parentWorkflow = new LocalWorkflowEngine();
+      parentWorkflow.initializeFrom(null);
+      parentWorkflow.setVariable(variableName, "parent-token");
+      executor.getPipeline().initializeFrom(parentWorkflow);
       System.setProperty(variableName, "jvm-token");
 
       executor.refreshRetriedParameterVariablesFromExternalScopes();
@@ -369,6 +405,71 @@ class PipelineExecutorTest {
         System.setProperty(variableName, originalProperty);
       }
     }
+  }
+
+  @Test
+  void refreshRetriedParameterVariablesFromExternalScopesRefreshesInheritedParameterNotOnGrid()
+      throws HopException {
+    final String variableName = "ACCESS_TOKEN";
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setInheritingAllVariables(true);
+    meta.setParameters(new ArrayList<>());
+
+    PipelineMeta childMeta = new PipelineMeta();
+    childMeta.setName("child");
+    childMeta.addParameterDefinition(variableName, "", "token");
+    LocalPipelineEngine child = new LocalPipelineEngine(childMeta);
+    child.copyParametersFromDefinitions(childMeta);
+
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setExecutorPipeline(child);
+
+    PipelineExecutor executor = newExecutor(meta, data);
+    executor.setVariable(variableName, "stale-token");
+    executor.getPipeline().setVariable(variableName, "stale-copied-token");
+    Variables parent = new Variables();
+    parent.setVariable(variableName, "fresh-token");
+    executor.getPipeline().setParentVariables(parent);
+
+    executor.refreshRetriedParameterVariablesFromExternalScopes();
+    executor.passParametersToPipeline(Collections.emptyList());
+
+    assertEquals("fresh-token", child.getVariable(variableName));
+  }
+
+  @Test
+  void refreshRetriedParameterVariablesFromExternalScopesRefreshesVariableUsedInStaticInput()
+      throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setInheritingAllVariables(true);
+    PipelineExecutorParameters param = new PipelineExecutorParameters();
+    param.setVariable("P");
+    param.setField("");
+    param.setInput("${ACCESS_TOKEN}");
+    meta.setParameters(new ArrayList<>(Collections.singletonList(param)));
+
+    PipelineMeta childMeta = new PipelineMeta();
+    childMeta.setName("child");
+    childMeta.addParameterDefinition("P", "", "mapped from static");
+    LocalPipelineEngine child = new LocalPipelineEngine(childMeta);
+    child.copyParametersFromDefinitions(childMeta);
+
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setExecutorPipeline(child);
+
+    PipelineExecutor executor = newExecutor(meta, data);
+    executor.setVariable("ACCESS_TOKEN", "stale-token");
+    executor.getPipeline().setVariable("ACCESS_TOKEN", "stale-copied-token");
+    Variables parent = new Variables();
+    parent.setVariable("ACCESS_TOKEN", "fresh-token");
+    executor.getPipeline().setParentVariables(parent);
+
+    executor.refreshRetriedParameterVariablesFromExternalScopes();
+    executor.passParametersToPipeline(Collections.emptyList());
+
+    assertEquals("fresh-token", child.getVariable("P"));
   }
 
   @Test
@@ -542,13 +643,23 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void executeWithRetriesUsesLatestBufferedValuesOnRetryAttempt() throws HopException {
+  void executeWithRetriesKeepsAttemptZeroParameterValuesOnRetryAttempt() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     meta.setRetryAttempts("1");
     meta.setRetryDelay("0");
 
-    PipelineExecutor executor = spy(newExecutor(meta, new PipelineExecutorData()));
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupBuffer = new ArrayList<>();
+    RowMeta bufferedRowMeta = new RowMeta();
+    bufferedRowMeta.addValueMeta(new ValueMetaString("col1"));
+    bufferedRowMeta.addValueMeta(new ValueMetaDate("col2"));
+    bufferedRowMeta.addValueMeta(new ValueMetaBoolean("col3"));
+    bufferedRowMeta.getValueMeta(1).setConversionMask("yyyy-MM-dd");
+    data.groupBuffer.add(
+        new RowMetaAndData(bufferedRowMeta, new Object[] {null, new Date(1761051000000L), true}));
+
+    PipelineExecutor executor = spy(newExecutor(meta, data));
 
     Result failed = new Result();
     failed.setResult(false);
@@ -558,20 +669,74 @@ class PipelineExecutorTest {
     success.setNrErrors(0);
 
     doReturn(failed, success).when(executor).executePipelineAttempt(any(), anyLong());
-    doReturn(Collections.singletonList("latest-value"))
-        .when(executor)
-        .resolveParameterValuesForRetryAttempt(any());
-
-    Result result = executor.executeWithRetries(Collections.singletonList("old-value"));
+    Result result = executor.executeWithRetries(Arrays.asList("from-row", null, "N"));
 
     assertTrue(result.isResult());
     InOrder attemptOrder = inOrder(executor);
     attemptOrder
         .verify(executor)
-        .executePipelineAttempt(eq(Collections.singletonList("old-value")), anyLong());
+        .executePipelineAttempt(eq(Arrays.asList("from-row", null, "N")), anyLong());
     attemptOrder
         .verify(executor)
-        .executePipelineAttempt(eq(Collections.singletonList("latest-value")), anyLong());
+        .executePipelineAttempt(eq(Arrays.asList("from-row", null, "N")), anyLong());
+  }
+
+  @Test
+  void executeWithRetriesRefreshesFromInitializedParentBeforeRetryAttempt() throws HopException {
+    final String variableName = "ACCESS_TOKEN";
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setInheritingAllVariables(true);
+    meta.setRetryAttempts("1");
+    meta.setRetryDelay("0");
+    PipelineExecutorParameters param = new PipelineExecutorParameters();
+    param.setVariable(variableName);
+    param.setField("");
+    param.setInput("");
+    meta.setParameters(new ArrayList<>(Collections.singletonList(param)));
+
+    PipelineMeta childMeta = new PipelineMeta();
+    childMeta.setName("child");
+    childMeta.addParameterDefinition(variableName, "", "token");
+    LocalPipelineEngine child = new LocalPipelineEngine(childMeta);
+    child.copyParametersFromDefinitions(childMeta);
+
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setExecutorPipeline(child);
+    PipelineExecutor executor = spy(newExecutor(meta, data));
+
+    LocalWorkflowEngine parentWorkflow = new LocalWorkflowEngine();
+    parentWorkflow.initializeFrom(null);
+    parentWorkflow.setVariable(variableName, "old-token");
+    executor.getPipeline().initializeFrom(parentWorkflow);
+    executor.setVariable(variableName, "old-token");
+
+    List<String> childParameterByAttempt = new ArrayList<>();
+    AtomicInteger attemptCounter = new AtomicInteger();
+    doAnswer(
+            invocation -> {
+              int attempt = attemptCounter.getAndIncrement();
+              executor.passParametersToPipeline(Collections.emptyList());
+              childParameterByAttempt.add(child.getVariable(variableName));
+
+              Result result = new Result();
+              if (attempt == 0) {
+                parentWorkflow.setVariable(variableName, "new-token");
+                result.setResult(false);
+                result.setNrErrors(1);
+              } else {
+                result.setResult(true);
+                result.setNrErrors(0);
+              }
+              return result;
+            })
+        .when(executor)
+        .executePipelineAttempt(any(), anyLong());
+
+    Result result = executor.executeWithRetries(Collections.emptyList());
+
+    assertTrue(result.isResult());
+    assertEquals(Arrays.asList("old-token", "new-token"), childParameterByAttempt);
   }
 
   @Test
