@@ -32,12 +32,12 @@ The Web Services Lookup transform performs a Web Services lookup using the Web S
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
 |URL|The location of the WSDL document.
-This is either an `http://` or `https://` URL, or a file, for example `${PROJECT_HOME}/wsdl/service.wsdl`.
+This is either an `http://` or `https://` URL, or a file, for example `+${PROJECT_HOME}/wsdl/service.wsdl+`.
 A file can be on any file system Hop can read: a local folder, a `file://` URL, S3, Azure, a named VFS connection and so on.
 Variables are resolved, both in the dialog and when the pipeline runs.
 |Browse... (button)|Select a WSDL file.
 Its location is put in the URL field and the WSDL is loaded, as with the Load button.
-A file in your project folder is kept relative to `${PROJECT_HOME}`, so the pipeline keeps working when the project moves.
+A file in your project folder is kept relative to `+${PROJECT_HOME}+`, so the pipeline keeps working when the project moves.
 |Load (button)|The load button loads the WSDL at the specified URL and tries to automatically populate the input and output tabs and fields.
 NOTE: If this doesn't work, you can still try to manually specify the input and output fields using the "Add Input" and "Add Output" buttons.
 |Operation|The operation of the web service to call.

@@ -607,7 +607,7 @@ Connections that are defined as metadata in your project, such as xref:vfs/aws-s
 * An S3 connection with the `Default (environment / instance profile)` authentication type uses the `AWS_*` variables from the table above.
 * An Azure connection with the `Managed Identity` authentication type also accepts a service principal through `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_CLIENT_SECRET`.
 
-Other connection fields can use Hop variables such as `${S3_SECRET_KEY}`.
+Other connection fields can use Hop variables such as `+${S3_SECRET_KEY}+`.
 Container environment variables are not Hop variables.
 Set them in the environment configuration file (`HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`) or pass them as system properties with `HOP_SYSTEM_PROPERTIES`.
 

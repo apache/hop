@@ -44,7 +44,7 @@ See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems] for t
 |Unique name of the transform in the pipeline.
 
 |Spark path / directory (Hadoop URI)
-|Output directory or prefix. Supports variables. Avoid `${PROJECT_HOME}` when running with a Spark project package: that variable points at the extracted definition files, not at a data location. Use a data variable such as `HOP_DATA` or `OUTPUT_ROOT`, or an explicit `s3a://` / `hdfs://` URI. Can be left empty for a path-less sink such as `jdbc`, which is addressed entirely through *Extra options*.
+|Output directory or prefix. Supports variables. Avoid `+${PROJECT_HOME}+` when running with a Spark project package: that variable points at the extracted definition files, not at a data location. Use a data variable such as `HOP_DATA` or `OUTPUT_ROOT`, or an explicit `s3a://` / `hdfs://` URI. Can be left empty for a path-less sink such as `jdbc`, which is addressed entirely through *Extra options*.
 
 |Format
 |`csv` (default), `parquet`, `json`, `orc` or `text`. Any other Spark data source name is passed to `df.write.format()` as is, for example `jdbc`.

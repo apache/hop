@@ -42,7 +42,7 @@ Hop-only schemes such as `s3://`, `azure://` or a named MinIO connection do not 
 |Unique name of the transform in the pipeline.
 
 |Spark path (Hadoop URI)
-|File, directory or glob to read. Supports variables. Avoid `${PROJECT_HOME}` when running with a Spark project package: that variable points at the extracted definition files, not at data. Use a data variable such as `HOP_DATA` or an explicit `s3a://` / `hdfs://` URI instead.
+|File, directory or glob to read. Supports variables. Avoid `+${PROJECT_HOME}+` when running with a Spark project package: that variable points at the extracted definition files, not at data. Use a data variable such as `HOP_DATA` or an explicit `s3a://` / `hdfs://` URI instead.
 
 |Format
 |`csv` (default), `parquet`, `json`, `orc` or `text`. Any other Spark data source name is passed to `spark.read.format()` as is.

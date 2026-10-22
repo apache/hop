@@ -35,7 +35,7 @@ The HEC token is sent as `Authorization: Splunk <token>`. The request URL is the
 |Option|Description
 |Transform name|Unique name in the pipeline.
 |HEC URL|Required base URL, `http://host:8088` or `https://host:8088`. No path, user info or query.
-|HEC token|Required token. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `${SPLUNK_HEC_TOKEN}`.
+|HEC token|Required token. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `+${SPLUNK_HEC_TOKEN}+`.
 |Batch count|Optional events per HTTP request. Empty uses the Beam default of 10. A partial batch is flushed on a 2 second timer.
 |Root CA certificate|Optional PEM used while certificate validation stays enabled. A `gs://` path needs the Beam GCS filesystem on the worker.
 |Disable certificate validation|Unchecked by default. HTTPS validates the server certificate and hostname unless this is enabled.

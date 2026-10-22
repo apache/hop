@@ -78,7 +78,7 @@ Sort key among the widgets in this parent, compared as a string.
 `label` and `toolTip`::
 Shown next to the control.
 Use an `i18n::` key, as described in xref:internationalisation.adoc[Internationalisation].
-In the properties file, quote a variable expression with single quotes: `Folder='${PROJECT_HOME}'`.
+In the properties file, quote a variable expression with single quotes: `+Folder='${PROJECT_HOME}'+`.
 
 `parentId`::
 The form this widget belongs to.

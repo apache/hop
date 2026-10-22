@@ -37,10 +37,10 @@ PostgreSQL is included; other connectors and their drivers must be supplied by t
 |Transform name |Unique name within the pipeline.
 |Connector |`PostgreSQL` (bundled) or `Custom` (user-supplied Kafka Connect source connector).
 |Custom connector class |Fully qualified `SourceConnector` implementation, used only for Custom. A missing/incompatible class fails pipeline preparation with a classpath diagnostic.
-|Hostname |Database host, for example `'${CDC_HOST}'`.
+|Hostname |Database host, for example `+'${CDC_HOST}'+`.
 |Port |Positive TCP port (1–65535). Default: 5432.
 |Username |Database account with CDC/replication privileges.
-|Password |Use a secret variable such as `'${CDC_PASSWORD}'`. Hop encrypts literal passwords in transform XML using its standard password handling; this is not a secure credential vault.
+|Password |Use a secret variable such as `+'${CDC_PASSWORD}'+`. Hop encrypts literal passwords in transform XML using its standard password handling; this is not a secure credential vault.
 |Connector properties (JSON) |JSON object whose values are strings. Configure database, tables, snapshot mode, slot, publication, SSL and other connector-specific options here. Variables are resolved before parsing. Connection-tab settings cannot be duplicated here. This JSON is stored as text, not encrypted: reference variables for any additional secrets.
 |JSON field |Name of the single output String field. Default: `event`.
 |Maximum records |Optional positive integer, at most 2147483647. Stops after this many events. Blank means no record limit; an idle database can wait indefinitely if no time limit is set.

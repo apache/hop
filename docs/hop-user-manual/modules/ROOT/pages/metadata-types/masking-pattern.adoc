@@ -77,5 +77,5 @@ image::metadata-types/masking-pattern-first-name.jpg[Masking pattern first-name,
 |Mapping table. A second table with the suffix `_seq` stores the next sequence number. Both are created when they are missing. A new mapping table holds masked values of up to 255 characters.
 
 |Hash secret
-|The mapping table stores an HMAC-SHA256 of each value, made with this secret, instead of the value itself. Use a variable such as `${MASKING_SECRET}`. Changing the secret starts a new mapping. Without a secret the table stores the original values and is itself personal data.
+|The mapping table stores an HMAC-SHA256 of each value, made with this secret, instead of the value itself. Use a variable such as `+${MASKING_SECRET}+`. Changing the secret starts a new mapping. Without a secret the table stores the original values and is itself personal data.
 |===
