@@ -20,16 +20,18 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.parameters.SubExecutionParameters;
@@ -47,7 +49,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /** Execute a pipeline for every input row, set parameters. */
 public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData> {
@@ -324,10 +325,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         refreshRetriedParameterVariablesFromExternalScopes();
       }
 
-      List<String> parameterValuesForAttempt =
-          attempt == 0 ? parameterValues : resolveParameterValuesForRetryAttempt(parameterValues);
-
-      result = executePipelineAttempt(parameterValuesForAttempt, configuredTimeoutMs);
+      result = executePipelineAttempt(parameterValues, configuredTimeoutMs);
       if (!isFailedResult(result) || attempt == retryAttempts) {
         break;
       }
@@ -341,83 +339,45 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   void refreshRetriedParameterVariablesFromExternalScopes() {
-    if (!meta.isInheritingAllVariables()) {
-      return;
-    }
-
+    Set<String> variableNamesToRefresh = new LinkedHashSet<>(Arrays.asList(getVariableNames()));
     List<PipelineExecutorParameters> parameters = meta.getParameters();
-    if (parameters == null) {
-      return;
+    if (parameters != null) {
+      for (PipelineExecutorParameters parameter : parameters) {
+        if (parameter == null) {
+          continue;
+        }
+        String parameterVariable = Const.trim(parameter.getVariable());
+        if (!Utils.isEmpty(parameterVariable)) {
+          variableNamesToRefresh.add(parameterVariable);
+        }
+      }
     }
 
-    for (PipelineExecutorParameters parameter : parameters) {
-      if (parameter == null) {
-        continue;
-      }
-
-      // Explicit field/static mappings remain authoritative.
-      if (!Utils.isEmpty(Const.trim(parameter.getField()))
-          || !Utils.isEmpty(Const.trim(parameter.getInput()))) {
-        continue;
-      }
-
-      String variableName = Const.trim(parameter.getVariable());
-      if (Utils.isEmpty(variableName)) {
-        continue;
-      }
-
+    for (String variableName : variableNamesToRefresh) {
       String latestValue = resolveRetriedVariableValueFromExternalScopes(variableName);
       if (latestValue != null) {
         setVariable(variableName, latestValue);
       }
-    }                                                                                                                                                                                                                                                                                                                                                                       
+    }
   }
 
   private String resolveRetriedVariableValueFromExternalScopes(String variableName) {
-    IPipelineEngine<PipelineMeta> pipeline = getPipeline();
-    if (pipeline != null) {
-      String pipelineValue = pipeline.getVariable(variableName);
-      if (pipelineValue != null) {
-        return pipelineValue;
-      }
+    if (Utils.isEmpty(variableName)) {
+      return null;
     }
 
-    IVariables parent = pipeline != null ? getParentEngine(pipeline) : null;
-    while (parent != null) {
+    IPipelineEngine<PipelineMeta> pipeline = getPipeline();
+    IVariables parent = pipeline != null ? pipeline.getParentVariables() : null;
+    int guard = 0;
+    while (parent != null && guard++ < 100) {
       String value = parent.getVariable(variableName);
       if (value != null) {
         return value;
       }
-      parent = getParentEngine(parent);
+      parent = parent.getParentVariables();
     }
 
     return System.getProperty(variableName);
-  }
-
-  private IVariables getParentEngine(IVariables engine) {
-    if (engine instanceof IPipelineEngine) {
-      IPipelineEngine<?> parentPipeline = (IPipelineEngine<?>) engine;
-      if (parentPipeline.getParentPipeline() != null) {
-        return parentPipeline.getParentPipeline();
-      }
-      return parentPipeline.getParentWorkflow();
-    }
-    if (engine instanceof IWorkflowEngine) {
-      IWorkflowEngine<?> parentWorkflow = (IWorkflowEngine<?>) engine;
-      if (parentWorkflow.getParentPipeline() != null) {
-        return parentWorkflow.getParentPipeline();
-      }
-      return parentWorkflow.getParentWorkflow();
-    }
-    return null;
-  }
-
-  @VisibleForTesting
-  List<String> resolveParameterValuesForRetryAttempt(List<String> previousAttemptParameterValues) {
-    List<String> latestIncomingFieldValues = getLastIncomingFieldValues();
-    return !Utils.isEmpty(latestIncomingFieldValues)
-        ? latestIncomingFieldValues
-        : previousAttemptParameterValues;
   }
 
   private boolean waitRetryDelay(long retryDelayMs) {
@@ -782,23 +742,29 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     return getData().getExecutorPipeline();
   }
 
-  protected List<String> getLastIncomingFieldValues() {
+  protected List<String> getLastIncomingFieldValues() throws HopException {
     PipelineExecutorData pipelineExecutorData = getData();
-    List<String> lastIncomingFieldValues = new ArrayList<>();
     if (pipelineExecutorData == null
         || pipelineExecutorData.groupBuffer == null
         || pipelineExecutorData.groupBuffer.isEmpty()) {
       return null;
     }
 
-    int lastIncomingFieldIndex = pipelineExecutorData.groupBuffer.size() - 1;
-    ArrayList lastGroupBufferData =
-        new ArrayList(
-            Arrays.asList(pipelineExecutorData.groupBuffer.get(lastIncomingFieldIndex).getData()));
-    lastGroupBufferData.removeAll(Collections.singleton(null));
+    RowMetaAndData lastBufferedRow =
+        pipelineExecutorData.groupBuffer.get(pipelineExecutorData.groupBuffer.size() - 1);
+    IRowMeta rowMeta = lastBufferedRow.getRowMeta();
+    Object[] rowData = lastBufferedRow.getData();
+    if (rowMeta == null || rowData == null) {
+      return null;
+    }
 
-    for (Object lastGroupBufferDatum : lastGroupBufferData) {
-      lastIncomingFieldValues.add(lastGroupBufferDatum.toString());
+    List<String> lastIncomingFieldValues = new ArrayList<>(rowMeta.size());
+    for (int i = 0; i < rowMeta.size(); i++) {
+      try {
+        lastIncomingFieldValues.add(rowMeta.getString(rowData, i));
+      } catch (HopValueException e) {
+        throw new HopException("Error converting buffered row values", e);
+      }
     }
     return lastIncomingFieldValues;
   }
