@@ -86,6 +86,12 @@ public class YamlReader {
 
   private final Deque<Object[]> pendingRows = new ArrayDeque<>();
 
+  /**
+   * Rows queued from one element of a list document. Draining them must not finish the document, or
+   * the remaining elements are skipped.
+   */
+  private boolean pendingRowsFromListElement;
+
   /** Bytes read from the last loaded file (for data volume tracking). */
   @Getter private long bytesReadFromFile;
 
@@ -148,11 +154,7 @@ public class YamlReader {
   /** get row */
   public Object[] getRow(IRowMeta rowMeta) {
     if (!pendingRows.isEmpty()) {
-      Object[] row = pendingRows.poll();
-      if (pendingRows.isEmpty()) {
-        finishDocument();
-      }
-      return row;
+      return pollPendingRow();
     }
 
     if (document == null) {
@@ -224,13 +226,27 @@ public class YamlReader {
   private Object[] processMapRow(IRowMeta rowMeta, Object root, boolean listElement) {
     if (pendingRows.isEmpty()) {
       prepareRowsFromPaths(rowMeta, root, listElement);
+      pendingRowsFromListElement = listElement;
     }
 
+    Object[] row = pollPendingRow();
+    return row == null ? new Object[0] : row;
+  }
+
+  /**
+   * Returns the next prepared row. A map document is finished when its rows are consumed. A list
+   * element is not: the list iterator still has to walk the remaining elements.
+   */
+  private Object[] pollPendingRow() {
     Object[] row = pendingRows.poll();
     if (pendingRows.isEmpty()) {
-      finishDocument();
+      if (pendingRowsFromListElement) {
+        pendingRowsFromListElement = false;
+      } else {
+        finishDocument();
+      }
     }
-    return row == null ? new Object[0] : row;
+    return row;
   }
 
   private void prepareRowsFromPaths(IRowMeta rowMeta, Object root, boolean listElement) {
@@ -283,7 +299,7 @@ public class YamlReader {
 
   private List<Object> readPathAsList(Object root, JsonPath path) {
     if (root == null) {
-      return List.of((Object) null);
+      return listWithNull();
     }
 
     try {
@@ -291,22 +307,29 @@ public class YamlReader {
       Object result = context.read(path);
       return toValueList(result);
     } catch (Exception e) {
-      return List.of((Object) null);
+      return listWithNull();
     }
   }
 
   private static List<Object> toValueList(Object result) {
     if (result == null) {
-      return List.of((Object) null);
+      return listWithNull();
     }
 
     if (result instanceof List<?> list) {
       if (list.isEmpty()) {
-        return List.of((Object) null);
+        return listWithNull();
       }
       return new ArrayList<>(list);
     }
     return List.of(result);
+  }
+
+  /** {@link List#of} rejects null elements. A missing path is a null cell, not an error. */
+  private static List<Object> listWithNull() {
+    List<Object> values = new ArrayList<>(1);
+    values.add(null);
+    return values;
   }
 
   private Object[] advanceListIterator() {

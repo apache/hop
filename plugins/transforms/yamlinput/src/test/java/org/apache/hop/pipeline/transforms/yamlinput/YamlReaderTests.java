@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.yamlinput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileWriter;
@@ -265,6 +266,85 @@ class YamlReaderTests {
 
     assertEquals("t_user", row1[0]);
     assertEquals("t_order", row2[0]);
+  }
+
+  @Test
+  void testListOfMaps_readsEveryElement() throws Exception {
+    String yaml =
+        """
+        - id: 1
+          name: Anna
+        - id: 2
+          name: Ben
+        - id: 3
+          name: Chris
+        """;
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"id", "name"},
+            new String[] {"$.id", "$.name"},
+            new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING});
+
+    Object[] row1 = reader.getRow(rowMeta);
+    Object[] row2 = reader.getRow(rowMeta);
+    Object[] row3 = reader.getRow(rowMeta);
+    Object[] done = reader.getRow(rowMeta);
+
+    assertEquals(1L, row1[0]);
+    assertEquals("Anna", row1[1]);
+    assertEquals(2L, row2[0]);
+    assertEquals("Ben", row2[1]);
+    assertEquals(3L, row3[0]);
+    assertEquals("Chris", row3[1]);
+    assertEquals(0, done.length);
+  }
+
+  @Test
+  void testListOfMaps_wildcardPathReadsEveryElement() throws Exception {
+    String yaml =
+        """
+        - id: 1
+          name: Anna
+        - id: 2
+          name: Ben
+        """;
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"id", "name"},
+            new String[] {"$[*].id", "$[*].name"},
+            new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING});
+
+    assertEquals("Anna", reader.getRow(rowMeta)[1]);
+    assertEquals("Ben", reader.getRow(rowMeta)[1]);
+    assertEquals(0, reader.getRow(rowMeta).length);
+  }
+
+  @Test
+  void testMissingPath_returnsNullInsteadOfFailing() throws Exception {
+    String yaml = """
+        id: 1
+        name: Anna
+        """;
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"id", "missing"},
+            new String[] {"$.id", "$.nope"},
+            new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING});
+
+    Object[] row = reader.getRow(rowMeta);
+
+    assertEquals(1L, row[0]);
+    assertNull(row[1]);
+    assertEquals(0, reader.getRow(rowMeta).length);
   }
 
   @Test
