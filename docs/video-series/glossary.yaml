@@ -38,6 +38,10 @@ speak_as:
     say: first pipeline
   - pattern: PRM_EXAMPLE
     say: parameter example
+  - pattern: hop-run.bat
+    say: hop run batch
+  - pattern: hop-run.sh
+    say: hop run shell
   - pattern: hop-gui.bat
     say: hop gui batch
   - pattern: hop-gui.sh
