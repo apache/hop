@@ -431,9 +431,17 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     }
     List<RowMetaAndData> sourceRows = data.rowMap.get(mapping.getSourceTransformName());
 
+    // A mapping may target a legacy injection key (e.g. ALLOW_EMPTY_STREAM_ON_EXECUTION) that
+    // before the property was renamed mapped to a @HopMetadataProperty field. Resolve it up front
+    // so that lookupGroupKey and isTopLevelInjectionKey below, which test membership against the
+    // current keys, see the normalized key. collectInjectionKeyValue re-resolves internally, which
+    // is idempotent.
+    //
+    String targetAttributeKey = resolveInjectionKey(mapping);
+
     // To which group does this belong?
     //
-    String groupKey = lookupGroupKey(injectionKeyGroupMap, mapping.getTargetAttributeKey());
+    String groupKey = lookupGroupKey(injectionKeyGroupMap, targetAttributeKey);
     if (groupKey != null) {
       if (sourceRows != null && !sourceRows.isEmpty()) {
         // We need to collect the data for the mapping
@@ -450,15 +458,14 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       // Detail flag is often used for grouped (list) keys. Scalar HopMetadataProperty keys (e.g.
       // ExecSqlRow UPDATE_STATS) are not part of any injection group; treat them as simple keys.
       //
-      if (HopMetadataInjector.isTopLevelInjectionKey(
-          targetMetaClass, mapping.getTargetAttributeKey())) {
+      if (HopMetadataInjector.isTopLevelInjectionKey(targetMetaClass, targetAttributeKey)) {
         collectInjectionKeyValue(this, mapping, sourceRows, injectionKeyData);
       } else {
         logBasic(
             BaseMessages.getString(
                 PKG,
                 "MetaInject.TargetKeyNotFound.Warning",
-                mapping.getTargetAttributeKey(),
+                targetAttributeKey,
                 targetTransformName));
       }
     } else {
@@ -658,10 +665,16 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
    * {@link ConditionStreamBehavior} existed, is translated to its modern {@code
    * CONDITION_STREAM_BEHAVIOR} counterpart. Any other key is returned unchanged.
    *
+   * <p>Resolving up front keeps every key comparison consistent, not just the injection itself:
+   * {@code collectDataForOneMapping} (group and top-level lookups), {@code
+   * getUnavailableTargetKeys} (whether a saved key still maps to a property) and the dialog tree
+   * matching all run against the normalized key, so a legacy mapping is neither reported missing
+   * nor offered for removal.
+   *
    * @param mapping the mapping being injected
    * @return the normalized injection (target attribute) key
    */
-  private static String resolveInjectionKey(MetaInjectMapping mapping) {
+  protected static String resolveInjectionKey(MetaInjectMapping mapping) {
     if (LEGACY_ALLOW_EMPTY_STREAM_INJECTION_KEY.equals(mapping.getTargetAttributeKey())) {
       return CONDITION_STREAM_BEHAVIOR_INJECTION_KEY;
     }
@@ -988,7 +1001,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     for (MetaInjectMapping mapping : mappings) {
       if (!unavailableTargetTransforms.contains(mapping.getTargetTransformName())) {
         BeanInjectionInfo<?> info = beanInfos.get(mapping.getTargetTransformName().toUpperCase());
-        if (info != null && !info.getProperties().containsKey(mapping.getTargetAttributeKey())) {
+        if (info != null && !info.getProperties().containsKey(resolveInjectionKey(mapping))) {
           missingKeys.add(mapping);
         }
       }

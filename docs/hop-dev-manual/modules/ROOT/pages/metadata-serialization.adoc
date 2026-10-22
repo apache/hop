@@ -284,14 +284,17 @@ From `MetaInjectMeta.java`, where the legacy boolean `allow_empty_stream_on_exec
 ----
 @OnUnknownDeserializationProperty
 public void onUnknownDeserializationProperty(UnknownProperty property) {
-  if ("allow_empty_stream_on_execution".equals(property.getName())) {
-    conditionStreamBehavior =
-        Const.toBoolean(property.getValue())
-            ? ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY
-            : ConditionStreamBehavior.ALL_NON_EMPTY;
+  // Only translate the legacy boolean when the current condition_stream_behavior enum was not
+  // part of the file. When both are present the current enum wins, so a file that mixes the
+  // two can still represent ALWAYS.
+  if ("allow_empty_stream_on_execution".equals(property.getName())
+      && !conditionStreamBehaviorSet) {
+    conditionStreamBehavior = ConditionStreamBehavior.fromLegacyBoolean(property.getValue());
   }
 }
 ----
+
+The serializers set annotated fields before firing this callback, and the `conditionStreamBehaviorSet` flag (raised whenever the current enum value is set, including during deserialization) therefore tells the callback whether a file that contains both the old boolean and the new enum really carries the new value. The legacy boolean is written only when the current tag was absent.
 
 The callback method must be `public` and take exactly one parameter of type `UnknownProperty`, which exposes `getName()` (the key as found in the serialized data) and `getValue()` (its raw textual value).  You may declare several such methods; they are all invoked for each unknown property.
 

@@ -381,6 +381,87 @@ class MetaInjectTest {
   }
 
   /**
+   * PR #9078 review (round 2): a saved mapping that still targets the legacy {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key must NOT be reported as missing by {@link
+   * MetaInject#getUnavailableTargetKeys}. That method consults the {@code BeanInjectionInfo}
+   * property map for {@code CONDITION_STREAM_BEHAVIOR}; the legacy key is resolved to it, so the
+   * dialog neither hides the mapping nor offers to delete it.
+   */
+  @Test
+  void getUnavailableTargetKeys_legacyKeyNotReportedMissing() {
+    // The injected pipeline holds a single MetaInject transform, so the legacy injection key is
+    // looked up against its current CONDITION_STREAM_BEHAVIOR property.
+    MetaInjectMeta targetMeta = new MetaInjectMeta();
+    TransformMeta targetTransform = new TransformMeta(TEST_TARGET_TRANSFORM_NAME, targetMeta);
+    PipelineMeta injectedPipeline = new PipelineMeta();
+    injectedPipeline.addTransform(targetTransform);
+
+    MetaInjectMapping legacy = new MetaInjectMapping();
+    legacy.setTargetTransformName(TEST_TARGET_TRANSFORM_NAME);
+    legacy.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION"); // pre-enum key
+    legacy.setSourceTransformName(null);
+    legacy.setSourceField("Y");
+
+    Set<MetaInjectMapping> missing =
+        MetaInject.getUnavailableTargetKeys(
+            Collections.singletonList(legacy), injectedPipeline, Collections.emptySet());
+
+    // The legacy key resolves to the current property, so nothing is reported missing.
+    assertTrue(missing.isEmpty());
+  }
+
+  /**
+   * PR #9078 review (round 2): older pipelines may store a scalar key with {@code target_detail=Y}.
+   * {@link MetaInject#collectDataForOneMapping} must resolve the legacy {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} key before {@code isTopLevelInjectionKey}, otherwise the
+   * target_detail branch logs {@code TargetKeyNotFound} and leaves the template on {@code
+   * ALL_NON_EMPTY}. With the fix the value is collected under {@code CONDITION_STREAM_BEHAVIOR}.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    // streamedLegacyValue, expectedEnum
+    "Y, AT_LEAST_ONE_NON_EMPTY",
+    "N, ALL_NON_EMPTY"
+  })
+  void collectDataForOneMapping_legacyKeyTargetDetailY_collects(
+      String streamedLegacyValue, String expectedEnum) throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("legacyFlag"));
+    RowMetaAndData sourceRow = new RowMetaAndData(rowMeta, streamedLegacyValue);
+    metaInject.getData().rowMap = new HashMap<>();
+    metaInject
+        .getData()
+        .rowMap
+        .put(TEST_SOURCE_TRANSFORM_NAME, Collections.singletonList(sourceRow));
+
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetTransformName(TEST_TARGET_TRANSFORM_NAME);
+    mapping.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION");
+    mapping.setTargetDetail(true); // older pipeline stores a scalar key with target_detail=Y
+    mapping.setSourceTransformName(TEST_SOURCE_TRANSFORM_NAME);
+    mapping.setSourceField("legacyFlag");
+
+    Map<String, Set<String>> injectionKeyGroupMap =
+        HopMetadataInjector.findInjectionGroupKeys(MetaInjectMeta.class);
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    metaInject.collectDataForOneMapping(
+        TEST_TARGET_TRANSFORM_NAME,
+        mapping,
+        injectionKeyGroupMap,
+        new HashMap<>(),
+        new HashMap<>(),
+        injectionKeyData,
+        MetaInjectMeta.class);
+
+    // The target_detail=Y scalar path must land on CONDITION_STREAM_BEHAVIOR, not be warned away.
+    assertNull(injectionKeyData.get("ALLOW_EMPTY_STREAM_ON_EXECUTION"));
+    assertEquals("CONDITION_STREAM_BEHAVIOR", injectionKeyData.keySet().iterator().next());
+    assertEquals(
+        ConditionStreamBehavior.valueOf(expectedEnum).getCode(),
+        injectionKeyData.get("CONDITION_STREAM_BEHAVIOR"));
+  }
+
+  /**
    * Same regression as {@link #collectInjectionKeyValue_resolvesVariablesInConstant()} but for a
    * constant that belongs to an injection group (list) key.
    */

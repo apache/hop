@@ -1104,11 +1104,15 @@ public class MetaInjectDialog extends BaseTransformDialog {
    */
   private static MetaInjectMapping findMappingForTargetKey(
       List<MetaInjectMapping> mappings, MetaInjectMapping template) {
+    // Both keys are normalized so a legacy injection key (e.g. ALLOW_EMPTY_STREAM_ON_EXECUTION)
+    // that was renamed (to CONDITION_STREAM_BEHAVIOR) still matches the current tree row; the
+    // mapping's source then stays visible and is not offered for removal.
+    //
     for (MetaInjectMapping m : mappings) {
       if (Const.NVL(m.getTargetTransformName(), "")
               .equalsIgnoreCase(Const.NVL(template.getTargetTransformName(), ""))
-          && Const.NVL(m.getTargetAttributeKey(), "")
-              .equalsIgnoreCase(Const.NVL(template.getTargetAttributeKey(), ""))) {
+          && MetaInject.resolveInjectionKey(m)
+              .equalsIgnoreCase(MetaInject.resolveInjectionKey(template))) {
         return m;
       }
     }
