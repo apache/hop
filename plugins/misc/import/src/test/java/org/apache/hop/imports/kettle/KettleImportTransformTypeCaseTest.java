@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.plugins.IPlugin;
@@ -42,15 +43,21 @@ import org.w3c.dom.Node;
 
 /**
  * Kettle spells some step ids with a different case than Hop, for example {@code CsvInput} for
- * Hop's {@code CSVInput}. Hop runs the transform either way, but Hop GUI draws it with the
- * missing-plugin icon unless the imported type uses the registered spelling (issue #9084).
+ * Hop's {@code CSVInput}, or uses another id of the plugin. Hop runs the transform either way, but
+ * Hop GUI draws it with the missing-plugin icon unless the imported type is the main id (issue
+ * #9084).
  */
 class KettleImportTransformTypeCaseTest {
 
   private static final String ENTRY_TYPE = "org.apache.hop.imports.kettle.KettleImport$EntryType";
 
-  private static final String[] HOP_IDS = {
-    "CSVInput", "DynamicSqlRow", "ExecSql", "ExecSqlRow", "HttpPost"
+  private static final String[][] HOP_IDS = {
+    {"CSVInput"},
+    {"DynamicSqlRow"},
+    {"ExecSql"},
+    {"ExecSqlRow"},
+    {"HttpPost"},
+    {"Flattener", "Flatterner"}
   };
 
   private static final List<IPlugin> plugins = new ArrayList<>();
@@ -58,12 +65,15 @@ class KettleImportTransformTypeCaseTest {
   @BeforeAll
   static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
-    for (String id : HOP_IDS) {
+    for (String[] ids : HOP_IDS) {
       IPlugin plugin = mock(IPlugin.class);
-      when(plugin.getIds()).thenReturn(new String[] {id});
-      when(plugin.getName()).thenReturn(id);
+      when(plugin.getIds()).thenReturn(ids);
+      when(plugin.getName()).thenReturn(ids[0]);
       when(plugin.matches(anyString()))
-          .thenAnswer(invocation -> id.equalsIgnoreCase(invocation.getArgument(0)));
+          .thenAnswer(
+              invocation ->
+                  Arrays.stream(ids)
+                      .anyMatch(id -> id.equalsIgnoreCase(invocation.getArgument(0))));
       PluginRegistry.getInstance().registerPlugin(TransformPluginType.class, plugin);
       plugins.add(plugin);
     }
@@ -82,7 +92,8 @@ class KettleImportTransformTypeCaseTest {
     "DynamicSQLRow,DynamicSqlRow",
     "ExecSQL,ExecSql",
     "ExecSQLRow,ExecSqlRow",
-    "HTTPPOST,HttpPost"
+    "HTTPPOST,HttpPost",
+    "Flatterner,Flattener"
   })
   void testKettleCaseBecomesRegisteredId(String kettleType, String hopType) throws Exception {
     assertEquals(hopType, importedType(kettleType));

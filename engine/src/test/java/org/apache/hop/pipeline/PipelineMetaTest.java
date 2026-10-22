@@ -584,6 +584,20 @@ class PipelineMetaTest {
     assertEquals(xml, copy.getXml(variables));
   }
 
+  /** A type written with another case loads as the main plugin id, and is saved that way. */
+  @Test
+  void testTypeWithAnotherCaseLoadsAsTheMainPluginId() throws Exception {
+    pipelineMeta.addTransform(new TransformMeta("one", new DummyMeta()));
+    String xml = pipelineMeta.getXml(variables).replace("<type>Dummy</type>", "<type>DUMMY</type>");
+    assertTrue(xml.contains("<type>DUMMY</type>"), xml);
+
+    PipelineMeta loaded =
+        new PipelineMeta(XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG), metadataProvider);
+
+    assertEquals("Dummy", loaded.findTransform("one").getTransformPluginId());
+    assertTrue(loaded.getXml(variables).contains("<type>Dummy</type>"));
+  }
+
   @Test
   void testAttributesMapSerialization() throws Exception {
     Map<String, Map<String, String>> map = pipelineMeta.getAttributesMap();
@@ -775,6 +789,22 @@ class PipelineMetaTest {
 
     assertFalse(errorMeta.isEnabled());
     assertFalse(source.isDoingErrorHandling());
+  }
+
+  /** A file can name the plugin with another case, for example a pipeline imported from Kettle. */
+  @Test
+  void lookupReferencesAfterLoadingUsesTheMainPluginId() {
+    TransformMeta dummy = new TransformMeta("Dummy", new DummyMeta());
+    dummy.setTransformPluginId("DUMMY");
+    TransformMeta unknown = new TransformMeta("Unknown", new FakeMeta());
+    unknown.setTransformPluginId("NotARegisteredPlugin");
+    pipelineMeta.addTransform(dummy);
+    pipelineMeta.addTransform(unknown);
+
+    pipelineMeta.lookupReferencesAfterLoading();
+
+    assertEquals("Dummy", dummy.getTransformPluginId());
+    assertEquals("NotARegisteredPlugin", unknown.getTransformPluginId());
   }
 
   @Test

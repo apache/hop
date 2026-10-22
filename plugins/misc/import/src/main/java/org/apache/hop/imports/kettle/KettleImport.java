@@ -851,23 +851,17 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
   /**
    * Kettle spells some transform ids with a different case than Hop, for example {@code CsvInput}
-   * and {@code CSVInput}. Hop finds the plugin either way, but Hop GUI draws the icon by the
-   * registered id, so the imported transform gets that spelling.
+   * and {@code CSVInput}, or uses another id of the plugin. Hop finds the plugin either way, but
+   * icons and checks on the plugin id use the main id, so the imported transform gets that one.
    */
-  private static void alignTransformTypeCase(Node typeNode) {
+  private static void useMainTransformId(Node typeNode) {
     String type = typeNode.getTextContent();
     if (StringUtils.isEmpty(type)) {
       return;
     }
     IPlugin plugin = PluginRegistry.getInstance().getPlugin(TransformPluginType.class, type);
-    if (plugin == null) {
-      return;
-    }
-    for (String id : plugin.getIds()) {
-      if (type.equalsIgnoreCase(id)) {
-        typeNode.setTextContent(id);
-        return;
-      }
+    if (plugin != null) {
+      typeNode.setTextContent(plugin.getIds()[0]);
     }
   }
 
@@ -979,7 +973,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.METAINJECT;
               }
               if (childNode.getNodeName().equals("type")) {
-                alignTransformTypeCase(childNode);
+                useMainTransformId(childNode);
               }
             }
           }
