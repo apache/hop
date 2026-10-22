@@ -219,7 +219,9 @@ public class RulePackDiscovery {
           metadata.owner(),
           metadata.priority(),
           metadata.overrides());
-    } catch (IOException e) {
+    } catch (IOException | RuntimeException e) {
+      // Loading the rules fails again, and the registry reports that with the pack's name. A YAML
+      // error escaping from here stopped hop lint with only snakeyaml's line and column.
       LogChannel.GENERAL.logError(
           "Failed to read pack metadata from "
               + yamlFile.getAbsolutePath()

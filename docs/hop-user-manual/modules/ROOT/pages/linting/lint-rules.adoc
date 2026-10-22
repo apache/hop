@@ -119,6 +119,11 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |is a boolean with the required value
 |===
 
+`conditionValue` is used as written: variables are not resolved in it.
+A value the condition cannot use, such as `abc` or `3,0` for `MAX_VALUE`, or `[a-` for `MATCHES_PATTERN`, would make the rule report nothing at all.
+The rule editor refuses it, and a rule loaded from `hop-lint.yml` or a rule pack gets a warning in the log that names the rule and the problem.
+The same goes for a condition that does not fit one of the fields the linter provides, such as `NOT_NULL` on `transformCount`.
+
 == Fields
 
 `targetField` is the name of a property on the target. Besides the properties Hop exposes, the linter computes a few of its own:
@@ -399,7 +404,22 @@ Hop's core rule pack is deliberately small. A rule is enabled by default only wh
 |`HOP-CHECK`
 |WARNING
 |Every remark from Hop's own transform and action checks
+
+|`SYSTEM-001`
+|ERROR
+|A pipeline, workflow or metadata file that could not be loaded, so nothing was checked against it
+
+|`SYSTEM-002`
+|ERROR
+|A lint run that stopped before it finished
+
+|`SYSTEM-003`
+|ERROR
+|A metadata file, such as a connection, that could not be read
 |===
+
+The `SYSTEM` rules are of `type: system`: like a native rule they check nothing, and say how the linter reports a file it could not read or a run it could not finish.
+A project can change their severity, or switch one off, in its `hop-lint.yml` like any other rule.
 
 `TRANS-002` and `WORKFLOW-002` report on the transform or action itself, so the finding names it and the canvas can point at it.
 The only element in a file is not an orphan — there is nothing for it to be disconnected from — and neither is one whose hops are all disabled: it has hops, and whether a disabled hop is a problem is what `STRUCT-003` asks.

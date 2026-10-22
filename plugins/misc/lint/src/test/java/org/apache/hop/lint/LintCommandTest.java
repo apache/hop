@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -160,6 +161,7 @@ public class LintCommandTest {
           if [ "$1" = "--staged-file" ]; then
             cat "$2" > "$CAPTURE"
             echo "$2" > "$CAPTURE.path"
+            cut -f2 "$2" | while IFS= read -r COPY; do cat "$COPY"; echo; done > "$CAPTURE.content"
           fi
           shift
         done
@@ -192,13 +194,111 @@ public class LintCommandTest {
 
     assertEquals(1, status, "a failing lint has to block the commit");
     String root = repo.toRealPath().toString();
-    List<String> staged = Files.readAllLines(dir.resolve("capture"));
     assertEquals(
-        List.of(root + "/load/customers.hpl", root + "/metadata/rdbms/crm.json"),
-        staged.stream().map(line -> Path.of(line).toString()).sorted().toList());
+        List.of(root + "/load/customers.hpl", root + "/metadata/rdbms/crm.json"), stagedPaths());
 
     String listFile = Files.readString(dir.resolve("capture.path")).trim();
     assertFalse(Files.exists(Path.of(listFile)), "the staged list is left behind: " + listFile);
+  }
+
+  /** The files the stand-in launcher was given, without the staged copies. */
+  private List<String> stagedPaths() throws Exception {
+    return Files.readAllLines(dir.resolve("capture")).stream()
+        .map(line -> Path.of(line.split("\t")[0]).toString())
+        .sorted()
+        .toList();
+  }
+
+  /**
+   * The hook linted the files on disk, so a password that was staged and then removed only on disk
+   * was committed unchecked.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
+   */
+  @Test
+  public void theHookLintsTheStagedVersionNotTheOneOnDisk() throws Exception {
+    assumeTrue(canRunShell());
+    Path repo = repositoryWithStagedFiles("load/customers.hpl");
+    Files.writeString(repo.resolve("load/customers.hpl"), "changed on disk only");
+
+    run(repo, hookEnvironment(), "/bin/sh", dir.resolve("pre-commit").toString());
+
+    assertEquals("content", Files.readString(dir.resolve("capture.content")).trim());
+  }
+
+  /** git mv lists a renamed file as R, which --diff-filter=ACM left out of the check. */
+  @Test
+  public void theHookLintsARenamedFile() throws Exception {
+    assumeTrue(canRunShell());
+    Path repo = repositoryWithStagedFiles("load/customers.hpl");
+    Map<String, String> noHook = Map.of();
+    assertEquals(
+        0,
+        run(
+            repo,
+            noHook,
+            "git",
+            "-c",
+            "user.name=lint",
+            "-c",
+            "user.email=lint@example.org",
+            "commit",
+            "-q",
+            "-m",
+            "first"));
+    assertEquals(0, run(repo, noHook, "git", "mv", "load/customers.hpl", "load/clients.hpl"));
+    Files.writeString(repo.resolve("load/clients.hpl"), "content");
+
+    int status = run(repo, hookEnvironment(), "/bin/sh", dir.resolve("pre-commit").toString());
+
+    assertEquals(1, status, "the renamed file has to be linted");
+    assertEquals(List.of(repo.toRealPath() + "/load/clients.hpl"), stagedPaths());
+  }
+
+  /** The lines the stand-in launcher was given, file and staged copy, keyed by the file name. */
+  private Map<String, String[]> stagedLines() throws Exception {
+    Map<String, String[]> lines = new TreeMap<>();
+    for (String line : Files.readAllLines(dir.resolve("capture"))) {
+      String[] parts = line.split("\t");
+      lines.put(Path.of(parts[0]).getFileName().toString(), parts);
+    }
+    return lines;
+  }
+
+  /**
+   * The staged blob of a symlink is the path it points to, which is not a pipeline. Such a file is
+   * linted on disk, as it was before the hook read staged versions.
+   */
+  @Test
+  public void aSymlinkIsLintedOnDisk() throws Exception {
+    assumeTrue(canRunShell());
+    Path repo = repositoryWithStagedFiles("p/customers.hpl");
+    Files.createSymbolicLink(repo.resolve("link.hpl"), Path.of("p/customers.hpl"));
+    assertEquals(0, run(repo, Map.of(), "git", "add", "link.hpl"));
+
+    run(repo, hookEnvironment(), "/bin/sh", dir.resolve("pre-commit").toString());
+
+    Map<String, String[]> lines = stagedLines();
+    assertEquals(1, lines.get("link.hpl").length, "no staged copy of a symlink");
+    assertEquals(2, lines.get("customers.hpl").length, "a plain file still gets one");
+  }
+
+  /**
+   * A file stored with Git LFS has a pointer as its staged blob, and so does any file behind a
+   * clean filter. The filter here is not configured, so the test does not depend on git-lfs.
+   */
+  @Test
+  public void aFilteredFileIsLintedOnDisk() throws Exception {
+    assumeTrue(canRunShell());
+    Path repo = repositoryWithStagedFiles("lfs/customers.hpl", "plain/orders.hpl");
+    Files.writeString(repo.resolve(".gitattributes"), "lfs/*.hpl filter=example\n");
+    assertEquals(0, run(repo, Map.of(), "git", "add", ".gitattributes"));
+
+    run(repo, hookEnvironment(), "/bin/sh", dir.resolve("pre-commit").toString());
+
+    Map<String, String[]> lines = stagedLines();
+    assertEquals(1, lines.get("customers.hpl").length, "no staged copy of an LFS file");
+    assertEquals(2, lines.get("orders.hpl").length);
   }
 
   @Test
@@ -221,12 +321,35 @@ public class LintCommandTest {
     Path list = dir.resolve("staged.txt");
     Files.writeString(list, "customers.hpl\nmetadata/rdbms/crm.json\nmissing.hpl\nnotes.txt\n");
 
-    List<File> files = PreCommitLintService.readStagedFiles(list.toString(), repo.toFile());
+    List<PreCommitLintService.StagedFile> files =
+        PreCommitLintService.readStagedFiles(list.toString(), repo.toFile());
 
     assertEquals(
         List.of(
-            repo.resolve("customers.hpl").toFile(),
-            repo.resolve("metadata/rdbms/crm.json").toFile()),
+            new PreCommitLintService.StagedFile(repo.resolve("customers.hpl").toFile(), null),
+            new PreCommitLintService.StagedFile(
+                repo.resolve("metadata/rdbms/crm.json").toFile(), null)),
         files);
+  }
+
+  /** A staged file can be gone from disk; its staged copy is what the commit holds. */
+  @Test
+  public void aStagedCopyIsReadEvenWhenTheFileIsGone() throws Exception {
+    Path repo = dir.resolve("repo");
+    Files.createDirectories(repo);
+    Path copy = dir.resolve("copy-1");
+    Files.writeString(copy, "staged");
+    Path list = dir.resolve("staged.txt");
+    Files.writeString(list, repo.resolve("deleted.hpl") + "\t" + copy + "\n");
+
+    List<PreCommitLintService.StagedFile> files =
+        PreCommitLintService.readStagedFiles(list.toString(), repo.toFile());
+
+    assertEquals(
+        List.of(
+            new PreCommitLintService.StagedFile(
+                repo.resolve("deleted.hpl").toFile(), copy.toFile())),
+        files);
+    assertEquals(copy.toFile(), files.get(0).source());
   }
 }

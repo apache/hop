@@ -18,6 +18,7 @@ package org.apache.hop.lint;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.hop.core.ICheckResult;
@@ -35,6 +37,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.lint.registry.EffectiveRuleSet;
 import org.apache.hop.lint.registry.LintConfigurationException;
 import org.apache.hop.lint.registry.RuleRegistry;
@@ -45,6 +48,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Main engine class that orchestrates the entire linting process. This class loads configuration,
@@ -53,6 +58,25 @@ import org.apache.hop.workflow.action.ActionMeta;
 public class HopLinter {
 
   private static final ILogChannel log = LogChannel.GENERAL;
+
+  /** A file that could not be read or linted. */
+  public static final String SYSTEM_FILE_PROCESSING = "SYSTEM-001";
+
+  /** A lint run that could not be completed. */
+  public static final String SYSTEM_CONFIGURATION = "SYSTEM-002";
+
+  /** A metadata file that could not be read. */
+  public static final String SYSTEM_UNREADABLE_METADATA = "SYSTEM-003";
+
+  /**
+   * The names the system findings carry when no rule pack defines them, as when the linter is
+   * switched off. The core pack defines all three.
+   */
+  private static final Map<String, String> SYSTEM_RULE_NAMES =
+      Map.of(
+          SYSTEM_FILE_PROCESSING, "File Processing Error",
+          SYSTEM_CONFIGURATION, "Configuration Error",
+          SYSTEM_UNREADABLE_METADATA, "Unreadable Metadata");
 
   private LinterConfig config;
   private EffectiveRuleSet effectiveRuleSet;
@@ -314,13 +338,12 @@ public class HopLinter {
               "Error processing file: " + file.getAbsolutePath() + " - " + e.getMessage(), e);
 
           // Add an error result for the file that couldn't be processed
-          allResults.add(
-              new LintResult(
-                  "SYSTEM-001",
-                  "File Processing Error",
-                  "ERROR",
+          systemFinding(
+                  SYSTEM_FILE_PROCESSING,
                   "Failed to process file: " + e.getMessage(),
-                  file.getName()));
+                  file.getName(),
+                  null)
+              .ifPresent(allResults::add);
         }
       }
 
@@ -342,13 +365,9 @@ public class HopLinter {
 
     } catch (Exception e) {
       log.logError("Error during linting process: " + e.getMessage(), e);
-      allResults.add(
-          new LintResult(
-              "SYSTEM-002",
-              "Configuration Error",
-              "ERROR",
-              "Failed to complete linting: " + e.getMessage(),
-              "system"));
+      systemFinding(
+              SYSTEM_CONFIGURATION, "Failed to complete linting: " + e.getMessage(), "system", null)
+          .ifPresent(allResults::add);
     } finally {
       if (ownIndex) {
         CustomRuleExecutor.setProjectIndex(null);
@@ -513,27 +532,38 @@ public class HopLinter {
   /** Process a single Hop file and run all enabled rules against it */
   public List<LintResult> processFile(
       File file, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    return processFile(file, null, metadataProvider, variables);
+  }
+
+  /**
+   * Process a file, reading it from another file: the pre-commit hook lints the staged version of a
+   * file, which can differ from the one on disk, but reports it as the file in the repository.
+   *
+   * @param content the file to read, or null to read {@code file}
+   */
+  public List<LintResult> processFile(
+      File file, File content, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException {
     String fileName = LintPathUtils.normalizePath(file.getAbsolutePath());
     log.logDetailed("Processing file: " + file.getName());
     ensureConfigLoaded();
 
     if (HopMetadataFileLoader.isMetadataJsonFile(fileName)) {
-      HopMetadataFileLoader.MetadataLoad load = HopMetadataFileLoader.read(file, metadataProvider);
+      HopMetadataFileLoader.MetadataLoad load =
+          HopMetadataFileLoader.read(file, content, metadataProvider);
 
       if (load.isFailure()) {
         // Report it. A metadata file that cannot be read passes every rule, so staying quiet
         // here would let a corrupt connection be reported as a clean one.
-        return List.of(
-            new LintResult(
-                "SYSTEM-003",
-                "Unreadable Metadata",
-                "ERROR",
+        return systemFinding(
+                SYSTEM_UNREADABLE_METADATA,
                 "This metadata file could not be read, so no rule could be checked against"
                     + " it: "
                     + load.error(),
                 fileName,
-                LintSourceRef.metadata(HopMetadataFileLoader.metadataNameOf(file)),
-                LintResult.Origin.LINT));
+                LintSourceRef.metadata(HopMetadataFileLoader.metadataNameOf(file)))
+            .map(List::of)
+            .orElse(List.of());
       }
       if (load.object() == null) {
         return List.of();
@@ -542,7 +572,7 @@ public class HopLinter {
           runPolicyRules(load.object(), fileName), null, fileName, variables, metadataProvider);
     }
 
-    Object hopObject = loadHopObject(file, metadataProvider, variables, fileName);
+    Object hopObject = loadHopObject(file, content, metadataProvider, variables, fileName);
     if (hopObject == null) {
       return List.of();
     }
@@ -673,9 +703,16 @@ public class HopLinter {
   }
 
   private Object loadHopObject(
-      File file, IHopMetadataProvider metadataProvider, IVariables variables, String fileName)
+      File file,
+      File content,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      String fileName)
       throws HopException {
     try {
+      if (content != null) {
+        return loadHopObjectFrom(content, file, metadataProvider, variables, fileName);
+      }
       if (fileName.toLowerCase().endsWith(".hpl")) {
         return new PipelineMeta(file.getAbsolutePath(), metadataProvider, variables);
       }
@@ -688,6 +725,45 @@ public class HopLinter {
       log.logError("Error loading file: " + fileName, e);
       throw new HopException("Failed to load file: " + fileName, e);
     }
+  }
+
+  /**
+   * Load a pipeline or workflow from {@code content} as if it were {@code file}, so that the
+   * filename, and the internal variables derived from it, are those of the file in the repository.
+   */
+  private static Object loadHopObjectFrom(
+      File content,
+      File file,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      String fileName)
+      throws HopException {
+    boolean pipeline = fileName.toLowerCase().endsWith(".hpl");
+    if (!pipeline && !fileName.toLowerCase().endsWith(".hwf")) {
+      log.logError("Unknown file type: " + fileName);
+      return null;
+    }
+    Document document;
+    try (InputStream inputStream = Files.newInputStream(content.toPath())) {
+      document = XmlHandler.loadXmlFile(inputStream, null, false, false);
+    } catch (IOException e) {
+      throw new HopException("Could not read " + content, e);
+    }
+    String tag = pipeline ? PipelineMeta.XML_TAG : WorkflowMeta.XML_TAG;
+    Node node = XmlHandler.getSubNode(document, tag);
+    if (node == null) {
+      throw new HopException("No <" + tag + "> element in " + fileName);
+    }
+    if (pipeline) {
+      PipelineMeta pipelineMeta = new PipelineMeta();
+      pipelineMeta.setMetadataProvider(metadataProvider);
+      pipelineMeta.loadXml(node, file.getAbsolutePath(), metadataProvider, variables);
+      return pipelineMeta;
+    }
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    workflowMeta.setMetadataProvider(metadataProvider);
+    workflowMeta.loadXml(node, file.getAbsolutePath(), metadataProvider, variables);
+    return workflowMeta;
   }
 
   private List<LintResult> finalizeResults(
@@ -885,6 +961,32 @@ public class HopLinter {
       CustomRuleExecutor.setSubject(null);
     }
     return results;
+  }
+
+  /**
+   * A finding about the run itself, such as a file that could not be read, with the name and
+   * severity the rule packs and the project give it.
+   *
+   * <p>These were hardcoded at ERROR, so a project could neither see them in the rule list nor
+   * change their severity.
+   *
+   * @param ruleId one of the {@code SYSTEM_} ids
+   * @return the finding, or empty when the project switched the rule off
+   */
+  public Optional<LintResult> systemFinding(
+      String ruleId, String message, String fileName, LintSourceRef source) {
+    String name = SYSTEM_RULE_NAMES.getOrDefault(ruleId, ruleId);
+    String severity = "ERROR";
+    CustomLintRule rule = getEffectiveRuleSet().findRule(ruleId);
+    if (rule != null) {
+      if (!rule.isEnabled()) {
+        return Optional.empty();
+      }
+      name = Utils.isEmpty(rule.getName()) ? name : rule.getName();
+      severity = Utils.isEmpty(rule.getSeverity()) ? severity : rule.getSeverity();
+    }
+    return Optional.of(
+        new LintResult(ruleId, name, severity, message, fileName, source, LintResult.Origin.LINT));
   }
 
   public EffectiveRuleSet getEffectiveRuleSet() {

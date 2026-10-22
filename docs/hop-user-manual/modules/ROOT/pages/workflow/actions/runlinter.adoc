@@ -61,7 +61,7 @@ It does not change whether the action fails, nor the counts in the variables. De
 
 |Fail on
 |`--fail-on`
-|Fail when a finding reaches this severity: `Error` (the default), `Warning` or `None`.
+|Fail when a finding reaches this severity: `Error` (the default), `Warning`, `Info` or `None`.
 
 |Max warnings
 |`--max-warnings`

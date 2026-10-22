@@ -588,17 +588,19 @@ public class ExplorerLintGuiPlugin {
                   processedFilesCount++;
                 } catch (Exception e) {
                   log.logError("Error processing file: " + file.getAbsolutePath(), e);
-                  LintResult errorResult =
-                      new LintResult(
-                          "SYSTEM-001",
-                          "File Processing Error",
-                          "ERROR",
-                          "Failed to process file: " + e.getMessage(),
-                          LintPathUtils.normalizePath(file.getAbsolutePath()));
-                  results.add(errorResult);
+                  List<LintResult> errorResults =
+                      linter
+                          .systemFinding(
+                              HopLinter.SYSTEM_FILE_PROCESSING,
+                              "Failed to process file: " + e.getMessage(),
+                              LintPathUtils.normalizePath(file.getAbsolutePath()),
+                              null)
+                          .map(List::of)
+                          .orElse(List.of());
+                  results.addAll(errorResults);
                   service.publish(
                       LintPathUtils.normalizePath(file.getAbsolutePath()),
-                      List.of(errorResult),
+                      errorResults,
                       passGeneration);
                   processedFilesCount++;
                 }

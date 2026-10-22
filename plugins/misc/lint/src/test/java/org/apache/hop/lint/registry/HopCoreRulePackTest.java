@@ -79,7 +79,7 @@ public class HopCoreRulePackTest {
         rules.stream().filter(CustomLintRule::isNativeVerify).noneMatch(rule -> rule.isComposed()));
     assertTrue(
         rules.stream()
-            .filter(rule -> !rule.isNativeVerify())
+            .filter(rule -> !rule.isReportOnly())
             .allMatch(rule -> rule.getTarget() != null),
         "every rule the linter evaluates has something to evaluate it against");
   }
@@ -113,7 +113,7 @@ public class HopCoreRulePackTest {
         new HopCoreRulePack()
             .loadRules().stream()
                 .filter(CustomLintRule::isEnabled)
-                .filter(rule -> !rule.isNativeVerify())
+                .filter(rule -> !rule.isReportOnly())
                 .map(CustomLintRule::generateRuleId)
                 .sorted()
                 .toList();

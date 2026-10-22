@@ -107,6 +107,12 @@ public class CustomLintRule {
    */
   public static final String TYPE_NATIVE = "native";
 
+  /**
+   * A finding the linter raises about the run itself, such as a file it could not read. The rule
+   * only says whether that is reported and at what severity.
+   */
+  public static final String TYPE_SYSTEM = "system";
+
   public CustomLintRule() {
     this.id = UUID.randomUUID().toString();
     this.enabled = true;
@@ -333,6 +339,19 @@ public class CustomLintRule {
    */
   public boolean isNativeVerify() {
     return TYPE_NATIVE.equalsIgnoreCase(type);
+  }
+
+  /** Whether this rule covers a finding the linter raises about the run, such as SYSTEM-001. */
+  public boolean isSystem() {
+    return TYPE_SYSTEM.equalsIgnoreCase(type);
+  }
+
+  /**
+   * Whether this rule has no target or condition, and only says how a finding produced elsewhere is
+   * reported: a native or a system rule.
+   */
+  public boolean isReportOnly() {
+    return isNativeVerify() || isSystem();
   }
 
   public List<RuleClause> getClauses() {

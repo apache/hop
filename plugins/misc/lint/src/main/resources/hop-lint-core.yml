@@ -166,6 +166,36 @@ rules:
       build; a comment stays a comment. Set severity to ERROR to treat them as the transform meant
       them, or disable this rule to leave Hop's verify remarks to the Verify button.
 
+  # ------------------------------------------------------------------
+  # The linter's own findings about a run.
+  #
+  # A `system` rule does not check anything either: it says how the linter
+  # reports a file it could not read or a run it could not finish. They ship at
+  # ERROR, because a file that was not linted is a file nothing was checked
+  # against; a project can lower that, or switch one off, like any other rule.
+  # ------------------------------------------------------------------
+
+  SYSTEM-001:
+    type: system
+    enabled: true
+    severity: ERROR
+    name: "File Processing Error"
+    description: "A pipeline, workflow or metadata file could not be loaded, so no rule was checked against it"
+
+  SYSTEM-002:
+    type: system
+    enabled: true
+    severity: ERROR
+    name: "Configuration Error"
+    description: "The lint run stopped before it finished, so the files it did not reach were not checked"
+
+  SYSTEM-003:
+    type: system
+    enabled: true
+    severity: ERROR
+    name: "Unreadable Metadata"
+    description: "A metadata file, such as a connection, could not be read, so no rule was checked against it"
+
   # No narrowed rule ships enabled or disabled here. A check that is simply wrong is fixed in the
   # transform, which is what #8294 did for the two in Select Values; silencing it from a rule pack
   # would have left it firing for everyone who presses Verify. `appliesTo` and `messageKey` are

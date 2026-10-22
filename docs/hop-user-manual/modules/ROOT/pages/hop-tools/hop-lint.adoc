@@ -41,6 +41,8 @@ hop lint --list-rules                 # show the effective rule set
 hop lint --help                       # full option list
 ----
 
+Relative paths, for the target and for options such as `--output`, `--config` and `--baseline`, are relative to the folder the command is run from.
+
 == Project and environment
 
 `hop lint` takes the project and environment options of `hop run`.
@@ -68,7 +70,8 @@ A project chosen with `-j` or `-e` applies whatever is linted; for a target outs
 |Write the report to a file instead of stdout
 
 |`--fail-on <severity>`
-|Exit with 1 when a finding reaches this severity. Default `ERROR`.
+|Exit with 1 when a finding reaches this severity: `ERROR` (the default), `WARNING`, `INFO` or `NONE`.
+Any other value is refused.
 
 |`--max-warnings <n>`
 |Exit with 1 when more than `n` warnings are reported
@@ -170,6 +173,8 @@ hop lint --install-hook
 
 This writes a `pre-commit` hook into the current repository's `.git/hooks`.
 The hook lints the staged Hop files and blocks the commit when they fail.
+It lints the staged version of each file, which is what the commit holds, not the one on disk, and it includes files renamed with `git mv`.
+Set `HOP_LINT_FAIL_ON` to change the threshold the hook fails on, for example `HOP_LINT_FAIL_ON=WARNING`.
 It is a copy, so run `hop lint --install-hook` again after upgrading Hop to pick up changes to it.
 
 Hop Gui can do the same for commits made from within Hop Gui. See *Configuration -> Plugins -> Linter -> Block Git Commits on Lint Failures*, which is *off by default*: installing and enabling the linter does not on its own change how committing behaves.

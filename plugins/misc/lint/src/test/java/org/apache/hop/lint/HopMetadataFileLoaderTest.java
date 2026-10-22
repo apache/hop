@@ -77,6 +77,38 @@ public class HopMetadataFileLoaderTest {
     assertEquals("SALES_PRD", HopMetadataFileLoader.metadataNameOf(file));
   }
 
+  /**
+   * The git hook lints the staged version of a connection, which can differ from the one on disk:
+   * the type and the name come from the file, the settings from the staged copy.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
+   */
+  @Test
+  public void aStagedCopyIsReadInsteadOfTheFile(@TempDir Path dir) throws Exception {
+    File file =
+        metadataFile(
+            dir,
+            "rdbms",
+            "SALES_PRD.json",
+            """
+        {"rdbms": {"POSTGRESQL": {"hostname": "on-disk", "password": "${PG_PASSWORD}"}}}
+        """);
+    Path staged = dir.resolve("staged-copy");
+    Files.writeString(
+        staged,
+        """
+        {"rdbms": {"POSTGRESQL": {"hostname": "staged", "password": "hunter2"}}}
+        """,
+        StandardCharsets.UTF_8);
+
+    HopMetadataFileLoader.MetadataLoad load =
+        HopMetadataFileLoader.read(file, staged.toFile(), null);
+
+    DatabaseMeta databaseMeta = (DatabaseMeta) load.object();
+    assertEquals("staged", databaseMeta.getHostname());
+    assertEquals("SALES_PRD", databaseMeta.getName());
+  }
+
   @Test
   public void relationalConnectionsLoadWithoutAProvider(@TempDir Path dir) throws Exception {
     File file =

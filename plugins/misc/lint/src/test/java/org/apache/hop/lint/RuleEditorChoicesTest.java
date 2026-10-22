@@ -45,7 +45,7 @@ public class RuleEditorChoicesTest {
   public void everyCoreRuleFitsTheEditor() {
     List<String> problems = new ArrayList<>();
     for (CustomLintRule rule : new HopCoreRulePack().loadRules()) {
-      if (rule.isNativeVerify()) {
+      if (rule.isReportOnly()) {
         continue;
       }
       for (RuleClause clause : rule.getClauses()) {

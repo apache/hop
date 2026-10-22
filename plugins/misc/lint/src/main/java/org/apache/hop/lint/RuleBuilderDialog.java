@@ -546,9 +546,11 @@ public class RuleBuilderDialog extends Dialog {
     populateTags();
     loadClausesFromRule();
 
-    // A native rule, such as HOP-CHECK, says how Hop's own verify remarks are reported. It has no
-    // target, field or condition, and the editor refused to save it, even a severity change.
-    if (rule.isNativeVerify()) {
+    // A native rule, such as HOP-CHECK, says how Hop's own verify remarks are reported, and a
+    // system
+    // rule how a file the linter could not read is. They have no target, field or condition, and
+    // the editor refused to save them, even a severity change.
+    if (rule.isReportOnly()) {
       for (Control control :
           new Control[] {
             targetCombo,
@@ -730,7 +732,7 @@ public class RuleBuilderDialog extends Dialog {
         return false;
       }
     }
-    if (rule.isNativeVerify()) {
+    if (rule.isReportOnly()) {
       return true;
     }
     if (targetCombo.getSelectionIndex() < 0) {
@@ -741,7 +743,11 @@ public class RuleBuilderDialog extends Dialog {
     // Every clause, not only the one on show. Saving relies on each having a field and condition.
     captureWidgetsIntoSelectedClause();
     for (int i = 0; i < editingClauses.size(); i++) {
-      String problem = clauseProblem(editingClauses.get(i));
+      String problem =
+          clauseProblem(
+              editingClauses.get(i),
+              RuleTarget.values()[targetCombo.getSelectionIndex()],
+              !rule.getAppliesTo().isEmpty());
       if (problem != null) {
         clauseTable.setSelection(i);
         loadSelectedClauseIntoWidgets();
@@ -788,6 +794,17 @@ public class RuleBuilderDialog extends Dialog {
     return null;
   }
 
+  /**
+   * What is missing from a clause or wrong with its value, or null when the rule can use it.
+   *
+   * @param scoped whether the rule is narrowed with appliesTo
+   * @see RuleClause#valueProblem(RuleTarget, boolean)
+   */
+  static String clauseProblem(RuleClause clause, RuleTarget target, boolean scoped) {
+    String problem = clauseProblem(clause);
+    return problem != null ? problem : clause.valueProblem(target, scoped);
+  }
+
   private void saveRule() {
     if (idText.getEditable()) {
       rule.setId(idText.getText().trim());
@@ -799,7 +816,7 @@ public class RuleBuilderDialog extends Dialog {
     rule.setHelpUri(
         Utils.isEmpty(helpUriText.getText().trim()) ? null : helpUriText.getText().trim());
     rule.setTags(readTags());
-    if (rule.isNativeVerify()) {
+    if (rule.isReportOnly()) {
       return;
     }
 

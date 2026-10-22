@@ -39,6 +39,7 @@ import org.apache.hop.lint.RuleTarget;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 /** Parses YAML rule pack and project overlay files. */
 public final class YamlRulePackParser {
@@ -74,6 +75,10 @@ public final class YamlRulePackParser {
           "messageKey",
           "tags",
           "helpUri");
+
+  /** The keys a rule covering the linter's own findings about a run may carry. */
+  static final Set<String> SYSTEM_RULE_KEYS =
+      Set.of("type", "name", "description", "enabled", "severity", "tags", "helpUri");
 
   /** The keys a project's hop-lint.yml may use to tune a rule from a pack. */
   static final Set<String> OVERRIDE_KEYS =
@@ -157,9 +162,51 @@ public final class YamlRulePackParser {
     }
   }
 
+  /**
+   * The {@code rules:} block, checked to be a mapping of rule ids to mappings.
+   *
+   * <p>Written with dashes, like {@code exclude:} and {@code suppress:}, it failed with "class
+   * java.util.ArrayList cannot be cast to class java.util.Map".
+   *
+   * @param source what is being read, for the error message
+   */
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> rulesSection(Map<String, Object> yamlData, String source)
+      throws IOException {
+    Object rules = yamlData.get("rules");
+    if (rules == null) {
+      return null;
+    }
+    if (!(rules instanceof Map<?, ?> map)) {
+      throw new IOException(
+          source
+              + ": rules: maps each rule id to its settings, as in 'DB-001:' followed by"
+              + " 'severity: WARNING' on an indented line, and is not a list.");
+    }
+    for (Map.Entry<?, ?> entry : map.entrySet()) {
+      if (entry.getValue() != null && !(entry.getValue() instanceof Map)) {
+        throw new IOException(
+            source
+                + ": rule '"
+                + entry.getKey()
+                + "' has to be a mapping of settings such as severity: and enabled:, not '"
+                + entry.getValue()
+                + "'.");
+      }
+    }
+    return (Map<String, Object>) map;
+  }
+
   private static Map<String, Object> readYaml(InputStream inputStream, String source)
       throws IOException {
-    Object loaded = new Yaml(new SafeConstructor(new LoaderOptions())).load(inputStream);
+    Object loaded;
+    try {
+      loaded = new Yaml(new SafeConstructor(new LoaderOptions())).load(inputStream);
+    } catch (YAMLException e) {
+      // Read as an I/O problem, so that a broken pack is reported as that pack's error. The
+      // callers name the file or pack; snakeyaml only says where in "reader" it gave up.
+      throw new IOException(e.getMessage(), e);
+    }
     if (loaded == null) {
       return Collections.emptyMap();
     }
@@ -188,11 +235,11 @@ public final class YamlRulePackParser {
     for (ClassLoader loader : classLoadersToTry(anchor)) {
       try (InputStream inputStream = loader.getResourceAsStream(resourcePath)) {
         if (inputStream != null) {
-          return loadFromStream(inputStream, defaultPackId, defaultOwner);
+          return loadFromStream(inputStream, defaultPackId, defaultOwner, resourcePath);
         }
       } catch (IOException e) {
-        LogChannel.GENERAL.logDetailed(
-            "Failed to read rule pack " + resourcePath + " from " + loader + ": " + e.getMessage());
+        // A pack that cannot be read is reported, with its name, rather than loaded empty.
+        throw new IllegalStateException("Failed to load rule pack " + resourcePath, e);
       }
     }
 
@@ -256,14 +303,23 @@ public final class YamlRulePackParser {
   public static List<CustomLintRule> loadFromFile(
       File file, String defaultPackId, RulePackOwner defaultOwner) throws IOException {
     try (InputStream inputStream = Files.newInputStream(file.toPath())) {
-      return loadFromStream(inputStream, defaultPackId, defaultOwner);
+      return loadFromStream(inputStream, defaultPackId, defaultOwner, file.getPath());
     }
   }
 
   public static List<CustomLintRule> loadFromStream(
       InputStream inputStream, String defaultPackId, RulePackOwner defaultOwner)
       throws IOException {
-    Map<String, Object> yamlData = readYaml(inputStream, "The rule pack");
+    return loadFromStream(inputStream, defaultPackId, defaultOwner, "The rule pack");
+  }
+
+  /**
+   * @param source what is being read, for the error messages: a file path where there is one
+   */
+  private static List<CustomLintRule> loadFromStream(
+      InputStream inputStream, String defaultPackId, RulePackOwner defaultOwner, String source)
+      throws IOException {
+    Map<String, Object> yamlData = readYaml(inputStream, source);
     PackMetadata metadata = parsePackMetadata(yamlData, defaultPackId, defaultOwner, 0);
     return parseRulesSection(yamlData, metadata);
   }
@@ -292,8 +348,7 @@ public final class YamlRulePackParser {
     }
     LintPolicy policy = parsePolicy(yamlData, projectYaml);
 
-    @SuppressWarnings("unchecked")
-    Map<String, Object> rulesSection = (Map<String, Object>) yamlData.get("rules");
+    Map<String, Object> rulesSection = rulesSection(yamlData, projectYaml.getPath());
     if (rulesSection == null || rulesSection.isEmpty()) {
       return new ProjectYamlOverlay(Collections.emptyList(), Collections.emptyMap(), policy);
     }
@@ -310,6 +365,10 @@ public final class YamlRulePackParser {
       if (isNativeRuleDefinition(ruleData)) {
         projectRules.add(
             parseNativeRule(
+                ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT, location));
+      } else if (isSystemRuleDefinition(ruleData)) {
+        projectRules.add(
+            parseSystemRule(
                 ruleId, ruleData, RulePackIds.PROJECT, RulePackOwner.PROJECT, location));
       } else if (isCustomRuleDefinition(ruleData)) {
         CustomLintRule rule =
@@ -420,9 +479,9 @@ public final class YamlRulePackParser {
   }
 
   private static List<CustomLintRule> parseRulesSection(
-      Map<String, Object> yamlData, PackMetadata metadata) {
-    @SuppressWarnings("unchecked")
-    Map<String, Object> rulesSection = (Map<String, Object>) yamlData.get("rules");
+      Map<String, Object> yamlData, PackMetadata metadata) throws IOException {
+    Map<String, Object> rulesSection =
+        rulesSection(yamlData, "Rule pack '" + metadata.packId() + "'");
     if (rulesSection == null || rulesSection.isEmpty()) {
       return Collections.emptyList();
     }
@@ -433,6 +492,12 @@ public final class YamlRulePackParser {
       Map<String, Object> ruleData = (Map<String, Object>) entry.getValue();
       if (isNativeRuleDefinition(ruleData)) {
         rules.add(parseNativeRule(ruleId, ruleData, metadata.packId(), metadata.owner()));
+        continue;
+      }
+      if (isSystemRuleDefinition(ruleData)) {
+        rules.add(
+            parseSystemRule(
+                ruleId, ruleData, metadata.packId(), metadata.owner(), inPack(metadata.packId())));
         continue;
       }
       if (!isCustomRuleDefinition(ruleData)) {
@@ -507,6 +572,34 @@ public final class YamlRulePackParser {
     rule.setMessageKey(stringValue(ruleData.get("messageKey"), ""));
     applyDocumentation(rule, ruleData, location);
     warnUnknownKeys(ruleId, location, ruleData, NATIVE_RULE_KEYS);
+    return rule;
+  }
+
+  public static boolean isSystemRuleDefinition(Map<String, Object> ruleData) {
+    return ruleData != null && CustomLintRule.TYPE_SYSTEM.equals(ruleData.get("type"));
+  }
+
+  /**
+   * Read a rule that says how the linter reports a problem with the run itself, such as a file it
+   * could not read. Like a native rule it has no target or condition.
+   */
+  private static CustomLintRule parseSystemRule(
+      String ruleId,
+      Map<String, Object> ruleData,
+      String packId,
+      RulePackOwner owner,
+      String location) {
+    CustomLintRule rule = new CustomLintRule();
+    rule.setId(ruleId);
+    rule.setPackId(packId);
+    rule.setPackOwner(owner);
+    rule.setType(CustomLintRule.TYPE_SYSTEM);
+    rule.setName(stringValue(ruleData.get("name"), ruleId));
+    rule.setDescription(stringValue(ruleData.get("description"), ""));
+    rule.setEnabled(booleanValue(ruleData.get("enabled"), true));
+    rule.setSeverity(stringValue(ruleData.get("severity"), "ERROR"));
+    applyDocumentation(rule, ruleData, location);
+    warnUnknownKeys(ruleId, location, ruleData, SYSTEM_RULE_KEYS);
     return rule;
   }
 
