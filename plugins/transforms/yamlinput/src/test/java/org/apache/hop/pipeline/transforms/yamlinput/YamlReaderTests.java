@@ -303,6 +303,46 @@ class YamlReaderTests {
   }
 
   @Test
+  void testListOfMaps_readsEveryDocument() throws Exception {
+    String yaml =
+        """
+        - id: 1
+          name: Anna
+        - id: 2
+          name: Ben
+        ---
+        - id: 3
+          name: Chris
+        - id: 4
+          name: Dana
+        """;
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"id", "name"},
+            new String[] {"$.id", "$.name"},
+            new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING});
+
+    Object[] row1 = reader.getRow(rowMeta);
+    Object[] row2 = reader.getRow(rowMeta);
+    Object[] row3 = reader.getRow(rowMeta);
+    Object[] row4 = reader.getRow(rowMeta);
+    Object[] done = reader.getRow(rowMeta);
+
+    assertEquals(1L, row1[0]);
+    assertEquals("Anna", row1[1]);
+    assertEquals(2L, row2[0]);
+    assertEquals("Ben", row2[1]);
+    assertEquals(3L, row3[0]);
+    assertEquals("Chris", row3[1]);
+    assertEquals(4L, row4[0]);
+    assertEquals("Dana", row4[1]);
+    assertEquals(0, done.length);
+  }
+
+  @Test
   void testListOfMaps_wildcardPathReadsEveryElement() throws Exception {
     String yaml =
         """

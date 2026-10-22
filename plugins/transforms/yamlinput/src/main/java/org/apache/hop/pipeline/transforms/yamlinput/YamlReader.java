@@ -166,7 +166,9 @@ public class YamlReader {
     }
 
     Object[] row = fetchRow(rowMeta);
-    if (row.length == 0 && !isFinishedDocument()) {
+    // An empty row finishes the current list document. Keep going when another document
+    // remains: YamlInput treats an empty row as the end of the file.
+    if (row.length == 0 && (!isFinishedDocument() || documentIt.hasNext())) {
       return getRow(rowMeta);
     }
     return row;
