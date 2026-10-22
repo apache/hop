@@ -165,6 +165,14 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     }
   }
 
+  /** A workflow runs from a Start action, so every way of creating one adds the same action. */
+  public static void addDefaultStartAction(WorkflowMeta workflowMeta) {
+    ActionStart start = new ActionStart("Start");
+    ActionMeta startMeta = new ActionMeta(start);
+    startMeta.setLocation(50, 50);
+    workflowMeta.addAction(startMeta);
+  }
+
   @Override
   public IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace)
       throws HopException {
@@ -185,10 +193,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
       // Add a Start action by default...
       //
-      ActionStart start = new ActionStart("Start");
-      ActionMeta startMeta = new ActionMeta(start);
-      startMeta.setLocation(50, 50);
-      workflowMeta.addAction(startMeta);
+      addDefaultStartAction(workflowMeta);
 
       // Show it in the editor
       //
