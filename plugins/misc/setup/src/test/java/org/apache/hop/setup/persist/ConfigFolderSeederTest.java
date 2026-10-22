@@ -52,6 +52,12 @@ class ConfigFolderSeederTest {
     Files.createDirectories(install.resolve("config"));
     Files.writeString(install.resolve("config").resolve(HopSetupVariables.HOP_CONFIG_JSON), "{}");
     Files.writeString(install.resolve("config").resolve("extra.txt"), "keep");
+    Path nested =
+        install
+            .resolve("config/projects/default/metadata/pipeline-run-configuration")
+            .resolve("local.json");
+    Files.createDirectories(nested.getParent());
+    Files.writeString(nested, "{ \"name\": \"local\" }");
     Path target = temp.resolve("user-config");
     HopEnvironmentSpec spec = new HopEnvironmentSpec();
     spec.setConfigFolder(target.toString());
@@ -60,6 +66,10 @@ class ConfigFolderSeederTest {
     new ConfigFolderSeeder().seed(spec, new HopEnvironmentApplyResult(), install);
     assertTrue(Files.exists(target.resolve(HopSetupVariables.HOP_CONFIG_JSON)));
     assertTrue(Files.exists(target.resolve("extra.txt")));
+    assertTrue(
+        Files.readString(
+                target.resolve("projects/default/metadata/pipeline-run-configuration/local.json"))
+            .contains("\"name\": \"local\""));
   }
 
   @Test

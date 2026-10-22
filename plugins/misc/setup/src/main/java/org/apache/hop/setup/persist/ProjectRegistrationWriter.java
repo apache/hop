@@ -35,8 +35,10 @@ import org.apache.hop.setup.UserPaths;
 
 /**
  * Creates a user-owned default project and registers it (plus the install samples project) in the
- * target {@code hop-config.json}. Does not use the live {@code HopConfig} singleton, which still
- * points at the current process config folder.
+ * target {@code hop-config.json}. A new default project gets a {@code local} pipeline run
+ * configuration and a {@code local} workflow run configuration when it does not already have them.
+ * Does not use the live {@code HopConfig} singleton, which still points at the current process
+ * config folder.
  */
 public class ProjectRegistrationWriter {
 
@@ -55,10 +57,17 @@ public class ProjectRegistrationWriter {
       """;
 
   private final ObjectMapper mapper;
+  private final LocalRunConfigurationSeeder runConfigurations;
 
   public ProjectRegistrationWriter() {
+    this(new LocalRunConfigurationSeeder());
+  }
+
+  ProjectRegistrationWriter(LocalRunConfigurationSeeder runConfigurations) {
     mapper = HopJson.newMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    this.runConfigurations =
+        runConfigurations == null ? new LocalRunConfigurationSeeder() : runConfigurations;
   }
 
   public void apply(
@@ -118,6 +127,10 @@ public class ProjectRegistrationWriter {
           hasTemplate
               ? "Would copy default project template to " + defaultHome
               : "Would create default project at " + defaultHome);
+      if (runConfigurations.standardRunConfigurationsMissing(hasTemplate ? template : null)) {
+        result.addMessage(
+            "Would add local pipeline and workflow run configurations to " + defaultHome);
+      }
       return;
     }
     HopVfsFiles.createFolder(defaultHome);
@@ -128,6 +141,7 @@ public class ProjectRegistrationWriter {
       HopVfsFiles.writeUtf8(projectConfig, MINIMAL_PROJECT_CONFIG);
       result.addMessage("Created default project at " + defaultHome);
     }
+    runConfigurations.ensure(defaultHome, hasTemplate ? template : null, result);
   }
 
   private String resolveSamplesHome(Path hopHome, HopEnvironmentApplyResult result)

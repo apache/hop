@@ -79,7 +79,8 @@ public final class HopVfsFiles {
       if (!destination.exists()) {
         destination.createFolder();
       }
-      destination.copyFrom(source, Selectors.SELECT_CHILDREN);
+      // SELECT_CHILDREN copies only the first level, which leaves metadata folders empty.
+      destination.copyFrom(source, Selectors.EXCLUDE_SELF);
     } catch (Exception e) {
       throw new HopSetupException(
           "Unable to copy '" + sourcePath + "' to '" + destinationPath + "'", e);
