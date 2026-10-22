@@ -51,10 +51,20 @@ XAI_TTS_URL = "https://api.x.ai/v1/tts"
 PUBLISH_LOCALES = ("en", "zh", "es-MX", "pt-BR", "fr", "de-DE", "it-IT", "nl-NL")
 # The speech service documents de and it, not the regional tags. Dutch is not
 # on the published list; nl is sent anyway and may be less reliable.
-TTS_LANGUAGES = {"de-DE": "de", "it-IT": "it", "nl-NL": "nl"}
+TTS_LANGUAGES = {
+    "de-DE": "de",
+    "it-IT": "it",
+    "nl-NL": "nl",
+    "zh-CN": "zh",
+    "fr-FR": "fr",
+    "es-ES": "es-ES",
+    "pt-PT": "pt-PT",
+}
 MIN_WORDS = 45
 MAX_WORDS = 110
 DURATION_RATIO_WARN = 1.4
+CAPTION_LINE_CHARS = 42
+CAPTION_MAX_CHARS = CAPTION_LINE_CHARS * 2
 MAX_RETRIES = 5
 NON_RETRYABLE_STATUS = {400, 401, 403, 404, 405, 415, 422}
 TRANSITIONS = {"fade", "fadeblack", "dissolve"}
@@ -93,6 +103,7 @@ class Video:
     voice_id: str
     enforce_length: bool
     links: list[dict[str, str]]
+    locales: list[str] = field(default_factory=list)
     scenes: list[Scene] = field(default_factory=list)
 
     @property
@@ -297,6 +308,7 @@ def parse_video(path: Path) -> Video:
         voice_id=str(block.get("voice_id", "luna")),
         enforce_length=bool(block.get("enforce_length", True)),
         links=list(links),
+        locales=[str(locale) for locale in (block.get("locales") or [])],
         scenes=scenes,
     )
 
@@ -424,9 +436,15 @@ def fit_filter(width: int, height: int) -> str:
     )
 
 
+def publish_locales(video: Video) -> list[str]:
+    if video.locales:
+        return list(video.locales)
+    return list(PUBLISH_LOCALES)
+
+
 def cmd_validate(video: Video, *, publish: bool) -> None:
     require_tool("ffprobe")
-    locales = list(PUBLISH_LOCALES) if publish else ["en"]
+    locales = publish_locales(video) if publish else ["en"]
     errors = validate_scene_text(video, locales) + validate_files(video)
     if errors:
         die("Manifest is not ready:\n- " + "\n- ".join(errors))
@@ -779,19 +797,153 @@ def format_chapter(seconds: float) -> str:
     return f"{minutes}:{secs:02d}"
 
 
+def pack_pieces(pieces: list[str], limit: int, joiner: str) -> list[str]:
+    chunks: list[str] = []
+    current = ""
+    for piece in pieces:
+        piece = piece.strip()
+        if not piece:
+            continue
+        candidate = piece if not current else f"{current}{joiner}{piece}"
+        if current and len(candidate) <= limit:
+            current = candidate
+            continue
+        if current:
+            chunks.append(current)
+        if len(piece) <= limit:
+            current = piece
+            continue
+        current = ""
+        if " " in piece:
+            chunks.extend(pack_pieces(piece.split(), limit, " "))
+        else:
+            chunks.extend(piece[index : index + limit] for index in range(0, len(piece), limit))
+    if current:
+        chunks.append(current)
+    return chunks
+
+
+def absorb_short_chunks(chunks: list[str], limit: int, min_chars: int = 18) -> list[str]:
+    """Keep a leftover fragment with the sentence it came from."""
+    if not chunks:
+        return []
+    result = [chunks[0]]
+    for chunk in chunks[1:]:
+        if len(chunk) >= min_chars:
+            result.append(chunk)
+            continue
+        combined = f"{result[-1]} {chunk}".strip()
+        if len(combined) <= limit:
+            result[-1] = combined
+            continue
+        words = combined.split()
+        split_at = None
+        best_score = -1
+        for index in range(1, len(words)):
+            left = " ".join(words[:index])
+            right = " ".join(words[index:])
+            if len(left) > limit or len(right) > limit or len(right) < min_chars:
+                continue
+            score = min(len(left), len(right))
+            if score > best_score:
+                best_score = score
+                split_at = (left, right)
+        if split_at is None:
+            result.append(chunk)
+            continue
+        result[-1] = split_at[0]
+        result.append(split_at[1])
+    return result
+
+
+def split_caption(text: str, limit: int = CAPTION_MAX_CHARS) -> list[str]:
+    """Break a scene into cues of at most two short lines."""
+    text = normalize(text)
+    if not text:
+        return []
+    # A period only ends a sentence when whitespace follows, so hop.apache.org stays whole.
+    # Chinese full stops often have no space after them.
+    sentences = [
+        part.strip()
+        for part in re.split(r"(?<=[。！？])|(?<=[.!?])(?:\s+|(?=\Z))", text)
+        if part.strip()
+    ]
+    chunks: list[str] = []
+    for sentence in sentences:
+        if len(sentence) <= limit:
+            chunks.append(sentence)
+            continue
+        clauses = [part for part in re.split(r"(?<=[,;:，；、])\s*", sentence) if part]
+        if len(clauses) > 1:
+            chunks.extend(pack_pieces(clauses, limit, " "))
+            continue
+        words = sentence.split()
+        if len(words) > 1:
+            chunks.extend(pack_pieces(words, limit, " "))
+            continue
+        chunks.extend(sentence[index : index + limit] for index in range(0, len(sentence), limit))
+    return absorb_short_chunks(chunks, limit)
+
+
+def format_cue_text(text: str, width: int = CAPTION_LINE_CHARS) -> str:
+    if " " not in text:
+        return "\n".join(text[index : index + width] for index in range(0, len(text), width))
+    return textwrap.fill(text, width=width)
+
+
+def caption_cues(text: str, *, start: float, duration: float) -> list[tuple[float, float, str]]:
+    chunks = split_caption(text)
+    if not chunks:
+        return []
+    weights = [max(len(chunk), 1) for chunk in chunks]
+    total = sum(weights)
+    cursor = start
+    cues: list[tuple[float, float, str]] = []
+    for index, chunk in enumerate(chunks):
+        if index == len(chunks) - 1:
+            end = start + duration
+        else:
+            end = cursor + duration * weights[index] / total
+        cues.append((cursor, end, format_cue_text(chunk)))
+        cursor = end
+    return cues
+
+
 def write_vtt(video: Video, rows: list[dict[str, Any]], locale: str) -> None:
     starts = speech_starts([float(row["scene_sec"]) for row in rows])
     lines = ["WEBVTT", ""]
+    cue_count = 0
     for row, start in zip(rows, starts):
         speech = row["speech"][locale]
-        end = start + float(speech["audio_sec"])
         scene = next(scene for scene in video.scenes if scene.scene_id == row["id"])
-        lines.append(f"{format_timestamp(start)} --> {format_timestamp(end)}")
-        lines.append(scene.narration[locale])
-        lines.append("")
+        for cue_start, cue_end, cue_text in caption_cues(
+            scene.narration[locale],
+            start=start,
+            duration=float(speech["audio_sec"]),
+        ):
+            lines.append(f"{format_timestamp(cue_start)} --> {format_timestamp(cue_end)}")
+            lines.append(cue_text)
+            lines.append("")
+            cue_count += 1
     destination = video.output_dir / f"{video.video_id}-{locale}.vtt"
     destination.write_text("\n".join(lines), encoding="utf-8")
-    print(f"Wrote {destination}")
+    print(f"Wrote {destination} ({cue_count} cues)")
+
+
+def cmd_captions(video: Video) -> None:
+    """Rewrite subtitle files from the last timings, without speaking or encoding."""
+    timings_path = video.output_dir / "timings.yaml"
+    if not timings_path.exists():
+        die(f"No timings to caption from: {timings_path}")
+    payload = load_yaml(timings_path)
+    rows = payload.get("scenes") or []
+    locales = list(payload.get("locales") or [])
+    if not rows or not locales:
+        die(f"{timings_path} has no scenes or locales")
+    for locale in locales:
+        if any(locale not in scene.narration for scene in video.scenes):
+            die(f"Manifest is missing narration for {locale}")
+        write_vtt(video, rows, locale)
 
 
 def write_description(video: Video, rows: list[dict[str, Any]] | None) -> None:
@@ -1106,6 +1258,7 @@ def limited_view(video: Video, limit: int) -> Video:
         transition_sec=video.transition_sec,
         padding_sec=video.padding_sec,
         voice_id=video.voice_id,
+        locales=list(video.locales),
         enforce_length=video.enforce_length,
         links=video.links,
         scenes=video.scenes[:limit],
@@ -1151,6 +1304,23 @@ def self_test() -> None:
     )
     assert payload["replace"] == {"GUI": gooey}
     assert "replace" not in tts_payload("A pipeline.", voice="orion", language="en", pronounce={"GUI": gooey})
+    sample = (
+        "Everything you build in Hop is metadata. A pipeline that reads and writes "
+        "data is metadata. A workflow that runs that pipeline, and decides what to "
+        "do when it fails, is metadata."
+    )
+    cues = caption_cues(sample, start=10.0, duration=20.0)
+    assert len(cues) >= 3
+    assert cues[0][0] == 10.0
+    assert abs(cues[-1][1] - 30.0) < 0.001
+    for earlier, later in zip(cues, cues[1:]):
+        assert abs(earlier[1] - later[0]) < 0.001
+        assert earlier[2].count("\n") <= 1
+        for line in earlier[2].split("\n"):
+            assert len(line) <= CAPTION_LINE_CHARS
+    assert all(cue[2].strip() != "is metadata." for cue in cues)
+    url_cues = split_caption("The manual for this series lives at hop.apache.org.")
+    assert any("hop.apache.org" in cue for cue in url_cues)
     plain = text_hash("Open Hop GUI.")
     marked = text_hash("Open Hop GUI.\n" + json.dumps({"GUI": gooey}, ensure_ascii=False, sort_keys=True))
     assert plain != marked
@@ -1283,9 +1453,9 @@ def self_test() -> None:
         print(f"Self-test ok: {destination.name} {actual:.2f}s (timeline {expected:.2f}s)")
 
 
-def parse_locales(value: str | None, *, publish: bool) -> list[str]:
+def parse_locales(value: str | None, *, publish: bool, video: Video) -> list[str]:
     if publish:
-        return list(PUBLISH_LOCALES)
+        return publish_locales(video)
     if not value:
         return ["en"]
     return [item.strip() for item in value.split(",") if item.strip()]
@@ -1320,6 +1490,9 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--force-audio", action="store_true")
     render.add_argument("--silence", action="store_true", help="Skip TTS and use timed silence")
 
+    captions = sub.add_parser("captions", help="Rewrite VTT cues from the last timings")
+    captions.add_argument("video")
+
     sample = sub.add_parser("voicesample", help="Synthesize luna and orion for the same paragraph")
     sample.add_argument("--text", required=True)
 
@@ -1342,8 +1515,10 @@ def main(argv: list[str]) -> None:
         cmd_shotlist(video)
     elif args.command == "cards":
         cmd_cards(video, force=args.force)
+    elif args.command == "captions":
+        cmd_captions(video)
     elif args.command == "render":
-        locales = parse_locales(args.locales, publish=args.publish)
+        locales = parse_locales(args.locales, publish=args.publish, video=video)
         cmd_render(
             video,
             locales,

@@ -32,8 +32,16 @@ keep_english:
 # Literal replacements applied to the text before text-to-speech.
 # Subtitles keep the narration as written. Longer patterns win.
 speak_as:
+  - pattern: hop-gui.bat
+    say: hop gui batch
+  - pattern: hop-gui.sh
+    say: hop gui shell
+  - pattern: hop-env
+    say: hop env
   - pattern: hop-run
     say: hop run
+  - pattern: "java -version"
+    say: java version
   - pattern: "${PROJECT_HOME}"
     say: the PROJECT_HOME variable
   - pattern: "${PASSWORD}"

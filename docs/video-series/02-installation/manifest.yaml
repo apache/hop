@@ -1,0 +1,616 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 02. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word. Dutch is not in this episode.
+video:
+  id: 02-installation
+  title: "Install the Apache Hop client"
+  issue: 9058
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Download and install
+      url: https://hop.apache.org/manual/latest/getting-started/hop-download-install.html
+    - label: Sizing guide
+      url: https://hop.apache.org/manual/latest/sizing.html
+    - label: Supported Java versions
+      url: https://hop.apache.org/manual/latest/supported-jvms.html
+    - label: Configure Hop environment
+      url: https://hop.apache.org/manual/latest/hop-tools/hop-setup.html
+    - label: Download
+      url: https://hop.apache.org/download/
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Install the client
+    card_subtitle: Java 21, a zip, and Hop GUI
+    shot: >
+      Title card. Kicker "Apache Hop", title "Install the client", subtitle
+      "Java 21, a zip, and Hop GUI". No GUI.
+    narration:
+      en: |
+        This is the second video in the series. Last time we looked at what
+        Apache Hop is. This time you install the client and open Hop GUI. You
+        need Java 21, a download from hop.apache.org, and a few minutes. By
+        the end, Hop GUI is running, and you can open the default project and
+        the samples project.
+      zh-CN: |
+        这是系列的第二集。上一集我们看了 Apache Hop 是什么。这一集你安装客户端
+        并打开 Hop GUI，也就是图形界面。你需要 Java 21、从 hop.apache.org
+        下载的安装包，以及几分钟。结束时 Hop GUI 已经在运行，你可以打开
+        default project 和 samples project。
+      es-ES: |
+        Este es el segundo vídeo de la serie. La vez anterior vimos qué es
+        Apache Hop. Esta vez instalas el cliente y abres Hop GUI, la interfaz
+        gráfica. Necesitas Java 21, una descarga de hop.apache.org y unos
+        minutos. Al terminar, Hop GUI está en marcha y puedes abrir el
+        default project y el samples project.
+      pt-PT: |
+        Este é o segundo vídeo da série. Da última vez vimos o que é o Apache
+        Hop. Desta vez instalas o cliente e abres o Hop GUI, a interface
+        gráfica. Precisas do Java 21, de uma transferência a partir de
+        hop.apache.org e de uns minutos. No fim, o Hop GUI está a correr e
+        podes abrir o default project e o samples project.
+      fr-FR: |
+        Voici la deuxième vidéo de la série. La dernière fois, nous avons vu
+        ce qu'est Apache Hop. Cette fois, vous installez le client et vous
+        ouvrez Hop GUI, l'interface graphique. Il vous faut Java 21, un
+        téléchargement depuis hop.apache.org, et quelques minutes. À la fin,
+        Hop GUI tourne, et vous pouvez ouvrir le default project et le
+        samples project.
+      de-DE: |
+        Dies ist das zweite Video der Reihe. Beim letzten Mal haben wir uns
+        angesehen, was Apache Hop ist. Diesmal installierst du den Client und
+        öffnest Hop GUI, die grafische Oberfläche. Du brauchst Java 21, einen
+        Download von hop.apache.org und ein paar Minuten. Am Ende läuft Hop
+        GUI, und du kannst das default project und das samples project öffnen.
+      it-IT: |
+        Questo è il secondo video della serie. L'ultima volta abbiamo visto
+        che cos'è Apache Hop. Questa volta installi il client e apri Hop GUI,
+        l'interfaccia grafica. Ti servono Java 21, un download da
+        hop.apache.org e qualche minuto. Alla fine Hop GUI è in esecuzione e
+        puoi aprire il default project e il samples project.
+
+  - id: java-21
+    title: Java 21
+    visual: images/java-21.png
+    visual_type: still
+    shot: >
+      A terminal window running java -version. The output shows a Java 21
+      runtime. No personal paths in the prompt.
+    narration:
+      en: |
+        Hop is self-contained. The only thing the client needs on the machine
+        is a Java runtime, and the official version is Java 21. Open a
+        terminal and run java -version. You want a line that reports version
+        21. Oracle Java, Microsoft OpenJDK, and OpenJDK are the runtimes the
+        project tests. If the command is missing, or the version is older,
+        install Java 21 before you unpack Hop. The supported Java versions
+        page lists the details.
+      zh-CN: |
+        Hop 是自包含的。客户端在这台机器上唯一需要的是 Java 运行时，官方版本
+        是 Java 21。打开终端，运行 java -version。你要看到一行报告版本 21。
+        Oracle Java、Microsoft OpenJDK 和 OpenJDK 是 project 测试过的运行时。
+        如果找不到这条命令，或者版本更旧，请先安装 Java 21，再解压 Hop。
+        支持的 Java 版本页面列出了细节。
+      es-ES: |
+        Hop se basta solo. Lo único que el cliente necesita en la máquina es
+        un entorno de ejecución de Java, y la versión oficial es Java 21.
+        Abre un terminal y ejecuta java -version. Quieres una línea que
+        informe de la versión 21. Oracle Java, Microsoft OpenJDK y OpenJDK
+        son los entornos que el project pone a prueba. Si falta el comando, o
+        la versión es más antigua, instala Java 21 antes de descomprimir Hop.
+        La página de versiones de Java compatibles recoge los detalles.
+      pt-PT: |
+        O Hop é autónomo. A única coisa de que o cliente precisa na máquina é
+        um ambiente de execução Java, e a versão oficial é o Java 21. Abre um
+        terminal e executa java -version. Queres uma linha que indique a
+        versão 21. Oracle Java, Microsoft OpenJDK e OpenJDK são os ambientes
+        que o project testa. Se o comando não existir, ou se a versão for mais
+        antiga, instala o Java 21 antes de descompactares o Hop. A página das
+        versões Java suportadas lista os detalhes.
+      fr-FR: |
+        Hop se suffit à lui-même. La seule chose dont le client a besoin sur
+        la machine est un environnement d'exécution Java, et la version
+        officielle est Java 21. Ouvrez un terminal et lancez java -version.
+        Vous voulez une ligne qui indique la version 21. Oracle Java,
+        Microsoft OpenJDK et OpenJDK sont les environnements que le project
+        met à l'épreuve. Si la commande est absente, ou si la version est plus
+        ancienne, installez Java 21 avant de décompresser Hop. La page des
+        versions Java prises en charge donne le détail.
+      de-DE: |
+        Hop bringt alles selbst mit. Das Einzige, was der Client auf dem
+        Rechner braucht, ist eine Java-Laufzeit, und die offizielle Version
+        ist Java 21. Öffne ein Terminal und führe java -version aus. Du willst
+        eine Zeile sehen, die Version 21 meldet. Oracle Java, Microsoft
+        OpenJDK und OpenJDK sind die Laufzeiten, die das project prüft. Wenn
+        der Befehl fehlt oder die Version älter ist, installiere Java 21,
+        bevor du Hop entpackst. Die Seite zu den unterstützten Java-Versionen
+        listet die Einzelheiten.
+      it-IT: |
+        Hop è autonomo. L'unica cosa di cui il client ha bisogno sulla
+        macchina è un runtime Java, e la versione ufficiale è Java 21. Apri un
+        terminale ed esegui java -version. Vuoi una riga che riporti la
+        versione 21. Oracle Java, Microsoft OpenJDK e OpenJDK sono i runtime
+        che il project mette alla prova. Se il comando manca, o la versione è
+        più vecchia, installa Java 21 prima di scompattare Hop. La pagina
+        delle versioni Java supportate elenca i dettagli.
+
+  - id: how-much-machine
+    title: How much machine
+    visual: images/how-much-machine.png
+    visual_type: still
+    card_title: One core and 4 GB
+    card_subtitle: The sizing guide covers the rest
+    shot: >
+      Title card. Title "One core and 4 GB". Subtitle "The sizing guide
+      covers the rest". No GUI.
+    narration:
+      en: |
+        A default client is comfortable on one CPU core and 4 GB of RAM. The
+        launch scripts set a heap ceiling of 2 GB, and Hop does not take that
+        memory when the window opens. The sizing guide on the website is the
+        next step. It covers a small device that only runs work, a
+        workstation where you design in Hop GUI, and batch runs on Spark or
+        Beam. For this video, an ordinary laptop is enough.
+      zh-CN: |
+        默认客户端在一个 CPU 核心和 4 GB 内存上就很从容。启动脚本把堆上限设为
+        2 GB，窗口打开时 Hop 并不会立刻占用那么多内存。网站上的容量指南是
+        下一步。它涵盖只运行作业的小设备、在 Hop GUI 里做设计的工作站，以及
+        在 Spark 或 Beam 上的批处理。这一集用一台普通笔记本就够了。
+      es-ES: |
+        Un cliente predeterminado va holgado con un núcleo de CPU y 4 GB de
+        RAM. Los scripts de arranque fijan un techo de heap de 2 GB, y Hop no
+        ocupa esa memoria al abrir la ventana. La guía de dimensionamiento
+        del sitio web es el paso siguiente. Cubre un dispositivo pequeño que
+        solo ejecuta trabajo, un puesto donde diseñas en Hop GUI y lotes en
+        Spark o Beam. Para este vídeo, un portátil normal basta.
+      pt-PT: |
+        Um cliente predefinido fica à vontade com um núcleo de CPU e 4 GB de
+        RAM. Os scripts de arranque definem um teto de heap de 2 GB, e o Hop
+        não ocupa essa memória quando a janela abre. O guia de dimensionamento
+        no sítio é o passo seguinte. Cobre um dispositivo pequeno que só
+        executa trabalho, uma estação onde desenhas no Hop GUI e lotes em
+        Spark ou Beam. Para este vídeo, um portátil comum chega.
+      fr-FR: |
+        Un client par défaut est à l'aise avec un cœur de processeur et 4 Go
+        de RAM. Les scripts de lancement fixent un plafond de tas de 2 Go, et
+        Hop ne prend pas cette mémoire à l'ouverture de la fenêtre. Le guide
+        de dimensionnement du site est l'étape suivante. Il couvre un petit
+        appareil qui ne fait qu'exécuter, un poste où vous concevez dans Hop
+        GUI, et des traitements par lots sur Spark ou Beam. Pour cette vidéo,
+        un ordinateur portable ordinaire suffit.
+      de-DE: |
+        Ein Standard-Client ist mit einem CPU-Kern und 4 GB RAM gut bedient.
+        Die Startskripte setzen eine Heap-Obergrenze von 2 GB, und Hop belegt
+        diesen Speicher nicht, wenn das Fenster aufgeht. Der Größenleitfaden
+        auf der Website ist der nächste Schritt. Er behandelt ein kleines
+        Gerät, das nur ausführt, einen Arbeitsplatz, an dem du in Hop GUI
+        entwirfst, und Stapel auf Spark oder Beam. Für dieses Video reicht
+        ein gewöhnlicher Laptop.
+      it-IT: |
+        Un client predefinito sta comodo con un core di CPU e 4 GB di RAM.
+        Gli script di avvio fissano un tetto di heap di 2 GB, e Hop non occupa
+        quella memoria all'apertura della finestra. La guida al
+        dimensionamento sul sito è il passo successivo. Copre un dispositivo
+        piccolo che esegue soltanto, una postazione dove progetti in Hop GUI
+        e batch su Spark o Beam. Per questo video basta un portatile normale.
+
+  - id: where-it-runs
+    title: Where it runs
+    visual: images/where-it-runs.png
+    visual_type: still
+    card_title: "Windows, Linux, macOS"
+    card_subtitle: And Hop Web in the browser
+    shot: >
+      Title card. Title "Windows, Linux, macOS". Subtitle "And Hop Web in
+      the browser". No GUI.
+    narration:
+      en: |
+        The client runs on Windows, Linux, and macOS. Linux covers 64-bit
+        computers and ARM. The same Hop GUI also runs in a modern browser as
+        Hop Web. There is no separate installer for this first start. You
+        download a zip, unpack it, and start the desktop client. Docker and
+        Hop Server come later, when you want to run the same work on a
+        server.
+      zh-CN: |
+        客户端运行在 Windows、Linux 和 macOS 上。Linux 包括 64 位电脑和 ARM。
+        同一个 Hop GUI 也能在现代浏览器里作为 Hop Web 运行。这一次的起步没有
+        单独的安装程序。你下载一个 zip，解压，然后启动桌面客户端。当你要在
+        服务器上运行同一套工作时，再看 Docker 和 Hop Server。
+      es-ES: |
+        El cliente funciona en Windows, Linux y macOS. Linux cubre ordenadores
+        de 64 bits y ARM. El mismo Hop GUI también funciona en un navegador
+        moderno como Hop Web. Este primer arranque no tiene un instalador
+        aparte. Descargas un zip, lo descomprimes y arrancas el cliente de
+        escritorio. Docker y Hop Server llegan más tarde, cuando quieras
+        ejecutar el mismo trabajo en un servidor.
+      pt-PT: |
+        O cliente corre em Windows, Linux e macOS. O Linux cobre computadores
+        de 64 bits e ARM. O mesmo Hop GUI também corre num navegador moderno
+        como Hop Web. Este primeiro arranque não tem um instalador à parte.
+        Descarregas um zip, descompactas e inicias o cliente de secretária.
+        Docker e Hop Server ficam para mais tarde, quando quiseres executar o
+        mesmo trabalho num servidor.
+      fr-FR: |
+        Le client tourne sur Windows, Linux et macOS. Linux couvre les
+        ordinateurs 64 bits et ARM. Le même Hop GUI tourne aussi dans un
+        navigateur moderne sous le nom Hop Web. Ce premier démarrage n'a pas
+        d'installateur séparé. Vous téléchargez une archive zip, vous la
+        décompressez et vous lancez le client de bureau. Docker et Hop Server
+        viennent plus tard, quand vous voulez exécuter le même travail sur un
+        serveur.
+      de-DE: |
+        Der Client läuft auf Windows, Linux und macOS. Linux deckt
+        64-Bit-Rechner und ARM ab. Dieselbe Hop GUI läuft auch in einem
+        modernen Browser als Hop Web. Für diesen ersten Start gibt es kein
+        eigenes Installationsprogramm. Du lädst ein Zip herunter, entpackst
+        es und startest den Desktop-Client. Docker und Hop Server kommen
+        später, wenn du dieselbe Arbeit auf einem Server ausführen willst.
+      it-IT: |
+        Il client gira su Windows, Linux e macOS. Linux copre i computer a 64
+        bit e ARM. La stessa Hop GUI gira anche in un browser moderno come
+        Hop Web. Questo primo avvio non ha un installatore separato. Scarichi
+        uno zip, lo scompatti e avvii il client desktop. Docker e Hop Server
+        arrivano dopo, quando vuoi eseguire lo stesso lavoro su un server.
+
+  - id: download
+    title: Download
+    visual: images/download.png
+    visual_type: still
+    shot: >
+      A browser on https://hop.apache.org/download/ with the latest client
+      zip visible. Hide bookmarks.
+    narration:
+      en: |
+        Download the client from the downloads page at hop.apache.org. Take
+        the latest client zip. After you unpack it, that folder is the
+        installation. In it you will find the launch scripts, a config
+        folder, the plugins, and two projects that ship with the client.
+        Those projects are named default and samples. Keep the zip's folder
+        somewhere you can find it again. That path is your Hop installation.
+      zh-CN: |
+        从 hop.apache.org 的下载页面下载客户端。取最新的客户端 zip。解压之后，
+        那个文件夹就是安装目录。里面有启动脚本、一个 config 文件夹、插件，
+        以及随客户端一起提供的两个 project。它们的名字是 default 和 samples。
+        把这个文件夹放在你以后找得到的地方。那条路径就是你的 Hop 安装。
+      es-ES: |
+        Descarga el cliente desde la página de descargas de hop.apache.org.
+        Quédate con el zip más reciente del cliente. Cuando lo descomprimas,
+        esa carpeta es la instalación. Dentro están los scripts de arranque,
+        una carpeta config, los plugins y dos project que vienen con el
+        cliente. Se llaman default y samples. Guarda la carpeta del zip en un
+        sitio que puedas encontrar. Esa ruta es tu instalación de Hop.
+      pt-PT: |
+        Descarrega o cliente a partir da página de transferências em
+        hop.apache.org. Fica com o zip mais recente do cliente. Depois de o
+        descompactares, essa pasta é a instalação. Lá dentro estão os scripts
+        de arranque, uma pasta config, os plugins e dois project que vêm com
+        o cliente. Chamam-se default e samples. Guarda a pasta do zip num
+        sítio onde a voltes a encontrar. Esse caminho é a tua instalação Hop.
+      fr-FR: |
+        Téléchargez le client depuis la page de téléchargement sur
+        hop.apache.org. Prenez le zip le plus récent du client. Une fois
+        décompressé, ce dossier est l'installation. Vous y trouvez les scripts
+        de lancement, un dossier config, les plugins, et deux project livrés
+        avec le client. Ils s'appellent default et samples. Gardez le dossier
+        de l'archive là où vous le retrouverez. Ce chemin est votre
+        installation Hop.
+      de-DE: |
+        Lade den Client von der Download-Seite auf hop.apache.org herunter.
+        Nimm das neueste Client-Zip. Nach dem Entpacken ist dieser Ordner die
+        Installation. Darin liegen die Startskripte, ein config-Ordner, die
+        Plugins und zwei project, die mit dem Client geliefert werden. Sie
+        heißen default und samples. Lege den Ordner des Zip an einen Ort, den
+        du wiederfindest. Dieser Pfad ist deine Hop-Installation.
+      it-IT: |
+        Scarica il client dalla pagina di download su hop.apache.org. Prendi
+        lo zip più recente del client. Dopo averlo scompattato, quella
+        cartella è l'installazione. Dentro ci sono gli script di avvio, una
+        cartella config, i plugin e due project forniti con il client. Si
+        chiamano default e samples. Tieni la cartella dello zip dove puoi
+        ritrovarla. Quel percorso è la tua installazione di Hop.
+
+  - id: unzip-and-start
+    title: Unpack and start
+    visual: clips/unzip-and-start.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Unpack the client zip, then start hop-gui.bat on
+      Windows or hop-gui.sh on Linux and macOS. Stop when the Hop GUI
+      window is open. No personal paths.
+    narration:
+      en: |
+        Unpack the zip into a folder you can find again. On Windows, start
+        hop-gui.bat. On Linux and macOS, start hop-gui.sh from that folder.
+        The first start takes a little longer than the later ones, because
+        Hop scans and registers its plugins. When the window opens, you are
+        in Hop GUI. The menu bar, the project name, and the canvas are the
+        pieces you will use in the rest of this series.
+      zh-CN: |
+        把 zip 解压到一个你以后找得到的文件夹。在 Windows 上启动 hop-gui.bat。
+        在 Linux 和 macOS 上，从那个文件夹启动 hop-gui.sh。第一次启动会比以后
+        稍慢，因为 Hop 要扫描并注册插件。窗口打开时，你就在 Hop GUI 里。
+        菜单栏、project 名称和画布，是这个系列后面会用到的部分。
+      es-ES: |
+        Descomprime el zip en una carpeta que puedas encontrar otra vez. En
+        Windows, arranca hop-gui.bat. En Linux y macOS, arranca hop-gui.sh
+        desde esa carpeta. El primer arranque tarda un poco más que los
+        siguientes, porque Hop examina y registra sus plugins. Cuando se abre
+        la ventana, estás en Hop GUI. La barra de menús, el nombre del
+        project y el lienzo son las piezas que usarás en el resto de la serie.
+      pt-PT: |
+        Descompacta o zip numa pasta que consigas encontrar outra vez. No
+        Windows, inicia hop-gui.bat. No Linux e no macOS, inicia hop-gui.sh a
+        partir dessa pasta. O primeiro arranque demora um pouco mais do que os
+        seguintes, porque o Hop percorre e regista os plugins. Quando a janela
+        abre, estás no Hop GUI. A barra de menus, o nome do project e a área
+        de desenho são as peças que vais usar no resto da série.
+      fr-FR: |
+        Décompressez l'archive dans un dossier que vous retrouverez. Sous
+        Windows, lancez hop-gui.bat. Sous Linux et macOS, lancez hop-gui.sh
+        depuis ce dossier. Le premier démarrage dure un peu plus longtemps que
+        les suivants, parce que Hop parcourt et enregistre ses plugins. Quand
+        la fenêtre s'ouvre, vous êtes dans Hop GUI. La barre de menus, le nom
+        du project et le canevas sont les éléments que vous utiliserez dans
+        le reste de la série.
+      de-DE: |
+        Entpacke das Zip in einen Ordner, den du wiederfindest. Unter Windows
+        startest du hop-gui.bat. Unter Linux und macOS startest du hop-gui.sh
+        aus diesem Ordner. Der erste Start dauert etwas länger als die
+        späteren, weil Hop seine Plugins durchsucht und registriert. Wenn das
+        Fenster aufgeht, bist du in Hop GUI. Die Menüleiste, der Name des
+        project und die Zeichenfläche sind die Teile, die du im Rest der Reihe
+        benutzt.
+      it-IT: |
+        Scompatta lo zip in una cartella che puoi ritrovare. Su Windows avvia
+        hop-gui.bat. Su Linux e macOS avvia hop-gui.sh da quella cartella. Il
+        primo avvio richiede un po' più tempo di quelli successivi, perché Hop
+        esamina e registra i suoi plugin. Quando la finestra si apre, sei in
+        Hop GUI. La barra dei menu, il nome del project e l'area di disegno
+        sono i pezzi che userai nel resto della serie.
+
+  - id: keep-config-outside
+    title: Keep configuration outside the install
+    visual: images/keep-config-outside.png
+    visual_type: still
+    shot: >
+      The first-start question that asks whether to keep configuration
+      outside the installation folder. The Yes button is visible. No other
+      dialogs.
+    narration:
+      en: |
+        On that first start, Hop asks whether to keep your configuration
+        outside the installation folder. Choose Yes. An upgrade is a new
+        unzip. If your projects live inside the old folder, that new unzip
+        does not see them. A user-level configuration folder keeps your
+        projects, your settings, and the list of what you last opened,
+        across versions. You can open the same dialog later from the Tools
+        menu, under Configure Hop environment.
+      zh-CN: |
+        第一次启动时，Hop 会问你是否把配置放在安装文件夹之外。选择 Yes。
+        一次升级就是一次新的解压。如果你的 project 留在旧文件夹里，新的解压
+        看不到它们。用户级配置文件夹会在各个版本之间保留你的 project、设置，
+        以及最近打开的列表。以后可以从 Tools 菜单里的 Configure Hop
+        environment 打开同一个对话框。
+      es-ES: |
+        En ese primer arranque, Hop pregunta si quieres guardar la
+        configuración fuera de la carpeta de instalación. Elige Yes. Una
+        actualización es una descompresión nueva. Si tus project viven dentro de la
+        carpeta antigua, ese unzip nuevo no los ve. Una carpeta de
+        configuración de usuario conserva tus project, tus ajustes y la lista
+        de lo último que abriste, de una versión a otra. Más tarde puedes
+        abrir el mismo diálogo desde el menú Tools, en Configure Hop
+        environment.
+      pt-PT: |
+        Nesse primeiro arranque, o Hop pergunta se queres manter a
+        configuração fora da pasta de instalação. Escolhe Yes. Uma atualização
+        é uma descompactação nova. Se os teus project ficarem dentro da pasta antiga,
+        esse unzip novo não os vê. Uma pasta de configuração do utilizador
+        guarda os teus project, as tuas definições e a lista do que abriste
+        por último, entre versões. Mais tarde podes abrir o mesmo diálogo no
+        menu Tools, em Configure Hop environment.
+      fr-FR: |
+        À ce premier démarrage, Hop demande si vous voulez garder la
+        configuration en dehors du dossier d'installation. Choisissez Yes.
+        Une mise à jour est une nouvelle décompression. Si vos project restent
+        dans l'ancien dossier, cette nouvelle décompression ne les voit pas.
+        Un dossier de configuration au niveau de l'utilisateur conserve vos
+        project, vos réglages et la liste de ce que vous avez ouvert en
+        dernier, d'une version à l'autre. Vous pouvez rouvrir le même dialogue
+        plus tard dans le menu Tools, sous Configure Hop environment.
+      de-DE: |
+        Beim ersten Start fragt Hop, ob die Konfiguration außerhalb des
+        Installationsordners liegen soll. Wähle Yes. Ein Upgrade ist ein
+        neues Entpacken. Wenn deine project im alten Ordner liegen, sieht das
+        neue Entpacken sie nicht. Ein Konfigurationsordner auf Benutzerebene
+        behält deine project, deine Einstellungen und die Liste dessen, was
+        du zuletzt geöffnet hast, über Versionen hinweg. Denselben Dialog
+        öffnest du später im Menü Tools unter Configure Hop environment.
+      it-IT: |
+        A quel primo avvio, Hop chiede se tenere la configurazione fuori
+        dalla cartella di installazione. Scegli Yes. Un aggiornamento è un
+        nuovo scompattamento. Se i tuoi project restano nella cartella
+        vecchia, quel nuovo scompattamento non li vede. Una cartella di
+        configurazione a livello utente conserva i tuoi project, le
+        impostazioni e l'elenco di ciò che hai aperto per ultimo, da una
+        versione all'altra. Puoi riaprire lo stesso dialogo più tardi dal
+        menu Tools, sotto Configure Hop environment.
+
+  - id: configure-environment
+    title: Configure Hop environment
+    visual: clips/configure-environment.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. In Configure Hop environment, show the Variables
+      tab with Use recommended values, the Location tab, and the Projects
+      tab with both options selected. Then Preview and Apply. Paths that
+      identify you can be blurred. Stop on the confirmation that a restart
+      is required.
+    narration:
+      en: |
+        Yes opens the dialog named Configure Hop environment. On the
+        Variables tab, Use recommended values fills in the HOP_CONFIG_FOLDER
+        variable and the HOP_AUDIT_FOLDER variable for your operating system.
+        The Location tab chooses where those variables are saved: the Windows
+        user environment, a shell startup file, or a hop-env script. On the
+        Projects tab, leave both options selected. Hop creates a default
+        project in your documents folder and registers the samples project
+        from this installation. Preview shows the files it will write. Apply
+        writes them. Then restart Hop GUI so the new folders are the ones
+        it uses.
+      zh-CN: |
+        Yes 会打开名为 Configure Hop environment 的对话框。在 Variables
+        选项卡上，Use recommended values 会为你的操作系统填入
+        HOP_CONFIG_FOLDER 变量和 HOP_AUDIT_FOLDER 变量。Location 选项卡选择
+        这些变量保存在哪里：Windows user environment、shell 启动文件，或一个
+        hop-env 脚本。在 Projects 选项卡上，两个选项都保持选中。Hop 在文档
+        文件夹里创建一个 default project，并从这次安装注册 samples project。
+        Preview 显示它将写入的文件。Apply 把它们写下去。然后重启 Hop GUI，
+        让它使用这些新文件夹。
+      es-ES: |
+        Yes abre el diálogo llamado Configure Hop environment. En la pestaña
+        Variables, Use recommended values rellena la variable
+        HOP_CONFIG_FOLDER y la variable HOP_AUDIT_FOLDER para tu sistema
+        operativo. La pestaña Location elige dónde se guardan esas variables:
+        el Windows user environment, un archivo de inicio del shell o un
+        script hop-env. En la pestaña Projects, deja las dos opciones
+        seleccionadas. Hop crea un default project en tu carpeta de documentos
+        y registra el samples project de esta instalación. Preview muestra los
+        archivos que va a escribir. Apply los escribe. Después reinicia Hop
+        GUI para que use las carpetas nuevas.
+      pt-PT: |
+        Yes abre o diálogo com o nome Configure Hop environment. No separador
+        Variables, Use recommended values preenche a variável
+        HOP_CONFIG_FOLDER e a variável HOP_AUDIT_FOLDER para o teu sistema
+        operativo. O separador Location escolhe onde essas variáveis ficam
+        guardadas: o Windows user environment, um ficheiro de arranque da
+        shell ou um script hop-env. No separador Projects, deixa as duas
+        opções selecionadas. O Hop cria um default project na tua pasta de
+        documentos e regista o samples project desta instalação. Preview
+        mostra os ficheiros que vai escrever. Apply escreve-os. Depois
+        reinicia o Hop GUI para passar a usar as pastas novas.
+      fr-FR: |
+        Yes ouvre le dialogue nommé Configure Hop environment. Dans l'onglet
+        Variables, Use recommended values remplit la variable
+        HOP_CONFIG_FOLDER et la variable HOP_AUDIT_FOLDER pour votre système
+        d'exploitation. L'onglet Location choisit où ces variables sont
+        enregistrées : le Windows user environment, un fichier de démarrage
+        du shell, ou un script hop-env. Dans l'onglet Projects, laissez les
+        deux options sélectionnées. Hop crée un default project dans votre
+        dossier de documents et enregistre le samples project de cette
+        installation. Preview montre les fichiers qu'il va écrire. Apply les
+        écrit. Redémarrez ensuite Hop GUI pour qu'il utilise les nouveaux
+        dossiers.
+      de-DE: |
+        Yes öffnet den Dialog mit dem Namen Configure Hop environment. Auf
+        dem Tab Variables füllt Use recommended values die Variable
+        HOP_CONFIG_FOLDER und die Variable HOP_AUDIT_FOLDER für dein
+        Betriebssystem. Der Tab Location wählt, wo diese Variablen gespeichert
+        werden: die Windows user environment, eine Shell-Startdatei oder ein
+        hop-env-Skript. Auf dem Tab Projects lässt du beide Optionen
+        ausgewählt. Hop legt ein default project in deinem Dokumente-Ordner
+        an und registriert das samples project aus dieser Installation.
+        Preview zeigt die Dateien, die geschrieben werden. Apply schreibt sie.
+        Starte danach Hop GUI neu, damit die neuen Ordner gelten.
+      it-IT: |
+        Yes apre il dialogo chiamato Configure Hop environment. Nella scheda
+        Variables, Use recommended values compila la variabile
+        HOP_CONFIG_FOLDER e la variabile HOP_AUDIT_FOLDER per il tuo sistema
+        operativo. La scheda Location sceglie dove salvare quelle variabili:
+        il Windows user environment, un file di avvio della shell o uno
+        script hop-env. Nella scheda Projects, lascia selezionate entrambe le
+        opzioni. Hop crea un default project nella cartella documenti e
+        registra il samples project di questa installazione. Preview mostra i
+        file che scriverà. Apply li scrive. Poi riavvia Hop GUI così le nuove
+        cartelle sono quelle che usa.
+
+  - id: default-and-samples
+    title: Default and samples
+    visual: images/default-and-samples.png
+    visual_type: still
+    shot: >
+      Hop GUI after the restart, on the new default project. The project
+      switcher is open far enough to show both default and samples. No
+      personal file names.
+    narration:
+      en: |
+        After the restart, Hop GUI opens the new default project. It is an
+        empty place to build your own work. The samples project is on the
+        project list as well. Open it when you want working pipelines and
+        workflows to click through. The next video in this series builds a
+        pipeline of your own. The samples project stays available when you
+        want more examples than the one we draw.
+      zh-CN: |
+        重启之后，Hop GUI 打开新的 default project。那是一块空白的地方，用来
+        搭建你自己的工作。samples project 也在 project 列表里。想点开现成的
+        Pipeline 和 Workflow 时，就打开它。本系列的下一集要做一条你自己的
+        Pipeline。想要比我们画的那一条更多的例子时，samples project 一直都在。
+      es-ES: |
+        Tras el reinicio, Hop GUI abre el nuevo default project. Es un sitio
+        vacío para construir tu propio trabajo. El samples project también
+        está en la lista de project. Ábrelo cuando quieras Pipeline y Workflow
+        ya hechos para recorrerlos. El siguiente vídeo de la serie construye
+        un Pipeline propio. El samples project sigue disponible cuando quieras
+        más ejemplos que el que dibujemos.
+      pt-PT: |
+        Depois do reinício, o Hop GUI abre o novo default project. É um sítio
+        vazio para construíres o teu próprio trabalho. O samples project
+        também está na lista de project. Abre-o quando quiseres Pipeline e
+        Workflow já feitos para percorrer. O vídeo seguinte desta série
+        constrói um Pipeline teu. O samples project continua disponível quando
+        quiseres mais exemplos do que aquele que vamos desenhar.
+      fr-FR: |
+        Après le redémarrage, Hop GUI ouvre le nouveau default project. C'est
+        un endroit vide pour construire votre propre travail. Le samples
+        project figure aussi dans la liste des project. Ouvrez-le quand vous
+        voulez des Pipeline et des Workflow prêts à parcourir. La vidéo
+        suivante de la série construit un Pipeline à vous. Le samples project
+        reste disponible quand vous voulez plus d'exemples que celui que nous
+        dessinons.
+      de-DE: |
+        Nach dem Neustart öffnet Hop GUI das neue default project. Es ist ein
+        leerer Ort, um deine eigene Arbeit zu bauen. Das samples project steht
+        ebenfalls auf der project-Liste. Öffne es, wenn du fertige Pipeline
+        und Workflow anklicken willst. Das nächste Video der Reihe baut eine
+        eigene Pipeline. Das samples project bleibt da, wenn du mehr Beispiele
+        willst als das eine, das wir zeichnen.
+      it-IT: |
+        Dopo il riavvio, Hop GUI apre il nuovo default project. È un posto
+        vuoto per costruire il tuo lavoro. Il samples project è anche
+        nell'elenco dei project. Aprilo quando vuoi Pipeline e Workflow già
+        pronti da esplorare. Il prossimo video della serie costruisce un
+        Pipeline tuo. Il samples project resta disponibile quando vuoi più
+        esempi di quello che disegniamo.
