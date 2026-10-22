@@ -51,6 +51,9 @@ public class SshData extends BaseTransformData implements ITransformData {
   public String stdOutField;
   public String stdTypeField;
 
+  /** Maximum time to wait for a command to complete, 0 waits until it ends. */
+  public long commandTimeOutMs;
+
   public IRowMeta outputRowMeta;
 
   public SshData() {

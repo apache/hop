@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -123,7 +124,9 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "SSH.Log.RunningCommand", data.commands));
       }
-      SessionResult sessionresult = SessionResult.executeCommand(data.session, data.commands);
+      SessionResult sessionresult =
+          SessionResult.executeCommand(
+              data.session, data.commands, data.commandTimeOutMs, this::isStopped);
       if (isDebug()) {
         logDebug(
             BaseMessages.getString(
@@ -154,6 +157,11 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         logDetailed(BaseMessages.getString(PKG, "SSH.LineNumber", "" + getLinesRead()));
       }
     } catch (Exception e) {
+      if (isStopped()) {
+        // The pipeline was stopped while the command was running
+        setOutputDone();
+        return false;
+      }
       String errorMessage = null;
 
       if (getTransformMeta().isDoingErrorHandling()) {
@@ -200,6 +208,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         return false;
       }
       data.stdTypeField = resolve(meta.getStdErrFieldName());
+      data.commandTimeOutMs = Const.toLong(resolve(meta.getCommandTimeOut()), 0L) * 1000L;
 
       try {
         // Open connection

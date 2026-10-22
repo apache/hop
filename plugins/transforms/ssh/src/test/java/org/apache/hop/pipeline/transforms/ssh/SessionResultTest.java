@@ -33,6 +33,8 @@ import com.jcraft.jsch.Session;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongSupplier;
 import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.Test;
 
@@ -75,6 +77,68 @@ class SessionResultTest {
         assertThrows(HopException.class, () -> SessionResult.executeCommand(session, "id"));
 
     assertInstanceOf(JSchException.class, ex.getCause());
+  }
+
+  @Test
+  void noCommandTimeoutWaitsUntilChannelCloses() throws Exception {
+    Session session = mock(Session.class);
+    ChannelExec channel = mock(ChannelExec.class);
+    when(session.openChannel("exec")).thenReturn(channel);
+    when(channel.getInputStream()).thenReturn(stream("done\n"));
+    when(channel.getErrStream()).thenReturn(stream(""));
+    // Still running for a few polls while the clock jumps 10 minutes per call (#9072)
+    when(channel.isClosed()).thenReturn(false, false, false, false, true);
+
+    SessionResult result =
+        SessionResult.executeCommand(
+            session, "sleep 3000; echo done", 0L, () -> false, steppingClock(600_000L));
+
+    assertEquals("done\n", result.getStdOut());
+    verify(channel).disconnect();
+  }
+
+  @Test
+  void commandTimeoutFailsWhenChannelStaysOpen() throws Exception {
+    Session session = mock(Session.class);
+    ChannelExec channel = mock(ChannelExec.class);
+    when(session.openChannel("exec")).thenReturn(channel);
+    when(channel.getInputStream()).thenReturn(stream(""));
+    when(channel.getErrStream()).thenReturn(stream(""));
+    when(channel.isClosed()).thenReturn(false);
+
+    HopException ex =
+        assertThrows(
+            HopException.class,
+            () ->
+                SessionResult.executeCommand(
+                    session, "sleep 60", 5_000L, () -> false, steppingClock(2_000L)));
+
+    assertTrue(ex.getMessage().contains("5 seconds"), ex.getMessage());
+    verify(channel).disconnect();
+  }
+
+  @Test
+  void stoppedTransformAbandonsRunningCommand() throws Exception {
+    Session session = mock(Session.class);
+    ChannelExec channel = mock(ChannelExec.class);
+    when(session.openChannel("exec")).thenReturn(channel);
+    when(channel.getInputStream()).thenReturn(stream(""));
+    when(channel.getErrStream()).thenReturn(stream(""));
+    when(channel.isClosed()).thenReturn(false);
+    AtomicLong polls = new AtomicLong();
+
+    assertThrows(
+        HopException.class,
+        () ->
+            SessionResult.executeCommand(
+                session, "sleep 60", 0L, () -> polls.incrementAndGet() > 3));
+
+    verify(channel).disconnect();
+  }
+
+  private static LongSupplier steppingClock(long stepMs) {
+    AtomicLong now = new AtomicLong();
+    return () -> now.addAndGet(stepMs);
   }
 
   private static InputStream stream(String text) {

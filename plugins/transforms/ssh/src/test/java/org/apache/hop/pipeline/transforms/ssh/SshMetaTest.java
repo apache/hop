@@ -111,6 +111,7 @@ class SshMetaTest extends SshTestSupport {
             "stdOutFieldName",
             "stdErrFieldName",
             "timeOut",
+            "commandTimeOut",
             "proxyHost",
             "proxyPort",
             "proxyUsername",
@@ -130,6 +131,7 @@ class SshMetaTest extends SshTestSupport {
     assertEquals("22", meta.getPort());
     assertEquals("stdOut", meta.getStdOutFieldName());
     assertEquals("stdErr", meta.getStdErrFieldName());
+    assertEquals("0", meta.getCommandTimeOut());
     assertTrue(meta.isUsePrivateKey());
     assertFalse(meta.isDynamicCommandField());
   }
