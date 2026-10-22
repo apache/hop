@@ -1238,7 +1238,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "SSLPort",
+            "sslPort",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
   }

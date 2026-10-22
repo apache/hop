@@ -455,13 +455,13 @@ public class ActionMysqlBulkFile extends ActionBase {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "filename",
+            "fileName",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "tablename",
+            "tableName",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

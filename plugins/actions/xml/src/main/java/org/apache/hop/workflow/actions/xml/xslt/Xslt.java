@@ -567,10 +567,10 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     ValidatorContext ctx = new ValidatorContext();
     putVariableSpace(ctx, getVariables());
     putValidators(ctx, notBlankValidator(), fileExistsValidator());
-    andValidator().validate(this, "xmlFilename", remarks, ctx);
-    andValidator().validate(this, "xslFilename", remarks, ctx);
+    andValidator().validate(this, "xmlfilename", remarks, ctx);
+    andValidator().validate(this, "xslfilename", remarks, ctx);
 
-    andValidator().validate(this, "outputFilename", remarks, putValidators(notBlankValidator()));
+    andValidator().validate(this, "outputfilename", remarks, putValidators(notBlankValidator()));
   }
 
   /**

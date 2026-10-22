@@ -527,12 +527,12 @@ public class ActionMssqlBulkLoad extends ActionBase {
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, "fileName", remarks, ctx);
 
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "tablename",
+            "tableName",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }

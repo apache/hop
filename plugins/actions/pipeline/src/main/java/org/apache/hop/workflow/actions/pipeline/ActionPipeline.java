@@ -741,27 +741,12 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
               remarks,
               AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     }
-    if (!Utils.isEmpty(filename)) {
-      ActionValidatorUtils.andValidator()
-          .validate(
-              this,
-              "filename",
-              remarks,
-              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
-    } else {
-      ActionValidatorUtils.andValidator()
-          .validate(
-              this,
-              "pipeline-name",
-              remarks,
-              AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
-      ActionValidatorUtils.andValidator()
-          .validate(
-              this,
-              "directory",
-              remarks,
-              AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-    }
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "filename",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 
   @Override

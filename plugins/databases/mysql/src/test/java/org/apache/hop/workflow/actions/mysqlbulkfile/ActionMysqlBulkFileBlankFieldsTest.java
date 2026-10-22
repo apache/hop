@@ -30,7 +30,10 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -92,6 +95,28 @@ class ActionMysqlBulkFileBlankFieldsTest {
     assertTrue(
         sql.contains("FIELDS TERMINATED BY ';' ENCLOSED BY '\"' LINES TERMINATED BY '|'"), sql);
     assertTrue(sql.contains(" FROM myschema.mytable "), sql);
+  }
+
+  @Test
+  void checkReadsFileNameAndTableName() {
+    ActionMysqlBulkFile action = new ActionMysqlBulkFile();
+    action.setFileName("/tmp/customers.csv");
+    action.setTableName("customers");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    action.check(remarks, null, new Variables(), null);
+
+    assertTrue(errors(remarks).isEmpty(), () -> errors(remarks).toString());
+  }
+
+  private static List<String> errors(List<ICheckResult> remarks) {
+    List<String> errors = new ArrayList<>();
+    for (ICheckResult remark : remarks) {
+      if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR) {
+        errors.add(remark.getText());
+      }
+    }
+    return errors;
   }
 
   private String runAndCaptureSql(String settingsXml) throws Exception {

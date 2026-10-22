@@ -86,11 +86,33 @@ class ActionGetPOPTest {
   }
 
   @Test
+  void checkValidatesSslPort() {
+    ActionGetPOP action = new ActionGetPOP("mails");
+    action.setSslPort("nope");
+
+    List<String> errors = errors(action);
+    assertTrue(errors.stream().anyMatch(text -> text.contains("sslPort is not an integer")));
+    assertTrue(errors.stream().noneMatch(text -> text.contains("SSLPort")));
+  }
+
+  @Test
   void checkReportsMissingServer() {
     ActionGetPOP action = new ActionGetPOP("mails");
     List<ICheckResult> remarks = new ArrayList<>();
     action.check(remarks, new WorkflowMeta(), new Variables(), new MemoryMetadataProvider());
     assertTrue(remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR));
+  }
+
+  private static List<String> errors(ActionGetPOP action) {
+    List<ICheckResult> remarks = new ArrayList<>();
+    action.check(remarks, new WorkflowMeta(), new Variables(), new MemoryMetadataProvider());
+    List<String> errors = new ArrayList<>();
+    for (ICheckResult remark : remarks) {
+      if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR) {
+        errors.add(remark.getText());
+      }
+    }
+    return errors;
   }
 
   @Test
