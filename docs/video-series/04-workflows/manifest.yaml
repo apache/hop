@@ -1,0 +1,593 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 04. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word.
+video:
+  id: 04-workflows
+  title: "Your first workflow"
+  issue: 9061
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Your first workflow
+      url: https://hop.apache.org/manual/latest/getting-started/hop-gui-workflows.html
+    - label: Workflows
+      url: https://hop.apache.org/manual/latest/workflow/workflows.html
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Your first workflow
+    card_subtitle: One task, then the next
+    shot: >
+      Title card. Kicker "Apache Hop", title "Your first workflow", subtitle
+      "One task, then the next". No GUI.
+    narration:
+      en: |
+        This is the fourth video in the series. Last time you built a
+        pipeline that moves rows. This time you build a workflow, the part
+        of Hop that runs tasks in order and chooses what happens when one
+        succeeds or fails. You will look at one from the samples project,
+        then make a small one that runs the pipeline you just saved. The
+        clicks on the canvas are the same ones you used for a pipeline. We
+        will not repeat that tour.
+      zh-CN: |
+        这是系列的第四集。上一集你做了一条搬运数据行的 Pipeline。这一集你要做
+        一条 Workflow，也就是 Hop 里按顺序运行任务、并在成功或失败时选择下一步
+        的部分。你会先看 samples project 里的一条，再做一条小的，用来运行你刚
+        保存的那条 Pipeline。画布上的点击和做 Pipeline 时一样。我们不再重复
+        那一次讲解。
+      es-ES: |
+        Este es el cuarto vídeo de la serie. La vez anterior construiste un
+        Pipeline que mueve filas. Esta vez construyes un Workflow, la parte
+        de Hop que ejecuta tareas en orden y elige qué ocurre cuando una
+        tiene éxito o falla. Vas a mirar uno del samples project y luego
+        harás uno pequeño que ejecuta el Pipeline que acabas de guardar. Los
+        clics en el lienzo son los mismos que usaste para un Pipeline. No
+        repetiremos ese recorrido.
+      pt-PT: |
+        Este é o quarto vídeo da série. Da última vez construíste um Pipeline
+        que move linhas. Desta vez constróis um Workflow, a parte do Hop que
+        executa tarefas por ordem e escolhe o que acontece quando uma tem
+        sucesso ou falha. Vais ver um do samples project e depois fazes um
+        pequeno que executa o Pipeline que acabaste de guardar. Os cliques na
+        área de desenho são os mesmos que usaste para um Pipeline. Não vamos
+        repetir esse percurso.
+      fr-FR: |
+        Voici la quatrième vidéo de la série. La dernière fois, vous avez
+        construit un Pipeline qui déplace des lignes. Cette fois, vous
+        construisez un Workflow, la partie de Hop qui exécute les tâches dans
+        l'ordre et choisit ce qui se passe quand l'une réussit ou échoue.
+        Vous en regarderez un dans le samples project, puis vous en ferez un
+        petit qui exécute le Pipeline que vous venez d'enregistrer. Les clics
+        sur le canevas sont les mêmes que pour un Pipeline. Nous ne referons
+        pas cette visite.
+      de-DE: |
+        Dies ist das vierte Video der Reihe. Beim letzten Mal hast du eine
+        Pipeline gebaut, die Zeilen bewegt. Diesmal baust du einen Workflow,
+        den Teil von Hop, der Aufgaben der Reihe nach ausführt und wählt, was
+        geschieht, wenn eine gelingt oder fehlschlägt. Du siehst dir einen aus
+        dem samples project an und machst dann einen kleinen, der die Pipeline
+        ausführt, die du gerade gespeichert hast. Die Klicks auf der
+        Zeichenfläche sind dieselben wie bei einer Pipeline. Diese Führung
+        wiederholen wir nicht.
+      it-IT: |
+        Questo è il quarto video della serie. L'ultima volta hai costruito un
+        Pipeline che sposta le righe. Questa volta costruisci un Workflow, la
+        parte di Hop che esegue i compiti in ordine e sceglie che cosa
+        succede quando uno riesce o fallisce. Ne guardi uno dal samples
+        project e poi ne fai uno piccolo che esegue il Pipeline che hai appena
+        salvato. I clic sull'area di disegno sono gli stessi che hai usato per
+        un Pipeline. Non ripetiamo quel giro.
+
+  - id: what-a-workflow-is
+    title: What a workflow is
+    visual: images/what-a-workflow-is.png
+    visual_type: still
+    card_title: Actions run in order
+    card_subtitle: Green means success, red means failure
+    shot: >
+      Title card. Title "Actions run in order". Subtitle "Green means
+      success, red means failure". No GUI.
+    narration:
+      en: |
+        A workflow runs actions one after another. An action is one task.
+        It can run a pipeline, check that a file arrived, or write a line to
+        the log. A hop between actions is a decision. A green hop runs the
+        next action only when the previous one succeeded. A red hop runs
+        only when it failed. A black hop runs either way. That choice is
+        what a pipeline does not give you. A pipeline streams rows. A
+        workflow decides which task is next.
+      zh-CN: |
+        Workflow 一个接一个地运行 Action。一个 Action 就是一项任务。它可以
+        运行一条 Pipeline，检查文件是否到达，或者往日志里写一行。Action 之间
+        的 hop 是一个决定。绿色 hop 只在前一个 Action 成功时运行下一个。红色
+        hop 只在失败时运行。黑色 hop 不论成败都会运行。这个选择是 Pipeline
+        没有的。Pipeline 搬运的是一行行数据。Workflow 决定下一项任务是什么。
+      es-ES: |
+        Un Workflow ejecuta Action uno tras otro. Un Action es una tarea.
+        Puede ejecutar un Pipeline, comprobar que llegó un archivo o escribir
+        una línea en el registro. Un hop entre Action es una decisión. Un hop
+        verde ejecuta el siguiente Action solo cuando el anterior tuvo éxito.
+        Un hop rojo se ejecuta solo cuando falló. Un hop negro se ejecuta de
+        las dos formas. Esa elección es lo que un Pipeline no te da. Un
+        Pipeline hace fluir filas. Un Workflow decide cuál es la tarea
+        siguiente.
+      pt-PT: |
+        Um Workflow executa Action um após o outro. Um Action é uma tarefa.
+        Pode executar um Pipeline, verificar se um ficheiro chegou ou
+        escrever uma linha no registo. Um hop entre Action é uma decisão. Um
+        hop verde executa o Action seguinte só quando o anterior teve
+        sucesso. Um hop vermelho executa só quando falhou. Um hop preto
+        executa de qualquer maneira. Essa escolha é o que um Pipeline não te
+        dá. Um Pipeline faz fluir linhas. Um Workflow decide qual é a tarefa
+        seguinte.
+      fr-FR: |
+        Un Workflow exécute les Action l'un après l'autre. Un Action est une
+        tâche. Il peut exécuter un Pipeline, vérifier qu'un fichier est
+        arrivé, ou écrire une ligne dans le journal. Un hop entre des Action
+        est une décision. Un hop vert exécute l'Action suivant seulement
+        quand le précédent a réussi. Un hop rouge ne s'exécute que quand il a
+        échoué. Un hop noir s'exécute dans les deux cas. Ce choix est ce
+        qu'un Pipeline ne vous donne pas. Un Pipeline fait défiler des lignes.
+        Un Workflow décide quelle tâche vient ensuite.
+      de-DE: |
+        Ein Workflow führt Action nacheinander aus. Ein Action ist eine
+        Aufgabe. Er kann eine Pipeline ausführen, prüfen, ob eine Datei
+        angekommen ist, oder eine Zeile ins Protokoll schreiben. Ein hop
+        zwischen Action ist eine Entscheidung. Ein grüner hop führt den
+        nächsten Action nur aus, wenn der vorige gelungen ist. Ein roter hop
+        läuft nur, wenn er fehlgeschlagen ist. Ein schwarzer hop läuft in
+        beiden Fällen. Diese Wahl gibt dir eine Pipeline nicht. Eine Pipeline
+        lässt Zeilen strömen. Ein Workflow entscheidet, welche Aufgabe als
+        Nächstes kommt.
+      it-IT: |
+        Un Workflow esegue gli Action uno dopo l'altro. Un Action è un
+        compito. Può eseguire un Pipeline, controllare che un file sia
+        arrivato o scrivere una riga nel log. Un hop tra Action è una
+        decisione. Un hop verde esegue l'Action successivo solo quando il
+        precedente è riuscito. Un hop rosso si esegue solo quando è fallito.
+        Un hop nero si esegue in entrambi i casi. Questa scelta è ciò che un
+        Pipeline non ti dà. Un Pipeline fa scorrere le righe. Un Workflow
+        decide quale compito viene dopo.
+
+  - id: samples-workflow
+    title: A workflow from samples
+    visual: images/samples-workflow.png
+    visual_type: still
+    shot: >
+      The samples project, with workflows/parallel/parallel-workflow open.
+      Start and the two pipeline actions are readable, hops visible, no
+      dialog open.
+    narration:
+      en: |
+        Open the samples project and open parallel-workflow, under
+        workflows and then parallel. Start is the action every workflow
+        begins from. From Start, this one launches two pipelines side by
+        side, and each path writes a line to the log. You are looking at a
+        finished workflow. Actions sit on the canvas, and the hops show the
+        order. Ours will be smaller. It will run the one pipeline you built,
+        then take a different path when that pipeline succeeds or fails.
+      zh-CN: |
+        打开 samples project，再打开 workflows 下面 parallel 里的
+        parallel-workflow。Start 是每条 Workflow 开始的那个 Action。从 Start
+        出发，这一条并排启动两条 Pipeline，每条路径都往日志里写一行。你看到的
+        是一条已经完成的 Workflow。Action 在画布上，hop 标出顺序。我们的会更
+        小。它会运行你做的那一条 Pipeline，然后在这条 Pipeline 成功或失败时走
+        不同的路径。
+      es-ES: |
+        Abre el samples project y abre parallel-workflow, dentro de workflows
+        y luego parallel. Start es el Action del que parte todo Workflow.
+        Desde Start, este lanza dos Pipeline en paralelo, y cada camino
+        escribe una línea en el registro. Estás viendo un Workflow terminado.
+        Los Action están en el lienzo y los hop muestran el orden. El nuestro
+        será más pequeño. Ejecutará el Pipeline que construiste y tomará un
+        camino distinto cuando ese Pipeline tenga éxito o falle.
+      pt-PT: |
+        Abre o samples project e abre parallel-workflow, dentro de workflows
+        e depois parallel. Start é o Action de onde parte todo o Workflow. A
+        partir de Start, este lança dois Pipeline lado a lado, e cada caminho
+        escreve uma linha no registo. Estás a ver um Workflow terminado. Os
+        Action estão na área de desenho e os hop mostram a ordem. O nosso
+        será mais pequeno. Vai executar o Pipeline que construíste e seguir
+        um caminho diferente quando esse Pipeline tiver sucesso ou falhar.
+      fr-FR: |
+        Ouvrez le samples project et ouvrez parallel-workflow, sous workflows
+        puis parallel. Start est l'Action d'où part chaque Workflow. Depuis
+        Start, celui-ci lance deux Pipeline côte à côte, et chaque chemin
+        écrit une ligne dans le journal. Vous regardez un Workflow terminé.
+        Les Action sont sur le canevas, et les hop montrent l'ordre. Le nôtre
+        sera plus petit. Il exécutera le Pipeline que vous avez construit,
+        puis prendra un chemin différent quand ce Pipeline réussit ou échoue.
+      de-DE: |
+        Öffne das samples project und öffne parallel-workflow, unter
+        workflows und dann parallel. Start ist der Action, bei dem jeder
+        Workflow beginnt. Von Start aus startet dieser zwei Pipeline
+        nebeneinander, und jeder Pfad schreibt eine Zeile ins Protokoll. Du
+        siehst einen fertigen Workflow. Die Action liegen auf der
+        Zeichenfläche, und die hop zeigen die Reihenfolge. Unserer wird
+        kleiner. Er führt die eine Pipeline aus, die du gebaut hast, und
+        nimmt einen anderen Pfad, wenn diese Pipeline gelingt oder
+        fehlschlägt.
+      it-IT: |
+        Apri il samples project e apri parallel-workflow, sotto workflows e
+        poi parallel. Start è l'Action da cui parte ogni Workflow. Da Start,
+        questo ne avvia due Pipeline fianco a fianco, e ogni percorso scrive
+        una riga nel log. Stai guardando un Workflow finito. Gli Action sono
+        sull'area di disegno e gli hop mostrano l'ordine. Il nostro sarà più
+        piccolo. Eseguirà il Pipeline che hai costruito e prenderà un
+        percorso diverso quando quel Pipeline riesce o fallisce.
+
+  - id: new-workflow
+    title: A new workflow
+    visual: clips/new-workflow.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Click New, choose Workflow, and save it in the
+      same project as first-pipeline.hpl, as first-workflow.hwf. The Start
+      action is already on the canvas. Stop there. No personal paths.
+    narration:
+      en: |
+        Click New and choose Workflow. Hop places a Start action on the
+        canvas for you. Execution begins there, and Start is also where a
+        repeating schedule is set when you want one. Save the workflow now,
+        in the same project as the pipeline, as first-workflow.hwf. Leave
+        Start where it is. The next step adds the work that Start will call.
+        You do not delete Start, and you do not add a second one.
+      zh-CN: |
+        点击 New，选择 Workflow。Hop 会在画布上为你放一个 Start Action。执行
+        从那里开始。如果你想让它重复，日程也设在 Start 上。现在就把这条
+        Workflow 存在和 Pipeline 同一个 project 里，文件名是
+        first-workflow.hwf。Start 留在原地。下一步加上 Start 将要调用的工作。
+        不要删掉 Start，也不要再加第二个。
+      es-ES: |
+        Pulsa New y elige Workflow. Hop coloca un Action Start en el lienzo.
+        La ejecución empieza ahí, y Start es también donde se configura una
+        repetición cuando quieres una. Guarda el Workflow ahora, en el mismo
+        project que el Pipeline, como first-workflow.hwf. Deja Start donde
+        está. El paso siguiente añade el trabajo que Start llamará. No borres
+        Start, y no añadas un segundo.
+      pt-PT: |
+        Clica em New e escolhe Workflow. O Hop coloca um Action Start na área
+        de desenho. A execução começa aí, e Start é também onde se define uma
+        repetição quando queres uma. Guarda o Workflow agora, no mesmo
+        project que o Pipeline, como first-workflow.hwf. Deixa o Start onde
+        está. O passo seguinte adiciona o trabalho que o Start vai chamar.
+        Não apagues o Start e não adiciones um segundo.
+      fr-FR: |
+        Cliquez sur New et choisissez Workflow. Hop place un Action Start sur
+        le canevas. L'exécution commence là, et Start est aussi l'endroit où
+        l'on règle une répétition quand vous en voulez une. Enregistrez le
+        Workflow maintenant, dans le même project que le Pipeline, sous le
+        nom first-workflow.hwf. Laissez Start où il est. L'étape suivante
+        ajoute le travail que Start appellera. Ne supprimez pas Start, et
+        n'en ajoutez pas un second.
+      de-DE: |
+        Klicke auf New und wähle Workflow. Hop setzt einen Action Start auf
+        die Zeichenfläche. Die Ausführung beginnt dort, und Start ist auch
+        der Ort, an dem du einen Wiederholungsplan setzt, wenn du einen
+        willst. Speichere den Workflow jetzt, im selben project wie die
+        Pipeline, als first-workflow.hwf. Lass Start, wo er ist. Der nächste
+        Schritt fügt die Arbeit hinzu, die Start aufruft. Lösche Start nicht,
+        und füge keinen zweiten hinzu.
+      it-IT: |
+        Fai clic su New e scegli Workflow. Hop mette un Action Start
+        sull'area di disegno. L'esecuzione inizia lì, e Start è anche dove si
+        imposta una ripetizione quando ne vuoi una. Salva il Workflow ora,
+        nello stesso project del Pipeline, come first-workflow.hwf. Lascia
+        Start dov'è. Il passo successivo aggiunge il lavoro che Start
+        chiamerà. Non cancellare Start e non aggiungerne un secondo.
+
+  - id: properties
+    title: Properties and parameters
+    visual: images/properties.png
+    visual_type: still
+    shot: >
+      The workflow properties dialog for first-workflow, on the Parameters
+      tab. The name is visible. The parameter table is empty.
+    narration:
+      en: |
+        Open the workflow properties. You will find the name, a description,
+        and a Parameters tab, the same idea as on a pipeline. A parameter is
+        a named value the workflow receives when it starts. This small
+        workflow does not need one. The pipeline it calls already carries
+        the rows. Close the dialog when you have seen the tab. We will spend
+        the rest of the video on the actions, not on another parameter.
+      zh-CN: |
+        打开这条 Workflow 的属性。你会看到名称、一段说明，以及 Parameters
+        选项卡，和 Pipeline 上的想法一样。参数是 Workflow 启动时收到的一个
+        带名字的值。这条小 Workflow 不需要参数。它调用的 Pipeline 已经带着
+        那些行。看完选项卡就关闭对话框。剩下的时间我们花在 Action 上，而不是
+        再加一个参数。
+      es-ES: |
+        Abre las propiedades del Workflow. Verás el nombre, una descripción y
+        una pestaña Parameters, la misma idea que en un Pipeline. Un
+        parámetro es un valor con nombre que el Workflow recibe al arrancar.
+        Este Workflow pequeño no necesita uno. El Pipeline al que llama ya
+        lleva las filas. Cierra el diálogo cuando hayas visto la pestaña. El
+        resto del vídeo lo dedicaremos a los Action, no a otro parámetro.
+      pt-PT: |
+        Abre as propriedades do Workflow. Vês o nome, uma descrição e um
+        separador Parameters, a mesma ideia que num Pipeline. Um parâmetro é
+        um valor com nome que o Workflow recebe quando arranca. Este Workflow
+        pequeno não precisa de um. O Pipeline que ele chama já traz as
+        linhas. Fecha o diálogo quando tiveres visto o separador. O resto do
+        vídeo fica para os Action, não para outro parâmetro.
+      fr-FR: |
+        Ouvrez les propriétés du Workflow. Vous y trouvez le nom, une
+        description et un onglet Parameters, la même idée que sur un
+        Pipeline. Un paramètre est une valeur nommée que le Workflow reçoit à
+        son démarrage. Ce petit Workflow n'en a pas besoin. Le Pipeline qu'il
+        appelle porte déjà les lignes. Fermez le dialogue quand vous avez vu
+        l'onglet. Nous passerons le reste de la vidéo sur les Action, pas sur
+        un autre paramètre.
+      de-DE: |
+        Öffne die Eigenschaften des Workflow. Du findest den Namen, eine
+        Beschreibung und einen Tab Parameters, dieselbe Idee wie bei einer
+        Pipeline. Ein Parameter ist ein benannter Wert, den der Workflow beim
+        Start erhält. Dieser kleine Workflow braucht keinen. Die Pipeline,
+        die er aufruft, trägt die Zeilen schon. Schließe den Dialog, wenn du
+        den Tab gesehen hast. Den Rest des Videos verbringen wir mit den
+        Action, nicht mit einem weiteren Parameter.
+      it-IT: |
+        Apri le proprietà del Workflow. Trovi il nome, una descrizione e una
+        scheda Parameters, la stessa idea di un Pipeline. Un parametro è un
+        valore con nome che il Workflow riceve all'avvio. Questo piccolo
+        Workflow non ne ha bisogno. Il Pipeline che chiama porta già le
+        righe. Chiudi il dialogo quando hai visto la scheda. Il resto del
+        video lo passiamo sugli Action, non su un altro parametro.
+
+  - id: add-pipeline-action
+    title: Run the pipeline
+    visual: clips/add-pipeline-action.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Click the canvas, search for Pipeline, and add it.
+      Left-click the underlined name. Name the action run first pipeline.
+      Set the Pipeline field to first-pipeline.hpl in this project, so the
+      field shows the PROJECT_HOME variable. Click OK. Shift-drag a hop from
+      Start to run first pipeline. Stop there.
+    narration:
+      en: |
+        Click the canvas and search for Pipeline. Add it. To open the
+        dialog, left-click the underlined name under the icon. Name the
+        action run first pipeline. In the Pipeline field, choose
+        first-pipeline.hpl from this project. Hop writes that path with the
+        PROJECT_HOME variable, so the workflow is not tied to this machine.
+        Click OK. Hold Shift and drag a hop from Start to run first
+        pipeline. The workflow now knows which file to run, and the run
+        begins at Start.
+      zh-CN: |
+        在画布上点击，搜索 Pipeline，然后添加它。要打开对话框，左键点击图标
+        下方带下划线的名称。把这个 Action 命名为 run first pipeline。在
+        Pipeline 字段里，选择这个 project 中的 first-pipeline.hpl。Hop 会用
+        PROJECT_HOME 变量写下这条路径，这样 Workflow 就不绑在这台机器上。
+        点击 OK。按住 Shift，从 Start 拖一条 hop 到 run first pipeline。这条
+        Workflow 现在知道要运行哪个文件，而运行从 Start 开始。
+      es-ES: |
+        Haz clic en el lienzo y busca Pipeline. Añádelo. Para abrir el
+        diálogo, haz clic izquierdo en el nombre subrayado bajo el icono.
+        Llama al Action run first pipeline. En el campo Pipeline, elige
+        first-pipeline.hpl de este project. Hop escribe esa ruta con la
+        variable PROJECT_HOME, así el Workflow no queda atado a esta máquina.
+        Pulsa OK. Mantén Shift y arrastra un hop desde Start hasta run first
+        pipeline. El Workflow ya sabe qué archivo ejecutar, y la ejecución
+        empieza en Start.
+      pt-PT: |
+        Clica na área de desenho e procura Pipeline. Adiciona-o. Para abrir o
+        diálogo, clica com o botão esquerdo no nome sublinhado por baixo do
+        ícone. Chama ao Action run first pipeline. No campo Pipeline, escolhe
+        first-pipeline.hpl deste project. O Hop escreve esse caminho com a
+        variável PROJECT_HOME, por isso o Workflow não fica preso a esta
+        máquina. Clica em OK. Mantém Shift e arrasta um hop de Start até run
+        first pipeline. O Workflow já sabe qual ficheiro executar, e a
+        execução começa em Start.
+      fr-FR: |
+        Cliquez sur le canevas et cherchez Pipeline. Ajoutez-le. Pour ouvrir
+        le dialogue, cliquez avec le bouton gauche sur le nom souligné sous
+        l'icône. Nommez l'Action run first pipeline. Dans le champ Pipeline,
+        choisissez first-pipeline.hpl de ce project. Hop écrit ce chemin avec
+        la variable PROJECT_HOME, si bien que le Workflow n'est pas lié à
+        cette machine. Cliquez sur OK. Maintenez Shift et faites glisser un
+        hop de Start vers run first pipeline. Le Workflow sait maintenant
+        quel fichier exécuter, et l'exécution commence à Start.
+      de-DE: |
+        Klicke auf die Zeichenfläche und suche nach Pipeline. Füge ihn hinzu.
+        Um den Dialog zu öffnen, klicke links auf den unterstrichenen Namen
+        unter dem Symbol. Nenne den Action run first pipeline. Im Feld
+        Pipeline wähle first-pipeline.hpl aus diesem project. Hop schreibt
+        diesen Pfad mit der Variable PROJECT_HOME, damit der Workflow nicht
+        an diesen Rechner gebunden ist. Klicke auf OK. Halte Shift und ziehe
+        einen hop von Start zu run first pipeline. Der Workflow weiß jetzt,
+        welche Datei er ausführt, und der Lauf beginnt bei Start.
+      it-IT: |
+        Fai clic sull'area di disegno e cerca Pipeline. Aggiungilo. Per
+        aprire il dialogo, fai clic con il tasto sinistro sul nome
+        sottolineato sotto l'icona. Chiama l'Action run first pipeline. Nel
+        campo Pipeline scegli first-pipeline.hpl di questo project. Hop
+        scrive quel percorso con la variabile PROJECT_HOME, così il Workflow
+        non è legato a questa macchina. Fai clic su OK. Tieni premuto Shift e
+        trascina un hop da Start a run first pipeline. Il Workflow ora sa
+        quale file eseguire, e l'esecuzione inizia da Start.
+
+  - id: success-and-failure
+    title: Success and failure
+    visual: clips/success-and-failure.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Add two Write to log actions. Name one report
+      success, message Orders file written, log level Basic. Name the other
+      report failure, message The orders pipeline failed, log level Error.
+      Open each dialog with a left-click on the underlined name. Draw a hop
+      from run first pipeline to each of them. Right-click the hop to report
+      failure and choose Failure hop, so that hop turns red. The hop to
+      report success stays green. Stop on that canvas.
+    narration:
+      en: |
+        Add two Write to log actions. Name the first report success, with
+        the message Orders file written. Name the second report failure,
+        with the message The orders pipeline failed, and set its log level
+        to Error. Open each one with a left-click on the underlined name.
+        Draw a hop from run first pipeline to report success, and a second
+        hop to report failure. Both hops start out green, which means
+        success. Right-click the hop to report failure and choose Failure
+        hop. It turns red. Green runs when the pipeline worked. Red runs
+        when it did not.
+      zh-CN: |
+        添加两个 Write to log Action。第一个命名为 report success，消息是
+        Orders file written。第二个命名为 report failure，消息是 The orders
+        pipeline failed，并把日志级别设为 Error。用左键点击带下划线的名称来
+        打开每一个。从 run first pipeline 画一条 hop 到 report success，再画
+        第二条到 report failure。两条 hop 一开始都是绿色，表示成功。右键点击
+        通向 report failure 的 hop，选择 Failure hop。它会变成红色。绿色在
+        Pipeline 成功时运行。红色在它失败时运行。
+      es-ES: |
+        Añade dos Action Write to log. Llama al primero report success, con
+        el mensaje Orders file written. Llama al segundo report failure, con
+        el mensaje The orders pipeline failed, y pon su nivel de registro en
+        Error. Abre cada uno con un clic izquierdo en el nombre subrayado.
+        Dibuja un hop desde run first pipeline hasta report success, y un
+        segundo hop hasta report failure. Los dos hop empiezan en verde, que
+        significa éxito. Haz clic derecho en el hop hacia report failure y
+        elige Failure hop. Se vuelve rojo. El verde se ejecuta cuando el
+        Pipeline funcionó. El rojo se ejecuta cuando no.
+      pt-PT: |
+        Adiciona dois Action Write to log. Chama ao primeiro report success,
+        com a mensagem Orders file written. Chama ao segundo report failure,
+        com a mensagem The orders pipeline failed, e põe o nível de registo
+        em Error. Abre cada um com um clique esquerdo no nome sublinhado.
+        Desenha um hop de run first pipeline para report success, e um
+        segundo hop para report failure. Os dois hop começam a verde, o que
+        significa sucesso. Clica com o botão direito no hop para report
+        failure e escolhe Failure hop. Fica vermelho. O verde corre quando o
+        Pipeline funcionou. O vermelho corre quando não.
+      fr-FR: |
+        Ajoutez deux Action Write to log. Nommez le premier report success,
+        avec le message Orders file written. Nommez le second report failure,
+        avec le message The orders pipeline failed, et réglez son niveau de
+        journal sur Error. Ouvrez chacun d'eux par un clic gauche sur le nom
+        souligné. Tracez un hop de run first pipeline vers report success, et
+        un second hop vers report failure. Les deux hop commencent en vert,
+        ce qui signifie le succès. Cliquez avec le bouton droit sur le hop
+        vers report failure et choisissez Failure hop. Il devient rouge. Le
+        vert s'exécute quand le Pipeline a fonctionné. Le rouge s'exécute
+        quand il n'a pas fonctionné.
+      de-DE: |
+        Füge zwei Action Write to log hinzu. Nenne den ersten report success,
+        mit der Meldung Orders file written. Nenne den zweiten report
+        failure, mit der Meldung The orders pipeline failed, und setze die
+        Protokollstufe auf Error. Öffne jeden mit einem Linksklick auf den
+        unterstrichenen Namen. Zeichne einen hop von run first pipeline zu
+        report success und einen zweiten hop zu report failure. Beide hop
+        sind zuerst grün, das bedeutet Erfolg. Klicke rechts auf den hop zu
+        report failure und wähle Failure hop. Er wird rot. Grün läuft, wenn
+        die Pipeline funktioniert hat. Rot läuft, wenn sie es nicht hat.
+      it-IT: |
+        Aggiungi due Action Write to log. Chiama il primo report success, con
+        il messaggio Orders file written. Chiama il secondo report failure,
+        con il messaggio The orders pipeline failed, e imposta il livello di
+        log su Error. Apri ciascuno con un clic sinistro sul nome
+        sottolineato. Disegna un hop da run first pipeline a report success e
+        un secondo hop a report failure. Entrambi gli hop iniziano verdi, il
+        che significa successo. Fai clic con il tasto destro sull'hop verso
+        report failure e scegli Failure hop. Diventa rosso. Il verde si
+        esegue quando il Pipeline ha funzionato. Il rosso si esegue quando
+        non ha funzionato.
+
+  - id: start-from-an-action
+    title: Start from an action
+    visual: images/start-from-an-action.png
+    visual_type: still
+    shot: >
+      The Run Options dialog for first-workflow. The field Start workflow at
+      is set to report success. Do not click Launch. Cancel after the
+      screenshot, or take the still before you cancel.
+    narration:
+      en: |
+        You do not have to run the workflow from Start every time. Open Run.
+        In Run Options, set Start workflow at to report success, then click
+        Cancel. Hop would begin at that action and skip Start. A real run,
+        and the log that follows, belong to the next video. What you have
+        now is the shape. Start calls the pipeline. A green path reports
+        success. A red path reports failure. Save the workflow. The file is
+        ready for that next video.
+      zh-CN: |
+        你不必每次都从 Start 运行这条 Workflow。打开 Run。在 Run Options 里，
+        把 Start workflow at 设为 report success，然后点击 Cancel。Hop 会从
+        那个 Action 开始，并跳过 Start。真正的运行以及随后的日志属于下一集。
+        你现在有的是这个形状。Start 调用 Pipeline。绿色路径报告成功。红色路径
+        报告失败。保存这条 Workflow。文件已经为下一集准备好了。
+      es-ES: |
+        No tienes que ejecutar el Workflow desde Start cada vez. Abre Run. En
+        Run Options, pon Start workflow at en report success y pulsa Cancel.
+        Hop empezaría en ese Action y se saltaría Start. Una ejecución real,
+        y el registro que sigue, pertenecen al siguiente vídeo. Lo que tienes
+        ahora es la forma. Start llama al Pipeline. Un camino verde informa
+        del éxito. Un camino rojo informa del fallo. Guarda el Workflow. El
+        archivo está listo para ese siguiente vídeo.
+      pt-PT: |
+        Não tens de executar o Workflow a partir de Start todas as vezes.
+        Abre Run. Em Run Options, põe Start workflow at em report success e
+        clica em Cancel. O Hop começaria nesse Action e saltaria o Start. Uma
+        execução real, e o registo que se segue, pertencem ao vídeo seguinte.
+        O que tens agora é a forma. Start chama o Pipeline. Um caminho verde
+        relata o sucesso. Um caminho vermelho relata a falha. Guarda o
+        Workflow. O ficheiro está pronto para esse vídeo seguinte.
+      fr-FR: |
+        Vous n'avez pas à exécuter le Workflow depuis Start à chaque fois.
+        Ouvrez Run. Dans Run Options, réglez Start workflow at sur report
+        success, puis cliquez sur Cancel. Hop commencerait à cet Action et
+        sauterait Start. Une exécution réelle, et le journal qui suit,
+        appartiennent à la vidéo suivante. Ce que vous avez maintenant, c'est
+        la forme. Start appelle le Pipeline. Un chemin vert signale le
+        succès. Un chemin rouge signale l'échec. Enregistrez le Workflow. Le
+        fichier est prêt pour cette vidéo suivante.
+      de-DE: |
+        Du musst den Workflow nicht jedes Mal von Start aus ausführen. Öffne
+        Run. Setze in Run Options das Feld Start workflow at auf report
+        success und klicke dann auf Cancel. Hop würde bei diesem Action
+        beginnen und Start überspringen. Ein echter Lauf und das Protokoll
+        danach gehören zum nächsten Video. Was du jetzt hast, ist die Form.
+        Start ruft die Pipeline. Ein grüner Pfad meldet Erfolg. Ein roter
+        Pfad meldet Fehlschlag. Speichere den Workflow. Die Datei ist für das
+        nächste Video bereit.
+      it-IT: |
+        Non devi eseguire il Workflow da Start ogni volta. Apri Run. In Run
+        Options imposta Start workflow at su report success e fai clic su
+        Cancel. Hop partirebbe da quell'Action e salterebbe Start.
+        Un'esecuzione vera, e il log che segue, appartengono al video
+        successivo. Quello che hai ora è la forma. Start chiama il Pipeline.
+        Un percorso verde segnala il successo. Un percorso rosso segnala il
+        fallimento. Salva il Workflow. Il file è pronto per quel video
+        successivo.

@@ -32,6 +32,8 @@ keep_english:
 # Literal replacements applied to the text before text-to-speech.
 # Subtitles keep the narration as written. Longer patterns win.
 speak_as:
+  - pattern: first-workflow.hwf
+    say: first workflow
   - pattern: first-pipeline.hpl
     say: first pipeline
   - pattern: PRM_EXAMPLE
