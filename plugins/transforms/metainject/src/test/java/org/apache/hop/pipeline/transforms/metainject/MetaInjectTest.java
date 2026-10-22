@@ -46,6 +46,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.inject.HopMetadataInjector;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -54,6 +55,8 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
 class MetaInjectTest {
@@ -190,6 +193,191 @@ class MetaInjectTest {
     MetaInject.collectInjectionKeyValue(variables, mapping, null, injectionKeyData);
 
     assertEquals("resolved-value", injectionKeyData.get("SOME_KEY"));
+  }
+
+  /**
+   * Backward compatibility (PR #9078 review): a metadata-injection mapping written before {@link
+   * ConditionStreamBehavior} existed targets the legacy {@code ALLOW_EMPTY_STREAM_ON_EXECUTION}
+   * injection key and feeds it a boolean-ish value. Such a mapping must still work: the key is
+   * remapped to {@code CONDITION_STREAM_BEHAVIOR} and the boolean is translated to the equivalent
+   * enum code (as seen by {@link ConditionStreamBehavior#fromLegacyBoolean}).
+   *
+   * <p>This verifies the constant-injection path (no source transform).
+   */
+  @ParameterizedTest
+  @CsvSource({
+    // legacy boolean value -> expected enum code under CONDITION_STREAM_BEHAVIOR
+    "Y, at-least-one-non-empty",
+    "true, at-least-one-non-empty",
+    "yes, at-least-one-non-empty",
+    "N, all-non-empty",
+    "false, all-non-empty"
+  })
+  void legacyInjectionKeyConstantRemappedToEnumCode(String legacyValue, String expectedCode)
+      throws Exception {
+    Variables variables = new Variables();
+
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION");
+    mapping.setSourceTransformName(null);
+    mapping.setSourceField(legacyValue);
+
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    MetaInject.collectInjectionKeyValue(variables, mapping, null, injectionKeyData);
+
+    // The legacy key is remapped to the current one, carrying the enum code.
+    assertNull(injectionKeyData.get("ALLOW_EMPTY_STREAM_ON_EXECUTION"));
+    assertEquals(expectedCode, injectionKeyData.get("CONDITION_STREAM_BEHAVIOR"));
+  }
+
+  /**
+   * Same backward-compatibility remapping as {@link
+   * #legacyInjectionKeyConstantRemappedToEnumCode(String, String)} but for the streamed path, where
+   * the value arrives as a typed boolean in a source row.
+   */
+  @ParameterizedTest
+  @CsvSource({"true, at-least-one-non-empty", "false, all-non-empty"})
+  void legacyInjectionKeyStreamedRemappedToEnumCode(String legacyValue, String expectedCode)
+      throws Exception {
+    Variables variables = new Variables();
+
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION");
+    mapping.setSourceTransformName(TEST_SOURCE_TRANSFORM_NAME);
+    mapping.setSourceField(TEST_FIELD);
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString(TEST_FIELD));
+    RowMetaAndData sourceRow = new RowMetaAndData(rowMeta, legacyValue);
+    List<RowMetaAndData> sourceRows = Collections.singletonList(sourceRow);
+
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    MetaInject.collectInjectionKeyValue(variables, mapping, sourceRows, injectionKeyData);
+
+    assertNull(injectionKeyData.get("ALLOW_EMPTY_STREAM_ON_EXECUTION"));
+    assertEquals(expectedCode, injectionKeyData.get("CONDITION_STREAM_BEHAVIOR"));
+  }
+
+  /**
+   * End-to-end backward-compatibility check: a mapping that injects the legacy {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} key into a real {@link MetaInjectMeta} target produces the
+   * expected {@link ConditionStreamBehavior}. This mirrors what {@code
+   * injectMetadataIntoTemplateTransform} does via {@link HopMetadataInjector#inject}.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    "Y, AT_LEAST_ONE_NON_EMPTY",
+    "true, AT_LEAST_ONE_NON_EMPTY",
+    "N, ALL_NON_EMPTY",
+    "false, ALL_NON_EMPTY"
+  })
+  void legacyInjectionKeyIntoMetaInjectMetaSetsEnum(String legacyValue, String expectedEnum)
+      throws Exception {
+    MetaInjectMeta target = new MetaInjectMeta();
+
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION");
+    mapping.setSourceTransformName(null);
+    mapping.setSourceField(legacyValue);
+
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    MetaInject.collectInjectionKeyValue(new Variables(), mapping, null, injectionKeyData);
+
+    HopMetadataInjector.inject(null, target, injectionKeyData, new HashMap<>());
+
+    assertEquals(
+        ConditionStreamBehavior.valueOf(expectedEnum), target.getConditionStreamBehavior());
+  }
+
+  /**
+   * The reviewer's second legacy scenario: the mapping key was already renamed to the new {@code
+   * CONDITION_STREAM_BEHAVIOR} but the upstream source still flows a legacy boolean value ({@code
+   * Y}/{@code N}/{@code true}/{@code false}). Such a value used to be rejected by the generic
+   * {@code convertCodeToEnumeration}; it must now be translated to the enum code so the injection
+   * still lands on the right enum. This is the constant (no source transform) variant.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    "Y, AT_LEAST_ONE_NON_EMPTY",
+    "true, AT_LEAST_ONE_NON_EMPTY",
+    "N, ALL_NON_EMPTY",
+    "false, ALL_NON_EMPTY"
+  })
+  void newKeyWithLegacyBooleanValueStillInjectsEnum(String legacyValue, String expectedEnum)
+      throws Exception {
+    MetaInjectMeta target = new MetaInjectMeta();
+
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetAttributeKey("CONDITION_STREAM_BEHAVIOR");
+    mapping.setSourceTransformName(null);
+    mapping.setSourceField(legacyValue);
+
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    MetaInject.collectInjectionKeyValue(new Variables(), mapping, null, injectionKeyData);
+
+    HopMetadataInjector.inject(null, target, injectionKeyData, new HashMap<>());
+
+    assertEquals(
+        ConditionStreamBehavior.valueOf(expectedEnum), target.getConditionStreamBehavior());
+  }
+
+  /**
+   * Full runtime data-flow backward-compatibility check (PR #9078 review): a running pipeline whose
+   * MetaInject source transforms produce rows, and whose mapping targets the legacy {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key, must still inject the value into the template's
+   * MetaInjectMeta. The flowing source rows sit in {@code data.rowMap} and are picked up by {@code
+   * collectDataForOneMapping} exactly like {@code injectMetadataIntoTemplateTransform} does; the
+   * legacy key is remapped so {@code HopMetadataInjector.inject} lands on the current enum.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    // streamedLegacyValue, expectedEnum
+    "Y, AT_LEAST_ONE_NON_EMPTY",
+    "true, AT_LEAST_ONE_NON_EMPTY",
+    "N, ALL_NON_EMPTY",
+    "false, ALL_NON_EMPTY"
+  })
+  void legacyInjectionKeyFlowsThroughPipelineData(String streamedLegacyValue, String expectedEnum)
+      throws Exception {
+    // A real source transform feeds one flowing row: the legacy boolean value in "legacyFlag".
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("legacyFlag"));
+    RowMetaAndData sourceRow = new RowMetaAndData(rowMeta, streamedLegacyValue);
+    metaInject.getData().rowMap = new HashMap<>();
+    metaInject
+        .getData()
+        .rowMap
+        .put(TEST_SOURCE_TRANSFORM_NAME, Collections.singletonList(sourceRow));
+
+    // The pipeline mapping still targets the legacy injection key that existed before the enum.
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetTransformName(TEST_TARGET_TRANSFORM_NAME);
+    mapping.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION");
+    mapping.setSourceTransformName(TEST_SOURCE_TRANSFORM_NAME);
+    mapping.setSourceField("legacyFlag");
+    when(metaInject.getMeta().getMappings()).thenReturn(Collections.singletonList(mapping));
+
+    // This mirrors the head of injectMetadataIntoTemplateTransform: collect then inject.
+    MetaInjectMeta target = new MetaInjectMeta();
+    Map<String, Set<String>> injectionKeyGroupMap =
+        HopMetadataInjector.findInjectionGroupKeys(MetaInjectMeta.class);
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    metaInject.collectDataForOneMapping(
+        TEST_TARGET_TRANSFORM_NAME,
+        mapping,
+        injectionKeyGroupMap,
+        new HashMap<>(),
+        new HashMap<>(),
+        injectionKeyData,
+        MetaInjectMeta.class);
+
+    assertNull(injectionKeyData.get("ALLOW_EMPTY_STREAM_ON_EXECUTION"));
+    assertEquals("CONDITION_STREAM_BEHAVIOR", injectionKeyData.keySet().iterator().next());
+
+    HopMetadataInjector.inject(null, target, injectionKeyData, new HashMap<>());
+
+    assertEquals(
+        ConditionStreamBehavior.valueOf(expectedEnum), target.getConditionStreamBehavior());
   }
 
   /**

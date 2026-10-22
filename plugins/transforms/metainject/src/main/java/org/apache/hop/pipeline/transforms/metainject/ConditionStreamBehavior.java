@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
@@ -72,6 +73,49 @@ public enum ConditionStreamBehavior implements IEnumHasCodeAndDescription {
    */
   public boolean allowsAllEmpty() {
     return this == ALWAYS;
+  }
+
+  /**
+   * Maps the legacy {@code allow_empty_stream_on_execution} boolean value onto this enum. Before
+   * this enum existed the transform stored a plain boolean (as {@code Y}/{@code N} in XML and
+   * {@code true}/{@code false} in JSON metadata / injection values).
+   *
+   * <p>A truthy value ({@code Y}/{@code yes}/{@code true}/{@code t}, per {@link Const#toBoolean})
+   * meant "at least one non-empty stream was required" and maps to {@link #AT_LEAST_ONE_NON_EMPTY};
+   * anything else maps to {@link #ALL_NON_EMPTY}.
+   *
+   * @param legacyValue the raw legacy boolean value, or {@code null}
+   * @return the equivalent enum constant, never {@code null}
+   */
+  public static ConditionStreamBehavior fromLegacyBoolean(String legacyValue) {
+    return Const.toBoolean(legacyValue)
+        ? ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY
+        : ConditionStreamBehavior.ALL_NON_EMPTY;
+  }
+
+  /**
+   * Returns {@code true} when the given value is a legacy boolean token for the {@code
+   * allow_empty_stream_on_execution} setting: {@code Y}/{@code N}/{@code yes}/{@code no}/{@code
+   * true}/{@code false}/{@code t}/{@code f} (case-insensitive). This deliberately excludes the
+   * current enum codes ({@code all-non-empty}, {@code at-least-one-non-empty}, {@code always}) so
+   * they are never mistaken for a legacy value.
+   *
+   * @param value the value to test, or {@code null}
+   * @return {@code true} when the value is a legacy boolean token
+   */
+  public static boolean isLegacyBoolean(String value) {
+    if (value == null) {
+      return false;
+    }
+    String lower = value.toLowerCase();
+    return "y".equals(lower)
+        || "n".equals(lower)
+        || "yes".equals(lower)
+        || "no".equals(lower)
+        || "true".equals(lower)
+        || "false".equals(lower)
+        || "t".equals(lower)
+        || "f".equals(lower);
   }
 
   public static String[] getDescriptions() {

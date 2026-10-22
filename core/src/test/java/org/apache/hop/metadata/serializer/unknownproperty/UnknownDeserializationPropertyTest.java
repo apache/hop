@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import lombok.Getter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
@@ -37,6 +38,9 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.w3c.dom.Node;
 
 /**
@@ -108,6 +112,53 @@ class UnknownDeserializationPropertyTest {
           new JsonMetadataParser<>(PropertyWithLegacy.class, provider);
       return jsonParser.loadJsonObject(PropertyWithLegacy.class, parser);
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("unknownStructuredValues")
+  void jsonSkipsUnknownStructuredValueAndKeepsLaterFields(String unknownJson) throws Exception {
+    // An unknown object/array value must be fully consumed so a subsequent known field ("name")
+    // still loads. Without skipping the subtree, the nested closing brace/box would end the outer
+    // object and the trailing "name" would be dropped.
+    PropertyWithLegacy loaded =
+        jsonRoundTrip("{\"value\":\"v\",\"legacy\":" + unknownJson + ",\"name\":\"tail\"}");
+
+    assertEquals("v", loaded.getValue());
+    assertEquals("tail", loaded.getName());
+    // The unknown structured value cannot be represented as a scalar: the callback saw null.
+    assertNull(loaded.getUnknown("legacy"));
+  }
+
+  static Stream<String> unknownStructuredValues() {
+    return Stream.of("{\"a\":1}", "[1, 2, 3]", "{}", "[]");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"null", "true", "42", "\"null\"", "\"some text\"", "\"\""})
+  void jsonScalarUnchangedExceptRealNull(String jsonValue) throws Exception {
+    // Scalars are passed through unchanged. Only a real JSON null (no quotes) becomes Java null.
+    PropertyWithLegacy loaded =
+        jsonRoundTrip("{\"value\":\"v\",\"legacy\":" + jsonValue + ",\"name\":\"tail\"}");
+
+    if ("null".equals(jsonValue)) {
+      assertNull(loaded.getUnknown("legacy"));
+    } else if (jsonValue.startsWith("\"") && jsonValue.endsWith("\"")) {
+      // A JSON string literal ("null", "some text", ...) keeps its text, quotes stripped.
+      assertEquals(jsonValue.substring(1, jsonValue.length() - 1), loaded.getUnknown("legacy"));
+    } else {
+      // Numbers and booleans keep their text representation.
+      assertEquals(jsonValue, loaded.getUnknown("legacy"));
+    }
+    assertEquals("tail", loaded.getName());
+  }
+
+  @Test
+  void jsonStringLiteralNullStaysNonNull() throws Exception {
+    // A JSON string that reads "null" (quoted) is a real string, not a JSON null, so it must not
+    // collapse to a Java null.
+    PropertyWithLegacy loaded =
+        jsonRoundTrip("{\"value\":\"v\",\"legacy\":\"null\",\"name\":\"tail\"}");
+    assertEquals("null", loaded.getUnknown("legacy"));
   }
 
   @Test

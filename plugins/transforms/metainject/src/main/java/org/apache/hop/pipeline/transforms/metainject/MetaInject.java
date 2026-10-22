@@ -73,6 +73,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class;
 
+  /** Legacy injection target key, replaced by {@link #CONDITION_STREAM_BEHAVIOR_INJECTION_KEY}. */
+  private static final String LEGACY_ALLOW_EMPTY_STREAM_INJECTION_KEY =
+      "ALLOW_EMPTY_STREAM_ON_EXECUTION";
+
+  /** Current injection target key for {@link ConditionStreamBehavior}. */
+  private static final String CONDITION_STREAM_BEHAVIOR_INJECTION_KEY = "CONDITION_STREAM_BEHAVIOR";
+
   public MetaInject(
       TransformMeta transformMeta,
       MetaInjectMeta meta,
@@ -623,7 +630,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         // Resolve variables in the constant, just like the legacy newInjectionConstants() path.
         //
         injectionKeyData.put(
-            mapping.getTargetAttributeKey(), variables.resolve(mapping.getSourceField()));
+            resolveInjectionKey(mapping),
+            resolveInjectionValue(mapping, variables.resolve(mapping.getSourceField())));
       }
       return;
     }
@@ -641,7 +649,49 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     //
     IValueMeta valueMeta = sourceRow.getRowMeta().getValueMeta(index);
     Object valueData = valueMeta.getNativeDataType(sourceRow.getData()[index]);
-    injectionKeyData.put(mapping.getTargetAttributeKey(), valueData);
+    injectionKeyData.put(resolveInjectionKey(mapping), resolveInjectionValue(mapping, valueData));
+  }
+
+  /**
+   * Returns the injection key under which the mapped value must be stored. The legacy {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} target key, used by metadata-injection mappings written before
+   * {@link ConditionStreamBehavior} existed, is translated to its modern {@code
+   * CONDITION_STREAM_BEHAVIOR} counterpart. Any other key is returned unchanged.
+   *
+   * @param mapping the mapping being injected
+   * @return the normalized injection (target attribute) key
+   */
+  private static String resolveInjectionKey(MetaInjectMapping mapping) {
+    if (LEGACY_ALLOW_EMPTY_STREAM_INJECTION_KEY.equals(mapping.getTargetAttributeKey())) {
+      return CONDITION_STREAM_BEHAVIOR_INJECTION_KEY;
+    }
+    return mapping.getTargetAttributeKey();
+  }
+
+  /**
+   * Returns the value to store under the {@link #resolveInjectionKey(MetaInjectMapping) resolved}
+   * injection key. When the mapping ultimately targets {@link
+   * #CONDITION_STREAM_BEHAVIOR_INJECTION_KEY} and the injected value is a legacy boolean token
+   * ({@code Y}/{@code N}/{@code true}/{@code false}), the boolean is mapped to the equivalent
+   * {@link ConditionStreamBehavior} enum code so that the generic metadata injector can resolve it
+   * ({@code Y}/{@code true} to {@code at-least-one-non-empty}, anything else to {@code
+   * all-non-empty}). This covers both the mapping that still uses the old {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} key (remapped by {@link
+   * #resolveInjectionKey(MetaInjectMapping)}) and a mapping already renamed to the new key but
+   * still fed legacy boolean values. The current enum codes and any other value are returned
+   * unchanged.
+   *
+   * @param mapping the mapping being injected
+   * @param value the raw injected value
+   * @return the normalized value to store
+   */
+  private static Object resolveInjectionValue(MetaInjectMapping mapping, Object value) {
+    if (value != null
+        && CONDITION_STREAM_BEHAVIOR_INJECTION_KEY.equals(resolveInjectionKey(mapping))
+        && ConditionStreamBehavior.isLegacyBoolean(value.toString())) {
+      return ConditionStreamBehavior.fromLegacyBoolean(value.toString()).getCode();
+    }
+    return value;
   }
 
   HopTransformException putRows(IRowSet rowSet, RowProducer rowProducer) {

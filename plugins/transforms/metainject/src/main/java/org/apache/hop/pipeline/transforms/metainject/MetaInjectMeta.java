@@ -113,6 +113,27 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       storeWithCode = true)
   private ConditionStreamBehavior conditionStreamBehavior = ConditionStreamBehavior.ALL_NON_EMPTY;
 
+  /**
+   * True once the {@code condition_stream_behavior} value has been deserialized (or set) on this
+   * instance. Used to decide whether a legacy {@code allow_empty_stream_on_execution} value, which
+   * the serializer hands to the {@code @OnUnknownDeserializationProperty} callback, may still be
+   * applied: the current enum wins whenever it is present, regardless of key order. This flag is
+   * intentionally not a {@link HopMetadataProperty}, so it is never serialized.
+   */
+  private transient boolean conditionStreamBehaviorSet;
+
+  /**
+   * Custom setter, overriding the Lombok-generated one, so that the {@code
+   * conditionStreamBehaviorSet} marker is raised whenever the value is set (notably during
+   * deserialization).
+   *
+   * @param conditionStreamBehavior the behavior to set
+   */
+  public void setConditionStreamBehavior(ConditionStreamBehavior conditionStreamBehavior) {
+    this.conditionStreamBehavior = conditionStreamBehavior;
+    this.conditionStreamBehaviorSet = true;
+  }
+
   @HopMetadataProperty(
       key = "stream_source_transform",
       injectionKey = "STREAMING_SOURCE_TRANSFORM",
@@ -183,12 +204,12 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
    */
   @OnUnknownDeserializationProperty
   public void onUnknownDeserializationProperty(UnknownProperty property) {
-    if ("allow_empty_stream_on_execution".equals(property.getName())) {
-      // "Y" / "true" => the old checkbox was enabled => at least one non-empty stream was required.
-      conditionStreamBehavior =
-          Const.toBoolean(property.getValue())
-              ? ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY
-              : ConditionStreamBehavior.ALL_NON_EMPTY;
+    // Only translate the legacy boolean when the current condition_stream_behavior enum was not
+    // part of the file. When both are present the current enum wins, so a file that mixes the two
+    // can still represent ALWAYS.
+    if ("allow_empty_stream_on_execution".equals(property.getName())
+        && !conditionStreamBehaviorSet) {
+      conditionStreamBehavior = ConditionStreamBehavior.fromLegacyBoolean(property.getValue());
     }
   }
 

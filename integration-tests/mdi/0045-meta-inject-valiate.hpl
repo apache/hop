@@ -370,13 +370,13 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>allow_empty_stream_on_execution</name>
+        <name>condition_stream_behavior</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>allow_empty_stream_on_execution</xPath>
+        <xPath>condition_stream_behavior</xPath>
       </field>
       <field>
         <currency/>
