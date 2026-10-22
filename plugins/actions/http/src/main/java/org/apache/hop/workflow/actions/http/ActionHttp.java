@@ -747,7 +747,7 @@ public class ActionHttp extends ActionBase {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "targetFilenameExtention",
+            "targetFilenameExtension",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     ActionValidatorUtils.andValidator()

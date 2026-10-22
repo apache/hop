@@ -17,9 +17,13 @@
 package org.apache.hop.workflow.actions.http;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
@@ -43,6 +47,39 @@ class ActionHttpTest {
     String passwordEncoderPluginID =
         Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
     Encr.init(passwordEncoderPluginID);
+  }
+
+  @Test
+  void checkReadsTargetFilenameExtension() {
+    ActionHttp action = new ActionHttp();
+    action.setTargetFilename("out.csv");
+    action.setTargetFilenameExtension("csv");
+    action.setUploadFilename("in.csv");
+
+    assertTrue(errors(action).isEmpty());
+  }
+
+  @Test
+  void checkReportsABlankExtensionByItsRealName() {
+    ActionHttp action = new ActionHttp();
+    action.setTargetFilename("out.csv");
+    action.setUploadFilename("in.csv");
+
+    List<String> errors = errors(action);
+    assertTrue(errors.stream().anyMatch(text -> text.contains("targetFilenameExtension")));
+    assertTrue(errors.stream().noneMatch(text -> text.contains("Extention")));
+  }
+
+  private static List<String> errors(ActionHttp action) {
+    List<ICheckResult> remarks = new ArrayList<>();
+    action.check(remarks, null, null, null);
+    List<String> errors = new ArrayList<>();
+    for (ICheckResult remark : remarks) {
+      if (remark.getType() == ICheckResult.TYPE_RESULT_ERROR) {
+        errors.add(remark.getText());
+      }
+    }
+    return errors;
   }
 
   @Test
