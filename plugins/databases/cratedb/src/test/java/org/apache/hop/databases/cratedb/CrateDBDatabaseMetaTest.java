@@ -168,7 +168,8 @@ class CrateDBDatabaseMetaTest {
         nativeMeta.getExtraOptionsHelpText());
     assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
-    assertTrue(nativeMeta.isUseSafePoints());
+    // CrateDB has no transactions: no savepoint per row, unlike PostgreSQL.
+    assertFalse(nativeMeta.isUseSafePoints());
     assertTrue(nativeMeta.isSupportsBooleanDataType());
     assertTrue(nativeMeta.isSupportsTimestampDataType());
   }

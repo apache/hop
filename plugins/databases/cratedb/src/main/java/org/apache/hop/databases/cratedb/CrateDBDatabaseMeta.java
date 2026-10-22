@@ -355,4 +355,14 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
     setSupportsBooleanDataType(true);
     setSupportsTimestampDataType(true);
   }
+
+  /**
+   * Not inherited from PostgreSQL: CrateDB has no transactions, it ignores BEGIN, COMMIT and
+   * ROLLBACK, so there is nothing a savepoint could undo. Every statement stands on its own, and a
+   * failed one doesn't affect the next.
+   */
+  @Override
+  public boolean isUseSafePoints() {
+    return false;
+  }
 }

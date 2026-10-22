@@ -108,7 +108,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       data.db.setValuesInsert(data.insertRowMeta, insertRow);
 
       // Insert the row
-      data.db.insertRow();
+      data.db.insertRow(data.db.getPrepStatementInsert(), false, !data.useSavepoints);
 
       incrementLinesOutput();
     } else {
@@ -162,7 +162,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
                     + data.lookupParameterRowMeta.getString(lookupRow));
           }
           data.db.setValues(data.updateParameterRowMeta, updateRow, data.prepStatementUpdate);
-          data.db.insertRow(data.prepStatementUpdate);
+          data.db.insertRow(data.prepStatementUpdate, false, !data.useSavepoints);
           incrementLinesUpdated();
         } else {
           incrementLinesSkipped();
@@ -319,7 +319,17 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
 
     try {
-      lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
+      IRowMeta inputRowMeta = getInputRowMeta();
+      if (data.useSavepoints) {
+        data.db.runInSavepoint(
+            () -> {
+              lookupValues(inputRowMeta, r);
+              return null;
+            });
+        commitEveryCommitSize();
+      } else {
+        lookupValues(inputRowMeta, r); // add new values to the row in rowset[0].
+      }
       putRow(
           data.outputRowMeta,
           r); // Nothing changed to the input, return the same row, pass a "cloned" metadata
@@ -513,6 +523,18 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
   }
 
+  /**
+   * Commits when the commit size is reached, for rows that run behind a savepoint: those don't let
+   * {@link Database#insertRow} commit, since a commit inside the savepoint section would end it.
+   */
+  private void commitEveryCommitSize() throws HopException {
+    data.rowsSinceCommit++;
+    if (data.rowsSinceCommit >= data.commitSize) {
+      data.db.commit();
+      data.rowsSinceCommit = 0;
+    }
+  }
+
   @Override
   public boolean init() {
 
@@ -528,7 +550,10 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
         }
         data.db = new Database(this, this, databaseMeta);
         data.db.connect();
-        data.db.setCommit(meta.getCommitSizeVar(this));
+        data.commitSize = meta.getCommitSizeVar(this);
+        data.db.setCommit(data.commitSize);
+        data.useSavepoints =
+            data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
 
         return true;
       } catch (HopException ke) {

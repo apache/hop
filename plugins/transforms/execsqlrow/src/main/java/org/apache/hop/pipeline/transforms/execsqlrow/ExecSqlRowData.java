@@ -30,6 +30,12 @@ public class ExecSqlRowData extends BaseTransformData implements ITransformData 
   public int indexOfSqlFieldname;
   public IRowMeta outputRowMeta;
 
+  /**
+   * Whether each row's SQL runs behind a savepoint: with an error hop on a database that rejects
+   * every statement after a failed one until the transaction is rolled back (PostgreSQL).
+   */
+  public boolean useSavepoints;
+
   public ExecSqlRowData() {
     super();
     db = null;

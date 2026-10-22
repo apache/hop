@@ -78,7 +78,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
               meta.isUseBatchUpdate()));
     }
 
-    data.db.insertRow(data.prepStatementDelete, meta.isUseBatchUpdate(), true);
+    data.db.insertRow(data.prepStatementDelete, data.batchMode, !data.useSavepoints);
     incrementLinesUpdated();
   }
 
@@ -152,8 +152,17 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     }
 
     try {
-      // add new values to the row in rowset[0].
-      deleteValues(getInputRowMeta(), r);
+      IRowMeta inputRowMeta = getInputRowMeta();
+      if (data.useSavepoints) {
+        data.db.runInSavepoint(
+            () -> {
+              deleteValues(inputRowMeta, r);
+              return null;
+            });
+        commitEveryCommitSize();
+      } else {
+        deleteValues(inputRowMeta, r);
+      }
       // output the same rows of data, but with a copy of the metadata
       putRow(data.outputRowMeta, r);
 
@@ -223,6 +232,18 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     }
   }
 
+  /**
+   * Commits when the commit size is reached, for rows that run behind a savepoint: those don't let
+   * {@link Database#insertRow} commit, since a commit inside the savepoint section would end it.
+   */
+  private void commitEveryCommitSize() throws HopException {
+    data.rowsSinceCommit++;
+    if (data.rowsSinceCommit >= data.commitSize) {
+      data.db.commit();
+      data.rowsSinceCommit = 0;
+    }
+  }
+
   @Override
   public boolean init() {
     if (super.init()) {
@@ -244,7 +265,15 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
           logDetailed(BaseMessages.getString(PKG, "Delete.Log.ConnectedToDB"));
         }
 
-        data.db.setCommit(meta.getCommitSize(this));
+        data.commitSize = meta.getCommitSize(this);
+        data.db.setCommit(data.commitSize);
+        data.useSavepoints =
+            data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
+        // A failed row in a batch can't be undone on its own: with savepoints, no batch.
+        data.batchMode = meta.isUseBatchUpdate() && !data.useSavepoints;
+        if (meta.isUseBatchUpdate() && data.useSavepoints) {
+          logBasic(BaseMessages.getString(PKG, "Delete.Log.BatchOffForErrorHandling"));
+        }
         return true;
       } catch (HopException ke) {
         logError(BaseMessages.getString(PKG, "Delete.Log.ErrorOccurred") + ke.getMessage());
@@ -272,7 +301,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
         if (!data.db.isAutoCommit()) {
           if (getErrors() == 0) {
             if (dispose) {
-              data.db.emptyAndCommit(data.prepStatementDelete, meta.isUseBatchUpdate());
+              data.db.emptyAndCommit(data.prepStatementDelete, data.batchMode);
               data.prepStatementDelete = null;
             } else {
               data.db.commit();

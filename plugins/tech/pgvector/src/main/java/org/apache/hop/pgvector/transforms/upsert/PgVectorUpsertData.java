@@ -17,7 +17,6 @@
 package org.apache.hop.pgvector.transforms.upsert;
 
 import java.sql.PreparedStatement;
-import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,10 +52,6 @@ public class PgVectorUpsertData extends BaseTransformData implements ITransformD
    * route.
    */
   public boolean useSafePoints;
-
-  public boolean releaseSavepoint;
-
-  public Savepoint savepoint;
 
   /** Rows written since the last commit, used to honour the commit size outside batch mode. */
   public int rowsSinceCommit;

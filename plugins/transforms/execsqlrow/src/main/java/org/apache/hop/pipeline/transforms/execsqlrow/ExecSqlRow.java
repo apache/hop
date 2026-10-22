@@ -129,26 +129,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
     String sql = getInputRowMeta().getString(row, data.indexOfSqlFieldname);
 
     try {
-      if (meta.isSqlFromfile()) {
-        if (Utils.isEmpty(sql)) {
-          // empty filename
-          throw new HopException(BaseMessages.getString(PKG, "ExecSqlRow.Log.EmptySQLFromFile"));
-        }
-        if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLFromFile", sql));
-        }
-        data.result = data.db.execStatementsFromFile(sql, meta.isSendOneStatement());
-      } else {
-        if (isDebug()) {
-          logDebug(
-              BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLScript") + Const.CR + sql);
-        }
-        if (meta.isSendOneStatement()) {
-          data.result = data.db.execStatement(sql);
-        } else {
-          data.result = data.db.execStatements(sql);
-        }
-      }
+      data.result = data.useSavepoints ? data.db.runInSavepoint(() -> execute(sql)) : execute(sql);
       addResultToStats(data.result);
 
       RowMetaAndData add =
@@ -190,6 +171,27 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
       }
     }
     return true;
+  }
+
+  /** Runs the SQL of one row: a script file, one statement or several. */
+  private Result execute(String sql) throws HopException {
+    if (meta.isSqlFromfile()) {
+      if (Utils.isEmpty(sql)) {
+        // empty filename
+        throw new HopException(BaseMessages.getString(PKG, "ExecSqlRow.Log.EmptySQLFromFile"));
+      }
+      if (isDebug()) {
+        logDebug(BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLFromFile", sql));
+      }
+      return data.db.execStatementsFromFile(sql, meta.isSendOneStatement());
+    }
+    if (isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLScript") + Const.CR + sql);
+    }
+    if (meta.isSendOneStatement()) {
+      return data.db.execStatement(sql);
+    }
+    return data.db.execStatements(sql);
   }
 
   @Override
@@ -253,6 +255,8 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
         if (meta.getCommitSize() >= 1) {
           data.db.setCommit(meta.getCommitSize());
         }
+        data.useSavepoints =
+            data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
         return true;
       } catch (HopException e) {
         logError(BaseMessages.getString(PKG, "ExecSqlRow.Log.ErrorOccurred") + e.getMessage());

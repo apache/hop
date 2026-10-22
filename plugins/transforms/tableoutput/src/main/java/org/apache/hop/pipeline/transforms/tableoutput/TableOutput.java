@@ -321,17 +321,22 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
 
     try {
-      // For PG & GP, we add a savepoint before the row.
-      // Then revert to the savepoint afterwards... (not a transaction, so hopefully still fast)
+      // For PG & GP, the row runs behind a savepoint, so a failed row is undone on its own and
+      // doesn't abort the transaction. Only the INSERT is inside: the commit below ends the
+      // savepoint, and on a connection shared by a transactional pipeline the other transforms
+      // wait while the section is open.
       //
+      PreparedStatement statement = insertStatement;
+      Object[] bindRow = insertRowData;
       if (data.useSafePoints) {
-        data.savepoint = data.db.setSavepoint();
+        data.db.runInSavepoint(
+            () -> {
+              insertOneRow(statement, bindRow);
+              return null;
+            });
+      } else {
+        insertOneRow(statement, insertRowData);
       }
-      data.db.setValues(data.insertRowMeta, insertRowData, insertStatement);
-      data.db.insertRow(
-          insertStatement,
-          data.batchMode,
-          false); // false: no commit, it is handled in this transform differently
       if (isRowLevel()) {
         logRowlevel("Written row: " + data.insertRowMeta.getString(insertRowData));
       }
@@ -345,12 +350,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         commitCounter++;
       }
       data.commitCounterMap.put(tableName, commitCounter);
-
-      // Release the savepoint if needed
-      //
-      if (data.useSafePoints && data.releaseSavepoint) {
-        data.db.releaseSavepoint(data.savepoint);
-      }
 
       // Perform a commit if needed
       //
@@ -423,14 +422,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if (getTransformMeta().isDoingErrorHandling()) {
         if (isRowLevel()) {
           logRowlevel("Written row to error handling : " + getInputRowMeta().getString(r));
-        }
-
-        if (data.useSafePoints) {
-          data.db.rollback(data.savepoint);
-          if (data.releaseSavepoint) {
-            data.db.releaseSavepoint(data.savepoint);
-          }
-          // data.db.commit(true); // force a commit on the connection too.
         }
 
         sendToErrorRow = true;
@@ -693,6 +684,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         PKG, "TableOutput.Error.RowNotAttempted", Const.NVL(errorMessage, ""));
   }
 
+  /** Binds and sends one row; the commit is handled by this transform, not by insertRow. */
+  private void insertOneRow(PreparedStatement statement, Object[] insertRowData)
+      throws HopDatabaseException {
+    data.db.setValues(data.insertRowMeta, insertRowData, statement);
+    data.db.insertRow(statement, data.batchMode, false);
+  }
+
   @Override
   public boolean init() {
 
@@ -716,11 +714,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.useSafePoints =
             data.databaseMeta.getIDatabase().isUseSafePoints()
                 && getTransformMeta().isDoingErrorHandling();
-
-        // Get the boolean that indicates whether or not we can/should release
-        // savepoints during data load.
-        //
-        data.releaseSavepoint = dbInterface.isReleaseSavepoint();
 
         // Disable batch mode in case
         // - we use an unlimited commit size

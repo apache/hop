@@ -27,6 +27,23 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class UpdateData extends BaseTransformData implements ITransformData {
   public Database db;
 
+  /**
+   * Whether each row runs behind a savepoint: with an error hop on a database that rejects every
+   * statement after a failed one until the transaction is rolled back (PostgreSQL).
+   */
+  public boolean useSavepoints;
+
+  /** Whether the statements go out in JDBC batches: asked for, and no savepoint per row. */
+  public boolean batchMode;
+
+  /** The lookup of the current row found no row to update, with an error hop to send it to. */
+  public boolean keyNotFound;
+
+  /** Rows written since the last commit, when the transform commits itself (with savepoints). */
+  public int rowsSinceCommit;
+
+  public int commitSize;
+
   public int[] keynrs; // nr of keylookup -value in row...
   public int[] keynrs2; // nr of keylookup2-value in row...
   public int[] valuenrs; // Stream valuename nrs to prevent searches.

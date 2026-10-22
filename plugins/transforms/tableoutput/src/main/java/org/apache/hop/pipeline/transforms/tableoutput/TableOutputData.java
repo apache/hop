@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.tableoutput;
 
 import java.sql.PreparedStatement;
-import java.sql.Savepoint;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,8 +80,6 @@ public class TableOutputData extends BaseTransformData implements ITransformData
   public IRowMeta outputRowMeta;
   public IRowMeta insertRowMeta;
   public boolean useSafePoints;
-  public Savepoint savepoint;
-  public boolean releaseSavepoint;
 
   public DatabaseMeta databaseMeta;
 
@@ -105,7 +102,5 @@ public class TableOutputData extends BaseTransformData implements ITransformData
     batchBuffer = new ArrayList<>();
     batchBindBuffer = new ArrayList<>();
     commitCounterMap = new HashMap<>();
-
-    releaseSavepoint = true;
   }
 }

@@ -164,7 +164,10 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       if (isBasic()) {
         logBasic("Launching command: " + copyCmd);
       }
-      pgCopyOut = new PGCopyOutputStream((PGConnection) data.db.getConnection(), copyCmd);
+      // unwrap: in a transactional pipeline the connection is a shared wrapper (see
+      // SharedConnectionLock), not the driver's own connection.
+      pgCopyOut =
+          new PGCopyOutputStream(data.db.getConnection().unwrap(PGConnection.class), copyCmd);
 
     } catch (Exception ex) {
       throw new HopException("Error while preparing the COPY " + copyCmd, ex);
