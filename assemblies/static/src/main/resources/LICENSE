@@ -2110,7 +2110,7 @@ This product bundles langchain4j-open-ai 1.22.0, which is available under a
 This product bundles langchain4j-reactive-streaming 1.22.0-beta32, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles lettuce-core 6.8.2.RELEASE, which is available under a
+This product bundles lettuce-core 7.9.0.RELEASE, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
 This product bundles leveldbjni-all 1.8, which is available under a
@@ -2860,7 +2860,7 @@ This product bundles reactor-netty-core 1.3.7, which is available under a
 This product bundles reactor-netty-http 1.3.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles redis-authx-core 0.1.1-beta2, which is available under a
+This product bundles redis-authx-core 0.2.0, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
 This product bundles redshift 2.56.0, which is available under a

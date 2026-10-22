@@ -30,7 +30,7 @@
 
     <properties>
         <!-- The same Redis client as the Redis plugin -->
-        <lettuce.version>6.8.2.RELEASE</lettuce.version>
+        <lettuce.version>7.9.0.RELEASE</lettuce.version>
         <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
@@ -58,7 +58,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Lettuce 6.8 needs the Netty DNS resolver; lib/core ships it, so it is not bundled here. -->
+        <!-- Lettuce needs the Netty DNS resolver; lib/core ships it, so it is not bundled here. -->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns</artifactId>

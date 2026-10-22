@@ -26,7 +26,7 @@ services:
       - memgraph
 
   memgraph:
-    image: memgraph/memgraph:3.6.0
+    image: memgraph/memgraph:3.13.2
     ports:
       - "7687"
     healthcheck:

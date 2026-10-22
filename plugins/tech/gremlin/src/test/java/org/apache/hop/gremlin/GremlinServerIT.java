@@ -29,7 +29,7 @@ class GremlinServerIT extends GremlinTestBase {
   @BeforeAll
   static void setUp() throws Exception {
     start(
-        new GenericContainer<>(DockerImageName.parse("tinkerpop/gremlin-server:3.7.6"))
+        new GenericContainer<>(DockerImageName.parse("tinkerpop/gremlin-server:3.7.7"))
             .withExposedPorts(8182)
             .waitingFor(Wait.forLogMessage(".*Channel started at port 8182.*", 1))
             .withStartupTimeout(Duration.ofMinutes(3)));

@@ -93,7 +93,7 @@ class MemgraphBoltIT {
         DockerClientFactory.instance().isDockerAvailable(),
         "Docker is required for MemgraphBoltIT");
     memgraph =
-        new GenericContainer<>(DockerImageName.parse("memgraph/memgraph:3.6.0"))
+        new GenericContainer<>(DockerImageName.parse("memgraph/memgraph:3.13.2"))
             .withExposedPorts(7687)
             // For SHOW SCHEMA INFO
             .withCommand("--schema-info-enabled=true")
