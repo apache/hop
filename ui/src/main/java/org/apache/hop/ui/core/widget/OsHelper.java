@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +40,14 @@ public class OsHelper {
   public static final String WS_COCOA = "cocoa";
   public static final String WS_WPF = "wpf";
   public static final String WS_UNKNOWN = "unknown";
+
+  /** NSMenuItemImageVisibilityVisible in the macOS 27 SDK (NSMenuItem.h). */
+  private static final long NS_MENU_ITEM_IMAGE_VISIBILITY_VISIBLE = 1L;
+
+  private static boolean menuItemImageVisibilityUnsupported;
+  private static Field nsItemField;
+  private static Method objcMsgSend;
+  private static Long setPreferredImageVisibility;
 
   public static final boolean isWindows() {
     final String ws = SWT.getPlatform();
@@ -146,6 +156,64 @@ public class OsHelper {
             break;
         }
       }
+
+      // macOS 27 hides menu item images unless the item opts in, so opt in every item of a
+      // menu right before it opens.
+      //
+      display.addFilter(
+          SWT.Show,
+          event -> {
+            if (event.widget instanceof Menu menu) {
+              for (MenuItem item : menu.getItems()) {
+                showMenuItemImage(item);
+              }
+            }
+          });
+    }
+  }
+
+  /**
+   * Sets NSMenuItem.preferredImageVisibility to visible. Without it, macOS 27 hides the images of
+   * menu items in applications linked against the macOS 27 SDK. SWT does not expose the property
+   * yet and the Cocoa classes only exist in the macOS SWT jar, so this goes through reflection. On
+   * older macOS versions the item does not respond to the selector and nothing happens.
+   */
+  private static void showMenuItemImage(MenuItem item) {
+    if (menuItemImageVisibilityUnsupported || item.isDisposed()) {
+      return;
+    }
+    try {
+      if (setPreferredImageVisibility == null) {
+        nsItemField = MenuItem.class.getDeclaredField("nsItem");
+        nsItemField.setAccessible(true);
+        Class<?> osClass = Class.forName("org.eclipse.swt.internal.cocoa.OS");
+        objcMsgSend = osClass.getMethod("objc_msgSend", long.class, long.class, long.class);
+        setPreferredImageVisibility =
+            (Long)
+                osClass
+                    .getMethod("sel_registerName", String.class)
+                    .invoke(null, "setPreferredImageVisibility:");
+      }
+      Object nsItem = nsItemField.get(item);
+      if (nsItem == null) {
+        return;
+      }
+      boolean supported =
+          (Boolean)
+              nsItem
+                  .getClass()
+                  .getMethod("respondsToSelector", long.class)
+                  .invoke(nsItem, setPreferredImageVisibility);
+      if (!supported) {
+        menuItemImageVisibilityUnsupported = true;
+        return;
+      }
+      long id = nsItem.getClass().getField("id").getLong(nsItem);
+      objcMsgSend.invoke(
+          null, id, setPreferredImageVisibility, NS_MENU_ITEM_IMAGE_VISIBILITY_VISIBLE);
+    } catch (Exception e) {
+      // Not running on Cocoa SWT, or SWT internals changed: keep the default visibility.
+      menuItemImageVisibilityUnsupported = true;
     }
   }
 }
