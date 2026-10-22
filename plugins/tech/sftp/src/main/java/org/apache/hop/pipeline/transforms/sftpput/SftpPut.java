@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.sftpput.SftpPutMeta.AfterSftpPut;
 import org.apache.hop.vfs.sftp.SftpConnections;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.IRootPrefixFileName;
 
 /** Uploads files or field content to the server of a named SFTP connection. */
 public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
@@ -278,8 +279,12 @@ public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
   static void checkTargetIsAFile(FileObject targetFile, String targetUri) throws HopException {
     try {
       if (targetFile.exists() && !targetFile.isFile()) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "SftpPut.Error.TargetIsNotAFile", targetUri));
+        String message = BaseMessages.getString(PKG, "SftpPut.Error.TargetIsNotAFile", targetUri);
+        if (targetFile.getName() instanceof IRootPrefixFileName prefixed
+            && !prefixed.getRootPrefix().isEmpty()) {
+          message += " " + BaseMessages.getString(PKG, "SftpPut.Error.TargetIsNotAFile.DataSet");
+        }
+        throw new HopException(message);
       }
     } catch (FileSystemException e) {
       throw new HopException(
@@ -296,7 +301,10 @@ public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
     if (rootCause == null || rootCause == e) {
       return e.toString();
     }
-    return e.toString() + Const.CR + "Root cause: " + ExceptionUtils.getRootCauseMessage(e);
+    return e.toString()
+        + Const.CR
+        + BaseMessages.getString(
+            PKG, "SftpPut.Error.RootCause", ExceptionUtils.getRootCauseMessage(e));
   }
 
   private void createRemoteFolder(String remoteFolder) throws HopException {

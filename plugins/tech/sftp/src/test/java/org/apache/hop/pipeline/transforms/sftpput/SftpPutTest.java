@@ -22,12 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -42,6 +45,7 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.sftpput.SftpPutMeta.AfterSftpPut;
 import org.apache.hop.vfs.sftp.SftpConnectionFileProvider;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.IRootPrefixFileName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -195,7 +199,26 @@ class SftpPutTest {
       HopException e =
           assertThrows(HopException.class, () -> SftpPut.checkTargetIsAFile(folder, uri));
       assertTrue(e.getMessage().contains("isn't a file"), e.getMessage());
+      assertFalse(e.getMessage().contains("z/OS"), "not a data set: " + e.getMessage());
     }
+  }
+
+  /** Only a data set path gets the z/OS explanation. */
+  @Test
+  void testADataSetWhichIsAFolderIsExplained() throws Exception {
+    FileName name = mock(FileName.class, withSettings().extraInterfaces(IRootPrefixFileName.class));
+    when(((IRootPrefixFileName) name).getRootPrefix()).thenReturn("/");
+    FileObject dataSet = mock(FileObject.class);
+    when(dataSet.exists()).thenReturn(true);
+    when(dataSet.isFile()).thenReturn(false);
+    when(dataSet.getName()).thenReturn(name);
+
+    HopException e =
+        assertThrows(
+            HopException.class,
+            () -> SftpPut.checkTargetIsAFile(dataSet, "prod:////HLQ.NAME/MEMBER"));
+    assertTrue(e.getMessage().contains("isn't a file"), e.getMessage());
+    assertTrue(e.getMessage().contains("z/OS"), e.getMessage());
   }
 
   /** A file, or nothing at all, is fine. */
