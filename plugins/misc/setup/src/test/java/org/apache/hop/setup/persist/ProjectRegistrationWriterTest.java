@@ -134,6 +134,38 @@ class ProjectRegistrationWriterTest {
   }
 
   @Test
+  void copiesNestedTemplateSubfolders() throws Exception {
+    Path hopHome = temp.resolve("hop");
+    Path template = hopHome.resolve("config/projects/default");
+    Files.createDirectories(template.resolve("metadata/rdbms"));
+    Files.createDirectories(template.resolve("datasets"));
+    Files.writeString(
+        template.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME),
+        "{ \"description\": \"template\" }");
+    Files.writeString(template.resolve("metadata/rdbms/sample.json"), "{ \"name\": \"sample\" }");
+    Files.writeString(template.resolve("datasets/customers.csv"), "id,name");
+
+    Path defaultHome = temp.resolve("Documents/hop/default");
+    HopEnvironmentSpec spec = new HopEnvironmentSpec();
+    spec.setConfigFolder(temp.resolve("user-config").toString());
+    spec.setCreateDefaultProject(true);
+    spec.setDefaultProjectHome(defaultHome.toString());
+
+    new ProjectRegistrationWriter()
+        .apply(
+            spec,
+            OsFamily.UNIX,
+            unixPaths(temp.resolve("home")),
+            new HopEnvironmentApplyResult(),
+            hopHome);
+
+    assertTrue(
+        Files.readString(defaultHome.resolve("metadata/rdbms/sample.json")).contains("sample"));
+    assertTrue(Files.readString(defaultHome.resolve("datasets/customers.csv")).contains("id,name"));
+    assertTrue(Files.exists(defaultHome.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME)));
+  }
+
+  @Test
   void doesNotOverwriteExistingDefaultProjectConfig() throws Exception {
     Path defaultHome = temp.resolve("docs/hop/default");
     Files.createDirectories(defaultHome);

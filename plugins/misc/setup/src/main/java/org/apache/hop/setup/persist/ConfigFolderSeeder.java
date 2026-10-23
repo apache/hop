@@ -67,7 +67,8 @@ public class ConfigFolderSeeder {
       result.addMessage("Would copy " + source + " to " + spec.getConfigFolder());
       return;
     }
-    HopVfsFiles.copyTree(source, spec.getConfigFolder());
+    // One level only: nested projects/default and projects/samples stay in the install tree.
+    HopVfsFiles.copyChildren(source, spec.getConfigFolder());
     result.addMessage("Copied install config from " + source + " to " + spec.getConfigFolder());
   }
 
