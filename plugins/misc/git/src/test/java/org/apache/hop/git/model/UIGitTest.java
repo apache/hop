@@ -50,6 +50,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.Status;
@@ -278,6 +279,49 @@ public class UIGitTest extends RepositoryTestCase {
     git2.close();
 
     assertTrue(uiGit.pull());
+  }
+
+  @Test
+  public void testPullFromConfiguredUpstreamWithDifferentName() throws Exception {
+    setupRemote();
+    Git git2 = new Git(db2);
+
+    File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
+    FileUtils.writeStringToFile(sourceFile, "Initial content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Initial commit").call();
+
+    git.fetch().call();
+    git.checkout()
+        .setCreateBranch(true)
+        .setName("local-feature")
+        .setStartPoint("origin/master")
+        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+        .call();
+
+    FileUtils.writeStringToFile(sourceFile, "Updated content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Update remote branch").call();
+
+    assertTrue(uiGit.pull());
+    assertEquals(
+        "Updated content",
+        FileUtils.readFileToString(
+            new File(db.getWorkTree(), "SomeFile.txt"), StandardCharsets.UTF_8));
+
+    git2.close();
+  }
+
+  @Test
+  public void testPullWithoutUpstreamReportsClearError() throws Exception {
+    setupRemote();
+    initialCommit();
+
+    HopException exception = assertThrows(HopException.class, uiGit::pull);
+
+    assertTrue(exception.getMessage().contains("no upstream branch configured for 'master'"));
+    assertTrue(exception.getMessage().contains("'origin/master' does not exist"));
+    assertNull(exception.getCause());
   }
 
   @Test
