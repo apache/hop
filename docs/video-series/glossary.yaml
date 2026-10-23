@@ -42,6 +42,12 @@ speak_as:
     say: first pipeline
   - pattern: PRM_EXAMPLE
     say: parameter example
+  - pattern: "hop-encrypt.bat"
+    say: hop encrypt batch
+  - pattern: "hop-encrypt.sh"
+    say: hop encrypt shell
+  - pattern: "#{keystore:databases/crm:password}"
+    say: the keystore resolver expression
   - pattern: hop-run.bat
     say: hop run batch
   - pattern: hop-run.sh
