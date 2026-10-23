@@ -969,24 +969,69 @@ def cmd_captions(video: Video) -> None:
         if any(locale not in scene.narration for scene in video.scenes):
             die(f"Manifest is missing narration for {locale}")
         write_vtt(video, rows, locale)
+    write_description(video, rows)
+
+
+def load_descriptions(video: Video) -> dict[str, Any]:
+    path = video.path / "descriptions.yaml"
+    if not path.exists():
+        return {}
+    return load_yaml(path)
+
+
+def localized(block: Any, locale: str, fallback: str = "en") -> str | None:
+    if not isinstance(block, dict):
+        return None
+    if locale in block and block[locale]:
+        return str(block[locale]).strip()
+    short = locale.split("-")[0]
+    if short in block and block[short]:
+        return str(block[short]).strip()
+    if fallback in block and block[fallback]:
+        return str(block[fallback]).strip()
+    return None
+
+
+def description_locales(video: Video, rows: list[dict[str, Any]] | None) -> list[str]:
+    if video.locales:
+        return list(video.locales)
+    if rows and isinstance(rows[0].get("speech"), dict):
+        return list(rows[0]["speech"].keys())
+    return ["en"]
 
 
 def write_description(video: Video, rows: list[dict[str, Any]] | None) -> None:
-    paragraphs = [video.title, "", "Part of the Apache Hop getting started series.", "https://hop.apache.org/", ""]
-    for link in video.links:
-        paragraphs.append(f"{link.get('label', link.get('url', ''))}: {link.get('url', '')}")
-    if video.issue is not None:
-        paragraphs.append(f"Issue: https://github.com/apache/hop/issues/{video.issue}")
-    paragraphs.append("")
-    if rows:
-        paragraphs.append("Chapters")
-        starts = speech_starts([float(row["scene_sec"]) for row in rows])
-        for row, start in zip(rows, starts):
-            paragraphs.append(f"{format_chapter(start)} {row['title']}")
+    catalog = load_descriptions(video)
+    video.output_dir.mkdir(parents=True, exist_ok=True)
+    starts = speech_starts([float(row["scene_sec"]) for row in rows]) if rows else []
+    for locale in description_locales(video, rows):
+        title = localized(catalog.get("title"), locale) or video.title
+        summary = localized(catalog.get("summary"), locale) or "Part of the Apache Hop getting started series."
+        series = localized(catalog.get("series"), locale) or "Part of the Apache Hop getting started series."
+        chapters_label = localized(catalog.get("chapters_label"), locale) or "Chapters"
+        paragraphs = [title, "", summary, "", series, "https://hop.apache.org/", ""]
+        link_labels = catalog.get("link_labels") or {}
+        for link in video.links:
+            label = localized(link_labels.get(link.get("label")), locale) or link.get("label") or link.get("url", "")
+            paragraphs.append(f"{label}: {link.get('url', '')}")
+        if video.issue is not None:
+            issue_label = localized(catalog.get("issue_label"), locale) or "Issue"
+            paragraphs.append(f"{issue_label}: https://github.com/apache/hop/issues/{video.issue}")
         paragraphs.append("")
-    destination = video.output_dir / "youtube-description.txt"
-    destination.write_text("\n".join(paragraphs), encoding="utf-8")
-    print(f"Wrote {destination}")
+        if rows:
+            paragraphs.append(chapters_label)
+            chapters = catalog.get("chapters") or {}
+            for row, start in zip(rows, starts):
+                chapter = localized(chapters.get(row["id"]), locale) or row["title"]
+                paragraphs.append(f"{format_chapter(start)} {chapter}")
+            paragraphs.append("")
+        destination = video.output_dir / f"youtube-description-{locale}.txt"
+        destination.write_text("\n".join(paragraphs) + "\n", encoding="utf-8")
+        print(f"Wrote {destination}")
+        if locale == "en":
+            english = video.output_dir / "youtube-description.txt"
+            english.write_text("\n".join(paragraphs) + "\n", encoding="utf-8")
+            print(f"Wrote {english}")
 
 
 def build_watermark(width: int) -> Path:

@@ -44,7 +44,7 @@ Later videos may point at an earlier one in a single sentence. They do not re-te
 
 A scene is one spoken idea, about 20 to 40 seconds, which is 45 to 110 English words. The picture stays up for the longest voice-over among the languages you render, plus `padding_after_sec` (0.4 seconds). The 400 ms fade happens inside that pause. A clip shorter than the voice-over holds its last frame. A clip longer than the voice-over plays to the end, and the sound stays quiet after the narration. Set `trim_sec` on that scene when you do want the recording cut.
 
-English is the source. Further languages are added after the English cut has been heard. A video can list its own `locales`. The orientation episode uses `zh`, `es-MX`, `pt-BR`, `fr`, `de-DE`, `it-IT`, and `nl-NL`. The installation, pipelines, workflows, execution, and projects episodes use `zh-CN`, `es-ES`, `pt-PT`, `fr-FR`, `de-DE`, and `it-IT`. The speech service is called with `zh`, `es-ES`, `pt-PT`, `fr`, `de`, and `it` for those tags. Dutch is outside the published voice list. Product words in `glossary.yaml` stay in English in every language. Variable expressions are listed under `speak_as` so the voice says them as words. Words under `pronounce` are sent to the speech service as a pronunciation map, including IPA in slashes, so the subtitles still show the written word. Subtitles keep the written narration.
+English is the source. Further languages are added after the English cut has been heard. A video can list its own `locales`. The orientation episode uses `zh`, `es-MX`, `pt-BR`, `fr`, `de-DE`, `it-IT`, and `nl-NL`. The installation, pipelines, workflows, execution, projects, and version-control episodes use `zh-CN`, `es-ES`, `pt-PT`, `fr-FR`, `de-DE`, and `it-IT`. The speech service is called with `zh`, `es-ES`, `pt-PT`, `fr`, `de`, and `it` for those tags. Dutch is outside the published voice list. Product words in `glossary.yaml` stay in English in every language. Variable expressions are listed under `speak_as` so the voice says them as words. Words under `pronounce` are sent to the speech service as a pronunciation map, including IPA in slashes, so the subtitles still show the written word. Subtitles keep the written narration.
 
 ## Capture rules
 
@@ -88,10 +88,12 @@ Output for each video:
 
 - `output/<id>-<locale>.mp4`
 - `output/<id>-<locale>.vtt`
-- `output/youtube-description.txt`
+- `output/youtube-description.txt` (English) and `output/youtube-description-<locale>.txt`
 - `output/timings.yaml`
 
-Each subtitle cue is at most two lines. The time inside a scene is shared out by the length of those lines, so a long sentence does not sit on screen as one block. After a render, `render.py captions <video>` rewrites the VTT files from `output/timings.yaml` without speaking or encoding again.
+`descriptions.yaml` in the video folder holds the translated title, summary, link labels, and chapter titles. Product words such as Pipeline, Workflow, project, and environment stay in English. Chapter times come from `output/timings.yaml`.
+
+Each subtitle cue is at most two lines. The time inside a scene is shared out by the length of those lines, so a long sentence does not sit on screen as one block. After a render, `render.py captions <video>` rewrites the VTT files and the YouTube descriptions from `output/timings.yaml` without speaking or encoding again.
 
 YouTube upload, thumbnails, and music are manual. Paste the description, attach the VTT, and upload the MP4.
 

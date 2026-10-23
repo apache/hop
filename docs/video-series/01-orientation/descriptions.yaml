@@ -1,0 +1,182 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: What Apache Hop is
+  zh: Apache Hop 是什么
+  es-MX: Qué es Apache Hop
+  pt-BR: O que é o Apache Hop
+  fr: Qu'est-ce qu'Apache Hop
+  de-DE: Was Apache Hop ist
+  it-IT: Che cos'è Apache Hop
+  nl-NL: Wat Apache Hop is
+summary:
+  en: Apache Hop is a data integration and orchestration platform. This short video explains what Hop
+    is for, who it is for, and where to start. A pipeline moves rows. A workflow runs tasks. The same
+    work can run on your laptop or on a server.
+  zh: Apache Hop 是一个数据集成与编排平台。这个短视频说明 Hop 用来做什么、适合谁，以及从哪里开始。Pipeline 搬运数据行。Workflow 按顺序运行任务。同一套工作可以在笔记本上运行，也可以在服务器上运行。
+  es-MX: Apache Hop es una plataforma de integración y orquestación de datos. Este video corto explica
+    para qué sirve Hop, para quién es y por dónde empezar. Un Pipeline mueve filas. Un Workflow ejecuta
+    tareas. El mismo trabajo puede correr en tu laptop o en un servidor.
+  pt-BR: O Apache Hop é uma plataforma de integração e orquestração de dados. Este vídeo curto explica
+    para que o Hop serve, para quem ele é e por onde começar. Um Pipeline move linhas. Um Workflow executa
+    tarefas. O mesmo trabalho pode rodar no seu notebook ou em um servidor.
+  fr: Apache Hop est une plateforme d'intégration et d'orchestration de données. Cette courte vidéo explique
+    à quoi sert Hop, à qui il s'adresse et par où commencer. Un Pipeline déplace des lignes. Un Workflow
+    exécute des tâches. Le même travail peut tourner sur votre ordinateur ou sur un serveur.
+  de-DE: Apache Hop ist eine Plattform für Datenintegration und Orchestrierung. Dieses kurze Video erklärt,
+    wofür Hop da ist, für wen es gedacht ist und wo du anfängst. Ein Pipeline bewegt Zeilen. Ein Workflow
+    führt Aufgaben aus. Dieselbe Arbeit kann auf deinem Laptop oder auf einem Server laufen.
+  it-IT: Apache Hop è una piattaforma di integrazione e orchestrazione dei dati. Questo breve video spiega
+    a cosa serve Hop, per chi è e da dove iniziare. Un Pipeline sposta le righe. Un Workflow esegue i
+    compiti. Lo stesso lavoro può girare sul tuo portatile o su un server.
+  nl-NL: Apache Hop is een platform voor data-integratie en orkestratie. Deze korte video legt uit waar
+    Hop voor is, voor wie het bedoeld is en waar je begint. Een Pipeline verplaatst rijen. Een Workflow
+    voert taken uit. Hetzelfde werk kan op je laptop of op een server draaien.
+link_labels:
+  Getting started:
+    en: Getting started
+    zh: 入门
+    es-MX: Primeros pasos
+    pt-BR: Primeiros passos
+    fr: Prise en main
+    de-DE: Erste Schritte
+    it-IT: Per iniziare
+    nl-NL: Aan de slag
+  What is Apache Hop?:
+    en: What is Apache Hop?
+    zh: Apache Hop 是什么？
+    es-MX: ¿Qué es Apache Hop?
+    pt-BR: O que é o Apache Hop?
+    fr: Qu'est-ce qu'Apache Hop ?
+    de-DE: Was ist Apache Hop?
+    it-IT: Che cos'è Apache Hop?
+    nl-NL: Wat is Apache Hop?
+  Apache Hop:
+    en: Apache Hop
+chapters:
+  welcome:
+    en: Welcome
+    zh: 欢迎
+    es-MX: Bienvenida
+    pt-BR: Boas-vindas
+    fr: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+    nl-NL: Welkom
+  what-hop-is:
+    en: What Hop is
+    zh: Hop 是什么
+    es-MX: Qué es Hop
+    pt-BR: O que é o Hop
+    fr: Qu'est-ce que Hop
+    de-DE: Was Hop ist
+    it-IT: Che cos'è Hop
+    nl-NL: Wat Hop is
+  moving-data:
+    en: Moving data
+    zh: 搬运数据
+    es-MX: Mover datos
+    pt-BR: Mover dados
+    fr: Déplacer des données
+    de-DE: Daten bewegen
+    it-IT: Spostare i dati
+    nl-NL: Gegevens verplaatsen
+  orchestration:
+    en: Orchestration
+    zh: 编排
+    es-MX: Orquestación
+    pt-BR: Orquestração
+    fr: Orchestration
+    de-DE: Orchestrierung
+    it-IT: Orchestrazione
+    nl-NL: Orkestratie
+  same-work-everywhere:
+    en: The same work, anywhere
+    zh: 同一套工作，到处运行
+    es-MX: El mismo trabajo, en cualquier lugar
+    pt-BR: O mesmo trabalho, em qualquer lugar
+    fr: Le même travail, partout
+    de-DE: Dieselbe Arbeit, überall
+    it-IT: Lo stesso lavoro, ovunque
+    nl-NL: Hetzelfde werk, overal
+  who-it-is-for:
+    en: Who Hop is for
+    zh: Hop 适合谁
+    es-MX: Para quién es Hop
+    pt-BR: Para quem é o Hop
+    fr: À qui s'adresse Hop
+    de-DE: Für wen Hop ist
+    it-IT: Per chi è Hop
+    nl-NL: Voor wie Hop is
+  files-not-a-black-box:
+    en: Files, not a black box
+    zh: 文件，不是黑盒
+    es-MX: Archivos, no una caja negra
+    pt-BR: Arquivos, não uma caixa-preta
+    fr: Des fichiers, pas une boîte noire
+    de-DE: Dateien, keine Blackbox
+    it-IT: File, non una scatola nera
+    nl-NL: Bestanden, geen black box
+  where-next:
+    en: Where to go next
+    zh: 接下来去哪里
+    es-MX: Dónde seguir
+    pt-BR: Para onde ir
+    fr: Où aller ensuite
+    de-DE: Wie es weitergeht
+    it-IT: Dove andare dopo
+    nl-NL: Waar je verdergaat

@@ -32,6 +32,8 @@ keep_english:
 # Literal replacements applied to the text before text-to-speech.
 # Subtitles keep the narration as written. Longer patterns win.
 speak_as:
+  - pattern: "50000"
+    say: fifty thousand
   - pattern: project-config.json
     say: project config
   - pattern: first-workflow.hwf
