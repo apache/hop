@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.setup.HopSetupException;
@@ -72,14 +73,29 @@ public final class HopVfsFiles {
     }
   }
 
+  /**
+   * Copies the direct children of {@code sourcePath} into {@code destinationPath}. Child folders
+   * are created without their contents.
+   */
+  public static void copyChildren(String sourcePath, String destinationPath)
+      throws HopSetupException {
+    copySelected(sourcePath, destinationPath, Selectors.SELECT_CHILDREN);
+  }
+
+  /** Copies every file and subfolder under {@code sourcePath} into {@code destinationPath}. */
   public static void copyTree(String sourcePath, String destinationPath) throws HopSetupException {
+    copySelected(sourcePath, destinationPath, Selectors.EXCLUDE_SELF);
+  }
+
+  private static void copySelected(String sourcePath, String destinationPath, FileSelector selector)
+      throws HopSetupException {
     try {
       FileObject source = HopVfs.getFileObject(sourcePath);
       FileObject destination = HopVfs.getFileObject(destinationPath);
       if (!destination.exists()) {
         destination.createFolder();
       }
-      destination.copyFrom(source, Selectors.SELECT_CHILDREN);
+      destination.copyFrom(source, selector);
     } catch (Exception e) {
       throw new HopSetupException(
           "Unable to copy '" + sourcePath + "' to '" + destinationPath + "'", e);

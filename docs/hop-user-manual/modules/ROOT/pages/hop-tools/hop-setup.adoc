@@ -86,7 +86,7 @@ image::hop-tools/setup/06-configure-hop-environment-dialog-projects-tab.png[Conf
 ** Windows: `%USERPROFILE%\Documents\Hop\default`
 * Register the *samples* project from this Hop installation (`<install>/config/projects/samples`) so the examples stay available after the config folder moves.
 
-Both options are selected by default. Apply writes them into the new `hop-config.json` (and creates `project-config.json` plus the install default-project template when the default home is empty).
+Both options are selected by default. Apply writes them into the new `hop-config.json`. An empty default project home is created from the install default-project template. That project includes a `local` pipeline run configuration and a `local` workflow run configuration. If the template does not contain them, setup adds them, together with the local execution info location and data profile they use.
 
 === Preview and apply
 

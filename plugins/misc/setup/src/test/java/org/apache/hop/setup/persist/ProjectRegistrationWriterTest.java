@@ -79,12 +79,90 @@ class ProjectRegistrationWriterTest {
             hopHome);
 
     assertTrue(Files.exists(defaultHome.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME)));
+    assertTrue(
+        Files.readString(defaultHome.resolve(LocalRunConfigurationSeeder.PIPELINE_RELATIVE))
+            .contains("\"name\": \"local\""));
+    assertTrue(
+        Files.readString(defaultHome.resolve(LocalRunConfigurationSeeder.WORKFLOW_RELATIVE))
+            .contains("\"name\": \"local\""));
     String hopConfig = Files.readString(configFolder.resolve(HopSetupVariables.HOP_CONFIG_JSON));
     assertTrue(hopConfig.contains("\"projectName\" : \"default\""));
     assertTrue(hopConfig.contains(defaultHome.toString()));
     assertTrue(hopConfig.contains("\"projectName\" : \"samples\""));
     assertTrue(hopConfig.contains("config/projects/samples"));
     assertTrue(hopConfig.contains("\"defaultProject\" : \"default\""));
+  }
+
+  @Test
+  void copiesNestedTemplateRunConfigurations() throws Exception {
+    Path hopHome = temp.resolve("hop");
+    Path template = hopHome.resolve("config/projects/default");
+    Files.createDirectories(template.resolve("metadata/pipeline-run-configuration"));
+    Files.createDirectories(template.resolve("metadata/workflow-run-configuration"));
+    Files.writeString(
+        template.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME),
+        "{ \"description\": \"template\" }");
+    Files.writeString(
+        template.resolve(LocalRunConfigurationSeeder.PIPELINE_RELATIVE),
+        "{ \"name\": \"from-template\" }");
+    Files.writeString(
+        template.resolve(LocalRunConfigurationSeeder.WORKFLOW_RELATIVE),
+        "{ \"name\": \"from-template-wf\" }");
+
+    Path defaultHome = temp.resolve("Documents/hop/default");
+    HopEnvironmentSpec spec = new HopEnvironmentSpec();
+    spec.setConfigFolder(temp.resolve("user-config").toString());
+    spec.setCreateDefaultProject(true);
+    spec.setDefaultProjectHome(defaultHome.toString());
+
+    new ProjectRegistrationWriter()
+        .apply(
+            spec,
+            OsFamily.UNIX,
+            unixPaths(temp.resolve("home")),
+            new HopEnvironmentApplyResult(),
+            hopHome);
+
+    assertTrue(
+        Files.readString(defaultHome.resolve(LocalRunConfigurationSeeder.PIPELINE_RELATIVE))
+            .contains("from-template"));
+    assertTrue(
+        Files.readString(defaultHome.resolve(LocalRunConfigurationSeeder.WORKFLOW_RELATIVE))
+            .contains("from-template-wf"));
+    assertFalse(
+        Files.exists(defaultHome.resolve(LocalRunConfigurationSeeder.EXECUTION_INFO_RELATIVE)));
+  }
+
+  @Test
+  void copiesNestedTemplateSubfolders() throws Exception {
+    Path hopHome = temp.resolve("hop");
+    Path template = hopHome.resolve("config/projects/default");
+    Files.createDirectories(template.resolve("metadata/rdbms"));
+    Files.createDirectories(template.resolve("datasets"));
+    Files.writeString(
+        template.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME),
+        "{ \"description\": \"template\" }");
+    Files.writeString(template.resolve("metadata/rdbms/sample.json"), "{ \"name\": \"sample\" }");
+    Files.writeString(template.resolve("datasets/customers.csv"), "id,name");
+
+    Path defaultHome = temp.resolve("Documents/hop/default");
+    HopEnvironmentSpec spec = new HopEnvironmentSpec();
+    spec.setConfigFolder(temp.resolve("user-config").toString());
+    spec.setCreateDefaultProject(true);
+    spec.setDefaultProjectHome(defaultHome.toString());
+
+    new ProjectRegistrationWriter()
+        .apply(
+            spec,
+            OsFamily.UNIX,
+            unixPaths(temp.resolve("home")),
+            new HopEnvironmentApplyResult(),
+            hopHome);
+
+    assertTrue(
+        Files.readString(defaultHome.resolve("metadata/rdbms/sample.json")).contains("sample"));
+    assertTrue(Files.readString(defaultHome.resolve("datasets/customers.csv")).contains("id,name"));
+    assertTrue(Files.exists(defaultHome.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME)));
   }
 
   @Test
@@ -112,6 +190,7 @@ class ProjectRegistrationWriterTest {
     assertTrue(
         Files.readString(defaultHome.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME))
             .contains("keep"));
+    assertFalse(Files.exists(defaultHome.resolve(LocalRunConfigurationSeeder.PIPELINE_RELATIVE)));
   }
 
   @Test
@@ -130,7 +209,10 @@ class ProjectRegistrationWriterTest {
         .apply(spec, OsFamily.UNIX, unixPaths(temp.resolve("home")), result, null);
 
     assertFalse(Files.exists(configFolder.resolve(HopSetupVariables.HOP_CONFIG_JSON)));
-    assertTrue(result.describe().contains("Would"));
+    assertTrue(
+        result.describe().contains("Would add local pipeline and workflow run configurations"));
+    assertFalse(
+        Files.exists(temp.resolve("p").resolve(LocalRunConfigurationSeeder.PIPELINE_RELATIVE)));
   }
 
   @Test

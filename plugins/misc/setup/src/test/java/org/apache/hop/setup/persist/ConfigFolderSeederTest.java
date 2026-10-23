@@ -52,6 +52,17 @@ class ConfigFolderSeederTest {
     Files.createDirectories(install.resolve("config"));
     Files.writeString(install.resolve("config").resolve(HopSetupVariables.HOP_CONFIG_JSON), "{}");
     Files.writeString(install.resolve("config").resolve("extra.txt"), "keep");
+    Path defaultProject =
+        install
+            .resolve("config/projects/default/metadata/pipeline-run-configuration")
+            .resolve("local.json");
+    Files.createDirectories(defaultProject.getParent());
+    Files.writeString(defaultProject, "{ \"name\": \"local\" }");
+    Path samplesProject = install.resolve("config/projects/samples");
+    Files.createDirectories(samplesProject);
+    Files.writeString(
+        samplesProject.resolve(HopSetupVariables.PROJECT_CONFIG_FILENAME),
+        "{ \"description\": \"samples\" }");
     Path target = temp.resolve("user-config");
     HopEnvironmentSpec spec = new HopEnvironmentSpec();
     spec.setConfigFolder(target.toString());
@@ -60,6 +71,9 @@ class ConfigFolderSeederTest {
     new ConfigFolderSeeder().seed(spec, new HopEnvironmentApplyResult(), install);
     assertTrue(Files.exists(target.resolve(HopSetupVariables.HOP_CONFIG_JSON)));
     assertTrue(Files.exists(target.resolve("extra.txt")));
+    assertTrue(Files.isDirectory(target.resolve("projects")));
+    assertFalse(Files.exists(target.resolve("projects/default")));
+    assertFalse(Files.exists(target.resolve("projects/samples")));
   }
 
   @Test
