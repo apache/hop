@@ -85,6 +85,60 @@ The Selenium tests that drive Hop Web in a container. They need Docker and take 
 `apache-release` / `deploy-snapshots`::
 Release plumbing, including the CycloneDX SBOM. See xref:apache-release/index.adoc[the release process].
 
+== Building behind a firewall
+
+Maven dependencies and plugins go through the `<mirror>` in your `settings.xml`.
+Besides Maven Central, a few modules declare their own repositories (Clojars, Confluent, Splunk, JetBrains), so your repository manager has to proxy those too.
+
+Four files are not Maven artifacts and are downloaded directly, ignoring `<mirror>`:
+
+[cols="2,3", options="header"]
+|===
+|Property |Default
+
+|`swtbot.plugins.url`
+|`\https://download.eclipse.org/technology/swtbot/releases/${swtbot.version}/plugins` (two jars)
+
+|`tm4e.core.download.url`
+|`\https://download.eclipse.org/tm4e/releases/${tm4e.core.version}/plugins/${tm4e.core.download.file}`
+
+|`monaco.download.url`
+|`\https://registry.npmjs.org/monaco-editor/-/monaco-editor-${monaco.version}.tgz`
+|===
+
+To fetch them from a repository manager, set these properties in a profile in your `settings.xml`.
+`download.auth.serverId` names the `<server>` whose credentials are used for all four downloads.
+Keep the `${...}` placeholders: Maven fills them in, so the profile keeps working when Hop updates these versions.
+
+[source,xml]
+----
+<settings>
+  <servers>
+    <server>
+      <id>artifactory</id>
+      <username>...</username>
+      <password>...</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>hop-downloads</id>
+      <properties>
+        <download.auth.serverId>artifactory</download.auth.serverId>
+        <swtbot.plugins.url>https://artifactory.example.com/eclipse/technology/swtbot/releases/${swtbot.version}/plugins</swtbot.plugins.url>
+        <tm4e.core.download.url>https://artifactory.example.com/eclipse/tm4e/releases/${tm4e.core.version}/plugins/${tm4e.core.download.file}</tm4e.core.download.url>
+        <monaco.download.url>https://artifactory.example.com/api/npm/npm/monaco-editor/-/monaco-editor-${monaco.version}.tgz</monaco.download.url>
+      </properties>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>hop-downloads</activeProfile>
+  </activeProfiles>
+</settings>
+----
+
+The same properties also work as `-D` options on the command line.
+
 == Checks that must pass
 
 Formatting — Spotless::

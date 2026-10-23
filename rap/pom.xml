@@ -29,6 +29,7 @@
     <name>Hop GUI (RAP fragment)</name>
 
     <properties>
+        <monaco.download.url>https://registry.npmjs.org/monaco-editor/-/monaco-editor-${monaco.version}.tgz</monaco.download.url>
         <monaco.resources.dir>${project.build.directory}/generated-resources/org/apache/hop/ui/hopgui/monaco</monaco.resources.dir>
         <monaco.version>0.55.1</monaco.version>
         <rap.version>4.8.0</rap.version>
@@ -80,7 +81,7 @@
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <url>https://registry.npmjs.org/monaco-editor/-/monaco-editor-${monaco.version}.tgz</url>
+                            <url>${monaco.download.url}</url>
                             <unpack>true</unpack>
                             <outputDirectory>${project.build.directory}/monaco-download</outputDirectory>
                         </configuration>
