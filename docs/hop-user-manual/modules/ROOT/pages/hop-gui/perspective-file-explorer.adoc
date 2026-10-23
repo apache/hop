@@ -76,7 +76,7 @@ New pipelines, workflows and files are created from the right-click menu rather 
 Right-click a file or folder in the tree to open this menu.
 Options that don't apply to the selection are greyed out.
 
-* Create pipeline..., Create workflow..., Create file...: Create a new, empty pipeline, workflow or file inside the selected folder and open it. For a file you choose its name and file type. Only available when one folder is selected.
+* Create pipeline..., Create workflow..., Create file...: Create a new empty pipeline, a new workflow with a Start action, or a new file inside the selected folder and open it. For a file you choose its name and file type. Only available when one folder is selected.
 * Create folder: Create a new folder inside the selected folder. Only available when one folder is selected.
 * Expand All, Collapse All: Show or hide all nested folders in the tree.
 * Refresh folder: Read the selected folder, or the folder of the selected file, again from disk.

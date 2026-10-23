@@ -3630,6 +3630,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       workflowMeta.setName(ExplorerCreateUtils.baseName(fileName));
       workflowMeta.setMetadataProvider(hopGui.getMetadataProvider());
       workflowMeta.setFilename(filename);
+      HopWorkflowFileType.addDefaultStartAction(workflowMeta);
       IHopFileTypeHandler handler = addWorkflow(workflowMeta);
       handler.save();
     } catch (Exception e) {
