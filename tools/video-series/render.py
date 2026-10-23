@@ -718,6 +718,23 @@ def visible_duration(speech_secs: list[float], padding: float) -> float:
     return max(speech_secs) + padding
 
 
+def clip_playback_sec(scene: Scene, visual: Path) -> float | None:
+    """Seconds of the recording to keep. A set trim_sec is a cap. Otherwise the whole file."""
+    if scene.visual_type != "clip" or not visual.is_file():
+        return None
+    if scene.trim_sec is not None:
+        return scene.trim_sec
+    return probe_duration(visual)
+
+
+def scene_length(speech_secs: list[float], padding: float, clip_sec: float | None) -> float:
+    """Voice-over length, or the full clip when the recording runs longer. The pause stays at the end."""
+    spoken = visible_duration(speech_secs, padding)
+    if clip_sec is None:
+        return spoken
+    return max(spoken, clip_sec + padding)
+
+
 def speech_starts(visible: list[float]) -> list[float]:
     starts: list[float] = []
     cursor = 0.0
@@ -754,11 +771,19 @@ def cmd_align(
                 f"({shortest:.1f}s to {longest:.1f}s). Shorten the long translation.",
                 file=sys.stderr,
             )
+        spoken_sec = visible_duration(lengths, video.padding_sec)
+        clip_sec = clip_playback_sec(scene, video.path / scene.visual)
+        length = scene_length(lengths, video.padding_sec, clip_sec)
+        if clip_sec is not None and length > spoken_sec + 0.05:
+            print(
+                f"{scene.scene_id}: clip is {clip_sec - longest:.1f}s longer than the voice-over. "
+                "The picture continues in silence."
+            )
         rows.append(
             {
                 "id": scene.scene_id,
                 "title": scene.title,
-                "scene_sec": round(visible_duration(lengths, video.padding_sec), 3),
+                "scene_sec": round(length, 3),
                 "speech": per_locale,
             }
         )
@@ -1097,32 +1122,95 @@ def encode_scene(
     )
 
 
+def probe_stream_duration(path: Path, selector: str) -> float:
+    result = run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            selector,
+            "-show_entries",
+            "stream=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
+        ]
+    )
+    text = result.stdout.strip().splitlines()
+    if not text or text[0] in {"", "N/A"}:
+        return probe_duration(path)
+    return float(text[0])
+
+
+def usable_scene_duration(path: Path) -> float:
+    """The stretch both the picture and the sound actually contain."""
+    picture = probe_stream_duration(path, "v:0")
+    sound = probe_stream_duration(path, "a:0")
+    if picture <= 0 or sound <= 0:
+        return probe_duration(path)
+    return min(picture, sound)
+
+
 def xfade_offset(durations: list[float], transition: float, index: int) -> float:
     """Offset at which scene `index` (1-based) begins its fade in."""
     return sum(durations[:index]) - index * transition
 
 
 def concat_scenes(video: Video, scene_files: list[Path], destination: Path) -> None:
+    """Join scenes with a short crossfade.
+
+    A chained xfade on the whole episode buffers every frame until the fade
+    offset, which is the length of the film. That stalls the encode. Each fade
+    here is only the overlap, a fraction of a second, and the rest is concatenated.
+    """
     if len(scene_files) == 1:
         shutil.copyfile(scene_files[0], destination)
         return
-    durations = [probe_duration(path) for path in scene_files]
+    durations = [usable_scene_duration(path) for path in scene_files]
+    transition = video.transition_sec
+    if any(duration <= transition * 2 for duration in durations):
+        die("A scene is shorter than the crossfade. Lengthen the narration or lower transition_ms.")
     parts: list[str] = []
-    video_label = "[0:v]"
-    audio_label = "[0:a]"
-    for index in range(1, len(scene_files)):
-        offset = xfade_offset(durations, video.transition_sec, index)
-        next_video = "[v]" if index == len(scene_files) - 1 else f"[v{index}]"
-        next_audio = "[a]" if index == len(scene_files) - 1 else f"[a{index}]"
+    video_labels: list[str] = []
+    audio_labels: list[str] = []
+
+    def trim_stream(index: int, kind: str, start: float, end: float, label: str) -> None:
+        if kind == "v":
+            parts.append(
+                f"[{index}:v]trim=start={start:.3f}:end={end:.3f},setpts=PTS-STARTPTS[{label}]"
+            )
+        else:
+            parts.append(
+                f"[{index}:a]atrim=start={start:.3f}:end={end:.3f},asetpts=PTS-STARTPTS[{label}]"
+            )
+
+    trim_stream(0, "v", 0, durations[0] - transition, "vhead")
+    trim_stream(0, "a", 0, durations[0] - transition, "ahead")
+    video_labels.append("vhead")
+    audio_labels.append("ahead")
+    for index in range(len(scene_files) - 1):
+        trim_stream(index, "v", durations[index] - transition, durations[index], f"vt{index}")
+        trim_stream(index, "a", durations[index] - transition, durations[index], f"at{index}")
+        trim_stream(index + 1, "v", 0, transition, f"vh{index}")
+        trim_stream(index + 1, "a", 0, transition, f"ah{index}")
         parts.append(
-            f"{video_label}[{index}:v]xfade=transition={video.transition}:"
-            f"duration={video.transition_sec:.3f}:offset={offset:.3f}{next_video}"
+            f"[vt{index}][vh{index}]xfade=transition={video.transition}:"
+            f"duration={transition:.3f}:offset=0[vx{index}]"
         )
         parts.append(
-            f"{audio_label}[{index}:a]acrossfade=d={video.transition_sec:.3f}:c1=tri:c2=tri{next_audio}"
+            f"[at{index}][ah{index}]acrossfade=d={transition:.3f}:c1=tri:c2=tri[ax{index}]"
         )
-        video_label = next_video
-        audio_label = next_audio
+        video_labels.append(f"vx{index}")
+        audio_labels.append(f"ax{index}")
+        body_start = transition
+        body_end = durations[index + 1] if index + 1 == len(scene_files) - 1 else durations[index + 1] - transition
+        trim_stream(index + 1, "v", body_start, body_end, f"vb{index}")
+        trim_stream(index + 1, "a", body_start, body_end, f"ab{index}")
+        video_labels.append(f"vb{index}")
+        audio_labels.append(f"ab{index}")
+    pairs = "".join(f"[{video_label}][{audio_label}]" for video_label, audio_label in zip(video_labels, audio_labels))
+    parts.append(f"{pairs}concat=n={len(video_labels)}:v=1:a=1[v][a]")
     inputs: list[str] = []
     for path in scene_files:
         inputs.extend(["-i", str(path)])
@@ -1291,6 +1379,9 @@ def self_test() -> None:
     require_tool("ffmpeg")
     require_tool("ffprobe")
     assert speech_starts([10.0, 8.0, 12.0]) == [0.0, 10.0, 18.0]
+    assert scene_length([10.0], 0.4, None) == 10.4
+    assert scene_length([10.0], 0.4, 35.0) == 35.4
+    assert scene_length([40.0], 0.4, 10.0) == 40.4
     assert abs(xfade_offset([10.0, 10.4], 0.4, 1) - 9.6) < 0.001
     spoken = apply_speak_as("Run hop-run with ${PROJECT_HOME}.", [("hop-run", "hop run"), ("${PROJECT_HOME}", "the PROJECT_HOME variable")])
     assert "${" not in spoken
