@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -293,6 +294,159 @@ class YamlInputTests {
     assertEquals(1, written.size());
     assertEquals("Bob", written.getFirst()[0]);
     assertEquals(40L, ((Number) written.getFirst()[1]).longValue());
+  }
+
+  @Test
+  void testProcessRow_listOfMaps_emitsEveryElement() throws Exception {
+    Path tempFile = tempDir.resolve("people.yaml");
+    Files.writeString(
+        tempFile,
+        """
+        - id: 1
+          name: Anna
+        - id: 2
+          name: Ben
+        - id: 3
+          name: Chris
+        """);
+
+    YamlInputMeta meta = new YamlInputMeta();
+    meta.setInFields(false);
+    meta.setDoNotFailIfNoFile(true);
+    meta.getInputFields().add(field("id", "$.id", IValueMeta.TYPE_INTEGER));
+    meta.getInputFields().add(field("name", "$.name", IValueMeta.TYPE_STRING));
+    meta.getYamlFiles().add(yamlFile(tempFile));
+
+    List<Object[]> written = new ArrayList<>();
+    YamlInput transform = runningTransform(meta, written);
+
+    assertTrue(transform.processRow());
+    assertTrue(transform.processRow());
+    assertTrue(transform.processRow());
+    assertFalse(transform.processRow());
+    assertEquals(0, transform.getErrors());
+    assertEquals(3, written.size());
+    assertEquals("Anna", written.get(0)[1]);
+    assertEquals("Ben", written.get(1)[1]);
+    assertEquals("Chris", written.get(2)[1]);
+  }
+
+  @Test
+  void testProcessRow_missingPath_emitsNull() throws Exception {
+    Path tempFile = tempDir.resolve("person.yaml");
+    Files.writeString(tempFile, """
+        id: 1
+        name: Anna
+        """);
+
+    YamlInputMeta meta = new YamlInputMeta();
+    meta.setInFields(false);
+    meta.setDoNotFailIfNoFile(true);
+    meta.getInputFields().add(field("id", "$.id", IValueMeta.TYPE_INTEGER));
+    meta.getInputFields().add(field("missing", "$.nope", IValueMeta.TYPE_STRING));
+    meta.getYamlFiles().add(yamlFile(tempFile));
+
+    List<Object[]> written = new ArrayList<>();
+    YamlInput transform = runningTransform(meta, written);
+
+    assertTrue(transform.processRow());
+    assertFalse(transform.processRow());
+    assertEquals(0, transform.getErrors());
+    assertEquals(1, written.size());
+    assertEquals(1L, ((Number) written.getFirst()[0]).longValue());
+    assertNull(written.getFirst()[1]);
+  }
+
+  @Test
+  void testProcessRow_ignoreEmptyFile_allEmpty_finishesWithoutError() throws Exception {
+    Path emptyFile = tempDir.resolve("empty.yaml");
+    Files.writeString(emptyFile, "");
+
+    YamlInputMeta meta = new YamlInputMeta();
+    meta.setInFields(false);
+    meta.setDoNotFailIfNoFile(true);
+    meta.setIgnoringEmptyFile(true);
+    meta.getInputFields().add(field("id", "$.id", IValueMeta.TYPE_INTEGER));
+    meta.getYamlFiles().add(yamlFile(emptyFile));
+
+    List<Object[]> written = new ArrayList<>();
+    YamlInput transform = runningTransform(meta, written);
+
+    assertFalse(transform.processRow());
+    assertFalse(transform.processRow());
+    assertEquals(0, transform.getErrors());
+    assertEquals(0, written.size());
+  }
+
+  @Test
+  void testProcessRow_ignoreEmptyFile_skipsEmptyThenReadsNext() throws Exception {
+    Path emptyFile = tempDir.resolve("empty.yaml");
+    Path peopleFile = tempDir.resolve("people.yaml");
+    Files.writeString(emptyFile, "");
+    Files.writeString(
+        peopleFile,
+        """
+        - id: 1
+          name: Anna
+        - id: 2
+          name: Ben
+        """);
+
+    YamlInputMeta meta = new YamlInputMeta();
+    meta.setInFields(false);
+    meta.setDoNotFailIfNoFile(true);
+    meta.setIgnoringEmptyFile(true);
+    meta.getInputFields().add(field("id", "$.id", IValueMeta.TYPE_INTEGER));
+    meta.getInputFields().add(field("name", "$.name", IValueMeta.TYPE_STRING));
+    meta.getYamlFiles().add(yamlFile(emptyFile));
+    meta.getYamlFiles().add(yamlFile(peopleFile));
+
+    List<Object[]> written = new ArrayList<>();
+    YamlInput transform = runningTransform(meta, written);
+
+    assertTrue(transform.processRow());
+    assertTrue(transform.processRow());
+    assertFalse(transform.processRow());
+    assertEquals(0, transform.getErrors());
+    assertEquals(List.of("Anna", "Ben"), List.of(written.get(0)[1], written.get(1)[1]));
+  }
+
+  private static YamlInputField field(String name, String path, int type) {
+    YamlInputField field = new YamlInputField();
+    field.setName(name);
+    field.setPath(path);
+    field.setType(type);
+    return field;
+  }
+
+  private static YamlInputMeta.YamlFile yamlFile(Path path) {
+    YamlInputMeta.YamlFile file = new YamlInputMeta.YamlFile();
+    file.setFilename(path.toAbsolutePath().toString());
+    file.setFileMask(".*\\.ya?ml");
+    file.setFileRequired(false);
+    return file;
+  }
+
+  private YamlInput runningTransform(YamlInputMeta meta, List<Object[]> written) throws Exception {
+    YamlInput transform =
+        spy(
+            new YamlInput(
+                helper.transformMeta,
+                meta,
+                new YamlInputData(),
+                0,
+                helper.pipelineMeta,
+                helper.pipeline));
+    doAnswer(
+            invocation -> {
+              Object[] row = invocation.getArgument(1);
+              written.add(Arrays.copyOf(row, row.length));
+              return null;
+            })
+        .when(transform)
+        .putRow(any(IRowMeta.class), any());
+    assertTrue(transform.init());
+    return transform;
   }
 
   @AfterEach

@@ -204,28 +204,24 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
   private boolean openNextFile() {
     try {
-      if (data.fileIndex >= data.files.nrOfFiles()) {
-        // finished processing!
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "YamlInput.Log.FinishedProcessing"));
+      while (data.fileIndex < data.files.nrOfFiles()) {
+        // Get file to process from list
+        data.file = data.files.getFile(data.fileIndex);
+
+        // Move file pointer ahead!
+        data.fileIndex++;
+
+        if (meta.isIgnoringEmptyFile() && data.file.getContent().getSize() == 0) {
+          // Do not keep a reader from a previous file, and do not report success: there is
+          // nothing to read until a non-empty file is opened.
+          data.yaml = null;
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(PKG, "YamlInput.Error.FileSizeZero", data.file.getName()));
+          }
+          continue;
         }
-        return false;
-      }
-      // Get file to process from list
-      data.file = data.files.getFile(data.fileIndex);
 
-      // Move file pointer ahead!
-      data.fileIndex++;
-
-      if (meta.isIgnoringEmptyFile() && data.file.getContent().getSize() == 0) {
-        if (isBasic()) {
-          logBasic(
-              BaseMessages.getString(PKG, "YamlInput.Error.FileSizeZero", data.file.getName()));
-        }
-        // Let's open the next file
-        openNextFile();
-
-      } else {
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "YamlInput.Log.OpeningFile", data.file.toString()));
@@ -246,7 +242,14 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
           logDetailed(
               BaseMessages.getString(PKG, "YamlInput.Log.FileOpened", data.file.toString()));
         }
+        return true;
       }
+
+      // finished processing!
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "YamlInput.Log.FinishedProcessing"));
+      }
+      return false;
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
@@ -260,7 +263,6 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
       logError(Const.getStackTracker(e));
       return false;
     }
-    return true;
   }
 
   @Override
@@ -321,11 +323,11 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
   private Object[] getOneRowFromFileMode() throws HopException {
     while (true) {
-      if (data.file == null && !openNextFile()) {
+      if ((data.file == null || data.yaml == null) && !openNextFile()) {
         return new Object[0];
       }
 
-      if (data.file == null) {
+      if (data.file == null || data.yaml == null) {
         continue;
       }
 
