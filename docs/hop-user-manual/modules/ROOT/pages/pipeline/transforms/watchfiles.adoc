@@ -122,7 +122,7 @@ Remote schemes use Hop's installed VFS providers; this plugin creates no SFTP, F
 Root resolution uses `HopVfs.getFileObject(resolvedPath, variables)`, preserving execution variables, metadata-driven connections and VFS namespaces.
 Subsequent operations resolve relative to that same root FileObject.
 Named connections are recommended, particularly on Hop Server. Relative paths follow the existing HopVfs working-directory rules;
-use an explicit variable such as `${PROJECT_HOME}` for a project-relative path.
+use an explicit variable such as `+${PROJECT_HOME}+` for a project-relative path.
 
 === Stability and coalescing
 
@@ -280,7 +280,7 @@ For local filenames containing a literal percent sign, `filename` is a file URI 
 
 == Example
 
-The bundled `watch-files/watch-files.hpl` sample monitors `${PROJECT_HOME}/watch-files/input` and writes filename, event type, size and modification time to the log.
+The bundled `watch-files/watch-files.hpl` sample monitors `+${PROJECT_HOME}/watch-files/input+` and writes filename, event type, size and modification time to the log.
 Create or modify a CSV in that directory, wait for stability, then stop the pipeline.
 Restart it after adding a CSV while stopped to observe recovery.
 Its sibling `state` directory persists checkpoints.

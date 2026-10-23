@@ -46,7 +46,7 @@ Relative paths, for the target and for options such as `--output`, `--config` an
 == Project and environment
 
 `hop lint` takes the project and environment options of `hop run`.
-Hop's own checks then see the variables a pipeline is run with, so a transform that reads `'${INPUT_FOLDER}'` from the environment is checked against that folder rather than reported as unable to find it.
+Hop's own checks then see the variables a pipeline is run with, so a transform that reads `+'${INPUT_FOLDER}'+` from the environment is checked against that folder rather than reported as unable to find it.
 Without `-j` or `-e` the default project and environment from the Hop configuration apply, but only to what lies inside that project.
 Anything else, such as another project's folder or a commit checked by the pre-commit hook, is linted with the `metadata` folder found above it.
 A project chosen with `-j` or `-e` applies whatever is linted; for a target outside it, `hop lint` prints a warning.

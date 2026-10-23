@@ -29,7 +29,7 @@ It is not an incremental change feed and does not parse document properties into
 
 == Options
 
-All String settings support Hop variables, for example `${ES_HOSTS}` and `${ES_PASSWORD}`.
+All String settings support Hop variables, for example `+${ES_HOSTS}+` and `+${ES_PASSWORD}+`.
 Variables are resolved while constructing the Beam graph. Empty required settings, unresolved variables and invalid configuration fail before submission; credentials must also be available on workers through the resolved graph.
 
 [options="header"]

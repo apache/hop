@@ -33,7 +33,7 @@ Using `java.io.File` is one of the most common causes of bugs when running pipel
 
 * **Non-local Schemes:** `java.io.File` only understands the local operating system's filesystem syntax. Passing a cloud path such as `s3://my-bucket/orders.csv` or `gs://my-bucket/orders.csv` to `java.io.File` will either throw a `FileNotFoundException` or corrupt the path into a nonsensical local directory like `./s3:/my-bucket/orders.csv`.
 * **Portability across Runtimes:** Pipelines configured on a local machine frequently execute on a remote Hop Server, in a Docker container, or on a distributed cluster with Apache Beam / Spark / Flink. Using `HopVfs` ensures that paths remain portable across all runtime targets.
-* **Variable Resolution:** `HopVfs` automatically expands variables (such as `${PROJECT_HOME}/data/file.csv` or `${S3_BUCKET}/data.parquet`) before resolving the underlying file system provider.
+* **Variable Resolution:** `HopVfs` automatically expands variables (such as `+${PROJECT_HOME}/data/file.csv+` or `+${S3_BUCKET}/data.parquet+`) before resolving the underlying file system provider.
 
 == Core File Operations with HopVfs
 

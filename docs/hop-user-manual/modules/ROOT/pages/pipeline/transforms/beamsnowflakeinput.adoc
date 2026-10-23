@@ -36,7 +36,7 @@ The read is bounded. SnowflakeIO rejects a streaming read, and this transform do
 |Transform name|Unique name in the pipeline.
 |Server|Required account host. It must look like `account.snowflakecomputing.com`. The value is not repeated in an error.
 |Username|Required Snowflake user.
-|Password|Used when no private key is set. Masked in the dialog and encrypted with Hop password conventions. Prefer a variable such as `${SNOWFLAKE_PASSWORD}`.
+|Password|Used when no private key is set. Masked in the dialog and encrypted with Hop password conventions. Prefer a variable such as `+${SNOWFLAKE_PASSWORD}+`.
 |Private key|PEM private key. When this is set, Hop uses key-pair authentication and does not send the password. A passphrase is optional. Key files and OAuth are not offered.
 |Database|Optional database identifier.
 |Warehouse|Optional warehouse identifier.

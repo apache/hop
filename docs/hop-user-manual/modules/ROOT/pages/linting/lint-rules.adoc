@@ -101,7 +101,7 @@ Scope such a rule with `appliesTo`, naming the metadata key — the folder name 
 |is a collection with at least one entry
 
 |`NO_HARDCODED`
-|is empty, or takes its value from a variable (`${NAME}`, `%%NAME%%`) or a variable resolver (`#{vault:path:key}`) rather than holding a literal value. An `Encrypted` value is a literal value: Hop obfuscates it, and anyone with Hop and the same encoder key can read it back
+|is empty, or takes its value from a variable (`+${NAME}+`, `%%NAME%%`) or a variable resolver (`#{vault:path:key}`) rather than holding a literal value. An `Encrypted` value is a literal value: Hop obfuscates it, and anyone with Hop and the same encoder key can read it back
 
 |`MAX_VALUE`, `MIN_VALUE`, `EXACT_VALUE`
 |compares as required against `conditionValue`

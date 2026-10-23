@@ -36,7 +36,7 @@ Publish one MQTT message for each incoming Hop row using Apache Beam MqttIO. Con
 |Topic|Required fixed publish topic.
 |Client ID prefix|Optional prefix. Beam appends a UUID and truncates the resulting client ID to 23 characters. Leave empty for a random ID; use a short prefix to preserve random suffix characters.
 |Username|Optional broker username.
-|Password|Optional broker password, requires a username. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `${MQTT_PASSWORD}`.
+|Password|Optional broker password, requires a username. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `+${MQTT_PASSWORD}+`.
 |Payload field|Required incoming field to publish (default `message`).
 |Payload type|`String` or `Binary`. String uses Hop value metadata to convert to text, then encodes UTF-8. Binary requires a Hop Binary field and preserves the bytes. Null payloads fail the pipeline; empty payloads are allowed.
 |Retain messages|Sets the MQTT retained flag. Default is off. A retained publish replaces the broker's retained message; a retained empty payload clears it.

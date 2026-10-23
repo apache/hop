@@ -179,7 +179,7 @@ From Hop 2.20 on it works with every graph database above. Existing projects kee
 |Neo4j location |Graph database location
 |===
 * `HOP_GRAPH_LOGGING_CONNECTION` replaces `NEO4J_LOGGING_CONNECTION`, which keeps working when the new variable isn't set.
-* The Cypher builder writes parameters as `$name`. It wrote them as `{name}`, which Neo4j 4 and later reject, so statements without UNWIND work again.
+* The Cypher builder writes parameters as `$name`. It wrote them as `+{name}+`, which Neo4j 4 and later reject, so statements without UNWIND work again.
 * Get graph logging info finds the previous executions of pipelines and workflows: it looked for execution types which the logging doesn't write.
 The workflow logging now writes the status of a workflow, which these lookups need.
 * The graph index, graph constraint, graph script and check connections actions report their own success, also after a failure hop.

@@ -36,7 +36,7 @@ Read MQTT message payloads as Hop rows using Apache Beam MqttIO. This is a sourc
 |Topic|Required subscription filter.
 |Client ID prefix|Optional prefix. Beam appends a UUID and truncates the resulting client ID to 23 characters. Leave empty for a random ID; use a short prefix to preserve random suffix characters.
 |Username|Optional broker username.
-|Password|Optional broker password, requires a username. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `${MQTT_PASSWORD}`.
+|Password|Optional broker password, requires a username. Masked in the dialog and encrypted with Hop password conventions in saved pipelines. Prefer a secret variable such as `+${MQTT_PASSWORD}+`.
 |Payload field|Name of the output payload field (default `message`).
 |Payload type|`String` or `Binary`. String decodes UTF-8; Binary preserves arbitrary bytes.
 |Maximum records|Non-negative record limit; zero or empty means unlimited.

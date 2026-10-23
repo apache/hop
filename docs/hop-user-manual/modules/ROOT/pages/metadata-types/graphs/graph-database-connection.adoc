@@ -146,7 +146,7 @@ They are grouped in four tabs:
 
 |Protocol
 |Automatic configuration, protocol (URL scheme), routing, routing policy, encryption and trusting all certificates.
-Every on/off option has a variable alternative which, when set, overrides it, for example `'${NEO4J_ENCRYPTION}'`.
+Every on/off option has a variable alternative which, when set, overrides it, for example `+'${NEO4J_ENCRYPTION}'+`.
 
 |Advanced
 |Connection liveness check timeout, maximum connection lifetime, maximum connection pool size, connection acquisition timeout, connection timeout and maximum transaction retry time, all in milliseconds.

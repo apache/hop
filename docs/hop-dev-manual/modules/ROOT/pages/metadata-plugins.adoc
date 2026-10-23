@@ -142,5 +142,4 @@ The parent object is often another metadata object.
 You can use it to check if it implements IVariables so you can inherit variables from there.
 * ```public String getObjectId( Object object ) throws HopException``` -> Retrieves the object ID from the given object.
 We recommend that you check the instance of the object until the factory interface supports generics.
-(TODO)
 

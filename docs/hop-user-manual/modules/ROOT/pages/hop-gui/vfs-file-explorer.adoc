@@ -123,7 +123,7 @@ After a cut and paste, the files that were moved leave the explorer clipboard.
 Files you skipped, or that could not be moved, stay on it, so you can paste them again.
 
 Right-click a file or folder and choose **Copy path** to put its path on the system clipboard.
-**Copy path as '${PROJECT_HOME}/...'** writes it relative to the project home folder, ready to paste into a transform or action.
+**Copy path as '+${PROJECT_HOME}+/...'** writes it relative to the project home folder, ready to paste into a transform or action.
 
 == Save a copy, copy to a folder, download and upload
 

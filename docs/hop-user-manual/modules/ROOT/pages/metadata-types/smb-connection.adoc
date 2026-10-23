@@ -42,7 +42,7 @@ The tabs are Server, Authentication, and Security.
 |===
 |Option|Description
 |Description|Optional note about this connection. It is not part of the URL.
-|Hostname|Server name. A variable such as `${FINANCE_FILE_SERVER}` is resolved at runtime. For Azure Files this is `account.file.core.windows.net`.
+|Hostname|Server name. A variable such as `+${FINANCE_FILE_SERVER}+` is resolved at runtime. For Azure Files this is `account.file.core.windows.net`.
 |Port|TCP port. Default `445`.
 |Share|Share name, without a leading slash.
 |Folder in the share|Optional folder. Every path on this connection stays under that folder.
@@ -61,7 +61,7 @@ Kerberos is not available in this version.
 The connection type is the place it will be added.
 
 The password is stored with Hop's password encoder.
-A variable such as `${SMB_PASSWORD}` is resolved at runtime.
+A variable such as `+${SMB_PASSWORD}+` is resolved at runtime.
 
 == Security
 
