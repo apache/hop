@@ -20,16 +20,18 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.parameters.SubExecutionParameters;
@@ -37,6 +39,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -318,6 +321,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         break;
       }
 
+      if (attempt > 0) {
+        refreshRetriedParameterVariablesFromExternalScopes();
+      }
+
       result = executePipelineAttempt(parameterValues, configuredTimeoutMs);
       if (!isFailedResult(result) || attempt == retryAttempts) {
         break;
@@ -328,6 +335,49 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       cleanupPreviousAttemptPipeline(getData());
     }
     return result;
+  }
+
+  @VisibleForTesting
+  void refreshRetriedParameterVariablesFromExternalScopes() {
+    Set<String> variableNamesToRefresh = new LinkedHashSet<>(Arrays.asList(getVariableNames()));
+    List<PipelineExecutorParameters> parameters = meta.getParameters();
+    if (parameters != null) {
+      for (PipelineExecutorParameters parameter : parameters) {
+        if (parameter == null) {
+          continue;
+        }
+        String parameterVariable = Const.trim(parameter.getVariable());
+        if (!Utils.isEmpty(parameterVariable)) {
+          variableNamesToRefresh.add(parameterVariable);
+        }
+      }
+    }
+
+    for (String variableName : variableNamesToRefresh) {
+      String latestValue = resolveRetriedVariableValueFromExternalScopes(variableName);
+      if (latestValue != null) {
+        setVariable(variableName, latestValue);
+      }
+    }
+  }
+
+  private String resolveRetriedVariableValueFromExternalScopes(String variableName) {
+    if (Utils.isEmpty(variableName)) {
+      return null;
+    }
+
+    IPipelineEngine<PipelineMeta> pipeline = getPipeline();
+    IVariables parent = pipeline != null ? pipeline.getParentVariables() : null;
+    int guard = 0;
+    while (parent != null && guard++ < 100) {
+      String value = parent.getVariable(variableName);
+      if (value != null) {
+        return value;
+      }
+      parent = parent.getParentVariables();
+    }
+
+    return System.getProperty(variableName);
   }
 
   private boolean waitRetryDelay(long retryDelayMs) {
@@ -692,21 +742,29 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     return getData().getExecutorPipeline();
   }
 
-  protected List<String> getLastIncomingFieldValues() {
+  protected List<String> getLastIncomingFieldValues() throws HopException {
     PipelineExecutorData pipelineExecutorData = getData();
-    List<String> lastIncomingFieldValues = new ArrayList<>();
-    if (pipelineExecutorData == null || pipelineExecutorData.groupBuffer.isEmpty()) {
+    if (pipelineExecutorData == null
+        || pipelineExecutorData.groupBuffer == null
+        || pipelineExecutorData.groupBuffer.isEmpty()) {
       return null;
     }
 
-    int lastIncomingFieldIndex = pipelineExecutorData.groupBuffer.size() - 1;
-    ArrayList lastGroupBufferData =
-        new ArrayList(
-            Arrays.asList(pipelineExecutorData.groupBuffer.get(lastIncomingFieldIndex).getData()));
-    lastGroupBufferData.removeAll(Collections.singleton(null));
+    RowMetaAndData lastBufferedRow =
+        pipelineExecutorData.groupBuffer.get(pipelineExecutorData.groupBuffer.size() - 1);
+    IRowMeta rowMeta = lastBufferedRow.getRowMeta();
+    Object[] rowData = lastBufferedRow.getData();
+    if (rowMeta == null || rowData == null) {
+      return null;
+    }
 
-    for (Object lastGroupBufferDatum : lastGroupBufferData) {
-      lastIncomingFieldValues.add(lastGroupBufferDatum.toString());
+    List<String> lastIncomingFieldValues = new ArrayList<>(rowMeta.size());
+    for (int i = 0; i < rowMeta.size(); i++) {
+      try {
+        lastIncomingFieldValues.add(rowMeta.getString(rowData, i));
+      } catch (HopValueException e) {
+        throw new HopException("Error converting buffered row values", e);
+      }
     }
     return lastIncomingFieldValues;
   }
