@@ -120,7 +120,8 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
         // Get values from previous result
         String fileFolderPrevious = resultRow.getString(0, null);
-        String fileMasksPrevious = resultRow.getString(1, null);
+        // The wildcard is optional: a row with only the file/folder takes all its files
+        String fileMasksPrevious = resultRow.size() > 1 ? resultRow.getString(1, null) : null;
 
         // ok we can process this file/folder
         if (isDetailed()) {

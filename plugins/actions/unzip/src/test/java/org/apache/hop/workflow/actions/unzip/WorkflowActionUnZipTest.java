@@ -19,6 +19,8 @@ package org.apache.hop.workflow.actions.unzip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -380,6 +382,60 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
         EXISTING_TIME,
         a.lastModified(),
         "a.csv was refused by FAIL mode and must keep its modification date");
+  }
+
+  @Test
+  void invalidZipFileCountsAsOneError() throws Exception {
+    File workDir = Files.createTempDirectory("unzip-invalid").toFile();
+    workDir.deleteOnExit();
+    File zipFile = new File(workDir, "broken.zip");
+    Files.writeString(zipFile.toPath(), "not a zip file");
+
+    Result result = runUnzipSingleFile(zipFile, new File(workDir, "dst"), FileExistsEnum.SKIP);
+
+    assertFalse(result.isResult());
+    assertEquals(1, result.getNrErrors());
+  }
+
+  @Test
+  void zipFileThatCannotBeDeletedAfterExtractionCountsAsOneError() throws Exception {
+    File workDir = Files.createTempDirectory("unzip-delete").toFile();
+    workDir.deleteOnExit();
+    File sourceDir = new File(workDir, "src");
+    assertTrue(sourceDir.mkdir());
+    File zipFile = new File(sourceDir, "data.zip");
+    createZipWithEntries(zipFile, new String[] {"a.csv"}, new String[] {"a"});
+    assumeTrue(sourceDir.setWritable(false), "cannot make the source folder read-only");
+    try {
+      assumeFalse(sourceDir.canWrite(), "source folder is still writable (root?)");
+      ActionUnZip action = new ActionUnZip();
+      action.afterUnzip = 1; // delete the zip file
+
+      Result result =
+          runUnzipSingleFile(action, zipFile, new File(workDir, "dst"), FileExistsEnum.SKIP);
+
+      assertEquals(1, result.getNrErrors());
+    } finally {
+      sourceDir.setWritable(true);
+    }
+  }
+
+  @Test
+  void failModeIgnoresExistingFilesForEntriesFilteredOutByTheWildcard() throws Exception {
+    File workDir = Files.createTempDirectory("unzip-fail-wildcard").toFile();
+    workDir.deleteOnExit();
+    File zipFile = new File(workDir, "geoip.zip");
+    createZipWithEntries(
+        zipFile, new String[] {"country.txt", "city.txt"}, new String[] {"country", "city"});
+    File targetDir = new File(workDir, "dst");
+    writeExistingFile(targetDir, "city.txt");
+
+    ActionUnZip action = new ActionUnZip();
+    action.setWildcard("country\\.txt"); // city.txt is filtered out
+    Result result = runUnzipSingleFile(action, zipFile, targetDir, FileExistsEnum.FAIL);
+
+    assertEquals(0, result.getNrErrors());
+    assertTrue(new File(targetDir, "country.txt").exists());
   }
 
   /**

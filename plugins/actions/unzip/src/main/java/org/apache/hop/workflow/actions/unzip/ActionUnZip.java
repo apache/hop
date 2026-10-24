@@ -445,7 +445,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     try {
       if (fileObject.getType().equals(FileType.FILE)) {
         // We have to unzip one zip file
-        if (!unzipFile(
+        // unzipFile counts its own errors
+        if (unzipFile(
             fileObject,
             realTargetdirectory,
             realWildcard,
@@ -454,8 +455,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             parentWorkflow,
             movetodir,
             realMovetodirectory)) {
-          updateErrors();
-        } else {
           updateSuccess();
         }
       } else {
@@ -487,7 +486,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
               unzip = matchesWildcard(patternSource, children[i]);
             }
             if (unzip) {
-              if (!unzipFile(
+              if (unzipFile(
                   children[i],
                   realTargetdirectory,
                   realWildcard,
@@ -496,8 +495,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                   parentWorkflow,
                   movetodir,
                   realMovetodirectory)) {
-                updateErrors();
-              } else {
                 updateSuccess();
               }
             }
@@ -676,9 +673,10 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                   getItexclude = matchesWildcard(patternexclude, item);
                 }
 
-                boolean take = takeThisFile(item, newFileName);
+                // Only apply the "if file exists" rule to entries that pass the wildcards
+                boolean take = getIt && !getItexclude && takeThisFile(item, newFileName);
 
-                if (getIt && !getItexclude && take) {
+                if (take) {
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(

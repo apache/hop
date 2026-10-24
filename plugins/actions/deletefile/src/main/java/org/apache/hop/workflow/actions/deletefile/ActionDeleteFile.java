@@ -122,11 +122,12 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
                     PKG, "ActionDeleteFile.ERROR_0005_Could_Not_Delete_File", realFilename));
             result.setResult(false);
             result.setNrErrors(1);
+          } else {
+            if (isBasic()) {
+              logBasic(BaseMessages.getString(PKG, "ActionDeleteFile.File_Deleted", realFilename));
+            }
+            result.setResult(true);
           }
-          if (isBasic()) {
-            logBasic(BaseMessages.getString(PKG, "ActionDeleteFile.File_Deleted", realFilename));
-          }
-          result.setResult(true);
         }
       } catch (Exception e) {
         logError(
