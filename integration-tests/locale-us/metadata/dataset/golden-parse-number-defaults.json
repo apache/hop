@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-parse-number-defaults.csv",
+  "name": "golden-parse-number-defaults",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "amount"
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}
