@@ -1376,7 +1376,7 @@ public abstract class Pipeline
                 try {
                   fireExecutionFinishedListeners();
                 } catch (Exception e) {
-                  transform.setErrors(transform.getErrors() + 1L);
+                  // fireExecutionFinishedListeners() already counted this on the pipeline
                   log.logError(
                       getName()
                           + " : "
@@ -1406,7 +1406,11 @@ public abstract class Pipeline
             }
           };
 
-      // Make sure this is called first!
+      // Register the completion detection before the other listeners, so the pipeline's own
+      // bookkeeping (finished flag, end date, error handling) does not wait on them. The
+      // TransformFinished extension point is inserted ahead of it further down, before the
+      // transform threads start: a transform has to finish announcing itself before the pipeline
+      // can conclude that the last one is done.
       //
       if (sid.transform instanceof BaseTransform baseTransform) {
         baseTransform.getTransformFinishedListeners().add(0, finishedListener);
@@ -1499,29 +1503,19 @@ public abstract class Pipeline
           RunThread runThread = new RunThread(combi);
           Thread thread = new Thread(runThread);
           thread.setName(getName() + " - " + combi.transformName);
-          ExtensionPointHandler.callExtensionPoint(
-              log, this, HopExtensionPoint.TransformBeforeStart.id, combi);
-          // Call an extension point at the end of the transform
-          //
-          combi.transform.addTransformFinishedListener(
-              (pipeline, transformMeta, transform) -> {
-                try {
-                  ExtensionPointHandler.callExtensionPoint(
-                      log, this, HopExtensionPoint.TransformFinished.id, combi);
-                } catch (HopException e) {
-                  throw new HopRuntimeException(
-                      "Unexpected error in calling extension point upon transform finish", e);
-                }
-              });
-
+          registerTransformExtensionPoints(combi);
           thread.start();
         }
         break;
 
       case SingleThreaded:
-        // Don't do anything, this needs to be handled by the pipeline
-        // executor!
+        // The executor runs these transforms one at a time, so there are no threads to start here,
+        // but they announce themselves like any other transform. The executor only stops them when
+        // it disposes them, so their finished announcement lands at the end of the run.
         //
+        for (final TransformMetaDataCombi combi : transforms) {
+          registerTransformExtensionPoints(combi);
+        }
         break;
       default:
         break;
@@ -1547,6 +1541,43 @@ public abstract class Pipeline
   }
 
   /**
+   * Announce a transform that is about to start, and register the extension point that announces it
+   * when it finishes.
+   *
+   * <p>The finished listener is inserted ahead of the completion detection registered above: the
+   * pipeline fires its completion, and with it whatever that triggers (flushing queued lineage, for
+   * example), the moment the last transform stops, so a transform has to finish announcing itself
+   * before that. Called before execution starts, so no transform can beat the registration.
+   */
+  private void registerTransformExtensionPoints(TransformMetaDataCombi combi) throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        log, this, HopExtensionPoint.TransformBeforeStart.id, combi);
+
+    // This listener runs ahead of the completion detection, so it must never throw: a failure here
+    // would skip the detection for this transform and leave waitUntilFinished() waiting forever.
+    ITransformFinishedListener transformFinishedExtensionPoint =
+        (pipeline, transformMeta, transform) -> {
+          try {
+            ExtensionPointHandler.callExtensionPoint(
+                log, this, HopExtensionPoint.TransformFinished.id, combi);
+          } catch (Exception e) {
+            log.logError(
+                "Unexpected error in calling extension point upon transform finish of '"
+                    + combi.transformName
+                    + "'",
+                e);
+          }
+        };
+    if (combi.transform instanceof BaseTransform baseTransform) {
+      baseTransform.getTransformFinishedListeners().add(0, transformFinishedExtensionPoint);
+    } else {
+      // The interface has no insert, so an implementation that does not extend BaseTransform keeps
+      // the old order and with it a late last event.
+      combi.transform.addTransformFinishedListener(transformFinishedExtensionPoint);
+    }
+  }
+
+  /**
    * @deprecated Make attempt to fire all registered finished listeners if possible.
    * @throws HopException if any errors occur during notification
    */
@@ -1558,43 +1589,55 @@ public abstract class Pipeline
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
-    HopException listenerException = null;
-    synchronized (executionFinishedListeners) {
-      if (!executionFinishedListeners.isEmpty()) {
-        // prevent Exception from one listener to block others execution
-        List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
-        for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
-            executionFinishedListeners) {
-          try {
-            listener.finished(this);
-          } catch (HopException e) {
-            badGuys.add(e);
+    try {
+      HopException listenerException = null;
+      synchronized (executionFinishedListeners) {
+        if (!executionFinishedListeners.isEmpty()) {
+          // prevent Exception from one listener to block others execution
+          List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
+          for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+              executionFinishedListeners) {
+            try {
+              listener.finished(this);
+            } catch (HopException e) {
+              badGuys.add(e);
+            }
+          }
+          if (!badGuys.isEmpty()) {
+            // FIFO
+            listenerException = badGuys.get(0);
           }
         }
-        if (!badGuys.isEmpty()) {
-          // FIFO
-          listenerException = badGuys.get(0);
-        }
       }
-    }
 
-    try {
-      // Now the status and everything else is set correctly. We've completed the pipeline.
-      //
-      pipelineCompleted();
-
-      // Also call an extension point in case plugins want to play along
+      // Call the completion extension point before releasing anything blocked in
+      // waitUntilFinished(): plugins here may still have work to do - flushing lineage, for
+      // example - while a waiting caller (hop-run, for one) can leave the JVM the moment it is
+      // released.
       //
       ExtensionPointHandler.callExtensionPoint(
           log, this, HopExtensionPoint.PipelineCompleted.id, this);
+
+      if (listenerException != null) {
+        throw listenerException;
+      }
+    } catch (Exception e) {
+      // Count the failure before the waiters are released: a released caller reads the result
+      // straight away, hop-run its exit code for one.
+      //
+      errors.incrementAndGet();
+      throw e;
     } finally {
+      // Now the status and everything else is set correctly. We've completed the pipeline.
+      //
+      // Always release the waiters, even when a listener or extension point failed: that must never
+      // be able to deadlock a caller. The failure itself still propagates.
+      //
+      pipelineCompleted();
+
       // Only now: everything above can still touch files of this namespace, and closing it
       // invalidates every file object resolved through it - the result files carry those.
       releaseVfsNamespace();
-    }
-
-    if (listenerException != null) {
-      throw listenerException;
     }
   }
 

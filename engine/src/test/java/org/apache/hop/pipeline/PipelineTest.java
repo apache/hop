@@ -27,19 +27,33 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.extension.ExtensionPointMap;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.plugins.IClassLoadingPlugin;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -148,6 +162,229 @@ class PipelineTest {
     line.addExecutionFinishedListener(mockListener);
 
     assertThrows(HopException.class, line::fireExecutionFinishedListeners);
+  }
+
+  /**
+   * A caller blocked in {@link Pipeline#waitUntilFinished()} must not be released before the
+   * PipelineCompleted extension point has run. Extension points there still have work to flush -
+   * lineage for one - and a released caller (hop-run, for example) can leave the JVM immediately.
+   */
+  @Test
+  void pipelineCompletedExtensionPointRunsBeforeWaitersAreReleased() throws Exception {
+    List<String> order = Collections.synchronizedList(new ArrayList<>());
+    CountDownLatch waiterReleased = new CountDownLatch(1);
+
+    TestExtensionPointPlugin plugin =
+        registerExtensionPoint(
+            HopExtensionPoint.PipelineCompleted.id,
+            () -> {
+              order.add("extension-point");
+              // If the waiter was released first (the bug) it records itself while this runs.
+              // Waiting for that here keeps the assertion deterministic instead of a race.
+              try {
+                waiterReleased.await(400, TimeUnit.MILLISECONDS);
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+            });
+
+    try {
+      Pipeline line = new LocalPipelineEngine(new PipelineMeta());
+      line.setLogChannel(mock(ILogChannel.class));
+      line.prepareExecution();
+
+      Thread waiter =
+          new Thread(
+              () -> {
+                // waitUntilFinished() returns at once while startThreads() has not created its
+                // queue yet. The queue exists once the pipeline is flagged as running, and a late
+                // waiter still finds the signal already on it.
+                while (!line.isRunning() && !line.isFinished()) {
+                  Thread.onSpinWait();
+                }
+                line.waitUntilFinished();
+                order.add("waiter");
+                waiterReleased.countDown();
+              });
+      waiter.start();
+
+      // A pipeline without transforms completes in startThreads(), on this thread.
+      line.startThreads();
+
+      waiter.join(10_000);
+      assertEquals(List.of("extension-point", "waiter"), order);
+    } finally {
+      ExtensionPointMap.getInstance().removeExtensionPoint(plugin);
+    }
+  }
+
+  /**
+   * A transform has to finish announcing itself before the pipeline concludes that the last
+   * transform is done. A plugin emitting its final events on TransformFinished - lineage does -
+   * otherwise queues them after the pipeline has already fired its completion and flushed.
+   */
+  @Test
+  void transformFinishedExtensionPointRunsBeforePipelineCompleted() throws Exception {
+    List<String> order = Collections.synchronizedList(new ArrayList<>());
+
+    TestExtensionPointPlugin transformFinished =
+        registerExtensionPoint(
+            HopExtensionPoint.TransformFinished.id, () -> order.add("transform-finished"));
+    TestExtensionPointPlugin pipelineCompleted =
+        registerExtensionPoint(
+            HopExtensionPoint.PipelineCompleted.id, () -> order.add("pipeline-completed"));
+
+    try {
+      PipelineMeta meta = new PipelineMeta();
+      meta.setName("ordering test");
+      meta.addTransform(new TransformMeta("A", new DummyMeta()));
+
+      LocalPipelineEngine run =
+          new LocalPipelineEngine(meta, new Variables(), new LoggingObject("test"));
+      run.prepareExecution();
+      run.startThreads();
+      run.waitUntilFinished();
+
+      assertEquals(List.of("transform-finished", "pipeline-completed"), order);
+    } finally {
+      ExtensionPointMap.getInstance().removeExtensionPoint(transformFinished);
+      ExtensionPointMap.getInstance().removeExtensionPoint(pipelineCompleted);
+    }
+  }
+
+  /**
+   * The TransformFinished extension point runs ahead of the pipeline's completion detection, so a
+   * plugin that fails there must not keep the pipeline from finishing.
+   */
+  @Test
+  void failingTransformFinishedExtensionPointDoesNotHangThePipeline() throws Exception {
+    TestExtensionPointPlugin transformFinished =
+        registerExtensionPoint(
+            HopExtensionPoint.TransformFinished.id,
+            () -> {
+              throw new IllegalStateException("broken plugin");
+            });
+
+    try {
+      PipelineMeta meta = new PipelineMeta();
+      meta.setName("failing extension point test");
+      meta.addTransform(new TransformMeta("A", new DummyMeta()));
+
+      LocalPipelineEngine run =
+          new LocalPipelineEngine(meta, new Variables(), new LoggingObject("test"));
+      run.prepareExecution();
+      run.startThreads();
+
+      Thread waiter = new Thread(run::waitUntilFinished);
+      waiter.start();
+      waiter.join(10_000);
+
+      assertFalse(waiter.isAlive(), "waitUntilFinished() did not return");
+      assertTrue(run.isFinished());
+    } finally {
+      ExtensionPointMap.getInstance().removeExtensionPoint(transformFinished);
+    }
+  }
+
+  /**
+   * A failing PipelineCompleted extension point has to show up in the result by the time the
+   * waiters are released: hop-run reads the error count, and with it its exit code, straight away.
+   * The failure is counted once.
+   */
+  @Test
+  void failingPipelineCompletedExtensionPointIsCountedBeforeWaitersAreReleased() throws Exception {
+    TestExtensionPointPlugin pipelineCompleted =
+        registerExtensionPoint(
+            HopExtensionPoint.PipelineCompleted.id,
+            () -> {
+              throw new IllegalStateException("broken plugin");
+            });
+
+    try {
+      PipelineMeta meta = new PipelineMeta();
+      meta.setName("failing completion test");
+      meta.addTransform(new TransformMeta("A", new DummyMeta()));
+
+      // Look at the result the moment the waiters are released: a waiter itself only polls every
+      // 50ms, so it would nearly always see a count that is added just after.
+      AtomicLong errorsAtRelease = new AtomicLong(-1);
+      LocalPipelineEngine run =
+          new LocalPipelineEngine(meta, new Variables(), new LoggingObject("test")) {
+            @Override
+            public void pipelineCompleted() throws HopException {
+              errorsAtRelease.set(getResult().getNrErrors());
+              super.pipelineCompleted();
+            }
+          };
+      run.prepareExecution();
+      run.startThreads();
+      run.waitUntilFinished();
+
+      assertEquals(1, errorsAtRelease.get());
+      assertEquals(1, run.getResult().getNrErrors());
+    } finally {
+      ExtensionPointMap.getInstance().removeExtensionPoint(pipelineCompleted);
+    }
+  }
+
+  /**
+   * A single threaded run has to announce its transforms like any other. Those transforms are run
+   * by the executor instead of by threads of their own, and that pipeline type used to fire neither
+   * TransformBeforeStart nor TransformFinished - so a single threaded run produced no transform
+   * level lineage at all.
+   */
+  @Test
+  void singleThreadedPipelineAnnouncesItsTransforms() throws Exception {
+    List<String> order = Collections.synchronizedList(new ArrayList<>());
+
+    TestExtensionPointPlugin transformStart =
+        registerExtensionPoint(
+            HopExtensionPoint.TransformBeforeStart.id, () -> order.add("transform-start"));
+    TestExtensionPointPlugin transformFinished =
+        registerExtensionPoint(
+            HopExtensionPoint.TransformFinished.id, () -> order.add("transform-finished"));
+
+    try {
+      PipelineMeta meta = new PipelineMeta();
+      meta.setName("single threaded test");
+      meta.addTransform(new TransformMeta("A", new DummyMeta()));
+
+      LocalPipelineEngine run =
+          new LocalPipelineEngine(meta, new Variables(), new LoggingObject("test"));
+      run.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+      run.prepareExecution();
+      run.startThreads();
+
+      // What SingleThreadedPipelineEngine does with the executor...
+      SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(run);
+      assertTrue(executor.init());
+      executor.oneIteration();
+      executor.dispose();
+
+      assertEquals(List.of("transform-start", "transform-finished"), order);
+    } finally {
+      ExtensionPointMap.getInstance().removeExtensionPoint(transformStart);
+      ExtensionPointMap.getInstance().removeExtensionPoint(transformFinished);
+    }
+  }
+
+  /**
+   * Hand the extension point map a fake extension point, so a test can watch for it. The caller
+   * removes the returned plugin again.
+   */
+  private TestExtensionPointPlugin registerExtensionPoint(
+      String extensionPointId, Runnable action) {
+    IExtensionPoint<Object> extensionPoint = (logChannel, variables, object) -> action.run();
+
+    TestExtensionPointPlugin plugin = mock(TestExtensionPointPlugin.class);
+    // For an extension point plugin the name is the extension point it listens to, and the ids are
+    // the plugin's own ids: ExtensionPointPluginType extracts them that way.
+    when(plugin.getName()).thenReturn(extensionPointId);
+    when(plugin.getIds()).thenReturn(new String[] {"test-" + extensionPointId});
+    when(plugin.getMainType()).thenReturn((Class) IExtensionPoint.class);
+    when(plugin.loadClass(IExtensionPoint.class)).thenReturn(extensionPoint);
+    ExtensionPointMap.getInstance().addExtensionPoint(plugin);
+    return plugin;
   }
 
   @Test
@@ -290,6 +527,12 @@ class PipelineTest {
   }
 
   private final IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener = p -> {};
+
+  /**
+   * A plugin that loads its own classes, so a test can hand the extension point map a fake
+   * extension point without going through the plugin registry.
+   */
+  private interface TestExtensionPointPlugin extends IClassLoadingPlugin, IPlugin {}
 
   private final IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> pipelineStoppedListener =
       p -> {};
