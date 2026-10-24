@@ -90,6 +90,7 @@ import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
+import org.apache.hop.spark.fs.HopWindowsLocalFileSystem;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.table.LakeSessionPlan;
@@ -1134,6 +1135,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     if (!underSubmit) {
       applyHadoopConfiguration(builder, master);
     }
+
+    // Windows without winutils fails in FileOutputCommitter.setupJob when Hadoop
+    // chmods the output directory. Apply before run-config extras so an explicit
+    // spark.hadoop.fs.file.impl replaces this default.
+    HopWindowsLocalFileSystem.applyIfNeeded(builder, logChannel);
 
     Set<String> configuredKeys = new HashSet<>();
     String extra = sparkEngineRunConfiguration.getSparkConfigs();

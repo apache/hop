@@ -31,6 +31,7 @@ This transform is **not** available on the local Hop engine or on the Beam engin
 It is a leaf: the write is executed as a Spark action when the engine materialises the pipeline, and no rows are passed on.
 
 The path is a Spark/Hadoop `FileSystem` URI that must be writable from every executor, **not** a Hop VFS path: a local directory on `local[*]`, `hdfs://…` or `s3a://…` on a cluster.
+On Windows, a `local[*]` path does not require `HADOOP_HOME` or `winutils.exe`. See xref:pipeline/spark/paths-and-filesystems.adoc#windows-local-paths[Windows and local mode].
 Spark always writes a **directory** of part files at that location, never a single file with that name; see <<single-file>> below.
 See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems] for the scheme mapping and for the *Path scheme map* on the run configuration.
 
