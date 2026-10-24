@@ -73,6 +73,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class;
 
+  /** Legacy injection target key, replaced by {@link #CONDITION_STREAM_BEHAVIOR_INJECTION_KEY}. */
+  private static final String LEGACY_ALLOW_EMPTY_STREAM_INJECTION_KEY =
+      "ALLOW_EMPTY_STREAM_ON_EXECUTION";
+
+  /** Current injection target key for {@link ConditionStreamBehavior}. */
+  private static final String CONDITION_STREAM_BEHAVIOR_INJECTION_KEY = "CONDITION_STREAM_BEHAVIOR";
+
   public MetaInject(
       TransformMeta transformMeta,
       MetaInjectMeta meta,
@@ -81,6 +88,21 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       PipelineMeta pipelineMeta,
       Pipeline trans) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, trans);
+  }
+
+  /**
+   * Decides whether execution should be skipped based on the stream state and the configured {@link
+   * ConditionStreamBehavior}.
+   *
+   * @param receivedRows {@code true} when at least one input stream produced a row.
+   * @param hasEmptyList {@code true} when at least one input stream produced no rows.
+   * @param behavior The configured {@link ConditionStreamBehavior}.
+   * @return {@code true} when the template execution must be skipped.
+   */
+  static boolean shouldSkipExecution(
+      boolean receivedRows, boolean hasEmptyList, ConditionStreamBehavior behavior) {
+    return (!receivedRows && !behavior.allowsAllEmpty())
+        || (hasEmptyList && behavior.requiresAllNonEmpty());
   }
 
   @Override
@@ -102,9 +124,13 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
     injectMetadataIntoTemplateTransforms();
 
-    // Check if all previous transforms are returning data, unless isAllowEmptyStreamOnExecution is
-    // true then execute if at least one branch has data
-    if (!data.receivedRows || (data.hasEmptyList && !meta.isAllowEmptyStreamOnExecution())) {
+    // Check if all previous transforms are returning data. The ConditionStreamBehavior controls
+    // whether empty streams are tolerated: ALL_NON_EMPTY requires every stream to have data,
+    // AT_LEAST_ONE_NON_EMPTY runs as soon as one stream has data, and ALWAYS runs even when every
+    // stream is empty (e.g. templates relying on constant mappings alone).
+    //
+    if (shouldSkipExecution(
+        data.receivedRows, data.hasEmptyList, meta.getConditionStreamBehavior())) {
       setOutputDone();
       return false;
     }
@@ -405,9 +431,17 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     }
     List<RowMetaAndData> sourceRows = data.rowMap.get(mapping.getSourceTransformName());
 
+    // A mapping may target a legacy injection key (e.g. ALLOW_EMPTY_STREAM_ON_EXECUTION) that
+    // before the property was renamed mapped to a @HopMetadataProperty field. Resolve it up front
+    // so that lookupGroupKey and isTopLevelInjectionKey below, which test membership against the
+    // current keys, see the normalized key. collectInjectionKeyValue re-resolves internally, which
+    // is idempotent.
+    //
+    String targetAttributeKey = resolveInjectionKey(mapping);
+
     // To which group does this belong?
     //
-    String groupKey = lookupGroupKey(injectionKeyGroupMap, mapping.getTargetAttributeKey());
+    String groupKey = lookupGroupKey(injectionKeyGroupMap, targetAttributeKey);
     if (groupKey != null) {
       if (sourceRows != null && !sourceRows.isEmpty()) {
         // We need to collect the data for the mapping
@@ -424,15 +458,14 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       // Detail flag is often used for grouped (list) keys. Scalar HopMetadataProperty keys (e.g.
       // ExecSqlRow UPDATE_STATS) are not part of any injection group; treat them as simple keys.
       //
-      if (HopMetadataInjector.isTopLevelInjectionKey(
-          targetMetaClass, mapping.getTargetAttributeKey())) {
+      if (HopMetadataInjector.isTopLevelInjectionKey(targetMetaClass, targetAttributeKey)) {
         collectInjectionKeyValue(this, mapping, sourceRows, injectionKeyData);
       } else {
         logBasic(
             BaseMessages.getString(
                 PKG,
                 "MetaInject.TargetKeyNotFound.Warning",
-                mapping.getTargetAttributeKey(),
+                targetAttributeKey,
                 targetTransformName));
       }
     } else {
@@ -604,7 +637,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         // Resolve variables in the constant, just like the legacy newInjectionConstants() path.
         //
         injectionKeyData.put(
-            mapping.getTargetAttributeKey(), variables.resolve(mapping.getSourceField()));
+            resolveInjectionKey(mapping),
+            resolveInjectionValue(mapping, variables.resolve(mapping.getSourceField())));
       }
       return;
     }
@@ -622,7 +656,55 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     //
     IValueMeta valueMeta = sourceRow.getRowMeta().getValueMeta(index);
     Object valueData = valueMeta.getNativeDataType(sourceRow.getData()[index]);
-    injectionKeyData.put(mapping.getTargetAttributeKey(), valueData);
+    injectionKeyData.put(resolveInjectionKey(mapping), resolveInjectionValue(mapping, valueData));
+  }
+
+  /**
+   * Returns the injection key under which the mapped value must be stored. The legacy {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} target key, used by metadata-injection mappings written before
+   * {@link ConditionStreamBehavior} existed, is translated to its modern {@code
+   * CONDITION_STREAM_BEHAVIOR} counterpart. Any other key is returned unchanged.
+   *
+   * <p>Resolving up front keeps every key comparison consistent, not just the injection itself:
+   * {@code collectDataForOneMapping} (group and top-level lookups), {@code
+   * getUnavailableTargetKeys} (whether a saved key still maps to a property), the dialog tree
+   * matching, and the enter-mapping target-row lookup all run against the normalized key, so a
+   * legacy mapping is neither reported missing, offered for removal, nor dropped on confirm.
+   *
+   * @param mapping the mapping being injected
+   * @return the normalized injection (target attribute) key
+   */
+  protected static String resolveInjectionKey(MetaInjectMapping mapping) {
+    if (LEGACY_ALLOW_EMPTY_STREAM_INJECTION_KEY.equals(mapping.getTargetAttributeKey())) {
+      return CONDITION_STREAM_BEHAVIOR_INJECTION_KEY;
+    }
+    return mapping.getTargetAttributeKey();
+  }
+
+  /**
+   * Returns the value to store under the {@link #resolveInjectionKey(MetaInjectMapping) resolved}
+   * injection key. When the mapping ultimately targets {@link
+   * #CONDITION_STREAM_BEHAVIOR_INJECTION_KEY} and the injected value is a legacy boolean token
+   * ({@code Y}/{@code N}/{@code true}/{@code false}), the boolean is mapped to the equivalent
+   * {@link ConditionStreamBehavior} enum code so that the generic metadata injector can resolve it
+   * ({@code Y}/{@code true} to {@code at-least-one-non-empty}, anything else to {@code
+   * all-non-empty}). This covers both the mapping that still uses the old {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} key (remapped by {@link
+   * #resolveInjectionKey(MetaInjectMapping)}) and a mapping already renamed to the new key but
+   * still fed legacy boolean values. The current enum codes and any other value are returned
+   * unchanged.
+   *
+   * @param mapping the mapping being injected
+   * @param value the raw injected value
+   * @return the normalized value to store
+   */
+  private static Object resolveInjectionValue(MetaInjectMapping mapping, Object value) {
+    if (value != null
+        && CONDITION_STREAM_BEHAVIOR_INJECTION_KEY.equals(resolveInjectionKey(mapping))
+        && ConditionStreamBehavior.isLegacyBoolean(value.toString())) {
+      return ConditionStreamBehavior.fromLegacyBoolean(value.toString()).getCode();
+    }
+    return value;
   }
 
   HopTransformException putRows(IRowSet rowSet, RowProducer rowProducer) {
@@ -919,7 +1001,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     for (MetaInjectMapping mapping : mappings) {
       if (!unavailableTargetTransforms.contains(mapping.getTargetTransformName())) {
         BeanInjectionInfo<?> info = beanInfos.get(mapping.getTargetTransformName().toUpperCase());
-        if (info != null && !info.getProperties().containsKey(mapping.getTargetAttributeKey())) {
+        if (info != null && !info.getProperties().containsKey(resolveInjectionKey(mapping))) {
           missingKeys.add(mapping);
         }
       }

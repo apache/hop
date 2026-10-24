@@ -272,6 +272,36 @@ This will serialize `Apache Hop` to:
 ----
 ====
 
+== Legacy and renamed keys
+
+When a property is renamed or a field changes type, existing serialized files still carry the old key. To keep reading them you can mark a method with `@OnUnknownDeserializationProperty`.  The serializers invoke it once for every property encountered during deserialization that does not map to any `@HopMetadataProperty` field.
+
+This is the recommended way to translate a legacy or renamed key into a current field.  It works for both XML and JSON serialization.
+
+From `MetaInjectMeta.java`, where the legacy boolean `allow_empty_stream_on_execution` was replaced by the `ConditionStreamBehavior` enum:
+
+[source,java]
+----
+@OnUnknownDeserializationProperty
+public void onUnknownDeserializationProperty(UnknownProperty property) {
+  // Only translate the legacy boolean when the current condition_stream_behavior enum was not
+  // part of the file. When both are present the current enum wins, so a file that mixes the
+  // two can still represent ALWAYS.
+  if ("allow_empty_stream_on_execution".equals(property.getName())
+      && !conditionStreamBehaviorSet) {
+    conditionStreamBehavior = ConditionStreamBehavior.fromLegacyBoolean(property.getValue());
+  }
+}
+----
+
+The serializers set annotated fields before firing this callback, and the `conditionStreamBehaviorSet` flag (raised whenever the current enum value is set, including during deserialization) therefore tells the callback whether a file that contains both the old boolean and the new enum really carries the new value. The legacy boolean is written only when the current tag was absent.
+
+The callback method must be `public` and take exactly one parameter of type `UnknownProperty`, which exposes `getName()` (the key as found in the serialized data) and `getValue()` (its raw textual value).  You may declare several such methods; they are all invoked for each unknown property.
+
+Discovery is based on `Class.getMethods()`, so private and protected methods are ignored, and a public override in a subtype replaces the inherited method (only the most-derived declaration is invoked, the overridden parent method is not called).  Any annotated method that does not take exactly one `UnknownProperty` parameter raises an `IllegalArgumentException`.
+
+If you prefer, you can still read the raw serialized node directly in a `convertLegacyXml(Node)` override for XML-only conversions.
+
 == Lists
 
 If you want to serialize List of objects, you can typically wrap them in a group. An example from `CsvInputMeta.java`:

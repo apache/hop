@@ -23,11 +23,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.OnUnknownDeserializationProperty;
+import org.apache.hop.metadata.api.UnknownProperty;
 
 public class ReflectionUtil {
   private ReflectionUtil() {}
@@ -276,5 +281,74 @@ public class ReflectionUtil {
     }
 
     return new ArrayList<>(methodSet);
+  }
+
+  private static final Map<Class<?>, List<Method>> UNKNOWN_PROPERTY_METHODS =
+      new ConcurrentHashMap<>();
+
+  /**
+   * Returns the {@link Consumer}s that translate unknown deserialization properties, declared with
+   * {@link OnUnknownDeserializationProperty}, bound to the given instance.
+   *
+   * <p>Discovery is based on {@link Class#getMethods()}, so only {@code public} methods are
+   * considered (private/protected annotated methods are ignored) and a public override in a subtype
+   * replaces the inherited method (only the most-derived declaration is invoked). Multiple
+   * annotated methods are all returned, in reflection order.
+   *
+   * <p>Each annotated method must declare exactly one parameter of type {@link UnknownProperty};
+   * anything else raises an {@link IllegalArgumentException}.
+   *
+   * <p>The validated method list is cached per class; the returned consumers are fresh but cheap.
+   *
+   * @param instance The object on which the annotated methods are invoked.
+   * @return The list of instance-bound callbacks, possibly empty (never {@code null}).
+   */
+  public static List<Consumer<UnknownProperty>> onUnknownDeserializationPropertyCallbacks(
+      Object instance) {
+    List<Method> methods =
+        UNKNOWN_PROPERTY_METHODS.computeIfAbsent(instance.getClass(), ReflectionUtil::collect);
+    List<Consumer<UnknownProperty>> callbacks = new ArrayList<>(methods.size());
+    for (Method method : methods) {
+      callbacks.add(toUnknownPropertyCallback(instance, method));
+    }
+    return List.copyOf(callbacks);
+  }
+
+  private static List<Method> collect(Class<?> type) {
+    List<Method> methods = new ArrayList<>();
+    for (Method method : type.getMethods()) {
+      if (!method.isAnnotationPresent(OnUnknownDeserializationProperty.class)) {
+        continue;
+      }
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      if (parameterTypes.length != 1 || !UnknownProperty.class.equals(parameterTypes[0])) {
+        throw new IllegalArgumentException(
+            "@OnUnknownDeserializationProperty method "
+                + type.getName()
+                + "."
+                + method.getName()
+                + " must have exactly one parameter of type "
+                + UnknownProperty.class.getName());
+      }
+      methods.add(method);
+    }
+    return List.copyOf(methods);
+  }
+
+  private static Consumer<UnknownProperty> toUnknownPropertyCallback(
+      Object instance, Method method) {
+    return unknownProperty -> {
+      try {
+        method.invoke(instance, unknownProperty);
+      } catch (Exception e) {
+        Throwable cause = e.getCause() != null ? e.getCause() : e;
+        throw new IllegalArgumentException(
+            "Unable to invoke @OnUnknownDeserializationProperty callback "
+                + instance.getClass().getName()
+                + "."
+                + method.getName(),
+            cause);
+      }
+    };
   }
 }

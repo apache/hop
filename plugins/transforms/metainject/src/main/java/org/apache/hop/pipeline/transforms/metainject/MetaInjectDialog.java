@@ -137,9 +137,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
   private Button wInheritAll;
 
-  // allow to run execution if previous stream data are empty
+  // Controls under which stream conditions the template pipeline is executed.
   //
-  private Button wAllowEmptyStreamOnExecution;
+  private Label wlConditionStreamBehavior;
+  private CCombo wConditionStreamBehavior;
 
   private CCombo wStreamingSourceTransform;
 
@@ -520,15 +521,24 @@ public class MetaInjectDialog extends BaseTransformDialog {
     fdNoExecution.top = new FormAttachment(wStreamingTargetTransform, 10);
     wNoExecution.setLayoutData(fdNoExecution);
 
-    wAllowEmptyStreamOnExecution = new Button(wOptionsComp, SWT.CHECK);
-    wAllowEmptyStreamOnExecution.setText(
-        BaseMessages.getString(PKG, "MetaInjectDialog.AllowEmptyStreamOnExecution.Label"));
-    PropsUi.setLook(wAllowEmptyStreamOnExecution);
-    FormData fdAllowEmptyStreamOnExecution = new FormData();
-    fdAllowEmptyStreamOnExecution.width = 350;
-    fdAllowEmptyStreamOnExecution.left = new FormAttachment(0, 0);
-    fdAllowEmptyStreamOnExecution.top = new FormAttachment(wNoExecution, 10);
-    wAllowEmptyStreamOnExecution.setLayoutData(fdAllowEmptyStreamOnExecution);
+    wlConditionStreamBehavior = new Label(wOptionsComp, SWT.RIGHT);
+    wlConditionStreamBehavior.setText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.ConditionStreamBehavior.Label"));
+    PropsUi.setLook(wlConditionStreamBehavior);
+    FormData fdlConditionStreamBehavior = new FormData();
+    fdlConditionStreamBehavior.left = new FormAttachment(0, 0);
+    fdlConditionStreamBehavior.top = new FormAttachment(wNoExecution, 15);
+    wlConditionStreamBehavior.setLayoutData(fdlConditionStreamBehavior);
+
+    wConditionStreamBehavior =
+        new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wConditionStreamBehavior);
+    FormData fdConditionStreamBehavior = new FormData();
+    fdConditionStreamBehavior.right = new FormAttachment(100, 0);
+    fdConditionStreamBehavior.left = new FormAttachment(0, 0);
+    fdConditionStreamBehavior.top = new FormAttachment(wlConditionStreamBehavior, 5);
+    wConditionStreamBehavior.setLayoutData(fdConditionStreamBehavior);
+    wConditionStreamBehavior.setItems(ConditionStreamBehavior.getDescriptions());
 
     FormData fdOptionsComp = new FormData();
     fdOptionsComp.left = new FormAttachment(0, 0);
@@ -996,7 +1006,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
     wTargetFile.setText(Const.NVL(metaInjectMeta.getTargetFile(), ""));
     wCreateParentFolder.setSelection(metaInjectMeta.isCreateParentFolder());
     wNoExecution.setSelection(!metaInjectMeta.isNoExecution());
-    wAllowEmptyStreamOnExecution.setSelection(metaInjectMeta.isAllowEmptyStreamOnExecution());
+    wConditionStreamBehavior.setText(
+        ConditionStreamBehavior.lookupDescription(
+                metaInjectMeta.getConditionStreamBehavior().getDescription())
+            .getDescription());
 
     wStreamingSourceTransform.setText(Const.NVL(metaInjectMeta.getStreamSourceTransformName(), ""));
     wStreamingTargetTransform.setText(Const.NVL(metaInjectMeta.getStreamTargetTransformName(), ""));
@@ -1092,11 +1105,15 @@ public class MetaInjectDialog extends BaseTransformDialog {
    */
   private static MetaInjectMapping findMappingForTargetKey(
       List<MetaInjectMapping> mappings, MetaInjectMapping template) {
+    // Both keys are normalized so a legacy injection key (e.g. ALLOW_EMPTY_STREAM_ON_EXECUTION)
+    // that was renamed (to CONDITION_STREAM_BEHAVIOR) still matches the current tree row; the
+    // mapping's source then stays visible and is not offered for removal.
+    //
     for (MetaInjectMapping m : mappings) {
       if (Const.NVL(m.getTargetTransformName(), "")
               .equalsIgnoreCase(Const.NVL(template.getTargetTransformName(), ""))
-          && Const.NVL(m.getTargetAttributeKey(), "")
-              .equalsIgnoreCase(Const.NVL(template.getTargetAttributeKey(), ""))) {
+          && MetaInject.resolveInjectionKey(m)
+              .equalsIgnoreCase(MetaInject.resolveInjectionKey(template))) {
         return m;
       }
     }
@@ -1239,7 +1256,8 @@ public class MetaInjectDialog extends BaseTransformDialog {
     meta.setTargetFile(wTargetFile.getText());
     meta.setCreateParentFolder(wCreateParentFolder.getSelection());
     meta.setNoExecution(!wNoExecution.getSelection());
-    meta.setAllowEmptyStreamOnExecution(wAllowEmptyStreamOnExecution.getSelection());
+    meta.setConditionStreamBehavior(
+        ConditionStreamBehavior.lookupDescription(wConditionStreamBehavior.getText()));
 
     meta.setStreamSourceTransformName(wStreamingSourceTransform.getText());
     meta.setStreamTargetTransformName(wStreamingTargetTransform.getText());
@@ -1269,6 +1287,21 @@ public class MetaInjectDialog extends BaseTransformDialog {
       return Objects.equals(transformMeta, that.transformMeta)
           && Objects.equals(valueMeta, that.valueMeta);
     }
+  }
+
+  /**
+   * Returns the normalized target attribute key under which {@code enterMapping} must look up a
+   * saved mapping in the target rows. A mapping written before the {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key was renamed to {@code CONDITION_STREAM_BEHAVIOR}
+   * still carries the legacy key; normalizing it (via {@link MetaInject#resolveInjectionKey}) lets
+   * the target-row match succeed, so the mapping is pre-selected in the mapping dialog and survives
+   * a confirm.
+   *
+   * @param mapping the saved mapping being matched
+   * @return the injection key to compare against the target rows
+   */
+  static String resolveTargetAttributeKey(MetaInjectMapping mapping) {
+    return MetaInject.resolveInjectionKey(mapping);
   }
 
   private record MappingTarget(TransformMeta transformMeta, String attributeKey, boolean detail) {
@@ -1389,7 +1422,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
       if (targetTransformMeta != null) {
         MappingTarget mapingTarget =
             new MappingTarget(
-                targetTransformMeta, mapping.getTargetAttributeKey(), mapping.isTargetDetail());
+                targetTransformMeta, resolveTargetAttributeKey(mapping), mapping.isTargetDetail());
         targetIndex = mappingTargets.indexOf(mapingTarget);
       }
       if (sourceIndex >= 0 && targetIndex >= 0) {

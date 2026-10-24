@@ -41,14 +41,21 @@ import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.UnknownProperty;
 import org.apache.hop.metadata.inject.HopMetadataInjector;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.w3c.dom.Node;
 
 class MetaInjectMetaTest {
 
@@ -86,7 +93,7 @@ class MetaInjectMetaTest {
     assertEquals("${java.io.tmpdir}/json-input.hpl", meta.getTargetFile());
     assertTrue(meta.isCreateParentFolder());
     assertTrue(meta.isNoExecution());
-    assertFalse(meta.isAllowEmptyStreamOnExecution());
+    assertEquals(ConditionStreamBehavior.ALL_NON_EMPTY, meta.getConditionStreamBehavior());
     assertEquals("sourceTransform", meta.getSourceTransformName());
     assertEquals("targetTransform", meta.getStreamTargetTransformName());
 
@@ -169,5 +176,157 @@ class MetaInjectMetaTest {
     assertTrue(mappingKeys.contains("MAPPING_TARGET_TRANSFORM"));
     assertTrue(mappingKeys.contains("MAPPING_TARGET_FIELD"));
     assertTrue(mappingKeys.contains("MAPPING_TARGET_DETAIL"));
+  }
+
+  private static MetaInjectMeta xmlRoundTrip(MetaInjectMeta meta) throws Exception {
+    IHopMetadataProvider provider = new MemoryMetadataProvider();
+    Node node =
+        XmlHandler.loadXmlString(XmlHandler.aroundTag("transform", meta.getXml()), "transform");
+    return XmlMetadataUtil.deSerializeFromXml(node, MetaInjectMeta.class, provider);
+  }
+
+  @Test
+  void roundTripConditionStreamBehaviorNewCodes() throws Exception {
+    MetaInjectMeta meta = new MetaInjectMeta();
+    meta.setConditionStreamBehavior(ConditionStreamBehavior.ALWAYS);
+    assertEquals(ConditionStreamBehavior.ALWAYS, xmlRoundTrip(meta).getConditionStreamBehavior());
+
+    meta.setConditionStreamBehavior(ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY);
+    assertEquals(
+        ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY,
+        xmlRoundTrip(meta).getConditionStreamBehavior());
+
+    meta.setConditionStreamBehavior(ConditionStreamBehavior.ALL_NON_EMPTY);
+    assertEquals(
+        ConditionStreamBehavior.ALL_NON_EMPTY, xmlRoundTrip(meta).getConditionStreamBehavior());
+  }
+
+  @Test
+  void newSerializationWritesOnlyNewEnumField() throws Exception {
+    MetaInjectMeta meta = new MetaInjectMeta();
+    meta.setConditionStreamBehavior(ConditionStreamBehavior.ALWAYS);
+    String xml = meta.getXml();
+
+    // New files carry only the new enum tag, never the legacy boolean tag.
+    assertTrue(xml.contains("<condition_stream_behavior>always</condition_stream_behavior>"));
+    assertFalse(xml.contains("allow_empty_stream_on_execution"));
+  }
+
+  @Test
+  void legacyXmlYNMapping() throws Exception {
+    IHopMetadataProvider provider = new MemoryMetadataProvider();
+
+    // Legacy Y => enabled the checkbox => at least one non-empty stream.
+    Node nodeY =
+        XmlHandler.loadXmlString(
+            XmlHandler.aroundTag(
+                "transform", XmlHandler.addTagValue("allow_empty_stream_on_execution", "Y")),
+            "transform");
+    MetaInjectMeta metaY =
+        XmlMetadataUtil.deSerializeFromXml(nodeY, MetaInjectMeta.class, provider);
+    assertEquals(
+        ConditionStreamBehavior.AT_LEAST_ONE_NON_EMPTY, metaY.getConditionStreamBehavior());
+
+    // Legacy N => checkbox disabled => every stream must be non-empty.
+    Node nodeN =
+        XmlHandler.loadXmlString(
+            XmlHandler.aroundTag(
+                "transform", XmlHandler.addTagValue("allow_empty_stream_on_execution", "N")),
+            "transform");
+    MetaInjectMeta metaN =
+        XmlMetadataUtil.deSerializeFromXml(nodeN, MetaInjectMeta.class, provider);
+    assertEquals(ConditionStreamBehavior.ALL_NON_EMPTY, metaN.getConditionStreamBehavior());
+  }
+
+  @Test
+  void missingTagDefaultsToAllNonEmpty() throws Exception {
+    IHopMetadataProvider provider = new MemoryMetadataProvider();
+    // A pre-legacy transform with neither the old tag nor the new enum field.
+    Node node = XmlHandler.loadXmlString(XmlHandler.aroundTag("transform", ""), "transform");
+    MetaInjectMeta meta = XmlMetadataUtil.deSerializeFromXml(node, MetaInjectMeta.class, provider);
+    assertEquals(ConditionStreamBehavior.ALL_NON_EMPTY, meta.getConditionStreamBehavior());
+  }
+
+  /**
+   * When a file carries both the legacy {@code allow_empty_stream_on_execution} tag and the current
+   * {@code condition_stream_behavior} tag - regardless of key order - the current enum wins, so a
+   * mixed file can still represent {@link ConditionStreamBehavior#ALWAYS}. The legacy value must
+   * never overwrite an explicit current value.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    // newCode, legacyValue
+    "always, Y",
+    "always, N",
+    "at-least-one-non-empty, N",
+    "all-non-empty, Y"
+  })
+  void whenBothTagsPresentCurrentEnumWins(String newCode, String legacyValue) throws Exception {
+    IHopMetadataProvider provider = new MemoryMetadataProvider();
+
+    // Legacy tag first, then the current enum tag.
+    String legacyFirst =
+        XmlHandler.aroundTag(
+            "transform",
+            XmlHandler.addTagValue("allow_empty_stream_on_execution", legacyValue)
+                + XmlHandler.addTagValue("condition_stream_behavior", newCode));
+    MetaInjectMeta loadedLegacyFirst =
+        XmlMetadataUtil.deSerializeFromXml(
+            XmlHandler.loadXmlString(legacyFirst, "transform"), MetaInjectMeta.class, provider);
+
+    // Current enum tag first, then the legacy tag.
+    String enumFirst =
+        XmlHandler.aroundTag(
+            "transform",
+            XmlHandler.addTagValue("condition_stream_behavior", newCode)
+                + XmlHandler.addTagValue("allow_empty_stream_on_execution", legacyValue));
+    MetaInjectMeta loadedEnumFirst =
+        XmlMetadataUtil.deSerializeFromXml(
+            XmlHandler.loadXmlString(enumFirst, "transform"), MetaInjectMeta.class, provider);
+
+    // In both orders the current enum value is preserved.
+    assertEquals(
+        ConditionStreamBehavior.lookupCode(newCode),
+        loadedLegacyFirst.getConditionStreamBehavior());
+    assertEquals(
+        ConditionStreamBehavior.lookupCode(newCode), loadedEnumFirst.getConditionStreamBehavior());
+  }
+
+  /**
+   * The legacy {@code allow_empty_stream_on_execution} key must translate to the enum regardless of
+   * the deserialization flavor. The generic JSON/XML serializers fire
+   * {@code @OnUnknownDeserializationProperty} (verified for JSON in the core {@code
+   * UnknownDeserializationPropertyTest}); here we exercise the metainject-specific mapping logic,
+   * the {@code onUnknownDeserializationProperty} callback, directly.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    // legacyValue, expectedEnum
+    "Y, AT_LEAST_ONE_NON_EMPTY",
+    "true, AT_LEAST_ONE_NON_EMPTY",
+    "N, ALL_NON_EMPTY",
+    "false, ALL_NON_EMPTY"
+  })
+  void legacyKeyMapsToEnum(String legacyValue, String expectedEnum) {
+    MetaInjectMeta meta = new MetaInjectMeta();
+    meta.onUnknownDeserializationProperty(
+        new UnknownProperty("allow_empty_stream_on_execution", legacyValue));
+
+    assertEquals(ConditionStreamBehavior.valueOf(expectedEnum), meta.getConditionStreamBehavior());
+  }
+
+  /**
+   * A pre-legacy configuration carries neither the old {@code allow_empty_stream_on_execution} key
+   * nor the current {@code condition_stream_behavior} key; the constructor default {@link
+   * ConditionStreamBehavior#ALL_NON_EMPTY} must be preserved.
+   */
+  @Test
+  void withoutEitherKeyDefaultsToAllNonEmpty() {
+    MetaInjectMeta meta = new MetaInjectMeta();
+
+    assertEquals(ConditionStreamBehavior.ALL_NON_EMPTY, meta.getConditionStreamBehavior());
+    // No legacy value was applied by the callback for any key.
+    meta.onUnknownDeserializationProperty(new UnknownProperty("some_other_legacy", "anything"));
+    assertEquals(ConditionStreamBehavior.ALL_NON_EMPTY, meta.getConditionStreamBehavior());
   }
 }
