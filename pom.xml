@@ -624,6 +624,10 @@
 
                         <!-- Documentation Exclusions-->
                         <exclude>docs/content/**</exclude>
+                        <!-- YouTube series captures and generated renders are binaries -->
+                        <exclude>docs/video-series/**/*.png</exclude>
+                        <exclude>docs/video-series/**/*.mp4</exclude>
+                        <exclude>docs/video-series/**/output/**</exclude>
                         <exclude>docs/resources/**</exclude>
                         <exclude>docs/node_modules/**</exclude>
                         <exclude>docs/.pnp/**</exclude>

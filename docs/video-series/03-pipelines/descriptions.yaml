@@ -1,0 +1,183 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Your first pipeline
+  zh-CN: 你的第一条 Pipeline
+  es-ES: Tu primer Pipeline
+  pt-PT: O teu primeiro Pipeline
+  fr-FR: Votre premier Pipeline
+  de-DE: Deine erste Pipeline
+  it-IT: Il tuo primo Pipeline
+summary:
+  en: Build your first Apache Hop pipeline. A pipeline moves rows through transforms that run together.
+    You open a sample, create an empty pipeline, add Generate rows, split a hop, and preview the rows.
+    The order id sequence starts at 1000.
+  zh-CN: 搭建你的第一条 Apache Hop Pipeline。Pipeline 让一起运行的 Transform 搬运数据行。你会打开一个示例，新建一条空的 Pipeline，添加 Generate
+    rows，拆开一条 hop，并预览这些行。order id 序列从 1000 开始。
+  es-ES: Construye tu primer Pipeline de Apache Hop. Un Pipeline mueve filas a través de Transform que
+    se ejecutan juntos. Abres un ejemplo, creas un Pipeline vacío, añades Generate rows, partes un hop
+    y previsualizas las filas. La secuencia order id empieza en 1000.
+  pt-PT: Constrói o teu primeiro Pipeline do Apache Hop. Um Pipeline move linhas através de Transform
+    que correm juntos. Abres um exemplo, crias um Pipeline vazio, adicionas Generate rows, divides um
+    hop e pré-visualizas as linhas. A sequência order id começa em 1000.
+  fr-FR: Construisez votre premier Pipeline Apache Hop. Un Pipeline déplace des lignes à travers des Transform
+    qui tournent ensemble. Vous ouvrez un exemple, créez un Pipeline vide, ajoutez Generate rows, scindez
+    un hop et prévisualisez les lignes. La séquence order id commence à 1000.
+  de-DE: Baue deine erste Apache-Hop-Pipeline. Eine Pipeline bewegt Zeilen durch Transform, die zusammen
+    laufen. Du öffnest ein Beispiel, legst eine leere Pipeline an, fügst Generate rows hinzu, teilst einen
+    hop und siehst dir die Zeilen an. Die order-id-Folge beginnt bei 1000.
+  it-IT: Costruisci il tuo primo Pipeline di Apache Hop. Un Pipeline sposta le righe attraverso Transform
+    che girano insieme. Apri un esempio, crei un Pipeline vuoto, aggiungi Generate rows, dividi un hop
+    e vedi l'anteprima delle righe. La sequenza order id inizia da 1000.
+link_labels:
+  Your first pipeline:
+    en: Your first pipeline
+    zh-CN: 你的第一条 Pipeline
+    es-ES: Tu primer Pipeline
+    pt-PT: O teu primeiro Pipeline
+    fr-FR: Votre premier Pipeline
+    de-DE: Deine erste Pipeline
+    it-IT: Il tuo primo Pipeline
+  Pipelines:
+    en: Pipelines
+    zh-CN: Pipeline
+    es-ES: Pipeline
+    pt-PT: Pipeline
+    fr-FR: Pipeline
+    de-DE: Pipeline
+    it-IT: Pipeline
+  Pipeline run configurations:
+    en: Pipeline run configurations
+    zh-CN: Pipeline run configuration
+    es-ES: run configuration de Pipeline
+    pt-PT: run configuration de Pipeline
+    fr-FR: run configuration de Pipeline
+    de-DE: Pipeline-run configuration
+    it-IT: run configuration di Pipeline
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  what-a-pipeline-is:
+    en: What a pipeline is
+    zh-CN: Pipeline 是什么
+    es-ES: Qué es un Pipeline
+    pt-PT: O que é um Pipeline
+    fr-FR: Qu'est-ce qu'un Pipeline
+    de-DE: Was eine Pipeline ist
+    it-IT: Che cos'è un Pipeline
+  run-configuration:
+    en: Where it runs
+    zh-CN: 在哪里运行
+    es-ES: Dónde se ejecuta
+    pt-PT: Onde corre
+    fr-FR: Où il s'exécute
+    de-DE: Wo sie läuft
+    it-IT: Dove viene eseguito
+  samples-pipeline:
+    en: A pipeline from samples
+    zh-CN: samples 里的一条 Pipeline
+    es-ES: Un Pipeline de samples
+    pt-PT: Um Pipeline de samples
+    fr-FR: Un Pipeline des samples
+    de-DE: Eine Pipeline aus samples
+    it-IT: Un Pipeline da samples
+  new-pipeline:
+    en: A new pipeline
+    zh-CN: 一条新的 Pipeline
+    es-ES: Un Pipeline nuevo
+    pt-PT: Um Pipeline novo
+    fr-FR: Un nouveau Pipeline
+    de-DE: Eine neue Pipeline
+    it-IT: Un Pipeline nuovo
+  properties:
+    en: Properties and parameters
+    zh-CN: 属性和参数
+    es-ES: Propiedades y parámetros
+    pt-PT: Propriedades e parâmetros
+    fr-FR: Propriétés et paramètres
+    de-DE: Eigenschaften und Parameter
+    it-IT: Proprietà e parametri
+  add-generate-rows:
+    en: Add Generate rows
+    zh-CN: 添加 Generate rows
+    es-ES: Añadir Generate rows
+    pt-PT: Adicionar Generate rows
+    fr-FR: Ajouter Generate rows
+    de-DE: Generate rows hinzufügen
+    it-IT: Aggiungere Generate rows
+  split-a-hop:
+    en: Split a hop
+    zh-CN: 拆开一条 hop
+    es-ES: Partir un hop
+    pt-PT: Dividir um hop
+    fr-FR: Scinder un hop
+    de-DE: Einen hop teilen
+    it-IT: Dividere un hop
+  preview-rows:
+    en: Preview the rows
+    zh-CN: 预览这些行
+    es-ES: Previsualizar las filas
+    pt-PT: Pré-visualizar as linhas
+    fr-FR: Prévisualiser les lignes
+    de-DE: Die Zeilen ansehen
+    it-IT: Anteprima delle righe

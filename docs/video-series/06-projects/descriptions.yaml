@@ -1,0 +1,165 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Projects and environments
+  zh-CN: project 和 environment
+  es-ES: project y environment
+  pt-PT: project e environment
+  fr-FR: project et environment
+  de-DE: project und environment
+  it-IT: project e environment
+summary:
+  en: A project is the folder you share. An environment holds the values that change between development
+    and production, in configuration files kept outside that folder. Hop reads those files from top to
+    bottom, and a later file wins. Passwords do not belong in the project. The next video puts the folder
+    in Git.
+  zh-CN: project 是你分享的文件夹。environment 存放在开发和生产之间会变化的值，这些配置文件放在文件夹之外。Hop 从上到下读取这些文件，后面的文件获胜。密码不属于 project。下一集把这个文件夹放进
+    Git。
+  es-ES: Un project es la carpeta que compartes. Un environment guarda los valores que cambian entre desarrollo
+    y producción, en archivos de configuración fuera de esa carpeta. Hop lee esos archivos de arriba abajo,
+    y gana el archivo posterior. Las contraseñas no pertenecen al project. El siguiente vídeo pone la
+    carpeta en Git.
+  pt-PT: Um project é a pasta que partilhas. Um environment guarda os valores que mudam entre desenvolvimento
+    e produção, em ficheiros de configuração fora dessa pasta. O Hop lê esses ficheiros de cima para baixo,
+    e o ficheiro seguinte ganha. As palavras-passe não pertencem ao project. O vídeo seguinte põe a pasta
+    no Git.
+  fr-FR: Un project est le dossier que vous partagez. Un environment contient les valeurs qui changent
+    entre le développement et la production, dans des fichiers de configuration gardés hors de ce dossier.
+    Hop lit ces fichiers de haut en bas, et le fichier qui suit l'emporte. Les mots de passe n'ont pas
+    leur place dans le project. La vidéo suivante met le dossier dans Git.
+  de-DE: Ein project ist der Ordner, den du teilst. Ein environment enthält die Werte, die sich zwischen
+    Entwicklung und Produktion ändern, in Konfigurationsdateien außerhalb dieses Ordners. Hop liest diese
+    Dateien von oben nach unten, und die spätere Datei gewinnt. Passwörter gehören nicht ins project.
+    Das nächste Video legt den Ordner in Git.
+  it-IT: Un project è la cartella che condividi. Un environment contiene i valori che cambiano tra sviluppo
+    e produzione, in file di configurazione tenuti fuori da quella cartella. Hop legge quei file dall'alto
+    in basso, e vince il file più in basso. Le password non appartengono al project. Il video successivo
+    mette la cartella in Git.
+link_labels:
+  Projects and environments:
+    en: Projects and environments
+    zh-CN: project 和 environment
+    es-ES: project y environment
+    pt-PT: project e environment
+    fr-FR: project et environment
+    de-DE: project und environment
+    it-IT: project e environment
+  Projects reference:
+    en: Projects reference
+    zh-CN: project 参考
+    es-ES: Referencia de project
+    pt-PT: Referência de project
+    fr-FR: Référence des project
+    de-DE: project-Referenz
+    it-IT: Riferimento dei project
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  one-folder:
+    en: One folder
+    zh-CN: 一个文件夹
+    es-ES: Una carpeta
+    pt-PT: Uma pasta
+    fr-FR: Un dossier
+    de-DE: Ein Ordner
+    it-IT: Una cartella
+  switch-projects:
+    en: Switch projects
+    zh-CN: 切换 project
+    es-ES: Cambiar de project
+    pt-PT: Mudar de project
+    fr-FR: Changer de project
+    de-DE: project wechseln
+    it-IT: Cambiare project
+  environment:
+    en: What an environment is
+    zh-CN: environment 是什么
+    es-ES: Qué es un environment
+    pt-PT: O que é um environment
+    fr-FR: Qu'est-ce qu'un environment
+    de-DE: Was ein environment ist
+    it-IT: Che cos'è un environment
+  create-environment:
+    en: Create an environment
+    zh-CN: 创建一个 environment
+    es-ES: Crear un environment
+    pt-PT: Criar um environment
+    fr-FR: Créer un environment
+    de-DE: Ein environment anlegen
+    it-IT: Creare un environment
+  plugins-and-memory:
+    en: Plugins and memory
+    zh-CN: 插件和内存
+    es-ES: Plugins y memoria
+    pt-PT: Plugins e memória
+    fr-FR: Plugins et mémoire
+    de-DE: Plugins und Speicher
+    it-IT: Plugin e memoria
+  switch-environment:
+    en: Switch environment
+    zh-CN: 切换 environment
+    es-ES: Cambiar de environment
+    pt-PT: Mudar de environment
+    fr-FR: Changer d'environment
+    de-DE: environment wechseln
+    it-IT: Cambiare environment

@@ -1,0 +1,564 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 05. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word.
+video:
+  id: 05-execution
+  title: "Run a pipeline and a workflow"
+  issue: 9062
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Run, preview and debug a pipeline
+      url: https://hop.apache.org/manual/latest/pipeline/run-preview-debug-pipeline.html
+    - label: Run and debug a workflow
+      url: https://hop.apache.org/manual/latest/workflow/run-debug-workflow.html
+    - label: Hop Run
+      url: https://hop.apache.org/manual/latest/hop-run/index.html
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Run the work
+    card_subtitle: In Hop GUI, then from the command line
+    shot: >
+      Title card. Kicker "Apache Hop", title "Run the work", subtitle
+      "In Hop GUI, then from the command line". No GUI.
+    narration:
+      en: |
+        This is the fifth video in the series. You already have a pipeline
+        and a workflow. This time you run them. In Hop GUI there are three
+        ideas to keep apart: Run, a preview of rows, and a pause when a row
+        matches a condition. Then you leave the window and run the same
+        files with hop-run. By the end, the orders file exists, the
+        workflow has reported success, and you have the command a scheduler
+        would call.
+      zh-CN: |
+        这是系列的第五集。你已经有一条 Pipeline 和一条 Workflow。这一集你来
+        运行它们。在 Hop GUI 里有三件要分开的事：Run、预览数据行，以及当某一行
+        符合条件时暂停。然后你离开窗口，用 hop-run 运行同样的文件。结束时，
+        订单文件已经存在，Workflow 已经报告成功，你也有了调度器会调用的那条
+        命令。
+      es-ES: |
+        Este es el quinto vídeo de la serie. Ya tienes un Pipeline y un
+        Workflow. Esta vez los ejecutas. En Hop GUI hay tres ideas que
+        conviene separar: Run, una vista previa de filas y una pausa cuando
+        una fila cumple una condición. Luego sales de la ventana y ejecutas
+        los mismos archivos con hop-run. Al terminar, el archivo de pedidos
+        existe, el Workflow ha informado del éxito y tienes el comando que
+        llamaría un planificador.
+      pt-PT: |
+        Este é o quinto vídeo da série. Já tens um Pipeline e um Workflow.
+        Desta vez executas os dois. No Hop GUI há três ideias a manter
+        separadas: Run, uma pré-visualização de linhas e uma pausa quando uma
+        linha cumpre uma condição. Depois sais da janela e executas os mesmos
+        ficheiros com hop-run. No fim, o ficheiro de encomendas existe, o
+        Workflow relatou o sucesso e tens o comando que um agendador chamaria.
+      fr-FR: |
+        Voici la cinquième vidéo de la série. Vous avez déjà un Pipeline et
+        un Workflow. Cette fois, vous les exécutez. Dans Hop GUI, trois idées
+        sont à garder séparées : Run, un aperçu des lignes, et une pause
+        quand une ligne correspond à une condition. Ensuite vous quittez la
+        fenêtre et vous exécutez les mêmes fichiers avec hop-run. À la fin,
+        le fichier des commandes existe, le Workflow a signalé le succès, et
+        vous avez la commande qu'un ordonnanceur appellerait.
+      de-DE: |
+        Dies ist das fünfte Video der Reihe. Du hast bereits eine Pipeline
+        und einen Workflow. Diesmal führst du sie aus. In Hop GUI gibt es
+        drei Ideen, die du auseinanderhältst: Run, eine Vorschau der Zeilen
+        und eine Pause, wenn eine Zeile eine Bedingung erfüllt. Danach
+        verlässt du das Fenster und führst dieselben Dateien mit hop-run aus.
+        Am Ende existiert die Bestelldatei, der Workflow hat Erfolg gemeldet,
+        und du hast den Befehl, den ein Planer aufrufen würde.
+      it-IT: |
+        Questo è il quinto video della serie. Hai già un Pipeline e un
+        Workflow. Questa volta li esegui. In Hop GUI ci sono tre idee da
+        tenere separate: Run, un'anteprima delle righe e una pausa quando una
+        riga corrisponde a una condizione. Poi esci dalla finestra ed esegui
+        gli stessi file con hop-run. Alla fine il file degli ordini esiste,
+        il Workflow ha segnalato il successo e hai il comando che un
+        pianificatore chiamerebbe.
+
+  - id: three-ways
+    title: Run, preview, and a pause
+    visual: images/three-ways.png
+    visual_type: still
+    card_title: Three ways to look
+    card_subtitle: Finish, see rows, or pause
+    shot: >
+      Title card. Title "Three ways to look". Subtitle "Finish, see rows,
+      or pause". No GUI.
+    narration:
+      en: |
+        Run finishes the work. You pick a run configuration and a log
+        level, then Launch. When it is done, each transform shows a result,
+        and the panel at the bottom lists the metrics and the log. A
+        preview does less. It asks one transform for its first rows, so you
+        can look at the data without caring about the rest of the file.
+        Debug lives in that same dialog. You can tell Hop to pause the
+        pipeline when a row matches a condition. A workflow has no rows to
+        preview, so you Run a workflow and you read the log.
+      zh-CN: |
+        Run 把工作做完。你选择一个 run configuration 和一个日志级别，然后
+        Launch。完成后，每个 Transform 都会显示一个结果，底部面板列出指标和
+        日志。预览做得更少。它向一个 Transform 要最前面的几行，这样你可以看
+        数据，而不必在意文件的其余部分。调试就在同一个对话框里。你可以让 Hop
+        在某一行符合条件时暂停 Pipeline。Workflow 没有可以预览的行，所以你
+        Run 一条 Workflow，然后读日志。
+      es-ES: |
+        Run termina el trabajo. Eliges una run configuration y un nivel de
+        registro, y luego Launch. Cuando acaba, cada Transform muestra un
+        resultado, y el panel de abajo lista las métricas y el registro. Una
+        vista previa hace menos. Pide a un Transform sus primeras filas, para
+        que mires los datos sin ocuparte del resto del archivo. La depuración
+        vive en ese mismo diálogo. Puedes decirle a Hop que pause el Pipeline
+        cuando una fila cumpla una condición. Un Workflow no tiene filas que
+        previsualizar, así que haces Run de un Workflow y lees el registro.
+      pt-PT: |
+        Run termina o trabalho. Escolhes uma run configuration e um nível de
+        registo, e depois Launch. Quando acaba, cada Transform mostra um
+        resultado, e o painel em baixo lista as métricas e o registo. Uma
+        pré-visualização faz menos. Pede a um Transform as primeiras linhas,
+        para veres os dados sem te preocupares com o resto do ficheiro. A
+        depuração vive nesse mesmo diálogo. Podes dizer ao Hop para pausar o
+        Pipeline quando uma linha cumprir uma condição. Um Workflow não tem
+        linhas para pré-visualizar, por isso fazes Run de um Workflow e lês
+        o registo.
+      fr-FR: |
+        Run termine le travail. Vous choisissez une run configuration et un
+        niveau de journal, puis Launch. Quand c'est fini, chaque Transform
+        montre un résultat, et le panneau du bas liste les métriques et le
+        journal. Un aperçu fait moins. Il demande à un Transform ses
+        premières lignes, pour que vous regardiez les données sans vous
+        occuper du reste du fichier. Le débogage vit dans ce même dialogue.
+        Vous pouvez demander à Hop de mettre le Pipeline en pause quand une
+        ligne correspond à une condition. Un Workflow n'a pas de lignes à
+        prévisualiser, donc vous faites Run d'un Workflow et vous lisez le
+        journal.
+      de-DE: |
+        Run beendet die Arbeit. Du wählst eine run configuration und eine
+        Protokollstufe, dann Launch. Wenn es fertig ist, zeigt jeder
+        Transform ein Ergebnis, und das untere Panel listet die Kennzahlen
+        und das Protokoll. Eine Vorschau tut weniger. Sie bittet einen
+        Transform um seine ersten Zeilen, damit du die Daten ansiehst, ohne
+        dich um den Rest der Datei zu kümmern. Die Fehlersuche sitzt in
+        demselben Dialog. Du kannst Hop sagen, die Pipeline anzuhalten, wenn
+        eine Zeile eine Bedingung erfüllt. Ein Workflow hat keine Zeilen für
+        eine Vorschau, also machst du Run für einen Workflow und liest das
+        Protokoll.
+      it-IT: |
+        Run completa il lavoro. Scegli una run configuration e un livello di
+        log, poi Launch. Quando ha finito, ogni Transform mostra un risultato
+        e il pannello in basso elenca le metriche e il log. Un'anteprima fa
+        di meno. Chiede a un Transform le prime righe, così guardi i dati
+        senza occuparti del resto del file. Il debug sta in quello stesso
+        dialogo. Puoi dire a Hop di mettere in pausa il Pipeline quando una
+        riga corrisponde a una condizione. Un Workflow non ha righe da
+        anteprima, quindi fai Run di un Workflow e leggi il log.
+
+  - id: write-the-file
+    title: Tell the pipeline where to write
+    visual: clips/write-the-file.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Open first-pipeline.hpl. Left-click the underlined
+      name of Text file output. Set the filename so the file is hop-orders.csv
+      in the temporary folder, and set the separator to a semicolon. Click
+      OK. Stop on the canvas.
+    narration:
+      en: |
+        Open first-pipeline.hpl. The last transform is Text file output, and
+        it does not yet know where to write. Left-click the underlined name
+        under the icon. Set the filename so the file is called hop-orders.csv
+        and lands in the temporary folder. Set the separator to a semicolon,
+        so the product field and the order id field sit side by side. Click
+        OK. The pipeline can now finish. A preview, which you already saw,
+        never needed this path. A full run does.
+      zh-CN: |
+        打开 first-pipeline.hpl。最后一个 Transform 是 Text file output，它还
+        不知道写到哪里。左键点击图标下方带下划线的名称。把文件名设成
+        hop-orders.csv，并让它落到临时文件夹里。把分隔符设成分号，这样
+        product 字段和 order id 字段并排。点击 OK。这条 Pipeline 现在可以
+        跑完了。你已经看过的预览并不需要这条路径。一次完整的运行需要。
+      es-ES: |
+        Abre first-pipeline.hpl. El último Transform es Text file output, y
+        todavía no sabe dónde escribir. Haz clic izquierdo en el nombre
+        subrayado bajo el icono. Pon el nombre del archivo para que se llame
+        hop-orders.csv y caiga en la carpeta temporal. Pon el separador en un
+        punto y coma, para que el campo product y el campo order id queden
+        uno al lado del otro. Pulsa OK. El Pipeline ya puede terminar. Una
+        vista previa, que ya viste, nunca necesitó esta ruta. Una ejecución
+        completa sí.
+      pt-PT: |
+        Abre first-pipeline.hpl. O último Transform é Text file output, e
+        ainda não sabe onde escrever. Clica com o botão esquerdo no nome
+        sublinhado por baixo do ícone. Define o nome do ficheiro para se
+        chamar hop-orders.csv e ficar na pasta temporária. Põe o separador
+        num ponto e vírgula, para o campo product e o campo order id ficarem
+        lado a lado. Clica em OK. O Pipeline já pode terminar. Uma
+        pré-visualização, que já viste, nunca precisou deste caminho. Uma
+        execução completa precisa.
+      fr-FR: |
+        Ouvrez first-pipeline.hpl. Le dernier Transform est Text file output,
+        et il ne sait pas encore où écrire. Cliquez avec le bouton gauche sur
+        le nom souligné sous l'icône. Réglez le nom du fichier pour qu'il
+        s'appelle hop-orders.csv et qu'il arrive dans le dossier temporaire.
+        Réglez le séparateur sur un point-virgule, pour que le champ product
+        et le champ order id soient côte à côte. Cliquez sur OK. Le Pipeline
+        peut maintenant aller au bout. Un aperçu, que vous avez déjà vu, n'a
+        jamais eu besoin de ce chemin. Une exécution complète en a besoin.
+      de-DE: |
+        Öffne first-pipeline.hpl. Der letzte Transform ist Text file output,
+        und er weiß noch nicht, wohin er schreiben soll. Klicke links auf den
+        unterstrichenen Namen unter dem Symbol. Setze den Dateinamen so, dass
+        die Datei hop-orders.csv heißt und im temporären Ordner landet. Setze
+        das Trennzeichen auf ein Semikolon, damit das Feld product und das
+        Feld order id nebeneinander stehen. Klicke auf OK. Die Pipeline kann
+        jetzt zu Ende laufen. Eine Vorschau, die du schon gesehen hast,
+        brauchte diesen Pfad nicht. Ein voller Lauf braucht ihn.
+      it-IT: |
+        Apri first-pipeline.hpl. L'ultimo Transform è Text file output e non
+        sa ancora dove scrivere. Fai clic con il tasto sinistro sul nome
+        sottolineato sotto l'icona. Imposta il nome del file così che si
+        chiami hop-orders.csv e finisca nella cartella temporanea. Imposta il
+        separatore su un punto e virgola, così il campo product e il campo
+        order id stanno uno accanto all'altro. Fai clic su OK. Il Pipeline
+        ora può finire. Un'anteprima, che hai già visto, non aveva bisogno di
+        questo percorso. Un'esecuzione completa sì.
+
+  - id: run-the-pipeline
+    title: Run the pipeline
+    visual: clips/run-the-pipeline.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. With first-pipeline open, click Run. In Run
+      Options choose the local Pipeline run configuration and log level
+      Basic, then Launch. Stop when the transforms show a success mark and
+      the Metrics tab is visible. No personal paths.
+    narration:
+      en: |
+        Click Run. In Run Options, choose the local Pipeline run
+        configuration. Leave the log level at Basic. That level is the
+        normal one. Click Launch. Each transform gets a mark when it
+        finishes cleanly. The panel at the bottom opens on the metrics.
+        You can see how many rows each transform wrote. Open the Logging
+        tab for the text of the run. Basic is enough to see that it worked.
+        A level named Debugging prints far more, and you only want that
+        when something is wrong.
+      zh-CN: |
+        点击 Run。在 Run Options 里，选择本地的 Pipeline run configuration。
+        日志级别留在 Basic。这是平常使用的级别。点击 Launch。每个 Transform
+        干净地结束时都会得到一个标记。底部面板打开在指标上。你可以看到每个
+        Transform 写出了多少行。打开 Logging 选项卡看这次运行的文字。Basic
+        足够看出它成功了。名为 Debugging 的级别会打印多得多的内容，只有出了
+        问题才需要它。
+      es-ES: |
+        Pulsa Run. En Run Options, elige la Pipeline run configuration local.
+        Deja el nivel de registro en Basic. Ese es el nivel normal. Pulsa
+        Launch. Cada Transform recibe una marca cuando termina limpio. El
+        panel de abajo se abre en las métricas. Puedes ver cuántas filas
+        escribió cada Transform. Abre la pestaña Logging para el texto de la
+        ejecución. Basic basta para ver que funcionó. Un nivel llamado
+        Debugging imprime mucho más, y solo lo quieres cuando algo va mal.
+      pt-PT: |
+        Clica em Run. Em Run Options, escolhe a Pipeline run configuration
+        local. Deixa o nível de registo em Basic. Esse é o nível normal.
+        Clica em Launch. Cada Transform recebe uma marca quando termina
+        limpo. O painel em baixo abre nas métricas. Podes ver quantas linhas
+        cada Transform escreveu. Abre o separador Logging para o texto da
+        execução. Basic chega para ver que funcionou. Um nível chamado
+        Debugging imprime muito mais, e só o queres quando algo corre mal.
+      fr-FR: |
+        Cliquez sur Run. Dans Run Options, choisissez la Pipeline run
+        configuration locale. Laissez le niveau de journal sur Basic. C'est
+        le niveau normal. Cliquez sur Launch. Chaque Transform reçoit une
+        marque quand il se termine proprement. Le panneau du bas s'ouvre sur
+        les métriques. Vous voyez combien de lignes chaque Transform a
+        écrites. Ouvrez l'onglet Logging pour le texte de l'exécution. Basic
+        suffit pour voir que cela a fonctionné. Un niveau nommé Debugging
+        imprime bien davantage, et vous ne le voulez que lorsque quelque
+        chose ne va pas.
+      de-DE: |
+        Klicke auf Run. Wähle in Run Options die lokale Pipeline run
+        configuration. Lass die Protokollstufe auf Basic. Das ist die normale
+        Stufe. Klicke auf Launch. Jeder Transform bekommt eine Markierung,
+        wenn er sauber endet. Das untere Panel öffnet sich bei den
+        Kennzahlen. Du siehst, wie viele Zeilen jeder Transform geschrieben
+        hat. Öffne den Tab Logging für den Text des Laufs. Basic reicht, um
+        zu sehen, dass es funktioniert hat. Eine Stufe namens Debugging
+        druckt viel mehr, und die willst du nur, wenn etwas schiefgeht.
+      it-IT: |
+        Fai clic su Run. In Run Options scegli la Pipeline run configuration
+        locale. Lascia il livello di log su Basic. Quello è il livello
+        normale. Fai clic su Launch. Ogni Transform riceve un segno quando
+        finisce pulito. Il pannello in basso si apre sulle metriche. Puoi
+        vedere quante righe ha scritto ogni Transform. Apri la scheda Logging
+        per il testo dell'esecuzione. Basic basta per vedere che ha
+        funzionato. Un livello chiamato Debugging stampa molto di più, e lo
+        vuoi solo quando qualcosa non va.
+
+  - id: preview-and-debug
+    title: Preview and a pause
+    visual: images/preview-and-debug.png
+    visual_type: still
+    shot: >
+      The Preview and debug dialog for first-pipeline. The labels Retrieve
+      first rows (preview) and Pause pipeline on condition are both
+      readable. Do not launch. Close the dialog after the still.
+    narration:
+      en: |
+        Open Preview and debug from the Run menu. This is one dialog, not
+        two tools. Retrieve first rows is the preview. It is how you saw
+        Widget and 1000 in the previous video. Pause pipeline on condition
+        is the debug. Turn it on, name a condition, and Hop stops when a
+        row matches, so you can look at that row before the pipeline
+        continues. Leave the pause off for today. You already trust the
+        rows. Close the dialog. The next run is the workflow, and a
+        workflow does not use this dialog.
+      zh-CN: |
+        从 Run 菜单打开 Preview and debug。这是一个对话框，不是两个工具。
+        Retrieve first rows 就是预览。上一集你就是这样看到 Widget 和 1000 的。
+        Pause pipeline on condition 就是调试。打开它，写下一个条件，当某一行
+        符合时 Hop 会停下来，让你在 Pipeline 继续之前看那一行。今天先让暂停
+        保持关闭。你已经相信这些行。关闭对话框。下一次运行是 Workflow，而
+        Workflow 不用这个对话框。
+      es-ES: |
+        Abre Preview and debug desde el menú Run. Es un solo diálogo, no dos
+        herramientas. Retrieve first rows es la vista previa. Así viste
+        Widget y 1000 en el vídeo anterior. Pause pipeline on condition es la
+        depuración. Actívalo, escribe una condición, y Hop se detiene cuando
+        una fila coincide, para que mires esa fila antes de que el Pipeline
+        siga. Deja la pausa apagada hoy. Ya confías en las filas. Cierra el
+        diálogo. La siguiente ejecución es el Workflow, y un Workflow no usa
+        este diálogo.
+      pt-PT: |
+        Abre Preview and debug a partir do menu Run. É um só diálogo, não
+        duas ferramentas. Retrieve first rows é a pré-visualização. Foi assim
+        que viste Widget e 1000 no vídeo anterior. Pause pipeline on
+        condition é a depuração. Liga-a, escreve uma condição, e o Hop pára
+        quando uma linha coincide, para olhares essa linha antes de o
+        Pipeline continuar. Deixa a pausa desligada hoje. Já confias nas
+        linhas. Fecha o diálogo. A execução seguinte é o Workflow, e um
+        Workflow não usa este diálogo.
+      fr-FR: |
+        Ouvrez Preview and debug depuis le menu Run. C'est un seul dialogue,
+        pas deux outils. Retrieve first rows est l'aperçu. C'est ainsi que
+        vous avez vu Widget et 1000 dans la vidéo précédente. Pause pipeline
+        on condition est le débogage. Activez-le, nommez une condition, et
+        Hop s'arrête quand une ligne correspond, pour que vous regardiez
+        cette ligne avant que le Pipeline continue. Laissez la pause éteinte
+        aujourd'hui. Vous faites déjà confiance aux lignes. Fermez le
+        dialogue. L'exécution suivante est le Workflow, et un Workflow
+        n'utilise pas ce dialogue.
+      de-DE: |
+        Öffne Preview and debug aus dem Menü Run. Das ist ein Dialog, nicht
+        zwei Werkzeuge. Retrieve first rows ist die Vorschau. So hast du
+        Widget und 1000 im vorigen Video gesehen. Pause pipeline on condition
+        ist die Fehlersuche. Schalte sie ein, nenne eine Bedingung, und Hop
+        hält an, wenn eine Zeile passt, damit du diese Zeile ansiehst, bevor
+        die Pipeline weiterläuft. Lass die Pause heute aus. Du vertraust den
+        Zeilen schon. Schließe den Dialog. Der nächste Lauf ist der Workflow,
+        und ein Workflow benutzt diesen Dialog nicht.
+      it-IT: |
+        Apri Preview and debug dal menu Run. È un solo dialogo, non due
+        strumenti. Retrieve first rows è l'anteprima. È così che hai visto
+        Widget e 1000 nel video precedente. Pause pipeline on condition è il
+        debug. Attivalo, indica una condizione, e Hop si ferma quando una
+        riga corrisponde, così guardi quella riga prima che il Pipeline
+        continui. Lascia la pausa spenta oggi. Ti fidi già delle righe.
+        Chiudi il dialogo. L'esecuzione successiva è il Workflow, e un
+        Workflow non usa questo dialogo.
+
+  - id: run-the-workflow
+    title: Run the workflow
+    visual: clips/run-the-workflow.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Open first-workflow.hwf. Click Run. Leave Start
+      workflow at empty, or set it to Start. Choose the local workflow run
+      configuration and log level Basic. Click Launch. Stop when the log
+      shows Orders file written and report failure was skipped.
+    narration:
+      en: |
+        Open first-workflow.hwf and click Run. Leave Start workflow at
+        empty, so Hop begins at Start. Choose the local workflow run
+        configuration and keep the log level at Basic. Click Launch. Start
+        runs, then run first pipeline, then the green hop. The log shows
+        the line Orders file written. The red hop does not run, so report
+        failure stays idle. If the pipeline file were missing, that red hop
+        would be the one that runs, and the workflow would be marked
+        failed. Put the pipeline path back if you try that.
+      zh-CN: |
+        打开 first-workflow.hwf，点击 Run。让 Start workflow at 保持空白，
+        这样 Hop 从 Start 开始。选择本地的 workflow run configuration，日志
+        级别保持 Basic。点击 Launch。Start 会运行，然后是 run first pipeline，
+        然后是绿色 hop。日志里出现一行 Orders file written。红色 hop 不会
+        运行，所以 report failure 保持空闲。如果 Pipeline 文件不见了，运行的
+        就会是那条红色 hop，而 Workflow 会被标成失败。如果你试了这一点，请把
+        Pipeline 路径改回去。
+      es-ES: |
+        Abre first-workflow.hwf y pulsa Run. Deja Start workflow at vacío,
+        para que Hop empiece en Start. Elige la workflow run configuration
+        local y mantén el nivel de registro en Basic. Pulsa Launch. Start se
+        ejecuta, luego run first pipeline, luego el hop verde. El registro
+        muestra la línea Orders file written. El hop rojo no se ejecuta, así
+        que report failure queda en espera. Si faltara el archivo del
+        Pipeline, ese hop rojo sería el que se ejecuta, y el Workflow quedaría
+        marcado como fallido. Devuelve la ruta del Pipeline si lo pruebas.
+      pt-PT: |
+        Abre first-workflow.hwf e clica em Run. Deixa Start workflow at
+        vazio, para o Hop começar em Start. Escolhe a workflow run
+        configuration local e mantém o nível de registo em Basic. Clica em
+        Launch. Start corre, depois run first pipeline, depois o hop verde.
+        O registo mostra a linha Orders file written. O hop vermelho não
+        corre, por isso report failure fica parado. Se o ficheiro do Pipeline
+        faltasse, esse hop vermelho seria o que corre, e o Workflow ficaria
+        marcado como falhado. Repõe o caminho do Pipeline se experimentares
+        isso.
+      fr-FR: |
+        Ouvrez first-workflow.hwf et cliquez sur Run. Laissez Start workflow
+        at vide, pour que Hop commence à Start. Choisissez la workflow run
+        configuration locale et gardez le niveau de journal sur Basic.
+        Cliquez sur Launch. Start s'exécute, puis run first pipeline, puis le
+        hop vert. Le journal montre la ligne Orders file written. Le hop
+        rouge ne s'exécute pas, donc report failure reste au repos. Si le
+        fichier du Pipeline manquait, ce hop rouge serait celui qui
+        s'exécute, et le Workflow serait marqué en échec. Remettez le chemin
+        du Pipeline si vous essayez cela.
+      de-DE: |
+        Öffne first-workflow.hwf und klicke auf Run. Lass Start workflow at
+        leer, damit Hop bei Start beginnt. Wähle die lokale workflow run
+        configuration und behalte die Protokollstufe Basic. Klicke auf
+        Launch. Start läuft, dann run first pipeline, dann der grüne hop.
+        Das Protokoll zeigt die Zeile Orders file written. Der rote hop läuft
+        nicht, also bleibt report failure untätig. Wenn die Pipeline-Datei
+        fehlte, wäre dieser rote hop derjenige, der läuft, und der Workflow
+        wäre als fehlgeschlagen markiert. Setze den Pipeline-Pfad zurück,
+        wenn du das ausprobierst.
+      it-IT: |
+        Apri first-workflow.hwf e fai clic su Run. Lascia Start workflow at
+        vuoto, così Hop inizia da Start. Scegli la workflow run configuration
+        locale e tieni il livello di log su Basic. Fai clic su Launch. Start
+        viene eseguito, poi run first pipeline, poi il hop verde. Il log
+        mostra la riga Orders file written. Il hop rosso non viene eseguito,
+        quindi report failure resta fermo. Se il file del Pipeline mancasse,
+        quel hop rosso sarebbe quello che viene eseguito, e il Workflow
+        sarebbe segnato come fallito. Rimetti il percorso del Pipeline se lo
+        provi.
+
+  - id: hop-run
+    title: The same run from the command line
+    visual: clips/hop-run.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. A terminal in the Hop installation folder. Run
+      hop-run with the project name, the environment name, the file
+      first-workflow.hwf, the local run configuration name, and log level
+      Basic. The file path is inside the project, not a full path to your
+      home folder. Stop when the log shows Orders file written. No personal
+      paths in the prompt.
+    narration:
+      en: |
+        Hop GUI is one place to press Run. A scheduler calls hop-run from
+        the installation folder. On Windows the script is hop-run.bat. On
+        Linux and macOS it is hop-run.sh. Give it the project, the
+        environment, and the file to run. The file is a path inside the
+        project, such as first-workflow.hwf, not a full path on the
+        machine. Pass the same run configuration name you chose in Hop GUI,
+        and the log level Basic. The log ends with Orders file written. Use
+        first-pipeline.hpl as the file when you want the pipeline alone.
+        That is the command the next environment will call.
+      zh-CN: |
+        Hop GUI 是按 Run 的一个地方。调度器从安装文件夹调用 hop-run。在
+        Windows 上脚本是 hop-run.bat。在 Linux 和 macOS 上是 hop-run.sh。把
+        project、environment 和要运行的文件交给它。这个文件是 project 里面的
+        一条路径，比如这条 Workflow 的 first-workflow.hwf，不是这台机器上的
+        完整路径。传入你在 Hop GUI 里选择的同一个 run configuration 名称，
+        以及日志级别 Basic。日志以 Orders file written 结束。当你只想要
+        Pipeline 时，把文件换成 first-pipeline.hpl。这就是下一个 environment
+        会调用的命令。
+      es-ES: |
+        Hop GUI es un sitio donde pulsas Run. Un planificador llama a hop-run
+        desde la carpeta de instalación. En Windows el script es hop-run.bat.
+        En Linux y macOS es hop-run.sh. Dale el project, el environment y el
+        archivo que debe ejecutar. El archivo del Workflow es una ruta dentro
+        del project, como first-workflow.hwf, no una ruta completa en la
+        máquina. Pasa el mismo nombre de run configuration que elegiste en
+        Hop GUI, y el nivel de registro Basic. El registro termina con Orders
+        file written. Usa first-pipeline.hpl como archivo cuando quieras solo
+        el Pipeline. Ese es el comando que llamará el siguiente environment.
+      pt-PT: |
+        Hop GUI é um sítio onde carregas em Run. Um agendador chama hop-run a
+        partir da pasta de instalação. No Windows o script é hop-run.bat. No
+        Linux e no macOS é hop-run.sh. Dá-lhe o project, o environment e o
+        ficheiro a executar. O ficheiro do Workflow é um caminho dentro do
+        project, como first-workflow.hwf, não um caminho completo na máquina.
+        Passa o mesmo nome de run configuration que escolheste no Hop GUI, e
+        o nível de registo Basic. O registo acaba com Orders file written.
+        Usa first-pipeline.hpl como ficheiro quando quiseres só o Pipeline.
+        Esse é o comando que o environment seguinte vai chamar.
+      fr-FR: |
+        Hop GUI est un endroit où vous appuyez sur Run. Un ordonnanceur
+        appelle hop-run depuis le dossier d'installation. Sous Windows le
+        script est hop-run.bat. Sous Linux et macOS c'est hop-run.sh.
+        Donnez-lui le project, l'environment et le fichier à exécuter. Le
+        fichier du Workflow est un chemin à l'intérieur du project, tel que
+        first-workflow.hwf, pas un chemin complet sur la machine. Passez le
+        même nom de run configuration que vous avez choisi dans Hop GUI, et
+        le niveau de journal Basic. Le journal se termine par Orders file
+        written. Utilisez first-pipeline.hpl comme fichier quand vous voulez
+        le Pipeline seul. C'est la commande que le prochain environment
+        appellera.
+      de-DE: |
+        Hop GUI ist ein Ort, an dem du Run drückst. Ein Planer ruft hop-run
+        aus dem Installationsordner auf. Unter Windows heißt das Skript
+        hop-run.bat. Unter Linux und macOS heißt es hop-run.sh. Gib ihm das
+        project, das environment und die Datei, die laufen soll. Die Datei
+        des Workflow ist ein Pfad innerhalb des project, zum Beispiel
+        first-workflow.hwf, kein voller Pfad auf dem Rechner. Übergib
+        denselben Namen der run configuration, den du in Hop GUI gewählt
+        hast, und die Protokollstufe Basic. Das Protokoll endet mit Orders
+        file written. Nimm first-pipeline.hpl als Datei, wenn du die Pipeline
+        allein willst. Das ist der Befehl, den das nächste environment
+        aufruft.
+      it-IT: |
+        Hop GUI è un posto dove premi Run. Un pianificatore chiama hop-run
+        dalla cartella di installazione. Su Windows lo script è hop-run.bat.
+        Su Linux e macOS è hop-run.sh. Dagli il project, l'environment e il
+        file da eseguire. Il file del Workflow è un percorso dentro il
+        project, come first-workflow.hwf, non un percorso completo sulla
+        macchina. Passa lo stesso nome di run configuration che hai scelto in
+        Hop GUI, e il livello di log Basic. Il log finisce con Orders file
+        written. Usa first-pipeline.hpl come file quando vuoi solo il
+        Pipeline. Quello è il comando che il prossimo environment chiamerà.

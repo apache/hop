@@ -1,0 +1,539 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 06. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word.
+video:
+  id: 06-projects
+  title: "Projects and environments"
+  issue: 9063
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Projects and environments
+      url: https://hop.apache.org/manual/latest/getting-started/hop-projects.html
+    - label: Projects reference
+      url: https://hop.apache.org/manual/latest/projects/projects-environments.html
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Projects and environments
+    card_subtitle: One folder to share, values that change
+    shot: >
+      Title card. Kicker "Apache Hop", title "Projects and environments",
+      subtitle "One folder to share, values that change". No GUI.
+    narration:
+      en: |
+        This is the sixth video in the series. You have been working in a
+        project since you installed Hop. This time we look at what that
+        project is, and at the environment beside it. A project is the
+        folder you can share. An environment is the set of values that
+        change between development and production. You will switch
+        projects, give a project a group, and create an environment whose
+        files live outside the project folder.
+      zh-CN: |
+        这是系列的第六集。从安装 Hop 起，你就一直在一个 project 里工作。这一集
+        我们看这个 project 是什么，以及它旁边的 environment。project 是你可以
+        分享的文件夹。environment 是在开发和生产之间会变化的那一组值。你会切换
+        project，给一个 project 分组，并创建一个 environment，它的文件放在
+        project 文件夹之外。
+      es-ES: |
+        Este es el sexto vídeo de la serie. Has estado trabajando en un
+        project desde que instalaste Hop. Esta vez vemos qué es ese project,
+        y el environment que está a su lado. Un project es la carpeta que
+        puedes compartir. Un environment es el conjunto de valores que
+        cambian entre desarrollo y producción. Vas a cambiar de project, dar
+        un grupo a un project y crear un environment cuyos archivos viven
+        fuera de la carpeta del project.
+      pt-PT: |
+        Este é o sexto vídeo da série. Tens estado a trabalhar num project
+        desde que instalaste o Hop. Desta vez vemos o que é esse project, e o
+        environment ao lado dele. Um project é a pasta que podes partilhar.
+        Um environment é o conjunto de valores que mudam entre
+        desenvolvimento e produção. Vais mudar de project, dar um grupo a um
+        project e criar um environment cujos ficheiros ficam fora da pasta do
+        project.
+      fr-FR: |
+        Voici la sixième vidéo de la série. Vous travaillez dans un project
+        depuis que vous avez installé Hop. Cette fois, nous regardons ce
+        qu'est ce project, et l'environment à côté de lui. Un project est le
+        dossier que vous pouvez partager. Un environment est l'ensemble des
+        valeurs qui changent entre le développement et la production. Vous
+        allez changer de project, donner un groupe à un project, et créer un
+        environment dont les fichiers vivent en dehors du dossier du project.
+      de-DE: |
+        Dies ist das sechste Video der Reihe. Du arbeitest seit der
+        Installation von Hop in einem project. Diesmal sehen wir uns an, was
+        dieses project ist, und das environment daneben. Ein project ist der
+        Ordner, den du teilen kannst. Ein environment ist die Menge der
+        Werte, die sich zwischen Entwicklung und Produktion ändern. Du
+        wechselst das project, gibst einem project eine Gruppe und erstellst
+        ein environment, dessen Dateien außerhalb des project-Ordners liegen.
+      it-IT: |
+        Questo è il sesto video della serie. Stai lavorando in un project da
+        quando hai installato Hop. Questa volta guardiamo che cos'è quel
+        project, e l'environment accanto. Un project è la cartella che puoi
+        condividere. Un environment è l'insieme dei valori che cambiano tra
+        sviluppo e produzione. Cambierai project, darai un gruppo a un
+        project e creerai un environment i cui file stanno fuori dalla
+        cartella del project.
+
+  - id: one-folder
+    title: One folder
+    visual: images/one-folder.png
+    visual_type: still
+    shot: >
+      The file explorer for the project that holds first-pipeline.hpl and
+      first-workflow.hwf. project-config.json is visible, and so are the
+      pipeline and the workflow. No personal paths if you can avoid them.
+    narration:
+      en: |
+        A project is a folder plus a file named project-config.json. The
+        PROJECT_HOME variable always points at that folder. Your pipeline,
+        your workflow, and the metadata, such as the local run
+        configuration, live under it. That is why the path in the workflow
+        still finds the pipeline on another machine. One folder is also
+        what you put in version control. The next video commits this
+        folder. A password does not belong in it.
+      zh-CN: |
+        一个 project 是一个文件夹，加上名为 project-config.json 的文件。
+        PROJECT_HOME 变量始终指向那个文件夹。你的 Pipeline、你的 Workflow，
+        以及元数据，比如本地的 run configuration，都在它下面。所以 Workflow
+        里的路径在另一台机器上仍然能找到 Pipeline。一个文件夹也是你放进版本
+        控制的东西。下一集提交这个文件夹。密码不属于它。
+      es-ES: |
+        Un project es una carpeta más un archivo llamado project-config.json.
+        La variable PROJECT_HOME apunta siempre a esa carpeta. Tu Pipeline,
+        tu Workflow y los metadatos, como la run configuration local, viven
+        dentro. Por eso la ruta del Workflow sigue encontrando el Pipeline en
+        otra máquina. Una carpeta es también lo que pones en el control de
+        versiones. El siguiente vídeo guarda esta carpeta. Una contraseña no
+        pertenece a ella.
+      pt-PT: |
+        Um project é uma pasta mais um ficheiro chamado project-config.json.
+        A variável PROJECT_HOME aponta sempre para essa pasta. O teu
+        Pipeline, o teu Workflow e os metadados, como a run configuration
+        local, ficam lá dentro. Por isso o caminho no Workflow continua a
+        encontrar o Pipeline noutra máquina. Uma pasta é também o que pões no
+        controlo de versões. O vídeo seguinte coloca esta pasta lá. Uma
+        palavra-passe não lhe pertence.
+      fr-FR: |
+        Un project est un dossier plus un fichier nommé project-config.json.
+        La variable PROJECT_HOME pointe toujours vers ce dossier. Votre
+        Pipeline, votre Workflow et les métadonnées, comme la run
+        configuration locale, vivent dedans. C'est pourquoi le chemin dans le
+        Workflow retrouve encore le Pipeline sur une autre machine. Un
+        dossier est aussi ce que vous mettez dans le contrôle de version. La
+        vidéo suivante enregistre ce dossier. Un mot de passe n'y a pas sa
+        place.
+      de-DE: |
+        Ein project ist ein Ordner plus eine Datei namens
+        project-config.json. Die Variable PROJECT_HOME zeigt immer auf diesen
+        Ordner. Deine Pipeline, dein Workflow und die Metadaten, etwa die
+        lokale run configuration, liegen darin. Deshalb findet der Pfad im
+        Workflow die Pipeline auch auf einem anderen Rechner. Ein Ordner ist
+        auch das, was du in die Versionsverwaltung legst. Das nächste Video
+        übergibt diesen Ordner. Ein Passwort gehört nicht hinein.
+      it-IT: |
+        Un project è una cartella più un file chiamato project-config.json.
+        La variabile PROJECT_HOME punta sempre a quella cartella. Il tuo
+        Pipeline, il tuo Workflow e i metadati, come la run configuration
+        locale, stanno lì dentro. Per questo il percorso nel Workflow trova
+        ancora il Pipeline su un'altra macchina. Una cartella è anche ciò che
+        metti nel controllo di versione. Il video successivo consegna questa
+        cartella. Una password non le appartiene.
+
+  - id: switch-projects
+    title: Switch projects
+    visual: clips/switch-projects.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Click the project indicator at the bottom left,
+      the briefcase. Show default and samples on the menu, and switch to
+      one of them. Then open the project properties and show the Basic tab,
+      with the Group field visible. Type a short group name if you want the
+      submenu to appear, then switch back to the project that holds your
+      pipeline. No personal paths.
+    narration:
+      en: |
+        The active project is at the bottom left, next to a briefcase.
+        Click it. You see the projects you have used, including default and
+        samples. Choose one and Hop switches. Open files come back with it.
+        Projects that share a group are not repeated in that flat list.
+        Each group is its own submenu. You set the group on the project
+        properties, on the Basic tab. Leave the group empty and the project
+        stays in the recent list.
+      zh-CN: |
+        当前的 project 在左下角，公文包旁边。点击它。你会看到用过的 project，
+        包括 default 和 samples。选一个，Hop 就切换过去。打开的文件会一起
+        回来。共用一个分组的 project 不会重复出现在那条平铺列表里。每个分组是
+        自己的子菜单。你在 project 属性的 Basic 选项卡上设置分组。分组留空，
+        project 就留在最近列表里。
+      es-ES: |
+        El project activo está abajo a la izquierda, junto a un maletín. Haz
+        clic. Ves los project que has usado, incluidos default y samples.
+        Elige uno y Hop cambia. Los archivos abiertos vuelven con él. Los
+        project que comparten un grupo no se repiten en esa lista plana. Cada
+        grupo es su propio submenú. Pones el grupo en las propiedades del
+        project, en la pestaña Basic. Deja el grupo vacío y el project se
+        queda en la lista reciente.
+      pt-PT: |
+        O project ativo está em baixo à esquerda, ao lado de uma maleta. Clica.
+        Vês os project que usaste, incluindo default e samples. Escolhe um e o
+        Hop muda. Os ficheiros abertos voltam com ele. Os project que partilham
+        um grupo não se repetem nessa lista plana. Cada grupo é o seu próprio
+        submenu. Defines o grupo nas propriedades do project, no separador
+        Basic. Deixa o grupo vazio e o project fica na lista recente.
+      fr-FR: |
+        Le project actif est en bas à gauche, à côté d'une mallette. Cliquez.
+        Vous voyez les project que vous avez utilisés, y compris default et
+        samples. Choisissez-en un et Hop change. Les fichiers ouverts
+        reviennent avec lui. Les project qui partagent un groupe ne sont pas
+        répétés dans cette liste plate. Chaque groupe est son propre
+        sous-menu. Vous réglez le groupe dans les propriétés du project, dans
+        l'onglet Basic. Laissez le groupe vide et le project reste dans la
+        liste récente.
+      de-DE: |
+        Das aktive project ist unten links, neben einer Aktentasche. Klicke
+        darauf. Du siehst die project, die du benutzt hast, einschließlich
+        default und samples. Wähle eines und Hop wechselt. Offene Dateien
+        kommen mit zurück. project, die eine Gruppe teilen, werden in dieser
+        flachen Liste nicht wiederholt. Jede Gruppe ist ihr eigenes Untermenü.
+        Die Gruppe setzt du in den Eigenschaften des project, auf dem Tab
+        Basic. Lass die Gruppe leer, und das project bleibt in der letzten
+        Liste.
+      it-IT: |
+        Il project attivo è in basso a sinistra, accanto a una valigetta.
+        Fai clic. Vedi i project che hai usato, compresi default e samples.
+        Scegline uno e Hop cambia. I file aperti tornano con lui. I project
+        che condividono un gruppo non si ripetono in quell'elenco piatto.
+        Ogni gruppo è il suo sottomenu. Imposti il gruppo nelle proprietà del
+        project, nella scheda Basic. Lascia il gruppo vuoto e il project resta
+        nell'elenco recente.
+
+  - id: environment
+    title: What an environment is
+    visual: images/environment.png
+    visual_type: still
+    card_title: Same project, different values
+    card_subtitle: Keep the configuration files outside the folder
+    shot: >
+      Title card. Title "Same project, different values". Subtitle "Keep
+      the configuration files outside the folder". No GUI.
+    narration:
+      en: |
+        An environment is the other half. The same project can point at a
+        development database on your laptop and a production database on a
+        server. The pipeline does not change. The environment does. Those
+        values live in configuration files, and those files stay outside
+        the project folder, so they are not committed with the work. A
+        password does not belong in a pipeline or in metadata. The security
+        video shows how a vault can fill that value in. Here, keep the file
+        out of the project.
+      zh-CN: |
+        environment 是另一半。同一个 project 可以指向你笔记本上的开发数据库，
+        也可以指向服务器上的生产数据库。Pipeline 不变。environment 变。这些值
+        放在配置文件里，而这些文件留在 project 文件夹之外，所以不会和作品一起
+        被提交。密码不属于 Pipeline，也不属于元数据。安全视频会说明保险库如何
+        填入那个值。在这里，把文件留在 project 外面。
+      es-ES: |
+        Un environment es la otra mitad. El mismo project puede apuntar a una
+        base de desarrollo en tu portátil y a una base de producción en un
+        servidor. El Pipeline no cambia. El environment sí. Esos valores viven
+        en archivos de configuración, y esos archivos se quedan fuera de la
+        carpeta del project, así que no se confirman con el trabajo. Una
+        contraseña no pertenece a un Pipeline ni a los metadatos. El vídeo de
+        seguridad muestra cómo una caja fuerte puede rellenar ese valor.
+        Aquí, deja el archivo fuera del project.
+      pt-PT: |
+        Um environment é a outra metade. O mesmo project pode apontar para
+        uma base de desenvolvimento no teu portátil e para uma base de
+        produção num servidor. O Pipeline não muda. O environment muda. Esses
+        valores ficam em ficheiros de configuração, e esses ficheiros ficam
+        fora da pasta do project, por isso não são submetidos com o trabalho.
+        Uma palavra-passe não pertence a um Pipeline nem aos metadados. O
+        vídeo de segurança mostra como um cofre pode preencher esse valor.
+        Aqui, deixa o ficheiro fora do project.
+      fr-FR: |
+        Un environment est l'autre moitié. Le même project peut viser une
+        base de développement sur votre portable et une base de production
+        sur un serveur. Le Pipeline ne change pas. L'environment change. Ces
+        valeurs vivent dans des fichiers de configuration, et ces fichiers
+        restent en dehors du dossier du project, donc ils ne sont pas
+        enregistrés avec le travail. Un mot de passe n'a pas sa place dans un
+        Pipeline ni dans les métadonnées. La vidéo sur la sécurité montre
+        comment un coffre peut remplir cette valeur. Ici, gardez le fichier
+        hors du project.
+      de-DE: |
+        Ein environment ist die andere Hälfte. Dasselbe project kann auf eine
+        Entwicklungsdatenbank auf deinem Laptop und auf eine
+        Produktionsdatenbank auf einem Server zeigen. Die Pipeline ändert
+        sich nicht. Das environment ändert sich. Diese Werte leben in
+        Konfigurationsdateien, und diese Dateien bleiben außerhalb des
+        project-Ordners, damit sie nicht mit der Arbeit eingecheckt werden.
+        Ein Passwort gehört nicht in eine Pipeline und nicht in die
+        Metadaten. Das Sicherheitsvideo zeigt, wie ein Tresor diesen Wert
+        füllen kann. Hier bleibt die Datei außerhalb des project.
+      it-IT: |
+        Un environment è l'altra metà. Lo stesso project può puntare a un
+        database di sviluppo sul tuo portatile e a un database di produzione
+        su un server. Il Pipeline non cambia. L'environment cambia. Quei
+        valori stanno in file di configurazione, e quei file restano fuori
+        dalla cartella del project, così non vengono consegnati insieme al
+        lavoro. Una password non appartiene a un Pipeline né ai metadati. Il
+        video sulla sicurezza mostra come un caveau può riempire quel valore.
+        Qui, tieni il file fuori dal project.
+
+  - id: create-environment
+    title: Create an environment
+    visual: clips/create-environment.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Click the cube next to the project name and
+      choose Add environment. On General, set a name, purpose Development,
+      and the project you have open. On Configuration files, add a JSON
+      file that is not inside the project folder. Put one variable in it,
+      DB_HOSTNAME set to db.example.com. Do not type a password. If you add
+      a second file, leave both visible in the list. Click OK.
+    narration:
+      en: |
+        Click the cube next to the project name and choose Add environment.
+        On General, give it a name and a purpose. Development is one of the
+        purposes Hop already lists. Point it at the project you have open.
+        On Configuration files, add a file that is not inside the project
+        folder. Put one variable in it, a host name, not a password. You
+        can list more than one file. Hop reads them from top to bottom.
+        When the same variable is in two files, the later file wins. Click
+        OK. Hop switches to the new environment.
+      zh-CN: |
+        点击 project 名称旁边的立方体，选择 Add environment。在 General 上给它
+        一个名称和一个用途。Development 是 Hop 已经列出的用途之一。把它指向你
+        打开的 project。在 Configuration files 上，添加一个不在 project 文件夹
+        里的文件。在里面放一个变量，是主机名，不是密码。你可以列出不止一个
+        文件。Hop 从上到下读取它们。同一个变量出现在两个文件里时，后面的文件
+        获胜。点击 OK。Hop 切换到新的 environment。
+      es-ES: |
+        Haz clic en el cubo junto al nombre del project y elige Add
+        environment. En General, dale un nombre y un propósito. Development
+        es uno de los propósitos que Hop ya lista. Apúntalo al project que
+        tienes abierto. En Configuration files, añade un archivo que no esté
+        dentro de la carpeta del project. Pon una variable, un nombre de
+        host, no una contraseña. Puedes listar más de un archivo. Hop los lee
+        de arriba abajo. Cuando la misma variable está en dos archivos, gana
+        el archivo posterior. Pulsa OK. Hop cambia al environment nuevo.
+      pt-PT: |
+        Clica no cubo ao lado do nome do project e escolhe Add environment.
+        Em General, dá-lhe um nome e uma finalidade. Development é uma das
+        finalidades que o Hop já lista. Aponta-o para o project que tens
+        aberto. Em Configuration files, adiciona um ficheiro que não esteja
+        dentro da pasta do project. Põe uma variável, um nome de anfitrião,
+        não uma palavra-passe. Podes listar mais do que um ficheiro. O Hop
+        lê-os de cima para baixo. Quando a mesma variável está em dois
+        ficheiros, ganha o ficheiro mais abaixo. Clica em OK. O Hop muda para
+        o environment novo.
+      fr-FR: |
+        Cliquez sur le cube à côté du nom du project et choisissez Add
+        environment. Dans General, donnez-lui un nom et un usage. Development
+        est l'un des usages que Hop propose déjà. Pointez-le vers le project
+        que vous avez ouvert. Dans Configuration files, ajoutez un fichier
+        qui n'est pas dans le dossier du project. Mettez-y une variable, un
+        nom d'hôte, pas un mot de passe. Vous pouvez lister plus d'un
+        fichier. Hop les lit de haut en bas. Quand la même variable est dans
+        deux fichiers, le fichier plus bas l'emporte. Cliquez sur OK. Hop
+        passe au nouvel environment.
+      de-DE: |
+        Klicke auf den Würfel neben dem project-Namen und wähle Add
+        environment. Gib ihm auf General einen Namen und einen Zweck.
+        Development ist einer der Zwecke, die Hop schon auflistet. Zeige auf
+        das project, das du offen hast. Füge auf Configuration files eine
+        Datei hinzu, die nicht im project-Ordner liegt. Lege eine Variable
+        hinein, einen Hostnamen, kein Passwort. Du kannst mehr als eine Datei
+        auflisten. Hop liest sie von oben nach unten. Steht dieselbe Variable
+        in zwei Dateien, gewinnt die spätere Datei. Klicke auf OK. Hop
+        wechselt zum neuen environment.
+      it-IT: |
+        Fai clic sul cubo accanto al nome del project e scegli Add
+        environment. In General dagli un nome e uno scopo. Development è uno
+        degli scopi che Hop elenca già. Punta al project che hai aperto. In
+        Configuration files aggiungi un file che non sta nella cartella del
+        project. Metti una variabile, un nome host, non una password. Puoi
+        elencare più di un file. Hop li legge dall'alto in basso. Quando la
+        stessa variabile è in due file, vince il file più in basso. Fai clic
+        su OK. Hop passa al nuovo environment.
+
+  - id: plugins-and-memory
+    title: Plugins and memory
+    visual: clips/plugins-and-memory.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Open the environment properties again. If a
+      Marketplace plugins tab is present, show it. Then show the System
+      resources tab, with Min JVM max memory and Min CPU cores visible.
+      Leave the fields empty. Do not enforce anything. Stop on System
+      resources.
+    narration:
+      en: |
+        Two more tabs depend on what is installed. Marketplace plugins
+        checks that this environment has the plugins its install spec
+        expects. You can leave that check off, warn, or refuse to enable
+        the environment. System resources is about the machine. You can
+        require a minimum amount of memory for the Java process, and a
+        minimum number of CPU cores. Leave the fields empty and Hop does
+        not check. A production environment checks by default. A
+        development environment does not.
+      zh-CN: |
+        还有两个选项卡取决于安装了什么。Marketplace plugins 检查这个
+        environment 是否具备它的安装说明所期望的插件。你可以把这项检查留成
+        关闭、警告，或者拒绝启用这个 environment。System resources 讲的是这台
+        机器。你可以要求 Java 进程至少有一定内存，以及至少多少个 CPU 核心。
+        字段留空，Hop 就不检查。production environment 默认会检查。development
+        environment 不会。
+      es-ES: |
+        Dos pestañas más dependen de lo que esté instalado. Marketplace
+        plugins comprueba que este environment tiene los plugins que espera
+        su especificación de instalación. Puedes dejar esa comprobación
+        apagada, en aviso, o negarte a habilitar el environment. System
+        resources trata de la máquina. Puedes exigir una cantidad mínima de
+        memoria para el proceso Java, y un número mínimo de núcleos de CPU.
+        Deja los campos vacíos y Hop no comprueba. Un environment de
+        producción comprueba de forma predeterminada. Un environment de
+        desarrollo no.
+      pt-PT: |
+        Mais dois separadores dependem do que está instalado. Marketplace
+        plugins verifica se este environment tem os plugins que a
+        especificação de instalação espera. Podes deixar essa verificação
+        desligada, em aviso, ou recusar ativar o environment. System
+        resources é sobre a máquina. Podes exigir uma quantidade mínima de
+        memória para o processo Java, e um número mínimo de núcleos de CPU.
+        Deixa os campos vazios e o Hop não verifica. Um environment de
+        produção verifica por predefinição. Um environment de desenvolvimento
+        não.
+      fr-FR: |
+        Deux onglets de plus dépendent de ce qui est installé. Marketplace
+        plugins vérifie que cet environment a les plugins que son descriptif
+        d'installation attend. Vous pouvez laisser cette vérification
+        éteinte, en avertissement, ou refuser d'activer l'environment. System
+        resources concerne la machine. Vous pouvez exiger une quantité
+        minimale de mémoire pour le processus Java, et un nombre minimal de
+        cœurs de processeur. Laissez les champs vides et Hop ne vérifie pas.
+        Un environment de production vérifie par défaut. Un environment de
+        développement ne vérifie pas.
+      de-DE: |
+        Zwei weitere Tabs hängen davon ab, was installiert ist. Marketplace
+        plugins prüft, ob dieses environment die Plugins hat, die seine
+        Installationsvorgabe erwartet. Du kannst diese Prüfung aus lassen,
+        warnen, oder dich weigern, das environment zu aktivieren. System
+        resources betrifft den Rechner. Du kannst einen Mindestspeicher für
+        den Java-Prozess verlangen und eine Mindestzahl an CPU-Kernen. Lass
+        die Felder leer, und Hop prüft nicht. Ein Produktions-environment
+        prüft standardmäßig. Ein Entwicklungs-environment nicht.
+      it-IT: |
+        Altre due schede dipendono da ciò che è installato. Marketplace
+        plugins controlla che questo environment abbia i plugin che la
+        specifica di installazione si aspetta. Puoi lasciare quel controllo
+        spento, in avviso, o rifiutare di abilitare l'environment. System
+        resources riguarda la macchina. Puoi richiedere una quantità minima
+        di memoria per il processo Java e un numero minimo di core CPU.
+        Lascia i campi vuoti e Hop non controlla. Un environment di
+        produzione controlla per impostazione predefinita. Un environment di
+        sviluppo no.
+
+  - id: switch-environment
+    title: Switch environment
+    visual: clips/switch-environment.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Click the cube again. The menu lists environments
+      for this project. Choose the environment you just created. Stop when
+      the status bar shows its name and a pipeline from the project is
+      still open. No secrets on screen.
+    narration:
+      en: |
+        Click the cube again. The menu lists the environments for this
+        project, and any environment that is not tied to a project. Choose
+        the one you just created. The status bar shows its name. Open files
+        stay open. The pipeline is the same file. Only the values from the
+        configuration files have changed. That is the split to remember.
+        The project is what you share. The environment is what stays on
+        each machine. The next video puts the project folder in Git.
+      zh-CN: |
+        再点击一次立方体。菜单列出这个 project 的 environment，以及任何没有绑到
+        project 的 environment。选择你刚创建的那个。状态栏显示它的名称。打开的
+        文件保持打开。Pipeline 还是同一个文件。变的只是配置文件里的值。要记住
+        的就是这个分开。project 是你分享的东西。environment 留在每一台机器上。
+        下一集把 project 文件夹放进 Git。
+      es-ES: |
+        Haz clic otra vez en el cubo. El menú lista los environment de este
+        project, y cualquier environment que no esté ligado a un project.
+        Elige el que acabas de crear. La barra de estado muestra su nombre.
+        Los archivos abiertos siguen abiertos. El Pipeline es el mismo
+        archivo. Solo han cambiado los valores de los archivos de
+        configuración. Esa es la separación que hay que recordar. El project
+        es lo que compartes. El environment es lo que se queda en cada
+        máquina. El siguiente vídeo pone la carpeta del project en Git.
+      pt-PT: |
+        Clica outra vez no cubo. O menu lista os environment deste project, e
+        qualquer environment que não esteja ligado a um project. Escolhe o
+        que acabaste de criar. A barra de estado mostra o nome. Os ficheiros
+        abertos continuam abertos. O Pipeline é o mesmo ficheiro. Só mudaram
+        os valores dos ficheiros de configuração. É essa a separação a
+        lembrar. O project é o que partilhas. O environment é o que fica em
+        cada máquina. O vídeo seguinte põe a pasta do project no Git.
+      fr-FR: |
+        Cliquez encore sur le cube. Le menu liste les environment de ce
+        project, et tout environment qui n'est pas lié à un project.
+        Choisissez celui que vous venez de créer. La barre d'état montre son
+        nom. Les fichiers ouverts restent ouverts. Le Pipeline est le même
+        fichier. Seules les valeurs des fichiers de configuration ont
+        changé. C'est la séparation à retenir. Le project est ce que vous
+        partagez. L'environment est ce qui reste sur chaque machine. La vidéo
+        suivante met le dossier du project dans Git.
+      de-DE: |
+        Klicke noch einmal auf den Würfel. Das Menü listet die environment
+        dieses project und jedes environment, das an kein project gebunden
+        ist. Wähle das, das du gerade erstellt hast. Die Statusleiste zeigt
+        seinen Namen. Offene Dateien bleiben offen. Die Pipeline ist dieselbe
+        Datei. Geändert haben sich nur die Werte aus den
+        Konfigurationsdateien. Diese Trennung sollst du behalten. Das project
+        ist, was du teilst. Das environment ist, was auf jedem Rechner
+        bleibt. Das nächste Video legt den project-Ordner in Git.
+      it-IT: |
+        Fai clic di nuovo sul cubo. Il menu elenca gli environment di questo
+        project, e ogni environment che non è legato a un project. Scegli
+        quello che hai appena creato. La barra di stato mostra il nome. I
+        file aperti restano aperti. Il Pipeline è lo stesso file. Sono
+        cambiati solo i valori dei file di configurazione. È questa la
+        separazione da ricordare. Il project è ciò che condividi.
+        L'environment è ciò che resta su ogni macchina. Il video successivo
+        mette la cartella del project in Git.
