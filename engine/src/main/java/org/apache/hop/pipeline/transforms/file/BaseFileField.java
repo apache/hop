@@ -143,11 +143,14 @@ public class BaseFileField implements ITextFileInputField {
         "d/M/yy",
       };
 
+  // These are DecimalFormat pattern strings, not locale-specific rendered values: the actual
+  // decimal/grouping separators are substituted at format time from DecimalFormatSymbols, so
+  // the patterns themselves are locale-invariant and safe to keep in a static initializer.
   protected static final String[] numberFormats =
       new String[] {
         "",
         "#",
-        Const.DEFAULT_NUMBER_FORMAT,
+        Const.getDefaultNumberFormat(),
         "0.00",
         "0000000000000",
         "###,###,###.#######",
