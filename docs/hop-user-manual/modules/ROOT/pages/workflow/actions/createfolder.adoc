@@ -42,9 +42,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The folder was created, including any missing parent folders, or it already exists and *Fail if folder exists* is not selected.
-|False|The folder already exists and *Fail if folder exists* is selected, or no folder name is set: the number of errors is 0. The folder could not be created, for example because of missing permissions: the number of errors is 1.
+|False|The folder already exists and *Fail if folder exists* is selected, a file exists with the folder name, or no folder name is set: the number of errors is 0. The folder could not be created, for example because of missing permissions: the number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-NOTE: When a file exists with the folder name, no folder is created. The action is true, or false when *Fail if folder exists* is selected.

@@ -52,7 +52,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |True|Every file and folder in the list exists. A folder without matching files adds nothing and is still true.
 |False|A file or folder in the list doesn't exist. The number of errors is the number of entries that don't exist. The files of the other entries are still added.
 |Result files|Each file in the list is added. For a folder, the files in it whose whole file name, without the folder, matches *Wildcard (RegExp)* are added, or all its files when the wildcard is empty, and with *Include Subfolders* also the matching files in its subfolders. With *Clear result filenames*, the result files of the previous action are removed first; otherwise they are kept.
-|Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows. A result row with only one field stops the workflow with an error, and no hop is followed.
+|Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows. A result row with only one field adds all the files of that folder, as with an empty wildcard.
 |===
 
 NOTE: An invalid regular expression in *Wildcard (RegExp)* adds nothing, and the action is still true.

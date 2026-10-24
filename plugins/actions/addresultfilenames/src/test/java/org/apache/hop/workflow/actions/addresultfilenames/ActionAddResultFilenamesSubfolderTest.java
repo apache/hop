@@ -28,7 +28,9 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -107,6 +109,23 @@ class ActionAddResultFilenamesSubfolderTest {
     action.setIncludeSubFolders(true);
     result = action.execute(new Result(), 0);
     assertEquals(2, result.getResultFiles().size(), "the nested file must be picked up");
+  }
+
+  @Test
+  void previousResultRowWithOnlyTheFolderAddsAllItsFiles() throws Exception {
+    Files.createFile(folder.resolve("report.csv"));
+    Files.createFile(folder.resolve("summary.txt"));
+    RowMetaAndData row = new RowMetaAndData();
+    row.addValue(new ValueMetaString("path"), folder.toString());
+    Result previousResult = new Result();
+    previousResult.setRows(List.of(row));
+    action.setArgFromPrevious(true);
+
+    Result result = action.execute(previousResult, 0);
+
+    assertTrue(result.isResult());
+    assertEquals(0, result.getNrErrors());
+    assertEquals(2, result.getResultFiles().size());
   }
 
   private Path createUnreadableFolder() throws IOException {

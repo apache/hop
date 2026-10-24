@@ -89,15 +89,16 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
 
         // Check if it's a folder
         //
-        if (isFailIfFolderExists()) {
+        if (!isFolder) {
+          // A file has the folder name, so no folder can be created.
+          //
+          result.setResult(false);
+          logError("File [" + realFolderName + "] exists, failing.");
+        } else if (isFailIfFolderExists()) {
           // Folder exists and fail flag is enabled.
           //
           result.setResult(false);
-          if (isFolder) {
-            logError(CONST_FOLDER + realFolderName + "] exists, failing.");
-          } else {
-            logError("File [" + realFolderName + "] exists, failing.");
-          }
+          logError(CONST_FOLDER + realFolderName + "] exists, failing.");
         } else {
           // Folder already exists: there is no reason to try and create it.
           //

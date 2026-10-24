@@ -99,7 +99,6 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
             ResultFile resultFile = it.next();
             FileObject file = resultFile.getFile();
             if (file != null
-                && file.exists()
                 && checkFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
                 && !checkFileWildcard(
                     file.getName().getBaseName(), resolve(wildcardExclude), false)) {

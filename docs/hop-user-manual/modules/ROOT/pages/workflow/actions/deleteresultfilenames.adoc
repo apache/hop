@@ -42,10 +42,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 [options="header", width="90%", cols="1,3"]
 |===
 |Result|Value
-|True|The result files were removed: all of them, or with *Limit action to*, those whose whole file name, without the folder, matches *Wildcard (RegExp)* and not *Exclude wildcard (RegExp)*. With *Limit action to* and an empty *Wildcard (RegExp)*, all of them are removed.
+|True|The result files were removed: all of them, or with *Limit action to*, those whose whole file name, without the folder, matches *Wildcard (RegExp)* and not *Exclude wildcard (RegExp)*, also when the file no longer exists on disk. With *Limit action to* and an empty *Wildcard (RegExp)*, all of them are removed.
 |False|A wildcard is not a valid regular expression. No result file is removed, and the number of errors is 0.
 |Result files|The result files of the previous action, without the removed ones. The files themselves are not deleted.
 |Result rows|Passed on unchanged.
 |===
-
-NOTE: With *Limit action to*, a result file that no longer exists on disk is not removed from the result files, even when its name matches.

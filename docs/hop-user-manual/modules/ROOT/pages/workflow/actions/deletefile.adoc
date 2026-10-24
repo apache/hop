@@ -43,9 +43,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The file was deleted, or it doesn't exist and *Fail if file doesn't exist* is not selected. An empty folder is deleted too.
-|False|The file doesn't exist and *Fail if file doesn't exist* is selected, or no file name is set: the number of errors is 0. The file could not be deleted, for example because of missing permissions: the number of errors is 1.
+|False|The file doesn't exist and *Fail if file doesn't exist* is selected, or no file name is set: the number of errors is 0. The file could not be deleted, for example because of missing permissions or because it is a folder that is not empty: the number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-NOTE: A folder that is not empty is not deleted, but the action is still true, with 1 error.

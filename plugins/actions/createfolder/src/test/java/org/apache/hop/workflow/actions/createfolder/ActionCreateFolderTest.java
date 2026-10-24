@@ -191,6 +191,19 @@ class ActionCreateFolderTest {
   }
 
   @Test
+  void executeFailsWhenAFileOccupiesTheFolderNameAndAnExistingFolderIsAllowed() throws Exception {
+    ActionCreateFolder action = new ActionCreateFolder();
+    Path file = Files.createFile(tempDir.resolve("not-a-folder"));
+    action.setFolderName(file.toString());
+    action.setFailIfFolderExists(false);
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(Files.isRegularFile(file));
+  }
+
+  @Test
   void executeReportsAnErrorWhenTheFolderCannotBeCreated() throws Exception {
     ActionCreateFolder action = new ActionCreateFolder();
     Path file = Files.createFile(tempDir.resolve("parent-is-a-file"));
