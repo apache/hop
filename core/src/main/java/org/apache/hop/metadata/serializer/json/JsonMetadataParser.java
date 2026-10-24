@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.api.UnknownProperty;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -93,6 +95,8 @@ public class JsonMetadataParser<T extends IHopMetadata> {
 
     // Load all the properties found in the JSON...
     //
+    List<Consumer<UnknownProperty>> unknownPropertyCallbacks =
+        ReflectionUtil.onUnknownDeserializationPropertyCallbacks(object);
     try {
       while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
         String key = jsonParser.getCurrentName();
@@ -101,6 +105,35 @@ public class JsonMetadataParser<T extends IHopMetadata> {
           // This is a recognized piece of data. We can load this...
           //
           loadProperty(object, jsonParser, key, field);
+        } else if (!unknownPropertyCallbacks.isEmpty()) {
+          // A key that does not map to any annotated field. Read its raw value and fire the
+          // callbacks so they can translate a legacy/renamed property into a current field.
+          //
+          // Advance to the value token. For an unknown structured value (object or array) we
+          // cannot meaningfully hand it to a scalar legacy callback, so consume the whole
+          // subtree with skipChildren() and pass null. Scalar values are passed through
+          // unchanged (a string that literally reads "null" stays "null"); only a real JSON
+          // null becomes a Java null.
+          //
+          JsonToken valueToken = jsonParser.nextToken();
+          String rawValue;
+          if (valueToken == JsonToken.START_OBJECT || valueToken == JsonToken.START_ARRAY) {
+            jsonParser.skipChildren();
+            rawValue = null;
+          } else {
+            rawValue = valueToken == JsonToken.VALUE_NULL ? null : jsonParser.getText();
+          }
+          UnknownProperty unknownProperty = new UnknownProperty(key, rawValue);
+          try {
+            unknownPropertyCallbacks.forEach(callback -> callback.accept(unknownProperty));
+          } catch (IllegalArgumentException e) {
+            throw new HopException(
+                "Error invoking @OnUnknownDeserializationProperty callback for key '"
+                    + key
+                    + "' on class "
+                    + objectClass.getName(),
+                e);
+          }
         }
       }
     } catch (Exception e) {

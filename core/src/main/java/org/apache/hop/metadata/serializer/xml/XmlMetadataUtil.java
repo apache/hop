@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -50,6 +51,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.apache.hop.metadata.api.IMissingPlugin;
 import org.apache.hop.metadata.api.IStringEncoder;
+import org.apache.hop.metadata.api.UnknownProperty;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -799,6 +801,7 @@ public class XmlMetadataUtil {
     if (parentProperty != null) {
       childKeysToIgnore.addAll(Set.of(parentProperty.childKeysToIgnore()));
     }
+    Set<String> knownKeys = new HashSet<>();
 
     if (object == null) {
       object = createNewObject(parentObject, node, clazz);
@@ -842,6 +845,7 @@ public class XmlMetadataUtil {
         if (StringUtils.isEmpty(tag)) {
           tag = field.getName();
         }
+        knownKeys.add(tag);
         Node tagNode;
         if (property.inline()) {
           tagNode = node;
@@ -851,6 +855,9 @@ public class XmlMetadataUtil {
 
         // Get the groupKey & groupNode
         String groupKey = property.groupKey();
+        if (StringUtils.isNotEmpty(groupKey)) {
+          knownKeys.add(groupKey);
+        }
         Node groupNode;
         if (StringUtils.isEmpty(groupKey)) {
           groupNode = node;
@@ -912,12 +919,16 @@ public class XmlMetadataUtil {
 
         // Get the groupKey & groupNode
         String groupKey = property.groupKey();
+        if (StringUtils.isNotEmpty(groupKey)) {
+          knownKeys.add(groupKey);
+        }
         Node groupNode;
         if (StringUtils.isEmpty(groupKey)) {
           groupNode = node;
         } else {
           groupNode = XmlHandler.getSubNode(node, groupKey);
         }
+        knownKeys.add(tag);
 
         // Find the single argument of the setter
         //
@@ -952,6 +963,36 @@ public class XmlMetadataUtil {
 
     } catch (Exception e) {
       throw new HopXmlException("Error calling setter method on class " + clazz.getName(), e);
+    }
+
+    // Fire the @OnUnknownDeserializationProperty callbacks for any child element that does not map
+    // to an annotated field or group. This allows translating legacy/renamed keys into current
+    // fields.
+    //
+    List<Consumer<UnknownProperty>> unknownPropertyCallbacks =
+        ReflectionUtil.onUnknownDeserializationPropertyCallbacks(object);
+    if (!unknownPropertyCallbacks.isEmpty()) {
+      for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+        if (child.getNodeType() != Node.ELEMENT_NODE) {
+          continue;
+        }
+        String childName = child.getNodeName();
+        if (knownKeys.contains(childName)) {
+          continue;
+        }
+        UnknownProperty unknownProperty =
+            new UnknownProperty(childName, XmlHandler.getNodeValue(child));
+        try {
+          unknownPropertyCallbacks.forEach(callback -> callback.accept(unknownProperty));
+        } catch (IllegalArgumentException e) {
+          throw new HopXmlException(
+              "Error invoking @OnUnknownDeserializationProperty callback for key '"
+                  + childName
+                  + "' on class "
+                  + clazz.getName(),
+              e);
+        }
+      }
     }
 
     if (object instanceof ILegacyXml legacyXml) {

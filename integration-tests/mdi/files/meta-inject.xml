@@ -38,7 +38,7 @@
     <target_file>${java.io.tmpdir}/json-input.hpl</target_file>
     <create_parent_folder>Y</create_parent_folder>
     <no_execution>Y</no_execution>
-    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <condition_stream_behavior>all-non-empty</condition_stream_behavior>
     <stream_source_transform>sourceTransform</stream_source_transform>
     <stream_target_transform>targetTransform</stream_target_transform>
     <mappings>

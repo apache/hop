@@ -56,7 +56,7 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "allow_empty_stream_on_execution",
+      "field_name": "condition_stream_behavior",
       "field_format": ""
     },
     {

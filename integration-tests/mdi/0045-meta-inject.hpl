@@ -140,9 +140,9 @@ limitations under the License.
         <target_transform_name>ETL metadata injection</target_transform_name>
       </mapping>
       <mapping>
-        <source_field>allow_empty_stream_on_execution</source_field>
+        <source_field>condition_stream_behavior</source_field>
         <source_transform>files/meta-inject.xml</source_transform>
-        <target_attribute_key>ALLOW_EMPTY_STREAM_ON_EXECUTION</target_attribute_key>
+        <target_attribute_key>CONDITION_STREAM_BEHAVIOR</target_attribute_key>
         <target_detail>N</target_detail>
         <target_transform_name>ETL metadata injection</target_transform_name>
       </mapping>
@@ -322,13 +322,13 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>allow_empty_stream_on_execution</name>
+        <name>condition_stream_behavior</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>allow_empty_stream_on_execution</xPath>
+        <xPath>condition_stream_behavior</xPath>
       </field>
       <field>
         <currency/>
