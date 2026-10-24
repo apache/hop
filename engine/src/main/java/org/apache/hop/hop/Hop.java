@@ -129,6 +129,11 @@ public class Hop {
       IHopCommand subCommand = (IHopCommand) registry.loadClass(plugin);
       CommandLine subCmd = new CommandLine(subCommand);
       hop.cmd.addSubcommand(plugin.getIds()[0], subCmd);
+      for (String alias : subCmd.getCommandSpec().aliases()) {
+        if (!hop.cmd.getSubcommands().containsKey(alias)) {
+          hop.cmd.addSubcommand(alias, subCmd);
+        }
+      }
 
       subCommand.initialize(subCmd, hop.variables, hop.metadataProvider);
     }
