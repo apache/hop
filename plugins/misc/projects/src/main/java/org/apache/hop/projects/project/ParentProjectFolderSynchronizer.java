@@ -165,13 +165,12 @@ public final class ParentProjectFolderSynchronizer {
       }
 
       copyTree(log, source, dest, "", mapping.isOverwrite(), exclusion, childConfigFile);
-    } catch (FileSystemException e) {
+    } catch (FileSystemException ignored) {
       logError(
           log,
-          "Parent folder '"
+          "Refused to copy parent folder '"
               + Const.NVL(mapping.getFolder(), "")
-              + "' is outside the project home (path traversal rejected)",
-          e);
+              + "' because it is outside the project home.");
     } finally {
       if (source != parentHome) {
         closeQuietly(source);
@@ -243,14 +242,16 @@ public final class ParentProjectFolderSynchronizer {
     try {
       return Pattern.compile(wildcard.trim());
     } catch (PatternSyntaxException e) {
+      // getMessage() is several lines and looks like a stack trace in the build log.
       logError(
           log,
-          "Invalid exclusion regular expression '"
+          "Ignored invalid exclusion regular expression '"
               + wildcard
               + "' for parent folder '"
               + Const.NVL(mapping.getFolder(), "")
-              + "': "
-              + e.getMessage());
+              + "' ("
+              + e.getDescription()
+              + "). That folder was not copied.");
       return null;
     }
   }

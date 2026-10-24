@@ -340,6 +340,7 @@ public class CloneFromVersionControlDialog extends Dialog {
       HopGui hopGui = HopGui.getInstance();
       ProjectsGuiPlugin.updateProjectToolItem(projectName);
       ProjectsGuiPlugin.enableHopGuiProject(projectName, project, null);
+      ProjectsGuiPlugin.offerEmbeddedEnvironments(shell, project, projectConfig, variables);
 
       returnValue = projectName;
       dispose();
