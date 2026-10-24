@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-regional-variables.csv",
+  "name": "golden-regional-variables",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "format_locale"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "timezone"
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}

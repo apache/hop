@@ -275,6 +275,7 @@ The default is 5000 (5 seconds).
 A value of 0 uses that default.
 Set a positive number of milliseconds to change the interval.
 A negative value, for example -1, disables the interval flush.
+|HOP_FORMAT_LOCALE||The FORMAT locale in effect for number, currency and date conversion (for example `en_US`). Set automatically when a lifecycle environment with a format locale is enabled. See xref:projects/projects-environments.adoc[Projects and Environments].
 |HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|N|Set this variable to N to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
 Changing it to true will clear it when export pipeline / workflow.
 |HOP_GRAPH_LOGGING_CONNECTION||Set this variable to the name of a Neo4j connection or a graph database connection of a Cypher database to enable execution logging to that database.
@@ -321,6 +322,7 @@ Changing it to true will remove first and last enclosure symbol from the resulti
 |HOP_SYSTEM_HOSTNAME||You can use this variable to speed up hostname lookup.
 Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.
 |HOP_TEXT_TAB_SIZE|2|Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. A line that already starts with a tab gains another tab. Set the value to 0 to insert a tab on every selected line. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. Resolved from the Hop configuration, then the environment variable, then a Java system property. See xref:hop-gui/shortcuts.adoc[Hop Shortcuts].
+|HOP_TIMEZONE||The default timezone in effect for date and timestamp conversion (IANA id, for example `Europe/Brussels`). Set automatically when a lifecycle environment with a timezone is enabled. See xref:projects/projects-environments.adoc[Projects and Environments].
 |HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT|0|The maximum number of transform performance snapshots to keep in memory.
 Set to 0 to keep all snapshots indefinitely (default)
 |HOP_USE_NATIVE_FILE_DIALOG|N|Set this value to Y if you want to use the system file open/save dialog when browsing files
