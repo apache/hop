@@ -62,6 +62,9 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
 import org.apache.hop.core.row.IRowMeta;
@@ -1930,6 +1933,17 @@ public class PipelineMeta extends AbstractMeta
       //
       if (iTransform instanceof Missing missing) {
         addMissingPipeline(missing);
+      } else {
+        // The plugin registry also accepts another case or another id of the plugin, for example
+        // CsvInput for CSVInput in a pipeline imported from Kettle. Icons and checks on the plugin
+        // id use the main id.
+        //
+        IPlugin plugin =
+            PluginRegistry.getInstance()
+                .getPlugin(TransformPluginType.class, transformMeta.getTransformPluginId());
+        if (plugin != null) {
+          transformMeta.setTransformPluginId(plugin.getIds()[0]);
+        }
       }
     }
     dropReferencesToTransformsNotInTheFile();
