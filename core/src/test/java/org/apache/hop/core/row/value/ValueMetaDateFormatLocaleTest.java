@@ -84,6 +84,20 @@ class ValueMetaDateFormatLocaleTest {
     assertEquals("gennaio 2025", valueMeta.getDateFormat().format(DATE));
   }
 
+  /**
+   * A newly constructed field must pick FORMAT as its date locale. Using DISPLAY (the interface
+   * language) here would format month names in English while numbers followed Italian separators.
+   */
+  @Test
+  void constructorDateLocaleFollowsTheRegionalSettingsNotTheLanguage() {
+    languageAndRegionalSettings(Locale.US, Locale.ITALY);
+
+    ValueMetaDate valueMeta = new ValueMetaDate("d");
+    valueMeta.setConversionMask(MASK);
+
+    assertEquals("gennaio 2025", valueMeta.getDateFormat().format(DATE));
+  }
+
   @Test
   void timestampExplicitDateLocaleIsHonouredEvenWhenItEqualsTheInterfaceLanguage() {
     languageAndRegionalSettings(Locale.ITALY, Locale.US);
@@ -102,6 +116,16 @@ class ValueMetaDateFormatLocaleTest {
     ValueMetaTimestamp valueMeta = new ValueMetaTimestamp("t");
     valueMeta.setConversionMask(MASK);
     valueMeta.setDateFormatLocale(null);
+
+    assertEquals("gennaio 2025", valueMeta.getDateFormat().format(DATE));
+  }
+
+  @Test
+  void timestampConstructorDateLocaleFollowsTheRegionalSettingsNotTheLanguage() {
+    languageAndRegionalSettings(Locale.US, Locale.ITALY);
+
+    ValueMetaTimestamp valueMeta = new ValueMetaTimestamp("t");
+    valueMeta.setConversionMask(MASK);
 
     assertEquals("gennaio 2025", valueMeta.getDateFormat().format(DATE));
   }
