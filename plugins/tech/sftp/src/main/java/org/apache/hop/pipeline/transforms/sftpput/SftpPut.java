@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.sftpput;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.NameScope;
@@ -36,6 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.sftpput.SftpPutMeta.AfterSftpPut;
 import org.apache.hop.vfs.sftp.SftpConnections;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.IRootPrefixFileName;
 
 /** Uploads files or field content to the server of a named SFTP connection. */
 public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
@@ -110,9 +112,9 @@ public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
         if (isDebug()) {
           logDebug(
               BaseMessages.getString(
-                  PKG, "SftpPut.Log.RowSentToErrorStream", getLinesRead(), e.getMessage()));
+                  PKG, "SftpPut.Log.RowSentToErrorStream", getLinesRead(), errorDescription(e)));
         }
-        putError(data.inputRowMeta, row, 1, e.toString(), null, "SFTPPUT001");
+        putError(data.inputRowMeta, row, 1, errorDescription(e), null, "SFTPPUT001");
       } else {
         logError(BaseMessages.getString(PKG, "SftpPut.Log.ErrorInTransform"), e);
         setErrors(1);
@@ -243,9 +245,11 @@ public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
 
       long startTime = System.currentTimeMillis();
       long bytes;
-      try (FileObject targetFile = HopVfs.getFileObject(targetUri, this);
-          OutputStream outputStream = HopVfs.getOutputStream(targetFile, false)) {
-        bytes = inputStream.transferTo(outputStream);
+      try (FileObject targetFile = HopVfs.getFileObject(targetUri, this)) {
+        checkTargetIsAFile(targetFile, targetUri);
+        try (OutputStream outputStream = HopVfs.getOutputStream(targetFile, false)) {
+          bytes = inputStream.transferTo(outputStream);
+        }
       }
       data.uploadedFiles++;
       data.uploadedBytes += bytes;
@@ -265,6 +269,42 @@ public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
       throw new HopException(
           BaseMessages.getString(PKG, "SftpPut.Error.UnableToUpload", targetUri), e);
     }
+  }
+
+  /**
+   * Something that is there but isn't a file can't be overwritten. Left to VFS, that ends in a bare
+   * "Could not create file" - and on the way there in an attempt to delete it. A z/OS server lists
+   * a data set which other data sets are named below as a folder, so this does happen.
+   */
+  static void checkTargetIsAFile(FileObject targetFile, String targetUri) throws HopException {
+    try {
+      if (targetFile.exists() && !targetFile.isFile()) {
+        String message = BaseMessages.getString(PKG, "SftpPut.Error.TargetIsNotAFile", targetUri);
+        if (targetFile.getName() instanceof IRootPrefixFileName prefixed
+            && !prefixed.getRootPrefix().isEmpty()) {
+          message += " " + BaseMessages.getString(PKG, "SftpPut.Error.TargetIsNotAFile.DataSet");
+        }
+        throw new HopException(message);
+      }
+    } catch (FileSystemException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "SftpPut.Error.UnableToUpload", targetUri), e);
+    }
+  }
+
+  /**
+   * What goes to the error stream: the message, and the deepest cause, which is usually the answer
+   * of the server.
+   */
+  static String errorDescription(Throwable e) {
+    Throwable rootCause = ExceptionUtils.getRootCause(e);
+    if (rootCause == null || rootCause == e) {
+      return e.toString();
+    }
+    return e.toString()
+        + Const.CR
+        + BaseMessages.getString(
+            PKG, "SftpPut.Error.RootCause", ExceptionUtils.getRootCauseMessage(e));
   }
 
   private void createRemoteFolder(String remoteFolder) throws HopException {
