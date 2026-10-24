@@ -139,6 +139,8 @@ image:hop-gui/environment/environment-dialog-general-tab.png[Environment Propert
 |Canvas text|Large text drawn in the top-right of pipeline and workflow canvases when this environment is active|Yes|No|
 |===
 
+image:hop-gui/environment/environment-dialog-regional-tab.png[Environment Properties Regional tab,width="90%"]
+
 .Environment Properties -- Regional
 [id="tab-env-props-regional",cols="20%,45%,5%,5%,25%",options="header"]
 |===
