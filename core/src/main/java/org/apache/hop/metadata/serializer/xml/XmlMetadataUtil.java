@@ -1561,9 +1561,14 @@ public class XmlMetadataUtil {
 
     Node keyNode = XmlHandler.getSubNode(itemNode, keyWrapper);
     if (keyNode != null && keyClass.equals(String.class)) {
+      // <value/> has no text, so getNodeValue returns null. Keep that null: #8662 reads an empty
+      // attribute back as null, and serializeMapValueToXml already writes a null without an NPE.
       return XmlHandler.getNodeValue(keyNode);
     }
     if (keyNode == null) {
+      if (keyClass.equals(String.class)) {
+        return "";
+      }
       keyNode = itemNode;
     }
     try {

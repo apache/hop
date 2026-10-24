@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g>
+        <!-- Shield background -->
+        <path fill="#0E3A5A" d="M8,0.5 L14.5,3 L14.5,8 C14.5,12 11.5,15 8,15.8 C4.5,15 1.5,12 1.5,8 L1.5,3 Z"/>
+        <!-- Inner shield -->
+        <path fill="#2C88D9" d="M8,1.8 L13.2,3.8 L13.2,8 C13.2,11.3 10.7,13.8 8,14.5 C5.3,13.8 2.8,11.3 2.8,8 L2.8,3.8 Z"/>
+        <!-- Gate / Barrier bars -->
+        <rect x="5" y="5" width="6" height="1.5" rx="0.5" fill="#FFFFFF"/>
+        <rect x="5" y="7.5" width="6" height="1.5" rx="0.5" fill="#FFFFFF"/>
+        <rect x="5" y="10" width="6" height="1.5" rx="0.5" fill="#FFFFFF"/>
+        <line x1="6.5" y1="4.5" x2="6.5" y2="12" stroke="#FFFFFF" stroke-width="1"/>
+        <line x1="9.5" y1="4.5" x2="9.5" y2="12" stroke="#FFFFFF" stroke-width="1"/>
+    </g>
+</svg>

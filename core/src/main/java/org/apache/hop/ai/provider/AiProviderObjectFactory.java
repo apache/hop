@@ -39,11 +39,31 @@ public class AiProviderObjectFactory implements IHopMetadataObjectFactory {
   @Override
   public Object createObject(String id, Object parentObject)
       throws HopException, HopMissingPluginsException {
-    if (Utils.isEmpty(id) || MISSING_ID.equals(id)) {
+    if (Utils.isEmpty(id) || MISSING_ID.equalsIgnoreCase(id)) {
       return new MissingTypeAiProvider();
     }
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.findPluginWithId(AiProviderPluginType.class, id);
+    if (plugin == null) {
+      plugin = registry.findPluginWithName(AiProviderPluginType.class, id);
+    }
+    if (plugin == null) {
+      for (IPlugin p : registry.getPlugins(AiProviderPluginType.class)) {
+        for (String pId : p.getIds()) {
+          if (id.equalsIgnoreCase(pId)) {
+            plugin = p;
+            break;
+          }
+        }
+        if (plugin != null) {
+          break;
+        }
+        if (p.getName() != null && id.equalsIgnoreCase(p.getName())) {
+          plugin = p;
+          break;
+        }
+      }
+    }
     if (plugin == null) {
       HopMissingPluginsException missing =
           new HopMissingPluginsException(

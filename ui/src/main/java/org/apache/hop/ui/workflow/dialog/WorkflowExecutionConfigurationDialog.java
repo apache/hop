@@ -223,9 +223,11 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     Map<String, String> workflowUsageMap = null;
     String lastGlobalRunConfig =
         AuditManagerGuiUtil.getLastUsedValue(AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS);
-    String selectedRunConfig = null;
     if (StringUtils.isNotEmpty(abstractMeta.getName())) {
       workflowUsageMap = AuditManagerGuiUtil.getUsageMap(MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE);
+    }
+    String selectedRunConfig = configuration.getRunConfiguration();
+    if (StringUtils.isEmpty(selectedRunConfig) && workflowUsageMap != null) {
       selectedRunConfig = workflowUsageMap.get(abstractMeta.getName());
     }
 

@@ -67,6 +67,45 @@ class AiProviderPluginTypeTest {
   }
 
   @Test
+  void objectFactoryHandlesNullOrEmptyId() throws Exception {
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    for (String id : new String[] {null, "null", "NULL", ""}) {
+      Object object = factory.createObject(id, null);
+      assertTrue(object instanceof IAiProvider);
+      assertNull(((IAiProvider) object).getPluginId());
+    }
+  }
+
+  @Test
+  void objectFactorySetsPluginIdOnCreatedObject() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginType(AiProviderPluginType.class);
+    registry.registerPluginClass(
+        FakeProvider.class.getName(), AiProviderPluginType.class, AiProviderPlugin.class);
+
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    FakeProvider provider = (FakeProvider) factory.createObject("fake-openai", null);
+    assertNotNull(provider);
+    assertEquals("fake-openai", provider.getPluginId());
+    assertEquals("Fake OpenAI", provider.getPluginName());
+  }
+
+  @Test
+  void objectFactoryResolvesPluginIdFallback() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginType(AiProviderPluginType.class);
+    registry.registerPluginClass(
+        FakeProvider.class.getName(), AiProviderPluginType.class, AiProviderPlugin.class);
+
+    AiProviderObjectFactory factory = new AiProviderObjectFactory();
+    FakeProvider provider = new FakeProvider();
+    assertNull(provider.getPluginId());
+    assertEquals("fake-openai", factory.getObjectId(provider));
+    assertEquals("fake-openai", provider.getPluginId());
+    assertEquals("Fake OpenAI", provider.getPluginName());
+  }
+
+  @Test
   void objectFactoryRejectsNonProvider() {
     AiProviderObjectFactory factory = new AiProviderObjectFactory();
     HopException e = assertThrows(HopException.class, () -> factory.getObjectId("not-a-provider"));
@@ -128,5 +167,9 @@ class AiProviderPluginTypeTest {
       image = "fake.svg",
       documentationUrl = "/docs/fake.html",
       classLoaderGroup = "hop-ai")
-  static class FakeProvider extends BaseAiProvider {}
+  public static class FakeProvider extends BaseAiProvider {
+    public FakeProvider() {
+      super();
+    }
+  }
 }
