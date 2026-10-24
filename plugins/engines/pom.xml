@@ -31,6 +31,7 @@
 
     <modules>
         <module>beam</module>
+        <module>replay</module>
         <module>single-threaded</module>
         <module>spark</module>
     </modules>

@@ -246,7 +246,12 @@ public class JsonMetadataParser<T extends IHopMetadata> {
         IHopMetadataObjectFactory objectFactory =
             hopMetadataObject.objectFactory().getDeclaredConstructor().newInstance();
         fieldValue = objectFactory.createObject(fieldValueId, null); // No parent object
-        loadProperties(fieldValue, jsonParser);
+        if (fieldValue != null) {
+          loadProperties(fieldValue, jsonParser);
+        } else {
+          jsonParser.nextToken();
+          jsonParser.skipChildren();
+        }
         jsonParser.nextToken(); // skip }
       }
       return fieldValue;
@@ -384,6 +389,13 @@ public class JsonMetadataParser<T extends IHopMetadata> {
         IHopMetadataObjectFactory objectFactory =
             hopMetadataObject.objectFactory().getDeclaredConstructor().newInstance();
         String fieldValueId = objectFactory.getObjectId(fieldValue);
+        if (StringUtils.isEmpty(fieldValueId)) {
+          throw new HopException(
+              "Unable to determine object ID for POJO of class '"
+                  + fieldValue.getClass().getName()
+                  + "' using factory "
+                  + objectFactory.getClass().getName());
+        }
 
         // We need to store the object ID (plugin ID, class name, ...)
         // To prevent re-ordering by JSON formatters (or humans) we use the ID as the key for a new
