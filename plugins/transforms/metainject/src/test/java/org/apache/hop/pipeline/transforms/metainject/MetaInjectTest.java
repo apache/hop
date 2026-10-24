@@ -196,11 +196,11 @@ class MetaInjectTest {
   }
 
   /**
-   * Backward compatibility (PR #9078 review): a metadata-injection mapping written before {@link
-   * ConditionStreamBehavior} existed targets the legacy {@code ALLOW_EMPTY_STREAM_ON_EXECUTION}
-   * injection key and feeds it a boolean-ish value. Such a mapping must still work: the key is
-   * remapped to {@code CONDITION_STREAM_BEHAVIOR} and the boolean is translated to the equivalent
-   * enum code (as seen by {@link ConditionStreamBehavior#fromLegacyBoolean}).
+   * A metadata-injection mapping written before {@link ConditionStreamBehavior} existed targets the
+   * legacy {@code ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key and feeds it a boolean-ish value.
+   * Such a mapping must still work: the key is remapped to {@code CONDITION_STREAM_BEHAVIOR} and
+   * the boolean is translated to the equivalent enum code (as seen by {@link
+   * ConditionStreamBehavior#fromLegacyBoolean}).
    *
    * <p>This verifies the constant-injection path (no source transform).
    */
@@ -209,6 +209,7 @@ class MetaInjectTest {
     // legacy boolean value -> expected enum code under CONDITION_STREAM_BEHAVIOR
     "Y, at-least-one-non-empty",
     "true, at-least-one-non-empty",
+    "TRUE, at-least-one-non-empty",
     "yes, at-least-one-non-empty",
     "N, all-non-empty",
     "false, all-non-empty"
@@ -322,8 +323,8 @@ class MetaInjectTest {
   }
 
   /**
-   * Full runtime data-flow backward-compatibility check (PR #9078 review): a running pipeline whose
-   * MetaInject source transforms produce rows, and whose mapping targets the legacy {@code
+   * Full runtime data-flow backward-compatibility check: a running pipeline whose MetaInject source
+   * transforms produce rows, and whose mapping targets the legacy {@code
    * ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key, must still inject the value into the template's
    * MetaInjectMeta. The flowing source rows sit in {@code data.rowMap} and are picked up by {@code
    * collectDataForOneMapping} exactly like {@code injectMetadataIntoTemplateTransform} does; the
@@ -381,11 +382,10 @@ class MetaInjectTest {
   }
 
   /**
-   * PR #9078 review (round 2): a saved mapping that still targets the legacy {@code
-   * ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key must NOT be reported as missing by {@link
-   * MetaInject#getUnavailableTargetKeys}. That method consults the {@code BeanInjectionInfo}
-   * property map for {@code CONDITION_STREAM_BEHAVIOR}; the legacy key is resolved to it, so the
-   * dialog neither hides the mapping nor offers to delete it.
+   * A saved mapping that still targets the legacy {@code ALLOW_EMPTY_STREAM_ON_EXECUTION} injection
+   * key must NOT be reported as missing by {@link MetaInject#getUnavailableTargetKeys}. That method
+   * consults the {@code BeanInjectionInfo} property map for {@code CONDITION_STREAM_BEHAVIOR}; the
+   * legacy key is resolved to it, so the dialog neither hides the mapping nor offers to delete it.
    */
   @Test
   void getUnavailableTargetKeys_legacyKeyNotReportedMissing() {
@@ -411,8 +411,8 @@ class MetaInjectTest {
   }
 
   /**
-   * PR #9078 review (round 2): older pipelines may store a scalar key with {@code target_detail=Y}.
-   * {@link MetaInject#collectDataForOneMapping} must resolve the legacy {@code
+   * Older pipelines may store a scalar key with {@code target_detail=Y}. {@link
+   * MetaInject#collectDataForOneMapping} must resolve the legacy {@code
    * ALLOW_EMPTY_STREAM_ON_EXECUTION} key before {@code isTopLevelInjectionKey}, otherwise the
    * target_detail branch logs {@code TargetKeyNotFound} and leaves the template on {@code
    * ALL_NON_EMPTY}. With the fix the value is collected under {@code CONDITION_STREAM_BEHAVIOR}.
@@ -519,6 +519,38 @@ class MetaInjectTest {
     // The unknown key is skipped: nothing is collected for injection.
     assertTrue(injectionKeyData.isEmpty());
     assertTrue(injectionGroupData.isEmpty());
+  }
+
+  /**
+   * A mapping saved before the {@code ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key was renamed
+   * still stores the legacy key. When {@code enterMapping} pre-selects it in the target rows it
+   * must normalize that key (via {@link MetaInjectDialog#resolveTargetAttributeKey}) to {@code
+   * CONDITION_STREAM_BEHAVIOR}, the key {@code BeanInjectionInfo} reports for the current target
+   * row; otherwise {@code targetIndex == -1} and confirming the dialog drops a mapping execution
+   * would have honored.
+   */
+  @Test
+  void resolveTargetAttributeKey_legacyKeyNormalizedToCurrentRowKey() {
+    MetaInjectMapping legacy = new MetaInjectMapping();
+    legacy.setTargetAttributeKey("ALLOW_EMPTY_STREAM_ON_EXECUTION");
+
+    // The normalized key is the one the target rows are built from, so the lookup matches.
+    assertEquals("CONDITION_STREAM_BEHAVIOR", MetaInjectDialog.resolveTargetAttributeKey(legacy));
+  }
+
+  /**
+   * Same normalization check but the other direction: a mapping that already stores the current
+   * key, or any ordinary target key, is left untouched so non-legacy keys still resolve exactly.
+   */
+  @Test
+  void resolveTargetAttributeKey_currentOrOtherKeysUnchanged() {
+    MetaInjectMapping current = new MetaInjectMapping();
+    current.setTargetAttributeKey("CONDITION_STREAM_BEHAVIOR");
+    assertEquals("CONDITION_STREAM_BEHAVIOR", MetaInjectDialog.resolveTargetAttributeKey(current));
+
+    MetaInjectMapping ordinary = new MetaInjectMapping();
+    ordinary.setTargetAttributeKey("SOME_KEY");
+    assertEquals("SOME_KEY", MetaInjectDialog.resolveTargetAttributeKey(ordinary));
   }
 
   /**

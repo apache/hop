@@ -107,15 +107,16 @@ public enum ConditionStreamBehavior implements IEnumHasCodeAndDescription {
     if (value == null) {
       return false;
     }
-    String lower = value.toLowerCase();
-    return "y".equals(lower)
-        || "n".equals(lower)
-        || "yes".equals(lower)
-        || "no".equals(lower)
-        || "true".equals(lower)
-        || "false".equals(lower)
-        || "t".equals(lower)
-        || "f".equals(lower);
+    // Case-insensitive comparison is locale-safe (matching Const.toBoolean), so an uppercase
+    // "TRUE" still matches even when the JVM default locale (e.g. Turkish) mangles lowercasing.
+    return "y".equalsIgnoreCase(value)
+        || "n".equalsIgnoreCase(value)
+        || "yes".equalsIgnoreCase(value)
+        || "no".equalsIgnoreCase(value)
+        || "true".equalsIgnoreCase(value)
+        || "false".equalsIgnoreCase(value)
+        || "t".equalsIgnoreCase(value)
+        || "f".equalsIgnoreCase(value);
   }
 
   public static String[] getDescriptions() {

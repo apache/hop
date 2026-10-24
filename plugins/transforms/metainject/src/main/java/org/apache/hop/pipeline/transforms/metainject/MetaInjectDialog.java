@@ -530,7 +530,8 @@ public class MetaInjectDialog extends BaseTransformDialog {
     fdlConditionStreamBehavior.top = new FormAttachment(wNoExecution, 15);
     wlConditionStreamBehavior.setLayoutData(fdlConditionStreamBehavior);
 
-    wConditionStreamBehavior = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConditionStreamBehavior =
+        new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
     PropsUi.setLook(wConditionStreamBehavior);
     FormData fdConditionStreamBehavior = new FormData();
     fdConditionStreamBehavior.right = new FormAttachment(100, 0);
@@ -1288,6 +1289,21 @@ public class MetaInjectDialog extends BaseTransformDialog {
     }
   }
 
+  /**
+   * Returns the normalized target attribute key under which {@code enterMapping} must look up a
+   * saved mapping in the target rows. A mapping written before the {@code
+   * ALLOW_EMPTY_STREAM_ON_EXECUTION} injection key was renamed to {@code CONDITION_STREAM_BEHAVIOR}
+   * still carries the legacy key; normalizing it (via {@link MetaInject#resolveInjectionKey}) lets
+   * the target-row match succeed, so the mapping is pre-selected in the mapping dialog and survives
+   * a confirm.
+   *
+   * @param mapping the saved mapping being matched
+   * @return the injection key to compare against the target rows
+   */
+  static String resolveTargetAttributeKey(MetaInjectMapping mapping) {
+    return MetaInject.resolveInjectionKey(mapping);
+  }
+
   private record MappingTarget(TransformMeta transformMeta, String attributeKey, boolean detail) {
     @Override
     public boolean equals(Object o) {
@@ -1406,7 +1422,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
       if (targetTransformMeta != null) {
         MappingTarget mapingTarget =
             new MappingTarget(
-                targetTransformMeta, mapping.getTargetAttributeKey(), mapping.isTargetDetail());
+                targetTransformMeta, resolveTargetAttributeKey(mapping), mapping.isTargetDetail());
         targetIndex = mappingTargets.indexOf(mapingTarget);
       }
       if (sourceIndex >= 0 && targetIndex >= 0) {

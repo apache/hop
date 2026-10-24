@@ -667,9 +667,9 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
    *
    * <p>Resolving up front keeps every key comparison consistent, not just the injection itself:
    * {@code collectDataForOneMapping} (group and top-level lookups), {@code
-   * getUnavailableTargetKeys} (whether a saved key still maps to a property) and the dialog tree
-   * matching all run against the normalized key, so a legacy mapping is neither reported missing
-   * nor offered for removal.
+   * getUnavailableTargetKeys} (whether a saved key still maps to a property), the dialog tree
+   * matching, and the enter-mapping target-row lookup all run against the normalized key, so a
+   * legacy mapping is neither reported missing, offered for removal, nor dropped on confirm.
    *
    * @param mapping the mapping being injected
    * @return the normalized injection (target attribute) key
