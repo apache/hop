@@ -1504,9 +1504,13 @@ public class GitGuiPlugin
         InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       PipelineMeta pipelineMetaOld =
-          new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
+          xmlStreamOld == null
+              ? new PipelineMeta()
+              : new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
       PipelineMeta pipelineMetaNew =
-          new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
+          xmlStreamNew == null
+              ? new PipelineMeta()
+              : new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
       Map<String, String> renamed =
@@ -1566,9 +1570,13 @@ public class GitGuiPlugin
         InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       WorkflowMeta workflowMetaOld =
-          new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
+          xmlStreamOld == null
+              ? new WorkflowMeta()
+              : new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
       WorkflowMeta workflowMetaNew =
-          new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
+          xmlStreamNew == null
+              ? new WorkflowMeta()
+              : new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
       Map<String, String> renamed = HopDiff.detectActionRenames(workflowMetaOld, workflowMetaNew);
