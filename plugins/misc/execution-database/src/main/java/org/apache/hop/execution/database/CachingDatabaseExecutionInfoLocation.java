@@ -340,6 +340,35 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     }
   }
 
+  /**
+   * End the current session. A failed transaction is rolled back. Commit is not attempted: Postgres
+   * rejects it once a statement in the transaction has failed.
+   */
+  private void resetSession() {
+    synchronized (dbLock) {
+      Database current = database;
+      if (current != null) {
+        try {
+          Connection connection = current.getConnection();
+          if (connection != null && !connection.isClosed() && !connection.getAutoCommit()) {
+            connection.rollback();
+          }
+        } catch (Exception ignored) {
+          // The session is already unusable. Disconnect drops it.
+        }
+      }
+      discardDatabase();
+    }
+  }
+
+  private String safeTableName() {
+    try {
+      return getQuotedSchemaTable();
+    } catch (Exception e) {
+      return Const.NVL(actualTableName, DEFAULT_TABLE_NAME);
+    }
+  }
+
   /** Drop the current connection. A grouped connection is left for the workflow to close. */
   private void discardDatabase() {
     Database current = database;
@@ -408,6 +437,36 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     return false;
   }
 
+  /**
+   * A session that should be thrown away and replaced. {@code 25P02} is an aborted transaction.
+   * {@code 42P01} is {@code relation does not exist}, which a new connection does not repeat when
+   * {@code public.hop_executions} is still there and only this session's search path or prepared
+   * statement is stale.
+   */
+  static boolean isStaleSessionFailure(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof SQLException sqlException) {
+        String state = sqlException.getSQLState();
+        if ("25P02".equals(state) || "42P01".equals(state) || "3F000".equals(state)) {
+          return true;
+        }
+      }
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase();
+        if (lower.contains("relation") && lower.contains("does not exist")) {
+          return true;
+        }
+        if (lower.contains("current transaction is aborted")) {
+          return true;
+        }
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
   @FunctionalInterface
   private interface DatabaseWork<T> {
     T run() throws Exception;
@@ -425,10 +484,19 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
         return work.run();
       }
     } catch (Exception e) {
-      if (allowRetry && !databaseClosed && isClosedConnectionFailure(e)) {
-        synchronized (dbLock) {
-          discardDatabase();
+      if (allowRetry
+          && !databaseClosed
+          && (isClosedConnectionFailure(e) || isStaleSessionFailure(e))) {
+        // A closed connection, an aborted transaction, or a session that no longer sees
+        // hop_executions (search path or a prepared statement left from a dropped table).
+        // Roll back, drop the session, and try the write once on a new connection.
+        if (isStaleSessionFailure(e)) {
+          LogChannel.GENERAL.logBasic(
+              "Execution information session cannot use table "
+                  + safeTableName()
+                  + ". Rolling back, disconnecting, and retrying once.");
         }
+        resetSession();
         return callWithDatabase(work, false);
       }
       if (e instanceof HopException hopException) {

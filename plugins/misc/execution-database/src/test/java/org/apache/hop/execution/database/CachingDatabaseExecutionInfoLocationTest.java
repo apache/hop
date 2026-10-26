@@ -428,6 +428,26 @@ class CachingDatabaseExecutionInfoLocationTest {
   }
 
   @Test
+  void recognizesStaleSessionFailures() {
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException("ERROR: relation \"hop_executions\" does not exist", "42P01")));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException(
+                "ERROR: current transaction is aborted, commands ignored until end of transaction block",
+                "25P02")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException("syntax error at or near \"FROM\"", "42601")));
+    SQLException nested = new SQLException("An error occurred executing SQL");
+    nested.initCause(new SQLException("ERROR: relation \"hop_executions\" does not exist"));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new HopException("wrapper", nested)));
+  }
+
+  @Test
   void recognizesClosedConnectionFailures() {
     assertTrue(
         CachingDatabaseExecutionInfoLocation.isClosedConnectionFailure(
