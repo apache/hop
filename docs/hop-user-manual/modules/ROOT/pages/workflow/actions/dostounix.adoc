@@ -35,11 +35,11 @@ When the format is unknown, this action also has a guess function and converts t
 |Option|Description
 |Action name|The name of the workflow action.
 |Settings a|
-* Include Subfolders: also process sub-folders
-* Copy previous results to args : use the list of result files from the previous workflow action (actions) in stead of the static file list below.
+* Include subfolders: also process subfolders
+* Copy previous results to args: take the file or folder, the wildcard and the conversion from the result rows of the previous action instead of from the list below. See <<Result>>.
 |Files / Folders a|
 You can specify the list of files or folders with wildcards in this grid.
-You can add a different source/destination on each line.
+Each line has its own conversion: Windows to Unix, Unix to Windows, or Guess, which converts a file to the other format. For a folder, the wildcard is a regular expression matched against the whole path of each file (see <<Result>>).
 |===
 
 After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.
@@ -57,14 +57,14 @@ After specifying a folder and wildcard (regular expression), use the `Add` butto
 [options="header"]
 |===
 |Option|Description
-|Success Condition a|This action will follow the success path if the selected condition is true.
+|Success condition a|This action will follow the success path if the selected condition is true.
 Current options are:
 
 * Success if all files are processed
 * Success if at least x files are processed
 * Success when number of error files lesser than
-|Nr Files|specifies the number of files that have to meet the selected condition from above
-|Add Filenames a|Adds the filenames that meet the selected condition to the workflow output stream.
+|Nr files|specifies the number of files that have to meet the selected condition from above
+|Add filenames a|Adds the files to the result files of the action.
 Conditions are:
 
 * Do not add filenames
@@ -72,3 +72,20 @@ Conditions are:
 * Add only processed filenames
 * Add only error filenames
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The *Success condition* is met: every file converted with *Success if all files are processed*, at least *Nr files* files converted with *Success if at least x files are processed*, or fewer files that could not be converted than *Nr files* with *Success when number of error files lesser than*. The number of errors is then 0, also when some files failed.
+|False|The success condition is not met. A file that cannot be rewritten, for example in a read-only folder, counts as an error file. A path that does not exist, or that is not set, counts as an error, which only makes the action false with *Success if all files are processed*. With *Success if all files are processed*, a path error stops the action, and the remaining entries are not processed; an error file does not stop it.
+|Result files|*Add all filenames* (the default) adds the converted files and the ones that could not be converted, *Add only processed filenames* only the converted ones, *Add only error filenames* only the failed ones, and *Do not add filenames* none. The result files of the previous action are kept.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the file or folder, the wildcard and the conversion (`guess`, `dostounix` or `unixtodos`) come from the first three fields of each result row, and the list in the dialog is not used, also when there are no result rows.
+|Lines written|The number of files converted.
+|Lines rejected|The number of files that could not be converted.
+|===
+
+NOTE: A result row with fewer than three fields stops the workflow with an error, and no hop is followed. The wildcard is matched against the whole path of each file (for example `file:///data/in/sales.txt`), not its name: `+.*\.txt+` or `+.*/sales\.txt+` match, `+sales\.txt+` matches nothing, and the action is still true.

@@ -29,15 +29,30 @@ The `Compare folders` action compares two folders to determine if the content is
 [options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 This name has to be unique in a single workflow.
-|Include Subfolders|Also compare the content of sub-folders.
-|Compare|Specify what to compare: All, Only files, Only folders, or Let me specify...
-|Wildcard|If you chose Let me specify in the previous option, you can specify the regular expression of files to compare.
-|Compare file size|Check this to compare file size, in opposed to just comparing folder names.
+|Include subfolders|Also compare the content of subfolders.
+|Compare|Specify what to compare: All, Only Files, Only Folders, or Let me specify...
+|Wildcard (RegExp)|If you chose Let me specify... in the previous option, you can specify the regular expression of files to compare.
+|Compare file size|Check this to also compare the size of files with the same name, not only their names.
 |Compare file content|Checks if files have the same content.
 Note: this may cause slower processing speeds.
 |File/Folder name 1|This is the first file or folder to compare
 |File/Folder name 2|This is the second file or folder to compare
 |===
 
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|For two files: their contents are identical. For two folders: both hold the same number of entries of the kind set in *Compare*, every name found in the first folder is also in the second, with the same type, and with *Compare file size* or *Compare file content* the files have the same size or content. Without these two options, files with the same name count as equal.
+|False|The folders differ, or one path is a file and the other a folder: the number of errors is 0. A file or folder does not exist: the number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: Entries are matched by their name only, not by their subfolder. With *Include subfolders*, a folder with `s1/x.txt` and `s2/x.txt` and a folder with `s1/x.txt` and `s2/y.txt` are reported as identical.

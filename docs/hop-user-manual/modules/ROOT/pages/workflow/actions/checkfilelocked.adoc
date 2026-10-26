@@ -40,3 +40,18 @@ On certain operating systems (MS Windows systems in particular) this operation w
 |Wildcard|The wildcards are Java Regular expressions.
 For instance .*\.txt would check any file with a .txt extension.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|No file is locked. A file or folder that does not exist is not checked and does not make the action false. With nothing to check, the action is true too.
+|False|A file is locked: it cannot be renamed to its own name. The action stops at the first locked file, and the number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows.
+|===
+
+NOTE: On Linux and macOS a file is reported as locked when its folder is read-only, because it cannot be renamed. A result row with only one field is logged as an error and nothing is checked, and the action is still true.

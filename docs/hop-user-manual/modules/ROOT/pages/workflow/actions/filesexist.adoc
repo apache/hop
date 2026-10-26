@@ -39,3 +39,16 @@ You can point to individual files, or to folders and use regular-expression wild
 * *Exclude wildcard (RegExp)*: optional regular expression. Files matching this pattern are ignored when evaluating a folder.
 * *Include subfolders*: when set to `Y`, also look for matching files in subfolders of the specified folder.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every entry in the list exists: a file that can be read, a folder, or a folder with at least one file whose whole name matches its wildcards (in its subfolders only with *Include subfolders*). An empty list is true too.
+|False|An entry does not exist, a file cannot be read, or a folder has no matching file: the number of errors is 0. A wildcard that is not a valid regular expression counts as one error.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
