@@ -218,4 +218,4 @@ image:replay/replay-workflow-execution-viewer.png[Replay Workflow Toolbar Icon a
 
 * xref:workflow/workflow-run-configurations/replay-workflow-engine.adoc[Replay Workflow Engine Run Configuration]
 * xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
-* xref:hop-gui/perspectives.adoc#_execution_perspective[Execution Perspective]
+* xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective]
