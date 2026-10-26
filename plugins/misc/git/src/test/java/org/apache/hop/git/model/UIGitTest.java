@@ -1395,6 +1395,48 @@ public class UIGitTest extends RepositoryTestCase {
     assertTrue(git.status().call().getChanged().contains("Test.txt"));
   }
 
+  @Test
+  public void testRestorePathFromCommitPreservesUnstagedChanges() throws Exception {
+    RevCommit first = initialCommit();
+
+    writeTrashFile("Test.txt", "second");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("second").call();
+
+    writeTrashFile("Test.txt", "MY LOCAL WORK");
+    String headBefore = git.getRepository().resolve(Constants.HEAD).name();
+
+    HopException error =
+        assertThrows(
+            HopException.class,
+            () -> uiGit.restorePathFromCommit("Test.txt", first.getId().name()));
+
+    assertTrue(error.getMessage().contains("uncommitted changes"));
+    assertEquals("MY LOCAL WORK", read(new File(db.getWorkTree(), "Test.txt")));
+    assertEquals(headBefore, git.getRepository().resolve(Constants.HEAD).name());
+    assertTrue(git.status().call().getModified().contains("Test.txt"));
+  }
+
+  @Test
+  public void testRestorePathFromCommitPreservesStagedChanges() throws Exception {
+    RevCommit first = initialCommit();
+
+    writeTrashFile("Test.txt", "second");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("second").call();
+
+    writeTrashFile("Test.txt", "MY STAGED WORK");
+    git.add().addFilepattern("Test.txt").call();
+    String headBefore = git.getRepository().resolve(Constants.HEAD).name();
+
+    assertThrows(
+        HopException.class, () -> uiGit.restorePathFromCommit("Test.txt", first.getId().name()));
+
+    assertEquals("MY STAGED WORK", read(new File(db.getWorkTree(), "Test.txt")));
+    assertEquals(headBefore, git.getRepository().resolve(Constants.HEAD).name());
+    assertTrue(git.status().call().getChanged().contains("Test.txt"));
+  }
+
   /**
    * Reverting a file which the commit added means removing it: its parent does not have the file,
    * so restoring that state deletes it here.

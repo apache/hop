@@ -438,6 +438,12 @@ public class UIGit extends VCS {
   public void restorePathFromCommit(String path, String commitId) throws HopException {
     String normalizedPath = normalizePathForJGit(path);
     try {
+      if (!git.status().addPath(normalizedPath).call().isClean()) {
+        throw new HopException(
+            "Cannot restore '"
+                + path
+                + "' because it has uncommitted changes. Commit or stash the file before continuing.");
+      }
       if (existsInCommit(normalizedPath, commitId)) {
         git.checkout().setStartPoint(commitId).addPath(normalizedPath).call();
       } else {
@@ -446,6 +452,8 @@ public class UIGit extends VCS {
         //
         git.rm().addFilepattern(normalizedPath).call();
       }
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("Error restoring '" + path + "' from commit '" + commitId + "'", e);
     }
