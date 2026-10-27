@@ -411,17 +411,16 @@ public class JsonMetadataParser<T extends IHopMetadata> {
       //
       JSONObject jPojoObject = new JSONObject();
 
-      // We can just serialize this POJO just like any other object with properties...
+      // Resolve the object id before writing properties. A factory may fill in a missing plugin
+      // id on the instance, and that value has to be stored with the other fields or a later
+      // load sees it as null.
       //
-      saveProperties(jPojoObject, fieldValue, fieldType);
-
       HopMetadataObject hopMetadataObject = fieldType.getAnnotation(HopMetadataObject.class);
-      if (hopMetadataObject == null) {
-        return jPojoObject;
-      } else {
+      String fieldValueId = null;
+      if (hopMetadataObject != null) {
         IHopMetadataObjectFactory objectFactory =
             hopMetadataObject.objectFactory().getDeclaredConstructor().newInstance();
-        String fieldValueId = objectFactory.getObjectId(fieldValue);
+        fieldValueId = objectFactory.getObjectId(fieldValue);
         if (StringUtils.isEmpty(fieldValueId)) {
           throw new HopException(
               "Unable to determine object ID for POJO of class '"
@@ -429,20 +428,28 @@ public class JsonMetadataParser<T extends IHopMetadata> {
                   + "' using factory "
                   + objectFactory.getClass().getName());
         }
-
-        // We need to store the object ID (plugin ID, class name, ...)
-        // To prevent re-ordering by JSON formatters (or humans) we use the ID as the key for a new
-        // JSON block
-        // We'll wrap the POJO JSON in that block
-        //
-        JSONObject jPojoBlock = new JSONObject();
-
-        // The POJO JSON goes into the block
-        //
-        jPojoBlock.put(fieldValueId, jPojoObject);
-
-        return jPojoBlock;
       }
+
+      // We can just serialize this POJO just like any other object with properties...
+      //
+      saveProperties(jPojoObject, fieldValue, fieldType);
+
+      if (hopMetadataObject == null) {
+        return jPojoObject;
+      }
+
+      // We need to store the object ID (plugin ID, class name, ...)
+      // To prevent re-ordering by JSON formatters (or humans) we use the ID as the key for a new
+      // JSON block
+      // We'll wrap the POJO JSON in that block
+      //
+      JSONObject jPojoBlock = new JSONObject();
+
+      // The POJO JSON goes into the block
+      //
+      jPojoBlock.put(fieldValueId, jPojoObject);
+
+      return jPojoBlock;
     } catch (Exception e) {
       throw new HopException(
           "Error saving POJO field with key " + key + ", field type '" + fieldType.getName() + "'",
