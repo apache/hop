@@ -33,14 +33,13 @@ The `Compare folders` action compares two folders to determine if the content is
 This name has to be unique in a single workflow.
 |Include subfolders|Also compare the content of subfolders.
 |Compare|Specify what to compare: All, Only Files, Only Folders, or Let me specify...
-|Wildcard (RegExp)|If you chose Let me specify... in the previous option, you can specify the regular expression of files to compare.
+|Wildcard (RegExp)|If you chose Let me specify... in the previous option, you can specify the regular expression of files to compare. Variables are not resolved in it.
 |Compare file size|Check this to also compare the size of files with the same name, not only their names.
 |Compare file content|Checks if files have the same content.
 Note: this may cause slower processing speeds.
 |File/Folder name 1|This is the first file or folder to compare
 |File/Folder name 2|This is the second file or folder to compare
 |===
-
 
 == Result
 
@@ -56,3 +55,5 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: Entries are matched by their name only, not by their subfolder. With *Include subfolders*, a folder with `s1/x.txt` and `s2/x.txt` and a folder with `s1/x.txt` and `s2/y.txt` are reported as identical.
+
+NOTE: *Wildcard (RegExp)* is used as typed: variables in it are not resolved. An invalid regular expression, which includes one with `+${...}+` in it, leaves out every entry, and the folders are reported as identical. This also happens with *Compare* set to *All* when an invalid wildcard is still stored from an earlier choice.

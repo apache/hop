@@ -54,4 +54,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows.
 |===
 
-NOTE: On Linux and macOS a file is reported as locked when its folder is read-only, because it cannot be renamed. A result row with only one field is logged as an error and nothing is checked, and the action is still true.
+NOTE: On Linux and macOS a file is reported as locked when its folder is read-only, because it cannot be renamed. Checking stops at a result row with only one field: that row and the rows after it are not checked, the error is logged, and the action is still true. An invalid regular expression in *Wildcard* is logged as an error for each file, no file in that folder is checked, and the action is still true.

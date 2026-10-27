@@ -36,7 +36,6 @@ The `Check if a folder is empty` action verifies that a folder holds no files. S
 |Wildcard (RegExp)|The regular expression for the file names, for example `+.*\.txt+`. Only used with *Limit search to (RegExp)*.
 |===
 
-
 == Result
 
 What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
@@ -48,7 +47,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |False|The folder holds a file: the number of errors is 0. The folder does not exist, the path is a file, or no folder name is set: the number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
-|Lines input|When the action is true, the number of subfolders found.
+|Lines input|When the action is true, the number of subfolders found. Otherwise the value of the previous action is passed on.
 |===
 
 NOTE: An invalid regular expression in *Wildcard (RegExp)* stops the workflow with an error, and no hop is followed, also when *Limit search to (RegExp)* is not selected.
