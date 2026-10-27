@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Miscellaneous Py4j</name>
 
-    <properties />
+    <properties></properties>
 
     <dependencyManagement>
         <dependencies>

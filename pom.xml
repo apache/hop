@@ -208,7 +208,7 @@
         <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
         <tm4e.core.version>0.17.2</tm4e.core.version>
-        <ui.test.argLine />
+        <ui.test.argLine></ui.test.argLine>
     </properties>
 
     <!--
@@ -684,9 +684,9 @@
                         <includes>
                             <include>src/**/*.java</include>
                         </includes>
-                        <googleJavaFormat />
-                        <importOrder />
-                        <removeUnusedImports />
+                        <googleJavaFormat></googleJavaFormat>
+                        <importOrder></importOrder>
+                        <removeUnusedImports></removeUnusedImports>
                     </java>
                     <pom>
                         <includes>
