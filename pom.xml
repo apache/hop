@@ -25,7 +25,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.20.0</version>
     <packaging>pom</packaging>
 
     <name>Hop Orchestration Platform</name>
@@ -76,7 +76,7 @@
     <scm>
         <connection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>2.20.0-rc1</tag>
         <url>https://gitbox.apache.org/repos/asf?p=hop.git;a=summary</url>
     </scm>
 
@@ -195,7 +195,7 @@
         <opentelemetry.version>1.67.0</opentelemetry.version>
         <org.eclipse.platform.version>3.135.0</org.eclipse.platform.version>
         <plexus-compiler.version>2.17.0</plexus-compiler.version>
-        <project.build.outputTimestamp>1786535563</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1793092601</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <proto-google-common-protos.version>2.70.0</proto-google-common-protos.version>
