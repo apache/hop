@@ -41,13 +41,13 @@ The `Evaluate files metrics` action can be used to evaluate the size or count of
 Based on the selected option, the fields below will be enabled/disabled.
 
 |Wildcard|A regex wildcard.
-|File Result field|
-|Wildcard result field|
-|Include subfolders result field|
+|File Result field|With *Previous result row*: the name of the result row field that holds the file or folder.
+|Wildcard result field|With *Previous result row*: the name of the field that holds the wildcard. Optional.
+|Include subfolders result field|With *Previous result row*: the name of the field that says whether to include subfolders (`Y` or `N`). Optional.
 |Evaluate a|Type of evaluation
 
 * Total files size
-* Total file count
+* Total files count
 
 |File/Folder source|The file or folder path.
 |Wildcard|A regex wildcard.
@@ -74,14 +74,29 @@ After specifying a folder and wildcard (regular expression), use the `Add` butto
 
 |Success when a|
 * If value is equal to
-* If value is equal to
+* If value is different from
 * If value is small than
 * If value is smaller or equal
 * If value is greater than
 * If value is greater or equal
 * If value is between
-* If value in list
-* If value not in list
+* if value in list
+* if value not in list
 
 |Value|The value to compare.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The total size (in the selected *Scale*) or the number of files meets the *Success when* condition. Errors don't change this: a path that does not exist counts as an error, but with a total of 0 the condition can still be met, and the action is then true with errors.
+|False|The condition is not met. The action also stops and is false, with 1 error, when the Files/Folders list is empty, or with *Previous result row* when the field set in *File Result field* is not in the result rows.
+|Result files|Passed on unchanged. With *Filenames result*, the files evaluated are the result files of the previous action whose whole name matches *Wildcard*.
+|Result rows|Passed on unchanged. With *Previous result row*, the file or folder, the wildcard and the include subfolders flag come from the result row fields named in *File Result field*, *Wildcard result field* and *Include subfolders result field*.
+|===
+
+NOTE: With *Filenames result*, an invalid regular expression in *Wildcard* stops the workflow with an error, and no hop is followed.

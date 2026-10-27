@@ -22,14 +22,14 @@ under the License.
 
 == Description
 
-The `Process result filenames` action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
+The `Process result filenames` action copies, moves or deletes the result files of the previous actions in the workflow, for example the files a pipeline wrote or a transfer action downloaded.
 
 == Options
 
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Action a|Choose one of
 
 * Copy (default)
@@ -39,7 +39,7 @@ The `Process result filenames` action allows you to copy, move or delete a numbe
 |Create destination folder|use this option to create the destination folder when it does not exist
 |Replace existing file|use this option to overwrite existing files
 |Remove source filenames from result|use this option to remove the processed filenames from the list of result filenames
-|Add destination filenames to result|use this option to add the processed target filenames to the list of result filenames
+|Add destination filename to result|use this option to add the processed target filenames to the list of result filenames
 |Add date to filename|add the date to the target filename, e.g. yyyyMMdd
 |Add time to filename|add the time to the target filename, e.g. HHmmss
 |Specify date time format|allows you to specify your own date-time format, e.g. yyyyMMdd_HHmmss
@@ -47,12 +47,28 @@ The `Process result filenames` action allows you to copy, move or delete a numbe
 2+|Limit to
 |Limit action to|Define include and exclude wildcards
 |Wildcard (RegExp)|The regular expression wildcard to use to include files
-|Exclude Wildcard (RegExp|The regular expression wildcard to use to exclude files
+|Exclude wildcard (RegExp)|The regular expression wildcard to use to exclude files
 2+|Success On
 |Success on a|Success condition : select one of these option:
 
 * Success when all works fine
-* Success when at least x files moved (specify x in the limit field below)
+* Success when at least x files processed (specify x in the limit field below)
 * Success when number of errors lesser than (specify the max number of errors in the limit field below)
 |Nr errors lesser than|The number of errors or number of files specified in the `Success on` option above.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The *Success condition* is met: no errors with *Success when all works fine*, at least *Nr errors lesser than* files processed with *Success when at least x files processed*, or no more errors than *Nr errors lesser than* with *Success when number of errors lesser than* (see the note below).
+|False|The success condition is not met: a result file no longer exists on disk, or could not be copied, moved or deleted. When the destination folder does not exist and *Create destination folder* is not selected, the action stops before processing any file, with 1 error. With *Success when all works fine*, the action stops at the first error.
+|Result files|The action works on the result files of the previous actions, limited by *Limit action to* and its wildcards. For each file copied or moved, *Remove source filenames from result* removes the source and *Add destination filename to result* adds the destination; both are selected by default. *Delete* removes the deleted files from the result files. A file whose destination already exists is skipped when *Replace existing file* is not selected: it stays in the result files and does not count as an error.
+|Result rows|Passed on unchanged.
+|Lines written|The number of files copied, moved or deleted. When the action stops because the destination folder does not exist, the value of the previous action is passed on.
+|===
+
+NOTE: With *Success when number of errors lesser than*, the action is still true when the number of errors equals *Nr errors lesser than*. An invalid regular expression in *Wildcard (RegExp)* or *Exclude wildcard (RegExp)* stops the workflow with an error, and no hop is followed, also when *Limit action to* is not selected.

@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The `Write to file` action writes custom text from a field to a file.
+The `Write to file` action writes the text you enter in the action to a file. Variables in the text are resolved.
 
 == Options
 
@@ -38,4 +38,17 @@ The `Write to file` action writes custom text from a field to a file.
 2+|Content
 |Encoding|The encoding to use while writing the file.
 |Text|The text to write to the file.
+|===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The text was written to the file.
+|False|No file name is set, the parent folder does not exist and *Create parent folder* is not selected, the file cannot be written (for example in a read-only folder), or the encoding is not known. The number of errors is 1.
+|Result files|Passed on unchanged. The written file is not added.
+|Result rows|Passed on unchanged.
 |===

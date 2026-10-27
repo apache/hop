@@ -42,12 +42,22 @@ WARNING: This action requires the definition of a single file. Variables can be 
 The file will be checked for in the start of the execution and then every "check cycle time" seconds until the maximum timeout is reached.
 A workflow can only be stopped every "check cycle time" as else the workflow action will be sleeping.
 A check cycle time of 30 or 60 seconds seems to be a good trade-off between the period until the file is detected and the required CPU usage.
-|Success on timeout|This option determines what to do when the "Maximum timeout" has been reached and the file has not been found.
+|Success on timeout|This option determines what to do when the "Maximum timeout" has been reached and the file has not been found: when it is selected, the action is true and the success hop is followed; otherwise the action is false.
 |File size check|When this is switched on, once the workflow action detects the specified file, and will only continue if the file size hasn't changed the last check "cycle time seconds".
 This is useful in cases where a file is created in the final place, and another process is still writing to the file.
 (As a best practice, files should be written to a temporary location, and then moved when completed)
-This is the number seconds after which the flow will continue even if the file was not created.
-When the timeout is reached the "Success on timeout" option will determine whether the outgoing success or failure hop will be followed.
-If enabled, the workflow action will evaluate successfully, and the outgoing success hop will be followed.
-|Add filename to result|Add the filename to the result fields for this workflow action.
+|Add filename to result|Add the file to the result files of this action. See <<Result>>.
+|===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The file or folder exists, or appears before *Maximum timeout*. With *Success on timeout*, the action is also true when the timeout is reached without it. With *File size check*, the action first waits until the size stays the same between two checks. A *Maximum timeout* of 0 waits until the file appears or the workflow is stopped.
+|False|The timeout is reached without the file and *Success on timeout* is not selected, no file name is set, the path cannot be read (for example a `zip:` path into a file that is not a zip), or the workflow is stopped while waiting. The number of errors is always 0.
+|Result files|With *Add filename to result*, the file is added when it is found. A folder is not added, and nothing is added when the action ends on the timeout. The result files of the previous action are kept.
+|Result rows|Passed on unchanged.
 |===
