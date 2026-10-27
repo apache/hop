@@ -51,7 +51,7 @@ public abstract class ConfigFile implements IConfigFile {
    * outright and reported it to whoever happened to be second. Shared by every configuration file
    * because there are only a handful of them and they are written rarely.
    *
-   * <p>It does not cover a caller that changes the map it got from {@link #getConfigMap()} without
+   * <p>It does not cover a caller that changes the map it got from {@link #configMap} without
    * asking for it: {@link #getDescribedVariables()} is one, and it deliberately stays out because
    * it runs for every log message. What it does cover is the writing itself, which is where the
    * damage was.

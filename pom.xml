@@ -645,7 +645,7 @@
                         </goals>
                         <phase>verify</phase>
                         <configuration>
-                            <show>public</show>
+                            <show>protected</show>
                             <failOnError>true</failOnError>
                             <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
                             <doclint>all,-missing</doclint>
