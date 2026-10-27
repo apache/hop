@@ -41,5 +41,5 @@
         </dependencies>
     </dependencyManagement>
 
-    <dependencies />
+    <dependencies></dependencies>
 </project>

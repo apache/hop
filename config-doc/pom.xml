@@ -236,7 +236,7 @@
                             <classpathScope>compile</classpathScope>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath></classpath>
                                 <argument>org.apache.hop.config.doc.ConfigDocGenerator</argument>
                                 <argument>${project.basedir}/..</argument>
                                 <argument>${docs.partials.directory}</argument>

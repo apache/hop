@@ -111,8 +111,8 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <copy file="${swtbot.download.dir}/${swtbot.finder.file}" overwrite="true" tofile="${swtbot.finder.jar}" />
-                                <copy file="${swtbot.download.dir}/${swtbot.junit5.file}" overwrite="true" tofile="${swtbot.junit5.jar}" />
+                                <copy file="${swtbot.download.dir}/${swtbot.finder.file}" overwrite="true" tofile="${swtbot.finder.jar}"></copy>
+                                <copy file="${swtbot.download.dir}/${swtbot.junit5.file}" overwrite="true" tofile="${swtbot.junit5.jar}"></copy>
                             </target>
                         </configuration>
                     </execution>
