@@ -426,6 +426,15 @@ public class UIGit extends VCS {
     return commit(authorName, message, amend);
   }
 
+  /** Whether the given path has staged, unstaged, or untracked local changes. */
+  public boolean hasLocalChanges(String path) throws HopException {
+    try {
+      return !git.status().addPath(normalizePathForJGit(path)).call().isClean();
+    } catch (Exception e) {
+      throw new HopException("Error checking status for '" + path + "'", e);
+    }
+  }
+
   /**
    * Make a single path look the way it does in a commit, in the working tree and in the index. A
    * path the commit does not have is removed here as well: not having it is what that commit did to
@@ -438,7 +447,7 @@ public class UIGit extends VCS {
   public void restorePathFromCommit(String path, String commitId) throws HopException {
     String normalizedPath = normalizePathForJGit(path);
     try {
-      if (!git.status().addPath(normalizedPath).call().isClean()) {
+      if (hasLocalChanges(path)) {
         throw new HopException(
             "Cannot restore '"
                 + path

@@ -869,6 +869,7 @@ public class GitPerspective implements IHopPerspective {
         dialog.setMessage(
             BaseMessages.getString(
                 PKG, "GitGuiPlugin.Dialog.RevertCommitRepositoryIsNotClean.Message"));
+        dialog.open();
         return;
       }
 
@@ -928,6 +929,9 @@ public class GitPerspective implements IHopPerspective {
     if (git == null) {
       return;
     }
+    if (showFileChangesWarning(git, path)) {
+      return;
+    }
     String commitId = commit.getId().name();
 
     // Undo what the commit did to the file: put back the version of its parent
@@ -965,6 +969,29 @@ public class GitPerspective implements IHopPerspective {
           BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFileError.Message"),
           e);
     }
+  }
+
+  /** Show a precondition warning before a file action can overwrite local changes. */
+  private boolean showFileChangesWarning(UIGit git, String path) {
+    try {
+      if (!git.hasLocalChanges(path)) {
+        return false;
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.FileChangesCheckError.Header"),
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.FileChangesCheckError.Message", path),
+          e);
+      return true;
+    }
+
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
+    dialog.setText(BaseMessages.getString(PKG, "GitPerspective.Dialog.FileChangesWarning.Header"));
+    dialog.setMessage(
+        BaseMessages.getString(PKG, "GitPerspective.Dialog.FileChangesWarning.Message", path));
+    dialog.open();
+    return true;
   }
 
   /** Ask before a file action rewrites a file and commits it. */
@@ -1018,6 +1045,7 @@ public class GitPerspective implements IHopPerspective {
         dialog.setMessage(
             BaseMessages.getString(
                 PKG, "GitGuiPlugin.Dialog.CherryPickCommitRepositoryIsNotClean.Message"));
+        dialog.open();
         return;
       }
 
@@ -1074,6 +1102,9 @@ public class GitPerspective implements IHopPerspective {
 
     UIGit git = GitGuiPlugin.getInstance().getGit();
     if (git == null) {
+      return;
+    }
+    if (showFileChangesWarning(git, path)) {
       return;
     }
     String commitId = commit.getId().name();
