@@ -55,3 +55,16 @@ image:how-to-guides/parallel-workflows/continue-in-parallel-join.png[Using the j
 * *Simplifies parallel execution:* No need for a separate child workflow just to coordinate branches.
 * *Improves readability:* Your parallel and sequential logic can be maintained in a single workflow.
 * *Increases maintainability:* Fewer components and external dependencies (child workflows) to manage.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every branch that leads to the Join has finished, and none of them failed on the way. Only a branch whose hop into the Join is a success hop counts as failed when its last action is false: with a failure hop or an unconditional hop, a false action does not make the Join false.
+|False|A branch ended false while its hop into the Join is a success hop, or can't run any more because of an earlier failure. The number of errors is the number of such branches.
+|Result files|The result files of one branch are passed on. The result files of the other branches are not added: when several branches add result files, only those of one branch reach the next action.
+|Result rows|The result rows of one branch are passed on, as for the result files.
+|===

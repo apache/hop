@@ -31,5 +31,17 @@ TIP: The success action is mainly intended to turn an error or failed state into
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
+|===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Always, with 0 errors, also after an action that ended with errors.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
 |===

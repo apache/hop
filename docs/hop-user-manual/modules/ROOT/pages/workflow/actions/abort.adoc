@@ -42,3 +42,15 @@ A workflow action can be placed several times on the canvas, however it will be 
 Lower the log level if you don't want the message to show up as an error in the log.
 This only changes the logging: the workflow is marked as failed either way.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|False|Always, with 1 error. The workflow stops: no hop from the action is followed, not even an unconditional one, and the workflow ends as failed (hop-run ends with exit code 1).
+|Result files|No action in this workflow receives them, as the workflow stops. A parent workflow that runs this workflow with a Workflow action receives the result files of the actions before the Abort.
+|Result rows|As for the result files: a parent workflow receives the result rows of the actions before the Abort.
+|===

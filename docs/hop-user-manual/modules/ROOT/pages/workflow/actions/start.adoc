@@ -36,3 +36,16 @@ When you activate the repeat option the workflow will continue to run and restar
 
 While this does not replace a scheduler it can be used for basic scheduling. Please note that using this will keep the workflow in a running state meaning the Java process will continue to exist and use resources on the system.
 
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Always. With *Repeat*, after waiting for the next run.
+|Hops|Start does not evaluate a result: only its unconditional hops are followed. A success or failure hop from Start is never followed.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===

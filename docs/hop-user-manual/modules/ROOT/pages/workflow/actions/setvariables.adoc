@@ -26,14 +26,14 @@ The `Set variables` action sets variables at various scopes.
 
 == Options
 
-[options="header", width="90%". cols="1,3"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
 2+|Properties file
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Name of properties file|The name of the properties file.
 |Variable scope a|
-* Valid in the Java Virtual machine
+* Valid in the Java Virtual Machine
 * Valid in the current workflow
 * Valid in the parent
 * Valid in the root
@@ -56,3 +56,16 @@ A properties file is a text file with the `.properties` extension. Each line in 
 == Variable substitution
 
 The "Variable substitution" option allows you to dynamically create and set variables based on existing variable values. When enabled, any variable references in the variable name or value fields will be resolved before the variables are set. This enables the creation of new variables whose names and values depend on other variable contents, providing a flexible and dynamic approach to variable management within workflows. The syntax `+${MyVariable}+` is used to retrieve variable values.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The variables were set, with 0 errors, also after an action that ended with errors.
+|False|The properties file can't be read, or *Valid in the parent* is used in a workflow that has no parent workflow (a workflow run on its own, not by a Workflow action). The number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
