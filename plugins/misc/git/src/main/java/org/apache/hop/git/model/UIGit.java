@@ -426,6 +426,15 @@ public class UIGit extends VCS {
     return commit(authorName, message, amend);
   }
 
+  /** Whether the given path has staged, unstaged, or untracked local changes. */
+  public boolean hasLocalChanges(String path) throws HopException {
+    try {
+      return !git.status().addPath(normalizePathForJGit(path)).call().isClean();
+    } catch (Exception e) {
+      throw new HopException("Error checking status for '" + path + "'", e);
+    }
+  }
+
   /**
    * Make a single path look the way it does in a commit, in the working tree and in the index. A
    * path the commit does not have is removed here as well: not having it is what that commit did to
@@ -438,6 +447,12 @@ public class UIGit extends VCS {
   public void restorePathFromCommit(String path, String commitId) throws HopException {
     String normalizedPath = normalizePathForJGit(path);
     try {
+      if (hasLocalChanges(path)) {
+        throw new HopException(
+            "Cannot restore '"
+                + path
+                + "' because it has uncommitted changes. Commit or stash the file before continuing.");
+      }
       if (existsInCommit(normalizedPath, commitId)) {
         git.checkout().setStartPoint(commitId).addPath(normalizedPath).call();
       } else {
@@ -446,6 +461,8 @@ public class UIGit extends VCS {
         //
         git.rm().addFilepattern(normalizedPath).call();
       }
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("Error restoring '" + path + "' from commit '" + commitId + "'", e);
     }
