@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.environment;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -458,12 +459,16 @@ public class LifecycleEnvironmentDialog extends Dialog {
     return items;
   }
 
+  /**
+   * The IANA zone ids, which is exactly what {@link EnvironmentRegionalSettings} accepts. {@code
+   * TimeZone.getAvailableIDs()} would also offer the legacy short ids (EST, PST, IST, ...) that are
+   * then rejected when the environment is enabled.
+   */
   private String[] timeZoneComboItems() {
-    String[] zones = EnvUtil.getTimeZones();
-    String[] items = new String[zones.length + 1];
-    items[0] = inheritLabel();
-    System.arraycopy(zones, 0, items, 1, zones.length);
-    return items;
+    List<String> items = new ArrayList<>();
+    items.add(inheritLabel());
+    items.addAll(ZoneId.getAvailableZoneIds().stream().sorted().toList());
+    return items.toArray(new String[0]);
   }
 
   private void onRegionalChanged(Event event) {
@@ -491,12 +496,32 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wTimeZonePreview.setText(timeZone.getID() + " (" + timeZone.getDisplayName() + ")");
   }
 
+  /**
+   * The locale picked from the list, or typed as a code such as {@code nl_BE}. Null for Inherit, an
+   * empty field, or text that resolves to no available locale; {@link #isFormatLocaleValid()} tells
+   * the last case apart.
+   */
   private Locale selectedFormatLocale() {
-    int index = wFormatLocale.indexOf(wFormatLocale.getText());
-    if (index <= 0) {
+    String text = wFormatLocale.getText().trim();
+    if (StringUtils.isEmpty(text) || inheritLabel().equals(text)) {
       return null;
     }
-    return localeList.get(index - 1);
+    int index = wFormatLocale.indexOf(text);
+    if (index > 0) {
+      return localeList.get(index - 1);
+    }
+    Locale typed = EnvUtil.createLocale(text);
+    if (typed != null && Arrays.asList(Locale.getAvailableLocales()).contains(typed)) {
+      return typed;
+    }
+    return null;
+  }
+
+  private boolean isFormatLocaleValid() {
+    String text = wFormatLocale.getText().trim();
+    return StringUtils.isEmpty(text)
+        || inheritLabel().equals(text)
+        || selectedFormatLocale() != null;
   }
 
   private String selectedTimeZoneId() {
@@ -1193,6 +1218,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
         wName.setText(originalName);
         throw new HopException(
             "Sorry, renaming environment '" + originalName + "' is not supported.");
+      }
+
+      if (!isFormatLocaleValid()) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG,
+                "LifecycleEnvironmentDialog.Error.UnknownFormatLocale",
+                wFormatLocale.getText()));
       }
 
       saveConfigFileDescriptions();

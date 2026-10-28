@@ -30,8 +30,12 @@ import org.apache.hop.i18n.RegionalSettings;
 
 /**
  * Applies a lifecycle environment's FORMAT locale and timezone on top of the installation regional
- * settings. Empty fields inherit. Invalid values are logged and skipped rather than aborting
+ * settings. Empty fields inherit. Invalid values are logged and inherit too, rather than aborting
  * environment enablement.
+ *
+ * <p>Inheriting means actively putting the installation values back: the locale and timezone are
+ * JVM-wide, so an environment that leaves them alone would keep whatever the previously enabled
+ * environment installed.
  */
 public final class EnvironmentRegionalSettings {
 
@@ -40,23 +44,29 @@ public final class EnvironmentRegionalSettings {
   }
 
   /**
-   * Installs the environment's regional settings (when present) and publishes the effective FORMAT
-   * locale and timezone as variables so pipelines can see what they are running under.
+   * Installs the environment's regional settings, or the installation ones for the fields the
+   * environment leaves empty, and publishes the effective FORMAT locale and timezone as variables
+   * so pipelines can see what they are running under.
    */
   public static void apply(
       ILogChannel log, LifecycleEnvironment environment, IVariables variables) {
-    String source = "installation:" + RegionalSettings.getInstance().getSource().name();
+    RegionalSettings installation = RegionalSettings.getInstance();
+    String envName = environment == null ? "" : Const.NVL(environment.getName(), "");
 
-    if (environment != null) {
-      String envName = Const.NVL(environment.getName(), "");
-      if (applyFormatLocale(log, environment.getFormatLocale(), envName)) {
-        source = "environment:" + envName;
-      }
-      if (applyTimeZone(log, environment.getTimeZone(), envName)
-          && source.startsWith("installation:")) {
-        source = "environment:" + envName;
-      }
+    Locale formatLocale =
+        environment == null ? null : parseFormatLocale(log, environment.getFormatLocale(), envName);
+    TimeZone timeZone =
+        environment == null ? null : parseTimeZone(log, environment.getTimeZone(), envName);
+
+    Locale effectiveLocale =
+        formatLocale != null ? formatLocale : installation.getEffectiveLocale();
+    if (effectiveLocale != null) {
+      Locale.setDefault(Locale.Category.FORMAT, effectiveLocale);
     }
+    TimeZone effectiveTimeZone =
+        timeZone != null ? timeZone : installation.getOperatingSystemTimeZone();
+    TimeZone.setDefault(effectiveTimeZone);
+    System.setProperty("user.timezone", effectiveTimeZone.getID());
 
     if (variables != null) {
       variables.setVariable(
@@ -64,12 +74,16 @@ public final class EnvironmentRegionalSettings {
       variables.setVariable(Const.HOP_TIMEZONE, TimeZone.getDefault().getID());
     }
 
+    String source =
+        formatLocale != null || timeZone != null
+            ? "environment:" + envName
+            : "installation:" + installation.getSource().name();
     RegionalSettings.logEffective(log, source);
   }
 
-  private static boolean applyFormatLocale(ILogChannel log, String formatLocale, String envName) {
+  private static Locale parseFormatLocale(ILogChannel log, String formatLocale, String envName) {
     if (StringUtils.isEmpty(formatLocale)) {
-      return false;
+      return null;
     }
     Locale parsed = EnvUtil.createLocale(formatLocale);
     if (parsed == null || !Arrays.asList(Locale.getAvailableLocales()).contains(parsed)) {
@@ -81,15 +95,14 @@ public final class EnvironmentRegionalSettings {
                 + formatLocale
                 + "' is not available in this JVM; inheriting installation regional settings.");
       }
-      return false;
+      return null;
     }
-    Locale.setDefault(Locale.Category.FORMAT, parsed);
-    return true;
+    return parsed;
   }
 
-  private static boolean applyTimeZone(ILogChannel log, String timeZoneId, String envName) {
+  private static TimeZone parseTimeZone(ILogChannel log, String timeZoneId, String envName) {
     if (StringUtils.isEmpty(timeZoneId)) {
-      return false;
+      return null;
     }
     if (!ZoneId.getAvailableZoneIds().contains(timeZoneId)) {
       if (log != null) {
@@ -98,13 +111,10 @@ public final class EnvironmentRegionalSettings {
                 + envName
                 + "' timezone '"
                 + timeZoneId
-                + "' is not a recognised IANA id; leaving the JVM default timezone in place.");
+                + "' is not a recognised IANA id; inheriting the operating system timezone.");
       }
-      return false;
+      return null;
     }
-    TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-    TimeZone.setDefault(timeZone);
-    System.setProperty("user.timezone", timeZone.getID());
-    return true;
+    return TimeZone.getTimeZone(timeZoneId);
   }
 }
