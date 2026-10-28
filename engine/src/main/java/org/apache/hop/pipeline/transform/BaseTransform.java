@@ -21,6 +21,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +48,7 @@ import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.LockFreeRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
@@ -150,6 +153,43 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   private final IPipelineEngine<PipelineMeta> pipeline;
 
   private final Object statusCountersLock = new Object();
+
+  /**
+   * Experimental lock-free row sets ({@link Pipeline#isLockFreeRowSets()}, an option of the local
+   * run configuration): the row set lists are copy-on-write and read without a lock on the per-row
+   * paths, the line counters are updated atomically instead of under {@link #statusCountersLock},
+   * row sets that wait efficiently themselves skip the per-row size() check and sleep, and inputs
+   * are read without the run configuration's wait times: the transform parks on all its inputs at
+   * once and any of them wakes it (see {@link #getRowLockFree(IRowSet)}). With the option off,
+   * every one of these spots runs the original code.
+   */
+  private final boolean lockFreeRowSets;
+
+  /** The longest a transform parks waiting on its lock-free inputs before it checks them again. */
+  private static final long LOCK_FREE_MAX_WAIT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
+
+  private static final VarHandle LINES_READ;
+  private static final VarHandle LINES_WRITTEN;
+  private static final VarHandle LINES_INPUT;
+  private static final VarHandle LINES_OUTPUT;
+  private static final VarHandle LINES_UPDATED;
+  private static final VarHandle LINES_SKIPPED;
+  private static final VarHandle LINES_REJECTED;
+
+  static {
+    try {
+      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      LINES_READ = lookup.findVarHandle(BaseTransform.class, "linesRead", long.class);
+      LINES_WRITTEN = lookup.findVarHandle(BaseTransform.class, "linesWritten", long.class);
+      LINES_INPUT = lookup.findVarHandle(BaseTransform.class, "linesInput", long.class);
+      LINES_OUTPUT = lookup.findVarHandle(BaseTransform.class, "linesOutput", long.class);
+      LINES_UPDATED = lookup.findVarHandle(BaseTransform.class, "linesUpdated", long.class);
+      LINES_SKIPPED = lookup.findVarHandle(BaseTransform.class, "linesSkipped", long.class);
+      LINES_REJECTED = lookup.findVarHandle(BaseTransform.class, "linesRejected", long.class);
+    } catch (ReflectiveOperationException e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
 
   protected Date initStartDate;
   protected Date executionStartDate;
@@ -386,6 +426,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     this.pipelineMeta = pipelineMeta;
     this.pipeline = pipeline;
     this.transformName = transformMeta.getName();
+    this.lockFreeRowSets = pipeline != null && pipeline.isLockFreeRowSets();
 
     // Sanity check
     //
@@ -425,8 +466,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
     dataVolume = null;
 
-    inputRowSets = new ArrayList<>();
-    outputRowSets = new ArrayList<>();
+    // copy-on-write with lock-free row sets: the lists only change while the pipeline is wired
+    // (or when an input is done, on this transform's own thread), so the per-row paths read them
+    // without taking the read lock
+    inputRowSets = lockFreeRowSets ? new CopyOnWriteArrayList<>() : new ArrayList<>();
+    outputRowSets = lockFreeRowSets ? new CopyOnWriteArrayList<>() : new ArrayList<>();
     nextTransforms = null;
 
     terminator = transformMeta.hasTerminator();
@@ -679,6 +723,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public long getLinesRead() {
+    if (lockFreeRowSets) {
+      return (long) LINES_READ.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesRead;
     }
@@ -693,6 +740,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return Returns the new value
    */
   public long incrementLinesRead() {
+    if (lockFreeRowSets) {
+      return (long) LINES_READ.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesRead;
     }
@@ -704,6 +754,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return Returns the new value
    */
   public long decrementLinesRead() {
+    if (lockFreeRowSets) {
+      return (long) LINES_READ.getAndAdd(this, -1L) - 1L;
+    }
     synchronized (statusCountersLock) {
       return --linesRead;
     }
@@ -716,6 +769,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #decrementLinesRead()
    */
   public void setLinesRead(long newLinesReadValue) {
+    if (lockFreeRowSets) {
+      LINES_READ.setVolatile(this, newLinesReadValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesRead = newLinesReadValue;
     }
@@ -727,6 +784,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public long getLinesInput() {
+    if (lockFreeRowSets) {
+      return (long) LINES_INPUT.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesInput;
     }
@@ -740,6 +800,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return the new incremented value
    */
   public long incrementLinesInput() {
+    if (lockFreeRowSets) {
+      return (long) LINES_INPUT.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesInput;
     }
@@ -752,6 +815,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #incrementLinesInput()
    */
   public void setLinesInput(long newLinesInputValue) {
+    if (lockFreeRowSets) {
+      LINES_INPUT.setVolatile(this, newLinesInputValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesInput = newLinesInputValue;
     }
@@ -764,6 +831,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public long getLinesOutput() {
+    if (lockFreeRowSets) {
+      return (long) LINES_OUTPUT.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesOutput;
     }
@@ -777,6 +847,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #setLinesOutput(long)
    */
   public long incrementLinesOutput() {
+    if (lockFreeRowSets) {
+      return (long) LINES_OUTPUT.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesOutput;
     }
@@ -789,6 +862,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #incrementLinesOutput()
    */
   public void setLinesOutput(long newLinesOutputValue) {
+    if (lockFreeRowSets) {
+      LINES_OUTPUT.setVolatile(this, newLinesOutputValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesOutput = newLinesOutputValue;
     }
@@ -803,6 +880,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public long getLinesWritten() {
+    if (lockFreeRowSets) {
+      return (long) LINES_WRITTEN.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesWritten;
     }
@@ -816,6 +896,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return Returns the new value
    */
   public long incrementLinesWritten() {
+    if (lockFreeRowSets) {
+      return (long) LINES_WRITTEN.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesWritten;
     }
@@ -829,6 +912,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return Returns the new value
    */
   public long decrementLinesWritten() {
+    if (lockFreeRowSets) {
+      return (long) LINES_WRITTEN.getAndAdd(this, -1L) - 1L;
+    }
     synchronized (statusCountersLock) {
       return --linesWritten;
     }
@@ -843,6 +929,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #decrementLinesWritten()
    */
   public void setLinesWritten(long newLinesWrittenValue) {
+    if (lockFreeRowSets) {
+      LINES_WRITTEN.setVolatile(this, newLinesWrittenValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesWritten = newLinesWrittenValue;
     }
@@ -855,6 +945,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public long getLinesUpdated() {
+    if (lockFreeRowSets) {
+      return (long) LINES_UPDATED.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesUpdated;
     }
@@ -868,6 +961,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #setLinesUpdated(long)
    */
   public long incrementLinesUpdated() {
+    if (lockFreeRowSets) {
+      return (long) LINES_UPDATED.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesUpdated;
     }
@@ -880,6 +976,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #incrementLinesUpdated()
    */
   public void setLinesUpdated(long newLinesUpdatedValue) {
+    if (lockFreeRowSets) {
+      LINES_UPDATED.setVolatile(this, newLinesUpdatedValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesUpdated = newLinesUpdatedValue;
     }
@@ -894,6 +994,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public long getLinesRejected() {
+    if (lockFreeRowSets) {
+      return (long) LINES_REJECTED.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesRejected;
     }
@@ -982,6 +1085,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return the new incremented value
    */
   public long incrementLinesRejected() {
+    if (lockFreeRowSets) {
+      return (long) LINES_REJECTED.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesRejected;
     }
@@ -994,6 +1100,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public void setLinesRejected(long newLinesRejectedValue) {
+    if (lockFreeRowSets) {
+      LINES_REJECTED.setVolatile(this, newLinesRejectedValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesRejected = newLinesRejectedValue;
     }
@@ -1005,6 +1115,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #incrementLinesSkipped()
    */
   public long getLinesSkipped() {
+    if (lockFreeRowSets) {
+      return (long) LINES_SKIPPED.getVolatile(this);
+    }
     synchronized (statusCountersLock) {
       return linesSkipped;
     }
@@ -1018,6 +1131,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #setLinesSkipped(long)
    */
   public long incrementLinesSkipped() {
+    if (lockFreeRowSets) {
+      return (long) LINES_SKIPPED.getAndAdd(this, 1L) + 1L;
+    }
     synchronized (statusCountersLock) {
       return ++linesSkipped;
     }
@@ -1029,6 +1145,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see #incrementLinesSkipped()
    */
   public void setLinesSkipped(long newLinesSkippedValue) {
+    if (lockFreeRowSets) {
+      LINES_SKIPPED.setVolatile(this, newLinesSkippedValue);
+      return;
+    }
     synchronized (statusCountersLock) {
       linesSkipped = newLinesSkippedValue;
     }
@@ -1207,7 +1327,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     }
 
-    outputRowSetsLock.readLock().lock();
+    if (!lockFreeRowSets) {
+      outputRowSetsLock.readLock().lock();
+    }
     try {
       if (outputRowSets.isEmpty()) {
         // No more output rowsets!
@@ -1239,7 +1361,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
               "Internal error: invalid repartitioning type: " + repartitioning);
       }
     } finally {
-      outputRowSetsLock.readLock().unlock();
+      if (!lockFreeRowSets) {
+        outputRowSetsLock.readLock().unlock();
+      }
     }
   }
 
@@ -1330,7 +1454,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
 
-        if (!rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped()) {
+        if ((!lockFreeRowSets || rs.needsThrottling())
+            && !rs.isDone()
+            && rs.size() >= upperBufferBoundary
+            && !isStopped()) {
           try {
             // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
             Thread.sleep(1);
@@ -1367,7 +1494,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
 
-        if (!rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped()) {
+        if ((!lockFreeRowSets || rs.needsThrottling())
+            && !rs.isDone()
+            && rs.size() >= upperBufferBoundary
+            && !isStopped()) {
           try {
             // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
             Thread.sleep(1);
@@ -1615,6 +1745,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @VisibleForTesting
   IRowSet currentInputStream() {
+    if (lockFreeRowSets) {
+      return inputRowSets.get(currentInputRowSetNr);
+    }
     inputRowSetsLock.readLock().lock();
     try {
       return inputRowSets.get(currentInputRowSetNr);
@@ -1706,7 +1839,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     IRowSet inputRowSet = null;
     Object[] row = null;
 
-    inputRowSetsLock.readLock().lock();
+    if (!lockFreeRowSets) {
+      inputRowSetsLock.readLock().lock();
+    }
     try {
 
       // If everything is finished, we can stop immediately!
@@ -1741,7 +1876,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // The buffer to grow beyond "a few" entries.
       // We'll only do that if the previous transform has not ended...
 
-      if (!inputRowSet.isDone() && inputRowSet.size() <= lowerBufferBoundary && !isStopped()) {
+      if ((!lockFreeRowSets || inputRowSet.needsThrottling())
+          && !inputRowSet.isDone()
+          && inputRowSet.size() <= lowerBufferBoundary
+          && !isStopped()) {
         try {
           // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
           Thread.sleep(1);
@@ -1762,71 +1900,80 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // rowset, then switch to another etc.
       // We can use timeouts to switch from one to another...
       //
-      if (waitingTime == null) {
-        Integer waitTime =
-            Const.toInt(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_BUFFER_POLLING_WAITTIME), 20);
-        if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
-            instanceof LocalPipelineRunConfiguration runconfig) {
-          waitTime = Const.toInt(runconfig.getWaitTime(), waitTime);
+      if (lockFreeRowSets) {
+        if (row == null) {
+          row = getRowLockFree(inputRowSet);
+          if (row == null && inputRowSets.isEmpty()) {
+            return null; // We're completely done.
+          }
         }
-        waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
-      }
-      while (row == null && !isStopped()) {
-        // Get a row from the input in row set ...
-        // Timeout immediately if nothing is there to read.
-        // We will then switch to the next row set to read from...
-        //
-        row = inputRowSet.getRowWait(waitingTime.get(), TimeUnit.MILLISECONDS);
-        boolean timeout = false;
-        if (row != null) {
-          obtainInputRowMeta(row, inputRowSet);
-          incrementLinesRead();
-          addDataVolumeInIfEnabled(row);
-          blockPointer++;
-          waitingTime.reset();
-        } else {
-          // Try once more...
-          // If row is still empty and the row set is done, we remove the row
-          // set from
-          // the input stream and move on to the next one...
+      } else {
+        if (waitingTime == null) {
+          Integer waitTime =
+              Const.toInt(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_BUFFER_POLLING_WAITTIME), 20);
+          if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
+              instanceof LocalPipelineRunConfiguration runconfig) {
+            waitTime = Const.toInt(runconfig.getWaitTime(), waitTime);
+          }
+          waitingTime =
+              DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
+        }
+        while (row == null && !isStopped()) {
+          // Get a row from the input in row set ...
+          // Timeout immediately if nothing is there to read.
+          // We will then switch to the next row set to read from...
           //
-          if (inputRowSet.isDone()) {
-            row = inputRowSet.getRowWait(1, TimeUnit.MILLISECONDS);
-            if (row == null) {
+          row = inputRowSet.getRowWait(waitingTime.get(), TimeUnit.MILLISECONDS);
+          boolean timeout = false;
+          if (row != null) {
+            obtainInputRowMeta(row, inputRowSet);
+            incrementLinesRead();
+            addDataVolumeInIfEnabled(row);
+            blockPointer++;
+            waitingTime.reset();
+          } else {
+            // Try once more...
+            // If row is still empty and the row set is done, we remove the row
+            // set from
+            // the input stream and move on to the next one...
+            //
+            if (inputRowSet.isDone()) {
+              row = inputRowSet.getRowWait(1, TimeUnit.MILLISECONDS);
+              if (row == null) {
 
-              // Must release the read lock before acquisition of the write lock to prevent
-              // deadlocks.
-              inputRowSetsLock.readLock().unlock();
+                // Must release the read lock before acquisition of the write lock to prevent
+                // deadlocks.
+                inputRowSetsLock.readLock().unlock();
 
-              // Another thread might acquire the write lock before we do,
-              // and invalidate the data we have just read.
-              //
-              // This is actually fine, until we only want to remove the current rowSet - ArrayList
-              // ignores non-existing
-              // elements when removing.
-              inputRowSetsLock.writeLock().lock();
-              try {
-                removeRowSetFromInputRowSets(inputRowSet);
-                if (inputRowSets.isEmpty()) {
-                  return null; // We're completely done.
+                // Another thread might acquire the write lock before we do,
+                // and invalidate the data we have just read.
+                //
+                // This is actually fine, until we only want to remove the current rowSet -
+                // ArrayList ignores non-existing elements when removing.
+                inputRowSetsLock.writeLock().lock();
+                try {
+                  removeRowSetFromInputRowSets(inputRowSet);
+                  if (inputRowSets.isEmpty()) {
+                    return null; // We're completely done.
+                  }
+                } finally {
+                  inputRowSetsLock.readLock().lock(); // downgrade to read lock
+                  inputRowSetsLock.writeLock().unlock();
                 }
-              } finally {
-                inputRowSetsLock.readLock().lock(); // downgrade to read lock
-                inputRowSetsLock.writeLock().unlock();
+              } else {
+                obtainInputRowMeta(row, inputRowSet);
+                incrementLinesRead();
+                addDataVolumeInIfEnabled(row);
               }
             } else {
-              obtainInputRowMeta(row, inputRowSet);
-              incrementLinesRead();
-              addDataVolumeInIfEnabled(row);
+              timeout = true;
             }
-          } else {
-            timeout = true;
+            nextInputStream();
+            inputRowSet = currentInputStream();
+            // only change delay time when input stream don't switch.
+            // else switch active stream and reset min delay time
+            waitingTime.adjust(timeout, inputRowSet);
           }
-          nextInputStream();
-          inputRowSet = currentInputStream();
-          // only change delay time when input stream don't switch.
-          // else switch active stream and reset min delay time
-          waitingTime.adjust(timeout, inputRowSet);
         }
       }
 
@@ -1848,7 +1995,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         obtainInputRowMeta(row, inputRowSet);
       }
     } finally {
-      inputRowSetsLock.readLock().unlock();
+      if (!lockFreeRowSets) {
+        inputRowSetsLock.readLock().unlock();
+      }
     }
 
     if (row != null) {
@@ -1868,6 +2017,53 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     verifyRejectionRates();
 
     return row;
+  }
+
+  /**
+   * Reads the next row with lock-free row sets, without the wait times of {@link DynamicWaitTimes}:
+   * the current input first, then the next ones, without waiting. When a whole round over the
+   * inputs finds nothing, the transform parks until one of them has a batch of rows or is done (see
+   * {@link LockFreeRowSet#awaitAny(List, long)}), so rows on any input wake it.
+   *
+   * @return the row, or null when every input is done (and removed) or the transform is stopped
+   */
+  private Object[] getRowLockFree(IRowSet inputRowSet) {
+    int emptyInputs = 0;
+    while (!isStopped()) {
+      Object[] row = inputRowSet.getRowImmediate();
+      if (row == null && inputRowSet.isDone()) {
+        // rows put before the row set was done are visible now: try once more
+        row = inputRowSet.getRowImmediate();
+        if (row == null) {
+          inputRowSetsLock.writeLock().lock();
+          try {
+            removeRowSetFromInputRowSets(inputRowSet);
+          } finally {
+            inputRowSetsLock.writeLock().unlock();
+          }
+          if (inputRowSets.isEmpty()) {
+            return null;
+          }
+          emptyInputs = 0;
+          inputRowSet = currentInputStream();
+          continue;
+        }
+      }
+      if (row != null) {
+        obtainInputRowMeta(row, inputRowSet);
+        incrementLinesRead();
+        addDataVolumeInIfEnabled(row);
+        blockPointer++;
+        return row;
+      }
+      if (++emptyInputs >= inputRowSets.size()) {
+        LockFreeRowSet.awaitAny(inputRowSets, LOCK_FREE_MAX_WAIT_NANOS);
+        emptyInputs = 0;
+      }
+      nextInputStream();
+      inputRowSet = currentInputStream();
+    }
+    return null;
   }
 
   /**
@@ -2097,7 +2293,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // The buffer to grow beyond "a few" entries.
     // We'll only do that if the previous transform has not ended...
 
-    if (!rowSet.isDone() && rowSet.size() <= lowerBufferBoundary && !isStopped()) {
+    if ((!lockFreeRowSets || rowSet.needsThrottling())
+        && !rowSet.isDone()
+        && rowSet.size() <= lowerBufferBoundary
+        && !isStopped()) {
       try {
         // A real 1 ms pause: sleep(0, 1) did that until JDK 21, which sleeps 1 ns (JDK-8305092)
         Thread.sleep(1);
@@ -2135,14 +2334,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       //
       rowData = rowSet.getRow();
       if (rowData == null) {
-        Integer waitTime = 20;
-        if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
-            instanceof LocalPipelineRunConfiguration runconfig) {
-          waitTime = Integer.parseInt(runconfig.getWaitTime());
-        }
-        if (waitTime == null) waitTime = 20;
+        // lock-free row sets do not use wait times
+        if (!lockFreeRowSets && waitingTime == null) {
+          Integer waitTime = 20;
+          if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
+              instanceof LocalPipelineRunConfiguration runconfig) {
+            waitTime = Integer.parseInt(runconfig.getWaitTime());
+          }
+          if (waitTime == null) waitTime = 20;
 
-        if (waitingTime == null) {
           waitingTime =
               DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
         }
@@ -3246,7 +3446,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private void removeRowSetFromInputRowSets(IRowSet rowSet) {
     inputRowSets.remove(rowSet);
-    waitingTime.remove(rowSet);
+    if (waitingTime != null) {
+      waitingTime.remove(rowSet); // null when lock-free row sets do not use wait times
+    }
     if (currentInputRowSetNr > 0) {
       currentInputRowSetNr--;
     }
@@ -3294,7 +3496,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void setInputRowSets(List<IRowSet> inputRowSets) {
     inputRowSetsLock.writeLock().lock();
     try {
-      this.inputRowSets = inputRowSets;
+      this.inputRowSets = lockFreeRowSets ? new CopyOnWriteArrayList<>(inputRowSets) : inputRowSets;
     } finally {
       inputRowSetsLock.writeLock().unlock();
     }
@@ -3338,7 +3540,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void setOutputRowSets(List<IRowSet> outputRowSets) {
     outputRowSetsLock.writeLock().lock();
     try {
-      this.outputRowSets = outputRowSets;
+      this.outputRowSets =
+          lockFreeRowSets ? new CopyOnWriteArrayList<>(outputRowSets) : outputRowSets;
     } finally {
       outputRowSetsLock.writeLock().unlock();
     }

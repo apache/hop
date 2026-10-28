@@ -45,13 +45,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.LockFreeRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -402,6 +402,12 @@ public abstract class Pipeline
 
   /** Directory for {@link SpillingRowSet} temp files; blank uses the system temp directory. */
   @Getter @Setter protected String bufferDeadlockSpillDirectory;
+
+  /**
+   * Experimental: use {@link LockFreeRowSet} instead of {@link BlockingRowSet} between transforms
+   * (hops that spill to disk keep their {@link SpillingRowSet}).
+   */
+  @Getter @Setter protected boolean lockFreeRowSets;
 
   public void setBufferDeadlockSpillHops(Set<SpillHop> bufferDeadlockSpillHops) {
     this.bufferDeadlockSpillHops =
@@ -857,22 +863,7 @@ public abstract class Pipeline
             IRowSet rowSet;
             switch (getPipelineType()) {
               case Normal:
-                // This is a temporary patch until the batching rowset has proven
-                // to be working in all situations.
-                // Currently there are stalling problems when dealing with small
-                // amounts of rows.
-                //
-                Boolean batchingRowSet =
-                    ValueMetaBase.convertStringToBoolean(
-                        System.getProperty(Const.HOP_BATCHING_ROWSET));
-                if (batchingRowSet != null && batchingRowSet) {
-                  rowSet = new BlockingBatchingRowSet(rowSetSize);
-                } else if (PipelineBufferDeadlockAnalyzer.shouldSpill(
-                    bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
-                  rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
-                } else {
-                  rowSet = new BlockingRowSet(rowSetSize);
-                }
+                rowSet = newRowSet(thisTransform.getName(), nextTransform.getName());
                 break;
 
               case SingleThreaded:
@@ -918,13 +909,7 @@ public abstract class Pipeline
           // distribution...
           for (int s = 0; s < thisCopies; s++) {
             for (int t = 0; t < nextCopies; t++) {
-              IRowSet rowSet;
-              if (PipelineBufferDeadlockAnalyzer.shouldSpill(
-                  bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
-                rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
-              } else {
-                rowSet = new BlockingRowSet(rowSetSize);
-              }
+              IRowSet rowSet = newRowSet(thisTransform.getName(), nextTransform.getName());
               rowSet.setThreadNameFromToCopy(
                   thisTransform.getName(), s, nextTransform.getName(), t);
               rowsets.add(rowSet);
@@ -2274,6 +2259,18 @@ public abstract class Pipeline
     return safeModeEnabled;
   }
 
+  /** Creates the row set of a hop in a normal (multi-threaded) pipeline. */
+  private IRowSet newRowSet(String fromTransformName, String toTransformName) {
+    if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+        bufferDeadlockSpillHops, fromTransformName, toTransformName)) {
+      return new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
+    }
+    if (lockFreeRowSets) {
+      return new LockFreeRowSet(rowSetSize);
+    }
+    return new BlockingRowSet(rowSetSize);
+  }
+
   /**
    * This adds a row producer to the pipeline that just got set up. It is preferable to run this
    * BEFORE execute() but after prepareExecution()
@@ -2296,7 +2293,8 @@ public abstract class Pipeline
     // We are going to add an extra IRowSet to this iTransform.
     IRowSet rowSet =
         switch (getPipelineType()) {
-          case Normal -> new BlockingRowSet(rowSetSize);
+          case Normal ->
+              lockFreeRowSets ? new LockFreeRowSet(rowSetSize) : new BlockingRowSet(rowSetSize);
           case SingleThreaded -> new QueueRowSet();
           default -> throw new HopException("Unhandled pipeline type: " + getPipelineType());
         };
