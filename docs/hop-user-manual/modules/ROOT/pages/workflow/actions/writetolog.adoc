@@ -57,7 +57,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 [options="header", width="90%", cols="1,3"]
 |===
 |Result|Value
-|True|The message was written, or there was nothing to write: an empty message, or a *Log level* that the workflow's log level doesn't show. The number of errors of the previous action is kept: this action doesn't reset it.
+|True|The message was written, or there was nothing to write: an empty message, or a *Log level* that the workflow's log level doesn't show. The number of errors of the previous action is kept: this action doesn't reset it. As the last action after an action with errors (for example a failed action on a failure hop), the workflow still ends as failed, although this action is true: add a xref:workflow/actions/success.adoc[Success] action after it to end the workflow successfully.
 |False|Only when writing the message fails, with 1 error.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
