@@ -80,7 +80,11 @@ fi
 HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=GUI -DHOP_AUTO_CREATE_CONFIG=Y -DHOP_PLATFORM_OS="$(uname -s)
 HOP_OPTIONS="${HOP_OPTIONS} --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/sun.nio.cs=ALL-UNNAMED --add-opens java.base/sun.security.action=ALL-UNNAMED --add-opens java.base/sun.util.calendar=ALL-UNNAMED --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED"
 
-os_arch="$(${_HOP_JAVA} -XshowSettings:properties -version 2>&1 | grep "os.arch" | awk -F= '{print $2}' | xargs)"
+if [ "$(uname -s)" = "Linux" ]; then
+  os_arch="$(uname -m)"
+else
+  os_arch="$(${_HOP_JAVA} -XshowSettings:properties -version 2>&1 | grep "os.arch" | awk -F= '{print $2}' | xargs)"
+fi
 arch_path="$(echo "$os_arch" | sed 's/aarch/arm/g' | sed 's/amd/x86_/g')"
 case $(uname -s) in
 Linux)
