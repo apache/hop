@@ -486,6 +486,12 @@ public class GlobalMessageUtil {
     }
 
     @Override
+    public List<String> getFormats(final String baseName) {
+      // newBundle() only reads properties files: also asking for java.class repeats every lookup
+      return FORMAT_PROPERTIES;
+    }
+
+    @Override
     public ResourceBundle newBundle(
         final String baseName,
         final Locale locale,
@@ -508,8 +514,9 @@ public class GlobalMessageUtil {
       } else {
         stream = loader.getResourceAsStream(resourceName);
       }
-      if (stream == null) {
+      if (stream == null && !delegatesToSystemClassLoader(loader)) {
         // Retry with the system class loader, just in case we are dealing with a messy plug-in.
+        // A loader that delegates to the system class loader has already searched it.
         stream = ClassLoader.getSystemResourceAsStream(resourceName);
       }
       if (stream != null) {
@@ -526,6 +533,16 @@ public class GlobalMessageUtil {
         throw new MissingResourceException(msg.toString(), loader.getClass().getName(), baseName);
       }
       return bundle;
+    }
+
+    private static boolean delegatesToSystemClassLoader(final ClassLoader loader) {
+      final ClassLoader system = ClassLoader.getSystemClassLoader();
+      for (ClassLoader current = loader; current != null; current = current.getParent()) {
+        if (current == system) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 }

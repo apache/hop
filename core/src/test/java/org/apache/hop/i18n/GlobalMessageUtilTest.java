@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +56,29 @@ class GlobalMessageUtilTest {
     assertFalse(GlobalMessageUtil.isMissingKey("foo"));
     assertFalse(GlobalMessageUtil.isMissingKey("!"));
     assertFalse(GlobalMessageUtil.isMissingKey(" !"));
+  }
+
+  @Test
+  void bundlesAreOnlyLookedUpAsPropertiesFiles() {
+    assertEquals(
+        ResourceBundle.Control.FORMAT_PROPERTIES,
+        new GlobalMessageUtil.GlobalMessageControl(true).getFormats("any.base.name"));
+  }
+
+  @Test
+  void bundleIsFoundThroughALoaderThatDoesNotDelegateToTheSystemLoader() throws Exception {
+    // A loader without the system class loader as an ancestor: the bundle comes from the retry
+    // on the system class loader
+    ClassLoader isolated = new URLClassLoader(new URL[0], ClassLoader.getPlatformClassLoader());
+    ResourceBundle bundle =
+        new GlobalMessageUtil.GlobalMessageControl(true)
+            .newBundle(
+                GlobalMessages.SYSTEM_BUNDLE_PACKAGE + "." + GlobalMessages.BUNDLE_NAME,
+                Locale.FRANCE,
+                "java.properties",
+                isolated,
+                false);
+    assertEquals("Une certaine valeur {0}", bundle.getString("someKey"));
   }
 
   @Test
