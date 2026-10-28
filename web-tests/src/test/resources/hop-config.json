@@ -16,10 +16,6 @@
     "value" : "Y",
     "description" : "Set this value to N if you don't want to automatically create a hop configuration file (hop-config.json) when it's missing\n    "
   }, {
-    "name" : "HOP_BATCHING_ROWSET",
-    "value" : "",
-    "description" : "Set this variable to 'Y' if you want to test a more efficient batching row set."
-  }, {
     "name" : "HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION",
     "value" : "N",
     "description" : ""

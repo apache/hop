@@ -217,6 +217,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     setGatheringMetrics(config.isGatheringMetrics());
     setFeedbackShown(config.isFeedbackShown());
     setFeedbackSize(Const.toInt(resolve(config.getFeedbackSize()), Const.ROWS_UPDATE));
+    setLockFreeRowSets(config.isLockFreeRowSets());
 
     // Buffer deadlock detection / optional minimal spill (classic local engine only)
     //

@@ -890,13 +890,6 @@ public class Const {
           "The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a difference for extremely short lived pipelines.")
   public static final String HOP_ROWSET_PUT_TIMEOUT = "HOP_ROWSET_PUT_TIMEOUT";
 
-  /** Set this variable to Y if you want to test a more efficient batching row set. (default = N) */
-  @Variable(
-      value = "N",
-      description =
-          "Set this variable to 'Y' if you want to test a more efficient batching row set.")
-  public static final String HOP_BATCHING_ROWSET = "HOP_BATCHING_ROWSET";
-
   /**
    * Set this variable to limit max number of files the Text File Output transform can have open at
    * one time.

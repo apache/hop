@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.server.loadbalance.ILoadBalancingRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -447,6 +448,9 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             @Override
             public void widgetModified(
                 GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+              if (LocalPipelineRunConfiguration.WIDGET_ID_LOCK_FREE_ROWSETS.equals(widgetId)) {
+                enableLocalEngineWidgets();
+              }
               setChanged();
             }
           });
@@ -481,6 +485,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                     engine,
                     wPluginSpecificComp,
                     PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+                enableLocalEngineWidgets();
                 wPluginSpecificComp.layout(true, true);
                 updatePluginSpecificMinSize();
               }
@@ -489,6 +494,33 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
           });
     }
     updatePluginSpecificMinSize();
+  }
+
+  /** The local engine does not use the wait time for buffer checks with lock-free row sets. */
+  private void enableLocalEngineWidgets() {
+    if (guiCompositeWidgets == null
+        || !(workingConfiguration.getEngineRunConfiguration()
+            instanceof LocalPipelineRunConfiguration)) {
+      return;
+    }
+    Control lockFree =
+        guiCompositeWidgets
+            .getWidgetsMap()
+            .get(LocalPipelineRunConfiguration.WIDGET_ID_LOCK_FREE_ROWSETS);
+    if (!(lockFree instanceof Button button) || button.isDisposed()) {
+      return;
+    }
+    boolean enabled = !button.getSelection();
+    Control waitTime =
+        guiCompositeWidgets.getWidgetsMap().get(LocalPipelineRunConfiguration.WIDGET_ID_WAIT_TIME);
+    if (waitTime != null && !waitTime.isDisposed()) {
+      waitTime.setEnabled(enabled);
+    }
+    Control waitTimeLabel =
+        guiCompositeWidgets.getLabelsMap().get(LocalPipelineRunConfiguration.WIDGET_ID_WAIT_TIME);
+    if (waitTimeLabel != null && !waitTimeLabel.isDisposed()) {
+      waitTimeLabel.setEnabled(enabled);
+    }
   }
 
   private void updatePluginSpecificMinSize() {
@@ -585,6 +617,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+        enableLocalEngineWidgets();
         updatePluginSpecificMinSize();
       }
       if (loadBalancingWidgets != null
