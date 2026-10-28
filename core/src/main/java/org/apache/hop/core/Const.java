@@ -340,28 +340,47 @@ public class Const {
   public static final String DEFAULT_NUMBER_FORMAT =
       ((DecimalFormat) (NumberFormat.getInstance())).toPattern();
 
+  /** The format defaults of one FORMAT locale. Immutable, so it can be shared without locking. */
+  private record FormatDefaults(
+      Locale locale,
+      char decimalSeparator,
+      char groupingSeparator,
+      String currencySymbol,
+      String numberFormat) {
+
+    static FormatDefaults of(Locale locale) {
+      DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
+      return new FormatDefaults(
+          locale,
+          symbols.getDecimalSeparator(),
+          symbols.getGroupingSeparator(),
+          symbols.getCurrencySymbol(),
+          ((DecimalFormat) NumberFormat.getInstance(locale)).toPattern());
+    }
+  }
+
   /**
-   * Cached symbols for the regional locale they were built from.
+   * The format defaults for the FORMAT locale they were built from.
    *
    * <p>These accessors are called from the {@code ValueMetaBase} constructor, so they sit on a hot
    * path: building a {@link DecimalFormatSymbols} on every call would be a real cost — the same one
    * {@code ValueMetaBase.getDecimalFormat()} already warns about for {@code DecimalFormat}. The
-   * symbols are therefore cached and rebuilt only when the FORMAT locale actually changes.
+   * defaults are therefore cached and rebuilt only when the FORMAT locale actually changes.
    *
-   * <p>Both fields are written together under {@code synchronized} and read together, so a racing
-   * reader can never pair one locale's symbols with another locale's marker.
+   * <p>The snapshot is immutable and published through a volatile field, so readers never lock and
+   * never pair one locale's symbols with another's. Two threads that see a locale change at the
+   * same time may both build a snapshot; both are correct and the last write wins.
    */
-  private static DecimalFormatSymbols cachedFormatSymbols;
+  private static volatile FormatDefaults formatDefaults;
 
-  private static Locale cachedFormatSymbolsLocale;
-
-  private static synchronized DecimalFormatSymbols getFormatSymbols() {
+  private static FormatDefaults getFormatDefaults() {
     Locale formatLocale = Locale.getDefault(Locale.Category.FORMAT);
-    if (cachedFormatSymbols == null || !formatLocale.equals(cachedFormatSymbolsLocale)) {
-      cachedFormatSymbols = new DecimalFormatSymbols(formatLocale);
-      cachedFormatSymbolsLocale = formatLocale;
+    FormatDefaults defaults = formatDefaults;
+    if (defaults == null || !formatLocale.equals(defaults.locale())) {
+      defaults = FormatDefaults.of(formatLocale);
+      formatDefaults = defaults;
     }
-    return cachedFormatSymbols;
+    return defaults;
   }
 
   /**
@@ -371,27 +390,27 @@ public class Const {
    * loaded and therefore predates the regional settings being installed.
    */
   public static char getDefaultDecimalSeparator() {
-    return getFormatSymbols().getDecimalSeparator();
+    return getFormatDefaults().decimalSeparator();
   }
 
   /** The grouping separator of the active regional settings, read at call time. */
   public static char getDefaultGroupingSeparator() {
-    return getFormatSymbols().getGroupingSeparator();
+    return getFormatDefaults().groupingSeparator();
   }
 
   /** The currency symbol of the active regional settings, read at call time. */
   public static String getDefaultCurrencySymbol() {
-    return getFormatSymbols().getCurrencySymbol();
+    return getFormatDefaults().currencySymbol();
   }
 
   /**
    * The number format pattern of the active regional settings, read at call time. In practice the
    * returned pattern is locale-invariant (locale-specific separators are applied later via
-   * DecimalFormatSymbols), so callers do not generally need to re-read it when the locale changes.
+   * DecimalFormatSymbols): on JDK 21 every available locale yields {@code #,##0.###} except
+   * en-US-POSIX, so callers do not generally need to re-read it when the locale changes.
    */
   public static String getDefaultNumberFormat() {
-    return ((DecimalFormat) NumberFormat.getInstance(Locale.getDefault(Locale.Category.FORMAT)))
-        .toPattern();
+    return getFormatDefaults().numberFormat();
   }
 
   /** Default string representing Null String values (empty) */
@@ -3092,7 +3111,7 @@ public class Const {
     if (numberFormats == null) {
       int numberFormatsCount = toInt(BaseMessages.getString(PKG, "Const.NumberFormat.Count"), 0);
       numberFormats = new String[numberFormatsCount + 1];
-      numberFormats[0] = DEFAULT_NUMBER_FORMAT;
+      numberFormats[0] = getDefaultNumberFormat();
       for (int i = 1; i <= numberFormatsCount; i++) {
         numberFormats[i] = BaseMessages.getString(PKG, "Const.NumberFormat" + i);
       }

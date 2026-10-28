@@ -321,7 +321,9 @@ public class ValueMetaBase implements IValueMeta {
     // settings rather than the GUI language.
     this.dateFormatLocale = Locale.getDefault(Locale.Category.FORMAT);
     this.collatorDisabled = true;
-    this.collatorLocale = Locale.getDefault();
+    // FORMAT for the same reason: sort order is a regional setting, and a sort must not change
+    // with the GUI language or differ between Hop GUI and hop-run.
+    this.collatorLocale = Locale.getDefault(Locale.Category.FORMAT);
     this.collator = Collator.getInstance(this.collatorLocale);
     this.collatorStrength = 0;
     this.dateFormatTimeZone = TimeZone.getDefault();

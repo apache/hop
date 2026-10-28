@@ -57,8 +57,16 @@ public class RegionalSettings {
    * The locale the JVM started with, captured before anything can overwrite it. The first {@code
    * Locale.setDefault(language)} destroys this value and it cannot be recovered afterwards, so
    * {@link Source#OPERATING_SYSTEM} would have nothing to read without this field.
+   *
+   * <p>It is the FORMAT category, not {@link Locale#getDefault()}: on Windows the JVM starts with
+   * the display language there and the regional format (user.language.format) in FORMAT, so an
+   * English Windows with Belgian regional settings would otherwise lose its {@code ,} decimal.
    */
-  private static final Locale OPERATING_SYSTEM_LOCALE = Locale.getDefault();
+  private static final Locale OPERATING_SYSTEM_LOCALE = captureOperatingSystemLocale();
+
+  static Locale captureOperatingSystemLocale() {
+    return Locale.getDefault(Locale.Category.FORMAT);
+  }
 
   private static RegionalSettings instance;
 
@@ -134,8 +142,9 @@ public class RegionalSettings {
    */
   public void applyHeadless() {
     // Under the default source this writes OPERATING_SYSTEM_LOCALE, which was captured from the
-    // JVM's own initial default — precisely what a headless run already carries, including when it
-    // was set with -Duser.language. Writing it back is therefore a no-op in practice.
+    // JVM's own initial FORMAT default — precisely what a headless run already carries, including
+    // when it was set with -Duser.language or -Duser.language.format. Writing it back is therefore
+    // a no-op.
     Locale formatLocale = getEffectiveLocale();
     if (formatLocale == null) {
       LogChannel.GENERAL.logBasic(

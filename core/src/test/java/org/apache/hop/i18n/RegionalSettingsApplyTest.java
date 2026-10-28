@@ -72,6 +72,19 @@ class RegionalSettingsApplyTest {
     assertEquals(settings.getOperatingSystemLocale(), Locale.getDefault(Locale.Category.FORMAT));
   }
 
+  /**
+   * Windows starts the JVM with the display language as the general locale and the regional format
+   * in FORMAT. The operating system locale must be read from FORMAT, or a headless run would
+   * overwrite the regional format with the display language.
+   */
+  @Test
+  void operatingSystemLocaleIsReadFromTheFormatCategory() {
+    Locale.setDefault(Locale.US);
+    Locale.setDefault(Locale.Category.FORMAT, Locale.forLanguageTag("nl-BE"));
+
+    assertEquals(Locale.forLanguageTag("nl-BE"), RegionalSettings.captureOperatingSystemLocale());
+  }
+
   @Test
   void headlessAppliesTheCustomLocaleToTheFormatCategoryOnly() {
     Locale.setDefault(Locale.GERMANY);

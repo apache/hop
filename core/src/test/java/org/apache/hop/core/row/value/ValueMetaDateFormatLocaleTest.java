@@ -99,6 +99,15 @@ class ValueMetaDateFormatLocaleTest {
   }
 
   @Test
+  void constructorCollatorLocaleFollowsTheRegionalSettingsNotTheLanguage() {
+    languageAndRegionalSettings(Locale.US, Locale.ITALY);
+
+    ValueMetaString valueMeta = new ValueMetaString("s");
+
+    assertEquals(Locale.ITALY, valueMeta.getCollatorLocale());
+  }
+
+  @Test
   void timestampExplicitDateLocaleIsHonouredEvenWhenItEqualsTheInterfaceLanguage() {
     languageAndRegionalSettings(Locale.ITALY, Locale.US);
 
