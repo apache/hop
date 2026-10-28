@@ -277,5 +277,32 @@ image:hop-gui/environment/edit-environment-menu.png[Edit environment menu]
 * *Duplicate environment...* creates a copy of the selected environment.
 * *Delete environment...* removes the environment from the Hop configuration.
 
+== Run a workflow from another project
+
+`hop-run -e` takes the project from the environment, and the variables from the configuration files of that environment.
+When `-e` is set, `-j` is ignored.
+
+A xref:workflow/actions/workflow.adoc[Workflow] or xref:workflow/actions/pipeline.adoc[Pipeline] action that runs a file from another project runs it in the project and environment of the calling workflow.
+It does not switch to an environment of the other project, so variables that are only defined in the configuration files of its environments are not set.
+
+To set them, add the configuration file of the other project to the environment of the calling project.
+In Hop Gui, choose *Edit environment...* and add the file on the *Configuration files* tab with *Select...*.
+With hop-conf, for example when environment `sales-dev` of project `sales` runs a workflow of project `crm`:
+
+[source,bash]
+----
+./hop-conf.sh --environment-modify --environment=sales-dev \
+     --environment-config-files=/data/environments/sales-dev/variables.json,/data/environments/crm-dev/variables.json
+----
+
+`--environment-config-files` replaces the whole list, so keep the files the environment already has: `./hop-conf.sh --environments-list` shows them.
+The files are applied in the order of the list, so when two files set the same variable, the last one wins.
+To add a file for a single run without changing the environment, pass it to hop-run with `--environment-conf-files`.
+
+NOTE: This brings the variables of the other project, not its metadata, such as database connections and run configurations.
+When the workflow needs those as well, set the other project as *Parent project to inherit from* on the *Parent project* tab of the calling project, or run `./hop-conf.sh --project-modify --project=sales --project-parent=crm`.
+The calling project then reads the metadata of both projects and the project variables of the parent, but not the configuration files of the parent's environments.
+A project has one parent, and also inherits from the parent's own parent.
+
 
 
