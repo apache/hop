@@ -729,13 +729,31 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return new String[0];
   }
 
+  /** The class in this plugin type's hierarchy that declares createUrlClassLoader(). */
+  private Class<?> scanClassLoaderBuilder() {
+    for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
+      try {
+        c.getDeclaredMethod("createUrlClassLoader", URL.class, ClassLoader.class);
+        return c;
+      } catch (NoSuchMethodException e) {
+        // look in the super class
+      }
+    }
+    return BasePluginType.class;
+  }
+
   protected void registerPluginJars() throws HopPluginException {
 
     List<PluginClassFile> pluginClassFiles = findAnnotatedClassFiles(pluginClass.getName());
+    Class<?> loaderBuilder = scanClassLoaderBuilder();
+    ClassLoader parent = getClass().getClassLoader();
     for (PluginClassFile pluginClassFile : pluginClassFiles) {
 
+      URL jarFile = pluginClassFile.getJarFile();
       URLClassLoader urlClassLoader =
-          createUrlClassLoader(pluginClassFile.getJarFile(), getClass().getClassLoader());
+          JarCache.getInstance()
+              .getScanClassLoader(
+                  jarFile, loaderBuilder, parent, () -> createUrlClassLoader(jarFile, parent));
 
       try {
         Class<?> clazz = urlClassLoader.loadClass(pluginClassFile.getClassName());
