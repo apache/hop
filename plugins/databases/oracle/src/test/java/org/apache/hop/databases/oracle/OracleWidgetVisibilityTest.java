@@ -202,7 +202,8 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
           Combo credentials =
               (Combo) widgets.getWidgetsMap().get(OracleDatabaseMeta.ID_TLS_CREDENTIAL_TYPE);
           credentials.setText(OracleTlsCredentialType.JKS.name());
-          meta.widgetModified(widgets, credentials, OracleDatabaseMeta.ID_TLS_CREDENTIAL_TYPE);
+          new OracleWidgetsListener(meta)
+              .widgetModified(widgets, credentials, OracleDatabaseMeta.ID_TLS_CREDENTIAL_TYPE);
           assertHangsBelow(
               widgets,
               OracleDatabaseMeta.ID_SSL_SERVER_DN_MATCH,
@@ -262,8 +263,9 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
       widgets.createCompositeWidgets(
           meta, null, inner, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
       widgets.setWidgetsContents(meta, inner, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-      widgets.setWidgetsListener(meta);
-      meta.widgetsPopulated(widgets);
+      OracleWidgetsListener listener = new OracleWidgetsListener(meta);
+      widgets.setWidgetsListener(listener);
+      listener.widgetsPopulated(widgets);
 
       shell.layout(true, true);
       shell.pack();
@@ -331,12 +333,14 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
           Button useTcps = (Button) widgets.getWidgetsMap().get(OracleDatabaseMeta.ID_USE_TCPS);
 
           useTcps.setSelection(false);
-          meta.widgetModified(widgets, useTcps, OracleDatabaseMeta.ID_USE_TCPS);
+          new OracleWidgetsListener(meta)
+              .widgetModified(widgets, useTcps, OracleDatabaseMeta.ID_USE_TCPS);
           assertHidden(widgets, OracleDatabaseMeta.ID_WALLET_DIRECTORY);
           assertHidden(widgets, OracleDatabaseMeta.ID_TLS_CREDENTIAL_TYPE);
 
           useTcps.setSelection(true);
-          meta.widgetModified(widgets, useTcps, OracleDatabaseMeta.ID_USE_TCPS);
+          new OracleWidgetsListener(meta)
+              .widgetModified(widgets, useTcps, OracleDatabaseMeta.ID_USE_TCPS);
           assertVisible(widgets, OracleDatabaseMeta.ID_WALLET_DIRECTORY);
           assertVisible(widgets, OracleDatabaseMeta.ID_TLS_CREDENTIAL_TYPE);
         });
@@ -362,8 +366,9 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
       widgets.createCompositeWidgets(
           meta, null, shell, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
       widgets.setWidgetsContents(meta, shell, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-      widgets.setWidgetsListener(meta);
-      meta.widgetsPopulated(widgets);
+      OracleWidgetsListener listener = new OracleWidgetsListener(meta);
+      widgets.setWidgetsListener(listener);
+      listener.widgetsPopulated(widgets);
 
       shell.layout(true, true);
       shell.pack();
@@ -439,7 +444,7 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
       GuiCompositeWidgets widgets = new GuiCompositeWidgets(new Variables());
       widgets.createCompositeWidgets(
           meta, null, shell, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
-      widgets.setWidgetsListener(meta);
+      widgets.setWidgetsListener(new OracleWidgetsListener(meta));
 
       // setWidgetsContents() calls Combo.setText(), which fires a Modify event, which sends the
       // editor straight back into getWidgetsContents() while the rest of the widgets are still
@@ -500,7 +505,8 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
         (meta, widgets) -> {
           Combo combo = (Combo) widgets.getWidgetsMap().get(OracleDatabaseMeta.ID_CONNECTION_TYPE);
           combo.setText(OracleConnectionType.SERVICE_NAME.name());
-          meta.widgetModified(widgets, combo, OracleDatabaseMeta.ID_CONNECTION_TYPE);
+          new OracleWidgetsListener(meta)
+              .widgetModified(widgets, combo, OracleDatabaseMeta.ID_CONNECTION_TYPE);
 
           // getWidgetsContents() is what the Test button runs before it builds the URL, so this is
           // the path between the combo and what actually gets connected to.

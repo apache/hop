@@ -29,10 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
@@ -324,7 +326,7 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
       widgets.createCompositeWidgets(source, null, shell, parentId, null);
       widgets.setWidgetsContents(source, shell, parentId);
 
-      if (source instanceof IGuiPluginCompositeWidgetsListener listener) {
+      if (listenerFor(source) instanceof IGuiPluginCompositeWidgetsListener listener) {
         widgets.setWidgetsListener(listener);
         listener.widgetsCreated(widgets);
         listener.widgetsPopulated(widgets);
@@ -345,6 +347,27 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
       }
       disposeQuietly(shell);
     }
+  }
+
+  /**
+   * The object that reacts to the widgets: the source object itself, or for a database the listener
+   * it names, created the way {@code DatabaseMetaEditor} does it.
+   */
+  private static Object listenerFor(Object source) {
+    if (source instanceof IDatabase database
+        && !Utils.isEmpty(database.getGuiWidgetsListenerClassName())) {
+      try {
+        return database
+            .getClass()
+            .getClassLoader()
+            .loadClass(database.getGuiWidgetsListenerClassName())
+            .getConstructor(IDatabase.class)
+            .newInstance(database);
+      } catch (ReflectiveOperationException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+    return source;
   }
 
   /**

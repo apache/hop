@@ -16,10 +16,8 @@
  */
 package org.apache.hop.databases.redshift;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -39,10 +37,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Control;
 
 @DatabaseMetaPlugin(
     type = "REDSHIFT",
@@ -51,8 +45,7 @@ import org.eclipse.swt.widgets.Control;
     documentationUrl = "/database/databases/redshift.html",
     classLoaderGroup = "redshift-db")
 @GuiPlugin(id = "GUI-RedshiftDatabaseMeta")
-public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta
-    implements IGuiPluginCompositeWidgetsListener {
+public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
 
   /** The host name of every serverless workgroup ends in this. */
   public static final String SERVERLESS_HOST_SUFFIX = ".redshift-serverless.amazonaws.com";
@@ -458,86 +451,7 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta
   }
 
   @Override
-  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
-    // Nothing to do, the values aren't set yet at this point.
-  }
-
-  @Override
-  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-    hideFieldsThatDoNotApply(compositeWidgets);
-  }
-
-  @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-    hideFieldsThatDoNotApply(compositeWidgets);
-  }
-
-  @Override
-  public void persistContents(GuiCompositeWidgets compositeWidgets) {
-    // Not needed, the dialog reads the widgets back itself.
-  }
-
-  /**
-   * Keeps the dialog down to the fields that can actually do something for the connection being
-   * edited. Between two deployments and four ways to authenticate, showing everything at once would
-   * leave most of the tab permanently empty and the fields that matter hard to pick out.
-   */
-  private void hideFieldsThatDoNotApply(GuiCompositeWidgets compositeWidgets) {
-    RedshiftDeploymentType deployment = readDeploymentType(compositeWidgets);
-    RedshiftAuthenticationType authentication = readAuthenticationType(compositeWidgets);
-    boolean serverless = deployment == RedshiftDeploymentType.SERVERLESS;
-
-    Set<String> hidden = new HashSet<>();
-    // The host name stays on offer for a serverless workgroup: left empty Hop builds the endpoint,
-    // filled in it wins, which is how a custom domain name or a load balancer is reached.
-    hideUnless(hidden, serverless, ID_WORKGROUP, ID_ACCOUNT_ID);
-    // A cluster only has to name itself when IAM has to find it.
-    hideUnless(hidden, !serverless && authentication.isIam(), ID_CLUSTER_ID);
-    // The region builds the host name, and IAM needs it to know which AWS to ask.
-    hideUnless(hidden, serverless || authentication.isIam(), ID_AWS_REGION);
-
-    hideUnless(
-        hidden,
-        authentication == RedshiftAuthenticationType.IAM_CREDENTIALS,
-        ID_AWS_ACCESS_KEY_ID,
-        ID_AWS_SECRET_ACCESS_KEY,
-        ID_AWS_SESSION_TOKEN);
-    hideUnless(hidden, authentication == RedshiftAuthenticationType.IAM_PROFILE, ID_AWS_PROFILE);
-    // Only a provisioned cluster maps IAM onto a named database user.
-    hideUnless(
-        hidden, authentication.isIam() && !serverless, ID_DB_USER, ID_DB_GROUPS, ID_AUTO_CREATE);
-
-    compositeWidgets.setWidgetsHidden(this, hidden);
-  }
-
-  private void hideUnless(Set<String> hidden, boolean applies, String... widgetIds) {
-    if (!applies) {
-      hidden.addAll(List.of(widgetIds));
-    }
-  }
-
-  private RedshiftDeploymentType readDeploymentType(GuiCompositeWidgets compositeWidgets) {
-    Control control = compositeWidgets.getWidgetsMap().get(ID_DEPLOYMENT_TYPE);
-    if (control instanceof Combo combo) {
-      try {
-        return RedshiftDeploymentType.valueOf(combo.getText());
-      } catch (IllegalArgumentException e) {
-        // Nothing selected yet, the metadata is the better answer.
-      }
-    }
-    return getDeploymentType();
-  }
-
-  private RedshiftAuthenticationType readAuthenticationType(GuiCompositeWidgets compositeWidgets) {
-    Control control = compositeWidgets.getWidgetsMap().get(ID_AUTHENTICATION_TYPE);
-    if (control instanceof Combo combo) {
-      try {
-        return RedshiftAuthenticationType.valueOf(combo.getText());
-      } catch (IllegalArgumentException e) {
-        // Nothing selected yet, the metadata is the better answer.
-      }
-    }
-    return getAuthenticationType();
+  public String getGuiWidgetsListenerClassName() {
+    return "org.apache.hop.databases.redshift.RedshiftWidgetsListener";
   }
 }
