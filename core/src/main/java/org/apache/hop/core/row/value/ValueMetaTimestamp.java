@@ -666,7 +666,13 @@ public class ValueMetaTimestamp extends ValueMetaDate {
 
       // Do we have a locale?
       //
-      if (dateFormatLocale == null || dateFormatLocale.equals(Locale.getDefault())) {
+      // Compared against the FORMAT category, not against Locale.getDefault(): that one carries the
+      // interface language, so a locale deliberately picked on the field would be dismissed as "no
+      // locale set" whenever it happened to match the language, and the field would silently follow
+      // the regional settings instead of the choice.
+      //
+      if (dateFormatLocale == null
+          || dateFormatLocale.equals(Locale.getDefault(Locale.Category.FORMAT))) {
         dateFormat = new SimpleTimestampFormat(mask);
       } else {
         dateFormat = new SimpleTimestampFormat(mask, dateFormatLocale);
