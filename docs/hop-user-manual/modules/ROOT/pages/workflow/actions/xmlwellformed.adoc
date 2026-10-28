@@ -32,19 +32,18 @@ The `Check if XML file is well-formed action` verifies if one or more files cont
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Include Subfolders|Option to move the content of sub-folders.
-|Copy previous results to args|Check this to pass the results of the previous action into the arguments of this action.
+|Include subfolders|Also check the matching files in the subfolders of a folder.
+|Copy previous results to args|Take the files or folders and wildcards from the result rows of the previous action instead of from the list. See <<Result>>.
 |File/Folder source|Enter or select (Browse button) a file or folder
-|Wildcard (RegExp)|A regular expression wildcard for the filename pattern
+|Wildcard (RegExp)|A regular expression matched against the whole path of each file in the folder, for example `+.*\.xml+` (see <<Result>>).
 |Files/Folders a|Specify the list of files or folders with wildcards (regular expressions) in this grid.
-You can add a different source/destination on each line.
+You can add a different file or folder and wildcard on each line.
 
 NOTE: You can use the Add button to add a line to the Files/Folders list.
 |===
 
 === Advanced tab
 
-In this tab you can specify the files and/or folders to move.
 
 [options="header", width="90%", cols="1,3"]
 |===
@@ -59,3 +58,20 @@ In this tab you can specify the files and/or folders to move.
 * Add only well-formed filenames
 * Add only bad-formed filenames
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The *Success condition* is met: every file well formed with *Success if all files are well formed*, at least *Nr files* well formed files with *Success if at least x files are well formed*, or fewer bad formed files than *Nr files* with *Success when number of bad formed files lesser than*. The number of errors is then 0.
+|False|The success condition is not met. A bad formed file counts as an error and does not stop the action. A path that does not exist counts as an error; with *Success if all files are well formed*, it stops the action, and the remaining entries are not checked.
+|Result files|*Add all filenames* (the default) adds every file checked, *Add only well formed filenames* only the well formed ones, and *Add only bad formed filenames* only the bad formed ones. The result files of the previous action are kept.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the file or folder and the wildcard come from the first two fields of each result row.
+|Lines written|The number of well formed files.
+|Lines rejected|The number of bad formed files.
+|===
+
+NOTE: A result row with fewer than two fields stops the workflow with an error, and no hop is followed. The wildcard is matched against the whole path of each file (for example `file:///data/in/orders.xml`), not its name: `+.*\.xml+` matches, `+orders\.xml+` matches nothing, and the action is still true.
