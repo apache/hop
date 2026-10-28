@@ -823,8 +823,11 @@ public class MetaInjectDialog extends BaseTransformDialog {
           String[] sourceFields = fieldMap.keySet().toArray(new String[0]);
           Arrays.sort(sourceFields);
 
+          // Never null: EnterSelectionDialog hides the "Use constant value" option on null.
           String constant =
-              mapping.getSourceTransformName() == null ? mapping.getSourceField() : "";
+              mapping.getSourceTransformName() == null
+                  ? Const.NVL(mapping.getSourceField(), "")
+                  : "";
           EnterSelectionDialog selectSourceFieldDialog =
               new EnterSelectionDialog(
                   shell,
