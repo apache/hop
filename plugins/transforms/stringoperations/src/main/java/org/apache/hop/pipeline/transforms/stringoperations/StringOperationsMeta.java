@@ -28,7 +28,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -52,7 +51,6 @@ import org.jetbrains.annotations.NotNull;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::StringOperationsMeta.keyword",
     documentationUrl = "/pipeline/transforms/stringoperations.html")
-@InjectionSupported(localizationPrefix = "StringOperationsDialog.Injection.")
 @Getter
 @Setter
 public class StringOperationsMeta

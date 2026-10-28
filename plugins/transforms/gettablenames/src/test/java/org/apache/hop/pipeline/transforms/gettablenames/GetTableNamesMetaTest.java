@@ -17,9 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.gettablenames;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -46,5 +48,16 @@ class GetTableNamesMetaTest {
     meta.setDynamicSchema(true);
     assertTrue(meta.consumesMainInput());
     assertFalse(meta.canStartWithoutInput());
+  }
+
+  /** Issue #9120: a class-level @InjectionSupported hid every metadata injection key. */
+  @Test
+  void injectionKeysAreAvailable() {
+    BeanInjectionInfo<GetTableNamesMeta> injectionInfo =
+        new BeanInjectionInfo<>(GetTableNamesMeta.class);
+    assertEquals(15, injectionInfo.getProperties().size());
+    assertTrue(injectionInfo.getProperties().containsKey("CONNECTIONNAME"));
+    assertTrue(injectionInfo.getProperties().containsKey("TABLENAMEFIELDNAME"));
+    assertTrue(injectionInfo.getProperties().containsKey("DYNAMICSCHEMA"));
   }
 }
