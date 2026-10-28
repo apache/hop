@@ -19,6 +19,8 @@ package org.apache.hop.avro.transforms.avroinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Set;
+import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Test;
@@ -52,5 +54,18 @@ class AvroInputMetaTest {
 
     assertEquals(meta.getOutputFieldName(), verify.getOutputFieldName());
     assertEquals(meta.getDataFilenameField(), verify.getDataFilenameField());
+  }
+
+  /** Issue #9120: a class-level @InjectionSupported hid every metadata injection key. */
+  @Test
+  void testInjectionMetadata() {
+    BeanInjectionInfo<AvroFileInputMeta> injectionInfo =
+        new BeanInjectionInfo<>(AvroFileInputMeta.class);
+    assertEquals(
+        Set.of("output_field", "data_filename_field", "rows_limit"),
+        injectionInfo.getProperties().keySet());
+    assertEquals(
+        "Avro output field name",
+        injectionInfo.getProperties().get("output_field").getTranslatedDescription());
   }
 }

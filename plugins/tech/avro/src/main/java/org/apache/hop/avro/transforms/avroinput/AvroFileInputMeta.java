@@ -19,7 +19,6 @@ package org.apache.hop.avro.transforms.avroinput;
 
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
@@ -38,16 +37,21 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/avro-file-input.html",
     keywords = "i18n::AvroFileInputMeta.keyword",
     excludedEngines = {"SparkPipelineEngine"})
-@InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFileInputData> {
 
-  @HopMetadataProperty(key = "output_field")
+  @HopMetadataProperty(
+      key = "output_field",
+      injectionKeyDescription = "AvroFileInputDialog.OutputField.Label")
   private String outputFieldName;
 
-  @HopMetadataProperty(key = "data_filename_field")
+  @HopMetadataProperty(
+      key = "data_filename_field",
+      injectionKeyDescription = "AvroFileInputDialog.FilenameField.Label")
   private String dataFilenameField;
 
-  @HopMetadataProperty(key = "rows_limit")
+  @HopMetadataProperty(
+      key = "rows_limit",
+      injectionKeyDescription = "AvroFileInputDialog.RowsLimit.Label")
   private String rowsLimit;
 
   public AvroFileInputMeta() {

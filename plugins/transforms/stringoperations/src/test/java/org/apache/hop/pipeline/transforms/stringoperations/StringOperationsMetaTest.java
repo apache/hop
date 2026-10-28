@@ -25,8 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.injection.bean.BeanInjectionInfo;
+import org.apache.hop.core.injection.bean.BeanInjector;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
@@ -164,5 +171,61 @@ class StringOperationsMetaTest {
     assertEquals(StringOperationsMeta.MaskXml.UNESCAPE_XML, o1.getMaskXml());
     assertEquals(StringOperationsMeta.Digits.DIGITS_REMOVE, o1.getDigits());
     assertEquals(StringOperationsMeta.RemoveSpecialChars.CRLF, o1.getRemoveSpecialChars());
+  }
+
+  /** Issue #9120: the operations must be offered to ETL Metadata Injection. */
+  @Test
+  void testInjectionMetadata() {
+    BeanInjectionInfo<StringOperationsMeta> injectionInfo =
+        new BeanInjectionInfo<>(StringOperationsMeta.class);
+
+    assertEquals(
+        Set.of(
+            "SOURCEFIELDS",
+            "TARGETFIELDS",
+            "TRIMTYPE",
+            "LOWERUPPER",
+            "INITCAP",
+            "MASKXML",
+            "DIGITS",
+            "SPECIALCHARS",
+            "PADDING",
+            "PADLEN",
+            "PADCHAR"),
+        injectionInfo.getProperties().keySet());
+    assertEquals("FIELDS", injectionInfo.getProperties().get("SOURCEFIELDS").getGroupKey());
+    assertEquals(
+        "In stream fields",
+        injectionInfo.getProperties().get("SOURCEFIELDS").getTranslatedDescription());
+  }
+
+  @Test
+  void testInjection() throws Exception {
+    BeanInjectionInfo<StringOperationsMeta> injectionInfo =
+        new BeanInjectionInfo<>(StringOperationsMeta.class);
+    BeanInjector<StringOperationsMeta> injector =
+        new BeanInjector<>(injectionInfo, new MemoryMetadataProvider());
+
+    IRowMeta rowMeta =
+        new RowMetaBuilder().addString("in").addString("trim").addString("case").build();
+    List<RowMetaAndData> rows =
+        List.of(
+            new RowMetaAndData(rowMeta, "name", "both", "upper"),
+            new RowMetaAndData(rowMeta, "city", "left", "lower"));
+
+    StringOperationsMeta meta = new StringOperationsMeta();
+    injector.setProperty(meta, "SOURCEFIELDS", rows, "in");
+    injector.setProperty(meta, "TRIMTYPE", rows, "trim");
+    injector.setProperty(meta, "LOWERUPPER", rows, "case");
+
+    assertEquals(2, meta.getOperations().size());
+    StringOperationsMeta.StringOperation o0 = meta.getOperations().get(0);
+    assertEquals("name", o0.getFieldInStream());
+    assertEquals(StringOperationsMeta.TrimType.BOTH, o0.getTrimType());
+    assertEquals(StringOperationsMeta.LowerUpper.UPPER, o0.getLowerUpper());
+    StringOperationsMeta.StringOperation o1 = meta.getOperations().get(1);
+    assertEquals("city", o1.getFieldInStream());
+    assertEquals(StringOperationsMeta.TrimType.LEFT, o1.getTrimType());
+    assertEquals(StringOperationsMeta.LowerUpper.LOWER, o1.getLowerUpper());
   }
 }
