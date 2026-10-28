@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -182,11 +184,15 @@ class ParentProjectFolderSynchronizerTest {
 
     Project project = projectWith(mapping("../escape", false, true, true, null));
 
+    int from = HopLogStore.getLastBufferLineNr();
     ParentProjectFolderSynchronizer.synchronize(
         LogChannel.GENERAL, project, childConfig(child), variables(parent, child));
 
     assertEquals("untouched", Files.readString(escape.resolve("marker.txt")));
     assertFalse(Files.exists(escape.resolve("safe.txt")));
+    String refused = messagesSince(from);
+    assertTrue(refused.contains("Refused to copy parent folder '../escape'"));
+    assertFalse(refused.contains("at org.apache"));
   }
 
   @Test
@@ -199,10 +205,16 @@ class ParentProjectFolderSynchronizerTest {
 
     Project project = projectWith(mapping("templates", false, true, true, "*.tmp"));
 
+    int from = HopLogStore.getLastBufferLineNr();
     ParentProjectFolderSynchronizer.synchronize(
         LogChannel.GENERAL, project, childConfig(child), variables(parent, child));
 
     assertFalse(Files.exists(child.resolve("templates/core.hpl")));
+    String ignored = messagesSince(from);
+    assertTrue(ignored.contains("Ignored invalid exclusion regular expression '*.tmp'"));
+    assertTrue(ignored.contains("That folder was not copied."));
+    assertFalse(ignored.contains("near index"));
+    assertFalse(ignored.contains("\n"));
   }
 
   @Test
@@ -248,6 +260,23 @@ class ParentProjectFolderSynchronizerTest {
         ParentProjectFolderSynchronizer.matchesExclusion(
             pattern, "hidden.txt", "secret/hidden.txt"));
     assertFalse(ParentProjectFolderSynchronizer.matchesExclusion(pattern, "keep.hpl", "keep.hpl"));
+  }
+
+  private static String messagesSince(int from) {
+    List<HopLoggingEvent> events =
+        HopLogStore.getLogBufferFromTo(
+            List.of(LogChannel.GENERAL.getLogChannelId()),
+            true,
+            from,
+            HopLogStore.getLastBufferLineNr());
+    StringBuilder text = new StringBuilder();
+    for (HopLoggingEvent event : events) {
+      if (text.length() > 0) {
+        text.append('\n');
+      }
+      text.append(event.getMessage());
+    }
+    return text.toString();
   }
 
   private static Project projectWith(ParentProjectFolder mapping) {
