@@ -34,6 +34,15 @@ class LocalFileProviderSuiteTest extends ProviderTestSuiteJunit5 {
     public FileObject getBaseTestFolder(final FileSystemManager manager) throws Exception {
       return manager.resolveFile(VfsTestUtils.getTestDirectoryFile().toURI());
     }
+
+    /**
+     * The local root is the build host's {@code /}: listing it makes the suite depend on whatever
+     * happens to live there, and one oddly named entry fails the build.
+     */
+    @Override
+    public boolean isFileSystemRootAccessible() {
+      return false;
+    }
   }
 
   LocalFileProviderSuiteTest() {
