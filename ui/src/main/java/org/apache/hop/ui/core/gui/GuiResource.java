@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.gui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -30,6 +31,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -133,10 +135,16 @@ public class GuiResource {
 
   // Images
   //
-  private Map<String, SwtUniversalImage> imagesTransforms;
-  private Map<String, SwtUniversalImage> imagesActions;
-  private Map<String, Image> imagesValueMeta;
-  private Map<String, Image> imagesDatabase;
+  /** Transform and action icons by plugin id, each loaded the first time it is asked for. */
+  private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
+
+  private Map<String, SwtUniversalImage> imagesActions = new Hashtable<>();
+
+  /** Value type icons by plugin id, each loaded the first time it is asked for. */
+  private Map<String, Image> imagesValueMeta = new HashMap<>();
+
+  /** Database icons by plugin id, each loaded the first time it is asked for. */
+  private Map<String, Image> imagesDatabase = new HashMap<>();
 
   private SwtUniversalImage imageLogo;
   private SwtUniversalImage imageDatabase;
@@ -313,12 +321,12 @@ public class GuiResource {
             new IPluginTypeListener() {
               @Override
               public void pluginAdded(Object serviceObject) {
-                loadTransformImages();
+                imagesTransforms = new Hashtable<>();
               }
 
               @Override
               public void pluginRemoved(Object serviceObject) {
-                loadTransformImages();
+                imagesTransforms = new Hashtable<>();
               }
 
               @Override
@@ -333,15 +341,14 @@ public class GuiResource {
             new IPluginTypeListener() {
               @Override
               public void pluginAdded(Object serviceObject) {
-                // make sure we load up the images for any new actions that have been registered
-                loadActionImages();
+                // the icons of new actions are loaded when they are asked for
+                imagesActions = new Hashtable<>();
               }
 
               @Override
               public void pluginRemoved(Object serviceObject) {
-                // rebuild the image map, in effect removing the image(s) for actions that have gone
-                // away
-                loadActionImages();
+                // forget the icons of actions that have gone away
+                imagesActions = new Hashtable<>();
               }
 
               @Override
@@ -432,10 +439,7 @@ public class GuiResource {
     // Load all images from files...
     loadFonts();
     loadCommonImages();
-    loadTransformImages();
-    loadActionImages();
-    loadValueMetaImages();
-    loadDatabaseImages();
+    // Transform, action, database and value type icons are loaded when they are first asked for
   }
 
   private void dispose() {
@@ -623,37 +627,74 @@ public class GuiResource {
     }
   }
 
-  /** Load all transform images from files. */
-  private void loadTransformImages() {
-    imagesTransforms = new Hashtable<>();
-
-    // TRANSFORM IMAGES TO LOAD
-    //
-    PluginRegistry registry = PluginRegistry.getInstance();
-
-    List<IPlugin> transforms = registry.getPlugins(TransformPluginType.class);
-    for (IPlugin transform : transforms) {
-      if (imagesTransforms.get(transform.getIds()[0]) != null) {
-        continue;
+  /**
+   * Load the icon of a transform or action plugin from its files.
+   *
+   * @param plugin the plugin
+   * @return the icon, or the missing image if it can not be loaded
+   */
+  private SwtUniversalImage loadPluginUniversalImage(IPlugin plugin) {
+    SwtUniversalImage image = null;
+    String filename = plugin.getImageFile();
+    try {
+      ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader(plugin);
+      image = SwtSvgImageUtil.getUniversalImage(display, classLoader, filename);
+    } catch (Throwable t) {
+      log.logError(
+          CONST_ERROR_OCCURRED_LOADING_IMAGE + filename + CONST_FOR_PLUGIN + plugin.getIds()[0], t);
+    } finally {
+      if (image == null) {
+        log.logError("Unable to load image [" + filename + CONST_FOR_PLUGIN + plugin.getIds()[0]);
+        image = SwtSvgImageUtil.getMissingImage(display);
       }
+    }
+    return image;
+  }
 
-      SwtUniversalImage image = null;
-      String filename = transform.getImageFile();
-      try {
-        ClassLoader classLoader = registry.getClassLoader(transform);
-        image = SwtSvgImageUtil.getUniversalImage(display, classLoader, filename);
-      } catch (Throwable t) {
-        log.logError(
-            CONST_ERROR_OCCURRED_LOADING_IMAGE + filename + CONST_FOR_PLUGIN + transform, t);
-      } finally {
-        if (image == null) {
-          log.logError("Unable to load image file [" + filename + CONST_FOR_PLUGIN + transform);
-          image = SwtSvgImageUtil.getMissingImage(display);
+  /**
+   * The plugin of the given type whose main id is the given id: the icons are kept by main id.
+   *
+   * @return the plugin, or null
+   */
+  private static IPlugin findPluginByMainId(Class<? extends IPluginType> pluginType, String id) {
+    IPlugin plugin = PluginRegistry.getInstance().findPluginWithId(pluginType, id);
+    return plugin != null && plugin.getIds()[0].equals(id) ? plugin : null;
+  }
+
+  /**
+   * Parses the SVG icons of all transforms and actions in a background thread, so that showing many
+   * of them at once, as the dialog to add a transform does, only has to draw them. The plugin class
+   * loaders are looked up here, on the calling thread.
+   */
+  public void preloadPluginIconsInBackground() {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    List<ClassLoader> classLoaders = new ArrayList<>();
+    List<String> filenames = new ArrayList<>();
+    for (Class<? extends IPluginType> pluginType :
+        List.of(TransformPluginType.class, ActionPluginType.class)) {
+      for (IPlugin plugin : registry.getPlugins(pluginType)) {
+        if (Utils.isEmpty(plugin.getImageFile())) {
+          continue;
+        }
+        try {
+          classLoaders.add(registry.getClassLoader(plugin));
+          filenames.add(plugin.getImageFile());
+        } catch (Exception e) {
+          // The icon is loaded, or reported missing, when it is asked for
         }
       }
-
-      imagesTransforms.put(transform.getIds()[0], image);
     }
+    Thread thread =
+        new Thread(
+            () -> {
+              for (int i = 0; i < filenames.size(); i++) {
+                SwtSvgImageUtil.preloadSvg(classLoaders.get(i), filenames.get(i));
+              }
+            },
+            "Hop icon preload");
+    thread.setDaemon(true);
+    thread.setPriority(Thread.MIN_PRIORITY);
+    thread.start();
   }
 
   private void loadFonts() {
@@ -975,55 +1016,6 @@ public class GuiResource {
     return image;
   }
 
-  /** Load all action images from files. */
-  private void loadActionImages() {
-    imagesActions = new Hashtable<>();
-
-    // ACTION IMAGES TO LOAD
-    //
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> plugins = registry.getPlugins(ActionPluginType.class);
-    for (IPlugin plugin : plugins) {
-      SwtUniversalImage image = null;
-      String filename = plugin.getImageFile();
-      try {
-        ClassLoader classLoader = registry.getClassLoader(plugin);
-        image = SwtSvgImageUtil.getUniversalImage(display, classLoader, filename);
-      } catch (Throwable t) {
-        log.logError(
-            CONST_ERROR_OCCURRED_LOADING_IMAGE + filename + CONST_FOR_PLUGIN + plugin.getIds()[0],
-            t);
-      } finally {
-        if (image == null) {
-          log.logError("Unable to load image [" + filename + CONST_FOR_PLUGIN + plugin.getIds()[0]);
-          image = SwtSvgImageUtil.getMissingImage(display);
-        }
-      }
-
-      imagesActions.put(plugin.getIds()[0], image);
-    }
-  }
-
-  /** Load all IDatabase images from files. */
-  private void loadDatabaseImages() {
-    imagesDatabase = new HashMap<>();
-    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(DatabasePluginType.class);
-    for (IPlugin plugin : plugins) {
-      Image image = this.loadPluginImage(plugin, getImageDatabase());
-      imagesDatabase.put(plugin.getIds()[0], image);
-    }
-  }
-
-  /** Load all IValueMeta images from files. */
-  private void loadValueMetaImages() {
-    imagesValueMeta = new HashMap<>();
-    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(ValueMetaPluginType.class);
-    for (IPlugin plugin : plugins) {
-      Image image = this.loadPluginImage(plugin, imageLabel);
-      imagesValueMeta.put(plugin.getIds()[0], image);
-    }
-  }
-
   /**
    * @return Returns the fontFixed.
    */
@@ -1127,7 +1119,12 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageAction(String pluginId) {
     SwtUniversalImage image = imagesActions.get(pluginId);
     if (image == null) {
-      return getSwtImageMissing();
+      IPlugin plugin = findPluginByMainId(ActionPluginType.class, pluginId);
+      if (plugin == null) {
+        return getSwtImageMissing();
+      }
+      image = loadPluginUniversalImage(plugin);
+      imagesActions.put(pluginId, image);
     }
     return image;
   }
@@ -1141,7 +1138,12 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageTransform(String pluginId) {
     SwtUniversalImage image = imagesTransforms.get(pluginId);
     if (image == null) {
-      return getSwtImageMissing();
+      IPlugin plugin = findPluginByMainId(TransformPluginType.class, pluginId);
+      if (plugin == null) {
+        return getSwtImageMissing();
+      }
+      image = loadPluginUniversalImage(plugin);
+      imagesTransforms.put(pluginId, image);
     }
     return image;
   }
@@ -1153,7 +1155,17 @@ public class GuiResource {
    */
   public Image getImage(IValueMeta valueMeta) {
     if (valueMeta == null) return this.imageLabel;
-    return imagesValueMeta.get(String.valueOf(valueMeta.getType()));
+    String pluginId = String.valueOf(valueMeta.getType());
+    Image image = imagesValueMeta.get(pluginId);
+    if (image == null) {
+      IPlugin plugin = findPluginByMainId(ValueMetaPluginType.class, pluginId);
+      if (plugin == null) {
+        return null;
+      }
+      image = loadPluginImage(plugin, imageLabel);
+      imagesValueMeta.put(pluginId, image);
+    }
+    return image;
   }
 
   /**
@@ -1163,7 +1175,17 @@ public class GuiResource {
    */
   public Image getImage(IDatabase database) {
     if (database == null) return this.getImageDatabase();
-    return imagesDatabase.get(database.getPluginId());
+    String pluginId = database.getPluginId();
+    Image image = imagesDatabase.get(pluginId);
+    if (image == null) {
+      IPlugin plugin = findPluginByMainId(DatabasePluginType.class, pluginId);
+      if (plugin == null) {
+        return null;
+      }
+      image = loadPluginImage(plugin, getImageDatabase());
+      imagesDatabase.put(pluginId, image);
+    }
+    return image;
   }
 
   /**

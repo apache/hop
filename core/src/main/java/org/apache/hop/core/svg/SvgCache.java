@@ -19,8 +19,17 @@ package org.apache.hop.core.svg;
 
 import java.awt.geom.Rectangle2D;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.CodeSource;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Stream;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
@@ -58,11 +67,78 @@ public class SvgCache {
     return instance;
   }
 
+  /**
+   * Parses the SVG images in a folder of the jar or class folder that holds the given class into
+   * this cache, in a background thread, so that loading them later only has to draw them. Needs no
+   * display and no GUI classes.
+   *
+   * @param anchor a class from the jar or class folder with the images
+   * @param folder the folder, for example {@code ui/images/}
+   */
+  public static void preloadFolderInBackground(Class<?> anchor, String folder) {
+    Thread thread =
+        new Thread(
+            () -> {
+              ClassLoader classLoader = anchor.getClassLoader();
+              for (String name : listSvgResources(anchor, folder)) {
+                try {
+                  loadSvg(new SvgFile(name, classLoader));
+                } catch (Exception e) {
+                  // Reported when the image is loaded
+                }
+              }
+            },
+            "Hop SVG preload");
+    thread.setDaemon(true);
+    thread.setPriority(Thread.MIN_PRIORITY);
+    thread.start();
+  }
+
+  /** The SVG resources in a folder of the jar or class folder that holds the class. */
+  static List<String> listSvgResources(Class<?> anchor, String folder) {
+    List<String> names = new ArrayList<>();
+    try {
+      CodeSource codeSource = anchor.getProtectionDomain().getCodeSource();
+      if (codeSource == null || codeSource.getLocation() == null) {
+        return names;
+      }
+      Path location = Path.of(codeSource.getLocation().toURI());
+      if (Files.isDirectory(location)) {
+        Path base = location.resolve(folder);
+        if (Files.isDirectory(base)) {
+          try (Stream<Path> files = Files.walk(base)) {
+            files
+                .filter(f -> f.toString().endsWith(".svg"))
+                .forEach(f -> names.add(location.relativize(f).toString().replace('\\', '/')));
+          }
+        }
+      } else if (Files.isRegularFile(location)) {
+        try (JarFile jar = new JarFile(location.toFile())) {
+          Enumeration<JarEntry> entries = jar.entries();
+          while (entries.hasMoreElements()) {
+            String name = entries.nextElement().getName();
+            if (name.startsWith(folder) && name.endsWith(".svg")) {
+              names.add(name);
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      // Nothing is preloaded: the images are parsed when they are loaded
+    }
+    return names;
+  }
+
   public static synchronized SvgCacheEntry findSvg(String filename) {
     return getInstance().fileDocumentMap.get(filename);
   }
 
-  public static synchronized SvgCacheEntry loadSvg(SvgFile svgFile) throws HopException {
+  /**
+   * Loads an SVG file into the cache. The file is parsed without holding the cache's lock: Batik
+   * can wait for the main thread (the AWT toolkit on macOS), and the main thread may be loading an
+   * image itself. Two threads can then parse the same file; the first result is kept.
+   */
+  public static SvgCacheEntry loadSvg(SvgFile svgFile) throws HopException {
 
     SvgCacheEntry cacheEntry = findSvg(svgFile.getFilename());
     if (cacheEntry != null) {
@@ -152,7 +228,13 @@ public class SvgCache {
               Math.round(height),
               Math.round(x),
               Math.round(y));
-      getInstance().fileDocumentMap.put(svgFile.getFilename(), cacheEntry);
+      synchronized (SvgCache.class) {
+        SvgCacheEntry existing = findSvg(svgFile.getFilename());
+        if (existing != null) {
+          return existing;
+        }
+        getInstance().fileDocumentMap.put(svgFile.getFilename(), cacheEntry);
+      }
       return cacheEntry;
     } catch (Exception e) {
       throw new HopException("Error loading SVG file " + svgFile.getFilename(), e);

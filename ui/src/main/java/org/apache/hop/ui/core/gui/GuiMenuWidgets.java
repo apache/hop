@@ -39,6 +39,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -46,6 +47,9 @@ import org.eclipse.swt.widgets.Shell;
 
 /** This class contains the widgets for Menu Bars */
 public class GuiMenuWidgets extends BaseGuiWidgets {
+
+  /** Data key of a menu item icon that is not loaded yet, and of a menu that loads them. */
+  private static final String PENDING_IMAGE = "hop.pendingMenuImage";
 
   private Map<String, MenuItem> menuItemMap;
   private Map<String, MenuItem> menuSeparatorMap;
@@ -246,15 +250,14 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     // Set label
     menuItem.setText(Const.NVL(guiMenuItem.getLabel(), ""));
 
-    // Set image
+    // Set image: loaded when the menu is first shown, most menus are never opened in a session
     if (StringUtils.isNotEmpty(guiMenuItem.getImage())) {
-      menuItem.setImage(
-          GuiResource.getInstance()
-              .getImage(
-                  guiMenuItem.getImage(),
-                  guiMenuItem.getClassLoader(),
-                  ConstUi.SMALL_ICON_SIZE,
-                  ConstUi.SMALL_ICON_SIZE));
+      menuItem.setData(PENDING_IMAGE, guiMenuItem);
+      Menu menu = menuItem.getParent();
+      if (menu.getData(PENDING_IMAGE) == null) {
+        menu.setData(PENDING_IMAGE, Boolean.TRUE);
+        menu.addListener(SWT.Show, e -> loadPendingImages(menu));
+      }
     }
 
     // See if there's a shortcut worth mentioning...
@@ -275,6 +278,33 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         && !EnvironmentUtils.getInstance().isWeb()) {
       menuItem.setToolTipText(guiMenuItem.getToolTip());
     }
+  }
+
+  private static void loadPendingImages(Menu menu) {
+    for (MenuItem item : menu.getItems()) {
+      getImage(item);
+    }
+  }
+
+  /**
+   * The image of a menu item. Images of the items built here are loaded when their menu is first
+   * shown, or by this method.
+   *
+   * @param menuItem the menu item
+   * @return its image, or null
+   */
+  public static Image getImage(MenuItem menuItem) {
+    if (menuItem.getData(PENDING_IMAGE) instanceof GuiMenuItem guiMenuItem) {
+      menuItem.setData(PENDING_IMAGE, null);
+      menuItem.setImage(
+          GuiResource.getInstance()
+              .getImage(
+                  guiMenuItem.getImage(),
+                  guiMenuItem.getClassLoader(),
+                  ConstUi.SMALL_ICON_SIZE,
+                  ConstUi.SMALL_ICON_SIZE));
+    }
+    return menuItem.getImage();
   }
 
   public static void appendShortCut(MenuItem menuItem, KeyboardShortcut shortcut) {
