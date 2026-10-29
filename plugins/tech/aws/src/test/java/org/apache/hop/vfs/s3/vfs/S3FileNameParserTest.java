@@ -55,4 +55,13 @@ class S3FileNameParserTest {
     withBaseFile = parser.parseUri(context, fileName, uri);
     assertEquals("s3", ((S3FileName) withBaseFile).getBucketId());
   }
+
+  @Test
+  void testParseUriWithEmptyAuthority() throws Exception {
+    String uri = "s3:///fooBucket/rcf-emr-staging";
+    S3FileName fileName = (S3FileName) parser.parseUri(null, null, uri);
+
+    assertEquals("fooBucket", fileName.getBucketId());
+    assertEquals(uri, fileName.getURI());
+  }
 }
