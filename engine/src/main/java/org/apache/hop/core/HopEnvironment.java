@@ -80,6 +80,9 @@ public class HopEnvironment {
    */
   private static final ThreadLocal<Boolean> initializing = new ThreadLocal<>();
 
+  /** Starts Log4j2 while the plugins are registered, see {@link #startLoggingBackend()}. */
+  private static final AtomicReference<Thread> loggingBackendStart = new AtomicReference<>();
+
   /**
    * Initializes the Hop environment. This method performs the following operations:
    *
@@ -90,6 +93,11 @@ public class HopEnvironment {
    * @throws HopException Any errors that occur during initialization will throw a HopException.
    */
   public static void init() throws HopException {
+    if (initialized.get() == null) {
+      // Building the plugin types below already reads the Hop configuration, and with it the
+      // logging back end starts
+      startLoggingBackend();
+    }
     init(getStandardPluginTypes());
   }
 
@@ -133,7 +141,7 @@ public class HopEnvironment {
       System.setProperties(ConcurrentMapProperties.convertProperties(System.getProperties()));
 
       try {
-        silenceVerboseThirdPartyLoggers();
+        startLoggingBackend();
 
         // This creates .hop and hop.properties...
         //
@@ -209,6 +217,7 @@ public class HopEnvironment {
         // If it's a HopException, throw it, otherwise wrap it in a HopException
         throw ((t instanceof HopException hopException) ? hopException : new HopException(t));
       } finally {
+        awaitLoggingBackend();
         initializing.remove();
       }
 
@@ -302,6 +311,71 @@ public class HopEnvironment {
       List.of(
           java.util.logging.Logger.getLogger("org.apache.hc.client5.http.wire"),
           java.util.logging.Logger.getLogger("com.microsoft.sqlserver.jdbc"));
+
+  /**
+   * Starting Log4j2 loads several hundred classes and parses its configuration, a few hundred
+   * milliseconds that do not depend on the plugins. It runs in the background while they are
+   * registered. Loggers handed out before it is done switch to the configured back end once it is;
+   * {@link #awaitLoggingBackend()} makes sure it is done when init() returns.
+   *
+   * <p>A command line tool can call this before it parses its arguments, when nothing in them can
+   * change the system properties the logging back end reads. init() starts it otherwise.
+   */
+  public static void startLoggingBackend() {
+    Thread thread =
+        new Thread(
+            () -> {
+              try {
+                // The same path as the first library that logs: commons-logging, then SLF4J
+                org.apache.commons.logging.LogFactory.getLog(HopEnvironment.class);
+              } catch (LinkageError | Exception ignored) {
+                // Logging falls back to whatever the libraries find themselves
+              }
+              silenceVerboseThirdPartyLoggers();
+            },
+            "Hop logging back end start");
+    thread.setDaemon(true);
+    if (loggingBackendStart.compareAndSet(null, thread)) {
+      thread.start();
+    }
+  }
+
+  /**
+   * Starts the logging back end for a command line tool before it parses its arguments, unless the
+   * arguments may set system properties: those must be applied first, as the logging back end reads
+   * them.
+   */
+  public static void startLoggingBackend(String[] args) {
+    if (!maySetSystemProperties(args)) {
+      startLoggingBackend();
+    }
+  }
+
+  /**
+   * Whether the arguments may hold system properties: -s or --system-properties, possibly in a
+   * group of short options, or an argument file that picocli expands.
+   */
+  static boolean maySetSystemProperties(String[] args) {
+    for (String arg : args) {
+      if (arg.startsWith("--system-properties")
+          || arg.startsWith("@")
+          || (arg.startsWith("-") && !arg.startsWith("--") && arg.indexOf('s') > 0)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static void awaitLoggingBackend() {
+    Thread thread = loggingBackendStart.getAndSet(null);
+    if (thread != null) {
+      try {
+        thread.join();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+  }
 
   /**
    * Default verbose third-party loggers to a non-debug level to prevent dumping raw network bytes

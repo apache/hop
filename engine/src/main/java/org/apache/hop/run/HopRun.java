@@ -46,6 +46,7 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
   }
 
   public static void main(String[] args) {
+    HopEnvironment.startLoggingBackend(args);
 
     HopRun hopRun = new HopRun();
 

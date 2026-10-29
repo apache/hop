@@ -694,6 +694,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
   }
 
   public static void main(String[] args) {
+    HopEnvironment.startLoggingBackend(args);
+
     String[] arguments =
         Stream.of(args)
             .flatMap(a -> Stream.of(a.split("(?=--)")))

@@ -78,6 +78,8 @@ public class Hop {
   }
 
   public static void main(String[] args) throws Exception {
+    HopEnvironment.startLoggingBackend(args);
+
     Hop hop = new Hop();
 
     hop.cmd = new CommandLine(hop);
