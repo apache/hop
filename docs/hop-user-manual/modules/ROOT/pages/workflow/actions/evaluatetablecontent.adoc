@@ -71,7 +71,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The number of rows meets the *Success when rows count* condition, with 0 errors.
-|False|The condition is not met: the number of errors is 0. When the table doesn't exist, *Target table name* is empty (without *Custom SQL*), or the connection is unknown or can't be opened, the number of errors is 1.
+|False|The condition is not met: the number of errors is 0. When the table doesn't exist, *Target table name* is empty (without *Custom SQL*), *SQL Script* is empty (with *Custom SQL*), the query fails, or the connection is unknown or can't be opened, the number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Without *Custom SQL*: passed on unchanged. With *Custom SQL*: *Clear list of result rows before execution* removes the previous result rows, also when *Add rows to result* is unchecked. *Add rows to result* adds the rows the query returns, also when the condition is not met.
 |Lines read|The number of rows counted.

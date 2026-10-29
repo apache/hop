@@ -63,7 +63,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The condition is met before *Maximum timeout*, or the timeout is reached while *Success on timeout* is checked. The number of errors is 0.
-|False|The timeout is reached while *Success on timeout* is unchecked, the connection can't be opened, or *Target table* is empty (without *Custom SQL*). The number of errors is 1.
+|False|The timeout is reached while *Success on timeout* is unchecked, the connection can't be opened, *Target table* is empty (without *Custom SQL*), or *SQL Script* is empty (with *Custom SQL*). The number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Without *Custom SQL*: passed on unchanged. With *Custom SQL*: *Clear list of result rows before execution* removes the previous result rows when the action starts, also when the condition is never met. *Add rows to result* adds the rows the query returns only when the condition is met.
 |===

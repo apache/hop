@@ -51,5 +51,5 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |False|A column doesn't exist, the table doesn't exist, the list of columns is empty, or the connection is empty, unknown or can't be opened. The number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
-|Lines written|The number of columns that exist in the table.
+|Lines written|The number of columns that exist in the table. When the connection is empty or unknown, *Table name* is empty or the list of columns is empty, the action stops before it checks anything and the value of the previous action is passed on unchanged.
 |===
