@@ -31,10 +31,26 @@ The `Truncate tables` action truncates one or several tables.
 |Option|Description
 |Action name|The name of the workflow action.
 |Connection|Name of the database connection on which the tables reside.
-|Previous results to args?|Check this option if you want to get in a dynamic way tables to truncate from results of previous workflow action.
+|Previous results to args|Check this option if you want to get in a dynamic way tables to truncate from results of previous workflow action.
 |Click here to return tables name list|This button will return all tables defined on the connection.
 Select tables (one or several) and press "OK".
 Tables name will be automatically added to "Selected tables" grid.
 |Selected tables grid|Specify here the tables to truncate (insert it manually or use the previous button).
-If the table is in a different schema that the default one, please specify the schema name.
+If the table is in a different schema than the default one, please specify the schema name.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every table was truncated, with 0 errors. Also true when there is nothing to truncate: an empty list, or *Previous results to args* checked while there are no previous result rows (the tables in the grid are not truncated then).
+|False|A table doesn't exist, or the connection is unknown or can't be opened. The number of errors is 1: the action stops at the first table that fails, and the tables after it are not truncated.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|Lines deleted|The number of tables truncated, not the number of rows.
+|===
+
+NOTE: With *Previous results to args*, the first field of each result row is the table name and the second field the schema name. A row with an empty table name is skipped: it is logged as an error, but doesn't count as one.

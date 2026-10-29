@@ -30,12 +30,24 @@ The `Check DB Connections` workflow action verifies connectivity with one or sev
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Connection|List of connections.
-// |Wait|After the connection was opened, wait x (s, min, hrs).
-// |Units of Time|Specify the unit of measurement for the length of time to remain connected.
-// |Get connections|Get available connects.
+|Connections|The connections to check, one per line. Each line has a *Connection*, a *Wait* and *Units of time*.
+|Wait|How long to keep the connection open after it was opened. Empty or 0: no wait.
+|Units of time|The unit of *Wait*: Milliseconds, Seconds, Minutes or Hours.
 |===
 
 The `Get connections` retrieves all of the available xref:metadata-types/rdbms-connection.adoc[Relational Database Connections] in the current project.
 
 The `Delete` button deletes the selected database connection line from the `Connections` table.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every connection in the list could be opened, with 0 errors. An empty list is also true.
+|False|A connection can't be opened, or doesn't exist in the project. The other connections are still checked: the number of errors is the number of connections that failed.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===

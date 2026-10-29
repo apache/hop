@@ -39,3 +39,17 @@ The `Columns exist in a table` action verifies that one or more columns exist in
 Use the `Browse` buttons to select a database schema or table from the selected connection.
 
 Use the `Get columns` button to retrieve the columns from the selected table.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every column in the list exists in the table, with 0 errors.
+|False|A column doesn't exist, the table doesn't exist, the list of columns is empty, or the connection is empty, unknown or can't be opened. The number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|Lines written|The number of columns that exist in the table.
+|===

@@ -36,13 +36,28 @@ Common uses associated with the SQL workflow action include truncating tables, d
 |===
 |Option|Description
 |Action name|The name of the workflow action.
-|Database Connection|The database connection to use.
+|Connection|The database connection to use.
 |SQL from file|Enable this option to load the SQL statement from a file given by the SQL filename
 |SQL filename|The filename for the file with SQL statements.
 |File encoding|Character encoding of the SQL file (e.g. UTF-8, windows-1252). Leave empty to use the system default. Useful when the file is UTF-8 but the system uses another encoding (e.g. Windows-1252).
-|Send SQL as single statement?|Enable this option to not separate the statement by semicolons.
+|Send SQL as single statement|Enable this option to not separate the statement by semicolons.
 This is often useful when a script is given or multiple statements should be processed and committed as one single statement.
-|Use variable substitution?|Enables variables to be used in the SQL Script.
-|SQL script|The SQL script to execute.
+|Use variable substitution|Enables variables to be used in the SQL Script.
+|SQL Script|The SQL script to execute.
 Multiple statements can be separated by semicolons.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every statement ran, with 0 errors. An empty SQL script is also true.
+|False|A statement fails, the SQL file doesn't exist, or the connection is unknown or can't be opened. The number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: Without *Send SQL as single statement*, the statements run one after the other. When one fails, the changes of the statements before it are kept, and the statements after it are not run. With *Send SQL as single statement*, the script goes to the database in one piece, and what is kept after an error depends on the database: on PostgreSQL, none of the changes are kept.
