@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.junit.jupiter.api.Test;
 
 class DatabaseSqlEditorTabTest {
@@ -57,6 +58,38 @@ class DatabaseSqlEditorTabTest {
   void typingAfterRestoreIsAUserEdit() {
     assertTrue(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 2", "SELECT 1"));
     assertTrue(DatabaseSqlEditorTab.isModifiedFromClean("SELECT 1", ""));
+  }
+
+  @Test
+  void sqlFailureTextUsesTheDatabaseMessage() {
+    Exception cause =
+        new Exception("ERROR: relation \"order_shipment_tracking\" does not exist\n  Position: 64");
+    String text =
+        DatabaseSqlEditorTab.sqlFailureText(
+            new HopDatabaseException("An error occurred executing SQL: \nSELECT 1", cause));
+    assertEquals("ERROR: relation \"order_shipment_tracking\" does not exist", text);
+  }
+
+  @Test
+  void sqlFailureTextKeepsASingleLineAndSurvivesANull() {
+    assertEquals(
+        "relation missing",
+        DatabaseSqlEditorTab.sqlFailureText(new Exception("relation missing\r\nmore")));
+    assertEquals("", DatabaseSqlEditorTab.sqlFailureText(null));
+  }
+
+  @Test
+  void shutdownRaceIsNotAQueryFailure() {
+    assertTrue(DatabaseSqlEditorTab.isShutdownRace(new IllegalStateException("Already disposed")));
+    assertTrue(
+        DatabaseSqlEditorTab.isShutdownRace(new IllegalStateException("Widget is disposed")));
+    assertTrue(
+        DatabaseSqlEditorTab.isShutdownRace(
+            new RuntimeException("wrapper", new IllegalStateException("Device is disposed"))));
+    assertFalse(
+        DatabaseSqlEditorTab.isShutdownRace(
+            new HopDatabaseException("ERROR: relation \"t\" does not exist")));
+    assertFalse(DatabaseSqlEditorTab.isShutdownRace(null));
   }
 
   @Test

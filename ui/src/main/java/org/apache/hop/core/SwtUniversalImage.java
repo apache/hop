@@ -63,8 +63,13 @@ public abstract class SwtUniversalImage {
     cache = null;
   }
 
+  /** True after {@link #dispose()}, including when the display has already released this image. */
+  public synchronized boolean isDisposed() {
+    return cache == null;
+  }
+
   private void checkDisposed() {
-    if (cache == null) {
+    if (isDisposed()) {
       throw new HopRuntimeException("Already disposed");
     }
   }

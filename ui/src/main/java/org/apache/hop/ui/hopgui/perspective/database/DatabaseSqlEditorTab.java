@@ -63,6 +63,8 @@ import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -467,6 +469,9 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
               nr++;
               if (sql.isQuery()) {
                 List<Object[]> rows = db.getRows(sql.getStatement(), rowLimit);
+                if (rows == null) {
+                  rows = List.of();
+                }
                 IRowMeta rowMeta = db.getReturnRowMeta();
                 queryResults.add(new DatabaseResultsPanel.QueryResult(nr, rowMeta, rows));
                 messages.append(queryResultMessage(nr, rows.size(), rowLimit)).append(Const.CR);
@@ -480,19 +485,23 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
               }
             }
           } catch (Exception e) {
+            // A bad statement is a result, not a GUI failure. Rethrowing it makes runOperation log
+            // the stack, and on Hop Web that takes the session down (issue #9136).
             if (!messages.isEmpty() && messages.charAt(messages.length() - 1) != '\n') {
               messages.append(Const.CR);
             }
+            String failure = sqlFailureText(e);
             messages
                 .append(BaseMessages.getString(PKG, "DatabasePerspective.SqlTab.Failed"))
                 .append(": ")
-                .append(Const.NVL(e.getMessage(), e.toString()));
-            throw e;
+                .append(Const.NVL(e.getMessage(), failure));
+            operation.fail(failure);
+            LogChannel.UI.logError(description + ": " + failure);
           } finally {
             String messageText = messages.toString();
             host.asyncExec(
                 () -> {
-                  if (control.isDisposed() || resultsPanel.isDisposed()) {
+                  if (control.isDisposed() || resultsPanel.isDisposed() || sash.isDisposed()) {
                     return;
                   }
                   resultsPanel.show(queryResults, messageText);
@@ -516,6 +525,59 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
 
   static int queryRowLimit() {
     return DatabasePerspectiveConfigSingleton.getConfig().resolvedQueryRowLimit();
+  }
+
+  /**
+   * One line for the operations status and the log. The results panel keeps {@code
+   * Throwable#getMessage()}, which includes the SQL. The root cause is the database text ({@code
+   * ERROR: relation "..." does not exist}); the first line of that is enough outside the panel.
+   */
+  static String sqlFailureText(Throwable error) {
+    if (error == null) {
+      return "";
+    }
+    Throwable root = error;
+    while (root.getCause() != null && root.getCause() != root) {
+      root = root.getCause();
+    }
+    String message = root.getMessage();
+    if (Utils.isEmpty(message)) {
+      message = error.getMessage();
+    }
+    if (Utils.isEmpty(message)) {
+      return root.toString();
+    }
+    int newline = message.indexOf('\n');
+    if (newline >= 0) {
+      message = message.substring(0, newline);
+    }
+    int cr = message.indexOf('\r');
+    if (cr >= 0) {
+      message = message.substring(0, cr);
+    }
+    return message.trim();
+  }
+
+  /**
+   * Display shutdown and a closed editor both surface as one of these. They are not defects to log
+   * again while the session is already going away.
+   */
+  static boolean isShutdownRace(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      String message = current.getMessage();
+      if (message != null
+          && (message.contains("Widget is disposed")
+              || message.contains("Already disposed")
+              || message.contains("Device is disposed"))) {
+        return true;
+      }
+      if (current.getCause() == current) {
+        break;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   static String queryResultMessage(int statementNr, int rowCount, int rowLimit) {
@@ -556,10 +618,25 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     if (tabItem == null || tabItem.isDisposed()) {
       return;
     }
+    GuiResource resources = GuiResource.getInstance();
+    if (resources.isDisposed()) {
+      return;
+    }
     tabItem.setText(Const.NVL(getName(), ""));
-    tabItem.setImage(GuiResource.getInstance().getImageFile());
-    tabItem.setFont(
-        changed ? GuiResource.getInstance().getFontBold() : tabItem.getParent().getFont());
+    Image image = resources.getImageFile();
+    if (image != null && !image.isDisposed()) {
+      tabItem.setImage(image);
+    }
+    Font font = tabItem.getParent() == null ? null : tabItem.getParent().getFont();
+    if (changed) {
+      Font bold = resources.getFontBold();
+      if (bold != null && !bold.isDisposed()) {
+        font = bold;
+      }
+    }
+    if (font != null && !font.isDisposed()) {
+      tabItem.setFont(font);
+    }
   }
 
   public void setChanged() {

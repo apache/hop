@@ -94,10 +94,10 @@ public class HopGuiDatabaseWorkbenchHost implements IDatabaseWorkbenchHost {
     }
     display.asyncExec(
         () -> {
-          if (alive != null && !alive.getAsBoolean()) {
+          if (display.isDisposed() || (alive != null && !alive.getAsBoolean())) {
             return;
           }
-          runnable.run();
+          DatabaseWorkbench.runSafely(runnable);
         });
   }
 

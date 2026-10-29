@@ -293,10 +293,10 @@ public class DatabasePerspective implements IHopPerspective, TabClosable, IDatab
     }
     display.asyncExec(
         () -> {
-          if (workbench == null || workbench.isDisposed()) {
+          if (display.isDisposed() || workbench == null || workbench.isDisposed()) {
             return;
           }
-          runnable.run();
+          DatabaseWorkbench.runSafely(runnable);
         });
   }
 

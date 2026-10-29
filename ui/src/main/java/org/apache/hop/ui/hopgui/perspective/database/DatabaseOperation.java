@@ -86,6 +86,12 @@ public class DatabaseOperation {
   }
 
   public void complete() {
+    // A statement failure marks the operation failed and returns. Completing afterwards must not
+    // turn that into success.
+    if (status != Status.RUNNING) {
+      detachDatabase();
+      return;
+    }
     status = cancelled ? Status.CANCELLED : Status.DONE;
     endTime = System.currentTimeMillis();
     detachDatabase();
