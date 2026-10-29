@@ -15,14 +15,20 @@
 #
 # Usage:
 #   ./tools/list-marketplace-plugins.sh
-#   HOP_VERSION=2.19.0-SNAPSHOT ./tools/list-marketplace-plugins.sh --zips
+#   HOP_VERSION=2.21.0-SNAPSHOT ./tools/list-marketplace-plugins.sh --zips
 #     → artifactId|modulePath/target/artifactId-${HOP_VERSION}.zip
 #
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REGISTRY="${ROOT}/plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml"
-VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
+# Default to the version of the reactor this script lives in (the project <version> right after
+# </parent> in the root pom), so a release version bump never leaves a stale default behind.
+VERSION="${HOP_VERSION:-$(awk '/<\/parent>/ {p=1; next} p && /<version>/ {gsub(/.*<version>|<\/version>.*/, ""); print; exit}' "${ROOT}/pom.xml")}"
+if [[ -z "${VERSION}" ]]; then
+  echo "Could not determine the Hop version from ${ROOT}/pom.xml; set HOP_VERSION." >&2
+  exit 1
+fi
 MODE="pairs"
 
 if [[ "${1:-}" == "--zips" ]]; then

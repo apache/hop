@@ -25,7 +25,6 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_DIR="${1:-${ROOT}/assemblies/client/target/hop}"
-VERSION="${HOP_VERSION:-2.20.0-SNAPSHOT}"
 LIST_SCRIPT="${ROOT}/tools/list-marketplace-plugins.sh"
 ZIP_DIR="${HOP_PLUGIN_ZIP_DIR:-}"
 
@@ -44,7 +43,7 @@ fi
 PLUGINS=()
 while IFS= read -r entry; do
   [[ -n "${entry}" ]] && PLUGINS+=("${entry}")
-done < <(HOP_VERSION="${VERSION}" "${LIST_SCRIPT}" --zips)
+done < <("${LIST_SCRIPT}" --zips)
 
 installed=0
 skipped=0
@@ -67,4 +66,12 @@ for entry in ${PLUGINS[@]+"${PLUGINS[@]}"}; do
 done
 
 echo "Marketplace plugins: installed=${installed} skipped=${skipped} into ${INSTALL_DIR}"
+# Installing nothing at all means the zips were looked up under the wrong version or were never
+# built. Fail here rather than let a later step trip over a missing plugin (e.g. the Beam-owned
+# hop-conf --generate-fat-jar option).
+if [[ ${#PLUGINS[@]} -gt 0 && ${installed} -eq 0 ]]; then
+  echo "ERROR: none of the ${#PLUGINS[@]} marketplace plugin zips were found." >&2
+  echo "Build the plugin modules first, or set HOP_VERSION to the version they were built with." >&2
+  exit 1
+fi
 # Note: the Beam plugin zip unpacks SDKs into lib/core (and Spark client jars into lib/spark-client).
