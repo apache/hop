@@ -40,6 +40,14 @@ public final class LineageFileIoEmitter {
   private LineageFileIoEmitter() {}
 
   /**
+   * Whether lineage is enabled. Callers that do extra work only to fill in an event (a file size, a
+   * URI) can check this first; the emit methods check it too.
+   */
+  public static boolean isEnabled() {
+    return LineageHub.getInstance().isEnabled();
+  }
+
+  /**
    * Records a file/object-store operation performed by a workflow action during {@link
    * IAction#execute}.
    *
@@ -87,7 +95,7 @@ public final class LineageFileIoEmitter {
       boolean success,
       String message,
       FileIoContentSchema contentSchema) {
-    if (workflow == null || action == null || operation == null) {
+    if (workflow == null || action == null || operation == null || !isEnabled()) {
       return;
     }
     emit(
@@ -113,7 +121,7 @@ public final class LineageFileIoEmitter {
       Long bytesTransferred,
       boolean success,
       String message) {
-    if (workflow == null || action == null || operation == null) {
+    if (workflow == null || action == null || operation == null || !isEnabled()) {
       return;
     }
     emitWorkflowActionFileIo(
@@ -168,7 +176,7 @@ public final class LineageFileIoEmitter {
       boolean success,
       String message,
       FileIoContentSchema contentSchema) {
-    if (transform == null || operation == null) {
+    if (transform == null || operation == null || !isEnabled()) {
       return;
     }
     LineageContext.Builder ctx = LineageRunLifecycleEmitter.transformContextBuilder(transform);
@@ -225,6 +233,9 @@ public final class LineageFileIoEmitter {
       boolean success,
       String message,
       FileIoContentSchema contentSchema) {
+    if (!isEnabled()) {
+      return;
+    }
     emitTransformFileIo(
         transform,
         operation,
