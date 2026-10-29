@@ -46,9 +46,14 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
   /** Why {@link #tryApplicationDefaultCredentials()} last came back empty-handed. */
   private String applicationDefaultProblem;
 
+  /** Whether the credentials of the default provider still have to be loaded. */
+  private boolean defaultCredentialsPending;
+
   public GoogleStorageFileProvider() {
     super();
-    setServiceAccountCredentials(null, null);
+    // Every Hop start creates the default provider, also where nobody uses Google Cloud Storage:
+    // its credentials are loaded when the first file system is asked for
+    defaultCredentialsPending = true;
   }
 
   public GoogleStorageFileProvider(
@@ -83,7 +88,15 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
   @Override
   protected FileSystem doCreateFileSystem(FileName rootName, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
+    loadPendingCredentials();
     return new GoogleStorageFileSystem(rootName, null, newFileSystemOptions);
+  }
+
+  private synchronized void loadPendingCredentials() {
+    if (defaultCredentialsPending) {
+      defaultCredentialsPending = false;
+      setServiceAccountCredentials(null, null);
+    }
   }
 
   /**
@@ -95,6 +108,7 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
   @Override
   protected synchronized FileSystem getFileSystem(
       FileName rootFileName, FileSystemOptions fileSystemOptions) throws FileSystemException {
+    loadPendingCredentials();
     return super.getFileSystem(rootFileName, newFileSystemOptions);
   }
 
