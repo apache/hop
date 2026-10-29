@@ -28,6 +28,14 @@ public class ProcessFilesData extends BaseTransformData implements ITransformDat
   public FileObject sourceFile;
   public FileObject targetFile;
 
+  /** Whether the target of the current row existed before the operation. */
+  public boolean targetFileExists;
+
+  public long basicFileLogLines;
+  public long filesProcessed;
+  public long filesSkipped;
+  public long filesOverwritten;
+
   public ProcessFilesData() {
     super();
     indexOfSourceFilename = -1;
