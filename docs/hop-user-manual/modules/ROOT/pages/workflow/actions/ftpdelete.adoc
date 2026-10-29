@@ -41,24 +41,14 @@ Existing workflows keep working and log a warning; new ones should use Delete fi
 |Protocol a|
 
 * FTP
-* SFTP (deprecated, see the note below)
+* SFTP (deprecated)
 
-|FTP connection|An optional xref:metadata-types/ftp-connection.adoc[FTP Connection] from the metadata. Pick one and the server, credentials, transfer mode, timeouts and proxy settings below come from that connection; leave it empty to configure the server on this action.
+|FTP connection|An optional xref:metadata-types/ftp-connection.adoc[FTP Connection] from the metadata. Pick one and the server, credentials, transfer mode, timeouts and proxy settings below come from that connection; leave it empty to configure the server on this action. To connect with FTPS, use an FTP connection and its *Security* option.
 |SFTP connection|An optional xref:metadata-types/sftp-connection.adoc[SFTP Connection] from the metadata, used when the protocol is SFTP.
-|FTP server name/IP address|The name of the server or the IP address.
-|Server Port|Port number of the FTP server.
+|FTP server name / IP address|The name of the server or the IP address.
+|Server port|Port number of the FTP server.
 |Username|The user name associated with FTP server account.
 |Password|The password associated the FTP server account.
-
-|Connection type a| FTPS connection type.
-
-* FTP
-* Implicit SSL
-* Authentication SSL
-* Implicit SSL with encrypted FTP connection
-* Authentication TLS
-* Implicit TLS
-* Implicit TLS with encrypted FTP connection
 
 |Use proxy|Whether or not to use a proxy.
 |Proxy host|Proxy server host name.
@@ -78,14 +68,14 @@ Existing workflows keep working and log a warning; new ones should use Delete fi
 |===
 |Option|Description
 2+|Advanced
-|Timeout|The timeout period.
+|Timeout|The timeout in milliseconds, for example 30000 for 30 seconds. 0 (the default): no timeout.
 |Use active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open.
 The default is Passive mode.
 2+|Remote
-|Copy previous results to args?
+|Copy previous results to args|Deletes the files named in the first field of the previous result rows, instead of the files matching *Wildcard*.
 |Remote directory|The directory on the remote FTP server.
 |Check folder|Checks if the directory exists.
-|Wildcard (regular expression)
+|Wildcard (regular expression)|The regular expression the file names must match. Required unless *Copy previous results to args* is checked.
 2+|Success condition
 |Success on a| The success condition
 
@@ -106,3 +96,23 @@ The default is Passive mode.
 |Username|User name associated with the Socks Proxy account.
 |Password|Password associated with the Socks Proxy account.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True a|Depends on *Success on*:
+
+* All works fine (default): no file failed. No file matching the wildcard is also true, and so is *Copy previous results to args* without previous result rows.
+* At least we delete x files: at least *Limit files* files were deleted.
+* Nr errors less than: the number of errors is at most *Limit files*. An empty *Wildcard* counts as 1 error, so with this condition it gives true with 1 error.
+|False|The success condition is not met, for example because the server can't be reached, the remote directory doesn't exist, or *Wildcard* is empty while *Copy previous results to args* is unchecked. The number of errors is the number of files that failed, or 1 when the action fails before deleting.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|Files retrieved|The number of files deleted. When the remote directory has no files, or *Copy previous results to args* is checked without previous result rows, the value of the previous action is passed on unchanged.
+|===
+
+NOTE: With *Copy previous results to args*, the first field of each previous result row is the name of a file to delete in the remote directory, and *Wildcard* is not used.
