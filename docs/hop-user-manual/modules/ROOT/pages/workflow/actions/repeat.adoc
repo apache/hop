@@ -88,12 +88,12 @@ What this action passes on to the next action. See xref:workflow/action-results.
 [options="header", width="90%", cols="1,3"]
 |===
 |Result|Value
-|True|The loop ended because an xref:workflow/actions/repeat-end.adoc[End repeat] action ran in the repeated workflow, or because the variable in *Stop repeating when this variable is set* got its value. The value is compared without case: `y` matches `Y`.
+|True|The loop ended because an xref:workflow/actions/repeat-end.adoc[End repeat] action ran in the repeated workflow, or because the variable in *Stop repeating when this variable is set* got its value, and the previous action was true. The value is compared without case: `y` matches `Y`.
 |False|A run of the file failed. The loop ends there.
 |Result files|The result files of the previous action, plus those of the last run. The runs before the last one add nothing.
 |Result rows|The result rows of the previous action, plus those of the last run, as for the result files. The metrics of the last run (such as lines written) are added in the same way.
 |===
 
-NOTE: When the variable already has its value before the first run, the file is not run at all and the result of the previous action is passed on unchanged, also when it was false.
+NOTE: Repeat doesn't set a true result of its own: when the loop ends normally (End repeat, or the variable got its value), the result of the previous action is passed on. After a false previous action, reached through an unconditional or a failure hop, the result stays false, with 0 errors, even when every run of the file succeeded. When the variable already has its value before the first run, the file is not run at all and the result of the previous action is passed on in the same way.
 
 NOTE: An empty *File to repeat*, or a *Delay in seconds* that is not a number, is not a false result: the workflow stops with an error and no hop from the action is followed.
