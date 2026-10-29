@@ -36,7 +36,7 @@ This action uses the MySQL https://dev.mysql.com/doc/refman/8.0/en/load-data.htm
 |Target schema|The schema of the table to load.
 |Target table name|The name of the table to load into.
 |Source file name|The name of the file to load.
-|Local|Check this if the file is local.
+|Local|Checked (default): Hop reads the file and sends it to MySQL (`LOAD DATA LOCAL`). The connection needs the option `allowLoadLocalInfile=true`, and the server needs `local_infile` enabled: without them the load fails. Unchecked: the MySQL server reads the file, so the path must exist on the database server.
 |Priority a|The priority to load the file with. The available options are:
 
 * NORMAL (default): no priority is set on the `LOAD DATA` command
@@ -48,7 +48,22 @@ This action uses the MySQL https://dev.mysql.com/doc/refman/8.0/en/load-data.htm
 |Lines started by|The line start string to use.
 |Lines terminated by|The line termination string to use.
 |Fields|The fields to load, separated by comma (,).
-|Replace data|Check this option if you want to replace the data in the target data.
-|Ignore the first ... lines|Ignores the first ... lines in the text file.
-|Add files to result|Check this option if you want to re-use the filename of the text file in a next workflow action.
+|Replace data|Checked (default): a row whose key already exists in the table replaces the existing row. Unchecked: the existing row is kept, and the row from the file is skipped.
+|Ignore the...first lines|Ignores this number of lines at the start of the file, for example a header line.
+|Add file to result filenames|Adds the source file to the result files, for use in a next workflow action.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The file was loaded, with 0 errors.
+|False|The file doesn't exist, the table doesn't exist, *Source File name* is empty, the connection is unknown or can't be opened, or MySQL refuses the load. The number of errors is 1.
+|Result files|The source file is added when *Add file to result filenames* is checked and the load succeeded. Otherwise passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: When the table doesn't exist, the reason is only logged at the Detailed log level: at the Basic level, the log shows a false action without an error message.
