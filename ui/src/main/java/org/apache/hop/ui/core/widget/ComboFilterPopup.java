@@ -182,7 +182,12 @@ public class ComboFilterPopup {
     if (updating || combo.isDisposed() || !combo.isFocusControl()) {
       return;
     }
-    hideNativeList();
+    // macOS cannot close the native list of an editable combo (setListVisible is a no-op there),
+    // so while it is open, typing would stack the filter popup next to it as a second list.
+    if (!hideNativeList()) {
+      closePopup();
+      return;
+    }
     updatePopup(typedQuery());
   }
 
@@ -387,14 +392,21 @@ public class ComboFilterPopup {
     }
   }
 
-  private void hideNativeList() {
+  /**
+   * Hides the native drop-down list.
+   *
+   * @return false when the native list is still showing afterwards
+   */
+  private boolean hideNativeList() {
     try {
       if (combo.getListVisible()) {
         combo.setListVisible(false);
+        return !combo.getListVisible();
       }
     } catch (SWTException ignored) {
       // Combo list visibility is not supported on every platform (e.g. some RAP builds).
     }
+    return true;
   }
 
   private void installMouseDownFilter() {

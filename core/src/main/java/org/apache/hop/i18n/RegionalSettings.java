@@ -68,6 +68,13 @@ public class RegionalSettings {
     return Locale.getDefault(Locale.Category.FORMAT);
   }
 
+  /**
+   * The default timezone the JVM started with (including {@code -Duser.timezone}), captured for the
+   * same reason: a lifecycle environment can install another one, and an environment that inherits
+   * has to be able to put this one back.
+   */
+  private static final TimeZone OPERATING_SYSTEM_TIME_ZONE = TimeZone.getDefault();
+
   private static RegionalSettings instance;
 
   private Source source;
@@ -221,5 +228,9 @@ public class RegionalSettings {
 
   public Locale getOperatingSystemLocale() {
     return OPERATING_SYSTEM_LOCALE;
+  }
+
+  public TimeZone getOperatingSystemTimeZone() {
+    return (TimeZone) OPERATING_SYSTEM_TIME_ZONE.clone();
   }
 }
