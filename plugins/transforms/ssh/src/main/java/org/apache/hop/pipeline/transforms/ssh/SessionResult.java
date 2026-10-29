@@ -75,11 +75,14 @@ public class SessionResult {
     try {
       channel = (ChannelExec) session.openChannel("exec");
       channel.setCommand(command);
+      // JSch drops output that arrives before a stream is attached: attach them before connecting
+      InputStream isOut = channel.getInputStream();
+      InputStream isErr = channel.getErrStream();
       channel.connect();
       SessionResult result = new SessionResult();
-      result.readFromChannel(channel, commandTimeoutMs, stopped, clock);
+      result.readFromChannel(channel, isOut, isErr, commandTimeoutMs, stopped, clock);
       return result;
-    } catch (JSchException e) {
+    } catch (JSchException | IOException e) {
       throw new HopException(e);
     } finally {
       if (channel != null) {
@@ -100,11 +103,14 @@ public class SessionResult {
   }
 
   private void readFromChannel(
-      ChannelExec channel, long commandTimeoutMs, BooleanSupplier stopped, LongSupplier clock)
+      ChannelExec channel,
+      InputStream isOut,
+      InputStream isErr,
+      long commandTimeoutMs,
+      BooleanSupplier stopped,
+      LongSupplier clock)
       throws HopException {
     try {
-      InputStream isOut = channel.getInputStream();
-      InputStream isErr = channel.getErrStream();
       byte[] buffer = new byte[8192];
       StringBuilder stdout = new StringBuilder();
       StringBuilder stderr = new StringBuilder();

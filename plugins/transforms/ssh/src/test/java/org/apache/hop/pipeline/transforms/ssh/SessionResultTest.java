@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
 import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 class SessionResultTest {
 
@@ -66,6 +68,26 @@ class SessionResultTest {
     assertEquals("line1\nline2\noops\n", result.getStd());
     verify(channel).setCommand("echo test");
     verify(channel).disconnect();
+  }
+
+  @Test
+  void executeCommandAttachesTheStreamsBeforeConnecting() throws Exception {
+    // JSch drops output that arrives before a stream is attached: a fast command lost its output
+    Session session = mock(Session.class);
+    ChannelExec channel = mock(ChannelExec.class);
+    when(session.openChannel("exec")).thenReturn(channel);
+    when(channel.getInputStream()).thenReturn(stream("out\n"));
+    when(channel.getErrStream()).thenReturn(stream(""));
+    when(channel.isClosed()).thenReturn(true);
+
+    SessionResult.executeCommand(session, "echo out");
+
+    InOrder order = inOrder(channel);
+    order.verify(channel).getInputStream();
+    order.verify(channel).connect();
+    order = inOrder(channel);
+    order.verify(channel).getErrStream();
+    order.verify(channel).connect();
   }
 
   @Test
