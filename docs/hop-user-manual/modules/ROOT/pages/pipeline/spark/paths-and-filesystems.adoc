@@ -83,7 +83,9 @@ For the full list of Hop VFS schemes, see xref:vfs.adoc[Virtual File Systems].
 
 On Windows, Hadoop's local file system sets POSIX permissions by running `winutils.exe` from `HADOOP_HOME` (or the `hadoop.home.dir` system property). Spark file output hits that call when the commit creates the output directory. With neither variable set, the write fails with `HADOOP_HOME and hadoop.home.dir are unset`.
 
-When Hop creates the Spark session on Windows and `winutils.exe` is not installed, local `file:///` reads and writes skip those permission changes. The files keep the permissions of the Hop process. You do not need a Hadoop installation for `local[*]`.
+When Hop creates the Spark session on Windows and `winutils.exe` is not installed, local `file:///` reads and writes skip those permission changes. Listing a directory during the output commit uses Java file checks as well. Hadoop's own listing calls `NativeIO.Windows.access`, which needs `hadoop.dll` and throws `UnsatisfiedLinkError` when that library is not installed. The files keep the permissions of the Hop process. You do not need a Hadoop installation for `local[*]`.
+
+A `file:///` path is this same local file system. A variable such as `+${PROJECT_HOME}+` is often stored as a `file:///` URI, and resolving it keeps that prefix. Spark File Output passes the resolved URI to Hadoop. A drive path such as `C:/output` uses the same file system.
 
 If `HADOOP_HOME` points at a directory that contains `bin/winutils.exe`, Hop keeps Hadoop's own local file system and permissions are applied. To choose a file system yourself, set `spark.hadoop.fs.file.impl` in the run configuration. That entry wins.
 

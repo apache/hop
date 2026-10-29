@@ -17,7 +17,11 @@
 
 package org.apache.hop.spark.fs;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.util.Arrays;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
@@ -37,10 +41,18 @@ import org.apache.spark.sql.SparkSession;
  * hadoop.home.dir}, and the call fails with {@code HADOOP_HOME and hadoop.home.dir are unset} when
  * neither is set. The file itself was already created by Java; only the permission change fails.
  *
- * <p>This class keeps the checksummed local file system and skips those permission changes. Files
- * keep the permissions of the Hop process. It is installed only when Hop creates the session, and
- * only when Windows has neither winutils nor Hadoop's native I/O library. An explicit {@code
- * spark.hadoop.fs.file.impl} in the run configuration is applied afterwards and wins.
+ * <p>This class keeps the checksummed local file system and skips those permission changes. It also
+ * lists directories with {@link File} instead of {@code FileUtil.list}. On Windows that helper
+ * calls {@code NativeIO.Windows.access} without checking that the native library loaded, and the
+ * resulting {@link UnsatisfiedLinkError} is not an {@link IOException}. Spark file output hits it
+ * when {@code FileOutputCommitter} lists the output directory. A {@code file:///} path, including
+ * one produced by resolving a VFS variable such as {@code PROJECT_HOME}, is this same local file
+ * system.
+ *
+ * <p>Files keep the permissions of the Hop process. The class is installed only when Hop creates
+ * the session, and only when Windows has neither winutils nor Hadoop's native I/O library. An
+ * explicit {@code spark.hadoop.fs.file.impl} in the run configuration is applied afterwards and
+ * wins. A reused session keeps the file system it was created with.
  */
 public class HopWindowsLocalFileSystem extends LocalFileSystem {
 
@@ -48,7 +60,12 @@ public class HopWindowsLocalFileSystem extends LocalFileSystem {
   public static final String SPARK_HADOOP_FILE_IMPL = "spark.hadoop.fs.file.impl";
 
   public HopWindowsLocalFileSystem() {
-    super(new WinutilsFreeRawLocalFileSystem());
+    this(new WinutilsFreeRawLocalFileSystem());
+  }
+
+  /** Visible to tests that supply a raw file system with the Java directory listing forced on. */
+  HopWindowsLocalFileSystem(WinutilsFreeRawLocalFileSystem raw) {
+    super(raw);
   }
 
   /**
@@ -89,17 +106,79 @@ public class HopWindowsLocalFileSystem extends LocalFileSystem {
     if (log != null) {
       log.logBasic(
           "HADOOP_HOME and hadoop.home.dir are unset. Local Spark paths will keep the"
-              + " permissions of this process instead of calling winutils.");
+              + " permissions of this process instead of calling winutils or Hadoop's native"
+              + " Windows library.");
     }
   }
 
   /**
-   * Raw local file system that does not shell out for chmod or for owner lookups.
+   * Raw local file system that does not shell out for chmod or for owner lookups, and does not call
+   * the Windows native access check while listing a directory.
    *
    * <p>{@code mkdirs} and {@code create} call {@code setPermission} on this instance, not on the
-   * checksum wrapper, so the override has to live here.
+   * checksum wrapper. {@code ChecksumFileSystem.listStatus} calls {@code listStatus} here. Both
+   * overrides have to live on this class.
    */
   public static class WinutilsFreeRawLocalFileSystem extends RawLocalFileSystem {
+
+    @Override
+    public FileStatus[] listStatus(Path f) throws IOException {
+      if (!skipNativeDirectoryListing()) {
+        return super.listStatus(f);
+      }
+      File localFile = pathToFile(f);
+      if (!localFile.exists()) {
+        throw new FileNotFoundException("File " + f + " does not exist");
+      }
+      if (!localFile.isDirectory()) {
+        return new FileStatus[] {getFileStatus(f)};
+      }
+      String[] names = listLocalNames(localFile);
+      FileStatus[] results = new FileStatus[names.length];
+      int kept = 0;
+      for (String name : names) {
+        try {
+          // The three-argument Path keeps a colon in a name from being read as a scheme.
+          results[kept] = getFileStatus(new Path(f, new Path(null, null, name)));
+          kept++;
+        } catch (FileNotFoundException ignored) {
+          // The directory changed between list() and getFileStatus().
+        }
+      }
+      if (kept == names.length) {
+        return results;
+      }
+      return Arrays.copyOf(results, kept);
+    }
+
+    /**
+     * Whether directory listing should use {@link File} instead of {@code FileUtil.list}.
+     *
+     * <p>The default follows {@link HopWindowsLocalFileSystem#needed()}. Tests override it so the
+     * Java listing can run on Linux, where {@code needed()} is false and {@code FileUtil.canRead}
+     * does not call the Windows native method.
+     */
+    boolean skipNativeDirectoryListing() {
+      return HopWindowsLocalFileSystem.needed();
+    }
+
+    /**
+     * Names in a directory, using {@link File#canRead()} and {@link File#list()}.
+     *
+     * <p>{@code FileUtil.list} refuses the directory through {@code FileUtil.canRead}. On Windows
+     * that method always calls {@code NativeIO.Windows.access}. When {@code hadoop.dll} is not
+     * loaded the native method throws {@link UnsatisfiedLinkError}.
+     */
+    static String[] listLocalNames(File directory) throws IOException {
+      if (!directory.canRead()) {
+        throw new AccessDeniedException(directory.toString(), null, "Permission denied");
+      }
+      String[] names = directory.list();
+      if (names == null) {
+        throw new IOException("Invalid directory or I/O error occurred for dir: " + directory);
+      }
+      return names;
+    }
 
     @Override
     public void setPermission(Path path, FsPermission permission) throws IOException {
