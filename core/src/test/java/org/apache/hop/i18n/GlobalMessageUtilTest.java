@@ -82,6 +82,36 @@ class GlobalMessageUtilTest {
   }
 
   @Test
+  void noRetryOnTheSystemLoaderForALoaderThatDelegatesToIt() {
+    ClassLoader system = ClassLoader.getSystemClassLoader();
+    assertTrue(GlobalMessageUtil.GlobalMessageControl.delegatesToSystemClassLoader(system));
+    assertTrue(
+        GlobalMessageUtil.GlobalMessageControl.delegatesToSystemClassLoader(
+            new URLClassLoader(new URL[0], system)));
+    assertTrue(
+        GlobalMessageUtil.GlobalMessageControl.delegatesToSystemClassLoader(
+            new URLClassLoader(new URL[0], new URLClassLoader(new URL[0], system))));
+    assertFalse(
+        GlobalMessageUtil.GlobalMessageControl.delegatesToSystemClassLoader(
+            new URLClassLoader(new URL[0], ClassLoader.getPlatformClassLoader())));
+  }
+
+  @Test
+  void bundleIsFoundThroughALoaderThatDelegatesToTheSystemLoader() throws Exception {
+    // No retry for this loader: the bundle comes from its own parent chain
+    ClassLoader child = new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
+    ResourceBundle bundle =
+        new GlobalMessageUtil.GlobalMessageControl(true)
+            .newBundle(
+                GlobalMessages.SYSTEM_BUNDLE_PACKAGE + "." + GlobalMessages.BUNDLE_NAME,
+                Locale.FRANCE,
+                "java.properties",
+                child,
+                false);
+    assertEquals("Une certaine valeur {0}", bundle.getString("someKey"));
+  }
+
+  @Test
   void calculateString() {
 
     // "fr", "FR"

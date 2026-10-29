@@ -28,13 +28,17 @@ import java.text.MessageFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.HopURLClassLoader;
 
 public class GlobalMessageUtil {
 
@@ -462,6 +466,22 @@ public class GlobalMessageUtil {
    */
   static class GlobalMessageControl extends ResourceBundle.Control {
 
+    private static final Map<String, Optional<URL>> SYSTEM_RESOURCES = new ConcurrentHashMap<>();
+
+    /** Whether a class loader class still finds resources the way HopURLClassLoader does. */
+    private static final ClassValue<Boolean> USES_HOP_RESOURCE_ORDER =
+        new ClassValue<>() {
+          @Override
+          protected Boolean computeValue(final Class<?> type) {
+            try {
+              return type.getMethod("getResource", String.class).getDeclaringClass()
+                  == HopURLClassLoader.class;
+            } catch (NoSuchMethodException e) {
+              return false;
+            }
+          }
+        };
+
     private boolean fallbackOnRoot;
 
     GlobalMessageControl(final boolean fallbackOnRoot) {
@@ -512,12 +532,12 @@ public class GlobalMessageUtil {
           }
         }
       } else {
-        stream = loader.getResourceAsStream(resourceName);
+        stream = openStream(findResource(loader, resourceName));
       }
       if (stream == null && !delegatesToSystemClassLoader(loader)) {
         // Retry with the system class loader, just in case we are dealing with a messy plug-in.
         // A loader that delegates to the system class loader has already searched it.
-        stream = ClassLoader.getSystemResourceAsStream(resourceName);
+        stream = openStream(findSystemResource(resourceName));
       }
       if (stream != null) {
         try {
@@ -535,7 +555,42 @@ public class GlobalMessageUtil {
       return bundle;
     }
 
-    private static boolean delegatesToSystemClassLoader(final ClassLoader loader) {
+    /**
+     * Looks a bundle up the way the loader would, but answers the system class loader's part from a
+     * cache. Most candidate bundles exist nowhere, and every plugin loader would otherwise search
+     * all the jars on the class path again for each of them.
+     */
+    private static URL findResource(final ClassLoader loader, final String name) {
+      if (loader == ClassLoader.getSystemClassLoader()) {
+        return findSystemResource(name);
+      }
+      if (loader instanceof HopURLClassLoader hopLoader
+          && USES_HOP_RESOURCE_ORDER.get(loader.getClass())) {
+        // HopURLClassLoader.getResource(): this loader's own jars first, then the parent
+        final URL url = hopLoader.findResource(name);
+        if (url != null || hopLoader.getParent() == null) {
+          return url;
+        }
+        return findResource(hopLoader.getParent(), name);
+      }
+      return loader.getResource(name);
+    }
+
+    private static URL findSystemResource(final String name) {
+      if (ClassPathPropertiesIndex.isAbsent(name)) {
+        return null;
+      }
+      // The system class path does not change while Hop runs
+      return SYSTEM_RESOURCES
+          .computeIfAbsent(name, n -> Optional.ofNullable(ClassLoader.getSystemResource(n)))
+          .orElse(null);
+    }
+
+    private static InputStream openStream(final URL url) throws IOException {
+      return url == null ? null : url.openStream();
+    }
+
+    static boolean delegatesToSystemClassLoader(final ClassLoader loader) {
       final ClassLoader system = ClassLoader.getSystemClassLoader();
       for (ClassLoader current = loader; current != null; current = current.getParent()) {
         if (current == system) {
