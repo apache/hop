@@ -70,6 +70,24 @@ class DatabaseOperationsPanelTest {
   }
 
   @Test
+  void completeLeavesAFailureInPlace() {
+    DatabaseOperation operation = new DatabaseOperation("Execute SQL on CRM", "CRM");
+    operation.fail("ERROR: relation \"order_shipment_tracking\" does not exist");
+    operation.complete();
+    assertEquals(DatabaseOperation.Status.FAILED, operation.getStatus());
+    assertEquals(
+        "ERROR: relation \"order_shipment_tracking\" does not exist", operation.getErrorMessage());
+  }
+
+  @Test
+  void completeOfACancelledRunIsCancelled() {
+    DatabaseOperation operation = new DatabaseOperation("Execute SQL on CRM", "CRM");
+    operation.cancel();
+    operation.complete();
+    assertEquals(DatabaseOperation.Status.CANCELLED, operation.getStatus());
+  }
+
+  @Test
   void failDetachesDatabase() {
     DatabaseOperation operation = new DatabaseOperation("Connect", "shop");
     operation.attachDatabase(mock(Database.class));

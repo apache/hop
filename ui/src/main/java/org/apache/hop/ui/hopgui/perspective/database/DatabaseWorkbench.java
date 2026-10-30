@@ -1622,15 +1622,48 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     BackgroundThreadFacade.start(
         () -> {
           try {
-            work.run(operation);
-            operation.complete();
-          } catch (Exception e) {
-            LogChannel.UI.logError(description, e);
-            operation.fail(Const.NVL(e.getMessage(), e.toString()));
+            try {
+              work.run(operation);
+              operation.complete();
+            } catch (Exception e) {
+              // The SQL editor records a statement failure itself and does not throw. Anything
+              // that still escapes is unexpected.
+              if (operation.getStatus() == DatabaseOperation.Status.RUNNING) {
+                LogChannel.UI.logError(description, e);
+                operation.fail(Const.NVL(e.getMessage(), e.toString()));
+              }
+            }
+            host.asyncExec(this::refreshOperationsQuietly);
+          } catch (RuntimeException e) {
+            if (operation.getStatus() == DatabaseOperation.Status.RUNNING) {
+              operation.fail(Const.NVL(e.getMessage(), e.toString()));
+            }
+            if (!DatabaseSqlEditorTab.isShutdownRace(e)) {
+              LogChannel.UI.logError(description, e);
+            }
           }
-          host.asyncExec(operationsPanel::refresh);
         },
         "hop-database-op");
+  }
+
+  private void refreshOperationsQuietly() {
+    if (operationsPanel.isDisposed()) {
+      return;
+    }
+    operationsPanel.refresh();
+  }
+
+  /** Runs a UI callback without letting a disposed widget or image kill the Hop Web session. */
+  static void runSafely(Runnable runnable) {
+    try {
+      if (runnable != null) {
+        runnable.run();
+      }
+    } catch (RuntimeException e) {
+      if (!DatabaseSqlEditorTab.isShutdownRace(e)) {
+        LogChannel.UI.logError("Database workbench UI update failed", e);
+      }
+    }
   }
 
   public void refreshTab(DatabaseSqlEditorTab tab) {

@@ -19,10 +19,14 @@ package org.apache.hop.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +39,18 @@ class SwtUniversalImageTest {
     assertEquals(32, SwtUniversalImage.pixelSize(16, 200));
     assertEquals(24, SwtUniversalImage.pixelSize(16, 150));
     assertEquals(1, SwtUniversalImage.pixelSize(0, 200));
+  }
+
+  @Test
+  void disposedImageReportsDisposedAndRefusesAnotherBitmap() {
+    SwtUniversalImage image = new UnusedImage();
+    assertFalse(image.isDisposed());
+    image.dispose();
+    assertTrue(image.isDisposed());
+    image.dispose();
+    HopRuntimeException thrown =
+        assertThrows(HopRuntimeException.class, () -> image.getAsBitmapForSize(null, 16, 16));
+    assertEquals("Already disposed", thrown.getMessage());
   }
 
   @Test
@@ -57,6 +73,24 @@ class SwtUniversalImageTest {
       assertFalse(
           type.getName().contains("ImageDataProvider"),
           "RAP class loading resolves method signatures; keep ImageDataProvider off this API");
+    }
+  }
+
+  /** Never rendered. Dispose only clears the cache. */
+  private static final class UnusedImage extends SwtUniversalImage {
+    @Override
+    protected Image renderSimple(Device device) {
+      return null;
+    }
+
+    @Override
+    protected Image renderSimple(Device device, int width, int height) {
+      return null;
+    }
+
+    @Override
+    protected Image renderRotated(Device device, int width, int height, double angleRadians) {
+      return null;
     }
   }
 }

@@ -76,6 +76,13 @@ public class GuiResource {
 
   private final Display display;
 
+  /**
+   * Set at the start of {@link #dispose()}. Display shutdown fires {@code SWT.Dispose} and releases
+   * these images before it disposes shells, so callers can still see a live widget whose icon is
+   * already gone.
+   */
+  private boolean disposed;
+
   private double zoomFactor;
 
   // Colors
@@ -442,7 +449,16 @@ public class GuiResource {
     // Transform, action, database and value type icons are loaded when they are first asked for
   }
 
+  /** True once display shutdown has released the fonts and images held here. */
+  public boolean isDisposed() {
+    return disposed;
+  }
+
   private void dispose() {
+    if (disposed) {
+      return;
+    }
+    disposed = true;
     // display shutdown, clean up the fonts, images, colors, and so on.
     //
     // Fonts
@@ -1259,6 +1275,13 @@ public class GuiResource {
 
   private Image getZoomedImaged(
       SwtUniversalImage universalImage, Device device, int width, int height) {
+    if (disposed
+        || universalImage == null
+        || universalImage.isDisposed()
+        || device == null
+        || device.isDisposed()) {
+      return null;
+    }
     return universalImage.getAsBitmapForSize(
         device,
         ConstUi.zoomedIconSize(width, zoomFactor),

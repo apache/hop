@@ -28,6 +28,7 @@ import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Display;
@@ -59,8 +60,21 @@ final class DatabaseSqlTabMemory {
 
   private DatabaseSqlTabMemory() {}
 
+  /**
+   * False while the display is shutting down. {@code Display.isDisposed()} is still false then: the
+   * disposed flag is set only after shells have been released.
+   */
+  private static boolean guiResourcesUsable() {
+    try {
+      GuiResource resources = GuiResource.getInstance();
+      return resources != null && !resources.isDisposed();
+    } catch (RuntimeException e) {
+      return false;
+    }
+  }
+
   static void restore(DatabaseWorkbench workbench) {
-    if (workbench == null || workbench.isDisposed()) {
+    if (workbench == null || workbench.isDisposed() || !guiResourcesUsable()) {
       return;
     }
     register(workbench);
@@ -256,6 +270,11 @@ final class DatabaseSqlTabMemory {
   }
 
   static void restoreIntoRemaining(DatabaseWorkbench leaving) {
+    // Display.release() disposes GuiResource (SWT.Dispose) before it disposes shells. Opening a
+    // tab from this dispose listener then asks for an icon that is already gone (issue #9136).
+    if (!guiResourcesUsable()) {
+      return;
+    }
     Session session = session(leaving);
     if (session == null) {
       return;
