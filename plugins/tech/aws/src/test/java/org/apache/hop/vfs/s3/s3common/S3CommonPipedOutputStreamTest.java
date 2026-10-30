@@ -105,13 +105,15 @@ class S3CommonPipedOutputStreamTest {
     S3CommonPipedOutputStream out =
         new S3CommonPipedOutputStream(fileSystem, "test-bucket", "test-key");
 
-    // The upload can fail before the bytes are written: then write() fails, otherwise close()
+    try {
+      out.write(new byte[] {1, 2, 3});
+    } catch (IOException e) {
+      // The upload may already have failed and closed the pipe: close() must still report it
+    }
+
     assertThrows(
         IOException.class,
-        () -> {
-          out.write(new byte[] {1, 2, 3});
-          out.close();
-        },
-        "a failed S3 upload must be reported, not silently swallowed");
+        out::close,
+        "a failed S3 upload must be reported from close(), not silently swallowed");
   }
 }
