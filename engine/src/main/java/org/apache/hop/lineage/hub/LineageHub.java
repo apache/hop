@@ -71,6 +71,12 @@ public final class LineageHub {
   private volatile List<ILineageSink> sinks = List.of();
   private final AtomicBoolean sinksInitialized = new AtomicBoolean(false);
 
+  /**
+   * Serializes {@link #shutdown()}. Not {@code this}: the worker takes that lock while it
+   * initializes the sinks, and shutdown() waits for the worker.
+   */
+  private final Object shutdownLock = new Object();
+
   private LineageHub(LineageConfiguration fixedConfiguration, List<ILineageSink> explicitSinks) {
     this.fixedConfiguration = fixedConfiguration;
     this.explicitSinks = explicitSinks;
@@ -162,25 +168,30 @@ public final class LineageHub {
     }
   }
 
-  /** Stop the worker thread and shut down sinks. */
+  /**
+   * Stop the worker thread and shut down sinks. Calls are serialized: a second call waits until the
+   * first one has delivered the remaining events, instead of shutting the sinks down under it.
+   */
   public void shutdown() {
-    running.set(false);
-    Thread t = worker;
-    if (t != null) {
-      t.interrupt();
-      try {
-        t.join(5000);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+    synchronized (shutdownLock) {
+      running.set(false);
+      Thread t = worker;
+      if (t != null) {
+        t.interrupt();
+        try {
+          t.join(5000);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
       }
+      worker = null;
+      drainRemaining();
+      shutdownSinks();
+      sinksInitialized.set(false);
+      sinkInitFailed.set(false);
+      sinks = List.of();
+      LineageConfiguration.invalidate();
     }
-    worker = null;
-    drainRemaining();
-    shutdownSinks();
-    sinksInitialized.set(false);
-    sinkInitFailed.set(false);
-    sinks = List.of();
-    LineageConfiguration.invalidate();
   }
 
   /**

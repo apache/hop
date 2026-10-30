@@ -136,8 +136,5 @@ if [ -n "${HOP_PLUGIN_BASE_FOLDERS:-}" ]; then
   unset _hop_plugin_rest _hop_plugin_folder _hop_plugin_home
 fi
 
-"${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.run.HopRun "$@"
-EXITCODE=$?
-
-cd "${ORIGINDIR}" || exit 1
-exit $EXITCODE
+# Use exec so that the JVM receives the signals sent to this script (docker stop, Ctrl-C, ...)
+exec "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.run.HopRun "$@"

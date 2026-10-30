@@ -79,6 +79,9 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                           The name of the Run Configuration to use
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
                           A comma separated list of KEY=VALUE pairs
+  -swt, --shutdown-timeout=<shutdownTimeout>
+                          The maximum number of seconds to wait for the pipeline or workflow to stop
+                          when hop-run receives a termination signal (default 25)
   -v, --version           Print version information and exit                          
 ----
 
@@ -155,6 +158,10 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 |```--system-properties```
 |A comma separated list of KEY=VALUE pairs
 
+|```-swt```
+|```--shutdown-timeout```
+|The maximum number of seconds to wait for the pipeline or workflow to stop when Hop Run receives a termination signal. The default is 25 seconds. Can also be set with the `HOP_RUN_SHUTDOWN_TIMEOUT` environment variable. See <<_stopping_hop_run>>.
+
 |```-ime```
 |```--in-memory```
 |Keep Hop configuration in memory. Changes are not written to `hop-config.json`. Implied by `--project-locations` and `--environments`.
@@ -189,7 +196,24 @@ In all cases except `0`, check the error logs for more detailed information for 
 |1|Error found during execution!|There was an error executing the workflow or pipeline.
 |2|General error found, something went horribly wrong!|There was a general error that caused Hop Run to fail completely. 
 |9|None|There was an error parsing the provided parameter information. Hop Run shows the syntax summary and exists.
+|143|None|Hop Run received SIGTERM and stopped the run, see <<_stopping_hop_run>>. A process that receives SIGINT (Ctrl-C) or SIGHUP ends with 130 or 129.
 |===
+
+== Stopping Hop Run
+
+When Hop Run receives a termination signal (`SIGTERM`, `SIGINT` or `SIGHUP`) it stops the running pipeline or workflow the same way the Stop button in Hop GUI does, and waits for the run to end before the process exits.
+This happens when you press Ctrl-C, run `docker stop`, or when Kubernetes or OpenShift evicts a pod, for example while it drains a node.
+Transforms and actions stop and release their resources (database connections, open files, ...), and the log shows that the run was stopped.
+
+Hop Run waits at most the number of seconds set with `--shutdown-timeout` (or the `HOP_RUN_SHUTDOWN_TIMEOUT` environment variable), 25 seconds by default, and then exits anyway.
+When xref:technology/openlineage/index.adoc[lineage] is enabled, Hop Run then delivers the lineage events of the run, including its end, before it exits.
+
+Keep the timeout below the time the platform gives a process before it kills it: 30 seconds by default in Kubernetes (`terminationGracePeriodSeconds`) and 10 seconds for `docker stop` (`docker stop --time`). Leave room for the lineage delivery as well.
+
+`SIGKILL` (`kill -9`, or the platform giving up) cannot be handled: the process ends at once, in the middle of whatever it was doing.
+
+Stopping a run does not undo the work it did so far.
+Design pipelines and workflows that may be stopped so that they can be restarted.
 
 
 == Examples

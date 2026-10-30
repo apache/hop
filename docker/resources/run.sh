@@ -36,14 +36,14 @@ trapper() {
   "$@" &
   pid="$!"
   log "Running the entrypoint script with PID ${pid}"
-  trap "log 'Stopping entrypoint script with $pid'; kill -SIGTERM $pid" SIGINT SIGTERM
+  trap "log 'Stopping entrypoint script with $pid'; kill -SIGTERM $pid" SIGINT SIGTERM SIGHUP
 
   while kill -0 $pid >/dev/null 2>&1; do
     wait
   done
 }
 
-trapper /opt/hop/load-and-execute.sh "$@"
+trapper "$(dirname "${BASH_SOURCE[0]}")"/load-and-execute.sh "$@"
 
 if [ -f /tmp/exitcode.txt ]; then
   EXIT_CODE=$(cat /tmp/exitcode.txt)
