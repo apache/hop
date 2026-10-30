@@ -44,3 +44,18 @@ There is no point in processing the workflow until the data is available, so you
 |Schema name|The schema name if applicable to your database
 |Table name|The name of the database table to check
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The table exists, with 0 errors.
+|False|The table doesn't exist: the number of errors is 0. When the connection is empty or can't be opened, the number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: A *Connection* that doesn't exist in the project also gives false with 0 errors, and nothing is logged: the same result as a table that doesn't exist.
