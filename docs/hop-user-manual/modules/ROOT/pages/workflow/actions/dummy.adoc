@@ -23,3 +23,16 @@ under the License.
 == Description
 
 The `Dummy` action does not add any functionality, but can be useful as a placeholder action or as a workflow layout helper.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Always, with 0 errors.
+|Hops|Dummy does not evaluate a result: only its unconditional hops are followed. A success or failure hop from a Dummy is never followed.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
