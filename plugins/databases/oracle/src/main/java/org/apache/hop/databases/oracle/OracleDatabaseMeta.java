@@ -20,10 +20,8 @@ package org.apache.hop.databases.oracle;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -49,11 +47,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Control;
 
 /** Contains Oracle specific information through static final members */
 @DatabaseMetaPlugin(
@@ -63,8 +56,7 @@ import org.eclipse.swt.widgets.Control;
     documentationUrl = "/database/databases/oracle.html",
     classLoaderGroup = "oracle-db")
 @GuiPlugin(id = "GUI-OracleDatabaseMeta")
-public class OracleDatabaseMeta extends BaseDatabaseMeta
-    implements IDatabase, IGuiPluginCompositeWidgetsListener {
+public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** RAW and LONG RAW arrive as variable length binary but are really strings. */
   private static final List<IDatabaseTypeRule> RAW_RULES =
@@ -696,104 +688,8 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
   }
 
   @Override
-  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
-    // Nothing to do, the values aren't set yet at this point.
-  }
-
-  @Override
-  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-    hideFieldsThatDoNotApply(compositeWidgets);
-  }
-
-  @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-    hideFieldsThatDoNotApply(compositeWidgets);
-  }
-
-  @Override
-  public void persistContents(GuiCompositeWidgets compositeWidgets) {
-    // Not needed, the dialog reads the widgets back itself.
-  }
-
-  /**
-   * Keeps the dialog down to the fields that can actually do something for the connection being
-   * edited. Most Oracle connections are a plain host and port, and a wall of TLS and wallet fields
-   * that will only ever stay empty makes the ones that matter harder to find.
-   */
-  private void hideFieldsThatDoNotApply(GuiCompositeWidgets compositeWidgets) {
-    OracleConnectionType type = readConnectionType(compositeWidgets);
-
-    // A TNS alias and a hand written descriptor say where and how to connect all by themselves, so
-    // neither the address nor the TCPS checkbox has anything left to decide. Their certificates
-    // are still ours to pass on, which is why the credentials below stay put.
-    //
-    boolean addressApplies =
-        type != OracleConnectionType.TNS_ALIAS && type != OracleConnectionType.DESCRIPTOR;
-    boolean tlsApplies =
-        !addressApplies || readCheckbox(compositeWidgets, ID_USE_TCPS, isUseTcps());
-    OracleTlsCredentialType credentials = readCredentialType(compositeWidgets);
-
-    Set<String> hidden = new HashSet<>();
-    hideUnless(hidden, addressApplies, ID_HOSTNAME, ID_PORT, ID_USE_TCPS);
-    hideUnless(hidden, tlsApplies, ID_TLS_CREDENTIAL_TYPE);
-    hideUnless(hidden, tlsApplies, ID_SSL_SERVER_DN_MATCH, ID_SSL_SERVER_CERT_DN);
-    hideUnless(
-        hidden,
-        tlsApplies && credentials == OracleTlsCredentialType.WALLET,
-        ID_WALLET_DIRECTORY,
-        ID_WALLET_PASSWORD);
-    hideUnless(
-        hidden,
-        tlsApplies && credentials == OracleTlsCredentialType.JKS,
-        ID_TRUST_STORE_FILE,
-        ID_TRUST_STORE_PASSWORD,
-        ID_TRUST_STORE_TYPE,
-        ID_KEY_STORE_FILE,
-        ID_KEY_STORE_PASSWORD,
-        ID_KEY_STORE_TYPE);
-
-    compositeWidgets.setWidgetsHidden(this, hidden);
-  }
-
-  private void hideUnless(Set<String> hidden, boolean applies, String... widgetIds) {
-    if (!applies) {
-      hidden.addAll(List.of(widgetIds));
-    }
-  }
-
-  private OracleConnectionType readConnectionType(GuiCompositeWidgets compositeWidgets) {
-    Control control = compositeWidgets.getWidgetsMap().get(ID_CONNECTION_TYPE);
-    if (control instanceof Combo combo) {
-      try {
-        return OracleConnectionType.valueOf(combo.getText());
-      } catch (IllegalArgumentException e) {
-        // Nothing selected yet, the metadata is the better answer.
-      }
-    }
-    return getConnectionType();
-  }
-
-  /**
-   * Widgets can be switched off through disabledGuiElements.xml, in which case there is nothing to
-   * read the setting from and we fall back to what is on the metadata itself.
-   */
-  private boolean readCheckbox(
-      GuiCompositeWidgets compositeWidgets, String widgetId, boolean fallback) {
-    Control control = compositeWidgets.getWidgetsMap().get(widgetId);
-    return control instanceof Button button ? button.getSelection() : fallback;
-  }
-
-  private OracleTlsCredentialType readCredentialType(GuiCompositeWidgets compositeWidgets) {
-    Control control = compositeWidgets.getWidgetsMap().get(ID_TLS_CREDENTIAL_TYPE);
-    if (control instanceof Combo combo) {
-      try {
-        return OracleTlsCredentialType.valueOf(combo.getText());
-      } catch (IllegalArgumentException e) {
-        // Nothing selected yet, the metadata is the better answer.
-      }
-    }
-    return getTlsCredentialType();
+  public String getGuiWidgetsListenerClassName() {
+    return "org.apache.hop.databases.oracle.OracleWidgetsListener";
   }
 
   /**

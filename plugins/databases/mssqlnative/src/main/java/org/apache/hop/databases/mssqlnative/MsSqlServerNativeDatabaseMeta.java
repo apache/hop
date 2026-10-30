@@ -17,10 +17,7 @@
 
 package org.apache.hop.databases.mssqlnative;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
@@ -30,10 +27,6 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 
 @DatabaseMetaPlugin(
     type = "MSSQLNATIVE",
@@ -42,8 +35,7 @@ import org.eclipse.swt.widgets.Control;
     documentationUrl = "/database/databases/mssqlnative.html",
     classLoaderGroup = "mssqlnative-db")
 @GuiPlugin(id = "GUI-MSSQLServerNativeDatabaseMeta")
-public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
-    implements IGuiPluginCompositeWidgetsListener {
+public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta {
 
   public static final String ID_INTEGRATED_SECURITY_WIDGET = "usingIntegratedSecurity";
 
@@ -57,54 +49,8 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   private boolean usingIntegratedSecurity;
 
   @Override
-  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
-    // not needed
-  }
-
-  @Override
-  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-    enableField(compositeWidgets);
-  }
-
-  @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-    enableField(compositeWidgets);
-  }
-
-  @Override
-  public void persistContents(GuiCompositeWidgets compositeWidgets) {
-    // not needed
-  }
-
-  private void enableField(GuiCompositeWidgets compositeWidgets) {
-    List<Control> controls = new ArrayList<>();
-    String[] ids =
-        new String[] {
-          BaseDatabaseMeta.ID_USERNAME_LABEL,
-          BaseDatabaseMeta.ID_USERNAME_WIDGET,
-          BaseDatabaseMeta.ID_PASSWORD_LABEL,
-          BaseDatabaseMeta.ID_PASSWORD_WIDGET,
-        };
-    for (String id : ids) {
-      Control control = compositeWidgets.getWidgetsMap().get(id);
-      if (control != null) {
-        controls.add(control);
-      }
-    }
-    Button wIntegratedSecurity =
-        (Button) compositeWidgets.getWidgetsMap().get(ID_INTEGRATED_SECURITY_WIDGET);
-
-    // The checkbox is absent when it is switched off in disabledGuiElements.xml. There is nothing
-    // to read the setting from then, so we go by what is on the metadata itself.
-    //
-    boolean enable =
-        wIntegratedSecurity == null
-            ? !isUsingIntegratedSecurity()
-            : !wIntegratedSecurity.getSelection();
-    for (Control control : controls) {
-      control.setEnabled(enable);
-    }
+  public String getGuiWidgetsListenerClassName() {
+    return "org.apache.hop.databases.mssqlnative.MsSqlServerNativeWidgetsListener";
   }
 
   /**

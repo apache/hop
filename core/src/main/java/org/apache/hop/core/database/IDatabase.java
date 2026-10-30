@@ -1326,6 +1326,18 @@ public interface IDatabase extends Cloneable {
   }
 
   /**
+   * Names a class in the same plugin that adjusts this database's widgets in the connection dialog,
+   * for example to hide options that do not apply. The class implements {@code
+   * IGuiPluginCompositeWidgetsListener} and has a public constructor taking this {@link IDatabase}.
+   * It is given as a name so that the database can be used without the GUI on the classpath.
+   *
+   * @return the class name, or null when the widgets need no adjusting
+   */
+  default String getGuiWidgetsListenerClassName() {
+    return null;
+  }
+
+  /**
    * @return the unsupported message if database does not support standard table output transform
    */
   default String getUnsupportedTableOutputMessage() {
