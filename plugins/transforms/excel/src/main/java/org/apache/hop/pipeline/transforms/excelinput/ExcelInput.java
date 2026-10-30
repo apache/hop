@@ -958,6 +958,9 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         data.maxsheetlength = -1;
         if (!meta.readAllSheets() && !meta.hasRegexSheets()) {
           data.sheetNames = meta.getSheetsNames();
+          for (int i = 0; i < data.sheetNames.length; i++) {
+            data.sheetNames[i] = resolve(data.sheetNames[i]);
+          }
           data.startColumn = meta.getSheetsStartColumns();
           data.startRow = meta.getSheetsStartRows();
         } else {
