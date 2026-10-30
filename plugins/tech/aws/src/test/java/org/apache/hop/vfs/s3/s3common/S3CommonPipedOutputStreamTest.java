@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.logging.HopLogStore;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
@@ -39,6 +41,12 @@ import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
  * not be stopped. The fix waits on the upload {@code Future} interruptibly and surfaces failures.
  */
 class S3CommonPipedOutputStreamTest {
+
+  @BeforeAll
+  static void initLogStore() {
+    // As in a normal Hop run: logging the upload failure must not throw
+    HopLogStore.init();
+  }
 
   @Test
   void closeIsInterruptibleWhenUploadStalls() throws Exception {
@@ -122,6 +130,10 @@ class S3CommonPipedOutputStreamTest {
             },
             "a failed S3 upload must be reported, not silently swallowed");
     assertTrue(failure.getMessage().contains("test-bucket/test-key"), failure.getMessage());
+    assertNotNull(failure.getCause(), "the S3 error must be the cause");
+    assertTrue(
+        failure.getCause().getMessage().contains("simulated S3 failure"),
+        failure.getCause().getMessage());
   }
 
   @Test
@@ -149,5 +161,9 @@ class S3CommonPipedOutputStreamTest {
     }
     assertNotNull(failure, "writing after a failed upload must fail");
     assertTrue(failure.getMessage().contains("test-bucket/test-key"), failure.getMessage());
+    assertNotNull(failure.getCause(), "the S3 error must be the cause");
+    assertTrue(
+        failure.getCause().getMessage().contains("simulated S3 failure"),
+        failure.getCause().getMessage());
   }
 }

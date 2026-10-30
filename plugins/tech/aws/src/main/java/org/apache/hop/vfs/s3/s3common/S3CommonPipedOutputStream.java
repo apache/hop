@@ -287,7 +287,8 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
           }
           LogChannel.GENERAL.logError(BaseMessages.getString(PKG, "ERROR.S3MultiPart.Aborted"));
         }
-        returnVal = false;
+        // Rethrow so write() and close() report the S3 error, not just "Pipe closed"
+        throw e;
       }
       return returnVal;
     }
