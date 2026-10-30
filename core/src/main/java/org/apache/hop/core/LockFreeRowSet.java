@@ -30,9 +30,11 @@ import org.apache.hop.core.row.IRowMeta;
  *
  * <ul>
  *   <li>A slot that is not null holds a row, so there is no separate sequence array.
+ *   <li>The slot array is rounded up to a power of two, so an index maps to a slot with a mask. The
+ *       row set still holds at most the configured number of rows.
  *   <li>Producers claim a slot with one compare-and-set on the producer index. They keep a cached
- *       limit (consumer index + capacity) and only read the consumer index again when they reach
- *       it, so a producer does not touch the consumer's cache line for every row.
+ *       limit (consumer index + size) and only read the consumer index again when they reach it, so
+ *       a producer does not touch the consumer's cache line for every row.
  *   <li>A row set is read by exactly one transform thread, so the consumer moves its index with a
  *       plain release store. (Several producers are allowed: some transforms call putRow from
  *       worker threads, e.g. LanguageModelChat.)
@@ -41,11 +43,15 @@ import org.apache.hop.core.row.IRowMeta;
  * </ul>
  *
  * <p>When the ring is full (or empty) the thread spins briefly, then parks. The other side only
- * unparks it once a batch of rows (or free slots) is ready, a quarter of the capacity, or when the
- * row set is done, claiming the parked thread so it is woken once. That lets a fast consumer
- * process runs of rows instead of waking up for every row, which is what the per-row size() check
- * and Thread.sleep in BaseTransform approximate for the lock-based row sets. Parking is bounded to
- * {@link LockFreeRowSetFields#MAX_PARK_NANOS}, so nothing can stall.
+ * unparks it once a batch of rows (or free slots) is ready, a quarter of the size, or when the row
+ * set is done, claiming the parked thread so it is woken once. That lets a fast consumer process
+ * runs of rows instead of waking up for every row, which is what the per-row size() check and
+ * Thread.sleep in BaseTransform approximate for the lock-based row sets.
+ *
+ * <p>A thread parks for {@link LockFreeRowSetFields#MAX_PARK_NANOS} at first. While nothing changes
+ * it parks longer, up to {@link LockFreeRowSetFields#MAX_IDLE_PARK_NANOS}, so an idle transform
+ * costs little CPU. A reader in such a long park is woken by the next row instead of a batch, so a
+ * trickle of rows is not delayed either.
  */
 public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRowSet>, IRowSet {
   private static final VarHandle SLOT = MethodHandles.arrayElementVarHandle(Object[][].class);
@@ -71,7 +77,7 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
   }
 
   /**
-   * @param maxSize the number of rows the buffer holds (rounded up to a power of two)
+   * @param maxSize the number of rows the buffer holds
    */
   public LockFreeRowSet(int maxSize) {
     super(maxSize);
@@ -88,7 +94,7 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
     do {
       index = producerIndex;
       if (index >= limit) {
-        limit = consumerIndex + capacity;
+        limit = consumerIndex + maxRows;
         if (index >= limit) {
           return -1; // full
         }
@@ -127,20 +133,24 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
   }
 
   /**
-   * Called by a producer after it added the row at {@code index}: wake a parked consumer once a
-   * batch is queued. Only every {@code wakeCheckMask + 1}th row looks at the consumer's state, so a
-   * producer does not read another thread's cache line for every row; a wake-up is late by at most
-   * that many rows.
+   * Called by a producer after it added the row at {@code index}: wake a consumer in a short park
+   * once a batch is queued, and one in a long park at once. Every row reads whether a consumer is
+   * parked, a cache line the consumer only writes when it parks. Only every {@code wakeCheckMask +
+   * 1}th row counts the queued rows for a short park, so that wake-up is late by at most that many
+   * rows.
    */
   private void rowAdded(long index) {
-    if ((index & wakeCheckMask) != 0) {
+    Thread consumer = parkedConsumer;
+    if (consumer == null) {
       return;
     }
-    Thread consumer = parkedConsumer;
+    boolean anyRow = wakeOnAnyRow; // read after parkedConsumer, which the consumer writes last
+    if ((index & wakeCheckMask) != 0 && !anyRow) {
+      return;
+    }
     // claim the parked thread first, so it is unparked once and not again for every row added
     // before it gets to run
-    if (consumer != null
-        && producerIndex - consumerIndex >= wakeBatch
+    if ((anyRow || producerIndex - consumerIndex >= wakeBatch)
         && PARKED_CONSUMER.compareAndSet(this, consumer, null)) {
       LockSupport.unpark(consumer);
     }
@@ -151,9 +161,13 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
     if ((consumerIndex & wakeCheckMask) != 0) {
       return;
     }
+    // poll() moves the consumer index with a release store, which the read below may overtake.
+    // The fence orders them, so a producer that parks after this check sees the slots freed so
+    // far, and a producer that parked before it is seen here and woken once a batch is free.
+    VarHandle.fullFence();
     Thread producer = parkedProducer;
     if (producer != null
-        && capacity - (producerIndex - consumerIndex) >= wakeBatch
+        && maxRows - (producerIndex - consumerIndex) >= wakeBatch
         && PARKED_PRODUCER.compareAndSet(this, producer, null)) {
       LockSupport.unpark(producer);
     }
@@ -195,20 +209,33 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
     long timeoutNanos = tu.toNanos(time);
     long start = System.nanoTime();
     Thread current = Thread.currentThread();
+    long parkNanos = producerParkNanos;
     while (true) {
-      parkedProducer = current;
+      // Only one producer is announced and woken by the consumer. With several producers the
+      // others park briefly and check again by themselves.
+      boolean announced =
+          parkedProducer == current || PARKED_PRODUCER.compareAndSet(this, null, current);
       index = offer(rowData); // re-check after announcing ourselves, so a wake-up is not lost
       if (index >= 0) {
-        parkedProducer = null;
+        PARKED_PRODUCER.compareAndSet(this, current, null);
+        if (producerParkNanos != MAX_PARK_NANOS) {
+          producerParkNanos = MAX_PARK_NANOS; // the buffer moves again
+        }
         rowAdded(index);
         return true;
       }
       long remaining = timeoutNanos - (System.nanoTime() - start);
       if (remaining <= 0 || Thread.interrupted()) {
-        parkedProducer = null;
+        PARKED_PRODUCER.compareAndSet(this, current, null);
+        if (announced) {
+          producerParkNanos = parkNanos; // the next call goes on backing off
+        }
         return false;
       }
-      LockSupport.parkNanos(this, Math.min(remaining, MAX_PARK_NANOS));
+      if (parkTimedOut(this, Math.min(remaining, announced ? parkNanos : MAX_PARK_NANOS))
+          && announced) {
+        parkNanos = Math.min(parkNanos * 2, MAX_IDLE_PARK_NANOS);
+      }
     }
   }
 
@@ -244,20 +271,40 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
     long timeoutNanos = tu.toNanos(timeout);
     long start = System.nanoTime();
     Thread current = Thread.currentThread();
+    long parkNanos = consumerParkNanos;
+    boolean deep = false;
     while (true) {
+      // after a while without rows park longer, and then let the next row wake us
+      if (!deep && parkNanos > MAX_PARK_NANOS) {
+        deep = true;
+        wakeOnAnyRow = true;
+      }
       parkedConsumer = current;
       row = poll();
       if (row != null) {
-        parkedConsumer = null;
+        stopWaiting(deep);
+        if (consumerParkNanos != MAX_PARK_NANOS) {
+          consumerParkNanos = MAX_PARK_NANOS; // rows flow again
+        }
         rowTaken();
         return row;
       }
       long remaining = timeoutNanos - (System.nanoTime() - start);
       if (remaining <= 0 || Thread.interrupted()) {
-        parkedConsumer = null;
+        stopWaiting(deep);
+        consumerParkNanos = parkNanos; // the next call goes on backing off
         return null;
       }
-      LockSupport.parkNanos(this, Math.min(remaining, MAX_PARK_NANOS));
+      if (parkTimedOut(this, Math.min(remaining, parkNanos))) {
+        parkNanos = Math.min(parkNanos * 2, MAX_IDLE_PARK_NANOS);
+      }
+    }
+  }
+
+  private void stopWaiting(boolean deep) {
+    parkedConsumer = null;
+    if (deep) {
+      wakeOnAnyRow = false;
     }
   }
 
@@ -267,31 +314,73 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
    * done, at most {@code maxNanos}. A transform with several inputs cannot wait on one of them with
    * {@link #getRowWait(long, TimeUnit)}: rows arriving on another one would not wake it.
    *
+   * <p>A park longer than 1 ms is only used when every input is a {@link LockFreeRowSet}. The next
+   * row on any of them then wakes the reader, not a batch. Other row sets cannot wake it, so they
+   * are checked again every 1 ms.
+   *
+   * <p>An interrupt ends the wait and is cleared, as in {@link #getRowWait(long, TimeUnit)}:
+   * otherwise every later park would return at once and the caller would spin.
+   *
    * @param rowSets the input row sets of the calling transform
    * @param maxNanos the longest time to park; row sets of another type are only checked again then
+   * @return true if the park ran its full time without a wake-up: the caller may wait longer next
+   *     time. False when it returned early, also on a wake-up left over from earlier, so a busy
+   *     reader keeps its short parks and its batches.
    */
-  public static void awaitAny(List<IRowSet> rowSets, long maxNanos) {
+  public static boolean awaitAny(List<IRowSet> rowSets, long maxNanos) {
     for (int i = 0; i < SPINS; i++) {
       if (anyReady(rowSets)) {
-        return;
+        return false;
       }
       Thread.onSpinWait();
     }
+    if (Thread.interrupted()) {
+      return false;
+    }
     Thread current = Thread.currentThread();
+    // a long park only when every input can wake us; other row sets are polled every 1 ms
+    boolean deep = maxNanos > MAX_PARK_NANOS;
+    for (IRowSet rowSet : rowSets) {
+      if (!(rowSet instanceof LockFreeRowSet)) {
+        deep = false;
+        maxNanos = MAX_PARK_NANOS;
+        break;
+      }
+    }
     for (IRowSet rowSet : rowSets) {
       if (rowSet instanceof LockFreeRowSet lockFree) {
+        if (deep) {
+          lockFree.wakeOnAnyRow = true;
+        }
         lockFree.parkedConsumer = current;
       }
     }
     // check again after announcing ourselves on every input, so a wake-up is not lost
+    boolean timedOut = false;
     if (!anyReady(rowSets)) {
-      LockSupport.parkNanos(rowSets, Math.min(maxNanos, MAX_PARK_NANOS));
+      timedOut = parkTimedOut(rowSets, maxNanos);
     }
     for (IRowSet rowSet : rowSets) {
       if (rowSet instanceof LockFreeRowSet lockFree) {
         PARKED_CONSUMER.compareAndSet(lockFree, current, null);
+        if (deep) {
+          lockFree.wakeOnAnyRow = false;
+        }
       }
     }
+    return timedOut;
+  }
+
+  /**
+   * Parks at most {@code nanos}.
+   *
+   * @return true if the park ran its full time: nothing woke the thread, not even a wake-up left
+   *     over from earlier
+   */
+  private static boolean parkTimedOut(Object blocker, long nanos) {
+    long start = System.nanoTime();
+    LockSupport.parkNanos(blocker, nanos);
+    return System.nanoTime() - start >= nanos;
   }
 
   private static boolean anyReady(List<IRowSet> rowSets) {
@@ -309,10 +398,23 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
     return false;
   }
 
+  /**
+   * The exact number of rows in the row set at one moment during the call. The two indexes are read
+   * separately, so the consumer index is read again: only when it did not move in between do the
+   * two indexes belong to the same moment. (A row a producer has claimed but is still writing
+   * counts as in the row set.)
+   */
   @Override
   public int size() {
-    long size = producerIndex - consumerIndex;
-    return (int) Math.max(0, Math.min(size, capacity));
+    long after = consumerIndex;
+    while (true) {
+      long before = after;
+      long produced = producerIndex;
+      after = consumerIndex;
+      if (before == after) {
+        return (int) (produced - after);
+      }
+    }
   }
 
   /** Only called when no transform reads from this row set anymore (see Pipeline). */
@@ -339,6 +441,12 @@ abstract class LockFreeRowSetFields extends LockFreeRowSetPad0 {
   static final int SPINS = 16;
   static final long MAX_PARK_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
+  /** The longest a thread parks once nothing has changed for a while. */
+  static final long MAX_IDLE_PARK_NANOS = TimeUnit.MILLISECONDS.toNanos(20);
+
+  /** The number of rows the row set holds: the configured size, not the rounded-up capacity. */
+  final int maxRows;
+
   final int capacity;
   final int mask;
   final int wakeBatch;
@@ -348,11 +456,12 @@ abstract class LockFreeRowSetFields extends LockFreeRowSetPad0 {
   final int timeoutGet;
 
   LockFreeRowSetFields(int maxSize) {
+    maxRows = Math.max(1, maxSize);
     capacity = Integer.highestOneBit(Math.max(2, maxSize) - 1) << 1;
     mask = capacity - 1;
     slots = new Object[capacity][];
-    // A quarter of the capacity measured best for rowset sizes from 8k to 128k rows.
-    wakeBatch = Math.max(1, capacity / 4);
+    // A quarter of the size measured best for rowset sizes from 8k to 128k rows.
+    wakeBatch = Math.max(1, maxRows / 4);
     // look at the other side every 64th row, or every row when the wake batch is smaller
     wakeCheckMask = Integer.highestOneBit(Math.min(64, wakeBatch)) - 1;
     timeoutGet =
@@ -374,7 +483,7 @@ abstract class LockFreeRowSetPad1 extends LockFreeRowSetFields {
 /** Written by producers. */
 abstract class LockFreeRowSetProducerFields extends LockFreeRowSetPad1 {
   volatile long producerIndex;
-  long producerLimit; // cache of consumerIndex + capacity; a stale value only costs a re-read
+  long producerLimit; // cache of consumerIndex + maxRows; a stale value only costs a re-read
 
   LockFreeRowSetProducerFields(int maxSize) {
     super(maxSize);
@@ -412,6 +521,12 @@ abstract class LockFreeRowSetPad3 extends LockFreeRowSetConsumerFields {
 abstract class LockFreeRowSetParkedConsumer extends LockFreeRowSetPad3 {
   volatile Thread parkedConsumer;
 
+  /** Set during a long park: the next row wakes the consumer, not a batch. */
+  volatile boolean wakeOnAnyRow;
+
+  /** How long getRowWait parks next; only the consumer uses it. */
+  long consumerParkNanos = MAX_PARK_NANOS;
+
   LockFreeRowSetParkedConsumer(int maxSize) {
     super(maxSize);
   }
@@ -426,9 +541,12 @@ abstract class LockFreeRowSetPad4 extends LockFreeRowSetParkedConsumer {
   }
 }
 
-/** Written by a producer when it parks, read by the consumer for every row. */
+/** Written by a producer when it parks, read by the consumer on every wake check. */
 abstract class LockFreeRowSetParkedProducer extends LockFreeRowSetPad4 {
   volatile Thread parkedProducer;
+
+  /** How long the announced producer parks next. Only a hint, so a plain field is enough. */
+  long producerParkNanos = MAX_PARK_NANOS;
 
   LockFreeRowSetParkedProducer(int maxSize) {
     super(maxSize);

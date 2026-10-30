@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 import org.apache.hop.core.row.RowMeta;
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +58,178 @@ class LockFreeRowSetTest {
     rowSet.clear();
     assertEquals(0, rowSet.size());
     assertNull(rowSet.getRowWait(10, TimeUnit.MILLISECONDS));
+  }
+
+  @Test
+  void holdsTheConfiguredNumberOfRowsNotTheRoundedUpCapacity() {
+    LockFreeRowSet rowSet = new LockFreeRowSet(10); // 16 slots
+    for (int i = 0; i < 10; i++) {
+      assertTrue(rowSet.putRowWait(new RowMeta(), new Object[] {i}, 0, TimeUnit.MILLISECONDS));
+    }
+    assertFalse(rowSet.putRowWait(new RowMeta(), new Object[] {10}, 0, TimeUnit.MILLISECONDS));
+    assertEquals(10, rowSet.size());
+    for (int i = 0; i < 10; i++) {
+      assertEquals(i, rowSet.getRowImmediate()[0]);
+      assertTrue(rowSet.putRowWait(new RowMeta(), new Object[] {10 + i}, 0, TimeUnit.MILLISECONDS));
+      assertEquals(10, rowSet.size());
+    }
+  }
+
+  @Test
+  void reportsTheExactNumberOfRowsWhileRowsMove() throws Exception {
+    // the writer and the reader move in step, so the row set always holds 100 to 102 rows
+    int keep = 100;
+    LockFreeRowSet rowSet = new LockFreeRowSet(1000);
+    AtomicLong put = new AtomicLong();
+    AtomicLong taken = new AtomicLong();
+    AtomicBoolean stop = new AtomicBoolean();
+    AtomicBoolean rowMissing = new AtomicBoolean();
+    Thread writer =
+        new Thread(
+            () -> {
+              for (long i = 0; !stop.get(); i++) {
+                while (taken.get() < i - keep - 1) {
+                  if (stop.get()) {
+                    return;
+                  }
+                  Thread.yield();
+                }
+                rowSet.putRow(new RowMeta(), new Object[] {i});
+                put.set(i + 1);
+              }
+            });
+    Thread reader =
+        new Thread(
+            () -> {
+              for (long i = 0; !stop.get(); i++) {
+                while (put.get() < i + keep + 1) {
+                  if (stop.get()) {
+                    return;
+                  }
+                  Thread.yield();
+                }
+                if (rowSet.getRowImmediate() == null) {
+                  rowMissing.set(true);
+                }
+                taken.set(i + 1);
+              }
+            });
+    writer.start();
+    reader.start();
+    try {
+      while (put.get() <= keep) {
+        Thread.yield();
+      }
+      long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(300);
+      int checks = 0;
+      while (System.nanoTime() < end) {
+        int size = rowSet.size();
+        assertTrue(size >= keep && size <= keep + 2, "size " + size + " after " + checks);
+        checks++;
+      }
+    } finally {
+      stop.set(true);
+      writer.join(10_000);
+      reader.join(10_000);
+    }
+    assertFalse(rowMissing.get());
+    assertTrue(taken.get() > 0, "no rows moved");
+  }
+
+  @Test
+  void aReaderInAShortParkIsWokenByABatchOnly() {
+    // 64 rows: a wake batch of 16
+    LockFreeRowSet rowSet = new LockFreeRowSet(64);
+    Thread reader = new Thread(() -> {});
+    rowSet.parkedConsumer = reader;
+    for (int i = 0; i < 15; i++) {
+      rowSet.putRow(new RowMeta(), new Object[] {i});
+    }
+    assertSame(reader, rowSet.parkedConsumer, "woken before a batch was queued");
+    for (int i = 15; i < 17; i++) {
+      rowSet.putRow(new RowMeta(), new Object[] {i});
+    }
+    assertNull(rowSet.parkedConsumer, "not woken once a batch was queued");
+  }
+
+  @Test
+  void aReaderInALongParkIsWokenByTheNextRow() {
+    LockFreeRowSet rowSet = new LockFreeRowSet(64);
+    rowSet.putRow(new RowMeta(), new Object[] {0}); // the next row is not one the producer checks
+    Thread reader = new Thread(() -> {});
+    rowSet.wakeOnAnyRow = true;
+    rowSet.parkedConsumer = reader;
+    rowSet.putRow(new RowMeta(), new Object[] {1});
+    assertNull(rowSet.parkedConsumer, "not woken by a single row");
+  }
+
+  @Test
+  void aParkedWriterIsWokenOnceABatchIsFree() {
+    LockFreeRowSet rowSet = new LockFreeRowSet(64);
+    for (int i = 0; i < 64; i++) {
+      rowSet.putRow(new RowMeta(), new Object[] {i});
+    }
+    Thread writer = new Thread(() -> {});
+    rowSet.parkedProducer = writer;
+    for (int i = 0; i < 15; i++) {
+      rowSet.getRowImmediate();
+    }
+    assertSame(writer, rowSet.parkedProducer, "woken before a batch was free");
+    rowSet.getRowImmediate();
+    assertNull(rowSet.parkedProducer, "not woken once a batch was free");
+  }
+
+  @Test
+  void anIdleReaderBacksOffAndIsWokenByASingleRow() throws Exception {
+    LockFreeRowSet rowSet = new LockFreeRowSet(10_000);
+    // a reader that found nothing goes on with longer parks
+    assertNull(rowSet.getRowWait(30, TimeUnit.MILLISECONDS));
+    assertTrue(rowSet.consumerParkNanos > LockFreeRowSetFields.MAX_PARK_NANOS);
+    assertFalse(rowSet.wakeOnAnyRow);
+    assertNull(rowSet.parkedConsumer);
+
+    Object[][] received = new Object[1][];
+    Thread reader = new Thread(() -> received[0] = rowSet.getRowWait(10, TimeUnit.SECONDS));
+    reader.start();
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+    while (!rowSet.wakeOnAnyRow && System.nanoTime() < deadline) {
+      Thread.sleep(1);
+    }
+    assertTrue(rowSet.wakeOnAnyRow, "the reader never parked long");
+    Object[] row = {1};
+    rowSet.putRow(new RowMeta(), row);
+    reader.join(5_000);
+    assertSame(row, received[0]);
+    // rows flow again: back to short parks woken by batches
+    assertEquals(LockFreeRowSetFields.MAX_PARK_NANOS, rowSet.consumerParkNanos);
+    assertFalse(rowSet.wakeOnAnyRow);
+    assertNull(rowSet.parkedConsumer);
+  }
+
+  @Test
+  void awaitAnyOnlyReportsAParkThatRanItsFullTime() {
+    LockFreeRowSet empty = new LockFreeRowSet(8);
+    LockFreeRowSet withRow = new LockFreeRowSet(8);
+    withRow.putRow(new RowMeta(), new Object[] {1});
+    LockSupport.parkNanos(1); // use up a wake-up an earlier test may have left on this thread
+
+    assertTrue(LockFreeRowSet.awaitAny(List.of(empty), TimeUnit.MILLISECONDS.toNanos(5)));
+    assertFalse(LockFreeRowSet.awaitAny(List.of(empty, withRow), TimeUnit.SECONDS.toNanos(10)));
+    // a wake-up left over from earlier ends the park at once: that is no reason to wait longer
+    LockSupport.unpark(Thread.currentThread());
+    assertFalse(LockFreeRowSet.awaitAny(List.of(empty), TimeUnit.SECONDS.toNanos(10)));
+  }
+
+  @Test
+  void anInterruptEndsAwaitAnyAndIsCleared() {
+    // otherwise every later park returns at once and the transform spins on a full core
+    LockFreeRowSet rowSet = new LockFreeRowSet(8);
+    Thread.currentThread().interrupt();
+    long start = System.nanoTime();
+    LockFreeRowSet.awaitAny(List.of(rowSet), TimeUnit.SECONDS.toNanos(10));
+    assertTrue(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 1000);
+    assertFalse(Thread.interrupted());
+    assertNull(rowSet.parkedConsumer);
   }
 
   @Test

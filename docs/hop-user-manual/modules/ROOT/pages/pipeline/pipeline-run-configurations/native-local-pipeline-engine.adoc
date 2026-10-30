@@ -82,7 +82,9 @@ This is not a two-phase-commit system.
 Rows are passed between transforms through lock-free buffers instead of lock-based ones.
 The transform that reads a buffer is woken once a batch of rows is ready, instead of for every row.
 A transform with several inputs waits on all of them at once and is woken by whichever input has rows.
+A transform that has had no rows for a while waits longer between checks, up to 20 ms, and is then woken by the next row, so idle transforms in long-running pipelines use little CPU.
 This lowers the cost per row, which matters most in pipelines of fast transforms.
+A buffer holds at most the configured *Row set size*, as the lock-based buffers do, and the row counts of the transforms are exact.
 With this option the *Wait time buffer check (ms)* setting is not used: transforms no longer poll their inputs.
 Hops that spill to disk to avoid a buffer deadlock keep their spilling buffer.
 |false
