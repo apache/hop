@@ -44,6 +44,9 @@ public class SftpStreamProxy implements Proxy {
 
   private ChannelExec channel;
 
+  /** The output of the proxy command, attached before the channel connects. */
+  private InputStream inputStream;
+
   /**
    * Command pattern to execute on the proxy host.
    *
@@ -135,16 +138,15 @@ public class SftpStreamProxy implements Proxy {
             proxyOptions);
     channel = (ChannelExec) session.openChannel("exec");
     channel.setCommand(String.format(commandFormat, targetHost, targetPort));
+    // JSch drops output that arrives before a stream is attached, such as the target server's SSH
+    // greeting: attach it before connecting
+    inputStream = channel.getInputStream();
     channel.connect(timeout);
   }
 
   @Override
   public InputStream getInputStream() {
-    try {
-      return channel.getInputStream();
-    } catch (final IOException e) {
-      throw new IllegalStateException("IOException getting the SSH proxy input stream", e);
-    }
+    return inputStream;
   }
 
   @Override
