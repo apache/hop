@@ -31,10 +31,11 @@ The `Bulk load from MySQL into file` action bulk loads data from a MySQL table i
 |Option|Description
 |Action name|The name of the workflow action.
 |Connection|The database connection.
-|Target schema|The target schema.
-|Target File name|The target file.
-|High Priority|The priority to load the file with.
-|Type|OUTFILE, DUMPFILE
+|Source schema|The schema of the table to export.
+|Source table|The table to export.
+|Target File name|The file to write, on the database server.
+|High Priority|Adds `HIGH_PRIORITY` to the query. Checked by default: see the NOTE under <<Result>>.
+|Type|OUTFILE (default) writes the rows with the separators below. DUMPFILE writes a single row without any formatting: more than one row makes the action fail.
 |Field separator|The field separator to use.
 |Fields enclosed by|The field enclosure to use.
 |Optionally enclosed|
@@ -43,8 +44,29 @@ The `Bulk load from MySQL into file` action bulk loads data from a MySQL table i
 |Limit to the...first lines|Only export the first x number of rows
 |If file exists a|The action to take when the target file already exists:
 
-* Create new with unique name
-* Do Nothing
-* Fail (default)
+* Create new with unique name: the file gets the date and time added to its name
+* Do Nothing: nothing is exported, and the action is true
+* Fail (default): the action is false, with 1 error
 |Add file to result filenames|Add the target file to the result filenames
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The file was written, with 0 errors. Also true when the file already exists and *If file exists* is *Do Nothing*: then nothing is exported, and the action doesn't connect to the database.
+|False|The file exists and *If file exists* is *Fail*, the table doesn't exist, *Target File name* is empty, the connection can't be opened, or MySQL refuses the query (for example a path outside the folder allowed by the server's `secure_file_priv` setting, or *DUMPFILE* on more than one row). The number of errors is 1.
+|Result files|The target file is added when *Add file to result filenames* is checked and the file was written. Otherwise passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: *High Priority* is checked by default, and on MySQL 8.4 it makes the action fail with "Table ... appears in multiple locking clauses": the action always adds `LOCK IN SHARE MODE` to the query, and MySQL doesn't accept both. Uncheck *High Priority* to export.
+
+NOTE: A *Connection* that doesn't exist in the project is not a false result: the workflow stops with an error and no hop from the action is followed.
+
+NOTE: When the table doesn't exist, the reason is only logged at the Detailed log level: at the Basic level, the log shows a false action without an error message.
+
+NOTE: The MySQL server writes the file (`SELECT ... INTO OUTFILE`), so *Target File name* is a path on the database server. *If file exists* is checked on the machine where Hop runs.
