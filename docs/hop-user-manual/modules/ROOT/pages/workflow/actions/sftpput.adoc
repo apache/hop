@@ -35,14 +35,12 @@ TIP: If you run into a `Algorithm Negotiation Fail` error when connecting to you
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |SFTP connection|An xref:metadata-types/sftp-connection.adoc[SFTP Connection] in the project metadata.
 When one is selected, the server, credentials, compression and proxy settings below come from that connection and are disabled here.
 Leave it empty to configure the server in this action.
-|SFTP-server name (IP)|The name of the SFTP server or the IP address.
-|SFTP port|The TCP port to use.
+|SFTP server name / IP|The name of the SFTP server or the IP address.
+|Port|The TCP port to use.
 This is usually 22.
 |User name|The user name to log into the SFTP server.
 |Password|The password to log into the SFTP server.
@@ -89,7 +87,7 @@ Examples of regular expressions:
 .*txt$   : get all text files
 A.*[ENG:0-9].txt  : files starting with A, ending with a number and .txt
 ----
-|Success when no file|Check this option if the workflow action has to succeed when there are no files to process, otherwise the workflow will fail.
+|Success when no file|Check this option if the action has to succeed when there are no files to send. Otherwise the action is false, with 1 error.
 |After SFTP Put a|Action to take after the file is transferred. The available options are:
 
 * Do nothing (default)
@@ -120,3 +118,19 @@ The better and more secure option is to upgrade your keys to more secure types. 
 `-Djsch.client_pubkey=ssh-rsa,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256 -Djsch.server_host_key=ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa`
 
 
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every file was sent, with 0 errors. When no file matches, the action is true only if *Success when no file* is checked. *Copy previous results to args* or *Copy previous result files to args* without anything in the previous result is also true.
+|False|No file to send (with *Success when no file* unchecked), the server can't be reached or refuses the login, the remote directory doesn't exist and *Create folder* is unchecked, the local directory doesn't exist, a file can't be sent, or *Move file to* is selected while *Destination folder* is empty, or doesn't exist and *Create destination folder* is unchecked. The number of errors is 1.
+|Result files|The sent files are added when *Add filename to result* is checked and *After SFTP Put* is *Do nothing*. The previous result files are kept.
+|Result rows|Passed on unchanged.
+|Files retrieved|The number of files sent.
+|===
+
+NOTE: With *Copy previous results to args*, a file in the previous result rows that doesn't exist is logged as an error, but it doesn't count as one and the other files are still sent. When none of them exists, there is no file to send.
