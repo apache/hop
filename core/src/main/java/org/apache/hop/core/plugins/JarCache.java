@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import org.apache.commons.lang3.StringUtils;
@@ -49,12 +51,14 @@ public class JarCache {
   private final Map<File, Set<File>> jarFiles;
   private final Set<File> nativeFiles;
   private final Set<File> pluginFiles;
+  private final Map<ScanClassLoaderKey, URLClassLoader> scanClassLoaders;
 
   private JarCache() {
     nativeFiles = new HashSet<>();
     pluginFiles = new HashSet<>();
     jarFiles = new HashMap<>();
     indexCache = new HashMap<>();
+    scanClassLoaders = new HashMap<>();
   }
 
   public static JarCache getInstance() {
@@ -180,11 +184,35 @@ public class JarCache {
     return index;
   }
 
+  /**
+   * The class loader the plugin scan uses to load the annotated classes of one jar. Plugin types
+   * that build their scan class loaders the same way share one per jar and parent, so a jar's lib/
+   * folder and dependencies.xml are read once and not for every annotated class in it.
+   *
+   * @param jarFile the jar with the annotated classes
+   * @param builder the class whose createUrlClassLoader() builds the loader
+   * @param parent the parent class loader
+   * @param factory creates the class loader the first time this combination is asked for
+   * @return the shared scan class loader
+   */
+  public URLClassLoader getScanClassLoader(
+      final URL jarFile,
+      final Class<?> builder,
+      final ClassLoader parent,
+      final Supplier<URLClassLoader> factory) {
+    return scanClassLoaders.computeIfAbsent(
+        new ScanClassLoaderKey(jarFile.toExternalForm(), builder, parent), k -> factory.get());
+  }
+
+  private record ScanClassLoaderKey(String jarFile, Class<?> builder, ClassLoader parent) {}
+
   public void clear() {
     nativeFiles.clear();
     pluginFiles.clear();
     indexCache.clear();
     jarFiles.clear();
+    // The loaders stay open: classes loaded during the scan can still be referenced.
+    scanClassLoaders.clear();
   }
 
   public Set<File> findJarFiles(final File folder) throws HopFileException {
