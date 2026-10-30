@@ -77,6 +77,7 @@ import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.core.security.HopSecurityPrivilegeMode;
 import org.apache.hop.core.security.Permission;
+import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -664,8 +665,17 @@ public class HopGui
       if (!HopEnvironment.isInitialized()) {
         HopEnvironment.init();
       }
+
       OsHelper.setAppName();
       Display display = setupDisplay();
+
+      // The common GUI images are loaded a little later: parse their SVGs meanwhile (SvgCache, not
+      // SwtSvgImageUtil: initialising that class before the display exists would create one).
+      // Batik sets up AWT (toolkit, graphics environment, cursors) the first time it measures an
+      // image. On macOS that has to run on this first thread, so do it here and not in the
+      // background thread.
+      initializeBatikAwt();
+      SvgCache.preloadFolderInBackground(GuiResource.class, "ui/images/");
 
       // Note: this needs to be done before the look and feel is set
       OsHelper.initOsHandlers(display);
@@ -793,6 +803,9 @@ public class HopGui
     if (EnvironmentUtils.getInstance().isWeb()) {
       shell.setMaximized(true);
     }
+
+    // The transform and action icons are loaded on first use: parse them now, in the background
+    GuiResource.getInstance().preloadPluginIconsInBackground();
 
     display.asyncExec(
         () -> {
@@ -1295,6 +1308,14 @@ public class HopGui
           updateColors.run();
         }
       }
+    }
+  }
+
+  private static void initializeBatikAwt() {
+    try {
+      Class.forName("org.apache.batik.bridge.CursorManager", true, HopGui.class.getClassLoader());
+    } catch (Throwable e) {
+      // Batik then sets AWT up when it first needs it, as before
     }
   }
 

@@ -165,6 +165,26 @@ public class SwtSvgImageUtil {
     return result;
   }
 
+  /**
+   * Parses an SVG image into the SVG cache, from the same places {@link #getUniversalImage} looks.
+   * Needs no display, so it can run in a background thread. Problems are left for the real load to
+   * report.
+   */
+  public static void preloadSvg(ClassLoader classLoader, String filename) {
+    if (StringUtils.isBlank(filename) || !SvgSupport.isSvgEnabled()) {
+      return;
+    }
+    String svgName = SvgSupport.toSvgName(filename);
+    for (String location : new String[] {svgName, "/" + svgName, "ui/images/" + svgName}) {
+      try {
+        SvgCache.loadSvg(new SvgFile(location, classLoader));
+        return;
+      } catch (Throwable e) {
+        // try the next location
+      }
+    }
+  }
+
   /** Load image from several sources. */
   public static SwtUniversalImage getUniversalImage(
       Display display, ClassLoader classLoader, String filename) {

@@ -301,6 +301,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     return hopGui != null;
   }
 
+  /** Whether the overview cards were not rebuilt on the last refresh, see refresh(). */
+  private boolean overviewStale;
+
   @Override
   public String getId() {
     return "metadata-perspective";
@@ -318,6 +321,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   @Override
   public void perspectiveActivated() {
+    if (overviewStale) {
+      updateOverviewCards();
+    }
     this.updateSelection();
     this.updateGui();
   }
@@ -959,6 +965,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       return;
     }
     if (overview != null && !overview.isDisposed()) {
+      overviewStale = false;
       overview.setCards(buildOverviewCards());
     }
     if (editorStackLayout.topControl != overview) {
@@ -2462,7 +2469,17 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
     reloadModel();
     renderTree();
-    // Keep the overview catalog in sync when it is the visible panel (no editor open).
+    // Keep the overview catalog in sync when it is the visible panel (no editor open). While the
+    // perspective is hidden, as at startup, the cards are built when it is shown.
+    if (isActive()) {
+      updateOverviewCards();
+    } else {
+      overviewStale = true;
+    }
+  }
+
+  private void updateOverviewCards() {
+    overviewStale = false;
     if (overview != null
         && !overview.isDisposed()
         && editorStackLayout != null

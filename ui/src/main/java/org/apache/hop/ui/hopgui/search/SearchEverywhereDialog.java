@@ -671,7 +671,7 @@ public class SearchEverywhereDialog {
       MenuItem menuItem = matches.get(i);
       TreeItem item = new TreeItem(group, SWT.NONE);
       item.setText(0, commandLabel(menuItem));
-      Image image = menuItem.getImage();
+      Image image = GuiMenuWidgets.getImage(menuItem);
       if (image != null) {
         item.setImage(0, image);
       }

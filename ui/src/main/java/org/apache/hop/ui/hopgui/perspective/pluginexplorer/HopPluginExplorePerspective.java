@@ -88,6 +88,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     return "plugin-explorer";
   }
 
+  /** Whether the content was built, see buildContent(). */
+  private boolean contentBuilt;
+
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -95,7 +98,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
   @Override
   public void perspectiveActivated() {
-    // Do nothing
+    buildContent();
   }
 
   @Override
@@ -107,10 +110,6 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   public void initialize(HopGui hopGui, Composite parent) {
     this.hopGui = hopGui;
 
-    this.loadPlugin();
-
-    PropsUi props = PropsUi.getInstance();
-
     composite = new Composite(parent, SWT.NONE);
     composite.setLayout(new FormLayout());
     PropsUi.setLook(composite);
@@ -121,6 +120,19 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     formData.right = new FormAttachment(100, 0);
     formData.bottom = new FormAttachment(100, 0);
     composite.setLayoutData(formData);
+
+    // The plugin information and the table are built when the perspective is first shown
+  }
+
+  private void buildContent() {
+    if (contentBuilt) {
+      return;
+    }
+    contentBuilt = true;
+
+    this.loadPlugin();
+
+    PropsUi props = PropsUi.getInstance();
 
     Label label = new Label(composite, SWT.LEFT);
     label.setText(BaseMessages.getString(PKG, "PluginExplorerPerspective.PluginType.Label"));
@@ -176,6 +188,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     wPluginView.setLayoutData(fdFields);
 
     this.refresh();
+    composite.layout(true, true);
   }
 
   private void loadPlugin() {
