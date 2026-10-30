@@ -207,6 +207,10 @@ You can specify them as a comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb`
 | No
 | You can specify a metadata export file here which will contain all required metadata elements.  See also the metadata export option in the Hop Conf tool.
 
+|```HOP_RUN_SHUTDOWN_TIMEOUT```
+| No
+| The maximum number of seconds to wait for the pipeline or workflow to stop when the container is stopped (`docker stop`, a Kubernetes pod eviction, ...). The default is 25 seconds. Keep it below the grace period of the platform, see xref:hop-run/index.adoc#_stopping_hop_run[Stopping Hop Run].
+
 |===
 
 Below are the variables you can use for a **long-lived** container, running Hop Server:

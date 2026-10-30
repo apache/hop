@@ -294,27 +294,16 @@ run_hop_with_watchdog() {
       echo "Sending SIGQUIT to the JVM for a thread dump, then terminating it."
       echo "${SPACER}"
 
-      # hop-run.sh does not exec java, so the JVM is a child of the shell we started.
-      local jvm_pid
-      jvm_pid=$(pgrep -P "${runner_pid}" java | head -n1)
-      if [ -z "${jvm_pid}" ]; then
-        jvm_pid=$(pgrep -f 'org.apache.hop.run.HopRun' | head -n1)
-      fi
-      if [ -n "${jvm_pid}" ]; then
-        # SIGQUIT makes the JVM print every thread's stack on its stdout, which tee captures.
-        # Twice: two dumps a few seconds apart show whether anything is moving at all.
-        kill -QUIT "${jvm_pid}" 2>/dev/null || true
-        sleep 15
-        kill -QUIT "${jvm_pid}" 2>/dev/null || true
-        sleep 10
-        kill -TERM "${jvm_pid}" 2>/dev/null || true
-        sleep 5
-        kill -KILL "${jvm_pid}" 2>/dev/null || true
-      else
-        echo "WARNING: could not find the hop-run JVM process, killing the wrapper only"
-      fi
-
+      # hop-run.sh execs java, so the process we started is the JVM.
+      # SIGQUIT makes the JVM print every thread's stack on its stdout, which tee captures.
+      # Twice: two dumps a few seconds apart show whether anything is moving at all.
+      kill -QUIT "${runner_pid}" 2>/dev/null || true
+      sleep 15
+      kill -QUIT "${runner_pid}" 2>/dev/null || true
+      sleep 10
       kill -TERM "${runner_pid}" 2>/dev/null || true
+      sleep 5
+      kill -KILL "${runner_pid}" 2>/dev/null || true
       wait "${runner_pid}" 2>/dev/null
 
       # The surefire report is built from these files, so say there why the run has no result.

@@ -20,6 +20,7 @@ package org.apache.hop.run;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
@@ -156,6 +158,16 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
               + "this flag is the CLI equivalent of the GUI \"Run anyway\" override.")
   protected boolean allowUnsupported = false;
 
+  @CommandLine.Option(
+      names = {"-swt", "--shutdown-timeout"},
+      description =
+          "The maximum number of seconds to wait for the pipeline or workflow to stop when hop-run "
+              + "receives a termination signal (SIGTERM, SIGINT, SIGHUP), for example from docker "
+              + "stop or Kubernetes. Hop Run stops the run like the Stop button in Hop GUI does. "
+              + "Can also be set with the HOP_RUN_SHUTDOWN_TIMEOUT environment variable.",
+      defaultValue = "${env:HOP_RUN_SHUTDOWN_TIMEOUT:-25}")
+  protected long shutdownTimeout = 25;
+
   protected IVariables variables;
   protected String realRunConfigurationName;
   protected String realFilename;
@@ -163,6 +175,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
   protected ILogChannel log;
   protected MultiMetadataProvider metadataProvider;
   protected boolean finishedWithoutError;
+  protected HopRunShutdownHook shutdownHook;
 
   protected HopRunBase() {
     variables = new Variables();
@@ -172,11 +185,24 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
   public void run() {
     validateOptions();
     FileLoggingEventListener fileLoggingEventListener = null;
+    Thread shutdownHookThread = null;
 
     try {
       log = new LogChannel("HopRun");
       log.setLogLevel(determineLogLevel());
       log.logDetailed("Start of Hop Run");
+
+      // Stop the pipeline or workflow like Hop GUI does when the process gets a termination
+      // signal, for example when a container platform moves the pod to another node. Then
+      // deliver the lineage of the run: the JVM exits as soon as the hook returns.
+      //
+      shutdownHook =
+          new HopRunShutdownHook(
+              log,
+              Duration.ofSeconds(Math.max(0L, shutdownTimeout)),
+              () -> LineageHub.getInstance().shutdown());
+      shutdownHookThread = new Thread(shutdownHook, "hop-run-stop-on-shutdown");
+      Runtime.getRuntime().addShutdownHook(shutdownHookThread);
 
       // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even
       // loaded
@@ -238,6 +264,16 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
     } finally {
       if (fileLoggingEventListener != null) {
         HopLogStore.getAppender().removeLoggingEventListener(fileLoggingEventListener);
+      }
+      if (shutdownHook != null) {
+        shutdownHook.runFinished();
+      }
+      if (shutdownHookThread != null) {
+        try {
+          Runtime.getRuntime().removeShutdownHook(shutdownHookThread);
+        } catch (IllegalStateException e) {
+          // The JVM is already shutting down: the hook is running and waits for this run.
+        }
       }
     }
   }
@@ -350,6 +386,9 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       //
       pipeline.prepareExecution();
       pipeline.startThreads();
+      if (shutdownHook != null) {
+        shutdownHook.track(pipeline);
+      }
       pipeline.waitUntilFinished();
       setFinishedWithoutError(pipeline.getResult().getNrErrors() == 0L);
     } catch (Exception e) {
@@ -470,6 +509,9 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
 
       log.logMinimal("Starting workflow: " + workflowMeta.getFilename());
 
+      if (shutdownHook != null) {
+        shutdownHook.track(workflow);
+      }
       workflow.startExecution();
       setFinishedWithoutError(workflow.getResult().isResult());
     } catch (Exception e) {
