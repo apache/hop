@@ -31,15 +31,28 @@ The result it true when the host is reachable, otherwise false.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Host name/IP|The name or the IP address of the host to ping
 |Ping type a| The type of ping to send to the specified hostname or IP address
 
 * Classic ping: This calls the ping as a command line of the operating system.
-The result is true when no packets (defined in the "Nr. packets to send" option) are lost.
+The result is true when the ping command ends without error (exit code 0). On Linux and macOS, that is the case when at least one of the packets (defined in the *Nr packets to send* option) gets a reply.
 * System ping: This option uses the Java implemented methods.
 The result is true when the host name can be resolved and the host is reachable within the given timeout period.
 * System ping then classic ping: try both options (first the system ping and when that fails, try the classic ping)
 |Timeout (ms)|The timeout in ms when the system ping option is used.
-|Nr. packets to send|The number of packets to send (by default 2, only used by the Classic ping option).
+|Nr packets to send|The number of packets to send (by default 2, only used by the Classic ping option).
+|===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The host answered, with 0 errors.
+|False|The host can't be pinged (for example, its name can't be resolved), or *Host name/IP* is empty. The number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
 |===

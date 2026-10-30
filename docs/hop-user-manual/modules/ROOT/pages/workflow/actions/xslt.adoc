@@ -42,16 +42,16 @@ When multiple rows exists, it will loop.
 At this time XML File name is the first field in the result set, XSL File name the second fields and Output File name the third field.
 |XML File name|The full name of the source XML file
 |XSL File name|The full name of the XSL file
-|Output File name|The full name of the created document (result of XSL transformation)
+|Output Filename|The full name of the created document (result of XSL transformation)
 2+|Settings
-|Transformer Factory|You can select JAXP or SAXON as the transformer factory.
+|Transformer factory|You can select JAXP or SAXON as the transformer factory.
 |If file exists a|Define the behavior when an output file with the same name exists. The available options are:
 
-* Create new with unique name : a new output file will be created
-* Do nothing : nothing will be done
-* Fail : the workflow will fail
+* Create new with unique name: meant to write a new output file, with the date and time added to its name. See the NOTE under <<Result>>.
+* Do Nothing: the existing file is left as it is, and the action is true
+* Fail: the action is false, with 1 error
 
-|Add files to result files name|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
+|Add output filename to result|Add the target file names to the list of result files of this workflow action for use in the next workflow actions.
 |===
 
 === Advanced tab
@@ -73,3 +73,21 @@ At this time XML File name is the first field in the result set, XSL File name t
 
 |Parameters|a list of parameter names and values to pass to the XSL pipeline
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every file was transformed, with 0 errors. An output file that exists while *If file exists* is *Do Nothing* also counts as done: the file is left as it is.
+|False|The XML file or the XSL file doesn't exist, the XSL file can't be used, or the output file exists while *If file exists* is *Fail*. The number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|Lines written|The number of files that were transformed (or left as they are with *Do Nothing*).
+|===
+
+NOTE: In this version, only *XML File name*, *XSL File name*, *Output Filename* and *If file exists* are stored in the workflow file. *Get filenames from previous result*, *Transformer factory*, *Add output filename to result* and the *Advanced* tab are not saved: once the workflow is saved and opened again, or run with hop-run, they have no effect. No output file is added to the result files, and the file names are never read from the previous result.
+
+NOTE: In this version, *Create new with unique name* overwrites the existing output file instead of writing a new one.

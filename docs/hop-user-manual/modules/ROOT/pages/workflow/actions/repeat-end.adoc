@@ -29,3 +29,15 @@ It leaves a flag in the parent workflow to signal it can stop repeating at the n
 TIP: The End repeat action only works against its parent workflow when it's being executed by the Repeat action.
 
 This action has no options. It works as a xref:workflow/actions/success.adoc[Success] action and clears possible previous errors.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Always, with 0 errors, also when the workflow is not run by a Repeat action.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===

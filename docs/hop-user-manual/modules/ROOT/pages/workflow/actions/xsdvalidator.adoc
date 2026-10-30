@@ -43,7 +43,7 @@ See also the xref:pipeline/transforms/xsdvalidator.adoc[XSD Validator pipeline t
 
 Allow the XSD validation to resolve external references (XXE). Unchecked by default, which has three effects:
 
-* A `DOCTYPE` declaration or an external entity in the XML being validated is refused and the action fails.
+* A `DOCTYPE` declaration that points to an external DTD, or an external entity, in the XML being validated is refused and the action fails. A `DOCTYPE` with only internal declarations is accepted.
 * XSD sources *none (default)* and *is defined inside XML* do not work: the `xsi:schemaLocation` / `xsi:noNamespaceSchemaLocation` reference is not resolved, not even when it points at a local file. Both options need the checkbox.
 * A schema that pulls in another schema over the network with `xs:include` or `xs:import` (for example the W3C `xml.xsd`) needs the checkbox. Local file and relative includes keep working without it.
 
@@ -56,4 +56,17 @@ Only check this when the XML documents and the schemas you validate against are 
 * is defined inside XML - requires *Enable external entity for XSD validation*
 |XML File name|The name of the XML file
 |XSD File name|The name of the XSD file
+|===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The XML file is valid against the schema, with 0 errors.
+|False|The XML file is not valid, the XML file or the XSD file doesn't exist, or the action refuses the file because *Enable external entity for XSD validation* is unchecked (see the option above). The number of errors is 1.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
 |===
