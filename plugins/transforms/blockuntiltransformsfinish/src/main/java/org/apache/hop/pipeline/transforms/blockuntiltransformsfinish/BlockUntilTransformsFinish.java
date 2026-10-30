@@ -24,7 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -100,23 +100,22 @@ public class BlockUntilTransformsFinish
       while (it.hasNext()) {
         Entry<Integer, IEngineComponent> e = it.next();
         IEngineComponent transform = e.getValue();
-        if (transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_RUNNING
-            || transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_IDLE
-            || transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_INIT
-            || transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_PAUSED) {
+        // Read the status once: it can change between reads, e.g. from idle to running at
+        // startup, and then none of the checks below would match (#9096).
+        ComponentExecutionStatus status = transform.getStatus();
+        if (status == ComponentExecutionStatus.STATUS_RUNNING
+            || status == ComponentExecutionStatus.STATUS_IDLE
+            || status == ComponentExecutionStatus.STATUS_INIT
+            || status == ComponentExecutionStatus.STATUS_PAUSED) {
           // This transform is still running...
           data.continueLoop = true;
         } else {
           if (isBasic()) {
-            logBasic(
-                "Transform "
-                    + transform.getName()
-                    + " status: "
-                    + transform.getStatusDescription());
+            logBasic("Transform " + transform.getName() + " status: " + status.getDescription());
           }
           // We have done with this transform.
           // remove it from the map
-          data.componentMap.remove(e.getKey());
+          it.remove();
           if (isDetailed()) {
             logDetailed(
                 "Finished running transform ["
