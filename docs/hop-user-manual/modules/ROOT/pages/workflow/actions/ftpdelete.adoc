@@ -108,8 +108,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 
 * All works fine (default): no file failed. No file matching the wildcard is also true, and so is *Copy previous results to args* without previous result rows.
 * At least we delete x files: at least *Limit files* files were deleted.
-* Nr errors less than: the number of errors is at most *Limit files*. An empty *Wildcard* counts as 1 error, so with this condition it gives true with 1 error.
-|False|The success condition is not met, for example because the server can't be reached, the remote directory doesn't exist, or *Wildcard* is empty while *Copy previous results to args* is unchecked. The number of errors is the number of files that failed, or 1 when the action fails before deleting.
+* Nr errors less than: the number of errors is at most *Limit files*. A failure before deleting counts as 1 error, so the cases listed under False give true with 1 error when *Limit files* is 1 or more.
+|False|The success condition is not met, for example because the server can't be reached or refuses the login, the remote directory doesn't exist, the wildcard is not a valid regular expression, or *Wildcard* is empty while *Copy previous results to args* is unchecked. The number of errors is the number of files that failed, or 1 when the action fails before deleting. With *Nr errors less than*, these failures count as 1 error, so the action is true when *Limit files* is 1 or more.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |Files retrieved|The number of files deleted. When the remote directory has no files, or *Copy previous results to args* is checked without previous result rows, the value of the previous action is passed on unchanged.
