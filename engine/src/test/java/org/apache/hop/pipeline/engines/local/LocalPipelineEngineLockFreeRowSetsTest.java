@@ -139,6 +139,60 @@ class LocalPipelineEngineLockFreeRowSetsTest {
   }
 
   /**
+   * A transform with 4 copies between two others: every copy counts each row it reads and writes
+   * exactly once, so the counts add up to the number of rows, not to an estimate.
+   */
+  @Test
+  @Timeout(60)
+  void countsEveryRowExactlyOnceAcrossCopies() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("lock-free row sets copies test");
+    TransformMeta a = new TransformMeta("A", new DummyMeta());
+    TransformMeta b = new TransformMeta("B", new DummyMeta());
+    b.setCopies(4);
+    TransformMeta c = new TransformMeta("C", new DummyMeta());
+    pipelineMeta.addTransform(a);
+    pipelineMeta.addTransform(b);
+    pipelineMeta.addTransform(c);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(a, b));
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(b, c));
+    LocalPipelineEngine pipeline =
+        new LocalPipelineEngine(pipelineMeta, new Variables(), new LoggingObject("test"));
+    LocalPipelineRunConfiguration config =
+        (LocalPipelineRunConfiguration)
+            pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+    config.setRowSetSize("100");
+    config.setLockFreeRowSets(true);
+    pipeline.prepareExecution();
+    RowProducer producer = pipeline.addRowProducer("A", 0);
+    pipeline.startThreads();
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("id"));
+    long rows = 4L * ROWS_PER_INPUT + 3; // not a multiple of the copies
+    for (long i = 0; i < rows; i++) {
+      producer.putRow(rowMeta, new Object[] {i});
+    }
+    producer.finished();
+    pipeline.waitUntilFinished();
+
+    assertEquals(0, pipeline.getErrors());
+    assertEquals(rows, pipeline.getTransform("A", 0).getLinesWritten(), "rows written by A");
+    long readByB = 0;
+    long writtenByB = 0;
+    for (int copy = 0; copy < 4; copy++) {
+      readByB += pipeline.getTransform("B", copy).getLinesRead();
+      writtenByB += pipeline.getTransform("B", copy).getLinesWritten();
+    }
+    assertEquals(rows, readByB, "rows read by the copies of B");
+    assertEquals(rows, writtenByB, "rows written by the copies of B");
+    assertEquals(rows, pipeline.getTransform("C", 0).getLinesRead(), "rows read by C");
+    for (IRowSet rowSet : pipeline.getRowsets()) {
+      assertEquals(0, rowSet.size(), "rows left in " + rowSet);
+    }
+  }
+
+  /**
    * One input finishes without rows, the other one sends bursts with idle gaps: the reader parks on
    * its inputs in between and is woken by each burst and at the end.
    */

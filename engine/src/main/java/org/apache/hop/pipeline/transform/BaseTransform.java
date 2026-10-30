@@ -168,6 +168,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /** The longest a transform parks waiting on its lock-free inputs before it checks them again. */
   private static final long LOCK_FREE_MAX_WAIT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
+  /** The longest a transform parks once its lock-free inputs have been idle for a while. */
+  private static final long LOCK_FREE_MAX_IDLE_NANOS = TimeUnit.MILLISECONDS.toNanos(20);
+
   private static final VarHandle LINES_READ;
   private static final VarHandle LINES_WRITTEN;
   private static final VarHandle LINES_INPUT;
@@ -2023,12 +2026,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Reads the next row with lock-free row sets, without the wait times of {@link DynamicWaitTimes}:
    * the current input first, then the next ones, without waiting. When a whole round over the
    * inputs finds nothing, the transform parks until one of them has a batch of rows or is done (see
-   * {@link LockFreeRowSet#awaitAny(List, long)}), so rows on any input wake it.
+   * {@link LockFreeRowSet#awaitAny(List, long)}), so rows on any input wake it. While nothing
+   * arrives the park grows from 1 ms to 20 ms, and the next row then wakes the transform, so an
+   * idle transform costs little CPU.
    *
    * @return the row, or null when every input is done (and removed) or the transform is stopped
    */
   private Object[] getRowLockFree(IRowSet inputRowSet) {
     int emptyInputs = 0;
+    long idleWait = LOCK_FREE_MAX_WAIT_NANOS;
     while (!isStopped()) {
       Object[] row = inputRowSet.getRowImmediate();
       if (row == null && inputRowSet.isDone()) {
@@ -2057,7 +2063,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         return row;
       }
       if (++emptyInputs >= inputRowSets.size()) {
-        LockFreeRowSet.awaitAny(inputRowSets, LOCK_FREE_MAX_WAIT_NANOS);
+        // back off while nothing arrives: lock-free inputs then wake us on their next row
+        if (LockFreeRowSet.awaitAny(inputRowSets, idleWait)) {
+          idleWait = Math.min(idleWait * 2, LOCK_FREE_MAX_IDLE_NANOS);
+        }
         emptyInputs = 0;
       }
       nextInputStream();
