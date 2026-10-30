@@ -319,7 +319,8 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
 
   /**
    * Logs one processed file at Basic level, up to {@link #MAX_BASIC_FILE_LOG_LINES} files. The
-   * Detailed-level line for the same file is logged separately and is not capped.
+   * Basic-level overwrite warnings share this limit. The Detailed-level line for the same file is
+   * logged separately and is not capped.
    */
   private void logFileProcessed(String messageKey, String... filenames) {
     if (!isBasic()) {
@@ -368,7 +369,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     if (shouldPerform) {
       if (data.targetFileExists) {
         data.filesOverwritten++;
-        if (isBasic()) {
+        if (isBasic() && data.basicFileLogLines < MAX_BASIC_FILE_LOG_LINES) {
           logBasic(
               BaseMessages.getString(
                   PKG,
@@ -444,7 +445,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     if (shouldPerform) {
       if (data.targetFileExists) {
         data.filesOverwritten++;
-        if (isBasic()) {
+        if (isBasic() && data.basicFileLogLines < MAX_BASIC_FILE_LOG_LINES) {
           logBasic(
               BaseMessages.getString(
                   PKG,
