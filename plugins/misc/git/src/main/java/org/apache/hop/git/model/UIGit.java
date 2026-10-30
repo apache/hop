@@ -816,6 +816,25 @@ public class UIGit extends VCS {
 
     try {
       git.fetch().setCredentialsProvider(credentialsProvider).setCheckFetchedObjects(true).call();
+    } catch (TransportException e) {
+      if (e.getMessage()
+              .contains(
+                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
+          || e.getMessage()
+              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
+        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
+          new ErrorDialog(
+              HopGui.getInstance().getShell(),
+              "Git Error",
+              "Error Authenticating to Git service",
+              e);
+        }
+        if (promptUsernamePassword()) {
+          return fetch();
+        }
+      } else {
+        throw new HopException("There was an error doing a git fetch", e);
+      }
     } catch (Exception e) {
       throw new HopException("There was an error doing a git fetch", e);
     }
