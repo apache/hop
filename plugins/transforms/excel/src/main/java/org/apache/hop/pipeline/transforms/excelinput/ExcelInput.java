@@ -528,8 +528,9 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
                   PKG, "ExcelInput.Error.InvalidSheetRegex", sheetNameRegex, e.getMessage()));
         }
       } else {
-        logBasic("Sheet exact name: [" + sheet.getName() + "]");
-        matchedNames.add(sheet.getName());
+        String exactName = resolve(sheet.getName());
+        logBasic("Sheet exact name: [" + exactName + "]");
+        matchedNames.add(exactName);
         matchedStartRow.add(sheet.getStartRow());
         matchedStartCol.add(sheet.getStartColumn());
       }
