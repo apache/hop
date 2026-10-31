@@ -176,7 +176,7 @@ Not available when the source is defined in a field.
 |{nbsp}{nbsp}{nbsp}{nbsp}Filename fieldname|The name of that output field.
 |Rownum in output|Adds an Integer field with the row number, starting at 1 and counted over all the files together.
 |{nbsp}{nbsp}{nbsp}{nbsp}Rownum fieldname|The name of that output field.
-|Add files to result filesname|Adds the files that were read to the result files of the pipeline, for example for a later action in the workflow.
+|Add files to result filenames|Adds the files that were read to the result files of the pipeline, for example for a later action in the workflow.
 Not available when the source is defined in a field.
 |===
 
