@@ -182,8 +182,8 @@ class ActionFtpDeleteExecutionTest {
   }
 
   @Test
-  @DisplayName("\"Fewer errors than\" tolerates a refused delete the default condition would not")
-  void successWhenFewerErrorsThan() throws Exception {
+  @DisplayName("\"At most N errors\" tolerates a refused delete the default condition would not")
+  void successWhenErrorsAtMost() throws Exception {
     Files.createDirectories(serverRoot.resolve("a-folder"));
 
     ActionFtpDelete action = configure();
@@ -193,7 +193,108 @@ class ActionFtpDeleteExecutionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.isResult(), "one error is fewer than the five allowed");
+    assertTrue(result.isResult(), "one error is within the five allowed");
+  }
+
+  @Test
+  @DisplayName("\"At most N errors\" is still true when the error count equals the limit")
+  void successWhenErrorsEqualTheLimit() throws Exception {
+    Files.createDirectories(serverRoot.resolve("a-folder"));
+
+    ActionFtpDelete action = configure();
+    action.setWildcard(".*");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("1");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult(), "exactly Limit files errors still counts as success");
+    assertEquals(1, result.getNrErrors());
+  }
+
+  @Test
+  @DisplayName("An unreachable server fails whatever the success condition")
+  void unreachableServerFailsEvenWithErrorsAtMost() throws Exception {
+    ActionFtpDelete action = configure();
+    action.setWildcard(".*");
+    action.setServerPort("1");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult(), "a failure before any delete must not follow the success hop");
+    assertTrue(result.getNrErrors() > 0);
+  }
+
+  @Test
+  @DisplayName("A refused login fails whatever the success condition")
+  void refusedLoginFailsEvenWithErrorsAtMost() throws Exception {
+    server.writeFile("report.txt", "stays");
+
+    ActionFtpDelete action = configure();
+    action.setWildcard(".*");
+    action.setPassword("wrong-password");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(result.getNrErrors() > 0);
+    assertNotNull(server.readFile("report.txt"));
+  }
+
+  @Test
+  @DisplayName("An invalid wildcard fails whatever the success condition")
+  void invalidWildcardFailsEvenWithErrorsAtMost() throws Exception {
+    server.writeFile("report.txt", "stays");
+
+    ActionFtpDelete action = configure();
+    action.setWildcard("[invalid");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(result.getNrErrors() > 0);
+    assertNotNull(server.readFile("report.txt"));
+  }
+
+  @Test
+  @DisplayName("A missing remote directory fails whatever the success condition")
+  void missingRemoteDirectoryFailsEvenWithErrorsAtMost() throws Exception {
+    server.writeFile("stays.txt", "stays");
+
+    ActionFtpDelete action = configure();
+    action.setRemoteDirectory("/not-there");
+    action.setWildcard(".*");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(result.getNrErrors() > 0);
+    assertNotNull(server.readFile("stays.txt"));
+  }
+
+  @Test
+  @DisplayName("An empty wildcard fails whatever the success condition")
+  void emptyWildcardFailsEvenWithErrorsAtMost() throws Exception {
+    server.writeFile("report.txt", "stays");
+
+    ActionFtpDelete action = configure();
+    action.setWildcard("");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(result.getNrErrors() > 0);
+    assertNotNull(server.readFile("report.txt"));
   }
 
   @Test

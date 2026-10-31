@@ -313,7 +313,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
     result.setNrErrors(download.nrErrors);
     result.setNrFilesRetrieved(download.nrFilesRetrieved);
-    result.setResult(!exitAction && download.isSuccess());
+    // Success conditions apply only once listing/matching is ready; setup failures stay false.
+    result.setResult(!exitAction && download.transferAttempted && download.isSuccess());
     download.log();
     return result;
   }
@@ -375,6 +376,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     }
 
     Pattern pattern = Utils.isEmpty(wildcard) ? null : Pattern.compile(resolve(wildcard));
+
+    // Connection, listing and wildcard are ready: from here on, success conditions apply.
+    download.transferAttempted = true;
 
     for (FTPFile ftpFile : ftpFiles) {
       if (parentWorkflow.isStopped()) {
@@ -662,6 +666,10 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     private long nrErrors = 0;
     private long nrFilesRetrieved = 0;
     private boolean successConditionBroken = false;
+
+    /** True once listing and wildcard matching are ready; false for setup failures. */
+    private boolean transferAttempted = false;
+
     private final int limitFiles = Const.toInt(resolve(getNrLimit()), 10);
 
     void updateErrors() {
@@ -673,6 +681,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     }
 
     boolean isSuccess() {
+      // SUCCESS_IF_ERRORS_LESS means "at most Limit files errors" (nrErrors <= limit).
       return (nrErrors == 0 && SUCCESS_IF_NO_ERRORS.equals(getSuccessCondition()))
           || (nrFilesRetrieved >= limitFiles
               && SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED.equals(getSuccessCondition()))
