@@ -56,7 +56,7 @@ The Load File Content In Memory transform loads the content of a file in memory.
 |Filename fieldname|Field containing the filename
 |Rownum in output?|Allows the row number to be included in the output
 |Rownum filename|Field containing the row number
-|Add files to result filesname|Add files to resulting files name
+|Add files to result filenames|Add files to resulting files name
 |===
 
 === Fields Tab
