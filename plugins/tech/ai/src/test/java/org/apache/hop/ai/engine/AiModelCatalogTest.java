@@ -26,12 +26,18 @@ import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.catalog.ModelCatalog;
 import dev.langchain4j.model.catalog.ModelDescription;
 import dev.langchain4j.model.catalog.ModelType;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.provider.AiChatRequest;
+import org.apache.hop.ai.provider.AiChatResponse;
+import org.apache.hop.ai.provider.BaseAiProvider;
+import org.apache.hop.ai.provider.IAiChatProvider;
 import org.apache.hop.ai.providers.HuggingFaceProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.junit.jupiter.api.Test;
 
 class AiModelCatalogTest {
@@ -66,6 +72,18 @@ class AiModelCatalogTest {
     HopException error =
         assertThrows(HopException.class, () -> AiModelCatalog.listModelNames(provider, null));
     assertTrue(error.getMessage().toLowerCase().contains("hugging face"));
+  }
+
+  @Test
+  void delegatesModelListingToNativeProvider() throws Exception {
+    AiProvider provider = new AiProvider();
+    NativeChatProvider backend = new NativeChatProvider();
+    backend.setPluginId("native");
+    provider.setProvider(backend);
+    provider.setTimeoutSeconds("17");
+
+    assertEquals(List.of("copilot-model"), AiModelCatalog.listModelNames(provider, null));
+    assertEquals(Duration.ofSeconds(17), backend.timeout);
   }
 
   @Test
@@ -151,5 +169,24 @@ class AiModelCatalogTest {
         assertThrows(
             HopException.class, () -> AiModelCatalog.listModelNames(new AiProvider(), null));
     assertTrue(error.getMessage().toLowerCase().contains("provider type"));
+  }
+
+  private static final class NativeChatProvider extends BaseAiProvider implements IAiChatProvider {
+    private Duration timeout;
+
+    private NativeChatProvider() {
+      setRequiresApiKey(false);
+    }
+
+    @Override
+    public AiChatResponse chat(AiChatRequest request, IVariables variables) {
+      return new AiChatResponse("", null, null, 0);
+    }
+
+    @Override
+    public List<String> listModelNames(IVariables variables, Duration timeout) {
+      this.timeout = timeout;
+      return List.of("copilot-model");
+    }
   }
 }

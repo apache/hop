@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.provider.IAiChatProvider;
 import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -63,6 +64,10 @@ public final class AiModelCatalog {
       throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.NoType"));
     }
     IAiProvider backend = provider.getProvider();
+    if (backend instanceof IAiChatProvider chatProvider) {
+      return chatProvider.listModelNames(
+          variables, timeoutOf(resolve(variables, provider.getTimeoutSeconds())));
+    }
     String hopType = Const.NVL(backend.getHopModelType(), "OPEN_AI");
     if ("HUGGING_FACE".equals(hopType)) {
       throw new AiUserException(BaseMessages.getString(PKG, "AiModelCatalog.HuggingFace"));
