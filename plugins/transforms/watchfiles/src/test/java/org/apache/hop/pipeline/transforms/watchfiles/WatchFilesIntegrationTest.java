@@ -99,6 +99,9 @@ class WatchFilesIntegrationTest {
         for (String name : names) Files.delete(nested.resolve(name));
         awaitNames(rows, names, "DELETED");
         assertTrue(pipeline.isRunning());
+        // A row reaches the listener before the transform acknowledges it. An event that is not
+        // acknowledged when the pipeline stops is emitted again after the restart.
+        awaitAcknowledged("names-" + strategy, 3L * names.size());
       } finally {
         stop(pipeline);
       }
@@ -113,6 +116,18 @@ class WatchFilesIntegrationTest {
         stop(restarted);
       }
     }
+  }
+
+  private void awaitAcknowledged(String watchId, long expected) throws Exception {
+    String key = temporary.resolve("state").toRealPath().resolve(watchId).toString();
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+    WatchFilesDiagnostics.Snapshot snapshot = WatchFilesDiagnostics.active(key);
+    while ((snapshot == null || snapshot.emitted() < expected) && System.nanoTime() < deadline) {
+      Thread.sleep(10);
+      snapshot = WatchFilesDiagnostics.active(key);
+    }
+    assertTrue(
+        snapshot != null && snapshot.emitted() >= expected, "Events not acknowledged: " + snapshot);
   }
 
   private void awaitNames(

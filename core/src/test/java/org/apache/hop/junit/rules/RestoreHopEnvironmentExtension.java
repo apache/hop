@@ -88,6 +88,7 @@ public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterA
   }
 
   protected void cleanUp() {
+    resetHopEnvironment();
     HopClientEnvironment.reset();
     PluginRegistry.getInstance().reset();
     MetricsRegistry.getInstance().reset();
@@ -99,6 +100,21 @@ public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterA
     HopVfs.reset();
     XmlHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();
+  }
+
+  /**
+   * The plugin registry and the log store are reset here, so HopEnvironment must be too: otherwise
+   * a later HopEnvironment.init() in the same JVM believes it is done and leaves them empty.
+   * HopEnvironment is in hop-engine, which hop-core does not depend on.
+   */
+  private static void resetHopEnvironment() {
+    try {
+      Class.forName("org.apache.hop.core.HopEnvironment").getMethod("reset").invoke(null);
+    } catch (ClassNotFoundException e) {
+      // Not on the class path: nothing to reset
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("Unable to reset HopEnvironment", e);
+    }
   }
 
   @Override

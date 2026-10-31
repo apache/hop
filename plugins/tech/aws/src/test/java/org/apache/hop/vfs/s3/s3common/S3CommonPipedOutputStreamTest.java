@@ -104,7 +104,12 @@ class S3CommonPipedOutputStreamTest {
 
     S3CommonPipedOutputStream out =
         new S3CommonPipedOutputStream(fileSystem, "test-bucket", "test-key");
-    out.write(new byte[] {1, 2, 3});
+
+    try {
+      out.write(new byte[] {1, 2, 3});
+    } catch (IOException e) {
+      // The upload may already have failed and closed the pipe: close() must still report it
+    }
 
     assertThrows(
         IOException.class,
