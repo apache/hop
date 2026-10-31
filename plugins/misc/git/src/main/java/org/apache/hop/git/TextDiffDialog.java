@@ -306,9 +306,12 @@ public class TextDiffDialog extends Dialog {
     }
     syncingVertical = true;
     try {
-      int lineHeight = wLeftEditor.getLineHeight();
+      // An empty editor ignores setTopPixel() and stays at 0, so scroll from the side with content
+      // when the file was added or deleted
+      StyledText editor = wLeftEditor.getCharCount() > 0 ? wLeftEditor : wRightEditor;
+      int lineHeight = editor.getLineHeight();
       int delta = -event.count * lineHeight;
-      int newTopPixel = Math.max(0, wLeftEditor.getTopPixel() + delta);
+      int newTopPixel = Math.max(0, editor.getTopPixel() + delta);
 
       this.leftTop = newTopPixel;
       this.rightTop = newTopPixel;
