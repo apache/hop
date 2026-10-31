@@ -1,0 +1,199 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Install the Apache Hop client
+  zh-CN: 安装 Apache Hop 客户端
+  es-ES: Instalar el cliente de Apache Hop
+  pt-PT: Instalar o cliente Apache Hop
+  fr-FR: Installer le client Apache Hop
+  de-DE: Den Apache-Hop-Client installieren
+  it-IT: Installare il client Apache Hop
+summary:
+  en: Install the Apache Hop client. You need Java 21, the latest client zip from hop.apache.org, and
+    a few minutes. Unpack it, start Hop GUI, and keep your configuration outside the installation folder
+    so the next version still sees your projects.
+  zh-CN: 安装 Apache Hop 客户端。你需要 Java 21、hop.apache.org 上最新的客户端 zip，以及几分钟时间。解压并启动 Hop GUI，把配置放在安装文件夹之外，这样下一个版本仍然看得到你的
+    project。
+  es-ES: Instala el cliente de Apache Hop. Necesitas Java 21, el zip más reciente del cliente en hop.apache.org
+    y unos minutos. Descomprímelo, arranca Hop GUI y guarda la configuración fuera de la carpeta de instalación,
+    para que la siguiente versión siga viendo tus projects.
+  pt-PT: Instala o cliente Apache Hop. Precisas do Java 21, do zip mais recente do cliente em hop.apache.org
+    e de uns minutos. Descompacta-o, inicia o Hop GUI e mantém a configuração fora da pasta de instalação,
+    para a versão seguinte continuar a ver os teus projects.
+  fr-FR: Installez le client Apache Hop. Il vous faut Java 21, le zip le plus récent du client sur hop.apache.org,
+    et quelques minutes. Décompressez-le, lancez Hop GUI et gardez la configuration en dehors du dossier
+    d'installation, pour que la version suivante voie encore vos projects.
+  de-DE: Installiere den Apache-Hop-Client. Du brauchst Java 21, das neueste Client-Zip von hop.apache.org
+    und ein paar Minuten. Entpacke es, starte Hop GUI und lege die Konfiguration außerhalb des Installationsordners
+    ab, damit die nächste Version deine projects noch sieht.
+  it-IT: Installa il client Apache Hop. Ti servono Java 21, lo zip più recente del client su hop.apache.org
+    e qualche minuto. Scompattalo, avvia Hop GUI e tieni la configurazione fuori dalla cartella di installazione,
+    così la versione successiva vede ancora i tuoi project.
+link_labels:
+  Download and install:
+    en: Download and install
+    zh-CN: 下载并安装
+    es-ES: Descargar e instalar
+    pt-PT: Transferir e instalar
+    fr-FR: Télécharger et installer
+    de-DE: Herunterladen und installieren
+    it-IT: Scaricare e installare
+  Sizing guide:
+    en: Sizing guide
+    zh-CN: 容量指南
+    es-ES: Guía de dimensionamiento
+    pt-PT: Guia de dimensionamento
+    fr-FR: Guide de dimensionnement
+    de-DE: Größenleitfaden
+    it-IT: Guida al dimensionamento
+  Supported Java versions:
+    en: Supported Java versions
+    zh-CN: 支持的 Java 版本
+    es-ES: Versiones de Java compatibles
+    pt-PT: Versões Java suportadas
+    fr-FR: Versions Java prises en charge
+    de-DE: Unterstützte Java-Versionen
+    it-IT: Versioni Java supportate
+  Configure Hop environment:
+    en: Configure Hop environment
+    zh-CN: 配置 Hop environment
+    es-ES: Configurar el environment de Hop
+    pt-PT: Configurar o environment do Hop
+    fr-FR: Configurer l'environment Hop
+    de-DE: Hop-environment konfigurieren
+    it-IT: Configurare l'environment di Hop
+  Download:
+    en: Download
+    zh-CN: 下载
+    es-ES: Descarga
+    pt-PT: Transferência
+    fr-FR: Téléchargement
+    de-DE: Download
+    it-IT: Download
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  java-21:
+    en: Java 21
+    zh-CN: Java 21
+    es-ES: Java 21
+    pt-PT: Java 21
+    fr-FR: Java 21
+    de-DE: Java 21
+    it-IT: Java 21
+  how-much-machine:
+    en: How much machine
+    zh-CN: 需要多少机器
+    es-ES: Cuánta máquina
+    pt-PT: Quanta máquina
+    fr-FR: Quelle machine
+    de-DE: Wie viel Rechner
+    it-IT: Quanta macchina
+  where-it-runs:
+    en: Where it runs
+    zh-CN: 在哪里运行
+    es-ES: Dónde se ejecuta
+    pt-PT: Onde corre
+    fr-FR: Où il tourne
+    de-DE: Wo es läuft
+    it-IT: Dove gira
+  download:
+    en: Download
+    zh-CN: 下载
+    es-ES: Descarga
+    pt-PT: Transferência
+    fr-FR: Téléchargement
+    de-DE: Download
+    it-IT: Download
+  unzip-and-start:
+    en: Unpack and start
+    zh-CN: 解压并启动
+    es-ES: Descomprimir y arrancar
+    pt-PT: Descompactar e iniciar
+    fr-FR: Décompresser et lancer
+    de-DE: Entpacken und starten
+    it-IT: Scompattare e avviare
+  keep-config-outside:
+    en: Keep configuration outside the install
+    zh-CN: 把配置放在安装目录外
+    es-ES: Configuración fuera de la instalación
+    pt-PT: Configuração fora da instalação
+    fr-FR: Configuration hors de l'installation
+    de-DE: Konfiguration außerhalb der Installation
+    it-IT: Configurazione fuori dall'installazione
+  configure-environment:
+    en: Configure Hop environment
+    zh-CN: 配置 Hop environment
+    es-ES: Configurar el environment de Hop
+    pt-PT: Configurar o environment do Hop
+    fr-FR: Configurer l'environment Hop
+    de-DE: Hop-environment konfigurieren
+    it-IT: Configurare l'environment di Hop
+  default-and-samples:
+    en: Default and samples
+    zh-CN: default 和 samples
+    es-ES: default y samples
+    pt-PT: default e samples
+    fr-FR: default et samples
+    de-DE: default und samples
+    it-IT: default e samples

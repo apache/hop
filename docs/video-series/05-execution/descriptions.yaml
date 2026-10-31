@@ -1,0 +1,173 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Run a pipeline and a workflow
+  zh-CN: 运行 Pipeline 和 Workflow
+  es-ES: Ejecutar un Pipeline y un Workflow
+  pt-PT: Executar um Pipeline e um Workflow
+  fr-FR: Exécuter un Pipeline et un Workflow
+  de-DE: Eine Pipeline und einen Workflow ausführen
+  it-IT: Eseguire un Pipeline e un Workflow
+summary:
+  en: Run the pipeline and the workflow you built. In Hop GUI, Run finishes the work, a preview shows
+    the first rows, and Pause pipeline on condition stops on a matching row. Then hop-run runs the same
+    files from the command line, with the project, the environment, a path inside the project, the run
+    configuration, and log level Basic.
+  zh-CN: 运行你已经搭建的 Pipeline 和 Workflow。在 Hop GUI 里，Run 把工作做完，预览显示最前面的几行，Pause pipeline on condition 在某一行符合条件时停下。然后
+    hop-run 从命令行运行同样的文件，带上 project、environment、project 内的路径、run configuration，以及日志级别 Basic。
+  es-ES: Ejecuta el Pipeline y el Workflow que construiste. En Hop GUI, Run termina el trabajo, una vista
+    previa muestra las primeras filas y Pause pipeline on condition se detiene en una fila que coincide.
+    Después hop-run ejecuta los mismos archivos desde la línea de comandos, con el project, el environment,
+    una ruta dentro del project, la run configuration y el nivel de registro Basic.
+  pt-PT: Executa o Pipeline e o Workflow que construíste. No Hop GUI, Run termina o trabalho, uma pré-visualização
+    mostra as primeiras linhas e Pause pipeline on condition pára numa linha que coincide. Depois o hop-run
+    executa os mesmos ficheiros a partir da linha de comandos, com o project, o environment, um caminho
+    dentro do project, a run configuration e o nível de registo Basic.
+  fr-FR: Exécutez le Pipeline et le Workflow que vous avez construits. Dans Hop GUI, Run termine le travail,
+    un aperçu montre les premières lignes et Pause pipeline on condition s'arrête sur une ligne qui correspond.
+    Ensuite hop-run exécute les mêmes fichiers depuis la ligne de commande, avec le project, l'environment,
+    un chemin dans le project, la run configuration et le niveau de journal Basic.
+  de-DE: Führe die Pipeline und den Workflow aus, die du gebaut hast. In Hop GUI beendet Run die Arbeit,
+    eine Vorschau zeigt die ersten Zeilen, und Pause pipeline on condition hält bei einer passenden Zeile
+    an. Danach führt hop-run dieselben Dateien von der Kommandozeile aus, mit project, environment, einem
+    Pfad im project, der run configuration und der Protokollstufe Basic.
+  it-IT: Esegui il Pipeline e il Workflow che hai costruito. In Hop GUI, Run completa il lavoro, un'anteprima
+    mostra le prime righe e Pause pipeline on condition si ferma su una riga corrispondente. Poi hop-run
+    esegue gli stessi file dalla riga di comando, con il project, l'environment, un percorso dentro il
+    project, la run configuration e il livello di log Basic.
+link_labels:
+  Run, preview and debug a pipeline:
+    en: Run, preview and debug a pipeline
+    zh-CN: 运行、预览和调试 Pipeline
+    es-ES: Ejecutar, previsualizar y depurar un Pipeline
+    pt-PT: Executar, pré-visualizar e depurar um Pipeline
+    fr-FR: Exécuter, prévisualiser et déboguer un Pipeline
+    de-DE: Pipeline ausführen, ansehen und untersuchen
+    it-IT: Eseguire, anteprima e debug di un Pipeline
+  Run and debug a workflow:
+    en: Run and debug a workflow
+    zh-CN: 运行和调试 Workflow
+    es-ES: Ejecutar y depurar un Workflow
+    pt-PT: Executar e depurar um Workflow
+    fr-FR: Exécuter et déboguer un Workflow
+    de-DE: Workflow ausführen und untersuchen
+    it-IT: Eseguire e fare il debug di un Workflow
+  Hop Run:
+    en: Hop Run
+    zh-CN: Hop Run
+    es-ES: Hop Run
+    pt-PT: Hop Run
+    fr-FR: Hop Run
+    de-DE: Hop Run
+    it-IT: Hop Run
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  three-ways:
+    en: Run, preview, and a pause
+    zh-CN: Run、预览和暂停
+    es-ES: Run, vista previa y una pausa
+    pt-PT: Run, pré-visualização e uma pausa
+    fr-FR: Run, aperçu et une pause
+    de-DE: Run, Vorschau und eine Pause
+    it-IT: Run, anteprima e una pausa
+  write-the-file:
+    en: Tell the pipeline where to write
+    zh-CN: 告诉 Pipeline 写到哪里
+    es-ES: Decir al Pipeline dónde escribir
+    pt-PT: Dizer ao Pipeline onde escrever
+    fr-FR: Dire au Pipeline où écrire
+    de-DE: Der Pipeline sagen, wohin sie schreibt
+    it-IT: Dire al Pipeline dove scrivere
+  run-the-pipeline:
+    en: Run the pipeline
+    zh-CN: 运行 Pipeline
+    es-ES: Ejecutar el Pipeline
+    pt-PT: Executar o Pipeline
+    fr-FR: Exécuter le Pipeline
+    de-DE: Die Pipeline ausführen
+    it-IT: Eseguire il Pipeline
+  preview-and-debug:
+    en: Preview and a pause
+    zh-CN: 预览和暂停
+    es-ES: Vista previa y una pausa
+    pt-PT: Pré-visualização e uma pausa
+    fr-FR: Aperçu et une pause
+    de-DE: Vorschau und eine Pause
+    it-IT: Anteprima e una pausa
+  run-the-workflow:
+    en: Run the workflow
+    zh-CN: 运行 Workflow
+    es-ES: Ejecutar el Workflow
+    pt-PT: Executar o Workflow
+    fr-FR: Exécuter le Workflow
+    de-DE: Den Workflow ausführen
+    it-IT: Eseguire il Workflow
+  hop-run:
+    en: The same run from the command line
+    zh-CN: 从命令行做同一次运行
+    es-ES: La misma ejecución desde la línea de comandos
+    pt-PT: A mesma execução a partir da linha de comandos
+    fr-FR: La même exécution depuis la ligne de commande
+    de-DE: Derselbe Lauf von der Kommandozeile
+    it-IT: La stessa esecuzione dalla riga di comando

@@ -1,0 +1,560 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 08. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word.
+# The password never goes in the connection or in Git. abcd is the manual's
+# example value, not a password to keep. The vault token stays off camera.
+video:
+  id: 08-security
+  title: "Secrets and variable resolvers"
+  issue: 9065
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Security best practices
+      url: https://hop.apache.org/manual/latest/snippets/best-practices/security.html
+    - label: Variable resolvers
+      url: https://hop.apache.org/manual/latest/metadata-types/variable-resolver/index.html
+    - label: Hop Encrypt
+      url: https://hop.apache.org/manual/latest/hop-tools/hop-encrypt.html
+    - label: Security
+      url: https://hop.apache.org/security/
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Security
+    card_subtitle: The project stores the name
+    shot: >
+      Title card. Kicker "Apache Hop", title "Security", subtitle "The
+      project stores the name". No GUI.
+    narration:
+      en: |
+        This is the last video in the series. Hop reaches databases, files,
+        and services, so the work often holds the keys to those systems.
+        The last video kept a password out of Git. This video shows where
+        that password goes instead. Known issues in Hop itself are listed
+        at hop.apache.org/security. The habits in this video are the ones
+        on the security best practices page.
+      zh-CN: |
+        这是系列的最后一集。Hop 会连接到数据库、文件和服务，所以这些工作常常
+        掌握着那些系统的钥匙。上一集把密码留在了 Git 之外。这一集说明密码改放
+        在哪里。Hop 本身的已知问题列在 hop.apache.org/security。这一集的做法
+        就是安全最佳实践页面上的那些。
+      es-ES: |
+        Este es el último vídeo de la serie. Hop llega a bases de datos,
+        archivos y servicios, así que el trabajo a menudo guarda las llaves
+        de esos sistemas. El vídeo anterior dejó una contraseña fuera de Git.
+        Este vídeo muestra dónde va esa contraseña. Los problemas conocidos
+        del propio Hop están en hop.apache.org/security. Los hábitos de este
+        vídeo son los de la página de buenas prácticas de seguridad.
+      pt-PT: |
+        Este é o último vídeo da série. O Hop chega a bases de dados,
+        ficheiros e serviços, por isso o trabalho guarda muitas vezes as
+        chaves desses sistemas. O vídeo anterior deixou uma palavra-passe
+        fora do Git. Este vídeo mostra para onde vai essa palavra-passe. Os
+        problemas conhecidos do próprio Hop estão em hop.apache.org/security.
+        Os hábitos deste vídeo são os da página de boas práticas de segurança.
+      fr-FR: |
+        Voici la dernière vidéo de la série. Hop atteint des bases de
+        données, des fichiers et des services, donc le travail détient
+        souvent les clés de ces systèmes. La vidéo précédente a laissé un
+        mot de passe hors de Git. Cette vidéo montre où va ce mot de passe.
+        Les problèmes connus de Hop lui-même sont listés sur
+        hop.apache.org/security. Les habitudes de cette vidéo sont celles de
+        la page des bonnes pratiques de sécurité.
+      de-DE: |
+        Dies ist das letzte Video der Reihe. Hop erreicht Datenbanken,
+        Dateien und Dienste, deshalb hält die Arbeit oft die Schlüssel zu
+        diesen Systemen. Das vorige Video ließ ein Passwort außerhalb von
+        Git. Dieses Video zeigt, wohin dieses Passwort stattdessen kommt.
+        Bekannte Probleme in Hop selbst stehen auf hop.apache.org/security.
+        Die Gewohnheiten in diesem Video sind die von der Seite mit den
+        Sicherheitspraktiken.
+      it-IT: |
+        Questo è l'ultimo video della serie. Hop raggiunge database, file e
+        servizi, quindi il lavoro tiene spesso le chiavi di quei sistemi. Il
+        video precedente ha lasciato una password fuori da Git. Questo video
+        mostra dove va invece quella password. I problemi noti di Hop stesso
+        sono elencati su hop.apache.org/security. Le abitudini di questo
+        video sono quelle della pagina delle pratiche di sicurezza.
+
+  - id: not-in-metadata
+    title: Not in the connection
+    visual: clips/not-in-metadata.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. In the Metadata perspective, create a Relational
+      Database Connection named crm. Do not put the database type or the
+      environment in the name. Set Connection type to MySQL. Set Server
+      host name to ${DB_HOSTNAME}. Set Database name to hop, Port number
+      to 3306, and Username to hop. In Password, type ${PASSWORD}. Do not
+      type abcd in this dialog. Do not click Test. Save the connection.
+      The password field must stay readable.
+    narration:
+      en: |
+        Create a Relational Database Connection and name it crm. Do not
+        put MySQL, or the environment, into that name. The same connection
+        serves the laptop and the production database. Set the server host
+        name to the host variable from the environment you made earlier.
+        In Password, do not type the password. Type ${PASSWORD}. The
+        connection is metadata, and that file lives in the project you
+        commit. The password does not. The environment you enable supplies
+        the value.
+      zh-CN: |
+        创建一个 Relational Database Connection，命名为 crm。不要把 MySQL
+        或 environment 放进这个名字。同一条连接同时服务于笔记本和生产数据库。
+        把服务器主机名设成你之前在 environment 里建立的主机变量。在 Password
+        里不要填写密码。填写 ${PASSWORD}。这条连接是元数据，那个文件位于你
+        提交的 project 里。密码不在里面。你启用的 environment 提供这个值。
+      es-ES: |
+        Crea una Relational Database Connection y llámala crm. No pongas
+        MySQL, ni el environment, en ese nombre. La misma conexión sirve al
+        portátil y a la base de producción. Pon el nombre de host del
+        servidor en la variable de host del environment que creaste antes.
+        En Password, no escribas la contraseña. Escribe ${PASSWORD}. La
+        conexión es metadatos, y ese archivo vive en el project que
+        confirmas. La contraseña no. El environment que activas aporta el
+        valor.
+      pt-PT: |
+        Cria uma Relational Database Connection e chama-lhe crm. Não ponhas
+        MySQL, nem o environment, nesse nome. A mesma ligação serve o
+        portátil e a base de produção. Define o nome do anfitrião do
+        servidor com a variável de anfitrião do environment que criaste
+        antes. Em Password, não escrevas a palavra-passe. Escreve
+        ${PASSWORD}. A ligação é metadados, e esse ficheiro fica no project
+        que submetes. A palavra-passe não. O environment que ativares
+        fornece o valor.
+      fr-FR: |
+        Créez une Relational Database Connection et nommez-la crm. Ne mettez
+        pas MySQL, ni l'environment, dans ce nom. La même connexion sert
+        l'ordinateur portable et la base de production. Réglez le nom d'hôte
+        du serveur sur la variable d'hôte de l'environment que vous avez
+        créé plus tôt. Dans Password, ne saisissez pas le mot de passe.
+        Saisissez ${PASSWORD}. La connexion est une métadonnée, et ce
+        fichier vit dans le project que vous validez. Le mot de passe, non.
+        L'environment que vous activez fournit la valeur.
+      de-DE: |
+        Lege eine Relational Database Connection an und nenne sie crm.
+        Schreibe MySQL oder das environment nicht in diesen Namen. Dieselbe
+        Verbindung dient dem Laptop und der Produktionsdatenbank. Setze den
+        Server-Hostnamen auf die Host-Variable aus dem environment, das du
+        vorhin angelegt hast. Tippe in Password nicht das Passwort. Tippe
+        ${PASSWORD}. Die Verbindung ist Metadaten, und diese Datei liegt in
+        dem project, das du eincheckst. Das Passwort nicht. Das environment,
+        das du aktivierst, liefert den Wert.
+      it-IT: |
+        Crea una Relational Database Connection e chiamala crm. Non mettere
+        MySQL, né l'environment, in quel nome. La stessa connessione serve
+        il portatile e il database di produzione. Imposta il nome host del
+        server sulla variabile host dell'environment che hai creato prima.
+        In Password non scrivere la password. Scrivi ${PASSWORD}. La
+        connessione è metadato, e quel file sta nel project che consegni.
+        La password no. L'environment che attivi fornisce il valore.
+
+  - id: obfuscate
+    title: Obfuscate the value
+    visual: images/obfuscate.png
+    visual_type: still
+    shot: >
+      A terminal in the Hop installation folder. The command is
+      hop-encrypt.sh -hop abcd, or hop-encrypt.bat -hop abcd on Windows.
+      The readable output line is "Encrypted 2be98afc86aa7f2e4cb79ce10df90acde".
+      No other secrets, no home directory path if you can avoid it.
+    narration:
+      en: |
+        The minimum step is to obfuscate the value before it sits in a
+        file. From the Hop installation folder, run hop-encrypt.sh with
+        the hop option and the example value abcd. On Windows the script
+        is hop-encrypt.bat. The tool prints one line that starts with
+        Encrypted. That line is not encryption. Anyone with Hop can turn
+        it back into abcd. You can store that Encrypted line as PASSWORD
+        in the environment file, outside the project. On a laptop, the
+        best practices also allow the plain example abcd in that same file.
+      zh-CN: |
+        最小的一步，是在值写入文件之前先做混淆。在 Hop 的安装文件夹里运行
+        hop-encrypt.sh，带上 hop 选项和示例值 abcd。在 Windows 上，脚本是
+        hop-encrypt.bat。工具会打印出以 Encrypted 开头的一行。那一行不是
+        加密。任何有 Hop 的人都能把它还原成 abcd。你可以把那一行 Encrypted
+        存成 PASSWORD，放在 environment 文件里，位于 project 之外。在笔记本
+        上，最佳实践也允许把明文示例 abcd 放在同一个文件里。
+      es-ES: |
+        El paso mínimo es ofuscar el valor antes de que quede en un archivo.
+        Desde la carpeta de instalación de Hop, ejecuta hop-encrypt.sh con
+        la opción hop y el valor de ejemplo abcd. En Windows el script es
+        hop-encrypt.bat. La herramienta imprime una línea que empieza por
+        Encrypted. Esa línea no es cifrado. Cualquiera con Hop puede volver
+        a convertirla en abcd. Puedes guardar esa línea Encrypted como
+        PASSWORD en el archivo de environment, fuera del project. En un
+        portátil, las buenas prácticas también permiten el ejemplo en claro
+        abcd en ese mismo archivo.
+      pt-PT: |
+        O passo mínimo é ofuscar o valor antes de ele ficar num ficheiro. A
+        partir da pasta de instalação do Hop, executa hop-encrypt.sh com a
+        opção hop e o valor de exemplo abcd. No Windows o script é
+        hop-encrypt.bat. A ferramenta imprime uma linha que começa por
+        Encrypted. Essa linha não é cifragem. Qualquer pessoa com o Hop pode
+        voltar a transformá-la em abcd. Podes guardar essa linha Encrypted
+        como PASSWORD no ficheiro de environment, fora do project. Num
+        portátil, as boas práticas também permitem o exemplo em claro abcd
+        nesse mesmo ficheiro.
+      fr-FR: |
+        L'étape minimale est d'obscurcir la valeur avant qu'elle ne repose
+        dans un fichier. Depuis le dossier d'installation de Hop, lancez
+        hop-encrypt.sh avec l'option hop et la valeur d'exemple abcd. Sous
+        Windows, le script est hop-encrypt.bat. L'outil affiche une ligne
+        qui commence par Encrypted. Cette ligne n'est pas un chiffrement.
+        Toute personne qui a Hop peut la ramener à abcd. Vous pouvez
+        enregistrer cette ligne Encrypted comme PASSWORD dans le fichier
+        d'environment, en dehors du project. Sur un ordinateur portable, les
+        bonnes pratiques permettent aussi l'exemple en clair abcd dans ce
+        même fichier.
+      de-DE: |
+        Der kleinste Schritt ist, den Wert zu verschleiern, bevor er in
+        einer Datei steht. Führe im Installationsordner von Hop
+        hop-encrypt.sh mit der Option hop und dem Beispielwert abcd aus.
+        Unter Windows heißt das Skript hop-encrypt.bat. Das Werkzeug gibt
+        eine Zeile aus, die mit Encrypted beginnt. Diese Zeile ist keine
+        Verschlüsselung. Jeder mit Hop kann sie wieder in abcd
+        zurückverwandeln. Du kannst diese Encrypted-Zeile als PASSWORD in
+        der environment-Datei speichern, außerhalb des project. Auf einem
+        Laptop erlauben die Praktiken auch das Klartextbeispiel abcd in
+        derselben Datei.
+      it-IT: |
+        Il passo minimo è offuscare il valore prima che stia in un file.
+        Dalla cartella di installazione di Hop, esegui hop-encrypt.sh con
+        l'opzione hop e il valore di esempio abcd. Su Windows lo script è
+        hop-encrypt.bat. Lo strumento stampa una riga che inizia con
+        Encrypted. Quella riga non è cifratura. Chiunque abbia Hop può
+        riportarla ad abcd. Puoi salvare quella riga Encrypted come
+        PASSWORD nel file di environment, fuori dal project. Su un
+        portatile, le pratiche consentono anche l'esempio in chiaro abcd in
+        quello stesso file.
+
+  - id: laptop-value
+    title: The local value
+    visual: images/laptop-value.png
+    visual_type: still
+    shot: >
+      The environment variables dialog for the development configuration
+      file from the projects video. The file path is outside the project
+      folder. One row is name PASSWORD and value abcd. DB_HOSTNAME can
+      still be visible as db.example.com. Do not add a second password.
+      Leave this edit dialog open so abcd is readable. The hover on the
+      file list hides a value whose name contains PASSWORD.
+    narration:
+      en: |
+        The connection always contains ${PASSWORD}. The environment you
+        enable decides what that name means. Edit the configuration file
+        from the projects video, the one that sits outside the project.
+        Add a variable named PASSWORD and set the value to abcd. That is
+        the example from the manual, and it is what the local MySQL
+        receives. Hop GUI hides that value when you hover the file, because
+        the name contains PASSWORD. This edit dialog still shows abcd, so
+        you can check it before you confirm.
+      zh-CN: |
+        连接里始终是 ${PASSWORD}。你启用的 environment 决定这个名字的含义。
+        编辑 projects 那一集的配置文件，也就是放在 project 之外的那个。添加
+        一个名为 PASSWORD 的变量，把值设为 abcd。这是手册里的示例，也是本地
+        MySQL 收到的值。因为名字里含有 PASSWORD，你把鼠标悬停在文件上时，
+        Hop GUI 会隐藏这个值。这个编辑对话框仍然显示 abcd，所以你可以在确认
+        之前核对。
+      es-ES: |
+        La conexión siempre contiene ${PASSWORD}. El environment que activas
+        decide qué significa ese nombre. Edita el archivo de configuración
+        del vídeo de projects, el que está fuera del project. Añade una
+        variable llamada PASSWORD y pon el valor abcd. Es el ejemplo del
+        manual, y es lo que recibe el MySQL local. Hop GUI oculta ese valor
+        cuando pasas el cursor sobre el archivo, porque el nombre contiene
+        PASSWORD. Este diálogo de edición sigue mostrando abcd, para que
+        puedas comprobarlo antes de confirmar.
+      pt-PT: |
+        A ligação contém sempre ${PASSWORD}. O environment que ativares
+        decide o que esse nome significa. Edita o ficheiro de configuração
+        do vídeo de projects, o que fica fora do project. Adiciona uma
+        variável chamada PASSWORD e define o valor abcd. É o exemplo do
+        manual, e é o que o MySQL local recebe. O Hop GUI esconde esse valor
+        quando passas o rato sobre o ficheiro, porque o nome contém
+        PASSWORD. Este diálogo de edição continua a mostrar abcd, para o
+        verificares antes de confirmar.
+      fr-FR: |
+        La connexion contient toujours ${PASSWORD}. L'environment que vous
+        activez décide ce que ce nom signifie. Modifiez le fichier de
+        configuration de la vidéo projects, celui qui se trouve en dehors du
+        project. Ajoutez une variable nommée PASSWORD et mettez la valeur
+        abcd. C'est l'exemple du manuel, et c'est ce que le MySQL local
+        reçoit. Hop GUI masque cette valeur quand vous survolez le fichier,
+        parce que le nom contient PASSWORD. Ce dialogue d'édition affiche
+        encore abcd, pour que vous puissiez le vérifier avant de confirmer.
+      de-DE: |
+        Die Verbindung enthält immer ${PASSWORD}. Das environment, das du
+        aktivierst, entscheidet, was dieser Name bedeutet. Bearbeite die
+        Konfigurationsdatei aus dem projects-Video, die außerhalb des
+        project liegt. Füge eine Variable namens PASSWORD hinzu und setze
+        den Wert auf abcd. Das ist das Beispiel aus dem Handbuch, und das
+        empfängt das lokale MySQL. Hop GUI verbirgt diesen Wert, wenn du
+        über die Datei fährst, weil der Name PASSWORD enthält. Dieser
+        Bearbeitungsdialog zeigt abcd weiter, damit du ihn vor dem
+        Bestätigen prüfen kannst.
+      it-IT: |
+        La connessione contiene sempre ${PASSWORD}. L'environment che attivi
+        decide che cosa significa quel nome. Modifica il file di
+        configurazione del video projects, quello che sta fuori dal project.
+        Aggiungi una variabile di nome PASSWORD e imposta il valore su abcd.
+        È l'esempio del manuale, ed è ciò che riceve il MySQL locale. Hop
+        GUI nasconde quel valore quando passi sul file, perché il nome
+        contiene PASSWORD. Questa finestra di modifica mostra ancora abcd,
+        così puoi controllarlo prima di confermare.
+
+  - id: shared-value
+    title: The shared value
+    visual: images/shared-value.png
+    visual_type: still
+    shot: >
+      The environment variables dialog for a second configuration file,
+      also outside the project folder, used by a production environment
+      for the same project. The row is name PASSWORD and value
+      #{keystore:databases/crm:password}. The expression must be fully
+      readable. No token, no real vault address, no other secret.
+    narration:
+      en: |
+        The shared system uses the same variable and a different value.
+        In that environment's configuration file, also outside the project,
+        set PASSWORD to #{keystore:databases/crm:password}. When that
+        environment is enabled, Hop asks the resolver named keystore for
+        the path databases/crm and the key password. The Pipeline and the
+        connection stay as they were. You switch environment, and the
+        password changes with it. You do not edit the connection to point
+        at the vault.
+      zh-CN: |
+        共享系统使用同一个变量，值却不同。在那个 environment 的配置文件里，
+        文件同样位于 project 之外，把 PASSWORD 设为
+        #{keystore:databases/crm:password}。启用那个 environment 时，Hop 会
+        向名为 keystore 的解析器询问路径 databases/crm 和键 password。
+        Pipeline 和连接保持原样。你切换 environment，密码就随之改变。不必为了
+        指向保险库而编辑这条连接。
+      es-ES: |
+        El sistema compartido usa la misma variable y un valor distinto. En
+        el archivo de configuración de ese environment, también fuera del
+        project, pon PASSWORD en #{keystore:databases/crm:password}. Cuando
+        ese environment está activo, Hop pide al resolver llamado keystore
+        la ruta databases/crm y la clave password. El Pipeline y la conexión
+        se quedan como estaban. Cambias de environment, y la contraseña
+        cambia con él. No editas la conexión para apuntarla a la caja fuerte.
+      pt-PT: |
+        O sistema partilhado usa a mesma variável e um valor diferente. No
+        ficheiro de configuração desse environment, também fora do project,
+        define PASSWORD como #{keystore:databases/crm:password}. Quando esse
+        environment está ativo, o Hop pede ao resolver chamado keystore o
+        caminho databases/crm e a chave password. O Pipeline e a ligação
+        ficam como estavam. Mudas de environment, e a palavra-passe muda com
+        ele. Não editas a ligação para a apontar ao cofre.
+      fr-FR: |
+        Le système partagé utilise la même variable et une autre valeur.
+        Dans le fichier de configuration de cet environment, lui aussi en
+        dehors du project, mettez PASSWORD à
+        #{keystore:databases/crm:password}. Quand cet environment est actif,
+        Hop demande au résolveur nommé keystore le chemin databases/crm et
+        la clé password. Le Pipeline et la connexion restent comme ils
+        étaient. Vous changez d'environment, et le mot de passe change avec
+        lui. Vous ne modifiez pas la connexion pour la pointer vers le
+        coffre.
+      de-DE: |
+        Das gemeinsame System benutzt dieselbe Variable und einen anderen
+        Wert. Setze in der Konfigurationsdatei dieses environment, ebenfalls
+        außerhalb des project, PASSWORD auf
+        #{keystore:databases/crm:password}. Wenn dieses environment aktiv
+        ist, fragt Hop den Resolver namens keystore nach dem Pfad
+        databases/crm und dem Schlüssel password. Die Pipeline und die
+        Verbindung bleiben, wie sie waren. Du wechselst das environment, und
+        das Passwort wechselt mit. Du bearbeitest die Verbindung nicht, um
+        sie auf den Tresor zu richten.
+      it-IT: |
+        Il sistema condiviso usa la stessa variabile e un valore diverso.
+        Nel file di configurazione di quell'environment, anche fuori dal
+        project, imposta PASSWORD su #{keystore:databases/crm:password}.
+        Quando quell'environment è attivo, Hop chiede al resolver di nome
+        keystore il percorso databases/crm e la chiave password. Il Pipeline
+        e la connessione restano come erano. Cambi environment, e la
+        password cambia con esso. Non modifichi la connessione per puntarla
+        al caveau.
+
+  - id: resolver
+    title: A variable resolver
+    visual: clips/resolver.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Metadata perspective. Right-click, New, Variable
+      Resolver. Name it keystore. Choose Hashicorp Vault Variable Resolver
+      and pause so the type list is readable, including Azure Key Vault
+      Variable Resolver and Google Secret Manager Variable Resolver if they
+      are on screen. On Connection, fill in the required vault connection
+      details. Do not let a token be readable on screen. Save.
+    narration:
+      en: |
+        A variable resolver is the metadata that knows how to read a vault.
+        Open the Metadata perspective. Right-click, choose New, then
+        Variable Resolver, and name it keystore. Choose Hashicorp Vault
+        Variable Resolver. That list also contains Azure Key Vault Variable
+        Resolver and Google Secret Manager Variable Resolver. On Connection,
+        fill in the required vault connection details. A failed lookup does
+        not stop the Pipeline. Hop leaves the expression as written, so
+        read the log.
+      zh-CN: |
+        变量解析器是知道如何读取保险库的元数据。打开 Metadata perspective。
+        右键单击，选择 New，再选择 Variable Resolver，并把它命名为 keystore。
+        选择 Hashicorp Vault Variable Resolver。这个列表里还有 Azure Key
+        Vault Variable Resolver 和 Google Secret Manager Variable Resolver。
+        在 Connection 上，填入保险库连接所需的各项。查找失败不会停下
+        Pipeline。Hop 会把表达式原样留下，所以要去读日志。
+      es-ES: |
+        Un resolver de variables es el metadato que sabe leer una caja
+        fuerte. Abre la Metadata perspective. Haz clic derecho, elige New,
+        luego Variable Resolver, y llámalo keystore. Elige Hashicorp Vault
+        Variable Resolver. Esa lista también contiene Azure Key Vault
+        Variable Resolver y Google Secret Manager Variable Resolver. En
+        Connection, rellena los datos de conexión de la caja fuerte que
+        hagan falta. Una búsqueda fallida no detiene el Pipeline. Hop deja
+        la expresión tal como está escrita, así que lee el registro.
+      pt-PT: |
+        Um resolver de variáveis é o metadado que sabe ler um cofre. Abre a
+        Metadata perspective. Clica com o botão direito, escolhe New, depois
+        Variable Resolver, e chama-lhe keystore. Escolhe Hashicorp Vault
+        Variable Resolver. Essa lista também contém Azure Key Vault Variable
+        Resolver e Google Secret Manager Variable Resolver. Em Connection,
+        preenche os dados de ligação ao cofre que forem precisos. Uma
+        pesquisa falhada não pára o Pipeline. O Hop deixa a expressão como
+        está escrita, por isso lê o registo.
+      fr-FR: |
+        Un résolveur de variables est la métadonnée qui sait lire un coffre.
+        Ouvrez la Metadata perspective. Cliquez avec le bouton droit,
+        choisissez New, puis Variable Resolver, et nommez-le keystore.
+        Choisissez Hashicorp Vault Variable Resolver. Cette liste contient
+        aussi Azure Key Vault Variable Resolver et Google Secret Manager
+        Variable Resolver. Dans Connection, remplissez les détails de
+        connexion au coffre qui sont requis. Une recherche en échec
+        n'arrête pas le Pipeline. Hop laisse l'expression telle qu'elle est
+        écrite, alors lisez le journal.
+      de-DE: |
+        Ein Variablen-Resolver ist das Stück Metadaten, das einen Tresor
+        lesen kann. Öffne die Metadata perspective. Klicke mit der rechten
+        Maustaste, wähle New, dann Variable Resolver, und nenne ihn
+        keystore. Wähle Hashicorp Vault Variable Resolver. Diese Liste
+        enthält auch Azure Key Vault Variable Resolver und Google Secret
+        Manager Variable Resolver. Fülle unter Connection die nötigen
+        Verbindungsangaben für den Tresor aus. Eine fehlgeschlagene Abfrage
+        stoppt die Pipeline nicht. Hop lässt den Ausdruck so stehen, wie er
+        geschrieben ist, also lies das Protokoll.
+      it-IT: |
+        Un resolver di variabili è il metadato che sa leggere un caveau.
+        Apri la Metadata perspective. Fai clic destro, scegli New, poi
+        Variable Resolver, e chiamalo keystore. Scegli Hashicorp Vault
+        Variable Resolver. Quell'elenco contiene anche Azure Key Vault
+        Variable Resolver e Google Secret Manager Variable Resolver. In
+        Connection, compila i dettagli di connessione al caveau che servono.
+        Una ricerca non riuscita non ferma il Pipeline. Hop lascia
+        l'espressione come è scritta, quindi leggi il log.
+
+  - id: protect
+    title: Protect the vault login
+    visual: images/protect.png
+    visual_type: still
+    card_title: The name, not the value
+    card_subtitle: The password stays outside the project
+    shot: >
+      Title card. Title "The name, not the value". Subtitle "The password
+      stays outside the project". No GUI.
+    narration:
+      en: |
+        The token or key that opens the vault is a secret too. Keep it
+        outside the project, just as the last video kept the password out
+        of Git. Name a secret variable with PASSWORD, SECRET, TOKEN, or
+        PASSWD, and Hop GUI masks it in the variable picker. The best
+        practices page also covers a Hop Server with SSL, removing plugins
+        you do not use, and reviewing a script when you cannot avoid one.
+        The file you commit contains ${PASSWORD}. The value stays outside
+        that file.
+      zh-CN: |
+        打开保险库的令牌或密钥本身也是机密。把它留在 project 之外，就像上一集
+        把密码留在 Git 之外。机密变量的名字里带上 PASSWORD、SECRET、TOKEN 或
+        PASSWD，Hop GUI 就会在变量选择器里遮住它。最佳实践页面还讲了带 SSL 的
+        Hop Server、去掉不用的插件，以及在无法避免脚本时复查脚本。你提交的
+        文件里是 ${PASSWORD}。值留在那个文件之外。
+      es-ES: |
+        El token o la clave que abre la caja fuerte también es un secreto.
+        Guárdalo fuera del project, igual que el vídeo anterior dejó la
+        contraseña fuera de Git. Nombra una variable secreta con PASSWORD,
+        SECRET, TOKEN o PASSWD, y Hop GUI la enmascara en el selector de
+        variables. La página de buenas prácticas también cubre un Hop Server
+        con SSL, quitar plugins que no usas y revisar un script cuando no
+        puedes evitarlo. El archivo que confirmas contiene ${PASSWORD}. El
+        valor se queda fuera de ese archivo.
+      pt-PT: |
+        O token ou a chave que abre o cofre também é um segredo. Guarda-o
+        fora do project, tal como o vídeo anterior deixou a palavra-passe
+        fora do Git. Dá a uma variável secreta um nome com PASSWORD, SECRET,
+        TOKEN ou PASSWD, e o Hop GUI oculta-a no seletor de variáveis. A
+        página de boas práticas também cobre um Hop Server com SSL, remover
+        plugins que não usas e rever um script quando não o podes evitar. O
+        ficheiro que submetes contém ${PASSWORD}. O valor fica fora desse
+        ficheiro.
+      fr-FR: |
+        Le jeton ou la clé qui ouvre le coffre est un secret aussi.
+        Gardez-le en dehors du project, comme la vidéo précédente a laissé
+        le mot de passe hors de Git. Nommez une variable secrète avec
+        PASSWORD, SECRET, TOKEN ou PASSWD, et Hop GUI la masque dans le
+        sélecteur de variables. La page des bonnes pratiques couvre aussi un
+        Hop Server avec SSL, le retrait des plugins que vous n'utilisez pas,
+        et la relecture d'un script quand vous ne pouvez pas l'éviter. Le
+        fichier que vous validez contient ${PASSWORD}. La valeur reste en
+        dehors de ce fichier.
+      de-DE: |
+        Das Token oder der Schlüssel, der den Tresor öffnet, ist auch ein
+        Geheimnis. Bewahre es außerhalb des project auf, so wie das vorige
+        Video das Passwort außerhalb von Git ließ. Benenne eine geheime
+        Variable mit PASSWORD, SECRET, TOKEN oder PASSWD, und Hop GUI
+        maskiert sie in der Variablenauswahl. Die Seite mit den Praktiken
+        behandelt auch einen Hop Server mit SSL, das Entfernen von Plugins,
+        die du nicht brauchst, und das Prüfen eines Skripts, wenn du eins
+        nicht vermeiden kannst. Die Datei, die du eincheckst, enthält
+        ${PASSWORD}. Der Wert bleibt außerhalb dieser Datei.
+      it-IT: |
+        Il token o la chiave che apre il caveau è un segreto anche lui.
+        Tienilo fuori dal project, come il video precedente ha tenuto la
+        password fuori da Git. Dai a una variabile segreta un nome con
+        PASSWORD, SECRET, TOKEN o PASSWD, e Hop GUI la maschera nel
+        selettore di variabili. La pagina delle pratiche copre anche un Hop
+        Server con SSL, togliere i plugin che non usi e rivedere uno script
+        quando non puoi evitarne uno. Il file che consegni contiene
+        ${PASSWORD}. Il valore resta fuori da quel file.

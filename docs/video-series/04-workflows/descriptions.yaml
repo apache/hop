@@ -1,0 +1,168 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Your first workflow
+  zh-CN: 你的第一条 Workflow
+  es-ES: Tu primer Workflow
+  pt-PT: O teu primeiro Workflow
+  fr-FR: Votre premier Workflow
+  de-DE: Dein erster Workflow
+  it-IT: Il tuo primo Workflow
+summary:
+  en: Build your first Apache Hop workflow. A workflow runs actions in order and chooses a green path
+    when the pipeline succeeds and a red path when it fails. The workflow runs the pipeline from the previous
+    video. You can also start the workflow at a chosen action.
+  zh-CN: 搭建你的第一条 Apache Hop Workflow。Workflow 按顺序运行 Action，Pipeline 成功时走绿色路径，失败时走红色路径。这条 Workflow 运行上一集的
+    Pipeline。你也可以从指定的 Action 开始运行 Workflow。
+  es-ES: Construye tu primer Workflow de Apache Hop. Un Workflow ejecuta Action en orden y elige un camino
+    verde cuando el Pipeline tiene éxito y un camino rojo cuando falla. El Workflow ejecuta el Pipeline
+    del vídeo anterior. También puedes empezar el Workflow en un Action elegido.
+  pt-PT: Constrói o teu primeiro Workflow do Apache Hop. Um Workflow executa Action por ordem e escolhe
+    um caminho verde quando o Pipeline tem sucesso e um caminho vermelho quando falha. O Workflow executa
+    o Pipeline do vídeo anterior. Também podes começar o Workflow num Action à tua escolha.
+  fr-FR: Construisez votre premier Workflow Apache Hop. Un Workflow exécute les Action dans l'ordre et
+    choisit un chemin vert quand le Pipeline réussit et un chemin rouge quand il échoue. Le Workflow exécute
+    le Pipeline de la vidéo précédente. Vous pouvez aussi démarrer le Workflow à un Action choisi.
+  de-DE: Baue deinen ersten Apache-Hop-Workflow. Ein Workflow führt Action der Reihe nach aus und nimmt
+    einen grünen Pfad, wenn die Pipeline gelingt, und einen roten, wenn sie fehlschlägt. Der Workflow
+    führt die Pipeline aus dem vorigen Video aus. Du kannst den Workflow auch bei einem gewählten Action
+    starten.
+  it-IT: Costruisci il tuo primo Workflow di Apache Hop. Un Workflow esegue gli Action in ordine e sceglie
+    un percorso verde quando il Pipeline riesce e un percorso rosso quando fallisce. Il Workflow esegue
+    il Pipeline del video precedente. Puoi anche avviare il Workflow da un Action scelto.
+link_labels:
+  Your first workflow:
+    en: Your first workflow
+    zh-CN: 你的第一条 Workflow
+    es-ES: Tu primer Workflow
+    pt-PT: O teu primeiro Workflow
+    fr-FR: Votre premier Workflow
+    de-DE: Dein erster Workflow
+    it-IT: Il tuo primo Workflow
+  Workflows:
+    en: Workflows
+    zh-CN: Workflow
+    es-ES: Workflow
+    pt-PT: Workflow
+    fr-FR: Workflow
+    de-DE: Workflow
+    it-IT: Workflow
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  what-a-workflow-is:
+    en: What a workflow is
+    zh-CN: Workflow 是什么
+    es-ES: Qué es un Workflow
+    pt-PT: O que é um Workflow
+    fr-FR: Qu'est-ce qu'un Workflow
+    de-DE: Was ein Workflow ist
+    it-IT: Che cos'è un Workflow
+  samples-workflow:
+    en: A workflow from samples
+    zh-CN: samples 里的一条 Workflow
+    es-ES: Un Workflow de samples
+    pt-PT: Um Workflow de samples
+    fr-FR: Un Workflow des samples
+    de-DE: Ein Workflow aus samples
+    it-IT: Un Workflow da samples
+  new-workflow:
+    en: A new workflow
+    zh-CN: 一条新的 Workflow
+    es-ES: Un Workflow nuevo
+    pt-PT: Um Workflow novo
+    fr-FR: Un nouveau Workflow
+    de-DE: Ein neuer Workflow
+    it-IT: Un Workflow nuovo
+  properties:
+    en: Properties and parameters
+    zh-CN: 属性和参数
+    es-ES: Propiedades y parámetros
+    pt-PT: Propriedades e parâmetros
+    fr-FR: Propriétés et paramètres
+    de-DE: Eigenschaften und Parameter
+    it-IT: Proprietà e parametri
+  add-pipeline-action:
+    en: Run the pipeline
+    zh-CN: 运行 Pipeline
+    es-ES: Ejecutar el Pipeline
+    pt-PT: Executar o Pipeline
+    fr-FR: Exécuter le Pipeline
+    de-DE: Die Pipeline ausführen
+    it-IT: Eseguire il Pipeline
+  success-and-failure:
+    en: Success and failure
+    zh-CN: 成功与失败
+    es-ES: Éxito y fallo
+    pt-PT: Sucesso e falha
+    fr-FR: Succès et échec
+    de-DE: Erfolg und Fehlschlag
+    it-IT: Successo e fallimento
+  start-from-an-action:
+    en: Start from an action
+    zh-CN: 从某个 Action 开始
+    es-ES: Empezar en un Action
+    pt-PT: Começar num Action
+    fr-FR: Démarrer à un Action
+    de-DE: Bei einem Action starten
+    it-IT: Partire da un Action

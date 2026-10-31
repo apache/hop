@@ -1,0 +1,540 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 07. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word.
+# The project folder must already be a Git repository before the Git buttons
+# will enable. Hop GUI does not create that repository.
+video:
+  id: 07-version-control
+  title: "Version control with Git"
+  issue: 9064
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Working with Git
+      url: https://hop.apache.org/manual/latest/hop-gui/hop-gui-git.html
+    - label: Git commit perspective
+      url: https://hop.apache.org/manual/latest/hop-gui/perspective-git-commit.html
+    - label: Git perspective
+      url: https://hop.apache.org/manual/latest/hop-gui/perspective-git.html
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Version control
+    card_subtitle: A history for the project folder
+    shot: >
+      Title card. Kicker "Apache Hop", title "Version control", subtitle
+      "A history for the project folder". No GUI.
+    narration:
+      en: |
+        This is the seventh video in the series. The last video left you
+        with a project folder. This time that folder gets a history.
+        Version control keeps every saved change, who made it, and the
+        message they wrote. Hop GUI uses Git for that. You will commit the
+        pipeline, look at the history, and open a visual diff. A password
+        or an environment file does not go into that history.
+      zh-CN: |
+        这是系列的第七集。上一集留给你一个 project 文件夹。这一次，那个文件夹
+        有了历史。版本控制保存每一次改动、是谁改的，以及他们写下的说明。Hop
+        GUI 用 Git 来做这件事。你会提交 Pipeline，查看历史，并打开可视化差异。
+        密码或 environment 文件不会进入这段历史。
+      es-ES: |
+        Este es el séptimo vídeo de la serie. El vídeo anterior te dejó una
+        carpeta de project. Esta vez esa carpeta tiene una historia. El
+        control de versiones guarda cada cambio, quién lo hizo y el mensaje
+        que escribió. Hop GUI usa Git para eso. Vas a confirmar el Pipeline,
+        mirar la historia y abrir una diferencia visual. Una contraseña o un
+        archivo de environment no entra en esa historia.
+      pt-PT: |
+        Este é o sétimo vídeo da série. O vídeo anterior deixou-te uma pasta
+        de project. Desta vez essa pasta ganha uma história. O controlo de
+        versões guarda cada alteração, quem a fez e a mensagem que escreveu.
+        O Hop GUI usa Git para isso. Vais submeter o Pipeline, ver a história
+        e abrir uma diferença visual. Uma palavra-passe ou um ficheiro de
+        environment não entra nessa história.
+      fr-FR: |
+        Voici la septième vidéo de la série. La vidéo précédente vous a
+        laissé un dossier de project. Cette fois, ce dossier a un historique.
+        Le contrôle de version garde chaque changement, qui l'a fait, et le
+        message écrit. Hop GUI utilise Git pour cela. Vous allez valider le
+        Pipeline, regarder l'historique et ouvrir un diff visuel. Un mot de
+        passe ou un fichier d'environment n'entre pas dans cet historique.
+      de-DE: |
+        Dies ist das siebte Video der Reihe. Das vorige Video ließ dich mit
+        einem project-Ordner zurück. Diesmal bekommt dieser Ordner eine
+        Geschichte. Die Versionsverwaltung behält jede Änderung, wer sie
+        gemacht hat, und die Nachricht dazu. Hop GUI benutzt Git dafür. Du
+        wirst die Pipeline übertragen, die Geschichte ansehen und einen
+        visuellen Vergleich öffnen. Ein Passwort oder eine environment-Datei
+        kommt nicht in diese Geschichte.
+      it-IT: |
+        Questo è il settimo video della serie. Il video precedente ti ha
+        lasciato una cartella di project. Questa volta quella cartella ha una
+        storia. Il controllo di versione conserva ogni modifica, chi l'ha
+        fatta e il messaggio scritto. Hop GUI usa Git per questo. Farai il
+        commit del Pipeline, guarderai la storia e aprirai un confronto
+        visivo. Una password o un file di environment non entra in quella
+        storia.
+
+  - id: why-version-control
+    title: Why keep a history
+    visual: images/why-version-control.png
+    visual_type: still
+    card_title: Every change stays
+    card_subtitle: The environment files stay outside
+    shot: >
+      Title card. Title "Every change stays". Subtitle "The environment
+      files stay outside". No GUI.
+    narration:
+      en: |
+        Without a history, the only copy of the pipeline is the one on
+        disk now. A bad edit replaces it. With Git, each commit is a point
+        you can return to. You can see what changed in the pipeline, and
+        you can try an idea on another branch without losing the version
+        that runs. The project folder is the boundary. Git tracks the files
+        inside it. The environment files from the last video stay outside,
+        so a host name and a password are not in the repository.
+      zh-CN: |
+        没有历史时，Pipeline 在磁盘上只有现在这一份。一次糟糕的修改会把它换掉。
+        有了 Git，每一次提交都是一个可以回去的点。你能看到 Pipeline 改了什么，
+        也可以在另一条分支上试一个想法，而不丢掉正在运行的版本。project 文件夹
+        是边界。Git 跟踪它里面的文件。上一集的 environment 文件留在外面，所以
+        主机名和密码不在仓库里。
+      es-ES: |
+        Sin historia, la única copia del Pipeline es la que está en el disco
+        ahora. Una mala edición la sustituye. Con Git, cada commit es un
+        punto al que puedes volver. Puedes ver qué cambió en el Pipeline, y
+        puedes probar una idea en otra rama sin perder la versión que se
+        ejecuta. La carpeta del project es el límite. Git sigue los archivos
+        que hay dentro. Los archivos de environment del vídeo anterior se
+        quedan fuera, así que un nombre de host y una contraseña no están en
+        el repositorio.
+      pt-PT: |
+        Sem história, a única cópia do Pipeline é a que está no disco agora.
+        Uma má edição substitui-a. Com o Git, cada commit é um ponto a que
+        podes voltar. Podes ver o que mudou no Pipeline, e podes experimentar
+        uma ideia noutro ramo sem perder a versão que corre. A pasta do
+        project é o limite. O Git segue os ficheiros lá dentro. Os ficheiros
+        de environment do vídeo anterior ficam de fora, por isso um nome de
+        anfitrião e uma palavra-passe não estão no repositório.
+      fr-FR: |
+        Sans historique, la seule copie du Pipeline est celle qui est sur le
+        disque maintenant. Une mauvaise modification la remplace. Avec Git,
+        chaque commit est un point auquel vous pouvez revenir. Vous voyez ce
+        qui a changé dans le Pipeline, et vous pouvez essayer une idée sur
+        une autre branche sans perdre la version qui tourne. Le dossier du
+        project est la limite. Git suit les fichiers qui sont dedans. Les
+        fichiers d'environment de la vidéo précédente restent dehors, donc un
+        nom d'hôte et un mot de passe ne sont pas dans le dépôt.
+      de-DE: |
+        Ohne Geschichte ist die einzige Kopie der Pipeline die, die jetzt auf
+        der Festplatte liegt. Eine schlechte Änderung ersetzt sie. Mit Git
+        ist jeder Commit ein Punkt, zu dem du zurückkannst. Du siehst, was
+        sich in der Pipeline geändert hat, und du kannst eine Idee auf einem
+        anderen Branch versuchen, ohne die Version zu verlieren, die läuft.
+        Der project-Ordner ist die Grenze. Git verfolgt die Dateien darin.
+        Die environment-Dateien aus dem vorigen Video bleiben draußen, also
+        sind ein Hostname und ein Passwort nicht im Repository.
+      it-IT: |
+        Senza una storia, l'unica copia del Pipeline è quella che è sul disco
+        adesso. Una modifica sbagliata la sostituisce. Con Git, ogni commit è
+        un punto a cui puoi tornare. Puoi vedere che cosa è cambiato nel
+        Pipeline, e puoi provare un'idea su un altro ramo senza perdere la
+        versione che gira. La cartella del project è il confine. Git segue i
+        file che stanno dentro. I file di environment del video precedente
+        restano fuori, così un nome host e una password non sono nel
+        repository.
+
+  - id: when-git-is-on
+    title: When Git is on
+    visual: images/when-git-is-on.png
+    visual_type: still
+    shot: >
+      The file explorer for the project, with the Git toolbar buttons
+      enabled. If they are grey, stop and make the project folder a Git
+      repository first, with at least one commit of the pipeline and the
+      workflow, then take this still. A changed file in red is useful if
+      you have one. No secrets in the tree.
+    narration:
+      en: |
+        Open the file explorer for this project. When the folder is a Git
+        repository, the Git buttons in the toolbar are enabled. When it is
+        not, those buttons are grey. A file in black is the latest
+        committed version. Red means you changed it and have not staged it.
+        Green or blue means it is staged and will be in the next commit.
+        Grey means Git is ignoring it. In the configuration perspective,
+        under Plugins and then git, leave the plugin enabled. Leave the
+        search of parent folders off. Leave ignore position in the visual
+        diff on, so moving a transform is not a change.
+      zh-CN: |
+        打开这个 project 的文件浏览器。当这个文件夹是一个 Git 仓库时，工具栏上
+        的 Git 按钮是可用的。如果不是，那些按钮是灰色的。黑色文件是最新提交的
+        版本。红色表示你改过它，还没有暂存。绿色或蓝色表示已经暂存，会进入下一次
+        提交。灰色表示 Git 忽略它。在配置透视图里，Plugins 下面的 git，让插件
+        保持启用。不要搜索上层文件夹。让 ignore position in the visual diff
+        保持打开，这样移动一个 Transform 不算一次更改。
+      es-ES: |
+        Abre el explorador de archivos de este project. Cuando la carpeta es
+        un repositorio Git, los botones Git de la barra están activos. Cuando
+        no lo es, esos botones están en gris. Un archivo en negro es la
+        última versión confirmada. Rojo significa que lo cambiaste y no lo
+        has preparado. Verde o azul significa que está preparado y entrará en
+        el siguiente commit. Gris significa que Git lo ignora. En la
+        perspectiva de configuración, bajo Plugins y luego git, deja el
+        plugin activo. Deja apagada la búsqueda en las carpetas superiores.
+        Deja activado ignore position in the visual diff, para que mover un
+        Transform no sea un cambio.
+      pt-PT: |
+        Abre o explorador de ficheiros deste project. Quando a pasta é um
+        repositório Git, os botões Git da barra estão ativos. Quando não é,
+        esses botões ficam cinzentos. Um ficheiro a preto é a última versão
+        submetida. Vermelho significa que o alteraste e ainda não o
+        preparaste. Verde ou azul significa que está preparado e vai no
+        próximo commit. Cinzento significa que o Git o ignora. Na perspetiva
+        de configuração, em Plugins e depois git, deixa o plugin ativo. Deixa
+        desligada a procura nas pastas acima. Deixa ligado ignore position in
+        the visual diff, para que mover um Transform não seja uma alteração.
+      fr-FR: |
+        Ouvrez l'explorateur de fichiers de ce project. Quand le dossier est
+        un dépôt Git, les boutons Git de la barre sont actifs. Quand il ne
+        l'est pas, ces boutons sont gris. Un fichier en noir est la dernière
+        version validée. Rouge signifie que vous l'avez modifié et que vous
+        ne l'avez pas indexé. Vert ou bleu signifie qu'il est indexé et qu'il
+        sera dans le prochain commit. Gris signifie que Git l'ignore. Dans la
+        perspective de configuration, sous Plugins puis git, laissez le
+        plugin activé. Laissez éteinte la recherche dans les dossiers
+        parents. Laissez ignore position in the visual diff activé, pour
+        qu'un déplacement de Transform ne compte pas comme un changement.
+      de-DE: |
+        Öffne den Datei-Explorer für dieses project. Wenn der Ordner ein
+        Git-Repository ist, sind die Git-Schaltflächen in der Leiste aktiv.
+        Wenn nicht, sind sie grau. Eine schwarze Datei ist die letzte
+        übertragene Version. Rot heißt, du hast sie geändert und noch nicht
+        vorgemerkt. Grün oder blau heißt, sie ist vorgemerkt und kommt in den
+        nächsten Commit. Grau heißt, Git ignoriert sie. In der
+        Konfigurationsperspektive, unter Plugins und dann git, lass das
+        Plugin aktiv. Lass die Suche in übergeordneten Ordnern aus. Lass
+        ignore position in the visual diff an, damit das Verschieben eines
+        Transform keine Änderung ist.
+      it-IT: |
+        Apri l'esplora file di questo project. Quando la cartella è un
+        repository Git, i pulsanti Git nella barra sono attivi. Quando non lo
+        è, quei pulsanti sono grigi. Un file nero è l'ultima versione
+        confermata. Rosso significa che l'hai modificato e non l'hai ancora
+        preparato. Verde o blu significa che è preparato e sarà nel prossimo
+        commit. Grigio significa che Git lo ignora. Nella prospettiva di
+        configurazione, sotto Plugins e poi git, lascia il plugin attivo.
+        Lascia spenta la ricerca nelle cartelle superiori. Lascia attivo
+        ignore position in the visual diff, così spostare un Transform non è
+        una modifica.
+
+  - id: checkout
+    title: Check out a branch
+    visual: images/checkout.png
+    visual_type: still
+    shot: >
+      The branch menu in the status bar, opened from the branch name next
+      to the project and the environment. The current branch is marked.
+      No personal remote names if you can avoid them.
+    narration:
+      en: |
+        The status bar shows the current branch next to the project and
+        the environment. Click that name. The menu lists the local
+        branches and marks the one you are on. Click another name to check
+        it out. Hop then shows that version of the project files. The same
+        menu creates a branch, and it pulls and pushes when this repository
+        has a remote. Checking out does not mix the environment files into
+        the project. Those still live outside the folder.
+      zh-CN: |
+        状态栏在 project 和 environment 旁边显示当前分支。点击那个名字。菜单
+        列出本地分支，并标出你所在的那一个。点击另一个名字就可以检出它。Hop
+        随后显示 project 文件的那个版本。同一个菜单可以创建分支，当这个仓库有
+        远程时也可以拉取和推送。检出不会把 environment 文件混进 project。那些
+        文件仍然在文件夹外面。
+      es-ES: |
+        La barra de estado muestra la rama actual junto al project y el
+        environment. Haz clic en ese nombre. El menú lista las ramas locales
+        y marca la que estás usando. Haz clic en otro nombre para hacer
+        checkout. Hop muestra entonces esa versión de los archivos del
+        project. El mismo menú crea una rama, y hace pull y push cuando este
+        repositorio tiene un remoto. El checkout no mezcla los archivos de
+        environment en el project. Esos siguen fuera de la carpeta.
+      pt-PT: |
+        A barra de estado mostra o ramo atual ao lado do project e do
+        environment. Clica nesse nome. O menu lista os ramos locais e marca
+        aquele em que estás. Clica noutro nome para fazer checkout. O Hop
+        mostra então essa versão dos ficheiros do project. O mesmo menu cria
+        um ramo, e faz pull e push quando este repositório tem um remoto. O
+        checkout não mistura os ficheiros de environment no project. Esses
+        continuam fora da pasta.
+      fr-FR: |
+        La barre d'état montre la branche actuelle à côté du project et de
+        l'environment. Cliquez sur ce nom. Le menu liste les branches locales
+        et marque celle où vous êtes. Cliquez sur un autre nom pour en faire
+        le checkout. Hop montre alors cette version des fichiers du project.
+        Le même menu crée une branche, et il fait pull et push quand ce dépôt
+        a un distant. Le checkout ne mélange pas les fichiers d'environment
+        dans le project. Ils restent en dehors du dossier.
+      de-DE: |
+        Die Statusleiste zeigt den aktuellen Branch neben dem project und dem
+        environment. Klicke auf den Namen. Das Menü listet die lokalen
+        Branches und markiert den, auf dem du bist. Klicke einen anderen
+        Namen, um ihn auszuchecken. Hop zeigt dann diese Version der
+        project-Dateien. Dasselbe Menü erzeugt einen Branch, und es holt und
+        sendet, wenn dieses Repository ein Remote hat. Auschecken mischt die
+        environment-Dateien nicht in das project. Die bleiben außerhalb des
+        Ordners.
+      it-IT: |
+        La barra di stato mostra il ramo attuale accanto al project e
+        all'environment. Fai clic su quel nome. Il menu elenca i rami locali
+        e segna quello in cui sei. Fai clic su un altro nome per fare il
+        checkout. Hop mostra allora quella versione dei file del project. Lo
+        stesso menu crea un ramo, e fa pull e push quando questo repository
+        ha un remoto. Il checkout non mescola i file di environment nel
+        project. Quelli restano fuori dalla cartella.
+
+  - id: commit
+    title: Commit
+    visual: clips/commit.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Open the Git commit perspective. The two files
+      from the default project, the pipeline and the workflow, are
+      untracked. Tick those two. Leave any environment file or secret
+      unticked. Type a short message and click Commit. Do not push. Stop
+      when the commit has succeeded.
+    narration:
+      en: |
+        The first commit adds the two files from the default project you
+        used earlier. That is the pipeline and the workflow. Open the Git
+        commit perspective. The list has three groups. Staged files are in
+        the next commit. Unstaged files are tracked, and the edits are not
+        staged yet. Untracked files are new, and they are not ticked, so
+        tick those two yourself. If a configuration file or anything with
+        a password is listed, leave it unticked. Type a message and click
+        Commit. Do not push unless you already have a remote you trust.
+      zh-CN: |
+        第一次提交加入你之前用过的 default project 里的两个文件。那就是
+        Pipeline 和 Workflow。打开 Git commit 透视图。列表有三组。Staged 文件
+        在下一次提交里。Unstaged 文件已被跟踪，修改还没有暂存。Untracked 文件
+        是新的，而且没有被勾选，所以你要自己勾上那两个。如果列出了配置文件或
+        任何带密码的东西，不要勾选。写下一句说明，点击 Commit。除非你已经有一个
+        信任的远程，否则不要推送。
+      es-ES: |
+        El primer commit añade los dos archivos del default project que
+        usaste antes. Son el Pipeline y el Workflow. Abre la perspectiva Git
+        commit. La lista tiene tres grupos. Los archivos Staged están en el
+        siguiente commit. Los Unstaged están bajo seguimiento, y las
+        ediciones aún no están preparadas. Los Untracked son nuevos y no
+        están marcados, así que marca esos dos tú. Si aparece un archivo de
+        configuración o algo con una contraseña, déjalo sin marcar. Escribe
+        un mensaje y pulsa Commit. No hagas push salvo que ya tengas un
+        remoto de confianza.
+      pt-PT: |
+        O primeiro commit adiciona os dois ficheiros do default project que
+        usaste antes. São o Pipeline e o Workflow. Abre a perspetiva Git
+        commit. A lista tem três grupos. Os ficheiros Staged estão no próximo
+        commit. Os Unstaged estão sob controlo, e as edições ainda não estão
+        preparadas. Os Untracked são novos e não estão marcados, por isso
+        marca tu esses dois. Se aparecer um ficheiro de configuração ou algo
+        com uma palavra-passe, deixa-o sem marca. Escreve uma mensagem e
+        clica em Commit. Não faças push a menos que já tenhas um remoto em
+        que confias.
+      fr-FR: |
+        Le premier commit ajoute les deux fichiers du default project que
+        vous avez utilisé plus tôt. Ce sont le Pipeline et le Workflow.
+        Ouvrez la perspective Git commit. La liste a trois groupes. Les
+        fichiers Staged sont dans le prochain commit. Les Unstaged sont
+        suivis, et les modifications ne sont pas encore indexées. Les
+        Untracked sont nouveaux et ne sont pas cochés, alors cochez ces
+        deux-là vous-même. Si un fichier de configuration ou quoi que ce soit
+        avec un mot de passe est listé, laissez-le décoché. Écrivez un
+        message et cliquez sur Commit. Ne faites pas de push, sauf si vous
+        avez déjà un distant de confiance.
+      de-DE: |
+        Der erste Commit fügt die zwei Dateien aus dem default project hinzu,
+        das du vorhin benutzt hast. Das sind die Pipeline und der Workflow.
+        Öffne die Perspektive Git commit. Die Liste hat drei Gruppen.
+        Staged-Dateien sind im nächsten Commit. Unstaged-Dateien werden
+        verfolgt, und die Änderungen sind noch nicht vorgemerkt.
+        Untracked-Dateien sind neu und nicht angehakt, also hake diese beiden
+        selbst an. Wenn eine Konfigurationsdatei oder etwas mit einem
+        Passwort aufgeführt ist, lass es ohne Haken. Schreibe eine Nachricht
+        und klicke auf Commit. Pushe nicht, außer du hast schon ein Remote,
+        dem du vertraust.
+      it-IT: |
+        Il primo commit aggiunge i due file del default project che hai usato
+        prima. Sono il Pipeline e il Workflow. Apri la prospettiva Git
+        commit. L'elenco ha tre gruppi. I file Staged sono nel prossimo
+        commit. Gli Unstaged sono tracciati, e le modifiche non sono ancora
+        preparate. Gli Untracked sono nuovi e non sono spuntati, quindi
+        spunta tu quei due. Se è elencato un file di configurazione o
+        qualcosa con una password, lascialo senza spunta. Scrivi un messaggio
+        e fai clic su Commit. Non fare push, a meno che tu non abbia già un
+        remoto di cui ti fidi.
+
+  - id: history
+    title: History
+    visual: images/history.png
+    visual_type: still
+    shot: >
+      The Git perspective. Branches on the left, the first commit selected
+      in the history, and the two added files on the right: the pipeline
+      and the workflow. No secrets.
+    narration:
+      en: |
+        Open the Git perspective. On the left are the branches and tags.
+        In the middle is the history. The first commit is at the top, with
+        its message, author, and date. Select it. On the right are the two
+        files it added, the pipeline and the workflow. This is the record
+        of the project folder. It is not a record of the environment. The
+        host name you set in the last video is not in this list, because
+        that file was never in the folder.
+      zh-CN: |
+        打开 Git 透视图。左边是分支和标签。中间是历史。第一次提交在最上面，
+        带着说明、作者和日期。选中它。右边是它加入的两个文件，Pipeline 和
+        Workflow。这是 project 文件夹的记录。它不是 environment 的记录。你在
+        上一集设置的主机名不在这个列表里，因为那个文件从来就不在这个文件夹里。
+      es-ES: |
+        Abre la perspectiva Git. A la izquierda están las ramas y las
+        etiquetas. En el medio está la historia. El primer commit está
+        arriba, con su mensaje, autor y fecha. Selecciónalo. A la derecha
+        están los dos archivos que añadió, el Pipeline y el Workflow. Este es
+        el registro de la carpeta del project. No es un registro del
+        environment. El nombre de host que pusiste en el vídeo anterior no
+        está en esta lista, porque ese archivo nunca estuvo en la carpeta.
+      pt-PT: |
+        Abre a perspetiva Git. À esquerda estão os ramos e as etiquetas. No
+        meio está a história. O primeiro commit está no topo, com a mensagem,
+        o autor e a data. Seleciona-o. À direita estão os dois ficheiros que
+        adicionou, o Pipeline e o Workflow. Este é o registo da pasta do
+        project. Não é um registo do environment. O nome de anfitrião que
+        definiste no vídeo anterior não está nesta lista, porque esse
+        ficheiro nunca esteve na pasta.
+      fr-FR: |
+        Ouvrez la perspective Git. À gauche se trouvent les branches et les
+        étiquettes. Au milieu se trouve l'historique. Le premier commit est
+        en haut, avec son message, son auteur et sa date. Sélectionnez-le. À
+        droite se trouvent les deux fichiers qu'il a ajoutés, le Pipeline et
+        le Workflow. C'est l'enregistrement du dossier du project. Ce n'est
+        pas un enregistrement de l'environment. Le nom d'hôte que vous avez
+        défini dans la vidéo précédente n'est pas dans cette liste, parce que
+        ce fichier n'a jamais été dans le dossier.
+      de-DE: |
+        Öffne die Perspektive Git. Links sind die Branches und Tags. In der
+        Mitte ist die Geschichte. Der erste Commit steht oben, mit Nachricht,
+        Autor und Datum. Wähle ihn. Rechts sind die zwei Dateien, die er
+        hinzugefügt hat, die Pipeline und der Workflow. Das ist die
+        Aufzeichnung des project-Ordners. Es ist keine Aufzeichnung des
+        environment. Der Hostname aus dem vorigen Video steht nicht in dieser
+        Liste, weil diese Datei nie im Ordner war.
+      it-IT: |
+        Apri la prospettiva Git. A sinistra ci sono i rami e le etichette. In
+        mezzo c'è la storia. Il primo commit è in alto, con il messaggio,
+        l'autore e la data. Selezionalo. A destra ci sono i due file che ha
+        aggiunto, il Pipeline e il Workflow. Questo è il registro della
+        cartella del project. Non è un registro dell'environment. Il nome
+        host che hai impostato nel video precedente non è in questo elenco,
+        perché quel file non è mai stato nella cartella.
+
+  - id: visual-diff
+    title: Visual diff
+    visual: images/visual-diff.png
+    visual_type: still
+    shot: >
+      The visual diff of first-pipeline. Before and after are side by side.
+      The order id transform is open on both. Start at value is 1000 on
+      the left and 50000 on the right. No secrets.
+    narration:
+      en: |
+        Select the pipeline and choose Show visual diff. Hop opens the
+        version before the commit and the version after it, side by side.
+        The order id transform is open on both canvases. On the left, the
+        sequence starts at 1000. On the right, it starts at 50000. That is
+        the change this commit made. A transform you only moved would not
+        be marked, because ignore position is on. Close the diff when you
+        have seen the new start value. The next video is about keeping
+        secrets out of this history.
+      zh-CN: |
+        选中 Pipeline，选择 Show visual diff。Hop 并排打开提交之前的版本和提交
+        之后的版本。order id 这个 Transform 在两边都打开着。左边，序列从 1000
+        开始。右边，从 50000 开始。这就是这次提交做的改动。只移动过的 Transform
+        不会被标出，因为 ignore position 是打开的。看清新的起始值后就关闭这个
+        对比。下一集讲如何把密码留在这段历史之外。
+      es-ES: |
+        Selecciona el Pipeline y elige Show visual diff. Hop abre la versión
+        anterior al commit y la posterior, una al lado de la otra. El
+        Transform order id está abierto en los dos lienzos. A la izquierda,
+        la secuencia empieza en 1000. A la derecha, empieza en 50000. Ese es
+        el cambio de este commit. Un Transform que solo moviste no se
+        marcaría, porque ignore position está activo. Cierra la diferencia
+        cuando hayas visto el nuevo valor inicial. El siguiente vídeo trata
+        de dejar los secretos fuera de esta historia.
+      pt-PT: |
+        Seleciona o Pipeline e escolhe Show visual diff. O Hop abre a versão
+        anterior ao commit e a posterior, lado a lado. O Transform order id
+        está aberto nas duas áreas. À esquerda, a sequência começa em 1000.
+        À direita, começa em 50000. Essa é a alteração deste commit. Um
+        Transform que só moveste não seria marcado, porque ignore position
+        está ligado. Fecha a diferença quando tiveres visto o novo valor
+        inicial. O vídeo seguinte é sobre deixar os segredos fora desta
+        história.
+      fr-FR: |
+        Sélectionnez le Pipeline et choisissez Show visual diff. Hop ouvre la
+        version d'avant le commit et celle d'après, côte à côte. Le Transform
+        order id est ouvert sur les deux canevas. À gauche, la séquence
+        commence à 1000. À droite, elle commence à 50000. C'est le changement
+        de ce commit. Un Transform que vous avez seulement déplacé ne serait
+        pas marqué, parce que ignore position est activé. Fermez le diff
+        quand vous avez vu la nouvelle valeur de départ. La vidéo suivante
+        explique comment garder les secrets hors de cet historique.
+      de-DE: |
+        Wähle die Pipeline und dann Show visual diff. Hop öffnet die Version
+        vor dem Commit und die danach, nebeneinander. Der Transform order id
+        ist auf beiden Flächen offen. Links beginnt die Folge bei 1000.
+        Rechts beginnt sie bei 50000. Das ist die Änderung dieses Commits.
+        Ein Transform, den du nur verschoben hast, wäre nicht markiert, weil
+        ignore position an ist. Schließe den Vergleich, wenn du den neuen
+        Startwert gesehen hast. Das nächste Video hält Geheimnisse aus dieser
+        Geschichte heraus.
+      it-IT: |
+        Seleziona il Pipeline e scegli Show visual diff. Hop apre la versione
+        prima del commit e quella dopo, una accanto all'altra. Il Transform
+        order id è aperto su entrambe le aree. A sinistra la sequenza inizia
+        da 1000. A destra inizia da 50000. È questa la modifica di questo
+        commit. Un Transform che hai solo spostato non sarebbe segnato,
+        perché ignore position è attivo. Chiudi il confronto quando hai visto
+        il nuovo valore iniziale. Il video successivo tiene i segreti fuori
+        da questa storia.

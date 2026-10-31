@@ -1,0 +1,666 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Narration for video 03. English is the source.
+# zh-CN, es-ES, pt-PT, fr-FR, de-DE, and it-IT gloss a product word once,
+# then keep the English word.
+video:
+  id: 03-pipelines
+  title: "Your first pipeline"
+  issue: 9060
+  locales:
+    - en
+    - zh-CN
+    - es-ES
+    - pt-PT
+    - fr-FR
+    - de-DE
+    - it-IT
+  width: 1920
+  height: 1080
+  fps: 30
+  transition: fade
+  transition_ms: 400
+  padding_after_sec: 0.4
+  voice_id: orion
+  links:
+    - label: Your first pipeline
+      url: https://hop.apache.org/manual/latest/getting-started/hop-gui-pipelines.html
+    - label: Pipelines
+      url: https://hop.apache.org/manual/latest/pipeline/pipelines.html
+    - label: Pipeline run configurations
+      url: https://hop.apache.org/manual/latest/pipeline/pipeline-run-configurations/pipeline-run-configurations.html
+
+scenes:
+  - id: welcome
+    title: Welcome
+    visual: images/welcome.png
+    visual_type: still
+    card_title: Your first pipeline
+    card_subtitle: Transforms, a hop, and a preview
+    shot: >
+      Title card. Kicker "Apache Hop", title "Your first pipeline", subtitle
+      "Transforms, a hop, and a preview". No GUI.
+    narration:
+      en: |
+        This is the third video in the series. You have Hop GUI open. This
+        time you build a pipeline, the part of Hop that moves rows. You will
+        look at one from the samples project, then make a small one of your
+        own. By the end you will have added transforms, split a hop, and
+        previewed the rows those transforms produce. The file on disk will
+        be there for the next video.
+      zh-CN: |
+        这是系列的第三集。Hop GUI 已经打开。这一集你要做一条 Pipeline，也就是
+        Hop 里负责搬运数据行的部分。你会先看 samples project 里的一条，再自己
+        做一条小的。结束时，你已经添加了 Transform、拆开了一条 hop，并预览了
+        这些 Transform 产生的行。这个文件会留在磁盘上，给下一集用。
+      es-ES: |
+        Este es el tercer vídeo de la serie. Tienes Hop GUI abierto. Esta vez
+        construyes un Pipeline, la parte de Hop que mueve filas. Vas a mirar
+        uno del samples project y luego harás uno pequeño tuyo. Al terminar
+        habrás añadido Transform, partido un hop y previsualizado las filas
+        que esos Transform producen. El archivo en disco quedará listo para
+        el siguiente vídeo.
+      pt-PT: |
+        Este é o terceiro vídeo da série. Tens o Hop GUI aberto. Desta vez
+        constróis um Pipeline, a parte do Hop que move linhas. Vais ver um do
+        samples project e depois fazes um pequeno teu. No fim já adicionaste
+        Transform, dividiste um hop e pré-visualizaste as linhas que esses
+        Transform produzem. O ficheiro no disco fica para o vídeo seguinte.
+      fr-FR: |
+        Voici la troisième vidéo de la série. Hop GUI est ouvert. Cette fois,
+        vous construisez un Pipeline, la partie de Hop qui déplace les lignes.
+        Vous en regarderez un dans le samples project, puis vous en ferez un
+        petit à vous. À la fin, vous aurez ajouté des Transform, scindé un hop
+        et prévisualisé les lignes que ces Transform produisent. Le fichier
+        sur le disque sera là pour la vidéo suivante.
+      de-DE: |
+        Dies ist das dritte Video der Reihe. Hop GUI ist offen. Diesmal baust
+        du eine Pipeline, den Teil von Hop, der Zeilen bewegt. Du siehst dir
+        eine aus dem samples project an und machst dann eine kleine eigene.
+        Am Ende hast du Transform hinzugefügt, einen hop geteilt und die
+        Zeilen angesehen, die diese Transform erzeugen. Die Datei auf der
+        Festplatte bleibt für das nächste Video.
+      it-IT: |
+        Questo è il terzo video della serie. Hop GUI è aperto. Questa volta
+        costruisci un Pipeline, la parte di Hop che sposta le righe. Ne
+        guardi uno dal samples project e poi ne fai uno piccolo tuo. Alla fine
+        avrai aggiunto dei Transform, diviso un hop e visto in anteprima le
+        righe che quei Transform producono. Il file sul disco resta per il
+        video successivo.
+
+  - id: what-a-pipeline-is
+    title: What a pipeline is
+    visual: images/what-a-pipeline-is.png
+    visual_type: still
+    card_title: A pipeline moves rows
+    card_subtitle: The transforms run together
+    shot: >
+      Title card. Title "A pipeline moves rows". Subtitle "The transforms
+      run together". No GUI.
+    narration:
+      en: |
+        A pipeline is how Hop moves, filters, and changes rows. Each
+        transform on the canvas does one job. When the pipeline runs, the
+        transforms start together, and rows stream from one to the next
+        along a hop. A hop is the arrow between two transforms. If a later
+        transform is slower, the hop fills and the earlier transform waits.
+        That keeps the memory between them bounded. A pipeline is a stream
+        of rows, and the first transform can still be reading while a later
+        one is already writing.
+      zh-CN: |
+        Pipeline 是 Hop 移动、过滤和修改数据行的方式。画布上的每个 Transform
+        只做一件事。Pipeline 运行时，这些 Transform 一起启动，行沿着 hop 从
+        一个流到下一个。hop 就是两个 Transform 之间的箭头。如果后面的
+        Transform 更慢，hop 会装满，前面的 Transform 就等待。这样它们之间
+        占用的内存是有上限的。Pipeline 是一行行的数据流。前面的 Transform
+        还在读取时，后面的 Transform 可能已经在写出。
+      es-ES: |
+        Un Pipeline es la forma en que Hop mueve, filtra y cambia filas. Cada
+        Transform del lienzo hace un solo trabajo. Cuando el Pipeline se
+        ejecuta, los Transform arrancan juntos y las filas fluyen de uno al
+        siguiente por un hop. Un hop es la flecha entre dos Transform. Si un
+        Transform posterior va más lento, el hop se llena y el Transform
+        anterior espera. Así la memoria entre ellos tiene un límite. Un
+        Pipeline es un flujo de filas, y el primer Transform puede seguir
+        leyendo mientras uno posterior ya está escribiendo.
+      pt-PT: |
+        Um Pipeline é a forma como o Hop move, filtra e altera linhas. Cada
+        Transform na área de desenho faz um só trabalho. Quando o Pipeline
+        corre, os Transform arrancam juntos e as linhas fluem de um para o
+        seguinte por um hop. Um hop é a seta entre dois Transform. Se um
+        Transform mais à frente for mais lento, o hop enche e o Transform
+        anterior espera. Assim a memória entre eles tem um limite. Um
+        Pipeline é um fluxo de linhas, e o primeiro Transform pode continuar
+        a ler enquanto um mais à frente já está a escrever.
+      fr-FR: |
+        Un Pipeline est la façon dont Hop déplace, filtre et modifie des
+        lignes. Chaque Transform sur le canevas fait un seul travail. Quand
+        le Pipeline s'exécute, les Transform démarrent ensemble et les lignes
+        passent de l'un à l'autre le long d'un hop. Un hop est la flèche entre
+        deux Transform. Si un Transform plus loin est plus lent, le hop se
+        remplit et le Transform précédent attend. La mémoire entre eux reste
+        ainsi bornée. Un Pipeline est un flux de lignes, et le premier
+        Transform peut encore lire pendant qu'un Transform plus loin écrit
+        déjà.
+      de-DE: |
+        Eine Pipeline ist die Art, wie Hop Zeilen bewegt, filtert und ändert.
+        Jeder Transform auf der Zeichenfläche macht eine Aufgabe. Wenn die
+        Pipeline läuft, starten die Transform zusammen, und die Zeilen
+        strömen über einen hop von einem zum nächsten. Ein hop ist der Pfeil
+        zwischen zwei Transform. Wenn ein späterer Transform langsamer ist,
+        füllt sich der hop und der frühere Transform wartet. So bleibt der
+        Speicher dazwischen begrenzt. Eine Pipeline ist ein Strom von Zeilen,
+        und der erste Transform kann noch lesen, während ein späterer schon
+        schreibt.
+      it-IT: |
+        Un Pipeline è il modo in cui Hop sposta, filtra e modifica le righe.
+        Ogni Transform sull'area di disegno fa un solo lavoro. Quando il
+        Pipeline viene eseguito, i Transform partono insieme e le righe
+        scorrono da uno al successivo lungo un hop. Un hop è la freccia tra
+        due Transform. Se un Transform più avanti è più lento, il hop si
+        riempie e il Transform precedente aspetta. Così la memoria tra loro
+        resta limitata. Un Pipeline è un flusso di righe, e il primo
+        Transform può ancora leggere mentre uno più avanti sta già scrivendo.
+
+  - id: run-configuration
+    title: Where it runs
+    visual: images/run-configuration.png
+    visual_type: still
+    card_title: Design once
+    card_subtitle: The local engine is enough today
+    shot: >
+      Title card. Title "Design once". Subtitle "The local engine is enough
+      today". No GUI, and do not open a run configuration dialog.
+    narration:
+      en: |
+        The drawing says what happens to the rows. A pipeline run
+        configuration says where that work runs. On your laptop, the local
+        engine is the one you want. The same pipeline can later run on Hop
+        Server, or on Spark, Flink, or Dataflow, when the volume calls for
+        it. You pick that in the run configuration. The drawing stays as it
+        is. This video stays on the local engine. The execution video is
+        where you press Run.
+      zh-CN: |
+        这张图说明行会发生什么。pipeline run configuration 说明这份工作在哪里
+        运行。在笔记本上，本地引擎就够了。同一条 Pipeline 以后可以跑在 Hop
+        Server 上，也可以在数据量需要时跑在 Spark、Flink 或 Dataflow 上。你在
+        run configuration 里做这个选择。图本身保持不变。本集留在本地引擎。
+        执行视频里你再按 Run。
+      es-ES: |
+        El dibujo dice qué ocurre con las filas. Una run configuration dice
+        dónde se ejecuta ese trabajo. En tu portátil, el motor local es el
+        que quieres. El mismo Pipeline puede ejecutarse más tarde en Hop
+        Server, o en Spark, Flink o Dataflow, cuando el volumen lo pida. Lo
+        eliges en la run configuration. El dibujo se queda como está. Este
+        vídeo se queda en el motor local. En el vídeo de ejecución es donde
+        pulsas Run.
+      pt-PT: |
+        O desenho diz o que acontece às linhas. Uma run configuration diz
+        onde esse trabalho corre. No teu portátil, o motor local é o que
+        queres. O mesmo Pipeline pode mais tarde correr no Hop Server, ou no
+        Spark, no Flink ou no Dataflow, quando o volume o pedir. Escolhes
+        isso na run configuration. O desenho fica como está. Este vídeo fica
+        no motor local. É no vídeo de execução que carregas em Run.
+      fr-FR: |
+        Le dessin dit ce qui arrive aux lignes. Une run configuration dit où
+        ce travail s'exécute. Sur votre portable, le moteur local est celui
+        qu'il vous faut. Le même Pipeline peut plus tard s'exécuter sur Hop
+        Server, ou sur Spark, Flink ou Dataflow, quand le volume l'exige.
+        Vous choisissez cela dans la run configuration. Le dessin reste tel
+        quel. Cette vidéo reste sur le moteur local. C'est dans la vidéo sur
+        l'exécution que vous appuyez sur Run.
+      de-DE: |
+        Die Zeichnung sagt, was mit den Zeilen geschieht. Eine run
+        configuration sagt, wo diese Arbeit läuft. Auf deinem Laptop ist die
+        lokale Engine die richtige. Dieselbe Pipeline kann später auf Hop
+        Server laufen, oder auf Spark, Flink oder Dataflow, wenn das Volumen
+        es verlangt. Das wählst du in der run configuration. Die Zeichnung
+        bleibt, wie sie ist. Dieses Video bleibt bei der lokalen Engine. Im
+        Video zur Ausführung drückst du Run.
+      it-IT: |
+        Il disegno dice che cosa succede alle righe. Una run configuration
+        dice dove viene eseguito quel lavoro. Sul tuo portatile il motore
+        locale è quello che ti serve. Lo stesso Pipeline può in seguito
+        girare su Hop Server, oppure su Spark, Flink o Dataflow, quando il
+        volume lo richiede. Lo scegli nella run configuration. Il disegno
+        resta com'è. Questo video resta sul motore locale. Nel video
+        sull'esecuzione premi Run.
+
+  - id: samples-pipeline
+    title: A pipeline from samples
+    visual: images/samples-pipeline.png
+    visual_type: still
+    shot: >
+      The samples project, with pipelines/pipeline-with-parameter open on
+      the canvas. Transform names readable, hops visible, no dialog open.
+    narration:
+      en: |
+        Open the samples project and open pipeline-with-parameter. This
+        pipeline reads a parameter named PRM_EXAMPLE and an environment
+        variable, and it writes each value to the log. You are looking at a
+        finished pipeline. Transforms sit on the canvas. Hops show which way
+        the rows travel. We will build a smaller pipeline from an empty
+        canvas, so every click is one you can repeat. Leave this one open
+        behind the new file if you want to glance back.
+      zh-CN: |
+        打开 samples project，再打开 pipeline-with-parameter。这条 Pipeline
+        读取名为 PRM_EXAMPLE 的参数和一个 environment 变量，并把每个值写到
+        日志里。你看到的是一条已经完成的 Pipeline。Transform 在画布上。hop
+        标出行的走向。我们会从一块空画布做一条更小的 Pipeline，这样每一次点击
+        你都可以自己重复。如果想回头看，可以把这一条留在新文件后面。
+      es-ES: |
+        Abre el samples project y abre pipeline-with-parameter. Este Pipeline
+        lee un parámetro llamado PRM_EXAMPLE y una variable de environment, y
+        escribe cada valor en el registro. Estás viendo un Pipeline terminado.
+        Los Transform están en el lienzo. Los hop muestran hacia dónde viajan
+        las filas. Construiremos un Pipeline más pequeño desde un lienzo
+        vacío, para que cada clic sea uno que puedas repetir. Deja este
+        abierto detrás del archivo nuevo si quieres volver a mirarlo.
+      pt-PT: |
+        Abre o samples project e abre pipeline-with-parameter. Este Pipeline
+        lê um parâmetro chamado PRM_EXAMPLE e uma variável de environment, e
+        escreve cada valor no registo. Estás a ver um Pipeline terminado. Os
+        Transform estão na área de desenho. Os hop mostram para onde viajam
+        as linhas. Vamos construir um Pipeline mais pequeno a partir de uma
+        área vazia, para que cada clique seja um que possas repetir. Deixa
+        este aberto por trás do ficheiro novo se quiseres voltar a olhar.
+      fr-FR: |
+        Ouvrez le samples project et ouvrez pipeline-with-parameter. Ce
+        Pipeline lit un paramètre nommé PRM_EXAMPLE et une variable
+        d'environment, et il écrit chaque valeur dans le journal. Vous
+        regardez un Pipeline terminé. Les Transform sont sur le canevas. Les
+        hop montrent dans quel sens les lignes voyagent. Nous construirons un
+        Pipeline plus petit à partir d'un canevas vide, pour que chaque clic
+        soit un clic que vous pouvez refaire. Laissez celui-ci ouvert derrière
+        le nouveau fichier si vous voulez y revenir.
+      de-DE: |
+        Öffne das samples project und öffne pipeline-with-parameter. Diese
+        Pipeline liest einen Parameter namens PRM_EXAMPLE und eine
+        environment-Variable und schreibt jeden Wert ins Protokoll. Du siehst
+        eine fertige Pipeline. Die Transform liegen auf der Zeichenfläche.
+        Die hop zeigen, in welche Richtung die Zeilen wandern. Wir bauen eine
+        kleinere Pipeline von einer leeren Zeichenfläche, damit jeder Klick
+        einer ist, den du wiederholen kannst. Lass diese hinter der neuen
+        Datei offen, wenn du zurückschauen willst.
+      it-IT: |
+        Apri il samples project e apri pipeline-with-parameter. Questo
+        Pipeline legge un parametro chiamato PRM_EXAMPLE e una variabile di
+        environment, e scrive ogni valore nel log. Stai guardando un Pipeline
+        finito. I Transform sono sull'area di disegno. Gli hop mostrano in
+        che direzione viaggiano le righe. Costruiremo un Pipeline più piccolo
+        da un'area vuota, così ogni clic è uno che puoi ripetere. Lascia
+        questo aperto dietro il nuovo file se vuoi riguardarlo.
+
+  - id: new-pipeline
+    title: A new pipeline
+    visual: clips/new-pipeline.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. In the project you use for this series, click New,
+      choose Pipeline, and save the empty canvas as first-pipeline.hpl.
+      Stop on the empty canvas. No personal paths.
+    narration:
+      en: |
+        Click New and choose Pipeline. You get an empty canvas and the
+        pipeline toolbar above it. Save it now, in the project, as
+        first-pipeline.hpl. Hop can run a pipeline straight from the editor,
+        and the next video needs the file on disk. The canvas is where the
+        transforms will live. A click on the empty canvas opens a search
+        dialog. That search is how you add a transform. You do not drag one
+        in from a long list first.
+      zh-CN: |
+        点击 New，选择 Pipeline。你会得到一块空画布，上面是 Pipeline 工具栏。
+        现在就在 project 里把它存成 first-pipeline.hpl。Hop 可以直接从编辑器
+        运行一条 Pipeline，而下一集需要磁盘上的这个文件。画布是 Transform
+        将要待的地方。在空画布上点一下会打开搜索对话框。你用这个搜索来添加
+        Transform。不必先从一条长列表里拖进来。
+      es-ES: |
+        Pulsa New y elige Pipeline. Obtienes un lienzo vacío y, encima, la
+        barra de herramientas del Pipeline. Guárdalo ahora, en el project,
+        como first-pipeline.hpl. Hop puede ejecutar un Pipeline directamente
+        desde el editor, y el siguiente vídeo necesita el archivo en disco.
+        El lienzo es donde vivirán los Transform. Un clic en el lienzo vacío
+        abre un diálogo de búsqueda. Esa búsqueda es la forma de añadir un
+        Transform. No empiezas arrastrando uno desde una lista larga.
+      pt-PT: |
+        Clica em New e escolhe Pipeline. Ficas com uma área de desenho vazia
+        e, por cima, a barra de ferramentas do Pipeline. Guarda-o agora, no
+        project, como first-pipeline.hpl. O Hop pode executar um Pipeline
+        diretamente a partir do editor, e o vídeo seguinte precisa do
+        ficheiro no disco. A área de desenho é onde os Transform vão ficar.
+        Um clique na área vazia abre um diálogo de pesquisa. Essa pesquisa é
+        a forma de adicionar um Transform. Não começas por arrastar um de uma
+        lista longa.
+      fr-FR: |
+        Cliquez sur New et choisissez Pipeline. Vous obtenez un canevas vide
+        et, au-dessus, la barre d'outils du Pipeline. Enregistrez-le
+        maintenant, dans le project, sous le nom first-pipeline.hpl. Hop peut
+        exécuter un Pipeline directement depuis l'éditeur, et la vidéo
+        suivante a besoin du fichier sur le disque. Le canevas est l'endroit
+        où les Transform vont vivre. Un clic sur le canevas vide ouvre un
+        dialogue de recherche. Cette recherche est la façon d'ajouter un
+        Transform. Vous ne commencez pas en en faisant glisser un depuis une
+        longue liste.
+      de-DE: |
+        Klicke auf New und wähle Pipeline. Du bekommst eine leere
+        Zeichenfläche und darüber die Pipeline-Werkzeugleiste. Speichere sie
+        jetzt im project als first-pipeline.hpl. Hop kann eine Pipeline
+        direkt aus dem Editor ausführen, und das nächste Video braucht die
+        Datei auf der Festplatte. Auf der Zeichenfläche werden die Transform
+        stehen. Ein Klick auf die leere Fläche öffnet einen Suchdialog. Über
+        diese Suche fügst du einen Transform hinzu. Du ziehst ihn nicht
+        zuerst aus einer langen Liste.
+      it-IT: |
+        Fai clic su New e scegli Pipeline. Ottieni un'area di disegno vuota e,
+        sopra, la barra degli strumenti del Pipeline. Salvalo ora, nel
+        project, come first-pipeline.hpl. Hop può eseguire un Pipeline
+        direttamente dall'editor, e il video successivo ha bisogno del file
+        sul disco. L'area di disegno è dove vivranno i Transform. Un clic
+        sull'area vuota apre un dialogo di ricerca. Quella ricerca è il modo
+        di aggiungere un Transform. Non inizi trascinandone uno da un lungo
+        elenco.
+
+  - id: properties
+    title: Properties and parameters
+    visual: images/properties.png
+    visual_type: still
+    shot: >
+      The pipeline properties dialog for first-pipeline, on the Parameters
+      tab. The name is visible. No personal values in the table.
+    narration:
+      en: |
+        With the new pipeline open, open its properties. You will find the
+        name, a description, and a Parameters tab. A parameter is a named
+        value the pipeline receives when it starts. Give it a default here
+        when you want one. The samples pipeline you just opened declares its
+        parameter this way. Close the dialog when you have seen the tab. This
+        small pipeline does not need a parameter. The rows we are about to
+        generate carry their own values.
+      zh-CN: |
+        新的 Pipeline 打开后，打开它的属性。你会看到名称、一段说明，以及
+        Parameters 选项卡。参数是 Pipeline 启动时收到的一个带名字的值。想要
+        默认值时，就在这里填写。你刚才打开的 samples Pipeline 就是这样声明
+        参数的。看完这个选项卡就关闭对话框。这条小 Pipeline 不需要参数。
+        我们即将生成的行自己带着值。
+      es-ES: |
+        Con el Pipeline nuevo abierto, abre sus propiedades. Verás el nombre,
+        una descripción y una pestaña Parameters. Un parámetro es un valor
+        con nombre que el Pipeline recibe al arrancar. Dale un valor
+        predeterminado aquí cuando quieras uno. El Pipeline de samples que
+        acabas de abrir declara su parámetro de esta forma. Cierra el diálogo
+        cuando hayas visto la pestaña. Este Pipeline pequeño no necesita un
+        parámetro. Las filas que vamos a generar llevan sus propios valores.
+      pt-PT: |
+        Com o Pipeline novo aberto, abre as propriedades. Vês o nome, uma
+        descrição e um separador Parameters. Um parâmetro é um valor com nome
+        que o Pipeline recebe quando arranca. Dá-lhe um valor predefinido
+        aqui quando quiseres um. O Pipeline de samples que acabaste de abrir
+        declara o parâmetro desta forma. Fecha o diálogo quando tiveres visto
+        o separador. Este Pipeline pequeno não precisa de um parâmetro. As
+        linhas que vamos gerar trazem os seus próprios valores.
+      fr-FR: |
+        Avec le nouveau Pipeline ouvert, ouvrez ses propriétés. Vous y
+        trouvez le nom, une description et un onglet Parameters. Un paramètre
+        est une valeur nommée que le Pipeline reçoit à son démarrage.
+        Donnez-lui une valeur par défaut ici quand vous en voulez une. Le
+        Pipeline d'exemples que vous venez d'ouvrir déclare son paramètre de
+        cette façon. Fermez le dialogue quand vous avez vu l'onglet. Ce petit
+        Pipeline n'a pas besoin d'un paramètre. Les lignes que nous allons
+        générer portent leurs propres valeurs.
+      de-DE: |
+        Wenn die neue Pipeline offen ist, öffne ihre Eigenschaften. Du
+        findest den Namen, eine Beschreibung und einen Tab Parameters. Ein
+        Parameter ist ein benannter Wert, den die Pipeline beim Start erhält.
+        Gib ihm hier einen Standardwert, wenn du einen willst. Die
+        samples-Pipeline, die du gerade geöffnet hast, erklärt ihren Parameter
+        auf diese Weise. Schließe den Dialog, wenn du den Tab gesehen hast.
+        Diese kleine Pipeline braucht keinen Parameter. Die Zeilen, die wir
+        gleich erzeugen, tragen ihre eigenen Werte.
+      it-IT: |
+        Con il nuovo Pipeline aperto, apri le sue proprietà. Trovi il nome,
+        una descrizione e una scheda Parameters. Un parametro è un valore con
+        nome che il Pipeline riceve all'avvio. Dagli un valore predefinito
+        qui quando ne vuoi uno. Il Pipeline di samples che hai appena aperto
+        dichiara il suo parametro in questo modo. Chiudi il dialogo quando
+        hai visto la scheda. Questo piccolo Pipeline non ha bisogno di un
+        parametro. Le righe che stiamo per generare portano i loro valori.
+
+  - id: add-generate-rows
+    title: Add Generate rows
+    visual: clips/add-generate-rows.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Click the empty canvas, search for Generate rows,
+      and add it. Left-click the underlined name under the icon. Name it
+      generate orders, set the limit to 100, and add a String field named
+      product with the value Widget. Click OK. Stop with the transform on
+      the canvas.
+    narration:
+      en: |
+        Click the canvas, search for Generate rows, and add it. To open the
+        dialog, left-click the underlined name under the icon. Name it
+        generate orders. Set the limit to 100. In the fields table, add one
+        field named product, type String, value Widget. Click OK. This
+        transform now produces one hundred identical rows.
+        Each row has a single product field, and every value is Widget.
+        Identical rows are only a start. The next transform will give each
+        row its own number.
+      zh-CN: |
+        在画布上点击，搜索 Generate rows，然后添加它。要打开对话框，左键点击
+        图标下方带下划线的名称。把它命名为 generate orders。把 limit 设为
+        100。在字段表里添加一个字段，名称 product，类型 String，值 Widget。
+        点击 OK。这个 Transform 现在会产出一百行完全相同的数据。每一行只有
+        一个 product 字段，每个值都是 Widget。相同的行只是开始。下一个
+        Transform 会给每一行一个自己的编号。
+      es-ES: |
+        Haz clic en el lienzo, busca Generate rows y añádelo. Para abrir el
+        diálogo, haz clic izquierdo en el nombre subrayado bajo el icono.
+        Llámale generate orders. Pon el límite en 100. En la tabla de campos,
+        añade un campo llamado product, tipo String, valor Widget. Pulsa OK.
+        Este Transform produce ahora cien filas idénticas. Cada fila tiene un
+        solo campo product, y cada valor es Widget. Las filas idénticas son
+        solo el principio. El siguiente Transform dará a cada fila su propio
+        número.
+      pt-PT: |
+        Clica na área de desenho, procura Generate rows e adiciona-o. Para
+        abrir o diálogo, clica com o botão esquerdo no nome sublinhado por
+        baixo do ícone. Chama-lhe generate orders. Põe o limite a 100. Na
+        tabela de campos, adiciona um campo chamado product, tipo String,
+        valor Widget. Clica em OK. Este Transform produz agora cem linhas
+        idênticas. Cada linha tem um único campo product, e cada valor é
+        Widget. Linhas idênticas são só o começo. O Transform seguinte dá a
+        cada linha o seu próprio número.
+      fr-FR: |
+        Cliquez sur le canevas, cherchez Generate rows et ajoutez-le. Pour
+        ouvrir le dialogue, cliquez avec le bouton gauche sur le nom souligné
+        sous l'icône. Nommez-le generate orders. Réglez la limite sur 100.
+        Dans la table des champs, ajoutez un champ nommé product, de type
+        String, de valeur Widget. Cliquez sur OK. Ce Transform produit
+        maintenant cent lignes identiques. Chaque ligne a un seul champ
+        product, et chaque valeur est Widget. Des lignes identiques ne sont
+        qu'un début. Le Transform suivant donnera à chaque ligne son propre
+        numéro.
+      de-DE: |
+        Klicke auf die Zeichenfläche, suche nach Generate rows und füge ihn
+        hinzu. Um den Dialog zu öffnen, klicke links auf den unterstrichenen
+        Namen unter dem Symbol. Nenne ihn generate orders. Setze das Limit
+        auf 100. In der Feldertabelle füge ein Feld namens product hinzu, Typ
+        String, Wert Widget. Klicke auf OK. Dieser Transform erzeugt jetzt
+        hundert gleiche Zeilen. Jede Zeile hat ein einziges Feld product, und
+        jeder Wert ist Widget. Gleiche Zeilen sind nur der Anfang. Der
+        nächste Transform gibt jeder Zeile eine eigene Nummer.
+      it-IT: |
+        Fai clic sull'area di disegno, cerca Generate rows e aggiungilo. Per
+        aprire il dialogo, fai clic con il tasto sinistro sul nome
+        sottolineato sotto l'icona. Chiamalo generate orders. Imposta il
+        limite a 100. Nella tabella dei campi aggiungi un campo di nome
+        product, tipo String, valore Widget. Fai clic su OK. Questo Transform
+        ora produce cento righe identiche. Ogni riga ha un solo campo
+        product, e ogni valore è Widget. Righe identiche sono solo l'inizio.
+        Il Transform successivo darà a ogni riga un numero proprio.
+
+  - id: split-a-hop
+    title: Split a hop
+    visual: clips/split-a-hop.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Add Text file output. Hold Shift and drag a hop
+      from generate orders to Text file output. Then drag Add sequence onto
+      that hop and accept the offer to split it. Stop when Add sequence sits
+      between the other two. Do not open its dialog yet.
+    narration:
+      en: |
+        Add Text file output, then draw a hop from generate orders to it.
+        Hold Shift, drag from one transform to the other, and release. The
+        arrow is the hop, and the rows will travel that way. Now drag Add
+        sequence onto that hop. Hop offers to split the hop and place the
+        new transform in the middle. Accept that. You now have generate
+        orders, then Add sequence, then Text file output. The first hop did
+        not have to be drawn a second time.
+      zh-CN: |
+        添加 Text file output，然后从 generate orders 画一条 hop 到它。按住
+        Shift，从一个 Transform 拖到另一个，然后松开。箭头就是 hop，行会沿
+        这个方向走。现在把 Add sequence 拖到这条 hop 上。Hop 会提议拆开这条
+        hop，并把新的 Transform 放在中间。接受它。你现在有 generate orders，
+        然后是 Add sequence，然后是 Text file output。第一条 hop 不必再画
+        一次。
+      es-ES: |
+        Añade Text file output y dibuja un hop desde generate orders hasta
+        él. Mantén Shift, arrastra de un Transform al otro y suelta. La
+        flecha es el hop, y las filas viajarán en esa dirección. Ahora
+        arrastra Add sequence sobre ese hop. Hop ofrece partir el hop y
+        colocar el Transform nuevo en el medio. Acéptalo. Ahora tienes
+        generate orders, luego Add sequence y luego Text file output. El
+        primer hop no ha hecho falta dibujarlo una segunda vez.
+      pt-PT: |
+        Adiciona Text file output e desenha um hop de generate orders até
+        ele. Mantém Shift, arrasta de um Transform para o outro e larga. A
+        seta é o hop, e as linhas vão viajar nesse sentido. Agora arrasta
+        Add sequence para cima desse hop. O Hop oferece dividir o hop e
+        colocar o Transform novo no meio. Aceita. Ficas com generate orders,
+        depois Add sequence e depois Text file output. O primeiro hop não
+        teve de ser desenhado uma segunda vez.
+      fr-FR: |
+        Ajoutez Text file output, puis tracez un hop de generate orders vers
+        lui. Maintenez Shift, faites glisser d'un Transform à l'autre et
+        relâchez. La flèche est le hop, et les lignes voyageront dans ce
+        sens. Faites maintenant glisser Add sequence sur ce hop. Hop propose
+        de scinder le hop et de placer le nouveau Transform au milieu.
+        Acceptez. Vous avez maintenant generate orders, puis Add sequence,
+        puis Text file output. Le premier hop n'a pas eu à être tracé une
+        seconde fois.
+      de-DE: |
+        Füge Text file output hinzu und zeichne einen hop von generate orders
+        dorthin. Halte Shift, ziehe von einem Transform zum anderen und lass
+        los. Der Pfeil ist der hop, und die Zeilen werden in diese Richtung
+        wandern. Ziehe jetzt Add sequence auf diesen hop. Hop bietet an, den
+        hop zu teilen und den neuen Transform in die Mitte zu setzen. Nimm
+        das an. Du hast jetzt generate orders, dann Add sequence, dann Text
+        file output. Der erste hop musste nicht ein zweites Mal gezeichnet
+        werden.
+      it-IT: |
+        Aggiungi Text file output e disegna un hop da generate orders fino a
+        lui. Tieni premuto Shift, trascina da un Transform all'altro e
+        rilascia. La freccia è il hop, e le righe viaggeranno in quella
+        direzione. Ora trascina Add sequence su quel hop. Hop propone di
+        dividere il hop e di mettere il nuovo Transform in mezzo. Accetta.
+        Ora hai generate orders, poi Add sequence, poi Text file output. Il
+        primo hop non ha dovuto essere disegnato una seconda volta.
+
+  - id: preview-rows
+    title: Preview the rows
+    visual: clips/preview-rows.mp4
+    visual_type: clip
+    shot: >
+      Muted clip, 30 fps. Left-click the underlined name of the middle
+      transform. Name it number the orders. Set the value name to order_id,
+      start at 1000, increment by 1, and leave the internal counter checked.
+      Click OK. Right-click that transform, choose Preview and debug output,
+      then Quick Launch.
+      Stop when the grid shows product and order_id, with Widget and 1000
+      on the first row.
+    narration:
+      en: |
+        Left-click the underlined name of the middle transform. Name it
+        number the orders. Set
+        the name of the value to order_id, start at 1000, and increment by
+        1. Leave the counter option checked, so Hop counts internally and
+        does not ask a database. Click OK. Right-click number the orders
+        and choose Preview and debug output, then Quick Launch. The preview
+        shows product and order_id. The first rows are Widget and 1000, then
+        Widget and 1001. You saw real rows before a full run. The next video
+        runs this pipeline and writes the file.
+      zh-CN: |
+        左键点击中间那个 Transform 下方带下划线的名称。把它命名为 number the
+        orders。把值的名称设为 order_id，从 1000 开始，每次加 1。保持计数器
+        选项为选中，这样 Hop 在内部计数，不必去问数据库。点击 OK。右键点击
+        number the orders，选择 Preview and debug output，然后 Quick Launch。
+        预览里会显示 product 和 order_id。开头几行是 Widget 和 1000，然后是
+        Widget 和 1001。你在完整运行之前就看到了真实的行。下一集运行这条
+        Pipeline，并把文件写出去。
+      es-ES: |
+        Haz clic izquierdo en el nombre subrayado del Transform del medio.
+        Llámale number the orders. Pon el nombre del valor en order_id,
+        empieza en 1000 e incrementa de 1 en 1. Deja marcada la opción del
+        contador, para que Hop cuente por dentro y no pregunte a una base de
+        datos. Pulsa OK. Haz clic derecho en number the orders y elige
+        Preview and debug output, luego Quick Launch. La vista previa muestra
+        product y order_id. Las primeras filas son Widget y 1000, luego
+        Widget y 1001. Has visto filas reales antes de una ejecución completa.
+        El siguiente vídeo ejecuta este Pipeline y escribe el archivo.
+      pt-PT: |
+        Clica com o botão esquerdo no nome sublinhado do Transform do meio.
+        Chama-lhe number the orders. Põe o nome do valor em order_id, começa
+        em 1000 e incrementa de 1 em 1. Deixa a opção do contador marcada,
+        para o Hop contar internamente e não perguntar a uma base de dados.
+        Clica em OK. Clica com o botão direito em number the orders e escolhe
+        Preview and debug output, depois Quick Launch. A pré-visualização
+        mostra product e order_id. As primeiras linhas são Widget e 1000,
+        depois Widget e 1001. Viste linhas reais antes de uma execução
+        completa. O vídeo seguinte executa este Pipeline e escreve o ficheiro.
+      fr-FR: |
+        Cliquez avec le bouton gauche sur le nom souligné du Transform du
+        milieu. Nommez-le number the orders. Réglez le nom de la valeur sur
+        order_id, partez de 1000 et incrémentez de 1. Laissez l'option du
+        compteur cochée, pour que Hop compte en interne et ne demande rien à
+        une base de données. Cliquez sur OK. Cliquez avec le bouton droit sur
+        number the orders et choisissez Preview and debug output, puis Quick
+        Launch. L'aperçu montre product et order_id. Les premières lignes
+        sont Widget et 1000, puis Widget et 1001. Vous avez vu de vraies
+        lignes avant une exécution complète. La vidéo suivante exécute ce
+        Pipeline et écrit le fichier.
+      de-DE: |
+        Klicke links auf den unterstrichenen Namen des mittleren Transform.
+        Nenne ihn number the orders. Setze den Namen des Werts auf order_id,
+        starte bei 1000 und erhöhe um 1. Lass die Zähleroption an, damit Hop
+        intern zählt und keine Datenbank fragt. Klicke auf OK. Klicke rechts
+        auf number the orders und wähle Preview and debug output, dann Quick
+        Launch. Die Vorschau zeigt product und order_id. Die ersten Zeilen
+        sind Widget und 1000, dann Widget und 1001. Du hast echte Zeilen
+        gesehen, bevor ein voller Lauf startet. Das nächste Video führt diese
+        Pipeline aus und schreibt die Datei.
+      it-IT: |
+        Fai clic con il tasto sinistro sul nome sottolineato del Transform al
+        centro. Chiamalo number the orders. Imposta il nome del valore su
+        order_id, parti da 1000 e incrementa di 1. Lascia selezionata
+        l'opzione del contatore, così Hop conta al suo interno e non chiede a
+        un database. Fai clic su OK. Fai clic con il tasto destro su number
+        the orders e scegli Preview and debug output, poi Quick Launch.
+        L'anteprima mostra product e order_id. Le prime righe sono Widget e
+        1000, poi Widget e 1001. Hai visto righe vere prima di un'esecuzione
+        completa. Il video successivo esegue questo Pipeline e scrive il file.

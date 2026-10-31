@@ -1,0 +1,163 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Secrets and variable resolvers
+  zh-CN: 机密和变量解析器
+  es-ES: Secretos y resolvers de variables
+  pt-PT: Segredos e resolvers de variáveis
+  fr-FR: Secrets et résolveurs de variables
+  de-DE: Geheimnisse und Variablen-Resolver
+  it-IT: Segreti e resolver di variabili
+summary:
+  en: |
+    A password does not belong in the connection or in Git. The connection named crm stores ${PASSWORD}. On your laptop the environment sets that name to the example value abcd. On a shared system the same name is #{keystore:databases/crm:password}, and a variable resolver reads the vault. The token that opens the vault stays outside the project.
+  zh-CN: |
+    密码不属于连接，也不属于 Git。名为 crm 的连接里存放的是 ${PASSWORD}。在笔记本上，environment 把这个名字设成示例值 abcd。在共享系统上，同一个名字是 #{keystore:databases/crm:password}，由变量解析器去读取保险库。打开保险库的令牌留在 project 之外。
+  es-ES: |
+    Una contraseña no pertenece a la conexión ni a Git. La conexión llamada crm guarda ${PASSWORD}. En tu portátil el environment pone ese nombre en el valor de ejemplo abcd. En un sistema compartido el mismo nombre es #{keystore:databases/crm:password}, y un resolver de variables lee la caja fuerte. El token que abre la caja fuerte se queda fuera del project.
+  pt-PT: |
+    Uma palavra-passe não pertence à ligação nem ao Git. A ligação chamada crm guarda ${PASSWORD}. No teu portátil o environment põe esse nome no valor de exemplo abcd. Num sistema partilhado o mesmo nome é #{keystore:databases/crm:password}, e um resolver de variáveis lê o cofre. O token que abre o cofre fica fora do project.
+  fr-FR: |
+    Un mot de passe n'a pas sa place dans la connexion ni dans Git. La connexion nommée crm contient ${PASSWORD}. Sur votre ordinateur portable, l'environment donne à ce nom la valeur d'exemple abcd. Sur un système partagé, le même nom est #{keystore:databases/crm:password}, et un résolveur de variables lit le coffre. Le jeton qui ouvre le coffre reste en dehors du project.
+  de-DE: |
+    Ein Passwort gehört nicht in die Verbindung und nicht in Git. Die Verbindung namens crm speichert ${PASSWORD}. Auf deinem Laptop setzt das environment diesen Namen auf den Beispielwert abcd. Auf einem gemeinsamen System ist derselbe Name #{keystore:databases/crm:password}, und ein Variablen-Resolver liest den Tresor. Das Token, das den Tresor öffnet, bleibt außerhalb des project.
+  it-IT: |
+    Una password non appartiene alla connessione né a Git. La connessione chiamata crm contiene ${PASSWORD}. Sul tuo portatile l'environment imposta quel nome sul valore di esempio abcd. Su un sistema condiviso lo stesso nome è #{keystore:databases/crm:password}, e un resolver di variabili legge il caveau. Il token che apre il caveau resta fuori dal project.
+link_labels:
+  Security best practices:
+    en: Security best practices
+    zh-CN: 安全最佳实践
+    es-ES: Buenas prácticas de seguridad
+    pt-PT: Boas práticas de segurança
+    fr-FR: Bonnes pratiques de sécurité
+    de-DE: Sicherheitspraktiken
+    it-IT: Pratiche di sicurezza
+  Variable resolvers:
+    en: Variable resolvers
+    zh-CN: 变量解析器
+    es-ES: Resolvers de variables
+    pt-PT: Resolvers de variáveis
+    fr-FR: Résolveurs de variables
+    de-DE: Variablen-Resolver
+    it-IT: Resolver di variabili
+  Hop Encrypt:
+    en: Hop Encrypt
+  Security:
+    en: Security
+    zh-CN: 安全
+    es-ES: Seguridad
+    pt-PT: Segurança
+    fr-FR: Sécurité
+    de-DE: Sicherheit
+    it-IT: Sicurezza
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  not-in-metadata:
+    en: Not in the connection
+    zh-CN: 不在连接里
+    es-ES: Fuera de la conexión
+    pt-PT: Fora da ligação
+    fr-FR: Hors de la connexion
+    de-DE: Nicht in der Verbindung
+    it-IT: Fuori dalla connessione
+  obfuscate:
+    en: Obfuscate the value
+    zh-CN: 混淆这个值
+    es-ES: Ofuscar el valor
+    pt-PT: Ofuscar o valor
+    fr-FR: Obscurcir la valeur
+    de-DE: Den Wert verschleiern
+    it-IT: Offuscare il valore
+  laptop-value:
+    en: The local value
+    zh-CN: 本地的值
+    es-ES: El valor local
+    pt-PT: O valor local
+    fr-FR: La valeur locale
+    de-DE: Der lokale Wert
+    it-IT: Il valore locale
+  shared-value:
+    en: The shared value
+    zh-CN: 共享的值
+    es-ES: El valor compartido
+    pt-PT: O valor partilhado
+    fr-FR: La valeur partagée
+    de-DE: Der gemeinsame Wert
+    it-IT: Il valore condiviso
+  resolver:
+    en: A variable resolver
+    zh-CN: 一个变量解析器
+    es-ES: Un resolver de variables
+    pt-PT: Um resolver de variáveis
+    fr-FR: Un résolveur de variables
+    de-DE: Ein Variablen-Resolver
+    it-IT: Un resolver di variabili
+  protect:
+    en: Protect the vault login
+    zh-CN: 保护保险库的登录
+    es-ES: Proteger el acceso a la caja fuerte
+    pt-PT: Proteger o acesso ao cofre
+    fr-FR: Protéger l'accès au coffre
+    de-DE: Den Tresorzugang schützen
+    it-IT: Proteggere l'accesso al caveau

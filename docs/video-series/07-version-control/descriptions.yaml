@@ -1,0 +1,172 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+series:
+  en: Part of the Apache Hop getting started series.
+  zh: Apache Hop 入门系列的一部分。
+  zh-CN: Apache Hop 入门系列的一部分。
+  es-MX: Parte de la serie de introducción a Apache Hop.
+  es-ES: Parte de la serie de introducción a Apache Hop.
+  pt-BR: Parte da série de introdução ao Apache Hop.
+  pt-PT: Parte da série de introdução ao Apache Hop.
+  fr: Fait partie de la série de prise en main d'Apache Hop.
+  fr-FR: Fait partie de la série de prise en main d'Apache Hop.
+  de-DE: Teil der Einführungsserie zu Apache Hop.
+  it-IT: Parte della serie introduttiva ad Apache Hop.
+  nl-NL: Onderdeel van de kennismakingsserie van Apache Hop.
+chapters_label:
+  en: Chapters
+  zh: 章节
+  zh-CN: 章节
+  es-MX: Capítulos
+  es-ES: Capítulos
+  pt-BR: Capítulos
+  pt-PT: Capítulos
+  fr: Chapitres
+  fr-FR: Chapitres
+  de-DE: Kapitel
+  it-IT: Capitoli
+  nl-NL: Hoofdstukken
+issue_label:
+  en: Issue
+  zh: 议题
+  zh-CN: 议题
+  es-MX: Incidencia
+  es-ES: Incidencia
+  pt-BR: Issue
+  pt-PT: Issue
+  fr: Ticket
+  fr-FR: Ticket
+  de-DE: Ticket
+  it-IT: Segnalazione
+  nl-NL: Issue
+title:
+  en: Version control with Git
+  zh-CN: 用 Git 做版本控制
+  es-ES: Control de versiones con Git
+  pt-PT: Controlo de versões com Git
+  fr-FR: Contrôle de version avec Git
+  de-DE: Versionsverwaltung mit Git
+  it-IT: Controllo di versione con Git
+summary:
+  en: Give the project folder a Git history from Hop GUI. The first commit adds the pipeline and the workflow
+    from the default project. A later commit changes the order id sequence from 1000 to 50000, and the
+    visual diff shows both values side by side. Environment files and passwords stay out of the repository.
+  zh-CN: 在 Hop GUI 里给 project 文件夹加上 Git 历史。第一次提交加入 default project 里的 Pipeline 和 Workflow。之后的一次提交把 order
+    id 序列从 1000 改成 50000，可视化差异并排显示这两个值。environment 文件和密码留在仓库之外。
+  es-ES: Dale al project una historia de Git desde Hop GUI. El primer commit añade el Pipeline y el Workflow
+    del default project. Un commit posterior cambia la secuencia order id de 1000 a 50000, y la diferencia
+    visual muestra los dos valores lado a lado. Los archivos de environment y las contraseñas se quedan
+    fuera del repositorio.
+  pt-PT: Dá à pasta do project uma história Git a partir do Hop GUI. O primeiro commit adiciona o Pipeline
+    e o Workflow do default project. Um commit posterior muda a sequência order id de 1000 para 50000,
+    e a diferença visual mostra os dois valores lado a lado. Os ficheiros de environment e as palavras-passe
+    ficam fora do repositório.
+  fr-FR: Donnez au dossier du project un historique Git depuis Hop GUI. Le premier commit ajoute le Pipeline
+    et le Workflow du default project. Un commit suivant change la séquence order id de 1000 à 50000,
+    et le diff visuel montre les deux valeurs côte à côte. Les fichiers d'environment et les mots de passe
+    restent hors du dépôt.
+  de-DE: Gib dem project-Ordner aus Hop GUI eine Git-Geschichte. Der erste Commit fügt die Pipeline und
+    den Workflow aus dem default project hinzu. Ein späterer Commit ändert die order-id-Folge von 1000
+    auf 50000, und der visuelle Vergleich zeigt beide Werte nebeneinander. environment-Dateien und Passwörter
+    bleiben außerhalb des Repository.
+  it-IT: Dai alla cartella del project una storia Git da Hop GUI. Il primo commit aggiunge il Pipeline
+    e il Workflow del default project. Un commit successivo cambia la sequenza order id da 1000 a 50000,
+    e il confronto visivo mostra i due valori uno accanto all'altro. I file di environment e le password
+    restano fuori dal repository.
+link_labels:
+  Working with Git:
+    en: Working with Git
+    zh-CN: 使用 Git
+    es-ES: Trabajar con Git
+    pt-PT: Trabalhar com Git
+    fr-FR: Travailler avec Git
+    de-DE: Arbeiten mit Git
+    it-IT: Lavorare con Git
+  Git commit perspective:
+    en: Git commit perspective
+    zh-CN: Git commit 透视图
+    es-ES: Perspectiva Git commit
+    pt-PT: Perspetiva Git commit
+    fr-FR: Perspective Git commit
+    de-DE: Perspektive Git commit
+    it-IT: Prospettiva Git commit
+  Git perspective:
+    en: Git perspective
+    zh-CN: Git 透视图
+    es-ES: Perspectiva Git
+    pt-PT: Perspetiva Git
+    fr-FR: Perspective Git
+    de-DE: Perspektive Git
+    it-IT: Prospettiva Git
+chapters:
+  welcome:
+    en: Welcome
+    zh-CN: 欢迎
+    es-ES: Bienvenida
+    pt-PT: Boas-vindas
+    fr-FR: Bienvenue
+    de-DE: Willkommen
+    it-IT: Benvenuto
+  why-version-control:
+    en: Why keep a history
+    zh-CN: 为什么要有历史
+    es-ES: Por qué guardar una historia
+    pt-PT: Porque guardar uma história
+    fr-FR: Pourquoi garder un historique
+    de-DE: Warum eine Geschichte
+    it-IT: Perché tenere una storia
+  when-git-is-on:
+    en: When Git is on
+    zh-CN: Git 启用时
+    es-ES: Cuando Git está activo
+    pt-PT: Quando o Git está ativo
+    fr-FR: Quand Git est actif
+    de-DE: Wenn Git an ist
+    it-IT: Quando Git è attivo
+  checkout:
+    en: Check out a branch
+    zh-CN: 检出一个分支
+    es-ES: Hacer checkout de una rama
+    pt-PT: Fazer checkout de um ramo
+    fr-FR: Faire le checkout d'une branche
+    de-DE: Einen Branch auschecken
+    it-IT: Fare il checkout di un ramo
+  commit:
+    en: Commit
+    zh-CN: 提交
+    es-ES: Commit
+    pt-PT: Commit
+    fr-FR: Commit
+    de-DE: Commit
+    it-IT: Commit
+  history:
+    en: History
+    zh-CN: 历史
+    es-ES: Historia
+    pt-PT: História
+    fr-FR: Historique
+    de-DE: Geschichte
+    it-IT: Storia
+  visual-diff:
+    en: Visual diff
+    zh-CN: 可视化差异
+    es-ES: Diferencia visual
+    pt-PT: Diferença visual
+    fr-FR: Diff visuel
+    de-DE: Visueller Vergleich
+    it-IT: Confronto visivo

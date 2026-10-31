@@ -1,0 +1,73 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Product words stay in English in every spoken language, because the GUI
+# in the picture uses these words. Gloss a word the first time, then keep it.
+keep_english:
+  - Pipeline
+  - Workflow
+  - Transform
+  - Action
+  - Hop GUI
+  - Hop Web
+  - Hop Server
+  - project
+  - environment
+  - run configuration
+
+# Literal replacements applied to the text before text-to-speech.
+# Subtitles keep the narration as written. Longer patterns win.
+speak_as:
+  - pattern: "50000"
+    say: fifty thousand
+  - pattern: project-config.json
+    say: project config
+  - pattern: first-workflow.hwf
+    say: first workflow
+  - pattern: first-pipeline.hpl
+    say: first pipeline
+  - pattern: PRM_EXAMPLE
+    say: parameter example
+  - pattern: "hop-encrypt.bat"
+    say: hop encrypt batch
+  - pattern: "hop-encrypt.sh"
+    say: hop encrypt shell
+  - pattern: "#{keystore:databases/crm:password}"
+    say: the keystore resolver expression
+  - pattern: hop-run.bat
+    say: hop run batch
+  - pattern: hop-run.sh
+    say: hop run shell
+  - pattern: hop-gui.bat
+    say: hop gui batch
+  - pattern: hop-gui.sh
+    say: hop gui shell
+  - pattern: hop-env
+    say: hop env
+  - pattern: hop-run
+    say: hop run
+  - pattern: "java -version"
+    say: java version
+  - pattern: "${PROJECT_HOME}"
+    say: the PROJECT_HOME variable
+  - pattern: "${PASSWORD}"
+    say: the PASSWORD variable
+
+# Sent to the TTS API as replace. The written narration and the subtitles
+# stay as they are. A value in slashes is IPA. GUI is "gooey", not G-U-I.
+pronounce:
+  GUI: "/ˈɡuːi/"
