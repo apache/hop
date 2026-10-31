@@ -17,22 +17,28 @@
 
 package org.apache.hop.ui.hopgui.terminal;
 
+import com.jediterm.core.util.TermSize;
+import com.jediterm.terminal.ProcessTtyConnector;
 import com.jediterm.terminal.TerminalColor;
 import com.jediterm.terminal.TextStyle;
-import com.jediterm.terminal.TtyConnector;
+import com.jediterm.terminal.model.StyleState;
+import com.jediterm.terminal.model.TerminalTextBuffer;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.TerminalPanel;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
+import com.jediterm.terminal.ui.settings.SettingsProvider;
 import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
+import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.hop.core.Const;
@@ -134,7 +140,16 @@ public class JediTerminalWidget implements ITerminalWidget {
     // Create JediTerm widget with Hop dark mode support
     boolean isDarkMode = PropsUi.getInstance().isDarkMode();
     DefaultSettingsProvider settings = createHopSettingsProvider(isDarkMode, display);
-    jediTermWidget = new JediTermWidget(settings);
+    jediTermWidget =
+        new JediTermWidget(settings) {
+          @Override
+          protected TerminalPanel createTerminalPanel(
+              SettingsProvider settingsProvider,
+              StyleState styleState,
+              TerminalTextBuffer terminalTextBuffer) {
+            return new FallbackFontTerminalPanel(settingsProvider, terminalTextBuffer, styleState);
+          }
+        };
     awtFrame.add(jediTermWidget);
 
     awtFrame.setVisible(true);
@@ -206,6 +221,36 @@ public class JediTerminalWidget implements ITerminalWidget {
   }
 
   /**
+   * On Linux, SWT follows the desktop scale (GTK window scaling) but AWT does not, so on a HiDPI
+   * screen the terminal font comes out smaller than the rest of Hop. Return the factor that makes
+   * up the difference: the SWT zoom divided by the AWT scale. On Windows and macOS AWT scales
+   * itself, so the factor is 1.
+   */
+  private float getHiDpiFontScale() {
+    if (!Const.isLinux()) {
+      return 1.0f;
+    }
+    try {
+      double awtScale =
+          GraphicsEnvironment.getLocalGraphicsEnvironment()
+              .getDefaultScreenDevice()
+              .getDefaultConfiguration()
+              .getDefaultTransform()
+              .getScaleX();
+      int swtZoom = bridgeComposite.getMonitor().getZoom();
+      float scale = (float) Math.max(1.0, swtZoom / (100.0 * awtScale));
+      if (scale != 1.0f) {
+        log.logDetailed(
+            "JediTerm: SWT zoom " + swtZoom + "%, AWT scale " + awtScale + ", font scale " + scale);
+      }
+      return scale;
+    } catch (Exception e) {
+      log.logDebug("Could not determine HiDPI font scale: " + e.getMessage());
+      return 1.0f;
+    }
+  }
+
+  /**
    * Create SettingsProvider with Hop theme and fixed-width font; font size uses fontScalePercent.
    */
   private DefaultSettingsProvider createHopSettingsProvider(
@@ -224,28 +269,30 @@ public class JediTerminalWidget implements ITerminalWidget {
       }
     }
     final float systemPropScale = fontScale;
+    final float hiDpiScale = getHiDpiFontScale();
 
     final int finalAwtStyle = java.awt.Font.PLAIN;
 
     return new DefaultSettingsProvider() {
       private int computeFontSize() {
-        return Math.round(baseFontHeight * (fontScalePercent.get() / 100f) * systemPropScale);
+        return Math.round(
+            baseFontHeight * (fontScalePercent.get() / 100f) * systemPropScale * hiDpiScale);
       }
 
       @Override
       public TerminalColor getDefaultBackground() {
         if (Const.isWindows() && !isDarkMode) {
           // Windows light mode: PowerShell blue background
-          return new TerminalColor(1, 36, 86);
+          return TerminalColor.rgb(1, 36, 86);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: dark gray background
-          return new TerminalColor(43, 43, 43);
+          return TerminalColor.rgb(43, 43, 43);
         } else if (isDarkMode) {
           // Mac/Linux dark mode: dark gray background
-          return new TerminalColor(43, 43, 43);
+          return TerminalColor.rgb(43, 43, 43);
         } else {
           // Mac/Linux light mode: white background
-          return new TerminalColor(255, 255, 255);
+          return TerminalColor.rgb(255, 255, 255);
         }
       }
 
@@ -253,16 +300,16 @@ public class JediTerminalWidget implements ITerminalWidget {
       public TerminalColor getDefaultForeground() {
         if (Const.isWindows() && !isDarkMode) {
           // Windows light mode: PowerShell gray foreground
-          return new TerminalColor(204, 204, 204);
+          return TerminalColor.rgb(204, 204, 204);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: light gray foreground
-          return new TerminalColor(187, 187, 187);
+          return TerminalColor.rgb(187, 187, 187);
         } else if (isDarkMode) {
           // Mac/Linux dark mode: light gray foreground
-          return new TerminalColor(187, 187, 187);
+          return TerminalColor.rgb(187, 187, 187);
         } else {
           // Mac/Linux light mode: black foreground
-          return new TerminalColor(0, 0, 0);
+          return TerminalColor.rgb(0, 0, 0);
         }
       }
 
@@ -278,15 +325,15 @@ public class JediTerminalWidget implements ITerminalWidget {
 
       @Override
       public TextStyle getFoundPatternColor() {
-        TerminalColor bg = new TerminalColor(255, 255, 0);
-        TerminalColor fg = new TerminalColor(0, 0, 0);
+        TerminalColor bg = TerminalColor.rgb(255, 255, 0);
+        TerminalColor fg = TerminalColor.rgb(0, 0, 0);
         return new TextStyle(fg, bg);
       }
 
       @Override
       public TextStyle getHyperlinkColor() {
         TerminalColor linkColor =
-            isDarkMode ? new TerminalColor(96, 161, 255) : new TerminalColor(0, 0, 238);
+            isDarkMode ? TerminalColor.rgb(96, 161, 255) : TerminalColor.rgb(0, 0, 238);
         return new TextStyle(linkColor, null);
       }
 
@@ -402,19 +449,16 @@ public class JediTerminalWidget implements ITerminalWidget {
         bridgeComposite.dispose();
       }
 
-      // Clean up PTY in background thread
+      // Clean up in a background thread. close() (not stop()) also closes the connector, which
+      // destroys the shell, and shuts down JediTerm's executor threads and repaint timer.
       final JediTermWidget termWidget = jediTermWidget;
-      final Pty4JTtyConnector connector = ttyConnector;
       final PtyProcess process = ptyProcess;
 
       new Thread(
               () -> {
                 try {
                   if (termWidget != null) {
-                    termWidget.stop();
-                  }
-                  if (connector != null) {
-                    connector.close();
+                    termWidget.close();
                   }
                   if (process != null && process.isAlive()) {
                     process.destroy();
@@ -461,74 +505,82 @@ public class JediTerminalWidget implements ITerminalWidget {
     return workingDirectory;
   }
 
-  /** Adapter connecting Pty4J to JediTerm's TtyConnector */
-  private static class Pty4JTtyConnector implements TtyConnector {
+  /**
+   * TerminalPanel that falls back to another installed font for characters the terminal font cannot
+   * draw. On Linux, Java's logical Monospaced font leaves out the fallback fonts fontconfig would
+   * use, so CJK and similar characters otherwise render as empty boxes.
+   */
+  private static class FallbackFontTerminalPanel extends TerminalPanel {
+
+    /** Fallback per code point; empty when no installed font can draw it. Shared by all tabs. */
+    private static final Map<Integer, Optional<Font>> FALLBACK_FONTS = new ConcurrentHashMap<>();
+
+    FallbackFontTerminalPanel(
+        SettingsProvider settingsProvider,
+        TerminalTextBuffer terminalTextBuffer,
+        StyleState styleState) {
+      super(settingsProvider, terminalTextBuffer, styleState);
+    }
+
+    @Override
+    protected Font getFontToDisplay(char[] text, int start, int end, TextStyle style) {
+      Font font = super.getFontToDisplay(text, start, end, style);
+      if (font.canDisplayUpTo(text, start, end) == -1) {
+        return font;
+      }
+      return FALLBACK_FONTS
+          .computeIfAbsent(
+              Character.codePointAt(text, start), codePoint -> findFallbackFont(text, start, end))
+          .map(fallback -> fallback.deriveFont(font.getStyle(), font.getSize2D()))
+          .orElse(font);
+    }
+
+    /** First installed font family that can draw the text, preferring a monospaced one. */
+    private static Optional<Font> findFallbackFont(char[] text, int start, int end) {
+      Font fallback = null;
+      for (String family :
+          GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()) {
+        Font candidate = new Font(family, Font.PLAIN, 1);
+        if (candidate.canDisplayUpTo(text, start, end) == -1) {
+          if (family.toLowerCase().contains("mono")) {
+            return Optional.of(candidate);
+          }
+          if (fallback == null) {
+            fallback = candidate;
+          }
+        }
+      }
+      return Optional.ofNullable(fallback);
+    }
+  }
+
+  /**
+   * Adapter connecting Pty4J to JediTerm's TtyConnector. ProcessTtyConnector decodes the output
+   * with a stateful reader, so multi-byte characters split across reads stay intact.
+   */
+  private static class Pty4JTtyConnector extends ProcessTtyConnector {
 
     private final PtyProcess ptyProcess;
-    private final InputStream inputStream;
-    private final OutputStream outputStream;
 
     public Pty4JTtyConnector(PtyProcess ptyProcess) {
+      super(ptyProcess, StandardCharsets.UTF_8);
       this.ptyProcess = ptyProcess;
-      this.inputStream = ptyProcess.getInputStream();
-      this.outputStream = ptyProcess.getOutputStream();
     }
 
-    public boolean init() {
-      return true;
-    }
-
-    public void close() {
-      try {
-        if (ptyProcess != null && ptyProcess.isAlive()) {
-          ptyProcess.destroy();
-        }
-      } catch (Exception e) {
-        log.logError("Error closing Pty4J connector", e);
-      }
-    }
-
+    @Override
     public String getName() {
       return "Pty4J Connector";
     }
 
-    public int read(char[] buf, int offset, int length) throws IOException {
-      byte[] bytes = new byte[length];
-      int bytesRead = inputStream.read(bytes, 0, length);
-      if (bytesRead > 0) {
-        String str = new String(bytes, 0, bytesRead, StandardCharsets.UTF_8);
-        char[] chars = str.toCharArray();
-        System.arraycopy(chars, 0, buf, offset, Math.min(chars.length, length));
-        return chars.length;
-      }
-      return bytesRead;
-    }
-
-    public void write(byte[] bytes) throws IOException {
-      outputStream.write(bytes);
-      outputStream.flush();
-    }
-
-    public boolean isConnected() {
-      return ptyProcess != null && ptyProcess.isAlive();
-    }
-
-    public void write(String string) throws IOException {
-      write(string.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public int waitFor() throws InterruptedException {
-      return ptyProcess.waitFor();
-    }
-
-    public boolean ready() throws IOException {
-      return inputStream.available() > 0;
-    }
-
-    public void resize(int cols, int rows) {
-      if (ptyProcess != null && ptyProcess.isAlive()) {
+    /**
+     * Pass the terminal size on to the PTY so the shell wraps lines at the visible width. JediTerm
+     * only calls this overload; its default implementation throws.
+     */
+    @Override
+    public void resize(TermSize termSize) {
+      if (ptyProcess.isAlive()) {
         try {
-          ptyProcess.setWinSize(new WinSize(cols, rows));
+          ptyProcess.setWinSize(new WinSize(termSize.getColumns(), termSize.getRows()));
         } catch (Exception e) {
           log.logError("Error resizing PTY", e);
         }
