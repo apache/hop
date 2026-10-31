@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -57,6 +58,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 
 class ProcessFilesTest {
 
@@ -391,5 +393,84 @@ class ProcessFilesTest {
     PipelineTestingUtil.assertResult(new Object[] {vfsPath(s2), vfsPath(t2)}, out.get(1));
     assertEquals("1", Files.readString(t1, StandardCharsets.UTF_8));
     assertEquals("2", Files.readString(t2, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void basicLog_capsPerFileLinesAndLogsSummary(@TempDir Path tempDir) throws Exception {
+    int fileCount = ProcessFiles.MAX_BASIC_FILE_LOG_LINES + 5;
+    Object[][] rows = new Object[fileCount][];
+    for (int i = 0; i < fileCount; i++) {
+      Path source = tempDir.resolve("in" + i + ".txt");
+      Files.writeString(source, Integer.toString(i), StandardCharsets.UTF_8);
+      rows[i] = new Object[] {vfsPath(source), vfsPath(tempDir.resolve("out" + i + ".txt"))};
+    }
+    when(helper.iLogChannel.isBasic()).thenReturn(true);
+
+    ProcessFilesMeta meta = baseMeta(ProcessFilesMeta.OPERATION_TYPE_COPY);
+    ProcessFiles transform = createTransform(meta, new ProcessFilesData());
+    wireInput(transform, rowMeta(), rows);
+    PipelineTestingUtil.execute(transform, fileCount, false);
+    transform.dispose();
+
+    ArgumentCaptor<String> messages = ArgumentCaptor.forClass(String.class);
+    verify(helper.iLogChannel, atLeastOnce()).logBasic(messages.capture());
+    List<String> logged = messages.getAllValues();
+    assertEquals(
+        ProcessFiles.MAX_BASIC_FILE_LOG_LINES,
+        logged.stream().filter(m -> m.startsWith("Copied file ")).count());
+    assertEquals(1, logged.stream().filter(m -> m.startsWith("More than 100 files")).count());
+    assertTrue(
+        logged.contains(
+            "Copied "
+                + fileCount
+                + " files (0 skipped because the target"
+                + " exists, 0 replaced an existing target)"));
+    assertTrue(Files.exists(tempDir.resolve("out" + (fileCount - 1) + ".txt")));
+  }
+
+  @Test
+  void summary_countsSkippedAndOverwrittenTargets(@TempDir Path tempDir) throws Exception {
+    Path s1 = tempDir.resolve("a.txt");
+    Path t1 = tempDir.resolve("a.out");
+    Path s2 = tempDir.resolve("b.txt");
+    Path t2 = tempDir.resolve("b.out");
+    Files.writeString(s1, "1", StandardCharsets.UTF_8);
+    Files.writeString(s2, "2", StandardCharsets.UTF_8);
+    Files.writeString(t2, "old", StandardCharsets.UTF_8);
+    when(helper.iLogChannel.isBasic()).thenReturn(true);
+
+    ProcessFilesMeta meta = baseMeta(ProcessFilesMeta.OPERATION_TYPE_COPY);
+    meta.setOverwriteTargetFile(true);
+    ProcessFilesData data = new ProcessFilesData();
+    ProcessFiles transform = createTransform(meta, data);
+    wireInput(
+        transform,
+        rowMeta(),
+        new Object[] {vfsPath(s1), vfsPath(t1)},
+        new Object[] {vfsPath(s2), vfsPath(t2)});
+    PipelineTestingUtil.execute(transform, 2, false);
+
+    assertEquals(2, data.filesProcessed);
+    assertEquals(0, data.filesSkipped);
+    assertEquals(1, data.filesOverwritten);
+    assertEquals("2", Files.readString(t2, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void summary_countsSkippedTargetsWithoutOverwrite(@TempDir Path tempDir) throws Exception {
+    Path source = tempDir.resolve("in.txt");
+    Path target = tempDir.resolve("out.txt");
+    Files.writeString(source, "new", StandardCharsets.UTF_8);
+    Files.writeString(target, "old", StandardCharsets.UTF_8);
+
+    ProcessFilesMeta meta = baseMeta(ProcessFilesMeta.OPERATION_TYPE_COPY);
+    ProcessFilesData data = new ProcessFilesData();
+    ProcessFiles transform = createTransform(meta, data);
+    wireInput(transform, rowMeta(), new Object[] {vfsPath(source), vfsPath(target)});
+    PipelineTestingUtil.execute(transform, 1, false);
+
+    assertEquals(0, data.filesProcessed);
+    assertEquals(1, data.filesSkipped);
+    assertEquals("old", Files.readString(target, StandardCharsets.UTF_8));
   }
 }

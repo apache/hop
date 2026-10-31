@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,6 +44,12 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
   private static final Class<?> PKG = ProcessFilesMeta.class;
 
   private static final int COPY_BUFFER_SIZE = 8192;
+
+  /**
+   * Number of files logged one by one at Basic level. Past this, per-file lines only appear at
+   * Detailed level and a summary is logged when the transform finishes.
+   */
+  static final int MAX_BASIC_FILE_LOG_LINES = 100;
 
   public ProcessFiles(
       TransformMeta transformMeta,
@@ -113,13 +120,14 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       }
       data.sourceFile = HopVfs.getFileObject(sourceFilename, variables);
 
-      if (!data.sourceFile.exists()) {
+      FileType sourceType = data.sourceFile.getType();
+      if (sourceType == FileType.IMAGINARY) {
         logError(
             BaseMessages.getString(PKG, "ProcessFiles.Error.SourceFileNotExist", sourceFilename));
         throw new HopException(
             BaseMessages.getString(PKG, "ProcessFiles.Error.SourceFileNotExist", sourceFilename));
       }
-      if (data.sourceFile.getType() != FileType.FILE) {
+      if (sourceType != FileType.FILE) {
         logError(
             BaseMessages.getString(PKG, "ProcessFiles.Error.SourceFileNotFile", sourceFilename));
         throw new HopException(
@@ -135,7 +143,10 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           throw new HopException(BaseMessages.getString(PKG, "ProcessFiles.Error.TargetFileEmpty"));
         }
         data.targetFile = HopVfs.getFileObject(targetFilename, variables);
-        if (data.targetFile.exists()) {
+        // Look the target up once: the copy and move operations reuse this answer
+        FileType targetType = data.targetFile.getType();
+        data.targetFileExists = targetType != FileType.IMAGINARY;
+        if (data.targetFileExists) {
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
@@ -143,7 +154,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           }
           // check if target is really a file otherwise it could overwrite a complete folder by copy
           // or move operations
-          if (data.targetFile.getType() != FileType.FILE) {
+          if (targetType != FileType.FILE) {
             logError(
                 BaseMessages.getString(
                     PKG, "ProcessFiles.Error.TargetFileNotFile", targetFilename));
@@ -260,6 +271,27 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     return true;
   }
 
+  @Override
+  public void dispose() {
+    // One line per transform copy, also when it stopped early; nothing ran if first is still set
+    if (!first && !meta.simulate && isBasic()) {
+      String summaryKey =
+          switch (meta.getOperationType()) {
+            case ProcessFilesMeta.OPERATION_TYPE_MOVE -> "ProcessFiles.Log.Basic.SummaryMove";
+            case ProcessFilesMeta.OPERATION_TYPE_DELETE -> "ProcessFiles.Log.Basic.SummaryDelete";
+            default -> "ProcessFiles.Log.Basic.SummaryCopy";
+          };
+      logBasic(
+          BaseMessages.getString(
+              PKG,
+              summaryKey,
+              Long.toString(data.filesProcessed),
+              Long.toString(data.filesSkipped),
+              Long.toString(data.filesOverwritten)));
+    }
+    super.dispose();
+  }
+
   private String operationTypeLabel() {
     switch (meta.getOperationType()) {
       case ProcessFilesMeta.OPERATION_TYPE_COPY:
@@ -285,11 +317,34 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     }
   }
 
+  /**
+   * Logs one processed file at Basic level, up to {@link #MAX_BASIC_FILE_LOG_LINES} files. The
+   * Basic-level overwrite warnings share this limit. The Detailed-level line for the same file is
+   * logged separately and is not capped.
+   */
+  private void logFileProcessed(String messageKey, String... filenames) {
+    if (!isBasic()) {
+      return;
+    }
+    data.basicFileLogLines++;
+    if (data.basicFileLogLines <= MAX_BASIC_FILE_LOG_LINES) {
+      String[] friendlyNames = new String[filenames.length];
+      for (int i = 0; i < filenames.length; i++) {
+        friendlyNames[i] = friendlyPath(filenames[i]);
+      }
+      logBasic(BaseMessages.getString(PKG, messageKey, friendlyNames));
+    } else if (data.basicFileLogLines == MAX_BASIC_FILE_LOG_LINES + 1) {
+      logBasic(
+          BaseMessages.getString(
+              PKG,
+              "ProcessFiles.Log.Basic.FileLogLimitReached",
+              Integer.toString(MAX_BASIC_FILE_LOG_LINES)));
+    }
+  }
+
   private void processCopyOperation(String sourceFilename, String targetFilename) throws Exception {
-    boolean targetFileExists =
-        data.targetFile.exists() && data.targetFile.getType() == FileType.FILE;
-    boolean shouldPerform =
-        !data.targetFile.exists() || (meta.isOverwriteTargetFile() && targetFileExists);
+    // processRow() already refused a target that exists but is not a file
+    boolean shouldPerform = !data.targetFileExists || meta.isOverwriteTargetFile();
 
     if (meta.simulate) {
       if (shouldPerform && isDetailed()) {
@@ -312,10 +367,15 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     }
 
     if (shouldPerform) {
-      if (meta.isOverwriteTargetFile() && data.targetFile.exists() && isBasic()) {
-        logBasic(
-            BaseMessages.getString(
-                PKG, "ProcessFiles.Log.Basic.OverwriteWarningCopy", friendlyPath(targetFilename)));
+      if (data.targetFileExists) {
+        data.filesOverwritten++;
+        if (isBasic() && data.basicFileLogLines < MAX_BASIC_FILE_LOG_LINES) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "ProcessFiles.Log.Basic.OverwriteWarningCopy",
+                  friendlyPath(targetFilename)));
+        }
       }
       if (isDetailed()) {
         logDetailed(
@@ -326,20 +386,16 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(targetFilename)));
       }
       // Delete target first; some providers do not truncate correctly on overwrite.
-      data.targetFile.delete();
+      if (data.targetFileExists) {
+        data.targetFile.delete();
+      }
       if (isDataVolumeMetricEnabled()) {
         copyFileTrackingVolume(data.sourceFile, data.targetFile);
       } else {
         data.targetFile.copyFrom(data.sourceFile, new TextOneToOneFileSelector());
       }
-      if (isBasic()) {
-        logBasic(
-            BaseMessages.getString(
-                PKG,
-                "ProcessFiles.Log.Basic.FileCopied",
-                friendlyPath(sourceFilename),
-                friendlyPath(targetFilename)));
-      }
+      data.filesProcessed++;
+      logFileProcessed("ProcessFiles.Log.Basic.FileCopied", sourceFilename, targetFilename);
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
@@ -349,21 +405,22 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(targetFilename)));
       }
       emitCopyLineage();
-    } else if (isDetailed()) {
-      logDetailed(
-          BaseMessages.getString(
-              PKG,
-              "ProcessFiles.Log.Detail.SkippedCopyExistsNoOverwrite",
-              friendlyPath(targetFilename),
-              friendlyPath(sourceFilename)));
+    } else {
+      data.filesSkipped++;
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.SkippedCopyExistsNoOverwrite",
+                friendlyPath(targetFilename),
+                friendlyPath(sourceFilename)));
+      }
     }
   }
 
   private void processMoveOperation(String sourceFilename, String targetFilename) throws Exception {
-    boolean targetFileExists =
-        data.targetFile.exists() && data.targetFile.getType() == FileType.FILE;
-    boolean shouldPerform =
-        !data.targetFile.exists() || (meta.isOverwriteTargetFile() && targetFileExists);
+    // processRow() already refused a target that exists but is not a file
+    boolean shouldPerform = !data.targetFileExists || meta.isOverwriteTargetFile();
 
     if (meta.simulate) {
       if (shouldPerform && isDetailed()) {
@@ -386,10 +443,15 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     }
 
     if (shouldPerform) {
-      if (meta.isOverwriteTargetFile() && data.targetFile.exists() && isBasic()) {
-        logBasic(
-            BaseMessages.getString(
-                PKG, "ProcessFiles.Log.Basic.OverwriteWarningMove", friendlyPath(targetFilename)));
+      if (data.targetFileExists) {
+        data.filesOverwritten++;
+        if (isBasic() && data.basicFileLogLines < MAX_BASIC_FILE_LOG_LINES) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "ProcessFiles.Log.Basic.OverwriteWarningMove",
+                  friendlyPath(targetFilename)));
+        }
       }
       if (isDetailed()) {
         logDetailed(
@@ -399,9 +461,11 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(sourceFilename),
                 friendlyPath(targetFilename)));
       }
-      String sourceUri = vfsUriString(data.sourceFile);
-      String targetUri = vfsUriString(data.targetFile);
-      Long lineageBytes = nullableContentSize(data.sourceFile);
+      // The source is gone after the move, so collect what lineage needs first
+      boolean lineageEnabled = LineageHub.getInstance().isEnabled();
+      String sourceUri = lineageEnabled ? vfsUriString(data.sourceFile) : null;
+      String targetUri = lineageEnabled ? vfsUriString(data.targetFile) : null;
+      Long lineageBytes = lineageEnabled ? nullableContentSize(data.sourceFile) : null;
       long movedBytes = 0;
       if (isDataVolumeMetricEnabled()) {
         movedBytes = safeContentSize(data.sourceFile);
@@ -411,14 +475,8 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + movedBytes;
         dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + movedBytes;
       }
-      if (isBasic()) {
-        logBasic(
-            BaseMessages.getString(
-                PKG,
-                "ProcessFiles.Log.Basic.FileMoved",
-                friendlyPath(sourceFilename),
-                friendlyPath(targetFilename)));
-      }
+      data.filesProcessed++;
+      logFileProcessed("ProcessFiles.Log.Basic.FileMoved", sourceFilename, targetFilename);
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
@@ -428,13 +486,16 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(targetFilename)));
       }
       emitMoveLineageAfterSuccess(sourceUri, targetUri, lineageBytes);
-    } else if (isDetailed()) {
-      logDetailed(
-          BaseMessages.getString(
-              PKG,
-              "ProcessFiles.Log.Detail.SkippedMoveExistsNoOverwrite",
-              friendlyPath(targetFilename),
-              friendlyPath(sourceFilename)));
+    } else {
+      data.filesSkipped++;
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.SkippedMoveExistsNoOverwrite",
+                friendlyPath(targetFilename),
+                friendlyPath(sourceFilename)));
+      }
     }
   }
 
@@ -448,19 +509,17 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       }
       return;
     }
-    String sourceUri = vfsUriString(data.sourceFile);
-    Long deleteBytes = nullableContentSize(data.sourceFile);
+    boolean lineageEnabled = LineageHub.getInstance().isEnabled();
+    String sourceUri = lineageEnabled ? vfsUriString(data.sourceFile) : null;
+    Long deleteBytes = lineageEnabled ? nullableContentSize(data.sourceFile) : null;
     if (!data.sourceFile.delete()) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "ProcessFiles.Error.CanNotDeleteFile", data.sourceFile.toString()));
     }
     emitDeleteLineage(sourceUri, deleteBytes);
-    if (isBasic()) {
-      logBasic(
-          BaseMessages.getString(
-              PKG, "ProcessFiles.Log.Basic.FileDeleted", friendlyPath(sourceFilename)));
-    }
+    data.filesProcessed++;
+    logFileProcessed("ProcessFiles.Log.Basic.FileDeleted", sourceFilename);
     if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(
@@ -469,7 +528,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
   }
 
   private void emitCopyLineage() {
-    if (meta.simulate) {
+    if (meta.simulate || !LineageHub.getInstance().isEnabled()) {
       return;
     }
     Long bytes = nullableContentSize(data.targetFile);
