@@ -35,7 +35,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.TableItem;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
