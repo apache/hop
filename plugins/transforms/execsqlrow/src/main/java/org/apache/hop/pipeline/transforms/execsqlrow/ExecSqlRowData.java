@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
+import java.sql.Savepoint;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,6 +30,15 @@ public class ExecSqlRowData extends BaseTransformData implements ITransformData 
   public Result result;
   public int indexOfSqlFieldname;
   public IRowMeta outputRowMeta;
+
+  /**
+   * Whether each row's SQL runs behind a savepoint: with an error hop on a database that rejects
+   * every statement after a failed one until the transaction is rolled back (PostgreSQL).
+   */
+  public boolean useSavepoints;
+
+  public boolean releaseSavepoint;
+  public Savepoint savepoint;
 
   public ExecSqlRowData() {
     super();

@@ -129,6 +129,9 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
     String sql = getInputRowMeta().getString(row, data.indexOfSqlFieldname);
 
     try {
+      if (data.useSavepoints) {
+        data.savepoint = data.db.setSavepoint();
+      }
       if (meta.isSqlFromfile()) {
         if (Utils.isEmpty(sql)) {
           // empty filename
@@ -150,6 +153,9 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
         }
       }
       addResultToStats(data.result);
+      if (data.useSavepoints && data.releaseSavepoint) {
+        data.db.releaseSavepoint(data.savepoint);
+      }
 
       RowMetaAndData add =
           getResultRow(
@@ -183,6 +189,13 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
+      }
+      if (data.useSavepoints) {
+        // Undo this row only, so the next rows can still run in this transaction.
+        data.db.rollback(data.savepoint);
+        if (data.releaseSavepoint) {
+          data.db.releaseSavepoint(data.savepoint);
+        }
       }
       if (sendToErrorRow) {
         // Simply add this row to the error row
@@ -253,6 +266,11 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
         if (meta.getCommitSize() >= 1) {
           data.db.setCommit(meta.getCommitSize());
         }
+        data.useSavepoints =
+            getTransformMeta().isDoingErrorHandling()
+                && databaseMeta.getIDatabase().isUseSafePoints()
+                && !data.db.isAutoCommit();
+        data.releaseSavepoint = databaseMeta.getIDatabase().isReleaseSavepoint();
         return true;
       } catch (HopException e) {
         logError(BaseMessages.getString(PKG, "ExecSqlRow.Log.ErrorOccurred") + e.getMessage());

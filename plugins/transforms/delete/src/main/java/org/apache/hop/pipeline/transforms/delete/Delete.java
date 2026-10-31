@@ -78,7 +78,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
               meta.isUseBatchUpdate()));
     }
 
-    data.db.insertRow(data.prepStatementDelete, meta.isUseBatchUpdate(), true);
+    data.db.insertRow(data.prepStatementDelete, meta.isUseBatchUpdate(), !data.useSavepoints);
     incrementLinesUpdated();
   }
 
@@ -152,8 +152,14 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     }
 
     try {
+      if (data.useSavepoints) {
+        data.savepoint = data.db.setSavepoint();
+      }
       // add new values to the row in rowset[0].
       deleteValues(getInputRowMeta(), r);
+      if (data.useSavepoints) {
+        endRow();
+      }
       // output the same rows of data, but with a copy of the metadata
       putRow(data.outputRowMeta, r);
 
@@ -164,6 +170,9 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
+        if (data.useSavepoints) {
+          undoRow();
+        }
       } else {
         logError(BaseMessages.getString(PKG, "Delete.Log.ErrorInTransform") + e.getMessage());
         setErrors(1);
@@ -223,6 +232,31 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     }
   }
 
+  /**
+   * Rolls a failed row back to its savepoint, so the next rows can still run in this transaction.
+   */
+  private void undoRow() throws HopException {
+    data.db.rollback(data.savepoint);
+    if (data.releaseSavepoint) {
+      data.db.releaseSavepoint(data.savepoint);
+    }
+  }
+
+  /**
+   * Releases the savepoint of a row that was written, then commits when the commit size is reached.
+   * The commit comes after the release: committing ends the savepoint.
+   */
+  private void endRow() throws HopException {
+    if (data.releaseSavepoint) {
+      data.db.releaseSavepoint(data.savepoint);
+    }
+    data.rowsSinceCommit++;
+    if (data.rowsSinceCommit >= data.commitSize) {
+      data.db.commit();
+      data.rowsSinceCommit = 0;
+    }
+  }
+
   @Override
   public boolean init() {
     if (super.init()) {
@@ -244,7 +278,14 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
           logDetailed(BaseMessages.getString(PKG, "Delete.Log.ConnectedToDB"));
         }
 
-        data.db.setCommit(meta.getCommitSize(this));
+        data.commitSize = meta.getCommitSize(this);
+        data.db.setCommit(data.commitSize);
+        data.useSavepoints =
+            getTransformMeta().isDoingErrorHandling()
+                && databaseMeta.getIDatabase().isUseSafePoints()
+                && !data.db.isAutoCommit()
+                && !data.db.getUseBatchInsert(meta.isUseBatchUpdate());
+        data.releaseSavepoint = databaseMeta.getIDatabase().isReleaseSavepoint();
         return true;
       } catch (HopException ke) {
         logError(BaseMessages.getString(PKG, "Delete.Log.ErrorOccurred") + ke.getMessage());

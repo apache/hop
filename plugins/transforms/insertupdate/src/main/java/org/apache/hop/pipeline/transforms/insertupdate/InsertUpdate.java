@@ -108,7 +108,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       data.db.setValuesInsert(data.insertRowMeta, insertRow);
 
       // Insert the row
-      data.db.insertRow();
+      data.db.insertRow(data.db.getPrepStatementInsert(), false, !data.useSavepoints);
 
       incrementLinesOutput();
     } else {
@@ -162,7 +162,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
                     + data.lookupParameterRowMeta.getString(lookupRow));
           }
           data.db.setValues(data.updateParameterRowMeta, updateRow, data.prepStatementUpdate);
-          data.db.insertRow(data.prepStatementUpdate);
+          data.db.insertRow(data.prepStatementUpdate, false, !data.useSavepoints);
           incrementLinesUpdated();
         } else {
           incrementLinesSkipped();
@@ -319,7 +319,13 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
 
     try {
+      if (data.useSavepoints) {
+        data.savepoint = data.db.setSavepoint();
+      }
       lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
+      if (data.useSavepoints) {
+        endRow();
+      }
       putRow(
           data.outputRowMeta,
           r); // Nothing changed to the input, return the same row, pass a "cloned" metadata
@@ -332,6 +338,9 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
+        if (data.useSavepoints) {
+          undoRow();
+        }
       } else {
         logError(BaseMessages.getString(PKG, "InsertUpdate.Log.ErrorInTransform"), e);
         setErrors(1);
@@ -513,6 +522,31 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
   }
 
+  /**
+   * Rolls a failed row back to its savepoint, so the next rows can still run in this transaction.
+   */
+  private void undoRow() throws HopException {
+    data.db.rollback(data.savepoint);
+    if (data.releaseSavepoint) {
+      data.db.releaseSavepoint(data.savepoint);
+    }
+  }
+
+  /**
+   * Releases the savepoint of a row that was written, then commits when the commit size is reached.
+   * The commit comes after the release: committing ends the savepoint.
+   */
+  private void endRow() throws HopException {
+    if (data.releaseSavepoint) {
+      data.db.releaseSavepoint(data.savepoint);
+    }
+    data.rowsSinceCommit++;
+    if (data.rowsSinceCommit >= data.commitSize) {
+      data.db.commit();
+      data.rowsSinceCommit = 0;
+    }
+  }
+
   @Override
   public boolean init() {
 
@@ -528,7 +562,13 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
         }
         data.db = new Database(this, this, databaseMeta);
         data.db.connect();
-        data.db.setCommit(meta.getCommitSizeVar(this));
+        data.commitSize = meta.getCommitSizeVar(this);
+        data.db.setCommit(data.commitSize);
+        data.useSavepoints =
+            getTransformMeta().isDoingErrorHandling()
+                && databaseMeta.getIDatabase().isUseSafePoints()
+                && !data.db.isAutoCommit();
+        data.releaseSavepoint = databaseMeta.getIDatabase().isReleaseSavepoint();
 
         return true;
       } catch (HopException ke) {
