@@ -192,10 +192,6 @@
     "value" : "",
     "description" : "Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values that you set pipeline settings"
   }, {
-    "name" : "HOP_BATCHING_ROWSET",
-    "value" : "N",
-    "description" : "Set this variable to 'Y' if you want to test a more efficient batching row set."
-  }, {
     "name" : "HOP_LOG_MARK_MAPPINGS",
     "value" : "N",
     "description" : "Set this variable to 'Y' to precede transform/action name in log lines with the complete path to the transform/action. Useful to perfectly identify where a problem happened in our process."

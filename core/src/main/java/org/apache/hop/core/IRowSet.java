@@ -131,6 +131,17 @@ public interface IRowSet {
    */
   boolean isBlocking();
 
+  /**
+   * Transforms sleep briefly around a nearly full or nearly empty row set to spare the lock of a
+   * lock-based buffer. That costs a {@link #size()} call per row. A row set that waits efficiently
+   * by itself returns false here, and transforms then skip both the size() call and the sleep.
+   *
+   * @return true if transforms should throttle around this row set (the default)
+   */
+  default boolean needsThrottling() {
+    return true;
+  }
+
   /** Clear this rowset: remove all rows and remove the "done" flag. */
   void clear();
 }
