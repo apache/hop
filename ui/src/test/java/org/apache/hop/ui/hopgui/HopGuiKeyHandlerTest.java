@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -96,6 +97,72 @@ class HopGuiKeyHandlerTest {
       keyHandler.keyPressed(canvasKey(SWT.ARROW_LEFT, SWT.SHIFT));
       assertEquals(1, graph.leftFast, "Shift+arrow must reach the inherited large step method");
       assertEquals(1, graph.left, "Shift+arrow must not also trigger the small step");
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
+  /** Canvas keys that also edit the digits in a spinner. */
+  public static class SpinnerCanvasKeys {
+    public int shifted;
+    public int deleted;
+    public int homed;
+    public int ended;
+
+    @GuiKeyboardShortcut(shift = true, key = SWT.ARROW_LEFT)
+    @GuiOsxKeyboardShortcut(shift = true, key = SWT.ARROW_LEFT)
+    public void viewLeftFast() {
+      shifted++;
+    }
+
+    @GuiKeyboardShortcut(shift = true, key = SWT.ARROW_RIGHT)
+    @GuiOsxKeyboardShortcut(shift = true, key = SWT.ARROW_RIGHT)
+    public void viewRightFast() {
+      shifted++;
+    }
+
+    @GuiKeyboardShortcut(key = SWT.DEL)
+    @GuiOsxKeyboardShortcut(key = SWT.DEL)
+    public void deleteSelected() {
+      deleted++;
+    }
+
+    @GuiKeyboardShortcut(key = SWT.HOME)
+    @GuiOsxKeyboardShortcut(key = SWT.HOME)
+    public void viewReset() {
+      homed++;
+    }
+
+    @GuiKeyboardShortcut(key = SWT.END)
+    @GuiOsxKeyboardShortcut(key = SWT.END)
+    public void viewEnd() {
+      ended++;
+    }
+  }
+
+  @Test
+  void editingKeysStayInASpinner() {
+    SpinnerCanvasKeys graph = new SpinnerCanvasKeys();
+    registerShortcutsLikeHopGuiEnvironment(SpinnerCanvasKeys.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      Spinner spinner = mock(Spinner.class);
+      keyHandler.keyPressed(keyEvent(spinner, SWT.ARROW_LEFT, SWT.SHIFT));
+      keyHandler.keyPressed(keyEvent(spinner, SWT.ARROW_RIGHT, SWT.SHIFT));
+      keyHandler.keyPressed(keyEvent(spinner, SWT.HOME, SWT.NONE));
+      keyHandler.keyPressed(keyEvent(spinner, SWT.END, SWT.NONE));
+      keyHandler.keyPressed(keyEvent(spinner, SWT.DEL, SWT.NONE));
+      assertEquals(0, graph.shifted, "Shift+arrow must extend the selection in the number");
+      assertEquals(0, graph.homed, "Home must move the caret in the number");
+      assertEquals(0, graph.ended, "End must move the caret in the number");
+      assertEquals(0, graph.deleted, "Delete must remove a digit, not the selected transforms");
+
+      keyHandler.keyPressed(canvasKey(SWT.ARROW_LEFT, SWT.SHIFT));
+      keyHandler.keyPressed(canvasKey(SWT.DEL, SWT.NONE));
+      assertEquals(1, graph.shifted, "Shift+arrow on the canvas still moves the selection");
+      assertEquals(1, graph.deleted, "Delete on the canvas still deletes the selection");
     } finally {
       keyHandler.removeParentObjectToHandle(graph);
     }

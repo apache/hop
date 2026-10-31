@@ -49,6 +49,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -501,8 +502,10 @@ public class HopGuiKeyHandler extends KeyAdapter {
   }
 
   /**
-   * Returns true if the widget is a Text, Combo, CCombo, or StyledText. StyledText is resolved via
-   * reflection so it is not referenced when it is not on the classpath (e.g. in RAP/Hop Web).
+   * Returns true if the widget is a Text, Combo, CCombo, Spinner, or StyledText. A spinner is the
+   * number field of the pipeline debugger: Shift+Left/Right, Home, End and Delete edit that number
+   * and must not move or delete the selected transforms. StyledText is resolved via reflection so
+   * it is not referenced when it is not on the classpath (e.g. in RAP/Hop Web).
    */
   private static boolean isTextLikeWidget(Widget widget) {
     if (widget == null) {
@@ -511,6 +514,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
     return widget instanceof Text
         || widget instanceof Combo
         || widget instanceof CCombo
+        || widget instanceof Spinner
         || isStyledText(widget);
   }
 

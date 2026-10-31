@@ -48,6 +48,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.CursorRowSet;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
@@ -101,6 +102,7 @@ import org.apache.hop.pipeline.analysis.BufferDeadlockRisk.SpillHop;
 import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.debug.DebugController;
 import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.EngineMetric;
@@ -389,6 +391,20 @@ public abstract class Pipeline
   private final Map<String, Object> extensionDataMap;
 
   @Getter @Setter protected int rowSetSize;
+
+  /**
+   * When set before {@link #prepareExecution()}, hops are {@link CursorRowSet}s and transform
+   * threads park between rows until {@link DebugController} grants a permit.
+   */
+  @Getter @Setter private DebugController debugController;
+
+  /**
+   * Rows kept in memory on each debug hop before the rest spill to {@link #debugSpillDirectory}.
+   */
+  @Getter @Setter private int debugRowMemoryThreshold = 10_000;
+
+  /** Spill directory for debug hops. Blank uses the system temp directory. */
+  @Getter @Setter private String debugSpillDirectory;
 
   @Setter protected boolean feedbackShown;
 
@@ -854,33 +870,35 @@ public abstract class Pipeline
         //
         if (dispatchType != TYPE_DISP_N_M) {
           for (int c = 0; c < nrCopies; c++) {
-            IRowSet rowSet;
-            switch (getPipelineType()) {
-              case Normal:
-                // This is a temporary patch until the batching rowset has proven
-                // to be working in all situations.
-                // Currently there are stalling problems when dealing with small
-                // amounts of rows.
-                //
-                Boolean batchingRowSet =
-                    ValueMetaBase.convertStringToBoolean(
-                        System.getProperty(Const.HOP_BATCHING_ROWSET));
-                if (batchingRowSet != null && batchingRowSet) {
-                  rowSet = new BlockingBatchingRowSet(rowSetSize);
-                } else if (PipelineBufferDeadlockAnalyzer.shouldSpill(
-                    bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
-                  rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
-                } else {
-                  rowSet = new BlockingRowSet(rowSetSize);
-                }
-                break;
+            IRowSet rowSet = createDebugRowSet();
+            if (rowSet == null) {
+              switch (getPipelineType()) {
+                case Normal:
+                  // This is a temporary patch until the batching rowset has proven
+                  // to be working in all situations.
+                  // Currently there are stalling problems when dealing with small
+                  // amounts of rows.
+                  //
+                  Boolean batchingRowSet =
+                      ValueMetaBase.convertStringToBoolean(
+                          System.getProperty(Const.HOP_BATCHING_ROWSET));
+                  if (batchingRowSet != null && batchingRowSet) {
+                    rowSet = new BlockingBatchingRowSet(rowSetSize);
+                  } else if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+                      bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
+                    rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
+                  } else {
+                    rowSet = new BlockingRowSet(rowSetSize);
+                  }
+                  break;
 
-              case SingleThreaded:
-                rowSet = new QueueRowSet();
-                break;
+                case SingleThreaded:
+                  rowSet = new QueueRowSet();
+                  break;
 
-              default:
-                throw new HopException("Unhandled pipeline type: " + getPipelineType());
+                default:
+                  throw new HopException("Unhandled pipeline type: " + getPipelineType());
+              }
             }
 
             switch (dispatchType) {
@@ -918,12 +936,14 @@ public abstract class Pipeline
           // distribution...
           for (int s = 0; s < thisCopies; s++) {
             for (int t = 0; t < nextCopies; t++) {
-              IRowSet rowSet;
-              if (PipelineBufferDeadlockAnalyzer.shouldSpill(
-                  bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
-                rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
-              } else {
-                rowSet = new BlockingRowSet(rowSetSize);
+              IRowSet rowSet = createDebugRowSet();
+              if (rowSet == null) {
+                if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+                    bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
+                  rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
+                } else {
+                  rowSet = new BlockingRowSet(rowSetSize);
+                }
               }
               rowSet.setThreadNameFromToCopy(
                   thisTransform.getName(), s, nextTransform.getName(), t);
@@ -1481,7 +1501,11 @@ public abstract class Pipeline
 
           // Drop rowset buffers and any SpillingRowSet temp files (stop mid-run or normal end).
           // Safe here: all transform threads have finished before this listener runs.
-          cleanupRowSets();
+          // A debug session keeps the hop buffers so the rows can still be inspected after stop.
+          // The caller discards them with cleanup().
+          if (debugController == null) {
+            cleanupRowSets();
+          }
 
           // release unused vfs connections, of the namespace this pipeline resolved its files in
           HopVfs.freeUnusedResources(this);
@@ -1493,6 +1517,11 @@ public abstract class Pipeline
     executionFinishedListeners.add(0, executionListener);
 
     setRunning(true);
+    if (debugController != null) {
+      // Threads park in the controller. Leave the per-transform paused flag alone: that one stalls
+      // inside getRow and putRow, which would freeze a step in the middle of a row.
+      setPaused(true);
+    }
 
     switch (getPipelineType()) {
       case Normal:
@@ -1755,6 +1784,25 @@ public abstract class Pipeline
   }
 
   /**
+   * Debug sessions allocate a {@link CursorRowSet} per hop. A normal run returns null and the
+   * caller keeps the usual blocking, spilling, or single-threaded rowset.
+   */
+  private CursorRowSet createDebugRowSet() {
+    if (debugController == null) {
+      return null;
+    }
+    CursorRowSet rowSet =
+        new CursorRowSet(Math.max(1, debugRowMemoryThreshold), debugSpillDirectory);
+    rowSet.setRowEnteredListener(
+        (set, rowMeta, row) -> {
+          if (debugController != null) {
+            debugController.rowEntered(set, rowMeta, row);
+          }
+        });
+    return rowSet;
+  }
+
+  /**
    * Clear every pipeline rowset. For {@link org.apache.hop.core.SpillingRowSet} this closes streams
    * and deletes spill temp files left after stop or unfinished consumption. Safe to call more than
    * once; no-op when rowsets were never allocated.
@@ -1952,6 +2000,9 @@ public abstract class Pipeline
     setInitializing(false);
     setStopped(true);
     isAlreadyStopped.set(true);
+    if (debugController != null) {
+      debugController.cancelWaiters();
+    }
 
     fireExecutionStoppedListeners();
   }
@@ -2294,12 +2345,15 @@ public abstract class Pipeline
     }
 
     // We are going to add an extra IRowSet to this iTransform.
-    IRowSet rowSet =
-        switch (getPipelineType()) {
-          case Normal -> new BlockingRowSet(rowSetSize);
-          case SingleThreaded -> new QueueRowSet();
-          default -> throw new HopException("Unhandled pipeline type: " + getPipelineType());
-        };
+    IRowSet rowSet = createDebugRowSet();
+    if (rowSet == null) {
+      rowSet =
+          switch (getPipelineType()) {
+            case Normal -> new BlockingRowSet(rowSetSize);
+            case SingleThreaded -> new QueueRowSet();
+            default -> throw new HopException("Unhandled pipeline type: " + getPipelineType());
+          };
+    }
 
     // Add this rowset to the list of active rowsets for the selected transform
     transform.addRowSetToInputRowSets(rowSet);
@@ -2727,6 +2781,11 @@ public abstract class Pipeline
   /** Pauses the pipeline (pause all transforms). */
   @Override
   public void pauseExecution() {
+    if (debugController != null) {
+      debugController.pause();
+      setPaused(true);
+      return;
+    }
     setPaused(true);
     for (TransformMetaDataCombi combi : transforms) {
       combi.transform.pauseRunning();
@@ -2736,6 +2795,11 @@ public abstract class Pipeline
   /** Resumes running the pipeline after a pause (resume all transforms). */
   @Override
   public void resumeExecution() {
+    if (debugController != null) {
+      debugController.continueAll();
+      setPaused(false);
+      return;
+    }
     for (TransformMetaDataCombi combi : transforms) {
       combi.transform.resumeRunning();
     }
