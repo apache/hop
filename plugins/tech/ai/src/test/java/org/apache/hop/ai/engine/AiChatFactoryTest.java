@@ -24,13 +24,23 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import java.time.Duration;
+import java.util.List;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.provider.AiChatMessage;
+import org.apache.hop.ai.provider.AiChatRequest;
+import org.apache.hop.ai.provider.AiChatResponse;
+import org.apache.hop.ai.provider.BaseAiProvider;
+import org.apache.hop.ai.provider.IAiChatProvider;
 import org.apache.hop.ai.providers.AnthropicProvider;
 import org.apache.hop.ai.providers.GrokProvider;
 import org.apache.hop.ai.providers.HuggingFaceProvider;
 import org.apache.hop.ai.providers.OllamaProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
@@ -38,6 +48,67 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.internals.OllamaThin
 import org.junit.jupiter.api.Test;
 
 class AiChatFactoryTest {
+
+  @Test
+  void dispatchesProviderNeutralChatRequestsToNativeProvider() throws Exception {
+    NativeChatProvider backend = new NativeChatProvider();
+    AiProvider provider = new AiProvider();
+    backend.setPluginId("native");
+    backend.setPluginName("Native");
+    provider.setProvider(backend);
+    provider.setName("native-provider");
+    provider.setModelName("native-model");
+    provider.setTimeoutSeconds("23");
+
+    AiChatResult result =
+        AiChatFactory.generateResult(
+            provider,
+            new Variables(),
+            "system prompt",
+            "current question",
+            List.of(new UserMessage("prior question"), new AiMessage("prior answer")));
+
+    assertEquals("native answer", result.getText());
+    assertEquals(7, result.getDurationMs());
+    assertEquals("native-model", backend.request.modelName());
+    assertEquals("system prompt", backend.request.systemPrompt());
+    assertEquals("current question", backend.request.userPrompt());
+    assertEquals(Duration.ofSeconds(23), backend.request.timeout());
+    assertEquals(
+        List.of(
+            new AiChatMessage(AiChatMessage.Role.USER, "prior question"),
+            new AiChatMessage(AiChatMessage.Role.ASSISTANT, "prior answer")),
+        backend.request.conversationHistory());
+  }
+
+  @Test
+  void doesNotMapNativeProviderToLanguageModelChatMetadata() {
+    NativeChatProvider backend = new NativeChatProvider();
+    backend.setPluginId("native");
+    AiProvider provider = new AiProvider();
+    provider.setName("native-provider");
+    provider.setProvider(backend);
+
+    assertThrows(
+        HopException.class, () -> AiChatFactory.toLanguageModelChatMeta(provider, new Variables()));
+  }
+
+  /** Structured Extract and Extract Graph build their chat model here. */
+  @Test
+  void transformsCannotBuildAChatModelFromANativeProvider() {
+    NativeChatProvider backend = new NativeChatProvider();
+    backend.setPluginId("native");
+    AiProvider provider = new AiProvider();
+    provider.setName("native-provider");
+    provider.setModelName("native-model");
+    provider.setProvider(backend);
+
+    HopException error =
+        assertThrows(
+            HopException.class,
+            () -> AiChatModelFactory.createChatModel(provider, "", new Variables()));
+    assertTrue(error.getMessage().contains("only works with the AI Assistant"), error.getMessage());
+  }
 
   @Test
   void mapsOpenAiCompatibleFields() throws Exception {
@@ -59,6 +130,25 @@ class AiChatFactoryTest {
     assertEquals("gpt-4o-mini", meta.getOpenAiModelName());
     assertEquals(0.2, meta.getOpenAiTemperature());
     assertEquals(45, meta.getOpenAiTimeout());
+  }
+
+  private static final class NativeChatProvider extends BaseAiProvider implements IAiChatProvider {
+    private AiChatRequest request;
+
+    private NativeChatProvider() {
+      setRequiresApiKey(false);
+    }
+
+    @Override
+    public AiChatResponse chat(AiChatRequest request, IVariables variables) {
+      this.request = request;
+      return new AiChatResponse("native answer", 3, 4, 7);
+    }
+
+    @Override
+    public List<String> listModelNames(IVariables variables, Duration timeout) {
+      return List.of("native-model");
+    }
   }
 
   @Test

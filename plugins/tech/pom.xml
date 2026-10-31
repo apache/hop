@@ -37,6 +37,7 @@
         <module>azure</module>
         <module>calcite</module>
         <module>cassandra</module>
+        <module>copilot</module>
         <module>databricks</module>
         <module>dropbox</module>
         <module>elastic</module>

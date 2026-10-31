@@ -27,6 +27,7 @@ import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -54,10 +55,28 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
 
   private static final Class<?> PKG = AiProvider.class;
 
+  /** Right after the Connection tab: a provider's own options are mostly about connecting. */
+  private static final String PROVIDER_OPTIONS_ORDER = "15";
+
   private Composite parent;
   private TextVar wName;
   private Combo wProviderType;
   private GuiCompositeWidgets widgets;
+
+  /** The widgets of the provider type's own options, or null when it has none. */
+  private GuiCompositeWidgets providerWidgets;
+
+  /** The scrolled composite that holds the tabs. */
+  private Control widgetsArea;
+
+  private final GuiCompositeWidgetsAdapter changeListener =
+      new GuiCompositeWidgetsAdapter() {
+        @Override
+        public void widgetModified(
+            GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+          setChanged();
+        }
+      };
   private final AtomicBoolean busyChangingType = new AtomicBoolean(false);
 
   public AiProviderEditor(HopGui hopGui, MetadataManager<AiProvider> manager, AiProvider metadata) {
@@ -93,8 +112,38 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     fdType.right = new FormAttachment(100, 0);
     wProviderType.setLayoutData(fdType);
 
-    // The fields are in tabs (Connection, Model, Models per role) that fill the rest of the editor;
-    // the grouped container scrolls them when the editor is small.
+    if (getMetadata().getProvider() == null && wProviderType.getItemCount() > 0) {
+      try {
+        getMetadata().setProviderType(wProviderType.getItem(0));
+      } catch (HopException e) {
+        // Leave the combo empty; Test will explain.
+      }
+    }
+    createWidgets();
+    setWidgetsContent();
+
+    wName.addListener(SWT.Modify, e -> setChanged());
+    wProviderType.addListener(SWT.Modify, e -> changeProviderType());
+  }
+
+  /**
+   * The fields are in tabs (Connection, Model, Models per role) that fill the rest of the editor;
+   * the grouped container scrolls them when the editor is small. A provider type with options of
+   * its own, like the path of a CLI, gets a tab of its own. The tabs are built again when the type
+   * changes, so that tab comes and goes with the type.
+   */
+  private void createWidgets() {
+    if (widgetsArea != null && !widgetsArea.isDisposed()) {
+      widgetsArea.dispose();
+    }
+    providerWidgets = null;
+    IAiProvider backend = getMetadata().getProvider();
+    boolean hasOptions =
+        backend != null
+            && GuiRegistry.getInstance()
+                    .findGuiElements(
+                        backend.getClass().getName(), IAiProvider.GUI_PLUGIN_ELEMENT_PARENT_ID)
+                != null;
     widgets =
         GuiCompositeWidgets.addScrolledComposite(
             parent,
@@ -102,20 +151,30 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
             wProviderType,
             null,
             AiProvider.GUI_WIDGETS_PARENT_ID,
-            getMetadata());
+            getMetadata(),
+            compositeWidgets -> {
+              if (hasOptions) {
+                compositeWidgets.registerExtraGroup(
+                    backend.getPluginName(),
+                    PROVIDER_OPTIONS_ORDER,
+                    null,
+                    composite -> createProviderWidgets(composite, backend));
+              }
+            });
+    // addScrolledComposite adds its scrolled composite as the last child of the parent.
+    Control[] children = parent.getChildren();
+    widgetsArea = children[children.length - 1];
+    widgets.setWidgetsListener(changeListener);
+    parent.layout(true, true);
+  }
 
-    setWidgetsContent();
-
-    wName.addListener(SWT.Modify, e -> setChanged());
-    wProviderType.addListener(SWT.Modify, e -> changeProviderType());
-    widgets.setWidgetsListener(
-        new GuiCompositeWidgetsAdapter() {
-          @Override
-          public void widgetModified(
-              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-            setChanged();
-          }
-        });
+  private void createProviderWidgets(Composite composite, IAiProvider backend) {
+    providerWidgets = new GuiCompositeWidgets(manager.getVariables());
+    providerWidgets.createCompositeWidgets(
+        backend, null, composite, IAiProvider.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
+    providerWidgets.setWidgetsContents(
+        backend, composite, IAiProvider.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    providerWidgets.setWidgetsListener(changeListener);
   }
 
   private void changeProviderType() {
@@ -130,6 +189,7 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
       if (selected != null && !selected.isEmpty()) {
         meta.setProviderType(selected);
       }
+      createWidgets();
       applyModelNameChoices(meta.getModelNameChoices(null, null));
       widgets.setWidgetsContents(meta, null, AiProvider.GUI_WIDGETS_PARENT_ID);
       updateVisibility();
@@ -151,8 +211,28 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
     }
     IAiProvider provider = getMetadata().getProvider();
     Set<String> hidden = new HashSet<>();
-    if (provider != null && !provider.requiresApiKey()) {
-      hidden.add(AiProvider.WIDGET_API_KEY);
+    if (provider != null) {
+      if (!provider.requiresApiKey()) {
+        hidden.add(AiProvider.WIDGET_API_KEY);
+      }
+      if (!provider.supportsBaseUrl()) {
+        hidden.add(AiProvider.WIDGET_BASE_URL);
+      }
+      if (!provider.supportsTemperature()) {
+        hidden.add(AiProvider.WIDGET_TEMPERATURE);
+      }
+      if (!provider.supportsContextSize()) {
+        hidden.add(AiProvider.WIDGET_CONTEXT_SIZE);
+      }
+      if (!provider.supportsMaxOutputTokens()) {
+        hidden.add(AiProvider.WIDGET_MAX_OUTPUT_TOKENS);
+      }
+      if (!provider.supportsThinking()) {
+        hidden.add(AiProvider.WIDGET_THINKING);
+      }
+      if (!provider.supportsStructuredAnswers()) {
+        hidden.add(AiProvider.WIDGET_STRUCTURED_ANSWERS);
+      }
     }
     widgets.setWidgetsHidden(getMetadata(), hidden);
     parent.layout(true, true);
@@ -173,6 +253,10 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
       wProviderType.setText(meta.getPluginName());
     }
     widgets.setWidgetsContents(meta, null, AiProvider.GUI_WIDGETS_PARENT_ID);
+    if (providerWidgets != null && meta.getProvider() != null) {
+      providerWidgets.setWidgetsContents(
+          meta.getProvider(), null, IAiProvider.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
     updateVisibility();
   }
 
@@ -180,6 +264,10 @@ public class AiProviderEditor extends MetadataEditor<AiProvider> {
   public void getWidgetsContent(AiProvider meta) {
     meta.setName(wName.getText());
     widgets.getWidgetsContents(meta, AiProvider.GUI_WIDGETS_PARENT_ID);
+    if (providerWidgets != null && meta.getProvider() != null) {
+      providerWidgets.getWidgetsContents(
+          meta.getProvider(), IAiProvider.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
     // A role with no model name is not a configured model. The hand-built grid skipped those rows.
     if (meta.getModels() != null) {
       meta.getModels().removeIf(model -> model == null || Utils.isEmpty(model.getModelName()));
