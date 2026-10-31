@@ -317,8 +317,8 @@ class ActionFtpExecutionTest {
   }
 
   @Test
-  @DisplayName("\"Fewer errors than\" tolerates a failure the default condition would not")
-  void successWhenFewerErrorsThan(@TempDir Path targetDir) throws Exception {
+  @DisplayName("\"At most N errors\" tolerates a failure the default condition would not")
+  void successWhenErrorsAtMost(@TempDir Path targetDir) throws Exception {
     server.writeFile("existing.txt", "the-server-copy");
     Files.writeString(targetDir.resolve("existing.txt"), "the-local-copy");
 
@@ -330,8 +330,87 @@ class ActionFtpExecutionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.isResult(), "one error is fewer than the five allowed");
+    assertTrue(result.isResult(), "one error is within the five allowed");
     assertEquals(1, result.getNrErrors());
+  }
+
+  @Test
+  @DisplayName("\"At most N errors\" is still true when the error count equals the limit")
+  void successWhenErrorsEqualTheLimit(@TempDir Path targetDir) throws Exception {
+    server.writeFile("existing.txt", "the-server-copy");
+    Files.writeString(targetDir.resolve("existing.txt"), "the-local-copy");
+
+    ActionFtp action = configure(targetDir);
+    action.setOnlyGettingNewFiles(true);
+    action.setIfFileExistsOperation(ActionFtp.IfFileExistsOperation.FAIL);
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimit("1");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult(), "exactly Limit files errors still counts as success");
+    assertEquals(1, result.getNrErrors());
+  }
+
+  @Test
+  @DisplayName("An unreachable server fails whatever the success condition")
+  void unreachableServerFailsEvenWithErrorsAtMost(@TempDir Path targetDir) throws Exception {
+    ActionFtp action = configure(targetDir);
+    action.setServerPort("1");
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimit("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult(), "a failure before any download must not follow the success hop");
+    assertTrue(result.getNrErrors() > 0);
+  }
+
+  @Test
+  @DisplayName("A refused login fails whatever the success condition")
+  void refusedLoginFailsEvenWithErrorsAtMost(@TempDir Path targetDir) throws Exception {
+    server.writeFile("stays.txt", "stays");
+
+    ActionFtp action = configure(targetDir);
+    action.setPassword("wrong-password");
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimit("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(result.getNrErrors() > 0);
+    assertFalse(Files.exists(targetDir.resolve("stays.txt")));
+  }
+
+  @Test
+  @DisplayName("An invalid wildcard fails whatever the success condition")
+  void invalidWildcardFailsEvenWithErrorsAtMost(@TempDir Path targetDir) throws Exception {
+    server.writeFile("wanted.txt", "payload");
+
+    ActionFtp action = configure(targetDir);
+    action.setWildcard("[invalid");
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimit("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertTrue(result.getNrErrors() > 0);
+    assertFalse(Files.exists(targetDir.resolve("wanted.txt")));
+  }
+
+  @Test
+  @DisplayName("A missing remote directory fails whatever the success condition")
+  void missingRemoteDirectoryFailsEvenWithErrorsAtMost(@TempDir Path targetDir) throws Exception {
+    ActionFtp action = configure(targetDir);
+    action.setRemoteDirectory("/not-there");
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimit("10");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
   }
 
   @Test

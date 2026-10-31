@@ -301,9 +301,14 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         return result;
       }
 
+      // Connection, listing and wildcard are ready: from here on, success conditions apply.
+      deletion.transferAttempted = true;
       deleteFiles(filenames, selector, ftpClient, sftpClient, deletion);
     } catch (Exception e) {
-      deletion.updateErrors();
+      // deleteFiles already counted the file error that broke the condition; do not count again.
+      if (!deletion.successConditionBroken) {
+        deletion.updateErrors();
+      }
       logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorGetting", e.getMessage()), e);
     } finally {
       FtpHelper.disconnect(getLogChannel(), ftpClient);
@@ -316,7 +321,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
       }
     }
 
-    result.setResult(deletion.isSuccess());
+    // Success conditions apply only once listing/matching is ready; setup failures stay false.
+    result.setResult(deletion.transferAttempted && deletion.isSuccess());
     result.setNrFilesRetrieved(deletion.nrFilesDeleted);
     result.setNrErrors(deletion.nrErrors);
     return result;
@@ -548,6 +554,10 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     private long nrErrors = 0;
     private long nrFilesDeleted = 0;
     private boolean successConditionBroken = false;
+
+    /** True once listing and wildcard matching are ready; false for setup failures. */
+    private boolean transferAttempted = false;
+
     private final int limitFiles = Const.toInt(resolve(getNrLimitSuccess()), 10);
 
     void updateErrors() {
@@ -561,6 +571,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     }
 
     boolean isSuccess() {
+      // SUCCESS_IF_ERRORS_LESS means "at most Limit files errors" (nrErrors <= limit).
       return (nrErrors == 0 && SUCCESS_IF_ALL_FILES_DOWNLOADED.equals(getSuccessCondition()))
           || (nrFilesDeleted >= limitFiles
               && SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED.equals(getSuccessCondition()))

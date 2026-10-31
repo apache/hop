@@ -92,7 +92,7 @@ For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, e
 
 * All works fine (default)
 * At least we got x files
-* Nr errors less than
+* Nr errors at most
 
 |Limit files|Sets number of files associated with a condition of success.
 |===
@@ -119,8 +119,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 
 * All works fine (default): no file failed. No file matching the wildcard is also true.
 * At least we got x files: at least *Limit files* files were downloaded, whatever the number of errors.
-* Nr errors less than: the number of errors is at most *Limit files*. The download stops as soon as the number of errors reaches *Limit files*, and the action is still true then. Some failures before the download also count as 1 error: see False.
-|False|The success condition is not met. Without *Nr errors less than*, the download stops at the first file that fails. The action is also false, before any download, when the server can't be reached or refuses the login, the remote directory doesn't exist, the wildcard is not a valid regular expression, or *Move files after retrieval* is checked while the move-to folder is empty, or doesn't exist and *Create folder* is unchecked. With *Nr errors less than*, an unreachable server, a refused login and an invalid wildcard count as 1 error, so the action is true when *Limit files* is 1 or more. A missing remote directory and the move-to folder checks give false whatever the condition.
+* Nr errors at most: after the action is ready to download files, the number of errors is at most *Limit files*. The download stops as soon as the number of errors reaches *Limit files*, and the action is still true then.
+|False|The success condition is not met. Without *Nr errors at most*, the download stops at the first file that fails. The action is also false, whatever the success condition, when it fails before any download: the server can't be reached or refuses the login, the remote directory doesn't exist, the wildcard is not a valid regular expression, or *Move files after retrieval* is checked while the move-to folder is empty, or doesn't exist and *Create folder* is unchecked.
 |Errors|The number of files that failed, or 1 when the action fails before the download.
 |Result files|The downloaded files are added when *Add filename to result* is checked (the default). The previous result files are kept.
 |Result rows|Passed on unchanged.
