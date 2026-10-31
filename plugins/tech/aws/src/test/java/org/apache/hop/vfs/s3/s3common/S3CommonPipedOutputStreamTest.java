@@ -17,6 +17,7 @@
 package org.apache.hop.vfs.s3.s3common;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.logging.HopLogStore;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
@@ -38,6 +41,12 @@ import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
  * not be stopped. The fix waits on the upload {@code Future} interruptibly and surfaces failures.
  */
 class S3CommonPipedOutputStreamTest {
+
+  @BeforeAll
+  static void initLogStore() {
+    // As in a normal Hop run: logging the upload failure must not throw
+    HopLogStore.init();
+  }
 
   @Test
   void closeIsInterruptibleWhenUploadStalls() throws Exception {
@@ -111,9 +120,50 @@ class S3CommonPipedOutputStreamTest {
       // The upload may already have failed and closed the pipe: close() must still report it
     }
 
-    assertThrows(
-        IOException.class,
-        out::close,
-        "a failed S3 upload must be reported from close(), not silently swallowed");
+    // The upload can fail before or after the bytes are written: write() or close() reports it
+    IOException failure =
+        assertThrows(
+            IOException.class,
+            () -> {
+              out.write(new byte[] {1, 2, 3});
+              out.close();
+            },
+            "a failed S3 upload must be reported, not silently swallowed");
+    assertTrue(failure.getMessage().contains("test-bucket/test-key"), failure.getMessage());
+    assertNotNull(failure.getCause(), "the S3 error must be the cause");
+    assertTrue(
+        failure.getCause().getMessage().contains("simulated S3 failure"),
+        failure.getCause().getMessage());
+  }
+
+  @Test
+  void writeAfterAFailedUploadReportsTheUploadFailure() throws Exception {
+    S3Client s3 = mock(S3Client.class);
+    when(s3.createMultipartUpload(any(CreateMultipartUploadRequest.class)))
+        .thenThrow(new RuntimeException("simulated S3 failure"));
+
+    S3CommonFileSystem fileSystem = mock(S3CommonFileSystem.class);
+    when(fileSystem.getS3Client()).thenReturn(s3);
+
+    S3CommonPipedOutputStream out =
+        new S3CommonPipedOutputStream(fileSystem, "test-bucket", "test-key");
+
+    // Keep writing until the failed upload has closed the pipe
+    IOException failure = null;
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+    while (failure == null && System.nanoTime() < deadline) {
+      try {
+        out.write(1);
+        Thread.sleep(10);
+      } catch (IOException e) {
+        failure = e;
+      }
+    }
+    assertNotNull(failure, "writing after a failed upload must fail");
+    assertTrue(failure.getMessage().contains("test-bucket/test-key"), failure.getMessage());
+    assertNotNull(failure.getCause(), "the S3 error must be the cause");
+    assertTrue(
+        failure.getCause().getMessage().contains("simulated S3 failure"),
+        failure.getCause().getMessage());
   }
 }
