@@ -778,7 +778,8 @@ public class GitPerspective implements IHopPerspective {
         return;
       }
 
-      uiGit.fetch();
+      // Runs on the timer thread: never open a credentials dialog from here
+      uiGit.fetch(false);
 
       if (hopGui != null && !hopGui.getDisplay().isDisposed()) {
         hopGui.getDisplay().asyncExec(() -> refresh(false));

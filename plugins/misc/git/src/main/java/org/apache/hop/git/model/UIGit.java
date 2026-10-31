@@ -827,12 +827,44 @@ public class UIGit extends VCS {
   }
 
   public boolean fetch() throws HopException {
+    return fetch(true);
+  }
+
+  /**
+   * Fetch from the remote.
+   *
+   * @param promptForCredentials whether an authentication failure may open a credentials dialog.
+   *     Pass false when not running on the UI thread, for example from the automatic fetch timer.
+   */
+  public boolean fetch(boolean promptForCredentials) throws HopException {
     if (!hasRemote()) {
       throw new HopException("There is no remote set up to fetch from. Please set this up first.");
     }
 
     try {
       git.fetch().setCredentialsProvider(credentialsProvider).setCheckFetchedObjects(true).call();
+    } catch (TransportException e) {
+      if (e.getMessage()
+              .contains(
+                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
+          || e.getMessage()
+              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
+        if (!promptForCredentials) {
+          throw new HopException("There was an error doing a git fetch", e);
+        }
+        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
+          new ErrorDialog(
+              HopGui.getInstance().getShell(),
+              "Git Error",
+              "Error Authenticating to Git service",
+              e);
+        }
+        if (promptUsernamePassword()) {
+          return fetch(true);
+        }
+      } else {
+        throw new HopException("There was an error doing a git fetch", e);
+      }
     } catch (Exception e) {
       throw new HopException("There was an error doing a git fetch", e);
     }
