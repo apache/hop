@@ -109,6 +109,58 @@ The collected rows are shown in the preview window when execution pauses or fini
 
 image::hop-gui/pipeline/preview-pipeline.png[Preview pipeline,75%,align="left"]
 
+== Debug a pipeline
+
+**Debug** starts a local session and parks every transform before the first row.
+A **Debug mode** badge stays in the top left of the canvas.
+Each hop shows `cursor at stored`: how far the next transform has read, and how many rows are kept on that hop.
+A green border means that transform is running.
+A blue border means it is parked.
+Several transforms can run at the same time.
+Click **Debug** again, or **Exit debug**, to leave the session and return to the editor.
+
+image::hop-gui/pipeline/debug-session-started.jpg[A started debugging session,75%,align="left"]
+
+The **Debugger** tab in the execution results has the transforms, the hops, and the rows on the selected hop.
+
+* **Process 1** runs the selected transform copies for one row. **Process N** uses the number in the **N** field.
+* **Run selected** lets those copies run until they finish. **Run to here** runs upstream until a row reaches the selection.
+* **Continue** and **Pause** run or park the whole pipeline.
+* **Follow output**, when it is on, selects the first output hop of the transform you click.
+* The hop toolbar rewinds a hop to the first stored row, or clears the rows on the selected hops.
+* **Rows** shows one page of the stored rows. The **#** column is the row's place in the hop, starting at 1. The arrows move a page, and **Rows** sets how many rows a page holds. **#** with the target button jumps to that row. **Find** and **Find next** search the stored rows without loading the whole hop.
+
+=== Run part of the pipeline
+
+**Run selected** or **Continue** leaves the chosen transforms running and the others parked.
+The hop labels keep up with the rows that have been written and read.
+
+image::hop-gui/pipeline/debug-partial-run.jpg[A partially running pipeline in debug mode,75%,align="left"]
+
+=== Step one row
+
+With a transform selected, **Process 1** lets that copy handle a single row and then parks it again.
+The rows on its output hop show what that step produced.
+
+image::hop-gui/pipeline/debug-single-step.jpg[Single stepping a transform,75%,align="left"]
+
+=== Pause when a row matches
+
+The filter button on the hop toolbar opens **Pause when a row enters this hop**.
+The condition uses the fields on that hop, which are the output of the transform that writes it.
+**Pause** chooses what stops when a matching row arrives:
+
+* **This transform** parks the transform that wrote the row.
+* **The whole pipeline** parks every transform.
+* **Downstream transforms** parks the transform that reads the hop, and everything after it.
+
+The matching row is already stored on the hop.
+The next row is what waits.
+A hop with a condition shows `pause` on its label.
+The clear button on the hop toolbar removes the condition.
+
+image::hop-gui/pipeline/debug-pause-condition.jpg[Conditional pause dialog,60%,align="left"]
+
 [[table-views]]
 == Table views
 

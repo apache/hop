@@ -26,6 +26,8 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.debug.DebugController;
 
 public class RunThread implements Runnable {
 
@@ -37,6 +39,13 @@ public class RunThread implements Runnable {
   public RunThread(TransformMetaDataCombi combi) {
     this.transform = combi.transform;
     this.log = transform.getLogChannel();
+  }
+
+  private DebugController debugController() {
+    if (transform.getPipeline() instanceof Pipeline pipeline) {
+      return pipeline.getDebugController();
+    }
+    return null;
   }
 
   // Safe: the stack trace goes to the local stderr only, never to a remote client
@@ -52,9 +61,22 @@ public class RunThread implements Runnable {
         log.logDetailed(BaseMessages.getString("System.Log.StartingToRun"));
       }
 
-      // Wait
-      while (transform.processRow()) {
-        if (transform.isStopped()) {
+      // A debug session parks the thread here until the controller grants a row.
+      // A normal run leaves the controller null and keeps the tight processRow loop.
+      DebugController debug = debugController();
+      while (true) {
+        if (debug != null && !debug.beforeProcessRow(transform)) {
+          break;
+        }
+        boolean keepGoing;
+        try {
+          keepGoing = transform.processRow();
+        } finally {
+          if (debug != null) {
+            debug.afterProcessRow(transform);
+          }
+        }
+        if (!keepGoing || transform.isStopped()) {
           break;
         }
       }

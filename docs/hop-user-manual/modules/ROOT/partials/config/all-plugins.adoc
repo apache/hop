@@ -151,6 +151,20 @@ These options are stored under `pass:c[database-perspective]` in `hop-config.jso
 
 |===
 
+== Debug
+
+These options are stored under `pass:c[debug-sessions]` in `hop-config.json`.
+
+[%header, cols="2,5,1"]
+|===
+|Option|Description|Default
+
+|pass:c[Debug sessions folder]
+|pass:c[Where saved pipeline debug sessions are written. Leave this empty to use .local/share/hop/debug-sessions under your home directory. Each session folder contains row data. Accepts variables.]
+|
+
+|===
+
 == Dropbox
 
 These options are stored under `pass:c[dropbox]` in `hop-config.json`.
