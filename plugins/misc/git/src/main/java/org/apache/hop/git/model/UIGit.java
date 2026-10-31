@@ -1187,6 +1187,14 @@ public class UIGit extends VCS {
     }
   }
 
+  /**
+   * Open a file as it is in a commit, or in the working tree.
+   *
+   * @param file the path of the file
+   * @param commitId the commit to read the file from, or WORKINGTREE
+   * @return the content of the file, or null when the commit doesn't have the file
+   * @throws HopException when the file can't be read
+   */
   public InputStream open(String file, String commitId) throws HopException {
     String normalizedFile = normalizePathForJGit(file);
     if (commitId.equals(WORKINGTREE)) {
@@ -1204,7 +1212,9 @@ public class UIGit extends VCS {
       tw.addTree(tree);
       tw.setFilter(PathFilter.create(normalizedFile));
       tw.setRecursive(true);
-      tw.next();
+      if (!tw.next()) {
+        return null;
+      }
       ObjectLoader loader = git.getRepository().open(tw.getObjectId(0));
       return loader.openStream();
     } catch (MissingObjectException e) {

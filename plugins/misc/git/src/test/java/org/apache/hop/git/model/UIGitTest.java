@@ -572,6 +572,16 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testOpenFileAddedByLaterCommit() throws Exception {
+    RevCommit commit = initialCommit();
+    writeTrashFile("Added.txt", "Added");
+    git.add().addFilepattern("Added.txt").call();
+    git.commit().setMessage("add a file").call();
+
+    assertNull(uiGit.open("Added.txt", commit.getName()));
+  }
+
+  @Test
   public void testCheckout() throws Exception {
     initialCommit();
 
