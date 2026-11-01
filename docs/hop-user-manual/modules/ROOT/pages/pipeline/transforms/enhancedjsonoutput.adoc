@@ -152,4 +152,6 @@ You can use this option (and a chain of transforms, see the example pipeline in 
 
 == Notes
 
-Look at the sample provided _json-output-generate-nested-structure.hpl_ for a better understanding about how the transform works
+The sample `json-output-generate-nested-structure.hpl` builds a nested document with two Enhanced JSON Output transforms. The rows are sorted by `field1`. The first transform groups `field2` and `field3` (JSON names `campo2` and `campo3`) and passes that JSON fragment on. The second transform has no group key. It writes `field1` as `campo1` and embeds the fragment as `details`, under the block name `results`.
+
+A transform that lists fields and has no group key writes one JSON array of those field objects. Grouped items require a group key, and the input has to be sorted by every group key. The Group Key section above shows that file shape.
