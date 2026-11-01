@@ -28,7 +28,7 @@ under the License.
 The `Graph script` action (previously Neo4j Cypher script) executes statements on a graph database in a workflow: Cypher statements, or Gremlin traversals on Gremlin servers.
 
 As with all actions, the goal is not to retrieve data but to execute various statements like creating or dropping indexes, calling APOC procedures, add or delete some static data and so on. +
-The result of this action is a `true` or `false` exit code that determines if a success or failure hop to the next action in the workflow is chosen.
+The result of this action is a `true` or `false` exit code that determines if a success or failure hop to the next action in the workflow is chosen, except when the connection can't be used: see <<Result>>.
 
 == Important
 
@@ -48,24 +48,38 @@ On Memgraph every statement runs on its own in an auto-commit transaction.
 |===
 |Option |Description
 
-|Connection name
+|Graph database connection
 |The name of the connection on which you want to execute the cypher statements.
 
-|Script
+|Cypher Script
 |The script with cypher commands separated by a semi-colon (;) on a new line.
 For examples see below.
 
-|Replace variables
+|Replace variables in script?
 |Check this option if you want to replace variables in the format `+${VARIABLE_NAME}+` in the script prior to execution.
 |===
 
 == Example
 
-[source,CREATE INDEX idx_person_name on :Person(name)]
+[source,cypher]
 ----
-CREATE INDEX idx_company_id on :Company(id)
+CREATE INDEX idx_person_name IF NOT EXISTS FOR (n:Person) ON (n.name)
 ;
-CREATE INDEX idx_company_id on :Company(id)
+CREATE INDEX idx_company_id IF NOT EXISTS FOR (n:Company) ON (n.id)
 ;
 ----
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|All the statements ran, with 0 errors. An empty script is also true. A query that returns rows is true too: the rows are not passed on.
+|False|The number of errors is 1. A statement fails, for example invalid Cypher, a semicolon at the end of a line instead of on a new line (Neo4j then gets two statements as one), or on Neo4j index or constraint changes and data changes in the same script, in either order (`Tried to execute Write query after executing Schema modification`, or the other way around). See <<Transactions>> for the statements that are kept.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+WARNING: A *Graph database connection* that is empty, doesn't exist, can't be reached or refuses the login doesn't make the action false: the workflow stops with an error, and no hop from the action is followed.

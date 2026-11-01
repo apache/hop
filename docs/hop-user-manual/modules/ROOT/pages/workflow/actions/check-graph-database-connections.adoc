@@ -34,3 +34,15 @@ Enter the names of the connections you want to check in the dialog.
 
 NOTE: This action does not (yet) retrieve the list of connections. You really need to enter them manually.
 
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every connection of the list was found and answered, with 0 errors. An empty list is also true.
+|False|The number of errors is the number of connections that failed: a name that is empty or doesn't exist, a server that can't be reached, or a login that is refused. All the connections are checked, also after one that fails.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
