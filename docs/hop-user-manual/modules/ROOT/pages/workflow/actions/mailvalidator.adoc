@@ -35,14 +35,31 @@ When the check passes the success hop will be followed, otherwise it will go to 
 |Action name|The name of the workflow action.
 |Email address|The email address, or list (separated by spaces) that have to be checked.
 2+|Settings
-|SMTP check? a|By default, Apache Hop will only check email address structure (using regular expression).
+|SMTP check a|By default, Apache Hop will only check email address structure (using regular expression).
 
 If you want to perform a SMTP check, please select this option and fill Email sender (see after).
 
-Hop will extract domain name from the supplied email address (to check) and will try to get all exchangers from the domain name. Each exchanger will be queried.
+Hop will extract domain name from the supplied email address (to check) and will try to get all exchangers from the domain name. Each exchanger will be queried on port 25.
 |Time out|In order to perform a SMTP check, Hop will open a socket on the target SMTP host.
-Specify here the socket time out (by default 0).
-|Email sender|If you select "SMTP check?" option, this field is mandatory.
+Specify here the socket time out in milliseconds (0, the default: no time out).
+|Email sender|If you select the "SMTP check" option, this field is mandatory.
 Hop will need sender email address to query SMTP host.
 |Default SMTP server|If you know which SMTP server to query, please specify it here, Hop will then query only this one.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every address in *Email address* is valid, with 0 errors. With *SMTP check*, a mail server also accepted *Email sender* and each address.
+|False|The number of errors is 1. *Email address* is empty, an address is not a valid email address, *SMTP check* is selected while *Email sender* is empty, or with *SMTP check* the mail server refuses *Email sender* or an address, the domain doesn't exist or has no MX record, or the server can't be reached. The addresses are checked one after the other, and the first one that is not valid ends the check.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: The addresses must be separated by exactly one space: two spaces, or a comma, make the check fail.
+
+NOTE: *SMTP check* connects to port 25 of the mail servers of the domain (its MX records), or of *Default SMTP server* when it is set, and asks whether it accepts *Email sender* and the address. Without *Default SMTP server*, an address of a domain that has no MX record always fails, even when the domain has an A record: the check fails with "Error getting machines : Index 1 out of bounds for length 1".

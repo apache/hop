@@ -32,13 +32,13 @@ The `Get mails (POP3/IMAP)` action retrieves mails from a POP3 or IMAP server an
 |===
 |Option|Description
 2+|**Mail Server Connection**
-|Mail Connection|If a mail server connection is selected here, the rest of this tab is ignored. The server configuration will be taken from the xref:metadata-types/mail-server-connection.adoc[Mail Server Connection] metadata item.
+|Mail Server Connection|If a mail server connection is selected here, the rest of this tab is ignored. The server configuration will be taken from the xref:metadata-types/mail-server-connection.adoc[Mail Server Connection] metadata item.
 2+|Server Settings
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Source Host|The host name or IP-address of the pop server.
 |Use SSL |If checked A secure connection will be used to communicate with the server.
 |Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
-|Port|The port to run the SSL POP3 or IMAP connection over.
+|Port|The port of the POP3 or IMAP server, with or without SSL.
 |Username|The username to log in with.
 |Password|The password to log in with.
 |Use proxy|check to enable proxy authentication
@@ -80,7 +80,6 @@ a|Select the e-mails to retrieve:
 |Retrieve the .. first emails|Allows you to specify the number of emails to retrieve if "first ... emails" is selected.
 |Delete emails after retrieval|check to delete the mails on the pop server after retrieval.
 2+|IMAP settings
-|Option|Description
 |IMAP folder|the folder on the IMAP server to retrieve messages from
 |Include subfolders|check to select messages for subfolders from the selected IMAP folder
 |Retrieve a|choose one of
@@ -118,10 +117,8 @@ The selected value is stored with the workflow (XML tag `valueimaplist`, for exa
 |Recipient (TO)|messages will be filtered on recipient
 |Subject|messages will be filtered on subject
 2+|Content
-|Option|Description
 |Body|messages will be filtered on the specified text in the email body
 2+|Received date
-|Option|Description
 |Condition a|Choose a date or date range. The available options are
 
 * None (default, don't filter on received date)
@@ -129,6 +126,7 @@ The selected value is stored with the workflow (XML tag `valueimaplist`, for exa
 * Smaller than `Date 1`
 * Greater than `Date 1`
 * Between `Date 1` and `Date 2`
+|Date 1, Date 2|The dates for the condition, in the format `yyyy-MM-dd HH:mm:ss`.
 |===
 
 == Notes
@@ -136,3 +134,26 @@ The selected value is stored with the workflow (XML tag `valueimaplist`, for exa
 * IMAP **Retrieve** (unread, new, flagged, and the other list options) is stored with the workflow. Saving and reopening keeps the selected option.
 * Workflows saved in Hop 2.13 still load: date conditions such as `ignore` and IMAP list codes such as `imaplistunread` are accepted, not only integer indexes.
 
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The action connected and processed the selected messages, with 0 errors. No message to process, for example an empty mailbox, is also true.
+|False|The number of errors is 1. *Target directory* is empty, or doesn't exist and *Create folder* is unchecked, *Different folder for attachment* is checked and *Attachment files folder* is empty, or doesn't exist and *Create folder* is unchecked, the server can't be reached or refuses the login, the *Mail Server Connection* doesn't exist, the *IMAP folder* doesn't exist, *Move to folder* is empty or doesn't exist and *Create folder* is unchecked, or a *Received date* condition is selected without *Date 1*.
+|Result files|Passed on unchanged: the saved messages and attachments are not added.
+|Result rows|Passed on unchanged.
+|Lines written|The number of messages saved with *Save message content*.
+|Files retrieved|The number of attachments saved.
+|Lines deleted|The number of messages deleted, by the *Delete messages* action, *Delete emails after retrieval* or *Delete message* after retrieval. A message moved on its own also counts here: with *Move message to folder* after retrieval, or with the *Move messages to folder* action and *Retrieve the first...emails*.
+|Lines updated|The number of messages moved to another IMAP folder.
+|===
+
+When the action is false, these metrics keep the values of the previous action.
+
+NOTE: The `#IdFile#` number in *Target filename pattern* starts again in each folder: with *Include subfolders*, a message of a subfolder can overwrite the file of a message of the first folder.
+
+NOTE: *Retrieve the first...emails* also applies to the *Delete messages* and *Move messages to folder* actions: only that number of messages is deleted or moved.
