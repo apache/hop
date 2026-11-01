@@ -102,11 +102,8 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -882,17 +879,11 @@ public class ProjectsGuiPlugin {
       image = "project.svg",
       toolTip = "i18n::HopGui.Toolbar.Project.Tooltip")
   public void showProjectContextMenu() {
-    Control control =
-        HopGui.getInstance().getStatusToolbarWidgets().getControlForMenu(ID_TOOLBAR_ITEM_PROJECT);
-    if (control != null && !control.isDisposed()) {
-      Rectangle rect = control.getBounds();
-      int menuGap = 6;
-      Point location =
-          control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + menuGap));
-      Menu menu = createProjectContextMenu();
-      menu.setLocation(location);
-      menu.setVisible(true);
+    GuiToolbarWidgets widgets = HopGui.getInstance().getStatusToolbarWidgets();
+    if (widgets == null) {
+      return;
     }
+    widgets.showMenuAbove(ID_TOOLBAR_ITEM_PROJECT, createProjectContextMenu());
   }
 
   private Menu createProjectContextMenu() {
@@ -1069,19 +1060,11 @@ public class ProjectsGuiPlugin {
       image = "environment.svg",
       toolTip = "i18n::HopGui.Toolbar.Environment.Tooltip")
   public void showEnvironmentContextMenu() {
-    Control control =
-        HopGui.getInstance()
-            .getStatusToolbarWidgets()
-            .getControlForMenu(ID_TOOLBAR_ITEM_ENVIRONMENT);
-    if (control != null && !control.isDisposed()) {
-      Rectangle rect = control.getBounds();
-      int menuGap = 6;
-      Point location =
-          control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + menuGap));
-      Menu menu = createEnvironmentContextMenu();
-      menu.setLocation(location);
-      menu.setVisible(true);
+    GuiToolbarWidgets widgets = HopGui.getInstance().getStatusToolbarWidgets();
+    if (widgets == null) {
+      return;
     }
+    widgets.showMenuAbove(ID_TOOLBAR_ITEM_ENVIRONMENT, createEnvironmentContextMenu());
   }
 
   public void selectProject() {

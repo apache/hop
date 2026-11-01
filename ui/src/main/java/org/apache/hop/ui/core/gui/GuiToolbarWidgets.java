@@ -53,6 +53,8 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -64,6 +66,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -911,16 +915,87 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
   }
 
   /**
-   * Return the Control to use for positioning a popup menu for the given toolbar item. A ToolItem
-   * is not a Control, and getControl() is only set for SEPARATOR items (the wrapped label/widget).
-   * For BUTTON items we store the composite (image+text) in widgetsMap; use that for menu
-   * positioning.
+   * Return the control stored for a toolbar item. A {@link ToolItem} is not a control. Desktop
+   * buttons store the parent {@link ToolBar}, so its bounds start at the left edge of the bar and
+   * cannot place a popup on that button. Use {@link #showMenuAbove(String, Menu)} or {@link
+   * #findToolItem(String)} for that.
    *
    * @param id toolbar item id (e.g. {@code ID_TOOLBAR_ITEM_PROJECT})
-   * @return the Control to use for getBounds() / toDisplay(), or null if not found
+   * @return the stored control, or null if not found
    */
   public Control getControlForMenu(String id) {
     return widgetsMap.get(id);
+  }
+
+  /**
+   * Open {@code menu} upward from toolbar item {@code id}. The menu's bottom-left corner sits on
+   * the item's top-left, which is where a click on the status bar should open.
+   *
+   * <p>Falls back to the pointer when the item is not on screen yet. The pointer is still kept on
+   * the monitor under it, so a second monitor with its own scale does not steal the placement.
+   */
+  public void showMenuAbove(String id, Menu menu) {
+    if (menu == null || menu.isDisposed()) {
+      return;
+    }
+    Rectangle anchor = anchorForMenu(id);
+    Monitor monitor = monitorFor(id, menu);
+    if (anchor == null) {
+      Point cursor = menu.getDisplay().getCursorLocation();
+      anchor = new Rectangle(cursor.x, cursor.y, 1, 1);
+      monitor = monitorContaining(menu.getDisplay(), cursor.x, cursor.y, monitor);
+    }
+    PopupMenuPlacement.showAbove(menu, anchor, monitor);
+  }
+
+  private Rectangle anchorForMenu(String id) {
+    ToolItem item = findToolItem(id);
+    if (item != null && !item.isDisposed()) {
+      ToolBar bar = item.getParent();
+      if (bar != null && !bar.isDisposed()) {
+        Rectangle bounds = item.getBounds();
+        if (bounds.width > 0 && bounds.height > 0) {
+          Point origin = bar.toDisplay(bounds.x, bounds.y);
+          return new Rectangle(origin.x, origin.y, bounds.width, bounds.height);
+        }
+      }
+    }
+    Control control = findControl(id);
+    if (control != null && !control.isDisposed() && !(control instanceof ToolBar)) {
+      Point size = control.getSize();
+      if (size.x > 0 && size.y > 0) {
+        Point origin = control.toDisplay(0, 0);
+        return new Rectangle(origin.x, origin.y, size.x, size.y);
+      }
+    }
+    return null;
+  }
+
+  private Monitor monitorFor(String id, Menu menu) {
+    ToolItem item = findToolItem(id);
+    if (item != null && !item.isDisposed()) {
+      ToolBar bar = item.getParent();
+      if (bar != null && !bar.isDisposed()) {
+        return bar.getMonitor();
+      }
+    }
+    Control control = findControl(id);
+    if (control != null && !control.isDisposed() && !(control instanceof ToolBar)) {
+      return control.getMonitor();
+    }
+    return menu.getShell() == null ? null : menu.getShell().getMonitor();
+  }
+
+  private static Monitor monitorContaining(Display display, int x, int y, Monitor fallback) {
+    if (display == null || display.isDisposed()) {
+      return fallback;
+    }
+    for (Monitor candidate : display.getMonitors()) {
+      if (candidate.getClientArea().contains(x, y)) {
+        return candidate;
+      }
+    }
+    return fallback;
   }
 
   /**
